@@ -44,8 +44,9 @@ import org.jspecify.annotations.Nullable;
  *                matches the {@code cell} address reported by compilation messages, so clients can correlate a
  *                message with the exact cell in the matrix.
  * @param value   Cell value as a scalar or one-dimensional scalar array. Null if covered by another cell's span.
- * @param formula Formula the cell was written with, as Excel writes it; null when the cell holds a plain value.
- *                A cell carries both, so a screen can show either without asking again.
+ * @param formula Excel formula of the cell, as Excel writes it; null when the cell holds a plain value. A read
+ *                carries both, so a screen can show either without asking again. A write stores the formula and
+ *                ignores the value.
  * @param colspan Number of columns this cell spans (>= 2 means merging, null if single column or covered)
  * @param rowspan Number of rows this cell spans (>= 2 means merging, null if single row or covered)
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
@@ -71,16 +72,17 @@ public record RawTableCell(
 
         @Parameter(description = """
                 Value of the cell: a string, a number, a boolean or a one-dimensional array of these values. \
-                Null if covered by another cell's span.""")
+                Null if covered by another cell's span. A text starting with '=' is an OpenL formula.""")
         @Schema(oneOf = {NullableCellValueSchema.class, Number.class, Boolean.class, CellValueArraySchema.class})
         @CellValueConstraint
         @Nullable Object value,
 
         @Schema(description = """
-                Formula the cell was written with, as Excel writes it (for example '=B2*C2'); absent when the \
-                cell holds a plain value. The cell carries it beside the value the formula computed, so a \
-                screen showing formulas needs no second read.""")
-        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+                Excel formula of the cell, as Excel writes it (for example '=B2*C2'); absent when the cell holds \
+                a plain value. A read carries it beside the value the formula computed, so a screen showing \
+                formulas needs no second read. A table written whole stores it as an Excel formula and ignores the \
+                value beside it, so a table written back as it was read keeps its formulas. A \
+                cell written without it holds its value: a text starting with '=' is an OpenL formula.""")
         @Nullable String formula,
 
         @Schema(description = """
@@ -147,8 +149,8 @@ public record RawTableCell(
             type = null;
             mergedArea = null;
         } else {
-            colspan = (colspan != null && colspan > 1) ? colspan : null;
-            rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;
+            colspan = colspan != null && colspan > 1 ? colspan : null;
+            rowspan = rowspan != null && rowspan > 1 ? rowspan : null;
             covered = null;
         }
     }

@@ -591,7 +591,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * that writes and closes in one gesture — the calendar, where picking a date is both — knows the value
      * before the screen does.
      */
-    const closeCell = (keep: boolean, value = '', marks?: RawTextMark[]) => {
+    const closeCell = (keep: boolean, value = '', marks?: RawTextMark[], asExcel = false) => {
         const at = open
         // Two things can close one cell in the same breath — the field losing the focus, and the click that
         // took the focus off it — and what the cell holds is written once, not twice.
@@ -607,9 +607,22 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         // Compared against what the cell was opened on, which for a cell written with a formula is the
         // formula rather than the value it computed. Comparing against the value would read every formula
         // cell the reader merely looked into as rewritten, and write the formula over itself on the next save.
+        // A cell the reader switched between a value and an Excel formula is rewritten, even with the same text.
         const cell = written[at.row]?.[at.column]
-        if (value !== heldBy(cell) || (marks !== undefined && !sameMarks(marks, marksOf(cell?.runs)))) {
-            step({ kind: 'value', at: { row: at.row, column: at.column }, value, ...(marks !== undefined && { marks }) })
+        // Only a text starting with = is an Excel formula, as Excel reads typing: a number typed over a formula, or
+        // an emptied cell, is written as a value.
+        // The spaces around an Excel formula are not part of it.
+        const text = asExcel ? value.trim() : value
+        const excel = asExcel && text.startsWith('=')
+        const switched = excel !== (cell?.formula !== undefined)
+        if (switched || text !== heldBy(cell) || (marks !== undefined && !sameMarks(marks, marksOf(cell?.runs)))) {
+            step({
+                kind: 'value',
+                at: { row: at.row, column: at.column },
+                value: text,
+                ...(marks !== undefined && { marks }),
+                ...(excel && { excel }),
+            })
         }
     }
 
@@ -688,9 +701,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const ownKind = (at: CellAt, asked: TableCellEditor | undefined): EditorKind | null => {
         // The cell as it now stands, which carries what it was read with wherever the reader has moved it.
         const cell = written[at.row]?.[at.column]
-        // A cell written with a formula asks to be written as one, whatever its type would say.
+        // A cell written with an Excel formula asks to be written as one, whatever its type would say.
         if (cell?.formula !== undefined) {
-            return 'formula'
+            return 'excelFormula'
         }
         const editor = asked?.editor
         if (editor !== undefined && DRAWN.has(editor)) {
@@ -726,7 +739,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         markable={markableAt(at)}
                         marks={open.marks}
                         onCancel={() => closeCell(false)}
-                        onCommit={(value, marks) => closeCell(true, value, marks)}
+                        onCommit={(value, marks, excel) => closeCell(true, value, marks, excel)}
                         onMarker={markers.set}
                         onPaper={paper}
                         onSwitching={opened => { switching.current = opened }}

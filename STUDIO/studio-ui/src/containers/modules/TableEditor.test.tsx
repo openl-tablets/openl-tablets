@@ -1061,6 +1061,107 @@ describe('TableEditor', () => {
         ], 'Claims', undefined))
     })
 
+    it('writes a cell as an Excel formula when the reader asks for the Excel formula editor', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_kind_excelFormula'))
+
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        await userEvent.type(input, '=B5*2{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, formula: '=B5*2' } },
+        ], 'Claims', undefined))
+    })
+
+    it('writes an Excel formula without the spaces typed around it', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_kind_excelFormula'))
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        await userEvent.type(input, '  =B5*2 {Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, formula: '=B5*2' } },
+        ], 'Claims', undefined))
+    })
+
+    it('opens a cell written with an Excel formula in the Excel formula editor, and writes the formula changed', async () => {
+        const withFormula: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 12, formula: '=6*2' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        draw({ rows: withFormula })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('12'))
+        // The editor the cell is open in stays among the others, and cannot be picked again.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+        const formula = await screen.findByText('browser.module.editor_kind_formula')
+        expect(formula.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled', 'true')
+        const excel = screen.getByText('browser.module.editor_kind_excelFormula')
+        expect(excel.closest('[role="menuitem"]')).toHaveAttribute('aria-disabled', 'true')
+        await userEvent.keyboard('{Escape}')
+
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        await userEvent.type(input, '=6*3{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, formula: '=6*3' } },
+        ], 'Claims', undefined))
+    })
+
+    it('writes a number typed over an Excel formula as a value, as Excel does', async () => {
+        const withFormula: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 12, formula: '=6*2' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        draw({ rows: withFormula })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('12'))
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        await userEvent.type(input, '42{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '42' } },
+        ], 'Claims', undefined))
+    })
+
+    it('writes the text of an Excel formula as a value when the reader switches the cell to the text editor', async () => {
+        const withFormula: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 12, formula: '=6*2' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        draw({ rows: withFormula })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('12'))
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_kind_text'))
+        // The same text, written as a value now, replaces the Excel formula.
+        await userEvent.type(screen.getByTestId('table-cell-input'), '{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '=6*2' } },
+        ], 'Claims', undefined))
+    })
+
     it('opens a yes-or-no cell ticked on any of the words OpenL reads as true', async () => {
         const said: RawTableCell[][] = [
             [{ cell: 'B4', value: 'Rules String Greeting(Boolean on)', colspan: 2 }, { covered: true }],

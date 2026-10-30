@@ -204,6 +204,43 @@ describe('tableEdits', () => {
             ])
         })
 
+        it('sends a cell written as an Excel formula with that formula alone', () => {
+            expect(sent({ kind: 'value', at: { row: 1, column: 1 }, value: '=A2*2', excel: true })).toEqual([
+                {
+                    operation: 'update',
+                    target: { type: 'cell', row: 1, column: 1, formula: '=A2*2' },
+                },
+            ])
+        })
+
+        it('sends the value of a cell an Excel formula was written over, even when it reads the same', () => {
+            const withFormula: RawTableCell[][] = [[{ cell: 'A1', value: 4, formula: '=2+2' }]]
+
+            expect(compile(withFormula, replay(withFormula, [write(0, 0, '4')]))).toEqual([
+                { operation: 'update', target: { type: 'cell', row: 0, column: 0, value: '4' } },
+            ])
+        })
+
+        it('sends nothing for an Excel formula written back to what it was', () => {
+            const withFormula: RawTableCell[][] = [[{ cell: 'A1', value: 4, formula: '=2+2' }]]
+            const step: EditStep = { kind: 'value', at: { row: 0, column: 0 }, value: '=2+2', excel: true }
+
+            expect(compile(withFormula, replay(withFormula, [step]))).toEqual([])
+        })
+
+        it('sends an added row with the Excel formula written in it', () => {
+            const steps: EditStep[] = [
+                { kind: 'insertRow', at: 1 },
+                write(1, 0, '6'),
+                { kind: 'value', at: { row: 1, column: 1 }, value: '=A2*2', excel: true },
+            ]
+
+            expect(sent(...steps)).toEqual([{
+                operation: 'insert',
+                target: { type: 'rows', position: 1, cells: [[{ value: '6' }, { formula: '=A2*2' }]]},
+            }])
+        })
+
         it('sends an added row with the values it ended with', () => {
             expect(sent({ kind: 'insertRow', at: 1 }, write(1, 0, '6'), write(1, 1, 'Buenos Dias'))).toEqual([
                 {

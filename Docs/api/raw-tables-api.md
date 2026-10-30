@@ -93,12 +93,14 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 ### RawTableCell
 
 - `value` — a string, a number, a boolean, or a one-dimensional array of them; see
-  [Multi-Value Cells](#multi-value-cells). Absent for an empty cell.
+  [Multi-Value Cells](#multi-value-cells). Absent for an empty cell. A text starting with `=` is an OpenL formula; see
+  [Formulas](#formulas).
 - `colspan`, `rowspan` — the number of columns and rows that the cell spans. Present for a value of 2 or more.
 - `covered` — `true` for a position that another cell's span covers. Such a cell has no other field.
 - `cell` — the address of the cell in A1 notation, such as `B4`. Read-only; the compilation messages use the same
   address.
-- `formula` — the formula of the cell, such as `=B2*C2`, next to the `value` it computed. Read-only.
+- `formula` — the Excel formula of the cell, such as `=B2*C2`, next to the `value` it computed. A write stores it in
+  place of the value; see [Formulas](#formulas).
 - `comment` — the note that a reader left on the cell. Read-only.
 - `style` — the index in `styles` of the Excel style of the cell, with `styles=true`. Absent for a cell in no style at
   all. Read-only.
@@ -319,6 +321,38 @@ Content-Type: application/json
 
 The answer is `201 Created` with the summary of the new table.
 
+### Formulas
+
+A cell holds an OpenL formula or an Excel formula, and a write names which one it means:
+
+- **`value`** — a text starting with `=`, such as `= product($F1:$F4)` or `= $Base * 2`, is an OpenL formula. It is
+  written as the text it is, spaces included, and OpenL calculates it when the module is compiled. A text is never
+  taken for an Excel formula, even when Excel could read it.
+- **`formula`** — an Excel formula, starting with `=` and written as Excel writes it, such as `=B2*C2`. The cell is
+  written as this formula, and Excel computes its value. OpenL reads the value the formula computed.
+
+A cell of an [edit](#editing-the-source) names either a `value` or a `formula`: one naming both is refused with
+`openl.error.400.table.action.cell.value-and-formula.message`. A table written whole — replaced, appended to or
+created — takes both, as a read returns them, and writes the `formula`, ignoring the `value` beside it.
+
+The Excel formulas of a table are computed again when the table is saved, so a formula keeps the value it computes
+from the cells as they are saved, a cell written after it included. A formula OpenL Studio cannot compute keeps the
+value it had.
+
+A read returns an Excel formula in `formula`, beside the `value` it computed. So a cell read and written back as it is
+keeps its formula. To replace an Excel formula with a value, leave `formula` out of the cell. A cell that already holds
+the same Excel formula is left as it is.
+
+```json
+{"operation": "update", "target": {"type": "cell", "row": 4, "column": 1, "value": "= product($F1:$F4)"}}
+{"operation": "update", "target": {"type": "cell", "row": 5, "column": 1, "formula": "=B2*C2"}}
+```
+
+A formula that does not start with `=`, holds nothing after it, or Excel cannot read is refused with
+`openl.error.400.table.cell.formula.invalid.message`, and nothing is written. So is a formula OpenL Studio cannot
+compute, such as one calling a function it does not implement: OpenL reads the value a formula computed, and the cell
+would read as empty.
+
 ### Versions
 
 A read of the table, of a window too, answers the version of the whole table in the `ETag` header; the body carries
@@ -398,7 +432,8 @@ The request applies one edit to the raw source of any table. The `operation` sel
 - **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
 - **`style`** — sets the style of a rectangle; see [Styling Cells](#styling-cells). Target type `cells`.
 
-A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covered`. Examples:
+A cell of a request has a `value` or a [`formula`](#formulas), optional `colspan` and `rowspan`, and `covered`. An
+`update` of a `cell` takes `value` and `formula` the same way. Examples:
 
 ```json
 {"operation": "update", "target": {"type": "cell", "row": 5, "column": 2, "value": "Buenos Dias"}}
@@ -429,6 +464,10 @@ the table or the request named the table by an id it had before.
 - `openl.error.400.table.action.marks.invalid.message` — a mark leaves the text, covers no character, or overlaps or
   precedes the mark before it.
 - `openl.error.400.table.action.marks.xls.message` — `marks` on a cell of an `.xls` file.
+- `openl.error.400.table.action.cell.value-and-formula.message` — a cell names both a `value` and a `formula`; see
+  [Formulas](#formulas).
+- `openl.error.400.table.cell.formula.invalid.message` — a `formula` that Excel cannot read or OpenL Studio cannot
+  compute; see [Formulas](#formulas).
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
   of them; a mark without `from`, `to` or `color`, or with an unknown `color`.
 
@@ -466,7 +505,8 @@ An `update` of a `cell` may carry `marks`: pieces of its text value written bold
   as before.
 - An empty list writes the text with no marks. Without `marks`, a new value is written with no marks, and a value
   written unchanged keeps the marks it has.
-- A value written as a number, a date, a boolean or an Excel formula keeps no marks.
+- A value written as a number, a date or a boolean keeps no marks. Marks on an Excel `formula` are refused with
+  `openl.error.400.table.action.marks.not-text.message`; an OpenL formula is a text and takes marks.
 - A read with `styles=true` returns the marks as [`runs`](#style-of-a-cell) whose style is bold in the colour of the
   mark.
 

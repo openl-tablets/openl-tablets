@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "CalcProduct",
+  "tableId": "RH5J0BND5QATQMDV",
+  "executionTimeMs": "##.##",
+  "result": 144.0,
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number"
+  }
+}
+

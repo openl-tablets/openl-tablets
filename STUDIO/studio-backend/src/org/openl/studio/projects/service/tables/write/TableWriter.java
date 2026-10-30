@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
@@ -30,9 +31,11 @@ import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.SubGridTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
@@ -46,6 +49,7 @@ import org.openl.rules.table.actions.UndoableInsertRowsAction;
 import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
 import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
@@ -263,8 +267,8 @@ public abstract class TableWriter<T extends TableView> {
     private void clearCells(IGridTable gridTable) {
         var grid = (XlsSheetGridModel) gridTable.getGrid();
         var region = gridTable.getRegion();
-        for (int row = region.getTop(); row <= region.getBottom(); row++) {
-            for (int col = region.getLeft(); col <= region.getRight(); col++) {
+        for (var row = region.getTop(); row <= region.getBottom(); row++) {
+            for (var col = region.getLeft(); col <= region.getRight(); col++) {
                 grid.clearCell(col, row);
             }
         }
@@ -299,10 +303,10 @@ public abstract class TableWriter<T extends TableView> {
         var originalGrid = originalTable.getGrid();
         for (var entry : properties.entrySet().stream().toList().reversed()) {
             var propName = entry.getKey();
-            boolean newProperty = GridTool.getPropertyRowIndex(originalRegion, originalGrid, propName) == -1;
+            var newProperty = GridTool.getPropertyRowIndex(originalRegion, originalGrid, propName) == -1;
             if (newProperty) {
-                int tableWidth = GridRegionUtils.width(originalRegion);
-                int nColsToInsert = 0;
+                var tableWidth = GridRegionUtils.width(originalRegion);
+                var nColsToInsert = 0;
                 if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                     nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
                 }
@@ -310,7 +314,7 @@ public abstract class TableWriter<T extends TableView> {
                         || !UndoableInsertColumnsAction.canInsertColumns(originalTable, nColsToInsert, otherTables)) {
                     UndoableEditTableAction.moveTable(originalTable, getMetaInfoWriter());
                 }
-                GridRegionAction allTable = new GridRegionAction(originalRegion,
+                var allTable = new GridRegionAction(originalRegion,
                         UndoableEditTableAction.ROWS,
                         UndoableEditTableAction.INSERT,
                         GridRegionAction.ActionType.EXPAND,
@@ -345,23 +349,86 @@ public abstract class TableWriter<T extends TableView> {
         if (isUpdateMode() && holds(gridTable, cellKey, value)) {
             return;
         }
+        var at = reach(gridTable, cellKey);
+        updateCellValue(gridTable, at.column(), at.row(), value);
+    }
+
+    /**
+     * Writes an Excel formula into a cell, such as {@code =B2*C2}, growing the table to reach it as
+     * {@link #createOrUpdateCell} does.
+     *
+     * <p>On update, a cell that already holds the formula is left as it is, with the value it computed. The cell
+     * keeps the type it was read with, and forgets what its previous text referred to.
+     *
+     * @param gridTable table to update
+     * @param cellKey   relative cell coordinates
+     * @param formula   the formula, starting with {@code =}
+     * @throws BadRequestException when the formula does not start with {@code =}, Excel cannot read it or OpenL
+     *                             Studio cannot compute it
+     */
+    protected void createOrUpdateFormula(IGridTable gridTable, CellKey cellKey, String formula) {
+        var excelFormula = excelFormulaOf(formula);
+        if (isUpdateMode() && holdsFormula(gridTable, cellKey, excelFormula)) {
+            return;
+        }
+        var at = reach(gridTable, cellKey);
+        try {
+            ((IWritableGrid) gridTable.getGrid()).setCellFormula(at.column(), at.row(), excelFormula);
+        } catch (IllegalArgumentException e) {
+            throw invalidFormula(formula);
+        }
+        var metaInfo = getMetaInfoWriter().getMetaInfo(at.row(), at.column());
+        if (metaInfo != null) {
+            getMetaInfoWriter().setMetaInfo(at.row(), at.column(),
+                    new CellMetaInfo(metaInfo.getDataType(), metaInfo.isMultiValue()));
+        }
+    }
+
+    /**
+     * The Excel formula a request names, such as {@code =B2*C2}, without its leading {@code =}.
+     *
+     * @throws BadRequestException when the formula does not start with {@code =} or holds nothing after it
+     */
+    public static String excelFormulaOf(String formula) {
+        var text = formula.strip();
+        var excelFormula = text.startsWith("=") ? text.substring(1).strip() : "";
+        if (excelFormula.isEmpty()) {
+            throw invalidFormula(formula);
+        }
+        return excelFormula;
+    }
+
+    /** The refusal of an Excel formula that Excel cannot read or OpenL Studio cannot compute. */
+    public static BadRequestException invalidFormula(String formula) {
+        return new BadRequestException("table.cell.formula.invalid.message", new Object[]{formula});
+    }
+
+    /** A cell of the sheet, by its column and its row. */
+    private record SheetCell(int column, int row) {
+    }
+
+    /**
+     * The cell of the sheet at a table position. A position past the bottom or the right edge grows the table to
+     * reach it.
+     */
+    private SheetCell reach(IGridTable gridTable, CellKey cellKey) {
         var region = gridTable.getRegion();
         // calculate absolute coordinates
-        int grow = cellKey.getRow() + region.getTop();
+        var grow = cellKey.getRow() + region.getTop();
         // Check if the cell is out of the table. Every insert looks over the whole sheet for room, so a cell inside
         // the table must not ask for one: a column of a large table would cost a pass over the sheet per row.
-        boolean inserted = false;
+        var inserted = false;
         if (region.getBottom() < grow) {
-            int nRows = grow - region.getBottom();
-            int beforeRow = region.getTop() - originalTable.getRegion().getTop() + GridRegionUtils.height(region);
+            var nRows = grow - region.getBottom();
+            var beforeRow = region.getTop() - originalTable.getRegion().getTop() + GridRegionUtils.height(region);
             insertRows(gridTable, nRows, beforeRow);
             linesInserted(true, beforeRow, nRows);
             inserted = true;
         }
-        int gcol = cellKey.getColumn() + region.getLeft();
+        var gcol = cellKey.getColumn() + region.getLeft();
         if (region.getRight() < gcol) {
-            int nCols = gcol - region.getRight();
-            int beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + GridRegionUtils.width(region);
+            var nCols = gcol - region.getRight();
+            var beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + GridRegionUtils.width(region);
             insertColumns(gridTable, nCols, beforeCol);
             linesInserted(false, beforeCol, nCols);
             inserted = true;
@@ -371,29 +438,55 @@ public abstract class TableWriter<T extends TableView> {
             grow = cellKey.getRow() + region.getTop();
             gcol = cellKey.getColumn() + region.getLeft();
         }
-
-        updateCellValue(gridTable, gcol, grow, value);
+        return new SheetCell(gcol, grow);
     }
 
     /**
      * Tells whether the cell at a table position already holds the value a write would put there: the text it shows,
-     * or the value it reads as. A position outside the table holds nothing yet, and nor does a cell a merged cell
-     * covers: it reads as the value of the merged cell, which a write that unmerges it must not take for its own.
+     * or the value it reads as.
      */
     private boolean holds(IGridTable gridTable, CellKey cellKey, @Nullable Object value) {
+        var cell = ownCell(gridTable, cellKey);
+        return cell != null && (value instanceof String text && text.equals(cell.getStringValue())
+                || sameValue(new CellValueReader(getMetaInfoWriter()).apply(cell), value));
+    }
+
+    /**
+     * Empties the cell at a table position when it holds an Excel formula, keeping its style.
+     *
+     * <p>A value written into a cell holding an Excel formula would keep the formula and change only the value it
+     * computed, so a write that replaces the formula empties the cell first.
+     */
+    protected void dropFormula(IGridTable gridTable, CellKey cellKey) {
+        var cell = ownCell(gridTable, cellKey);
+        if (cell != null && cell.getFormula() != null) {
+            ((IWritableGrid) gridTable.getGrid()).setCellValue(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), null);
+        }
+    }
+
+    /** Tells whether the cell at a table position already holds the Excel formula, written without its {@code =}. */
+    private static boolean holdsFormula(IGridTable gridTable, CellKey cellKey, String formula) {
+        var cell = ownCell(gridTable, cellKey);
+        return cell != null && formula.equals(cell.getFormula());
+    }
+
+    /**
+     * The cell at a table position, or {@code null} where it holds nothing of its own yet. A position outside the
+     * table holds nothing yet, and nor does a cell a merged cell covers: it reads as the value of the merged cell,
+     * which a write that unmerges it must not take for its own.
+     */
+    private static @Nullable ICell ownCell(IGridTable gridTable, CellKey cellKey) {
         if (cellKey.getRow() >= gridTable.getHeight() || cellKey.getColumn() >= gridTable.getWidth()) {
-            return false;
+            return null;
         }
         var region = gridTable.getRegion();
         var column = region.getLeft() + cellKey.getColumn();
         var row = region.getTop() + cellKey.getRow();
         var merged = gridTable.getGrid().getRegionContaining(column, row);
         if (merged != null && (merged.getLeft() != column || merged.getTop() != row)) {
-            return false;
+            return null;
         }
-        var cell = gridTable.getCell(cellKey.getColumn(), cellKey.getRow());
-        return value instanceof String text && text.equals(cell.getStringValue())
-                || sameValue(new CellValueReader(getMetaInfoWriter()).apply(cell), value);
+        return gridTable.getCell(cellKey.getColumn(), cellKey.getRow());
     }
 
     /** Whether two cell values are the same: numbers by their value, arrays and lists element by element. */
@@ -451,7 +544,7 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     protected void removeRows(IGridTable gridTable, int nRows, int startRow) {
-        int startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
+        var startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
         var height = GridRegionUtils.height(originalTable.getRegion());
         new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter()).doAction(gridTable);
         if (layout != null) {
@@ -461,7 +554,7 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     protected void removeColumns(IGridTable gridTable, int nCols, int startCol) {
-        int startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
+        var startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
         var width = GridRegionUtils.width(originalTable.getRegion());
         new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter()).doAction(gridTable);
         if (layout != null) {
@@ -498,7 +591,9 @@ public abstract class TableWriter<T extends TableView> {
         var formatted = formatTable(position);
         // Read while the table is open for writing too: once saved, the sheet is read as it was compiled.
         writtenId = idAsWritten();
-        saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
+        var grid = (XlsSheetGridModel) getGridTable().getGrid();
+        PoiExcelHelper.evaluateFormulas(grid.getSheetToWrite(), getGridTable().getRegion());
+        saveWorkbook(grid);
         if (formatted != null) {
             FormattedTables.formatted(position, formatted);
         }
@@ -633,10 +728,10 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     private IGridRegion toAbsolute(IGridRegion mr, IGridRegion tableRegion) {
-        int top = mr.getTop() + tableRegion.getTop();
-        int left = mr.getLeft() + tableRegion.getLeft();
-        int bottom = mr.getBottom() + tableRegion.getTop();
-        int right = mr.getRight() + tableRegion.getLeft();
+        var top = mr.getTop() + tableRegion.getTop();
+        var left = mr.getLeft() + tableRegion.getLeft();
+        var bottom = mr.getBottom() + tableRegion.getTop();
+        var right = mr.getRight() + tableRegion.getLeft();
         return new GridRegion(top, left, bottom, right);
     }
 
@@ -647,24 +742,21 @@ public abstract class TableWriter<T extends TableView> {
     protected IGridTable getGridTable() {
         if (isUpdateMode()) {
             return table.getGridTable();
-        } else {
-            return originalTable;
         }
+        return originalTable;
     }
 
     protected IGridTable getGridTable(String view) {
         if (isUpdateMode()) {
             return IXlsTableNames.VIEW_BUSINESS.equals(view) ? businessBody() : table.getGridTable(view);
-        } else {
-            if (IXlsTableNames.VIEW_BUSINESS.equals(view)) {
-                return originalTable.getSubtable(0,
-                        1,
-                        originalTable.getWidth(),
-                        originalTable.getHeight() - 1);
-            } else {
-                return originalTable;
-            }
         }
+        if (IXlsTableNames.VIEW_BUSINESS.equals(view)) {
+            return originalTable.getSubtable(0,
+                    1,
+                    originalTable.getWidth(),
+                    originalTable.getHeight() - 1);
+        }
+        return originalTable;
     }
 
     /**

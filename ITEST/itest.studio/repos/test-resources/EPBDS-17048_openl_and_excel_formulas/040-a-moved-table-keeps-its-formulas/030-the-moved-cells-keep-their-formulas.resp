@@ -1,0 +1,95 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "RH5J0BND5QATQMDV",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "CalcProduct",
+  "pos": "B13:C20",
+  "source": [
+    [
+      {
+        "cell": "B13",
+        "value": "Spreadsheet Double CalcProduct()",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "Step"
+      },
+      {
+        "cell": "C14",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "F1"
+      },
+      {
+        "cell": "C15",
+        "value": "= 2"
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "F2"
+      },
+      {
+        "cell": "C16",
+        "value": "= 3"
+      }
+    ],
+    [
+      {
+        "cell": "B17",
+        "value": "F3"
+      },
+      {
+        "cell": "C17",
+        "value": "= 4"
+      }
+    ],
+    [
+      {
+        "cell": "B18",
+        "value": "F4"
+      },
+      {
+        "cell": "C18",
+        "value": 6,
+        "formula": "=2*3"
+      }
+    ],
+    [
+      {
+        "cell": "B19",
+        "value": "RETURN"
+      },
+      {
+        "cell": "C19",
+        "value": "= product($F1:$F4)"
+      }
+    ],
+    [
+      {
+        "cell": "B20",
+        "value": "F5"
+      },
+      {
+        "cell": "C20",
+        "value": "= 1"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

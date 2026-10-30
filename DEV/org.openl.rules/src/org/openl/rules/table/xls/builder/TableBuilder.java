@@ -9,14 +9,12 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
@@ -306,7 +304,8 @@ public class TableBuilder {
      *
      * <p>A table of the same workbook, such as one moved on its sheet, is written as it is stored: every cell keeps
      * the notation of its value, its text untrimmed and the fonts of its parts. A table of another workbook is written
-     * by its values. A cell a merge covers below or right of its top-left cell stays empty.
+     * by its values: an Excel formula stays an Excel formula, and a text starting with {@code =} stays a text. A cell
+     * a merge covers below or right of its top-left cell stays empty.
      *
      * @param table table grid
      * @throws IllegalArgumentException if table is null
@@ -345,7 +344,6 @@ public class TableBuilder {
         var row = currentRow + j + region.getTop();
         var area = cell.getAbsoluteRegion();
         var covered = isCovered(cell, area, table);
-        Object cellValue = null;
         if (source != null) {
             writeCell(i, currentRow + j, cellWidth, cellHeight, null, style);
             if (!covered) {
@@ -353,16 +351,14 @@ public class TableBuilder {
                 gridModel.copyCellValue(source, area.getLeft(), area.getTop(), column, row);
             }
         } else {
-            if (!covered) {
-                cellValue = cell.getFormula() != null ? "=" + cell.getFormula() : cell.getObjectValue();
+            var formula = covered ? null : cell.getFormula();
+            writeCell(i, currentRow + j, cellWidth, cellHeight, covered || formula != null ? null : cell.getObjectValue(),
+                    style);
+            if (formula != null) {
+                writeFormula(column, row, formula, cell);
             }
-            writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
         }
         var newCell = PoiExcelHelper.getOrCreateCell(column, row, gridModel.getSheetToWrite());
-        if (source == null && cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
-            // A text that reads as a formula is kept as the text it is.
-            newCell.setCellValue(String.valueOf(cellValue));
-        }
         var iCellComment = cell.getComment();
         if (iCellComment != null) {
             var xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
@@ -381,6 +377,20 @@ public class TableBuilder {
             metaInfoWriter.setMetaInfo(newCell.getRowIndex(),
                     newCell.getColumnIndex(),
                     metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
+        }
+    }
+
+    /**
+     * Writes the Excel formula of a cell of another workbook.
+     *
+     * <p>A formula the workbook written to cannot read or compute, such as one using a defined name it has not, keeps
+     * the value it computed in the other workbook instead.
+     */
+    private void writeFormula(int column, int row, String formula, ICell cell) {
+        try {
+            gridModel.setCellFormula(column, row, formula);
+        } catch (IllegalArgumentException e) {
+            gridModel.setCellValue(column, row, cell.getObjectValue());
         }
     }
 

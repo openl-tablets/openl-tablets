@@ -1,0 +1,6 @@
+HTTP/1.1 200
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+xl/worksheets/sheet1.xml = *<c r="C7"*><f>2*3</f><v>6.0</v></c>*
+*
+

@@ -3,12 +3,23 @@ package org.openl.rules.table.xls.writers;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
+/**
+ * Writes an Excel formula, such as {@code =B2*C2}, into a cell.
+ *
+ * <p>The cell keeps the formula and the value it computes. A formula Excel cannot read, or one Apache POI cannot
+ * compute, is refused, so it is never written as a text in its place.
+ */
 public class XlsCellFormulaWriter extends XlsCellStringWriter {
 
     public XlsCellFormulaWriter(XlsSheetGridModel xlsSheetGridModel) {
         super(xlsSheetGridModel);
     }
 
+    /**
+     * Writes the formula into the cell.
+     *
+     * @throws IllegalArgumentException when Excel cannot read the formula or Apache POI cannot compute it
+     */
     @Override
     public void writeCellValue() {
         var formula = getStringValue();
@@ -24,14 +35,7 @@ public class XlsCellFormulaWriter extends XlsCellStringWriter {
          * holding both.
          */
         cellToWrite.setBlank();
-        try {
-            var excelFormula = formula.replaceFirst("=", "");
-            cellToWrite.setCellFormula(excelFormula);
-            PoiExcelHelper.evaluateFormula(cellToWrite);
-        } catch (Exception e) {
-            // A formula Excel cannot read is an OpenL formula, which is written as text.
-            super.writeCellValue();
-        }
+        PoiExcelHelper.setFormula(cellToWrite, formula);
     }
 
 }

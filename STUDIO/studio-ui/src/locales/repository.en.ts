@@ -599,6 +599,7 @@ i18next.addResourceBundle('en', 'repository', {
             edit_keep_editing: 'Keep Editing',
             editor_switch_to: 'Switch to:',
             editor_kind_formula: 'Formula Editor',
+            editor_kind_excelFormula: 'Excel Formula Editor',
             editor_kind_text: 'Text Editor',
             editor_kind_multiline: 'Multiline Editor',
             editor_kind_combo: 'List',

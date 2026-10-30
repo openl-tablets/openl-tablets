@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
@@ -177,8 +178,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                     continue;
                 }
                 // Write origin cell
-                var value = cell.value();
-                createOrUpdateCell(tableBody, buildCellKey(col, row), value);
+                writeContent(tableBody, buildCellKey(col, row), cell.value(), cell.formula());
 
                 buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col)
                         .ifPresent(mergeRegions::add);
@@ -198,6 +198,22 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
         // Phase 2: Apply merge regions after all cells are written
         applyMergeRegions(tableBody, mergeRegions);
+    }
+
+    /**
+     * Writes a cell: its Excel formula when it has one, or else its value.
+     *
+     * <p>A raw cell carries the Excel formula it holds, so one written without it is a value. That value replaces an
+     * Excel formula the cell holds, even when it equals what the formula computed.
+     */
+    private void writeContent(IGridTable gridTable, CellKey cellKey, @Nullable Object value,
+            @Nullable String formula) {
+        if (formula != null) {
+            createOrUpdateFormula(gridTable, cellKey, formula);
+        } else {
+            dropFormula(gridTable, cellKey);
+            createOrUpdateCell(gridTable, cellKey, value);
+        }
     }
 
     private static Optional<GridRegion> buildMergeRegionIfNeeded(Integer colspanValue, Integer rowspanValue,
@@ -249,8 +265,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                         col++;
                         continue;
                     }
-                    var value = cell.value();
-                    createOrUpdateCell(tableBody, buildCellKey(col, currentRow), value);
+                    writeContent(tableBody, buildCellKey(col, currentRow), cell.value(), cell.formula());
 
                     // Track merge region if cell has span
                     buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), currentRow, col)
@@ -355,7 +370,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         switch (target) {
             case UpdateTarget.Row(var position, var cells) -> updateRow(position, requireNotEmpty(cells));
             case UpdateTarget.Column(var position, var cells) -> updateColumn(position, requireNotEmpty(cells));
-            case UpdateTarget.Cell(var row, var column, var value, var marks) -> updateCell(row, column, value, marks);
+            case UpdateTarget.Cell(var row, var column, var value, var marks, var formula) ->
+                    updateCell(row, column, value, marks, formula);
             case UpdateTarget.Range(var row, var column, var cells) -> updateRange(row, column, cells);
         }
     }
@@ -465,16 +481,20 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         writeColumn(developerView, position, cells, true);
     }
 
-    private void updateCell(int row, int column, @Nullable Object value, @Nullable List<RawTextMark> marks) {
+    private void updateCell(int row, int column, @Nullable Object value, @Nullable List<RawTextMark> marks,
+            @Nullable String formula) {
         var developerView = developerView();
         requireCellInBounds(developerView, row, column);
         if (isCoveredByMerge(developerView, row, column)) {
             throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, column});
         }
+        requireValueOrFormula(value, formula, row, column);
         if (marks != null) {
-            requireMarkable((XlsSheetGridModel) developerView.getGrid(), row, column, value, marks);
+            // An Excel formula holds no text to mark.
+            requireMarkable((XlsSheetGridModel) developerView.getGrid(), row, column, formula == null ? value : null,
+                    marks);
         }
-        createOrUpdateCell(developerView, buildCellKey(column, row), value);
+        writeContent(developerView, buildCellKey(column, row), value, formula);
         if (marks == null) {
             return;
         }
@@ -814,7 +834,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, col});
         }
         requireSpanInBounds(cell, row, col, pass.width(), pass.height());
-        createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());
+        requireValueOrFormula(cell.value(), cell.formula(), row, col);
+        writeContent(developerView, buildCellKey(col, row), cell.value(), cell.formula());
         // Validate an inline span (colspan/rowspan) against existing and already queued merges, so an update cannot
         // silently create intersecting regions that the spreadsheet library would reject only while applying them.
         buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col).ifPresent(region -> {
@@ -824,6 +845,18 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             requireNoConflictingMerge(pass.mergeRegions(), region, row, col);
             pass.mergeRegions().add(region);
         });
+    }
+
+    /**
+     * Refuses a cell of an edit that names both a value and an Excel formula.
+     *
+     * <p>An edit names what a cell is to hold, so a value beside a formula is a contradiction. A whole table written
+     * back as it was read carries both, the formula and the value it computed, and the formula wins there.
+     */
+    private static void requireValueOrFormula(@Nullable Object value, @Nullable String formula, int row, int column) {
+        if (formula != null && value != null) {
+            throw new BadRequestException("table.action.cell.value-and-formula.message", new Object[]{row, column});
+        }
     }
 
     private static <T> List<T> requireNotEmpty(List<T> list) {
@@ -1030,7 +1063,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private static boolean hasSomeContent(List<RawCellInput> cells) {
         return cells.stream().anyMatch(cell -> cell != null && !Boolean.TRUE.equals(cell.covered())
-                && hasWritableValueOrSpan(cell.value(), cell.colspan(), cell.rowspan()));
+                && hasWritableContent(cell.value(), cell.formula(), cell.colspan(), cell.rowspan()));
     }
 
     /**
@@ -1046,20 +1079,22 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // A covered cell counts here: in the full matrix it sits under a real merge declared by an origin cell in
         // another row, which keeps the grid line non-blank.
         if (row.stream().noneMatch(cell -> cell != null && (Boolean.TRUE.equals(cell.covered())
-                || hasWritableValueOrSpan(cell.value(), cell.colspan(), cell.rowspan())))) {
+                || hasWritableContent(cell.value(), cell.formula(), cell.colspan(), cell.rowspan())))) {
             throw new BadRequestException("table.action.line.all-empty.message");
         }
     }
 
     /**
-     * Tells whether the writer will put something in a cell that keeps its line from reading as blank: a non-blank
-     * value, or a span (colspan or rowspan greater than 1). A blank, span-less cell contributes nothing.
+     * Tells whether the writer will put something in a cell that keeps its line from reading as blank: an Excel
+     * formula, a non-blank value, or a span (colspan or rowspan greater than 1). A blank, span-less cell contributes
+     * nothing.
      * <p>
      * A line with no such cell becomes a blank line, which OpenL reads as a table boundary — it splits the table and
      * drops every row beyond it. A single blank cell among non-blank ones is fine.
      */
-    private static boolean hasWritableValueOrSpan(Object value, Integer colspan, Integer rowspan) {
-        var blankValue = value == null || (value instanceof String s && s.isBlank());
+    private static boolean hasWritableContent(@Nullable Object value, @Nullable String formula,
+            @Nullable Integer colspan, @Nullable Integer rowspan) {
+        var blankValue = formula == null && (value == null || value instanceof String s && s.isBlank());
         return !blankValue
                 || (colspan != null && colspan > 1)
                 || (rowspan != null && rowspan > 1);

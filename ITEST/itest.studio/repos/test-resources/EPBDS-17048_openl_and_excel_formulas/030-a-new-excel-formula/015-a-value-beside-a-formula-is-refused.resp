@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.action.cell.value-and-formula.message",
+  "message": "The cell at row 5, column 1 names both a value and an Excel formula. Send either the value or the formula."
+}
+

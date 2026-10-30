@@ -1,0 +1,85 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "RH5J0BND5QATQMDV",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "CalcProduct",
+  "pos": "B2:C8",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet Double CalcProduct()",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Step"
+      },
+      {
+        "cell": "C3",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "F1"
+      },
+      {
+        "cell": "C4",
+        "value": "= 2"
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "F2"
+      },
+      {
+        "cell": "C5",
+        "value": "= 3"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "F3"
+      },
+      {
+        "cell": "C6",
+        "value": "= 4"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "F4"
+      },
+      {
+        "cell": "C7",
+        "value": 6,
+        "formula": "=2*3"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "RETURN"
+      },
+      {
+        "cell": "C8",
+        "value": "= product($F1:$F4)"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

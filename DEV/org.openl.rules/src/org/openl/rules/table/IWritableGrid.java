@@ -97,5 +97,16 @@ public interface IWritableGrid extends IGrid {
 
     void setCellStringValue(int col, int row, String value);
 
+    /**
+     * Writes an Excel formula into a cell, such as {@code =B2*C2}.
+     *
+     * <p>A text written by {@link #setCellValue} is never taken for an Excel formula, even when it starts with
+     * {@code =}: such a text is an OpenL formula.
+     *
+     * @param col     the column of the cell
+     * @param row     the row of the cell
+     * @param formula the formula, with or without its leading {@code =}
+     * @throws IllegalArgumentException when Excel cannot read the formula or Apache POI cannot compute it
+     */
     void setCellFormula(int col, int row, String formula);
 }

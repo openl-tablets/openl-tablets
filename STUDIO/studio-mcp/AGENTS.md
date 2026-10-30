@@ -126,7 +126,7 @@ Rows / columns (one or many):
 
 Cells / ranges:
 - `openl_update_table_row` / `openl_update_table_column` - Overwrite the cells of the row/column at `position`
-- `openl_update_table_cell` - Set a single cell's value at (`row`, `column`)
+- `openl_update_table_cell` - Set a single cell's value at (`row`, `column`); a value starting with `=` is an OpenL formula written as text, and `formula`, sent instead of `value`, writes an Excel formula
 - `openl_update_table_range` - Overwrite a rectangular range (> 1 cell) anchored at (`row`, `column`)
 - `openl_merge_table_cells` - Merge a `rowspan`×`colspan` range from (`row`, `column`)
 - `openl_unmerge_table_cells` - Unmerge the cell covering (`row`, `column`)

@@ -35,7 +35,7 @@ To enter a non-finite value in a `Double` or `Float` cell, use `NaN`, `Infinity`
 OpenL Studio saves these values as text in the workbook. OpenL interprets them as numeric values when compiling the
 rule.
 The table API returns these values as strings. Use the same strings when creating or updating a table through the API.
-Entering one of these values in a formula cell keeps its formula.
+Entering one of these values in a cell holding an MS Excel formula replaces the formula, as any value does.
 
 #### Editing Default Table Properties
 

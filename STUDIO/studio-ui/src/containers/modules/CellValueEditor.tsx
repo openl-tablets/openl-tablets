@@ -21,8 +21,10 @@ export type EditorKind =
     | 'array'
     /** Entered in the panel under the cell rather than typed into it. */
     | 'range'
-    /** The formula the cell is written with, entered as Excel writes it: `=B2*C2`. */
+    /** An OpenL formula, a text starting with `=`: `= $Base * 2`. */
     | 'formula'
+    /** The Excel formula the cell is written with, entered as Excel writes it: `=B2*C2`. */
+    | 'excelFormula'
 
 interface CellValueEditorProps {
     /** The way the value is being written. */
@@ -349,6 +351,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             )
         }
         case 'formula':
+        case 'excelFormula':
         case 'text':
         default:
             return (
