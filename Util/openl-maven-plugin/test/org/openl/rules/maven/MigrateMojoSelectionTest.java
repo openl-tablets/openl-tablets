@@ -188,7 +188,8 @@ class MigrateMojoSelectionTest {
                 "config.project.method-filter",
                 "config.project.default-modules",
                 "config.deploy.runtime-context",
-                "config.deploy.template-class");
+                "config.deploy.template-class",
+                "pom.unused-parameters");
     }
 
     private static List<String> allConfigIds() {

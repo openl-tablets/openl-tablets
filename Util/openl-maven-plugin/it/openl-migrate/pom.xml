@@ -24,6 +24,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <sourceDirectory>./</sourceDirectory>
+                    <deploymentPackage>true</deploymentPackage>
+                    <deploymentName>Migrate deployment</deploymentName>
+                    <generateUnitTests>true</generateUnitTests>
                 </configuration>
             </plugin>
         </plugins>
