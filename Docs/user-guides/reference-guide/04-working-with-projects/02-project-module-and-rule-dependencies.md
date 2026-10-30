@@ -126,7 +126,7 @@ Common Java imports can be placed only into the main, or dependency, project or 
 
 All OpenL Tablets components can be divided into three types:
 
--   Rules in rule tables as described in [Decision Table](../02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md#decision-table), [Spreadsheet Table](../02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table), [Method Table](../02-working-with-openl-tables/03-table-types/11-less-common-table-types/02-method-table.md#method-table), [TBasic Table](../02-working-with-openl-tables/03-table-types/11-less-common-table-types/05-tbasic-table.md#tbasic-table).
+-   Rules in rule tables as described in [Decision Table](../02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md#decision-table) and [Spreadsheet Table](../02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table).
 -   Data in data tables as described in [Data table](../02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md#data-table).
 -   Data types in data type tables as described in [Datatype Table](../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
 

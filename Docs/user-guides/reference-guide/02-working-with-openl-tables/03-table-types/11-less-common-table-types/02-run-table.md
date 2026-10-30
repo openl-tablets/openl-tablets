@@ -4,7 +4,7 @@ A **run table** calls a particular rule table multiple times and provides input 
 
 **Note for experienced users:** Run tables can be used to execute any Java method.
 
-An example of a run method table is as follows.
+An example of a run table is as follows.
 
 ![Run table](../../../ref-guide-images/runTable.png)
 

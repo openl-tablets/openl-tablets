@@ -8,7 +8,7 @@ This section describes test tables and context variables available in these tabl
 
 ##### Understanding Test Tables
 
-A **test table** is used to perform unit and integration tests on executable rule tables, such as decision tables, spreadsheet tables, and method tables. It calls a particular table, provides test input values, and checks whether the returned value matches the expected value.
+A **test table** is used to perform unit and integration tests on executable rule tables, such as decision tables and spreadsheet tables. It calls a particular table, provides test input values, and checks whether the returned value matches the expected value.
 
 For example, in the following diagram, the table on the left is a decision table but the table on the right is a unit test table that tests data of the decision table.
 
@@ -32,7 +32,7 @@ For more information on how to specify values of input parameters and expected t
 
 If a test table field is a list or a map, it can be used to create a data table or test table in the same way as for data tables as described in [Specifying Data in Data Tables with List and Map Fields](../07-data-table/03-specifying-data-in-data-tables-with-list-and-map-fields.md#specifying-data-in-data-tables-with-list-and-map-fields).
 
-**Note for experienced users:** Test tables can be used to execute any Java method. In this case, a method table must be used as a proxy.
+**Note for experienced users:** Test tables can be used to execute any Java method. In this case, a spreadsheet table that calls the method must be used as a proxy.
 
 When a test table is called, the OpenL Tablets engine calls the specified rule table for every row in the test table and passes the corresponding input parameters to it.
 

@@ -43,13 +43,9 @@ Cross-cutting concepts that apply to multiple table types:
 ##### Less Common Table Types
 Specialized table types for specific use cases:
 
-- [Column Match Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/01-column-match-table.md) - Pattern matching across columns
-- [Method Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/02-method-table.md) - Define callable methods
-- [Properties Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/03-properties-table.md) - Set table and method properties
-- [Run Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/04-run-table.md) - Execute test scenarios
-- [TBasic Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/05-tbasic-table.md) - BASIC-style procedural code
-- [Constants Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/06-constants-table.md) - Define constant values
-- [Table Part](02-working-with-openl-tables/03-table-types/11-less-common-table-types/07-table-part.md) - Reusable table components
+- [Properties Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/01-properties-table.md) - Set properties for a category or a module
+- [Run Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/02-run-table.md) - Execute test scenarios
+- [Constants Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/03-constants-table.md) - Define constant values
 
 #### Table Configuration
 - [Table Properties Overview](02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md) - Comprehensive guide to table properties and metadata
@@ -94,7 +90,7 @@ Specialized table types for specific use cases:
 - **Creating decision logic** → [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md)
 - **Complex calculations** → [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md)
 - **Storing data** → [Data Tables](02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md)
-- **Testing rules** → [Test Tables](02-working-with-openl-tables/03-table-types/08-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/04-run-table.md)
+- **Testing rules** → [Test Tables](02-working-with-openl-tables/03-table-types/08-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/02-run-table.md)
 - **Representing values** → [Arrays, Dates, Booleans, Ranges](02-working-with-openl-tables/03-table-types/10-representing-values-of-different-types.md)
 - **Working with collections** → [Arrays](03-functions-and-data-types/04-working-with-arrays.md)
 - **Using functions** → [Functions Overview](03-functions-and-data-types/03-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
