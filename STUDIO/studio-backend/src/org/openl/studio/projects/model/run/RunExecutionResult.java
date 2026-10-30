@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.run;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +25,9 @@ public record RunExecutionResult(
         @Parameter(description = "Execution time in milliseconds")
         double executionTimeMs,
 
-        @Schema(description = "Execution result as JSON", implementation = Object.class)
+        @Schema(description = "Execution result as JSON: null, an empty list or an empty text when the table "
+                + "returns one; absent when the run failed", implementation = Object.class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         JsonNode result,
 
         @Schema(description = "JSON Schema of the result type", implementation = Object.class)

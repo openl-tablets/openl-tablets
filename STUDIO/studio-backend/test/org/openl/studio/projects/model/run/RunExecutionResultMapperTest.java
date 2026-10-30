@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -146,7 +147,7 @@ class RunExecutionResultMapperTest {
 
         var result = mapper.mapResult(results, true);
 
-        assertNull(result.result());
+        assertEquals(NullNode.getInstance(), result.result());
         assertNull(result.resultSchema());
     }
 

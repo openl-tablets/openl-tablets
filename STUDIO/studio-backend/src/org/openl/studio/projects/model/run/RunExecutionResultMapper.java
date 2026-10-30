@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 
@@ -67,7 +68,8 @@ public class RunExecutionResultMapper {
         if (!(actualResult instanceof Throwable)) {
             // The schema describes the value as it is written, so that every property of the result is described.
             var convertedResult = valueMapper.convert(actualResult);
-            resultValue = valueMapper.writeConverted(convertedResult);
+            // A table that returns nothing still answers its result, so a run tells it apart from a failure.
+            resultValue = convertedResult == null ? NullNode.getInstance() : valueMapper.writeConverted(convertedResult);
             resultSchema = valueMapper.schemaOf(convertedResult);
             // A spreadsheet is also laid out by its rows and columns, so that it reads as the table it comes from.
             resultSpreadsheet = withSpreadsheet ? valueMapper.spreadsheetOf(actualResult) : null;
