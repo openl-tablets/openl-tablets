@@ -190,6 +190,13 @@ class ProjectTablesGraphServiceTest {
     }
 
     @Test
+    void tableGraphBothDirectionsLeavesOutTheOtherCalleesOfACaller() {
+        // doSomething is called through the AR version only: the AZ version is another callee of the dispatcher
+        var byName = byName(service.buildTableGraph(projectModel, idOf("doSomething"), GraphDirection.BOTH, null));
+        assertEquals(Set.of("doSomething", "mySPR [state=AR]", "mySPR", "theCall"), byName.keySet());
+    }
+
+    @Test
     void tableGraphUpstreamOnly() {
         var byName = byName(service.buildTableGraph(projectModel, idOf("doSomething"), GraphDirection.DEPENDENTS, null));
         // doSomething is used by the AR version, reached through the dispatcher from theCall; AZ does not use doSomething
