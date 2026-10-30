@@ -20,6 +20,7 @@ import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.settings.model.repositories.CURepositoryConfigurationModel;
 import org.openl.studio.settings.model.repositories.CreateRepositoryTemplateModel;
+import org.openl.studio.settings.model.repositories.RepositoryConfigsModel;
 import org.openl.studio.settings.service.repositories.RepositorySettingsService;
 
 @AdminPrivilege
@@ -33,6 +34,12 @@ public abstract class CRUDRepositorySettingsController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<RepositoryConfiguration> getRepositoryConfigurations() {
         return repositoryConfigurationService.getConfigurations();
+    }
+
+    @Operation(description = "msg.repository-settings.configs.desc", summary = "msg.repository-settings.configs.summary")
+    @GetMapping(value = "/configs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public RepositoryConfigsModel getRepositoryConfigs() {
+        return new RepositoryConfigsModel(repositoryConfigurationService.isListReadOnly());
     }
 
     @Operation(description = "msg.repository-settings.template.desc", summary = "msg.repository-settings.template.summary")

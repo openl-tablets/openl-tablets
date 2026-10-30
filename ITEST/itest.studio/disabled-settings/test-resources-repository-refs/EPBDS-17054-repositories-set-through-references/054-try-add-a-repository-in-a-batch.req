@@ -1,0 +1,18 @@
+POST /rest/admin/settings/repos/batch HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "design": {
+    "createOrUpdate": [
+      {
+        "id": "openl-policy",
+        "name": "openl-policy",
+        "type": "repo-git",
+        "settings": {
+          "uri": "openl-policy"
+        }
+      }
+    ]
+  }
+}

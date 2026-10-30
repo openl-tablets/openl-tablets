@@ -6,6 +6,7 @@ import { RepositoryDataType, RepositoryType } from './constants'
 import { WIDTH_OF_FORM_LABEL } from '../../constants'
 import { Input, Select } from '../../components'
 import { fieldValue } from '../../components/form/utils'
+import type { Field } from '../../global'
 import { DesignRepositoryCommentsConfiguration } from './DesignRepositoryCommentsConfiguration'
 import { RepositoryConfigurationComponent } from './RepositoryConfigurationComponent'
 import { useRepositoryConfiguration } from './hooks'
@@ -15,9 +16,14 @@ import { FormRefProps, RepositoryResponse } from './index'
 interface DesignRepositoriesConfigurationProps {
     repositoryDataType: RepositoryDataType
     onEditingStateChange?: (isEditing: boolean) => void
+    /**
+     * The list of the repositories is set outside OpenL Studio, so no repository can be removed. Until it is known,
+     * no repository is offered for removal either.
+     */
+    isListReadOnly?: boolean | undefined
 }
 
-export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange }, ref) => {
+export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange, isListReadOnly }, ref) => {
     const { modal } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
@@ -39,7 +45,8 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const [isLoadingForm, setIsLoadingForm] = React.useState(false)
     const [isFormInitialized, setIsFormInitialized] = React.useState(false)
     const [form] = Form.useForm()
-    const repositoryType = Form.useWatch('type', form)
+    // The type comes wrapped while an environment variable sets it, until the Select unwraps it.
+    const repositoryType = fieldValue(Form.useWatch<Field<string>>('type', form))
     // Use ref to track the last synced repository to prevent false positives when switching
     const lastSyncedRepositoryRef = useRef<RepositoryResponse | null>(null)
     // Store RAF IDs to cancel them on unmount or before scheduling new ones
@@ -298,7 +305,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const onChangeType = (value: string) => {
         if (activeRepository
             && repositoryType
-            && activeRepository.type !== value)
+            && fieldValue(activeRepository.type) !== value)
         {
             void fetchDefaultConfiguration(value)
         } else {
@@ -388,7 +395,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     ]
 
     const configurationData = useMemo(() => {
-        if (repositoryType === activeRepository?.type) {
+        if (repositoryType === fieldValue(activeRepository?.type)) {
             return activeRepository
         }
         return defaultConfiguration
@@ -454,6 +461,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                 items={configuration?.map((repository) => ({
                     label: fieldValue(repository.name),
                     key: repository.id,
+                    closable: isListReadOnly === false,
                     children: (
                         <Spin spinning={isLoadingForm}>
                             <Form

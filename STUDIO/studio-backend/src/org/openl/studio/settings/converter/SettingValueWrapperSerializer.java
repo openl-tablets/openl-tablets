@@ -35,7 +35,9 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
         var isDisabled = Optional.ofNullable(readOnlyLookup)
                 .map(f -> f.apply(generator.currentValue()))
                 .orElse(Boolean.FALSE);
-        var isSecret = secret && isNotEmpty(value);
+        // A comparison of a request with the settings reads the secret values, which are never answered.
+        var revealed = Boolean.TRUE.equals(serializer.getAttribute(ReadOnlySettings.SECRETS_REVEALED));
+        var isSecret = secret && !revealed && isNotEmpty(value);
         var wrapped = isDisabled || isSecret;
         if (wrapped) {
             var wrapper = SettingValueWrapper.builder()
@@ -72,8 +74,8 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
                     return false;
                 };
             } else {
-                var disabled = Props.isDisabled(systemPropertyName);
-                propertyReadOnlyLookup = object -> disabled;
+                // Asked anew each time: a value saved in the settings file takes the place of one a $ref gives.
+                propertyReadOnlyLookup = object -> Props.isDisabled(systemPropertyName);
             }
             return new SettingValueWrapperSerializer(propertyReadOnlyLookup, annotation.secret());
         }

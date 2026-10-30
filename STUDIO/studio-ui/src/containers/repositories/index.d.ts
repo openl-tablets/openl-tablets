@@ -1,6 +1,6 @@
-import { AWS_SSE_ALGORITHM, RepositoryType } from './constants'
+import { AWS_SSE_ALGORITHM } from './constants'
 import { FormInstance } from 'antd'
-import { InputTextField } from '../../global'
+import { Field, InputTextField } from '../../global'
 
 interface DefaultSettings {
     basePath?: string
@@ -71,7 +71,7 @@ export interface RepositoryResponse {
     id: string
     name: InputTextField
     settings: AWSS3RepositorySettings | AzureBlobRepositorySettings | CommonRepositorySettings | GitRepositorySettings | LocalRepositorySettings
-    type: RepositoryType
+    type: Field<string>
 }
 
 export interface FormRefProps {

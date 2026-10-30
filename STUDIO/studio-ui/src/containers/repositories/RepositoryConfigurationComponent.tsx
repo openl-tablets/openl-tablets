@@ -5,13 +5,14 @@ import { RepositoryDBConfiguration } from './RepositoryDBConfiguration'
 import { RepositoryAzureBlobConfiguration } from './RepositoryAzureBlobConfiguration'
 import { RepositoryGitConfiguration } from './RepositoryGitConfiguration'
 import { Input, Select } from '../../components'
+import { fieldValue } from '../../components/form/utils'
 import { useTranslation } from 'react-i18next'
 import type { RepositoryResponse } from './index'
 
 interface RepositoryConfigurationComponentProps {
     onChangeType?: (type: string) => void
     configuration?: RepositoryResponse | null
-    repositoryType?: typeof RepositoryType
+    repositoryType?: string | undefined
     repositoryDataType?: RepositoryDataType
 }
 
@@ -19,7 +20,7 @@ export const RepositoryConfigurationComponent: FC<RepositoryConfigurationCompone
     const { t } = useTranslation()
 
     const getConfigurationForm = () => {
-        switch (repositoryType || configuration?.type) {
+        switch (repositoryType || fieldValue(configuration?.type)) {
             case RepositoryType.AWS_S3:
                 return <RepositoryAWSS3Configuration configuration={configuration} />
             case RepositoryType.JDBC:

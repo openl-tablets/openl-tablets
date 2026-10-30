@@ -84,6 +84,21 @@ public class RepositoryEditor {
                 properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory"));
     }
 
+    /**
+     * Whether an environment variable or a system property sets the list of the repositories, so no repository can be
+     * added or removed.
+     */
+    public boolean isListReadOnly() {
+        return Props.isDisabled(repoListConfig);
+    }
+
+    /**
+     * The property that lists the repositories.
+     */
+    public String getListProperty() {
+        return repoListConfig;
+    }
+
     public void addRepository(RepositoryConfiguration configuration) {
         repositoryConfigurations.add(configuration);
     }

@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.config.InMemoryProperties;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.audit.service.SettingsAuditor;
 
@@ -31,6 +33,12 @@ import org.openl.studio.audit.service.SettingsAuditor;
  *
  * <p>The event holds the values as they are written. A value that refers to an environment variable or to another
  * property, as {@code ${MAIL_URL}} does, is kept as the reference, so the value it stands for never reaches the log.
+ *
+ * <p>A setting an environment variable or a system property sets, directly or through a {@code $ref} key, is
+ * read-only, and its value is never written to the settings file: written there, it would take the place of a value
+ * reached through a {@code $ref} key. A request that changes such a setting is refused before it is stored (see
+ * {@code ReadOnlySettings}), so what is left out here is the value a setting model writes back as it reads it, or
+ * reformatted.
  */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -79,7 +87,9 @@ public class SettingsServiceImpl implements SettingsService {
         // git,
         // when the maximum number of attempts is exceeded.
         inMemoryProperties.setProperty(LAST_MODIFIED_TIME, Instant.now().toString());
-        var config = inMemoryProperties.getConfig();
+        var config = new HashMap<>(inMemoryProperties.getConfig());
+        config.entrySet()
+                .removeIf(setting -> setting.getValue() != null && Props.isDisabled(environment, setting.getKey()));
         var properties = config.keySet().stream().filter(property -> !LAST_MODIFIED_TIME.equals(property)).sorted()
                 .toList();
         SAVES.lock();

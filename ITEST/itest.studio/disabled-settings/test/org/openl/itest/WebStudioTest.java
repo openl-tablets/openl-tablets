@@ -55,4 +55,40 @@ class WebStudioTest {
             smtpServer.stop();
         }
     }
+
+    /**
+     * Repositories configured outside OpenL Studio, through a chain of {@code $ref} keys, as a deployment sets them
+     * in its environment variables: every setting they inherit is read-only, and the list of the repositories is fixed.
+     */
+    @Test
+    void repositories_set_through_references() throws Exception {
+        JettyServer.get()
+                .withProfile("repository-refs")
+                .withInitParam("user.mode", "multi")
+                .withInitParam("security.administrators", "admin")
+                .withInitParam("db.url", "jdbc:h2:mem:studio-refs;DB_CLOSE_DELAY=-1")
+                // shared defaults of the comments and the new branches
+                .withInitParam("repo-default.design.comment-template.use-custom-comments", "true")
+                .withInitParam("repo-default.design.comment-template.comment-validation-pattern",
+                        "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}")
+                .withInitParam("repo-default.design.comment-template.invalid-comment-message",
+                        "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description")
+                .withInitParam("repo-default.design.comment-template.user-message.default.save", "EPBDS-")
+                .withInitParam("repo-default.design.new-branch.pattern", "EPBDS-")
+                // a block of Git settings the design repositories refer to
+                .withInitParam("design.repo-git.$ref", "repo-git")
+                .withInitParam("design.repo-git.branch", "development")
+                .withInitParam("design.repo-git.protected-branches", "master, release-*")
+                .withInitParam("design.repo-git.comment-template.$ref", "repo-default.design.comment-template")
+                .withInitParam("design.repo-git.new-branch.$ref", "repo-default.design.new-branch")
+                // the design repositories
+                .withInitParam("design-repository-configs", "openl-rating, openl-claim")
+                .withInitParam("repository.openl-rating.name", "openl-rating")
+                .withInitParam("repository.openl-rating.$ref", "design.repo-git")
+                .withInitParam("repository.openl-rating.uri", "${openl.home}/repositories/openl-rating")
+                .withInitParam("repository.openl-claim.name", "openl-claim")
+                .withInitParam("repository.openl-claim.$ref", "design.repo-git")
+                .withInitParam("repository.openl-claim.uri", "${openl.home}/repositories/openl-claim")
+                .test();
+    }
 }

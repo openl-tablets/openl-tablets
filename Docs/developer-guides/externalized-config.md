@@ -6,6 +6,7 @@ environments. The code is in `DEV/org.openl.spring` (`org.openl.spring.env`).
 The following topics are included in this section:
 
 -   [Sources and Priority](#sources-and-priority)
+-   [References and Read-Only Settings](#references-and-read-only-settings)
 -   [Default Properties Files](#default-properties-files)
 -   [Application Property Files](#application-property-files)
 -   [Profile-Specific Properties](#profile-specific-properties)
@@ -27,6 +28,34 @@ Each source overrides the previous one in this list:
 
 Only property keys that match `openl.config.key-pattern.allowed` and do not match `openl.config.key-pattern.denied`
 are visible to the application.
+
+### References and Read-Only Settings
+
+A property with no value of its own takes one through a `$ref` key of a parent path: with `repository.design.$ref =
+repo-git`, the property `repository.design.uri` takes the value of `repo-git.uri`. The nearest parent path with a
+`$ref` key wins, and the property a reference points at may itself be resolved through a reference, up to two
+references deep. `RefPropertySource` resolves the references, after every other source.
+
+OpenL Studio shows a setting as read-only when its value comes from sources 4–7 — the environment, system properties,
+JNDI or the servlet context. `DisablePropertySource` answers it as the property `_sys_disable_<name>`, following the
+same path `RefPropertySource` resolves:
+
+-   A value set directly in sources 4–7 is read-only.
+-   A value resolved through a reference is read-only when one of the `$ref` keys on its path comes from sources 4–7.
+-   The value a reference points at does not count. Set in the environment, it is a default every property pointing at
+    it shares, and a property may still override it.
+-   A value set directly in sources 1–3 is resolved through no reference, so it is never read-only through one.
+
+A request that changes a read-only setting is refused with `400 Bad Request`, naming the setting. The request is
+compared with the settings as they are answered (`ReadOnlySettings`), so a value sent back as it was answered passes,
+even when the settings model reformats it. A setting the request leaves out or gives no value is unchanged: reset, a
+setting the environment sets keeps its value. The value of a secret setting is compared too, though it is never
+answered. The value of a read-only setting is never written to the settings file
+(`SettingsServiceImpl.commit`): written there, it would take the place of a value reached through a reference. While
+the list of the repositories, `design-repository-configs` or `production-repository-configs`, is read-only, a
+repository of that list can be neither added nor removed, one at a time or in a batch.
+`GET /admin/settings/repos/{design|production}/configs` answers whether the list is read-only, so the UI offers neither
+the button that adds a repository nor the one that removes it.
 
 ### Default Properties Files
 
