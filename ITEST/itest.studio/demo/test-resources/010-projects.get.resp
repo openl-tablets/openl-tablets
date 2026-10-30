@@ -9,14 +9,12 @@ Content-Type: application/json
     { "name": "Tutorial 1 - Introduction to Decision Tables", "status": "OPENED" },
     { "name": "Tutorial 2 - Introduction to Data Tables", "status": "OPENED" },
     { "name": "Tutorial 3 - More Advanced Decision and Data Tables", "status": "OPENED" },
-    { "name": "Tutorial 4 - Introduction to Column Match Tables", "status": "CLOSED" },
-    { "name": "Tutorial 5 - Introduction to TBasic Tables", "status": "CLOSED" },
-    { "name": "Tutorial 6 - Introduction to Spreadsheet Tables", "status": "CLOSED" },
-    { "name": "Tutorial 7 - Introduction to Table Properties", "status": "CLOSED" },
-    { "name": "Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables", "status": "OPENED" }
+    { "name": "Tutorial 4 - Introduction to Spreadsheet Tables", "status": "CLOSED" },
+    { "name": "Tutorial 5 - Introduction to Table Properties", "status": "CLOSED" },
+    { "name": "Tutorial 6 - Introduction to Smart Rules and Smart Lookup Tables", "status": "OPENED" }
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 11,
-  "total": 11
+  "numberOfElements": 9,
+  "total": 9
 }

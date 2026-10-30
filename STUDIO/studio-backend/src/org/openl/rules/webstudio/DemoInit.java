@@ -103,11 +103,9 @@ public class DemoInit {
         createProject(userWorkspace, TUTORIALS, "Tutorial 1 - Introduction to Decision Tables", true, false);
         createProject(userWorkspace, TUTORIALS, "Tutorial 2 - Introduction to Data Tables", true, false);
         createProject(userWorkspace, TUTORIALS, "Tutorial 3 - More Advanced Decision and Data Tables", true, false);
-        createProject(userWorkspace, TUTORIALS, "Tutorial 4 - Introduction to Column Match Tables", false, false);
-        createProject(userWorkspace, TUTORIALS, "Tutorial 5 - Introduction to TBasic Tables", false, false);
-        createProject(userWorkspace, TUTORIALS, "Tutorial 6 - Introduction to Spreadsheet Tables", false, false);
-        createProject(userWorkspace, TUTORIALS, "Tutorial 7 - Introduction to Table Properties", false, false);
-        createProject(userWorkspace, TUTORIALS, "Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables", true, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 4 - Introduction to Spreadsheet Tables", false, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 5 - Introduction to Table Properties", false, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 6 - Introduction to Smart Rules and Smart Lookup Tables", true, false);
     }
 
     private void initUser(String user, String email, String displayName, String... groups) {
