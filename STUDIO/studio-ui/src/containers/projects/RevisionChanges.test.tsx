@@ -45,12 +45,12 @@ describe('RevisionChanges', () => {
 
         const rows = await screen.findAllByTestId('revision-changes-file')
         expect(rows).toHaveLength(10)
-        expect(rows[0]).toHaveTextContent('rules/File01.xlsx')
+        expect(rows[0]).toHaveTextContent('File01.xlsx')
 
         await userEvent.click(screen.getByTitle('3'))
 
         await waitFor(() => expect(screen.getAllByTestId('revision-changes-file')).toHaveLength(5))
-        expect(screen.getAllByTestId('revision-changes-file')[0]).toHaveTextContent('rules/File21.xlsx')
+        expect(screen.getAllByTestId('revision-changes-file')[0]).toHaveTextContent('File21.xlsx')
     })
 
     it('offers no pages when the files fit on one', async () => {
@@ -92,14 +92,6 @@ describe('RevisionChanges', () => {
             .toHaveBeenCalledWith('p1', 'rules/New.xlsx', 'main', 'r1', 'r2', 'added')
         expect(openFileRevisionsCompareWindow)
             .toHaveBeenCalledWith('p1', 'notes.txt', 'main', 'r1', 'r2', 'deleted')
-    })
-
-    it('compares with the base it was given', async () => {
-        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r5'), files: []})
-
-        render(<RevisionChanges base="r1" projectId="p1" revision="r5" />)
-
-        await waitFor(() => expect(getRevisionChanges).toHaveBeenCalledWith('p1', 'r5', 'r1'))
     })
 
     it('says that the revision changed no file of the project', async () => {

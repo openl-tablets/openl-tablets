@@ -84,6 +84,30 @@ export const openFileRevisionsCompareWindow = (
 }
 
 /**
+ * Opens the comparison of two revisions of a project: the files changed between them, each of which is compared in
+ * the same window.
+ *
+ * @param projectId the project the revisions belong to
+ * @param branch    the branch holding the revisions, or nothing in a repository without branches
+ * @param base      the earlier revision
+ * @param revision  the later revision
+ */
+export const openRevisionsCompareWindow = (
+    projectId: string,
+    branch: string | undefined,
+    base: string,
+    revision: string
+): void => {
+    const query = new URLSearchParams({ projectId })
+    if (branch) {
+        query.set('branch', branch)
+    }
+    query.set('base', base)
+    query.set('revision', revision)
+    openCompare(query.toString())
+}
+
+/**
  * Every comparison is shown in one and the same window, because a session holds one comparison at a
  * time: a second window would take the comparison the first one is reading.
  */

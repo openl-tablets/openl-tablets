@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { openCompareWindow, openFileRevisionsCompareWindow } from './compare'
+import { openCompareWindow, openFileRevisionsCompareWindow, openRevisionsCompareWindow } from './compare'
 
 vi.mock('../../services/config', () => ({ default: { CONTEXT: '/studio' } }))
 
@@ -15,6 +15,24 @@ describe('openCompareWindow', () => {
 
         expect(open).toHaveBeenCalledWith(
             '/studio/compare?projectId=design%3AMy%20Project',
+            'compare_win',
+            'width=1240,height=800,resizable=yes,scrollbars=yes'
+        )
+    })
+})
+
+describe('openRevisionsCompareWindow', () => {
+    afterEach(() => {
+        vi.restoreAllMocks()
+    })
+
+    it('names the project, the branch and the two revisions, the earlier first', () => {
+        const open = vi.spyOn(window, 'open').mockReturnValue(null)
+
+        openRevisionsCompareWindow('design:Pricing', 'main', 'b1', 'a1')
+
+        expect(open).toHaveBeenCalledWith(
+            '/studio/compare?projectId=design%3APricing&branch=main&base=b1&revision=a1',
             'compare_win',
             'width=1240,height=800,resizable=yes,scrollbars=yes'
         )

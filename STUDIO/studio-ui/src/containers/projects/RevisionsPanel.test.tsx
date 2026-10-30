@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { RevisionsPanel } from './RevisionsPanel'
 import { getProjectRevisions, openProjectRevision, type ProjectRevision } from '../../services/repositories'
+import { openRevisionsCompareWindow } from './compare'
 
 vi.mock('../../services/repositories', () => ({
     getProjectRevisions: vi.fn(),
@@ -14,15 +15,17 @@ vi.mock('../../services/repositories', () => ({
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
+vi.mock('./compare', () => ({ openRevisionsCompareWindow: vi.fn() }))
+
 // The changes of a revision are read by a component of their own, tested on its own; here it only shows what it
 // was asked about, and each mount is counted.
 const revisionChangesMounts = vi.fn()
 vi.mock('./RevisionChanges', async () => {
     const { useEffect } = await import('react')
     return {
-        RevisionChanges: ({ branch, revision }: { branch?: string | null, revision: string }) => {
+        RevisionChanges: ({ base, branch, revision }: { base?: string, branch?: string | null, revision: string }) => {
             useEffect(() => { revisionChangesMounts(revision) }, [revision])
-            return <div data-testid={`changes-of-${revision}`}>{`${branch ?? ''}:${revision}`}</div>
+            return <div data-testid={`changes-of-${revision}`}>{`${branch ?? ''}:${base ? `${base}..` : ''}${revision}`}</div>
         },
     }
 })
@@ -77,7 +80,15 @@ vi.mock('antd', async () => {
         </div>
     ) : null
     const Skeleton = () => <div>loading</div>
-    const Alert = ({ title }: Record<string, unknown>) => <div>{title as never}</div>
+    const Alert = ({ action, title, 'data-testid': testId }: Record<string, unknown>) => (
+        <div data-testid={testId as string | undefined}><span>{title as never}</span>{action as never}</div>
+    )
+    const Typography = {
+        Text: ({ children }: Record<string, unknown>) => <span>{children as never}</span>,
+    }
+    const Space = ({ children, 'data-testid': testId }: Record<string, unknown>) => (
+        <div data-testid={testId as string | undefined}>{children as never}</div>
+    )
     const Empty = ({ description, ...rest }: Record<string, unknown>) => {
         const { image, ...dom } = rest
         void image
@@ -91,7 +102,7 @@ vi.mock('antd', async () => {
     }
     const notification = { error: vi.fn(), success: vi.fn() }
     const { withStaticApp } = await import('testing/staticAntdApp')
-    return withStaticApp({ Alert, Button, Skeleton, Empty, Modal, Switch, Tag, Tooltip, notification })
+    return withStaticApp({ Alert, Button, Skeleton, Empty, Modal, Space, Switch, Tag, Tooltip, Typography, notification })
 })
 
 const REVS: ProjectRevision[] = [
@@ -188,6 +199,48 @@ describe('RevisionsPanel', () => {
         expect(revisionChangesMounts).toHaveBeenCalledTimes(1)
         // The other revision stays as it was.
         expect(screen.queryByTestId('changes-of-abcdef1234')).toBeNull()
+    })
+
+    it('compares two ticked revisions, the earlier one as the base whatever order they were ticked in', async () => {
+        await renderPanel()
+        expect(screen.queryByTestId('revisions-selection')).toBeNull()
+
+        // The newer revision is ticked last.
+        await userEvent.click(screen.getByTestId('revision-pick-0987654321'))
+        expect(screen.getByTestId('revisions-selection')).toHaveTextContent('browser.history.pick_another')
+        expect(screen.getByTestId('revisions-compare')).toBeDisabled()
+        await userEvent.click(screen.getByTestId('revision-pick-abcdef1234'))
+        expect(screen.getByTestId('revisions-compare')).toBeEnabled()
+
+        await userEvent.click(screen.getByTestId('revisions-compare'))
+
+        expect(openRevisionsCompareWindow).toHaveBeenCalledWith('p1', 'main', '0987654321', 'abcdef1234')
+        // Picking a revision expands nothing, and the project stays where it is.
+        expect(screen.getByTestId('revision-toggle-0987654321')).toHaveAttribute('aria-expanded', 'false')
+        expect(openProjectRevision).not.toHaveBeenCalled()
+    })
+
+    it('ticks no more than two revisions, and clears them', async () => {
+        vi.mocked(getProjectRevisions).mockResolvedValue(page([
+            ...REVS,
+            { ...REVS[1]!, revisionNo: '1111111111', fullComment: 'Zero' },
+        ]))
+        await renderPanel()
+
+        await userEvent.click(screen.getByTestId('revision-pick-abcdef1234'))
+        await userEvent.click(screen.getByTestId('revision-pick-0987654321'))
+
+        // A third revision waits, though its marker still answers the pointer with why.
+        const third = screen.getByTestId('revision-pick-1111111111')
+        expect(third).toHaveAttribute('aria-disabled', 'true')
+        expect(third).toHaveAccessibleName('browser.history.pick_revision')
+        await userEvent.click(third)
+        expect(third).not.toBeChecked()
+
+        await userEvent.click(screen.getByTestId('revisions-clear'))
+        expect(screen.queryByTestId('revisions-selection')).toBeNull()
+        expect(screen.getByTestId('revision-pick-1111111111')).toHaveAttribute('aria-disabled', 'false')
+        expect(screen.getByTestId('revision-pick-abcdef1234')).not.toBeChecked()
     })
 
     it('expands a revision from the keyboard', async () => {

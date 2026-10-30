@@ -3,8 +3,8 @@ import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
 import { GO_AHEAD } from '../modules/useConfirmBefore'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { App, Button, Empty, Skeleton, Switch, Tag, Tooltip } from 'antd'
-import { DownOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons'
+import { App, Button, Empty, Skeleton, Space, Switch, Tag, Tooltip, Typography } from 'antd'
+import { CheckCircleFilled, DownOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { SearchInput } from '../../components/SearchInput'
 import {
@@ -17,9 +17,10 @@ import {
 import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { GitCommitMessage } from './GitCommitMessage'
-import { shortRevision } from './revisions'
+import { authorName, shortRevision } from './revisions'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { RevisionChanges } from './RevisionChanges'
+import { openRevisionsCompareWindow } from './compare'
 
 const useStyles = createStyles(({ css, token }) => ({
     panel: css`
@@ -29,8 +30,12 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         align-items: center;
         gap: 16px;
+        min-height: ${token.controlHeight}px;
         margin-bottom: 16px;
         flex-wrap: wrap;
+    `,
+    selection: css`
+        margin-left: auto;
     `,
     search: css`
         max-width: 360px;
@@ -56,14 +61,52 @@ const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         align-items: center;
     `,
+    // The marker is a check box of its own, drawn as the dot of the timeline: the box lies over the dot unseen.
+    marker: css`
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 1;
+
+        &:hover:not(:has([aria-disabled='true'])) > [data-dot],
+        &:has(:focus-visible) > [data-dot] {
+            transform: scale(1.4);
+        }
+
+        &:hover:not(:has([aria-disabled='true'])) > [data-dot]:not([data-current]),
+        &:has(:focus-visible) > [data-dot]:not([data-current]) {
+            background: ${token.colorPrimaryBorderHover};
+        }
+
+        &:has([aria-disabled='true']) {
+            cursor: default;
+        }
+    `,
+    markerBox: css`
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        opacity: 0;
+        cursor: inherit;
+    `,
     dot: css`
-        margin-top: 6px;
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background: ${token.colorBorder};
         box-shadow: 0 0 0 4px ${token.colorBgContainer};
-        z-index: 1;
+    `,
+    picked: css`
+        color: ${token.colorPrimary};
+        font-size: 16px;
+        background: ${token.colorBgContainer};
+        border-radius: 50%;
     `,
     dotCurrent: css`
         background: ${token.colorPrimary};
@@ -185,8 +228,8 @@ interface RevisionsPanelProps {
     reloadToken?: number
 }
 
-const authorName = (revision: ProjectRevision): string =>
-    revision.author?.displayName || revision.author?.email || '—'
+/** How many revisions are compared with each other. */
+const COMPARED_REVISIONS = 2
 
 /**
  * A project's revision history as a timeline, backed by the project history API. Supports a text search, a
@@ -196,6 +239,11 @@ const authorName = (revision: ProjectRevision): string =>
  *
  * <p>A click on a revision expands it and lists the files it changed, read the first time it is expanded and kept
  * while the history stays the same.
+ *
+ * <p>A click on the marker of a revision on the timeline picks it, and two revisions picked are compared with each
+ * other in the comparison window: the files changed between them, each compared there, the earlier revision as the
+ * base whatever order they were picked in. Nothing is opened for it, so the project stays on the revision it is on.
+ * A new search or the technical revisions toggled let the picked revisions go.
  */
 export const RevisionsPanel = ({
     projectId,
@@ -223,6 +271,7 @@ export const RevisionsPanel = ({
     const [discardOpenRevision, setDiscardOpenRevision] = useState<string | null>(null)
     const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set())
     const [shown, setShown] = useState<ReadonlySet<string>>(new Set())
+    const [picked, setPicked] = useState<readonly string[]>([])
     const fetchGeneration = useRef(0)
     const revisionQuery = useCallback((page: number) => ({
         ...(searchable && appliedSearch ? { search: appliedSearch } : {}),
@@ -245,6 +294,7 @@ export const RevisionsPanel = ({
         setLoadingMore(false)
         setExpanded(new Set())
         setShown(new Set())
+        setPicked([])
         getProjectRevisions(projectId, revisionQuery(0))
             .then(response => {
                 if (cancelled || generation !== fetchGeneration.current) {
@@ -296,6 +346,59 @@ export const RevisionsPanel = ({
         setShown(previous => previous.has(revisionNo) ? previous : new Set(previous).add(revisionNo))
     }
 
+    /** Picks a revision for a comparison, or lets it go; a third one waits until one of the two is let go. */
+    const togglePick = (revisionNo: string): void => setPicked(previous => {
+        if (previous.includes(revisionNo)) {
+            return previous.filter(other => other !== revisionNo)
+        }
+        return previous.length < COMPARED_REVISIONS ? [...previous, revisionNo] : previous
+    })
+
+    /** Whether two revisions are picked, so no other can be. */
+    const isFull = picked.length >= COMPARED_REVISIONS
+
+    const markerHint = (isPicked: boolean): string => {
+        if (isPicked) {
+            return t('browser.history.unpick')
+        }
+        return isFull ? t('browser.history.picked_two') : t('browser.history.pick')
+    }
+
+    /** The picked revisions as the history orders them, the newest first, so the later one leads. */
+    const pickedInOrder = items.map(revision => revision.revisionNo).filter(revisionNo => picked.includes(revisionNo))
+
+    const compare = () => {
+        const [later, earlier] = pickedInOrder
+        if (later && earlier) {
+            openRevisionsCompareWindow(projectId, branch ?? undefined, earlier, later)
+        }
+    }
+
+    const selection = picked.length > 0 && (
+        <Space className={styles.selection} data-testid="revisions-selection">
+            <Typography.Text type="secondary">
+                {pickedInOrder.length < COMPARED_REVISIONS
+                    ? t('browser.history.pick_another')
+                    : t('browser.history.picked', {
+                        base: shortRevision(pickedInOrder[1]!),
+                        revision: shortRevision(pickedInOrder[0]!),
+                    })}
+            </Typography.Text>
+            <Button
+                data-testid="revisions-compare"
+                disabled={pickedInOrder.length < COMPARED_REVISIONS}
+                onClick={compare}
+                size="small"
+                type="primary"
+            >
+                {t('browser.history.compare_revisions')}
+            </Button>
+            <Button data-testid="revisions-clear" onClick={() => setPicked([])} size="small">
+                {t('browser.history.clear_selection')}
+            </Button>
+        </Space>
+    )
+
     /** Opens a revision, asking first where the screen has something of its own to lose. */
     const openAsked = (revisionNo: string) => (beforeOpen ?? GO_AHEAD)(() => void open(revisionNo))
 
@@ -318,20 +421,26 @@ export const RevisionsPanel = ({
         }
     }
 
-    const filters = searchable && (
+    // The row is there whether there is anything to filter or not, so the picked revisions never move the history.
+    const filters = (
         <div className={styles.filters}>
-            <SearchInput
-                className={styles.search}
-                data-testid={`revisions-search-${projectId}`}
-                onChange={event => setSearch(event.target.value)}
-                placeholder={t('browser.history.search')}
-                size="small"
-                value={search}
-            />
-            <label className={styles.techToggle}>
-                <Switch checked={techRevs} data-testid="revisions-tech" onChange={setTechRevs} size="small" />
-                {t('browser.history.tech_revs')}
-            </label>
+            {searchable && (
+                <>
+                    <SearchInput
+                        className={styles.search}
+                        data-testid={`revisions-search-${projectId}`}
+                        onChange={event => setSearch(event.target.value)}
+                        placeholder={t('browser.history.search')}
+                        size="small"
+                        value={search}
+                    />
+                    <label className={styles.techToggle}>
+                        <Switch checked={techRevs} data-testid="revisions-tech" onChange={setTechRevs} size="small" />
+                        {t('browser.history.tech_revs')}
+                    </label>
+                </>
+            )}
+            {selection}
         </div>
     )
 
@@ -349,10 +458,38 @@ export const RevisionsPanel = ({
                         {items.map((revision, index) => {
                             const current = !!currentRevision && revision.revisionNo === currentRevision
                             const isExpanded = expanded.has(revision.revisionNo)
+                            const isPicked = picked.includes(revision.revisionNo)
                             return (
                                 <li key={revision.revisionNo} className={styles.item}>
                                     <div className={styles.rail}>
-                                        <span className={cx(styles.dot, current && styles.dotCurrent)} />
+                                        {/* The marker of the revision on the timeline picks it for a comparison. Two
+                                            revisions are compared, so a third waits until one is let go. */}
+                                        <Tooltip title={markerHint(isPicked)}>
+                                            <label className={styles.marker}>
+                                                <input
+                                                    // Not disabled: a disabled box tells nothing on hover, and the hint
+                                                    // says why it does nothing.
+                                                    aria-disabled={!isPicked && isFull}
+                                                    checked={isPicked}
+                                                    className={styles.markerBox}
+                                                    data-testid={`revision-pick-${revision.revisionNo}`}
+                                                    onChange={() => togglePick(revision.revisionNo)}
+                                                    type="checkbox"
+                                                    aria-label={t('browser.history.pick_revision', {
+                                                        revision: shortRevision(revision.revisionNo),
+                                                    })}
+                                                />
+                                                {isPicked
+                                                    ? <CheckCircleFilled className={styles.picked} />
+                                                    : (
+                                                        <span
+                                                            data-dot
+                                                            className={cx(styles.dot, current && styles.dotCurrent)}
+                                                            data-current={current || undefined}
+                                                        />
+                                                    )}
+                                            </label>
+                                        </Tooltip>
                                         {index < items.length - 1 && <span className={styles.line} />}
                                     </div>
                                     <div className={styles.card}>
