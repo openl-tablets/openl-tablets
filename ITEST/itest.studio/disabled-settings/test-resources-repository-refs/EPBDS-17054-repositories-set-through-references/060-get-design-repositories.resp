@@ -33,7 +33,7 @@ Content-Type: application/json
         "readOnly": true
       },
       "defaultCommentRestoredFrom": {
-        "value": "Restored from revision of {author} on {datetime}.",
+        "value": "Restored from revision of {author} on {datetime:MM/dd/yyyy hh:mm:ss a}.",
         "readOnly": true
       },
       "basePath": "DESIGN/rules/",
@@ -118,7 +118,7 @@ Content-Type: application/json
         "readOnly": true
       },
       "defaultCommentRestoredFrom": {
-        "value": "Restored from revision of {author} on {datetime}.",
+        "value": "Restored from revision of {author} on {datetime:MM/dd/yyyy hh:mm:ss a}.",
         "readOnly": true
       },
       "basePath": "DESIGN/rules/",
