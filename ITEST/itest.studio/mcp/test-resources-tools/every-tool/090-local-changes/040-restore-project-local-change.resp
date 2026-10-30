@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"restored\":\"#\"}}"
+        "text": "{\"data\":{\"restored\":\"#\",\"undo\":\"#\"}}"
       }
     ],
     "resultType": "complete",
