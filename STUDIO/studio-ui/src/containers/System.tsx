@@ -13,14 +13,12 @@ interface SystemSettings {
     auditOutputsConsole: boolean
     auditRetention: string
     autoCompile: boolean
-    datePattern: string
     dispatchingValidationEnabled: boolean
     detectProjectsByExcelFiles: boolean
     formatTablesOnSave: boolean
     ignoredPaths: string
     projectHistoryCount: number
     testRunThreadCount: number | string
-    timeFormat: string
     updateSystemProperties: boolean
     db: {
         maximumPoolSize: number
@@ -191,14 +189,6 @@ export const System: React.FC = () => {
             <Checkbox
                 label={t('system:update_table_properties')}
                 name="updateSystemProperties"
-            />
-            <Input
-                label={t('system:date_format')}
-                name="datePattern"
-            />
-            <Input
-                label={t('system:time_format')}
-                name="timeFormat"
             />
             {isAuditLogEnabled && (
                 <>

@@ -11,6 +11,7 @@ import { ProjectRowActions, type ProjectListHandlers } from './ProjectRowActions
 import type { RowBusyId } from './projectActions'
 import { deriveProjectRow, ProjectBranchSwitch, ProjectTags } from './projectRow'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
+import { useDateFormats } from '../../utils/dateFormat'
 
 const useStyles = createStyles(({ css, token }) => ({
     grid: css`
@@ -184,6 +185,7 @@ interface ProjectsGridProps {
 
 /** Card-grid view of the projects list, mirroring the table's data with the same row actions. */
 export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileStatusByProject, pending, onChanged, onBranchSwitching }: ProjectsGridProps) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
 

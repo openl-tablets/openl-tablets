@@ -22,7 +22,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { apiCall } from '../services'
 import { SystemContext } from '../contexts'
 import { useCopyToClipboard } from '../hooks'
-import { formatDate } from '../utils/dateFormat'
+import { datePickerFormat, formatDate, useDateFormats } from '../utils/dateFormat'
 import { useStyles } from './PersonalAccessTokens.styles'
 
 interface PersonalAccessToken {
@@ -48,6 +48,7 @@ type ExpirationOption = '7_days' | '30_days' | '60_days' | '90_days' | 'custom' 
 type DrawerMode = 'create' | 'created'
 
 export const PersonalAccessTokens: React.FC = () => {
+    useDateFormats()
     const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const { styles, cx } = useStyles()
@@ -286,6 +287,7 @@ export const PersonalAccessTokens: React.FC = () => {
                 >
                     <DatePicker
                         disabledDate={(current) => current && current < dayjs().startOf('day')}
+                        format={datePickerFormat()}
                         placeholder={t('pat:expiration_placeholder')}
                         style={{ width: '100%' }}
                     />

@@ -1,10 +1,7 @@
 import React from 'react'
 import { DatePicker, Input, InputNumber, Select } from 'antd'
-import {
-    datePickerFormatForLocale,
-    ISO_DATE_FORMAT,
-    parseDateValue,
-} from '../tableModals/dateValue'
+import { ISO_DATE_FORMAT, parseDateValue } from '../tableModals/dateValue'
+import { datePickerFormat, useDateFormats } from '../../utils/dateFormat'
 import type { TableCellValue } from './tableSkeletons'
 
 const INTEGER_TYPES = new Set(['Integer', 'Long', 'Short', 'Byte', 'BigInteger'])
@@ -113,6 +110,7 @@ export const TypedTableValueInput: React.FC<TypedTableValueInputProps> = ({
     vocabularyValues,
     ...common
 }) => {
+    useDateFormats()
     const declared = editorType(type, condition)
     const vocabulary = Object.hasOwn(vocabularyValues, declared) ? vocabularyValues[declared] ?? [] : null
     if (vocabulary) {
@@ -155,7 +153,7 @@ export const TypedTableValueInput: React.FC<TypedTableValueInputProps> = ({
         return (
             <DatePicker
                 {...common}
-                format={datePickerFormatForLocale()}
+                format={datePickerFormat()}
                 onChange={date => onChange(date ? date.format(ISO_DATE_FORMAT) : '')}
                 style={{ width: '100%' }}
                 value={parseDateValue(value)}

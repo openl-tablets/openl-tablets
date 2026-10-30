@@ -10,7 +10,7 @@ import {
     openText,
     publicLicense,
 } from '../../services/licenses'
-import { formatDate } from '../../utils/dateFormat'
+import { formatDate, useDateFormats } from '../../utils/dateFormat'
 import { errorHandler } from '../../utils/errorHandling'
 import { useStyles } from './AboutModal.styles'
 
@@ -133,6 +133,7 @@ interface AboutModalProps {
  * webapp on — Java, Jetty, Node.js, Alpine Linux — so that side is shown only where its list is found.
  */
 export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
+    useDateFormats()
     const { t } = useTranslation()
     const { styles } = useStyles()
     const { appVersion, openlInfo } = useContext(SystemContext)

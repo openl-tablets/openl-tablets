@@ -39,8 +39,6 @@ i18next.addResourceBundle('en', 'system', {
     format_tables_on_save_info: 'Formats a table with the OpenL table style every time it is saved, created or '
         + 'copied, with no compile. An Excel file uploaded into a project is formatted too. While it is on, the table '
         + 'editor offers no formatting buttons, only the indent of TBasic and ColumnMatch tables.',
-    date_format: 'Date Format',
-    time_format: 'Time Format',
     db_url: 'Database URL',
     login: 'Login',
     password: 'Password',

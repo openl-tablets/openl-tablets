@@ -24,6 +24,7 @@ class WebStudioTest {
                     // system settings
                     .withInitParam("project.history.count", "99")
                     .withInitParam("project.detect-by-excel-files", "true")
+                    // removed settings a deployment may still set: the system settings answer neither
                     .withInitParam("data.format.date", "MM/dd/yyyy")
                     .withInitParam("data.format.time", "hh:mm:ss a")
                     .withInitParam("update.system.properties", "true")

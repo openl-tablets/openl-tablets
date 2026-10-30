@@ -29,6 +29,16 @@ describe('describeSimpleValue', () => {
         const answer = () => 42
         expect(describeSimpleValue(answer)).toEqual({ display: answer.toString(), kind: 'other' })
     })
+
+    it('shows a date the server writes in the formats of the reader, and leaves other text quoted', () => {
+        const patterns = { date: 'DD.MM.YYYY', dateTime: 'DD.MM.YYYY HH:mm:ss' }
+        expect(describeSimpleValue('2026-12-31T00:00:00.000', String, patterns))
+            .toEqual({ display: '31.12.2026', kind: 'date' })
+        expect(describeSimpleValue('2026-12-31T14:05:09.000', String, patterns))
+            .toEqual({ display: '31.12.2026 14:05:09', kind: 'date' })
+        // A date with no time is text the server writes the same way as any other.
+        expect(describeSimpleValue('2026-12-31', String, patterns)).toEqual({ display: '"2026-12-31"', kind: 'string' })
+    })
 })
 
 describe('isComplexValue / complexValueSummary', () => {

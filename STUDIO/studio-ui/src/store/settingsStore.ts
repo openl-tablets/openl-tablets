@@ -3,7 +3,7 @@ import { isJsonObject, readJson, writeJson } from 'utils/localStore'
 import { FAILURES_PER_TEST, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import type { TestsQuery } from 'services/execution'
 
-/** The choices of **My Settings**: how the tables, the test results and the trace are shown. */
+/** The choices of **My Settings**: how the tables, the test results, the trace and the dates are shown. */
 export interface UserSettings {
     /** The technical rows of a table are shown above its data. */
     showHeader: boolean
@@ -17,7 +17,22 @@ export interface UserSettings {
     showComplexResult: boolean
     /** The trace shows numbers with their full precision. */
     showRealNumbers: boolean
+    /** Every screen writes dates as the regional settings of the browser do; the two settings below are not used. */
+    useSystemDateFormat: boolean
+    /** The day.js pattern every screen writes a date in, such as `YYYY-MM-DD`, where the system is not followed. */
+    dateFormat: string
+    /** Every screen writes a time of day on a 24-hour clock, rather than a 12-hour one, where the system is not followed. */
+    hours24: boolean
 }
+
+/** The formats a date can be picked in, each by the name a reader knows it under, as day.js patterns. */
+export const DATE_FORMATS = [
+    { name: 'us_numeric', pattern: 'MM/DD/YYYY' },
+    { name: 'us_text', pattern: 'MMM D, YYYY' },
+    { name: 'uk', pattern: 'DD/MM/YYYY' },
+    { name: 'european', pattern: 'DD.MM.YYYY' },
+    { name: 'iso', pattern: 'YYYY-MM-DD' },
+] as const
 
 /** Where **My Settings** are remembered: in this browser only, for every tab and visit. */
 export const USER_SETTINGS_KEY = 'openl.settings'
@@ -30,12 +45,23 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = {
     testsFailuresOnly: false,
     showComplexResult: false,
     showRealNumbers: false,
+    useSystemDateFormat: true,
+    dateFormat: 'MMM D, YYYY',
+    hours24: false,
 }
 
-/** Whether a stored value can stand for the setting: of the same type, and a page size the screens offer. */
-const fits = (key: keyof UserSettings, value: unknown): boolean => key === 'testsPerPage'
-    ? TESTS_PAGE_SIZES.includes(value as number)
-    : typeof value === typeof DEFAULT_USER_SETTINGS[key]
+/** Whether a stored value can stand for the setting: of the same type, and a page size or a format the menu offers. */
+const fits = (key: keyof UserSettings, value: unknown): boolean => {
+    switch (key) {
+        case 'testsPerPage':
+            return TESTS_PAGE_SIZES.includes(value as number)
+        case 'dateFormat':
+            // A format an earlier version kept, or none, writes no date the menu offers.
+            return DATE_FORMATS.some(format => format.pattern === value)
+        default:
+            return typeof value === typeof DEFAULT_USER_SETTINGS[key]
+    }
+}
 
 /**
  * The remembered settings.

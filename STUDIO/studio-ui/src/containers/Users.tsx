@@ -16,7 +16,7 @@ import { UserDetails } from '../types/user'
 import { ColumnsType } from 'antd/es/table/interface'
 import { RenderGroupCell } from './users/RenderGroupCell'
 import { useGroups } from './groups/useGroups'
-import { formatDateTime } from '../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../utils/dateFormat'
 import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
@@ -82,6 +82,7 @@ export const Users: React.FC = () => {
         showEditUserDrawer()
     }
 
+    const dateFormats = useDateFormats()
     const columns = useMemo(() => {
         const columns: ColumnsType<UserDetails> = [
             {
@@ -154,7 +155,7 @@ export const Users: React.FC = () => {
                     - (b.lastLoginTime ? dayjs(b.lastLoginTime).valueOf() : 0),
                 render: (lastLoginTime: string | undefined, { online }) => {
                     const lastLoginComponent = lastLoginTime
-                        ? <span>{formatDateTime(lastLoginTime)}</span>
+                        ? <span>{formatDateTime(lastLoginTime, dateFormats)}</span>
                         : <Typography.Text type="secondary">{t('users:users_table.never_logged_in')}</Typography.Text>
 
                     if (online) {
@@ -201,7 +202,7 @@ export const Users: React.FC = () => {
         }
 
         return columns
-    }, [t, isExternalAuthSystem, onEditUser, removeUser])
+    }, [t, isExternalAuthSystem, onEditUser, removeUser, dateFormats])
 
     return (
         <>

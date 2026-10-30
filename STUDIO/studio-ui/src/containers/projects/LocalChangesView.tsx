@@ -9,7 +9,7 @@ import { getLocalHistory, restoreLocalHistory, type LocalHistoryItem } from '../
 import { useListPageStyles } from '../../styles/listPageStyles'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { errorMessage } from '../../utils/errorMessage'
-import { formatDateTime } from '../../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { openVersionsCompareWindow } from './compare'
 
 interface LocalChangesViewProps {
@@ -90,6 +90,7 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 export const LocalChangesView = ({ projectId, moduleName, onRestored, beforeRestore }: LocalChangesViewProps) => {
+    useDateFormats()
     const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useListPageStyles()

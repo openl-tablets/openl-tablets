@@ -137,7 +137,7 @@ To manage personal settings, proceed as follows:
 
 1.  In OpenL Studio, in the top-right corner, click the settings icon beside the theme icon.
 
-    ![My Settings menu with the Table Settings, Testing Settings, and Trace Settings groups](images/user-settings-menu.png "My Settings menu")
+    ![My Settings menu with the Table Settings, Testing Settings, Trace Settings and Date & Time groups](images/user-settings-menu.png "My Settings menu")
 
     *My Settings menu*
 
@@ -161,6 +161,22 @@ To manage personal settings, proceed as follows:
 4.  In the **Trace Settings** group, turn the following option on or off:
 
     -   **Show Numbers Without Formatting** — display numeric values without locale-based formatting in the trace view.
+
+5.  In the **Date & Time** group, choose how dates and times are written:
+
+    -   **Use System Preferences** — on by default: every screen writes dates and times as the regional settings of
+        the web browser do, such as `12/31/2026 1:45:30 PM` in the US.
+    -   **Date Format** — offered while **Use System Preferences** is off: point to it and pick **US (Numeric)**
+        (`12/31/2026`), **US (Text)** (`Dec 31, 2026`), **UK** (`31/12/2026`), **European** (`31.12.2026`) or
+        **ISO 8601** (`2026-12-31`). Each format is shown on the same moment, beside its name.
+    -   **24-Hour Time** — offered while **Use System Preferences** is off: the time of day is written on a 24-hour
+        clock, `13:45:30`, rather than a 12-hour one, `1:45:30 PM`.
+
+    A change applies at once to every screen: the lists, the table editor, the table properties, the input of a run,
+    the results of a run or a test, the trace and the date pickers, where a date is also typed in the format shown.
+    A date and time of a revision, a deployment or another event is shown in the time zone of the browser. A date in
+    a table cell, a table property or a value of a rule is shown as it is written, and with the time only when it
+    holds a time of day.
 
 The menu stays open while the options are changed. To close it, click the settings icon again or anywhere outside
 the menu.

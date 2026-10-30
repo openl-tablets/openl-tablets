@@ -579,10 +579,23 @@ from Maven.
 * **`rules.tree.view.default` and `rules.tree.view` are no longer read.** A default order set for all users in the
   application properties has no effect; remove it.
 
-* **The `{datetime}` of the restore comment template is written in UTC as `2026-10-29T18:20:19Z`**, whatever the
-  date and time settings and the time zone of the server. A comment is text stored in the repository and read by
-  anyone, so it names the moment in one form. A template that wants another form names a pattern of
-  `DateTimeFormatter` after a colon, such as `{datetime:yyyy-MM-dd HH:mm}`, which is written in UTC as well.
+* **The restore comment template names the pattern of its date: `{datetime:MM/dd/yyyy hh:mm:ss a}`.** A bare
+  `{datetime}` is now written in ISO 8601, such as `2026-10-29T18:20:19Z`, and a pattern of `DateTimeFormatter`
+  after a colon writes it another way. Either is written in UTC, whereas the comments were written in the time zone
+  of the server before: on a server outside UTC, a new comment names the same moment at another hour. The default
+  template keeps the pattern the comments were written in before. On the first start,
+  OpenL Studio moves the pattern of the removed date and time settings into the restore comment templates it keeps:
+  a saved template with a bare `{datetime}` takes that pattern, or `MM/dd/yyyy hh:mm:ss a` where none was set, and
+  where the installation set a pattern of its own, the design repositories that kept the default template take it
+  too. A pattern with letters a comment does not write — a time zone, or `u`, which `SimpleDateFormat` read as the day
+  of the week — is not carried over: the log names it, and the template takes `MM/dd/yyyy hh:mm:ss a`. A template
+  set in the environment or in `application.properties` is not changed; give it a pattern yourself.
+
+* **`data.format.date`, `data.format.time` and `data.format.datetime` are removed**, and with them **Date Format** and
+  **Time Format** of the **System** section. A value left in the application properties has no effect; remove it.
+  `GET` and `PUT /rest/admin/settings/system` no longer carry `datePattern` and `timeFormat`. Every screen shows a
+  date as the regional settings of the web browser of the user do, and each user picks a format of their own in
+  **My Settings**, under **Date & Time**.
 
 * **`ruleservice.datasource.deploy.classpath.jars` takes `NEVER`, `IF_ABSENT` or `ALWAYS` only.** Replace `true` with
   `IF_ABSENT` and `false` with `NEVER`, the values they stood for. With `true` or `false`, OpenL Rule Services

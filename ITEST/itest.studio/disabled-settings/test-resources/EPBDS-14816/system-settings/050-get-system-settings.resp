@@ -16,14 +16,6 @@ Content-Type: application/json
     "readOnly": true
   },
   "formatTablesOnSave": true,
-  "datePattern": {
-    "value": "MM/dd/yyyy",
-    "readOnly": true
-  },
-  "timeFormat": {
-    "value": "hh:mm:ss a",
-    "readOnly": true
-  },
   "testRunThreadCount": {
     "value": 3,
     "readOnly": true

@@ -14,15 +14,19 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -43,8 +47,9 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
-public class Migrator {
+public final class Migrator {
 
     private static final String DESIGN_LOCAL_REPOSITORY_PATH = "repository.design.local-repository-path";
 
@@ -57,9 +62,12 @@ public class Migrator {
     private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
     private static final String LEGACY_SINGLE_USERNAME = "DEFAULT";
-
-    private Migrator() {
-    }
+    private static final String RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
+    /** The date and time settings removed in 7.0.0. */
+    private static final List<String> LEGACY_DATE_SETTINGS =
+            List.of("data.format.date", "data.format.time", "data.format.datetime");
+    /** The pattern the date and time settings wrote the {@code {datetime}} of a comment in before 7.0.0. */
+    static final String LEGACY_DATETIME_PATTERN = "MM/dd/yyyy hh:mm:ss a";
 
     /**
      * Brings the settings of the previous installation to what the running version expects.
@@ -88,6 +96,9 @@ public class Migrator {
         }
         if (stringFromVersion.compareTo("6.3.1") < 0) {
             migrateTo640(settings, props);
+        }
+        if (stringFromVersion.compareTo("7.0.0") < 0) {
+            migrateTo700(settings, props);
         }
         // A single-user installation upgraded from before EPBDS-16213 keeps its workspace under the former
         // default user name; move it to the resolved name first, so the conversion below records the moved
@@ -234,8 +245,7 @@ public class Migrator {
      * Reads the legacy {@code .version} file. Returns {@code null} when the file is absent, unreadable,
      * or does not identify the source repository — such a project has no restorable link.
      */
-    @Nullable
-    private static ProjectMetainfo legacyMetainfo(Path versionFile, Map<String, ProjectMetainfo.FileBaseline> baselines) {
+    private static @Nullable ProjectMetainfo legacyMetainfo(Path versionFile, Map<String, ProjectMetainfo.FileBaseline> baselines) {
         if (!Files.isRegularFile(versionFile)) {
             return null;
         }
@@ -294,13 +304,85 @@ public class Migrator {
         return new ProjectMetainfo.FileBaseline(properties.get("unique-id"), size, modifiedAt);
     }
 
-    @Nullable
-    private static Long parseLongOrNull(@Nullable String value) {
+    private static @Nullable Long parseLongOrNull(@Nullable String value) {
         try {
             return value == null ? null : Long.valueOf(value);
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /**
+     * Keeps the comments of a restored revision as the installation wrote them before 7.0.0.
+     *
+     * <p>The Date Format and Time Format settings are removed, and a bare {@code {datetime}} now writes the moment in
+     * ISO 8601. The pattern the settings gave moves into the restore comment template of every design repository, as
+     * {@code {datetime:<pattern>}}: the templates the installation saved, and, where it set a pattern of its own, the
+     * default template of the repositories that kept it.
+     */
+    private static void migrateTo700(DynamicPropertySource settings, HashMap<String, String> props) {
+        var pattern = legacyDateTimePattern(Props.text("data.format.date"), Props.text("data.format.time"),
+                Props.text("data.format.datetime"));
+        var templates = new HashMap<String, String>();
+        Arrays.stream(settings.getPropertyNames())
+                .filter(name -> name.startsWith(REPOSITORY_PREFIX) && name.endsWith(RESTORED_FROM_SUFFIX))
+                .forEach(name -> templates.put(name, settings.getProperty(name)));
+        var defaultTemplate = Props.text("repo-default.design" + RESTORED_FROM_SUFFIX);
+        if (pattern != null && defaultTemplate != null) {
+            Arrays.stream(StringUtils.split(Objects.requireNonNullElse(
+                            Props.text(AdministrationSettings.DESIGN_REPOSITORY_CONFIGS), ""), ','))
+                    .map(String::trim)
+                    .filter(StringUtils::isNotEmpty)
+                    .forEach(id -> templates.putIfAbsent(REPOSITORY_PREFIX + id + RESTORED_FROM_SUFFIX, defaultTemplate));
+        }
+        props.putAll(withDatePattern(templates, Objects.requireNonNullElse(pattern, LEGACY_DATETIME_PATTERN)));
+        LEGACY_DATE_SETTINGS.forEach(name -> props.put(name, null));
+    }
+
+    /**
+     * The pattern the date and time settings of an installation wrote a date and time in, as a comment writes it, or
+     * {@code null} where it set none of them and wrote it in {@link #LEGACY_DATETIME_PATTERN}.
+     *
+     * <p>The settings took a pattern of {@code SimpleDateFormat}, and a comment takes one of {@code DateTimeFormatter}
+     * of fewer letters ({@link Comments#isWritten}). A run of the day period letter is one letter there; a pattern of
+     * other letters is not carried over, and the comment keeps {@link #LEGACY_DATETIME_PATTERN}.
+     */
+    static @Nullable String legacyDateTimePattern(@Nullable String date, @Nullable String time,
+                                                  @Nullable String dateTime) {
+        String pattern;
+        if (StringUtils.isNotBlank(dateTime) && !dateTime.contains("${")) {
+            pattern = dateTime.trim();
+        } else if (StringUtils.isBlank(date) && StringUtils.isBlank(time)) {
+            return null;
+        } else {
+            pattern = Objects.requireNonNullElse(StringUtils.trimToNull(date), "MM/dd/yyyy") + " "
+                    + Objects.requireNonNullElse(StringUtils.trimToNull(time), "hh:mm:ss a");
+        }
+        var written = pattern.replaceAll("a+", "a");
+        if (!Comments.isWritten(written)) {
+            log.warn("""
+                    The date and time pattern '{}' is not carried over to the restore comments, which write '{}'\
+                     instead.""", pattern, LEGACY_DATETIME_PATTERN);
+            return null;
+        }
+        return written;
+    }
+
+    /**
+     * The restore comment templates that change when their {@code {datetime}} takes the given pattern: a bare one, and
+     * one naming the pattern of the settings before 7.0.0.
+     */
+    static Map<String, String> withDatePattern(Map<String, String> templates, String pattern) {
+        var named = "{datetime:" + pattern + "}";
+        var changed = new HashMap<String, String>();
+        templates.forEach((name, template) -> {
+            var patched = template.replace("{datetime}", named)
+                    .replace("{datetime:" + LEGACY_DATETIME_PATTERN + "}", named);
+            if (!patched.equals(template)) {
+                changed.put(name, patched);
+            }
+        });
+        return changed;
     }
 
     private static void migrateTo640(DynamicPropertySource settings, HashMap<String, String> props) {
@@ -319,10 +401,9 @@ public class Migrator {
         // remove `.folder-structure.flat` property
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".folder-structure.flat"))
-                .forEach(propertyToRemove -> {
+                .forEach(propertyToRemove ->
                     // remove property
-                    props.put(propertyToRemove, null);
-                });
+                    props.put(propertyToRemove, null));
 
         // Migrate '.local-repository-path' property to '.uri' if '.uri' is empty
         migrateLocalRepositoryPath(settings, props);

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { roleColoursOf } from 'components/RawTableGrid.styles'
@@ -11,6 +11,7 @@ import { THEME_ORDER, variantOf } from 'styles/themes'
 import { hex, renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
 import { highlight } from 'utils/codeHighlight'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 
 /** A colour as a style writes it back once the browser has read it. */
 const written = (colour: string): string => {
@@ -189,6 +190,77 @@ describe('RawTableGrid', () => {
 
         const cells = Array.from(screen.getByTestId('grid').querySelectorAll('td'), cell => cell.textContent)
         expect(cells).toEqual(['1.15', '1.45', '-1.15', '0.3', '435', '1e-7', '1234567890123456', '1.1500000000000001'])
+    })
+
+    it('draws a cell the compiler types as a date in the formats of the reader, its time only when it holds one', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'B2', value: 'Data Policy policies' }, { covered: true }],
+            [{ cell: 'B3', value: 'start' }, { cell: 'C3', value: 'note' }],
+            [{ cell: 'B4', value: '2026-10-30T08:02:09.24' }, { cell: 'C4', value: '2026-10-30' }],
+            // a date at midnight is read as a day alone
+            [{ cell: 'B5', value: '2026-10-30' }, { cell: 'C5', value: '2026-10-30T08:02' }],
+        ]
+        const roles = rolesOf({
+            pos: 'B2:C5',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
+                { role: 'code', top: 1, left: 0, bottom: 1, right: 1 },
+                { role: 'output', type: 'date', top: 2, left: 0, bottom: 3, right: 0 },
+                { role: 'output', type: 'string', top: 2, left: 1, bottom: 3, right: 1 },
+            ],
+        })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD', hours24: true } })
+        try {
+            render(<RawTableGrid roles={roles} rows={table} testId="grid" />)
+
+            const text = (address: string) => screen.getByTestId('grid').querySelector(`[data-cell="${address}"]`)
+                ?.textContent
+            // the date holds no time zone, so it is never shifted
+            expect(text('B4')).toBe('2026-10-30 08:02:09')
+            expect(text('B5')).toBe('2026-10-30')
+            // a text that only looks like a date is written as it is stored
+            expect(text('C4')).toBe('2026-10-30')
+            expect(text('C5')).toBe('2026-10-30T08:02')
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
+    })
+
+    it('keeps the mark of the cell a table returns on a date it writes in the formats of the reader', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'B2', value: 'Rules Date due()', colspan: 1 }],
+            [{ cell: 'B3', value: '2026-10-30', metaInfo: { returnCell: true, usages: [{ start: 0, end: 4, description: 'Rules due', kind: 'rule' }]} }],
+        ]
+        const roles = rolesOf({
+            pos: 'B2:B3',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 0 },
+                { role: 'output', type: 'date', top: 1, left: 0, bottom: 1, right: 0 },
+            ],
+        })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        try {
+            render(<RawTableGrid roles={roles} rows={table} testId="grid" />)
+
+            const cell = screen.getByTestId('grid').querySelector('[data-cell="B3"]')!
+            expect(cell).toHaveTextContent('30.10.2026')
+            expect(within(cell as HTMLElement).getByTestId('cell-return')).toBeInTheDocument()
+            // the link was measured over the stored text, which is not the one shown
+            expect(within(cell as HTMLElement).queryByTestId('cell-usage-0')).toBeNull()
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
+    })
+
+    it('draws a cell as it is stored when nothing says it holds a date', () => {
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        try {
+            render(<RawTableGrid rows={[[{ cell: 'A1', value: '2026-10-30T08:02:09.24' }]]} testId="grid" />)
+
+            expect(screen.getByTestId('grid').querySelector('td')?.textContent).toBe('2026-10-30T08:02:09.24')
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
     })
 
     it('paints the cell the way the workbook has it', () => {

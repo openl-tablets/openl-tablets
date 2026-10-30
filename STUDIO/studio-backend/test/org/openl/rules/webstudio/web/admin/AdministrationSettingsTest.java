@@ -116,8 +116,6 @@ class AdministrationSettingsTest {
                 AdministrationSettings.PROJECT_HISTORY_COUNT,
                 AdministrationSettings.PROJECT_DETECT_BY_EXCEL_FILES,
                 IgnoredPaths.PROPERTY,
-                AdministrationSettings.DATE_PATTERN,
-                AdministrationSettings.TIME_PATTERN,
                 AdministrationSettings.UPDATE_SYSTEM_PROPERTIES,
                 AdministrationSettings.FORMAT_TABLES_ON_SAVE,
                 AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY,

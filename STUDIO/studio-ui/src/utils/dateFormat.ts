@@ -1,12 +1,12 @@
+import { useMemo } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
-import localizedFormat from 'dayjs/plugin/localizedFormat'
 import utc from 'dayjs/plugin/utc'
 import i18next from 'i18next'
+import { useSettingsStore } from '../store/settingsStore'
 
-dayjs.extend(localizedFormat)
 dayjs.extend(utc)
 
-// The date format follows the application language. A day.js locale for every new application
+// The names of the months follow the application language. A day.js locale for every new application
 // language must be registered statically next to its i18n bundle, e.g. import 'dayjs/locale/de'.
 const applyLanguage = (language?: string) => {
     if (language) {
@@ -19,33 +19,139 @@ const applyLanguage = (language?: string) => {
 applyLanguage(i18next.language)
 i18next.on('languageChanged', applyLanguage)
 
+const DATE_PART_TOKENS = {
+    day: 'DD',
+    month: 'MM',
+    year: 'YYYY',
+} as const
+
 /**
- * Formats a date without time, such as "Aug 16, 2018", using the date format of the current language.
+ * A separator a locale writes between the parts of a date, kept as it is by day.js.
  *
- * Returns the raw string when it cannot be parsed.
+ * A space of any kind is written as a plain one. A locale may separate the time from its day period by a narrow
+ * no-break space, as newer browsers do for English, and a reader types a plain space, which the pattern then reads.
  */
-export const formatDate = (value: string): string => {
-    const date = dayjs(value)
-    return date.isValid() ? date.format('ll') : value
+const literal = (value: string): string => `[${value.replace(/\s/g, ' ')}]`
+
+/** Date picker pattern derived from the user's locale, independent of the value stored in the workbook. */
+export const datePickerFormatForLocale = (locale?: string): string =>
+    new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
+        .formatToParts(new Date(2006, 10, 22))
+        .map(part => part.type in DATE_PART_TOKENS
+            ? DATE_PART_TOKENS[part.type as keyof typeof DATE_PART_TOKENS]
+            : literal(part.value))
+        .join('')
+
+/**
+ * The pattern of the time of day, down to the second, that a locale writes: the order of its parts, its separators,
+ * and a 12-hour clock with its day period where the locale keeps one.
+ */
+export const timeFormatForLocale = (locale?: string): string => {
+    const format = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', second: '2-digit' })
+    const twelveHours = ['h11', 'h12'].includes(format.resolvedOptions().hourCycle ?? '')
+    const tokens: Partial<Record<Intl.DateTimeFormatPartTypes, string>> = {
+        hour: twelveHours ? 'h' : 'HH',
+        minute: 'mm',
+        second: 'ss',
+        dayPeriod: 'A',
+    }
+    return format.formatToParts(new Date(2006, 10, 22, 13, 5, 9))
+        .map(part => tokens[part.type] ?? literal(part.value))
+        .join('')
+}
+
+/** The time of day on a 12-hour clock, down to the second, such as "1:45:30 PM". */
+const TIME_12_HOURS = 'h:mm:ss A'
+
+/**
+ * The time of day on a 24-hour clock, down to the second, such as "13:45:30".
+ *
+ * Seconds are shown because the things carrying a time here — revisions, deployments, locks, logins — are routinely
+ * made within the same minute, and two of them stripped to the minute read alike.
+ */
+const TIME_24_HOURS = 'HH:mm:ss'
+
+/** The patterns of day.js a date alone and a date with its time are written in. */
+export interface DateFormats {
+    date: string
+    dateTime: string
 }
 
 /**
- * Formats a date with time down to the second, such as "Aug 16, 2018 8:02:30 PM", using the date
- * format of the current language.
+ * The patterns of the date and time settings of **My Settings**: the ones of the regional settings of the browser
+ * while the reader follows the preferences of the system, or else the Date Format they picked and the time on the
+ * clock they picked.
+ */
+const patternsOf = (system: boolean, dateFormat: string, hours24: boolean): DateFormats => {
+    if (system) {
+        const date = datePickerFormatForLocale()
+        return { date, dateTime: `${date} ${timeFormatForLocale()}` }
+    }
+    return { date: dateFormat, dateTime: `${dateFormat} ${hours24 ? TIME_24_HOURS : TIME_12_HOURS}` }
+}
+
+/** The patterns dates are written in now, for a call that is handed none. */
+export const formats = (): DateFormats => {
+    const { useSystemDateFormat, dateFormat, hours24 } = useSettingsStore.getState().settings
+    return patternsOf(useSystemDateFormat, dateFormat, hours24)
+}
+
+/**
+ * The pattern a date picker shows and reads a date in: the one dates are written in, so a date is typed as the
+ * reader reads it.
  *
- * Seconds are shown because the things carrying a time here — revisions, deployments, locks, logins —
- * are routinely made within the same minute, and two of them stripped to the minute read alike. The
- * date and the full time are combined because the single localized token, 'lll', stops at the minute.
+ * A picker gives the date it read as a date; the screen sends it to the server in ISO 8601, whatever the pattern.
+ *
+ * @param withTime whether the picker shows the time of day after the day
+ */
+export const datePickerFormat = (withTime = false): string => {
+    const patterns = formats()
+    return withTime ? patterns.dateTime : patterns.date
+}
+
+/**
+ * The patterns the reader writes dates in, which subscribe the screen to the date and time settings, so it draws its
+ * dates again the moment the reader changes them.
+ *
+ * Every component that writes a date — through the functions of this module, a version label or a date picker —
+ * calls it. A value worked out from dates in `useMemo` hands the patterns to the functions that write the dates and
+ * names them among its dependencies, so it is worked out again in the new formats.
+ */
+export const useDateFormats = (): DateFormats => {
+    const system = useSettingsStore(state => state.settings.useSystemDateFormat)
+    const dateFormat = useSettingsStore(state => state.settings.dateFormat)
+    const hours24 = useSettingsStore(state => state.settings.hours24)
+    return useMemo(() => patternsOf(system, dateFormat, hours24), [system, dateFormat, hours24])
+}
+
+/**
+ * Formats a date without time, such as "12/31/2026", as the date and time settings of the reader write it.
+ *
+ * A moment, such as `2026-10-29T18:20:19Z`, is shown in the time zone of the browser.
+ *
+ * Returns the raw string when it cannot be parsed.
+ */
+export const formatDate = (value: string, patterns: DateFormats = formats()): string => {
+    const date = dayjs(value)
+    return date.isValid() ? date.format(patterns.date) : value
+}
+
+/**
+ * Formats a date with its time down to the second, such as "12/31/2026 1:45:30 PM", as the date and time settings of
+ * the reader write it.
+ *
+ * A moment, such as `2026-10-29T18:20:19Z`, is shown in the time zone of the browser, so the same moment reads
+ * the same on every screen.
  *
  * Returns null for a missing value and the raw string when it cannot be parsed, so callers can apply
  * their own fallback.
  */
-export const formatDateTime = (value?: string): string | null => {
+export const formatDateTime = (value?: string, patterns: DateFormats = formats()): string | null => {
     if (!value) {
         return null
     }
     const date = dayjs(value)
-    return date.isValid() ? date.format('ll LTS') : value
+    return date.isValid() ? date.format(patterns.dateTime) : value
 }
 
 /**
@@ -170,18 +276,20 @@ export const isLocalDateTime = (value: unknown): value is string =>
     typeof value === 'string' && LOCAL_DATE_TIME.test(value)
 
 /**
- * Formats a date and time written with no time zone, such as a date property of a table.
+ * Formats a date and time written with no time zone, such as a date property or a date cell of a table, in the
+ * formats of the reader.
  *
  * Such a value names a day and an hour on the calendar, not a moment, so it is never shifted to the time zone of the
- * browser. A value at midnight holds no time of day and shows the date alone.
+ * browser. A value at midnight holds no time of day and shows the date alone, in the Date Format; any other is
+ * followed by the time in the Time Format.
  *
  * Returns the raw string when it cannot be parsed.
  */
-export const formatLocalDateTime = (value: string): string => {
+export const formatLocalDateTime = (value: string, patterns: DateFormats = formats()): string => {
     const date = dayjs(value)
     if (!date.isValid()) {
         return value
     }
     const midnight = date.hour() === 0 && date.minute() === 0 && date.second() === 0
-    return date.format(midnight ? 'll' : 'll LTS')
+    return date.format(midnight ? patterns.date : patterns.dateTime)
 }

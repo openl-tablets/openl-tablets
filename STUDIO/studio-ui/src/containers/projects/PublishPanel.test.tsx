@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { PublishPanel } from './PublishPanel'
 import { getProductionRepositories, getProjectDeployments } from '../../services/deployments'
+import { formatDate } from '../../utils/dateFormat'
 
 vi.mock('../../services/deployments', () => ({
     getProductionRepositories: vi.fn(),
@@ -94,8 +95,8 @@ describe('PublishPanel', () => {
         // The revision it carries and the date it was deployed are two labelled facts, not one.
         expect(card.textContent).toContain('browser.publish.card_revision')
         expect(card.textContent).toContain('browser.publish.card_deployed')
-        expect(card.textContent).toContain('Jan 2, 2024')
-        expect(card.textContent).toContain('Mar 4, 2024')
+        expect(card.textContent).toContain(formatDate('2024-01-02T00:00:00Z'))
+        expect(card.textContent).toContain(formatDate('2024-03-04T00:00:00Z'))
     })
 
     it('explains the dash when no design revision matches, and still dates the deployment', async () => {
@@ -120,7 +121,7 @@ describe('PublishPanel', () => {
         await waitFor(() => expect(getProjectDeployments).toHaveBeenCalledTimes(2))
 
         expect(screen.getByTitle('deployments.revision_unknown')).toHaveTextContent('\u2014')
-        expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('Mar 4, 2024')
+        expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain(formatDate('2024-03-04T00:00:00Z'))
     })
 
     it('reloads project deployments when the project reloads', async () => {

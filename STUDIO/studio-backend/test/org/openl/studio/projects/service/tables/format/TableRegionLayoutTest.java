@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -67,6 +68,49 @@ class TableRegionLayoutTest {
         assertEquals(RawTableValueType.STRING, regions.typeAt(3, 2), "A text default names its own type");
         assertNull(regions.typeAt(1, 2), "A number default takes the type of its region");
         assertNull(regions.typeAt(1, 1), "A name holds no value of a type");
+    }
+
+    @Test
+    void namesTheValueOfADatePropertyADate() throws IOException {
+        var model = TableTestProjects.projectModel(dir, SHEET, sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Rules String price(String make)");
+            TableTestProjects.row(sheet, 2, 1, "properties", "effectiveDate", "01/01/2020");
+            TableTestProjects.row(sheet, 3, 1, "", "state", "AR");
+            // the keyword is merged over the rows of the properties, as a table is written
+            sheet.addMergedRegion(new CellRangeAddress(2, 3, 1, 1));
+            TableTestProjects.row(sheet, 4, 1, "C1", "RET1");
+            TableTestProjects.row(sheet, 5, 1, "make == c1", "value");
+            TableTestProjects.row(sheet, 6, 1, "String c1", "String value");
+            TableTestProjects.row(sheet, 7, 1, "Make", "Price");
+            TableTestProjects.row(sheet, 8, 1, "Toyota", "Cheap");
+        });
+        var regions = regionsOf(TableTestProjects.table(model, "price"));
+
+        // the properties take no type, so the screen is told the date by the cell itself
+        assertEquals(RawTableValueType.DATE, regions.typeAt(1, 2));
+        assertNull(regions.typeAt(2, 2), "A property of another type is no date");
+        assertNull(regions.typeAt(1, 1), "The name of a property holds no value of a type");
+        assertEquals(new RawTableRegion(RawTableRole.PROPERTIES, null, 1, 0, 2, 2), regions.regions().get(1),
+                "The properties stay one region");
+    }
+
+    @Test
+    void namesTheValueOfADatePropertyWhoseNameIsMergedADate() throws IOException {
+        var model = TableTestProjects.projectModel(dir, SHEET, sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Rules String price(String make)");
+            TableTestProjects.row(sheet, 2, 1, "properties", "effectiveDate", "", "01/01/2020");
+            // the name of the property is merged over two columns, as an author may write it
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 3));
+            TableTestProjects.row(sheet, 3, 1, "C1", "RET1");
+            TableTestProjects.row(sheet, 4, 1, "make == c1", "value");
+            TableTestProjects.row(sheet, 5, 1, "String c1", "String value");
+            TableTestProjects.row(sheet, 6, 1, "Make", "Price");
+            TableTestProjects.row(sheet, 7, 1, "Toyota", "Cheap");
+        });
+        var regions = regionsOf(TableTestProjects.table(model, "price"));
+
+        assertEquals(RawTableValueType.DATE, regions.typeAt(1, 3), "The value after the merged name is the date");
+        assertNull(regions.typeAt(1, 2), "The part of the name under the merge is no date");
     }
 
     @Test

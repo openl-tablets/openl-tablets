@@ -3,6 +3,7 @@ import { DatePicker, Form, Input, InputNumber, Select } from 'antd'
 import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
 import type { FieldKind, JsonSchema } from './schema'
+import { datePickerFormat, useDateFormats } from '../../utils/dateFormat'
 
 /** The text a value is edited as. A value with no text of its own is edited from empty. */
 const asText = (value: unknown): string => {
@@ -107,12 +108,15 @@ const DateEditor: React.FC<{
     onChange: (value: unknown) => void
     onDone: () => void
 }> = ({ value, testId, withTime, onChange, onDone }) => {
+    useDateFormats()
     const format = withTime ? DATE_TIME_FORMAT : DATE_FORMAT
     const parsed = typeof value === 'string' ? dayjs(value) : null
     return (
         <DatePicker
             autoFocus
             data-testid={testId}
+            // shown in the formats of the reader, sent in ISO 8601
+            format={datePickerFormat(withTime)}
             onChange={next => onChange(next ? next.format(format) : undefined)}
             showTime={withTime}
             size="small"

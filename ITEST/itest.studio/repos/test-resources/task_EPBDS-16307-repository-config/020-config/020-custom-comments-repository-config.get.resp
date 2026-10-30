@@ -11,7 +11,7 @@ Content-Type: application/json
       "save": "Project {project-name} is saved.",
       "create": "Project {project-name} is created.",
       "copy": "Copied from: {project-name}.",
-      "restoreFrom": "Restored from revision of {author} on {datetime}."
+      "restoreFrom": "Restored from revision of {author} on {datetime:MM/dd/yyyy hh:mm:ss a}."
     }
   }
 }

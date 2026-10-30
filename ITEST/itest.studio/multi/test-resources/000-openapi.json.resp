@@ -26944,11 +26944,6 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "datePattern": {
-            "type": "string",
-            "description": "***",
-            "minLength": 1
-          },
           "db": {
             "$ref": "#/components/schemas/DBSettings"
           },
@@ -26980,20 +26975,13 @@ Content-Type: application/json
             "description": "***",
             "minimum": 1
           },
-          "timeFormat": {
-            "type": "string",
-            "description": "***",
-            "minLength": 1
-          },
           "updateSystemProperties": {
             "type": "boolean",
             "description": "***"
           }
         },
         "required": [
-          "datePattern",
-          "db",
-          "timeFormat"
+          "db"
         ]
       },
       "Append": {

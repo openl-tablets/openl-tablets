@@ -187,7 +187,9 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   `TableRegionLayout.of` picks one of the two once; only a body whose text tells none of its parts holds values
   (`BodyLayout.Placed.plain`). The type of a value (`ValueTypes`) is the data type the compiler gives the cell
   (`CellMetaInfo.getDataType`), a formula, or the body of a Method table being `code`; a region takes the type most of
-  its values have on each of its lines, and a cell of another type names its own (`TableRegions.typeAt`).
+  its values have on each of its lines, and a cell of another type names its own (`TableRegions.typeAt`). The
+  properties take no type, but the value of a date property names the type `date` itself
+  (`TableRegionLayout.withPropertyDates`), so the screen writes it in the formats of the reader.
 - **A table is laid out once for each compilation.** `TableRegionLayout.regionsOf` keeps the regions in a weak map
   keyed by the compiled `TableSyntaxNode`, so every page of a large table reuses one layout. It is reused only while
   the workbook was not saved since the compilation read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and

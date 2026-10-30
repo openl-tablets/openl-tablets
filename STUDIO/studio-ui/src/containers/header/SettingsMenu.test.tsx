@@ -5,6 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsMenu } from './SettingsMenu'
 import { useSettingsStore } from 'store'
 import { DEFAULT_USER_SETTINGS, readUserSettings } from 'store/settingsStore'
+import dayjs from 'dayjs'
+import { datePickerFormatForLocale, formatDate, formatDateTime } from 'utils/dateFormat'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -68,5 +70,49 @@ describe('SettingsMenu', () => {
         await userEvent.click(await screen.findByText('execution:tests.all'))
 
         expect(readUserSettings().testsPerPage).toBe(-1)
+    })
+
+    it('follows the regional settings of the browser at first, offering no format of its own', async () => {
+        renderMenu()
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+
+        expect(await screen.findByText('common:settings.date_time_settings')).toBeInTheDocument()
+        expect(screen.getByTestId('settings-useSystemDateFormat')).toBeChecked()
+        expect(screen.getByTestId('settings-useSystemDateFormat-hint')).toBeInTheDocument()
+        expect(screen.queryByText('common:settings.date_format')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('settings-hours24')).not.toBeInTheDocument()
+    })
+
+    it('picks a date format and a clock once the system is not followed', async () => {
+        renderMenu()
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+        await userEvent.click(await screen.findByText('common:settings.use_system_formats'))
+        await userEvent.click(await screen.findByText('common:settings.date_format'))
+        for (const name of ['us_numeric', 'us_text', 'uk', 'european', 'iso']) {
+            expect(await screen.findByText(`common:settings.formats.${name}`)).toBeInTheDocument()
+        }
+        await userEvent.click(screen.getByText('2026-12-31'))
+        await userEvent.click(screen.getByText('common:settings.hours_24'))
+
+        expect(readUserSettings()).toEqual({
+            ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD', hours24: true,
+        })
+        // a moment is written in the browser time zone, in the format and on the clock picked
+        expect(formatDateTime('2026-10-29T18:20:19')).toBe('2026-10-29 18:20:19')
+        expect(formatDate('2026-10-29T18:20:19')).toBe('2026-10-29')
+    })
+
+    it('goes back to the regional settings of the browser', async () => {
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false } })
+        renderMenu()
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+        await userEvent.click(await screen.findByText('common:settings.use_system_formats'))
+
+        expect(readUserSettings().useSystemDateFormat).toBe(true)
+        expect(formatDate('2026-10-29T18:20:19')).toBe(dayjs('2026-10-29T18:20:19').format(datePickerFormatForLocale()))
+        await waitFor(() => expect(screen.queryByText('common:settings.date_format')).not.toBeInTheDocument())
     })
 })

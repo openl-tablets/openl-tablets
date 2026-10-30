@@ -18,7 +18,11 @@ vi.mock('../services/audit', async importOriginal => ({
 
 vi.mock('../utils/download', () => ({ saveFile: vi.fn() }))
 
-vi.mock('../utils/dateFormat', () => ({ formatDateTime: (value: string) => `at ${value}` }))
+vi.mock('../utils/dateFormat', () => ({
+    datePickerFormat: () => 'YYYY-MM-DD HH:mm:ss',
+    formatDateTime: (value: string) => `at ${value}`,
+    useDateFormats: () => '',
+}))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key

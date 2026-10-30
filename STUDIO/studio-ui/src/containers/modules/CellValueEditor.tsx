@@ -8,6 +8,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import type { TableCellEditor } from '../../services/modules'
 import { joinValues, splitValues } from './multiValue'
 import { numberOnly } from './numberOnly'
+import { formatDateValue } from '../tableModals/dateValue'
+import { datePickerFormat, useDateFormats } from '../../utils/dateFormat'
 
 /** How a value is being written, which is not always the way the cell asks for it. */
 export type EditorKind =
@@ -55,8 +57,7 @@ dayjs.extend(customParseFormat)
  * The formats a date cell is read in, in the order OpenL reads them (`String2DateConvertor`).
  *
  * <p>Tried longest first, so a value carrying a time is not cut down to its day by a shorter pattern matching
- * the head of it. A date the reader picks is written back in the format the cell already held, so opening a
- * cell and closing it does not quietly rewrite what its author put there.
+ * the head of it. A date the reader picks is sent in ISO 8601, which the server stores as a date.
  */
 const DATE_SHAPES = [
     'M/D/YYYY h:mm A',
@@ -80,18 +81,15 @@ const widened = (shape: string) => shape.replace(/(?<![MDHh])([MDHh])(?![MDHh])/
 
 const DATE_FORMATS = DATE_SHAPES.flatMap(shape => [shape, widened(shape)])
 
-/** What a date the reader picks is written in, where the cell held nothing to follow. */
-const DATE_FORMAT = 'M/D/YYYY'
-
-/** The date the cell holds and the format it is written in, or nothing where it holds no date. */
+/** The date the cell holds and whether it carries a time of day, or nothing where it holds no date. */
 const dateOf = (text: string) => {
     for (const format of DATE_FORMATS) {
         const read = dayjs(text, format, true)
         if (read.isValid()) {
-            return { read, format }
+            return { read, timed: format.includes('H') || format.includes('h') }
         }
     }
-    return { read: null, format: DATE_FORMAT }
+    return { read: null, timed: false }
 }
 
 /**
@@ -142,6 +140,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     className,
 }) => {
     const { t } = useTranslation('repository')
+    useDateFormats()
     // Whether the calendar a date cell drops stands open, so the focus it takes is not read as the reader
     // leaving the cell. Nothing is drawn from it, so it is not worth a render of its own.
     const calendar = useRef(false)
@@ -281,19 +280,20 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                 />
             )
         case 'date': {
-            const { read, format } = dateOf(value)
+            const { read, timed } = dateOf(value)
+            const shown = datePickerFormat(timed)
             return (
                 <DatePicker
                     {...shared}
                     // The date is the calendar's to give: the Editor took no typing into the field, and a
                     // half-typed date is a value the cell would have to refuse anyway.
                     inputReadOnly
-                    // Shown as the cell holds it, and read from anything OpenL would read, so a date typed in
-                    // another of its formats is understood rather than thrown away.
-                    format={[format, ...DATE_FORMATS]}
+                    // Shown in the formats of the reader, and read from anything OpenL would read, so a date
+                    // typed in another of its formats is understood rather than thrown away.
+                    format={[shown, ...DATE_FORMATS]}
                     // A time is offered only where the cell already carries one: picking a day must neither
                     // invent a time nor drop the one its author wrote.
-                    showTime={format.includes('H') || format.includes('h')}
+                    showTime={timed}
                     value={read}
                     // Leaving the field leaves the cell, as it does wherever the reader is writing. Going to
                     // the calendar takes the focus off the field too, and that is not leaving the cell: what
@@ -304,7 +304,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                         }
                     }}
                     onChange={picked => {
-                        const written = picked ? picked.format(format) : ''
+                        const written = picked ? formatDateValue(picked) : ''
                         onChange(written)
                         onCommit(written)
                     }}

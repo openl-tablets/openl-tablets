@@ -4,6 +4,7 @@ import { AboutModal } from './AboutModal'
 import { SystemContext } from '../../contexts'
 import type { License } from '../../services/licenses'
 import type { OpenlInfo } from '../../types/system'
+import { formatDate } from '../../utils/dateFormat'
 
 const { fetchLicenses, openText } = vi.hoisted(() => ({
     fetchLicenses: vi.fn(),
@@ -98,7 +99,7 @@ describe('AboutModal', () => {
         const terms = screen.getAllByRole('term').map(term => [term.textContent, term.nextElementSibling?.textContent])
         expect(terms).toEqual([
             ['common:about.version', '6.5.0'],
-            ['common:about.build_date', 'Oct 4, 2026'],
+            ['common:about.build_date', formatDate('2026-10-04')],
             ['common:about.license', 'common:about.lgpl'],
         ])
         const license = screen.getByRole('link', { name: 'common:about.lgpl' })

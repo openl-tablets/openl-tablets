@@ -1,6 +1,7 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 import type { ValueLevel } from 'types/execution'
 import * as look from './parameterValues.styles'
 import { NumberFormatContext, type ReadLines, useValueStyles, ValueCell } from './ParameterValues'
@@ -181,5 +182,19 @@ describe('ValueCell', () => {
         expect(await screen.findByText(`"${id}"`)).toBeInTheDocument()
         expect(linesIn(container)).toHaveLength(0)
         expect(readLines).toHaveBeenCalledTimes(1)
+    })
+
+    it('writes a date in the formats of the reader, and again as soon as the reader changes them', async () => {
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY', hours24: true } })
+        try {
+            const { container } = render(<Values values={[{ since: '2026-12-31T14:05:09.000' }]} />)
+            await openLine(container, '{1 fields}')
+            expect(screen.getByText('31.12.2026 14:05:09')).toBeInTheDocument()
+
+            act(() => useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD', hours24: true } }))
+            expect(screen.getByText('2026-12-31 14:05:09')).toBeInTheDocument()
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
     })
 })

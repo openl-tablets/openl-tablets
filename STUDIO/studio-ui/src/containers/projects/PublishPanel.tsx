@@ -5,7 +5,7 @@ import { createStyles } from 'antd-style'
 import { getProductionRepositories, getProjectDeployments } from '../../services/deployments'
 import type { DeploymentDetail } from '../../services/deployments'
 import type { Repository } from '../../types/repositories'
-import { formatDateTime } from '../../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { AuthorDate } from './AuthorDate'
 import { DeployConfigPanel } from './DeployConfigPanel'
@@ -141,6 +141,7 @@ export const PublishPanel = ({
     onChanged,
     reloadToken = 0,
 }: PublishPanelProps) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

@@ -22,6 +22,7 @@ import type { ConfirmWrite } from './useOverwriteConfirm'
 import { EXERCISING_KINDS } from 'constants/tableKinds'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
 import { versionLabel } from '../../utils/tableVersion'
+import { useDateFormats } from '../../utils/dateFormat'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** A band over the table, carrying what can be done to the table under it. */
@@ -239,6 +240,7 @@ export const TableToolbar = ({
     const { modal } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
+    const patterns = useDateFormats()
     const navigate = useNavigate()
     const [tests, setTests] = useState<TableTest[]>([])
     // What this table exercises, which only a test or a run table does.
@@ -342,7 +344,7 @@ export const TableToolbar = ({
     // only saving the project carries that to the Design repository.
     const remove = () => {
         modal.confirm({
-            title: t('browser.module.remove_confirm', { table: versionLabel(table.name, table.dimensions) }),
+            title: t('browser.module.remove_confirm', { table: versionLabel(table.name, table.dimensions, patterns) }),
             content: t('browser.module.remove_confirm_body'),
             okButtonProps: { danger: true },
             okText: t('browser.module.remove'),
@@ -494,7 +496,7 @@ export const TableToolbar = ({
             })}
             {related('table-target-tables',
                 t(targets.length > 1 ? 'browser.module.target_tables' : 'browser.module.target_table'),
-                targets, 'table-target-', target => versionLabel(target.name, target.dimensions))}
+                targets, 'table-target-', target => versionLabel(target.name, target.dimensions, patterns))}
             {related('table-available-tests', t('browser.module.available_tests'), tests, 'table-test-', testLabel)}
         </div>
     )

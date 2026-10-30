@@ -1,15 +1,7 @@
 import dayjs from 'dayjs'
-import { datePickerFormatForLocale, formatDateValue, ISO_DATE_FORMAT, parseDateValue } from './dateValue'
+import { formatDateValue, ISO_DATE_FORMAT, parseDateValue } from './dateValue'
 
 describe('dateValue', () => {
-    describe('datePickerFormatForLocale', () => {
-        it('uses the date part order and separators of the user locale', () => {
-            expect(datePickerFormatForLocale('en-US')).toBe('MM[/]DD[/]YYYY')
-            expect(datePickerFormatForLocale('en-GB')).toBe('DD[/]MM[/]YYYY')
-            expect(datePickerFormatForLocale('de-DE')).toBe('DD[.]MM[.]YYYY')
-        })
-    })
-
     describe('parseDateValue', () => {
         it('reads the ISO date a value is carried in', () => {
             expect(parseDateValue('2009-01-01')?.format(ISO_DATE_FORMAT)).toBe('2009-01-01')

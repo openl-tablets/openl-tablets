@@ -67,14 +67,12 @@ describe('System', () => {
         vi.clearAllMocks()
         mockApiCall.mockResolvedValue({
             autoCompile: true,
-            datePattern: 'MM/dd/yyyy',
             detectProjectsByExcelFiles: false,
             dispatchingValidationEnabled: true,
             formatTablesOnSave: true,
             ignoredPaths: '**/pom.xml',
             projectHistoryCount: 100,
             testRunThreadCount: 4,
-            timeFormat: 'hh:mm:ss a',
             updateSystemProperties: false,
             db: {
                 maximumPoolSize: 50,

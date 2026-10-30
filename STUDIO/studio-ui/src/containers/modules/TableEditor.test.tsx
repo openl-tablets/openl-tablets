@@ -12,6 +12,7 @@ import { selectIn } from './MarkedTextField'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
 import { paperToken } from '../../styles/paper'
 import { hex, renderInTheme, tokenFor } from '../../testing/theme'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from '../../store/settingsStore'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
 vi.mock('../../services/apiCall', async importOriginal => ({
@@ -147,6 +148,7 @@ describe('TableEditor', () => {
     beforeEach(() => {
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
         vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
+        useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS })
     })
 
     it('asks about the table now on screen even while the one before it is still answering', async () => {
@@ -335,30 +337,33 @@ describe('TableEditor', () => {
 
         await userEvent.dblClick(screen.getByText('2024-03-07'))
 
-        // The cell holds an ISO date, which OpenL reads and the calendar must show rather than open blank.
-        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
+        // The cell holds an ISO date, which OpenL reads and the calendar must show rather than open blank: in the
+        // pattern of the reader's locale, where they picked no Date Format.
+        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('03/07/2024'))
     })
 
-    it('writes a picked date back in the format the cell was written in', async () => {
+    it('writes a picked date in ISO 8601, whatever format the cell was written in and the reader reads it in', async () => {
         const dated: RawTableCell[][] = [
             [{ cell: 'B4', value: 'Rules String Greeting(Date on)', colspan: 2 }, { covered: true }],
-            [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
+            [{ cell: 'B5', value: '3/7/2024' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
             ...NO_EDITORS,
             editors: [{ editor: 'date' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
         draw({ rows: dated })
-        await userEvent.dblClick(screen.getByText('2024-03-07'))
-        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
+        await userEvent.dblClick(screen.getByText('3/7/2024'))
+        // shown in the Date Format the reader picked
+        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('07.03.2024'))
 
         // The calendar is the field's to drop when the reader goes to it, not the cell's to open unasked.
         await userEvent.click(screen.getByTestId('table-cell-input'))
         await userEvent.click(await screen.findByTitle('2024-03-14'))
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
-        // Read as ISO, written back as ISO: opening a cell and closing it must not rewrite what it held.
+        // The server is sent a date in ISO 8601, and stores it as a date.
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '2024-03-14' } },
         ], 'Claims', undefined))
@@ -376,7 +381,7 @@ describe('TableEditor', () => {
         })
         draw({ rows: dated })
         await userEvent.dblClick(screen.getByText('2024-03-07'))
-        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
+        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('03/07/2024'))
 
         // Backspace empties the cell, as it did in the Editor. The calendar was never opened, so what keeps
         // the empty cell is the reader going elsewhere — which is what keeps every other cell too.
@@ -1242,7 +1247,7 @@ describe('TableEditor', () => {
         const field = await screen.findByTestId('table-cell-input')
 
         await userEvent.type(field, '12/25/2024')
-        expect(field).toHaveValue('2024-03-07') // the date is the calendar's to give
+        expect(field).toHaveValue('03/07/2024') // the date is the calendar's to give
 
         await userEvent.type(field, '{Backspace}')
         expect(field).toHaveValue('')

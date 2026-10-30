@@ -34,6 +34,17 @@ describe('settingsStore', () => {
         expect(readUserSettings()).toEqual({ ...DEFAULT_USER_SETTINGS, showHeader: false, showRealNumbers: true })
     })
 
+    it('keeps a date format the menu offers, and takes the default for one an earlier version kept', () => {
+        localStorage.setItem(USER_SETTINGS_KEY, JSON.stringify({ useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' }))
+        expect(readUserSettings()).toEqual({ ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' })
+
+        // an earlier version kept an empty format for the one of the language, or a pattern the menu no longer offers
+        for (const dateFormat of ['', 'system', 'YYYY/MM/DD']) {
+            localStorage.setItem(USER_SETTINGS_KEY, JSON.stringify({ useSystemDateFormat: false, dateFormat }))
+            expect(readUserSettings()).toEqual({ ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false })
+        }
+    })
+
     it.each(['not json', '[true]', 'null'])('falls back to the defaults on a stored %s', stored => {
         localStorage.setItem(USER_SETTINGS_KEY, stored)
 

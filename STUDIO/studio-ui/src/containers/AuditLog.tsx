@@ -31,7 +31,7 @@ import {
     exportAuditEvents,
     getAuditEvents,
 } from '../services/audit'
-import { formatDateTime } from '../utils/dateFormat'
+import { datePickerFormat, formatDateTime, useDateFormats } from '../utils/dateFormat'
 import { saveFile } from '../utils/download'
 import { tablePagination } from '../utils/tablePagination'
 
@@ -112,6 +112,7 @@ const TextFilter = ({ selectedKeys, setSelectedKeys, confirm }: FilterDropdownPr
 
 /** A filter by the period of the events: picking a period applies it, and clearing the period removes the filter. */
 const PeriodFilter = ({ selectedKeys, setSelectedKeys, confirm }: FilterDropdownProps) => {
+    useDateFormats()
     const dateOf = (key?: React.Key) => (key ? dayjs(String(key)) : null)
     const keyOf = (date: Dayjs | null) => date?.toISOString() ?? ''
     const select = (period: Period) => setSelectedKeys(period?.some(Boolean) ? period.map(keyOf) : [])
@@ -120,6 +121,7 @@ const PeriodFilter = ({ selectedKeys, setSelectedKeys, confirm }: FilterDropdown
             <DatePicker.RangePicker
                 showTime
                 allowEmpty={[true, true]}
+                format={datePickerFormat(true)}
                 onCalendarChange={select}
                 onOpenChange={open => !open && confirm()}
                 value={selectedKeys.length ? [dateOf(selectedKeys[0]), dateOf(selectedKeys[1])] : null}
@@ -399,6 +401,7 @@ const renderPeriodFilter = (props: FilterDropdownProps) => <PeriodFilter {...pro
  * time, and an export of all of them as a CSV file.
  */
 export const AuditLog: React.FC = () => {
+    useDateFormats()
     const { t } = useTranslation()
     const { notification } = App.useApp()
     const { isAuditLogEnabled } = useContext(SystemContext)

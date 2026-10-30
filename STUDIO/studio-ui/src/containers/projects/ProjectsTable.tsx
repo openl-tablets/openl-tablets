@@ -12,6 +12,7 @@ import { deriveProjectRow, activateOnKey, hasBranch, ProjectBranchSwitch, Projec
 import { useSharedStyles } from './sharedStyles'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 import type { ProjectSort, SortDirection } from './projectListing'
+import { useDateFormats } from '../../utils/dateFormat'
 
 /** Upper bound for the auto-sized Modified column so an unusually long author name can't crowd out the name. */
 const MODIFIED_MAX_WIDTH = 260
@@ -163,6 +164,7 @@ export const ProjectsTable = ({
     direction,
     onSort,
 }: ProjectsTableProps) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

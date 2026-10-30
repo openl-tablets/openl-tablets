@@ -48,7 +48,7 @@ import { EditableList, EditableStringList } from './EditableList'
 import { EditToolbar } from './EditToolbar'
 import { FieldError } from '../../components/FieldError'
 import { PropertiesPatternHelpModal } from './PropertiesPatternHelpModal'
-import { formatDateTime } from '../../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { StatusPill } from './StatusIndicator'
 import { ValueText } from './ValueText'
@@ -957,6 +957,7 @@ const useProjectMigration = (project: Project, reloadToken: number | undefined, 
 
 /** The banner naming who holds the project locked, with the unlock at hand for whoever may use it. */
 const LockBanner = ({ project, onUnlock }: { project: Project, onUnlock: () => void }) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     if (!project.lockInfo) {
@@ -1486,6 +1487,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
     onBranchSwitching?: ((busy: boolean) => void) | undefined
     busy: boolean
 }) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles } = useStyles()
