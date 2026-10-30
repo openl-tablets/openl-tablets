@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "3 files.\n\n| path | change |\n| --- | --- |\n| rules/Main.xlsx | modified |\n| archive/notes.txt | added |\n| docs/notes.txt | added |\n\n| compared | revision | date | author | comment | flags |\n| --- | --- | --- | --- | --- | --- |\n| base | @@@ | * | Ada Admin | Create the project |  |\n| revision | @@@ | * | Ada Admin | Build the rules |  |"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -65,6 +65,37 @@ describe("repository tools", () => {
       + "| fed789 | 2026-01-01T00:00:00Z |  |  | deleted |");
   });
 
+  it("openl_repository_project_revision_changes pages the files a revision changed, telling the two revisions", async () => {
+    const revision = (revisionNo: string, fullComment: string) => ({
+      revisionNo, shortRevisionNo: revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment,
+      author: { displayName: "Ada Admin" }, deleted: false, technicalRevision: false,
+    });
+    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: "def456", base: "abc123" } }).reply(200, {
+      base: revision("abc123", "Before"),
+      revision: { ...revision("def456", "After\n\nDetail"), technicalRevision: true },
+      files: [
+        { path: "rules/Main.xlsx", type: "modified" },
+        { path: "notes.txt", type: "deleted" },
+        { path: "reviews/new.txt", type: "added" },
+      ],
+    });
+
+    const result = await executeTool("repository_project_revision_changes", {
+      projectId,
+      revision: "def456",
+      base: "abc123",
+      limit: 2,
+      offset: 1,
+    }, harness.client);
+
+    // The revisions compared follow the files, in the columns the history lists a revision by.
+    expect(textOf(result)).toBe("3 files; 2–3 below.\n\n"
+      + "| path | change |\n| --- | --- |\n| notes.txt | deleted |\n| reviews/new.txt | added |\n\n"
+      + "| compared | revision | date | author | comment | flags |\n| --- | --- | --- | --- | --- | --- |\n"
+      + "| base | abc123 | 2026-01-01T00:00:00Z | Ada Admin | Before |  |\n"
+      + "| revision | def456 | 2026-01-01T00:00:00Z | Ada Admin | After | technical |");
+  });
+
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {
     harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 25, size: 50 } }).reply(200, {
       content: [],
