@@ -43,7 +43,8 @@ Sources are listed from the highest priority to the lowest. A value found in a h
 > [!Note]
 > Java system properties and environment variables have a higher priority than the **Administration** area. A setting
 > defined there is reapplied on every startup, and the corresponding field in the UI becomes read-only. Use these
-> sources for values that must not be changed at runtime, such as credentials injected by a container.
+> sources for values that must not be changed at runtime, such as credentials injected by a container. OpenL Studio
+> refuses to save a changed value of a read-only setting, whether it comes from the UI or from the REST API.
 
 Settings saved in the **Administration** area are not written back to `application.properties`. They are stored
 separately, in `${openl.home.shared}/<application-name>.properties` — for example, `webstudio.properties` — so an
@@ -302,6 +303,9 @@ Each repository has an identifier that is used as a property prefix:
 - **`production-repository-configs`** — comma-separated identifiers of the repositories on the
   **Deployment Repositories** tab.
 
+When a Java system property or an environment variable sets one of these lists, the repositories of that tab can be
+neither added nor removed.
+
 Settings of a repository are then defined as `repository.<id>.*`. Identifiers are arbitrary; `design` and `production`
 are the conventional defaults.
 
@@ -330,6 +334,13 @@ A `$ref` sets up inheritance: any `repository.<id>.<suffix>` left undefined fall
 `repository.design.$ref = repo-git` and then only `repository.design.uri` is enough — the remaining Git settings come
 from the `repo-git.*` defaults. The same mechanism lets `repo-git.*` and `repo-default.*` set values shared by every
 repository of a kind.
+
+When a Java system property or an environment variable sets the `$ref`, such as `REPOSITORY_DESIGN__REF_=repo-git`,
+the **Type** field and every setting the repository inherits through that `$ref` are read-only. A `$ref` from the
+property files keeps the inherited settings editable, even when the environment sets the value it points at: with
+`REPO_GIT_CONNECTION_TIMEOUT=120`, every Git repository shares the timeout of 120 seconds, and a repository may still
+change it. The changed value is saved for that repository alone; its `$ref` stays, and the rest of its settings
+remain inherited.
 
 #### Settings Common to All Types
 

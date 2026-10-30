@@ -129,4 +129,19 @@ class RefPropertySourceTest {
         // must be null because of looping
         assertNull(ref.getProperty("www.fff.fff.len"));
     }
+
+    @Test
+    void refsToTheSamePropertiesUnderDifferentPaths() {
+        var propertySources = new MutablePropertySources();
+        propertySources.addLast(new MapPropertySource("A", Map.of(
+                "foo.$ref", "bar",
+                "bar.x.$ref", "bar",
+                "bar.y", "1")));
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        propertySources.addLast(ref);
+
+        // foo.x.y -> bar.x.y -> bar.y: the same reference value leads to different properties.
+        assertEquals("1", ref.getProperty("foo.x.y"));
+        assertEquals("1", ref.getProperty("bar.x.y"));
+    }
 }

@@ -1,0 +1,175 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "name": {
+      "value": "openl-rating",
+      "readOnly": true
+    },
+    "settings": {
+      "useCustomComments": {
+        "value": true,
+        "readOnly": true
+      },
+      "commentValidationPattern": {
+        "value": "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}",
+        "readOnly": true
+      },
+      "invalidCommentMessage": {
+        "value": "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description",
+        "readOnly": true
+      },
+      "defaultCommentSave": {
+        "value": "EPBDS-",
+        "readOnly": true
+      },
+      "defaultCommentCreate": {
+        "value": "Project {project-name} is created.",
+        "readOnly": true
+      },
+      "defaultCommentCopiedFrom": {
+        "value": "Copied from: {project-name}.",
+        "readOnly": true
+      },
+      "defaultCommentRestoredFrom": {
+        "value": "Restored from revision of {author} on {datetime}.",
+        "readOnly": true
+      },
+      "basePath": "DESIGN/rules/",
+      "uri": {
+        "value": "***",
+        "readOnly": true
+      },
+      "login": {
+        "readOnly": true
+      },
+      "password": {
+        "readOnly": true
+      },
+      "branch": {
+        "value": "development",
+        "readOnly": true
+      },
+      "newBranchTemplate": {
+        "value": "EPBDS-",
+        "readOnly": true
+      },
+      "newBranchRegex": {
+        "readOnly": true
+      },
+      "newBranchRegexError": {
+        "readOnly": true
+      },
+      "tagPrefix": {
+        "readOnly": true
+      },
+      "listenerTimerPeriod": {
+        "value": 10,
+        "readOnly": true
+      },
+      "connectionTimeout": {
+        "value": 60,
+        "readOnly": true
+      },
+      "failedAuthenticationSeconds": {
+        "value": 300,
+        "readOnly": true
+      },
+      "protectedBranches": {
+        "value": "master, release-*",
+        "readOnly": true
+      }
+    },
+    "type": {
+      "value": "repo-git",
+      "readOnly": true
+    },
+    "id": "openl-rating"
+  },
+  {
+    "name": {
+      "value": "openl-claim",
+      "readOnly": true
+    },
+    "settings": {
+      "useCustomComments": {
+        "value": true,
+        "readOnly": true
+      },
+      "commentValidationPattern": {
+        "value": "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}",
+        "readOnly": true
+      },
+      "invalidCommentMessage": {
+        "value": "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description",
+        "readOnly": true
+      },
+      "defaultCommentSave": {
+        "value": "EPBDS-",
+        "readOnly": true
+      },
+      "defaultCommentCreate": {
+        "value": "Project {project-name} is created.",
+        "readOnly": true
+      },
+      "defaultCommentCopiedFrom": {
+        "value": "Copied from: {project-name}.",
+        "readOnly": true
+      },
+      "defaultCommentRestoredFrom": {
+        "value": "Restored from revision of {author} on {datetime}.",
+        "readOnly": true
+      },
+      "basePath": "DESIGN/rules/",
+      "uri": {
+        "value": "***",
+        "readOnly": true
+      },
+      "login": {
+        "readOnly": true
+      },
+      "password": {
+        "readOnly": true
+      },
+      "branch": {
+        "value": "development",
+        "readOnly": true
+      },
+      "newBranchTemplate": {
+        "value": "EPBDS-",
+        "readOnly": true
+      },
+      "newBranchRegex": {
+        "readOnly": true
+      },
+      "newBranchRegexError": {
+        "readOnly": true
+      },
+      "tagPrefix": {
+        "readOnly": true
+      },
+      "listenerTimerPeriod": {
+        "value": 10,
+        "readOnly": true
+      },
+      "connectionTimeout": {
+        "value": 60,
+        "readOnly": true
+      },
+      "failedAuthenticationSeconds": {
+        "value": 300,
+        "readOnly": true
+      },
+      "protectedBranches": {
+        "value": "master, release-*",
+        "readOnly": true
+      }
+    },
+    "type": {
+      "value": "repo-git",
+      "readOnly": true
+    },
+    "id": "openl-claim"
+  }
+]

@@ -211,7 +211,11 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         propertiesHolder.setProperty(repositoryNameKey, StringUtils.trimToEmpty(name));
 
         var factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
-        propertiesHolder.setProperty(repositoryRefKey, factoryId);
+        // A $ref to a block of settings of the same type, such as one shared by several repositories, is kept. A type
+        // that is not supported is replaced.
+        if (!factoryId.equals(RepositoryInstatiator.getRefID(propertiesHolder.getProperty(repositoryFactoryKey)))) {
+            propertiesHolder.setProperty(repositoryRefKey, factoryId);
+        }
 
         settings.store(propertiesHolder);
     }

@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.settings.repositories.read-only.message",
+  "message": "The list of repositories is set outside OpenL Studio, such as by an environment variable or a system property, so a repository cannot be added or removed: design-repository-configs."
+}

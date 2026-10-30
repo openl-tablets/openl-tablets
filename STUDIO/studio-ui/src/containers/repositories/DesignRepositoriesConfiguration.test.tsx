@@ -148,3 +148,57 @@ describe('DesignRepositoriesConfiguration, adding a repository', () => {
         expect(ref.current!.getForm().getFieldValue('name')).toBe('New repository')
     })
 })
+
+describe('DesignRepositoriesConfiguration, a repository whose type the environment sets', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('shows the settings of the type and keeps the type read-only', async () => {
+        const readOnlyS3 = { ...existingS3, type: { value: RepositoryType.AWS_S3, readOnly: true } }
+        mockApiCall.mockImplementation(async () => [readOnlyS3])
+        render(
+            <MemoryRouter>
+                <App>
+                    <DesignRepositoriesConfiguration repositoryDataType={RepositoryDataType.DEPLOYMENT} />
+                </App>
+            </MemoryRouter>
+        )
+        await screen.findByDisplayValue(existingS3.name)
+
+        await waitFor(() => expect(screen.getByRole('combobox', { name: 'repository:type' })).toBeDisabled())
+        await openOptions('repository:region_name')
+        // The chosen region and its option in the list the repository offers.
+        expect(await screen.findAllByTitle(REGION.description)).toHaveLength(2)
+    })
+})
+
+describe('DesignRepositoriesConfiguration, a list of repositories the environment sets', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    const renderRepositories = async (isListReadOnly: boolean) => {
+        mockApiCall.mockImplementation(async () => [existingGit])
+        render(
+            <MemoryRouter>
+                <App>
+                    <DesignRepositoriesConfiguration isListReadOnly={isListReadOnly} repositoryDataType={RepositoryDataType.DESIGN} />
+                </App>
+            </MemoryRouter>
+        )
+        await screen.findByDisplayValue(existingGit.name)
+    }
+
+    it('offers to remove a repository', async () => {
+        await renderRepositories(false)
+
+        expect(screen.getByRole('button', { name: 'remove' })).toBeInTheDocument()
+    })
+
+    it('offers no way to remove a repository', async () => {
+        await renderRepositories(true)
+
+        expect(screen.queryByRole('button', { name: 'remove' })).not.toBeInTheDocument()
+    })
+})

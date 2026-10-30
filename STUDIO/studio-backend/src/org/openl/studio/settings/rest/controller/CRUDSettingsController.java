@@ -21,6 +21,7 @@ import org.openl.rules.webstudio.web.admin.SettingsHolder;
 import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.security.AdminPrivilege;
+import org.openl.studio.settings.converter.ReadOnlySettings;
 
 @AdminPrivilege
 public abstract class CRUDSettingsController<E extends SettingsHolder> {
@@ -53,6 +54,8 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
     @PostMapping
     @Operation(summary = "msg.settings.post-all.summary", description = "msg.settings.post-all.desc")
     public void saveSettings(@Valid @RequestBody E settings) throws IOException {
+        ReadOnlySettings.check(ReadOnlySettings.answerOf(objectMapper, loadSettings()),
+                ReadOnlySettings.answerOf(objectMapper, settings));
         settingsService.store(settings);
         settingsService.commit();
     }
@@ -61,12 +64,14 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
      * Applies a JSON merge patch to the stored settings, validates and stores them.
      *
      * <p>A patch value the settings cannot hold, such as text or a fraction for a whole number, is refused with
-     * {@code 400} as an unreadable request body is, naming the field.
+     * {@code 400} as an unreadable request body is, naming the field. A patch that changes a read-only setting is
+     * refused with {@code 400} too, naming the setting.
      */
     @PatchMapping(consumes = "application/merge-patch+json")
     @Operation(summary = "msg.settings.patch-merge.summary", description = "msg.settings.patch-merge.desc")
     public void mergePatchSettings(@RequestBody JsonNode patch, HttpServletRequest request) throws IOException {
         var originalSettings = loadSettings();
+        ReadOnlySettings.check(ReadOnlySettings.answerOf(objectMapper, originalSettings), patch);
         E updatedSettings;
         try {
             updatedSettings = mergeSettings(originalSettings, patch);
@@ -79,7 +84,7 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
     }
 
     protected E mergeSettings(E originalSettings, JsonNode patch) throws IOException {
-        return objectMapper.readerForUpdating(originalSettings).<E>readValue(patch);
+        return objectMapper.readerForUpdating(originalSettings).readValue(patch);
     }
 
     @DeleteMapping

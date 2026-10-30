@@ -8,17 +8,27 @@ Content-Type: application/json
       "readOnly": true
     },
     "settings": {
-      "basePath": "deploy/",
+      "basePath": {
+        "value": "deploy/",
+        "readOnly": true
+      },
       "mainBranchOnly": true,
-      "login": "",
-      "password": "",
+      "login": {
+        "readOnly": true
+      },
+      "password": {
+        "readOnly": true
+      },
       "uri": {
         "value": "jdbc:h2:mem:production-repo;DB_CLOSE_DELAY=-1",
         "readOnly": true
       },
       "secure": false
     },
-    "type": "repo-jdbc",
+    "type": {
+      "value": "repo-jdbc",
+      "readOnly": true
+    },
     "id": "production"
   }
 ]

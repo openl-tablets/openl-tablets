@@ -1,0 +1,25 @@
+PATCH /rest/admin/settings/repos/design HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "id": "openl-claim",
+  "name": "openl-claim",
+  "type": "repo-git",
+  "settings": {
+    "useCustomComments": true,
+    "commentValidationPattern": "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}",
+    "invalidCommentMessage": "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description",
+    "defaultCommentSave": "EPBDS-",
+    "defaultCommentCreate": "Project {project-name} is created.",
+    "defaultCommentCopiedFrom": "Copied from: {project-name}.",
+    "defaultCommentRestoredFrom": "Restored from revision of {author} on {datetime}.",
+    "basePath": "DESIGN/rules/",
+    "branch": "development",
+    "newBranchTemplate": "EPBDS-",
+    "listenerTimerPeriod": 10,
+    "connectionTimeout": 60,
+    "failedAuthenticationSeconds": 300,
+    "protectedBranches": "master, release-*"
+  }
+}

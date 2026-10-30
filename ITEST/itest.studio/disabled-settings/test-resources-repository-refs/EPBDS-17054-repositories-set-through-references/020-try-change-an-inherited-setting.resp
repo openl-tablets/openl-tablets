@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.settings.read-only.message",
+  "message": "These settings are set outside OpenL Studio, such as by an environment variable or a system property, and cannot be changed: settings.branch."
+}

@@ -25,4 +25,10 @@ public interface RepositorySettingsService {
     void delete(String id);
 
     void revert();
+
+    /**
+     * Whether the list of the repositories is set outside OpenL Studio, such as by an environment variable, so no
+     * repository can be added or removed.
+     */
+    boolean isListReadOnly();
 }

@@ -54,6 +54,12 @@ To add a repository, proceed as follows:
 
 To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
 
+When an environment variable or a Java system property sets the list of the repositories of a tab, such as
+`DESIGN-REPOSITORY-CONFIGS`, the repositories of that tab can be neither added nor deleted: the **Add Design
+Repository** or **Add Deployment Repository** button is unavailable, and the tabs of the repositories have no **×**
+button. A setting the environment sets, directly or through `$ref`, is shown read-only. For more information, see
+[Configuration](../../../installation-guide/configuration.md).
+
 To enable storing large files in a Git repository, Git Large File Support (LFS) can be used.
 
 -   To enable the Git repository use LFS before it is cloned by OpenL Studio, perform the necessary configuration as described in <https://git-lfs.github.com/>.

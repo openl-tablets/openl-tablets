@@ -876,6 +876,8 @@ i18next.addResourceBundle('en', 'repository', {
     confirm_leave_without_saving_message: 'Are you sure you want to leave without saving?',
     add_design_repository: 'Add Design Repository',
     add_deployment_repository: 'Add Deployment Repository',
+    list_load_failed: 'Cannot read whether repositories can be added or removed',
+    list_set_outside: 'The list of repositories is set outside OpenL Studio, such as by an environment variable, so a repository cannot be added or removed.',
     no_repositories_available: 'No repositories available',
     click_add_repository_to_create_first: 'Click "Add {{type}} Repository" to create your first repository.',
     design: 'Design',

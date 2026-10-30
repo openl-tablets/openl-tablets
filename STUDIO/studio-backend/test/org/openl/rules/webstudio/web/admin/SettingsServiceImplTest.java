@@ -20,6 +20,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 import org.openl.config.InMemoryProperties;
+import org.openl.spring.env.DisablePropertySource;
 import org.openl.spring.env.RefPropertySource;
 import org.openl.studio.audit.service.SettingsAuditor;
 
@@ -87,6 +88,35 @@ class SettingsServiceImplTest {
         assertFalse(saved.containsKey("repository.design.uri"));
         verify(auditor).changed(Map.of("repository.design.uri", "https://git.example.com/rules.git"),
                 Collections.singletonMap("repository.design.uri", null));
+    }
+
+    @Test
+    void neverWritesTheValuesOfTheSettingsTheEnvironmentSets() throws Exception {
+        environment.getPropertySources().addFirst(new MapPropertySource(DisablePropertySource.PROPS_NAME, Map.of(
+                "_sys_disable_user.mode", "true",
+                "_sys_disable_mail.username", "true")));
+        properties.setProperty("mail.username", "robot");
+        properties.setProperty("user.mode", "multi");
+        properties.setProperty("project.history.count", "50");
+
+        service.commit();
+
+        assertEquals("single", saved.get("user.mode"));
+        assertEquals("bot", saved.get("mail.username"));
+        assertEquals("50", saved.get("project.history.count"));
+        verify(auditor).changed(Map.of("project.history.count", "100"), Map.of("project.history.count", "50"));
+    }
+
+    @Test
+    void removesFromTheSettingsFileASettingTheEnvironmentSets() throws Exception {
+        environment.getPropertySources().addFirst(new MapPropertySource(DisablePropertySource.PROPS_NAME, Map.of(
+                "_sys_disable_mail.username", "true")));
+        properties.revertProperties("mail.username");
+
+        service.commit();
+
+        assertFalse(saved.containsKey("mail.username"));
+        verify(auditor).changed(Map.of("mail.username", "bot"), Map.of("mail.username", "admin"));
     }
 
     @Test
