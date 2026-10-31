@@ -128,6 +128,33 @@ describe("local change handlers", () => {
       expect(harness.mockHttp.history.post[0].params).toEqual({ module: "Main Rules" });
     });
 
+    it("names every table the restore undid, those edited after the version included", async () => {
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).replyOnce(200, [
+        { id: "300_current", current: true }, { id: "200" }, { id: "100" }, { id: "Revision Version" },
+      ]);
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } })
+        .reply(200, [{ id: "100_current", current: true }, { id: "400" }, { id: "200" }, { id: "Revision Version" }]);
+      harness.mockHttp.onPost(`${history}/compare`).reply(202, { id: "c1" });
+      harness.mockHttp.onGet("/compare/c1").reply(200, { id: "c1", identical: false, sheets: [
+        { name: "Rates", status: "changed", children: [
+          { name: "BaseRate", status: "changed" }, { name: "IndustryFactor", status: "changed" },
+        ] },
+      ] });
+      harness.mockHttp.onDelete("/compare/c1").reply(204);
+      harness.mockHttp.onPost(`${history}/restore`, { version: "100" }).reply(204);
+
+      expect(dataOf(await restore("100"))).toEqual({
+        restored: "100",
+        undo: "400",
+        undone: [
+          { sheet: "Rates", table: "BaseRate", status: "changed" },
+          { sheet: "Rates", table: "IndustryFactor", status: "changed" },
+        ],
+      });
+      // The comparison is made before the restore, against the version current then
+      expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ first: "100", second: "300_current" });
+    });
+
     it("answers a done restore when the history cannot be read after it", async () => {
       harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).replyOnce(200, [
         { id: "200_current", modifiedOn: "08/27/2026 12:02 PM", current: true },

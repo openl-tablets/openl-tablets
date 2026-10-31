@@ -8,14 +8,7 @@ import * as schemas from "../schemas.js";
 import { formatWholeList, markdownTable } from "../markdown-list.js";
 import { formatCount } from "../text.js";
 import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
-import { waitForResult, type WaitOptions } from "./wait.js";
-
-/** How a preview of a restore waits while Studio compares the two versions. */
-const COMPARISON_WAIT: WaitOptions = {
-  timeoutMs: 60_000,
-  progressMessage: "Comparing the version with the current one",
-  timeoutMessage: "The comparison of the two versions did not end in time.",
-};
+import { changedTables } from "./comparison.js";
 
 export function registerLocalChangeHandlers(): void {
   registerTool({
@@ -58,15 +51,20 @@ export function registerLocalChangeHandlers(): void {
     name: "restore_project_local_change",
     title: "Restore Previous Local Version",
     description:
-      "Restore a project module to a version from its local edit history. Use the projectId and module from the corresponding openl_list_project_local_changes call, plus a historyId returned by it; the same call with the historyId tells first which tables the restore changes. The project must be opened first; repository 'local' is unsupported. The whole module takes that version, so every later edit of the module is undone too. The answer names as 'undo' the historyId of the module as it was right before, which restores it back. To put back one value only: restore, read the value with openl_get_table, restore 'undo', and set the value with openl_edit_table on the table read again.",
+      "Restore a project module to a version from its local edit history. Use the projectId and module from the corresponding openl_list_project_local_changes call, plus a historyId returned by it; the same call with the historyId tells first which tables the restore changes. The project must be opened first; repository 'local' is unsupported. The whole module takes that version, so every later edit of the module is undone too: the answer names in 'undone' every table the restore changed, and as 'undo' the historyId of the module as it was right before, which restores it back. To put back one value only: restore, read the value with openl_get_table, restore 'undo', and set the value with openl_edit_table on the table read again.",
     schema: schemas.restoreProjectLocalChangeSchema,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
     },
-    handler: async (args, client): Promise<ToolResponse> => {
+    handler: async (args, client, extra): Promise<ToolResponse> => {
       const { projectId, module: moduleName, historyId } = args;
-      const before = new Set((await client.getProjectLocalChanges(projectId, moduleName)).map(({ id }) => id));
+      const history = await client.getProjectLocalChanges(projectId, moduleName);
+      const before = new Set(history.map(({ id }) => id));
+      // What the restore undoes, told with it: a restore takes back every edit of the module after the version
+      const current = history.find((change) => change.current)?.id;
+      const undone = current === undefined || current === historyId ? [] : await changedTables(client,
+        () => client.compareLocalVersions(projectId, moduleName, historyId, current), extra).catch(() => []);
       await client.restoreProjectLocalChange(projectId, moduleName, historyId);
       // Studio keeps the module as it was in the history, which it lists newest first: the version the restore added.
       // The restore is done once Studio answers it, so a failed read of the history leaves only the undo unknown
@@ -79,7 +77,7 @@ export function registerLocalChangeHandlers(): void {
       }
       const undo = after.find(({ id, current }) => !current && !before.has(id))?.id;
 
-      return formatResult({ restored: historyId, undo });
+      return formatResult({ restored: historyId, undo, ...(undone.length > 0 ? { undone } : {}) });
     },
   });
 }
@@ -100,14 +98,8 @@ async function restoreEffect(
   if (current === historyId) {
     return `${historyId} is the current version of ${module}: a restore to it changes nothing.`;
   }
-  const id = await client.compareLocalVersions(projectId, module, historyId, current);
-  const comparison = await waitForResult((request) => client.getComparison(id, request), COMPARISON_WAIT, extra)
-    .finally(() => client.deleteComparison(id).catch(() => undefined));
-  const changed = comparison.sheets.flatMap((sheet) => {
-    const tables = (sheet.children ?? []).filter((table) => table.status !== "equal")
-      .map((table) => ({ sheet: sheet.name, table: table.name, status: table.status }));
-    return tables.length > 0 || sheet.status === "equal" ? tables : [{ sheet: sheet.name, table: "", status: sheet.status }];
-  });
+  const changed = await changedTables(client,
+    () => client.compareLocalVersions(projectId, module, historyId, current), extra);
   if (changed.length === 0) {
     return `A restore of ${module} to ${historyId} changes no table: the version holds what the module holds now.`;
   }

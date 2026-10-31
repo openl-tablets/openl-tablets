@@ -10,7 +10,8 @@ import { namesOfSet } from "../utils.js";
 import { type Truncation } from "../formatters.js";
 import { formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
-import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
+import { changedTables } from "./comparison.js";
 import { refreshFromDisk } from "./freshness.js";
 
 /**
@@ -63,6 +64,40 @@ function shapeStatusResponse(
       modules,
     },
   };
+}
+
+/** The workbooks of a project, the files a comparison reads tables of. */
+const WORKBOOK = /\.xls[xm]?$/i;
+
+/**
+ * The status with the tables each changed workbook holds otherwise than the saved revision, when they are asked for:
+ * the pending changes name files only. Studio holds one comparison per client, so the workbooks are compared one by
+ * one; a workbook whose comparison fails is named without its tables.
+ */
+async function withChangedTables(
+  client: OpenLClient,
+  status: Types.ProjectStatusView,
+  asked: boolean | undefined,
+  extra: ToolHandlerExtra | undefined,
+): Promise<Types.ProjectStatusView> {
+  const { pendingChanges, revision, branch, projectId } = status;
+  if (!asked || !pendingChanges?.files.length || !revision) {
+    return status;
+  }
+  // A pending change names its file by the path of the project in its repository, a comparison by the path in it
+  const root = (await client.getProject(projectId)).path;
+  const files = [];
+  for (const file of pendingChanges.files) {
+    if (file.type !== "modified" || !WORKBOOK.test(file.path)) {
+      files.push(file);
+      continue;
+    }
+    const path = root && file.path.startsWith(`${root}/`) ? file.path.slice(root.length + 1) : file.path;
+    const tables = await changedTables(client,
+      () => client.compareProjectFiles(projectId, { path, branch, revision }, { path }), extra).catch(() => undefined);
+    files.push(tables ? { ...file, tables } : file);
+  }
+  return { ...status, pendingChanges: { ...pendingChanges, files } };
 }
 
 /** A compile message whose location names the project the status is of without the project. */
@@ -237,7 +272,7 @@ export function registerProjectHandlers(): void {
     name: "project_status",
     title: "Get Project Status",
     description:
-      "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
+      "Get the project's compile state, diagnostics, pending changes by file, and module/test summary; with changes: true, each changed workbook names the tables it holds otherwise than the saved revision. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
     schema: schemas.projectStatusSchema,
     annotations: {
       destructiveHint: false,
@@ -251,7 +286,7 @@ export function registerProjectHandlers(): void {
         timeoutMs: args.timeoutMs,
       });
       const { refreshed, ...read } = status;
-      const shaped = shapeStatusResponse(read, args.severity, args.limit);
+      const shaped = await withChangedTables(client, shapeStatusResponse(read, args.severity, args.limit), args.changes, extra);
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 

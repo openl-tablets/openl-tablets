@@ -295,6 +295,39 @@ describe("project status", () => {
     });
   });
 
+  it("names the tables of each changed workbook on request, comparing them one by one with the saved revision", async () => {
+    const fixture: ProjectStatusView = {
+      projectId,
+      branch: "main",
+      revision: "r1",
+      compileState: "ok",
+      compilation: { messages: { items: [], total: 0, errors: 0, warnings: 0 }, modules: { total: 1, compiled: 1 }, tests: { total: 0 } },
+      pendingChanges: { total: 3, files: [
+        { path: "Rating/rules/Main.xlsx", type: "modified" },
+        { path: "Rating/rules.xml", type: "modified" },
+        { path: "Rating/rules/New.xlsx", type: "added" },
+      ] },
+    };
+    harness.mockHttp.onGet(projectPath).reply(200, { path: "Rating", ...withStatus(fixture) });
+    harness.mockHttp.onPost(`${projectPath}/compare`).reply(202, { id: "c1" });
+    harness.mockHttp.onGet("/compare/c1").reply(200, { id: "c1", identical: false, sheets: [
+      { name: "Rates", status: "changed", children: [{ name: "RateCard", status: "changed" }, { name: "Base", status: "equal" }] },
+    ] });
+    harness.mockHttp.onDelete("/compare/c1").reply(204);
+
+    const response = dataOf(await executeTool("project_status", { projectId, changes: true }, harness.client));
+
+    // Only the changed workbook is compared, by its path in the project, the saved revision against the working copy
+    expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([{
+      first: { path: "rules/Main.xlsx", branch: "main", revision: "r1" }, second: { path: "rules/Main.xlsx" },
+    }]);
+    expect(response.pendingChanges.files).toEqual([
+      { path: "Rating/rules/Main.xlsx", type: "modified", tables: [{ sheet: "Rates", table: "RateCard", status: "changed" }] },
+      { path: "Rating/rules.xml", type: "modified" },
+      { path: "Rating/rules/New.xlsx", type: "added" },
+    ]);
+  });
+
   it("names the table of a message without the project the status is of", async () => {
     const table = { type: "table", id: "t1", name: "Rates", module: "Main", cell: "B2" };
     const fixture: ProjectStatusView = {
