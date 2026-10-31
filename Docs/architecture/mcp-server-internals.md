@@ -103,7 +103,8 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   characters is cut by whole items, in JSON and Markdown alike: a list by items, with the page cursor moved to match,
   a table read by rows, with `totalRows` and the `startRow` to continue from. The note on a cut result names only a
   way to continue that the tool has; anything else is cut to a preview. A page of `openl_get_test_results` is cut by
-  whole test tables. An unpaged read of test results, the test results of one table and guides are never cut. A file
+  whole test tables, and the tests of one test table by whole tests. An unpaged read of test results and guides are
+  never cut. A file
   read answers a text of up to 5,000 bytes inline, and any other file by a link the agent runs `curl` with
   ([MCP File Transfer Links](mcp-file-transfer.md)).
 - **Errors** — a failed tool answers with an `isError` result; only an unknown tool is a protocol error. A Studio

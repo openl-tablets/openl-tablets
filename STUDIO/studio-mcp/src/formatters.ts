@@ -156,7 +156,9 @@ export function formatResponse<T>(
 ): string {
   const truncation = options?.truncation;
   const response: PaginatedResponse<T> = {
-    ...withoutWrapperFields({ ...options?.responseMetadata, ...truncation?.metadata?.(truncation.items) }),
+    ...withoutWrapperFields({ ...options?.responseMetadata }),
+    // The metadata of a cut is the formatter's own, such as the pagination of what it holds
+    ...truncation?.metadata?.(truncation.items),
     data,
   };
   if (options?.pagination) {

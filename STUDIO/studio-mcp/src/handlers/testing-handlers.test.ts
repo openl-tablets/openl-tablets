@@ -115,8 +115,8 @@ describe("test results", () => {
   it.each([
     [{ summary: true }, { failures: 5 }],
     [{ summary: true, failures: 3, unpaged: true }, { failures: 3, unpaged: true }],
-    [{ failuresOnly: true }, { failuresOnly: true, failures: 5 }],
-    [{ unpaged: true }, { failures: 5, unpaged: true }],
+    [{ failuresOnly: true }, { failuresOnly: true, failures: 5, lazyValues: true }],
+    [{ unpaged: true }, { failures: 5, unpaged: true, lazyValues: true }],
   ])("openl_get_test_results asks Studio for the results %j select", async (args, params) => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({}));
 
@@ -130,6 +130,7 @@ describe("test results", () => {
     [{ summary: true, limit: 10 }, /A summary takes no tableId, offset/],
     [{ page: 0 }, /page/],
     [{ unpaged: true, limit: 10 }, /unpaged is mutually exclusive/],
+    [{ caseId: "1" }, /caseId names a test of the test table tableId names/],
   ])("openl_get_test_results refuses %j before any request", async (args, message) => {
     await expect(executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client))
       .rejects.toThrow(message);
@@ -257,29 +258,61 @@ describe("test results", () => {
     expect(JSON.parse(textOf(result)).pagination).toMatchObject({ limit, offset: 0 });
   });
 
-  it("openl_get_test_results lets Studio filter and page the results of the one table tableId names", async () => {
-    const allResults = [
-      testCase("Test_calculatePremium", "Test_calculatePremium_1234", 5, 0),
-      testCase("Test_calculateDiscount", "Test_calculateDiscount_5678", 3, 1),
-    ];
-    // Studio answers the results of the test table the request names.
-    harness.mockHttp.onGet(summaryPath).reply((config) => {
-      const testCases = allResults.filter((result) => result.tableId === config.params?.tableId);
-      return [200, resultsPage({ testCases })];
-    });
+  /** A test table of `count` passed tests, each with an assertion of `size` characters. */
+  const tableOfTests = (count: number, size = 10): TestCase => ({
+    ...testCase("Test_calculatePremium", "Test_calculatePremium_1234", count, 0),
+    testUnits: Array.from({ length: count }, (_, i) => ({
+      id: String(i + 1), status: "TR_OK" as const, executionTimeMs: 1,
+      testAssertions: [{ status: "TR_OK" as const, expectedValue: "E".repeat(size), actualValue: "E".repeat(size) }],
+    })),
+  });
+
+  it("openl_get_test_results pages the tests of the one table tableId names", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [tableOfTests(30)] }));
+
+    const response = JSON.parse(textOf(await executeTool("get_test_results", {
+      projectId: "design-project1",
+      tableId: "Test_calculatePremium_1234",
+      offset: 20,
+      limit: 5,
+    }, harness.client)));
+
+    expect(response.data.testCases[0].testUnits.map((unit: { id: string }) => unit.id)).toEqual(["21", "22", "23", "24", "25"]);
+    expect(response.pagination).toEqual({ offset: 20, count: 5, total_count: 30, has_more: true, next_offset: 25 });
+    // Studio answers every test of the table, its inputs named by their type and key
+    expect(harness.mockHttp.history.get[0].params)
+      .toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, allFailures: true, lazyValues: true });
+  });
+
+  it("openl_get_test_results cuts the tests of one table to the limit by whole tests", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [tableOfTests(40, 1_000)] }));
 
     const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
-      offset: 20,
-      limit: 20,
     }, harness.client));
 
-    expect(text).toContain("Test_calculatePremium");
-    expect(text).not.toContain("Test_calculateDiscount");
-    // The paging of the caller goes to Studio with the table, not over the whole run.
-    expect(harness.mockHttp.history.get[0].params)
-      .toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, allFailures: true, offset: 20, size: 20 });
+    expect(text.length).toBeLessThanOrEqual(25_000);
+    const response = JSON.parse(text);
+    const delivered = response.data.testCases[0].testUnits.length;
+    expect(delivered).toBeGreaterThan(0);
+    expect(delivered).toBeLessThan(40);
+    expect(response.pagination).toMatchObject({ offset: 0, count: delivered, total_count: 40, next_offset: delivered });
+    expect(response.truncation_message).toContain(`continue with offset=${delivered}`);
+  });
+
+  it("openl_get_test_results reads one test with its inputs whole", async () => {
+    const casePath = `${summaryPath}/Test_calculatePremium_1234/cases/3`;
+    harness.mockHttp.onGet(casePath).reply(200, {
+      id: "3", status: "TR_OK", executionTimeMs: 1,
+      parameters: [{ name: "policy", description: "Policy", value: { state: "CA" }, schema: { type: "object" } }],
+    });
+
+    const result = await executeTool("get_test_results", {
+      projectId: "design-project1", tableId: "Test_calculatePremium_1234", caseId: "3",
+    }, harness.client);
+
+    expect(dataOf<any>(result).parameters).toEqual([{ name: "policy", description: "Policy", value: { state: "CA" } }]);
   });
 
   /** 13 test tables whose expected and actual values make each of them about 5,000 characters long. */
