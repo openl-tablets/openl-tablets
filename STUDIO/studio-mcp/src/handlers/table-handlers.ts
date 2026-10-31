@@ -6,7 +6,7 @@
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
-import { gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
+import { findRows, gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
 import { isPlainObject, sanitizeError } from "../utils.js";
 import { formatResult, registerTool, textResult, type ToolResponse } from "./common.js";
 import { formatStudioPage } from "../markdown-list.js";
@@ -122,7 +122,9 @@ export function registerTableHandlers(): void {
       "'window' tells which rows the answer holds: offset, rows, totalRows, complete, and next_offset while rows " +
       "remain; offset/limit read a slice of a large table, whose positions stay those of the whole table, and a " +
       "merged cell the slice cuts keeps its value in the first row of the slice. A slice is for reading and for " +
-      "openl_edit_table: openl_update_table writes whole tables. The answer carries the 'version' the edit tools " +
+      "openl_edit_table: openl_update_table writes whole tables. find reads only the rows with a text, such as the " +
+      "key of a row of a large lookup, and the header rows, each at its position in 'rowIndexes'. The answer carries " +
+      "the 'version' the edit tools " +
       "take back. An id from before a rename still reads the table; a deleted table answers 410.",
     schema: schemas.getTableSchema,
     annotations: {
@@ -137,6 +139,13 @@ export function registerTableHandlers(): void {
       // Studio names the rows of the table only when the window leaves some out
       const totalRows = total ?? offset + source.length;
       const grid = gridOf(source, offset, table.pos);
+      if (args.find !== undefined) {
+        // The header and the row of the titles of the columns tell what the rows found hold
+        const found = findRows(grid, args.find, (table.headerHeight ?? 1) + 1);
+        return formatResult({ ...about, ...found }, {
+          responseMetadata: { found: { rows: found.rows.length, totalRows } },
+        });
+      }
 
       return formatResult({ ...about, ...grid }, {
         truncation: {

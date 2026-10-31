@@ -154,6 +154,36 @@ describe("reading tables", () => {
   });
 });
 
+describe("openl_get_table find", () => {
+  it("reads the header rows and the rows with a cell holding the text, a number by its digits, at their positions", async () => {
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", [
+      [{ value: "SmartLookup Double RegionFactor(String region, String plan)", colspan: 3 }, { covered: true }, { covered: true }],
+      [{ value: "Region" }, { value: "Silver" }, { value: "Gold" }],
+      [{ value: "north" }, { value: 1.1 }, { value: 1.2 }],
+      [{ value: 42 }, { value: 1.3 }, { value: 1.4, formula: "=1+0.4" }],
+      [{ value: "south" }, { value: 1.5 }, { value: 1.6 }],
+    ], { pos: "B2:D6", headerHeight: 1 }));
+
+    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "t1", find: "42" }, harness.client)));
+
+    expect(response.found).toEqual({ rows: 3, totalRows: 5 });
+    expect(response.data).toMatchObject({
+      rows: [["SmartLookup Double RegionFactor(String region, String plan)"], ["Region", "Silver", "Gold"], [42, 1.3, 1.4]],
+      rowIndexes: [0, 1, 3],
+      merges: [[0, 0, 1, 3]],
+      formulas: [[3, 2, "=1+0.4"]],
+    });
+    // The whole table is read to find the rows
+    expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, cutMerges: true });
+  });
+
+  it("refuses a find in a slice before reading", async () => {
+    await expect(executeTool("get_table", { projectId: "p1", tableId: "t1", find: "42", limit: 10 }, harness.client))
+      .rejects.toThrow(/find searches the whole table/);
+    expectNoRequest();
+  });
+});
+
 describe("openl_create_project_table", () => {
   it("writes the rows, merges and formulas as Studio's cells and answers the version of the new table", async () => {
     harness.mockHttp.onPost(tablesPath).reply(201, { id: "t1", name: "MinimumPremium", tableType: "RawSource", file: "Main.xlsx" });

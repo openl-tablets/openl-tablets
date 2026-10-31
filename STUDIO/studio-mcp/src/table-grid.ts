@@ -92,6 +92,25 @@ export function leadingRows(grid: Grid, offset: number, count: number): Grid {
 }
 
 /**
+ * The rows of a whole grid with a cell whose text contains `text`, case-insensitive, and the header rows before them,
+ * with the positions of the rows kept and the merges, formulas, notes and styles of those rows.
+ */
+export function findRows(grid: Grid, text: string, headerRows: number): Grid & { rowIndexes: number[] } {
+  const wanted = text.toLowerCase();
+  const matches = (value: GridValue): boolean =>
+    value !== null && (Array.isArray(value) ? value : [value]).some((item) => String(item).toLowerCase().includes(wanted));
+  const rowIndexes = grid.rows.flatMap((row, index) => (index < headerRows || row.some(matches) ? [index] : []));
+  const kept = new Set(rowIndexes);
+  // A merge goes with every row it spans
+  const spanned = (row: number, rowspan: number): boolean => Array.from({ length: rowspan }, (_, i) => row + i).some((r) => kept.has(r));
+  return {
+    rows: rowIndexes.map((index) => grid.rows[index]),
+    rowIndexes,
+    ...nonEmpty({ merges: grid.merges?.filter(([row, , rowspan]) => spanned(row, rowspan)), ...entriesIn(grid, (row) => kept.has(row)) }),
+  };
+}
+
+/**
  * Studio's matrix of a whole table from its grid, `width` columns wide at least: a merged cell names its span on its
  * first cell and covers the others, and a cell with a formula is written as the formula. Notes and styles are not
  * written: Studio keeps them. A formula outside the table is refused: it names no cell to write.
