@@ -435,10 +435,9 @@ describe("trace tools", () => {
     expect(harness.mockHttp.history.put).toHaveLength(0);
   });
 
-  it("openl_set_trace_breakpoints with breakpoints replaces the whole set before reading it back", async () => {
+  it("openl_set_trace_breakpoints with breakpoints replaces the whole set and answers it, without the targets", async () => {
     harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply(204);
     harness.mockHttp.onGet(`${projectPath}/trace/breakpoints`).reply(200, ["uri#R0C1"]);
-    harness.mockHttp.onGet(`${projectPath}/trace/breakpoint-tables`).reply(200, []);
 
     const result = await executeTool(
       "set_trace_breakpoints",
@@ -447,7 +446,8 @@ describe("trace tools", () => {
     );
 
     expect(bodyOf(harness.mockHttp.history.put[0])).toEqual({ uris: ["uri#R0C1"] });
-    expect(textOf(result)).toContain("uri#R0C1");
+    expect(dataOf(result)).toEqual({ breakpoints: ["uri#R0C1"] });
+    expect(harness.mockHttp.history.get.map(({ url }) => url)).toEqual([`${projectPath}/trace/breakpoints`]);
   });
 
   it("openl_get_trace_value expands a lazy parameter, dropping the value's JSON Schema unless withSchema is set", async () => {
