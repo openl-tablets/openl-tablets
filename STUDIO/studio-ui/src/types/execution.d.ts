@@ -32,6 +32,8 @@ export interface RunResult {
 /** One assertion of a test unit: what was expected, what came out, and whether they matched. */
 export interface TestAssertionResult {
     description?: string
+    /** The field the assertion compares, when another assertion of the test has the same description. */
+    field?: string
     expectedValue?: unknown
     actualValue?: unknown
     /**
