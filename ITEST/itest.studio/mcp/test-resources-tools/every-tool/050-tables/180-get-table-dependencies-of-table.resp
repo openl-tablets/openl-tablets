@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\"},{\"id\":\"*\",\"kind\":\"Spreadsheet\",\"name\":\"Premium\",\"dependencies\":[\"*\"]},{\"id\":\"*\",\"kind\":\"Test\",\"name\":\"PremiumTest\",\"dependencies\":[\"*\"]}]}"
+        "text": "{\"data\":[{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"dependents\":[\"*\"]},{\"id\":\"*\",\"kind\":\"Spreadsheet\",\"name\":\"Premium\",\"dependencies\":[\"*\"],\"dependents\":[\"*\"]},{\"id\":\"*\",\"kind\":\"Test\",\"name\":\"PremiumTest\",\"dependencies\":[\"*\"]}]}"
       }
     ],
     "resultType": "complete",
