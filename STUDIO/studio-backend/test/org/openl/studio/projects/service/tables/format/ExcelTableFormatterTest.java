@@ -56,7 +56,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
@@ -310,6 +309,24 @@ class ExcelTableFormatterTest {
         }
     }
 
+    /**
+     * Excel keeps a text after its apostrophe a text when the cell is edited in Excel, and turns an Excel formula after
+     * one into a text.
+     */
+    @Test
+    void putsTheApostropheBeforeAnOpenLFormulaAndTakesItFromAnExcelFormula() throws IOException {
+        try (var workbook = formatted(ExcelTableFormatterTest::fillFormulas)) {
+            assertTrue(styleAt(workbook, 3, 2).getQuotePrefixed(), "An OpenL formula");
+            assertTrue(styleAt(workbook, 4, 2).getQuotePrefixed(), "A text typed after an apostrophe");
+            assertFalse(styleAt(workbook, 5, 2).getQuotePrefixed(), "Any other text");
+            assertFalse(styleAt(workbook, 6, 2).getQuotePrefixed(), "An Excel formula");
+            var sheet = workbook.getSheet(SHEET);
+            assertEquals("= a * 2", sheet.getRow(3).getCell(2).getStringCellValue(), "No value changes");
+            assertEquals("2*3", sheet.getRow(6).getCell(2).getCellFormula(), "An Excel formula stays one");
+            assertStylesAreValid(workbook);
+        }
+    }
+
     @Test
     void writesTheSignatureInItsPiecesAndEveryOtherTextPlain() throws IOException {
         try (var workbook = formatted(ExcelTableFormatterTest::fillSheet)) {
@@ -527,7 +544,7 @@ class ExcelTableFormatterTest {
     private static void format(ProjectModel model) {
         var formatter = new ExcelTableFormatter();
         for (var node : model.getAllTableSyntaxNodes()) {
-            IOpenLTable table = new TableSyntaxNodeAdapter(node);
+            var table = new TableSyntaxNodeAdapter(node);
             var grid = GridTableUtils.getOriginalTable(table.getGridTable());
             grid.edit();
             try {
@@ -642,6 +659,26 @@ class ExcelTableFormatterTest {
         indent(sheet, SUBROUTINE_STEP + 1, OPERATION);
         row(sheet, LAST_STEP, LABEL, null, "the next multiplier", "SET", null, "i += 1");
         indent(sheet, LAST_STEP, OPERATION);
+    }
+
+    /**
+     * A Spreadsheet table of an OpenL formula, a text typed in Excel after an apostrophe, a plain text, and an Excel
+     * formula after an apostrophe left from the OpenL formula it replaced.
+     */
+    private static void fillFormulas(Sheet sheet) {
+        row(sheet, 1, 1, "Spreadsheet SpreadsheetResult Calc(Integer a)");
+        merge(sheet, 1, 1, 1, 2);
+        row(sheet, 2, 1, "Step", "Value");
+        row(sheet, 3, 1, "Double", "= a * 2");
+        row(sheet, 4, 1, "Code", "0123");
+        row(sheet, 5, 1, "Name", "Total");
+        // A text turned into an Excel formula, which Apache POI leaves marked as a shared string.
+        row(sheet, 6, 1, "Six", "= 6");
+        sheet.getRow(6).getCell(2).setCellFormula("2*3");
+        var quoted = sheet.getWorkbook().createCellStyle();
+        quoted.setQuotePrefixed(true);
+        sheet.getRow(4).getCell(2).setCellStyle(quoted);
+        sheet.getRow(6).getCell(2).setCellStyle(quoted);
     }
 
     /** Indents the text of a cell by one level, which nests the step under the one above. */

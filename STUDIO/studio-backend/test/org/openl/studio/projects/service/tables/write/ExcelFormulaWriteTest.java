@@ -1,15 +1,19 @@
 package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +36,8 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
- * A text starting with {@code =} is written as the OpenL formula it is. An Excel formula is written only from the
- * {@code formula} of a cell, and the value of such a cell is ignored.
+ * A text starting with {@code =} is written as the OpenL formula it is, after the apostrophe of Excel. An Excel formula
+ * is written only from the {@code formula} of a cell, and the value of such a cell is ignored.
  */
 class ExcelFormulaWriteTest {
 
@@ -60,6 +64,18 @@ class ExcelFormulaWriteTest {
         assertEquals(formula, cellOf(2, 1).value());
         assertNull(cellOf(2, 1).formula());
         assertEquals(CellType.STRING, cellType(3, 2));
+        assertTrue(quoted(3, 2), "Excel keeps the text a text when the cell is edited in Excel");
+    }
+
+    /** Excel would turn an Excel formula after an apostrophe into a text once the cell is edited in Excel. */
+    @Test
+    void takesTheApostropheFromAnExcelFormulaWrittenOverAnOpenLFormula() throws IOException {
+        apply(new UpdateTarget.Cell(2, 1, "= 1 + 2"));
+        apply(new UpdateTarget.Cell(2, 1, null, null, "=2*3"));
+
+        assertEquals("=2*3", cellOf(2, 1).formula());
+        assertEquals(CellType.FORMULA, cellType(3, 2));
+        assertFalse(quoted(3, 2));
     }
 
     @Test
@@ -182,8 +198,17 @@ class ExcelFormulaWriteTest {
 
     /** The type of a cell as the workbook stores it, by its row and column on the sheet. */
     private CellType cellType(int row, int column) throws IOException {
+        return stored(row, column, Cell::getCellType);
+    }
+
+    /** Whether a cell follows the apostrophe of Excel, by its row and column on the sheet. */
+    private boolean quoted(int row, int column) throws IOException {
+        return stored(row, column, cell -> cell.getCellStyle().getQuotePrefixed());
+    }
+
+    private <T> T stored(int row, int column, Function<Cell, T> what) throws IOException {
         try (var in = Files.newInputStream(project.resolve("main.xlsx")); var workbook = new XSSFWorkbook(in)) {
-            return workbook.getSheetAt(0).getRow(row).getCell(column).getCellType();
+            return what.apply(workbook.getSheetAt(0).getRow(row).getCell(column));
         }
     }
 

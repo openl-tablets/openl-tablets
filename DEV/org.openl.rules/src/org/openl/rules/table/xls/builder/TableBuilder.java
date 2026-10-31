@@ -249,6 +249,10 @@ public class TableBuilder {
             var dateStyle = cellStyle == getDefaultCellStyle() ? getDefaultDateCellStyle() : getDateCellStyle(cell);
             setCellStyle(cell, dateStyle, null);
         }
+        if (value != null) {
+            // The style written over the value decides its apostrophe again.
+            gridModel.setApostrophe(x, y);
+        }
     }
 
     /**
@@ -258,12 +262,8 @@ public class TableBuilder {
      * @param cell Cell with value in it.
      */
     private CellStyle getDateCellStyle(Cell cell) {
-        var previousStyle = cell.getCellStyle();
-        cell.setCellStyle(PoiExcelHelper.createCellStyle(cell.getSheet().getWorkbook()));
-        cell.getCellStyle().cloneStyleFrom(previousStyle);
-        cell.getCellStyle()
-                .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
-        return cell.getCellStyle();
+        return PoiExcelHelper.setCellDataFormat(cell,
+                BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
     }
 
     /**
@@ -304,8 +304,8 @@ public class TableBuilder {
      *
      * <p>A table of the same workbook, such as one moved on its sheet, is written as it is stored: every cell keeps
      * the notation of its value, its text untrimmed and the fonts of its parts. A table of another workbook is written
-     * by its values: an Excel formula stays an Excel formula, and a text starting with {@code =} stays a text. A cell
-     * a merge covers below or right of its top-left cell stays empty.
+     * by its values: an Excel formula stays an Excel formula, and a text starting with {@code =} stays a text, after
+     * the apostrophe of Excel. A cell a merge covers below or right of its top-left cell stays empty.
      *
      * @param table table grid
      * @throws IllegalArgumentException if table is null

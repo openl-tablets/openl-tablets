@@ -36,7 +36,7 @@ It is common practice to create a spreadsheet table with two columns only: **Ste
 -   values of other data types
 -   formulas, which can be mathematical expressions, rule calls, and other operators or functions
 
-Formulas are preceded by an apostrophe followed by = if editing a table in Excel, or directly with = if editing a table in OpenL Studio.
+Formulas are preceded by an apostrophe followed by = if editing a table in Excel, or directly with = if editing a table in OpenL Studio, which puts the apostrophe into the Excel file itself.
 
 -   another cell value or a range of another cell values referenced in a cell formula
 

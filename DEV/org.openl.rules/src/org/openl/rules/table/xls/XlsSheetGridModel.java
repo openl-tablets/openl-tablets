@@ -72,6 +72,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     private RegionsPool mergedRegionsPool;
 
     private final Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
+    private final Apostrophes apostrophes = new Apostrophes();
 
     private void extractMergedRegions() {
         mergedRegionsPool = new RegionsPool(null);
@@ -317,6 +318,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             setCellValue(col, row, value);
         }
         setCellStyle(col, row, style);
+        setApostrophe(col, row);
         setCellComment(col, row, comment, prevCommentAuthor);
     }
 
@@ -459,6 +461,16 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } else {
             poiCell.setBlank();
         }
+        apostrophes.set(poiCell);
+    }
+
+    /**
+     * Sets the apostrophe of Excel of a cell by the value it holds, after its style was written over it.
+     *
+     * @see Apostrophes
+     */
+    public void setApostrophe(int col, int row) {
+        apostrophes.set(PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite()));
     }
 
     /**
@@ -479,6 +491,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellStringValue(int col, int row, String value) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite());
         cell.setCellValue(value);
+        apostrophes.set(cell);
     }
 
     @Override
@@ -490,6 +503,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(formula);
             cellWriter.writeCellValue();
+            apostrophes.set(poiCell);
         }
     }
 
@@ -505,15 +519,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         var sheet = getSheetToWrite();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellStyle newPoiStyle;
-        CellStyle styleToClone;
 
         if (style instanceof XlsCellStyle cellStyle) {
             newPoiStyle = cellStyle.getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
         } else {
-            newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
-            styleToClone = poiCell.getCellStyle();
-            newPoiStyle.cloneStyleFrom(styleToClone);
+            newPoiStyle = PoiExcelHelper.cloneStyleFrom(poiCell);
         }
 
         poiCell.setCellStyle(newPoiStyle);
@@ -530,9 +541,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
         var sheet = getSheetToWrite();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
-
-        newPoiStyle.cloneStyleFrom(poiCell.getCellStyle());
+        CellStyle newPoiStyle = PoiExcelHelper.cloneStyleFrom(poiCell);
 
         if (style.getBorderStyle() != null) {
             var borderStyle = style.getBorderStyle();

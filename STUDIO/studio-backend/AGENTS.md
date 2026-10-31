@@ -234,18 +234,20 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   `equals`, which `putBorder` asks) and writes the RGB of the theme colour beside it, three bytes the schema refuses:
   the borders are read from their XML, and a border is added with the theme set aside.
 - **`ExcelTableFormatter` writes cells, not styles.** Each cell gets the index of a cell format keyed by its role, the
-  lines at the edges of its region and what is kept from the cell (number format, indent, wrap, rotation); no
-  `CellStyle` object is made per cell (`CTCell.setS`). An indented cell is aligned left. The lines follow `roleLinesOf`
-  of `studio-ui`, all in `dk1` (`Line.ROLE`): a line on the top edge of a region, never below the region above — above
-  the signature, the properties, the code, the titles and a section, and below the last row of the signature, the
-  properties and the code; a lookup lays out each row of its horizontal values as a region of its own (`Place.byRows`),
-  so each row is set apart — the result between its own lines, a hair line above a group and on the left of a group
-  column from the titles down (`TableStyle.isHeaderPart`), and a line closing the table. The header row is merged into
-  one cell across the table unless another cell of it holds a value or a merge reaches out of it
+  lines at the edges of its region and what is kept from the cell (number format, indent, wrap, rotation, the quote
+  prefix of a text); no `CellStyle` object is made per cell (`CTCell.setS`). An indented cell is aligned left. An OpenL
+  formula gets the quote prefix and a cell holding anything but a text loses it (`Apostrophes.Quote` of
+  `org.openl.rules`, the one rule `Apostrophes` applies to every value and Excel formula written). The lines follow
+  `roleLinesOf` of `studio-ui`, all in `dk1` (`Line.ROLE`): a line on the top edge of a region, never below the region
+  above — above the signature, the properties, the code, the titles and a section, and below the last row of the
+  signature, the properties and the code; a lookup lays out each row of its horizontal values as a region of its own
+  (`Place.byRows`), so each row is set apart — the result between its own lines, a hair line above a group and on the
+  left of a group column from the titles down (`TableStyle.isHeaderPart`), and a line closing the table. The header row
+  is merged into one cell across the table unless another cell of it holds a value or a merge reaches out of it
   (`TableWrite.mergeSignature`, through the grid model when there is one, so its region pool stays in sync). The
-  signature is the only rich text, in its pieces; rich text in any other cell keeps only its marks (`TextMarks`: a
-  piece bold in Red, Orange, Green or Light Blue), each rebuilt on the font of the cell's role, and is plain otherwise.
-  A table of an `.xls` workbook and a table of the type Other are not formatted.
+  signature is the only rich text, in its pieces; rich text in any other cell keeps only its marks (`TextMarks`: a piece
+  bold in Red, Orange, Green or Light Blue), each rebuilt on the font of the cell's role, and is plain otherwise. A
+  table of an `.xls` workbook and a table of the type Other are not formatted.
 - **A mark is a run, never a style.** `UpdateTarget.Cell.marks` writes a text with its marks
   (`RawTableWriter.writeMarks`): the run fonts are `XSSFFont` objects never registered in the workbook, so the font
   lives in the shared string and no cell format, named style or font is added. A font copied from a cell or a role
