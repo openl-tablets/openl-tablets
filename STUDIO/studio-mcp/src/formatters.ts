@@ -167,7 +167,7 @@ function sectionsOf(text: string): Section[] {
     if (fence === undefined ? marker : marker?.startsWith(fence[0]) && marker.length >= fence.length && !after.trim()) {
       fence = fence === undefined ? marker : undefined;
     }
-    const heading = fence !== undefined || marker ? null : /^(#{1,6})\s+(\S.*)$/.exec(line);
+    const heading = fence !== undefined || marker ? null : /^ {0,3}(#{1,6})\s+(\S.*)$/.exec(line);
     if (heading) {
       headings.push({ level: heading[1].length, title: headingTitle(heading[2]), start: offset });
     }
