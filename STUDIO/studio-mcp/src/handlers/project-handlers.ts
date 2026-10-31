@@ -88,6 +88,7 @@ async function withChangedTables(
   // A pending change names its file by the path of the project in its repository, a comparison by the path in it
   const root = (await client.getProject(projectId)).path;
   const files = [];
+  // One workbook after another: Studio keeps one comparison per client, and a second one cancels the first
   for (const file of pendingChanges.files) {
     if (file.type !== "modified" || !WORKBOOK.test(file.path)) {
       files.push(file);
