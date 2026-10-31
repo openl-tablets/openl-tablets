@@ -64,7 +64,10 @@ async function workbooksNotSearched(
   args: z.output<typeof schemas.searchProjectFilesSchema>,
   query: Types.FileSearchQuery,
 ): Promise<string | undefined> {
-  if (!args.content || args.scope === "ANCESTORS" || args.type === "FOLDER") {
+  // A pattern of files of another extension, such as '**/*.xml', covers no workbook
+  const patternExtension = /\.([^./*?]+)$/.exec(args.pattern ?? "")?.[1].toLowerCase();
+  if (!args.content || args.scope === "ANCESTORS" || args.type === "FOLDER"
+    || (patternExtension !== undefined && !WORKBOOK_EXTENSIONS.includes(patternExtension))) {
     return undefined;
   }
   const asked = args.extensions?.map((extension) => extension.toLowerCase());
@@ -217,14 +220,17 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content' substring. Only the top level is searched unless recursive=true; to list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
+      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content' substring. A content search looks in every folder, any other search in the top level only unless recursive=true; to list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
     schema: schemas.searchProjectFilesSchema,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
-    handler: async (args, client): Promise<ToolResponse> => {
+    handler: async (asked, client): Promise<ToolResponse> => {
+      // A text is looked for in every folder unless the agent asks for the top level: the files that hold text are
+      // seldom at the top of a project
+      const args = { ...asked, recursive: asked.recursive ?? (asked.content !== undefined && asked.scope !== "ANCESTORS" ? true : undefined) };
       const { limit, offset } = args;
 
       // Undefined fields are dropped by JSON serialization, so an empty query
@@ -241,17 +247,19 @@ export function registerFileHandlers(): void {
       // The backend file-search has no server-side paging (it returns the full
       // match set), so — like openl_list_deployments/openl_list_repositories — we
       // paginate the returned array client-side and report pagination metadata.
-      const found = await client.searchProjectFiles(args.projectId, query, {
-        branch: args.branch,
-        // A match names its file by its path, of which its name, folder and extension are parts; an ANCESTORS match
-        // carries its content too
-        fields: args.fields ?? (args.scope === "ANCESTORS" ? undefined : "path,type,size,lastModified"),
-      });
+      const [found, notSearched] = await Promise.all([
+        client.searchProjectFiles(args.projectId, query, {
+          branch: args.branch,
+          // A match names its file by its path, of which its name, folder and extension are parts; an ANCESTORS match
+          // carries its content too
+          fields: args.fields ?? (args.scope === "ANCESTORS" ? undefined : "path,type,size,lastModified"),
+        }),
+        workbooksNotSearched(client, args, query),
+      ]);
       // An ANCESTORS search answers each file whole, up to 1 MB: a file larger than an inline text goes without it
       const results = found.filter(inStartFolder(args)).map((node) => (node.content !== undefined && Buffer.byteLength(node.content, "utf8") > INLINE_TEXT_BYTES
         ? { ...node, content: undefined, contentOmitted: true }
         : node));
-      const notSearched = await workbooksNotSearched(client, args, query);
       return textResult(args.scope === "ANCESTORS"
         ? ancestorFiles(results)
         : formatListOf(results, limit, offset, {

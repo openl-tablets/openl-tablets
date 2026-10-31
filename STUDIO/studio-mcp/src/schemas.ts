@@ -867,7 +867,7 @@ export const searchProjectFilesSchema = z.strictObject({
   recursive: z
     .boolean()
     .optional()
-    .describe("Search the nested folders too; false, the default, searches the top level only, even with a '**' pattern."),
+    .describe("Search the nested folders too; false searches the top level only, even with a '**' pattern. True by default with content, false otherwise."),
   from: z
     .string()
     .optional()
