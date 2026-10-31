@@ -186,9 +186,8 @@ export function registerGuideHandlers(): void {
       let document = formatAgentsDocument(files);
 
       // Cross-reference the guidance with the documentation: AGENTS.md files
-      // reference guides by their stable ids (e.g. 'spec/rules.xml'), which are
-      // scanned from the UNtruncated file contents so a long chain cannot hide a
-      // reference. Unavailable documentation → no section (enrichment only).
+      // reference guides by their stable ids (e.g. 'spec/rules.xml').
+      // Unavailable documentation → no section (enrichment only).
       const referenced = files.length > 0 ? await findKnownGuideIds(client, files.map((f) => f.content).join("\n")) : [];
       if (referenced.length > 0) {
         const list = referenced.map((id) => "- `" + id + "`").join("\n");

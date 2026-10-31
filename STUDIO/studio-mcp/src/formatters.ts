@@ -858,8 +858,7 @@ export const AGENTS_DOCUMENT_NOTE =
  * root-first — repository root at the top (lowest priority), project folder at the
  * bottom (highest priority) — so a reader applies later sections over earlier ones.
  *
- * A document over the size limit of an answer leaves out whole files from the root down and names them, so the
- * guidance of the highest priority stays; only a project file larger than the limit alone is cut.
+ * The document is never cut: the guidance is what the agent must follow, and no argument could read a part of it left out.
  *
  * @param files - The applicable AGENTS.md files, nearest-first.
  * @returns A markdown document, or a short note when the project has none.
@@ -871,27 +870,7 @@ export function formatAgentsDocument(files: Types.AgentsFile[]): string {
   const sections = files.toReversed().map((file) => {
     const path = file.path.startsWith("/") ? file.path : `/${file.path}`;
     // trimEnd so a file ending in newlines doesn't widen the gap before the next section.
-    return { path, text: `-----\n## ${path}\n\n${file.content.trimEnd()}` };
+    return `-----\n## ${path}\n\n${file.content.trimEnd()}`;
   });
-  const limit = RESPONSE_LIMITS.MAX_CHARACTERS;
-  const documentOf = (from: number): string => {
-    const omitted = sections.slice(0, from).map(({ path }) => path);
-    const note = omitted.length === 0 ? "" : `\n\n${omittedGuidanceNote(omitted)}`;
-    return `${AGENTS_DOCUMENT_NOTE}${note}\n\n${sections.slice(from).map(({ text }) => text).join("\n\n")}\n`;
-  };
-  // Cap the document like every other response, leaving out the files farthest from the project first: the
-  // nearer a file is to the project, the higher its priority
-  let from = 0;
-  while (from < sections.length - 1 && documentOf(from).length > limit) {
-    from++;
-  }
-  const document = documentOf(from);
-  return document.length > limit ? truncateText(document, limit) : document;
-}
-
-/** The note on the files of the guidance an answer leaves out to fit the limit, which have the lowest priority. */
-function omittedGuidanceNote(paths: string[]): string {
-  const files = paths.map((path) => "`" + path + "`").join(", ");
-  return `The answer leaves out ${files} to fit its size: the files ` +
-    "nearer the project take precedence over them.";
+  return `${AGENTS_DOCUMENT_NOTE}\n\n${sections.join("\n\n")}\n`;
 }
