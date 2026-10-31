@@ -152,6 +152,29 @@ describe("raw table-source edits", () => {
     expect(dataOf(result)).toMatchObject({ version: "v2" });
   });
 
+  it("refuses an edit of a table changed since it was read with its version and the cells the edit names now", async () => {
+    harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(412, { message: "The table changed since it was read." });
+    harness.mockHttp.onGet(tablePath).reply(200, {
+      id: "t1", name: "T", tableType: "RawSource", version: "v3", pos: "B2:C4", source: [
+        [{ value: "Rules void calc()", colspan: 2 }, { covered: true }],
+        [{ value: "a" }, { value: 1 }],
+        [{ value: "b" }, { value: 2 }],
+      ],
+    });
+
+    await expect(executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1", actions: [
+        { action: "update_cell", row: 1, column: 1, value: 5 },
+        { action: "update_row", position: 2, cells: [["c", 3]] },
+        { action: "delete_rows", position: 1 },
+        { action: "update_cell", row: 1, column: 0, value: "d" },
+      ],
+    }, harness.client)).rejects.toThrow("The table changed since it was read, on disk or through another client, and "
+      + "nothing was written. Its version now is 'v3', and the cells the edit names hold [1, 1] 1, [2, 0] \"b\", [2, 1] 2: "
+      + "they are not all the edit changes, and rows or columns may have moved: read the table again before repeating "
+      + "the edit.");
+  });
+
   it("refuses an edit that names no version of the table before reaching the backend", async () => {
     await expect(executeTool("edit_table", {
       projectId: "p1", tableId: "t1", action: "update_cell", row: 1, column: 1, value: "x",

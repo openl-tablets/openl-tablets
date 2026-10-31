@@ -7,8 +7,12 @@
  * `table-edit.ts`).
  */
 
+import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
+
 import type { OpenLClient } from "../client.js";
+import { isHttpError } from "../http.js";
 import * as schemas from "../schemas.js";
+import { gridOf, widthOf } from "../table-grid.js";
 import type * as Types from "../types.js";
 import { registerTool, type ToolResponse } from "./common.js";
 import { finishTableEdit } from "./table-edit.js";
@@ -97,6 +101,59 @@ async function coveredCells(
   return (row, column) => source[row]?.[column]?.covered === true;
 }
 
+/** The most cells a refused edit names the values of. */
+const NAMED_CELLS = 20;
+
+/** The edits whose cells a refusal names: the others insert, delete or move cells, or overwrite a whole column. */
+const NAMED_EDITS: ReadonlySet<schemas.EditAction> = new Set(["update_cell", "update_row", "update_range"]);
+
+/** The cells an edit writes at positions of the table as it is, the cells of the rows it overwrites whole. */
+/* eslint-disable @typescript-eslint/no-non-null-assertion -- the schema has checked the arguments of each action */
+function cellsOfEdit(edit: EditArgs, width: number): Array<[number, number]> {
+  switch (edit.action) {
+    case "update_cell":
+      return [[edit.row!, edit.column!]];
+    case "update_row":
+      return Array.from({ length: width }, (_, column) => [edit.position!, column]);
+    case "update_range":
+      return edit.cells!.flatMap((line, row) => line.map((_, column): [number, number] => [edit.row! + row, edit.column! + column]));
+    default:
+      return [];
+  }
+}
+/* eslint-enable @typescript-eslint/no-non-null-assertion */
+
+/**
+ * The refusal of an edit of a table changed since it was read, with the version the table has now and what the cells
+ * the edit names hold now, until an edit moves cells: the agent repeats the edit, or not, without reading it again.
+ * When those cells are not all the edit changes, the agent reads the table again: a row it deletes may have moved.
+ */
+async function changedSince(
+  client: OpenLClient,
+  args: { projectId: string; tableId: string },
+  edits: EditArgs[],
+  reshaped: number,
+): Promise<ProtocolError> {
+  const refusal = "The table changed since it was read, on disk or through another client, and nothing was written.";
+  const table = await client.getTable(args.projectId, args.tableId).catch(() => undefined);
+  if (!table) {
+    return new ProtocolError(ProtocolErrorCode.InvalidRequest, `${refusal} Read the table again and repeat the edit.`);
+  }
+  const { rows } = gridOf(table.source, 0, table.pos);
+  const cells = edits.slice(0, reshaped).flatMap((edit) => cellsOfEdit(edit, widthOf(table.pos)));
+  const now = cells.slice(0, NAMED_CELLS)
+    .map(([row, column]) => `[${row}, ${column}] ${JSON.stringify(rows[row]?.[column] ?? null)}`).join(", ");
+  const more = cells.length > NAMED_CELLS ? ` and ${cells.length - NAMED_CELLS} more` : "";
+  const named = now ? `, and the cells the edit names hold ${now}${more}` : "";
+  const whole = reshaped === edits.length && cells.length <= NAMED_CELLS && edits.every(({ action }) => NAMED_EDITS.has(action));
+  let next = "repeat the edit with that version if it still applies.";
+  if (!whole) {
+    const partly = now ? "they are not all the edit changes, and " : "";
+    next = `${partly}rows or columns may have moved: read the table again before repeating the edit.`;
+  }
+  return new ProtocolError(ProtocolErrorCode.InvalidRequest, `${refusal} Its version now is '${table.version}'${named}: ${next}`);
+}
+
 export function registerTableActionHandlers(): void {
   registerTool({
     name: "edit_table",
@@ -133,9 +190,12 @@ export function registerTableActionHandlers(): void {
       const found = edits.findIndex(({ action }) => RESHAPES.has(action));
       const reshaped = found < 0 ? edits.length : found;
       const actions = edits.map((edit, index) => EDITS[edit.action](edit, index <= reshaped ? covered : () => false));
-      const reportedId = actions.length === 1
-        ? await client.editTableSource(args.projectId, args.tableId, actions[0], args.version)
-        : await client.editTableSourceBatch(args.projectId, args.tableId, actions, args.version);
+      const reportedId = await (actions.length === 1
+        ? client.editTableSource(args.projectId, args.tableId, actions[0], args.version)
+        : client.editTableSourceBatch(args.projectId, args.tableId, actions, args.version))
+        .catch(async (error: unknown) => {
+          throw isHttpError(error) && error.response?.status === 412 ? await changedSince(client, args, edits, reshaped) : error;
+        });
       return finishTableEdit(client, args, reportedId, "edit");
     },
   });

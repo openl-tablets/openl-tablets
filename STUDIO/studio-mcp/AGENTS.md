@@ -136,7 +136,7 @@ existing merged cell covers, which stays covered. A value starting with `=` is a
 Writable values use the same round-trip contract as full-table writes:
 string/number/boolean/null scalars or one-dimensional arrays of those scalars. Arrays must be non-empty; `[null]`,
 nested arrays, objects, and string elements surrounded by characters Studio trims (whitespace or ISO controls) are
-rejected. The tool returns the table's CURRENT `tableId` (plus `previousTableId` when the edit renamed the table) and
+rejected. An edit Studio refuses with 412, as the table changed since it was read, is answered with the version the table has now and what the cells the edit names hold now (`changedSince`), until an edit of a batch moves cells, so the agent repeats it without reading the table again; when those cells are not all the edit changes — an insert, a deletion, a column, or more than 20 cells — the answer asks the agent to read the table again first, as rows may have moved. The tool returns the table's CURRENT `tableId` (plus `previousTableId` when the edit renamed the table) and
 its new `version`, and reads the table back to trigger a recompile; a table that does not compile after the edit is
 answered with `compiles: false` and the `errors` of its compilation, each led by the A1 cell it points to. The `version` — from `openl_get_table` or the
 previous edit — is required and sent in `If-Match`: Studio refuses an edit of a table that changed since, in Excel,

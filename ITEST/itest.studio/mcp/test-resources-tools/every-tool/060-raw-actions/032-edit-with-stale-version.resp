@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "The table changed since it was read, on disk or through another client, and nothing was written. Its version now is '@@@', and the cells the edit names hold [2, 1] \"F\": repeat the edit with that version if it still applies."
+      }
+    ],
+    "isError": true,
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
