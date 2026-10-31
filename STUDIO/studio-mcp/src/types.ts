@@ -615,6 +615,22 @@ export interface ProjectHistoryItem {
   modifiedOn?: string;
 }
 
+/** An element of a comparison of two workbooks: a sheet with its tables, or a table, and whether it differs. */
+export interface ComparisonNodeView {
+  id?: string;
+  name?: string;
+  type?: "sheet" | "table";
+  status?: "equal" | "changed" | "added" | "removed";
+  children?: ComparisonNodeView[];
+}
+
+/** The result of comparing two workbooks, sheet by sheet. */
+export interface ComparisonView {
+  id: string;
+  identical: boolean;
+  sheets: ComparisonNodeView[];
+}
+
 /** Deployment view model (short version from OpenAPI 3.0.1) */
 export interface DeploymentViewModelShort {
   id: string;

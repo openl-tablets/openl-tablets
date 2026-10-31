@@ -8,7 +8,7 @@ import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { namesOfSet } from "../utils.js";
 import { type Truncation } from "../formatters.js";
-import { formatList, formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
+import { formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { refreshFromDisk } from "./freshness.js";
@@ -436,13 +436,9 @@ export function registerProjectHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const modules = (await client.listProjectModules(args.projectId))
-        .flatMap((module) => [module, ...(module.modules ?? [])]);
-      return textResult(formatList({
+      const modules = await client.listProjectModules(args.projectId);
+      return textResult(formatWholeList(modules, {
         noun: "modules",
-        items: modules,
-        offset: 0,
-        total: modules.length,
         columns: [
           { header: "module", value: (module) => module.name },
           { header: "path", value: (module) => module.path },

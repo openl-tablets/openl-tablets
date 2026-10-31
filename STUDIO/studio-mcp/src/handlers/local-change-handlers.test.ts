@@ -5,6 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { executeTool } from "./index.js";
+import { bodyOf } from "../testing/mock-http.js";
 import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
@@ -27,6 +28,70 @@ describe("local change handlers", () => {
     // Each entry is named by the historyId a restore takes
     expect(textOf(response)).toBe("2 versions.\n\n| historyId | kept at | current |\n| --- | --- | --- |\n"
       + "| 1787821200000_current | 2026-08-27T09:00:00Z | yes |\n| Revision Version |  |  |");
+  });
+
+  it("lists the history of every module when no module is named", async () => {
+    harness.mockHttp.onGet("/projects/p1/modules").reply(200, [{ name: "Main" }, { name: "Lookups" }]);
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Main" } })
+      .reply(200, [{ id: "m1_current", current: true }]);
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Lookups" } })
+      .reply(200, [{ id: "l2_current", current: true }, { id: "l1", modifiedOn: "2026-08-27T09:00:00Z" }]);
+
+    const text = textOf(await executeTool("list_project_local_changes", { projectId: "p1" }, harness.client));
+
+    expect(text).toBe("3 versions.\n\n| module | historyId | kept at | current |\n| --- | --- | --- | --- |\n"
+      + "| Main | m1_current |  | yes |\n| Lookups | l2_current |  | yes |\n| Lookups | l1 | 2026-08-27T09:00:00Z |  |");
+  });
+
+  it("names the tables a restore to a version would change, comparing it with the current one", async () => {
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Lookups" } })
+      .reply(200, [{ id: "l3_current", current: true }, { id: "l2" }, { id: "l1" }]);
+    harness.mockHttp.onPost("/projects/p1/local-history/compare").reply(202, { id: "c1" });
+    harness.mockHttp.onGet("/compare/c1").replyOnce(202, { status: "notReady" }).onGet("/compare/c1").reply(200, {
+      id: "c1", identical: false, sheets: [
+        { name: "Regions", status: "changed", children: [
+          { name: "RegionFactor", status: "changed" }, { name: "CityFactor", status: "equal" },
+        ] },
+        { name: "Rates", status: "equal", children: [{ name: "BaseRate", status: "equal" }] },
+        { name: "MinPrem", status: "added", children: [{ name: "MinimumPremium", status: "added" }] },
+      ],
+    });
+    harness.mockHttp.onDelete("/compare/c1").reply(204);
+
+    const text = textOf(await executeTool("list_project_local_changes", {
+      projectId: "p1", module: "Lookups", historyId: "l1",
+    }, harness.client));
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ first: "l1", second: "l3_current" });
+    expect(text).toContain("A restore of Lookups to l1 changes 2 tables;");
+    expect(text).toContain("| Regions | RegionFactor | changed |\n| MinPrem | MinimumPremium | added |");
+    // The comparison is dropped once read
+    expect(harness.mockHttp.history.delete.map((request) => request.url)).toEqual(["/compare/c1"]);
+  });
+
+  it("tells a restore to the current version changes nothing, without comparing", async () => {
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Lookups" } })
+      .reply(200, [{ id: "l3_current", current: true }]);
+
+    const text = textOf(await executeTool("list_project_local_changes", {
+      projectId: "p1", module: "Lookups", historyId: "l3_current",
+    }, harness.client));
+
+    expect(text).toBe("l3_current is the current version of Lookups: a restore to it changes nothing.");
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+  });
+
+  it("tells a history without a current version allows no preview, without comparing", async () => {
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Lookups" } })
+      .reply(200, [{ id: "l1", current: false }]);
+
+    const text = textOf(await executeTool("list_project_local_changes", {
+      projectId: "p1", module: "Lookups", historyId: "l1",
+    }, harness.client));
+
+    expect(text).toBe("The history of Lookups marks no current version, so a restore to l1 cannot be compared with it: "
+      + "no preview can tell what the restore changes.");
+    expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 
   describe("restore", () => {
@@ -89,10 +154,10 @@ describe("local change handlers", () => {
     });
   });
 
-  it("requires an explicit project and module for both local-history operations", async () => {
+  it("requires the project, and the module of a version, before any request", async () => {
     await expect(executeTool("list_project_local_changes", {
-      projectId: "design:Project",
-    }, harness.client)).rejects.toThrow(/module/);
+      projectId: "design:Project", historyId: "Revision Version",
+    }, harness.client)).rejects.toThrow(/historyId is a version of the history of one module/);
     await expect(executeTool("restore_project_local_change", {
       module: "Main Rules",
       historyId: "Revision Version",

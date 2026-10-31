@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "A restore of Main to # changes 1 table; 'added' is a table the restore removes, 'removed' one it brings back.\n\n| sheet | table | since the version |\n| --- | --- | --- |\n| Scratch | SimpleRules String Grade(Integer score) | changed |"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
