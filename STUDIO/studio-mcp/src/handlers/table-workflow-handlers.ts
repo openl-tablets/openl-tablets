@@ -13,15 +13,29 @@ import { dependencyMarkdown } from "../dependency-markdown.js";
 import { waitForResult } from "./wait.js";
 import { finishTableEdit } from "./table-edit.js";
 import type { OpenLClient } from "../client.js";
+import type * as Types from "../types.js";
 
 // The result of a run, without the input the caller sent, which Studio echoes as parameters
 const RUN_RESULT_FIELDS = "executionTimeMs,result,errors(id,severity,summary)";
+// With the schema of each parameter, to build an input from; the schema of the result is left out, the result is there
+const RUN_SCHEMA_FIELDS = `${RUN_RESULT_FIELDS},parameters(name,schema)`;
 // Studio stores one table run per client and its result endpoint is keyed
 // only by project. Overlap could replace or cancel another tool call's run.
 const activeTableRunClients = new WeakSet<OpenLClient>();
 
 function runTimeoutMessage(timeoutMs: number): string {
   return `Table execution did not finish within ${timeoutMs} ms. The pending Studio run was cancelled; retry with a larger timeoutMs if the table is expected to run longer.`;
+}
+
+/** The run result with the parameter schemas without their `$schema` dialect, which tells an agent nothing. */
+function withoutSchemaDialects(result: Types.RunExecutionResult): Types.RunExecutionResult {
+  return {
+    ...result,
+    parameters: result.parameters?.map(({ schema, ...parameter }) => {
+      const { $schema, ...rest } = (schema ?? {}) as Record<string, unknown>;
+      return schema ? { ...parameter, schema: rest } : parameter;
+    }),
+  };
 }
 
 export function registerTableWorkflowHandlers(): void {
@@ -62,7 +76,7 @@ export function registerTableWorkflowHandlers(): void {
         }
         const result = await waitForResult(
           (request) => client.getTableRunResult(args.projectId, {
-            fields: args.withSchema === true ? undefined : RUN_RESULT_FIELDS,
+            fields: args.withSchema === true ? RUN_SCHEMA_FIELDS : RUN_RESULT_FIELDS,
             ...request,
           }),
           {
@@ -72,7 +86,7 @@ export function registerTableWorkflowHandlers(): void {
           },
           extra,
         );
-        return formatResult(result);
+        return formatResult(args.withSchema === true ? withoutSchemaDialects(result) : result);
       } catch (error) {
         // Studio may schedule the run before the start response is observed;
         // every failed workflow must clear it so a later run cannot inherit stale state.

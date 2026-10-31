@@ -174,7 +174,7 @@ export const runTableSchema = z.strictObject({
     z.record(z.string(), z.unknown()),
   ]).describe("Method input as JSON, or the same as a JSON string: an object keyed by method parameter name; { params, runtimeContext? } with params keyed by name or listed in order; or an array of the argument values in order. For a method whose only parameter is an array, a top-level array is that parameter's value. The value is sent to Studio unchanged."),
   module: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
-  withSchema: z.boolean().optional().describe("Also answer the JSON Schemas of the parameters and the result: their fields and the values each vocabulary allows."),
+  withSchema: z.boolean().optional().describe("Also answer the JSON Schema of each parameter: its fields and the values each vocabulary allows."),
   timeoutMs: z.number().int().positive().max(600000).default(120000).describe("Maximum time for the complete Studio start-and-result workflow, in milliseconds. Default 120000 (2 minutes), maximum 600000 (10 minutes). A timeout cancels the pending Studio run."),
 });
 

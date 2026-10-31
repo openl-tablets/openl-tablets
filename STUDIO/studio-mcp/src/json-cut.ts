@@ -21,7 +21,8 @@ interface Node {
  * The value cut to fit `limit` characters of JSON, and the cuts made, by path; a value that fits is left whole.
  * Strings longer than 200 characters are shortened first; then the largest arrays lose items from their middle,
  * keeping their first and their last ones, and when no array has more than one item left, the largest objects are
- * replaced by the number of their keys.
+ * replaced by the number of their keys. An `enum` of a JSON Schema is never cut: what is left of it would name the
+ * values allowed wrong, where the count of the keys of the object holding it names a cut.
  */
 export function cutJson(value: unknown, limit: number): { value: unknown; cuts: string[] } {
   if (sizeOf(value) <= limit) {
@@ -35,7 +36,7 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
   }
   let scan = nodesOf(root.value);
   while (scan.size > limit) {
-    const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1);
+    const arrays = scan.arrays.filter((node) => node.key !== "enum" && (node.value as unknown[]).length > 1);
     if (arrays.length > 0) {
       cutLargest(arrays, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
     } else if (scan.objects.length > 0) {

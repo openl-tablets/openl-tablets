@@ -40,11 +40,21 @@ describe("cutJson", () => {
   });
 
   it("names a cut inside nested arrays by its path", () => {
-    const schema = { parameters: [{ schema: { enum: Array.from({ length: 80 }, (_, i) => `STATE${i}`) } }] };
+    const value = { parameters: [{ value: { codes: Array.from({ length: 80 }, (_, i) => `CODE${i}`) } }] };
 
-    const { cuts } = cutJson(schema, 300);
+    const { cuts } = cutJson(value, 300);
 
-    expect(cuts[0]).toMatch(/^parameters\[0\]\.schema\.enum \(\d+ of 80 items from the middle\)$/);
+    expect(cuts[0]).toMatch(/^parameters\[0\]\.value\.codes \(\d+ of 80 items from the middle\)$/);
+  });
+
+  it("never cuts the enum of a schema, but the object that holds it", () => {
+    const states = Array.from({ length: 80 }, (_, i) => `STATE${i}`);
+    const schema = { properties: { state: { type: "string", enum: states }, name: { type: "string" } } };
+
+    const { value, cuts } = cutJson(schema, 300);
+
+    expect(value).toEqual({ properties: "{2 keys cut}" });
+    expect(cuts).toEqual(["properties (2 keys)"]);
   });
 
   it("replaces the largest object by the count of its keys when no array can be cut", () => {
