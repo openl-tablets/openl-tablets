@@ -80,7 +80,7 @@ export function registerGuideHandlers(): void {
     name: "get_project_agent_context",
     title: "Get Project Agent Context",
     description:
-      "Read the agent guidance that applies to a project; call this BEFORE working on or creating anything in it. The answer is one Markdown document of every AGENTS.md from the repository root down to the project folder, or to its 'folder', where a later file overrides an earlier one; a project with none answers a short note. The ids of the guides the guidance references end the document: read them with openl_get_guides.",
+      "Read the agent guidance that applies to a project before changing it: one Markdown document of every AGENTS.md from the repository root down to the project folder, or to its 'folder', where a later file overrides an earlier one; a project with none answers a short note. Short guidance comes whole; longer guidance comes as the opening of each file and the contents of its sections with their sizes, and 'sections' reads the ones a task needs. The ids of the guides the guidance references end the document: read them with openl_get_guides.",
     schema: schemas.getProjectAgentContextSchema,
     annotations: {
       readOnlyHint: true,
@@ -93,7 +93,7 @@ export function registerGuideHandlers(): void {
         branch: args.branch,
       });
 
-      let document = formatAgentsDocument(files);
+      let document = formatAgentsDocument(files, args.sections);
 
       // Cross-reference the guidance with the documentation: AGENTS.md files
       // reference guides by their stable ids (e.g. 'spec/rules.xml').

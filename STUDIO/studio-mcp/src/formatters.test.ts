@@ -170,16 +170,33 @@ describe("formatters", () => {
       expect(doc).not.toContain("hello\n\n\n");
     });
 
-    it("keeps a document over the response limit whole", () => {
-      const doc = formatAgentsDocument([
-        { path: "foo/Project-1/AGENTS.md", content: "x".repeat(40_000) },
-        { path: "AGENTS.md", content: "root guidance" },
-      ]);
+    it("answers long guidance as the opening and the contents of each file, and its sections by their headings", () => {
+      const project = [
+        "# Project guide", "", "What this project is.", "",
+        "## Rate factors", "", "x".repeat(8_000), "",
+        "### Experience rating", "", "the blend", "",
+        "## Gotchas", "", "```", "## not a heading", "```", "y".repeat(5_000),
+      ].join("\n");
+      const chain: AgentsFile[] = [{ path: "p/AGENTS.md", content: project }, { path: "AGENTS.md", content: "root guidance" }];
 
-      expect(doc.length).toBeGreaterThan(RESPONSE_LIMITS.MAX_CHARACTERS);
-      expect(doc).toContain("root guidance");
-      expect(doc.trimEnd().endsWith("x")).toBe(true);
-      expect(doc).not.toContain(RESPONSE_LIMITS.TRUNCATION_MESSAGE);
+      const outline = formatAgentsDocument(chain);
+      expect(outline).toContain("Read the sections your task needs with `sections`");
+      expect(outline).toContain("## /p/AGENTS.md\n\n# Project guide\n\nWhat this project is.\n\nContents:\n"
+        + "- Rate factors (8053 characters)\n  - Experience rating (34 characters)\n- Gotchas (5037 characters)");
+      expect(outline).toContain("## /AGENTS.md\n\nroot guidance");
+      expect(outline).not.toContain("xxx");
+
+      const read = formatAgentsDocument(chain, ["experience RATING", "gotchas"]);
+      expect(read).toContain("### Experience rating\n\nthe blend");
+      expect(read).toContain("## Gotchas\n\n```\n## not a heading\n```\nyyy");
+      expect(read).not.toContain("xxx");
+      expect(read).toContain("## /AGENTS.md\n\n*No section of this file has such a heading.*");
+    });
+
+    it("keeps short guidance whole", () => {
+      const doc = formatAgentsDocument([{ path: "AGENTS.md", content: "# Guide\n\n## Scope\n\nshort" }]);
+      expect(doc).toContain("## Scope\n\nshort");
+      expect(doc).not.toContain("Contents:");
     });
 
     it("returns a short note when there are no files", () => {

@@ -5,7 +5,7 @@
 
 import { RESPONSE_LIMITS } from "./constants.js";
 import type * as Types from "./types.js";
-import { largestFitting } from "./text.js";
+import { formatCount, largestFitting } from "./text.js";
 import { cutJson } from "./json-cut.js";
 
 interface Response {
@@ -133,6 +133,68 @@ function fitLeadingItems(response: Response, charLimit: number, truncation: Trun
 export const AGENTS_DOCUMENT_NOTE =
   "*The AGENTS.md files that apply, from the root folder to the project folder: a later file overrides an earlier one.*";
 
+/** The longest guidance answered whole; longer guidance answers the opening of each file and its contents. */
+const AGENTS_WHOLE_CHARACTERS = 12_000;
+
+/** A heading of a Markdown text and the extent of its section: up to the next heading of its level or higher. */
+interface Section {
+  level: number;
+  title: string;
+  start: number;
+  end: number;
+}
+
+/** The sections of a Markdown text by its headings, in their order, fenced code left out. */
+function sectionsOf(text: string): Section[] {
+  const headings: Array<Omit<Section, "end">> = [];
+  let fenced = false;
+  let offset = 0;
+  for (const line of text.split("\n")) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      fenced = !fenced;
+    }
+    const heading = fenced ? null : /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line);
+    if (heading) {
+      headings.push({ level: heading[1].length, title: heading[2], start: offset });
+    }
+    offset += line.length + 1;
+  }
+  return headings.map((heading, index) => ({
+    ...heading,
+    end: headings.find((next, after) => after > index && next.level <= heading.level)?.start ?? text.length,
+  }));
+}
+
+/** The sections of a guidance file whose headings hold one of the titles, each with its subsections. */
+function chosenSections(content: string, titles: string[]): string {
+  const wanted = titles.map((title) => title.toLowerCase());
+  const texts: string[] = [];
+  let end = -1;
+  for (const section of sectionsOf(content)) {
+    // A section inside one already chosen comes with it
+    if (section.start >= end && wanted.some((title) => section.title.toLowerCase().includes(title))) {
+      texts.push(content.slice(section.start, section.end).trimEnd());
+      end = section.end;
+    }
+  }
+  if (texts.length === 0) {
+    return "*No section of this file has such a heading.*";
+  }
+  return texts.join("\n\n");
+}
+
+/** The opening of a guidance file, the text before its first section below its title, and its contents. */
+function outlineOf(content: string): string {
+  const sections = sectionsOf(content).filter((section) => section.level > 1 || section.start > 0);
+  if (sections.length === 0) {
+    return content;
+  }
+  const top = Math.min(...sections.map((section) => section.level));
+  const contents = sections.map(({ level, title, start, end }) =>
+    `${"  ".repeat(level - top)}- ${title} (${formatCount(end - start, "character")})`);
+  return `${content.slice(0, sections[0].start).trimEnd()}\n\nContents:\n${contents.join("\n")}`;
+}
+
 /**
  * Render a project's applicable AGENTS.md files as a single markdown document.
  *
@@ -141,19 +203,33 @@ export const AGENTS_DOCUMENT_NOTE =
  * root-first — repository root at the top (lowest priority), project folder at the
  * bottom (highest priority) — so a reader applies later sections over earlier ones.
  *
- * The document is never cut: the guidance is what the agent must follow, and no argument could read a part of it left out.
+ * Guidance of up to {@link AGENTS_WHOLE_CHARACTERS} comes whole. Longer guidance comes as the opening of each file
+ * and the contents of its sections with their sizes, from which the agent reads the sections a task needs by their
+ * headings: the whole guidance of a large project would be read again on every turn of a session. A file without
+ * sections comes whole.
  *
  * @param files - The applicable AGENTS.md files, nearest-first.
+ * @param titles - The headings of the sections to read, case-insensitive, each part of a heading.
  * @returns A markdown document, or a short note when the project has none.
  */
-export function formatAgentsDocument(files: Types.AgentsFile[]): string {
+export function formatAgentsDocument(files: Types.AgentsFile[], titles?: string[]): string {
   if (files.length === 0) {
     return "No AGENTS.md files apply to this project.";
   }
-  const sections = files.toReversed().map((file) => {
+  const body = (part: (content: string) => string): string => files.toReversed().map((file) => {
     const path = file.path.startsWith("/") ? file.path : `/${file.path}`;
     // trimEnd so a file ending in newlines doesn't widen the gap before the next section.
-    return `-----\n## ${path}\n\n${file.content.trimEnd()}`;
-  });
-  return `${AGENTS_DOCUMENT_NOTE}\n\n${sections.join("\n\n")}\n`;
+    return `-----\n## ${path}\n\n${part(file.content).trimEnd()}`;
+  }).join("\n\n");
+  if (titles) {
+    return `${AGENTS_DOCUMENT_NOTE}\n\n${body((content) => chosenSections(content, titles))}\n`;
+  }
+  const whole = `${AGENTS_DOCUMENT_NOTE}\n\n${body((content) => content)}\n`;
+  if (whole.length <= AGENTS_WHOLE_CHARACTERS) {
+    return whole;
+  }
+  const note = `${AGENTS_DOCUMENT_NOTE} The guidance is ${formatCount(whole.length, "character")}: each file comes `
+    + "with its opening and the contents of its sections. Read the sections your task needs with `sections`, by their "
+    + "headings.";
+  return `${note}\n\n${body(outlineOf)}\n`;
 }
