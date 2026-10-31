@@ -100,7 +100,7 @@ export function registerFileHandlers(): void {
       // The content of an earlier commit replaces nothing: only the version of the working copy is told
       const current = (version: string | undefined): string | undefined => (args.revision ? undefined : version);
       const meta = isFolderPath(path) ? undefined : await client.getProjectFileMeta(projectId, path, at)
-        .catch((error: unknown) => (isNotFoundError(error) ? noFileAt(path) : Promise.reject(error)));
+        .catch(async (error: unknown) => (isNotFoundError(error) ? noFileAt(client, projectId, path, at) : Promise.reject(error)));
       if (!meta || meta.type === "folder") {
         return formatResult(await downloadLink(client, { kind: "archive", projectId, path, ...at }),
           );
@@ -300,11 +300,24 @@ async function isFile(client: OpenLClient, projectId: string, path: string, bran
     .then(() => true, (error: unknown) => (isNotFoundError(error) ? false : Promise.reject(error)));
 }
 
-/** The refusal of a read of a path no file takes, which may name a folder without the slash that ends one. */
-function noFileAt(path: string): never {
+/**
+ * The refusal of a read of a path no file takes. The path may name a folder without the slash that ends one, or lead
+ * with the folder of the project, as the project list answers it, where the path is relative to that folder: the
+ * refusal names the path of the file then.
+ */
+async function noFileAt(
+  client: OpenLClient,
+  projectId: string,
+  path: string,
+  at: { version?: string; branch?: string },
+): Promise<never> {
+  const within = path.includes("/") ? path.slice(path.indexOf("/") + 1) : "";
+  const found = within !== "" && await client.getProjectFileMeta(projectId, within, at).then(() => true, () => false);
   throw new ProtocolError(
     ProtocolErrorCode.InvalidParams,
-    `No file is at '${path}'. A folder is read as a ZIP archive by a path that ends with '/': '${path}/'.`,
+    found
+      ? `No file is at '${path}': a path is relative to the folder of the project, and the file is '${within}'.`
+      : `No file is at '${path}'. A folder is read as a ZIP archive by a path that ends with '/': '${path}/'.`,
   );
 }
 

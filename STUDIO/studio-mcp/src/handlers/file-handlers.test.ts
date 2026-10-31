@@ -646,6 +646,15 @@ describe("delete, search, copy and move", () => {
     }, harness.client)).rejects.toThrow(/locked by another user/);
   });
 
+  it("names the path of a file a read names with the folder of the project before it", async () => {
+    harness.mockHttp.onGet("/projects/p1/files/Rating/i18n/message.properties").reply(404, { message: "Not found" });
+    harness.mockHttp.onGet("/projects/p1/files/i18n/message.properties").reply(200, { path: "i18n/message.properties", type: "file" });
+
+    await expect(executeTool("read_project_file", { projectId: "p1", path: "Rating/i18n/message.properties" }, harness.client))
+      .rejects.toThrow("No file is at 'Rating/i18n/message.properties': a path is relative to the folder of the project, "
+        + "and the file is 'i18n/message.properties'.");
+  });
+
   it("answers a path no file takes with the slash a folder needs", async () => {
     harness.mockHttp.onGet("/projects/p1/files/rules").reply(404, { message: "Not found" });
 
