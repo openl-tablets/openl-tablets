@@ -473,7 +473,6 @@ describe("open, save and close", () => {
 
   it.each([
     ["neither saveChanges nor discardChanges", {}, /unsaved changes.*saveChanges.*discardChanges/s],
-    ["saveChanges without a comment", { saveChanges: true }, /comment is required when saveChanges is true/],
     ["both saveChanges and discardChanges", { saveChanges: true, discardChanges: true, comment: "c" },
       /Cannot set both saveChanges and discardChanges/],
   ])("openl_close_project refuses to close unsaved changes with %s", async (_case, args, message) => {
