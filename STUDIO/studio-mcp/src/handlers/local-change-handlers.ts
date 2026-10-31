@@ -8,7 +8,7 @@ import * as schemas from "../schemas.js";
 import { formatWholeList, markdownTable } from "../markdown-list.js";
 import { formatCount } from "../text.js";
 import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
-import { changedTables } from "./comparison.js";
+import { changedTables, changedTablesIfCompared } from "./comparison.js";
 
 export function registerLocalChangeHandlers(): void {
   registerTool({
@@ -63,8 +63,8 @@ export function registerLocalChangeHandlers(): void {
       const before = new Set(history.map(({ id }) => id));
       // What the restore undoes, told with it: a restore takes back every edit of the module after the version
       const current = history.find((change) => change.current)?.id;
-      const undone = current === undefined || current === historyId ? [] : await changedTables(client,
-        () => client.compareLocalVersions(projectId, moduleName, historyId, current), extra).catch(() => []);
+      const undone = current === undefined || current === historyId ? [] : await changedTablesIfCompared(client,
+        () => client.compareLocalVersions(projectId, moduleName, historyId, current), extra) ?? [];
       await client.restoreProjectLocalChange(projectId, moduleName, historyId);
       // Studio keeps the module as it was in the history, which it lists newest first: the version the restore added.
       // The restore is done once Studio answers it, so a failed read of the history leaves only the undo unknown
