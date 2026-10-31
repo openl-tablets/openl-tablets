@@ -917,10 +917,6 @@ export const getServerInfoSchema = z.strictObject({
 // Guidance Schemas
 // =============================================================================
 
-// Intentionally argument-less: the onboarding text is fixed per build and the
-// orientation is computed from the documents OpenL Studio serves.
-export const getStartedSchema = z.strictObject({});
-
 export const listGuidesSchema = z.strictObject({
   type: z
     .enum(GUIDE_TYPES)

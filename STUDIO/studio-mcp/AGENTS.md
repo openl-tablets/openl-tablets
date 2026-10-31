@@ -12,7 +12,7 @@ The OpenL MCP Server connects AI coding agents (Claude Code, Claude Desktop,
 Cursor, VS Code / GitHub Copilot) to the OpenL Studio Business Rules Management
 System (BRMS). Through its tools you can:
 
-- **Get oriented** with an onboarding entry point and the OpenL reference docs OpenL Studio serves
+- **Get oriented** with the server instructions, which tell how to work, and the OpenL reference docs OpenL Studio serves
 - **Follow OpenL skills** — step-by-step workflows for planning, branching, testing, versioning, tracing and change logs
 - **Discover** repositories, projects, and rules
 - **Read** project structure, table definitions, and rule logic
@@ -37,17 +37,17 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (62 Total)
+## Tools (61 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
-### Guidance Tools (4)
-The onboarding and reference-documentation layer. Call `openl_get_started` once per
-session before anything else; call `openl_get_project_agent_context` before working on
-or creating any project. The documentation tools serve the OpenL Tablets docs **OpenL Studio
+### Guidance Tools (3)
+The reference-documentation layer. The server instructions, which a client gives its agent when it connects, tell
+how to work through the tools, in the order a task takes, and name the skills: there is no onboarding tool to call,
+whose answer would be read again on every later turn. Call `openl_get_project_agent_context` before changing a
+project. The documentation tools serve the OpenL Tablets docs **OpenL Studio
 serves for its own version** at `/docs`: the specifications of `docs/ref` and the Reference Guide of
 `docs/reference-guide` — progressive disclosure: the index is metadata-only, bodies are fetched by id on demand.
-- `openl_get_started` - Read-only onboarding bootstrap: the mandatory workflow protocol (load agent context per project, consult guides on demand, edit → validate → save), the OpenL skills with their `skill://` URIs and descriptions, plus a workspace orientation (which specification/guide categories exist and how to discover more — not an index dump)
 - `openl_get_project_agent_context` - Resolve the **AGENTS.md hierarchy** for a project as a **single aggregated markdown document**: walks UP from the project (or an optional `folder`) to the repository root, collects every applicable `AGENTS.md`, and returns them concatenated in one response — ordered from the root folder (lowest priority) down to the project folder (highest priority), later sections winning on conflict. Ends with the ids of the guides the guidance references. The document is never cut to the size limit of an answer: no argument could read a part left out
 - `openl_list_guides` - The canonical index of the docs: **metadata only** (id, title, size), filterable by `type` ('specification'/'guide') and case-insensitive `search` over id+title, paginated; the id starts with its type, and `openl_get_guides` names the path
 - `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim: their links and images are relative to the path of the document; unknown ids fail with an actionable error — it never falls back to the index
@@ -225,10 +225,10 @@ Every file of a skill is a resource `skill://<skill>/<path>`: read `skill://<ski
 and resolve its relative links against the folder of that `SKILL.md`. `skills/list` answers every skill — its
 frontmatter as JSON and every file with its SHA-256 digest and size — and `skills/get` one skill by the URI of its
 `SKILL.md`; an unknown URI is `-32602`. `resources/directory/read` lists the files of a folder of a skill. A client
-without the extension finds the skills in the server instructions, which also send the agent to `openl_get_started`
-first, and in `openl_get_started` itself. Both say the skills are MCP resources, not skills of the client: a client
-with skills of its own, such as Claude Code, otherwise calls its skill tool by the name of an OpenL skill and fails, as
-11 of 29 runs of an eval did.
+without the extension finds the skills in the server instructions. They say the skills are MCP resources, not skills
+of the client, and name the tool that reads them in Claude Code: a client with skills of its own otherwise calls its
+skill tool by the name of an OpenL skill and fails, as 15 of 29 runs of an eval did with a wording that left the tool
+unnamed.
 
 ## Local projects (repository: local)
 
@@ -475,7 +475,7 @@ The skills of `skills/` are written for this server and follow the
 [best practices](https://agentskills.io/skill-creation/best-practices) of Agent Skills:
 
 - A skill holds only what the agent lacks: the procedure, the approvals, and the gotchas of OpenL and Studio. It
-  never restates a tool description, `openl_get_started`, the guides Studio serves — it names the guide to read — or
+  never restates a tool description, the server instructions, the guides Studio serves — it names the guide to read — or
   another skill, which it names.
 - `SKILL.md` holds what every run needs; a file of `references/` holds what only some runs need, and `SKILL.md`
   says when to read it.
@@ -489,4 +489,4 @@ The skills of `skills/` are written for this server and follow the
 
 - Keep this `AGENTS.md`, the tool descriptions and the documents under `Docs/` that describe the server in step with
   every change of tools, skills, configuration or behaviour. The server offers no MCP prompts: guidance for agents
-  lives in the tool descriptions, `openl_get_started`, the skills and the guides OpenL Studio serves.
+  lives in the server instructions, the tool descriptions, the skills and the guides OpenL Studio serves.

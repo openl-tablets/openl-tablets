@@ -1,5 +1,5 @@
 /**
- * Integration tests of the guidance tools of src/handlers/guide-handlers.ts: the onboarding, the user guides OpenL Studio
+ * Integration tests of the guidance tools of src/handlers/guide-handlers.ts: the user guides OpenL Studio
  * serves at `/docs`, and the AGENTS.md files that apply to a project.
  */
 
@@ -13,25 +13,6 @@ useToolHarness();
 describe("guidance tools", () => {
   // The guide tools read the user guides OpenL Studio serves at /docs.
   beforeEach(() => mockUserGuides(harness.mockHttp));
-
-  it("openl_get_started returns the workflow protocol plus a documentation orientation, not an index dump", async () => {
-    const result = await executeTool("get_started", {}, harness.client);
-
-    const text = textOf(result);
-    // The protocol must direct the agent to the other guidance tools.
-    expect(text).toContain("openl_get_project_agent_context");
-    expect(text).toContain("openl_list_guides");
-    expect(text).toContain("openl_get_guides");
-    // ...and to the skills it serves, for clients without the skills extension.
-    expect(text).toContain("## Skills");
-    expect(text).toContain("`skill://planning/SKILL.md`");
-    // Orientation reflects the documents of OpenL Studio (count, spec ids, section groups)...
-    expect(text).toContain("OpenL Studio serves 3 documents");
-    expect(text).toContain(GUIDE_IDS.rulesXml);
-    expect(text).toContain("Introduction (1)");
-    // ...but stays an orientation: guide ids/titles are NOT dumped.
-    expect(text).not.toContain(GUIDE_IDS.smartRules);
-  });
 
   it("openl_list_guides returns filterable metadata only (no bodies)", async () => {
     const result = await executeTool("list_guides", {

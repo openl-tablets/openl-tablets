@@ -139,39 +139,3 @@ export async function findKnownGuideIds(client: OpenLClient, text: string): Prom
     return [];
   }
 }
-
-/** Aggregate shape of the documents, rendered by `openl_get_started` as workspace orientation. */
-interface GuidesOverview {
-  /** All specification entries — few enough to name individually. */
-  specifications: GuideEntry[];
-  guideCount: number;
-  /** The sections of the Reference Guide, titled as OpenL Studio titles them, with their document counts. */
-  guideSections: Array<{ section: string; count: number }>;
-}
-
-/**
- * Summarize the documents for orientation: every specification, plus the guides grouped by the sections of the
- * Reference Guide — its folders, with the pages directly in it counted as "General".
- */
-export async function guidesOverview(client: OpenLClient): Promise<GuidesOverview> {
-  const contents = await client.getUserGuideContents();
-  const guides = documentsOf(contents);
-  const guideFolder = (contents.children ?? []).find((entry) =>
-    pagesOf(entry).some((page) => isDocument(page.file, GUIDE_FOLDER)),
-  );
-
-  const sectionCounts = new Map<string, number>();
-  for (const entry of guideFolder?.children ?? []) {
-    const section = entry.children?.length ? entry.title : "General";
-    const count = pagesOf(entry).filter((page) => isDocument(page.file, GUIDE_FOLDER)).length;
-    if (count > 0) {
-      sectionCounts.set(section, (sectionCounts.get(section) ?? 0) + count);
-    }
-  }
-
-  return {
-    specifications: guides.filter((g) => g.type === "specification"),
-    guideCount: guides.filter((g) => g.type === "guide").length,
-    guideSections: Array.from(sectionCounts, ([section, count]) => ({ section, count })),
-  };
-}

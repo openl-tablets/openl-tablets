@@ -68,11 +68,14 @@ describe("skills", () => {
     expect(unknown).toEqual([]);
   });
 
-  it("points the agent to openl_get_started and the skills in the server instructions", () => {
+  it("tells the agent how to work and which skills to read in the server instructions, with every tool it names", () => {
     const instructions = client.getInstructions() ?? "";
+    const tools = new Set(getAllTools().map((tool) => mcpToolName(tool.name)));
 
-    expect(instructions).toMatch(/^This server connects you to OpenL Studio[\s\S]*Call `openl_get_started` once/);
+    expect(instructions).toMatch(/^This server connects you to OpenL Studio[\s\S]*## How to work/);
     expect(instructions.endsWith(SKILLS_OVERVIEW)).toBe(true);
+    expect([...instructions.matchAll(/\bopenl_[a-z_]+/g)].map(([name]) => name).filter((name) => !tools.has(name)))
+      .toEqual([]);
   });
 
   it("tells the agent of every skill, its URI and its description on one line", () => {

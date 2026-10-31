@@ -1,6 +1,6 @@
 /**
  * Unit tests for the guide registry: the documents of the table of contents OpenL Studio serves, their filtering, the
- * bodies read verbatim with unknown-id reporting, free-text id scanning, and the get_started overview.
+ * bodies read verbatim with unknown-id reporting, free-text id scanning.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -8,7 +8,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { OpenLClient } from "./client.js";
 import {
   findKnownGuideIds,
-  guidesOverview,
   listGuides,
   readGuideBodies,
 } from "./guides-registry.js";
@@ -82,17 +81,5 @@ describe("findKnownGuideIds", () => {
   it("returns [] instead of failing when OpenL Studio does not serve its guides (enrichment only)", async () => {
     mockHttp.onGet("../docs/toc.json").reply(500);
     expect(await findKnownGuideIds(client, "mentions spec/rules.xml")).toEqual([]);
-  });
-});
-
-describe("guidesOverview", () => {
-  it("lists every specification and groups the guides by the sections OpenL Studio titles", async () => {
-    const overview = await guidesOverview(client);
-    expect(overview.specifications.map((s) => s.id)).toEqual([GUIDE_IDS.rulesXml]);
-    expect(overview.guideCount).toBe(2);
-    expect(overview.guideSections).toEqual([
-      { section: "Introduction", count: 1 },
-      { section: "Working With OpenL Tables", count: 1 },
-    ]);
   });
 });
