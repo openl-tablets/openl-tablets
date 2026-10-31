@@ -344,7 +344,7 @@ export function registerTraceHandlers(): void {
     compiled: true,
     title: "Start Debug Session",
     description:
-      "Start a debug session for a table and run to its first stop; the answer is the stack: the status and the frames from the root to the current one. stopAtEntry, true by default, stops at the entry of the first frame; go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame. A test table takes testRanges (such as '2'), which a replay does not remember, a rule its inputJson; with neither, the input of the previous run is replayed. profiling: true with stopAtEntry: false and breakpoints: [] completes the run in this call (left out, breakpoints keeps the set of the session) and answers 'profile', of a constant size: the slowest tables (hotspots with selfMillis, totalMillis and count), nodeCount, distinctTables and totalMillis. Pass the input with every profiling call: a replay of a run that did not profile answers the whole stack, which can exceed the response limit. includeTree: true adds the root of the executed call tree, one level deep, which openl_expand_trace_tree walks. A user has one session: a new start ends the previous one, and an idle one ends after about 10 minutes.",
+      "Start a debug session on a table and run to its first stop, by default the entry of the table; the answer is the stack: the status and the frames from the root to the current one. A test table takes testRanges ('2'), which a replay does not remember, a rule its inputJson; with neither, the input of the previous run is replayed. Go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame; 'breakpoints' replaces the set first. profiling: true with stopAtEntry: false and breakpoints: [] runs to the end in this call and answers 'profile', the slowest tables (pass the input again: a replay of a run that did not profile answers the whole stack); includeTree: true adds the root of the call tree, which openl_expand_trace_tree walks. A user has one session: a new start ends the previous one, and an idle one ends after about 10 minutes.",
     schema: schemas.startTraceSchema,
     annotations: {
       destructiveHint: false,
@@ -370,11 +370,7 @@ export function registerTraceHandlers(): void {
     name: "step_trace",
     title: "Step (Into / Over / Out)",
     description:
-      "Step the suspended debug session once and return the new stack. For declarative rules (decision tables, spreadsheets, rating) the main move is type: 'out' — run the current frame to its own exit " +
-      "so its result is inspectable — combined with breakpoints; 'into'/'over' are advanced (imperative TBasic/loops). A step that finishes a frame first suspends at that frame's exit — the frame is still on the stack " +
-      "with completed: true and its result readable via openl_inspect_trace_frame (or pass withValues: true to bundle those variables into this response, every step of the frame then listed once in the frame, with its value); the next step continues in the caller. " +
-      "An exception suspends at the throwing frame before it propagates. The stack is returned compact — steps only for the active frame; use openl_inspect_trace_frame for another frame's detail. Valid only while suspended. " +
-      "(openl_resume_trace differs: it runs to the next breakpoint or completion, not just to this frame's exit.)",
+      "Step the suspended debug session once and answer the new stack, whose current frame alone lists its steps. For decision tables and spreadsheets the main step is type 'out', which runs the current frame to its exit so its result can be read, with breakpoints; 'into' and 'over' suit TBasic and loops. A finished frame first stops at its exit, completed: true, its result read with openl_inspect_trace_frame, or here with withValues: true; the next step goes on in the caller. An exception stops at the throwing frame. Valid only while suspended; openl_resume_trace runs to the next breakpoint or the end instead.",
     schema: schemas.stepTraceSchema,
     annotations: {
       destructiveHint: false,
@@ -403,9 +399,7 @@ export function registerTraceHandlers(): void {
     name: "resume_trace",
     title: "Resume to Next Stop",
     description:
-      "Resume the suspended debug session and wait (inside this call — no agent-side polling) until it stops again: at the next breakpoint, at an exception, or at completion. Unlike openl_step_trace(out), which only runs the current frame to its exit, resume runs to the NEXT breakpoint or the end. " +
-      "Returns the stack (compact — steps for the active frame only) at the stop; on a terminal 'error' status it carries the structured 'error', and on 'completed' of a profiling run the constant-size 'profile' overview (set includeTree: true for the one-level 'tree' root, then drill in with openl_expand_trace_tree). " +
-      "On timeout (default 30s) the still-running status is returned — call openl_resume_trace again with attach: true to keep waiting without resuming again, as the run may have stopped meanwhile, or openl_stop_trace to give up.",
+      "Resume the suspended debug session and wait in this call until it stops: at the next breakpoint, at an exception or at the end. The answer is the stack, whose current frame alone lists its steps; a terminal 'error' carries the 'error', and the end of a profiling run the 'profile' (includeTree: true adds the root of the call tree, which openl_expand_trace_tree walks). On timeout, 30 s by default, the running status is answered: call again with attach: true to keep waiting without resuming again, or openl_stop_trace to give up.",
     schema: schemas.resumeTraceSchema,
     annotations: {
       destructiveHint: false,

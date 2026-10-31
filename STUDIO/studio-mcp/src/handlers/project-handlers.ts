@@ -210,7 +210,7 @@ export function registerProjectHandlers(): void {
     name: "list_projects",
     title: "List Projects",
     description:
-      "List projects as a table, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. Each project names its id as 'projectId', which the other tools take as it is, and leaves its capabilities to openl_get_project; include 'status' adds its compileState. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
+      "List projects as a table, filtered by repository (an id or name from openl_list_repositories), status, dependsOn, name, author, branch and tags; 50 a page, 200 at most, the first line naming the offset of the next page. Its 'projectId' is what the other tools take, as it is; include 'status' adds the compile state, and openl_get_project tells the capabilities. Filtering by repository 'local' may fail: list without it and pick those. A project of repository 'local', or edited in place (no canOpen, canSave, canClose), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
     schema: schemas.listProjectsSchema,
     aliases: { search: "name" },
     annotations: {
@@ -408,10 +408,7 @@ export function registerProjectHandlers(): void {
     name: "create_project",
     title: "Create or Copy Project",
     description:
-      "Create a new OpenL project in a design repository. Two modes, selected by the `template` argument:\n" +
-      "• CREATE (omit `template`): create a BLANK project from the \"Empty Project\" template OpenL Studio ships, as a user of Studio does.\n" +
-      "• COPY (pass `template` = an existing project's exact projectId from openl_list_projects): use Studio's server-side project-copy API to copy that source project's FULL structure and rename its descriptor to name. Do not pass the displayed project name because mapped repositories may contain multiple projects with the same name.\n" +
-      "Both modes are written and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches() when branches are supported; Studio also supports creating a missing branch from the base branch. Omit `comment` when repository features.comments is false. Answers the projectId, branch and revision of the new project. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
+      "Create a project in a design repository: a blank one from the 'Empty Project' template Studio ships, or, with 'template', a copy of the whole structure of that project (its exact projectId from openl_list_projects, never a displayed name) renamed to 'name'. Omit 'branch' for the default branch of the repository, or name one from openl_list_branches; Studio creates a missing branch from the base one. Omit 'comment' when the features.comments of the repository is false. The answer gives the projectId, branch and revision of the project. Not for repository 'local'.",
     schema: schemas.createProjectSchema,
     annotations: {
       readOnlyHint: false,

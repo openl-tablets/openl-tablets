@@ -159,26 +159,7 @@ export function registerTableActionHandlers(): void {
     name: "edit_table",
     title: "Edit Table (raw)",
     description:
-      "Edit a table's raw source in place, whatever its type, by an 'action', or several in 'actions':\n" +
-      "- append_rows / append_columns: add the lines of 'cells' at the end.\n" +
-      "- insert_rows / insert_columns: add the lines of 'cells' at 'position', 1 to the height or width; the rows " +
-      "below or the columns to the right shift.\n" +
-      "- delete_rows / delete_columns: remove 'count' lines, 1 by default, from 'position', 1 or more.\n" +
-      "- update_row / update_column: overwrite the line at 'position' with the one line of 'cells'.\n" +
-      "- update_cell: set the cell at ('row', 'column') to 'value', null clearing it, or to the Excel 'formula'.\n" +
-      "- update_range: overwrite the cells from ('row', 'column') with the lines of 'cells', more than one cell.\n" +
-      "- merge: merge 'rowspan' × 'colspan' cells from ('row', 'column'); unmerge: split the merged cell covering " +
-      "('row', 'column').\n" +
-      "Positions count from 0 in the whole table, as openl_get_table gives them: row 0 is the header, column 0 the " +
-      "leading labels. A line holds one value per column of a row, or per row of a column, as the rows of " +
-      "openl_get_table hold them: a scalar or a one-dimensional array of scalars, null for an empty cell or one a " +
-      "merged cell covers, which stays covered. A value starting with '=' is an OpenL formula, written as text; " +
-      "update_cell writes an Excel 'formula', such as '=B2*C2', instead of a value, never beside one. " +
-      "'actions' makes several edits as one change and one write, in order, each on the table as the previous one " +
-      "left it, so an insert shifts the positions after it; when one is refused nothing is written. " +
-      "'version', from openl_get_table or the previous edit, is required: Studio refuses an edit of a table changed " +
-      "since and writes nothing. The answer gives the current 'tableId' and the new 'version' of the table, and " +
-      "'compiles: false' with its 'errors' when the table no longer compiles.",
+      "Edit a table in place, whatever its type, by one 'action', or by several in 'actions' made as one write, in order, each on the table the previous one left, so an insert shifts the positions after it; when one is refused nothing is written.\n- update_cell: row, column, and 'value' (null clears it) or an Excel 'formula' such as '=B2*C2', never both.\n- update_range: row, column and 'cells', more than one cell. update_row / update_column: position and one line of 'cells'.\n- insert_rows / insert_columns: position, 1 to the height or width, and 'cells'; append_rows / append_columns: 'cells' at the end.\n- delete_rows / delete_columns: position, 1 or more, and count, 1 by default.\n- merge: row, column, rowspan, colspan; unmerge: row, column.\nPositions are those of openl_get_table: row 0 is the header, column 0 the labels. A line holds one value per column, or per row of a column: a scalar, an array of scalars, or null for an empty cell or one a merge covers; a value starting with '=' is an OpenL formula. The 'version' of the last read or edit is required: a table changed since is not written. The answer gives the current 'tableId', the new 'version', and 'compiles: false' with its 'errors' when the table no longer compiles.",
     schema: schemas.editTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: { destructiveHint: true, openWorldHint: true },

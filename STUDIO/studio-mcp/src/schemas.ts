@@ -23,14 +23,14 @@ const paginationShape = {
 };
 
 // The ids take a short description, as most tools take one of them and every agent loads their schemas every session
-export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The 'projectId' openl_list_projects answered, as it is.");
+export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The projectId openl_list_projects answers.");
 
 const repositoryNameSchema = z.string().describe("The 'id' or 'name' of a repository, as openl_list_repositories answers them; never a made-up one.");
 
 /** A string with more than whitespace in it, trimmed. */
 const nonBlankString = z.string().trim().min(1);
 
-const tableIdSchema = z.string().describe("The 'id' of the table openl_list_tables answered, or the 'tableId' of its last edit.");
+const tableIdSchema = z.string().describe("The 'id' openl_list_tables answers, or the 'tableId' of the last edit; a table name works too.");
 
 const branchNameSchema = z.string().describe("Git branch name (e.g., 'main', 'development', 'feature/new-rules')");
 
@@ -141,9 +141,8 @@ export const getTableSchema = z.strictObject({
 
 /** The version of a table a write is based on, as openl_get_table or the previous edit answered it. */
 const tableVersionSchema = nonBlankString.describe(
-  "The 'version' of the table that openl_get_table, or the previous edit of the table, answered. Studio refuses the " +
-  "write when the table changed since — on disk, such as in Excel, or through another client — and writes nothing: " +
-  "read the table again and repeat the edit on what it holds now.",
+  "The 'version' the last read or edit of the table answered. A table changed since, in Excel or by another client, " +
+  "is not written: read it again and repeat the edit.",
 );
 
 const tableActionBase = {
@@ -235,8 +234,6 @@ const cellValueSchema = z.union([scalarCellValueSchema, z.array(scalarCellValueS
 });
 
 /** The Excel formula of a cell of an edit, which names it instead of a value. */
-const excelFormulaSchema = z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2'. The cell is written as this Excel formula; send it without 'value', which Studio refuses beside it. An OpenL formula is a 'value' starting with '='.");
-
 /** A cell of an edit names either its value or its Excel formula, as Studio refuses both. */
 const VALUE_OR_FORMULA = "A cell takes either 'value' or 'formula', not both.";
 const valueOrFormula = (cell: { value?: unknown; formula?: string }): boolean =>
@@ -341,20 +338,37 @@ function checkEditArguments(data: EditArguments, ctx: z.RefinementCtx): void {
   }
 }
 
-/** The arguments of one edit of a table, of the action it names. */
+/**
+ * The arguments of one edit of a table, of the action it names. An edit of 'actions' takes them without their
+ * descriptions, which the arguments of the tool give once: every agent loads the schema of the tool.
+ */
 const editShape = {
-  action: z.enum(Object.keys(EDIT_ACTIONS) as [EditAction, ...EditAction[]]).describe("The edit to make."),
-  position: z.number().int().min(0).optional().describe("The row or column the action starts at."),
-  count: z.number().int().min(1).optional().describe("How many rows or columns to delete; 1 by default."),
-  row: z.number().int().min(0).optional().describe("The row of the cell, or of the top-left cell of a range."),
-  column: z.number().int().min(0).optional().describe("The column of the cell, or of the top-left cell of a range."),
-  rowspan: z.number().int().min(1).optional().describe("How many rows the merged cell spans."),
-  colspan: z.number().int().min(1).optional().describe("How many columns the merged cell spans."),
-  cells: z.array(z.array(cellValueSchema).min(1)).min(1).optional().describe(
+  action: z.enum(Object.keys(EDIT_ACTIONS) as [EditAction, ...EditAction[]]),
+  position: z.number().int().min(0).optional(),
+  count: z.number().int().min(1).optional(),
+  row: z.number().int().min(0).optional(),
+  column: z.number().int().min(0).optional(),
+  rowspan: z.number().int().min(1).optional(),
+  colspan: z.number().int().min(1).optional(),
+  cells: z.array(z.array(cellValueSchema).min(1)).min(1).optional(),
+  value: cellValueSchema.optional(),
+  formula: z.string().optional(),
+};
+
+/** The arguments of an edit as the tool describes them. */
+const describedEditShape = {
+  action: editShape.action.describe("The edit to make."),
+  position: editShape.position.describe("The row or column the action starts at."),
+  count: editShape.count.describe("How many rows or columns to delete; 1 by default."),
+  row: editShape.row.describe("The row of the cell, or of the top-left cell of a range."),
+  column: editShape.column.describe("The column of the cell, or of the top-left cell of a range."),
+  rowspan: editShape.rowspan.describe("How many rows the merged cell spans."),
+  colspan: editShape.colspan.describe("How many columns the merged cell spans."),
+  cells: editShape.cells.describe(
     "Lines of values, as the rows of openl_get_table hold them: rows top to bottom for a row action and a range, columns left to right for a column action.",
   ),
-  value: cellValueSchema.optional().describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
-  formula: excelFormulaSchema,
+  value: editShape.value.describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
+  formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2'. The cell is written as this Excel formula; send it without 'value', which Studio refuses beside it. An OpenL formula is a 'value' starting with '='."),
 };
 
 /** One edit of a table: an action and the arguments it takes. */
@@ -364,9 +378,9 @@ export type TableEdit = z.output<typeof editSchema>;
 
 export const editTableSchema = z.strictObject({
   ...tableActionBase,
-  ...editShape,
-  action: editShape.action.optional(),
-  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an object of an 'action' and its arguments, made in order as one change: each sees the table as the previous one left it, and when one is refused nothing is written. Give either 'actions' or one 'action' with its arguments."),
+  ...describedEditShape,
+  action: describedEditShape.action.optional(),
+  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an object of an 'action' and the arguments above, made in order as one write. Give either 'actions' or one 'action' with its arguments."),
 }).superRefine((data, ctx) => {
   if (data.actions === undefined) {
     if (data.action === undefined) {
@@ -759,13 +773,13 @@ const filePathSchema = z
   .string()
   .min(1)
   .describe(
-    "Project-relative path to the resource (e.g. 'rules/Model.xlsx'). Do NOT include the project name itself; paths are relative to the project root. A trailing slash denotes a folder."
+    "The path in the project, such as 'rules/Model.xlsx', without the folder of the project; a folder ends with '/'."
   );
 
 const fileBranchSchema = branchNameSchema
   .optional()
   .describe(
-    "The branch the project must be on; the call fails when it is on another. Leave out for a repository without branches."
+    "The branch the project must be on, else the call fails; omit for a repository without branches."
   );
 
 export const readProjectFileSchema = z.strictObject({
