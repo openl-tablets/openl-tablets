@@ -885,8 +885,7 @@ export const searchProjectFilesSchema = z.strictObject({
 });
 
 // Intentionally has no `response_format` or pagination: the tool returns a single
-// aggregated markdown document (one AGENTS.md chain), which has no alternate format
-// or pages — do not add them to match the other tools.
+// aggregated markdown document (one AGENTS.md chain), read in parts by its sections.
 export const getProjectAgentContextSchema = z.strictObject({
   projectId: projectIdSchema,
   folder: z
@@ -896,6 +895,11 @@ export const getProjectAgentContextSchema = z.strictObject({
     .describe(
       "A folder of the project, such as 'rules/pricing', for the guidance of a file inside it; the project root when omitted."
     ),
+  sections: z
+    .array(nonBlankString)
+    .min(1)
+    .optional()
+    .describe("The headings of the sections to read, as the contents of the guidance names them, case-insensitive; a section comes with its subsections."),
   branch: fileBranchSchema,
 });
 
