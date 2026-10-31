@@ -162,7 +162,8 @@ function sectionsOf(text: string): Section[] {
   let offset = 0;
   for (const line of text.split("\n")) {
     // A fence is indented by at most three spaces, more is indented code; a closing one has nothing after it
-    const [, marker, after] = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line) ?? [];
+    const [opening, marker] = /^ {0,3}(`{3,}|~{3,})/.exec(line) ?? [];
+    const after = opening === undefined ? "" : line.slice(opening.length);
     if (fence === undefined ? marker : marker?.startsWith(fence[0]) && marker.length >= fence.length && !after.trim()) {
       fence = fence === undefined ? marker : undefined;
     }
