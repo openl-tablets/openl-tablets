@@ -81,6 +81,12 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                 } else if (msg.contains(WAS_EXPECTING) || msg.contains(WAS_EXPECTING_ONE_OF)) {
                     pos = pos(pe.currentToken.next);
                 }
+                // The tokens any of which could follow tell nothing the place the parser stopped at does not: a
+                // single expected token, such as a missing ")", stays
+                var oneOf = msg.indexOf(WAS_EXPECTING_ONE_OF);
+                if (oneOf >= 0) {
+                    msg = msg.substring(0, oneOf).trim();
+                }
                 sne = new SyntaxNodeException(msg, null, pos, module);
             }
             syntaxError = sne;
