@@ -152,7 +152,7 @@
         <jetty.version>12.1.14</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.55.2</amazonaws.version>
+        <amazonaws.version>2.57.8</amazonaws.version>
         <azure.version>12.36.0</azure.version>
         <netty.version>4.2.19.Final</netty.version>
         <jgit.version>7.8.0.202609011348-openl2</jgit.version>
@@ -175,7 +175,7 @@
         <testcontainers.version>2.0.5</testcontainers.version>
         <testcontainers.keycloak.version>4.4.0</testcontainers.keycloak.version>
         <s3mock.version>5.2.3</s3mock.version>
-        <ojdbc11.version>23.26.3.0.0</ojdbc11.version>
+        <ojdbc11.version>23.26.4.0.0</ojdbc11.version>
         <postgresql.version>42.7.14</postgresql.version>
         <mariadb.version>2.7.15</mariadb.version>
         <mssql.version>13.6.1.jre11</mssql.version>
