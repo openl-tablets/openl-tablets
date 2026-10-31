@@ -610,6 +610,22 @@ class TraceDebugMapperTest {
     }
 
     @Test
+    void compactViewKeepsTheRulesOfACollectingActionThatReturned() {
+        IDecisionTable collect = mock(IDecisionTable.class);
+        when(collect.getNumberOfRules()).thenReturn(5);
+        when(collect.getRuleName(anyInt())).thenAnswer(rule -> "R" + ((int) rule.getArgument(0) + 1));
+        var frame = spy(new DebugFrame(new SourceClassifier.FrameDescriptor(FrameKind.DECISION_TABLE, "uCollect", "Collect", null),
+                collect, null, new Object[0], null, 1));
+        // One action fired two rules and returned: the run stopped on the way out of the table
+        doReturn(Set.of(1, 3)).when(frame).getFiredRules();
+
+        var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, List.of(frame), null, null, List.of(),
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false).frames().getFirst();
+        assertEquals(List.of("R2", "R4"), compact.steps().stream().map(StepValueView::ref).toList(),
+                "the rules the action fired stay listed after it returned");
+    }
+
+    @Test
     void groupsWatchCapturesIntoPerCellSeriesInExecutionOrder() {
         var captures = List.of(
                 new WatchCapture("$Factor", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R2C0", 1.0),

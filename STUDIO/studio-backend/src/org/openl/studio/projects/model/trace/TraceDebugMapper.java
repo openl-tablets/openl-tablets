@@ -425,9 +425,17 @@ public class TraceDebugMapper {
             return null;
         }
         var steps = outlineSteps(frame, withExecutedChildren);
-        return options.compact() && frame.getSource() instanceof IDecisionTable
-                ? steps.stream().filter(step -> step.status() != StepStatus.PENDING || step.durationMillis() != null).toList()
-                : steps;
+        if (!options.compact() || !(frame.getSource() instanceof IDecisionTable decisionTable)) {
+            return steps;
+        }
+        // The rules of an action that has returned, such as the rules a collecting table fired, are timed as one action
+        var fired = Arrays.stream(DecisionTableMapper.allFiredRuleIndices(frame))
+                .mapToObj(decisionTable::getRuleName)
+                .collect(Collectors.toSet());
+        return steps.stream()
+                .filter(step -> step.status() != StepStatus.PENDING || step.durationMillis() != null
+                        || fired.contains(step.ref()))
+                .toList();
     }
 
     /** Whether a dispatch had no choice to make, which the compact view does not repeat on every frame. */
