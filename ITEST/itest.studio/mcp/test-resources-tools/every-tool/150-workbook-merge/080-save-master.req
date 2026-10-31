@@ -13,8 +13,7 @@ Authorization: Token ${PAT}
   "params": {
     "name": "openl_save_project",
     "arguments": {
-      "projectId": "${PROJECT_ID}",
-      "comment": "Lower the factor of young drivers"
+      "projectId": "${PROJECT_ID}"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
@@ -26,4 +25,3 @@ Authorization: Token ${PAT}
     }
   }
 }
-

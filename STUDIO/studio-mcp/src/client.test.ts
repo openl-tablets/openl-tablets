@@ -313,11 +313,12 @@ describe("OpenLClient", () => {
       expect(mockHttp.history.patch.map(bodyOf)).toEqual(patches);
     });
 
-    it("requires a non-empty comment when the project IS EDITING", async () => {
+    it("leaves the comment of a save to Studio when the caller gives none", async () => {
       mockHttp.onGet(projectPath).reply(200, projectView("EDITING"));
+      mockHttp.onPatch(projectPath).reply(204);
 
-      await expect(client.saveProject("design-project1", "   ")).rejects.toThrow(/comment is required for save/i);
-      expect(mockHttp.history.patch).toHaveLength(0);
+      expect(await client.saveProject("design-project1", "   ")).toEqual({ saved: true });
+      expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true }]);
     });
 
     it("saves a file repository project without a comment", async () => {

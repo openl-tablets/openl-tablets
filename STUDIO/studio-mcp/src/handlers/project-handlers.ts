@@ -285,7 +285,7 @@ export function registerProjectHandlers(): void {
     name: "save_project",
     title: "Save Project",
     description:
-      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when the capabilities of openl_get_project lack canSave: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
+      "Save project changes. Works when project status is EDITING (after opening and making changes). Without a comment Studio writes the one the repository configures for a save. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when the capabilities of openl_get_project lack canSave: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
     schema: schemas.saveProjectSchema,
     annotations: {
       destructiveHint: false,
@@ -302,7 +302,7 @@ export function registerProjectHandlers(): void {
     name: "close_project",
     title: "Close Project",
     description:
-      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; comment required only when repository features.comments is true) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss. Not for a project whose capabilities (openl_get_project) lack canClose: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
+      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; without a comment Studio writes the one the repository configures for a save) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss. Not for a project whose capabilities (openl_get_project) lack canClose: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
     schema: schemas.closeProjectSchema,
     annotations: {
       destructiveHint: true, // Can discard changes if requested
@@ -328,13 +328,6 @@ export function registerProjectHandlers(): void {
       }
 
       if (args.saveChanges === true) {
-        const supportsComments = currentProject.repositoryInfo?.features?.comments !== false;
-        if (supportsComments && !args.comment) {
-          throw new ProtocolError(
-            ProtocolErrorCode.InvalidParams,
-            "comment is required when saveChanges is true. Provide a commit message describing the changes."
-          );
-        }
         await client.saveProject(args.projectId, args.comment, { closeAfterSave: true });
         return reply({ closed: true, saved: true });
       }

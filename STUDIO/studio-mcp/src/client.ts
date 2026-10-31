@@ -665,7 +665,8 @@ export class OpenLClient {
    * Save project changes, creating a new revision in the repository
    *
    * Saves only a project with unsaved changes (status EDITING). The server creates a new revision and transitions
-   * the project to OPENED (or CLOSED if closeAfterSave). A comment is required only when the repository supports it.
+   * the project to OPENED (or CLOSED if closeAfterSave). Without a comment, Studio writes the one the repository
+   * configures for a save, or for a save of an earlier revision.
    * Uses PATCH /projects/{projectId} with save: true, the comment when supported, and status when closing.
    *
    * A project without unsaved changes has nothing to save. With closeAfterSave it is still closed, unless it is
@@ -675,7 +676,6 @@ export class OpenLClient {
    * @param options - Optional. closeAfterSave: if true, send status CLOSED so project is saved and closed in one
    *   request.
    * @returns Whether the project had changes to save, and whether it was closed
-   * @throws Error if a comment is missing when the repository supports comments and the project is EDITING
    */
   async saveProject(
     projectId: string,
@@ -690,11 +690,8 @@ export class OpenLClient {
       }
       return options?.closeAfterSave ? { saved: false, closed: true } : { saved: false };
     }
-    const supportsComments = project.repositoryInfo?.features?.comments !== false;
-    const message = supportsComments ? comment?.trim() : undefined;
-    if (supportsComments && !message) {
-      throw new Error("comment is required for save; it is used as the revision (commit) message.");
-    }
+    // Studio writes the comment the repository configures in place of an empty one
+    const message = project.repositoryInfo?.features?.comments === false ? undefined : comment?.trim() || undefined;
     await this.http.patch(projectPath(projectId), {
       save: true,
       comment: message,
