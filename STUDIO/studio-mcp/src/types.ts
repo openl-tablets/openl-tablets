@@ -262,6 +262,8 @@ export interface TableMetadata {
   kind?: TableKind;
   name?: string;
   properties?: Record<string, unknown>;
+  /** The dimension properties that tell this version of a table from its others, when it has others. */
+  dimensions?: Record<string, unknown>;
   returnType?: string;
   signature?: string;
   file?: string;
