@@ -9,7 +9,6 @@ import * as schemas from "../schemas.js";
 import { isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { formatWholeList } from "../markdown-list.js";
-import { dependencyMarkdown } from "../dependency-markdown.js";
 import { waitForResult } from "./wait.js";
 import { finishTableEdit } from "./table-edit.js";
 import type { OpenLClient } from "../client.js";
@@ -105,7 +104,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Get Table Dependencies",
     description:
-      "Get the table dependency graph as an adjacency list: without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth. An executable node carries its signature, return type and dimension properties; a datatype its parent and field references; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion, and cycles are listed. Markdown draws the calls as a Mermaid flowchart and the data model as a Mermaid ER diagram, where '+ N more' marks the values left out; detailed Markdown adds the metadata of every node.",
+      "Get the table dependency graph as an adjacency list of nodes: id, name, kind, and the ids of the tables it calls (dependencies) and that call it (dependents). Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
     schema: schemas.getTableDependenciesSchema,
     annotations: {
       readOnlyHint: true,
@@ -113,15 +112,8 @@ export function registerTableWorkflowHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { response_format, projectId, ...query } = args;
-      const graph = await client.getTableDependencies(projectId, query);
-      if (response_format === "json") {
-        return formatResult(graph);
-      }
-      // The query line leaves out the arguments not given.
-      return textResult(dependencyMarkdown(graph, response_format, {
-        scope: query.tableId ? "table neighborhood" : "whole project", ...query,
-      }));
+      const { projectId, ...query } = args;
+      return formatResult(await client.getTableDependencies(projectId, query));
     },
   });
 

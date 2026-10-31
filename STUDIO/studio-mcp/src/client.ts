@@ -92,6 +92,12 @@ function ifMatch(version: string | undefined): Record<string, string> {
   return version === undefined ? {} : { "If-Match": entityTag(version) };
 }
 
+/**
+ * The fields of a node of the dependency graph that tell what calls what. Where a table is, its module and its signature
+ * are read with the table: they made most of the graph of a large project.
+ */
+const GRAPH_NODE_FIELDS = "id,kind,name,dependencies,dependents,dimensions,extends,fields,vocabulary";
+
 /** The query of a projected read: the fields asked for, or else the whole reply with the JSON Schemas of its values. */
 function projection(fields: string | undefined): Record<string, unknown> {
   return fields ? { fields } : { includeSchema: true };
@@ -1162,7 +1168,7 @@ export class OpenLClient {
     const params = options?.tableId
       ? { direction: options.direction || undefined, depth: options.depth }
       : { module: options?.module || undefined, layer: options?.layer || undefined };
-    return (await this.http.get<Types.TableNodeView[]>(url, { params })).data;
+    return (await this.http.get<Types.TableNodeView[]>(url, { params: { ...params, fields: GRAPH_NODE_FIELDS } })).data;
   }
 
   /** Return the modules declared by a project descriptor, each followed by the modules it holds. */

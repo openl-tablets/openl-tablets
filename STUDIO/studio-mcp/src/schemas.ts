@@ -6,7 +6,7 @@
 import { z } from "zod";
 import { parseJsonOrText } from "./http.js";
 import {
-  BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, RESPONSE_FORMATS, TABLE_KINDS,
+  BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, TABLE_KINDS,
   TABLE_SCOPES, TABLE_SORTS,
 } from "./types.js";
 
@@ -15,13 +15,6 @@ const STATUS_INCLUDE_NOTE =
   "'status' adds compileState: 'idle' means Studio has not compiled the project yet, not that it compiles; " +
   "openl_project_status compiles it and reports its errors.";
 
-
-const ResponseFormat = z
-  .enum(RESPONSE_FORMATS)
-  .default("json")
-  .describe(
-    "Response format: 'json' for structured, round-trippable data (default), 'markdown' for human-readable output, 'markdown_concise' for a brief summary (1-2 paragraphs), or 'markdown_detailed' for full details with context"
-  );
 
 // Pagination parameters, spread last into the arguments of a paged tool
 const paginationShape = {
@@ -185,7 +178,6 @@ export const getTableDependenciesSchema = z.strictObject({
   layer: z.enum(["executable", "datatype", "all"]).optional().describe("When tableId is omitted, return executable tables, datatype/vocabulary nodes, or both (backend default all)."),
   direction: z.enum(["DEPENDENCIES", "DEPENDENTS", "BOTH"]).optional().describe("When tableId is provided, relations to traverse. Default BOTH: the tables it calls and the tables calling it."),
   depth: z.number().int().min(1).optional().describe("When tableId is provided, maximum traversal depth from that table."),
-  response_format: ResponseFormat,
 }).superRefine((value, ctx) => {
   if (value.tableId) {
     if (value.module) {
@@ -884,8 +876,8 @@ export const searchProjectFilesSchema = z.strictObject({
   ...paginationShape,
 });
 
-// Intentionally has no `response_format` or pagination: the tool returns a single
-// aggregated markdown document (one AGENTS.md chain), read in parts by its sections.
+// Intentionally has no pagination: the tool returns a single aggregated markdown document (one AGENTS.md chain), read
+// in parts by its sections.
 export const getProjectAgentContextSchema = z.strictObject({
   projectId: projectIdSchema,
   folder: z
@@ -938,8 +930,6 @@ export const listGuidesSchema = z.strictObject({
   ...paginationShape,
 });
 
-// Like getProjectAgentContextSchema, intentionally no `response_format`: the tool
-// returns the requested markdown documents verbatim.
 export const getGuidesSchema = z.strictObject({
   ids: z
     .array(z.string().min(1))
