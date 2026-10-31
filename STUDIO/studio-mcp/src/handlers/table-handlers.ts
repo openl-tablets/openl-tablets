@@ -116,7 +116,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project, filtered by kind, name fragment and table properties, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
     annotations: {
       readOnlyHint: true,
@@ -126,8 +126,9 @@ export function registerTableHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { response_format: format, projectId, ...filters } = args;
       const tablesPage = await client.listTablesPage(projectId, filters);
-      // Every table of the page belongs to the project the caller named, which Studio repeats in each of them
-      const tables = tablesPage.items.map(({ project, projectId: _, ...table }) => table);
+      // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
+      const tables = tablesPage.items.map(({ project, projectId: owner, ...table }) =>
+        owner === projectId ? table : { ...table, project, projectId: owner });
       const paginated = paginateCollection({ ...tablesPage, items: tables }, filters.offset);
 
       return formatResult(paginated.data, format, {

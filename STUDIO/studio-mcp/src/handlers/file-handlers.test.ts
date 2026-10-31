@@ -538,7 +538,7 @@ describe("delete, search, copy and move", () => {
     expect(bodyOf(workbooks)).toEqual({ extensions: ["xlsx"], type: "FILE", recursive: true });
     expect(workbooks.params).toEqual({ fields: "path" });
     expect(bodyOf(search)).toEqual({ content: "Vallidaiton", extensions: ["XLSX", "properties"], recursive: true });
-    expect(JSON.parse(textOf(result)).notSearched).toMatch(/^2 workbooks: content is never matched .*openl_get_table/);
+    expect(JSON.parse(textOf(result)).notSearched).toMatch(/^2 workbooks: content is never matched .*openl_list_tables text/);
   });
 
   it.each([

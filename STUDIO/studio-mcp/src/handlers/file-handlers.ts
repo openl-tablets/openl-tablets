@@ -75,7 +75,7 @@ async function workbooksNotSearched(
   return workbooks.length === 0
     ? undefined
     : `${formatCount(workbooks.length, "workbook")}: content is never matched in a table cell; `
-      + "read the tables with openl_get_table";
+      + "find the tables a text is in with openl_list_tables text";
 }
 
 export function registerFileHandlers(): void {

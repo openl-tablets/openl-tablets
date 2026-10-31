@@ -39,6 +39,25 @@ describe("reading tables", () => {
     expect(response.pagination).toEqual({ limit: 50, offset: 25, total_count: 26, has_more: false });
   });
 
+  it("openl_list_tables finds the tables a text is in, and names the project of a table of a dependency", async () => {
+    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
+      { id: "t1", name: "Messages", tableType: "SimpleRules", kind: "Rules", project: "Rates", projectId: "p1" },
+      { id: "t9", name: "Codes", tableType: "Data", kind: "Data", project: "Common", projectId: "p9" },
+    ], { total: 2 }));
+
+    const result = await executeTool("list_tables", {
+      projectId: "p1", text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
+    }, harness.client);
+
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({
+      text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
+    });
+    expect(JSON.parse(textOf(result)).data).toEqual([
+      { id: "t1", name: "Messages", tableType: "SimpleRules", kind: "Rules" },
+      { id: "t9", name: "Codes", tableType: "Data", kind: "Data", project: "Common", projectId: "p9" },
+    ]);
+  });
+
   it("openl_get_table forwards startRow/maxRows/styles to the raw view query and returns the slice without addresses", async () => {
     harness.mockHttp.onGet(tablePath("calculatePremium_1234")).reply(200, rawTable("calculatePremium_1234",
       [[{ cell: "A3", value: "Age", style: { bold: true, background: "#ccccff" } }]], { totalRows: 120 }));
