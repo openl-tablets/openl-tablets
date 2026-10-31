@@ -38,8 +38,10 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
   while (scan.size > limit) {
     const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1);
     const cuttable = arrays.filter((node) => node.key !== "enum");
+    // An array already down to its first and its last item loses its last one only when no longer array is left
+    const longer = cuttable.filter((node) => (node.value as unknown[]).length > 2);
     if (cuttable.length > 0) {
-      cutLargest(cuttable, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
+      cutLargest(longer.length > 0 ? longer : cuttable, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
     } else if (scan.objects.length > 0) {
       // The smallest object that frees the excess alone is the one nested deepest: what holds it keeps its other keys
       const excess = scan.size - limit;
@@ -48,7 +50,14 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
       cutLargest(objects, scan.size, limit, (node) => cutObject(node, cuts));
     } else if (arrays.length > 0) {
       cutLargest(arrays, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
+    } else if (root.value === null || typeof root.value !== "object") {
+      break;
     } else {
+      // Nothing below the root is left to cut, such as an enum of one large value: the root is counted instead
+      const summary = Array.isArray(root.value) ? `[${root.value.length} items cut]`
+        : `{${Object.keys(root.value as object).length} keys cut}`;
+      cuts.push(`the whole value (${summary.slice(1, -5)})`);
+      root.value = summary;
       break;
     }
     scan = nodesOf(root.value);
@@ -126,11 +135,14 @@ function cutObject(node: Node, cuts: string[]): number {
   return sizeOf(replacement);
 }
 
-/** The arrays and the objects of a value below its root, each with its path and its size in JSON, and its size. */
+/**
+ * The arrays and the objects of a value below its root, each with its path and its size in JSON, and its size. What an
+ * `enum` lists is no node: a value it allows is never cut.
+ */
 function nodesOf(value: unknown): { arrays: Node[]; objects: Node[]; size: number } {
   const arrays: Node[] = [];
   const objects: Node[] = [];
-  const visit = (parent: Record<string, unknown> | unknown[], key: string | number, path: string): number => {
+  const visit = (parent: Record<string, unknown> | unknown[], key: string | number, path: string, inEnum = false): number => {
     const child = (parent as Record<string | number, unknown>)[key];
     if (child === null || typeof child !== "object") {
       // An undefined item of an array is null in JSON
@@ -142,8 +154,9 @@ function nodesOf(value: unknown): { arrays: Node[]; objects: Node[]; size: numbe
       : Object.keys(child).filter((name) => (child as Record<string, unknown>)[name] !== undefined)
         .map((name) => [name, path ? `${path}.${name}` : name]);
     const size = 2 + Math.max(0, entries.length - 1) + entries.reduce((sum, [name, childPath]) =>
-      sum + (Array.isArray(child) ? 0 : JSON.stringify(name).length + 1) + visit(child as object as unknown[], name, childPath), 0);
-    if (path) {
+      sum + (Array.isArray(child) ? 0 : JSON.stringify(name).length + 1)
+        + visit(child as object as unknown[], name, childPath, inEnum || (key === "enum" && Array.isArray(child))), 0);
+    if (path && !inEnum) {
       (Array.isArray(child) ? arrays : objects).push({ path, parent, key, value: child, size });
     }
     return size;
