@@ -895,6 +895,8 @@ export interface TestUnitExecutionResult {
 export interface TestAssertionExecutionResult {
   actualValue?: unknown;
   description?: string;
+  /** The field the assertion compares, when another assertion of the test has the same description. */
+  field?: string;
   expectedValue?: unknown;
   status?: "TR_EXCEPTION" | "TR_NEQ" | "TR_OK";
 }
