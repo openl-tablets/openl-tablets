@@ -82,6 +82,24 @@ describe("cutJson", () => {
     expect(cuts[0]).toMatch(/^enum \(\d+ of 1000 items from the middle\)$/);
   });
 
+  it("never cuts inside a value an enum allows, and counts the whole value when nothing else is left", () => {
+    const member = { code: "A", labels: Array.from({ length: 50 }, (_, i) => `label ${i}`) };
+
+    const { value, cuts } = cutJson({ enum: [member] }, 200);
+
+    expect(value).toBe("{1 keys cut}");
+    expect(cuts).toEqual(["the whole value (1 keys)"]);
+  });
+
+  it("cuts a longer array before it takes the last item of one already cut to its first and last", () => {
+    const frames = [{ table: "Root" }, { table: "Stopped", note: "x".repeat(150) }];
+    const other = Array.from({ length: 40 }, (_, i) => i);
+
+    const { value } = cutJson({ frames, other }, 250);
+
+    expect((value as { frames: unknown[] }).frames).toHaveLength(2);
+  });
+
   it("replaces the largest object by the count of its keys when no array can be cut", () => {
     const properties = Object.fromEntries(Array.from({ length: 50 }, (_, i) => [`field${i}`, { type: "string" }]));
 
