@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"breakpoints\":[],\"targets\":[{\"name\":\"AgeFactor\",\"kind\":\"decisionTable\"},{\"name\":\"Premium\",\"kind\":\"spreadsheet\"}]}}"
+        "text": "{\"data\":{\"breakpoints\":[]}}"
       }
     ],
     "resultType": "complete",
