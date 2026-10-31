@@ -132,7 +132,8 @@ fractional number stays text: a `Double` would round a long number a `BigInteger
 
 `MarkdownGrid` is the writable grid of a file: the table as it is read, with its merged ranges, kept as text. A value
 written into a cell becomes the text that reads back as the same value (`MarkdownGrid.textOf`): a date as an ISO date,
-a list joined with commas. Nothing reaches the file before the save.
+a list joined with commas. Nothing reaches the file before the save. A cell finds its merged range among those of its
+row alone, so a row inserted above thousands of merged ranges moves them in time linear in their number.
 
 The save reads the table back from the cells (`SheetLayout.tableOf`) and writes it into the text of the file as it was
 when the grid was opened (`MarkdownTableWriter`). The file is saved as a workbook is

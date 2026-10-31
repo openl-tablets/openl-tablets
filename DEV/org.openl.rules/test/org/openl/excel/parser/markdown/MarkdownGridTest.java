@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -28,10 +29,12 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.CellStyle;
@@ -199,6 +202,44 @@ class MarkdownGridTest {
         } finally {
             grid.stopEditing();
         }
+    }
+
+    @Test
+    void rowInsertedAboveMergedCellsMovesThemDown() throws Exception {
+        var text = """
+                ---
+                table: SmartRules String greeting(Integer hour, String day)
+                ---
+
+                <table>
+                <tr><td>Hour</td><td>Day</td><td>Greeting</td></tr>
+                <tr><td rowspan="2">0-11</td><td>Mon</td><td>Good Morning</td></tr>
+                <tr><td>Tue</td><td>Morning</td></tr>
+                <tr><td rowspan="2">12-23</td><td>Mon</td><td>Good Day</td></tr>
+                <tr><td>Tue</td><td>Day</td></tr>
+                </table>
+                """;
+        var saved = new AtomicReference<String>();
+        var sheet = MarkdownGrid.read("file:///rules/Main/greeting.md", text, saved::set);
+        var region = new GridRegion(0, 0, 5, 2);
+
+        // The ranges move one row down, the lower one first, as the table editor inserts a row
+        GridTool.insertRows(1, 1, region, sheet, mock(MetaInfoWriter.class)).doAction(new GridTable(region, sheet));
+        sheet.setCellValue(0, 2, "0-5");
+        sheet.setCellValue(1, 2, "Sun");
+        sheet.setCellValue(2, 2, "Good Night");
+        sheet.save();
+
+        // The header of the table is merged across it, as a workbook lays it out
+        assertEquals(3, sheet.getNumberOfMergedRegions());
+        assertEquals(new GridRegion(3, 0, 4, 0), sheet.getCell(0, 4).getAbsoluteRegion());
+        assertEquals(new GridRegion(5, 0, 6, 0), sheet.getCell(0, 6).getAbsoluteRegion());
+        assertNull(sheet.getCell(0, 2).getRegion());
+        // The rows that did not change keep their lines
+        assertEquals(text.replace("<td>Greeting</td></tr>\n", """
+                <td>Greeting</td></tr>
+                <tr><td>0-5</td><td>Sun</td><td>Good Night</td></tr>
+                """), saved.get());
     }
 
     @Test

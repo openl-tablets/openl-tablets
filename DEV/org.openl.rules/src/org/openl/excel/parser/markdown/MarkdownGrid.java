@@ -14,7 +14,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -66,7 +69,12 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     private final String mark;
     private final Saver saver;
     private final List<List<@Nullable String>> rows = new ArrayList<>();
-    private final List<IGridRegion> merges = new ArrayList<>();
+    /** The merged ranges by their top left cell. */
+    private final Map<Corner, IGridRegion> merges = new LinkedHashMap<>();
+    /** The merged ranges over each row they cover, so a cell finds its range without looking through them all. */
+    private final Map<Integer, List<IGridRegion>> rowMerges = new HashMap<>();
+    /** The merged ranges in a list, for the reads by index; made again after a change. */
+    private @Nullable List<IGridRegion> listed;
 
     private MarkdownGrid(String uri,
                          @Nullable XlsSheetSourceCodeModule sheetSource,
@@ -84,10 +92,14 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
                 put(column, row, cells.values()[row][column]);
             }
         }
-        cells.merges().forEach(range -> merges.add(new GridRegion(range.getFirstRow(),
+        cells.merges().forEach(range -> merge(new GridRegion(range.getFirstRow(),
                 range.getFirstColumn(),
                 range.getLastRow(),
                 range.getLastColumn())));
+    }
+
+    /** The top left cell of a merged range. */
+    private record Corner(int column, int row) {
     }
 
     /**
@@ -245,7 +257,8 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     @Override
     public void save() throws IOException {
         var values = rows.stream().map(row -> row.toArray(String[]::new)).toArray(String[][]::new);
-        var ranges = merges.stream()
+        var ranges = merges.values()
+                .stream()
                 .map(range -> new CellRangeAddress(range.getTop(),
                         range.getBottom(),
                         range.getLeft(),
@@ -299,12 +312,25 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
 
     @Override
     public IGridRegion getMergedRegion(int i) {
-        return merges.get(i);
+        if (listed == null) {
+            listed = List.copyOf(merges.values());
+        }
+        return listed.get(i);
     }
 
     @Override
     public int getNumberOfMergedRegions() {
         return merges.size();
+    }
+
+    @Override
+    public @Nullable IGridRegion getRegionContaining(int col, int row) {
+        for (var region : rowMerges.getOrDefault(row, List.of())) {
+            if (region.getLeft() <= col && col <= region.getRight()) {
+                return region;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -397,7 +423,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
                 }
             }
         }
-        merges.add(new GridRegion(to));
+        merge(new GridRegion(to));
     }
 
     /**
@@ -413,8 +439,17 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
             }
         }
         put(reg.getLeft(), reg.getTop(), value);
-        merges.add(new GridRegion(reg));
+        merge(new GridRegion(reg));
         return merges.size() - 1;
+    }
+
+    private void merge(IGridRegion region) {
+        removeMergedRegion(region.getLeft(), region.getTop());
+        merges.put(new Corner(region.getLeft(), region.getTop()), region);
+        for (var row = region.getTop(); row <= region.getBottom(); row++) {
+            rowMerges.computeIfAbsent(row, r -> new ArrayList<>(1)).add(region);
+        }
+        listed = null;
     }
 
     private @Nullable String firstValue(IGridRegion reg) {
@@ -436,7 +471,18 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
 
     @Override
     public void removeMergedRegion(int x, int y) {
-        merges.removeIf(range -> range.getLeft() == x && range.getTop() == y);
+        var region = merges.remove(new Corner(x, y));
+        if (region == null) {
+            return;
+        }
+        for (var row = region.getTop(); row <= region.getBottom(); row++) {
+            var inRow = rowMerges.get(row);
+            inRow.remove(region);
+            if (inRow.isEmpty()) {
+                rowMerges.remove(row);
+            }
+        }
+        listed = null;
     }
 
     /**
