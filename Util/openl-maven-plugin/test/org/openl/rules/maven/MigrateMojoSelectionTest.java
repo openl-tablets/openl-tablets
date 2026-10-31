@@ -81,7 +81,7 @@ class MigrateMojoSelectionTest {
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config"))));
         assertEquals(ids("groovy.jakarta"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("groovy"))));
-        assertEquals(ids("rules.removed-functions"),
+        assertEquals(ids("rules.removed-functions", "rules.currency-sign"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("rules"))));
     }
 
@@ -186,6 +186,7 @@ class MigrateMojoSelectionTest {
                 "config.project.cw-processor",
                 "groovy.jakarta",
                 "rules.removed-functions",
+                "rules.currency-sign",
                 "config.project.method-filter",
                 "config.project.default-modules",
                 "config.deploy.runtime-context",

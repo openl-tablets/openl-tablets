@@ -26,6 +26,7 @@ import org.apache.maven.scm.manager.ScmManager;
 
 import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.maven.migration.Compilation;
 import org.openl.rules.maven.migration.ConfigDeployJacksonTypingMigrator;
 import org.openl.rules.maven.migration.ConfigDeployRuntimeContextMigrator;
 import org.openl.rules.maven.migration.ConfigDeployTemplateClassMigrator;
@@ -38,6 +39,7 @@ import org.openl.rules.maven.migration.GroovyJakartaMigrator;
 import org.openl.rules.maven.migration.MigrationContext;
 import org.openl.rules.maven.migration.Migrator;
 import org.openl.rules.maven.migration.PomUnusedParametersMigrator;
+import org.openl.rules.maven.migration.RulesCurrencySignMigrator;
 import org.openl.rules.maven.migration.RulesRemovedFunctionsMigrator;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -153,7 +155,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 }
             };
             var context = new MigrationContext(generatedInterface,
-                    () -> compile(sourcePath, hasDependencies),
+                    new Compilation(() -> compile(sourcePath, hasDependencies)),
                     projectFolder.resolve("pom.xml"),
                     pluginParameters(plugin));
 
@@ -246,6 +248,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 // interface: groovy first, as the rules compile against its classes.
                 new GroovyJakartaMigrator(),
                 new RulesRemovedFunctionsMigrator(),
+                new RulesCurrencySignMigrator(),
                 new ConfigProjectMethodFilterMigrator(),
                 new ConfigProjectDefaultModulesMigrator(),
                 // rules-deploy.xml: one atomic step per content rewrite.

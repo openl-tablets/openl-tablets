@@ -192,8 +192,10 @@ from Maven.
 * **A number has no `$` sign.** The `$` sign is removed from formulas and ranges, because it reads differently across
   countries and also starts a reference to a spreadsheet step. A formula or a range that still uses it usually no
   longer compiles. Do not rely on that: `$600` also names a step called `600` or a variable called `$600`, and a
-  formula next to such a step compiles with its value. Search the formulas for a `$` before a digit and remove the
-  sign:
+  formula next to such a step compiles with its value. The `rules.currency-sign` step of `openl:migrate` removes the
+  sign where the compiler rejects it: in a formula and in a cell of an `IntRange` or a `DoubleRange`. A formula that
+  compiles with `$600`, and a condition of a smart rule or a simple rule, are left for you. Search the formulas for a
+  `$` before a digit and remove the sign:
 
   | Before          | After         |
   |-----------------|---------------|

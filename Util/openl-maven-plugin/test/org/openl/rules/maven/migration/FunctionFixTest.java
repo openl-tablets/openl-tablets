@@ -5,10 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Date;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLErrorMessage;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -34,10 +37,10 @@ class FunctionFixTest {
         assertNull(FORMAT_NUMBER.fix("format(d)", notFound("format", Date.class)));
         assertNull(FORMAT_NUMBER.fix("format(c)", notFound("format", char.class)));
         assertNull(FORMAT_NUMBER.fix("format(x, y)", notFound("format", Double.class, String.class)));
-        assertNull(FORMAT_NUMBER.fix("format(null)", new MethodNotFoundException("format", NullOpenClass.the)));
+        assertNull(FORMAT_NUMBER.fix("format(null)", error(new MethodNotFoundException("format", NullOpenClass.the))));
         assertNull(FORMAT_NUMBER.fix("formatted(x)", notFound("formatted", Double.class)));
-        assertNull(FORMAT_NUMBER.fix("format(x)", new OpenlNotCheckedException("Method is not found.")));
-        assertNull(FORMAT_NUMBER.fix("format(x)", null));
+        assertNull(FORMAT_NUMBER.fix("format(x)", error(new OpenlNotCheckedException("Method is not found."))));
+        assertNull(FORMAT_NUMBER.fix("format(x)", error(null)));
     }
 
     @Test
@@ -73,15 +76,22 @@ class FunctionFixTest {
     @Test
     void replacesIdentifier() {
         var fix = CodeFix.identifier("DEFAULT_DOUBLE_FORMAT", "\"#,##0.00\"");
-        assertEquals("\"#,##0.00\"", fix.fix("DEFAULT_DOUBLE_FORMAT", null));
-        assertNull(fix.fix("DEFAULT_DOUBLE_FORMAT_X", null));
+        assertEquals("\"#,##0.00\"", fix.fix("DEFAULT_DOUBLE_FORMAT", error(null)));
+        assertNull(fix.fix("DEFAULT_DOUBLE_FORMAT_X", error(null)));
     }
 
-    private static MethodNotFoundException notFound(String name, Class<?>... types) {
+    private static OpenLErrorMessage notFound(String name, Class<?>... types) {
         var params = new IOpenClass[types.length];
         for (var i = 0; i < types.length; i++) {
             params[i] = JavaOpenClass.getOpenClass(types[i]);
         }
-        return new MethodNotFoundException(name, params);
+        return error(new MethodNotFoundException(name, params));
+    }
+
+    /**
+     * The compilation error the compiler reports with the cause.
+     */
+    private static OpenLErrorMessage error(@Nullable Throwable cause) {
+        return new OpenLErrorMessage(new OpenLCompilationException("The code does not compile.", cause));
     }
 }
