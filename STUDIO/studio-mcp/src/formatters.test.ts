@@ -504,12 +504,14 @@ describe("formatters", () => {
         pagination: { limit: 200, offset: 0, total: 275, hasMore: true },
       }));
 
-      expect(parsed.data.preview_format).toBe("json");
+      // The one item it holds is cut in its structure, its long text shortened
+      expect(parsed.data[0].id).toBe("oversized");
+      expect(parsed.data[0].longText.length).toBeLessThan(10_000);
       expect(parsed.pagination.has_more).toBe(true);
       expect(parsed.pagination.next_offset).toBe(1);
     });
 
-    it("caps a large single-object JSON response with an explicit valid-JSON preview", () => {
+    it("cuts a large single-object JSON response in its structure and names the cuts", () => {
       const result = formatResponse({
         id: "large-table",
         source: Array.from({ length: 200 }, (_, row) => [{
@@ -521,8 +523,10 @@ describe("formatters", () => {
       expect(result.length).toBeLessThanOrEqual(2_000);
       const parsed = JSON.parse(result);
       expect(parsed.truncated).toBe(true);
-      expect(parsed.data.preview_format).toBe("json");
-      expect(parsed.data.truncated_json_preview).toContain("large-table");
+      expect(parsed.data.id).toBe("large-table");
+      expect(parsed.data.source[0][0].value).toBe("row-0");
+      expect(parsed.data.source.at(-1)[0].value).toBe("row-199");
+      expect(parsed.truncation_message).toMatch(/Cut: .*source \(\d+ of 200 items from the middle\)/);
     });
 
   });

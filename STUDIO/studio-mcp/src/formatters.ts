@@ -7,6 +7,7 @@ import { RESPONSE_LIMITS } from "./constants.js";
 import type * as Types from "./types.js";
 import { formatTableDependencies, summarizeDependencyGraph, type DependencyQuery } from "./dependency-markdown.js";
 import { formatCount, largestFitting } from "./text.js";
+import { cutJson } from "./json-cut.js";
 
 interface PaginationMetadata {
   limit: number;
@@ -115,29 +116,31 @@ function withoutWrapperFields(record: Record<string, unknown>): Record<string, u
   );
 }
 
-/** Build a bounded, valid-JSON preview when one response value cannot be sliced structurally. */
-function truncateJsonPreview(response: PaginatedResponse<unknown>, charLimit: number): string {
-  const { data, ...metadata } = response;
-  const serializedData = JSON.stringify(data);
-  const build = (previewLength: number, includeMetadata: boolean): string => JSON.stringify({
-    ...(includeMetadata ? metadata : {}),
-    data: {
-      preview_format: "json",
-      truncated_json_preview: serializedData.slice(0, previewLength),
-    },
-    truncated: true,
-    truncation_message: NARROW_REQUEST,
-  });
+/** The cuts an answer names, at most this many: the rest it counts. */
+const NAMED_CUTS = 8;
 
-  // Preserve small pagination/expansion metadata when it fits; otherwise the
-  // bounded preview and truncation notice are more important than that metadata.
-  const includeMetadata = build(0, true).length <= charLimit;
-  // The escaped preview is never shorter than the text it escapes: no longer preview than the limit can fit.
-  const longest = Math.min(serializedData.length, charLimit);
-  const best = largestFitting(0, longest, (length) => build(length, includeMetadata), charLimit);
-  if (best !== undefined) return best;
-  const minimal = JSON.stringify({ truncated: true });
-  return minimal.length <= charLimit ? minimal : "null";
+/**
+ * A response whose data does not fit even when cut by whole items, cut as JSON of the same structure: its long texts
+ * shortened, its largest arrays cut in the middle, and the cuts named, so the agent reads what is left by the same paths.
+ */
+function cutJsonResponse(response: PaginatedResponse<unknown>, charLimit: number): string {
+  const { data, ...metadata } = response;
+  const answer = (value: unknown, cuts: string[]): string => {
+    const named = cuts.slice(0, NAMED_CUTS).join("; ");
+    const more = cuts.length > NAMED_CUTS ? `; and ${cuts.length - NAMED_CUTS} more` : "";
+    const message = `${RESPONSE_LIMITS.TRUNCATION_MESSAGE} Cut: ${named}${more}. Narrow the request to read the rest.`;
+    return JSON.stringify({ ...metadata, data: value, truncated: true, truncation_message: message });
+  };
+  // The metadata and the note take their share of the limit: the data is cut again by what they take beyond it
+  let budget = charLimit - answer(null, []).length;
+  for (;;) {
+    const { value, cuts } = cutJson(data, Math.max(0, budget));
+    const text = answer(value, cuts);
+    if (text.length <= charLimit || budget <= 0) {
+      return text;
+    }
+    budget -= text.length - charLimit;
+  }
 }
 
 /**
@@ -175,7 +178,7 @@ export function formatResponse<T>(
   if (fitted) {
     return fitted;
   }
-  return format === "json" ? truncateJsonPreview(response, charLimit) : truncateText(formattedString, charLimit);
+  return format === "json" ? cutJsonResponse(response, charLimit) : truncateText(formattedString, charLimit);
 }
 
 /** The cut of a list: its leading items, continued from the next offset of its page, if it is paged. */
@@ -224,7 +227,7 @@ function fitLeadingItems(
     fits *= 2;
   }
   return largestFitting(fits, Math.min(fits * 2, truncation.items) - 1, fit, charLimit)
-    ?? (format === "json" ? truncateJsonPreview(page(1), charLimit) : undefined);
+    ?? (format === "json" ? cutJsonResponse(page(1), charLimit) : undefined);
 }
 
 /** The pagination of a page: where it starts, and where the next one does when more follow. */
