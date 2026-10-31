@@ -161,13 +161,15 @@ function sectionsOf(text: string): Section[] {
   let fence: string | undefined;
   let offset = 0;
   for (const line of text.split("\n")) {
+    // A file written on Windows ends its lines with CR LF
+    const content = line.endsWith("\r") ? line.slice(0, -1) : line;
     // A fence is indented by at most three spaces, more is indented code; a closing one has nothing after it
-    const [opening, marker] = /^ {0,3}(`{3,}|~{3,})/.exec(line) ?? [];
-    const after = opening === undefined ? "" : line.slice(opening.length);
+    const [opening, marker] = /^ {0,3}(`{3,}|~{3,})/.exec(content) ?? [];
+    const after = opening === undefined ? "" : content.slice(opening.length);
     if (fence === undefined ? marker : marker?.startsWith(fence[0]) && marker.length >= fence.length && !after.trim()) {
       fence = fence === undefined ? marker : undefined;
     }
-    const heading = fence !== undefined || marker ? null : /^ {0,3}(#{1,6})\s+(\S.*)$/.exec(line);
+    const heading = fence !== undefined || marker ? null : /^ {0,3}(#{1,6})\s+(\S.*)$/.exec(content);
     if (heading) {
       headings.push({ level: heading[1].length, title: headingTitle(heading[2]), start: offset });
     }
