@@ -13,7 +13,7 @@ import { z, type ZodType } from "zod";
 
 import type { OpenLClient } from "../client.js";
 import { sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
-import { isHttpError, type HttpError } from "../http.js";
+import { isHttpError, isNotFoundError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
 import { refreshWhenChangedOnDisk } from "./freshness.js";
 
@@ -178,12 +178,44 @@ export async function executeTool(
       );
     }
     await keepCurrent(tool, result.data, client, extra);
-    return await tool.handler(result.data, client, extra);
+    try {
+      return await tool.handler(result.data, client, extra);
+    } catch (error: unknown) {
+      // An agent often names a table by its name where the tool takes its id
+      const named = isNotFoundError(error) ? await tableNamed(client, result.data) : undefined;
+      if (!named) {
+        throw error;
+      }
+      const answer = await tool.handler({ ...(result.data as object), tableId: named.id }, client, extra);
+      const note = `'${named.name}' is the name of a table, not its id: its id is '${named.id}', which the table tools take.`;
+      return { ...answer, content: [...answer.content, { type: "text", text: note }] };
+    }
   } catch (error: unknown) {
     throw isChangedOutside(error)
       ? new ProtocolError(ProtocolErrorCode.InvalidRequest, CHANGED_OUTSIDE_MESSAGE)
       : handleToolError(error, name, args);
   }
+}
+
+/**
+ * The table a tableId Studio does not know names by its name, when one table of the project has that name. A name of
+ * several tables, such as the versions of a table, is refused with their ids: the agent must choose one.
+ */
+async function tableNamed(client: OpenLClient, args: unknown): Promise<{ id: string; name: string } | undefined> {
+  const { projectId, tableId } = args as { projectId?: unknown; tableId?: unknown };
+  if (typeof projectId !== "string" || typeof tableId !== "string") {
+    return undefined;
+  }
+  const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch(() => undefined);
+  const named = (page?.items ?? []).filter((table) => table.name === tableId);
+  if (named.length > 1) {
+    const ids = named.map((table) => (table.module ? `${table.id} (${table.module})` : table.id)).join(", ");
+    throw new ProtocolError(
+      ProtocolErrorCode.InvalidParams,
+      `'${tableId}' is the name of ${named.length} tables, not an id: give the id of one of them, ${ids}.`,
+    );
+  }
+  return named.length === 1 ? { id: named[0].id, name: tableId } : undefined;
 }
 
 /** The code OpenL Studio refuses a write with when another program changed the workbook since it was read. */

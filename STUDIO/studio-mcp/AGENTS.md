@@ -305,6 +305,7 @@ anonymous (single-user Studio).
 - An answer of data is JSON without indentation; a guide, the AGENTS.md guidance, the text of a file and the server info are answered as the text they are. Only `openl_get_table_dependencies` takes `response_format`, as its Markdown draws the graph as Mermaid diagrams; every other tool refuses the argument.
 - No tool carries file bytes as base64 or as an embedded resource: a file other than a short text is answered with a link (see Project Files Tools), never as a `resource_link` either, since a client may fetch or preview a link it renders.
 - List operations name the page they answer and the offset of the next one in their first line.
+- A `tableId` Studio answers 404 for is looked for as the name of a table (`tableNamed` of `handlers/common.ts`): the one table of that name is used, and the answer adds a block naming its id; a name of several tables, such as the versions of one, is refused with their ids. Agents name tables by their names often, and a bare 404 sent them to list every table.
 - Large responses are truncated at a 25K-character limit — except `openl_get_guides` bodies, which are returned verbatim (sizes are published in the index so callers can budget). A response over the limit is cut by whole items (a list by rows with the next offset moved to match, `openl_get_table` by rows with `totalRows` and the `offset` to continue from), and the note names only a way to continue that the tool has.
 
 ## OpenL-specific behaviour

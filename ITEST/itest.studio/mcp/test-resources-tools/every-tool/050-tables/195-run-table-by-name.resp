@@ -1,0 +1,26 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"data\":{\"executionTimeMs\":*,\"result\":1}}"
+      },
+      {
+        "type": "text",
+        "text": "'AgeFactor' is the name of a table, not its id: its id is '*', which the table tools take."
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
