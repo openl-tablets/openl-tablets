@@ -90,14 +90,14 @@ class TableIdsTest {
         assertEquals(version, new TableSyntaxNodeAdapter(table).getVersion());
     }
 
-    /** The version is the digest of the text of the cells, row by row: the versions told before stay valid. */
+    /** The version is the digest of the text of the cells, row by row, cut to its first 16 hex digits. */
     @Test
     void theVersionIsTheDigestOfTheTextOfTheCells() throws IOException {
         var table = only(parse(project("a", sheet -> put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1",
                 "\"CA\"|1")), RULES));
 
-        assertEquals(HashingUtils.sha256Hex("Rules String rate(String state)\tnull\t\nC1\tRET1\t\n\"CA\"\t1\t\n"),
-                table.getVersion());
+        assertEquals(HashingUtils.sha256Hex("Rules String rate(String state)\tnull\t\nC1\tRET1\t\n\"CA\"\t1\t\n")
+                .substring(0, 16), table.getVersion());
     }
 
     /** A written table takes a new version at once, while the module is not compiled again, and keeps it. */
