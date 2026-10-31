@@ -20,20 +20,12 @@ Authorization: Token ${PAT}
       "position": 3,
       "cells": [
         [
-          {
-            "value": "50 - 59"
-          },
-          {
-            "value": "E"
-          }
+          "50 - 59",
+          "E"
         ],
         [
-          {
-            "value": "60 - 69"
-          },
-          {
-            "value": "D"
-          }
+          "60 - 69",
+          "D"
         ]
       ]
     },

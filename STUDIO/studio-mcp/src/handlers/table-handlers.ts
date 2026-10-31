@@ -1,62 +1,46 @@
 /**
  * Rules/tables tool handlers — list/get tables and update/append/create them.
- * Owns the structured-payload argument validation used by the editing tools;
+ * Owns the shape a table is read and written in (`table-grid.ts`) for these tools;
  * the post-edit tail they share lives in `table-edit.ts`.
  */
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
-import type { ZodError } from "zod";
-
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
-import type * as Types from "../types.js";
-import { paginateCollection, type Truncation } from "../formatters.js";
+import { paginateCollection } from "../formatters.js";
+import { gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
 import { isPlainObject, sanitizeError } from "../utils.js";
-import { formatResult, formatSchemaValidationError, registerTool, type ToolResponse } from "./common.js";
+import { formatResult, registerTool, type ToolResponse } from "./common.js";
 import { finishTableEdit } from "./table-edit.js";
 
-/** Validate that an optional table id in a replacement body matches the path id. */
-function validateTableIdMatch(tableId: string, viewId: string | undefined): void {
-  if (viewId !== undefined && viewId !== tableId) {
-    throw new ProtocolError(
-      ProtocolErrorCode.InvalidParams,
-      `Table ID mismatch: tableId parameter is "${tableId}" but view.id is "${viewId}". ` +
-      `These must match. Use the same ID from get_table() for both parameters.`
-    );
-  }
-}
-
 /**
- * Refuse a whole-table replacement that would remove rows. A sliced RawSource
- * view remains dangerous after a caller drops its `totalRows` marker, so the
- * submitted height must be checked against a bounded read of the live table.
+ * Refuse a whole-table replacement that would remove rows: a table read in slices and written back from one of them
+ * would lose every row the slice left out. Answers the number of columns of the table, which the rows sent may leave
+ * out at their end.
  */
-async function validateRawSourceReplacementRows(
+async function checkWholeTable(
   client: OpenLClient,
   projectId: string,
   tableId: string,
-  source: Types.RawTableCell[][],
-): Promise<void> {
+  rows: number,
+): Promise<number> {
   const current = await client.getTable(projectId, tableId, { offset: 0, limit: 1 });
-
   const currentRows = Math.max(current.source.length, current.totalRows ?? 0);
-  if (source.length < currentRows) {
+  if (rows < currentRows) {
     throw new ProtocolError(
       ProtocolErrorCode.InvalidParams,
-      `Cannot replace table '${tableId}' with ${source.length} row(s): the current table has ${currentRows} row(s). ` +
-        "openl_update_table cannot remove rows because a partial RawSource view without totalRows is " +
-        "indistinguishable from an intentional deletion. Use the delete_rows action of openl_edit_table with an " +
-        "explicit position and count to remove rows, or another of its actions for isolated edits. Nothing was written.",
+      `Cannot replace table '${tableId}' with ${rows} row(s): the current table has ${currentRows} row(s). ` +
+        "openl_update_table writes the whole table, so a slice would remove the rows it leaves out. Use the " +
+        "delete_rows action of openl_edit_table to remove rows, or another of its actions for isolated edits. " +
+        "Nothing was written.",
     );
   }
+  return widthOf(current.pos);
 }
 
 /**
- * LLM clients frequently send the nested payload (view/table) as a
- * JSON *string* instead of an object; the client would then POST a bare JSON string
- * and the backend rejects it with an opaque 400. Parse such a string back into a
- * value so validation (and the handler) see the real object. A string that LOOKS
- * like JSON but fails to parse is reported precisely; any other string is left
- * for the schema to reject ("expected object, received string").
+ * LLM clients frequently send a nested array (the rows of a table) as a JSON *string*; parse such a string back into a
+ * value so validation sees the real array. A string that LOOKS like JSON but fails to parse is reported precisely;
+ * any other string is left for the schema to reject.
  */
 function coercePayloadJson(value: unknown, payloadArg: string, toolName: string): unknown {
   if (typeof value !== "string") return value;
@@ -68,47 +52,29 @@ function coercePayloadJson(value: unknown, payloadArg: string, toolName: string)
     throw new ProtocolError(
       ProtocolErrorCode.InvalidParams,
       `${toolName}: '${payloadArg}' was provided as a string that is not valid JSON ` +
-        `(${sanitizeError(err)}). Pass '${payloadArg}' as a JSON object, not a string.`,
+        `(${sanitizeError(err)}). Pass '${payloadArg}' as a JSON array, not a string.`,
     );
   }
 }
 
-/** Build an actionable message from a Zod validation failure, with the note on a typed table DTO. */
-function formatValidationError(payloadArg: string, toolName: string, error: ZodError): string {
-  let message = formatSchemaValidationError(toolName, error);
-  const tableTypeIssue = error.issues.some(
-    (issue) => issue.path[0] === payloadArg && issue.path[1] === "tableType",
-  );
-  if (tableTypeIssue) {
-    message +=
-      `\n\n${payloadArg}.tableType must be exactly "RawSource". Typed table DTOs are intentionally ` +
-      `unsupported because they are incomplete and cannot safely round-trip workbook content. ` +
-      `Call openl_get_table() and edit its raw source matrix.`;
-  }
-  return message;
-}
-
-/**
- * The name and the validation hooks of a tool whose `payloadArg` argument holds a nested object payload, such as
- * "view". The preprocessor only coerces JSON strings; the shared executor performs the single schema parse and
- * calls the formatter below if validation fails.
- */
-function structuredPayloadTool(toolName: string, payloadArg: string): {
-  name: string;
-  validateArgs: (args: unknown) => unknown;
-  formatValidationError: (error: ZodError) => string;
-} {
+/** The name and the validation hook of a tool that takes the rows of a table, which a client may send as a string. */
+function tableRowsTool(toolName: string): { name: string; validateArgs: (args: unknown) => unknown } {
   return {
     name: toolName,
     validateArgs: (args: unknown): unknown => {
       if (!isPlainObject(args)) return args;
-      const original = args[payloadArg];
-      const coerced = coercePayloadJson(original, payloadArg, toolName);
-      return coerced === original ? args : { ...args, [payloadArg]: coerced };
+      const coerced = coercePayloadJson(args.rows, "rows", toolName);
+      return coerced === args.rows ? args : { ...args, rows: coerced };
     },
-    formatValidationError: (error: ZodError): string => formatValidationError(payloadArg, toolName, error),
   };
 }
+
+/** The description of the shape a table is read and written in, which every table tool shares. */
+const TABLE_SHAPE =
+  "A table is 'rows' of values, one per column, a value a scalar, a one-dimensional array of scalars, or null for an " +
+  "empty cell or one a merged cell covers; 'merges' lists the merged cells as [row, column, rowspan, colspan], " +
+  "'formulas' the Excel formulas as [row, column, '=B2*C2'] beside the values they compute. A position counts from " +
+  "0 in the whole table, the header row and the label column included.";
 
 export function registerTableHandlers(): void {
   registerTool({
@@ -143,7 +109,14 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      "Read a table as its RawSource matrix of cells, whatever its type: a value is a scalar or a one-dimensional array of scalars, a formula cell holding its computed value beside its 'formula', and openl_update_table takes a cell back as it is. A cell carries no address of its own: the cell in row r and column c of 'source' lies window.offset + r rows below and c columns right of the first cell of 'pos', which names the whole table also for a slice; compilation messages name cells by those addresses. 'window' tells which rows the answer holds: offset, rows, totalRows, complete, and next_offset while rows remain. offset/limit read a slice of a large table; a merged cell the slice cuts keeps its value and names its whole area in mergedArea. A slice is for reading and for openl_edit_table: openl_update_table refuses it. styles=true adds the Excel style of each cell. The answer carries the 'version' the edit tools take back. An id from before a rename still reads the table; a deleted table answers 410.",
+      `Read a table whatever its type, in the shape openl_update_table and openl_create_project_table take: ${TABLE_SHAPE} ` +
+      "'notes' lists the Excel notes and, with styles=true, 'styles' the Excel styles of the cells; a write keeps both. " +
+      "The first cell of 'pos' is row 0, column 0, and compilation messages name cells by their A1 addresses. " +
+      "'window' tells which rows the answer holds: offset, rows, totalRows, complete, and next_offset while rows " +
+      "remain; offset/limit read a slice of a large table, whose positions stay those of the whole table, and a " +
+      "merged cell the slice cuts keeps its value in the first row of the slice. A slice is for reading and for " +
+      "openl_edit_table: openl_update_table writes whole tables. The answer carries the 'version' the edit tools " +
+      "take back. An id from before a rename still reads the table; a deleted table answers 410.",
     schema: schemas.getTableSchema,
     annotations: {
       readOnlyHint: true,
@@ -153,10 +126,20 @@ export function registerTableHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const table = await client.getTable(args.projectId, args.tableId, args);
       const offset = args.offset ?? 0;
+      const { source, tableType: _, totalRows: total, ...about } = table;
       // Studio names the rows of the table only when the window leaves some out
-      const totalRows = table.totalRows ?? offset + table.source.length;
+      const totalRows = total ?? offset + source.length;
+      const grid = gridOf(source, offset, table.pos);
 
-      return formatResult(withoutAddresses(table), "json", { truncation: rowTruncation(table, offset, totalRows) });
+      return formatResult({ ...about, ...grid }, "json", {
+        truncation: {
+          items: grid.rows.length,
+          unit: "rows",
+          cut: (count) => ({ ...about, ...leadingRows(grid, offset, count) }),
+          next: (count) => `continue with offset=${offset + count}`,
+          metadata: (count) => ({ window: rowWindow(offset, count, totalRows) }),
+        },
+      });
     },
   });
 
@@ -181,11 +164,16 @@ export function registerTableHandlers(): void {
   });
 
   registerTool({
-    ...structuredPayloadTool("update_table", "view"),
+    ...tableRowsTool("update_table"),
     compiled: true,
     title: "Replace Entire Table",
     description:
-      "Replace a whole table with the RawSource view openl_get_table answered, changed: read it without styles=true, keep every row, covered cell and span, and send the view back with its 'version'. A cell sent with the value it holds is left as it is. Rows are added, never removed: a view with fewer rows than the table, or a slice that carries totalRows, is refused. Remove rows with the delete_rows action of openl_edit_table, which also suits an isolated edit. Values are scalars or one-dimensional arrays of scalars, as openl_get_table answers them; cell styles are read-only and refused. Studio refuses the write when the table changed since the read and writes nothing: read it again and repeat the change. The answer gives the current 'tableId' and the new 'version' of the table.",
+      `Replace a whole table with the rows, merges and formulas openl_get_table answered, changed, and its 'version'. ${TABLE_SHAPE} ` +
+      "Keep every row: rows are added, never removed, and a table with fewer rows than it has is refused; remove " +
+      "rows with the delete_rows action of openl_edit_table, which also suits an isolated edit. A row may end " +
+      "before the last column, and the cells left out are empty; notes and styles are kept. Studio refuses the " +
+      "write when the table changed since the read and writes nothing: read it again and repeat the change. The " +
+      "answer gives the current 'tableId' and the new 'version' of the table.",
     schema: schemas.updateTableSchema,
     annotations: {
       destructiveHint: true,
@@ -193,24 +181,24 @@ export function registerTableHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { projectId, tableId, view } = args;
-      // Preserve the client contract: an id mismatch is an input error and
-      // must fail before the row-count guard performs any Studio request.
-      validateTableIdMatch(tableId, view.id);
-      await validateRawSourceReplacementRows(client, projectId, tableId, view.source);
+      const { projectId, tableId, version } = args;
+      const width = await checkWholeTable(client, projectId, tableId, args.rows.length);
 
       // Studio answers the new id of a table the update renamed.
-      const reportedId = await client.updateTable(projectId, tableId, view);
+      const reportedId = await client.updateTable(projectId, tableId, { tableType: "RawSource", source: sourceOf(args, width) }, version);
       return finishTableEdit(client, args, reportedId, "update");
     },
   });
 
   registerTool({
-    ...structuredPayloadTool("create_project_table", "table"),
+    ...tableRowsTool("create_project_table"),
     compiled: true,
     title: "Create New Table",
     description:
-      "Create a table from its whole RawSource matrix of cells in the module moduleName, or in a new module at modulePath, an .xlsx path. Build the grid as the OpenL guides (openl_get_guides) describe it, or copy the source of a table, covered cells and spans included. Values are scalars or one-dimensional arrays of scalars; cell styles are refused. The answer gives the 'tableId' and 'version' of the new table, and 'compiles: false' with its errors when it does not compile.",
+      `Create a table in the module 'module', or in a new module at modulePath, an .xlsx path, from its rows, merges and formulas. ${TABLE_SHAPE} ` +
+      "Build the rows as the OpenL guides (openl_get_guides) describe the table, or as openl_get_table answers a " +
+      "table like it; its header row names it as 'name' does. The answer gives the 'tableId' and 'version' of the " +
+      "new table, and 'compiles: false' with its errors when it does not compile.",
     schema: schemas.createProjectTableSchema,
     annotations: {
       destructiveHint: false,
@@ -221,7 +209,7 @@ export function registerTableHandlers(): void {
         moduleName: args.module,
         modulePath: args.modulePath,
         sheetName: args.sheetName,
-        table: args.table,
+        table: { tableType: "RawSource", name: args.name, source: sourceOf(args) },
       });
 
       return finishTableEdit(client, { projectId: args.projectId, tableId: createdTable.id }, undefined, "creation");
@@ -230,7 +218,7 @@ export function registerTableHandlers(): void {
 }
 
 /**
- * The rows a table read answers: the first and the last of them, how many rows the table has, whether the answer
+ * The rows a table read answers: the first of them and how many, how many rows the table has, whether the answer
  * holds every one of them, and the row to read next while rows remain.
  */
 function rowWindow(offset: number, rows: number, totalRows: number): Record<string, unknown> {
@@ -241,57 +229,4 @@ function rowWindow(offset: number, rows: number, totalRows: number): Record<stri
     complete: offset === 0 && rows === totalRows,
     ...(offset + rows < totalRows ? { next_offset: offset + rows } : {}),
   };
-}
-
-/**
- * The cut of a table read: its leading rows, with the total number of rows of the table and the row to read next.
- * A cut view carries `totalRows`, so it cannot be written back as the whole table.
- */
-function rowTruncation(table: Types.RawTableView, offset: number, totalRows: number): Truncation {
-  return {
-    items: table.source.length,
-    unit: "rows",
-    cut: (count) => withoutAddresses({ ...table, source: leadingRows(table.source, count), totalRows }),
-    next: (count) => `continue with offset=${offset + count}`,
-    metadata: (count) => ({ window: rowWindow(offset, count, totalRows) }),
-  };
-}
-
-/**
- * A table read without the A1 address of each cell, which its position in the source and the `pos` of the table
- * give: the addresses take about 40% of a read.
- */
-function withoutAddresses(table: Types.RawTableView): Types.RawTableView {
-  return { ...table, source: table.source.map((row) => row.map(({ cell, ...rest }) => rest)) };
-}
-
-/**
- * The first `count` rows of a table. A merged cell reaching past the last of them is cut there as a window of Studio
- * cuts it: it spans the rows left, and names its whole area in `mergedArea`.
- */
-function leadingRows(source: Types.RawTableCell[][], count: number): Types.RawTableCell[][] {
-  return source.slice(0, count).map((row, index) => row.map((cell) => {
-    const rowspan = cell.rowspan ?? 1;
-    if (index + rowspan <= count || cell.cell === undefined) {
-      return cell;
-    }
-    const left = count - index;
-    return {
-      ...cell,
-      rowspan: left > 1 ? left : undefined,
-      mergedArea: cell.mergedArea ?? areaOf(cell.cell, rowspan, cell.colspan ?? 1),
-    };
-  }));
-}
-
-/** The A1 area of a merged cell from its first cell, such as `B4:C299` for `B4` spanning 296 rows and 2 columns. */
-function areaOf(first: string, rowspan: number, colspan: number): string {
-  const [, letters = "", digits = "0"] = /^([A-Z]+)(\d+)$/.exec(first) ?? [];
-  let column = [...letters].reduce((index, letter) => index * 26 + letter.charCodeAt(0) - 64, 0) + colspan - 1;
-  let last = "";
-  while (column > 0) {
-    last = String.fromCharCode(65 + (column - 1) % 26) + last;
-    column = Math.floor((column - 1) / 26);
-  }
-  return `${first}:${last}${Number(digits) + rowspan - 1}`;
 }

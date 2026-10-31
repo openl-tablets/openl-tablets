@@ -16,44 +16,24 @@ Authorization: Token ${PAT}
       "projectId": "${PROJECT_ID}",
       "module": "Main",
       "sheetName": "Scratch",
-      "table": {
-        "tableType": "RawSource",
-        "name": "Grade",
-        "source": [
-          [
-            {
-              "value": "SimpleRules String Grade(Integer score)"
-            },
-            {
-              "value": null
-            }
-          ],
-          [
-            {
-              "value": "Score"
-            },
-            {
-              "value": "Grade"
-            }
-          ],
-          [
-            {
-              "value": "< 50"
-            },
-            {
-              "value": "F"
-            }
-          ],
-          [
-            {
-              "value": ">= 50"
-            },
-            {
-              "value": "P"
-            }
-          ]
+      "name": "Grade",
+      "rows": [
+        [
+          "SimpleRules String Grade(Integer score)"
+        ],
+        [
+          "Score",
+          "Grade"
+        ],
+        [
+          "< 50",
+          "F"
+        ],
+        [
+          ">= 50",
+          "P"
         ]
-      }
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

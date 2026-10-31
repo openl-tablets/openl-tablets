@@ -19,12 +19,8 @@ Authorization: Token ${PAT}
       "version": ${DRIVER_VERSION},
       "cells": [
         [
-          {
-            "value": "Boolean"
-          },
-          {
-            "value": "married"
-          }
+          "Boolean",
+          "married"
         ]
       ]
     },

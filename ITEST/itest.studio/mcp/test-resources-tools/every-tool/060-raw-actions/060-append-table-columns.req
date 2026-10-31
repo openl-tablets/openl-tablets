@@ -19,21 +19,11 @@ Authorization: Token ${PAT}
       "version": ${GRADE_VERSION},
       "cells": [
         [
-          {
-            "value": null
-          },
-          {
-            "value": "Note"
-          },
-          {
-            "value": "fail"
-          },
-          {
-            "value": "pass"
-          },
-          {
-            "value": "excellent"
-          }
+          null,
+          "Note",
+          "fail",
+          "pass",
+          "excellent"
         ]
       ]
     },

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"source\":[[{\"value\":\"SimpleRules Double AgeFactor(Integer age)\"},{}],[{\"value\":\"Age\"},{\"value\":\"Factor\"}],[{\"value\":\"< 25\"},{\"value\":1.5}],[{\"value\":\"25 - 65\"},{\"value\":1}],[{\"value\":\"> 65\"},{\"value\":1.2}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"SimpleRules Double AgeFactor(Integer age)\"],[\"Age\",\"Factor\"],[\"< 25\",1.5],[\"25 - 65\",1],[\"> 65\",1.2]]}}"
       }
     ],
     "resultType": "complete",

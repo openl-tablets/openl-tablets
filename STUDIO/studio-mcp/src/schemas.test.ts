@@ -21,45 +21,31 @@ import {
   updateTableSchema,
 } from "./schemas.js";
 
-const rawTable = {
-  tableType: "RawSource" as const,
-  name: "Rate",
-  version: "v1",
-  source: [[{
-    value: "Rules void Rate()",
-    cell: "A1",
-    colspan: 2,
-    rowspan: 2,
-    covered: false,
-  }]],
+const tableGrid = {
+  rows: [["Rules void Rate()"]],
+  merges: [[0, 0, 2, 2]],
 };
 
-const rawCellWriteSchemas = [
+const cellWriteSchemas = [
   {
     name: "create table",
     schema: createProjectTableSchema,
-    input: (value: unknown) => ({
-      projectId: "p1", module: "Main",
-      table: { ...rawTable, source: [[{ value }]] },
-    }),
+    input: (value: unknown) => ({ projectId: "p1", module: "Main", name: "Rate", rows: [[value]] }),
   },
   {
     name: "full update",
     schema: updateTableSchema,
-    input: (value: unknown) => ({
-      projectId: "p1", tableId: "t1",
-      view: { ...rawTable, source: [[{ value }]] },
-    }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", rows: [[value]] }),
   },
   ...([
-    ["append_rows", (value: unknown) => ({ cells: [[{ value }]] })],
-    ["append_columns", (value: unknown) => ({ cells: [[{ value }]] })],
-    ["insert_rows", (value: unknown) => ({ position: 1, cells: [[{ value }]] })],
-    ["insert_columns", (value: unknown) => ({ position: 1, cells: [[{ value }]] })],
-    ["update_row", (value: unknown) => ({ position: 0, cells: [[{ value }]] })],
-    ["update_column", (value: unknown) => ({ position: 0, cells: [[{ value }]] })],
+    ["append_rows", (value: unknown) => ({ cells: [[value]] })],
+    ["append_columns", (value: unknown) => ({ cells: [[value]] })],
+    ["insert_rows", (value: unknown) => ({ position: 1, cells: [[value]] })],
+    ["insert_columns", (value: unknown) => ({ position: 1, cells: [[value]] })],
+    ["update_row", (value: unknown) => ({ position: 0, cells: [[value]] })],
+    ["update_column", (value: unknown) => ({ position: 0, cells: [[value]] })],
     ["update_cell", (value: unknown) => ({ row: 0, column: 0, value })],
-    ["update_range", (value: unknown) => ({ row: 0, column: 0, cells: [[{ value }, { value: null }]] })],
+    ["update_range", (value: unknown) => ({ row: 0, column: 0, cells: [[value, null]] })],
   ] as const).map(([action, args]) => ({
     name: `edit ${action}`,
     schema: editTableSchema,
@@ -75,47 +61,17 @@ describe("opaque project identifiers", () => {
   });
 });
 
-describe("RawSource-only table contracts", () => {
-  it("publishes only RawSource for create and update", () => {
-    const createJson = z.toJSONSchema(createProjectTableSchema) as Record<string, any>;
-    const updateJson = z.toJSONSchema(updateTableSchema) as Record<string, any>;
+describe("table contracts", () => {
+  it("takes a table in the shape openl_get_table answers it: rows, merges and formulas", () => {
+    const formulas = [[0, 1, "=B2*2"]];
 
-    expect(createJson.properties.table.properties.tableType.const).toBe("RawSource");
-    expect(updateJson.properties.view.properties.tableType.const).toBe("RawSource");
-    expect(JSON.stringify({ createJson, updateJson })).not.toMatch(
-      /SimpleRules|SmartRules|SpreadsheetAppend|DatatypeAppend|EditableTableView|"style"/,
-    );
+    expect(updateTableSchema.parse({ projectId: "p1", tableId: "t1", version: "v1", ...tableGrid, formulas }))
+      .toMatchObject({ ...tableGrid, formulas });
+    expect(createProjectTableSchema.safeParse({ projectId: "p1", module: "Main", name: "Rate", ...tableGrid }).success)
+      .toBe(true);
   });
 
-  it("round-trips the complete raw cell representation", () => {
-    expect(createProjectTableSchema.parse({
-      projectId: "p1",
-      module: "Main",
-      table: rawTable,
-    }).table).toEqual(rawTable);
-
-    expect(updateTableSchema.parse({
-      projectId: "p1",
-      tableId: "t1",
-      view: rawTable,
-    }).view.source[0][0]).toEqual(rawTable.source[0][0]);
-  });
-
-  it("accepts back the read-only fields of the view openl_get_table returns", () => {
-    const view = { ...rawTable, headerHeight: 1, layout: { header: { rows: 1 } }, messages: [] };
-
-    expect(updateTableSchema.safeParse({ projectId: "p1", tableId: "t1", view }).success).toBe(true);
-  });
-
-  it("accepts back the formula and the Excel note of a cell, which openl_get_table answers", () => {
-    const view = { ...rawTable, source: [[{ value: 42, formula: "=B2*2", comment: "Checked by Ada" }]] };
-
-    expect(updateTableSchema.parse({ projectId: "p1", tableId: "t1", view }).view.source[0][0])
-      .toEqual({ value: 42, formula: "=B2*2", comment: "Checked by Ada" });
-    expect(createProjectTableSchema.safeParse({ projectId: "p1", module: "Main", table: view }).success).toBe(true);
-  });
-
-  it.each(rawCellWriteSchemas)("accepts Studio multi-value arrays for $name", ({ schema, input }) => {
+  it.each(cellWriteSchemas)("accepts Studio multi-value arrays for $name", ({ schema, input }) => {
     for (const value of [
       ["MA2", "FA+", "SPA"],
       [42],
@@ -127,8 +83,8 @@ describe("RawSource-only table contracts", () => {
     }
   });
 
-  it.each(rawCellWriteSchemas)("rejects cell structures that are not a scalar or a flat array for $name", ({ schema, input }) => {
-    for (const value of [[["nested"]], { unsupported: true }, [{ unsupported: true }]]) {
+  it.each(cellWriteSchemas)("rejects cell structures that are not a scalar or a flat array for $name", ({ schema, input }) => {
+    for (const value of [[["nested"]], { value: "x" }, [{ unsupported: true }]]) {
       expect(schema.safeParse(input(value)).success).toBe(false);
     }
   });
@@ -141,11 +97,9 @@ describe("RawSource-only table contracts", () => {
     expect(serializedValueSchema).not.toContain('"type":"object"');
   });
 
-  it.each(rawCellWriteSchemas.filter(({ name }) => name !== "create table"))(
+  it.each(cellWriteSchemas.filter(({ name }) => name !== "create table"))(
     "requires the version of the table the write of $name is based on", ({ schema, input }) => {
-      const args = input("x") as { version?: string; view?: { version?: string } };
-      delete args.version;
-      delete args.view?.version;
+      const { version: _, ...args } = input("x") as { version?: string };
 
       expect(schema.safeParse(args).success).toBe(false);
     });
@@ -163,34 +117,20 @@ describe("RawSource-only table contracts", () => {
     }
   });
 
-  it("rejects read-only cell styles from every table write contract", () => {
-    const styledCell = { value: "Rules void Rate()", style: { background: "#4472C4", bold: true } };
+  it("refuses a merge or a formula that is not one", () => {
+    const update = (extra: object): boolean =>
+      updateTableSchema.safeParse({ projectId: "p1", tableId: "t1", version: "v1", rows: [["x"]], ...extra }).success;
 
-    expect(createProjectTableSchema.safeParse({
-      projectId: "p1",
-      module: "Main",
-      table: { tableType: "RawSource", name: "Rate", source: [[styledCell]] },
-    }).success).toBe(false);
-    expect(updateTableSchema.safeParse({
-      projectId: "p1",
-      tableId: "t1",
-      view: { tableType: "RawSource", name: "Rate", source: [[styledCell]] },
-    }).success).toBe(false);
-    expect(editTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[styledCell]],
-    }).success).toBe(false);
+    expect(update({ merges: [[0, 0, 0, 2]] })).toBe(false);
+    expect(update({ merges: [[0, 0, 2]] })).toBe(false);
+    expect(update({ formulas: [[0, 0, "B2*2"]] })).toBe(false);
   });
 
-  it("requires a nonblank name and complete source when creating", () => {
-    expect(createProjectTableSchema.safeParse({
-      projectId: "p1", module: "Main", table: { tableType: "RawSource", source: [] },
-    }).success).toBe(false);
-    expect(createProjectTableSchema.safeParse({
-      projectId: "p1", module: "Main", table: { ...rawTable, name: "  " },
-    }).success).toBe(false);
-    expect(createProjectTableSchema.safeParse({
-      projectId: "p1", module: "Main", table: { tableType: "RawSource", name: "Rate" },
-    }).success).toBe(false);
+  it("requires a nonblank name and the rows when creating", () => {
+    expect(createProjectTableSchema.safeParse({ projectId: "p1", module: "Main", rows: [["x"]] }).success).toBe(false);
+    expect(createProjectTableSchema.safeParse({ projectId: "p1", module: "Main", name: "  ", rows: [["x"]] }).success)
+      .toBe(false);
+    expect(createProjectTableSchema.safeParse({ projectId: "p1", module: "Main", name: "Rate" }).success).toBe(false);
   });
 
   it("requires at least one appended row of at least one cell", () => {
@@ -199,25 +139,12 @@ describe("RawSource-only table contracts", () => {
     }).success;
 
     expect(append([])).toBe(false);
-    expect(append([[{ value: null }]])).toBe(true);
+    expect(append([[null]])).toBe(true);
     expect(append([[]])).toBe(false);
-    expect(append([[{ value: "x", colspan: 0 }]])).toBe(false);
   });
 
-  it.each(["Datatype", "SimpleRules", "Spreadsheet", "Test"])(
-    "rejects the lossy typed %s table contract",
-    (tableType) => {
-      expect(createProjectTableSchema.safeParse({
-        projectId: "p1", module: "Main", table: { ...rawTable, tableType },
-      }).success).toBe(false);
-      expect(updateTableSchema.safeParse({
-        projectId: "p1", tableId: "t1", view: { ...rawTable, tableType },
-      }).success).toBe(false);
-    },
-  );
-
   it("accepts only an xlsx modulePath", () => {
-    const base = { projectId: "p1", module: "Rules", table: rawTable };
+    const base = { projectId: "p1", module: "Rules", name: "Rate", rows: [["x"]] };
     expect(createProjectTableSchema.safeParse({ ...base, modulePath: "rules/Rules.xlsx" }).success).toBe(true);
     expect(createProjectTableSchema.safeParse({ ...base, modulePath: "rules/Rules.xls" }).success).toBe(false);
   });

@@ -16,52 +16,28 @@ Authorization: Token ${PAT}
       "projectId": "${PROJECT_ID}",
       "module": "Main",
       "sheetName": "Rules",
-      "table": {
-        "tableType": "RawSource",
-        "name": "AgeFactor",
-        "source": [
-          [
-            {
-              "value": "SimpleRules Double AgeFactor(Integer age)"
-            },
-            {
-              "value": null
-            }
-          ],
-          [
-            {
-              "value": "Age"
-            },
-            {
-              "value": "Factor"
-            }
-          ],
-          [
-            {
-              "value": "< 25"
-            },
-            {
-              "value": 1.5
-            }
-          ],
-          [
-            {
-              "value": "25 - 65"
-            },
-            {
-              "value": 1
-            }
-          ],
-          [
-            {
-              "value": "> 65"
-            },
-            {
-              "value": 1.2
-            }
-          ]
+      "name": "AgeFactor",
+      "rows": [
+        [
+          "SimpleRules Double AgeFactor(Integer age)"
+        ],
+        [
+          "Age",
+          "Factor"
+        ],
+        [
+          "< 25",
+          1.5
+        ],
+        [
+          "25 - 65",
+          1
+        ],
+        [
+          "> 65",
+          1.2
         ]
-      }
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

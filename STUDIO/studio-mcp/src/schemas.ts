@@ -139,8 +139,8 @@ export const getTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
   offset: z.number().int().min(0).optional().describe("Zero-based index of the first row to read; omit to start at the top. Combine with limit to read a large table in slices: the next slice starts at window.next_offset."),
-  limit: z.number().int().min(1).optional().describe("Maximum number of rows, counted from offset; omit to read to the end. A slice holds exactly these rows: a merged cell that its edge cuts comes back cut, its first cell in the slice holding the value of the merged cell and naming its whole area in mergedArea."),
-  styles: z.boolean().optional().describe("If true, each raw cell carries its Excel style (background/font colour, bold/italic/underline, alignment, indent, borders)."),
+  limit: z.number().int().min(1).optional().describe("Maximum number of rows, counted from offset; omit to read to the end. A slice holds exactly these rows: a merged cell that its edge cuts keeps its value in the first row of the slice, and merges names its whole area."),
+  styles: z.boolean().optional().describe("If true, 'styles' lists the Excel style of each styled cell (background/font colour, bold/italic/underline, alignment, indent, borders)."),
 });
 
 /** The version of a table a write is based on, as openl_get_table or the previous edit answered it. */
@@ -250,25 +250,17 @@ const VALUE_OR_FORMULA = "A cell takes either 'value' or 'formula', not both.";
 const valueOrFormula = (cell: { value?: unknown; formula?: string }): boolean =>
   cell.formula === undefined || cell.value === undefined || cell.value === null;
 
-/** A cell value for a raw table-source edit. */
-const rawCellInputSchema = z.strictObject({
-  value: cellValueSchema.optional().describe("A scalar or a one-dimensional array of scalars; null or left out for an empty cell. A text starting with '=' is an OpenL formula, such as '= $Base * 2', and is written as text."),
-  formula: excelFormulaSchema,
-  colspan: z.number().int().min(1).optional().describe("Number of columns this cell spans (>= 2 to merge; omit or 1 for a single column)."),
-  rowspan: z.number().int().min(1).optional().describe("Number of rows this cell spans (>= 2 to merge; omit or 1 for a single row)."),
-  covered: z.boolean().optional().describe("Marks a cell covered by another cell's span; its value is ignored."),
-});
+/** A row or a column of a table, of a position from 0 in the whole table. */
+const positionSchema = z.number().int().min(0);
 
-/** A cell of an edit, which names either its value or its Excel formula. */
-const actionCellSchema = rawCellInputSchema.refine(valueOrFormula, { error: VALUE_OR_FORMULA });
-
-const rawTableCellSchema = rawCellInputSchema.extend({
-  // A whole table is written back as openl_get_table read it, the formula beside the value it computed.
-  formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2', as openl_get_table returns it beside the value it computed. The cell is written as this Excel formula and 'value' is ignored; omit it to write 'value'. An OpenL formula is a 'value' starting with '='."),
-  cell: z.string().optional(),
-  mergedArea: z.string().optional(),
-  comment: z.string().optional().describe("Read-only Excel note of the cell, kept by a write."),
-}).describe("A cell as openl_get_table answers it, without a style: styles are read-only.");
+/** The cells of a whole table, as openl_get_table answers them: its rows, its merged cells and its Excel formulas. */
+const tableGridShape = {
+  rows: z.array(z.array(cellValueSchema)).describe("Every row of the table, top to bottom, one value per column: a scalar, a one-dimensional array of scalars, or null for an empty cell or one a merged cell covers. A text starting with '=' is an OpenL formula."),
+  merges: z.array(z.tuple([positionSchema, positionSchema, z.number().int().min(1), z.number().int().min(1)]))
+    .optional().describe("The merged cells, each as [row, column, rowspan, colspan] from 0; the value of a merged cell is at its first row and column."),
+  formulas: z.array(z.tuple([positionSchema, positionSchema, z.string().startsWith("=")]))
+    .optional().describe("The Excel formulas, each as [row, column, '=B2*C2']: the cell is written as the formula, whatever its value in rows."),
+};
 
 // =============================================================================
 // Raw table-source edits (POST /projects/{projectId}/tables/{tableId}/actions)
@@ -307,15 +299,9 @@ type EditArguments = Partial<Record<(typeof EDIT_ARGUMENTS)[number], unknown>> &
   position?: number;
   rowspan?: number;
   colspan?: number;
-  cells?: Array<Array<{ colspan?: number; rowspan?: number }>>;
+  cells?: unknown[][];
   formula?: string;
 };
-
-/** Whether a block of cells covers more than one cell: two cells, or one that spans others. */
-function coversManyCells(cells: NonNullable<EditArguments["cells"]>): boolean {
-  const only = cells.length === 1 && cells[0].length === 1 ? cells[0][0] : undefined;
-  return !only || (only.colspan ?? 1) > 1 || (only.rowspan ?? 1) > 1;
-}
 
 /** Why an action refuses an argument: it needs the argument left out, or does not take the one given. */
 function argumentIssue(action: EditAction, name: string, present: boolean): string | undefined {
@@ -356,7 +342,7 @@ function checkEditArguments(data: EditArguments, ctx: z.RefinementCtx): void {
   if (data.action === "merge" && (data.rowspan ?? 1) * (data.colspan ?? 1) === 1) {
     ctx.addIssue({ code: "custom", path: ["rowspan"], message: "A merge must cover more than one cell." });
   }
-  if (data.action === "update_range" && data.cells && !coversManyCells(data.cells)) {
+  if (data.action === "update_range" && data.cells?.length === 1 && data.cells[0].length === 1) {
     ctx.addIssue({
       code: "custom", path: ["cells"], message: "A range must cover more than one cell: use 'update_cell' for one.",
     });
@@ -372,8 +358,8 @@ export const editTableSchema = z.strictObject({
   column: z.number().int().min(0).optional().describe("The column of the cell, or of the top-left cell of a range."),
   rowspan: z.number().int().min(1).optional().describe("How many rows the merged cell spans."),
   colspan: z.number().int().min(1).optional().describe("How many columns the merged cell spans."),
-  cells: z.array(z.array(actionCellSchema).min(1)).min(1).optional().describe(
-    "Lines of cells: rows top to bottom for a row action and a range, columns left to right for a column action.",
+  cells: z.array(z.array(cellValueSchema).min(1)).min(1).optional().describe(
+    "Lines of values, as the rows of openl_get_table hold them: rows top to bottom for a row action and a range, columns left to right for a column action.",
   ),
   value: cellValueSchema.optional().describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
   formula: excelFormulaSchema,
@@ -568,40 +554,11 @@ export const saveProjectSchema = z.strictObject({
   closeAfterSave: z.boolean().optional().describe("Optional. If true, close the project after saving (sends status CLOSED with the comment when supported in one request). Use when user asks to 'save and close'."),
 });
 
-// Table content contracts are deliberately RawSource-only. Studio's typed table
-// DTOs are incomplete and lossy, so exposing them here would advertise edits
-// that cannot reliably round-trip the underlying workbook.
-
-const rawTableViewSchema = z.strictObject({
-    tableType: z.literal("RawSource"),
-    name: z.string().optional().describe("Table name (a valid Java identifier)."),
-    id: z.string().optional().describe("Table id; ignored on create and validated against the path on update."),
-    kind: z.enum(TABLE_KINDS).optional().describe("Informational table kind."),
-    messages: z.array(z.any()).optional().describe("Read-only diagnostics tolerated when a get response is round-tripped."),
-    headerHeight: z.number().int().optional().describe("Read-only number of header rows, tolerated when a get response is round-tripped."),
-    layout: z.unknown().optional().describe("Read-only layout of a Test table, tolerated when a get response is round-tripped."),
-    pos: z.string().optional(),
-    source: z.array(z.array(rawTableCellSchema)).describe("Every row of the table, with its covered cells and spans."),
-    totalRows: z.number().int().optional().describe("Total row count when the response contains a window."),
-    version: tableVersionSchema.optional().describe("The version a get response carries, tolerated when it is round-tripped; an update requires it."),
-}).describe("A whole table as a RawSource matrix of cells.");
+// A table is read and written in one shape: its rows of values, and its merged cells and Excel formulas by position.
 
 export const updateTableSchema = z.strictObject({
-  projectId: projectIdSchema,
-  tableId: tableIdSchema,
-  view: rawTableViewSchema.extend({ version: tableVersionSchema }).describe("The whole view openl_get_table answered, changed; not a slice."),
-}).superRefine((value, ctx) => {
-  if (value.view.totalRows !== undefined) {
-    ctx.addIssue({
-      code: "custom",
-      path: ["view", "totalRows"],
-      message: "A windowed RawSource view cannot replace the whole table because omitted rows would be deleted. Use openl_edit_table to edit a large table; remove rows only with its delete_rows action and an explicit position/count.",
-    });
-  }
-});
-
-const createTableViewSchema = rawTableViewSchema.omit({ totalRows: true }).extend({
-  name: nonBlankString.describe("Required nonblank table name (a valid Java identifier, e.g. 'calculatePremium')."),
+  ...tableActionBase,
+  ...tableGridShape,
 });
 
 export const createProjectTableSchema = z.strictObject({
@@ -609,7 +566,8 @@ export const createProjectTableSchema = z.strictObject({
   module: nonBlankString.describe("Name of an existing project module where the table will be created (for example, 'Main' or 'Rules')."),
   modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new module. When omitted, module must identify an existing module."),
   sheetName: z.string().optional().describe("Name of the sheet where the table will be created within the Excel file. If not provided, the table name will be used as the sheet name."),
-  table: createTableViewSchema,
+  name: nonBlankString.describe("The name of the table, a valid Java identifier such as 'calculatePremium', as its header row names it."),
+  ...tableGridShape,
 });
 
 // =============================================================================

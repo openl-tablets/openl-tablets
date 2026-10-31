@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":0,\"rows\":4,\"totalRows\":4,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"pos\":\"B2:C5\",\"source\":[[{\"value\":\"Datatype Driver\",\"colspan\":2},{\"covered\":true}],[{\"value\":\"String\"},{\"value\":\"name\"}],[{\"value\":\"Integer\"},{\"value\":\"age\"}],[{\"value\":\"Boolean\"},{\"value\":\"married\"}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":4,\"totalRows\":4,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"pos\":\"B2:C5\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"Datatype Driver\"],[\"String\",\"name\"],[\"Integer\",\"age\"],[\"Boolean\",\"married\"]],\"merges\":[[0,0,1,2]]}}"
       }
     ],
     "resultType": "complete",

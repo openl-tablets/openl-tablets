@@ -20,21 +20,11 @@ Authorization: Token ${PAT}
       "position": 2,
       "cells": [
         [
-          {
-            "covered": true
-          },
-          {
-            "value": "Comment"
-          },
-          {
-            "value": "failed"
-          },
-          {
-            "value": "passed"
-          },
-          {
-            "value": "excellent"
-          }
+          null,
+          "Comment",
+          "failed",
+          "passed",
+          "excellent"
         ]
       ]
     },

@@ -15,66 +15,28 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${AGE_FACTOR_ID}",
-      "view": {
-        "id": "${AGE_FACTOR_ID}",
-        "tableType": "RawSource",
-        "version": ${AGE_FACTOR_VERSION},
-        "kind": "Rules",
-        "name": "AgeFactor",
-        "pos": "B2:C6",
-        "source": [
-          [
-            {
-              "cell": "B2",
-              "value": "SimpleRules Double AgeFactor(Integer age)"
-            },
-            {
-              "cell": "C2"
-            }
-          ],
-          [
-            {
-              "cell": "B3",
-              "value": "Age"
-            },
-            {
-              "cell": "C3",
-              "value": "Factor"
-            }
-          ],
-          [
-            {
-              "cell": "B4",
-              "value": "< 25"
-            },
-            {
-              "cell": "C4",
-              "value": 1.5
-            }
-          ],
-          [
-            {
-              "cell": "B5",
-              "value": "25 - 65"
-            },
-            {
-              "cell": "C5",
-              "value": 1
-            }
-          ],
-          [
-            {
-              "cell": "B6",
-              "value": "> 65"
-            },
-            {
-              "cell": "C6",
-              "value": 1.2
-            }
-          ]
+      "version": ${AGE_FACTOR_VERSION},
+      "rows": [
+        [
+          "SimpleRules Double AgeFactor(Integer age)"
         ],
-        "headerHeight": 1
-      }
+        [
+          "Age",
+          "Factor"
+        ],
+        [
+          "< 25",
+          1.5
+        ],
+        [
+          "25 - 65",
+          1
+        ],
+        [
+          "> 65",
+          1.2
+        ]
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

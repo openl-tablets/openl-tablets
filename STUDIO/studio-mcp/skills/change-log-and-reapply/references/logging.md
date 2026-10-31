@@ -74,8 +74,8 @@ For a row whose value columns are labeled by merged header bands, store the
 ordinary fields in `fields` and the value cells in `dimensionValues`, one
 entry per logical value column:
 
-1. Read the header bands and the complete row; `openl_get_table` reports a
-   merged cell's whole area in `mergedArea`.
+1. Read the header bands and the complete row; `openl_get_table` lists every
+   merged cell's whole area in `merges`.
 2. Expand every merge: each covered cell takes its anchor's value. A cell
    that traces to no single anchor → refuse to log the operation.
 3. Each tuple holds exactly one `{name, value}` per header row; two columns

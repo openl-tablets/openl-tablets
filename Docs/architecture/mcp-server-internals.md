@@ -27,8 +27,9 @@ All paths are under `STUDIO/studio-mcp/src`.
   `--use-env-proxy` turns the proxy of the environment on.
 - **`schemas.ts`**, **`types.ts`**, **`formatters.ts`** — the Zod schemas of the tool arguments, the Studio REST
   types, and the rendering of a result as JSON or Markdown; `dependency-markdown.ts` renders a table dependency graph
-  as Mermaid diagrams, `json-cut.ts` cuts a JSON answer over the limit in its structure, and `text.ts` holds the text
-  helpers both renderings share.
+  as Mermaid diagrams, `json-cut.ts` cuts a JSON answer over the limit in its structure, `table-grid.ts` converts
+  between Studio's matrix of cells and the rows, merges and formulas the table tools read and write, and `text.ts`
+  holds the text helpers both renderings share.
 - **`guides-registry.ts`** — the specifications and the Reference Guide OpenL Studio serves at `/docs`.
 - **`transfer-links.ts`** — the links a file tool answers instead of the bytes of a file: a transfer link Studio
   issues where it authenticates, the address of the REST API in single-user mode, with where the file lives in its

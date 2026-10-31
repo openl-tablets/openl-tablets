@@ -87,9 +87,9 @@ describe("argument validation", () => {
   });
 
   it.each([
-    ["an unknown argument inside another one", "edit_table",
-      { projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[{ value: 1, colour: "red" }]] },
-      /colour/],
+    ["an unknown argument inside another one", "list_tables",
+      { projectId: "p1", properties: { state: 1 } },
+      /properties/],
     ["a missing argument", "get_table", { projectId: "p1" }, /tableId/],
   ])("names no arguments for %s", async (_case, toolName, args, rejected) => {
     const error = await executeTool(toolName, args, harness.client).catch((thrown: unknown) => thrown);

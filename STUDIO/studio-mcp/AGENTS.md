@@ -103,9 +103,9 @@ the current branch into the other branch.
 
 ### Rules/Tables Tools (9)
 - `openl_list_tables` - List project tables with pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. Filters: `kind`, `name`, `properties`, `module`, `header` (the text of the header line) and `text` (the text of any cell, the only search that reads workbook cells), with `scope` `module`/`project`/`all` and `sort` `name`/`position`. A table does not repeat the project the caller named; one of a dependency, which `scope: all` finds, names its project
-- `openl_get_table` - Get the authoritative `RawSource` 2D cell matrix, including context-parsed one-dimensional multi-value arrays. A cell carries no A1 address of its own — the cell in row r and column c of `source` lies `window.offset` + r rows below and c columns right of the first cell of `pos`, which names the whole table also for a slice — since the addresses took about 40% of a read; `offset`/`limit` read a large table in row slices of exactly those rows (a merged cell the edge of a slice cuts keeps its value and names its whole area in `mergedArea`, so every row of a long merge is readable) and `styles=true` includes read-only Excel cell styles. Every answer states its rows in `window` next to `data`: `offset`, `rows`, `totalRows`, `complete` (whether it holds every row) and `next_offset` while rows remain. A sliced response carries `totalRows` and is for reading or `openl_edit_table` only. The answer carries the table's `version`, which the edit tools take back
-- `openl_update_table` - Replace the complete `RawSource` matrix while preserving or adding rows (a cell sent with the value it holds is left as it is), including scalar and representable one-dimensional array values returned by `openl_get_table`; before writing, it reads one live row and rejects a shorter source even if `totalRows` was removed, preventing a sliced view from deleting unseen rows. Remove rows with the `delete_rows` action of `openl_edit_table`. Call `openl_get_table` without `styles=true`: Studio write APIs cannot change formatting, and `style` is rejected rather than silently ignored. The `version` of the view is required and sent in `If-Match`, so Studio refuses the write when the table changed since the read
-- `openl_create_project_table` - Create a table from a complete `RawSource` matrix in an existing module, or pass `modulePath` (an `.xlsx` project-relative path) to create a new module; cell values may be scalars or representable one-dimensional arrays, while cell formatting is unsupported by Studio write APIs
+- `openl_get_table` - Read a table, whatever its type, in the one shape the table tools read and write (`table-grid.ts`): `rows` of plain values, one per column — a scalar, a one-dimensional array of scalars, or null for an empty cell or one a merged cell covers, a row ending at its last value — `merges` as `[row, column, rowspan, colspan]`, `formulas` as `[row, column, "=B2*C2"]` beside the values they compute, `notes` (Excel notes) and, with `styles=true`, `styles`, each by the position of its cell. A position counts from 0 in the whole table, also in a slice, and is the one `openl_edit_table` takes; row 0, column 0 is the first cell of `pos`. Studio's matrix of cell objects spent most of a read on wrapping each value, and a merged header of a wide test table on 102 `{"covered":true}`: the same table now reads in about half the tokens. `offset`/`limit` read a large table in row slices of exactly those rows (a merged cell the edge of a slice cuts keeps its value in the first row of the slice, and `merges` names its whole area). Every answer states its rows in `window` next to `data`: `offset`, `rows`, `totalRows`, `complete` (whether it holds every row) and `next_offset` while rows remain. The answer carries the table's `version`, which the edit tools take back
+- `openl_update_table` - Replace a whole table with `rows`, `merges` and `formulas` as `openl_get_table` answered them, changed, and the `version` of the read, sent in `If-Match`, so Studio refuses the write when the table changed since. Before writing it reads one live row and refuses fewer rows than the table has, so a slice cannot delete the rows it left out; remove rows with the `delete_rows` action of `openl_edit_table`. A row may end before the last column (the cells left out are written empty); notes and styles are kept, as Studio keeps them
+- `openl_create_project_table` - Create a table named `name` from `rows`, `merges` and `formulas` in an existing `module`, or pass `modulePath` (an `.xlsx` project-relative path) to create a new module; cell formatting is unsupported by Studio write APIs
 - `openl_delete_table` - Delete an entire table (to remove a row/column WITHIN a table, use `openl_edit_table` below); the required `version` is sent in `If-Match`
 - `openl_run_table` - Execute a regular (non-Test) table with JSON input and wait for its result, treating Studio's `202 {"status":"notReady"}` result response as still running; provide parameters by name, directly or under `params`, or in order, under `params` or as a top-level array, any of them also as a JSON string; for a method whose only parameter is an array, a top-level array is that parameter's value. `withSchema: true`, with `inputJson: {}` when no input is known yet, answers the JSON Schema of each parameter: its fields and the values each vocabulary allows, to build an input from. `timeoutMs` bounds the complete start-and-result workflow (default 2 minutes), and cancellation, timeout, or any other failed workflow clears the pending Studio run. Studio keeps only one run per client, so concurrent calls through the same MCP session are rejected rather than allowed to replace each other's result
 - `openl_get_table_dependencies` - Get the executable and datatype dependency graph: omit `tableId` for a whole-project/module view with optional `layer` (`executable`/`datatype`/`all`), or provide it for a table's dependency/dependent neighborhood. JSON returns the adjacency list, including bounded first/last value previews for vocabularies; Markdown visualizes executable calls as a Mermaid flowchart and the data model with declared fields, `Name<Type>` vocabulary headers, bounded values (`+ N more` when truncated), and reference cardinalities as a Mermaid ER diagram, plus a separate inheritance diagram when needed
@@ -125,11 +125,12 @@ instead of one per edit keeps the rules the edits share in one description, whic
   it), or with `formula` instead to an Excel formula; `update_range` overwrites more than one cell from (`row`, `column`); `merge` merges `rowspan`×`colspan`
   cells from (`row`, `column`), `unmerge` splits the merged cell covering it
 
-Positions are 0-based (row 0 is the header, column 0 the leading labels). `cells` is always a list of lines (rows
-for row actions and a range, columns for column actions), each a non-empty list of cells: `{ value: null }` for a
-blank cell, and `{ covered: true }` for a position an existing merged cell covers, such as row 0 under a title that
-spans the table — Studio refuses to write it. A value starting with `=` is an OpenL formula, written as text; a cell's `formula`,
-such as `=B2*C2`, writes an Excel formula instead of a value, and Studio refuses the two together. Writable values use the same round-trip contract as full-table writes:
+Positions are 0-based in the whole table, as `openl_get_table` gives them (row 0 is the header, column 0 the leading
+labels). `cells` is always a list of lines (rows for row actions and a range, columns for column actions), each a
+non-empty list of values as the `rows` of `openl_get_table` hold them: null for an empty cell or a position an
+existing merged cell covers, which stays covered. A value starting with `=` is an OpenL formula, written as text;
+`update_cell` writes an Excel `formula`, such as `=B2*C2`, instead of a value, and Studio refuses the two together.
+Writable values use the same round-trip contract as full-table writes:
 string/number/boolean/null scalars or one-dimensional arrays of those scalars. Arrays must be non-empty; `[null]`,
 nested arrays, objects, and string elements surrounded by characters Studio trims (whitespace or ISO controls) are
 rejected. The tool returns the table's CURRENT `tableId` (plus `previousTableId` when the edit renamed the table) and
@@ -307,11 +308,12 @@ anonymous (single-user Studio).
 - **Table types** — Rules, SimpleRules, SmartRules, Lookups, Spreadsheet, Datatype, Method, Test, and others.
 - **Project ids** — opaque 13-character ids OpenL Studio answers; a project keeps its id while it stays in its folder. Never build or decode one.
 
-### RawSource-only table content
+### One table shape
 
-- The MCP table-content contract is intentionally **RawSource-only**. `openl_get_table`
-  always returns the raw cell matrix; create, update, and append accept only
-  `tableType: "RawSource"` payloads.
+- The table tools read and write one shape of a table: `openl_get_table` answers `rows`, `merges` and `formulas`,
+  `openl_update_table` and `openl_create_project_table` take them, and the lines of `openl_edit_table` are rows of
+  the same values at the same positions. `table-grid.ts` converts between it and Studio's raw matrix, the
+  `RawSource` view, which is the only content Studio's table API round-trips.
 - Never add typed table request/response variants such as `EditableTableView`,
   `AppendTableView`, `SimpleRules`, `Spreadsheet`, `Datatype`, or `Test` DTOs to
   MCP schemas, TypeScript content types, handlers, or examples. Studio's
@@ -320,9 +322,8 @@ anonymous (single-user Studio).
 - A table's semantic kind still appears in list/run/dependency metadata and is
   encoded by the OpenL grid itself. That metadata is not authorization to expose
   a typed content contract.
-- Prefer `openl_edit_table` for isolated edits. When a full
-  replacement is necessary, call `openl_get_table` without `styles=true` and
-  round-trip the complete `source`, preserving blank/covered cells and spans.
+- Prefer `openl_edit_table` for isolated edits. When a full replacement is necessary, send back every row of the
+  table with its `merges` and `formulas` as `openl_get_table` read them.
 - Raw cell values use Studio's round-trip-safe domain everywhere: scalar
   string/number/boolean/null values and representable one-dimensional arrays of
   those scalars. Arrays must contain at least one item; a singleton `[null]`,

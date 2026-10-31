@@ -16,36 +16,20 @@ Authorization: Token ${PAT}
       "projectId": "${PROJECT_ID}",
       "module": "Main",
       "sheetName": "Data",
-      "table": {
-        "tableType": "RawSource",
-        "name": "Driver",
-        "source": [
-          [
-            {
-              "value": "Datatype Driver"
-            },
-            {
-              "value": null
-            }
-          ],
-          [
-            {
-              "value": "String"
-            },
-            {
-              "value": "name"
-            }
-          ],
-          [
-            {
-              "value": "Integer"
-            },
-            {
-              "value": "age"
-            }
-          ]
+      "name": "Driver",
+      "rows": [
+        [
+          "Datatype Driver"
+        ],
+        [
+          "String",
+          "name"
+        ],
+        [
+          "Integer",
+          "age"
         ]
-      }
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
