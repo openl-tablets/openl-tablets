@@ -86,6 +86,11 @@ class ExecutionValueMapperTest {
         var numbers = mapper.describeParameter("level", level, null).schema();
         assertEquals("integer", numbers.get("type").asText());
         assertEquals(List.of(1, 2), objectMapper.convertValue(numbers.get("enum"), List.class));
+        // A vocabulary of numbers that holds the texts of its cells lists them as numbers, as its type says
+        var texts = new DomainOpenClass("Period", JavaOpenClass.INT, new EnumDomain<>(new String[]{"0", "6"}), null, null);
+        var periods = mapper.describeParameter("period", texts, null).schema();
+        assertEquals("integer", periods.get("type").asText());
+        assertEquals(List.of(0, 6), objectMapper.convertValue(periods.get("enum"), List.class));
     }
 
     public static class License {
