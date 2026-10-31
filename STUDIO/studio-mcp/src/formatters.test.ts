@@ -193,6 +193,15 @@ describe("formatters", () => {
       expect(read).toContain("## /AGENTS.md\n\n*No section of this file has such a heading.*");
     });
 
+    it("reads the headings of a file whose lines end with CR LF", () => {
+      const project = ["# Project guide", "", "## Rates", "", "x".repeat(13_000), "", "## Gotchas", "", "y"].join("\r\n");
+
+      const outline = formatAgentsDocument([{ path: "AGENTS.md", content: project }]);
+      expect(outline).toContain("- Rates (");
+      expect(outline).toContain("- Gotchas (");
+      expect(formatAgentsDocument([{ path: "AGENTS.md", content: project }], ["gotchas"])).toContain("## Gotchas");
+    });
+
     it("reads a heading's title without its closing sequence, and keeps a # that ends a word", () => {
       const project = ["# Project guide", "", "## Rates ##", "", "## Using C#", "", "   ## Build", "", "x".repeat(13_000)].join("\n");
 
