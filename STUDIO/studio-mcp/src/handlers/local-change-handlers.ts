@@ -65,6 +65,8 @@ export function registerLocalChangeHandlers(): void {
       const current = history.find((change) => change.current)?.id;
       const undone = current === undefined || current === historyId ? [] : await changedTablesIfCompared(client,
         () => client.compareLocalVersions(projectId, moduleName, historyId, current), extra) ?? [];
+      // A call cancelled while the comparison was cleared up has not restored yet: it must not
+      extra?.signal.throwIfAborted();
       await client.restoreProjectLocalChange(projectId, moduleName, historyId);
       // Studio keeps the module as it was in the history, which it lists newest first: the version the restore added.
       // The restore is done once Studio answers it, so a failed read of the history leaves only the undo unknown
