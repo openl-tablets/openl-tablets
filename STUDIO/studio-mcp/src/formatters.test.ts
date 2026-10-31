@@ -814,24 +814,16 @@ describe("formatters", () => {
       expect(doc).not.toContain("hello\n\n\n");
     });
 
-    it("caps an oversized document and appends the truncation message", () => {
-      const huge = formatAgentsDocument([{ path: "big/AGENTS.md", content: "x".repeat(60_000) }]);
-      expect(huge.length).toBeLessThanOrEqual(RESPONSE_LIMITS.MAX_CHARACTERS + 100);
-      expect(huge).toContain(RESPONSE_LIMITS.TRUNCATION_MESSAGE);
-    });
-
-    it("leaves out the files farthest from the project first, naming them, when the chain is over the limit", () => {
+    it("keeps a document over the response limit whole", () => {
       const doc = formatAgentsDocument([
-        { path: "foo/Project-1/AGENTS.md", content: "project guidance" },
-        { path: "foo/AGENTS.md", content: "y".repeat(20_000) },
-        { path: "AGENTS.md", content: "z".repeat(20_000) },
+        { path: "foo/Project-1/AGENTS.md", content: "x".repeat(40_000) },
+        { path: "AGENTS.md", content: "root guidance" },
       ]);
 
-      expect(doc.length).toBeLessThanOrEqual(RESPONSE_LIMITS.MAX_CHARACTERS);
-      expect(doc).toContain("project guidance");
-      expect(doc).toContain("## /foo/AGENTS.md");
-      expect(doc).not.toContain("## /AGENTS.md");
-      expect(doc).toContain("leaves out `/AGENTS.md`");
+      expect(doc.length).toBeGreaterThan(RESPONSE_LIMITS.MAX_CHARACTERS);
+      expect(doc).toContain("root guidance");
+      expect(doc.trimEnd().endsWith("x")).toBe(true);
+      expect(doc).not.toContain(RESPONSE_LIMITS.TRUNCATION_MESSAGE);
     });
 
     it("returns a short note when there are no files", () => {

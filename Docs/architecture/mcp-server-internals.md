@@ -107,8 +107,8 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   cut in its structure (`json-cut.ts`): texts longer than 200 characters are shortened, then the largest array loses
   items from its middle, keeping its first and last ones, then the largest object is replaced by the count of its keys,
   and the note names each cut by its path. A page of `openl_get_test_results` is cut by
-  whole test tables, and the tests of one test table by whole tests. An unpaged read of test results and guides are
-  never cut. A file
+  whole test tables, and the tests of one test table by whole tests. An unpaged read of test results, guides and the
+  AGENTS.md guidance of a project are never cut. A file
   read answers a text of up to 5,000 bytes inline, and any other file by a link the agent runs `curl` with
   ([MCP File Transfer Links](mcp-file-transfer.md)).
 - **Errors** — a failed tool answers with an `isError` result; only an unknown tool is a protocol error. A Studio
