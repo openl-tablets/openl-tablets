@@ -21,8 +21,9 @@ interface Node {
  * The value cut to fit `limit` characters of JSON, and the cuts made, by path; a value that fits is left whole.
  * Strings longer than 200 characters are shortened first; then the largest arrays lose items from their middle,
  * keeping their first and their last ones, and when no array has more than one item left, objects are replaced by the
- * number of their keys: the innermost one that frees enough alone, else the largest ones. An `enum` of a JSON Schema is cut only when nothing else is left to cut: what
- * is left of it would name the values allowed wrong, where the count of the keys of the object holding it names a cut.
+ * number of their keys: the innermost one that frees enough alone, else the largest ones. An `enum` of a JSON Schema
+ * is cut only when nothing else is left to cut: what is left of it would name the values allowed wrong, where the
+ * count of the keys of the object holding it names a cut.
  */
 export function cutJson(value: unknown, limit: number): { value: unknown; cuts: string[] } {
   if (sizeOf(value) <= limit) {
@@ -34,35 +35,52 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
   if (shortened > 0) {
     cuts.push(`${formatCount(shortened, "text")} to ${LONGEST_TEXT} characters`);
   }
+  // Each pass cuts what one scan found; the next scan measures what is left
   let scan = nodesOf(root.value);
-  while (scan.size > limit) {
-    const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1);
-    const cuttable = arrays.filter((node) => node.key !== "enum");
-    // An array already down to its first and its last item loses its last one only when no longer array is left
-    const longer = cuttable.filter((node) => (node.value as unknown[]).length > 2);
-    if (cuttable.length > 0) {
-      cutLargest(longer.length > 0 ? longer : cuttable, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
-    } else if (scan.objects.length > 0) {
-      // The smallest object that frees the excess alone is the one nested deepest: what holds it keeps its other keys
-      const excess = scan.size - limit;
-      const enough = scan.objects.filter((node) => node.size - cutObjectSize(node) >= excess);
-      const objects = enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a), enough[0])] : scan.objects;
-      cutLargest(objects, scan.size, limit, (node) => cutObject(node, cuts));
-    } else if (arrays.length > 0) {
-      cutLargest(arrays, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
-    } else if (root.value === null || typeof root.value !== "object") {
-      break;
-    } else {
-      // Nothing below the root is left to cut, such as an enum of one large value: the root is counted instead
-      const summary = Array.isArray(root.value) ? `[${root.value.length} items cut]`
-        : `{${Object.keys(root.value as object).length} keys cut}`;
-      cuts.push(`the whole value (${summary.slice(1, -5)})`);
-      root.value = summary;
-      break;
-    }
+  while (scan.size > limit && cutOnce(root, scan, limit, cuts)) {
     scan = nodesOf(root.value);
   }
   return { value: root.value, cuts };
+}
+
+/** Make the cuts one scan calls for, in the order {@link cutJson} names; false when nothing was left to cut. */
+function cutOnce(root: { value: unknown }, scan: ReturnType<typeof nodesOf>, limit: number, cuts: string[]): boolean {
+  const middle = (node: Node, size: number): number => cutMiddle(node, size, limit, cuts);
+  const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1);
+  const cuttable = arrays.filter((node) => node.key !== "enum");
+  // An array already down to its first and its last item loses its last one only when no longer array is left
+  const longer = cuttable.filter((node) => (node.value as unknown[]).length > 2);
+  if (cuttable.length > 0) {
+    cutLargest(longer.length > 0 ? longer : cuttable, scan.size, limit, middle);
+  } else if (scan.objects.length > 0) {
+    cutLargest(objectsToCut(scan.objects, scan.size - limit), scan.size, limit, (node) => cutObject(node, cuts));
+  } else if (arrays.length > 0) {
+    cutLargest(arrays, scan.size, limit, middle);
+  } else {
+    summarizeRoot(root, cuts);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * The objects to cut for an excess: the smallest one that frees it alone, nested deepest, so what holds it keeps its
+ * other keys; else all of them, the largest first.
+ */
+function objectsToCut(objects: Node[], excess: number): Node[] {
+  const enough = objects.filter((node) => node.size - cutObjectSize(node) >= excess);
+  return enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a), enough[0])] : objects;
+}
+
+/** Replace a root that has nothing left to cut, such as an enum of one large value, by its count, and name the cut. */
+function summarizeRoot(root: { value: unknown }, cuts: string[]): void {
+  if (root.value === null || typeof root.value !== "object") {
+    return;
+  }
+  const summary = Array.isArray(root.value) ? `[${root.value.length} items cut]`
+    : `{${Object.keys(root.value).length} keys cut}`;
+  cuts.push(`the whole value (${summary.slice(1, -5)})`);
+  root.value = summary;
 }
 
 /**
