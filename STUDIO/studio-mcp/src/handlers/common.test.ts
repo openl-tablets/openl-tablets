@@ -215,6 +215,16 @@ describe("errors of OpenL Studio", () => {
       + "Personal Access Tokens of OpenL Studio and use it instead.");
   });
 
+  it("names the call that opens a project Studio refuses to read while it is closed", async () => {
+    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+      code: "openl.error.409.project.not.opened.message",
+      message: "The project is not opened.",
+    });
+
+    const msg = (await callAndCatch()).message;
+    expect(msg).toBe("OpenL Studio API error (409): The project is not opened.\nOpen it with openl_open_project first.");
+  });
+
   it("tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists", async () => {
     harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
       code: "openl.error.409.workbook.changed.outside.message",

@@ -361,12 +361,24 @@ function httpErrorDetails(
 }
 
 /**
+ * The tool call that resolves a refusal of OpenL Studio, by its code: Studio's message tells what is wrong in the
+ * terms of its user interface, which has no such calls.
+ */
+const NEXT_STEP_OF_CODE = new Map([
+  ["openl.error.409.project.not.opened.message", "Open it with openl_open_project first."],
+  ["openl.error.409.project.close.modified.message",
+    "Save the changes with openl_save_project, or drop them with openl_close_project discardChanges, first."],
+]);
+
+/**
  * The message of a failed REST call: the localized message OpenL Studio answered, followed by its field and global
- * errors, so that a validation error names the field that failed, why, and the rejected value. A call without such an
- * answer reports its sanitized error, with the system error of a failure without an answer.
+ * errors, so that a validation error names the field that failed, why, and the rejected value, and by the tool call
+ * that resolves it when there is one. A call without such an answer reports its sanitized error, with the system error
+ * of a failure without an answer.
  */
 function httpErrorMessage(error: HttpError, apiErrorInfo: ExtractedErrorInfo): string {
-  const answered = [apiErrorInfo.message, formatApiErrorDetails(apiErrorInfo)].filter(Boolean).join("\n");
+  const nextStep = NEXT_STEP_OF_CODE.get(apiErrorInfo.code ?? "");
+  const answered = [apiErrorInfo.message, nextStep, formatApiErrorDetails(apiErrorInfo)].filter(Boolean).join("\n");
   if (answered) {
     return answered;
   }
