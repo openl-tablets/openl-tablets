@@ -16,7 +16,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -60,7 +59,7 @@ class ProjectFileLookupServiceImplTest {
 
     @Test
     void collectsAncestorsUpToRoot_nearestFirst_excludingDescendantsAndSiblings() throws IOException {
-        listReturns(
+        repositoryHolds(
                 fileData("a/b/AGENTS.md"),
                 fileData("a/AGENTS.md"),
                 fileData("a/b/c/AGENTS.md"),   // descendant of the anchor — off the upward line
@@ -80,7 +79,7 @@ class ProjectFileLookupServiceImplTest {
 
     @Test
     void includeContent_readsEachReturnedFile() throws IOException {
-        listReturns(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
+        repositoryHolds(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
         when(repository.read("a/AGENTS.md")).thenReturn(fileItem("nearest"));
         when(repository.read("AGENTS.md")).thenReturn(fileItem("root"));
 
@@ -93,7 +92,7 @@ class ProjectFileLookupServiceImplTest {
 
     @Test
     void unreadableFile_isSkipped_othersStillReturned() throws IOException {
-        listReturns(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
+        repositoryHolds(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
         when(repository.read("a/AGENTS.md")).thenThrow(new IOException("boom"));
         when(repository.read("AGENTS.md")).thenReturn(fileItem("root"));
 
@@ -106,7 +105,7 @@ class ProjectFileLookupServiceImplTest {
 
     @Test
     void includeContentFalse_doesNotReadFiles() throws IOException {
-        listReturns(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
+        repositoryHolds(fileData("a/AGENTS.md"), fileData("AGENTS.md"));
 
         var files = service.lookup(repository, "a/AGENTS.md", false);
 
@@ -117,16 +116,16 @@ class ProjectFileLookupServiceImplTest {
     }
 
     @Test
-    void nonTextAnchor_returnsEmptyWithoutListing() throws IOException {
+    void nonTextAnchor_returnsEmptyWithoutLookingUp() throws IOException {
         var files = service.lookup(repository, "a/rules.xlsx", true);
 
         assertTrue(files.isEmpty());
-        verify(repository, never()).list("");
+        verify(repository, never()).check(anyString());
     }
 
     @Test
     void missingName_returnsEmpty() throws IOException {
-        listReturns(fileData("a/other.md"), fileData("README.md"));
+        repositoryHolds(fileData("a/other.md"), fileData("README.md"));
 
         assertTrue(service.lookup(repository, "a/AGENTS.md", false).isEmpty());
     }
@@ -137,7 +136,7 @@ class ProjectFileLookupServiceImplTest {
         deleted.setDeleted(true);
         var oversize = fileData("big/AGENTS.md");
         oversize.setSize(ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
-        listReturns(deleted, oversize, fileData("AGENTS.md"));
+        repositoryHolds(deleted, oversize, fileData("AGENTS.md"));
 
         var files = service.lookup(repository, "a/AGENTS.md", false);
 
@@ -148,7 +147,7 @@ class ProjectFileLookupServiceImplTest {
     void includeContent_oversizeContentWithUndefinedSize_isSkipped() throws IOException {
         // The repository reports no size up front, but the content exceeds the cap: the bounded read
         // must reject it instead of surfacing a partial blob.
-        listReturns(fileData("AGENTS.md"));
+        repositoryHolds(fileData("AGENTS.md"));
         var oversize = "a".repeat((int) ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
         when(repository.read("AGENTS.md")).thenReturn(fileItem(oversize));
 
@@ -159,13 +158,11 @@ class ProjectFileLookupServiceImplTest {
     void capsAtMaxFilesCount() throws IOException {
         // A pathological deep anchor with a same-named file at every level above it: the walk up must
         // stop collecting once the cap is reached.
-        var data = new ArrayList<FileData>();
         var dir = new StringBuilder();
         for (var i = 0; i < ProjectFileLookupServiceImpl.MAX_FILES_COUNT + 5; i++) {
-            data.add(fileData(dir + "AGENTS.md"));
+            repositoryHolds(fileData(dir + "AGENTS.md"));
             dir.append('d').append(i).append('/');
         }
-        when(repository.list("")).thenReturn(data);
 
         var files = service.lookup(repository, dir + "AGENTS.md", false);
 
@@ -178,7 +175,7 @@ class ProjectFileLookupServiceImplTest {
     void reportsEachModificationTimeInUtc() throws IOException {
         var root = fileData("AGENTS.md");
         root.setModifiedAt(new Date(1_721_000_000_123L));
-        listReturns(fileData("a/AGENTS.md"), root);
+        repositoryHolds(fileData("a/AGENTS.md"), root);
 
         var files = service.lookup(repository, "a/AGENTS.md", false);
 
@@ -186,9 +183,11 @@ class ProjectFileLookupServiceImplTest {
         assertEquals(ZonedDateTime.parse("2024-07-14T23:33:20.123Z"), ((FileNode) files.get(1)).getLastModified());
     }
 
-    private void listReturns(FileData... files) {
+    private void repositoryHolds(FileData... files) {
         try {
-            lenient().when(repository.list("")).thenReturn(List.of(files));
+            for (var file : files) {
+                lenient().when(repository.check(file.getName())).thenReturn(file);
+            }
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
