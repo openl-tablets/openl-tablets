@@ -193,6 +193,16 @@ describe("formatters", () => {
       expect(read).toContain("## /AGENTS.md\n\n*No section of this file has such a heading.*");
     });
 
+    it("takes no heading inside a code block that another fence marker does not close", () => {
+      const project = [
+        "# Project guide", "", "## Example", "", "````", "~~~", "## Injected", "```", "````", "x".repeat(13_000),
+      ].join("\n");
+
+      const outline = formatAgentsDocument([{ path: "AGENTS.md", content: project }]);
+      expect(outline).toContain("- Example (");
+      expect(outline).not.toContain("Injected (");
+    });
+
     it("keeps short guidance whole", () => {
       const doc = formatAgentsDocument([{ path: "AGENTS.md", content: "# Guide\n\n## Scope\n\nshort" }]);
       expect(doc).toContain("## Scope\n\nshort");
