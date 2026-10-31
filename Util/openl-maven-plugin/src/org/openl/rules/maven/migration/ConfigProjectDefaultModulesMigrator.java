@@ -21,28 +21,19 @@ import org.openl.rules.project.model.ProjectDescriptor;
  *
  * @author Yury Molchan
  */
-public final class ConfigProjectDefaultModulesMigrator implements Migrator {
+public final class ConfigProjectDefaultModulesMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "config.project.default-modules";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "drop redundant module and project-name defaults from rules.xml";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public ConfigProjectDefaultModulesMigrator() {
+        super("config.project.default-modules",
+                "drop redundant module and project-name defaults from rules.xml",
+                """
                 Shrinks rules.xml by dropping module names that simply repeat the workbook file name,
                 collapsing several same-folder modules into one <subfolder>/**/*.xlsx wildcard, and
                 removing the whole <modules> block when only the default rules/**/*.xlsx or
                 tests/**/*.xlsx wildcards remain. Also drops the project <name> when it matches the
                 project folder name. A module carrying its own configuration is kept, and the rewrite is
                 skipped when collapsing would turn an undeclared workbook into a module.
-                """;
+                """);
     }
 
     @Override

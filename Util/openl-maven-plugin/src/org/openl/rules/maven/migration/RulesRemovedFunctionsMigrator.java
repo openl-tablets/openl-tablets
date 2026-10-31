@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-public final class RulesRemovedFunctionsMigrator implements Migrator {
+public final class RulesRemovedFunctionsMigrator extends AbstractMigrator {
 
     private static final String DATE = "toString({0}, \"M/d/yy\")";
     private static final String WITH_PATTERN = "toString({0}, {1})";
@@ -42,26 +42,17 @@ public final class RulesRemovedFunctionsMigrator implements Migrator {
             CodeFix.function("addArrayElementIgnoreNull", ADD_AT, Object[].class, Integer.class, Object.class),
             CodeFix.identifier("DEFAULT_DOUBLE_FORMAT", "\"#,##0.00\""));
 
-    @Override
-    public String getId() {
-        return "rules.removed-functions";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "replace the functions removed in OpenL 7.0.0";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public RulesRemovedFunctionsMigrator() {
+        super("rules.removed-functions",
+                "replace the functions removed in OpenL 7.0.0",
+                """
                 Compiles the project and rewrites the rules that fail on the removed dateToString,
                 stringToDate, parseFormattedDouble, addIgnoreNull, addArrayElementIgnoreNull and
                 DEFAULT_DOUBLE_FORMAT, choosing the replacement by the argument types. Assumes US English:
                 the replacements ignore the language of the server and return an empty value instead of an
                 error. parseFormattedDouble(text, pattern) and an addIgnoreNull whose array or element
                 is a call stay for a manual fix.
-                """;
+                """);
     }
 
     @Override

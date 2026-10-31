@@ -16,25 +16,16 @@ import org.openl.rules.project.migration.RulesXmlMigrations;
  *
  * @author Yury Molchan
  */
-public final class ConfigProjectCwProcessorMigrator implements Migrator {
+public final class ConfigProjectCwProcessorMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "config.project.cw-processor";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "drop CWPropertyFileNameProcessor";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public ConfigProjectCwProcessorMigrator() {
+        super("config.project.cw-processor",
+                "drop CWPropertyFileNameProcessor",
+                """
                 Removes the discontinued org.openl.rules.project.resolving.CWPropertyFileNameProcessor
                 reference from rules.xml's <properties-file-name-processor>. Any other custom processor
                 class is preserved — only the specific CW class is dropped.
-                """;
+                """);
     }
 
     @Override

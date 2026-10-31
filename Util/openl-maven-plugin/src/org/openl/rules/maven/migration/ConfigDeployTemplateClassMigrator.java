@@ -20,26 +20,17 @@ import org.openl.rules.project.migration.RulesDeployMigrations;
  *
  * @author Yury Molchan
  */
-public final class ConfigDeployTemplateClassMigrator implements Migrator {
+public final class ConfigDeployTemplateClassMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "config.deploy.template-class";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "interceptingTemplateClassName to annotationTemplateClassName";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public ConfigDeployTemplateClassMigrator() {
+        super("config.deploy.template-class",
+                "interceptingTemplateClassName to annotationTemplateClassName",
+                """
                 Renames the legacy interceptingTemplateClassName slot in rules-deploy.xml to
                 annotationTemplateClassName. When both slots are populated the intercepting value is
                 dropped — the annotation slot is treated as the authoritative one. Blank intercepting
                 values are left as they are.
-                """;
+                """);
     }
 
     @Override

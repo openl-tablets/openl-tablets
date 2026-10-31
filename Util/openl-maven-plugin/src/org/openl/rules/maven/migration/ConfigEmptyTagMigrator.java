@@ -22,26 +22,17 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-public final class ConfigEmptyTagMigrator implements Migrator {
+public final class ConfigEmptyTagMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "config.empty-tag";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "needless tags cleanup";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public ConfigEmptyTagMigrator() {
+        super("config.empty-tag",
+                "needless tags cleanup",
+                """
                 Cleans up rules.xml and rules-deploy.xml by removing elements that carry nothing:
                 empty tags like <comment></comment>, self-closing <classpath/>, blank-text <groups>,
                 and wrapper blocks whose entire body is itself empty. No setting changes — the files
                 just shrink to the lines that actually carry meaning.
-                """;
+                """);
     }
 
     @Override
