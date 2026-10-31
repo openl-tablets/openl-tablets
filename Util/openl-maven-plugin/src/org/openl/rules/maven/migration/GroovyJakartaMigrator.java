@@ -1,15 +1,10 @@
 package org.openl.rules.maven.migration;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Migrates Groovy scripts under an OpenL project folder from the legacy {@code javax.*} Java EE namespaces
@@ -31,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author Yury Molchan
  */
-@Slf4j
 public final class GroovyJakartaMigrator extends AbstractMigrator {
 
     /**
@@ -63,24 +57,6 @@ public final class GroovyJakartaMigrator extends AbstractMigrator {
     }
 
     /**
-     * Returns {@code true} when the file's content was rewritten on disk.
-     */
-    private static boolean migrateFile(Path sourceFolder, Path file) {
-        try {
-            var original = Files.readString(file);
-            var migrated = migrate(original);
-            if (migrated.equals(original)) {
-                return false;
-            }
-            log.info("Migrate {}", sourceFolder.relativize(file));
-            Files.writeString(file, migrated);
-            return true;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
      * Applies the {@code javax}→{@code jakarta} rewrites to the given groovy source body. Returns the same
      * instance when nothing changed.
      */
@@ -102,21 +78,6 @@ public final class GroovyJakartaMigrator extends AbstractMigrator {
      */
     @Override
     public List<Path> migrate(Path sourceFolder, MigrationContext context) throws IOException {
-        if (!Files.isDirectory(sourceFolder)) {
-            return List.of();
-        }
-        var changed = new ArrayList<Path>();
-        try (var stream = Files.walk(sourceFolder)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".groovy"))
-                    .forEach(file -> {
-                        if (migrateFile(sourceFolder, file)) {
-                            changed.add(file);
-                        }
-                    });
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
-        return List.copyOf(changed);
+        return GroovySourcesIO.rewrite(sourceFolder, GroovyJakartaMigrator::migrate);
     }
 }

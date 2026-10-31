@@ -344,7 +344,9 @@ from Maven.
   ```
 
   Groovy reports `Cannot refer to a static member of a generic type through a parameterization`. Removing the type
-  argument from the call is the whole fix — the variable keeps its declared type and behavior does not change.
+  argument from the call is the whole fix — the variable keeps its declared type and behavior does not change. The
+  `groovy.generic-static` step of `openl:migrate` removes it in the code of every `.groovy` file of a project, not in
+  its texts and comments.
 
 * **Recognize the symptom.** A Groovy class that fails to compile surfaces as a missing type rather than as a
   compilation error. The module reports `Cannot load type: <fully qualified class name>`, and a service built from
