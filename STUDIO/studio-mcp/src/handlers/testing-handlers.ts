@@ -107,7 +107,7 @@ function withOmittedFailures(results: Types.TestsExecutionSummary): Types.TestsE
   return {
     ...results,
     testCases: results.testCases.map((testCase) => {
-      const failed = testCase.testUnits.filter((unit) => unit.status !== "TR_OK").length;
+      const failed = (testCase.testUnits ?? []).filter((unit) => unit.status !== "TR_OK").length;
       const omitted = testCase.numberOfFailures - failed;
       return omitted > 0 ? { ...testCase, omittedFailures: omitted } : testCase;
     }),
@@ -125,7 +125,7 @@ function withoutValueSchemas(results: Types.TestsExecutionSummary): Types.TestsE
     ...results,
     testCases: results.testCases.map((testCase) => ({
       ...testCase,
-      testUnits: testCase.testUnits.map((unit) => ({
+      testUnits: testCase.testUnits?.map((unit) => ({
         ...unit,
         ...(unit.parameters ? { parameters: plain(unit.parameters) } : {}),
         ...(unit.contextParameters ? { contextParameters: plain(unit.contextParameters) } : {}),

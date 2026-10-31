@@ -152,6 +152,22 @@ describe("test results", () => {
     expect(discount).not.toHaveProperty("omittedFailures");
   });
 
+  it("openl_get_test_results reads the failed tests of a run where a test table has none", async () => {
+    // Studio lists no test units for a test table without failures when only the failed tests are asked for
+    const { testUnits: _, ...passing } = testCase("Test_premium", "Test_premium_1", 3, 0);
+    const failing = {
+      ...testCase("Test_discount", "Test_discount_1", 2, 1),
+      testUnits: [{ id: "1", status: "TR_NEQ" as const, executionTimeMs: 1 }],
+    };
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [passing, failing] }));
+
+    const result = await executeTool("get_test_results", { projectId: "design-project1", failuresOnly: true }, harness.client);
+
+    const [premium, discount] = dataOf<any>(result).testCases;
+    expect(premium).not.toHaveProperty("testUnits");
+    expect(discount.testUnits).toHaveLength(1);
+  });
+
   it("openl_get_test_results answers the parameters of a test without the schema of their types", async () => {
     const unit = {
       id: "1", status: "TR_OK" as const, executionTimeMs: 1,

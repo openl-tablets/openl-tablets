@@ -876,7 +876,8 @@ export interface TestCaseExecutionResult {
   executionTimeMs: number;
   numberOfTests: number;
   numberOfFailures: number;
-  testUnits: TestUnitExecutionResult[];
+  /** Left out by Studio for a test table without failures when only the failed tests are asked for. */
+  testUnits?: TestUnitExecutionResult[];
   /** How many failed tests the list leaves out, when Studio lists only the first of them. */
   omittedFailures?: number;
 }
