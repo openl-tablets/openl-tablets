@@ -144,6 +144,16 @@ interface Section {
   end: number;
 }
 
+/** The title of an ATX heading: its closing sequence, `## Title ##`, left out, which a space must precede. */
+function headingTitle(text: string): string {
+  const title = text.trimEnd();
+  let end = title.length;
+  while (end > 0 && title[end - 1] === "#") {
+    end--;
+  }
+  return end < title.length && title[end - 1] === " " ? title.slice(0, end).trimEnd() : title;
+}
+
 /** The sections of a Markdown text by its headings, in their order, fenced code left out. */
 function sectionsOf(text: string): Section[] {
   const headings: Array<Omit<Section, "end">> = [];
@@ -153,12 +163,12 @@ function sectionsOf(text: string): Section[] {
   for (const line of text.split("\n")) {
     // A fence is indented by at most three spaces, more is indented code; a closing one has nothing after it
     const [, marker, after] = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line) ?? [];
-    if (fence === undefined ? marker : marker?.[0] === fence[0] && marker.length >= fence.length && !after.trim()) {
+    if (fence === undefined ? marker : marker?.startsWith(fence[0]) && marker.length >= fence.length && !after.trim()) {
       fence = fence === undefined ? marker : undefined;
     }
-    const heading = fence !== undefined || marker ? null : /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line);
+    const heading = fence !== undefined || marker ? null : /^(#{1,6})\s+(\S.*)$/.exec(line);
     if (heading) {
-      headings.push({ level: heading[1].length, title: heading[2], start: offset });
+      headings.push({ level: heading[1].length, title: headingTitle(heading[2]), start: offset });
     }
     offset += line.length + 1;
   }

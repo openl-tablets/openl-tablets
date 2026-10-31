@@ -146,7 +146,8 @@ function failuresOf(unit: Types.TestUnitExecutionResult): string {
     ...(unit.errors ?? []).map((error) => `error: ${error.summary}`),
     ...(unit.testAssertions ?? []).filter((assertion) => assertion.status !== "TR_OK").map((assertion) => {
       const name = assertionName(assertion);
-      return `${name ? `${name}: ` : ""}expected ${JSON.stringify(assertion.expectedValue)}, `
+      const label = name ? `${name}: ` : "";
+      return `${label}expected ${JSON.stringify(assertion.expectedValue)}, `
         + `actual ${JSON.stringify(assertion.actualValue)}`;
     }),
   ].join("; ");
