@@ -139,12 +139,20 @@ public class TableSyntaxNode extends NaryNode {
      * told apart from a write based on the version read after it.
      */
     public void markWritten() {
-        version.set(HashingUtils.sha256Hex("written " + getVersion()));
+        version.set(shortened(HashingUtils.sha256Hex("written " + getVersion())));
+    }
+
+    /**
+     * A version is the first 16 hex digits of the digest: 64 bits tell two versions of a table apart as
+     * surely as the whole digest, and a client that writes the table sends the version back with every write.
+     */
+    private static String shortened(String digest) {
+        return digest.substring(0, 16);
     }
 
     /** The digest of the text of the cells, read a cell at a time: a table of any size is never held as one text. */
     private static String digestOf(IGridTable grid) {
-        return HashingUtils.sha256Hex(text -> {
+        return shortened(HashingUtils.sha256Hex(text -> {
             for (var row = 0; row < grid.getHeight(); row++) {
                 for (var column = 0; column < grid.getWidth(); column++) {
                     text.accept(String.valueOf(grid.getCell(column, row).getStringValue()));
@@ -152,7 +160,7 @@ public class TableSyntaxNode extends NaryNode {
                 }
                 text.accept("\n");
             }
-        });
+        }));
     }
 
     /**
