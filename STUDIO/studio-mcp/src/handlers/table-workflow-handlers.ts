@@ -49,7 +49,7 @@ export function registerTableWorkflowHandlers(): void {
       const deadline = Date.now() + timeoutMs;
       try {
         await client.startTableRun(args.projectId, args.tableId, args.inputJson, {
-          fromModule: args.fromModule,
+          module: args.module,
           // Do not abort an unsettled start request: Studio may register its
           // session-scoped task after an early cleanup DELETE. Wait for the POST
           // to settle, then observe cancellation and clear the registered run.
@@ -137,7 +137,7 @@ export function registerTableWorkflowHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const copied = await client.copyTable(args.projectId, args.tableId, {
-        moduleName: args.moduleName,
+        moduleName: args.module,
         modulePath: args.modulePath,
         name: args.name,
         properties: args.properties,

@@ -53,7 +53,7 @@ export function registerDeploymentHandlers(): void {
     title: "Deploy Project",
     description:
       "Deploy a project to a production repository, where OpenL Rule Services runs its rules. A new deployment " +
-      "takes deploymentName and productionRepositoryId; deploymentId, from openl_list_deployments, deploys the " +
+      "takes deploymentName and the production repository; deploymentId, from openl_list_deployments, deploys the " +
       "project to that deployment again, as a newer version or a rollback. Save the project first: Studio refuses " +
       "one with unsaved changes, and deploys the projects it depends on with it.",
     schema: schemas.deployProjectSchema,
@@ -61,7 +61,7 @@ export function registerDeploymentHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { projectId, deploymentId, deploymentName, productionRepositoryId, comment } = args;
+      const { projectId, deploymentId, deploymentName, repository, comment } = args;
       if (deploymentId !== undefined) {
         await client.redeployProject(deploymentId, { projectId, comment });
         return formatResult({ redeployed: deploymentId });
@@ -69,9 +69,9 @@ export function registerDeploymentHandlers(): void {
       // The schema has checked that a new deployment names both
       const name = deploymentName as string;
       // The caller names the repository; Studio takes its id
-      const repository = await client.getProductionRepositoryId(productionRepositoryId as string);
-      await client.deployProject({ projectId, deploymentName: name, productionRepositoryId: repository, comment });
-      return formatResult({ deployed: name, productionRepositoryId: repository });
+      const repositoryId = await client.getProductionRepositoryId(repository as string);
+      await client.deployProject({ projectId, deploymentName: name, productionRepositoryId: repositoryId, comment });
+      return formatResult({ deployed: name, repository: repositoryId });
     },
   });
 }

@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_list_project_local_changes",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "moduleName": "Main"
+      "module": "Main"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

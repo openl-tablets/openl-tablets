@@ -101,11 +101,11 @@ describe("OpenLClient", () => {
         const result = await client.getProjectRevisions(revisionProjectId, {
           search: "premium",
           techRevs: false,
-          page: 0,
-          size: 50,
+          offset: 0,
+          limit: 50,
         });
 
-        expect(mockHttp.history.get[0].params).toEqual({ search: "premium", techRevs: false, page: 0, size: 50 });
+        expect(mockHttp.history.get[0].params).toEqual({ search: "premium", techRevs: false, offset: 0, size: 50 });
         expect(result.content[0].revisionNo).toBe("abc123");
       });
     });
@@ -360,10 +360,10 @@ describe("OpenLClient", () => {
       expect(buildUrl(mockHttp.history.get[0])).toContain("kind=Rules");
     });
 
-    it("passes startRow/maxRows/styles for a raw slice with styles, by the encoded table id", async () => {
+    it("passes offset/limit/styles as startRow/maxRows for a raw slice with styles, by the encoded table id", async () => {
       mockHttp.onGet(`${tablesPath}/table%20id`).reply(200, { id: "table id", source: [], totalRows: 200 });
 
-      const result = await client.getTable("design-project1", "table id", { startRow: 10, maxRows: 50, styles: true });
+      const result = await client.getTable("design-project1", "table id", { offset: 10, limit: 50, styles: true });
 
       expect(mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 10, maxRows: 50, cutMerges: true, styles: true });
       expect(result.totalRows).toBe(200);
@@ -381,7 +381,7 @@ describe("OpenLClient", () => {
     it("omits unset raw-view options and a false styles flag from the query", async () => {
       mockHttp.onGet(`${tablesPath}/calculatePremium_1234`).reply(200, { id: "calculatePremium_1234", source: [] });
 
-      await client.getTable("design-project1", "calculatePremium_1234", { maxRows: 25, styles: false });
+      await client.getTable("design-project1", "calculatePremium_1234", { limit: 25, styles: false });
 
       expect(mockHttp.history.get[0].params).toEqual({ raw: true, maxRows: 25, cutMerges: true });
     });

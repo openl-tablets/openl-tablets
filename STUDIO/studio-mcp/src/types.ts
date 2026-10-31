@@ -736,13 +736,13 @@ export interface RawTableCell {
 /**
  * Options for the table's raw source view: read the
  * source matrix in row slices and/or with per-cell Excel styles. Mirrors the
- * `startRow`/`maxRows`/`styles` query parameters of `GET .../tables/{tableId}`.
+ * `offset`/`limit`/`styles` arguments, Studio's `startRow`/`maxRows`/`styles` query parameters of `GET .../tables/{tableId}`.
  */
 export interface RawTableViewOptions {
   /** Zero-based index of the first row to return; omit to start at the top. */
-  startRow?: number;
-  /** Maximum number of rows to return, counted from `startRow`; omit to read to the end. */
-  maxRows?: number;
+  offset?: number;
+  /** Maximum number of rows to return, counted from `offset`; omit to read to the end. */
+  limit?: number;
   /** When true, each cell carries its Excel style in `style`. */
   styles?: boolean;
 }
@@ -1373,7 +1373,7 @@ export interface StartTraceRequest {
   projectId: string;
   tableId: string;
   testRanges?: string;
-  fromModule?: string;
+  module?: string;
   inputJson?: string | object;
   /** Suspend at the entry of the first frame (default true). */
   stopAtEntry?: boolean;

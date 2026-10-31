@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_create_project_branch",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "branchName": "hotfix"
+      "branch": "hotfix"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

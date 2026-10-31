@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_get_merge_conflict_text",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "file": "McpTools/docs/notes.txt"
+      "path": "McpTools/docs/notes.txt"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

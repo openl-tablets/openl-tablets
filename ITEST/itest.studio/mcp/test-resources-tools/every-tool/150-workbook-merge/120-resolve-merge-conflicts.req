@@ -16,7 +16,6 @@ Authorization: Token ${PAT}
       "projectId": "${PROJECT_ID}",
       "resolutions": [
         {
-          "file": "McpTools/rules/Main.xlsx",
           "decisions": [
             {
               "id": "Rules/B2:C6",
@@ -30,15 +29,16 @@ Authorization: Token ${PAT}
                 ]
               }
             }
-          ]
+          ],
+          "path": "McpTools/rules/Main.xlsx"
         },
         {
-          "file": "McpTools/docs/notes.txt",
           "conflicts": [
             {
               "lines": "Young drivers: factor 1.5."
             }
-          ]
+          ],
+          "path": "McpTools/docs/notes.txt"
         }
       ],
       "message": "Merge the factors of young drivers"

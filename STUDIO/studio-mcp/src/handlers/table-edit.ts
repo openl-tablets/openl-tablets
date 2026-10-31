@@ -31,7 +31,7 @@ async function readTableBack(
 ): Promise<RawTableView | undefined> {
   try {
     // A read of one row compiles the table as a read of all of it does
-    return await client.getTable(projectId, tableId, { startRow: 0, maxRows: 1 });
+    return await client.getTable(projectId, tableId, { offset: 0, limit: 1 });
   } catch {
     // Best-effort: the edit already applied; compile status refreshes on next read.
     return undefined;

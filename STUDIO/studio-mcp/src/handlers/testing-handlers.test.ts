@@ -42,7 +42,7 @@ describe("openl_start_project_tests", () => {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
       testRanges: "1-3",
-      fromModule: "Rules",
+      module: "Rules",
     }, harness.client);
 
     expect(harness.mockHttp.history.post[0].params).toEqual({

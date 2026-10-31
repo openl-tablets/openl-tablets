@@ -40,7 +40,7 @@ describe("repository tools", () => {
     const revision = (revisionNo: string, fullComment: string) => ({
       revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment, deleted: false, technicalRevision: false,
     });
-    harness.mockHttp.onGet(historyPath, { params: { techRevs: false, page: 0, size: 2 } }).reply(200, {
+    harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 0, size: 2 } }).reply(200, {
       content: [revision("abc123", "First"), revision("def456", "Second")],
       pageNumber: 0,
       pageSize: 2,
@@ -50,8 +50,7 @@ describe("repository tools", () => {
 
     const result = await executeTool("repository_project_revisions", {
       projectId,
-      page: 0,
-      size: 2,
+      limit: 2,
     }, harness.client);
 
     expect(JSON.parse(textOf(result)).pagination).toEqual({
@@ -75,7 +74,7 @@ describe("repository tools", () => {
     const result = await executeTool("repository_project_revisions", {
       projectId,
       offset: 25,
-      size: 50,
+      limit: 50,
     }, harness.client);
 
     expect(JSON.parse(textOf(result)).pagination).toMatchObject({

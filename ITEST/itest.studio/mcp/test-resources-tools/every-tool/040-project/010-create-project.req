@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_create_project",
     "arguments": {
       "repository": "design",
-      "projectName": "McpTools",
+      "name": "McpTools",
       "comment": "Create the project"
     },
     "_meta": {

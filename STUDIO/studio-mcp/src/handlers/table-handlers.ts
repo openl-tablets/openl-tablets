@@ -36,7 +36,7 @@ async function validateRawSourceReplacementRows(
   tableId: string,
   source: Types.RawTableCell[][],
 ): Promise<void> {
-  const current = await client.getTable(projectId, tableId, { startRow: 0, maxRows: 1 });
+  const current = await client.getTable(projectId, tableId, { offset: 0, limit: 1 });
 
   const currentRows = Math.max(current.source.length, current.totalRows ?? 0);
   if (source.length < currentRows) {
@@ -143,7 +143,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      "Read a table as its RawSource matrix of cells, whatever its type: a value is a scalar or a one-dimensional array of scalars, a formula cell holding its computed value beside its 'formula', and openl_update_table takes a cell back as it is. A cell carries no address of its own: the cell in row r and column c of 'source' lies window.startRow + r rows below and c columns right of the first cell of 'pos', which names the whole table also for a slice; compilation messages name cells by those addresses. 'window' tells which rows the answer holds: startRow, endRow, rows, totalRows, complete, and nextStartRow while rows remain. startRow/maxRows read a slice of a large table; a merged cell the slice cuts keeps its value and names its whole area in mergedArea. A slice is for reading and for openl_edit_table: openl_update_table refuses it. styles=true adds the Excel style of each cell. The answer carries the 'version' the edit tools take back. An id from before a rename still reads the table; a deleted table answers 410.",
+      "Read a table as its RawSource matrix of cells, whatever its type: a value is a scalar or a one-dimensional array of scalars, a formula cell holding its computed value beside its 'formula', and openl_update_table takes a cell back as it is. A cell carries no address of its own: the cell in row r and column c of 'source' lies window.offset + r rows below and c columns right of the first cell of 'pos', which names the whole table also for a slice; compilation messages name cells by those addresses. 'window' tells which rows the answer holds: offset, rows, totalRows, complete, and next_offset while rows remain. offset/limit read a slice of a large table; a merged cell the slice cuts keeps its value and names its whole area in mergedArea. A slice is for reading and for openl_edit_table: openl_update_table refuses it. styles=true adds the Excel style of each cell. The answer carries the 'version' the edit tools take back. An id from before a rename still reads the table; a deleted table answers 410.",
     schema: schemas.getTableSchema,
     annotations: {
       readOnlyHint: true,
@@ -152,11 +152,11 @@ export function registerTableHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const table = await client.getTable(args.projectId, args.tableId, args);
-      const startRow = args.startRow ?? 0;
+      const offset = args.offset ?? 0;
       // Studio names the rows of the table only when the window leaves some out
-      const totalRows = table.totalRows ?? startRow + table.source.length;
+      const totalRows = table.totalRows ?? offset + table.source.length;
 
-      return formatResult(withoutAddresses(table), "json", { truncation: rowTruncation(table, startRow, totalRows) });
+      return formatResult(withoutAddresses(table), "json", { truncation: rowTruncation(table, offset, totalRows) });
     },
   });
 
@@ -218,7 +218,7 @@ export function registerTableHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const createdTable = await client.createProjectTable(args.projectId, {
-        moduleName: args.moduleName,
+        moduleName: args.module,
         modulePath: args.modulePath,
         sheetName: args.sheetName,
         table: args.table,
@@ -233,14 +233,13 @@ export function registerTableHandlers(): void {
  * The rows a table read answers: the first and the last of them, how many rows the table has, whether the answer
  * holds every one of them, and the row to read next while rows remain.
  */
-function rowWindow(startRow: number, rows: number, totalRows: number): Record<string, unknown> {
+function rowWindow(offset: number, rows: number, totalRows: number): Record<string, unknown> {
   return {
-    startRow,
-    ...(rows > 0 ? { endRow: startRow + rows - 1 } : {}),
+    offset,
     rows,
     totalRows,
-    complete: startRow === 0 && rows === totalRows,
-    ...(startRow + rows < totalRows ? { nextStartRow: startRow + rows } : {}),
+    complete: offset === 0 && rows === totalRows,
+    ...(offset + rows < totalRows ? { next_offset: offset + rows } : {}),
   };
 }
 
@@ -248,13 +247,13 @@ function rowWindow(startRow: number, rows: number, totalRows: number): Record<st
  * The cut of a table read: its leading rows, with the total number of rows of the table and the row to read next.
  * A cut view carries `totalRows`, so it cannot be written back as the whole table.
  */
-function rowTruncation(table: Types.RawTableView, startRow: number, totalRows: number): Truncation {
+function rowTruncation(table: Types.RawTableView, offset: number, totalRows: number): Truncation {
   return {
     items: table.source.length,
     unit: "rows",
     cut: (count) => withoutAddresses({ ...table, source: leadingRows(table.source, count), totalRows }),
-    next: (count) => `continue with startRow=${startRow + count}`,
-    metadata: (count) => ({ window: rowWindow(startRow, count, totalRows) }),
+    next: (count) => `continue with offset=${offset + count}`,
+    metadata: (count) => ({ window: rowWindow(offset, count, totalRows) }),
   };
 }
 

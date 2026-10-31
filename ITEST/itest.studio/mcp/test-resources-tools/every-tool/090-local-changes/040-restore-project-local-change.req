@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_restore_project_local_change",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "moduleName": "Main",
+      "module": "Main",
       "historyId": "${HISTORY_ID}"
     },
     "_meta": {

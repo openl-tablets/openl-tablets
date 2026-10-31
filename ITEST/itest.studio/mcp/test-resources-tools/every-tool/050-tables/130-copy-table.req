@@ -15,7 +15,7 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${AGE_FACTOR_ID}",
-      "moduleName": "Main",
+      "module": "Main",
       "name": "AgeFactorCopy",
       "sheetName": "Copies"
     },

@@ -102,7 +102,7 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 - **Results** — JSON without indentation in a text content block: the agent reads it as well as indented JSON, and
   indentation alone would take more of its context than the data, 60% of a table read. A result over 25,000
   characters is cut by whole items, in JSON and Markdown alike: a list by items, with the page cursor moved to match,
-  a table read by rows, with `totalRows` and the `startRow` to continue from. The note on a cut result names only a
+  a table read by rows, with `totalRows` and the `offset` to continue from. The note on a cut result names only a
   way to continue that the tool has. A JSON answer that has no items to cut by, or whose one item does not fit, is
   cut in its structure (`json-cut.ts`): texts longer than 200 characters are shortened, then the largest array loses
   items from its middle, keeping its first and last ones, then the largest object is replaced by the count of its keys,

@@ -13,7 +13,7 @@ Mcp-Name: openl_create_project
     "name": "openl_create_project",
     "arguments": {
       "repository": "design",
-      "projectName": "McpSingle",
+      "name": "McpSingle",
       "comment": "Create the project"
     },
     "_meta": {

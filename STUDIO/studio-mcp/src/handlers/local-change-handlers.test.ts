@@ -21,7 +21,7 @@ describe("local change handlers", () => {
 
     const response = await executeTool("list_project_local_changes", {
       projectId: "design:Project",
-      moduleName: "Main Rules",
+      module: "Main Rules",
     }, harness.client);
 
     // Each entry is named by the historyId a restore takes
@@ -36,7 +36,7 @@ describe("local change handlers", () => {
     const restore = (historyId: string): ReturnType<typeof executeTool> =>
       executeTool("restore_project_local_change", {
         projectId: "design:Project",
-        moduleName: "Main Rules",
+        module: "Main Rules",
         historyId,
       }, harness.client);
 
@@ -94,9 +94,9 @@ describe("local change handlers", () => {
   it("requires an explicit project and module for both local-history operations", async () => {
     await expect(executeTool("list_project_local_changes", {
       projectId: "design:Project",
-    }, harness.client)).rejects.toThrow(/moduleName/);
+    }, harness.client)).rejects.toThrow(/module/);
     await expect(executeTool("restore_project_local_change", {
-      moduleName: "Main Rules",
+      module: "Main Rules",
       historyId: "Revision Version",
     }, harness.client)).rejects.toThrow(/projectId/);
 

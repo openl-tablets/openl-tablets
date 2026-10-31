@@ -48,7 +48,7 @@ describe("deployment tools", () => {
     const result = await executeTool("deploy_project", {
       projectId: "design-project1",
       deploymentName: "project1",
-      productionRepositoryId: "Production Deployment",
+      repository: "Production Deployment",
       comment: "Deploy test",
     }, harness.client);
 
@@ -58,7 +58,7 @@ describe("deployment tools", () => {
       productionRepositoryId: "production-deploy",
       comment: "Deploy test",
     });
-    expect(dataOf(result)).toEqual({ deployed: "project1", productionRepositoryId: "production-deploy" });
+    expect(dataOf(result)).toEqual({ deployed: "project1", repository: "production-deploy" });
   });
 
   it.each(["production-deploy", "PRODUCTION DEPLOYMENT"])(
@@ -67,7 +67,7 @@ describe("deployment tools", () => {
       harness.mockHttp.onPost("/deployments").reply(204);
 
       await executeTool("deploy_project", {
-        projectId: "design-project1", deploymentName: "project1", productionRepositoryId: repository,
+        projectId: "design-project1", deploymentName: "project1", repository,
       }, harness.client);
 
       expect(bodyOf(harness.mockHttp.history.post[0])).toMatchObject({ productionRepositoryId: "production-deploy" });
@@ -79,7 +79,7 @@ describe("deployment tools", () => {
     await expect(executeTool("deploy_project", {
       projectId: "design-project1",
       deploymentName: "project1",
-      productionRepositoryId: "Nope",
+      repository: "Nope",
     }, harness.client)).rejects.toThrow(/"Nope" not found.*\(Production Deployment\), .*\(Staging Deployment\)/);
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
@@ -99,8 +99,8 @@ describe("deployment tools", () => {
 
   it.each([
     [{ deploymentId: "d1", deploymentName: "project1" }, /takes no deploymentName/],
-    [{ deploymentName: "project1" }, /needs deploymentName and productionRepositoryId/],
-    [{}, /needs deploymentName and productionRepositoryId/],
+    [{ deploymentName: "project1" }, /needs deploymentName and repository/],
+    [{}, /needs deploymentName and repository/],
   ])("openl_deploy_project refuses %j before any request", async (args, message) => {
     await expect(executeTool("deploy_project", { projectId: "design-project1", ...args }, harness.client))
       .rejects.toThrow(message);
