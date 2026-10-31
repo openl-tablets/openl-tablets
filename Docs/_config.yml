@@ -51,6 +51,14 @@ search_full_content: true
 lunr:
   search_within_pages: true
 
+# ── Excluded files ─────────────────────────────────────────────────────────────
+# Agent instructions are not site pages: rendered, their Liquid examples break the build.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - AGENTS.md
+  - "*/AGENTS.md"
+
 # ── Permalinks ─────────────────────────────────────────────────────────────────
 permalink: /:categories/:title
 

@@ -73,8 +73,9 @@ file and line of each problem:
   fence language the viewer does not know. See [Supported Markdown](#supported-markdown).
 - **Malformed `csv` or `openl` fence** — a record that is not valid CSV, a `<` in the first column, a second `---`
   line, or merged cells that do not form a rectangle.
-- **Liquid tag** — `{{` or `{%` anywhere in a page, code included. The Jekyll site renders every page as a Liquid
-  template, so such text fails the site build or is replaced. Write `{ {` for nested braces, such as `{ {3}, {1} }`.
+- **Liquid tag** — an opening brace followed by another opening brace or by `%`, anywhere in a page, code included.
+  The Jekyll site renders every page as a Liquid template, so such text fails the site build or is replaced. Write
+  `{ {` for nested braces, such as `{ {3}, {1} }`.
 
 The quick CI build (`.github/workflows/build-quick.yml`) ignores `Docs/**` except `Docs/user-guides/**`, because the
 guides are build input and the rest of `Docs/` is not in the jar. Both its `push` and `pull_request` triggers use a
