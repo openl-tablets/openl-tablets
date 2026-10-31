@@ -41,8 +41,14 @@ import org.openl.rules.repository.api.FileData;
 /**
  * Builds immutable repository-wide project snapshots from the current trees of every repository branch.
  *
- * <p>Repository scans run on virtual threads and never on a caller that reads a snapshot. One coordinator runs per
- * repository. Notifications that arrive while a build is running are coalesced into a following pass.
+ * <p>Repository scans run on threads of their own and never on a caller that reads a snapshot. One coordinator runs per
+ * repository, so there are at most as many scans as repositories. Notifications that arrive while a build is running
+ * are coalesced into a following pass.
+ *
+ * <p>A scan walks the trees of every branch and keeps a processor busy for as long as it takes, up to minutes in a
+ * repository of hundreds of branches. It runs on a platform thread, which the operating system shares the processors
+ * with: on a virtual thread it would hold one of the few carrier threads all virtual threads of the JVM share, and the
+ * work that runs on them — the MCP requests, the trace debugger — would wait for the scans to end.
  *
  * <p>A failed branch keeps its last successful snapshot. The repository health becomes {@link IndexState#DEGRADED}
  * until a later scan succeeds. A branch whose tip changes during a scan is retried before write waiters complete.
@@ -61,7 +67,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public BranchedProjectIndexService() {
-        executor = Executors.newVirtualThreadPerTaskExecutor();
+        executor = Executors.newThreadPerTaskExecutor(Thread.ofPlatform().daemon().name("project-index-", 0).factory());
     }
 
     /**

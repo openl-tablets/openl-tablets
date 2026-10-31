@@ -71,6 +71,23 @@ class BranchedProjectIndexServiceTest {
     }
 
     @Test
+    void scansOnAPlatformThreadToLeaveTheCarriersOfVirtualThreadsFree() throws Exception {
+        var repository = new TestBranchRepository();
+        repository.put("main", "main-1", "tree-main", NOW, "DESIGN/Common");
+        var scanThreadVirtual = new AtomicReference<@Nullable Boolean>();
+        when(repository.repository.listBranches()).thenAnswer(invocation -> {
+            scanThreadVirtual.set(Thread.currentThread().isVirtual());
+            return List.of("main");
+        });
+
+        try (var service = new BranchedProjectIndexService()) {
+            await(register(service, repository));
+
+            assertEquals(Boolean.FALSE, scanThreadVirtual.get());
+        }
+    }
+
+    @Test
     void representsAProjectMissingFromTheBaseBranchByAProtectedBranch() throws Exception {
         var repository = new TestBranchRepository();
         repository.protect("release-2024.1");
