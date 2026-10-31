@@ -152,4 +152,17 @@ class FileSystemRepositoryIgnoredPathsTest {
         assertFalse(Files.exists(root.resolve(".git/hooks/pre-commit")));
         assertTrue(Files.exists(root.resolve(".git/config")));
     }
+
+    @Test
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Creating a link needs a privilege on Windows")
+    void tellsAPathThatGoesThroughALinkedFolder() throws IOException {
+        write("shared/AGENTS.md", "guidance");
+        Files.createSymbolicLink(root.resolve("p/linked"), root.resolve("shared"));
+
+        assertTrue(repository.isLinked("p/linked"));
+        assertTrue(repository.isLinked("p/linked/AGENTS.md"));
+        assertFalse(repository.isLinked("p"));
+        assertFalse(repository.isLinked("p/rules.xml"));
+        assertFalse(repository.isLinked(""));
+    }
 }

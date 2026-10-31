@@ -23,6 +23,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
@@ -158,7 +159,8 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         for (String dir = anchorDir; dir != null; dir = dir.isEmpty() ? null : FilePaths.parent(dir)) {
             var path = FilePaths.join(dir, fileName);
-            var data = isExcluded(path, excludeBase) ? null : repository.check(path);
+            // A folder reached through a link is not one the repository lists, so its files are not looked up either
+            var data = isExcluded(path, excludeBase) || isLinked(repository, dir) ? null : repository.check(path);
             // Whether a file is deleted is asked last: a repository reads the history of the file to answer it
             if (data != null && !exceedsSizeLimit(data)
                     && aclService.isGranted(repositoryId, path, true, BasePermission.READ)
@@ -166,6 +168,10 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
                 out.add(new Candidate(path, sizeOf(data), modifiedOf(data), () -> readContent(repository, path)));
             }
         }
+    }
+
+    private static boolean isLinked(Repository repository, String dir) {
+        return repository instanceof FileSystemRepository files && files.isLinked(dir);
     }
 
     /**

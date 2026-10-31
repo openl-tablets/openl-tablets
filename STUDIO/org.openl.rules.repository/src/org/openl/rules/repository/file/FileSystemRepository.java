@@ -195,6 +195,22 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
      * Tells whether a file or a folder met while listing is shown: its path is not ignored. A listing reads the names
      * the file system gives, so the path is matched as it is.
      */
+    /**
+     * Whether a path of the repository goes through a link to a folder, which the listings never walk into: a path
+     * read by its name would reach a file the repository does not show.
+     */
+    public boolean isLinked(String path) {
+        var base = root.toAbsolutePath().normalize();
+        var folder = base;
+        for (var part : base.relativize(resolveInRoot(path).toAbsolutePath().normalize())) {
+            folder = folder.resolve(part);
+            if (!folder.equals(base) && Files.isSymbolicLink(folder) && Files.isDirectory(folder)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean isListed(Path file) {
         return !ignoredPaths.matches(nameOf(file));
     }
