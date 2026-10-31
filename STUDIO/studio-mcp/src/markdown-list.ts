@@ -23,6 +23,11 @@ export interface ListPage<T> {
   /** The items of the page. */
   items: T[];
   columns: Array<Column<T>>;
+  /**
+   * A column whose value many items share, such as the module of a table: the items come in a table of their own per
+   * value, in the order of their first item, under a line naming it, so the value is written once.
+   */
+  groupBy?: Column<T>;
   /** The index of the first item of the page in the whole list. */
   offset: number;
   /** How many items the whole list has, when it is known. */
@@ -57,6 +62,15 @@ export function markdownTable<T>(items: T[], columns: Array<Column<T>>): string 
   ].join("\n");
 }
 
+/** The items as Markdown tables, one per value of `groupBy` under a line naming it, or as one table without it. */
+function groupedTables<T>(items: T[], columns: Array<Column<T>>, groupBy?: Column<T>): string {
+  if (!groupBy) {
+    return markdownTable(items, columns);
+  }
+  return Array.from(Map.groupBy(items, (item) => cellText(groupBy.value(item))),
+    ([value, group]) => `${groupBy.header}: ${value}\n\n${markdownTable(group, columns)}`).join("\n\n");
+}
+
 /**
  * A page of a list as Markdown, cut to the response limit by whole rows: a line counting the items and naming the
  * offset of the next page, the table, and the notes.
@@ -64,7 +78,7 @@ export function markdownTable<T>(items: T[], columns: Array<Column<T>>): string 
 export function formatList<T>(page: ListPage<T>, charLimit: number = RESPONSE_LIMITS.MAX_CHARACTERS): string {
   return fitItems((count) => [
     countLine(page, count),
-    ...(count > 0 ? [markdownTable(page.items.slice(0, count), page.columns)] : []),
+    ...(count > 0 ? [groupedTables(page.items.slice(0, count), page.columns, page.groupBy)] : []),
     ...(page.notes ?? []),
   ].join("\n\n"), page.items.length, charLimit);
 }

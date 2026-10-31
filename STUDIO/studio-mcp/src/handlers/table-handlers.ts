@@ -9,7 +9,7 @@ import * as schemas from "../schemas.js";
 import { findRows, gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
 import { isPlainObject, sanitizeError } from "../utils.js";
 import { formatResult, registerTool, textResult, type ToolResponse } from "./common.js";
-import { formatStudioPage } from "../markdown-list.js";
+import { cellText, formatStudioPage } from "../markdown-list.js";
 import type * as Types from "../types.js";
 import { finishTableEdit } from "./table-edit.js";
 
@@ -83,7 +83,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project as a table of id, name, kind and module, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project by module, as a table of id, name and kind, and of the dimension properties that tell versions of one table apart, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
     annotations: {
       readOnlyHint: true,
@@ -95,13 +95,21 @@ export function registerTableHandlers(): void {
       const tablesPage = await client.listTablesPage(projectId, filters);
       // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
       const ofDependencies = tablesPage.items.some((table) => table.projectId !== undefined && table.projectId !== projectId);
+      // Studio tells the dimension properties of a table only when it has other versions, which share its name
+      const versioned = tablesPage.items.some((table) => table.dimensions !== undefined);
       return textResult(formatStudioPage(tablesPage, filters.offset, {
         noun: "tables",
+        // The module of a table, which many tables share, is written once over them
+        groupBy: { header: "module", value: (table) => table.module },
         columns: [
           { header: "id", value: (table) => table.id },
           { header: "name", value: (table) => table.name },
           { header: "kind", value: (table) => table.kind },
-          { header: "module", value: (table) => table.module },
+          ...(versioned ? [{
+            header: "version",
+            value: (table: Types.TableMetadata) =>
+              Object.entries(table.dimensions ?? {}).map(([name, value]) => `${name}=${cellText(value)}`).join("; "),
+          }] : []),
           ...(ofDependencies ? [{
             header: "project",
             value: (table: Types.TableMetadata) => (table.projectId === projectId ? "" : `${table.project} (${table.projectId})`),
