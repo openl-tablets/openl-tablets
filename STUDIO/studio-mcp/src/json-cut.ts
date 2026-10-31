@@ -44,7 +44,7 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
       // The smallest object that frees the excess alone is the one nested deepest: what holds it keeps its other keys
       const excess = scan.size - limit;
       const enough = scan.objects.filter((node) => node.size - cutObjectSize(node) >= excess);
-      const objects = enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a))] : scan.objects;
+      const objects = enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a), enough[0])] : scan.objects;
       cutLargest(objects, scan.size, limit, (node) => cutObject(node, cuts));
     } else if (arrays.length > 0) {
       cutLargest(arrays, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
