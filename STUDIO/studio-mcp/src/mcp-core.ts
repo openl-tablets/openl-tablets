@@ -56,7 +56,9 @@ finds what uses a table.
 4. Edit with \`openl_edit_table\`, several cells in one call with \`actions\`, passing the \`version\` the last read \
 or edit answered. Then check \`compiles\` in its answer, \`openl_project_status\`, and the tests: \
 \`openl_start_project_tests\`, then \`openl_get_test_results\`.
-5. Edits stay in the working copy until \`openl_save_project\` commits them: say so when you leave them unsaved. \
+5. \`openl_project_status\` with \`changes: true\` names the tables changed in the working copy since the last save. A \
+restore with \`openl_restore_project_local_change\` undoes every later edit of the module: preview it first. Edits \
+stay in the working copy until \`openl_save_project\` commits them: say so when you leave them unsaved. \
 \`openl_deploy_project\` deploys. A project of the \`local\` repository, or edited in place, has no save: its edits \
 are in its files already.
 

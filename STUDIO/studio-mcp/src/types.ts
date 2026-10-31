@@ -1058,6 +1058,16 @@ interface FileChange {
   /** `<projectRealPath>/<file>` (forward slashes), matching the merge API. */
   path: string;
   type: FileChangeType;
+  /** The tables a changed workbook holds otherwise than the saved revision, when they are asked for. */
+  tables?: Array<{ sheet?: string; table?: string; status?: string }>;
+}
+
+/** One side of a comparison of a file of a project: the working copy, or a revision of a branch. */
+export interface ComparisonSide {
+  /** The path of the file inside the project, such as `rules/Pricing.xlsx`. */
+  path: string;
+  branch?: string;
+  revision?: string;
 }
 
 interface PendingChanges {

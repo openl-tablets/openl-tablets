@@ -92,6 +92,9 @@ export const projectStatusSchema = z.strictObject({
   limit: z.number().int().positive().max(1000).optional().describe(
     "Cap the number of items returned in compilation.messages.items. The list is sorted ERROR → WARN → INFO first so the most actionable items are preserved when capped. Pair with severity to bound very large diagnostic lists. Default: no cap; an answer over the size limit keeps the first messages, errors first, and tells how many it holds."
   ),
+  changes: z.boolean().optional().describe(
+    "Also name in pendingChanges the tables each changed workbook holds otherwise than the saved revision, comparing the workbooks one by one: seconds each."
+  ),
 });
 
 export const openProjectSchema = z.strictObject({

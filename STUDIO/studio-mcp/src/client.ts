@@ -1392,6 +1392,14 @@ export class OpenLClient {
     )).data.id;
   }
 
+  /**
+   * Start comparing two versions of a workbook of a project, each read from the working copy or, with a revision and
+   * its branch, from the repository: the id of the comparison, read as {@link compareLocalVersions} explains.
+   */
+  async compareProjectFiles(projectId: string, first: Types.ComparisonSide, second: Types.ComparisonSide): Promise<string> {
+    return (await this.http.post<{ id: string }>(`${projectPath(projectId)}/compare`, { first, second })).data.id;
+  }
+
   /** The tables the two versions of a comparison differ in, by sheet, or `notReady` while Studio compares them. */
   async getComparison(
     id: string,
