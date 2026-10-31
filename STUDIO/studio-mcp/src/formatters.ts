@@ -154,6 +154,24 @@ function headingTitle(text: string): string {
   return end < title.length && title[end - 1] === " " ? title.slice(0, end).trimEnd() : title;
 }
 
+/** The fence a line starts with: indented by at most three spaces, as more is indented code. */
+function fenceOf(line: string): string | undefined {
+  return /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+}
+
+/**
+ * The fence open after a line: the one it opens, or none when it closes the open one with a fence of the same
+ * character, at least as long and with nothing after it.
+ */
+function fenceAfter(open: string | undefined, line: string, marker: string | undefined): string | undefined {
+  if (open === undefined) {
+    return marker;
+  }
+  const closes = marker?.startsWith(open[0]) && marker.length >= open.length
+    && !line.slice(line.indexOf(marker) + marker.length).trim();
+  return closes ? undefined : open;
+}
+
 /** The sections of a Markdown text by its headings, in their order, fenced code left out. */
 function sectionsOf(text: string): Section[] {
   const headings: Array<Omit<Section, "end">> = [];
@@ -163,12 +181,8 @@ function sectionsOf(text: string): Section[] {
   for (const line of text.split("\n")) {
     // A file written on Windows ends its lines with CR LF
     const content = line.endsWith("\r") ? line.slice(0, -1) : line;
-    // A fence is indented by at most three spaces, more is indented code; a closing one has nothing after it
-    const [opening, marker] = /^ {0,3}(`{3,}|~{3,})/.exec(content) ?? [];
-    const after = opening === undefined ? "" : content.slice(opening.length);
-    if (fence === undefined ? marker : marker?.startsWith(fence[0]) && marker.length >= fence.length && !after.trim()) {
-      fence = fence === undefined ? marker : undefined;
-    }
+    const marker = fenceOf(content);
+    fence = fenceAfter(fence, content, marker);
     const heading = fence !== undefined || marker ? null : /^ {0,3}(#{1,6})\s+(\S.*)$/.exec(content);
     if (heading) {
       headings.push({ level: heading[1].length, title: headingTitle(heading[2]), start: offset });
