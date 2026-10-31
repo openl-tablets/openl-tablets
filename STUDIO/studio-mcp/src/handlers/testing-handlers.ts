@@ -44,14 +44,7 @@ export function registerTestingHandlers(): void {
     name: "get_test_results",
     title: "Get Test Results",
     description:
-      "Read the results of the tests openl_start_project_tests started as Markdown tables, waiting until Studio has " +
-      "run them: the counts of the run; a table of the test tables with their tests and failures; and, per test table, " +
-      "a table of its failed tests with the inputs of each and its failed assertions with their expected and actual " +
-      "values, an input with inner structure named by its type and key. failuresOnly, true by default, lists only the failed " +
-      "tests, at most 'failures' of each test table, and tells how many it leaves out; false lists every test. " +
-      "summary: true answers the counts alone; tableId reads the tests of one test table, page by page, and caseId " +
-      "with it one test with its inputs as JSON, whole up to 12,500 characters and cut beyond, the cuts named. A page is cut to 25,000 characters by whole test tables, or by whole " +
-      "tests of one test table; the first lines name the offset of the next page.",
+      "Read the results of the tests openl_start_project_tests started, waiting until Studio has run them: the counts of the run, a table of the test tables with their tests and failures, and, per test table, its failed tests, each with its inputs once and its failed assertions with their expected and actual values; an input with inner structure is named by its type and key. failuresOnly, true by default, lists at most 'failures' failed tests of each test table and counts the rest; false lists every test. summary: true answers the counts alone; tableId reads the tests of one test table, page by page, and caseId with it one test with its inputs as JSON, whole up to 12,500 characters, the cuts named beyond. A page holds up to 25,000 characters, cut by whole test tables or tests; its first lines name the offset of the next page.",
     schema: schemas.getTestResultsSchema,
     annotations: {
       readOnlyHint: true,

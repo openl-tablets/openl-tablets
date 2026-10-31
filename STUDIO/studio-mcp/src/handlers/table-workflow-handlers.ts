@@ -43,7 +43,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Run Table",
     description:
-      "Execute a regular (non-Test) table with caller-provided JSON and return its result. The tool waits for the result inside the call. Pass inputJson as an object keyed by method parameter name, as { params, runtimeContext? } with params keyed by name or listed in order, or as an array of the argument values in order, each also as a JSON string; for a method whose only parameter is an array, a top-level array is that parameter's value. To build an input of datatypes, call it first with withSchema: true, and inputJson {} when no input is known yet: the answer gives the JSON Schema of each parameter, with its fields and the values each vocabulary allows. Studio keeps one table run per client, so wait for an active call to finish before starting another. Use openl_start_project_tests and the test-result tools for Test tables. Cancelling the MCP call also cancels and clears the Studio run.",
+      "Run a regular (non-Test) table with a JSON input and answer its result, waiting in this call. inputJson is an object keyed by parameter name; { params, runtimeContext? } with params by name or in order; or an array of the arguments in order; any of them also as a JSON string. For a method whose only parameter is an array, a top-level array is that parameter's value. To build an input of datatypes, call it first with withSchema: true and inputJson {}: the answer gives the JSON Schema of each parameter, with its fields and the values each vocabulary allows. Studio runs one table per client at a time; Test tables run with openl_start_project_tests. Cancelling the call cancels the run.",
     schema: schemas.runTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -153,7 +153,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Copy Table",
     description:
-      "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties, all of them, by 'properties'. The copy remains in the working copy—use openl_save_project for Git-backed projects. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
+      "Copy a table inside the same project, keeping its formatting, merged cells and comments, into the destination module under the new name; optionally on a sheet, into a new .xlsx module by modulePath, or with new 'properties'. The copy stays in the working copy until openl_save_project. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
     schema: schemas.copyTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
