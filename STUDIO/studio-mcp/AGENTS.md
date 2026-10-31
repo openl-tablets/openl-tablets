@@ -114,7 +114,10 @@ the current branch into the other branch.
 
 ### Raw Table-Source Edit Tool (1)
 In-place edits to a table's raw source (any table type), one tool for every edit Studio takes at
-`POST /projects/{projectId}/tables/{tableId}/actions`. The `action` names the edit, and each action takes only its
+`POST /projects/{projectId}/tables/{tableId}/actions`. `actions` makes several edits as one change at
+`…/actions/batch`: in order, each on the table as the previous one left it, the table written and compiled once, and
+nothing written when one is refused — three edits of a lookup take one call instead of three calls, three version
+hand-offs and three compilations. The `action` names the edit, and each action takes only its
 own arguments — one it needs and left out, or one it does not take, is refused before Studio is called. One tool
 instead of one per edit keeps the rules the edits share in one description, which every agent loads in every session.
 

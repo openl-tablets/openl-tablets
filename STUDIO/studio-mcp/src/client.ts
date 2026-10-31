@@ -1288,6 +1288,19 @@ export class OpenLClient {
   }
 
   /**
+   * Apply edits to a table's raw source as one change: in order, each on the table as the previous one left it, the
+   * table written once, and nothing written when one is refused.
+   */
+  async editTableSourceBatch(
+    projectId: string,
+    tableId: string,
+    actions: Types.RawTableSourceAction[],
+    version: string
+  ): Promise<string | undefined> {
+    return this.writeTable("post", `${tablePath(projectId, tableId)}/actions/batch`, { actions }, version);
+  }
+
+  /**
    * Delete a table from the currently opened project. The whole table area is
    * cleared from the sheet regardless of table type, so the table no longer
    * exists once the project is recompiled.
