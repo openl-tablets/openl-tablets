@@ -1008,7 +1008,7 @@ type MessageSource = Record<string, unknown>;
  * (`id`/`summary`/`severity`) onto this type via `@JsonUnwrapped`, so those
  * fields appear at the top level alongside `location` and `stacktrace`.
  */
-interface DetailedMessageDescription {
+export interface DetailedMessageDescription {
   id?: number;
   summary?: string;
   severity?: "ERROR" | "WARN" | "INFO";

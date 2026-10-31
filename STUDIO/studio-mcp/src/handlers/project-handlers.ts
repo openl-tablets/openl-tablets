@@ -30,12 +30,12 @@ function severityRank(severity: string | undefined): number {
  *  1. When `compileState === "ok"`, drop the noisy `items[]` list — counts and
  *     module/test totals are preserved so the caller still sees compile-summary.
  *  2. Otherwise, sort `items[]` by severity (ERROR → WARN → INFO) so the most
- *     actionable diagnostics survive the response-format character truncation
- *     (markdown does a dumb `.slice(0, 25000)` and the backend returns items in
- *     id-ascending order — without this, ERRORs end up past the cutoff when a
- *     project has many WARNs).
+ *     actionable diagnostics survive the cut to the response limit, which keeps
+ *     the leading messages (the backend returns them in id order).
  *  3. Optional `severity` filter narrows items to the requested severities.
  *  4. Optional `limit` caps the (already-sorted) items list.
+ *  5. A message names its table without the project the status is of, and the modules are counted, not named:
+ *     openl_list_project_modules names them.
  */
 function shapeStatusResponse(
   status: Types.ProjectStatusView,
@@ -45,16 +45,7 @@ function shapeStatusResponse(
   if (!status.compilation?.messages) {
     return status;
   }
-  if (status.compileState === "ok") {
-    return {
-      ...status,
-      compilation: {
-        ...status.compilation,
-        messages: { ...status.compilation.messages, items: [] },
-      },
-    };
-  }
-  let items = (status.compilation.messages.items ?? [])
+  let items = status.compileState === "ok" ? [] : (status.compilation.messages.items ?? [])
     .toSorted((a, b) => severityRank(a.severity) - severityRank(b.severity));
   if (severityFilter?.length) {
     const allowed = new Set<string>(severityFilter);
@@ -63,13 +54,21 @@ function shapeStatusResponse(
   if (limit) {
     items = items.slice(0, limit);
   }
+  const { compiledModules, ...modules } = status.compilation.modules;
   return {
     ...status,
     compilation: {
       ...status.compilation,
-      messages: { ...status.compilation.messages, items },
+      messages: { ...status.compilation.messages, items: items.map((item) => compactMessage(item, status.projectId)) },
+      modules,
     },
   };
+}
+
+/** A compile message whose location names the project the status is of without the project. */
+function compactMessage(message: Types.DetailedMessageDescription, statusProject: string): Types.DetailedMessageDescription {
+  const { projectId, project, ...location } = message.location ?? {};
+  return projectId === statusProject ? { ...message, location } : message;
 }
 
 /**
