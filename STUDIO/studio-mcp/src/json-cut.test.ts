@@ -66,6 +66,13 @@ describe("cutJson", () => {
     expect(cuts).toEqual(["properties (2 keys)"]);
   });
 
+  it("cuts an enum when nothing else is left to cut", () => {
+    const { value, cuts } = cutJson({ enum: Array.from({ length: 1_000 }, (_, i) => `V${i}`) }, 300);
+
+    expect(JSON.stringify(value).length).toBeLessThanOrEqual(300);
+    expect(cuts[0]).toMatch(/^enum \(\d+ of 1000 items from the middle\)$/);
+  });
+
   it("replaces the largest object by the count of its keys when no array can be cut", () => {
     const properties = Object.fromEntries(Array.from({ length: 50 }, (_, i) => [`field${i}`, { type: "string" }]));
 
