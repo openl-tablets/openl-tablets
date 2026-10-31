@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.message.OpenLErrorMessage;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 
@@ -36,9 +37,9 @@ final class FunctionFix implements CodeFix {
     private final Class<?>[] types;
 
     @Override
-    public @Nullable String fix(String piece, @Nullable Throwable cause) {
-        if (!(cause instanceof MethodNotFoundException error) || !function.equals(error.getMethodName())
-                || !accepts(error.getParams())) {
+    public @Nullable String fix(String piece, OpenLErrorMessage error) {
+        if (!(error.getError().getCause() instanceof MethodNotFoundException notFound)
+                || !function.equals(notFound.getMethodName()) || !accepts(notFound.getParams())) {
             return null;
         }
         var arguments = CodeText.arguments(piece, function);

@@ -72,11 +72,14 @@ final class RulesCodeIO {
         var rewritten = !modules.isEmpty();
         while (rewritten && passes++ < MAX_PASSES) {
             rewritten = false;
-            for (var entry : edits(modules, context.compilationMessages().get(), fixes).entrySet()) {
+            for (var entry : edits(modules, context.compilation().messages(), fixes).entrySet()) {
                 if (apply(entry.getKey(), entry.getValue())) {
                     changed.add(entry.getKey());
                     rewritten = true;
                 }
+            }
+            if (rewritten) {
+                context.compilation().changed();
             }
         }
         changed.forEach(file -> log.info("Migrate: {} ({})", folder.relativize(file), migrator.getCommitMessage()));
@@ -122,7 +125,7 @@ final class RulesCodeIO {
         var code = range.code();
         var piece = code.substring(range.start(), range.end());
         return fixes.stream()
-                .map(fix -> fix.fix(piece, error.getError().getCause()))
+                .map(fix -> fix.fix(piece, error))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .map(replacement -> new Edit(module.getRulesPath(),

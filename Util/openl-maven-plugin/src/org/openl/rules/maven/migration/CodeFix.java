@@ -1,11 +1,16 @@
 package org.openl.rules.maven.migration;
 
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
+
 import org.jspecify.annotations.Nullable;
+
+import org.openl.message.OpenLErrorMessage;
 
 /**
  * Rewrites a piece of rules code that no longer compiles, such as a call of a removed function.
  * <p>
- * A fix gets the piece the compiler reports and the cause of the error. It returns the code to put in its place, or
+ * A fix gets the piece the compiler reports and the error about it. It returns the code to put in its place, or
  * {@code null} when the error is not the one the fix is for. The returned code needs no parentheses: they are added
  * where the place requires them.
  *
@@ -15,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 interface CodeFix {
 
     @Nullable
-    String fix(String piece, @Nullable Throwable cause);
+    String fix(String piece, OpenLErrorMessage error);
 
     /**
      * Replaces a call of a function that is not found for the argument types.
@@ -34,6 +39,13 @@ interface CodeFix {
      * Replaces a name that is not found, such as a removed constant.
      */
     static CodeFix identifier(String name, String replacement) {
-        return (piece, cause) -> name.equals(piece) ? replacement : null;
+        return identifier(Pattern.compile(Pattern.quote(name)), x -> replacement);
+    }
+
+    /**
+     * Replaces a name that is not found and matches the pattern as a whole with the code made from it.
+     */
+    static CodeFix identifier(Pattern name, UnaryOperator<String> replacement) {
+        return (piece, error) -> name.matcher(piece).matches() ? replacement.apply(piece) : null;
     }
 }
