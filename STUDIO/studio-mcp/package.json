@@ -21,12 +21,12 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "^2.4.0",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
     "@vitest/coverage-v8": "^5.0.5",
-    "eslint": "^10.13.0",
-    "rolldown": "^1.2.15",
+    "eslint": "^10.14.0",
+    "rolldown": "^1.2.16",
     "typescript": "^6.0.3",
     "vitest": "^5.0.5"
   },
