@@ -147,13 +147,15 @@ interface Section {
 /** The sections of a Markdown text by its headings, in their order, fenced code left out. */
 function sectionsOf(text: string): Section[] {
   const headings: Array<Omit<Section, "end">> = [];
-  let fenced = false;
+  // The fence a code block opened with, which only a fence of the same character and at least its length closes
+  let fence: string | undefined;
   let offset = 0;
   for (const line of text.split("\n")) {
-    if (/^\s*(```|~~~)/.test(line)) {
-      fenced = !fenced;
+    const marker = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
+    if (marker && (fence === undefined || (marker[0] === fence[0] && marker.length >= fence.length))) {
+      fence = fence === undefined ? marker : undefined;
     }
-    const heading = fenced ? null : /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line);
+    const heading = fence !== undefined || marker ? null : /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line);
     if (heading) {
       headings.push({ level: heading[1].length, title: heading[2], start: offset });
     }
