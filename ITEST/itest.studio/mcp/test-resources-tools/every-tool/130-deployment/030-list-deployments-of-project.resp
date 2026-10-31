@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "# Test Results Summary\n\n## Summary\n- **Total Tests**: 3\n- **Passed**: 3\n- **Failed**: 0\n- **Execution Time**: * ms\n"
+        "text": "1 deployment.\n\n| id | name | repository | projects |\n| --- | --- | --- | --- |\n| cHJvZHVjdGlvbjpNY3BUb29scw== | McpTools | production | McpTools by admin at * |"
       }
     ],
     "resultType": "complete",

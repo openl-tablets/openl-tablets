@@ -23,7 +23,8 @@ describe("deployment tools", () => {
     const first = await executeTool("list_deploy_repositories", {}, harness.client);
     await executeTool("list_deploy_repositories", {}, harness.client);
 
-    expect(dataOf(first)).toEqual(deployRepositories);
+    expect(textOf(first)).toBe("2 production repositories.\n\n| id | name | type |\n| --- | --- | --- |\n"
+      + "| production-deploy | Production Deployment |  |\n| staging-deploy | Staging Deployment |  |");
     expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual(["/production-repos", "/production-repos"]);
   });
 
@@ -34,11 +35,10 @@ describe("deployment tools", () => {
     const result = await executeTool("list_deployments", {
       repository: "production",
       project: "insurance-rules",
-      response_format: "markdown",
     }, harness.client);
 
-    expect(textOf(result)).toContain("# Deployments");
-    expect(textOf(result)).toContain("insurance-rules-v1.2.3");
+    expect(textOf(result)).toContain("| id | name | repository | projects |");
+    expect(textOf(result)).toContain("| deploy-001 | insurance-rules-v1.2.3 | production | insurance-rules by admin at 2025-11-09T16:00:00Z |");
   });
 
   it("openl_deploy_project deploys to the repository it names by its display name", async () => {

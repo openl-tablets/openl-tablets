@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json, text/event-stream
 MCP-Protocol-Version: 2026-07-28
 Mcp-Method: tools/call
-Mcp-Name: openl_list_deployments
+Mcp-Name: openl_list_tables
 Authorization: Token ${PAT}
 
 {
@@ -11,10 +11,12 @@ Authorization: Token ${PAT}
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "openl_list_deployments",
+    "name": "openl_list_tables",
     "arguments": {
-      "project": "McpTools",
-      "response_format": "markdown"
+      "projectId": "${PROJECT_ID}",
+      "kind": [
+        "Rules"
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

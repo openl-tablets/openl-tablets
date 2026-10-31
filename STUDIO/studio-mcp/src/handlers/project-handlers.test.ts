@@ -44,15 +44,31 @@ describe("project lists and details", () => {
 
     const result = await executeTool("list_projects", { repository: "Design Repository" }, harness.client);
 
-    expect(dataOf(result)).toEqual([expect.objectContaining({ name: "Project 1", projectId: "design:Project 1:hash123" })]);
-    expect(dataOf(result)[0]).not.toHaveProperty("id");
+    expect(textOf(result)).toBe("1 project.\n\n| projectId | name | repository | branch | status | modified |\n"
+      + "| --- | --- | --- | --- | --- | --- |\n"
+      + "| design:Project 1:hash123 | Project 1 | design |  | OPENED | 2024-01-01T00:00:00Z by admin |");
+  });
+
+  it("openl_list_projects leaves out the time or the author of a change Studio does not name", async () => {
+    harness.mockHttp.onGet("/projects", { params: { offset: 0, size: 50 } }).reply(200, pageOf([
+      projectView("CLOSED", { id: "p1", modifiedBy: undefined }),
+      projectView("CLOSED", { id: "p2", modifiedAt: undefined }),
+      projectView("CLOSED", { id: "p3", modifiedAt: undefined, modifiedBy: undefined }),
+    ]));
+
+    const text = textOf(await executeTool("list_projects", {}, harness.client));
+
+    expect(text).toContain("| CLOSED | 2024-01-01T00:00:00Z |");
+    expect(text).toContain("| CLOSED | by admin |");
+    expect(text).toContain("| CLOSED |  |");
+    expect(text).not.toContain("undefined");
   });
 
   it("openl_list_projects returns requested summary and status expansions", async () => {
     harness.mockHttp.onGet("/projects", {
       params: { include: ["summary", "status"], offset: 0, size: 50 },
     }).reply(200, {
-      ...pageOf([], { total: 0 }),
+      ...pageOf([projectView("OPENED", { compileStatus: { projectId: "p", compileState: "warnings" } })], { total: 1 }),
       repositoryCounts: [{ repository: "design", count: 3 }],
       statusCounts: { OPENED: 2, CLOSED: 1 },
       statuses: ["OPENED", "CLOSED"],
@@ -63,12 +79,11 @@ describe("project lists and details", () => {
       include: ["summary", "status"],
     }, harness.client);
 
-    expect(JSON.parse(textOf(result))).toMatchObject({
-      repositoryCounts: [{ repository: "design", count: 3 }],
-      statusCounts: { OPENED: 2, CLOSED: 1 },
-      statuses: ["OPENED", "CLOSED"],
-      tagCounts: [{ tag: "release", count: 1 }],
-    });
+    // The status adds the compile state of each project; the summary of the listing follows the table
+    expect(textOf(result)).toContain("| modified | compileState |");
+    expect(textOf(result)).toContain("| 2024-01-01T00:00:00Z by admin | warnings |");
+    expect(textOf(result)).toContain('Listing: {"repositoryCounts":[{"repository":"design","count":3}],'
+      + '"statusCounts":{"OPENED":2,"CLOSED":1},"statuses":["OPENED","CLOSED"],"tagCounts":[{"tag":"release","count":1}]}');
   });
 
   it("openl_list_projects pages the projects Studio pages, also from an offset off the page grid", async () => {
@@ -80,33 +95,16 @@ describe("project lists and details", () => {
       return [200, pageOf(content, { pageNumber: Math.floor(offset / pageSize), pageSize, total: allProjects.length })];
     });
 
-    const first = textOf(await executeTool("list_projects", { limit: 50, offset: 0, response_format: "markdown" }, harness.client));
-    const second = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 50 }, harness.client)));
-    const third = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 100 }, harness.client)));
-    const shifted = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 25 }, harness.client)));
+    const page = async (offset: number): Promise<string[]> =>
+      textOf(await executeTool("list_projects", { limit: 50, offset }, harness.client)).split("\n");
 
-    expect(first).toContain("Total: 120");
-    expect(first).toContain("More results available (next offset: 50)");
-    expect(second.data).toHaveLength(50);
-    expect(second.data[0].name).toBe("p50");
-    expect(second.pagination).toEqual({ limit: 50, offset: 50, total_count: 120, has_more: true, next_offset: 100 });
-    expect(third.data).toHaveLength(20);
-    expect(third.data[0].name).toBe("p100");
-    expect(third.pagination).toEqual({ limit: 50, offset: 100, total_count: 120, has_more: false });
-    expect(shifted.data[0].name).toBe("p25");
-    expect(shifted.pagination).toMatchObject({ offset: 25, next_offset: 75 });
-  });
-
-  it("openl_list_projects renders the status breakdown only in detailed Markdown", async () => {
-    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED"), projectView("CLOSED", { name: "p2" })], { total: 2 }));
-
-    const concise = textOf(await executeTool("list_projects", { response_format: "markdown_concise" }, harness.client));
-    const detailed = textOf(await executeTool("list_projects", { response_format: "markdown_detailed" }, harness.client));
-
-    expect(concise).toContain("Found 2 projects");
-    expect(concise).not.toContain("**Status Breakdown:**");
-    expect(detailed).toContain("**Status Breakdown:** 1 opened, 1 closed");
-    expect(concise.length).toBeLessThan(detailed.length);
+    const [second, third, shifted] = [await page(50), await page(100), await page(25)];
+    expect(second[0]).toBe("120 projects; 51–100 below, the next page at offset=100.");
+    expect(second[4]).toContain("| p50 |");
+    expect(third[0]).toBe("120 projects; 101–120 below.");
+    expect(third.filter((line) => line.startsWith("| design:"))).toHaveLength(20);
+    expect(shifted[0]).toBe("120 projects; 26–75 below, the next page at offset=75.");
+    expect(shifted[4]).toContain("| p25 |");
   });
 
   it("openl_get_project answers the project Studio describes", async () => {
@@ -118,28 +116,13 @@ describe("project lists and details", () => {
     expect(dataOf(result)).toEqual({ projectId: id, ...project });
   });
 
-  it("openl_list_projects leaves out the repository details of each project", async () => {
-    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED", {
-      repositoryInfo: { name: "Design", features: { branches: true, comments: true } },
-    })]));
-
-    const result = await executeTool("list_projects", {}, harness.client);
-
-    expect(dataOf(result)[0]).toMatchObject({ projectId: "design:project1:hash123", repository: "design" });
-    expect(dataOf(result)[0]).not.toHaveProperty("repositoryInfo");
-  });
-
-  it("names the capabilities of a project it reads in a list, leaving out one Studio marks unavailable", async () => {
+  it("names the capabilities of a project it reads, leaving out one Studio marks unavailable", async () => {
     const capabilities = { canOpen: true, canSave: false, canDeploy: true } as ProjectViewModel["capabilities"];
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", { capabilities }));
-    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED", { capabilities })]));
 
     const project = dataOf(await executeTool("get_project", { projectId: "design-project1" }, harness.client));
-    const listed = dataOf(await executeTool("list_projects", {}, harness.client))[0];
 
     expect(project.capabilities).toEqual(["canOpen", "canDeploy"]);
-    // A listed project leaves them to openl_get_project
-    expect(listed).not.toHaveProperty("capabilities");
   });
 
   it("answers the compile status of a project without what the project names already", async () => {
@@ -150,18 +133,11 @@ describe("project lists and details", () => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", {
       branch: "main", revision: "r1", repositoryInfo: { name: "Design" }, compileStatus,
     } as Partial<ProjectViewModel>));
-    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED", {
-      branch: "main", revision: "r2", compileStatus,
-    } as Partial<ProjectViewModel>)]));
-
     const project = dataOf(await executeTool("get_project", { projectId: "design-project1" }, harness.client));
-    const listed = dataOf(await executeTool("list_projects", {}, harness.client))[0];
 
     expect(project.compileStatus).toEqual({ compileState: "ok" });
     // openl_get_project keeps the repository of its one project
     expect(project.repositoryInfo).toEqual({ name: "Design" });
-    // A value the project does not name already stays
-    expect(listed.compileStatus).toEqual({ revision: "r1", compileState: "ok" });
   });
 
   it("openl_list_project_modules and openl_list_module_sheets read the modules and the worksheets of a project", async () => {
@@ -173,8 +149,10 @@ describe("project lists and details", () => {
     const sheetResult = await executeTool("list_module_sheets", {
       projectId: "p1", module: "Main Rules", }, harness.client);
 
-    expect(dataOf(moduleResult)).toEqual(modules);
-    expect(dataOf(sheetResult)).toEqual(["Rates", "Tests"]);
+    // A module a pattern matches is listed beside the module of the pattern
+    expect(textOf(moduleResult)).toBe("2 modules.\n\n| module | path |\n| --- | --- |\n| Main | rules/*.xlsx |\n"
+      + "| Rates | rules/Rates.xlsx |");
+    expect(textOf(sheetResult)).toBe("2 sheets.\n\n| sheet |\n| --- |\n| Rates |\n| Tests |");
   });
 });
 

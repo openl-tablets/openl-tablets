@@ -3,7 +3,8 @@
  */
 
 import * as schemas from "../schemas.js";
-import { formatPage } from "../formatters.js";
+import { formatListOf } from "../markdown-list.js";
+import type * as Types from "../types.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 
 export function registerDeploymentHandlers(): void {
@@ -21,8 +22,15 @@ export function registerDeploymentHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { limit, offset } = args;
 
-      const repositories = (await client.listDeployRepositories()).map(({ aclId, ...repository }) => repository);
-      return textResult(formatPage(repositories, "json", limit, offset));
+      const repositories = await client.listDeployRepositories();
+      return textResult(formatListOf(repositories, limit, offset, {
+        noun: "production repositories", one: "production repository",
+        columns: [
+          { header: "id", value: (repository) => repository.id },
+          { header: "name", value: (repository) => repository.name },
+          { header: "type", value: (repository) => repository.type },
+        ],
+      }));
     },
   });
 
@@ -44,7 +52,15 @@ export function registerDeploymentHandlers(): void {
         repository: args.repository,
         project: args.project,
       });
-      return textResult(formatPage(deployments, args.response_format, limit, offset, { dataType: "deployments" }));
+      return textResult(formatListOf(deployments, limit, offset, {
+        noun: "deployments",
+        columns: [
+          { header: "id", value: (deployment) => deployment.id },
+          { header: "name", value: (deployment) => deployment.name },
+          { header: "repository", value: (deployment) => deployment.repository },
+          { header: "projects", value: (deployment) => (deployment.items ?? []).map(deployedItem).join("; ") },
+        ],
+      }));
     },
   });
 
@@ -74,4 +90,11 @@ export function registerDeploymentHandlers(): void {
       return formatResult({ deployed: name, repository: repositoryId });
     },
   });
+}
+
+/** A project of a deployment: who deployed it, when, and from which design revision, when it is known. */
+function deployedItem(item: NonNullable<Types.DeploymentViewModelShort["items"]>[number]): string {
+  const deployed = item.modifiedBy ? ` by ${item.modifiedBy} at ${item.modifiedAt}` : "";
+  const design = item.designRevision ? ` from revision ${item.designRevision.revision}` : "";
+  return `${item.name}${deployed}${design}`;
 }

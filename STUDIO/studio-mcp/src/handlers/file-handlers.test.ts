@@ -515,10 +515,8 @@ describe("delete, search, copy and move", () => {
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "**/*.xml", content: "premium" });
-    expect(JSON.parse(textOf(result))).toEqual({
-      data: nodes,
-      pagination: expect.objectContaining({ total_count: 1 }),
-    });
+    expect(textOf(result)).toBe("1 match.\n\n| path | type | size | lastModified |\n| --- | --- | --- | --- |\n"
+      + "| rules/config.xml | file |  |  |");
   });
 
   it("openl_search_project_files counts the workbooks a content search covers but cannot read", async () => {
@@ -538,7 +536,7 @@ describe("delete, search, copy and move", () => {
     expect(bodyOf(workbooks)).toEqual({ extensions: ["xlsx"], type: "FILE", recursive: true });
     expect(workbooks.params).toEqual({ fields: "path" });
     expect(bodyOf(search)).toEqual({ content: "Vallidaiton", extensions: ["XLSX", "properties"], recursive: true });
-    expect(JSON.parse(textOf(result)).notSearched).toMatch(/^2 workbooks: content is never matched .*openl_list_tables text/);
+    expect(textOf(result)).toMatch(/\n\nNot searched: 2 workbooks: content is never matched .*openl_list_tables text\.$/);
   });
 
   it.each([
@@ -552,7 +550,7 @@ describe("delete, search, copy and move", () => {
       harness.client);
 
     expect(harness.mockHttp.history.post).toHaveLength(1);
-    expect(JSON.parse(textOf(result))).not.toHaveProperty("notSearched");
+    expect(textOf(result)).not.toContain("Not searched");
   });
 
   it("openl_search_project_files forwards extensions/type/scope=ANCESTORS/recursive/from/revision", async () => {
@@ -596,22 +594,20 @@ describe("delete, search, copy and move", () => {
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "rules/**/*", recursive: true });
-    expect(dataOf<any[]>(result).map(({ path }) => path)).toEqual(["rules/Main.xlsx", "rules/old"]);
+    expect(textOf(result)).toBe("2 matches.\n\n| path |\n| --- |\n| rules/Main.xlsx |\n| rules/old |");
   });
 
   it("openl_search_project_files paginates the match set client-side (limit/offset)", async () => {
     const nodes = Array.from({ length: 5 }, (_, i) => ({ path: `f${i}.xlsx`, name: `f${i}.xlsx`, type: "file" }));
     harness.mockHttp.onPost("/projects/p1/file-search").reply(200, nodes);
 
-    const page1 = JSON.parse(textOf(await executeTool("search_project_files", {
-      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 0, }, harness.client)));
-    const page3 = JSON.parse(textOf(await executeTool("search_project_files", {
-      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 4, }, harness.client)));
+    const page1 = textOf(await executeTool("search_project_files", {
+      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 0, fields: "name", }, harness.client));
+    const page3 = textOf(await executeTool("search_project_files", {
+      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 4, fields: "name", }, harness.client));
 
-    expect(page1.data.map((node: { name: string }) => node.name)).toEqual(["f0.xlsx", "f1.xlsx"]);
-    expect(page1.pagination).toMatchObject({ limit: 2, offset: 0, total_count: 5, has_more: true });
-    expect(page3.data.map((node: { name: string }) => node.name)).toEqual(["f4.xlsx"]);
-    expect(page3.pagination).toMatchObject({ total_count: 5, has_more: false });
+    expect(page1).toBe("5 matches; 1–2 below, the next page at offset=2.\n\n| name |\n| --- |\n| f0.xlsx |\n| f1.xlsx |");
+    expect(page3).toBe("5 matches; 5–5 below.\n\n| name |\n| --- |\n| f4.xlsx |");
   });
 
   it.each([
@@ -669,10 +665,10 @@ describe("delete, search, copy and move", () => {
       projectId: "p1", scope: "ANCESTORS", from: "rules", pattern: "AGENTS.md",
     }, harness.client);
 
-    expect(dataOf<any[]>(result)).toEqual([
-      { path: "AGENTS.md", name: "AGENTS.md", type: "file", content: "short" },
-      { path: "../AGENTS.md", name: "AGENTS.md", type: "file", contentOmitted: true },
-      { path: "../../AGENTS.md", name: "AGENTS.md", type: "file", contentOmitted: true },
-    ]);
+    expect(textOf(result)).toBe([
+      "## AGENTS.md\n\nshort",
+      "## ../AGENTS.md\n\nThe content is over 5000 bytes: read it with openl_read_project_file.",
+      "## ../../AGENTS.md\n\nThe content is over 5000 bytes: read it with openl_read_project_file.",
+    ].join("\n\n"));
   });
 });

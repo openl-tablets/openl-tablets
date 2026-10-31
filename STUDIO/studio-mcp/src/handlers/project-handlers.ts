@@ -6,9 +6,11 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { paginateCollection, type Truncation } from "../formatters.js";
+import { namesOfSet } from "../utils.js";
+import { type Truncation } from "../formatters.js";
+import { formatList, formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
-import { registerTool, formatResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { refreshFromDisk } from "./freshness.js";
 
 /**
@@ -145,18 +147,13 @@ type AnsweredProject = Omit<Types.ProjectViewModel, "compileStatus" | "capabilit
   capabilities?: string[];
 };
 
-/** The operations a project takes, by name: `canOpen`, `canSave`. Studio leaves out the ones it does not take. */
-function capabilityNames(capabilities: Types.ProjectCapabilities): string[] {
-  return Object.entries(capabilities).filter(([, available]) => available).map(([name]) => name);
-}
-
 /**
  * A project as the project tools answer it: its capabilities as a list of names, and its compile status without the
  * id, the branch, the revision and the last change the project names already, which an agent would otherwise read
  * twice. A value that differs stays.
  */
 function answeredProject({ capabilities, ...project }: Types.ProjectViewModel): AnsweredProject {
-  const answered = { ...project, ...(capabilities ? { capabilities: capabilityNames(capabilities) } : {}) };
+  const answered = { ...project, ...(capabilities ? { capabilities: namesOfSet(capabilities) } : {}) };
   if (!project.compileStatus) {
     return answered;
   }
@@ -179,7 +176,7 @@ export function registerProjectHandlers(): void {
     name: "list_projects",
     title: "List Projects",
     description:
-      "List projects, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. Each project names its id as 'projectId', which the other tools take as it is, and leaves its capabilities to openl_get_project. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
+      "List projects as a table, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. Each project names its id as 'projectId', which the other tools take as it is, and leaves its capabilities to openl_get_project; include 'status' adds its compileState. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
     schema: schemas.listProjectsSchema,
     annotations: {
       readOnlyHint: true,
@@ -187,27 +184,34 @@ export function registerProjectHandlers(): void {
       idempotentHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { response_format: format, repository, ...filters } = args;
+      const { repository, ...filters } = args;
       const projectsPage = await client.listProjectsPage({
         ...filters,
         // The client may name the repository; Studio takes its id.
         repository: repository ? await client.getRepositoryIdByName(repository) : undefined,
       });
-      // Each project carries its opaque id as projectId, the name the other tools take it by, and only so. The
-      // repository of a page is the same for many projects, and openl_list_repositories tells it; the capabilities
-      // of a project, openl_get_project.
-      const transformedProjects = projectsPage.items.map((project) => {
-        const { id, repositoryInfo, capabilities, ...rest } = answeredProject(project);
-        return { projectId: id, ...rest };
-      });
-
-      const paginated = paginateCollection({ ...projectsPage, items: transformedProjects }, filters.offset);
-
-      return formatResult(paginated.data, format, {
-        pagination: paginated.pagination,
-        responseMetadata: projectsPage.metadata,
-        dataType: "projects",
-      });
+      // Each project carries its opaque id as projectId, the name the other tools take it by; the capabilities of a
+      // project are told by openl_get_project
+      const columns: Array<Column<Types.ProjectViewModel>> = [
+        { header: "projectId", value: (project) => project.id },
+        { header: "name", value: (project) => project.name },
+        { header: "repository", value: (project) => project.repository },
+        { header: "branch", value: (project) => project.branch },
+        { header: "status", value: (project) => project.status },
+        // Studio may leave the time or the author of the last change out
+        {
+          header: "modified",
+          value: (project) => [project.modifiedAt, project.modifiedBy && `by ${project.modifiedBy}`].filter(Boolean).join(" "),
+        },
+        ...(filters.include?.includes("status")
+          ? [{ header: "compileState", value: (project: Types.ProjectViewModel) => project.compileStatus?.compileState }]
+          : []),
+      ];
+      return textResult(formatStudioPage(projectsPage, filters.offset, {
+        noun: "projects",
+        columns,
+        notes: projectsPage.metadata ? [`Listing: ${JSON.stringify(projectsPage.metadata)}`] : [],
+      }));
     },
   });
 
@@ -252,7 +256,7 @@ export function registerProjectHandlers(): void {
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 
-      return formatResult(payload, "json", { truncation: messageTruncation(payload) });
+      return formatResult(payload, { truncation: messageTruncation(payload) });
     },
   });
 
@@ -432,8 +436,18 @@ export function registerProjectHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const modules = await client.listProjectModules(args.projectId);
-      return formatResult(modules);
+      const modules = (await client.listProjectModules(args.projectId))
+        .flatMap((module) => [module, ...(module.modules ?? [])]);
+      return textResult(formatList({
+        noun: "modules",
+        items: modules,
+        offset: 0,
+        total: modules.length,
+        columns: [
+          { header: "module", value: (module) => module.name },
+          { header: "path", value: (module) => module.path },
+        ],
+      }));
     },
   });
 
@@ -441,7 +455,7 @@ export function registerProjectHandlers(): void {
     name: "list_module_sheets",
     title: "List Module Worksheets",
     description:
-      "List worksheet names in a project module. First call openl_list_project_modules to get the exact moduleName. Use a returned sheet name as the destination sheet when creating or copying a table.",
+      "List worksheet names in a project module. First call openl_list_project_modules to get the exact module name. Use a returned sheet name as the destination sheet when creating or copying a table.",
     schema: schemas.projectModuleSchema,
     annotations: {
       readOnlyHint: true,
@@ -450,7 +464,7 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const sheets = await client.listModuleSheets(args.projectId, args.module);
-      return formatResult(sheets);
+      return textResult(formatWholeList(sheets, { noun: "sheets", columns: [{ header: "sheet", value: (sheet) => sheet }] }));
     },
   });
 }

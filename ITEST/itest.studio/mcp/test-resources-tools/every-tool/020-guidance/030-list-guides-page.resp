@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"guide/working-with-openl-tables/table-types/spreadsheet-table/parsing-a-spreadsheet-table\",\"title\":\"Parsing A Spreadsheet Table\",\"size\":#},*"
+        "text": "8 documents; 1–3 below, the next page at offset=3.\n\n| id | title | bytes |\n| --- | --- | --- |\n| guide/working-with-openl-tables/table-types/spreadsheet-table/parsing-a-spreadsheet-table | Parsing A Spreadsheet Table | 7693 |\n| guide/working-with-openl-tables/table-types/spreadsheet-table/accessing-spreadsheet-result-cells | Accessing Spreadsheet Result Cells | 1410 |\n| guide/working-with-openl-tables/table-types/spreadsheet-table/using-ranges-in-spreadsheet-table | Using Ranges In Spreadsheet Table | 674 |"
       }
     ],
     "resultType": "complete",

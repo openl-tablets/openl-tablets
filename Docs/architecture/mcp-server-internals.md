@@ -27,9 +27,9 @@ All paths are under `STUDIO/studio-mcp/src`.
   `--use-env-proxy` turns the proxy of the environment on.
 - **`schemas.ts`**, **`types.ts`**, **`formatters.ts`** — the Zod schemas of the tool arguments, the Studio REST
   types, and the rendering of a result as JSON or Markdown; `dependency-markdown.ts` renders a table dependency graph
-  as Mermaid diagrams, `json-cut.ts` cuts a JSON answer over the limit in its structure, `table-grid.ts` converts
-  between Studio's matrix of cells and the rows, merges and formulas the table tools read and write, and `text.ts`
-  holds the text helpers both renderings share.
+  as Mermaid diagrams, `markdown-list.ts` renders a list as a Markdown table, `json-cut.ts` cuts a JSON answer over
+  the limit in its structure, `table-grid.ts` converts between Studio's matrix of cells and the rows, merges and
+  formulas the table tools read and write, and `text.ts` holds the text helpers both renderings share.
 - **`guides-registry.ts`** — the specifications and the Reference Guide OpenL Studio serves at `/docs`.
 - **`transfer-links.ts`** — the links a file tool answers instead of the bytes of a file: a transfer link Studio
   issues where it authenticates, the address of the REST API in single-user mode, with where the file lives in its
@@ -100,9 +100,10 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 
 ## Responses and Errors
 
-- **Results** — JSON without indentation in a text content block: the agent reads it as well as indented JSON, and
-  indentation alone would take more of its context than the data, 60% of a table read. A result over 25,000
-  characters is cut by whole items, in JSON and Markdown alike: a list by items, with the page cursor moved to match,
+- **Results** — a list and test results are Markdown tables in a text content block (`markdown-list.ts`), whose
+  header names each field once; anything else is JSON without indentation: the agent reads it as well as indented
+  JSON, and indentation alone would take more of its context than the data, 60% of a table read. A result over 25,000
+  characters is cut by whole items: a list by rows, with the offset of the next page in its first line moved to match,
   a table read by rows, with `totalRows` and the `offset` to continue from. The note on a cut result names only a
   way to continue that the tool has. A JSON answer that has no items to cut by, or whose one item does not fit, is
   cut in its structure (`json-cut.ts`): texts longer than 200 characters are shortened, then the largest array loses

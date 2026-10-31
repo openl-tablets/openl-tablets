@@ -17,13 +17,12 @@ describe("repository tools", () => {
   it("openl_list_repositories pages the repositories", async () => {
     harness.mockHttp.onGet("/repos").reply(200, mockRepositories);
 
-    const first = JSON.parse(textOf(await executeTool("list_repositories", { limit: 1 }, harness.client)));
-    const second = JSON.parse(textOf(await executeTool("list_repositories", {
-      limit: 1, offset: 1, }, harness.client)));
+    const first = textOf(await executeTool("list_repositories", { limit: 1 }, harness.client));
+    const second = textOf(await executeTool("list_repositories", { limit: 1, offset: 1, }, harness.client));
 
-    expect(first.data.map((repository: { id: string }) => repository.id)).toEqual(["design"]);
-    expect(first.pagination).toMatchObject({ has_more: true, next_offset: 1, total_count: 2 });
-    expect(second.data.map((repository: { id: string }) => repository.id)).toEqual(["production"]);
+    expect(first.split("\n")[0]).toBe("2 repositories; 1–1 below, the next page at offset=1.");
+    expect(first).toMatch(/\n\| design \| /);
+    expect(second).toMatch(/\n\| production \| /);
   });
 
   it("openl_list_branches resolves the repository by its display name", async () => {
@@ -41,7 +40,7 @@ describe("repository tools", () => {
       revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment, deleted: false, technicalRevision: false,
     });
     harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 0, size: 2 } }).reply(200, {
-      content: [revision("abc123", "First"), revision("def456", "Second")],
+      content: [revision("abc123", "First\n\nDetail"), { ...revision("def456", "Second"), technicalRevision: true }],
       pageNumber: 0,
       pageSize: 2,
       numberOfElements: 2,
@@ -53,13 +52,10 @@ describe("repository tools", () => {
       limit: 2,
     }, harness.client);
 
-    expect(JSON.parse(textOf(result)).pagination).toEqual({
-      limit: 2,
-      offset: 0,
-      has_more: true,
-      next_offset: 2,
-      total_count: 4,
-    });
+    // A revision is named by its first line of comment; the flags that are false are left out
+    expect(textOf(result)).toBe("4 revisions; 1–2 below, the next page at offset=2.\n\n"
+      + "| revision | date | author | comment | flags |\n| --- | --- | --- | --- | --- |\n"
+      + "| abc123 | 2026-01-01T00:00:00Z |  | First |  |\n| def456 | 2026-01-01T00:00:00Z |  | Second | technical |");
   });
 
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {
@@ -77,11 +73,6 @@ describe("repository tools", () => {
       limit: 50,
     }, harness.client);
 
-    expect(JSON.parse(textOf(result)).pagination).toMatchObject({
-      limit: 50,
-      offset: 25,
-      total_count: 25,
-      has_more: false,
-    });
+    expect(textOf(result)).toBe("25 revisions; none from offset=25.");
   });
 });

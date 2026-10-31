@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"pagination\":{\"offset\":0,\"count\":3,\"total_count\":3,\"has_more\":false},\"data\":{*\"name\":\"PremiumTest\",*\"numberOfTests\":3,*\"numberOfFailures\":0,*\"parameters\":[{\"name\":\"driver\",\"description\":\"driver\",\"lazy\":true,\"type\":\"Driver\",\"key\":\"Young\"}]*}"
+        "text": "PremiumTest (*): 3 tests, 0 failed.\n\n3 tests listed.\n\n| test table | test | status | inputs | assertion | expected | actual |\n| --- | --- | --- | --- | --- | --- | --- |\n| PremiumTest | 1 | passed | driver=Driver Young |  |  |  |\n| PremiumTest | 2 | passed | driver=Driver Adult |  |  |  |\n| PremiumTest | 3 | passed | driver=Driver Senior |  |  |  |"
       }
     ],
     "resultType": "complete",

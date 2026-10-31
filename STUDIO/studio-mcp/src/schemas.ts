@@ -58,14 +58,12 @@ export const pagedListSchema = z.strictObject({
 
 /** The design repositories, a page of a list the server holds whole. */
 export const listRepositoriesSchema = z.strictObject({
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
 export const listDeploymentsSchema = z.strictObject({
   repository: z.string().optional().describe("The id of a production repository to filter deployments by."),
   project: z.string().optional().describe("The exact name of a deployed project to filter deployments by; it adds the revisions and authors of its deployments."),
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
@@ -79,7 +77,6 @@ export const listProjectsSchema = z.strictObject({
   sort: z.enum(["name", "status", "updated"]).optional().describe("Field used to sort the returned page."),
   include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe(`Optional response expansions and listing behavior from the Studio API. ${STATUS_INCLUDE_NOTE}`),
   tags: z.record(z.string(), z.string()).optional().describe("Filter by project tags. Tags must be prefixed with 'tags.' in the query string (e.g., tags.version='1.0', tags.environment='production'). This is handled automatically by the API client - provide as object with tag names as keys."),
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
@@ -131,7 +128,6 @@ export const listTablesSchema = z.strictObject({
   scope: z.enum(TABLE_SCOPES).optional().describe("How wide the search reaches: 'module' (the module named), 'project' (every module) or 'all' (the projects this one depends on as well); the module when one is named, else the project."),
   sort: z.enum(TABLE_SORTS).optional().describe("'name' (default) or 'position': workbook by workbook, sheet by sheet, top to bottom."),
   properties: z.record(z.string(), z.string()).optional().describe("Filter by table properties, such as { state: 'CA', lob: 'Auto' }."),
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
@@ -707,13 +703,12 @@ export const getTestResultsSchema = z.strictObject({
   projectId: projectIdSchema,
   summary: z.boolean().default(false).describe("Read only the time of the run and how many tests passed and failed."),
   tableId: tableIdSchema.optional().describe("The test table to read, page by page of its tests; omit to read every test table, page by page."),
-  caseId: nonBlankString.optional().describe("The id of one test of tableId, to read it with its inputs whole: the other reads name an input with inner structure only by its type and key."),
-  failuresOnly: z.boolean().optional().describe("Read only the failed tests."),
-  failures: z.number().int().positive().default(5).describe("With failuresOnly, how many failed tests each test table lists, 5 by default; a test table with more names how many it leaves out in omittedFailures. The results of one tableId list them all."),
+  caseId: nonBlankString.optional().describe("The id of one test of tableId, to read it with its inputs as JSON, whole up to 12,500 characters and cut in their structure beyond, the cuts named: the other reads name an input with inner structure only by its type and key."),
+  failuresOnly: z.boolean().default(true).describe("List only the failed tests, true by default; false lists every test."),
+  failures: z.number().int().positive().default(5).describe("With failuresOnly, how many failed tests each test table lists, 5 by default; a test table with more tells how many it leaves out. The results of one tableId list them all."),
   offset: z.number().int().nonnegative().optional().describe("The test table to start from, or with tableId the test, as pagination.next_offset names it."),
   limit: z.number().int().positive().max(200).optional().describe("How many test tables a page holds, or with tableId how many tests, 50 by default."),
   unpaged: z.boolean().default(false).describe("Read every test table in one answer without a size limit, which can exceed what the client accepts."),
-  response_format: ResponseFormat,
 }).superRefine(checkTestResultOptions);
 
 // =============================================================================

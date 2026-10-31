@@ -31,8 +31,8 @@ describe("project branch and merge handlers", () => {
       projectId: "p1", scope: "repository", }, harness.client);
 
     expect(scopes).toEqual(["project", "repository"]);
-    expect(dataOf(projectResponse)).toEqual(projectBranches);
-    expect(dataOf(repositoryResponse)).toEqual(repositoryBranches);
+    expect(textOf(projectResponse)).toBe("1 branch.\n\n| branch | flags |\n| --- | --- |\n| feature/rates |  |");
+    expect(textOf(repositoryResponse)).toContain("| main | base, protected |\n| feature/rates |  |");
   });
 
   it("lists the base and the protected branches first, filtered by name and paged", async () => {
@@ -42,15 +42,15 @@ describe("project branch and merge handlers", () => {
       { name: "development", base: true },
     ]);
 
-    const first = JSON.parse(textOf(await executeTool("list_project_branches", { projectId: "p1", limit: 3 }, harness.client)));
-    const filtered = JSON.parse(textOf(await executeTool("list_project_branches", {
+    const first = textOf(await executeTool("list_project_branches", { projectId: "p1", limit: 3 }, harness.client));
+    const filtered = textOf(await executeTool("list_project_branches", {
       projectId: "p1", name: "at-29", offset: 1, limit: 2,
-    }, harness.client)));
+    }, harness.client));
 
-    expect(first.data.map((branch: { name: string }) => branch.name)).toEqual(["development", "release-26", "AT-0"]);
-    expect(first.pagination).toMatchObject({ total_count: 302, next_offset: 3 });
-    expect(filtered.data.map((branch: { name: string }) => branch.name)).toEqual(["AT-290", "AT-291"]);
-    expect(filtered.pagination).toMatchObject({ offset: 1, total_count: 11, next_offset: 3 });
+    expect(first).toBe("302 branches; 1–3 below, the next page at offset=3.\n\n| branch | flags |\n| --- | --- |\n"
+      + "| development | base |\n| release-26 | protected |\n| AT-0 |  |");
+    expect(filtered).toBe("11 branches; 2–3 below, the next page at offset=3.\n\n| branch | flags |\n| --- | --- |\n"
+      + "| AT-290 |  |\n| AT-291 |  |");
   });
 
   it("checks merge direction with the current backend request shape", async () => {

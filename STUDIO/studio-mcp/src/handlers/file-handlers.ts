@@ -7,7 +7,7 @@ import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { formatPage } from "../formatters.js";
+import { formatListOf, type Column } from "../markdown-list.js";
 import { formatCount } from "../text.js";
 import { isEditedInPlace, sanitizeError } from "../utils.js";
 import { isConflictError, isNotFoundError } from "../http.js";
@@ -249,8 +249,13 @@ export function registerFileHandlers(): void {
         ? { ...node, content: undefined, contentOmitted: true }
         : node));
       const notSearched = await workbooksNotSearched(client, args, query);
-      return textResult(formatPage(results, "json", limit, offset,
-        notSearched ? { responseMetadata: { notSearched } } : {}));
+      return textResult(args.scope === "ANCESTORS"
+        ? ancestorFiles(results)
+        : formatListOf(results, limit, offset, {
+          noun: "matches", one: "match",
+          columns: matchColumns(args.fields),
+          notes: notSearched ? [`Not searched: ${notSearched}.`] : [],
+        }));
     },
   });
 
@@ -419,4 +424,23 @@ function transferHandler(
     }
     return formatResult({ [done]: args.destinationPath });
   };
+}
+
+/** The columns of a table of matches: the fields asked for, or the path, the type, the size and the date. */
+function matchColumns(fields: string | undefined): Array<Column<Types.FsNode>> {
+  const names = (fields ?? "path,type,size,lastModified").split(",").map((name) => name.trim()).filter(Boolean);
+  return names.map((name) => ({ header: name, value: (node) => (node as unknown as Record<string, unknown>)[name] }));
+}
+
+/** The files an ANCESTORS search finds, from the folder searched up to the repository root, each with its content. */
+function ancestorFiles(files: Array<Types.FsNode & { contentOmitted?: boolean }>): string {
+  if (files.length === 0) {
+    return "No file of that name above the folder.";
+  }
+  return files.map((file) => {
+    const content = file.contentOmitted
+      ? `The content is over ${INLINE_TEXT_BYTES} bytes: read it with openl_read_project_file.`
+      : file.content ?? "";
+    return `## ${file.path}\n\n${content}`;
+  }).join("\n\n");
 }

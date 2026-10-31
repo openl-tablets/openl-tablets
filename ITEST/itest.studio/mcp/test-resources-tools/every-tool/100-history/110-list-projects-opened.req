@@ -14,8 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_list_projects",
     "arguments": {
       "repository": "design",
-      "status": "OPENED",
-      "response_format": "markdown"
+      "status": "OPENED"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

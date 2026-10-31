@@ -167,6 +167,11 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** The names of the flags that are set: `["canOpen", "canSave"]` of `{ canOpen: true, canSave: true, canMerge: false }`. */
+export function namesOfSet(flags: object | undefined): string[] {
+  return Object.entries(flags ?? {}).filter(([, set]) => set === true).map(([name]) => name);
+}
+
 /**
  * Extract structured error information from API response data
  *

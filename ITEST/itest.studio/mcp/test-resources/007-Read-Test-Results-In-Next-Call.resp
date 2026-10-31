@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"executionTimeMs\":#,\"numberOfTests\":0,\"numberOfFailures\":0,\"numberOfPassed\":0}}"
+        "text": "0 tests: 0 passed, 0 failed, in * s."
       }
     ],
     "resultType": "complete",

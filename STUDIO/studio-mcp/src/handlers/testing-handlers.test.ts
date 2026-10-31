@@ -78,23 +78,9 @@ describe("test results", () => {
       })];
     });
 
-    const summary = await executeTool("get_test_results", {
-      projectId: "design-project1",
-      summary: true,
-    }, harness.client);
-    const full = await executeTool("get_test_results", {
-      projectId: "design-project1",
-    }, harness.client);
-    const byTable = await executeTool("get_test_results", {
-      projectId: "design-project1",
-      tableId: "Test_calculatePremium_1234",
-    }, harness.client);
-
-    for (const response of [summary, full, byTable]) {
-      expect(dataOf(response)).toMatchObject({
-        numberOfTests: 2,
-        numberOfFailures: 0,
-      });
+    for (const args of [{ summary: true }, {}, { tableId: "Test_calculatePremium_1234" }]) {
+      const text = textOf(await executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client));
+      expect(text).toMatch(/^(2 tests: 2 passed, 0 failed|Test_calculatePremium \(Test_calculatePremium_1234\): 2 tests, 0 failed)/);
     }
     expect(resultReads).toBe(6);
   });
@@ -115,8 +101,8 @@ describe("test results", () => {
   it.each([
     [{ summary: true }, { failures: 5 }],
     [{ summary: true, failures: 3, unpaged: true }, { failures: 3, unpaged: true }],
-    [{ failuresOnly: true }, { failuresOnly: true, failures: 5, lazyValues: true }],
-    [{ unpaged: true }, { failures: 5, unpaged: true, lazyValues: true }],
+    [{}, { failuresOnly: true, failures: 5, lazyValues: true }],
+    [{ failuresOnly: false, unpaged: true }, { failures: 5, unpaged: true, lazyValues: true }],
   ])("openl_get_test_results asks Studio for the results %j select", async (args, params) => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({}));
 
@@ -137,216 +123,214 @@ describe("test results", () => {
     expect(harness.mockHttp.history.get).toHaveLength(0);
   });
 
-  it("openl_get_test_results names the failed tests a test table leaves out of its list", async () => {
-    const failed = (id: string) => ({ id, description: id, status: "TR_NEQ" as const, executionTimeMs: 1 });
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
-      testCases: [
-        { ...testCase("Test_premium", "Test_premium_1", 9, 7), testUnits: ["1", "2", "3", "4", "5"].map(failed) },
-        { ...testCase("Test_discount", "Test_discount_1", 2, 1), testUnits: [failed("1")] },
-      ],
-    }));
-
-    const result = await executeTool("get_test_results", { projectId: "design-project1", failuresOnly: true }, harness.client);
-
-    const [premium, discount] = dataOf<any>(result).testCases;
-    expect(premium.omittedFailures).toBe(2);
-    expect(discount).not.toHaveProperty("omittedFailures");
+  const failed = (id: string, extra: object = {}): Types.TestUnitExecutionResult => ({
+    id, status: "TR_NEQ", executionTimeMs: 1,
+    testAssertions: [
+      { description: "Premium", expectedValue: 100, actualValue: 90, status: "TR_NEQ" },
+      { description: "Tax", expectedValue: 5, actualValue: 5, status: "TR_OK" },
+    ],
+    ...extra,
   });
 
-  it("openl_get_test_results reads the failed tests of a run where a test table has none", async () => {
+  it("answers the counts, the test tables, and a row per failed assertion with the inputs of its test", async () => {
     // Studio lists no test units for a test table without failures when only the failed tests are asked for
-    const { testUnits: _, ...passing } = testCase("Test_premium", "Test_premium_1", 3, 0);
-    const failing = {
-      ...testCase("Test_discount", "Test_discount_1", 2, 1),
-      testUnits: [{ id: "1", status: "TR_NEQ" as const, executionTimeMs: 1 }],
-    };
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [passing, failing] }));
-
-    const result = await executeTool("get_test_results", { projectId: "design-project1", failuresOnly: true }, harness.client);
-
-    const [premium, discount] = dataOf<any>(result).testCases;
-    expect(premium).not.toHaveProperty("testUnits");
-    expect(discount.testUnits).toHaveLength(1);
-  });
-
-  it("openl_get_test_results answers the parameters of a test without the schema of their types", async () => {
-    const unit = {
-      id: "1", status: "TR_OK" as const, executionTimeMs: 1,
-      parameters: [{ name: "age", description: "Integer", value: 25, schema: { type: "integer" } }],
-    };
+    const { testUnits: _, ...passing } = testCase("Test_discount", "Test_discount_1", 3, 0);
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
-      testCases: [{ ...testCase("Test_premium", "Test_premium_1", 1, 0), testUnits: [unit] }],
+      executionTimeMs: 1_500,
+      numberOfTests: 5,
+      numberOfFailures: 1,
+      total: 2,
+      testCases: [passing, {
+        ...testCase("Test_premium", "Test_premium_1", 2, 1),
+        testUnits: [failed("2", {
+          parameters: [
+            { name: "age", description: "Age", value: 25 },
+            { name: "policy", description: "Policy", lazy: true, type: "Policy", key: "P-1" },
+          ],
+        })],
+      }],
     }));
 
-    const result = await executeTool("get_test_results", { projectId: "design-project1" }, harness.client);
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1" }, harness.client));
 
-    expect(dataOf<any>(result).testCases[0].testUnits[0].parameters).toEqual([{ name: "age", description: "Integer", value: 25 }]);
+    expect(text).toBe([
+      "5 tests: 4 passed, 1 failed, in 1.50 s.",
+      "2 test tables.",
+      "| test table | tableId | tests | failed |\n| --- | --- | --- | --- |\n" +
+        "| Test_discount | Test_discount_1 | 3 | 0 |\n| Test_premium | Test_premium_1 | 2 | 1 |",
+      "| test table | test | status | inputs | assertion | expected | actual |\n" +
+        "| --- | --- | --- | --- | --- | --- | --- |\n" +
+        "| Test_premium | 2 | failed | age=25; policy=Policy P-1 | Premium | 100 | 90 |",
+    ].join("\n\n"));
   });
 
-  it("openl_get_test_results renders the summary of the run", async () => {
+  it("names the failed tests a test table leaves out of its list", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: [{ ...testCase("Test_premium", "Test_premium_1", 9, 7), testUnits: ["1", "2", "3", "4", "5"].map((id) => failed(id)) }],
+    }));
+
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1" }, harness.client));
+
+    expect(text).toContain("Test_premium has 2 more failed tests: read them with tableId Test_premium_1.");
+  });
+
+  it("lists a passed test as a row of its own, and the errors of a test that threw, when every test is asked for", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: [{
+        ...testCase("Test_premium", "Test_premium_1", 2, 1),
+        testUnits: [
+          { id: "1", status: "TR_OK", executionTimeMs: 1 },
+          { id: "2", status: "TR_EXCEPTION", executionTimeMs: 1, errors: [{ severity: "ERROR", summary: "Division by zero" }] },
+        ],
+      }],
+    }));
+
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1", failuresOnly: false }, harness.client));
+
+    expect(text).toContain("| Test_premium | 1 | passed |  |  |  |  |");
+    expect(text).toContain('| Test_premium | 2 | error |  | error |  | "Division by zero" |');
+  });
+
+  it("answers the summary of the run on one line", async () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ executionTimeMs: 250.5, numberOfTests: 10, numberOfFailures: 2 }));
 
-    const text = textOf(await executeTool("get_test_results", {
-      projectId: "design-project1",
-      summary: true,
-      response_format: "markdown",
-    }, harness.client));
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1", summary: true }, harness.client));
 
-    expect(text).toContain("# Test Results Summary");
-    expect(text).toContain("**Passed**: 8");
-  });
-
-  it("openl_get_test_results renders the failed assertions of the run", async () => {
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
-      testCases: [
-        testCase("Test_calculatePremium", "Test_calculatePremium_1234", 5, 0),
-        {
-          ...testCase("Test_calculateDiscount", "Test_calculateDiscount_5678", 3, 1),
-          testUnits: [{
-            id: "discount-case-3",
-            status: "TR_NEQ",
-            executionTimeMs: 10,
-            testAssertions: [{ description: "Discount", expectedValue: 0.2, actualValue: 0.1, status: "TR_NEQ" }],
-          }],
-        },
-      ],
-      numberOfTests: 8,
-      numberOfFailures: 1,
-    }));
-
-    const text = textOf(await executeTool("get_test_results", {
-      projectId: "design-project1",
-      response_format: "markdown",
-    }, harness.client));
-
-    expect(text).toContain("Test_calculatePremium");
-    expect(text).toContain("discount-case-3");
-    expect(text).toContain("| Discount | `0.2` | `0.1` | ❌ FAILED |");
+    expect(text).toBe("10 tests: 8 passed, 2 failed, in 0.25 s.");
   });
 
   it.each([
-    ["a partial last page, without a total", { pageNumber: 1, pageSize: 50, numberOfElements: 25 },
-      { limit: 50, offset: 50, has_more: false }],
+    ["a partial last page, without a total", { pageNumber: 1, pageSize: 50, numberOfElements: 25 }, "75 test tables; 51–75 below."],
     ["a full last page, by the total Studio tells", { pageNumber: 1, pageSize: 50, numberOfElements: 50, total: 100 },
-      { limit: 50, offset: 50, has_more: false, total_count: 100 }],
+      "100 test tables; 51–100 below."],
     ["a full page before more", { pageNumber: 2, pageSize: 25, numberOfElements: 25 },
-      { limit: 25, offset: 50, has_more: true, next_offset: 75 }],
-  ])("openl_get_test_results pages %s", async (_case, page, pagination) => {
+      "test tables; 51–75 below, the next page at offset=75."],
+  ])("pages %s", async (_case, page, line) => {
     const testCases = Array.from({ length: page.numberOfElements }, (_, i) => testCase(`Test${i}`, `t${i}`, 1, 0));
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ ...page, testCases }));
 
-    const result = await executeTool("get_test_results", {
+    const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
       offset: page.pageNumber * page.pageSize,
       limit: page.pageSize,
-    }, harness.client);
+    }, harness.client));
 
-    const response = JSON.parse(textOf(result));
-    expect(response.pagination).toEqual(pagination);
-    // The page Studio read is told by the pagination alone
-    expect(Object.keys(response.data)).toEqual(["testCases", "executionTimeMs", "numberOfTests", "numberOfFailures"]);
+    expect(text.split("\n\n")[1]).toBe(line);
   });
 
-  it.each([
-    [{ limit: 30 }, 30],
-    [{}, 50],
-  ])("openl_get_test_results takes the page size from %j when Studio leaves it out", async (args, limit) => {
-    harness.mockHttp.onGet(summaryPath).reply(200, { ...resultsPage({}), pageSize: undefined });
-
-    const result = await executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client);
-
-    expect(JSON.parse(textOf(result)).pagination).toMatchObject({ limit, offset: 0 });
-  });
-
-  /** A test table of `count` passed tests, each with an assertion of `size` characters. */
+  /** A test table of `count` failed tests, each with an assertion of `size` characters. */
   const tableOfTests = (count: number, size = 10): TestCase => ({
-    ...testCase("Test_calculatePremium", "Test_calculatePremium_1234", count, 0),
+    ...testCase("Test_calculatePremium", "Test_calculatePremium_1234", count, count),
     testUnits: Array.from({ length: count }, (_, i) => ({
-      id: String(i + 1), status: "TR_OK" as const, executionTimeMs: 1,
-      testAssertions: [{ status: "TR_OK" as const, expectedValue: "E".repeat(size), actualValue: "E".repeat(size) }],
+      id: String(i + 1), status: "TR_NEQ" as const, executionTimeMs: 1,
+      testAssertions: [{ status: "TR_NEQ" as const, expectedValue: "E".repeat(size), actualValue: "A".repeat(size) }],
     })),
   });
 
-  it("openl_get_test_results pages the tests of the one table tableId names", async () => {
+  it("pages the tests of the one table tableId names", async () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [tableOfTests(30)] }));
 
-    const response = JSON.parse(textOf(await executeTool("get_test_results", {
+    const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
       offset: 20,
       limit: 5,
-    }, harness.client)));
+    }, harness.client));
 
-    expect(response.data.testCases[0].testUnits.map((unit: { id: string }) => unit.id)).toEqual(["21", "22", "23", "24", "25"]);
-    expect(response.pagination).toEqual({ offset: 20, count: 5, total_count: 30, has_more: true, next_offset: 25 });
+    expect(text.split("\n\n").slice(0, 2)).toEqual([
+      "Test_calculatePremium (Test_calculatePremium_1234): 30 tests, 30 failed.",
+      "30 tests listed; 21–25 below, the next page at offset=25.",
+    ]);
+    expect(text).toContain("| Test_calculatePremium | 21 |");
+    expect(text).not.toContain("| Test_calculatePremium | 26 |");
     // Studio answers every test of the table, its inputs named by their type and key
     expect(harness.mockHttp.history.get[0].params)
-      .toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, allFailures: true, lazyValues: true });
+      .toEqual({ tableId: "Test_calculatePremium_1234", failuresOnly: true, failures: 5, allFailures: true, lazyValues: true });
   });
 
-  it("openl_get_test_results cuts the tests of one table to the limit by whole tests", async () => {
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [tableOfTests(40, 1_000)] }));
+  it("answers the counts alone of one table whose tests all passed, when only failures are asked for", async () => {
+    const { testUnits: _, ...passed } = testCase("Test_calculatePremium", "Test_calculatePremium_1234", 3, 0);
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [passed] }));
+
+    const text = textOf(await executeTool("get_test_results", {
+      projectId: "design-project1", tableId: "Test_calculatePremium_1234",
+    }, harness.client));
+
+    expect(text).toBe("Test_calculatePremium (Test_calculatePremium_1234): 3 tests, 0 failed.");
+  });
+
+  it("cuts the tests of one table to the limit by whole tests", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: [tableOfTests(40, 500)] }));
 
     const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
     }, harness.client));
 
+    const rows = text.split("\n").filter((line) => line.startsWith("| Test_calculatePremium |"));
     expect(text.length).toBeLessThanOrEqual(25_000);
-    const response = JSON.parse(text);
-    const delivered = response.data.testCases[0].testUnits.length;
-    expect(delivered).toBeGreaterThan(0);
-    expect(delivered).toBeLessThan(40);
-    expect(response.pagination).toMatchObject({ offset: 0, count: delivered, total_count: 40, next_offset: delivered });
-    expect(response.truncation_message).toContain(`continue with offset=${delivered}`);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.length).toBeLessThan(40);
+    expect(text).toContain(`1–${rows.length} below, the next page at offset=${rows.length}.`);
   });
 
-  it("openl_get_test_results reads one test with its inputs whole", async () => {
+  it("reads one test with its inputs whole", async () => {
     const casePath = `${summaryPath}/Test_calculatePremium_1234/cases/3`;
     harness.mockHttp.onGet(casePath).reply(200, {
-      id: "3", status: "TR_OK", executionTimeMs: 1,
-      parameters: [{ name: "policy", description: "Policy", value: { state: "CA" }, schema: { type: "object" } }],
+      ...failed("3"),
+      parameters: [{
+        name: "policy", description: "Policy", value: { state: "CA", note: "n".repeat(300) }, schema: { type: "object" },
+      }],
     });
 
-    const result = await executeTool("get_test_results", {
+    const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1", tableId: "Test_calculatePremium_1234", caseId: "3",
-    }, harness.client);
+    }, harness.client));
 
-    expect(dataOf<any>(result).parameters).toEqual([{ name: "policy", description: "Policy", value: { state: "CA" } }]);
+    expect(text).toContain("Test 3: failed.");
+    expect(text).toContain("Inputs:");
+    expect(text).toContain('"state":"CA"');
+    // A long text of inputs that fit stays whole
+    expect(text).toContain(`"note":"${"n".repeat(300)}"`);
+    expect(text).toContain("| Tax | passed | 5 | 5 |");
   });
 
-  /** 13 test tables whose expected and actual values make each of them about 5,000 characters long. */
-  const largeTables = Array.from({ length: 13 }, (_, i) => ({
-    ...testCase(`Test_${i}`, `Test_${i}_id`, 1, 0),
-    testUnits: [{
-      id: "1", description: "case", status: "TR_OK" as const, executionTimeMs: 1,
-      testAssertions: [{ status: "TR_OK" as const, expectedValue: "E".repeat(2_500), actualValue: "A".repeat(2_500) }],
-    }],
-  }));
-
-  it("openl_get_test_results cuts a page over the limit by whole test tables and continues it (EPBDS-16807)", async () => {
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: largeTables, numberOfTests: 13, total: 13 }));
+  it("reads one test with inputs over half the limit cut, naming the cuts", async () => {
+    harness.mockHttp.onGet(`${summaryPath}/Test_calculatePremium_1234/cases/3`).reply(200, {
+      ...failed("3"),
+      parameters: [{ name: "drivers", value: Array.from({ length: 2_000 }, (_, i) => ({ id: i, name: `Driver ${i}` })) }],
+    });
 
     const text = textOf(await executeTool("get_test_results", {
-      projectId: "design-project1", }, harness.client));
+      projectId: "design-project1", tableId: "Test_calculatePremium_1234", caseId: "3",
+    }, harness.client));
+
+    expect(text).toMatch(/Inputs, cut to fit: drivers \(\d+ of 2000 items from the middle\):/);
+    expect(text.length).toBeLessThanOrEqual(25_000);
+  });
+
+  it("cuts a page over the limit by whole test tables and continues it (EPBDS-16807)", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: Array.from({ length: 13 }, (_, i) => ({ ...tableOfTests(3, 1_000), name: `Test_${i}` })), total: 13,
+    }));
+
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1" }, harness.client));
 
     expect(text.length).toBeLessThanOrEqual(25_000);
-    const response = JSON.parse(text);
-    const delivered = response.data.testCases.length;
-    expect(delivered).toBeGreaterThan(0);
-    expect(delivered).toBeLessThan(13);
-    expect(response.pagination).toMatchObject({ offset: 0, has_more: true, next_offset: delivered, total_count: 13 });
-    expect(response.truncation_message).toBe(
-      `Response truncated due to size. It holds ${delivered} of 13 test tables; continue with offset=${delivered}.`);
+    const tables = text.split("\n").filter((line) => /^\| Test_\d+ \| Test_calculatePremium_1234 \|/.test(line)).length;
+    expect(tables).toBeGreaterThan(0);
+    expect(tables).toBeLessThan(13);
+    expect(text).toContain(`13 test tables; 1–${tables} below, the next page at offset=${tables}.`);
   });
 
-  it("openl_get_test_results reads every test table without a limit only when unpaged (EPBDS-16807)", async () => {
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: largeTables, numberOfTests: 13, total: 13 }));
+  it("reads every test table without a limit only when unpaged (EPBDS-16807)", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: Array.from({ length: 13 }, (_, i) => ({ ...tableOfTests(3, 1_000), name: `Test_${i}` })), total: 13,
+    }));
 
-    const text = textOf(await executeTool("get_test_results", {
-      projectId: "design-project1", unpaged: true, }, harness.client));
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1", unpaged: true }, harness.client));
 
     expect(text.length).toBeGreaterThan(25_000);
-    expect(JSON.parse(text).data.testCases).toHaveLength(13);
+    expect(text).toContain("13 test tables.");
   });
 });

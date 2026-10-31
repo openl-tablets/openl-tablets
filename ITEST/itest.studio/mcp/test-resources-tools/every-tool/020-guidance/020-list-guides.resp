@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"spec/rules.xml\",\"title\":\"OpenL Tablets — Rules Project Descriptor (`rules.xml`)\",\"size\":#}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
+        "text": "1 document.\n\n| id | title | bytes |\n| --- | --- | --- |\n| spec/rules.xml | OpenL Tablets — Rules Project Descriptor (`rules.xml`) | 7860 |"
       }
     ],
     "resultType": "complete",

@@ -14,7 +14,8 @@ Authorization: Token ${PAT}
     "name": "openl_get_test_results",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "tableId": "${PREMIUM_TEST_ID}"
+      "tableId": "${PREMIUM_TEST_ID}",
+      "failuresOnly": false
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
