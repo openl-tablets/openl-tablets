@@ -6,8 +6,9 @@ description: >
   ordered plan with test cases, gets one approval, executes it item by item
   through the owning skills, verifies, and summarizes. Use proactively for
   "configure X", "add/update the rule for Y", "fix bug in Z", "implement
-  PROJ-1234", "apply this ticket", "why is this wrong", or continuing or
-  redoing an earlier task. Not for read-only questions or a plain test run.
+  PROJ-1234", "apply this ticket", or continuing or redoing an earlier task.
+  Not for read-only questions, a plain test run, or finding why a result is
+  wrong, which is `trace-investigation`'s.
 ---
 
 # OpenL Change Planning
