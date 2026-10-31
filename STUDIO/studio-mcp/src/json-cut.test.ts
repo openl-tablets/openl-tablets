@@ -39,6 +39,15 @@ describe("cutJson", () => {
     expect((value as { small: number[] }).small).toEqual([1, 2]);
   });
 
+  it("keeps the last item beside the first when only one would fit", () => {
+    const frames = Array.from({ length: 7 }, (_, index) => ({ index, steps: "x".repeat(150) }));
+
+    const { value, cuts } = cutJson({ frames }, 400);
+
+    expect((value as { frames: Array<{ index: number }> }).frames.map((frame) => frame.index)).toEqual([0, 6]);
+    expect(cuts).toContain("frames (5 of 7 items from the middle)");
+  });
+
   it("names a cut inside nested arrays by its path", () => {
     const value = { parameters: [{ value: { codes: Array.from({ length: 80 }, (_, i) => `CODE${i}`) } }] };
 

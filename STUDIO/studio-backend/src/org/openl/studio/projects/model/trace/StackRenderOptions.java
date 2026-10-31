@@ -10,8 +10,9 @@ package org.openl.studio.projects.model.trace;
  * @param includeTree embed the full executed tree once the trace has finished (profiling); when false,
  *                    only the bounded profile overview is kept
  * @param profileTop  how many hotspots the profile overview returns
- * @param compact     when true, only the active (top) frame carries its sub-steps; the other frames are
- *                    the bare stack, so a step no longer re-sends every frame's steps
+ * @param compact     when true, only the active (top) frame carries its sub-steps, of a decision table only the
+ *                    rules that fired or ran, and a dispatch with one candidate is left out; the other frames are the
+ *                    bare stack, so a step no longer re-sends every frame's steps
  * @param fullTree    when true, the whole executed tree comes in one payload as a flat list of nodes (bounded
  *                    by a node cap), so the business view browses it offline without paging; when false, only
  *                    the root comes and the advanced view pages its branches lazily

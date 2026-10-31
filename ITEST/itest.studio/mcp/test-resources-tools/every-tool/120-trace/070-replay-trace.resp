@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"status\":\"suspended\",\"frames\":[{\"index\":0,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"location\":{\"kind\":\"cell\",\"row\":1,\"column\":0,\"ref\":\"R1C0\",\"label\":\"$Factor\"}},{\"index\":1,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\"tableId\":\"*\",\"name\":\"AgeFactor\",\"kind\":\"decisionTable\",\"steps\":[{\"ref\":\"R1\",\"label\":\"R1\",\"status\":\"pending\"},{\"ref\":\"R2\",\"label\":\"R2\",\"status\":\"pending\"},{\"ref\":\"R3\",\"label\":\"R3\",\"status\":\"pending\"}]}]}}"
+        "text": "{\"data\":{\"status\":\"suspended\",\"frames\":[{\"index\":0,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"location\":{\"kind\":\"cell\",\"row\":1,\"column\":0,\"ref\":\"R1C0\",\"label\":\"$Factor\"}},{\"index\":1,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\"tableId\":\"*\",\"name\":\"AgeFactor\",\"kind\":\"decisionTable\",\"steps\":[]}]}}"
       }
     ],
     "resultType": "complete",
