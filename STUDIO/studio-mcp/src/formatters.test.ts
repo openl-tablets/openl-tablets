@@ -194,11 +194,12 @@ describe("formatters", () => {
     });
 
     it("reads a heading's title without its closing sequence, and keeps a # that ends a word", () => {
-      const project = ["# Project guide", "", "## Rates ##", "", "## Using C#", "", "x".repeat(13_000)].join("\n");
+      const project = ["# Project guide", "", "## Rates ##", "", "## Using C#", "", "   ## Build", "", "x".repeat(13_000)].join("\n");
 
       const outline = formatAgentsDocument([{ path: "AGENTS.md", content: project }]);
       expect(outline).toContain("- Rates (");
       expect(outline).toContain("- Using C# (");
+      expect(outline).toContain("- Build (");
     });
 
     it("takes no heading inside a code block that another fence marker does not close", () => {
