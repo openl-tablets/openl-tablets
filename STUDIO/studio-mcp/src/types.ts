@@ -1098,9 +1098,13 @@ type FrameKind =
 export interface TraceParameterValue {
   name: string;
   description: string;
-  /** true → value omitted; fetch via openl_get_trace_value with parameterId. */
+  /** true → value omitted; fetch via openl_get_trace_value with parameterId, or the test case by its id. */
   lazy?: boolean;
   parameterId?: number;
+  /** The type of a value a test result leaves out. */
+  type?: string;
+  /** The key of a value a test result leaves out, such as the id of a data table row. */
+  key?: string;
   value?: unknown;
   schema?: object;
 }

@@ -1463,18 +1463,32 @@ export class OpenLClient {
       timeoutMs?: number;
     }
   ): Promise<Types.TestsExecutionSummary | Types.ResultNotReadyView> {
+    const oneTable = options?.tableId !== undefined;
     const params = {
       tableId: options?.tableId,
       failuresOnly: options?.failuresOnly || undefined,
       failures: options?.failures,
-      // The results of one test table hold every failure it has
-      allFailures: options?.tableId ? true : undefined,
-      offset: options?.offset,
-      size: options?.limit,
+      // The results of one test table hold every failure it has, and are paged by test, not by Studio
+      allFailures: oneTable ? true : undefined,
+      offset: oneTable ? undefined : options?.offset,
+      size: oneTable ? undefined : options?.limit,
       unpaged: options?.unpaged || undefined,
+      // An input with inner structure is named by its type and key: the whole of it is often most of a result
+      lazyValues: true,
     };
 
     return this.getResult(`${projectPath(projectId)}/tests/summary`, { ...options, params });
+  }
+
+  /** One test of a test table of the last run, with its inputs whole, or `notReady` while the run goes on. */
+  async getTestCase(
+    projectId: string,
+    tableId: string,
+    caseId: string,
+    options?: { signal?: AbortSignal; timeoutMs?: number },
+  ): Promise<Types.TestUnitExecutionResult | Types.ResultNotReadyView> {
+    const path = `${projectPath(projectId)}/tests/summary/${encodeURIComponent(tableId)}/cases/${encodeURIComponent(caseId)}`;
+    return this.getResult(path, options);
   }
 
   // =============================================================================
