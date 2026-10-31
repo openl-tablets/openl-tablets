@@ -334,20 +334,23 @@ describe("trace tools", () => {
   });
 
   it("openl_inspect_trace_frame trims the response via ?fields by default and lifts the trim with full: true", async () => {
-    harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`).reply(200, { parameters: [], steps: [], errors: [], decision: { firedRules: ["R10"], conditions: [] } });
+    const ruleNames = Array.from({ length: 60 }, (_, index) => `R${index + 1}`);
+    harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`)
+      .reply(200, { parameters: [], steps: [], errors: [], decision: { firedRules: ["R10"], conditions: [] }, ruleNames });
 
     const result = await executeTool(
       "inspect_trace_frame",
       { projectId, frameIndex: 0 },
       harness.client
     );
-    expect(textOf(result)).toContain("R10");
+    expect(dataOf<any>(result)).toEqual({ parameters: [], steps: [], decision: { firedRules: ["R10"], conditions: [] }, ruleCount: 60 });
     expect(harness.mockHttp.history.get[0].params?.fields).toContain("decision");
     expect(harness.mockHttp.history.get[0].params?.fields).toContain("parameters(name,description,lazy,parameterId,value)");
     expect(harness.mockHttp.history.get[0].params?.fields).not.toContain("schema");
 
-    await executeTool("inspect_trace_frame", { projectId, frameIndex: 0, full: true }, harness.client);
+    const full = await executeTool("inspect_trace_frame", { projectId, frameIndex: 0, full: true }, harness.client);
     expect(harness.mockHttp.history.get[1].params).toEqual({ includeSchema: true });
+    expect(dataOf<any>(full).ruleNames).toEqual(ruleNames);
   });
 
   it.each([

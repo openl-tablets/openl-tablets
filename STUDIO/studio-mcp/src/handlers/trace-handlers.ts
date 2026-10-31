@@ -190,11 +190,18 @@ function trimmedValue(value: Types.TraceParameterValue, repeated?: string): Part
     .filter(([key, field]) => !(key === "lazy" && field === false) && !(key === "name" && field === repeated)));
 }
 
+/** The most rule names a frame lists unless all are asked for: a lookup of 900 rows has 900, R1 to R900. */
+const LISTED_RULE_NAMES = 50;
+
 /**
  * The variables of a frame as the trace tools answer them: each value without its defaults, a step value without the
- * ref of its step as its name, and without a runtime context that holds no field or a list of no errors.
+ * ref of its step as its name, and without a runtime context that holds no field or a list of no errors. The rule
+ * names of a table of more than {@link LISTED_RULE_NAMES} rules are counted instead, unless `allRuleNames`.
  */
-function trimmedVariables(variables: Types.DebugFrameVariables): Partial<Types.DebugFrameVariables> {
+function trimmedVariables(
+  variables: Types.DebugFrameVariables,
+  allRuleNames?: boolean,
+): Partial<Types.DebugFrameVariables> & { ruleCount?: number } {
   const trimmed = (key: string, value: unknown): [string, unknown] | [] => {
     switch (key) {
       case "parameters":
@@ -212,6 +219,10 @@ function trimmedVariables(variables: Types.DebugFrameVariables): Partial<Types.D
           (step.value ? { ...step, value: trimmedValue(step.value, step.ref) } : step))];
       case "errors":
         return (value as unknown[]).length === 0 ? [] : [key, value];
+      case "ruleNames": {
+        const names = value as string[];
+        return names.length > LISTED_RULE_NAMES && !allRuleNames ? ["ruleCount", names.length] : [key, names];
+      }
       default:
         return [key, value];
     }
@@ -459,7 +470,7 @@ export function registerTraceHandlers(): void {
     title: "Inspect Stack Frame",
     description:
       "Freeze and read the full state of one suspended stack frame: input parameters, runtime context, result (for a completed frame), sub-steps with computed values, and for a " +
-      "decision table the killer feature — 'decision' (which rule fired and how each condition evaluated per rule) plus 'ruleNames' (all rules, for per-rule breakpoints). " +
+      "decision table the killer feature — 'decision' (which rule fired and how each condition evaluated per rule) plus 'ruleNames' (the rules, for per-rule breakpoints; a table of more than 50 rules answers 'ruleCount', and full: true lists them). " +
       "Values may come lazy (lazy: true + parameterId) — expand with openl_get_trace_value. By default the response is trimmed (no value JSON schemas); full: true lifts the trim. " +
       "To surface an anomaly among many neutral factors, filter the steps: onlyExecutedSteps drops not-yet-computed ones, and excludeStepValues drops steps whose value is a neutral constant (e.g. [1] in rating) — lazy step values are resolved before the comparison, so a neutral factor that came lazy is dropped too. " +
       "withHighlights: true additionally returns the A1-keyed cell highlight overlay and the raw table grid to merge it with. Valid only while suspended (a terminal session answers 409 — read its final state from the last returned stack).",
@@ -492,7 +503,8 @@ export function registerTraceHandlers(): void {
         args.projectId,
       );
 
-      let result: unknown = trimmedVariables(variables);
+      const trimmed = trimmedVariables(variables, args.full);
+      let result: unknown = trimmed;
       if (overlay) {
         const [highlights, stack] = await overlay;
         // The overlay is keyed by A1 cell address; the grid to paint it on comes
@@ -501,7 +513,7 @@ export function registerTraceHandlers(): void {
         const grid = frame
           ? await client.getTable(args.projectId, frame.tableId)
           : undefined;
-        result = { ...trimmedVariables(variables), highlights, grid };
+        result = { ...trimmed, highlights, grid };
       }
 
       return formatResult(result);
