@@ -172,6 +172,23 @@ describe("local change handlers", () => {
       expect(harness.mockHttp.history.post.some((request) => request.url?.endsWith("/restore"))).toBe(false);
     });
 
+    it("restores nothing when the call is cancelled while the comparison is cleared up", async () => {
+      const controller = new AbortController();
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } })
+        .reply(200, [{ id: "300_current", current: true }, { id: "100" }]);
+      harness.mockHttp.onPost(`${history}/compare`).reply(202, { id: "c1" });
+      harness.mockHttp.onGet("/compare/c1").reply(200, { id: "c1", identical: true, sheets: [] });
+      harness.mockHttp.onDelete("/compare/c1").reply(() => {
+        controller.abort();
+        return [204];
+      });
+
+      await expect(executeTool("restore_project_local_change", {
+        projectId: "design:Project", module: "Main Rules", historyId: "100",
+      }, harness.client, { signal: controller.signal })).rejects.toThrow(/aborted/i);
+      expect(harness.mockHttp.history.post.some((request) => request.url?.endsWith("/restore"))).toBe(false);
+    });
+
     it("answers a done restore when the history cannot be read after it", async () => {
       harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).replyOnce(200, [
         { id: "200_current", modifiedOn: "08/27/2026 12:02 PM", current: true },
