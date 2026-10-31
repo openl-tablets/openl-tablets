@@ -2,7 +2,8 @@
 table: Test premium premiumTest
 ---
 
-A test column of a policy takes it from the `policies` table by its key: the row under the field names says so.
+> A test column of a policy takes it from the `policies` table by its key: the row under the field names says
+> so.
 
 | policy    | _res_.$Value$BaseRate | _res_.$Value$Premium |
 |-----------|-----------------------|----------------------|

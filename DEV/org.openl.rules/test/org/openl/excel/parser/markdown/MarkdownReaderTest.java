@@ -43,12 +43,13 @@ class MarkdownReaderTest {
                 ---
                 table: Rules String Greeting(Integer hour)
                 properties:
-                  description: Greeting by the hour of the day
                   effectiveDate: 2024-01-01
                   state: [CA, NY]
                 ---
 
-                Documentation before the table.
+                Greeting by the hour of the day
+
+                > A comment, which describes nothing.
 
                 | Hour  | Greeting       |
                 |-------|----------------|
@@ -56,7 +57,8 @@ class MarkdownReaderTest {
                 | 12-17 | Good Afternoon |
                 """;
 
-        // The last cell of each row of a body narrower than the properties is merged over the columns they take
+        // The description is the first property. The last cell of each row of a body narrower than the properties is
+        // merged over the columns they take
         assertArrayEquals(new Object[][]{
                 {"Rules String Greeting(Integer hour)", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
                 {"properties", "description", "Greeting by the hour of the day"},
@@ -118,7 +120,7 @@ class MarkdownReaderTest {
     }
 
     @Test
-    void codeBlockIsTheOnlyCellAndTheRestIsDocumentation() {
+    void codeBlockIsTheOnlyCellAfterTheDescriptionAndTheRestIsDocumentation() {
         var text = """
                 ---
                 table: Method String hello(String name)
@@ -135,8 +137,9 @@ class MarkdownReaderTest {
                 """;
 
         assertArrayEquals(new Object[][]{
-                {"Method String hello(String name)"},
-                {"return \"Hello, \" + name;"}}, cellsOf("hello.md", text));
+                {"Method String hello(String name)", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
+                {"properties", "description", "Says hello."},
+                {"return \"Hello, \" + name;", MERGE_WITH_LEFT, MERGE_WITH_LEFT}}, cellsOf("hello.md", text));
     }
 
     @Test
@@ -220,10 +223,14 @@ class MarkdownReaderTest {
     }
 
     @Test
-    void tableWithNoBodyHasAHeaderAlone() {
+    void tableWithNoBodyIsItsHeaderAndItsDescription() {
         var text = "---\ntable: Datatype Adult extends Driver\n---\n\nAn adult is a driver of no field of its own.\n";
 
-        assertArrayEquals(new Object[][]{{"Datatype Adult extends Driver"}}, cellsOf("Adult.md", text));
+        assertArrayEquals(new Object[][]{{"Datatype Adult extends Driver", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
+                {"properties", "description", "An adult is a driver of no field of its own."}}, cellsOf("Adult.md",
+                text));
+        assertArrayEquals(new Object[][]{{"Datatype Adult extends Driver"}},
+                cellsOf("Adult.md", "---\ntable: Datatype Adult extends Driver\n---\n"));
     }
 
     @Test

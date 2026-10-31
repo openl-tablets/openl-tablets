@@ -19,14 +19,17 @@ policy.
   category stands in the folder of the category, as it stands on the sheet of the category in a workbook.
 - The front matter of a file is the header of its table: the `table` key holds the text of the first table cell.
   The `properties` key holds the table properties, a name and a value on each line under it, such as
-  `description: Yearly premium of a policy`. The `merges` key lists the merged cells of the table, a range to a line
+  `tags: rating`. The `merges` key lists the merged cells of the table, a range to a line
   under it, such as `- A1:B1`, counted from the first row of the table. A range added or taken away is a line of its
   own, so two changes of one table merge as text. Any other key is an error, and the table is read without it.
+- The text between the front matter and the table is the description of the table, such as `Yearly premium of a
+  policy.` in `premium.md`. A quote, a block of lines starting with `>`, is a comment for the authors and no part of
+  the description; so is an HTML comment. The description is never written under `properties`.
 - The properties take three columns of the table, as in a workbook. A body narrower than that has the last cell of each
   of its rows merged over the columns it lacks; a body that keeps these columns apart writes them as empty columns.
 - The first table after the front matter is the body of the table: every row of it, its first row included, is a
   row of the rules table. A table with no body, such as a `Datatype` that adds no field to its parent, is its front
-  matter alone.
+  matter and its description.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
 - A cell is indented by two `&nbsp;` before its text for each level, as a workbook indents it: `&nbsp;&nbsp;Fee` is
@@ -35,7 +38,7 @@ policy.
   number, the boolean and the date a cell of a workbook holds, so a `Spreadsheet` step of such a value takes the type
   it takes in a workbook. Any other text stays text, such as `007`, `3.0`, `TRUE` or `03/02/2026`: the type a table
   declares reads it, and a number reads as a `Double` where none is declared.
-- Everything else in a file is documentation. A file without front matter is documentation as a whole.
+- The text after the table is documentation. A file without front matter is documentation as a whole.
 - A module path with a wildcard, such as `rules/Auto-*`, makes a module of every folder of Markdown files it
   matches, as it makes one of every file it matches.
 - The file name pattern of a project (`properties-file-name-pattern`) reads the properties of a module folder from

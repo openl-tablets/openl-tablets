@@ -4,7 +4,7 @@ properties:
   startRequestDate: 2021-03-03
 ---
 
-Rules1 applies from March 3, 2021. The table body has two columns, narrower than its properties.
+> Rules1 applies from March 3, 2021. The table body has two columns, narrower than its properties.
 
 | coverInfo | Result |
 |-----------|--------|

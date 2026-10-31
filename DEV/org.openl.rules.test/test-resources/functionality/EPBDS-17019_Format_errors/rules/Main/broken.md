@@ -2,7 +2,7 @@
 table: SmartRules String broken(Integer hour)
 ---
 
-The second row has a third cell that GFM would drop without a word.
+> The second row has a third cell that GFM would drop without a word.
 
 | Hour  | Greeting       |
 |-------|----------------|

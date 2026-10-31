@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
@@ -28,16 +29,40 @@ class MarkdownTableWriterTest {
             ---
             table: SmartRules String greeting(Integer hour)
             properties:
-              description: Greeting by the hour
+              category: Greetings
             ---
 
-            Picks a greeting.
+            > Picks a greeting.
 
             | Hour  | Greeting       |
             |-------|----------------|
             | 0-11  | Good Morning   |
             | 12-17 | Good Afternoon |
             | 18-23 | Good Evening   |
+
+            Notes after the table.
+            """;
+
+    /** A table described in two blocks of text, with comments between them. */
+    private static final String DESCRIBED = """
+            ---
+            table: SmartRules String greeting(Integer hour)
+            properties:
+              category: Greetings
+            ---
+
+            Picks a greeting
+            by the hour of the day.
+
+            > A comment for the authors.
+
+            <!-- A note no preview shows -->
+
+            Morning ends at noon.
+
+            | Hour  | Greeting     |
+            |-------|--------------|
+            | 0-11  | Good Morning |
 
             Notes after the table.
             """;
@@ -151,8 +176,8 @@ class MarkdownTableWriterTest {
         var cells = merge(set(cellsOf(GREETING), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
         var text = write(GREETING, cells);
 
-        assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
+        assertEquals(GREETING.replace("category: Greetings\n",
+                        "category: Greetings\nmerges:\n  - A3:A4\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), text);
         assertEquals(List.of(CellRangeAddress.valueOf("A3:A4")), parse(text).table().merges());
     }
@@ -169,8 +194,8 @@ class MarkdownTableWriterTest {
 
     @Test
     void sameRangesKeepTheirLinesInTheOrderTheFileListsThem() {
-        var listed = GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges: [B3:B4, A3:A4]\n")
+        var listed = GREETING.replace("category: Greetings\n",
+                        "category: Greetings\nmerges: [B3:B4, A3:A4]\n")
                 .replace("| 18-23 | Good Evening   |", "|       |                |");
         var renamed = set(cellsOf(listed), 0, 0, "SmartRules String greet(Integer hour)");
 
@@ -192,36 +217,36 @@ class MarkdownTableWriterTest {
 
     @Test
     void changedPropertyRewritesItsKeyAlone() {
-        var cells = set(cellsOf(GREETING), 1, 2, "Greeting by the hour of the day");
+        var cells = set(cellsOf(GREETING), 1, 2, "Greetings of the day");
 
-        assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                "description: Greeting by the hour of the day\n"), write(GREETING, cells));
+        assertEquals(GREETING.replace("category: Greetings\n",
+                "category: Greetings of the day\n"), write(GREETING, cells));
     }
 
     @Test
     void propertiesAreAddedAndRemoved() {
         var table = parse(GREETING).table();
         var properties = new LinkedHashMap<String, String>();
-        properties.put("description", "Greeting by the hour");
+        properties.put("category", "Greetings");
         properties.put("effectiveDate", "2024-01-01");
         properties.put("tags", "morning: early");
         properties.put("note", "");
         var added = write(GREETING, SheetLayout.cellsOf(
                 new RulesTable(table.header(), properties, table.body(), table.merges())));
 
-        assertEquals(GREETING.replace("  description: Greeting by the hour\n", """
-                  description: Greeting by the hour
+        assertEquals(GREETING.replace("  category: Greetings\n", """
+                  category: Greetings
                   effectiveDate: 2024-01-01
                   tags: "morning: early"
                   note: ""
                 """), added);
         assertEquals(properties, parse(added).table().properties());
 
-        properties.remove("description");
+        properties.remove("category");
         var removed = write(added, SheetLayout.cellsOf(
                 new RulesTable(table.header(), properties, table.body(), table.merges())));
 
-        assertEquals(added.replace("  description: Greeting by the hour\n", ""), removed);
+        assertEquals(added.replace("  category: Greetings\n", ""), removed);
     }
 
     @Test
@@ -231,12 +256,12 @@ class MarkdownTableWriterTest {
         var written = write(GREETING, SheetLayout.cellsOf(
                 new RulesTable(table.header(), new LinkedHashMap<>(), table.body(), table.merges())));
 
-        assertEquals(GREETING.replace("properties:\n  description: Greeting by the hour\n", ""), written);
+        assertEquals(GREETING.replace("properties:\n  category: Greetings\n", ""), written);
     }
 
     @Test
     void newPropertyIsIndentedAsTheOthers() {
-        var indented = GREETING.replace("  description:", "    description:");
+        var indented = GREETING.replace("  category:", "    category:");
         var table = parse(indented).table();
         var properties = new LinkedHashMap<>(table.properties());
         properties.put("tags", "morning");
@@ -244,14 +269,14 @@ class MarkdownTableWriterTest {
         var written = write(indented, SheetLayout.cellsOf(
                 new RulesTable(table.header(), properties, table.body(), table.merges())));
 
-        assertEquals(indented.replace("    description: Greeting by the hour\n",
-                "    description: Greeting by the hour\n    tags: morning\n"), written);
+        assertEquals(indented.replace("    category: Greetings\n",
+                "    category: Greetings\n    tags: morning\n"), written);
     }
 
     @Test
     void propertiesOnTheLineOfTheirKeyAreWrittenOneToALine() {
-        var inline = GREETING.replace("properties:\n  description: Greeting by the hour\n",
-                "properties: {description: Greeting by the hour}\n");
+        var inline = GREETING.replace("properties:\n  category: Greetings\n",
+                "properties: {category: Greetings}\n");
         var table = parse(inline).table();
         var properties = new LinkedHashMap<>(table.properties());
         properties.put("tags", "morning");
@@ -259,13 +284,13 @@ class MarkdownTableWriterTest {
         var written = write(inline, SheetLayout.cellsOf(
                 new RulesTable(table.header(), properties, table.body(), table.merges())));
 
-        assertEquals(GREETING.replace("  description: Greeting by the hour\n",
-                "  description: Greeting by the hour\n  tags: morning\n"), written);
+        assertEquals(GREETING.replace("  category: Greetings\n",
+                "  category: Greetings\n  tags: morning\n"), written);
     }
 
     @Test
     void keyTheTableIsReadWithoutStaysInTheFile() {
-        var stray = GREETING.replace("---\n\nPicks", "state: CA\n---\n\nPicks");
+        var stray = GREETING.replace("---\n\n> Picks", "state: CA\n---\n\n> Picks");
         var cells = set(cellsOf(stray), 0, 0, "SmartRules String greet(Integer hour)");
 
         assertEquals(stray.replace("greeting(Integer hour)", "greet(Integer hour)"), write(stray, cells));
@@ -281,15 +306,153 @@ class MarkdownTableWriterTest {
     @Test
     void rangeTheTableIsReadWithoutStaysAsWrittenUntilTheRangesChange() {
         // A2:B2 covers the value of B2, so the table is read without the range
-        var broken = GREETING.replace("description: Greeting by the hour\n",
-                "description: Greeting by the hour\nmerges: [A2:B2]\n");
+        var broken = GREETING.replace("category: Greetings\n",
+                "category: Greetings\nmerges: [A2:B2]\n");
         var renamed = set(cellsOf(broken), 0, 0, "SmartRules String greet(Integer hour)");
 
         assertEquals(broken.replace("greeting(Integer hour)", "greet(Integer hour)"), write(broken, renamed));
 
         var merged = merge(set(cellsOf(broken), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
 
-        assertTrue(write(broken, merged).contains("description: Greeting by the hour\nmerges:\n  - A3:A4\n---"));
+        assertTrue(write(broken, merged).contains("category: Greetings\nmerges:\n  - A3:A4\n---"));
+    }
+
+    @Test
+    void descriptionIsTheTextAboveTheTableWithoutTheComments() {
+        var properties = new LinkedHashMap<String, String>();
+        properties.put("description", "Picks a greeting\nby the hour of the day.\n\nMorning ends at noon.");
+        properties.put("category", "Greetings");
+
+        assertEquals(properties, parse(DESCRIBED).table().properties());
+        assertEquals(DESCRIBED, write(DESCRIBED, cellsOf(DESCRIBED)));
+        // The text above the code of a Method describes it too
+        assertEquals(Map.of("description", "Says hello."),
+                parse(HELLO.replace("---\n\n```", "---\n\nSays hello.\n\n```")).table().properties());
+    }
+
+    @Test
+    void changedDescriptionIsWrittenWhereItStoodAndTheCommentsStay() {
+        var cells = set(cellsOf(DESCRIBED), 1, 2, "Greets by the hour.");
+
+        assertEquals(DESCRIBED.replace("""
+                Picks a greeting
+                by the hour of the day.
+                """, "Greets by the hour.\n").replace("Morning ends at noon.\n\n", ""), write(DESCRIBED, cells));
+    }
+
+    @Test
+    void descriptionAddedGoesRightAfterTheFrontMatter() {
+        var table = parse(GREETING).table();
+        var properties = new LinkedHashMap<String, String>();
+        properties.put("description", "Greets by the hour.");
+        properties.putAll(table.properties());
+
+        var written = write(GREETING, SheetLayout.cellsOf(
+                new RulesTable(table.header(), properties, table.body(), table.merges())));
+
+        assertEquals(GREETING.replace("---\n\n> Picks", "---\n\nGreets by the hour.\n\n> Picks"), written);
+        assertEquals(properties, parse(written).table().properties());
+    }
+
+    @Test
+    void descriptionTakenAwayLeavesTheComments() {
+        var table = parse(DESCRIBED).table();
+        var properties = new LinkedHashMap<>(table.properties());
+        properties.remove("description");
+
+        var written = write(DESCRIBED, SheetLayout.cellsOf(
+                new RulesTable(table.header(), properties, table.body(), table.merges())));
+
+        assertEquals(DESCRIBED.replace("""
+                Picks a greeting
+                by the hour of the day.
+
+                """, "").replace("Morning ends at noon.\n\n", ""), written);
+    }
+
+    @Test
+    void descriptionLineThatWouldStartAQuoteACodeBlockOrATableIsEscaped() {
+        var description = "> not a comment\n```\n| not a table |\n  > indented";
+        var table = new RulesTable("Datatype Adult", new LinkedHashMap<>(Map.of("description", description)),
+                List.of(), List.of());
+
+        var text = MarkdownTableWriter.newFile(table);
+
+        assertEquals("""
+                ---
+                table: Datatype Adult
+                ---
+
+                \\> not a comment
+                \\```
+                \\| not a table |
+                  \\> indented
+                """, text);
+        assertEquals(table, parse(text).table());
+    }
+
+    @Test
+    void newFileWritesTheDescriptionAboveTheBody() {
+        var table = parse(DESCRIBED).table();
+
+        var text = MarkdownTableWriter.newFile(table);
+
+        assertEquals("""
+                ---
+                table: SmartRules String greeting(Integer hour)
+                properties:
+                  category: Greetings
+                ---
+
+                Picks a greeting
+                by the hour of the day.
+
+                Morning ends at noon.
+
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                """, text);
+        assertEquals(table, parse(text).table());
+    }
+
+    @Test
+    void bodyWrittenIntoATableWithAHeaderAloneFollowsItsDescription() {
+        var headerAlone = """
+                ---
+                table: Datatype Adult extends Driver
+                ---
+
+                A driver of age.
+
+                > A comment for the authors.
+                """;
+        var table = parse(headerAlone).table();
+        var withBody = SheetLayout.cellsOf(new RulesTable(table.header(), table.properties(),
+                List.of(List.of("Integer", "age")), List.of()));
+
+        assertEquals(Map.of("description", "A driver of age."), table.properties());
+        assertEquals(headerAlone.replace("of age.\n", "of age.\n\n| Integer | age |\n|---|---|\n"),
+                write(headerAlone, withBody));
+    }
+
+    @Test
+    void descriptionUnderThePropertiesIsAProblem() {
+        var file = parse("""
+                ---
+                table: Datatype Adult
+                properties:
+                  description: Old
+                  tags: adult
+                ---
+
+                New.
+                """);
+
+        assertEquals(Map.of("description", "New.", "tags", "adult"), file.table().properties());
+        assertEquals(List.of(new MarkdownProblem(4, """
+                The description of a table is the text between the front matter and the table, not a property \
+                under 'properties'""", null)), file.problems());
     }
 
     @Test
@@ -345,7 +508,7 @@ class MarkdownTableWriterTest {
                 ---
                 table: SmartRules String greeting(Integer hour)
                 properties:
-                  description: Greeting by the hour
+                  category: Greetings
                 ---
 
                 | Hour | Greeting |
@@ -356,7 +519,7 @@ class MarkdownTableWriterTest {
                 """, text);
         assertEquals(table, parse(text).table());
         assertTrue(MarkdownTableWriter.newFile(merged)
-                .contains("description: Greeting by the hour\nmerges:\n  - A3:A4\n"));
+                .contains("category: Greetings\nmerges:\n  - A3:A4\n"));
         assertEquals(merged, parse(MarkdownTableWriter.newFile(merged)).table());
     }
 
@@ -390,7 +553,9 @@ class MarkdownTableWriterTest {
         // A body written into the file follows the front matter, and a body taken away leaves it alone
         var withBody = new SheetCells(new String[][]{{"Datatype Adult extends Driver"}, {"Integer", "age"}}, List.of());
         assertEquals(written + "\n| Integer | age |\n|---|---|\n", write(written, withBody));
-        assertEquals(written + "\nNotes.\n", write(written + "\nNotes.\n", headerAlone));
+        // The text after the front matter of a table with a header alone is its description; a comment stays
+        assertEquals(written, write(written + "\nAn adult.\n", headerAlone));
+        assertEquals(written + "\n> Notes.\n", write(written + "\n> Notes.\n", headerAlone));
         assertEquals("""
                 ---
                 table: Datatype Adult extends Driver
@@ -431,7 +596,7 @@ class MarkdownTableWriterTest {
         assertRefused(GREETING, "The property in row 2 must have a name in a cell of its own",
                 set(greeting, 1, 1, null));
         var narrow = new @Nullable String[][]{
-                {"Spreadsheet SpreadsheetResult terms()"}, {"properties", "description"}, {"Step", "Value"},
+                {"Spreadsheet SpreadsheetResult terms()"}, {"properties", "category"}, {"Step", "Value"},
                 {"Count", "= 1"}};
         assertRefused(GREETING, "A property needs the third column for its value, but the table is 2 columns wide",
                 new SheetCells(narrow, List.of()));

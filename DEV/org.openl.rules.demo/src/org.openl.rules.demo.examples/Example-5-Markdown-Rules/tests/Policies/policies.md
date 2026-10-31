@@ -2,7 +2,9 @@
 table: Data Policy policies
 ---
 
-The policies the tests rate, each known by the key in its first column.
+The policies the tests rate.
+
+> Each policy is known by the key in its first column.
 
 | _PK_ | state | driver.name | driver.age | driver.licenseYears | vehicle.model | vehicle.type | vehicle.price |
 |------|-------|-------------|------------|---------------------|---------------|--------------|---------------|

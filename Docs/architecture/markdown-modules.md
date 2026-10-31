@@ -19,7 +19,11 @@ works.
 - **A module is a folder**, a file is one table, a sub-folder is a sheet, so a category. Several tables in one file
   repeat the problems of a workbook: merge conflicts, shifting addresses, a hard read.
 - **The header is the YAML front matter** of the file: `table`, `properties` and `merges`, a merged range to a line.
-  The body is the first GFM table or code block after it; any other text is documentation.
+  The body is the first GFM table or code block after it; the text after the body is documentation.
+- **The description is the text above the table**, between the front matter and the body (`MarkdownDescription`), as a
+  reader of the file expects it: never a property of the front matter. A quote and an HTML comment there are comments,
+  so a note for the authors stays out of the description, which OpenL Studio shows and Rule Services puts into the
+  OpenAPI of a rule.
 - **The reader works at the level of the workbook reader.** A file reads as a workbook of one sheet, laid out as Excel
   would hold the table, so the loader, the binder and OpenL Studio see a workbook.
 - **Cells take the types a workbook gives them**: a whole number, a boolean and a date read as such when they write
@@ -132,10 +136,12 @@ Create Table or by the converter, is written by `MarkdownTableWriter.newFile`.
 - **Front matter** — a key keeps its lines while its value is the same. A property keeps its line; a new one is
   indented as the others. The merged ranges are written a range to a line in reading order, so a range added or taken
   away is a line of its own; the same ranges keep their lines in whatever order the file lists them.
+- **Description** — kept as written while it is the same. A changed one is written where its first block of text
+  stood, and its other blocks are taken away; a new one goes right after the front matter.
 - **Body** — a row keeps its line while its cells are the same. A changed row is padded to the widths of the delimiter
   row, so a table aligned by hand stays aligned. A code block stays a code block.
-- **Everything else** — the text around the table, a key the table is read without, a range left out — stays as
-  written.
+- **Everything else** — the comments, the text after the table, a key the table is read without, a range left out —
+  stays as written.
 
 ### What a file refuses
 

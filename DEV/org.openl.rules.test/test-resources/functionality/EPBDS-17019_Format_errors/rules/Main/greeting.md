@@ -2,7 +2,7 @@
 table: SmartRules String greeting(Integer hour)
 ---
 
-A table of a file that breaks no rule compiles whatever the other files of the module break.
+> A table of a file that breaks no rule compiles whatever the other files of the module break.
 
 | Hour  | Greeting       |
 |-------|----------------|

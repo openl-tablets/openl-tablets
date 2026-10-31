@@ -2,7 +2,7 @@
 table: Test  mySpr
 ---
 
-For each array element should be called rules: Rules1, Rules2, Rules2.
+> For each array element should be called rules: Rules1, Rules2, Rules2.
 
 | myVeh          | _res_       |
 |----------------|-------------|

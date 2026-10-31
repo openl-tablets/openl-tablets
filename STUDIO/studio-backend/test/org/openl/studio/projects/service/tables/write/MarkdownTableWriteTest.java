@@ -38,10 +38,10 @@ class MarkdownTableWriteTest {
             ---
             table: SmartRules String greeting(Integer hour)
             properties:
-              description: Greeting by the hour
+              category: Greetings
             ---
 
-            Picks a greeting.
+            > Picks a greeting.
 
             | Hour  | Greeting       |
             |-------|----------------|
@@ -51,8 +51,8 @@ class MarkdownTableWriteTest {
             """;
 
     /** The greeting with the afternoon and the evening under one merged hour. */
-    private static final String MERGED = GREETING.replace("description: Greeting by the hour\n",
-                    "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
+    private static final String MERGED = GREETING.replace("category: Greetings\n",
+                    "category: Greetings\nmerges:\n  - A3:A4\n")
             .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |");
 
     @TempDir
@@ -83,7 +83,7 @@ class MarkdownTableWriteTest {
         var id = table.getId();
         var writer = new RawTableWriter(table);
 
-        // Table rows: the header, the description, the first row of the body, then the hours
+        // Table rows: the header, the category, the first row of the body, then the hours
         writer.apply(List.of(new RawTableSourceAction.Update(new UpdateTarget.Cell(3, 1, "Morning"))));
 
         assertEquals(GREETING.replace("| 0-11  | Good Morning   |", "| 0-11  | Morning        |"), written());
@@ -117,8 +117,8 @@ class MarkdownTableWriteTest {
         apply(new RawTableSourceAction.Update(new UpdateTarget.Cell(5, 0, null)),
                 new RawTableSourceAction.Merge(new MergeTarget.Cells(4, 0, 2, 1)));
 
-        assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
+        assertEquals(GREETING.replace("category: Greetings\n",
+                        "category: Greetings\nmerges:\n  - A3:A4\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), written());
     }
 
@@ -170,8 +170,26 @@ class MarkdownTableWriteTest {
         }
 
         // The table editor puts a new property first, as in a workbook
-        assertEquals(GREETING.replace("  description: Greeting by the hour\n",
-                "  tags: greeting\n  description: Greeting by the hour\n"), written());
+        assertEquals(GREETING.replace("  category: Greetings\n",
+                "  tags: greeting\n  category: Greetings\n"), written());
+    }
+
+    @Test
+    void descriptionIsWrittenAsTheTextAboveTheTable() throws IOException {
+        var table = load();
+        var grid = table.getGridTable();
+        grid.edit();
+        try {
+            var editor = new TableEditorModel(table);
+            editor.setProperty("description", "Greets by the hour of the day.");
+            editor.save();
+        } finally {
+            grid.stopEditing();
+        }
+
+        // The front matter stays as it is, and the comment under the description too
+        assertEquals(GREETING.replace("---\n\n> Picks", "---\n\nGreets by the hour of the day.\n\n> Picks"), written());
+        assertEquals("Greets by the hour of the day.", load().getProperties().getDescription());
     }
 
     private void apply(RawTableSourceAction... actions) {

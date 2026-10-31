@@ -14,6 +14,7 @@ import java.util.List;
  * @param frontMatterEnd the line of the {@code ---} that closes the front matter
  * @param keys           the keys of the front matter, in the order they are written
  * @param propertyKeys   the keys under {@code properties}, in the order they are written
+ * @param description    the blocks of text the description of the table is read from, in the order they are written
  * @param body           where the body of the table stands
  * @param problems       the problems of the file the table is read without
  */
@@ -24,8 +25,22 @@ record TableFile(String text,
                  int frontMatterEnd,
                  List<Key> keys,
                  List<Key> propertyKeys,
+                 List<Block> description,
                  Body body,
                  List<MarkdownProblem> problems) {
+
+    /**
+     * A block of text of the file, such as a paragraph.
+     *
+     * @param firstLine the first line of the block
+     * @param lastLine  the last line of the block
+     */
+    record Block(int firstLine, int lastLine) {
+
+        boolean holds(int line) {
+            return firstLine <= line && line <= lastLine;
+        }
+    }
 
     /**
      * A key of the front matter.
@@ -71,9 +86,9 @@ record TableFile(String text,
 
     /**
      * No body: a table with a header alone, such as a Datatype that adds no field to its parent. A body written into
-     * the file starts right after the front matter.
+     * the file starts right after the front matter and the description.
      *
-     * @param firstLine the line after the front matter
+     * @param firstLine the line after the front matter and the description
      */
     record NoBody(int firstLine) implements Body {
 

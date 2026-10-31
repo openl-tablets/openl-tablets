@@ -46,10 +46,10 @@ class MarkdownGridTest {
             ---
             table: SmartRules String greeting(Integer hour)
             properties:
-              description: Greeting by the hour
+              category: Greetings
             ---
 
-            Picks a greeting.
+            > Picks a greeting.
 
             | Hour  | Greeting       |
             |-------|----------------|
@@ -75,7 +75,7 @@ class MarkdownGridTest {
     void editIsSavedIntoTheFileAndCompiledFromIt() throws Exception {
         grid.edit();
         var writable = assertInstanceOf(MarkdownGrid.class, grid.getGrid());
-        // Sheet rows: the header, the description, the first row of the body, then the hours
+        // Sheet rows: the header, the category, the first row of the body, then the hours
         writable.setCellValue(1, 3, "Morning");
 
         writable.save();
@@ -99,8 +99,8 @@ class MarkdownGridTest {
         writable.save();
 
         var text = Files.readString(file, StandardCharsets.UTF_8);
-        assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
+        assertEquals(GREETING.replace("category: Greetings\n",
+                        "category: Greetings\nmerges:\n  - A3:A4\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), text);
     }
 
@@ -300,15 +300,16 @@ class MarkdownGridTest {
 
         sheet.save();
 
-        // The range is written once: the cell it covers takes no value of its own
+        // The range is written once: the cell it covers takes no value of its own. The description is the text above
+        // the table
         assertEquals("""
                 ---
                 table: SmartRules String salutation(Integer hour)
-                properties:
-                  description: Greeting by the hour
                 merges:
                   - A3:A4
                 ---
+
+                Greeting by the hour
 
                 | Hour | Greeting |
                 |---|---|
