@@ -86,9 +86,11 @@ flowchart TD
 - `MarkdownTableParser` reads the front matter with SnakeYAML (`compose`, so every key keeps its line), then parses the
   rest with `commonmark`, the front matter blanked out so that line numbers stay. A file without front matter is
   documentation as a whole.
-- The body is found as `TableLines`: the rows of a GFM table are known by their lines alone, and the cells are cut out
-  of the lines. A table of millions of cells costs the numbers of its lines; the GFM tables extension of `commonmark`
-  serves only the tests, which check that the two agree.
+- The body is found as `TableLines`: the rows of a GFM table are known by their lines alone, and `GfmTableReader` cuts
+  the cells out of the lines, a row when it is asked for. A table of millions of cells costs the numbers of its lines;
+  the GFM tables extension of `commonmark` serves only the tests, which check that the two agree.
+- The syntax of a table stays in its reader and its builder (`MarkdownTableReader`, `MarkdownTableBuilder`): the
+  parser gets rows of values, and the writer gives rows of values or the line of a row it keeps.
 - A problem in the front matter leaves the file without a table. A problem in the body — a merged range that does not
   fit, the cells of a row past those of the first row, rows a blank line cuts off — leaves the table without the part
   that breaks the format. `MarkdownProblem` keeps the line, and the cell when the table shows it.

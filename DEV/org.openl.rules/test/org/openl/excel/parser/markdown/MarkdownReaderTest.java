@@ -330,15 +330,15 @@ class MarkdownReaderTest {
 
     @Test
     void countsCellsAsGfmSplitsThem() {
-        assertEquals(1, MarkdownTableParser.countCells("| a |"));
-        assertEquals(1, MarkdownTableParser.countCells("a |"));
-        assertEquals(1, MarkdownTableParser.countCells("| a"));
-        assertEquals(2, MarkdownTableParser.countCells("a | b"));
-        assertEquals(2, MarkdownTableParser.countCells(" | a \\| b | c | "));
-        assertEquals(1, MarkdownTableParser.countCells("| a \\|"));
+        assertEquals(1, GfmTableReader.cellsOf("| a |").size());
+        assertEquals(1, GfmTableReader.cellsOf("a |").size());
+        assertEquals(1, GfmTableReader.cellsOf("| a").size());
+        assertEquals(2, GfmTableReader.cellsOf("a | b").size());
+        assertEquals(2, GfmTableReader.cellsOf(" | a \\| b | c | ").size());
+        assertEquals(1, GfmTableReader.cellsOf("| a \\|").size());
         // GFM escapes the pipe after a backslash even when another backslash stands before it
-        assertEquals(2, MarkdownTableParser.countCells("| a \\\\| b | c |"));
-        assertEquals(1, MarkdownTableParser.countCells("| a \\b |"));
+        assertEquals(2, GfmTableReader.cellsOf("| a \\\\| b | c |").size());
+        assertEquals(1, GfmTableReader.cellsOf("| a \\b |").size());
     }
 
     private static Object[][] cellsOf(String name, String text) {

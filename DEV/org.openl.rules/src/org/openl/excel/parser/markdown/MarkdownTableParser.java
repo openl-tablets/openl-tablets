@@ -3,10 +3,13 @@ package org.openl.excel.parser.markdown;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.regex.Pattern;
@@ -44,9 +47,9 @@ import org.openl.util.StringUtils;
  * {@code description} under {@code properties} is a problem: the table is read without it.
  *
  * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
- * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with
- * neither holds a table of a header alone, such as a {@code Datatype} that adds no field to its parent; the text after
- * its front matter is its description.
+ * included, is a row of the body (see {@link GfmTableReader}); a code block is the only body cell, as the code of a
+ * {@code Method}. A file with neither holds a table of a header alone, such as a {@code Datatype} that adds no field to
+ * its parent; the text after its front matter is its description.
  *
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
  * {@code \|} gives a vertical bar and {@code <br>} a line break. A whole number, {@code true} and {@code false}, and a
@@ -70,7 +73,6 @@ final class MarkdownTableParser {
             })
             .build();
     private static final Pattern LINE_SEPARATOR = Pattern.compile("\r\n|\r|\n");
-    private static final Pattern LINE_BREAK = Pattern.compile("<br\\s*/?>", Pattern.CASE_INSENSITIVE);
     // No wider than an Excel sheet, so no row or column number overflows
     private static final Pattern A1_RANGE = Pattern.compile("[A-Z]{1,3}[1-9]\\d{0,6}(?::[A-Z]{1,3}[1-9]\\d{0,6})?");
     private static final String FRONT_MATTER = "---";
@@ -333,12 +335,11 @@ final class MarkdownTableParser {
     private RulesTable readTable(Header header, @Nullable Node body) {
         var rows = switch (body) {
             case null -> List.<List<@Nullable String>>of();
-            case TableLines table -> readRows(table, header);
+            case TableLines table -> readRows(header, new GfmTableReader(lines, table.rowLines()));
             default -> List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body)
                     .getLiteral())));
         };
-        var written = new RulesTable(header.text(), header.properties(), rows, header.merges());
-        return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(written, header));
+        return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(rows, header));
     }
 
     private static TableFile.Body bodyOf(Node body) {
@@ -369,121 +370,65 @@ final class MarkdownTableParser {
     }
 
     /**
-     * Reads the rows of a GFM table. A row keeps as many cells as the first row has, as GFM reads it.
+     * Reads the rows of a table. A row keeps as many cells as the first row has, as GFM reads it: a cell past them is
+     * a problem, and the table is read without it.
      */
-    private List<List<@Nullable String>> readRows(TableLines table, Header header) {
-        var rowLines = table.rowLines();
-        var width = TableLines.cellBounds(lines.get(rowLines.getFirst())).length / 2;
-        var rows = new ArrayList<List<@Nullable String>>(rowLines.size());
-        for (var lineIndex : rowLines) {
-            var line = lines.get(lineIndex);
-            var bounds = TableLines.cellBounds(line);
-            var cells = new ArrayList<@Nullable String>(width);
-            for (var column = 0; column < width; column++) {
-                cells.add(cellText(line, bounds, column));
-            }
-            if (countCells(line) > width) {
-                problem(lineIndex + 1, "The row has more cells than the first row of the table",
+    private List<List<@Nullable String>> readRows(Header header, MarkdownTableReader reader) {
+        var written = reader.getRows();
+        var width = written.getFirst().cells().size();
+        var rows = new ArrayList<List<@Nullable String>>(written.size());
+        for (var row : written) {
+            var cells = row.cells();
+            if (cells.size() > width) {
+                problem(row.lines().firstLine() + 1, "The row has more cells than the first row of the table",
                         header.cellOf(rows.size(), width - 1));
             }
-            rows.add(cells);
+            rows.add(cells.size() == width ? cells : fitted(cells, width));
         }
         return rows;
     }
 
     /**
-     * Returns the value of a cell of a row, or {@code null} for a blank cell or one the row does not have.
-     *
-     * @param bounds where the cells of the row stand, see {@link TableLines#cellBounds}
+     * Returns the cells of a row as wide as the table: the cells past its width are cut off, and the cells a row does
+     * not have are blank.
      */
-    private static @Nullable String cellText(String row, int[] bounds, int column) {
-        if (2 * column >= bounds.length) {
-            return null;
+    private static List<@Nullable String> fitted(List<@Nullable String> cells, int width) {
+        var fitted = new ArrayList<@Nullable String>(Collections.nCopies(width, null));
+        for (var column = 0; column < Math.min(width, cells.size()); column++) {
+            fitted.set(column, cells.get(column));
         }
-        var from = bounds[2 * column];
-        var to = bounds[2 * column + 1];
-        while (from < to && Character.isWhitespace(row.charAt(from))) {
-            from++;
-        }
-        while (to > from && Character.isWhitespace(row.charAt(to - 1))) {
-            to--;
-        }
-        return from == to ? null : cellText(row.substring(from, to));
-    }
-
-    /**
-     * Returns the value of a cell written as {@code source}, or {@code null} for a blank cell.
-     */
-    static @Nullable String cellText(String source) {
-        var text = unwrapCode(source.strip().replace("\\|", "|"));
-        return StringUtils.trimToNull(text.indexOf('<') < 0 ? text : LINE_BREAK.matcher(text).replaceAll("\n"));
-    }
-
-    private static String unwrapCode(String text) {
-        var ticks = 0;
-        while (ticks < text.length() && text.charAt(ticks) == '`') {
-            ticks++;
-        }
-        if (ticks == 0 || text.length() <= 2 * ticks) {
-            return text;
-        }
-        var fence = text.substring(0, ticks);
-        var code = text.substring(ticks, text.length() - ticks);
-        return text.endsWith(fence) && !code.contains(fence) && !code.endsWith("`") ? code : text;
-    }
-
-    /**
-     * Counts the cells of a table row the way GFM splits it, before GFM drops the cells past the first row's.
-     */
-    static int countCells(String row) {
-        var start = 0;
-        var end = row.length();
-        while (start < end && Character.isWhitespace(row.charAt(start))) {
-            start++;
-        }
-        while (end > start && Character.isWhitespace(row.charAt(end - 1))) {
-            end--;
-        }
-        var pipes = 0;
-        var lastPipe = -1;
-        var i = start;
-        while (i < end) {
-            var c = row.charAt(i);
-            if (c == '|') {
-                pipes++;
-                lastPipe = i;
-            }
-            // GFM escapes a pipe only: a backslash before anything else is a character of the cell
-            i += c == '\\' && i + 1 < end && row.charAt(i + 1) == '|' ? 2 : 1;
-        }
-        var cells = pipes + 1;
-        if (start < end && row.charAt(start) == '|') {
-            cells--;
-        }
-        if (lastPipe > start && lastPipe == end - 1) {
-            cells--;
-        }
-        return cells;
+        return fitted;
     }
 
     /**
      * Returns the merged ranges of the table that fit it. A range outside the table, over a range before it or over
      * a value is a problem, and the table is read without it.
      */
-    private List<CellRangeAddress> mergesThatFit(RulesTable table, Header header) {
+    private List<CellRangeAddress> mergesThatFit(List<List<@Nullable String>> body, Header header) {
         var fit = new ArrayList<CellRangeAddress>();
-        for (var range : table.merges()) {
-            if (fits(table, range, fit, header)) {
+        // The columns the ranges that fit take in each row, so a range is checked against its own cells alone
+        var taken = new HashMap<Integer, BitSet>();
+        var width = body.isEmpty() ? 0 : body.getFirst().size();
+        for (var range : header.merges()) {
+            if (fits(body, width, range, taken, fit, header)) {
                 fit.add(range);
+                for (var row = range.getFirstRow(); row <= range.getLastRow(); row++) {
+                    taken.computeIfAbsent(row, r -> new BitSet(width))
+                            .set(range.getFirstColumn(), range.getLastColumn() + 1);
+                }
             }
         }
         return fit;
     }
 
-    private boolean fits(RulesTable table, CellRangeAddress range, List<CellRangeAddress> before, Header header) {
+    private boolean fits(List<List<@Nullable String>> body,
+                         int width,
+                         CellRangeAddress range,
+                         Map<Integer, BitSet> taken,
+                         List<CellRangeAddress> before,
+                         Header header) {
         var line = header.mergesLine();
-        var height = table.body().size();
-        var width = table.width();
+        var height = body.size();
         if (range.getLastRow() >= height || range.getLastColumn() >= width) {
             // The problem shows in the first cell of the range, when the table has that cell
             var first = range.getFirstRow() < height && range.getFirstColumn() < width
@@ -492,16 +437,15 @@ final class MarkdownTableParser {
             problem(line, "The merged range %s is outside the table".formatted(range.formatAsString()), first);
             return false;
         }
-        var overlapped = before.stream().filter(range::intersects).findFirst();
-        if (overlapped.isPresent()) {
-            var other = overlapped.get();
+        if (overlapsTaken(range, taken)) {
+            var other = before.stream().filter(range::intersects).findFirst().orElseThrow();
             problem(line, "The merged ranges %s and %s overlap".formatted(other.formatAsString(),
                             range.formatAsString()),
                     header.cellOf(Math.max(range.getFirstRow(), other.getFirstRow()),
                             Math.max(range.getFirstColumn(), other.getFirstColumn())));
             return false;
         }
-        var covered = coveredValue(table.body(), range);
+        var covered = coveredValue(body, range);
         if (covered != null) {
             problem(line, "The cell %s has a value, but the merged range %s covers it".formatted(
                     covered.formatAsString(), range.formatAsString()),
@@ -509,6 +453,18 @@ final class MarkdownTableParser {
             return false;
         }
         return true;
+    }
+
+    /** Tells whether a range takes a cell another range already takes. */
+    private static boolean overlapsTaken(CellRangeAddress range, Map<Integer, BitSet> taken) {
+        for (var row = range.getFirstRow(); row <= range.getLastRow(); row++) {
+            var columns = taken.get(row);
+            var next = columns == null ? -1 : columns.nextSetBit(range.getFirstColumn());
+            if (next >= 0 && next <= range.getLastColumn()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

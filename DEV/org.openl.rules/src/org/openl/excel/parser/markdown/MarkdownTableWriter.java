@@ -22,8 +22,6 @@ import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import org.openl.util.StringUtils;
-
 /**
  * Writes a table back into the text of its Markdown file.
  *
@@ -38,7 +36,8 @@ import org.openl.util.StringUtils;
  * or taken away is a line of its own. The same ranges keep their lines, in whatever order the file lists them.
  *
  * <p>A changed row is written with its cells padded to the widths of the delimiter row, so a table aligned by hand
- * stays aligned while a value fits. A body of one cell, read from a code block, stays a code block.
+ * stays aligned while a value fits (see {@link GfmTableBuilder}). A body of one cell, read from a code block, stays a
+ * code block.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class MarkdownTableWriter {
@@ -398,7 +397,9 @@ final class MarkdownTableWriter {
 
     private static List<String> codeBlock(TableFile.CodeBody code, @Nullable String value) {
         var indent = " ".repeat(code.indent());
-        var lines = value == null ? List.<String>of() : List.of(normalized(value).split("\n", -1));
+        var lines = value == null
+                ? List.<String>of()
+                : List.of(MarkdownTableBuilder.normalized(value).split("\n", -1));
         // A fence must be longer than any run of its character in the code
         var fence = new StringBuilder(code.fence());
         while (value != null && value.contains(fence)) {
@@ -421,7 +422,9 @@ final class MarkdownTableWriter {
         var source = file != null && file.body() instanceof TableFile.GfmBody gfm && file.table().width() == width
                 ? gfm
                 : null;
-        var delimiter = source == null ? "|" + (DELIMITER + "|").repeat(width) : lines.get(source.delimiterLine());
+        var builder = source == null
+                ? GfmTableBuilder.of(width)
+                : GfmTableBuilder.over(lines.get(source.delimiterLine()), width);
         var rowLines = source == null ? List.<Integer>of() : source.rowLines();
         var original = source == null || file == null ? List.<List<@Nullable String>>of() : file.table().body();
         var rows = table.body();
@@ -429,9 +432,6 @@ final class MarkdownTableWriter {
         var top = sameAtTop(original, rows);
         var bottom = sameAtBottom(original, rows, top);
         var unchanged = rowsOf(original, top, original.size() - bottom);
-        // Cells are aligned only to the widths of a table aligned by hand
-        var widths = source == null ? new int[width] : widths(delimiter, width);
-        var text = new ArrayList<String>(rows.size() + 1);
         var lastKept = top - 1;
         for (var i = 0; i < rows.size(); i++) {
             int kept;
@@ -443,12 +443,13 @@ final class MarkdownTableWriter {
                 kept = keptRow(unchanged, rows.get(i), lastKept);
                 lastKept = Math.max(lastKept, kept);
             }
-            text.add(kept < 0 ? row(rows.get(i), widths) : lines.get(rowLines.get(kept)));
-            if (text.size() == 1) {
-                text.add(delimiter);
+            if (kept < 0) {
+                builder.row(rows.get(i));
+            } else {
+                builder.written(lines.get(rowLines.get(kept)));
             }
         }
-        return text;
+        return builder.build();
     }
 
     /**
@@ -501,69 +502,5 @@ final class MarkdownTableWriter {
             candidates.remove();
         }
         return candidates.isEmpty() ? -1 : candidates.remove();
-    }
-
-    /**
-     * Returns the width of the text of each column, read from a delimiter row such as {@code |-------|---|}.
-     *
-     * <p>The shortest delimiter, {@code ---}, which a new file is written with, aligns no column.
-     */
-    private static int[] widths(String delimiter, int width) {
-        var row = delimiter.strip();
-        var from = row.startsWith("|") ? 1 : 0;
-        var to = row.endsWith("|") && row.length() > from ? row.length() - 1 : row.length();
-        var segments = row.substring(from, to).split("\\|", -1);
-        var widths = new int[width];
-        for (var column = 0; column < Math.min(width, segments.length); column++) {
-            var segment = segments[column];
-            widths[column] = DELIMITER.equals(segment.strip()) ? 0 : Math.max(segment.length() - 2, 0);
-        }
-        return widths;
-    }
-
-    private static String row(List<@Nullable String> cells, int[] widths) {
-        var row = new StringBuilder("|");
-        for (var column = 0; column < cells.size(); column++) {
-            var text = cell(cells.get(column));
-            row.append(' ').append(text).append(" ".repeat(Math.max(widths[column] - text.length(), 0))).append(" |");
-        }
-        return row.toString();
-    }
-
-    /**
-     * Returns the text of a cell that reads back as the value.
-     *
-     * @throws MarkdownWriteException when no text of a cell reads back as the value
-     */
-    private static String cell(@Nullable String value) {
-        if (value == null) {
-            return "";
-        }
-        var expected = StringUtils.trimToNull(normalized(value));
-        var text = normalized(value).replace("|", "\\|").replace("\n", "<br>");
-        if (Objects.equals(MarkdownTableParser.cellText(text), expected)) {
-            return text;
-        }
-        // Wrapped in backticks, a value is taken as it is: one that starts with a backtick, for example
-        var ticks = "`".repeat(longestRun(text, '`') + 1);
-        var wrapped = ticks + " " + text + " " + ticks;
-        if (Objects.equals(MarkdownTableParser.cellText(wrapped), expected)) {
-            return wrapped;
-        }
-        throw new MarkdownWriteException("The value '%s' cannot be written in a Markdown table".formatted(value));
-    }
-
-    private static int longestRun(String text, char c) {
-        var longest = 0;
-        var run = 0;
-        for (var i = 0; i < text.length(); i++) {
-            run = text.charAt(i) == c ? run + 1 : 0;
-            longest = Math.max(longest, run);
-        }
-        return longest;
-    }
-
-    private static String normalized(String value) {
-        return value.replace("\r\n", "\n").replace('\r', '\n');
     }
 }
