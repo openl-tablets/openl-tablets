@@ -7,15 +7,13 @@
  * `table-edit.ts`).
  */
 
-import type { z } from "zod";
-
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { registerTool, type ToolResponse } from "./common.js";
 import { finishTableEdit } from "./table-edit.js";
 
-type EditArgs = z.output<typeof schemas.editTableSchema>;
+type EditArgs = schemas.TableEdit;
 
 /** Whether the cell at a row and a column of the table is one a merged cell covers, beside its first one. */
 type Covered = (row: number, column: number) => boolean;
@@ -78,12 +76,21 @@ const EDITS: Record<schemas.EditAction, Edit> = {
 /** The edits that overwrite cells a merged cell may cover. */
 const OVERWRITES: ReadonlySet<schemas.EditAction> = new Set(["update_row", "update_column", "update_range"]);
 
+/** The edits that move cells or change which cells are merged. */
+const RESHAPES: ReadonlySet<schemas.EditAction> = new Set([
+  "insert_rows", "insert_columns", "delete_rows", "delete_columns", "merge", "unmerge",
+]);
+
 /**
  * The cells a merged cell of the table covers, read when an edit overwrites cells with a null that may be one of them,
  * for the null to keep the cell covered.
  */
-async function coveredCells(client: OpenLClient, args: EditArgs): Promise<Covered> {
-  if (!OVERWRITES.has(args.action) || !args.cells?.some((line) => line.includes(null))) {
+async function coveredCells(
+  client: OpenLClient,
+  args: { projectId: string; tableId: string },
+  edits: EditArgs[],
+): Promise<Covered> {
+  if (!edits.some((edit) => OVERWRITES.has(edit.action) && edit.cells?.some((line) => line.includes(null)))) {
     return () => false;
   }
   const { source } = await client.getTable(args.projectId, args.tableId);
@@ -95,7 +102,7 @@ export function registerTableActionHandlers(): void {
     name: "edit_table",
     title: "Edit Table (raw)",
     description:
-      "Edit a table's raw source in place, whatever its type, by one 'action':\n" +
+      "Edit a table's raw source in place, whatever its type, by an 'action', or several in 'actions':\n" +
       "- append_rows / append_columns: add the lines of 'cells' at the end.\n" +
       "- insert_rows / insert_columns: add the lines of 'cells' at 'position', 1 to the height or width; the rows " +
       "below or the columns to the right shift.\n" +
@@ -110,6 +117,8 @@ export function registerTableActionHandlers(): void {
       "openl_get_table hold them: a scalar or a one-dimensional array of scalars, null for an empty cell or one a " +
       "merged cell covers, which stays covered. A value starting with '=' is an OpenL formula, written as text; " +
       "update_cell writes an Excel 'formula', such as '=B2*C2', instead of a value, never beside one. " +
+      "'actions' makes several edits as one change and one write, in order, each on the table as the previous one " +
+      "left it, so an insert shifts the positions after it; when one is refused nothing is written. " +
       "'version', from openl_get_table or the previous edit, is required: Studio refuses an edit of a table changed " +
       "since and writes nothing. The answer gives the current 'tableId' and the new 'version' of the table, and " +
       "'compiles: false' with its 'errors' when the table no longer compiles.",
@@ -117,8 +126,16 @@ export function registerTableActionHandlers(): void {
     annotations: { destructiveHint: true, openWorldHint: true },
     compiled: true,
     handler: async (args, client): Promise<ToolResponse> => {
-      const action = EDITS[args.action](args, await coveredCells(client, args));
-      const reportedId = await client.editTableSource(args.projectId, args.tableId, action, args.version);
+      // The schema has checked that an edit without 'actions' names its action
+      const edits = args.actions ?? [args as EditArgs];
+      const covered = await coveredCells(client, args, edits);
+      // The merged cells of the table as it was read hold until an edit moves or merges cells
+      const found = edits.findIndex(({ action }) => RESHAPES.has(action));
+      const reshaped = found < 0 ? edits.length : found;
+      const actions = edits.map((edit, index) => EDITS[edit.action](edit, index <= reshaped ? covered : () => false));
+      const reportedId = actions.length === 1
+        ? await client.editTableSource(args.projectId, args.tableId, actions[0], args.version)
+        : await client.editTableSourceBatch(args.projectId, args.tableId, actions, args.version);
       return finishTableEdit(client, args, reportedId, "edit");
     },
   });

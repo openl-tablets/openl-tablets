@@ -349,8 +349,8 @@ function checkEditArguments(data: EditArguments, ctx: z.RefinementCtx): void {
   }
 }
 
-export const editTableSchema = z.strictObject({
-  ...tableActionBase,
+/** The arguments of one edit of a table, of the action it names. */
+const editShape = {
   action: z.enum(Object.keys(EDIT_ACTIONS) as [EditAction, ...EditAction[]]).describe("The edit to make."),
   position: z.number().int().min(0).optional().describe("The row or column the action starts at."),
   count: z.number().int().min(1).optional().describe("How many rows or columns to delete; 1 by default."),
@@ -363,7 +363,35 @@ export const editTableSchema = z.strictObject({
   ),
   value: cellValueSchema.optional().describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
   formula: excelFormulaSchema,
-}).superRefine(checkEditArguments);
+};
+
+/** One edit of a table: an action and the arguments it takes. */
+const editSchema = z.strictObject(editShape).superRefine(checkEditArguments);
+
+export type TableEdit = z.output<typeof editSchema>;
+
+export const editTableSchema = z.strictObject({
+  ...tableActionBase,
+  ...editShape,
+  action: editShape.action.optional(),
+  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an object of an 'action' and its arguments, made in order as one change: each sees the table as the previous one left it, and when one is refused nothing is written. Give either 'actions' or one 'action' with its arguments."),
+}).superRefine((data, ctx) => {
+  if (data.actions === undefined) {
+    if (data.action === undefined) {
+      ctx.addIssue({ code: "custom", path: ["action"], message: "An edit names an 'action', or several in 'actions'." });
+      return;
+    }
+    checkEditArguments({ ...data, action: data.action }, ctx);
+    return;
+  }
+  const beside = EDIT_ARGUMENTS.filter((name) => data[name] !== undefined);
+  if (data.action !== undefined || beside.length > 0) {
+    ctx.addIssue({
+      code: "custom", path: ["actions"],
+      message: "'actions' holds every edit with its arguments: give no 'action' or edit argument beside it.",
+    });
+  }
+});
 
 export const listBranchesSchema = z.strictObject({
   repository: repositoryNameSchema,
