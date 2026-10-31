@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"name\":\"feature\"},{\"name\":\"master\",\"base\":true}]}"
+        "text": "{\"data\":[{\"name\":\"master\",\"base\":true},{\"name\":\"feature\"}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":2}}"
       }
     ],
     "resultType": "complete",

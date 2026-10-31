@@ -387,6 +387,8 @@ export const listProjectBranchesSchema = z.strictObject({
   scope: z.enum(BRANCH_SCOPES).default("project").describe(
     "Branches to list: 'project' (default) returns branches that already hold the project and can be switched to; 'repository' returns every repository branch, including merge targets that do not hold the project yet.",
   ),
+  name: z.string().optional().describe("Branch name filter (partial, case-insensitive)."),
+  ...paginationShape,
 });
 
 const mergeRequestFields = {
