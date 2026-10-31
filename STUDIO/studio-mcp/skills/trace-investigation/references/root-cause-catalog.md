@@ -19,6 +19,11 @@ Read the table itself; never infer the formula.
 Find the step with the wrong value, read its formula, and walk back through its factors.
 `excludeStepValues: [1]` hides neutral rating factors so the outlier stands out.
 
+When the formula is right and a factor it reads is wrong, the defect is the row that factor
+came from: WRONG DATA, not FORMULA BUG. Compare the row with its neighbours — a value off by a
+power of ten or a percentage written as a whole number (5 where the others hold 0.05) is a data
+typo, fixed in the table.
+
 ## Wrong decision or rule match
 
 Inspect the decision-table frame: which rule fired and how each condition evaluated. Read the
