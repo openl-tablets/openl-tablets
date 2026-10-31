@@ -13,6 +13,16 @@
     <rmiName>rmiName</rmiName>
     <version>v1</version>
     <groups></groups>
+    <configuration>
+        <entry>
+            <string>jackson.defaultTypingMode</string>
+            <string>EVERYTHING</string>
+        </entry>
+        <entry>
+            <string>jackson.simpleClassNameAsTypingPropertyValue</string>
+            <string>true</string>
+        </entry>
+    </configuration>
     <lazy-modules-for-compilation>
         <module name="*"/>
     </lazy-modules-for-compilation>

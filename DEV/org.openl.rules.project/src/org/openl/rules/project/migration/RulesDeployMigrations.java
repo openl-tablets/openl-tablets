@@ -1,5 +1,7 @@
 package org.openl.rules.project.migration;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.StringUtils;
 
@@ -15,6 +17,11 @@ import org.openl.util.StringUtils;
  */
 public final class RulesDeployMigrations {
 
+    private static final String DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
+    private static final String JSON_TYPE_INFO_ID = "jackson.jsonTypeInfoId";
+    private static final String SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE =
+            "jackson.simpleClassNameAsTypingPropertyValue";
+
     private RulesDeployMigrations() {
     }
 
@@ -26,6 +33,7 @@ public final class RulesDeployMigrations {
     public static void apply(RulesDeploy rulesDeploy) {
         runtimeContext(rulesDeploy);
         templateClass(rulesDeploy);
+        jacksonTyping(rulesDeploy);
     }
 
     /**
@@ -53,5 +61,40 @@ public final class RulesDeployMigrations {
             rulesDeploy.setAnnotationTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
         }
         rulesDeploy.setInterceptingTemplateClassName(null);
+    }
+
+    /**
+     * Replaces the Jackson typing settings that OpenL Tablets no longer reads.
+     *
+     * <p>{@code jackson.defaultTypingMode} set to {@code EVERYTHING} becomes {@code NON_FINAL_AND_ENUMS}, the closest
+     * mode: it writes the type of every value except a value of a final class, such as {@code Long}. A service with
+     * {@code EVERYTHING} does not deploy at all.
+     *
+     * <p>{@code jackson.simpleClassNameAsTypingPropertyValue} is dropped. When it was {@code true}, it turned the
+     * {@code CLASS} type id into {@code NAME}, so {@code jackson.jsonTypeInfoId} becomes {@code NAME} where it is
+     * {@code CLASS} or absent, and the service keeps writing and expecting simple class names. An absent type id is
+     * taken for {@code CLASS} or {@code NAME}, the default of {@code ruleservice.jackson.jsonTypeInfoId}, as the
+     * descriptor does not tell the one the application properties set.
+     */
+    public static void jacksonTyping(RulesDeploy rulesDeploy) {
+        var configuration = rulesDeploy.getConfiguration();
+        if (configuration == null) {
+            return;
+        }
+        if (is(configuration.get(DEFAULT_TYPING_MODE), "EVERYTHING")) {
+            configuration.put(DEFAULT_TYPING_MODE, "NON_FINAL_AND_ENUMS");
+        }
+        // the flag was read without trimming the blanks around it
+        var simpleClassName = String.valueOf(configuration.remove(SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE));
+        var typeInfoId = configuration.get(JSON_TYPE_INFO_ID);
+        var classId = typeInfoId == null || is(typeInfoId, "CLASS");
+        if ("true".equalsIgnoreCase(simpleClassName) && classId) {
+            configuration.put(JSON_TYPE_INFO_ID, "NAME");
+        }
+    }
+
+    /** Whether a configuration value is the text, in any letter case and with any blanks around it. */
+    private static boolean is(@Nullable Object value, String text) {
+        return value instanceof String string && text.equalsIgnoreCase(string.trim());
     }
 }

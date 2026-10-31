@@ -975,7 +975,7 @@ Proceed as follows:
 > [!Note]
 > Only **Annotation Template Class** is offered. When `rules-deploy.xml` names the class in the `interceptingTemplateClassName` element, the value is shown in this field, and the file is saved with the `annotationTemplateClassName` element.
 
-A `rules-deploy.xml` that keeps settings in a legacy form shows the **Migrate** button. It brings the file to the current minimal form: drops the default runtime-context flag and renames the legacy template class setting. The file is written anew, so its comments and layout are not kept.
+A `rules-deploy.xml` that keeps settings in a legacy form shows the **Migrate** button. It brings the file to the current minimal form: drops the default runtime-context flag, renames the legacy template class setting, and replaces the Jackson typing settings that OpenL Tablets no longer reads: the `EVERYTHING` default typing mode becomes `NON_FINAL_AND_ENUMS`, and `jackson.simpleClassNameAsTypingPropertyValue` gives way to the `NAME` type id it stood for. The file is written anew, so its comments and layout are not kept.
 
 #### Defining Rule Service Version
 

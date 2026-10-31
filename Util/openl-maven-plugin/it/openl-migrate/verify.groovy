@@ -27,6 +27,16 @@ try {
     <annotationTemplateClassName>LegacyService</annotationTemplateClassName>
     <url>foo</url>
     <version>v1</version>
+    <configuration>
+        <entry>
+            <string>jackson.defaultTypingMode</string>
+            <string>NON_FINAL_AND_ENUMS</string>
+        </entry>
+        <entry>
+            <string>jackson.jsonTypeInfoId</string>
+            <string>NAME</string>
+        </entry>
+    </configuration>
 </rules-deploy>
 '''
 
@@ -78,6 +88,7 @@ interface LegacyService {
     assert buildLog.contains('Migrate: rules-deploy.xml (needless tags cleanup)')
     assert buildLog.contains('Migrate: rules-deploy.xml (drop default isProvideRuntimeContext=false)')
     assert buildLog.contains('Migrate: rules-deploy.xml (interceptingTemplateClassName to annotationTemplateClassName)')
+    assert buildLog.contains('Migrate: rules-deploy.xml (replace the Jackson typing settings removed in OpenL 7.0.0)')
     // GroovyJakartaMigrator logs a relative path, so the separator is the platform one.
     assert buildLog =~ /Migrate groovy[\\\/]LegacyService\.groovy/
     // RulesRemovedFunctionsMigrator logs every rewritten piece of a cell and then the workbook, by its relative path.
@@ -96,11 +107,11 @@ interface LegacyService {
     // Tally every "Migrate: " line so an unexpected migrator (e.g. someone wires a noisy migrator without
     // updating this script) immediately surfaces. rules.xml: empty-tag + lib + classpath + cw-processor +
     // method-filter + default-modules = 5 lines; rules-deploy.xml: empty-tag + runtime-context +
-    // template-class = 3 lines; rules/Format.xlsx: removed-functions = 1 line; pom.xml: unused-parameters =
-    // 1 line; total = 10. (GroovyJakartaMigrator emits "Migrate <path>", not "Migrate: ", so it doesn't count here.)
+    // template-class + jackson-typing = 4 lines; rules/Format.xlsx: removed-functions = 1 line; pom.xml:
+    // unused-parameters = 1 line; total = 11. (GroovyJakartaMigrator emits "Migrate <path>", not "Migrate: ", so it doesn't count here.)
     def migrateColonLines = buildLog.readLines().findAll { it.contains('Migrate: ') }
-    assert migrateColonLines.size() == 10 :
-            "expected exactly 10 'Migrate: ' lines, got ${migrateColonLines.size()}:\n${migrateColonLines.join('\n')}"
+    assert migrateColonLines.size() == 11 :
+            "expected exactly 11 'Migrate: ' lines, got ${migrateColonLines.size()}:\n${migrateColonLines.join('\n')}"
 
     // setup.groovy created a fresh local git repository and made an "initial" commit. After openl:migrate
     // every migrator that actually changed files produced its own SCM commit. Read the log subjects (one per
@@ -130,6 +141,7 @@ interface LegacyService {
     assert commitFragments.contains('migrate: drop CWPropertyFileNameProcessor')
     assert commitFragments.contains('migrate: drop default isProvideRuntimeContext=false')
     assert commitFragments.contains('migrate: interceptingTemplateClassName to annotationTemplateClassName')
+    assert commitFragments.contains('migrate: replace the Jackson typing settings removed in OpenL 7.0.0')
     assert commitFragments.contains('migrate: groovy scripts from javax to jakarta')
     assert commitFragments.contains('migrate: replace the functions removed in OpenL 7.0.0')
     assert commitFragments.contains('migrate: drop unused openl-maven-plugin parameters')
