@@ -25,6 +25,7 @@ values, and an offer to apply the fix.
 | Type | Fix |
 |---|---|
 | MISSING DATA — lookup has no row for the input | add the row or reroute |
+| WRONG DATA — a row of a lookup or data table holds a wrong value: a typo, a scale (5 for 0.05) or a unit | correct the value; the formula stays |
 | WRONG ROUTING — dispatch sends the input to a table that does not cover it | change the dispatch condition |
 | MISSING RULE — no decision-table row covers the case | add a rule row |
 | FORMULA BUG — wrong field or operation | correct the formula |

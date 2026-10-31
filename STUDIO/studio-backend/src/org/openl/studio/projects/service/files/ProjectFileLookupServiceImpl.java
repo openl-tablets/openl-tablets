@@ -148,23 +148,21 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     }
 
     /**
-     * Collects matches from a repository listing that lie on the anchor's upward line — the anchor
-     * folder and its ancestors up to the repository root, never a descendant or a sibling branch —
-     * keeping only files the current user is granted READ on. {@code excludeBase}, when set, drops the
-     * current project (already covered by its artefact tree).
+     * Collects the same-named file of the anchor folder and of each of its ancestors up to the repository root, never
+     * a descendant or a sibling branch, keeping only files the current user is granted READ on. Each level is checked
+     * by its path: a listing of the repository would read every file of it, for seconds in a repository of hundreds of
+     * projects. {@code excludeBase}, when set, drops the current project (already covered by its artefact tree).
      */
     private void collectFromRepository(Repository repository, String repositoryId, String anchorDir, String fileName,
                                        String excludeBase, List<Candidate> out) throws IOException {
         var aclService = aclServiceProvider.getDesignRepoAclService();
-        for (FileData data : repository.list("")) {
-            String path = FilePaths.trimSlashes(data.getName());
-            var match = !data.isDeleted()
-                    && !exceedsSizeLimit(data)
-                    && fileName.equals(FilePaths.name(path))
-                    && !isExcluded(path, excludeBase)
-                    && isAncestorOrSelf(FilePaths.parent(path), anchorDir)
-                    && aclService.isGranted(repositoryId, path, true, BasePermission.READ);
-            if (match) {
+        for (String dir = anchorDir; dir != null; dir = dir.isEmpty() ? null : FilePaths.parent(dir)) {
+            var path = FilePaths.join(dir, fileName);
+            var data = isExcluded(path, excludeBase) ? null : repository.check(path);
+            // Whether a file is deleted is asked last: a repository reads the history of the file to answer it
+            if (data != null && !exceedsSizeLimit(data)
+                    && aclService.isGranted(repositoryId, path, true, BasePermission.READ)
+                    && !data.isDeleted()) {
                 out.add(new Candidate(path, sizeOf(data), modifiedOf(data), () -> readContent(repository, path)));
             }
         }

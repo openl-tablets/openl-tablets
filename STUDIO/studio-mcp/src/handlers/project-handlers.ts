@@ -10,7 +10,8 @@ import { namesOfSet } from "../utils.js";
 import { type Truncation } from "../formatters.js";
 import { formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
-import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
+import { changedTables } from "./comparison.js";
 import { refreshFromDisk } from "./freshness.js";
 
 /**
@@ -30,12 +31,12 @@ function severityRank(severity: string | undefined): number {
  *  1. When `compileState === "ok"`, drop the noisy `items[]` list — counts and
  *     module/test totals are preserved so the caller still sees compile-summary.
  *  2. Otherwise, sort `items[]` by severity (ERROR → WARN → INFO) so the most
- *     actionable diagnostics survive the response-format character truncation
- *     (markdown does a dumb `.slice(0, 25000)` and the backend returns items in
- *     id-ascending order — without this, ERRORs end up past the cutoff when a
- *     project has many WARNs).
+ *     actionable diagnostics survive the cut to the response limit, which keeps
+ *     the leading messages (the backend returns them in id order).
  *  3. Optional `severity` filter narrows items to the requested severities.
  *  4. Optional `limit` caps the (already-sorted) items list.
+ *  5. A message names its table without the project the status is of, and the modules are counted, not named:
+ *     openl_list_project_modules names them.
  */
 function shapeStatusResponse(
   status: Types.ProjectStatusView,
@@ -45,16 +46,7 @@ function shapeStatusResponse(
   if (!status.compilation?.messages) {
     return status;
   }
-  if (status.compileState === "ok") {
-    return {
-      ...status,
-      compilation: {
-        ...status.compilation,
-        messages: { ...status.compilation.messages, items: [] },
-      },
-    };
-  }
-  let items = (status.compilation.messages.items ?? [])
+  let items = status.compileState === "ok" ? [] : (status.compilation.messages.items ?? [])
     .toSorted((a, b) => severityRank(a.severity) - severityRank(b.severity));
   if (severityFilter?.length) {
     const allowed = new Set<string>(severityFilter);
@@ -63,13 +55,55 @@ function shapeStatusResponse(
   if (limit) {
     items = items.slice(0, limit);
   }
+  const { compiledModules, ...modules } = status.compilation.modules;
   return {
     ...status,
     compilation: {
       ...status.compilation,
-      messages: { ...status.compilation.messages, items },
+      messages: { ...status.compilation.messages, items: items.map((item) => compactMessage(item, status.projectId)) },
+      modules,
     },
   };
+}
+
+/** The workbooks of a project, the files a comparison reads tables of. */
+const WORKBOOK = /\.xls[xm]?$/i;
+
+/**
+ * The status with the tables each changed workbook holds otherwise than the saved revision, when they are asked for:
+ * the pending changes name files only. Studio holds one comparison per client, so the workbooks are compared one by
+ * one; a workbook whose comparison fails is named without its tables.
+ */
+async function withChangedTables(
+  client: OpenLClient,
+  status: Types.ProjectStatusView,
+  asked: boolean | undefined,
+  extra: ToolHandlerExtra | undefined,
+): Promise<Types.ProjectStatusView> {
+  const { pendingChanges, revision, branch, projectId } = status;
+  if (!asked || !pendingChanges?.files.length || !revision) {
+    return status;
+  }
+  // A pending change names its file by the path of the project in its repository, a comparison by the path in it
+  const root = (await client.getProject(projectId)).path;
+  const files = [];
+  for (const file of pendingChanges.files) {
+    if (file.type !== "modified" || !WORKBOOK.test(file.path)) {
+      files.push(file);
+      continue;
+    }
+    const path = root && file.path.startsWith(`${root}/`) ? file.path.slice(root.length + 1) : file.path;
+    const tables = await changedTables(client,
+      () => client.compareProjectFiles(projectId, { path, branch, revision }, { path }), extra).catch(() => undefined);
+    files.push(tables ? { ...file, tables } : file);
+  }
+  return { ...status, pendingChanges: { ...pendingChanges, files } };
+}
+
+/** A compile message whose location names the project the status is of without the project. */
+function compactMessage(message: Types.DetailedMessageDescription, statusProject: string): Types.DetailedMessageDescription {
+  const { projectId, project, ...location } = message.location ?? {};
+  return projectId === statusProject ? { ...message, location } : message;
 }
 
 /**
@@ -176,8 +210,9 @@ export function registerProjectHandlers(): void {
     name: "list_projects",
     title: "List Projects",
     description:
-      "List projects as a table, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. Each project names its id as 'projectId', which the other tools take as it is, and leaves its capabilities to openl_get_project; include 'status' adds its compileState. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
+      "List projects as a table, filtered by repository (an id or name from openl_list_repositories), status, dependsOn, name, author, branch and tags; 50 a page, 200 at most, the first line naming the offset of the next page. Its 'projectId' is what the other tools take, as it is; include 'status' adds the compile state, and openl_get_project tells the capabilities. Filtering by repository 'local' may fail: list without it and pick those. A project of repository 'local', or edited in place (no canOpen, canSave, canClose), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
     schema: schemas.listProjectsSchema,
+    aliases: { search: "name" },
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
@@ -238,7 +273,7 @@ export function registerProjectHandlers(): void {
     name: "project_status",
     title: "Get Project Status",
     description:
-      "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
+      "Get the project's compile state, diagnostics, pending changes by file, and module/test summary; with changes: true, each changed workbook names the tables it holds otherwise than the saved revision. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
     schema: schemas.projectStatusSchema,
     annotations: {
       destructiveHint: false,
@@ -252,7 +287,7 @@ export function registerProjectHandlers(): void {
         timeoutMs: args.timeoutMs,
       });
       const { refreshed, ...read } = status;
-      const shaped = shapeStatusResponse(read, args.severity, args.limit);
+      const shaped = await withChangedTables(client, shapeStatusResponse(read, args.severity, args.limit), args.changes, extra);
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 
@@ -373,10 +408,7 @@ export function registerProjectHandlers(): void {
     name: "create_project",
     title: "Create or Copy Project",
     description:
-      "Create a new OpenL project in a design repository. Two modes, selected by the `template` argument:\n" +
-      "• CREATE (omit `template`): create a BLANK project from the \"Empty Project\" template OpenL Studio ships, as a user of Studio does.\n" +
-      "• COPY (pass `template` = an existing project's exact projectId from openl_list_projects): use Studio's server-side project-copy API to copy that source project's FULL structure and rename its descriptor to name. Do not pass the displayed project name because mapped repositories may contain multiple projects with the same name.\n" +
-      "Both modes are written and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches() when branches are supported; Studio also supports creating a missing branch from the base branch. Omit `comment` when repository features.comments is false. Answers the projectId, branch and revision of the new project. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
+      "Create a project in a design repository: a blank one from the 'Empty Project' template Studio ships, or, with 'template', a copy of the whole structure of that project (its exact projectId from openl_list_projects, never a displayed name) renamed to 'name'. Omit 'branch' for the default branch of the repository, or name one from openl_list_branches; Studio creates a missing branch from the base one. Omit 'comment' when the features.comments of the repository is false. The answer gives the projectId, branch and revision of the project. Not for repository 'local'.",
     schema: schemas.createProjectSchema,
     annotations: {
       readOnlyHint: false,

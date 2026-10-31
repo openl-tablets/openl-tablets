@@ -81,6 +81,7 @@ import org.eclipse.jgit.lib.ObjectIdRef;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
@@ -1033,6 +1034,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                 }
                 try {
                     fetchResult = fetchAll();
+                    if (isUpToDate(fetchResult)) {
+                        fetchResult = null;
+                    }
                 } finally {
                     remoteRepoLock.unlock();
                 }
@@ -1043,21 +1047,22 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
 
         var branchesChanged = false;
-        var writeLock = repositoryLock.writeLock();
-        try {
-            log.debug("getLastRevision(): lock write");
-            writeLock.lock();
-            initLfsCredentials();
+        // A poll that fetched nothing new takes no write lock: a writer waiting behind a long read, such as the history
+        // of a large repository, holds up every reader that comes after it.
+        if (fetchResult != null) {
+            var writeLock = repositoryLock.writeLock();
+            try {
+                log.debug("getLastRevision(): lock write");
+                writeLock.lock();
+                initLfsCredentials();
 
-            if (fetchResult != null) {
                 branchesChanged = doFastForward(fetchResult);
                 fastForwardNotMergedCommits(fetchResult);
+            } finally {
+                resetLfsCredentials();
+                writeLock.unlock();
+                log.debug("getLastRevision(): unlock write");
             }
-
-        } finally {
-            resetLfsCredentials();
-            writeLock.unlock();
-            log.debug("getLastRevision(): unlock write");
         }
 
         if (branchesChanged) {
@@ -1072,6 +1077,32 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
         }
+    }
+
+    /**
+     * @return true if the fetch moved no branch and the branch of this repository is where the remote one is, so neither
+     * {@link #doFastForward} nor {@link #fastForwardNotMergedCommits} has anything to do
+     */
+    private boolean isUpToDate(FetchResult fetchResult) throws IOException {
+        for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
+            if (refUpdate.getResult() != RefUpdate.Result.NO_CHANGE) {
+                return false;
+            }
+        }
+        return differingHeads(fetchResult) == null;
+    }
+
+    /** The head of the branch of this repository and the one the fetch advertised for it, when they differ. */
+    private @Nullable Heads differingHeads(FetchResult fetchResult) throws IOException {
+        var advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
+        var localRef = git().getRepository().findRef(branch);
+        if (localRef == null || advertisedRef == null || localRef.getObjectId().equals(advertisedRef.getObjectId())) {
+            return null;
+        }
+        return new Heads(localRef.getObjectId(), advertisedRef.getObjectId());
+    }
+
+    private record Heads(ObjectId local, ObjectId advertised) {
     }
 
     /**
@@ -1186,18 +1217,17 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         // In this case fetchResult.getTrackingRefUpdates() can be empty.
         // If everything is merged into current branch, this method does nothing.
         // Obviously this method is not needed. It's invoked only to fix unexpected errors during work with repository.
-        var advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
-        var localRef = git().getRepository().findRef(branch);
-        if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
-            if (isMergedInto(advertisedRef.getObjectId(), localRef.getObjectId(), false)) {
+        var heads = differingHeads(fetchResult);
+        if (heads != null) {
+            if (isMergedInto(heads.advertised(), heads.local(), false)) {
                 // We enter here only if we have inconsistent repository state. Need additional investigation if this
                 // occurred. For example this can happen if we discarded locally some commit but the branch didn't move
                 // to the desired new HEAD.
                 log.warn(
                         "Advertised commit is already merged into current head in branch '{}'. Current HEAD: {}, advertised ref: {}",
                         branch,
-                        localRef.getObjectId().name(),
-                        advertisedRef.getObjectId().name());
+                        heads.local().name(),
+                        heads.advertised().name());
             } else {
                 // Typically this shouldn't occur. But if found such case, should fast-forward local repository and
                 // write
@@ -1205,10 +1235,10 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                 log.warn(
                         "Found commits that are not fast forwarded in branch '{}'. Current HEAD: {}, advertised ref: {}",
                         branch,
-                        localRef.getObjectId().name(),
-                        advertisedRef.getObjectId().name());
+                        heads.local().name(),
+                        heads.advertised().name());
                 checkoutForced(branch);
-                git().merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
+                git().merge().include(heads.advertised()).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
             }
         }
     }

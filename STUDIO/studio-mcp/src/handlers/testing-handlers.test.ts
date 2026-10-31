@@ -132,7 +132,7 @@ describe("test results", () => {
     ...extra,
   });
 
-  it("answers the counts, the test tables, and a row per failed assertion with the inputs of its test", async () => {
+  it("answers the counts, the test tables, and a row per failed test with its inputs and failed assertions", async () => {
     // Studio lists no test units for a test table without failures when only the failed tests are asked for
     const { testUnits: _, ...passing } = testCase("Test_discount", "Test_discount_1", 3, 0);
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
@@ -158,9 +158,8 @@ describe("test results", () => {
       "2 test tables.",
       "| test table | tableId | tests | failed |\n| --- | --- | --- | --- |\n" +
         "| Test_discount | Test_discount_1 | 3 | 0 |\n| Test_premium | Test_premium_1 | 2 | 1 |",
-      "| test table | test | status | inputs | assertion | expected | actual |\n" +
-        "| --- | --- | --- | --- | --- | --- | --- |\n" +
-        "| Test_premium | 2 | failed | age=25; policy=Policy P-1 | Premium | 100 | 90 |",
+      "test table: Test_premium\n\n| test | status | inputs | failures |\n| --- | --- | --- | --- |\n" +
+        "| 2 | failed | age=25; policy=Policy P-1 | Premium: expected 100, actual 90 |",
     ].join("\n\n"));
   });
 
@@ -187,8 +186,24 @@ describe("test results", () => {
 
     const text = textOf(await executeTool("get_test_results", { projectId: "design-project1", failuresOnly: false }, harness.client));
 
-    expect(text).toContain("| Test_premium | 1 | passed |  |  |  |  |");
-    expect(text).toContain('| Test_premium | 2 | error |  | error |  | "Division by zero" |');
+    expect(text).toContain("| 1 | passed |  |  |");
+    expect(text).toContain("| 2 | error |  | error: Division by zero |");
+  });
+
+  it("names the field of a failed assertion whose description another assertion of the test shares", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: [{
+        ...testCase("Test_rates", "Test_rates_1", 1, 1),
+        testUnits: [failed("1", { testAssertions: [
+          { description: "Tier 1 Rate", field: "$RateCard.$ManualRate", expectedValue: 2.99, actualValue: 2.68, status: "TR_NEQ" },
+          { description: "Tier 1 Rate", field: "$RateCard.$FormulaRate", expectedValue: 2.68, actualValue: 2.68, status: "TR_OK" },
+        ] })],
+      }],
+    }));
+
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1" }, harness.client));
+
+    expect(text).toContain("| 1 | failed |  | Tier 1 Rate ($RateCard.$ManualRate): expected 2.99, actual 2.68 |");
   });
 
   it("answers the summary of the run on one line", async () => {
@@ -241,8 +256,8 @@ describe("test results", () => {
       "Test_calculatePremium (Test_calculatePremium_1234): 30 tests, 30 failed.",
       "30 tests listed; 21–25 below, the next page at offset=25.",
     ]);
-    expect(text).toContain("| Test_calculatePremium | 21 |");
-    expect(text).not.toContain("| Test_calculatePremium | 26 |");
+    expect(text).toContain("| 21 | failed |");
+    expect(text).not.toContain("| 26 | failed |");
     // Studio answers every test of the table, its inputs named by their type and key
     expect(harness.mockHttp.history.get[0].params)
       .toEqual({ tableId: "Test_calculatePremium_1234", failuresOnly: true, failures: 5, allFailures: true, lazyValues: true });
@@ -267,7 +282,7 @@ describe("test results", () => {
       tableId: "Test_calculatePremium_1234",
     }, harness.client));
 
-    const rows = text.split("\n").filter((line) => line.startsWith("| Test_calculatePremium |"));
+    const rows = text.split("\n").filter((line) => /^\| \d+ \| failed \|/.test(line));
     expect(text.length).toBeLessThanOrEqual(25_000);
     expect(rows.length).toBeGreaterThan(0);
     expect(rows.length).toBeLessThan(40);

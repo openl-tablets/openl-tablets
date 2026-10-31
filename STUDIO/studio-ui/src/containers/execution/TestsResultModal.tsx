@@ -136,7 +136,10 @@ const columnsOf = (
         })),
         ...assertions.map((assertion, index): ListTableColumn<TestUnitResult> => ({
             key: `assertion-${index}`,
-            title: assertion.description || t('tests.result'),
+            // Two columns described alike are told apart by the fields they compare
+            title: assertion.field
+                ? `${assertion.description} (${assertion.field})`
+                : assertion.description || t('tests.result'),
             render: unit => {
                 const actual = unit.testAssertions?.[index]
                 const failed = actual !== undefined && actual.status !== 'TR_OK'

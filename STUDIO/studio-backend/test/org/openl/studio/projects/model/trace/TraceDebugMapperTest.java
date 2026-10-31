@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -584,6 +587,26 @@ class TraceDebugMapperTest {
         assertNull(compact.frames().getFirst().steps(), "compact drops the non-active frame's steps");
         assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
         assertNotNull(compact.frames().get(1).steps(), "the active frame keeps its steps");
+    }
+
+    @Test
+    void compactViewListsOnlyTheFiredRulesOfADecisionTableAndNoChoicelessDispatch() {
+        IDecisionTable lookup = mock(IDecisionTable.class);
+        when(lookup.getNumberOfRules()).thenReturn(900);
+        when(lookup.getRuleName(anyInt())).thenAnswer(rule -> "R" + ((int) rule.getArgument(0) + 1));
+        var frame = spy(new DebugFrame(new SourceClassifier.FrameDescriptor(FrameKind.DECISION_TABLE, "uLookup", "Lookup", null),
+                lookup, null, new Object[0], null, 1));
+        doReturn(new DispatchInfo(List.of(new DispatchInfo.Candidate("state: CA", true)))).when(frame).getDispatch();
+
+        var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, List.of(frame), null, null, List.of(),
+                StackRenderOptions.FULL, false).frames().getFirst();
+        assertEquals(900, full.steps().size(), "the full view outlines every rule");
+        assertNotNull(full.dispatch());
+
+        var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, List.of(frame), null, null, List.of(),
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false).frames().getFirst();
+        assertEquals(List.of(), compact.steps(), "no rule fired yet, so the compact view lists none");
+        assertNull(compact.dispatch(), "a dispatch with one candidate made no choice");
     }
 
     @Test

@@ -92,6 +92,12 @@ function ifMatch(version: string | undefined): Record<string, string> {
   return version === undefined ? {} : { "If-Match": entityTag(version) };
 }
 
+/**
+ * The fields of a node of the dependency graph that tell what calls what. Where a table is, its module and its signature
+ * are read with the table: they made most of the graph of a large project.
+ */
+const GRAPH_NODE_FIELDS = "id,kind,name,dependencies,dependents,dimensions,extends,fields,vocabulary";
+
 /** The query of a projected read: the fields asked for, or else the whole reply with the JSON Schemas of its values. */
 function projection(fields: string | undefined): Record<string, unknown> {
   return fields ? { fields } : { includeSchema: true };
@@ -1162,7 +1168,7 @@ export class OpenLClient {
     const params = options?.tableId
       ? { direction: options.direction || undefined, depth: options.depth }
       : { module: options?.module || undefined, layer: options?.layer || undefined };
-    return (await this.http.get<Types.TableNodeView[]>(url, { params })).data;
+    return (await this.http.get<Types.TableNodeView[]>(url, { params: { ...params, fields: GRAPH_NODE_FIELDS } })).data;
   }
 
   /** Return the modules declared by a project descriptor, each followed by the modules it holds. */
@@ -1384,6 +1390,14 @@ export class OpenLClient {
       { first, second },
       { params: { module: moduleName } },
     )).data.id;
+  }
+
+  /**
+   * Start comparing two versions of a workbook of a project, each read from the working copy or, with a revision and
+   * its branch, from the repository: the id of the comparison, read as {@link compareLocalVersions} explains.
+   */
+  async compareProjectFiles(projectId: string, first: Types.ComparisonSide, second: Types.ComparisonSide): Promise<string> {
+    return (await this.http.post<{ id: string }>(`${projectPath(projectId)}/compare`, { first, second })).data.id;
   }
 
   /** The tables the two versions of a comparison differ in, by sheet, or `notReady` while Studio compares them. */

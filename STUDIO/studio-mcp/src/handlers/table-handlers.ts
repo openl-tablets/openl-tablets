@@ -8,8 +8,8 @@ import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import { findRows, gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
 import { isPlainObject, sanitizeError } from "../utils.js";
-import { formatResult, registerTool, textResult, type ToolResponse } from "./common.js";
-import { formatStudioPage } from "../markdown-list.js";
+import { formatResult, registerTool, textResult, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
+import { cellText, formatStudioPage } from "../markdown-list.js";
 import type * as Types from "../types.js";
 import { finishTableEdit } from "./table-edit.js";
 
@@ -72,10 +72,10 @@ function tableRowsTool(toolName: string): { name: string; validateArgs: (args: u
 
 /** The description of the shape a table is read and written in, which every table tool shares. */
 const TABLE_SHAPE =
-  "A table is 'rows' of values, one per column, a value a scalar, a one-dimensional array of scalars, or null for an " +
-  "empty cell or one a merged cell covers; 'merges' lists the merged cells as [row, column, rowspan, colspan], " +
-  "'formulas' the Excel formulas as [row, column, '=B2*C2'] beside the values they compute. A position counts from " +
-  "0 in the whole table, the header row and the label column included.";
+  "A table is 'rows', one value per column: a scalar, an array of scalars, or null for an empty cell or one a merge " +
+  "covers; 'merges' lists merged cells as [row, column, rowspan, colspan], 'formulas' Excel formulas as [row, " +
+  "column, '=B2*C2'] beside the values they compute. Positions count from 0 in the whole table, the header row and " +
+  "the label column included.";
 
 export function registerTableHandlers(): void {
   registerTool({
@@ -83,8 +83,9 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project as a table of id, name, kind and module, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project by module, a table of id, name and kind, with the dimension properties that tell versions of one table apart; 50 a page, 200 at most, the first line naming the offset of the next page. Filter by kind, name, module, properties, header and text. The 'id' is the tableId the table tools take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
+    aliases: { search: "name" },
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -95,13 +96,21 @@ export function registerTableHandlers(): void {
       const tablesPage = await client.listTablesPage(projectId, filters);
       // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
       const ofDependencies = tablesPage.items.some((table) => table.projectId !== undefined && table.projectId !== projectId);
+      // Studio tells the dimension properties of a table only when it has other versions, which share its name
+      const versioned = tablesPage.items.some((table) => table.dimensions !== undefined);
       return textResult(formatStudioPage(tablesPage, filters.offset, {
         noun: "tables",
+        // The module of a table, which many tables share, is written once over them
+        groupBy: { header: "module", value: (table) => table.module },
         columns: [
           { header: "id", value: (table) => table.id },
           { header: "name", value: (table) => table.name },
           { header: "kind", value: (table) => table.kind },
-          { header: "module", value: (table) => table.module },
+          ...(versioned ? [{
+            header: "version",
+            value: (table: Types.TableMetadata) =>
+              Object.entries(table.dimensions ?? {}).map(([name, value]) => `${name}=${cellText(value)}`).join("; "),
+          }] : []),
           ...(ofDependencies ? [{
             header: "project",
             value: (table: Types.TableMetadata) => (table.projectId === projectId ? "" : `${table.project} (${table.projectId})`),
@@ -116,17 +125,9 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      `Read a table whatever its type, in the shape openl_update_table and openl_create_project_table take: ${TABLE_SHAPE} ` +
-      "'notes' lists the Excel notes and, with styles=true, 'styles' the Excel styles of the cells; a write keeps both. " +
-      "The first cell of 'pos' is row 0, column 0, and compilation messages name cells by their A1 addresses. " +
-      "'window' tells which rows the answer holds: offset, rows, totalRows, complete, and next_offset while rows " +
-      "remain; offset/limit read a slice of a large table, whose positions stay those of the whole table, and a " +
-      "merged cell the slice cuts keeps its value in the first row of the slice. A slice is for reading and for " +
-      "openl_edit_table: openl_update_table writes whole tables. find reads only the rows with a text, such as the " +
-      "key of a row of a large lookup, and the header rows, each at its position in 'rowIndexes'. The answer carries " +
-      "the 'version' the edit tools " +
-      "take back. An id from before a rename still reads the table; a deleted table answers 410.",
+      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes and, with styles=true, 'styles' the cell styles; a write keeps both. Compilation messages name cells by A1 address, 'pos' giving the first cell of the table. For a large table, find='900' reads only the rows holding a text, with the header rows, each at its position in 'rowIndexes'; offset/limit read a slice ('window' tells offset, totalRows and next_offset), its positions those of the whole table, for reading and for openl_edit_table. The answer carries the 'version' the edit tools take. An id from before a rename still reads the table; a deleted table answers 410.`,
     schema: schemas.getTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -166,6 +167,7 @@ export function registerTableHandlers(): void {
     description:
       "Delete an ENTIRE table from a project. The whole table area is cleared from the sheet regardless of table type, so the table no longer exists once the project is recompiled. To remove only a row or column WITHIN a table, use openl_edit_table instead. The studio does not auto-compile after the delete — run openl_project_status afterward to confirm the project still compiles (a dangling reference to the deleted table surfaces there). 'version' from openl_get_table is required: Studio deletes nothing when the table changed since.",
     schema: schemas.tableOnlySchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
@@ -184,13 +186,9 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Replace Entire Table",
     description:
-      `Replace a whole table with the rows, merges and formulas openl_get_table answered, changed, and its 'version'. ${TABLE_SHAPE} ` +
-      "Keep every row: rows are added, never removed, and a table with fewer rows than it has is refused; remove " +
-      "rows with the delete_rows action of openl_edit_table, which also suits an isolated edit. A row may end " +
-      "before the last column, and the cells left out are empty; notes and styles are kept. Studio refuses the " +
-      "write when the table changed since the read and writes nothing: read it again and repeat the change. The " +
-      "answer gives the current 'tableId' and the new 'version' of the table.",
+      `Replace a whole table with the rows, merges and formulas openl_get_table answered, changed, and its 'version'. ${TABLE_SHAPE} Rows are added, never removed: fewer rows than the table has are refused; remove rows with the delete_rows action of openl_edit_table, which also suits an isolated edit. A row may end before the last column; notes and styles are kept. The answer gives the current 'tableId' and the new 'version'.`,
     schema: schemas.updateTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       destructiveHint: true,
       idempotentHint: true,
@@ -211,10 +209,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Create New Table",
     description:
-      `Create a table in the module 'module', or in a new module at modulePath, an .xlsx path, from its rows, merges and formulas. ${TABLE_SHAPE} ` +
-      "Build the rows as the OpenL guides (openl_get_guides) describe the table, or as openl_get_table answers a " +
-      "table like it; its header row names it as 'name' does. The answer gives the 'tableId' and 'version' of the " +
-      "new table, and 'compiles: false' with its errors when it does not compile.",
+      `Create a table in the module 'module', or in a new module at the .xlsx 'modulePath', from its rows, merges and formulas. ${TABLE_SHAPE} Build the rows as the OpenL guides (openl_get_guides) describe the table type, or as openl_get_table answers a table like it; the header row names the table as 'name' does. The answer gives the 'tableId' and 'version' of the table, and 'compiles: false' with its errors when it does not compile.`,
     schema: schemas.createProjectTableSchema,
     annotations: {
       destructiveHint: false,

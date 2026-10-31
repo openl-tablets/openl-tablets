@@ -64,7 +64,10 @@ async function workbooksNotSearched(
   args: z.output<typeof schemas.searchProjectFilesSchema>,
   query: Types.FileSearchQuery,
 ): Promise<string | undefined> {
-  if (!args.content || args.scope === "ANCESTORS" || args.type === "FOLDER") {
+  // A pattern of files of another extension, such as '**/*.xml', covers no workbook
+  const patternExtension = /\.([^./*?]+)$/.exec(args.pattern ?? "")?.[1].toLowerCase();
+  if (!args.content || args.scope === "ANCESTORS" || args.type === "FOLDER"
+    || (patternExtension !== undefined && !WORKBOOK_EXTENSIONS.includes(patternExtension))) {
     return undefined;
   }
   const asked = args.extensions?.map((extension) => extension.toLowerCase());
@@ -125,7 +128,7 @@ export function registerFileHandlers(): void {
     name: "write_project_file",
     title: "Write Project File",
     description:
-      "Create or replace a TEXT file of a project by its project-relative path, from UTF-8 'content'; send a file from disk — a workbook, an image, any binary or large file — by openl_create_upload_link instead. Without 'version' it creates a NEW file, its missing folders too unless createFolders is false, and writes nothing over a file at the path; with the 'version' of a file it replaces it. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. 'message' commits the write, with every pending change of the project, in a design repository. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place. Change the TABLES of a workbook with openl_update_table, openl_edit_table or openl_create_project_table.",
+      "Create or replace a TEXT file of a project from UTF-8 'content'; a workbook, an image or any binary or large file goes by openl_create_upload_link. Without 'version' it creates a new file, with its missing folders unless createFolders is false, and writes nothing over a file there; with the file's 'version' it replaces it, keeping the CRLF line ends of the file. 'message' commits the write with every pending change of the project. The change stays in the working copy of an opened project until openl_save_project; a closed project is committed at once, and a project edited in place written at once. Change the tables of a workbook with the table tools.",
     schema: schemas.writeProjectFileSchema,
     annotations: {
       openWorldHint: true,
@@ -166,7 +169,7 @@ export function registerFileHandlers(): void {
     name: "create_upload_link",
     title: "Create Upload Link",
     description:
-      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, which needs curl 7.76 or newer, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place.",
+      "Get a link that uploads a file from disk into a project, a workbook, an image or any binary or large file, without its bytes passing through the conversation. Its target is as for openl_write_project_file: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; the 'size' and hex 'sha256' of the local file are checked before anything is written where Studio authenticates its clients. The answer holds the url, a ready curl command (curl 7.76 or newer) that sends the file named after the path from the current folder, to adjust, and where the file lands in its repository. Where Studio authenticates, the link needs no credential, works until expiresAt and writes once: a failed upload needs a new link. The change lands as a write of openl_write_project_file does.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
       destructiveHint: false,
@@ -193,7 +196,7 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or a folder of a project by its project-relative path; a file by the 'version' openl_read_project_file answered for it. Studio removes the references the project configuration holds to it. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place. Destructive.",
+      "Delete a file or a folder of a project by its project-relative path; a file by the 'version' openl_read_project_file answered for it. Studio removes the references the project configuration holds to it. The change lands as a write of openl_write_project_file does. Destructive.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
@@ -217,14 +220,18 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content' substring. Only the top level is searched unless recursive=true; to list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
+      "Search the files and folders of a project by an ant-glob 'pattern' ('rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content'. A content search looks in every folder, any other search in the top level unless recursive=true; search 'from' a folder with nothing else to list it. Content is read as text: the cells of a workbook are never searched, which openl_list_tables 'text' does. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
     schema: schemas.searchProjectFilesSchema,
+    aliases: { query: "content" },
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
-    handler: async (args, client): Promise<ToolResponse> => {
+    handler: async (asked, client): Promise<ToolResponse> => {
+      // A text is looked for in every folder unless the agent asks for the top level: the files that hold text are
+      // seldom at the top of a project
+      const args = { ...asked, recursive: asked.recursive ?? (asked.content !== undefined && asked.scope !== "ANCESTORS" ? true : undefined) };
       const { limit, offset } = args;
 
       // Undefined fields are dropped by JSON serialization, so an empty query
@@ -241,17 +248,19 @@ export function registerFileHandlers(): void {
       // The backend file-search has no server-side paging (it returns the full
       // match set), so — like openl_list_deployments/openl_list_repositories — we
       // paginate the returned array client-side and report pagination metadata.
-      const found = await client.searchProjectFiles(args.projectId, query, {
-        branch: args.branch,
-        // A match names its file by its path, of which its name, folder and extension are parts; an ANCESTORS match
-        // carries its content too
-        fields: args.fields ?? (args.scope === "ANCESTORS" ? undefined : "path,type,size,lastModified"),
-      });
+      const [found, notSearched] = await Promise.all([
+        client.searchProjectFiles(args.projectId, query, {
+          branch: args.branch,
+          // A match names its file by its path, of which its name, folder and extension are parts; an ANCESTORS match
+          // carries its content too
+          fields: args.fields ?? (args.scope === "ANCESTORS" ? undefined : "path,type,size,lastModified"),
+        }),
+        workbooksNotSearched(client, args, query),
+      ]);
       // An ANCESTORS search answers each file whole, up to 1 MB: a file larger than an inline text goes without it
       const results = found.filter(inStartFolder(args)).map((node) => (node.content !== undefined && Buffer.byteLength(node.content, "utf8") > INLINE_TEXT_BYTES
         ? { ...node, content: undefined, contentOmitted: true }
         : node));
-      const notSearched = await workbooksNotSearched(client, args, query);
       return textResult(args.scope === "ANCESTORS"
         ? ancestorFiles(results)
         : formatListOf(results, limit, offset, {
@@ -266,7 +275,7 @@ export function registerFileHandlers(): void {
     name: "copy_project_file",
     title: "Copy Project File",
     description:
-      "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place.",
+      "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change lands as a write of openl_write_project_file does.",
     schema: schemas.fileTransferSchema,
     annotations: {
       destructiveHint: false,
@@ -279,7 +288,7 @@ export function registerFileHandlers(): void {
     name: "move_project_file",
     title: "Move or Rename Project File",
     description:
-      "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place.",
+      "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change lands as a write of openl_write_project_file does.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,

@@ -12,7 +12,7 @@ import type { ProgressToken, ServerNotification, ToolAnnotations } from "@modelc
 import { z, type ZodType } from "zod";
 
 import type { OpenLClient } from "../client.js";
-import { sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
+import { isPlainObject, sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
 import { isHttpError, isNotFoundError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
 import { refreshWhenChangedOnDisk } from "./freshness.js";
@@ -71,6 +71,11 @@ interface ToolDefinition<TSchema extends ZodType = ZodType> {
    * richer discriminator errors.
    */
   validateArgs?: (args: unknown) => unknown;
+  /**
+   * The names agents carry over from another tool for an argument of this one, such as 'search' for 'name' of a list
+   * filtered by name, which the tool takes for that argument. They stay out of the published schema.
+   */
+  aliases?: Readonly<Record<string, string>>;
   /** Optional tool-specific enrichment for schema validation failures. */
   formatValidationError?: (error: z.ZodError) => string;
   /**
@@ -143,6 +148,23 @@ export function registerTool<TSchema extends ZodType>(tool: ToolDefinition<TSche
   toolHandlers.set(tool.name, tool as ToolDefinition);
 }
 
+/**
+ * The name agents give the id of a table after the 'id' openl_list_tables and openl_get_table answer: the table tools
+ * take it for their 'tableId'.
+ */
+export const TABLE_ID_ALIAS: Readonly<Record<string, string>> = { id: "tableId" };
+
+/** The arguments with each alias of the tool renamed to the argument it stands for, unless that one is given too. */
+function withAliases(args: unknown, aliases: Readonly<Record<string, string>> | undefined): unknown {
+  if (aliases === undefined || !isPlainObject(args)) {
+    return args;
+  }
+  return Object.fromEntries(Object.entries(args).map(([key, value]) => {
+    const target = aliases[key];
+    return [target !== undefined && !(target in args) ? target : key, value];
+  }));
+}
+
 /** The registered tools as the MCP tool list advertises them. */
 export function getAllTools(): Array<
   Pick<ToolDefinition, "name" | "title" | "description" | "annotations"> & { inputSchema: Record<string, unknown> }
@@ -168,7 +190,7 @@ export async function executeTool(
   }
 
   try {
-    const rawArgs = args ?? {};
+    const rawArgs = withAliases(args ?? {}, tool.aliases);
     const preparedArgs = tool.validateArgs ? tool.validateArgs(rawArgs) : rawArgs;
     const result = tool.schema.safeParse(preparedArgs);
     if (!result.success) {
@@ -361,12 +383,24 @@ function httpErrorDetails(
 }
 
 /**
+ * The tool call that resolves a refusal of OpenL Studio, by its code: Studio's message tells what is wrong in the
+ * terms of its user interface, which has no such calls.
+ */
+const NEXT_STEP_OF_CODE = new Map([
+  ["openl.error.409.project.not.opened.message", "Open it with openl_open_project first."],
+  ["openl.error.409.project.close.modified.message",
+    "Save the changes with openl_save_project, or drop them with openl_close_project discardChanges, first."],
+]);
+
+/**
  * The message of a failed REST call: the localized message OpenL Studio answered, followed by its field and global
- * errors, so that a validation error names the field that failed, why, and the rejected value. A call without such an
- * answer reports its sanitized error, with the system error of a failure without an answer.
+ * errors, so that a validation error names the field that failed, why, and the rejected value, and by the tool call
+ * that resolves it when there is one. A call without such an answer reports its sanitized error, with the system error
+ * of a failure without an answer.
  */
 function httpErrorMessage(error: HttpError, apiErrorInfo: ExtractedErrorInfo): string {
-  const answered = [apiErrorInfo.message, formatApiErrorDetails(apiErrorInfo)].filter(Boolean).join("\n");
+  const nextStep = NEXT_STEP_OF_CODE.get(apiErrorInfo.code ?? "");
+  const answered = [apiErrorInfo.message, nextStep, formatApiErrorDetails(apiErrorInfo)].filter(Boolean).join("\n");
   if (answered) {
     return answered;
   }

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -106,6 +107,35 @@ class TestsExecutionSummaryResponseMapperTest {
         assertEquals(List.of("Check", "Doubled"), assertions.stream().map(e -> e.description()).toList());
         assertEquals("234", assertions.getFirst().expectedValue().toString());
         assertEquals("\"Too big\"", assertions.getFirst().actualValue().toString());
+    }
+
+    /** Two columns of a test table described alike: their assertions name the field each compares. */
+    @Test
+    void namesTheFieldOfAnAssertionWhoseDescriptionAnotherShares() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[]{"Tier 1 Rate", "Tier 1 Rate", "Total"});
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_NEQ);
+        when(testUnit.getActualResult()).thenReturn(new Object());
+        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        when(testUnit.getComparisonResults()).thenReturn(List.of(
+                new ComparedResult("$RateCard.$ManualRate", 2.55, 2.68, TestStatus.TR_NEQ),
+                new ComparedResult("$RateCard.$FormulaRate", 2.55, 2.68, TestStatus.TR_NEQ),
+                new ComparedResult("$Total", 10, 10, TestStatus.TR_OK)));
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var assertions = mapper.mapToTestUnitResult(results, testUnit, new TestExecutionSummaryQuery(false, 5, false,
+                false)).testAssertions();
+
+        assertEquals(Arrays.asList("$RateCard.$ManualRate", "$RateCard.$FormulaRate", null),
+                assertions.stream().map(TestAssertionExecutionResult::field).toList());
     }
 
     /**

@@ -21,7 +21,8 @@ interface Node {
  * The value cut to fit `limit` characters of JSON, and the cuts made, by path; a value that fits is left whole.
  * Strings longer than 200 characters are shortened first; then the largest arrays lose items from their middle,
  * keeping their first and their last ones, and when no array has more than one item left, the largest objects are
- * replaced by the number of their keys.
+ * replaced by the number of their keys. An `enum` of a JSON Schema is never cut: what is left of it would name the
+ * values allowed wrong, where the count of the keys of the object holding it names a cut.
  */
 export function cutJson(value: unknown, limit: number): { value: unknown; cuts: string[] } {
   if (sizeOf(value) <= limit) {
@@ -35,7 +36,7 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
   }
   let scan = nodesOf(root.value);
   while (scan.size > limit) {
-    const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1);
+    const arrays = scan.arrays.filter((node) => node.key !== "enum" && (node.value as unknown[]).length > 1);
     if (arrays.length > 0) {
       cutLargest(arrays, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
     } else if (scan.objects.length > 0) {
@@ -88,8 +89,10 @@ function shortenTexts(parent: Record<string, unknown> | unknown[], key: string |
  */
 function cutMiddle(node: Node, size: number, limit: number, cuts: string[]): number {
   const items = node.value as unknown[];
-  // Keep the share of the items that the limit is of the whole, at most half of them, so a large excess is cut at once
-  const keep = Math.max(1, Math.min(Math.floor(items.length / 2), Math.floor((items.length * limit) / size)));
+  // Keep the share of the items that the limit is of the whole, at most half of them, so a large excess is cut at once;
+  // the first and the last item stay while the array has more than two: the last of a stack is where the run stopped
+  const keep = Math.max(items.length > 2 ? 2 : 1,
+    Math.min(Math.floor(items.length / 2), Math.floor((items.length * limit) / size)));
   const head = Math.ceil(keep / 2);
   const kept = [...items.slice(0, head), ...items.slice(items.length - (keep - head))];
   (node.parent as Record<string | number, unknown>)[node.key] = kept;

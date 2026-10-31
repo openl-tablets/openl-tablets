@@ -1,7 +1,7 @@
 /**
  * The user guides of a fixture OpenL Studio: the table of contents it serves at `/docs/toc.json` and the pages it
  * holds, with a reference guide, the specifications, and the pages the guide tools leave out — folder indexes and
- * another guide. Folders are titled the way Studio titles them by their names.
+ * another guide.
  */
 
 import type { MockHttp } from "./mock-http.js";

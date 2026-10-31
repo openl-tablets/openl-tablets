@@ -26,10 +26,10 @@ All paths are under `STUDIO/studio-mcp/src`.
   bodies, timeouts and the errors of a call. It ignores `HTTP_PROXY`, as `fetch` does unless `NODE_USE_ENV_PROXY` or
   `--use-env-proxy` turns the proxy of the environment on.
 - **`schemas.ts`**, **`types.ts`**, **`formatters.ts`** — the Zod schemas of the tool arguments, the Studio REST
-  types, and the rendering of a result as JSON or Markdown; `dependency-markdown.ts` renders a table dependency graph
-  as Mermaid diagrams, `markdown-list.ts` renders a list as a Markdown table, `json-cut.ts` cuts a JSON answer over
-  the limit in its structure, `table-grid.ts` converts between Studio's matrix of cells and the rows, merges and
-  formulas the table tools read and write, and `text.ts` holds the text helpers both renderings share.
+  types, and the rendering of a result as JSON or Markdown; `markdown-list.ts` renders a list as a Markdown table,
+  `json-cut.ts` cuts a JSON answer over the limit in its structure, `table-grid.ts` converts between Studio's matrix
+  of cells and the rows, merges and formulas the table tools read and write, and `text.ts` holds the text helpers
+  both renderings share.
 - **`guides-registry.ts`** — the specifications and the Reference Guide OpenL Studio serves at `/docs`.
 - **`transfer-links.ts`** — the links a file tool answers instead of the bytes of a file: a transfer link Studio
   issues where it authenticates, the address of the REST API in single-user mode, with where the file lives in its
@@ -123,7 +123,7 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 - **Source** — OpenL Studio serves the specifications at `/docs/ref` and the Reference Guide at
   `/docs/reference-guide`, with its other user guides. Every guide tool reads the table of contents, `/docs/toc.json`,
   which gives the title and the size of each page, and `openl_get_guides` reads the pages it is asked for. The
-  `index.md` page of a folder stays out; `openl_get_started` groups the guides by the sections Studio titles.
+  `index.md` page of a folder stays out.
 - **Ids** — `spec/…` and `guide/…`: the path in the folder without `.md` and number prefixes. Renaming a page
   changes its id.
 - **Paths** — `path` is the address of a document relative to the address of OpenL Studio. Bodies come as Studio
@@ -133,7 +133,7 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 
 - **Source** — one folder per skill in `STUDIO/studio-mcp/skills`, in the layout of the
   [Agent Skills specification](https://agentskills.io/specification). Each holds only what the tools,
-  `openl_get_started` and the guides Studio serves do not say.
+  the server instructions and the guides Studio serves do not say.
 - **Build** — the bundler loads `skills/` with the skills extension of the MCP SDK and embeds the text of every file
   it serves; hidden files and folders, such as `.DS_Store`, are left out. A skill the extension refuses — one
   against the specification, such as a `name` other than its folder or a description over 1024 characters, or over
@@ -145,8 +145,8 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   `SKILL.md`, and `resources/directory/read` the files of a folder of a skill. An entry carries the frontmatter as
   JSON and every file with its SHA-256 digest and size.
 - **Clients without the extension** — the `instructions` of the server, which a client gives its agent when it
-  connects, send the agent to `openl_get_started` first and list the skills with their URIs and descriptions, as
-  `openl_get_started` does too, so an agent reads the skill that matches its task as resources.
+  connects, tell the agent how to work through the tools and list the skills with their URIs and descriptions and
+  the tool that reads them, so an agent reads the skill that matches its task as resources.
 
 ## Coupling with OpenL Studio
 

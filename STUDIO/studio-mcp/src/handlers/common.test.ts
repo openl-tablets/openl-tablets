@@ -37,13 +37,6 @@ describe("tool registry", () => {
     expect(lenient).toEqual([]);
   });
 
-  it("offers response_format only on the dependency graph, whose Markdown draws it", () => {
-    const formatted = getAllTools()
-      .filter((tool) => "response_format" in (tool.inputSchema.properties as Record<string, unknown>))
-      .map((tool) => tool.name);
-    expect(formatted).toEqual(["get_table_dependencies"]);
-  });
-
   it("publishes no dialect and no safe-integer bounds, but the bounds of a tool", () => {
     const published = JSON.stringify(getAllTools().map((tool) => tool.inputSchema));
     const listTables = getAllTools().find((tool) => tool.name === "list_tables")?.inputSchema;
@@ -102,7 +95,6 @@ describe("argument validation", () => {
     ["get_test_results", { projectId: "p1", unpaged: true, offset: 0 }, /mutually exclusive/],
     ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
-    ["get_table_dependencies", { projectId: "p1", response_format: "xml" }, /markdown_concise.*markdown_detailed/],
     ["get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, /response_format/],
     ["list_tables", { projectId: "p1", offset: 2 ** 60 }, /Invalid arguments for list_tables.*offset/s],
   ])("enforces the published %s constraints at runtime", async (toolName, args, message) => {
@@ -113,6 +105,34 @@ describe("argument validation", () => {
   it("names the tool that lists the missing identifier", async () => {
     await expect(executeTool("get_project", {}, harness.client))
       .rejects.toThrow(/Invalid arguments for get_project.*projectId.*openl_list_projects/s);
+  });
+});
+
+describe("argument aliases", () => {
+  it("takes the name a tool declares as an alias for the argument it has under another name", async () => {
+    harness.mockHttp.onGet("/projects").reply(200, pageOf([]));
+    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
+    harness.mockHttp.onPost("/projects/p1/tables/t1/actions").reply(204);
+    harness.mockHttp.onGet("/projects/p1/tables/t1").reply(200, { id: "t1", tableType: "RawSource", source: [] });
+
+    await executeTool("list_projects", { search: "Rating" }, harness.client);
+    await executeTool("search_project_files", { projectId: "p1", query: "rate", recursive: false }, harness.client);
+    await executeTool("edit_table", {
+      projectId: "p1", id: "t1", version: "v1", actions: [{ action: "delete_rows", position: 2 }],
+    }, harness.client);
+
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ name: "Rating" });
+    expect(JSON.parse(harness.mockHttp.history.post[0].data as string)).toMatchObject({ content: "rate" });
+    const edit = harness.mockHttp.history.post.find((request) => request.url?.endsWith("/actions"));
+    expect(JSON.parse(edit?.data as string)).toMatchObject({ target: { type: "rows", position: 2 } });
+  });
+
+  it("leaves a name to a tool that takes it itself, and refuses an argument given under both names", async () => {
+    harness.mockHttp.onGet("../docs/toc.json").reply(200, { title: "Docs", children: [] });
+
+    await executeTool("list_guides", { search: "spreadsheet" }, harness.client);
+    await expect(executeTool("list_projects", { search: "a", name: "b" }, harness.client))
+      .rejects.toThrow(/Unrecognized key: "search"/);
   });
 });
 
@@ -213,6 +233,16 @@ describe("errors of OpenL Studio", () => {
     const msg = (await callAndCatch()).message;
     expect(msg).toBe("OpenL Studio API error (401): The personal access token has expired. Create a new token in "
       + "Personal Access Tokens of OpenL Studio and use it instead.");
+  });
+
+  it("names the call that opens a project Studio refuses to read while it is closed", async () => {
+    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+      code: "openl.error.409.project.not.opened.message",
+      message: "The project is not opened.",
+    });
+
+    const msg = (await callAndCatch()).message;
+    expect(msg).toBe("OpenL Studio API error (409): The project is not opened.\nOpen it with openl_open_project first.");
   });
 
   it("tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists", async () => {

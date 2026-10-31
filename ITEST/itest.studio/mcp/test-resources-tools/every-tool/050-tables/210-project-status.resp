@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"projectId\":\"T19W2T33ZAYMF\",\"branch\":\"master\",\"revision\":\"@\",\"compileState\":\"ok\",\"lastModifiedBy\":{\"author\":\"Ada Admin\",\"date\":\"#-#-#T#:#:#-#:#\"},\"compilation\":{\"messages\":{\"total\":0,\"errors\":0,\"warnings\":0,\"items\":[]},\"modules\":{\"compiledModules\":[\"Main\"],\"total\":1,\"compiled\":1},\"tests\":{\"total\":1}},\"pendingChanges\":{\"total\":1,\"files\":[{\"path\":\"McpTools/rules/Main.xlsx\",\"type\":\"modified\"}]}}}"
+        "text": "{\"data\":{\"projectId\":\"T19W2T33ZAYMF\",\"branch\":\"master\",\"revision\":\"@\",\"compileState\":\"ok\",\"lastModifiedBy\":{\"author\":\"Ada Admin\",\"date\":\"#-#-#T#:#:#-#:#\"},\"compilation\":{\"messages\":{\"total\":0,\"errors\":0,\"warnings\":0,\"items\":[]},\"modules\":{\"total\":1,\"compiled\":1},\"tests\":{\"total\":1}},\"pendingChanges\":{\"total\":1,\"files\":[{\"path\":\"McpTools/rules/Main.xlsx\",\"type\":\"modified\"}]}}}"
       }
     ],
     "resultType": "complete",

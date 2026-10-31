@@ -34,8 +34,24 @@ describe("reading tables", () => {
       projectId: "p1", limit: 50, offset: 25, }, harness.client);
 
     // The project the caller named is not repeated in each table
-    expect(textOf(result)).toBe("26 tables; 26–26 below.\n\n| id | name | kind | module |\n| --- | --- | --- | --- |\n"
-      + "| t26 | calculatePremium | Rules | Main |");
+    expect(textOf(result)).toBe("26 tables; 26–26 below.\n\nmodule: Main\n\n| id | name | kind |\n| --- | --- | --- |\n"
+      + "| t26 | calculatePremium | Rules |");
+  });
+
+  it("openl_list_tables writes the module of its tables once over them, and tells the versions of a table apart", async () => {
+    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
+      { id: "t1", name: "AreaFactor", kind: "Rules", module: "Lookups", projectId: "p1" },
+      { id: "t2", name: "Premium", kind: "Spreadsheet", module: "Algorithm", projectId: "p1" },
+      { id: "t3", name: "StateFactor", kind: "Rules", module: "Lookups", projectId: "p1", dimensions: { effectiveDate: "2027-01-01", state: ["CA", "NY"] } },
+      { id: "t4", name: "StateFactor", kind: "Rules", module: "Lookups", projectId: "p1", dimensions: {} },
+    ], { total: 4 }));
+
+    const result = await executeTool("list_tables", { projectId: "p1" }, harness.client);
+
+    expect(textOf(result)).toBe("4 tables.\n\n"
+      + "module: Lookups\n\n| id | name | kind | version |\n| --- | --- | --- | --- |\n| t1 | AreaFactor | Rules |  |\n"
+      + "| t3 | StateFactor | Rules | effectiveDate=2027-01-01; state=CA, NY |\n| t4 | StateFactor | Rules |  |\n\n"
+      + "module: Algorithm\n\n| id | name | kind | version |\n| --- | --- | --- | --- |\n| t2 | Premium | Spreadsheet |  |");
   });
 
   it("openl_list_tables finds the tables a text is in, and names the project of a table of a dependency", async () => {
@@ -52,8 +68,8 @@ describe("reading tables", () => {
     expect(harness.mockHttp.history.get[0].params).toMatchObject({
       kind: ["Rules"], text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
     });
-    expect(textOf(result)).toContain("| id | name | kind | module | project |");
-    expect(textOf(result)).toContain("| t1 | Messages | Rules |  |  |\n| t9 | Codes | Data |  | Common (p9) |");
+    expect(textOf(result)).toContain("| id | name | kind | project |");
+    expect(textOf(result)).toContain("| t1 | Messages | Rules |  |\n| t9 | Codes | Data | Common (p9) |");
   });
 
   it("openl_get_table forwards offset/limit/styles to the raw view query and answers the rows, the styles apart", async () => {

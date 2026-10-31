@@ -16,6 +16,11 @@ public record TestAssertionExecutionResult(
         @Parameter(description = "Description of the assertion")
         String description,
 
+        @Parameter(description = """
+                The field of the result the assertion compares, present when another assertion of the test has the \
+                same description: the descriptions of two columns of a test table can be the same""")
+        @Nullable String field,
+
         @Schema(description = "Expected value of the assertion", implementation = Object.class)
         JsonNode expectedValue,
 

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "4 tables.\n\n| id | name | kind | module |\n| --- | --- | --- | --- |\n| * | AgeFactor | Rules | Main |\n| * | Driver | Datatype | Main |\n| * | Premium | Spreadsheet | Main |\n| * | PremiumTest | Test | Main |"
+        "text": "4 tables.\n\nmodule: Main\n\n| id | name | kind |\n| --- | --- | --- |\n| * | AgeFactor | Rules |\n| * | Driver | Datatype |\n| * | Premium | Spreadsheet |\n| * | PremiumTest | Test |"
       }
     ],
     "resultType": "complete",

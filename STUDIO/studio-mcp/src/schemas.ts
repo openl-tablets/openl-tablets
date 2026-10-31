@@ -6,7 +6,7 @@
 import { z } from "zod";
 import { parseJsonOrText } from "./http.js";
 import {
-  BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, RESPONSE_FORMATS, TABLE_KINDS,
+  BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, TABLE_KINDS,
   TABLE_SCOPES, TABLE_SORTS,
 } from "./types.js";
 
@@ -16,13 +16,6 @@ const STATUS_INCLUDE_NOTE =
   "openl_project_status compiles it and reports its errors.";
 
 
-const ResponseFormat = z
-  .enum(RESPONSE_FORMATS)
-  .default("json")
-  .describe(
-    "Response format: 'json' for structured, round-trippable data (default), 'markdown' for human-readable output, 'markdown_concise' for a brief summary (1-2 paragraphs), or 'markdown_detailed' for full details with context"
-  );
-
 // Pagination parameters, spread last into the arguments of a paged tool
 const paginationShape = {
   limit: z.number().int().positive().max(200).default(50),
@@ -30,14 +23,14 @@ const paginationShape = {
 };
 
 // The ids take a short description, as most tools take one of them and every agent loads their schemas every session
-export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The 'projectId' openl_list_projects answered, as it is.");
+export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The projectId openl_list_projects answers.");
 
 const repositoryNameSchema = z.string().describe("The 'id' or 'name' of a repository, as openl_list_repositories answers them; never a made-up one.");
 
 /** A string with more than whitespace in it, trimmed. */
 const nonBlankString = z.string().trim().min(1);
 
-const tableIdSchema = z.string().describe("The 'id' of the table openl_list_tables answered, or the 'tableId' of its last edit.");
+const tableIdSchema = z.string().describe("The 'id' openl_list_tables answers, or the 'tableId' of the last edit; a table name works too.");
 
 const branchNameSchema = z.string().describe("Git branch name (e.g., 'main', 'development', 'feature/new-rules')");
 
@@ -99,6 +92,9 @@ export const projectStatusSchema = z.strictObject({
   limit: z.number().int().positive().max(1000).optional().describe(
     "Cap the number of items returned in compilation.messages.items. The list is sorted ERROR → WARN → INFO first so the most actionable items are preserved when capped. Pair with severity to bound very large diagnostic lists. Default: no cap; an answer over the size limit keeps the first messages, errors first, and tells how many it holds."
   ),
+  changes: z.boolean().optional().describe(
+    "Also name in pendingChanges the tables each changed workbook holds otherwise than the saved revision, comparing the workbooks one by one: seconds each."
+  ),
 });
 
 export const openProjectSchema = z.strictObject({
@@ -145,9 +141,8 @@ export const getTableSchema = z.strictObject({
 
 /** The version of a table a write is based on, as openl_get_table or the previous edit answered it. */
 const tableVersionSchema = nonBlankString.describe(
-  "The 'version' of the table that openl_get_table, or the previous edit of the table, answered. Studio refuses the " +
-  "write when the table changed since — on disk, such as in Excel, or through another client — and writes nothing: " +
-  "read the table again and repeat the edit on what it holds now.",
+  "The 'version' the last read or edit of the table answered. A table changed since, in Excel or by another client, " +
+  "is not written: read it again and repeat the edit.",
 );
 
 const tableActionBase = {
@@ -174,7 +169,7 @@ export const runTableSchema = z.strictObject({
     z.record(z.string(), z.unknown()),
   ]).describe("Method input as JSON, or the same as a JSON string: an object keyed by method parameter name; { params, runtimeContext? } with params keyed by name or listed in order; or an array of the argument values in order. For a method whose only parameter is an array, a top-level array is that parameter's value. The value is sent to Studio unchanged."),
   module: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
-  withSchema: z.boolean().optional().describe("Also answer the JSON Schemas of the parameters and the result: their fields and the values each vocabulary allows."),
+  withSchema: z.boolean().optional().describe("Also answer the JSON Schema of each parameter: its fields and the values each vocabulary allows."),
   timeoutMs: z.number().int().positive().max(600000).default(120000).describe("Maximum time for the complete Studio start-and-result workflow, in milliseconds. Default 120000 (2 minutes), maximum 600000 (10 minutes). A timeout cancels the pending Studio run."),
 });
 
@@ -185,7 +180,6 @@ export const getTableDependenciesSchema = z.strictObject({
   layer: z.enum(["executable", "datatype", "all"]).optional().describe("When tableId is omitted, return executable tables, datatype/vocabulary nodes, or both (backend default all)."),
   direction: z.enum(["DEPENDENCIES", "DEPENDENTS", "BOTH"]).optional().describe("When tableId is provided, relations to traverse. Default BOTH: the tables it calls and the tables calling it."),
   depth: z.number().int().min(1).optional().describe("When tableId is provided, maximum traversal depth from that table."),
-  response_format: ResponseFormat,
 }).superRefine((value, ctx) => {
   if (value.tableId) {
     if (value.module) {
@@ -226,10 +220,7 @@ export const copyTableSchema = z.strictObject({
   modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new destination module. Omit when module already exists."),
   name: nonBlankString.describe("Name for the copied table."),
   sheetName: z.string().optional().describe("Destination worksheet name. Defaults to the copied table's name."),
-  properties: z.array(z.strictObject({
-    name: nonBlankString.describe("Property name."),
-    value: z.string().optional().describe("Property value in display-string form. A blank value removes the property."),
-  })).optional().describe("Replacement table properties. Omit to retain the source table's properties."),
+  properties: z.record(nonBlankString, z.string()).optional().describe("The properties of the copy, such as { state: 'CA' }, replacing all of the source's: name every one the copy keeps. Omit to keep the source's."),
 });
 
 const scalarCellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
@@ -243,8 +234,6 @@ const cellValueSchema = z.union([scalarCellValueSchema, z.array(scalarCellValueS
 });
 
 /** The Excel formula of a cell of an edit, which names it instead of a value. */
-const excelFormulaSchema = z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2'. The cell is written as this Excel formula; send it without 'value', which Studio refuses beside it. An OpenL formula is a 'value' starting with '='.");
-
 /** A cell of an edit names either its value or its Excel formula, as Studio refuses both. */
 const VALUE_OR_FORMULA = "A cell takes either 'value' or 'formula', not both.";
 const valueOrFormula = (cell: { value?: unknown; formula?: string }): boolean =>
@@ -349,20 +338,37 @@ function checkEditArguments(data: EditArguments, ctx: z.RefinementCtx): void {
   }
 }
 
-/** The arguments of one edit of a table, of the action it names. */
+/**
+ * The arguments of one edit of a table, of the action it names. An edit of 'actions' takes them without their
+ * descriptions, which the arguments of the tool give once: every agent loads the schema of the tool.
+ */
 const editShape = {
-  action: z.enum(Object.keys(EDIT_ACTIONS) as [EditAction, ...EditAction[]]).describe("The edit to make."),
-  position: z.number().int().min(0).optional().describe("The row or column the action starts at."),
-  count: z.number().int().min(1).optional().describe("How many rows or columns to delete; 1 by default."),
-  row: z.number().int().min(0).optional().describe("The row of the cell, or of the top-left cell of a range."),
-  column: z.number().int().min(0).optional().describe("The column of the cell, or of the top-left cell of a range."),
-  rowspan: z.number().int().min(1).optional().describe("How many rows the merged cell spans."),
-  colspan: z.number().int().min(1).optional().describe("How many columns the merged cell spans."),
-  cells: z.array(z.array(cellValueSchema).min(1)).min(1).optional().describe(
+  action: z.enum(Object.keys(EDIT_ACTIONS) as [EditAction, ...EditAction[]]),
+  position: z.number().int().min(0).optional(),
+  count: z.number().int().min(1).optional(),
+  row: z.number().int().min(0).optional(),
+  column: z.number().int().min(0).optional(),
+  rowspan: z.number().int().min(1).optional(),
+  colspan: z.number().int().min(1).optional(),
+  cells: z.array(z.array(cellValueSchema).min(1)).min(1).optional(),
+  value: cellValueSchema.optional(),
+  formula: z.string().optional(),
+};
+
+/** The arguments of an edit as the tool describes them. */
+const describedEditShape = {
+  action: editShape.action.describe("The edit to make."),
+  position: editShape.position.describe("The row or column the action starts at."),
+  count: editShape.count.describe("How many rows or columns to delete; 1 by default."),
+  row: editShape.row.describe("The row of the cell, or of the top-left cell of a range."),
+  column: editShape.column.describe("The column of the cell, or of the top-left cell of a range."),
+  rowspan: editShape.rowspan.describe("How many rows the merged cell spans."),
+  colspan: editShape.colspan.describe("How many columns the merged cell spans."),
+  cells: editShape.cells.describe(
     "Lines of values, as the rows of openl_get_table hold them: rows top to bottom for a row action and a range, columns left to right for a column action.",
   ),
-  value: cellValueSchema.optional().describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
-  formula: excelFormulaSchema,
+  value: editShape.value.describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
+  formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2'. The cell is written as this Excel formula; send it without 'value', which Studio refuses beside it. An OpenL formula is a 'value' starting with '='."),
 };
 
 /** One edit of a table: an action and the arguments it takes. */
@@ -372,9 +378,9 @@ export type TableEdit = z.output<typeof editSchema>;
 
 export const editTableSchema = z.strictObject({
   ...tableActionBase,
-  ...editShape,
-  action: editShape.action.optional(),
-  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an object of an 'action' and its arguments, made in order as one change: each sees the table as the previous one left it, and when one is refused nothing is written. Give either 'actions' or one 'action' with its arguments."),
+  ...describedEditShape,
+  action: describedEditShape.action.optional(),
+  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an object of an 'action' and the arguments above, made in order as one write. Give either 'actions' or one 'action' with its arguments."),
 }).superRefine((data, ctx) => {
   if (data.actions === undefined) {
     if (data.action === undefined) {
@@ -767,13 +773,13 @@ const filePathSchema = z
   .string()
   .min(1)
   .describe(
-    "Project-relative path to the resource (e.g. 'rules/Model.xlsx'). Do NOT include the project name itself; paths are relative to the project root. A trailing slash denotes a folder."
+    "The path in the project, such as 'rules/Model.xlsx', without the folder of the project; a folder ends with '/'."
   );
 
 const fileBranchSchema = branchNameSchema
   .optional()
   .describe(
-    "The branch the project must be on; the call fails when it is on another. Leave out for a repository without branches."
+    "The branch the project must be on, else the call fails; omit for a repository without branches."
   );
 
 export const readProjectFileSchema = z.strictObject({
@@ -867,7 +873,7 @@ export const searchProjectFilesSchema = z.strictObject({
   recursive: z
     .boolean()
     .optional()
-    .describe("Search the nested folders too; false, the default, searches the top level only, even with a '**' pattern."),
+    .describe("Search the nested folders too; false searches the top level only, even with a '**' pattern. True by default with content, false otherwise."),
   from: z
     .string()
     .optional()
@@ -884,9 +890,8 @@ export const searchProjectFilesSchema = z.strictObject({
   ...paginationShape,
 });
 
-// Intentionally has no `response_format` or pagination: the tool returns a single
-// aggregated markdown document (one AGENTS.md chain), which has no alternate format
-// or pages — do not add them to match the other tools.
+// Intentionally has no pagination: the tool returns a single aggregated markdown document (one AGENTS.md chain), read
+// in parts by its sections.
 export const getProjectAgentContextSchema = z.strictObject({
   projectId: projectIdSchema,
   folder: z
@@ -896,6 +901,11 @@ export const getProjectAgentContextSchema = z.strictObject({
     .describe(
       "A folder of the project, such as 'rules/pricing', for the guidance of a file inside it; the project root when omitted."
     ),
+  sections: z
+    .array(nonBlankString)
+    .min(1)
+    .optional()
+    .describe("The headings of the sections to read, as the contents of the guidance names them, case-insensitive; a section comes with its subsections."),
   branch: fileBranchSchema,
 });
 
@@ -917,10 +927,6 @@ export const getServerInfoSchema = z.strictObject({
 // Guidance Schemas
 // =============================================================================
 
-// Intentionally argument-less: the onboarding text is fixed per build and the
-// orientation is computed from the documents OpenL Studio serves.
-export const getStartedSchema = z.strictObject({});
-
 export const listGuidesSchema = z.strictObject({
   type: z
     .enum(GUIDE_TYPES)
@@ -938,8 +944,6 @@ export const listGuidesSchema = z.strictObject({
   ...paginationShape,
 });
 
-// Like getProjectAgentContextSchema, intentionally no `response_format`: the tool
-// returns the requested markdown documents verbatim.
 export const getGuidesSchema = z.strictObject({
   ids: z
     .array(z.string().min(1))

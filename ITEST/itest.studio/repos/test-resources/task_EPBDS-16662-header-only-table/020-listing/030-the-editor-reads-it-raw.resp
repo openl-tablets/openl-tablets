@@ -9,7 +9,7 @@ Content-Type: application/json
   "messages": [
     {
       "id": "###",
-      "summary": "Encountered \"<EOF>\" at line 0, column 0.\nWas expecting one of:\n    \"void\" ...\n    <IDENTIFIER> ...\n    ",
+      "summary": "Encountered \"<EOF>\" at line 0, column 0.",
       "severity": "ERROR",
       "location": {
         "type": "table",

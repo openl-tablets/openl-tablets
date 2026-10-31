@@ -15,8 +15,7 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${PREMIUM_ID}",
-      "direction": "BOTH",
-      "response_format": "markdown"
+      "direction": "BOTH"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

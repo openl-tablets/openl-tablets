@@ -514,12 +514,14 @@ describe("delete, search, copy and move", () => {
       content: "premium",
     }, harness.client);
 
-    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "**/*.xml", content: "premium" });
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "**/*.xml", content: "premium", recursive: true });
+    // A pattern of XML files covers no workbook to count
+    expect(harness.mockHttp.history.post).toHaveLength(1);
     expect(textOf(result)).toBe("1 match.\n\n| path | type | size | lastModified |\n| --- | --- | --- | --- |\n"
       + "| rules/config.xml | file |  |  |");
   });
 
-  it("openl_search_project_files counts the workbooks a content search covers but cannot read", async () => {
+  it("openl_search_project_files counts the workbooks a content search covers but cannot read, in every folder", async () => {
     harness.mockHttp.onPost("/projects/p1/file-search", expect.objectContaining({ content: "Vallidaiton" }))
       .reply(200, [{ path: "i18n/message.properties", type: "file" }]);
     harness.mockHttp.onPost("/projects/p1/file-search", expect.objectContaining({ type: "FILE" }))
@@ -529,7 +531,6 @@ describe("delete, search, copy and move", () => {
       projectId: "p1",
       content: "Vallidaiton",
       extensions: ["XLSX", "properties"],
-      recursive: true,
     }, harness.client);
 
     const [search, workbooks] = harness.mockHttp.history.post;
