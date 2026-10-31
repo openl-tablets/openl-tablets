@@ -62,11 +62,6 @@ export interface StudioSysInfo {
 /** The kinds of the documents OpenL Studio serves at `/docs`: the specifications of `docs/ref`, the Reference Guide. */
 export const GUIDE_TYPES = ["specification", "guide"] as const;
 
-/** The formats a tool result is rendered in. */
-export const RESPONSE_FORMATS = ["json", "markdown", "markdown_concise", "markdown_detailed"] as const;
-
-export type ResponseFormat = (typeof RESPONSE_FORMATS)[number];
-
 /** The statuses of a project in Studio. */
 export const PROJECT_STATUSES = ["LOCAL", "DELETED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"] as const;
 
@@ -275,55 +270,23 @@ export interface TableMetadata {
   projectId?: string;
 }
 
-/** Fields shared by executable and datatype nodes in the Studio dependency graph. */
-interface BaseTableNodeView {
+/** A node of the table dependency graph, in the fields openl_get_table_dependencies reads. */
+export interface TableNodeView {
+  id?: string;
+  name?: string;
+  kind?: TableKind | "Dispatcher";
+  /** The ids of the tables the table calls, and of those that call it. */
   dependencies?: string[];
   dependents?: string[];
-  file?: string;
-  id?: string;
-  kind?: TableKind | "Dispatcher";
-  name?: string;
-  pos?: string;
-  project?: string;
-  properties?: Record<string, unknown>;
-  tableType?: string;
-}
-
-/** A callable-table node in the Studio dependency graph. */
-interface ExecutableNodeView extends BaseTableNodeView {
-  kind?: Exclude<TableKind, "Datatype"> | "Dispatcher";
-  /** Values of the dimension properties that tell this version from the others; dates in ISO 8601. */
+  /** Values of the dimension properties that tell a version from the others; dates in ISO 8601. */
   dimensions?: Record<string, unknown>;
-  returnType?: string;
-  signature?: string;
-}
-
-/** One field declared directly by a datatype dependency node. */
-export interface DatatypeNodeFieldView {
-  collection?: boolean;
-  name?: string;
-  ref?: string;
-  type?: string;
-}
-
-/** A bounded preview of the values declared by a vocabulary table. */
-export interface DatatypeNodeVocabularyView {
-  truncated?: boolean;
-  valueCount?: number;
-  valuesPreview?: unknown[];
-  valueType?: string;
-}
-
-/** A datatype or vocabulary node in the Studio dependency graph. */
-export interface DatatypeNodeView extends BaseTableNodeView {
-  kind?: "Datatype";
+  /** The datatype a datatype extends. */
   extends?: string;
-  fields?: DatatypeNodeFieldView[];
-  vocabulary?: DatatypeNodeVocabularyView;
+  /** The fields a datatype declares itself. */
+  fields?: Array<{ collection?: boolean; name?: string; ref?: string; type?: string }>;
+  /** A bounded preview of the values of a vocabulary. */
+  vocabulary?: { truncated?: boolean; valueCount?: number; valuesPreview?: unknown[]; valueType?: string };
 }
-
-/** One OpenAPI-discriminated node in the Studio table dependency graph. */
-export type TableNodeView = ExecutableNodeView | DatatypeNodeView;
 
 /** One allowed value of an enum-backed table property. */
 interface PropertyValueView {

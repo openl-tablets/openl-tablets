@@ -208,7 +208,8 @@ describe("table workflow handlers", () => {
       projectId: "p1", tableId: "Rate #1", direction: "DEPENDENTS", depth: 3, }, harness.client);
     await executeTool("get_table_dependencies", { projectId: "p1", tableId: "Rate" }, harness.client);
 
-    expect(harness.mockHttp.history.get.map(({ url, params }) => ({ url, params }))).toEqual([
+    // The fields every read asks for are left out: toEqual takes an undefined field for a missing one
+    expect(harness.mockHttp.history.get.map(({ url, params }) => ({ url, params: { ...params, fields: undefined } }))).toEqual([
       { url: "/projects/p1/tables/graph", params: { module: "Main", layer: "datatype" } },
       { url: "/projects/p1/tables/Rate%20%231/graph", params: { direction: "DEPENDENTS", depth: 3 } },
       // A neighborhood without direction and depth leaves them to Studio.
@@ -216,22 +217,19 @@ describe("table workflow handlers", () => {
     ]);
   });
 
-  it.each(["markdown", "markdown_detailed", "markdown_concise"] as const)(
-    "describes the query of the graph in %s",
-    async (response_format) => {
-      harness.mockHttp.onGet("/projects/p1/tables/root/graph").reply(200, [
-        { id: "root", name: "Premium", dependencies: ["base"], dependents: [] },
-        { id: "base", name: "Base Rate", dependencies: [], dependents: ["root"] },
-      ]);
+  it("reads of each node only what tells the graph, leaving where a table is and what it takes to the table", async () => {
+    harness.mockHttp.onGet("/projects/p1/tables/root/graph").reply(200, [
+      { id: "root", kind: "Spreadsheet", name: "Premium", dependencies: ["base"], dimensions: { state: "CA" } },
+    ]);
 
-      const text = textOf(await executeTool("get_table_dependencies", {
-        projectId: "p1", tableId: "root", direction: "DEPENDENCIES", depth: 1, response_format,
-      }, harness.client));
+    const result = await executeTool("get_table_dependencies", { projectId: "p1", tableId: "root" }, harness.client);
 
-      expect(text).toContain("scope table neighborhood, root table `root`, direction DEPENDENCIES, depth 1");
-      expect(text).toContain("Premium");
-    },
-  );
+    expect(harness.mockHttp.history.get[0].params?.fields)
+      .toBe("id,kind,name,dependencies,dependents,dimensions,extends,fields,vocabulary");
+    expect(dataOf(result)).toEqual([
+      { id: "root", kind: "Spreadsheet", name: "Premium", dependencies: ["base"], dimensions: { state: "CA" } },
+    ]);
+  });
 
   it("lists the properties a table type allows", async () => {
     const properties = [

@@ -1,6 +1,6 @@
 /**
  * The answer of a tool as JSON, cut to the character limit of a response. The lists and the test results are Markdown
- * tables of their own (`markdown-list.ts`), and the Markdown of a dependency graph is in `dependency-markdown.ts`.
+ * tables of their own (`markdown-list.ts`).
  */
 
 import { RESPONSE_LIMITS } from "./constants.js";
