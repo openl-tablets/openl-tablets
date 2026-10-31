@@ -15,8 +15,8 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${GRADE_ID}",
-      "startRow": 4,
-      "maxRows": 1
+      "offset": 4,
+      "limit": 1
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

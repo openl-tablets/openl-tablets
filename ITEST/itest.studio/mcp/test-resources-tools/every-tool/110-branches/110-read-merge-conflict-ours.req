@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_read_merge_conflict_file",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "file": "McpTools/docs/notes.txt",
+      "path": "McpTools/docs/notes.txt",
       "side": "OURS"
     },
     "_meta": {

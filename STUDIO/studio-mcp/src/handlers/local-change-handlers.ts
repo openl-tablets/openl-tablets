@@ -20,7 +20,7 @@ export function registerLocalChangeHandlers(): void {
       idempotentHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const changes = await client.getProjectLocalChanges(args.projectId, args.moduleName);
+      const changes = await client.getProjectLocalChanges(args.projectId, args.module);
 
       // Each entry is named by the historyId openl_restore_project_local_change takes
       return formatResult(changes.map(({ id, ...change }) => ({ historyId: id, ...change })));
@@ -31,14 +31,14 @@ export function registerLocalChangeHandlers(): void {
     name: "restore_project_local_change",
     title: "Restore Previous Local Version",
     description:
-      "Restore a project module to a version from its local edit history. Use the projectId and moduleName from the corresponding openl_list_project_local_changes call, plus a historyId returned by it. The project must be opened first; repository 'local' is unsupported. The whole module takes that version, so every later edit of the module is undone too. The answer names as 'undo' the historyId of the module as it was right before, which restores it back. To put back one value only: restore, read the value with openl_get_table, restore 'undo', and set the value with openl_edit_table on the table read again.",
+      "Restore a project module to a version from its local edit history. Use the projectId and module from the corresponding openl_list_project_local_changes call, plus a historyId returned by it. The project must be opened first; repository 'local' is unsupported. The whole module takes that version, so every later edit of the module is undone too. The answer names as 'undo' the historyId of the module as it was right before, which restores it back. To put back one value only: restore, read the value with openl_get_table, restore 'undo', and set the value with openl_edit_table on the table read again.",
     schema: schemas.restoreProjectLocalChangeSchema,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { projectId, moduleName, historyId } = args;
+      const { projectId, module: moduleName, historyId } = args;
       const before = new Set((await client.getProjectLocalChanges(projectId, moduleName)).map(({ id }) => id));
       await client.restoreProjectLocalChange(projectId, moduleName, historyId);
       // Studio keeps the module as it was in the history, which it lists newest first: the version the restore added.

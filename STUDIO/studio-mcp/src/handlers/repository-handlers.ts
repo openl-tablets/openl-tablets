@@ -64,7 +64,7 @@ export function registerRepositoryHandlers(): void {
       const revisions = await client.getProjectRevisions(args.projectId, args);
       // A non-aligned item offset cannot be reconstructed from the backend's
       // floor-derived pageNumber, so preserve the exact request value.
-      const offset = args.offset ?? revisions.pageNumber * revisions.pageSize;
+      const { offset } = args;
       const { pageSize: limit, total } = revisions;
 
       // The revisions alone: the page Studio wraps them in is told by the pagination, a short revision is a prefix of

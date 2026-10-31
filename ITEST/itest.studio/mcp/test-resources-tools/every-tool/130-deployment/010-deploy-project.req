@@ -15,7 +15,7 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "deploymentName": "McpTools",
-      "productionRepositoryId": "Deployment",
+      "repository": "Deployment",
       "comment": "Deploy the rules"
     },
     "_meta": {

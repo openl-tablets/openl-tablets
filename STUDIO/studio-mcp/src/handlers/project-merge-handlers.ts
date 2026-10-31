@@ -289,20 +289,20 @@ async function fileResolution(
   resolution: z.output<typeof schemas.resolveMergeConflictsSchema>["resolutions"][number],
 ): Promise<Types.FileConflictResolution> {
   if ("strategy" in resolution) {
-    return { file: resolution.file, strategy: resolution.strategy };
+    return { file: resolution.path, strategy: resolution.strategy };
   }
   const content = "decisions" in resolution
-    ? await client.mergeConflictWorkbook(projectId, resolution.file, resolution.decisions)
-    : await mergedText(client, projectId, resolution.file, resolution.conflicts);
+    ? await client.mergeConflictWorkbook(projectId, resolution.path, resolution.decisions)
+    : await mergedText(client, projectId, resolution.path, resolution.conflicts);
   if ((typeof content === "string" ? content.length : content.byteLength) === 0) {
     // Studio takes no empty upload as the content of a file
     throw new ProtocolError(
       ProtocolErrorCode.InvalidParams,
-      `'${resolution.file}' as decided would be empty, which Studio cannot store as merged content. Keep a line, or ` +
+      `'${resolution.path}' as decided would be empty, which Studio cannot store as merged content. Keep a line, or ` +
         "take a version with a strategy: one fileAvailability marks false deletes the file.",
     );
   }
-  return { file: resolution.file, strategy: "CUSTOM", content };
+  return { file: resolution.path, strategy: "CUSTOM", content };
 }
 
 export function registerProjectMergeHandlers(): void {
@@ -428,16 +428,16 @@ export function registerProjectMergeHandlers(): void {
       const side = args.side.toLowerCase() as "base" | "ours" | "theirs";
       const conflicts = await client.getMergeConflicts(args.projectId);
       const branch = side === "base" ? undefined : conflicts[`${side}Revision`]?.branch;
-      const link = { kind: "conflictVersion", projectId: args.projectId, path: args.file, side, branch } as const;
-      const available = conflicts.fileAvailability?.[args.file];
+      const link = { kind: "conflictVersion", projectId: args.projectId, path: args.path, side, branch } as const;
+      const available = conflicts.fileAvailability?.[args.path];
       if (available && !available[side]) {
         throw new ProtocolError(ProtocolErrorCode.InvalidParams,
-          `The ${args.side} version of '${args.file}' does not hold the file: fileAvailability marks it false.`);
+          `The ${args.side} version of '${args.path}' does not hold the file: fileAvailability marks it false.`);
       }
       if (available && !available.text) {
         return formatResult(await downloadLink(client, link));
       }
-      const response = await client.readMergeConflictFile(args.projectId, args.file, args.side);
+      const response = await client.readMergeConflictFile(args.projectId, args.path, args.side);
       const text = inlineText(response);
       if (text !== undefined) {
         return textResult(text);
@@ -458,8 +458,8 @@ export function registerProjectMergeHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const workbook = await client.getMergeConflictWorkbook(args.projectId, args.file);
-      const data = args.table ? workbookTable(args.file, workbook, args.table) : workbookOverview(args.file, workbook);
+      const workbook = await client.getMergeConflictWorkbook(args.projectId, args.path);
+      const data = args.table ? workbookTable(args.path, workbook, args.table) : workbookOverview(args.path, workbook);
       return formatResult(data);
     },
   });
@@ -476,8 +476,8 @@ export function registerProjectMergeHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { blocks } = await client.getMergeConflictText(args.projectId, args.file);
-      const overview = textOverview(args.file, blocks, args.fromConflict);
+      const { blocks } = await client.getMergeConflictText(args.projectId, args.path);
+      const overview = textOverview(args.path, blocks, args.fromConflict);
       return formatResult(overview, "json", { truncation: textTruncation(overview) });
     },
   });
@@ -495,7 +495,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const details = await client.getMergeConflicts(args.projectId);
-      const named = new Set(args.resolutions.map((resolution) => resolution.file));
+      const named = new Set(args.resolutions.map((resolution) => resolution.path));
       const missing = (details.conflictGroups ?? [])
         .flatMap((group) => group.files ?? [])
         .filter((file) => !named.has(file));

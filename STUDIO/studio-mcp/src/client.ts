@@ -390,16 +390,14 @@ export class OpenLClient {
       search?: string;
       techRevs?: boolean;
       offset?: number;
-      page?: number;
-      size?: number;
+      limit?: number;
     }
   ): Promise<Types.PageResponse<Types.ProjectRevision>> {
     const params = {
       search: options?.search || undefined,
       techRevs: options?.techRevs,
-      page: options?.page,
       offset: options?.offset,
-      size: options?.size,
+      size: options?.limit,
     };
     const url = `${projectPath(projectId)}/history`;
     return (await this.http.get<Types.PageResponse<Types.ProjectRevision>>(url, { params })).data;
@@ -1118,7 +1116,7 @@ export class OpenLClient {
     projectId: string,
     tableId: string,
     inputJson: string | unknown[] | Record<string, unknown>,
-    options?: { fromModule?: string; timeoutMs?: number }
+    options?: { module?: string; timeoutMs?: number }
   ): Promise<void> {
     await this.http.post(
       `${projectPath(projectId)}/run`,
@@ -1126,7 +1124,7 @@ export class OpenLClient {
       {
         params: {
           tableId,
-          ...(options?.fromModule && { fromModule: options.fromModule }),
+          ...(options?.module && { fromModule: options.module }),
         },
         timeout: options?.timeoutMs,
       }
@@ -1222,14 +1220,14 @@ export class OpenLClient {
    * Get detailed table data and structure
    *
    * @param options - Read the matrix in row slices
-   *   (`startRow`/`maxRows`) and/or with per-cell Excel styles (`styles`)
+   *   (`offset`/`limit`) and/or with per-cell Excel styles (`styles`)
    * @returns The table's raw source matrix
    */
   async getTable(projectId: string, tableId: string, options?: Types.RawTableViewOptions): Promise<Types.RawTableView> {
     const params = {
       raw: true,
-      startRow: options?.startRow,
-      maxRows: options?.maxRows,
+      startRow: options?.offset,
+      maxRows: options?.limit,
       // A window holds exactly the rows asked for, so no merged cell makes a part of the table unreadable
       cutMerges: true,
       styles: options?.styles || undefined,
@@ -1384,7 +1382,7 @@ export class OpenLClient {
     options?: {
       tableId?: string;
       testRanges?: string;
-      fromModule?: string;
+      module?: string;
     }
   ): Promise<Types.TestExecutionStartResponse> {
     // Local projects are always editable — skip open; for design repos open if needed
@@ -1398,7 +1396,7 @@ export class OpenLClient {
     const params = {
       tableId: options?.tableId || undefined,
       testRanges: options?.testRanges || undefined,
-      fromModule: options?.fromModule || undefined,
+      fromModule: options?.module || undefined,
     };
 
     // Start test execution. Studio keeps the run for this client: its session, or the credential
@@ -1517,7 +1515,7 @@ export class OpenLClient {
     const params = {
       tableId: request.tableId,
       testRanges: request.testRanges || undefined,
-      fromModule: request.fromModule || undefined,
+      fromModule: request.module || undefined,
       stopAtEntry: request.stopAtEntry,
       profiling: request.profiling,
       detailedTitles: request.detailedTitles,

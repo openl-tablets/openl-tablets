@@ -171,7 +171,7 @@ describe("project lists and details", () => {
 
     const moduleResult = await executeTool("list_project_modules", { projectId: "p1" }, harness.client);
     const sheetResult = await executeTool("list_module_sheets", {
-      projectId: "p1", moduleName: "Main Rules", }, harness.client);
+      projectId: "p1", module: "Main Rules", }, harness.client);
 
     expect(dataOf(moduleResult)).toEqual(modules);
     expect(dataOf(sheetResult)).toEqual(["Rates", "Tests"]);
@@ -195,6 +195,16 @@ describe("project status", () => {
     // The default path above starts compilation, so MCP clients must not be
     // told that the tool is unconditionally read-only.
     expect(getAllTools().find((tool) => tool.name === "project_status")?.annotations?.readOnlyHint).toBe(false);
+  });
+
+  it("cuts many compile messages to the limit and names the arguments that choose them", async () => {
+    const items = Array.from({ length: 400 }, (_, id) => ({ id, summary: `Field 'f${id}' is not defined.${" ".repeat(60)}`, severity: "ERROR" }));
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus(compiled("errors", items)));
+
+    const response = JSON.parse(textOf(await executeTool("project_status", { projectId }, harness.client)));
+
+    expect(response.truncated).toBe(true);
+    expect(response.truncation_message).toMatch(/of 400 compile messages; choose the messages to read with severity or limit\.$/);
   });
 
   it("compiles the project again from files another program changed, with a note to read its tables again", async () => {
@@ -309,7 +319,7 @@ describe("project status", () => {
   it.each([
     [{}, ["ERROR_THIRD", "ERROR_FIFTH", "WARN_FIRST", "WARN_FOURTH", "INFO_SECOND"]],
     [{ severity: ["ERROR", "INFO"] }, ["ERROR_THIRD", "ERROR_FIFTH", "INFO_SECOND"]],
-    [{ maxMessages: 3 }, ["ERROR_THIRD", "ERROR_FIFTH", "WARN_FIRST"]],
+    [{ limit: 3 }, ["ERROR_THIRD", "ERROR_FIFTH", "WARN_FIRST"]],
   ])("sorts the messages by severity, then filters and caps them as %j asks", async (options, summaries) => {
     // Backend returns items in id-ascending order — WARNs first, then ERRORs.
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(compiled("errors", [
@@ -504,7 +514,7 @@ describe("branches, creation and copies", () => {
     harness.mockHttp.onPost(`${projectPath}/branches`).reply(201);
 
     const result = await executeTool("create_project_branch", {
-      projectId, branchName: "feature/test-branch", revision, }, harness.client);
+      projectId, branch: "feature/test-branch", revision, }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ branch: "feature/test-branch", revision });
     expect(dataOf(result)).toEqual({ created: "feature/test-branch" });
@@ -515,7 +525,7 @@ describe("branches, creation and copies", () => {
     harness.mockHttp.onPut("/repos/design/projects/Offer-CW").reply(200, { id: createdId, revision: "abc123", branch: branch ?? "main" });
 
     const result = await executeTool("create_project", {
-      repository: "Design Repository", projectName: "Offer-CW", branch, }, harness.client);
+      repository: "Design Repository", name: "Offer-CW", branch, }, harness.client);
 
     expect(dataOf(result)).toEqual({ projectId: createdId, branch: branch ?? "main", revision: "abc123" });
   });
@@ -528,7 +538,7 @@ describe("branches, creation and copies", () => {
       .reply(200, { id: createdId, revision: "def456", branch: branch ?? "main" });
 
     const result = await executeTool("create_project", {
-      repository: "design", template: sourceProjectId, projectName: "Offer-CW", branch, }, harness.client);
+      repository: "design", template: sourceProjectId, name: "Offer-CW", branch, }, harness.client);
 
     expect(dataOf(result)).toEqual({ projectId: createdId, branch: branch ?? "main", revision: "def456" });
   });
@@ -543,7 +553,7 @@ describe("branches, creation and copies", () => {
     harness.mockHttp.onGet("/repos").reply(200, mockRepositories);
     (method === "put" ? harness.mockHttp.onPut(url) : harness.mockHttp.onPost(url)).reply(status, { message: "duplicated.project.message" });
 
-    await expect(executeTool("create_project", { repository: "design", template, projectName: "Existing" }, harness.client))
+    await expect(executeTool("create_project", { repository: "design", template, name: "Existing" }, harness.client))
       .rejects.toThrow(message);
   });
 });

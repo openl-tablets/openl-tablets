@@ -32,7 +32,7 @@ describe("table workflow handlers", () => {
       projectId: "p1",
       tableId: "t1",
       inputJson: { params: { age: 25 }, runtimeContext: { state: "CA" } },
-      fromModule: "Main",
+      module: "Main",
     }, harness.client);
 
     const [start] = harness.mockHttp.history.post;
@@ -245,7 +245,7 @@ describe("table workflow handlers", () => {
     const response = await executeTool("copy_table", {
       projectId: "p1",
       tableId: "source#1",
-      moduleName: "Copies",
+      module: "Copies",
       modulePath: "rules/Copies.xlsx",
       name: "CopiedRate",
       sheetName: "Rates",

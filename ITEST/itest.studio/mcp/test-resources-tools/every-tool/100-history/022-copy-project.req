@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_create_project",
     "arguments": {
       "repository": "design",
-      "projectName": "McpToolsCopy",
+      "name": "McpToolsCopy",
       "template": "${PROJECT_ID}",
       "comment": "Copy the project"
     },

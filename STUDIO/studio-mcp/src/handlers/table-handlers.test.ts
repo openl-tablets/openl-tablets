@@ -46,11 +46,12 @@ describe("reading tables", () => {
     ], { total: 2 }));
 
     const result = await executeTool("list_tables", {
-      projectId: "p1", text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
+      projectId: "p1", kind: "Rules", text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
     }, harness.client);
 
+    // A single kind is taken as a list of one
     expect(harness.mockHttp.history.get[0].params).toMatchObject({
-      text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
+      kind: ["Rules"], text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
     });
     expect(JSON.parse(textOf(result)).data).toEqual([
       { id: "t1", name: "Messages", tableType: "SimpleRules", kind: "Rules" },
@@ -58,15 +59,15 @@ describe("reading tables", () => {
     ]);
   });
 
-  it("openl_get_table forwards startRow/maxRows/styles to the raw view query and returns the slice without addresses", async () => {
+  it("openl_get_table forwards offset/limit/styles to the raw view query and returns the slice without addresses", async () => {
     harness.mockHttp.onGet(tablePath("calculatePremium_1234")).reply(200, rawTable("calculatePremium_1234",
       [[{ cell: "A3", value: "Age", style: { bold: true, background: "#ccccff" } }]], { totalRows: 120 }));
 
     const result = await executeTool("get_table", {
       projectId: "p1",
       tableId: "calculatePremium_1234",
-      startRow: 2,
-      maxRows: 1,
+      offset: 2,
+      limit: 1,
       styles: true,
     }, harness.client);
 
@@ -95,11 +96,11 @@ describe("reading tables", () => {
     ["the whole table", undefined, 0],
     ["a window", 40, 40],
   ])("openl_get_table cuts %s over the limit by whole rows and names the row to continue from (EPBDS-16853)",
-    async (_case, startRow, first) => {
-      harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(600), startRow ? { totalRows: 700 } : {}));
+    async (_case, offset, first) => {
+      harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(600), offset ? { totalRows: 700 } : {}));
 
       const result = await executeTool("get_table", {
-        projectId: "p1", tableId: "t1", startRow, }, harness.client);
+        projectId: "p1", tableId: "t1", offset, }, harness.client);
 
       expect(textOf(result).length).toBeLessThanOrEqual(25_000);
       const response = JSON.parse(textOf(result));
@@ -107,28 +108,27 @@ describe("reading tables", () => {
       expect(delivered).toBeGreaterThan(0);
       expect(delivered).toBeLessThan(600);
       expect(response.data.source.at(-1)).toHaveLength(5);
-      expect(response.data.totalRows).toBe(startRow ? 700 : 600);
+      expect(response.data.totalRows).toBe(offset ? 700 : 600);
       expect(response.truncated).toBe(true);
       expect(response.truncation_message).toBe(`Response truncated due to size. It holds ${delivered} of 600 rows; `
-        + `continue with startRow=${first + delivered}.`);
+        + `continue with offset=${first + delivered}.`);
       expect(response.data).not.toHaveProperty("truncated_json_preview");
       expect(response.window).toEqual({
-        startRow: first, endRow: first + delivered - 1, rows: delivered, totalRows: startRow ? 700 : 600, complete: false,
-        nextStartRow: first + delivered,
+        offset: first, rows: delivered, totalRows: offset ? 700 : 600, complete: false, next_offset: first + delivered,
       });
     });
 
   it.each([
     ["a table read whole", {}, 5, undefined,
-      { startRow: 0, endRow: 4, rows: 5, totalRows: 5, complete: true }],
-    ["a window larger than the table", { startRow: 0, maxRows: 100 }, 5, undefined,
-      { startRow: 0, endRow: 4, rows: 5, totalRows: 5, complete: true }],
-    ["a window reaching the end", { startRow: 3, maxRows: 10 }, 2, 5,
-      { startRow: 3, endRow: 4, rows: 2, totalRows: 5, complete: false }],
-    ["a window inside the table", { startRow: 100, maxRows: 2 }, 2, 133,
-      { startRow: 100, endRow: 101, rows: 2, totalRows: 133, complete: false, nextStartRow: 102 }],
-    ["a window past the end", { startRow: 10 }, 0, 5,
-      { startRow: 10, rows: 0, totalRows: 5, complete: false }],
+      { offset: 0, rows: 5, totalRows: 5, complete: true }],
+    ["a window larger than the table", { offset: 0, limit: 100 }, 5, undefined,
+      { offset: 0, rows: 5, totalRows: 5, complete: true }],
+    ["a window reaching the end", { offset: 3, limit: 10 }, 2, 5,
+      { offset: 3, rows: 2, totalRows: 5, complete: false }],
+    ["a window inside the table", { offset: 100, limit: 2 }, 2, 133,
+      { offset: 100, rows: 2, totalRows: 133, complete: false, next_offset: 102 }],
+    ["a window past the end", { offset: 10 }, 0, 5,
+      { offset: 10, rows: 0, totalRows: 5, complete: false }],
   ])("openl_get_table states the rows of %s (EPBDS-16851)", async (_case, window, returned, totalRows, expected) => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(returned), totalRows ? { totalRows } : {}));
 
@@ -147,7 +147,7 @@ describe("structured table payloads", () => {
 
     const result = await executeTool("create_project_table", {
       projectId: "p1",
-      moduleName: "Main",
+      module: "Main",
       table,
     }, harness.client);
 
@@ -164,7 +164,7 @@ describe("structured table payloads", () => {
     ["update_table", "a miscased RawSource", { view: { tableType: "rawsource", name: "calc", source: [[{ value: 1 }]] } }],
     ["update_table", "a typed view", { view: { tableType: "SimpleRules", name: "calc", rules: [] } }],
   ])("%s refuses %s with the raw-only guidance, before any request", async (tool, _case, payload) => {
-    await expect(executeTool(tool, { projectId: "p1", moduleName: "Main", tableId: "t1", ...payload }, harness.client))
+    await expect(executeTool(tool, { projectId: "p1", module: "Main", tableId: "t1", ...payload }, harness.client))
       .rejects.toThrow(/tableType must be exactly "RawSource"\. Typed table DTOs are intentionally unsupported/);
     expectNoRequest();
   });

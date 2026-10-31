@@ -99,7 +99,7 @@ export const projectStatusSchema = z.strictObject({
   severity: z.array(z.enum(["ERROR", "WARN", "INFO"])).optional().describe(
     "Filter compilation.messages.items to only these severities. Useful when the project has many warnings and you want to isolate errors: pass severity: ['ERROR']. Default: all severities. Note: items are always sorted ERROR → WARN → INFO before any filter or truncation is applied, so errors are visible without this filter."
   ),
-  maxMessages: z.number().int().positive().max(1000).optional().describe(
+  limit: z.number().int().positive().max(1000).optional().describe(
     "Cap the number of items returned in compilation.messages.items. The list is sorted ERROR → WARN → INFO first so the most actionable items are preserved when capped. Pair with severity to bound very large diagnostic lists. Default: no cap; an answer over the size limit keeps the first messages, errors first, and tells how many it holds."
   ),
 });
@@ -121,7 +121,9 @@ export const closeProjectSchema = z.strictObject({
 
 export const listTablesSchema = z.strictObject({
   projectId: projectIdSchema,
-  kind: z.array(z.enum(TABLE_KINDS)).optional().describe("Filter by table kinds. Omit to show all kinds."),
+  kind: z.union([z.enum(TABLE_KINDS), z.array(z.enum(TABLE_KINDS))]).optional()
+    .transform((kind) => (typeof kind === "string" ? [kind] : kind))
+    .describe("Filter by a table kind or a list of them. Omit to show all kinds."),
   name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
   text: nonBlankString.optional().describe("Text any cell of a table contains, case-insensitive: a value, a key, a message, a formula. The way to find where a value is used, which file search cannot, as it never reads a workbook cell."),
   header: nonBlankString.optional().describe("Text the header line of a table contains: its keyword, return type, name and arguments, such as a datatype the rules take."),
@@ -136,8 +138,8 @@ export const listTablesSchema = z.strictObject({
 export const getTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  startRow: z.number().int().min(0).optional().describe("Zero-based index of the first source row; omit to start at the top. Combine with maxRows to read a large table in slices: the next slice starts at startRow plus maxRows."),
-  maxRows: z.number().int().min(1).optional().describe("Maximum number of source rows, counted from startRow; omit to read to the end. A windowed response carries totalRows. A slice holds exactly these rows: a merged cell that its edge cuts comes back cut, its first cell in the slice holding the value of the merged cell and naming its whole area in mergedArea."),
+  offset: z.number().int().min(0).optional().describe("Zero-based index of the first row to read; omit to start at the top. Combine with limit to read a large table in slices: the next slice starts at window.next_offset."),
+  limit: z.number().int().min(1).optional().describe("Maximum number of rows, counted from offset; omit to read to the end. A slice holds exactly these rows: a merged cell that its edge cuts comes back cut, its first cell in the slice holding the value of the merged cell and naming its whole area in mergedArea."),
   styles: z.boolean().optional().describe("If true, each raw cell carries its Excel style (background/font colour, bold/italic/underline, alignment, indent, borders)."),
 });
 
@@ -171,7 +173,7 @@ export const runTableSchema = z.strictObject({
     z.array(z.unknown()),
     z.record(z.string(), z.unknown()),
   ]).describe("Method input as JSON, or the same as a JSON string: an object keyed by method parameter name; { params, runtimeContext? } with params keyed by name or listed in order; or an array of the argument values in order. For a method whose only parameter is an array, a top-level array is that parameter's value. The value is sent to Studio unchanged."),
-  fromModule: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
+  module: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
   withSchema: z.boolean().optional().describe("Also answer the JSON Schemas of the parameters and the result: their fields and the values each vocabulary allows."),
   timeoutMs: z.number().int().positive().max(600000).default(120000).describe("Maximum time for the complete Studio start-and-result workflow, in milliseconds. Default 120000 (2 minutes), maximum 600000 (10 minutes). A timeout cancels the pending Studio run."),
 });
@@ -209,7 +211,7 @@ export const projectOnlySchema = z.strictObject({
  */
 export const projectModuleSchema = z.strictObject({
   projectId: projectIdSchema,
-  moduleName: nonBlankString.describe("Module name exactly as returned by openl_list_project_modules()."),
+  module: nonBlankString.describe("Module name exactly as returned by openl_list_project_modules()."),
 });
 
 export const listTablePropertyDefinitionsSchema = z.strictObject({
@@ -220,8 +222,8 @@ export const listTablePropertyDefinitionsSchema = z.strictObject({
 export const copyTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema.describe("ID of the source table to copy."),
-  moduleName: nonBlankString.describe("Name of the destination module. It must already exist unless modulePath is supplied."),
-  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new destination module. Omit when moduleName already exists."),
+  module: nonBlankString.describe("Name of the destination module. It must already exist unless modulePath is supplied."),
+  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new destination module. Omit when module already exists."),
   name: nonBlankString.describe("Name for the copied table."),
   sheetName: z.string().optional().describe("Destination worksheet name. Defaults to the copied table's name."),
   properties: z.array(z.strictObject({
@@ -384,7 +386,7 @@ export const listBranchesSchema = z.strictObject({
 
 export const createBranchSchema = z.strictObject({
   projectId: projectIdSchema,
-  branchName: branchNameSchema,
+  branch: branchNameSchema,
   revision: z.string().optional().describe("Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used."),
 });
 
@@ -427,13 +429,13 @@ export const mergeProjectBranchesSchema = z.strictObject({
 
 export const readMergeConflictFileSchema = z.strictObject({
   projectId: projectIdSchema,
-  file: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it, relative to the repository."),
+  path: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it, relative to the repository."),
   side: z.enum(["BASE", "OURS", "THEIRS"]).describe("Version to read: common ancestor, current branch, or merging branch."),
 });
 
 export const getMergeConflictWorkbookSchema = z.strictObject({
   projectId: projectIdSchema,
-  file: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
+  path: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
   table: nonBlankString.optional().describe(
     "The id of one conflicting table from the overview. Omit to list every sheet and conflicting table with its conflicting cells; give it to read that table in your, the base and their version, and merged cell by cell.",
   ),
@@ -441,7 +443,7 @@ export const getMergeConflictWorkbookSchema = z.strictObject({
 
 export const getMergeConflictTextSchema = z.strictObject({
   projectId: projectIdSchema,
-  file: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
+  path: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
   fromConflict: z.number().int().min(0).optional().describe("The conflict to start at, with the merged lines before it, to read the rest of a file an answer cut."),
 });
 
@@ -482,15 +484,15 @@ export const resolveMergeConflictsSchema = z.strictObject({
   projectId: projectIdSchema,
   resolutions: z.array(z.union([
     z.strictObject({
-      file: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it."),
+      path: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it."),
       strategy: z.enum(["BASE", "OURS", "THEIRS"]).describe("Take the whole file from the base version, your version (the current branch) or their version; a version fileAvailability marks false, which does not hold the file, deletes it."),
     }),
     z.strictObject({
-      file: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
+      path: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
       decisions: z.array(workbookDecisionSchema).min(1).describe("How each conflict of the workbook from openl_get_merge_conflict_workbook() is resolved; every conflict needs a decision, and a sheet taken whole needs none for its tables."),
     }),
     z.strictObject({
-      file: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
+      path: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
       conflicts: z.array(textDecisionSchema).describe("How each conflict of the text file from openl_get_merge_conflict_text() is resolved: one decision per conflict, in their order; the lines the merge took by itself are kept."),
     }),
   ])).min(1).describe("One resolution for every conflicted file of the pending conflict."),
@@ -525,11 +527,11 @@ export const deleteProjectBranchSchema = z.strictObject({
 
 export const createProjectSchema = z.strictObject({
   repository: repositoryNameSchema,
-  projectName: z.string().describe(
+  name: z.string().describe(
     "Name for the new project. Becomes the project folder name and — when cloning — the renamed project name written into rules.xml. Must be unique in the repository; a collision is rejected with 409. Allowed characters: letters, digits, space, '_' and '-'."
   ),
   template: projectIdSchema.optional().describe(
-    "How to create the project. OMIT to create a BLANK project from the \"Empty Project\" template OpenL Studio ships. To CLONE an existing project, pass its exact opaque projectId from openl_list_projects() without modification: its full structure is copied (rules, tests, settings, request/response examples) and the project is renamed to projectName. Never pass the displayed project name because mapped repositories may contain multiple projects with the same name."
+    "How to create the project. OMIT to create a BLANK project from the \"Empty Project\" template OpenL Studio ships. To CLONE an existing project, pass its exact opaque projectId from openl_list_projects() without modification: its full structure is copied (rules, tests, settings, request/response examples) and the project is renamed to name. Never pass the displayed project name because mapped repositories may contain multiple projects with the same name."
   ),
   branch: branchNameSchema.optional().describe(
     "Target branch for either BLANK creation or CLONING. Omit for the repository's configured/default branch. Studio selects an existing branch case-insensitively; when the branch does not exist, Studio may create it from the repository base branch. Use openl_list_branches() first to avoid accidental branch creation."
@@ -542,20 +544,20 @@ export const createProjectSchema = z.strictObject({
 export const deployProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   deploymentName: z.string().optional().describe("The name of a new deployment."),
-  productionRepositoryId: z.string().optional().describe("The 'id' or 'name' of the production repository of a new deployment, as openl_list_deploy_repositories and openl_list_deployments answer them."),
+  repository: z.string().optional().describe("The 'id' or 'name' of the production repository of a new deployment, as openl_list_deploy_repositories and openl_list_deployments answer them."),
   deploymentId: z.string().optional().describe("The 'id' of a deployment to deploy the project to again, from openl_list_deployments."),
   comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
 }).superRefine((data, ctx) => {
-  const created = data.deploymentName !== undefined || data.productionRepositoryId !== undefined;
+  const created = data.deploymentName !== undefined || data.repository !== undefined;
   if (data.deploymentId !== undefined && created) {
     ctx.addIssue({
       code: "custom", path: ["deploymentId"],
-      message: "A deploymentId deploys to that deployment again: it takes no deploymentName or productionRepositoryId.",
+      message: "A deploymentId deploys to that deployment again: it takes no deploymentName or repository.",
     });
-  } else if (data.deploymentId === undefined && (data.deploymentName === undefined || data.productionRepositoryId === undefined)) {
+  } else if (data.deploymentId === undefined && (data.deploymentName === undefined || data.repository === undefined)) {
     ctx.addIssue({
       code: "custom", path: ["deploymentName"],
-      message: "A new deployment needs deploymentName and productionRepositoryId; deploymentId redeploys an existing one.",
+      message: "A new deployment needs deploymentName and repository; deploymentId redeploys an existing one.",
     });
   }
 });
@@ -604,8 +606,8 @@ const createTableViewSchema = rawTableViewSchema.omit({ totalRows: true }).exten
 
 export const createProjectTableSchema = z.strictObject({
   projectId: projectIdSchema,
-  moduleName: nonBlankString.describe("Name of an existing project module where the table will be created (for example, 'Main' or 'Rules')."),
-  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new module. When omitted, moduleName must identify an existing module."),
+  module: nonBlankString.describe("Name of an existing project module where the table will be created (for example, 'Main' or 'Rules')."),
+  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new module. When omitted, module must identify an existing module."),
   sheetName: z.string().optional().describe("Name of the sheet where the table will be created within the Excel file. If not provided, the table name will be used as the sheet name."),
   table: createTableViewSchema,
 });
@@ -628,7 +630,7 @@ export const startTraceSchema = z.strictObject({
   tableId: tableIdSchema.describe("Table ID to debug (e.g., 'calculatePremium_1234'). Get from openl_list_tables()."),
   testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember: pass them again. Omit for regular rule execution."),
   inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }, e.g. { params: { age: 25 }, runtimeContext: { lob: 'Auto' } }. Omit BOTH inputJson and testRanges to replay the input of the previous run, e.g. restarting with profiling or new breakpoints."),
-  fromModule: z.string().optional().describe("Module name to trace in the context of a specific opened module. Usually omit."),
+  module: z.string().optional().describe("Module name to trace in the context of a specific opened module. Usually omit."),
   stopAtEntry: z.boolean().optional().describe("Suspend at the entry of the first frame (default true). Set false to run straight to the first breakpoint — or, with no breakpoints, to completion."),
   profiling: z.boolean().optional().describe("Retain the executed call tree — structure and timings, NO values (default false). With stopAtEntry: false and no breakpoints the run completes in this single call and returns a constant-size 'profile' overview (top-N slowest tables); the tree's root node comes with includeTree: true and is browsed level by level with openl_expand_trace_tree."),
   detailedTitles: z.boolean().optional().describe("Build value-rich business-view titles in the retained tree (backend default false). This can substantially increase response size."),
@@ -686,7 +688,7 @@ export const watchTraceCellsSchema = z.strictObject({
   cells: z.array(z.string()).min(1).describe("Cell names to watch, e.g. ['$VehiclePriceFactor']. The value of each named cell is captured at EVERY execution of its table across the whole run — one series per cell."),
   testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember."),
   inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }. Omit BOTH inputJson and testRanges to replay the input of the previous run."),
-  fromModule: z.string().optional().describe("Module name to run in the context of a specific opened module. Usually omit."),
+  module: z.string().optional().describe("Module name to run in the context of a specific opened module. Usually omit."),
   withSchema: z.boolean().optional().describe("Include each watched value's JSON Schema (default false — the schema is large and rarely needed; a value that came lazy still carries its parameterId for openl_get_trace_value)."),
 });
 
@@ -698,13 +700,8 @@ export const getProjectRevisionsSchema = z.strictObject({
   projectId: projectIdSchema,
   search: z.string().optional().describe("Search term to filter revisions by commit message or author"),
   techRevs: z.boolean().default(false).describe("Include technical revisions (default: false)"),
-  offset: z.number().int().nonnegative().optional().describe("Item offset (0-based). Mutually exclusive with page."),
-  page: z.number().int().nonnegative().optional().describe("Page number (0-based). Mutually exclusive with offset; the backend defaults to 0 when both are omitted."),
-  size: z.number().int().positive().max(200).default(50).describe("Page size (default: 50, max: 200)"),
-}).refine(
-  (data) => data.page === undefined || data.offset === undefined,
-  { error: "page and offset are mutually exclusive" },
-);
+  ...paginationShape,
+});
 
 // =============================================================================
 // Local Changes & Restore Schemas
@@ -712,7 +709,7 @@ export const getProjectRevisionsSchema = z.strictObject({
 
 export const restoreProjectLocalChangeSchema = z.strictObject({
   projectId: projectIdSchema,
-  moduleName: nonBlankString.describe("Module name used with openl_list_project_local_changes()."),
+  module: nonBlankString.describe("Module name used with openl_list_project_local_changes()."),
   historyId: nonBlankString.describe("Local history entry ID to restore, from openl_list_project_local_changes()."),
 });
 
@@ -724,7 +721,7 @@ export const startProjectTestsSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema.optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
   testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
-  fromModule: z.string().optional().describe("Module name to run tests from."),
+  module: z.string().optional().describe("Module name to run tests from."),
 });
 
 /** Whether the options of a test-result read go together: paging options exclude each other, and a summary pages nothing. */

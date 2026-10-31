@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"startRow\":0,\"endRow\":4,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"source\":[[{\"value\":\"SimpleRules Double AgeFactor(Integer age)\",\"colspan\":2},{\"covered\":true}],[{\"value\":\"Age of Driver\"},{\"value\":\"Age Factor\"}],[{\"value\":\"< 25\"},{\"value\":1.5}],[{\"value\":\"25 - 65\"},{\"value\":1}],[{\"value\":\"> 65\"},{\"value\":1.2}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"source\":[[{\"value\":\"SimpleRules Double AgeFactor(Integer age)\",\"colspan\":2},{\"covered\":true}],[{\"value\":\"Age of Driver\"},{\"value\":\"Age Factor\"}],[{\"value\":\"< 25\"},{\"value\":1.5}],[{\"value\":\"25 - 65\"},{\"value\":1}],[{\"value\":\"> 65\"},{\"value\":1.2}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
       }
     ],
     "resultType": "complete",

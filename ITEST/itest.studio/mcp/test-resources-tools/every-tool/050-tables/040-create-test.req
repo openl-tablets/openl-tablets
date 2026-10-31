@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_create_project_table",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "moduleName": "Main",
+      "module": "Main",
       "sheetName": "Tests",
       "table": {
         "tableType": "RawSource",

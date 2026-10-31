@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_get_merge_conflict_workbook",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "file": "McpTools/rules/Main.xlsx"
+      "path": "McpTools/rules/Main.xlsx"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
@@ -26,4 +26,3 @@ Authorization: Token ${PAT}
     }
   }
 }
-

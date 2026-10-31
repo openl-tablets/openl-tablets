@@ -39,7 +39,7 @@ const rawCellWriteSchemas = [
     name: "create table",
     schema: createProjectTableSchema,
     input: (value: unknown) => ({
-      projectId: "p1", moduleName: "Main",
+      projectId: "p1", module: "Main",
       table: { ...rawTable, source: [[{ value }]] },
     }),
   },
@@ -90,7 +90,7 @@ describe("RawSource-only table contracts", () => {
   it("round-trips the complete raw cell representation", () => {
     expect(createProjectTableSchema.parse({
       projectId: "p1",
-      moduleName: "Main",
+      module: "Main",
       table: rawTable,
     }).table).toEqual(rawTable);
 
@@ -112,7 +112,7 @@ describe("RawSource-only table contracts", () => {
 
     expect(updateTableSchema.parse({ projectId: "p1", tableId: "t1", view }).view.source[0][0])
       .toEqual({ value: 42, formula: "=B2*2", comment: "Checked by Ada" });
-    expect(createProjectTableSchema.safeParse({ projectId: "p1", moduleName: "Main", table: view }).success).toBe(true);
+    expect(createProjectTableSchema.safeParse({ projectId: "p1", module: "Main", table: view }).success).toBe(true);
   });
 
   it.each(rawCellWriteSchemas)("accepts Studio multi-value arrays for $name", ({ schema, input }) => {
@@ -168,7 +168,7 @@ describe("RawSource-only table contracts", () => {
 
     expect(createProjectTableSchema.safeParse({
       projectId: "p1",
-      moduleName: "Main",
+      module: "Main",
       table: { tableType: "RawSource", name: "Rate", source: [[styledCell]] },
     }).success).toBe(false);
     expect(updateTableSchema.safeParse({
@@ -183,13 +183,13 @@ describe("RawSource-only table contracts", () => {
 
   it("requires a nonblank name and complete source when creating", () => {
     expect(createProjectTableSchema.safeParse({
-      projectId: "p1", moduleName: "Main", table: { tableType: "RawSource", source: [] },
+      projectId: "p1", module: "Main", table: { tableType: "RawSource", source: [] },
     }).success).toBe(false);
     expect(createProjectTableSchema.safeParse({
-      projectId: "p1", moduleName: "Main", table: { ...rawTable, name: "  " },
+      projectId: "p1", module: "Main", table: { ...rawTable, name: "  " },
     }).success).toBe(false);
     expect(createProjectTableSchema.safeParse({
-      projectId: "p1", moduleName: "Main", table: { tableType: "RawSource", name: "Rate" },
+      projectId: "p1", module: "Main", table: { tableType: "RawSource", name: "Rate" },
     }).success).toBe(false);
   });
 
@@ -208,7 +208,7 @@ describe("RawSource-only table contracts", () => {
     "rejects the lossy typed %s table contract",
     (tableType) => {
       expect(createProjectTableSchema.safeParse({
-        projectId: "p1", moduleName: "Main", table: { ...rawTable, tableType },
+        projectId: "p1", module: "Main", table: { ...rawTable, tableType },
       }).success).toBe(false);
       expect(updateTableSchema.safeParse({
         projectId: "p1", tableId: "t1", view: { ...rawTable, tableType },
@@ -217,7 +217,7 @@ describe("RawSource-only table contracts", () => {
   );
 
   it("accepts only an xlsx modulePath", () => {
-    const base = { projectId: "p1", moduleName: "Rules", table: rawTable };
+    const base = { projectId: "p1", module: "Rules", table: rawTable };
     expect(createProjectTableSchema.safeParse({ ...base, modulePath: "rules/Rules.xlsx" }).success).toBe(true);
     expect(createProjectTableSchema.safeParse({ ...base, modulePath: "rules/Rules.xls" }).success).toBe(false);
   });
@@ -243,7 +243,7 @@ describe("table workflow schemas", () => {
   });
 
   it("requires copy destinations and validates new module paths", () => {
-    const valid = { projectId: "p1", tableId: "t1", moduleName: "Main", name: "CopiedRate" };
+    const valid = { projectId: "p1", tableId: "t1", module: "Main", name: "CopiedRate" };
     expect(copyTableSchema.safeParse(valid).success).toBe(true);
     expect(copyTableSchema.safeParse({ ...valid, modulePath: "rules/Copy.xlsx" }).success).toBe(true);
     expect(copyTableSchema.safeParse({ ...valid, modulePath: "rules/Copy.xls" }).success).toBe(false);
@@ -294,7 +294,7 @@ describe("current project filters", () => {
     expect(getProjectRevisionsSchema.safeParse({
       projectId: "design:Rules",
       repository: "design",
-      projectName: "Rules",
+      name: "Rules",
       branch: "main",
     }).success).toBe(false);
   });
@@ -310,7 +310,7 @@ describe("commit comments", () => {
     ["save", saveProjectSchema, project],
     ["close", closeProjectSchema, project],
     ["delete", deleteProjectSchema, { ...project, confirmProjectName: "Rating" }],
-    ["create", createProjectSchema, { repository: "design", projectName: "Rating" }],
+    ["create", createProjectSchema, { repository: "design", name: "Rating" }],
   ] as const;
 
   it.each(cases)("%s states and keeps the 255 characters Studio stores", (_, schema, base) => {
@@ -327,6 +327,6 @@ describe("commit comments", () => {
 
 describe("project creation", () => {
   it("rejects an empty copy source instead of falling back to blank project creation", () => {
-    expect(createProjectSchema.safeParse({ repository: "design", projectName: "Copy", template: "" }).success).toBe(false);
+    expect(createProjectSchema.safeParse({ repository: "design", name: "Copy", template: "" }).success).toBe(false);
   });
 });

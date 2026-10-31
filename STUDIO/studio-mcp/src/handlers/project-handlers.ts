@@ -33,12 +33,12 @@ function severityRank(severity: string | undefined): number {
  *     id-ascending order — without this, ERRORs end up past the cutoff when a
  *     project has many WARNs).
  *  3. Optional `severity` filter narrows items to the requested severities.
- *  4. Optional `maxMessages` caps the (already-sorted) items list.
+ *  4. Optional `limit` caps the (already-sorted) items list.
  */
 function shapeStatusResponse(
   status: Types.ProjectStatusView,
   severityFilter?: ("ERROR" | "WARN" | "INFO")[],
-  maxMessages?: number,
+  limit?: number,
 ): Types.ProjectStatusView {
   if (!status.compilation?.messages) {
     return status;
@@ -58,8 +58,8 @@ function shapeStatusResponse(
     const allowed = new Set<string>(severityFilter);
     items = items.filter((m) => m.severity !== undefined && allowed.has(m.severity));
   }
-  if (maxMessages) {
-    items = items.slice(0, maxMessages);
+  if (limit) {
+    items = items.slice(0, limit);
   }
   return {
     ...status,
@@ -85,7 +85,7 @@ function messageTruncation(status: Types.ProjectStatusView): Truncation | undefi
     items: items.length,
     unit: "compile messages",
     cut: (count) => ({ ...status, compilation: { ...compilation, messages: { ...messages, items: items.slice(0, count) } } }),
-    next: () => "choose the messages to read with severity or maxMessages",
+    next: () => "choose the messages to read with severity or limit",
   };
 }
 
@@ -248,7 +248,7 @@ export function registerProjectHandlers(): void {
         timeoutMs: args.timeoutMs,
       });
       const { refreshed, ...read } = status;
-      const shaped = shapeStatusResponse(read, args.severity, args.maxMessages);
+      const shaped = shapeStatusResponse(read, args.severity, args.limit);
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 
@@ -367,8 +367,8 @@ export function registerProjectHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      await client.createBranch(args.projectId, args.branchName, args.revision);
-      return formatResult({ created: args.branchName });
+      await client.createBranch(args.projectId, args.branch, args.revision);
+      return formatResult({ created: args.branch });
     },
   });
 
@@ -378,7 +378,7 @@ export function registerProjectHandlers(): void {
     description:
       "Create a new OpenL project in a design repository. Two modes, selected by the `template` argument:\n" +
       "• CREATE (omit `template`): create a BLANK project from the \"Empty Project\" template OpenL Studio ships, as a user of Studio does.\n" +
-      "• COPY (pass `template` = an existing project's exact projectId from openl_list_projects): use Studio's server-side project-copy API to copy that source project's FULL structure and rename its descriptor to projectName. Do not pass the displayed project name because mapped repositories may contain multiple projects with the same name.\n" +
+      "• COPY (pass `template` = an existing project's exact projectId from openl_list_projects): use Studio's server-side project-copy API to copy that source project's FULL structure and rename its descriptor to name. Do not pass the displayed project name because mapped repositories may contain multiple projects with the same name.\n" +
       "Both modes are written and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches() when branches are supported; Studio also supports creating a missing branch from the base branch. Omit `comment` when repository features.comments is false. Answers the projectId, branch and revision of the new project. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
     schema: schemas.createProjectSchema,
     annotations: {
@@ -396,13 +396,13 @@ export function registerProjectHandlers(): void {
         created = source
           ? await client.copyProject(
               repositoryId,
-              args.projectName,
+              args.name,
               source,
               { comment: args.comment, branch: args.branch },
             )
           : await client.createEmptyProject(
               repositoryId,
-              args.projectName,
+              args.name,
               { comment: args.comment, branch: args.branch },
             );
       } catch (error) {
@@ -449,7 +449,7 @@ export function registerProjectHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const sheets = await client.listModuleSheets(args.projectId, args.moduleName);
+      const sheets = await client.listModuleSheets(args.projectId, args.module);
       return formatResult(sheets);
     },
   });

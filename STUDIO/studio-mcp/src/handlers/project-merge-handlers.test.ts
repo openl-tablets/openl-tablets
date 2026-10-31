@@ -187,7 +187,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1").reply(200, project);
 
       const response = await executeTool("read_merge_conflict_file", {
-        projectId: "p1", file: "Rating/rules/Main.xlsx", side: "OURS",
+        projectId: "p1", path: "Rating/rules/Main.xlsx", side: "OURS",
       }, harness.client);
 
       expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
@@ -212,7 +212,7 @@ describe("project branch and merge handlers", () => {
       });
 
       const response = await executeTool("read_merge_conflict_file", {
-        projectId: "p1", file: "Rating/rules/config.txt", side: "THEIRS",
+        projectId: "p1", path: "Rating/rules/config.txt", side: "THEIRS",
       }, harness.client);
 
       expect(textOf(response)).toBe("rate = 1.5\n");
@@ -228,7 +228,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1").reply(200, project);
 
       const response = await executeTool("read_merge_conflict_file", {
-        projectId: "p1", file: "Rating/rules/config.txt", side: "THEIRS",
+        projectId: "p1", path: "Rating/rules/config.txt", side: "THEIRS",
       }, harness.client);
 
       expect(dataOf(response)).toMatchObject({
@@ -246,7 +246,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true, false));
 
       await expect(executeTool("read_merge_conflict_file", {
-        projectId: "p1", file: "Rating/rules/config.txt", side: "BASE",
+        projectId: "p1", path: "Rating/rules/config.txt", side: "BASE",
       }, harness.client)).rejects.toThrow(/does not hold the file/);
     });
   });
@@ -304,7 +304,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
 
       const overview = dataOf(await executeTool("get_merge_conflict_workbook", {
-        projectId: "p1", file: "rules/Main.xlsx", }, harness.client));
+        projectId: "p1", path: "rules/Main.xlsx", }, harness.client));
 
       expect(harness.mockHttp.history.get[0].params).toEqual({ file: "rules/Main.xlsx" });
       expect(overview.sheets[0]).toEqual({
@@ -341,7 +341,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
 
       const table = dataOf(await executeTool("get_merge_conflict_workbook", {
-        projectId: "p1", file: "rules/Main.xlsx", table: "Rules/A1:B2", }, harness.client));
+        projectId: "p1", path: "rules/Main.xlsx", table: "Rules/A1:B2", }, harness.client));
 
       expect(table).toMatchObject({ sheet: "Rules", id: "Rules/A1:B2", byCells: true });
       expect(table.theirs).toEqual({
@@ -364,7 +364,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
 
       await expect(executeTool("get_merge_conflict_workbook", {
-        projectId: "p1", file: "rules/Main.xlsx", table: "Rules/Z1:Z2",
+        projectId: "p1", path: "rules/Main.xlsx", table: "Rules/Z1:Z2",
       }, harness.client)).rejects.toThrow(/no conflicting table/);
     });
   });
@@ -386,7 +386,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
 
       const response = await executeTool("get_merge_conflict_text", {
-        projectId: "p1", file: "rules.xml", }, harness.client);
+        projectId: "p1", path: "rules.xml", }, harness.client);
 
       expect(harness.mockHttp.history.get[0].params).toEqual({ file: "rules.xml" });
       expect(dataOf(response)).toEqual({
@@ -412,12 +412,12 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
 
       const response = dataOf<any>(await executeTool("get_merge_conflict_text", {
-        projectId: "p1", file: "rules.xml", fromConflict: 1, }, harness.client));
+        projectId: "p1", path: "rules.xml", fromConflict: 1, }, harness.client));
 
       expect(response.conflicts).toBe(2);
       expect(response.blocks.map((block: any) => block.kind)).toEqual(["merged", "conflict", "merged"]);
       expect(response.blocks[1].conflict).toBe(1);
-      await expect(executeTool("get_merge_conflict_text", { projectId: "p1", file: "rules.xml", fromConflict: 2 },
+      await expect(executeTool("get_merge_conflict_text", { projectId: "p1", path: "rules.xml", fromConflict: 2 },
         harness.client)).rejects.toThrow(/no conflict 2/);
     });
 
@@ -428,7 +428,7 @@ describe("project branch and merge handlers", () => {
       });
 
       const response = JSON.parse(textOf(await executeTool("get_merge_conflict_text", {
-        projectId: "p1", file: "notes.txt", }, harness.client)));
+        projectId: "p1", path: "notes.txt", }, harness.client)));
 
       expect(response.truncated).toBe(true);
       expect(response.truncation_message).toMatch(/continue with fromConflict=\d/);
@@ -442,7 +442,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
 
       await expect(executeTool("resolve_merge_conflicts", {
-        projectId: "p1", resolutions: [{ file: "rules.xml", conflicts: [{ side: "ours" }] }],
+        projectId: "p1", resolutions: [{ path: "rules.xml", conflicts: [{ side: "ours" }] }],
       }, harness.client)).rejects.toThrow(/has 2 conflicts, but 1 decisions/);
       expect(harness.mockHttp.history.post).toHaveLength(0);
     });
@@ -456,7 +456,7 @@ describe("project branch and merge handlers", () => {
       });
 
       await expect(executeTool("resolve_merge_conflicts", {
-        projectId: "p1", resolutions: [{ file: "notes.txt", conflicts: [{ lines: "" }] }],
+        projectId: "p1", resolutions: [{ path: "notes.txt", conflicts: [{ lines: "" }] }],
       }, harness.client)).rejects.toThrow(/would be empty/);
       expect(harness.mockHttp.history.post).toHaveLength(0);
     });
@@ -478,9 +478,9 @@ describe("project branch and merge handlers", () => {
       const response = await executeTool("resolve_merge_conflicts", {
         projectId: "p1",
         resolutions: [
-          { file: "rules/Main.xlsx", decisions },
-          { file: "rules.xml", conflicts: [{ side: "ours-theirs" }, { lines: "  <v>4</v>\n" }] },
-          { file: "rules-deploy.xml", strategy: "THEIRS" },
+          { path: "rules/Main.xlsx", decisions },
+          { path: "rules.xml", conflicts: [{ side: "ours-theirs" }, { lines: "  <v>4</v>\n" }] },
+          { path: "rules-deploy.xml", strategy: "THEIRS" },
         ],
         message: "Merge rates",
       }, harness.client);
@@ -521,7 +521,7 @@ describe("project branch and merge handlers", () => {
     });
 
     await expect(executeTool("resolve_merge_conflicts", {
-      projectId: "p1", resolutions: [{ file: "rules.xml", strategy: "OURS" }],
+      projectId: "p1", resolutions: [{ path: "rules.xml", strategy: "OURS" }],
     }, harness.client)).rejects.toThrow(/missing: rules\/Main\.xlsx/);
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
@@ -529,7 +529,7 @@ describe("project branch and merge handlers", () => {
   it("refuses a cell decision with neither a side nor a value", async () => {
     await expect(executeTool("resolve_merge_conflicts", {
       projectId: "p1",
-      resolutions: [{ file: "rules/Main.xlsx", decisions: [{ id: "Rules/A1:B2", cells: { cells: [{ row: 1, column: 1 }] } }] }],
+      resolutions: [{ path: "rules/Main.xlsx", decisions: [{ id: "Rules/A1:B2", cells: { cells: [{ row: 1, column: 1 }] } }] }],
     }, harness.client)).rejects.toThrow();
     expect(harness.mockHttp.history.get).toHaveLength(0);
   });
