@@ -45,9 +45,9 @@ export function registerTestingHandlers(): void {
     title: "Get Test Results",
     description:
       "Read the results of the tests openl_start_project_tests started as Markdown tables, waiting until Studio has " +
-      "run them: the counts of the run; a table of the test tables with their tests and failures; and a table of the " +
-      "failed tests, one row per failed assertion with its expected and actual value and the inputs of the test, an " +
-      "input with inner structure named by its type and key. failuresOnly, true by default, lists only the failed " +
+      "run them: the counts of the run; a table of the test tables with their tests and failures; and, per test table, " +
+      "a table of its failed tests with the inputs of each and its failed assertions with their expected and actual " +
+      "values, an input with inner structure named by its type and key. failuresOnly, true by default, lists only the failed " +
       "tests, at most 'failures' of each test table, and tells how many it leaves out; false lists every test. " +
       "summary: true answers the counts alone; tableId reads the tests of one test table, page by page, and caseId " +
       "with it one test with its inputs as JSON, whole up to 12,500 characters and cut beyond, the cuts named. A page is cut to 25,000 characters by whole test tables, or by whole " +
@@ -118,17 +118,6 @@ function withOmittedFailures(results: Types.TestsExecutionSummary): Types.TestsE
   };
 }
 
-/** A row of the table of tests: a test, or one failed assertion of it, in its test table. */
-interface TestRow {
-  table: string;
-  test?: string;
-  status?: string;
-  inputs?: string;
-  assertion?: string;
-  expected?: unknown;
-  actual?: unknown;
-}
-
 /** The longest text of an input the table of tests shows; caseId reads the test with its inputs as JSON. */
 const INPUT_TEXT = 120;
 
@@ -150,36 +139,39 @@ function statusOf(status: Types.TestUnitExecutionResult["status"]): string {
   }
 }
 
-/** The rows of a test: one for a passed test, one per failed assertion, or one per error, of a failed one. */
-function rowsOf(table: string, unit: Types.TestUnitExecutionResult): TestRow[] {
-  const test = { table, test: unit.id, status: statusOf(unit.status), inputs: inputsOf(unit) };
-  const failures: TestRow[] = [
-    ...(unit.errors ?? []).map((error) => ({ ...test, assertion: "error", actual: error.summary })),
-    ...(unit.testAssertions ?? []).filter((assertion) => assertion.status !== "TR_OK").map((assertion) => ({
-      ...test, assertion: assertion.description, expected: assertion.expectedValue, actual: assertion.actualValue,
-    })),
-  ];
-  return failures.length > 0 ? failures : [test];
+/** What an assertion compares: its description, and the field when another assertion of the test has the same. */
+function assertionName(assertion: Types.TestAssertionExecutionResult): string {
+  return assertion.field ? `${assertion.description} (${assertion.field})` : assertion.description ?? "";
 }
 
-/** The columns of the table of tests. */
-const TEST_COLUMNS: Array<Column<TestRow>> = [
-  { header: "test table", value: (row) => row.table },
-  { header: "test", value: (row) => row.test },
-  { header: "status", value: (row) => row.status },
-  { header: "inputs", value: (row) => row.inputs },
-  { header: "assertion", value: (row) => row.assertion },
-  { header: "expected", value: (row) => (row.expected === undefined ? undefined : JSON.stringify(row.expected)) },
-  { header: "actual", value: (row) => (row.actual === undefined ? undefined : JSON.stringify(row.actual)) },
+/** The failures of a test: each error, and each failed assertion with its values. */
+function failuresOf(unit: Types.TestUnitExecutionResult): string {
+  return [
+    ...(unit.errors ?? []).map((error) => `error: ${error.summary}`),
+    ...(unit.testAssertions ?? []).filter((assertion) => assertion.status !== "TR_OK").map((assertion) => {
+      const name = assertionName(assertion);
+      return `${name ? `${name}: ` : ""}expected ${JSON.stringify(assertion.expectedValue)}, `
+        + `actual ${JSON.stringify(assertion.actualValue)}`;
+    }),
+  ].join("; ");
+}
+
+/** The columns of the table of the tests of a test table: a test with its inputs once and its failures. */
+const TEST_COLUMNS: Array<Column<Types.TestUnitExecutionResult>> = [
+  { header: "test", value: (unit) => unit.id },
+  { header: "status", value: (unit) => statusOf(unit.status) },
+  { header: "inputs", value: inputsOf },
+  { header: "failures", value: failuresOf },
 ];
 
 /** The table of the tests of test tables, and the note on the failed tests a list leaves out. */
 function testsSection(testCases: Types.TestCaseExecutionResult[]): string[] {
-  const rows = testCases.flatMap((testCase) => (testCase.testUnits ?? []).flatMap((unit) => rowsOf(testCase.name, unit)));
   const omitted = testCases.filter((testCase) => (testCase.omittedFailures ?? 0) > 0)
     .map((testCase) => `${testCase.name} has ${formatCount(testCase.omittedFailures ?? 0, "more failed test")}: ` +
       `read them with tableId ${testCase.tableId}.`);
-  return [...(rows.length > 0 ? [markdownTable(rows, TEST_COLUMNS)] : []), ...omitted];
+  const tables = testCases.filter((testCase) => testCase.testUnits?.length)
+    .map((testCase) => `test table: ${testCase.name}\n\n${markdownTable(testCase.testUnits ?? [], TEST_COLUMNS)}`);
+  return [...tables, ...omitted];
 }
 
 /** A page of the test tables of a run: their counts, and the tests they list; cut by whole test tables. */
@@ -236,7 +228,7 @@ function testCaseMarkdown(unit: Types.TestUnitExecutionResult): string {
     `Test ${unit.id}: ${statusOf(unit.status)}.`,
     `Inputs${cutNote}:\n\n\`\`\`json\n${JSON.stringify(value)}\n\`\`\``,
     markdownTable(unit.testAssertions ?? [], [
-      { header: "assertion", value: (assertion) => assertion.description },
+      { header: "assertion", value: assertionName },
       { header: "status", value: (assertion) => statusOf(assertion.status) },
       { header: "expected", value: (assertion) => JSON.stringify(assertion.expectedValue) },
       { header: "actual", value: (assertion) => JSON.stringify(assertion.actualValue) },
