@@ -21,6 +21,7 @@ import org.openl.studio.common.utils.SpreadsheetResultBean;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Writes the values of a run or a test the way OpenL Rule Services publishes them.
@@ -232,8 +233,26 @@ public class ExecutionValueMapper {
                 elements = items;
             }
             var values = elements.putArray("enum");
-            vocabulary.getDomain().forEach(value -> values.add(objectMapper.valueToTree(value)));
+            var valueClass = OpenClassUtils.getRootComponentClass(vocabulary).getInstanceClass();
+            for (var value : vocabulary.getDomain()) {
+                values.add(valueOfType(value, valueClass));
+            }
         }
         return schema;
+    }
+
+    /**
+     * A value of a vocabulary as the type the schema names: a vocabulary of numbers can hold its values as the texts
+     * of its cells, which the schema would otherwise list as strings beside {@code "type": "integer"}.
+     */
+    private JsonNode valueOfType(Object value, Class<?> type) {
+        if (value instanceof String text && !type.isInstance(text)) {
+            try {
+                return objectMapper.valueToTree(objectMapper.convertValue(text, type));
+            } catch (IllegalArgumentException e) {
+                // A text the type cannot read stays a text
+            }
+        }
+        return objectMapper.valueToTree(value);
     }
 }
