@@ -206,6 +206,22 @@ describe("test results", () => {
     expect(text).toContain("| 1 | failed |  | Tier 1 Rate ($RateCard.$ManualRate): expected 2.99, actual 2.68 |");
   });
 
+  it("names an assertion without a description by its field", async () => {
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: [{
+        ...testCase("Test_rates", "Test_rates_1", 1, 1),
+        testUnits: [failed("1", { testAssertions: [
+          { description: null, field: "$RateCard.$ManualRate", expectedValue: 2.99, actualValue: 2.68, status: "TR_NEQ" },
+          { description: null, field: "$RateCard.$FormulaRate", expectedValue: 2.68, actualValue: 2.68, status: "TR_OK" },
+        ] })],
+      }],
+    }));
+
+    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1" }, harness.client));
+
+    expect(text).toContain("| 1 | failed |  | $RateCard.$ManualRate: expected 2.99, actual 2.68 |");
+  });
+
   it("answers the summary of the run on one line", async () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ executionTimeMs: 250.5, numberOfTests: 10, numberOfFailures: 2 }));
 
