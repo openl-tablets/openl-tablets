@@ -6,6 +6,7 @@
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
+import { isHttpError } from "../http.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import type { Truncation } from "../formatters.js";
@@ -25,6 +26,51 @@ const MERGE_WAIT: WaitOptions = {
   timeoutMessage: `The merge did not finish within ${MERGE_TIMEOUT_MS} ms. It may still be running in Studio: call ` +
     "openl_get_merge_conflicts or open the project later to see how it ended.",
 };
+
+/** The conflicted files of the pending merge, by their paths in the repository: the project folder comes first. */
+function conflictedFiles(details: Types.ConflictDetailsResponse): string[] {
+  return (details.conflictGroups ?? []).flatMap((group) => group.files ?? []);
+}
+
+/**
+ * A conflicted file by the path the agent names it: as the conflicts list it, or by its path within the project,
+ * which an agent takes from the other file tools and Studio does not find.
+ */
+function conflictedPath(files: string[], path: string): string {
+  if (files.length === 0 || files.includes(path)) {
+    return path;
+  }
+  const within = files.filter((file) => file.endsWith(`/${path.replace(/^\/+/, "")}`));
+  if (within.length === 1) {
+    return within[0];
+  }
+  throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+    `'${path}' is no conflicted file of the pending merge; the conflicted files are ${files.join(", ")}.`);
+}
+
+/**
+ * A read of a conflicted file, and the path it was read by: a path Studio does not find is looked up in the
+ * conflicts, which costs a request only when the agent named the file otherwise than they list it.
+ */
+async function readConflicted<T>(
+  client: OpenLClient,
+  projectId: string,
+  path: string,
+  read: (file: string) => Promise<T>,
+): Promise<[string, T]> {
+  try {
+    return [path, await read(path)];
+  } catch (error) {
+    if (!isHttpError(error) || error.response?.status !== 404) {
+      throw error;
+    }
+    const file = conflictedPath(conflictedFiles(await client.getMergeConflicts(projectId)), path);
+    if (file === path) {
+      throw error;
+    }
+    return [file, await read(file)];
+  }
+}
 
 /** How many merged lines of a conflicted text file are read whole; a longer run is read by its ends. */
 const SHOWN_LINES = 8;
@@ -424,7 +470,7 @@ export function registerProjectMergeHandlers(): void {
     title: "Read Merge Conflict File Version",
     description:
       "Read one BASE, OURS, or THEIRS version of a conflicted file from the current session as evidence for the resolution the user decides. Never infer or apply a winning side on your own; a conflicted text file reads line by line with openl_get_merge_conflict_text, a conflicted workbook table by table with openl_get_merge_conflict_workbook. A version fileAvailability marks false does not hold the file, such as the base of a file both branches added. " +
-      `A text version of up to ${INLINE_TEXT_BYTES} bytes is returned inline, verbatim; a larger or a binary version is returned as a download LINK: JSON with the url, a ready \`curl\` command that saves it locally and where the file lives in its repository. Run the curl command in a shell: the bytes never enter the conversation. Use the exact file path from openl_get_merge_conflicts.`,
+      `A text version of up to ${INLINE_TEXT_BYTES} bytes is returned inline, verbatim; a larger or a binary version is returned as a download LINK: JSON with the url, a ready \`curl\` command that saves it locally and where the file lives in its repository. Run the curl command in a shell: the bytes never enter the conversation. Name the file by its path from openl_get_merge_conflicts, or by its path within the project.`,
     schema: schemas.readMergeConflictFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -434,17 +480,18 @@ export function registerProjectMergeHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const side = args.side.toLowerCase() as "base" | "ours" | "theirs";
       const conflicts = await client.getMergeConflicts(args.projectId);
+      const path = conflictedPath(conflictedFiles(conflicts), args.path);
       const branch = side === "base" ? undefined : conflicts[`${side}Revision`]?.branch;
-      const link = { kind: "conflictVersion", projectId: args.projectId, path: args.path, side, branch } as const;
-      const available = conflicts.fileAvailability?.[args.path];
+      const link = { kind: "conflictVersion", projectId: args.projectId, path, side, branch } as const;
+      const available = conflicts.fileAvailability?.[path];
       if (available && !available[side]) {
         throw new ProtocolError(ProtocolErrorCode.InvalidParams,
-          `The ${args.side} version of '${args.path}' does not hold the file: fileAvailability marks it false.`);
+          `The ${args.side} version of '${path}' does not hold the file: fileAvailability marks it false.`);
       }
       if (available && !available.text) {
         return formatResult(await downloadLink(client, link));
       }
-      const response = await client.readMergeConflictFile(args.projectId, args.path, args.side);
+      const response = await client.readMergeConflictFile(args.projectId, path, args.side);
       const text = inlineText(response);
       if (text !== undefined) {
         return textResult(text);
@@ -465,8 +512,9 @@ export function registerProjectMergeHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const workbook = await client.getMergeConflictWorkbook(args.projectId, args.path);
-      const data = args.table ? workbookTable(args.path, workbook, args.table) : workbookOverview(args.path, workbook);
+      const [path, workbook] = await readConflicted(client, args.projectId, args.path,
+        (file) => client.getMergeConflictWorkbook(args.projectId, file));
+      const data = args.table ? workbookTable(path, workbook, args.table) : workbookOverview(path, workbook);
       return formatResult(data);
     },
   });
@@ -483,8 +531,9 @@ export function registerProjectMergeHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { blocks } = await client.getMergeConflictText(args.projectId, args.path);
-      const overview = textOverview(args.path, blocks, args.fromConflict);
+      const [path, { blocks }] = await readConflicted(client, args.projectId, args.path,
+        (file) => client.getMergeConflictText(args.projectId, file));
+      const overview = textOverview(path, blocks, args.fromConflict);
       return formatResult(overview, { truncation: textTruncation(overview) });
     },
   });
@@ -501,11 +550,10 @@ export function registerProjectMergeHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const details = await client.getMergeConflicts(args.projectId);
-      const named = new Set(args.resolutions.map((resolution) => resolution.path));
-      const missing = (details.conflictGroups ?? [])
-        .flatMap((group) => group.files ?? [])
-        .filter((file) => !named.has(file));
+      const files = conflictedFiles(await client.getMergeConflicts(args.projectId));
+      const decided = args.resolutions.map((resolution) => ({ ...resolution, path: conflictedPath(files, resolution.path) }));
+      const named = new Set(decided.map((resolution) => resolution.path));
+      const missing = files.filter((file) => !named.has(file));
       if (missing.length > 0) {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidParams,
@@ -513,7 +561,7 @@ export function registerProjectMergeHandlers(): void {
         );
       }
       // Each file merged as decided is merged on its own, side by side, into its content.
-      const resolutions = await Promise.all(args.resolutions.map(
+      const resolutions = await Promise.all(decided.map(
         (resolution) => fileResolution(client, args.projectId, resolution)));
       const response = await client.resolveMergeConflicts(args.projectId, resolutions, args.message);
       return formatResult(response);

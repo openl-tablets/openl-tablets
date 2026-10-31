@@ -242,6 +242,25 @@ describe("project branch and merge handlers", () => {
       expect(harness.mockHttp.history.post).toHaveLength(0);
     });
 
+    it("is read by its path within the project, which the conflicts list after the project folder", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true));
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/files").reply(200, "rate = 1.5\n", { "content-type": "text/plain" });
+
+      await executeTool("read_merge_conflict_file", { projectId: "p1", path: "rules/config.txt", side: "OURS" }, harness.client);
+
+      expect(harness.mockHttp.history.get[1].params).toEqual({ file: "Rating/rules/config.txt", side: "OURS" });
+    });
+
+    it("is refused with the conflicted files for a file of no conflict", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true));
+
+      await expect(executeTool("read_merge_conflict_file", {
+        projectId: "p1", path: "rules/other.txt", side: "OURS",
+      }, harness.client)).rejects.toThrow(
+        "'rules/other.txt' is no conflicted file of the pending merge; the conflicted files are Rating/rules/Main.xlsx, " +
+          "Rating/rules/config.txt.");
+    });
+
     it("is refused when fileAvailability marks that it holds no file", async () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true, false));
 
@@ -408,6 +427,20 @@ describe("project branch and merge handlers", () => {
       });
     });
 
+    it("reads a text named by its path within the project as the conflicts list it", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text", { params: { file: "rules.xml" } }).reply(404, {});
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
+        conflictGroups: [{ projectName: "Rating", files: ["Rating/rules.xml", "Rating/rules/Main.xlsx"] }],
+      });
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text", { params: { file: "Rating/rules.xml" } }).reply(200, text);
+
+      const response = dataOf<any>(await executeTool("get_merge_conflict_text", {
+        projectId: "p1", path: "rules.xml", }, harness.client));
+
+      expect(response.file).toBe("Rating/rules.xml");
+      expect(response.conflicts).toBe(2);
+    });
+
     it("reads the rest of a conflicted text from a conflict, with the merged lines before it", async () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
 
@@ -516,13 +549,14 @@ describe("project branch and merge handlers", () => {
   });
 
   it("refuses a resolution that leaves a conflicted file out before sending anything", async () => {
+    // A file is named by its path within the project, which the conflicts list after the project folder
     harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
-      conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml"] }],
+      conflictGroups: [{ projectName: "Rating", files: ["Rating/rules/Main.xlsx", "Rating/rules.xml"] }],
     });
 
     await expect(executeTool("resolve_merge_conflicts", {
       projectId: "p1", resolutions: [{ path: "rules.xml", strategy: "OURS" }],
-    }, harness.client)).rejects.toThrow(/missing: rules\/Main\.xlsx/);
+    }, harness.client)).rejects.toThrow("Every conflicted file needs a resolution; missing: Rating/rules/Main.xlsx.");
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 
