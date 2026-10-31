@@ -515,7 +515,10 @@ from Maven.
   functions and the `PI` and `E` constants are gone from `org.openl.rules.helpers.RulesUtils`. The rules functions of
   `org.openl.rules.util` are not meant for Java code, so Java and Groovy code calls `java.lang.Math`, which the
   removed functions called: `RulesUtils.sqrt(x)` becomes `Math.sqrt(x)`. Two names differ: `getExponent(x, y)` with
-  two arguments is `Math.hypot(x, y)`, and `nextAfter(x)` with one argument is `Math.nextUp(x)`.
+  two arguments is `Math.hypot(x, y)`, and `nextAfter(x)` with one argument is `Math.nextUp(x)`. The
+  `groovy.removed-math` step of `openl:migrate` makes this change in the code of every `.groovy` file of a project,
+  also in a static import, except a static import of `getExponent`, of `nextAfter` or of all the members of
+  `RulesUtils`.
 * **`org.openl.rules.serialization.JsonUtils` is removed.** Create an `ObjectMapper` with
   `JacksonObjectMapperFactoryBean` once and keep it: a configured mapper is thread-safe, so it also replaces
   `getCachedObjectMapper`. The mapper of `toJSON(value)` and `fromJSON(json, type)` wrote dates in this format:

@@ -37,17 +37,29 @@ final class CodeText {
                 || matching(call, open) != call.length() - 1) {
             return null;
         }
+        return arguments(call, open);
+    }
+
+    /**
+     * Returns the texts of the arguments in the parentheses that open at the position, or {@code null} when they are
+     * not closed.
+     */
+    static @Nullable List<String> arguments(String code, int open) {
+        var close = matching(code, open);
+        if (close < 0) {
+            return null;
+        }
         var arguments = new ArrayList<String>();
         var from = open + 1;
         var i = from;
-        while (i < call.length() - 1) {
-            if (call.charAt(i) == ',') {
-                arguments.add(call.substring(from, i).strip());
+        while (i < close) {
+            if (code.charAt(i) == ',') {
+                arguments.add(code.substring(from, i).strip());
                 from = i + 1;
             }
-            i = next(call, i);
+            i = next(code, i);
         }
-        var last = call.substring(from, i).strip();
+        var last = code.substring(from, i).strip();
         if (!last.isEmpty() || !arguments.isEmpty()) {
             arguments.add(last);
         }

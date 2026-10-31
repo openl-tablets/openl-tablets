@@ -79,7 +79,7 @@ class MigrateMojoSelectionTest {
         // `config` covers everything below it, including the shared empty-tag phase.
         assertEquals(allConfigIds(),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config"))));
-        assertEquals(ids("groovy.jakarta", "groovy.generic-static"),
+        assertEquals(ids("groovy.jakarta", "groovy.generic-static", "groovy.removed-math"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("groovy"))));
         assertEquals(ids("rules.removed-functions", "rules.currency-sign"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("rules"))));
@@ -94,6 +94,7 @@ class MigrateMojoSelectionTest {
                         "config.project.cw-processor",
                         "groovy.jakarta",
                         "groovy.generic-static",
+                        "groovy.removed-math",
                         "config.project.method-filter",
                         "config.project.default-modules"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.empty-tag", "config.project", "groovy"))));
@@ -187,6 +188,7 @@ class MigrateMojoSelectionTest {
                 "config.project.cw-processor",
                 "groovy.jakarta",
                 "groovy.generic-static",
+                "groovy.removed-math",
                 "rules.removed-functions",
                 "rules.currency-sign",
                 "config.project.method-filter",
