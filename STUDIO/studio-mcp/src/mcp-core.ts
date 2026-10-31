@@ -35,11 +35,30 @@ function publishedSchema(inputSchema: Record<string, unknown>): StandardSchemaWi
 }
 
 /**
- * The instructions a client gives its agent when it connects: start with `openl_get_started`, and follow the skill
- * that matches the task. They name the skills for the clients that do not list them through the skills extension.
+ * The instructions a client gives its agent when it connects: how to work with OpenL Studio through the tools, in the
+ * order a task takes, and the skills, which they name for the clients that do not list them through the skills
+ * extension. Every client loads them once, where a tool of the same text would cost a call and its answer on every
+ * later turn.
  */
-const INSTRUCTIONS = `This server connects you to OpenL Studio, the IDE of the OpenL Tablets business rules engine. \
-Call \`openl_get_started\` once, before any other \`openl_\` tool.
+const INSTRUCTIONS = `This server connects you to OpenL Studio, the IDE of the OpenL Tablets business rules engine. Rules \
+live in Excel tables (decision tables, spreadsheets, datatypes, tests) inside versioned projects.
+
+## How to work
+
+1. Find the project with \`openl_list_projects\` (\`name\`). Open it with \`openl_open_project\` before any table, \
+test or trace tool; a project whose \`capabilities\` of \`openl_get_project\` lack \`canOpen\` is always open.
+2. Before you change a project, read its guidance with \`openl_get_project_agent_context\`. Look up OpenL syntax, \
+table types and functions with \`openl_list_guides\` and \`openl_get_guides\`, never from memory.
+3. Find tables with \`openl_list_tables\` by \`name\`, \`kind\` or \`module\`; its \`text\` finds every table a \
+value, key or message is used in, which a file search never does. Read a row of a large table with \
+\`openl_get_table\` \`find\`, not page by page. \`openl_get_table_dependencies\` with \`direction: DEPENDENTS\` \
+finds what uses a table.
+4. Edit with \`openl_edit_table\`, several cells in one call with \`actions\`, passing the \`version\` the last read \
+or edit answered. Then check \`compiles\` in its answer, \`openl_project_status\`, and the tests: \
+\`openl_start_project_tests\`, then \`openl_get_test_results\`.
+5. Edits stay in the working copy until \`openl_save_project\` commits them: say so when you leave them unsaved. \
+\`openl_deploy_project\` deploys. A project of the \`local\` repository, or edited in place, has no save: its edits \
+are in its files already.
 
 ${SKILLS_OVERVIEW}`;
 

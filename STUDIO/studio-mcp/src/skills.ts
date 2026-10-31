@@ -18,17 +18,16 @@ import files from "virtual:skills";
 export const SKILLS = await SkillsExtension.load(memorySkillFiles(files), { strict: true });
 
 /**
- * The skills, by name, URI and description, for the server instructions and
- * `openl_get_started`, which tell an agent about them when its client does not
- * support the extension.
+ * The skills, by name, URI and description, for the server instructions, which tell an agent about them when its
+ * client does not support the extension.
  */
 export const SKILLS_OVERVIEW = `## Skills
 
-OpenL skills are step-by-step workflows for common tasks, which this server serves as MCP resources: they
-are no skills or commands of your client, whose own skill tool does not know them. Read the \`SKILL.md\` of
-the one that matches the task with the tool of your client that reads an MCP resource, by its URI, before you
-start, and the files it references the same way: a relative path resolves against the folder of its
-\`SKILL.md\`.
+OpenL skills are step-by-step workflows this server serves as MCP resources. They are no skills of your client:
+never call its skill tool or a slash command for them. Before you start a task, read the \`SKILL.md\` of the skill
+that matches it with the tool of your client that reads an MCP resource, such as \`ReadMcpResourceTool\` in Claude
+Code, by its URI, and the files it references the same way: a relative path resolves against the
+folder of its \`SKILL.md\`.
 
 ${SKILLS.entries
   .map(({ uri, frontmatter: { name, description } }) =>
