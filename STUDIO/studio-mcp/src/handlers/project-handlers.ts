@@ -95,7 +95,7 @@ async function withChangedTables(
       continue;
     }
     const path = root && file.path.startsWith(`${root}/`) ? file.path.slice(root.length + 1) : file.path;
-    const tables = await changedTablesIfCompared(client,
+    const tables = await changedTablesIfCompared(client, // NOSONAR typescript:S9382
       () => client.compareProjectFiles(projectId, { path, branch, revision }, { path }), extra);
     files.push(tables ? { ...file, tables } : file);
   }
