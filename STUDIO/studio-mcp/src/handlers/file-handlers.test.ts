@@ -569,6 +569,19 @@ describe("delete, search, copy and move", () => {
   });
 
   it.each([
+    [{ pattern: "*.xlsx", recursive: true }, { pattern: "**/*.xlsx", recursive: true }],
+    [{ pattern: "*.xlsx" }, { pattern: "*.xlsx" }],
+    [{ pattern: "rules/*.xlsx", recursive: true }, { pattern: "rules/*.xlsx", recursive: true }],
+    [{ pattern: "AGENTS.md", scope: "ANCESTORS", recursive: true }, { pattern: "AGENTS.md", scope: "ANCESTORS", recursive: true }],
+  ])("openl_search_project_files searches %j from the root of the project as %j", async (args, body) => {
+    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
+
+    await executeTool("search_project_files", { projectId: "p1", ...args }, harness.client);
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(body);
+  });
+
+  it.each([
     [{ from: "rules" }, { pattern: "rules/*", recursive: true }],
     [{ from: "/rules/", recursive: true }, { pattern: "rules/**", recursive: true }],
     [{ from: "rules", pattern: "*.xlsx" }, { pattern: "rules/*.xlsx", recursive: true }],

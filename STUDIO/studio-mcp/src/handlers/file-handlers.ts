@@ -18,12 +18,15 @@ import { registerTool, formatResult, textResult, type ToolResponse } from "./com
  * Where a search starts. Studio takes `from` only for an ANCESTORS search and walks a SUBTREE search from the root of
  * the project, matching `pattern` against paths relative to it: a SUBTREE search from a folder becomes a recursive
  * search of a pattern under that folder — its entries, or everything under it with `recursive` — so it lists the
- * folder rather than the top level of the project.
+ * folder rather than the top level of the project. A pattern of a name, such as `*.xlsx`, matches only the top level
+ * of a path: with `recursive` it is searched for at any depth, as an agent means it, not the top level only.
  */
 function searchStart(args: z.output<typeof schemas.searchProjectFilesSchema>): Pick<Types.FileSearchQuery, "pattern" | "recursive" | "from"> {
   const folder = startFolder(args);
   if (!folder) {
-    return { pattern: args.pattern, recursive: args.recursive, from: args.from };
+    const anyDepth = args.recursive && args.scope !== "ANCESTORS" && args.pattern !== undefined && !args.pattern.includes("/") &&
+      !args.pattern.startsWith("**");
+    return { pattern: anyDepth ? `**/${args.pattern}` : args.pattern, recursive: args.recursive, from: args.from };
   }
   const pattern = args.pattern?.replace(/^\/+/, "");
   const everything = pattern ? `**/${pattern}` : "**";

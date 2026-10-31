@@ -847,7 +847,7 @@ export const searchProjectFilesSchema = z.strictObject({
   pattern: z
     .string()
     .optional()
-    .describe("Ant-glob path pattern, such as 'rules/**/*.xlsx' or '**/*.xml'."),
+    .describe("Ant-glob path pattern, such as 'rules/**/*.xlsx' or '**/*.xml'; a pattern of a name, such as '*.xlsx', matches at any depth with recursive."),
   content: z
     .string()
     .optional()
