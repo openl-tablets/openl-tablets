@@ -138,7 +138,7 @@ const columnsOf = (
             key: `assertion-${index}`,
             // Two columns described alike are told apart by the fields they compare
             title: assertion.field
-                ? `${assertion.description} (${assertion.field})`
+                ? `${assertion.description || t('tests.result')} (${assertion.field})`
                 : assertion.description || t('tests.result'),
             render: unit => {
                 const actual = unit.testAssertions?.[index]

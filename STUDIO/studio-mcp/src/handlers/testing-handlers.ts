@@ -134,7 +134,10 @@ function statusOf(status: Types.TestUnitExecutionResult["status"]): string {
 
 /** What an assertion compares: its description, and the field when another assertion of the test has the same. */
 function assertionName(assertion: Types.TestAssertionExecutionResult): string {
-  return assertion.field ? `${assertion.description} (${assertion.field})` : assertion.description ?? "";
+  if (!assertion.field) {
+    return assertion.description ?? "";
+  }
+  return assertion.description ? `${assertion.description} (${assertion.field})` : assertion.field;
 }
 
 /** The failures of a test: each error, and each failed assertion with its values. */
