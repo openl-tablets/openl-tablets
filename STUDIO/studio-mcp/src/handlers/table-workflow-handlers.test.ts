@@ -6,7 +6,7 @@
 import { describe, expect, it } from "vitest";
 import { ProtocolErrorCode } from "@modelcontextprotocol/server";
 import { executeTool } from "./index.js";
-import { bodyOf, queryOf } from "../testing/mock-http.js";
+import { bodyOf } from "../testing/mock-http.js";
 import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
@@ -49,18 +49,27 @@ describe("table workflow handlers", () => {
     expect(dataOf<Record<string, unknown>>(response)).toEqual({ result: { premium: 125 }, executionTimeMs: 4.5 });
   });
 
-  it("requests full run schemas only when explicitly asked", async () => {
+  it("reads the schema of each parameter when asked, without the schema of the result or the schema dialect", async () => {
     harness.mockHttp.onPost("/projects/p1/run").reply(202);
-    harness.mockHttp.onGet("/projects/p1/run/result").reply(200, { tableId: "t1", resultSchema: { type: "number" }, result: 42 });
+    harness.mockHttp.onGet("/projects/p1/run/result").reply(200, {
+      result: 42,
+      parameters: [{ name: "state", schema: { $schema: "https://json-schema.org/draft/2020-12/schema", type: "string", enum: ["CA", "NY"] } }],
+    });
 
-    await executeTool("run_table", {
+    const response = await executeTool("run_table", {
       projectId: "p1",
       tableId: "t1",
       inputJson: [],
       withSchema: true,
     }, harness.client);
 
-    expect(queryOf(harness.mockHttp.history.get[0])).toEqual({});
+    const fields = harness.mockHttp.history.get[0].params?.fields;
+    expect(fields).toContain("parameters(name,schema)");
+    expect(fields).not.toContain("resultSchema");
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({
+      result: 42,
+      parameters: [{ name: "state", schema: { type: "string", enum: ["CA", "NY"] } }],
+    });
   });
 
   it("cancels the Studio run when the MCP request is aborted", async () => {
