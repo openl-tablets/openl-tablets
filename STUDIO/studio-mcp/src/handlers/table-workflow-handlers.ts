@@ -153,7 +153,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Copy Table",
     description:
-      "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties. The copy remains in the working copy—use openl_save_project for Git-backed projects. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
+      "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties, all of them, by 'properties'. The copy remains in the working copy—use openl_save_project for Git-backed projects. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
     schema: schemas.copyTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -165,7 +165,7 @@ export function registerTableWorkflowHandlers(): void {
         moduleName: args.module,
         modulePath: args.modulePath,
         name: args.name,
-        properties: args.properties,
+        properties: args.properties && Object.entries(args.properties).map(([name, value]) => ({ name, value })),
         sheetName: args.sheetName,
       });
       return finishTableEdit(client, { projectId: args.projectId, tableId: copied.id }, undefined, "copy");

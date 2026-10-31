@@ -261,7 +261,7 @@ describe("table workflow handlers", () => {
       modulePath: "rules/Copies.xlsx",
       name: "CopiedRate",
       sheetName: "Rates",
-      properties: [{ name: "state", value: "CA" }],
+      properties: { state: "CA" },
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({

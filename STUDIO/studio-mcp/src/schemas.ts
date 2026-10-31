@@ -221,10 +221,7 @@ export const copyTableSchema = z.strictObject({
   modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new destination module. Omit when module already exists."),
   name: nonBlankString.describe("Name for the copied table."),
   sheetName: z.string().optional().describe("Destination worksheet name. Defaults to the copied table's name."),
-  properties: z.array(z.strictObject({
-    name: nonBlankString.describe("Property name."),
-    value: z.string().optional().describe("Property value in display-string form. A blank value removes the property."),
-  })).optional().describe("Replacement table properties. Omit to retain the source table's properties."),
+  properties: z.record(nonBlankString, z.string()).optional().describe("The properties of the copy, such as { state: 'CA' }, replacing all of the source's: name every one the copy keeps. Omit to keep the source's."),
 });
 
 const scalarCellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
