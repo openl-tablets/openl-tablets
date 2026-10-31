@@ -68,6 +68,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.common.ProjectException;
@@ -139,7 +140,10 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
@@ -154,6 +158,7 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.MarkdownTableFiles;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
@@ -1474,6 +1479,36 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void copy_table_into_a_new_module_of_markdown_files_writes_the_copy_as_its_first_file() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var descriptor = emptyModulesDescriptor();
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        var source = mock(IOpenLTable.class);
+        when(source.getType()).thenReturn(XlsNodeTypes.XLS_DT.toString());
+        stubResolvedSource(service, project, source);
+        var grid = mock(MarkdownGrid.class);
+        when(tableCreatorService.newMarkdownModule(project, descriptor, "Rates", "rules/Rates", "rates", "CopyName",
+                TableKind.RULES)).thenReturn(grid);
+        var request = new CopyTableRequest("Rates", "rates", "rules/Rates", "CopyName", null);
+
+        var copyId = service.copyTable(project, "src-id", request);
+
+        // The module is made by the file of the copy, so there is no module to compile before the copy is written
+        assertNull(copyId);
+        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(grid), any());
+        verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
+        verify(service, never()).openProject(project, "Rates");
+    }
+
+    @Test
     void copy_table_into_a_new_module_writes_the_copy_and_returns_no_identifier() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
@@ -1504,7 +1539,6 @@ class WorkspaceProjectServiceTest {
         verify(tableCreatorService).createEmptyModule(project, descriptor, "NewModule", "rules/NewModule.xlsx",
                 "CopyName");
         verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
-        verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).deleteModule(any(), any(), any());
     }
 
@@ -1818,6 +1852,66 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_markdown_table_written_in_parts_is_changed_in_the_files_of_its_parts() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var model = stubResolvedSource(service, project, source);
+        var uri = "file:/projects/PricingProject/rules/Rates/rate-part1.md?sheet=Rates&range=A1:B5";
+        when(source.getUri()).thenReturn(uri);
+        when(model.getModuleInfo().containsTable(uri)).thenReturn(true);
+        when(model.isTablePart(uri)).thenReturn(true);
+
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+
+        // Each part is a file of its own, which is changed as text rather than through a workbook
+        assertEquals("openl.error.400.table.markdown.partial.message", refused.getErrorCode());
+    }
+
+    @Test
+    void a_table_of_a_markdown_module_is_written_and_deleted_but_not_styled() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                tableCopyService, mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var model = stubResolvedSource(service, project, source);
+        var uri = "file:/projects/PricingProject/rules/Base%20Rates.md?sheet=Rates&range=A1:B3";
+        when(source.getUri()).thenReturn(uri);
+        when(model.getModuleInfo().containsTable(uri)).thenReturn(true);
+        var bold = List.<RawTableSourceAction>of(new RawTableSourceAction.Style(new StyleTarget.Cells(0, 0, 1, 1,
+                new RawCellStyleInput(null, null, null, true, null, null, null))));
+
+        var styled = assertThrows(BadRequestException.class,
+                () -> service.editTableSource(project, "src-id", bold, null, null));
+
+        // The file keeps the values of its table as text and no formatting, so a style reaches no writer: refused,
+        // naming the file.
+        assertEquals("openl.error.400.table.markdown.style.message", styled.getErrorCode());
+        assertArrayEquals(new Object[]{"Base Rates.md"}, styled.getArgs());
+
+        when(source.getVersion()).thenReturn("current");
+        var files = (MarkdownTableFiles) ReflectionTestUtils.getField(service, "markdownTableFiles");
+        var stale = assertThrows(PreconditionFailedException.class,
+                () -> service.deleteTable(project, "src-id", null, "read-before"));
+
+        // A delete based on the table read before another change of it would drop that change: its file stays
+        assertEquals("openl.error.412.table.changed.since.read.message", stale.getErrorCode());
+        verify(files, never()).delete(any(), any(), any());
+
+        service.deleteTable(project, "src-id", null, "current");
+
+        // A table of a Markdown module is a file of its own, which goes with it
+        verify(files).delete(project, model.getModuleInfo(), source);
+    }
+
+    @Test
     void a_table_the_compiler_built_to_choose_a_version_is_not_written_to() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var tablePropertiesService = mock(TablePropertiesService.class);
@@ -1942,7 +2036,6 @@ class WorkspaceProjectServiceTest {
         // The module is already compiled, so the copy's own identifier is known and returned.
         assertEquals("copy-id", copyId);
         verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
-        verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
     }
 
@@ -2144,13 +2237,16 @@ class WorkspaceProjectServiceTest {
         var composite = mock(CompositeGrid.class);
         when(partGrid.getGrid()).thenReturn(composite);
         when(part.getGridTable()).thenReturn(partGrid);
+        // A table of a Markdown module keeps no formatting.
+        var markdown = datatype("Model/Driver.md?sheet=Model&range=A1:B2");
         var nodes = new LinkedHashSet<>(compiled.getAllTableSyntaxNodes());
         nodes.add(part);
+        nodes.add(markdown);
         var model = stubCompiledProject(service, project, nodes);
 
         var result = service.formatProject(project);
 
-        // The notes are of the type Other, which is not formatted.
+        // The notes are of the type Other, which is not formatted, and the Markdown table is not even skipped.
         var formatted = List.of("Person", "Code", "people", "Premium", "answer", "Greeting").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();
@@ -2161,6 +2257,7 @@ class WorkspaceProjectServiceTest {
         var module = service.getProjectDescriptor(project).getModules().getFirst();
         verify(model).initProjectHistory(TableTestProjects.table(compiled, "Person").getSyntaxNode(), module);
         verify(model, never()).initProjectHistory(eq(part), any());
+        verify(model, never()).initProjectHistory(eq(markdown), any());
         // The workbook is saved with the style of each role: the header of a table is its Title.
         try (var in = Files.newInputStream(dir.resolve("Model.xlsx")); var saved = new XSSFWorkbook(in)) {
             var header = saved.getSheet("Model").getRow(1).getCell(1).getCellStyle().getCoreXf();
@@ -3323,7 +3420,7 @@ class WorkspaceProjectServiceTest {
                 new ProjectTagsCache(mock(CacheManager.class)),
                 new ProjectListingContext(),
                 moduleCompilationLauncher,
-                () -> userWorkspace, uploadFormatting) {
+                () -> userWorkspace, uploadFormatting, mock(MarkdownTableFiles.class)) {
 
             @Override
             public WebStudio getWebStudio() {

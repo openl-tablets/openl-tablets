@@ -42,6 +42,27 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceDirectory}/../openl")
     File sourceDirectory;
 
+    /**
+     * Whether the project is packaged with its workbooks written as Markdown: every module read from a workbook
+     * becomes a module folder of Markdown files, a table to a file. The {@code compile} goal writes this copy of the
+     * project into {@link #markdownDirectory}, and the {@code package} goal packages it instead of the sources. A
+     * workbook holding a table no Markdown file can hold stays as it is, and the build log names the table.
+     * <p>
+     * Off by default: the project is packaged as it is.
+     *
+     * @since 7.0.0
+     */
+    @Parameter(property = "openl.markdown", defaultValue = "false")
+    boolean markdown;
+
+    /**
+     * Folder the {@code compile} goal writes the Markdown copy of the project into, see {@link #markdown}.
+     *
+     * @since 7.0.0
+     */
+    @Parameter(defaultValue = "${project.build.directory}/openl-markdown", required = true)
+    File markdownDirectory;
+
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
     /**

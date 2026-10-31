@@ -228,7 +228,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
-        var openLSourceDir = new File(sourcePath);
+        var openLSourceDir = markdown ? markdownCopy() : new File(sourcePath);
         if (CollectionUtils.isEmpty(openLSourceDir.list())) {
             info("No OpenL sources have been found at '", sourcePath, "' path");
             info("Skipping packaging of the empty OpenL project.");
@@ -402,6 +402,22 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private Set<Artifact> getDependencies() {
         return getFilteredDependencies(BaseOpenLMojo::isRuntimeScope);
+    }
+
+    /**
+     * The Markdown copy of the project the {@code compile} goal wrote, packaged instead of the sources.
+     *
+     * @throws MojoFailureException when the copy is not found: the {@code compile} goal did not run with the same
+     *                              setting
+     */
+    private File markdownCopy() throws MojoFailureException {
+        if (!markdownDirectory.isDirectory()) {
+            throw new MojoFailureException("""
+                    The Markdown copy of the project is not found in '%s'. \
+                    The 'compile' goal writes it when 'markdown' is on.""".formatted(markdownDirectory));
+        }
+        info("Packaging the Markdown copy of the project from '", markdownDirectory, "'");
+        return markdownDirectory;
     }
 
     /**

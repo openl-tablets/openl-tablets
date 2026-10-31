@@ -1,0 +1,9 @@
+<project>
+    <name>Markdown Packaging</name>
+    <modules>
+        <module>
+            <name>Rates</name>
+            <rules-root path="rules/Rates.xlsx"/>
+        </module>
+    </modules>
+</project>

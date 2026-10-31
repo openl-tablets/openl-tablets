@@ -281,7 +281,6 @@
                 <groupId>org.commonmark</groupId>
                 <artifactId>commonmark</artifactId>
                 <version>${commonmark.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.commonmark</groupId>
@@ -293,7 +292,6 @@
                 <groupId>org.commonmark</groupId>
                 <artifactId>commonmark-ext-gfm-tables</artifactId>
                 <version>${commonmark.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.commonmark</groupId>

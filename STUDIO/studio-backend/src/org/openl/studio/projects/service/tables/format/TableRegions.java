@@ -47,6 +47,17 @@ public record TableRegions(List<RawTableRegion> regions,
     }
 
     /**
+     * Whether the header text is written in its pieces: the pieces reach to its end. A header with no pieces, or with
+     * pieces of another text, is written as plain text.
+     *
+     * @param header the header text
+     * @return {@code true} when the header text is split into the pieces
+     */
+    boolean splits(String header) {
+        return !signature.isEmpty() && signature.getLast().to() == header.length();
+    }
+
+    /**
      * A cell of the table.
      *
      * @param row    the row, in table coordinates

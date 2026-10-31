@@ -78,8 +78,9 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
         var writable = TablePropertyRules.writable(table.getType());
         properties.forEach(property -> requireWritable(declared, writable, property));
         var gridTable = table.getGridTable();
-        // Laid out before the properties move the body, which the table is then formatted in as a save of it is.
-        var layout = formatting.onSave() ? RegionShift.ofCompiled(table) : null;
+        // Laid out before the properties move the body, which the table is then formatted in as a save of it is. A
+        // table of a Markdown module keeps no formatting.
+        var layout = formatting.onSave() && !MarkdownTables.isMarkdown(table) ? RegionShift.ofCompiled(table) : null;
         gridTable.edit();
         try {
             var editor = new TableEditorModel(table);

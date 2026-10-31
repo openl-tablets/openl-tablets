@@ -1,5 +1,13 @@
 import { property } from './propertyFixture'
-import { IDENTIFIER, isValidPropertyValue, sheetNameFrom, toPropertyGroups } from './shared'
+import {
+    defaultModulePath,
+    destinationOf,
+    IDENTIFIER,
+    isValidPropertyValue,
+    sheetNameFrom,
+    toModuleOptions,
+    toPropertyGroups,
+} from './shared'
 
 describe('shared', () => {
     describe('IDENTIFIER', () => {
@@ -19,6 +27,43 @@ describe('shared', () => {
             expect(sheetNameFrom('  Spaced  ')).toBe('Spaced')
             // Trimming first, so leading spaces do not eat into the 31 characters a worksheet name may hold.
             expect(sheetNameFrom(`  ${'A'.repeat(40)}`)).toBe('A'.repeat(31))
+        })
+    })
+
+    describe('toModuleOptions', () => {
+        it('offers the workbooks and the folders of Markdown files, which take a table as a file of its own', () => {
+            const options = toModuleOptions([
+                { name: 'Rates', path: 'rules/Rates.xlsx' },
+                { name: 'Greetings', path: 'rules/Greetings.md' },
+                { name: 'Rating', path: 'rules/Rating' },
+                { path: 'rules/Unnamed.xlsx' },
+            ])
+
+            // A module of a single Markdown file holds its one table
+            expect(options).toEqual([
+                { name: 'Rates', path: 'rules/Rates.xlsx' },
+                { name: 'Rating', path: 'rules/Rating' },
+            ])
+        })
+    })
+
+    describe('destinationOf', () => {
+        it('tells a new module, a workbook and a folder of Markdown files apart', () => {
+            const modules = [{ name: 'Rates', path: 'rules/Rates.xlsx' }, { name: 'Rating', path: 'rules/Rating' }]
+
+            expect(destinationOf(modules, 'Rates')).toBe('workbook')
+            expect(destinationOf(modules, 'Rating')).toBe('markdown')
+            expect(destinationOf(modules, 'Loyalty')).toBe('new')
+        })
+    })
+
+    describe('defaultModulePath', () => {
+        it('names a workbook or a folder of Markdown files after the module', () => {
+            expect(defaultModulePath('Pricing')).toBe('rules/Pricing.xlsx')
+            expect(defaultModulePath('Pricing', 'Datatype', 'markdown')).toBe('rules/Pricing')
+            // A folder name with a dot would read as a file
+            expect(defaultModulePath(' Pricing v1.2 ', 'Test', 'markdown')).toBe('tests/Pricing v1-2')
+            expect(defaultModulePath('', 'Datatype', 'markdown')).toBe('rules/NewModule')
         })
     })
 

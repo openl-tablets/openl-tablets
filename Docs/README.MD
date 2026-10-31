@@ -26,9 +26,9 @@ Studio.
 
 - [Developer Guide](developer-guides/index.md) — rules projects, the business language, externalized configuration, and
   invoking rules from Java.
-- Reference sheets: [Table Types](ref/table-types.md), [Rules Project Structure](ref/project-structure.md),
-  [rules.xml](ref/rules.xml.md), [rules-deploy.xml](ref/rules-deploy.xml.md), and the
-  [OpenL Maven Plugin](ref/openl-maven-plugin.md).
+- Reference sheets: [Table Types](ref/table-types.md), [Markdown Tables](ref/markdown-tables.md),
+  [Rules Project Structure](ref/project-structure.md), [rules.xml](ref/rules.xml.md),
+  [rules-deploy.xml](ref/rules-deploy.xml.md), and the [OpenL Maven Plugin](ref/openl-maven-plugin.md).
 
 ## Contributing to OpenL Tablets
 
@@ -47,7 +47,7 @@ Studio.
   [Embedded User Guides](architecture/embedded-user-guides.md), the design of the
   [Built-in MCP Server](architecture/mcp-server.md) and its
   [internals](architecture/mcp-server-internals.md), [MCP File Transfer Links](architecture/mcp-file-transfer.md),
-  [Table Formatting](architecture/table-formatting.md),
+  [Table Formatting](architecture/table-formatting.md), [Markdown Modules](architecture/markdown-modules.md),
   [Stable Table Ids](architecture/table-ids.md), and [Stable Project Ids](architecture/project-ids.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),

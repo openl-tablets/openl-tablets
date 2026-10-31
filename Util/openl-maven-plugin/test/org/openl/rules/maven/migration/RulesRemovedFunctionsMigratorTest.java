@@ -147,6 +147,70 @@ class RulesRemovedFunctionsMigratorTest {
     }
 
     @Test
+    void rewritesRemovedFunctionsInMarkdownModule(@TempDir Path folder) throws Exception {
+        Files.writeString(folder.resolve("rules.xml"), """
+                <project>
+                    <name>migrate</name>
+                    <modules>
+                        <module>
+                            <name>Main</name>
+                            <rules-root path="rules/Main"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var module = Files.createDirectories(folder.resolve("rules/Main"));
+        var amount = Files.writeString(module.resolve("amount.md"), """
+                ---
+                table: Method Double amount(String text)
+                ---
+
+                Reads an amount.
+
+                ```java
+                return parseFormattedDouble(text);
+                ```
+                """);
+        var calc = Files.writeString(module.resolve("calc.md"), """
+                ---
+                table: Spreadsheet SpreadsheetResult calc(Date date)
+                ---
+
+                | Step | Value                        |
+                |------|------------------------------|
+                | Year | = dateToString(date, "yyyy") |
+                | Text | = dateToString(date)         |
+                """);
+
+        var changed = new RulesRemovedFunctionsMigrator().migrate(folder, context(folder));
+
+        assertEquals(Set.of(amount.toRealPath(), calc.toRealPath()), Set.copyOf(changed));
+        // The code is rewritten where the compiler found it; the text around the table stays as it is
+        assertEquals("""
+                ---
+                table: Method Double amount(String text)
+                ---
+
+                Reads an amount.
+
+                ```java
+                return (Double) toNumber(text);
+                ```
+                """, Files.readString(amount));
+        assertEquals("""
+                ---
+                table: Spreadsheet SpreadsheetResult calc(Date date)
+                ---
+
+                | Step | Value                        |
+                |------|------------------------------|
+                | Year | = toString(date, "yyyy")     |
+                | Text | = toString(date, "M/d/yy")   |
+                """, Files.readString(calc));
+        assertEquals(List.of(), errors(compile(folder)));
+    }
+
+    @Test
     void leavesProjectThatCompiles(@TempDir Path folder) throws Exception {
         var workbook = writeProject(folder, List.of(
                 List.of(row("Method String days(Integer n)"), row("return format(\"{0} days\", n);")),

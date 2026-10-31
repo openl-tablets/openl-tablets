@@ -276,7 +276,8 @@ Content-Type: application/json
 - A table that OpenL recognizes cannot be turned into one that it cannot parse: `400` with
   `openl.error.400.table.header.unrecognized.message`.
 - A table that is written as several partial tables is read but not written: `400` with
-  `openl.error.400.table.partial.message`. Excel edits such a table.
+  `openl.error.400.table.partial.message`. Excel edits such a table. A table of a Markdown module written in parts
+  gives `openl.error.400.table.markdown.partial.message`: each part is a file, changed on the Files tab.
 
 ### Append Rows
 
@@ -352,6 +353,10 @@ A formula that does not start with `=`, holds nothing after it, or Excel cannot 
 `openl.error.400.table.cell.formula.invalid.message`, and nothing is written. So is a formula OpenL Studio cannot
 compute, such as one calling a function it does not implement: OpenL reads the value a formula computed, and the cell
 would read as empty.
+
+A table of a Markdown module holds no Excel formulas, so a read returns none, and a `formula` written into it — by an
+edit, or by a table written whole or created — is refused with `openl.error.400.table.markdown.layout.message`, and
+nothing is written. Its OpenL formulas are values.
 
 ### Versions
 
@@ -468,6 +473,10 @@ the table or the request named the table by an id it had before.
   [Formulas](#formulas).
 - `openl.error.400.table.cell.formula.invalid.message` — a `formula` that Excel cannot read or OpenL Studio cannot
   compute; see [Formulas](#formulas).
+- `openl.error.400.table.markdown.style.message` — `marks`, or a `style` naming an attribute other than `indent`, on
+  a table of a Markdown module, whose file keeps no formatting.
+- `openl.error.400.table.markdown.layout.message` — the edit leaves a table of a Markdown module in a shape its file
+  cannot hold, or writes an Excel `formula` into it; the message tells why.
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
   of them; a mark without `from`, `to` or `color`, or with an unknown `color`.
 

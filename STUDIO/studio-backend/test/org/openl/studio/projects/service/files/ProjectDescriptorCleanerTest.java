@@ -84,6 +84,26 @@ class ProjectDescriptorCleanerTest {
     }
 
     @Test
+    void deletingFolderOfMarkdownModule_removesItsEntry() throws Exception {
+        givenDescriptor(descriptor(module("Model", "rules/Model"), module("Main", "rules/Main.xlsx")));
+
+        cleaner.unregisterModules(root, folder("rules/Model"));
+
+        var updated = writtenDescriptor();
+        assertEquals(1, updated.getModules().size());
+        assertEquals("Main", updated.getModules().getFirst().getName());
+    }
+
+    @Test
+    void deletingFolder_keepsModulesOfPathPatternsAndOfOtherFolders() throws Exception {
+        givenDescriptor(descriptor(module("All", "rules/*.xlsx"), module("Rulesets", "rulesets/Main.xlsx")));
+
+        cleaner.unregisterModules(root, folder("rules"));
+
+        verify(descriptorResource, never()).setContent(any());
+    }
+
+    @Test
     void deletingUnmatchedFile_keepsDescriptorUntouched() throws Exception {
         givenDescriptor(descriptor(module("Main", "rules/Main.xlsx")));
 
@@ -174,6 +194,13 @@ class ProjectDescriptorCleanerTest {
         module.setName(name);
         module.setRulesRootPath(rulesRootPath);
         return module;
+    }
+
+    private static AProjectFolder folder(String inProjectPath) {
+        AProjectFolder folder = mock(AProjectFolder.class);
+        when(folder.isFolder()).thenReturn(true);
+        when(folder.getInternalPath()).thenReturn(inProjectPath);
+        return folder;
     }
 
     private static AProjectResource excelFile(String inProjectPath) {

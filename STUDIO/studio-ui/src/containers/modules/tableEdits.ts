@@ -28,6 +28,8 @@ export type EditStep =
     | { kind: 'removeRow', at: number, lines: number }
     | { kind: 'insertColumn', at: number }
     | { kind: 'removeColumn', at: number, lines: number }
+    | { kind: 'merge', at: CellAt, rows: number, columns: number }
+    | { kind: 'unmerge', at: CellAt }
 
 /** What the reader has done, and what they took back and may put again. */
 interface EditBuffer {
@@ -54,6 +56,22 @@ export interface EditedTable {
     touched: Set<string>
     /** The styling the reader asked for, cell by cell, named by what they are. */
     styled: Map<string, RawCellStyleInput>
+    /** The cells the reader merged, named by the lines of their corners, so a line laid down or taken away moves them. */
+    merged: LinesMerged[]
+    /** The merges the table was read with that the reader took apart, named by the lines of their first cell. */
+    unmerged: LinesAt[]
+}
+
+/** A cell named by what its row and its column are, rather than by where they sit. */
+interface LinesAt {
+    rowId: string
+    columnId: string
+}
+
+/** A block of cells named by what the lines of its first and its last cell are. */
+interface LinesMerged extends LinesAt {
+    lastRowId: string
+    lastColumnId: string
 }
 
 /**
@@ -85,7 +103,7 @@ const idsOf = (count: number): string[] => Array.from({ length: count }, (_, ind
 const readAt = (id: string): number | null => (id.startsWith('o') ? Number(id.slice(1)) : null)
 
 /** A block of cells the workbook holds as one: where it starts, and how far it reaches. */
-interface Merge {
+export interface Merge {
     row: number
     column: number
     rows: number
@@ -115,7 +133,7 @@ const ACROSS: Axis = {
 }
 
 /** The merges of a table, read off the spans its cells carry. */
-const mergesOf = (rows: RawTableCell[][]): Merge[] => {
+export const mergesOf = (rows: RawTableCell[][]): Merge[] => {
     const merges: Merge[] = []
     rows.forEach((cells, row) => cells.forEach((cell, column) => {
         if (cell.covered !== true && ((cell.rowspan ?? 1) > 1 || (cell.colspan ?? 1) > 1)) {
@@ -281,6 +299,118 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
         case 'removeColumn':
             removeLines(state, ACROSS, step.at, step.lines)
             return added
+        case 'merge':
+            merge(state, { row: step.at.row, column: step.at.column, rows: step.rows, columns: step.columns })
+            return added
+        case 'unmerge':
+            unmerge(state, step.at)
+            return added
+    }
+}
+
+/** Whether a block of cells lies within another. */
+const within = (inner: Merge, outer: Merge): boolean =>
+    inner.row >= outer.row && inner.column >= outer.column
+    && inner.row + inner.rows <= outer.row + outer.rows && inner.column + inner.columns <= outer.column + outer.columns
+
+/** Whether two blocks of cells share a cell. */
+const overlap = (one: Merge, other: Merge): boolean =>
+    one.row < other.row + other.rows && other.row < one.row + one.rows
+    && one.column < other.column + other.columns && other.column < one.column + one.columns
+
+/**
+ * The block of cells between two corners, grown over every merge it reaches into, the way a spreadsheet grows a range
+ * picked across a merged cell: a merge is never cut in two.
+ *
+ * @param rows the table
+ * @param from one corner
+ * @param to   the other corner
+ * @returns the block of cells
+ */
+export const rangeOf = (rows: RawTableCell[][], from: CellAt, to: CellAt): Merge => {
+    let range: Merge = {
+        row: Math.min(from.row, to.row),
+        column: Math.min(from.column, to.column),
+        rows: Math.abs(from.row - to.row) + 1,
+        columns: Math.abs(from.column - to.column) + 1,
+    }
+    const merges = mergesOf(rows)
+    let grown = true
+    while (grown) {
+        const reached = merges.filter(merge => overlap(merge, range) && !within(merge, range))
+        grown = reached.length > 0
+        for (const merge of reached) {
+            const bottom = Math.max(range.row + range.rows, merge.row + merge.rows)
+            const right = Math.max(range.column + range.columns, merge.column + merge.columns)
+            const row = Math.min(range.row, merge.row)
+            const column = Math.min(range.column, merge.column)
+            range = { row, column, rows: bottom - row, columns: right - column }
+        }
+    }
+    return range
+}
+
+/** The values the cells of a block hold, each once: a merged cell keeps one of them, so it may hold one at most. */
+export const valuesIn = (rows: RawTableCell[][], block: Merge): string[] => {
+    const values = new Set<string>()
+    for (let row = block.row; row < block.row + block.rows; row++) {
+        for (let column = block.column; column < block.column + block.columns; column++) {
+            const value = rows[row]?.[column]?.value
+            if (value != null && String(value).trim() !== '') {
+                values.add(String(value))
+            }
+        }
+    }
+    return [...values]
+}
+
+/**
+ * Merges a block of cells. The merges within it are taken in, and the one value the block holds moves to its first
+ * cell, the way the workbook keeps it.
+ */
+const merge = (state: EditedTable, block: Merge): void => {
+    const value = state.rows.slice(block.row, block.row + block.rows)
+        .flatMap(cells => cells.slice(block.column, block.column + block.columns))
+        .map(cell => cell.value)
+        .find(held => held != null && String(held).trim() !== '')
+    const first = state.rows[block.row]?.[block.column]
+    const rowId = state.rowIds[block.row]
+    const columnId = state.columnIds[block.column]
+    const lastRowId = state.rowIds[block.row + block.rows - 1]
+    const lastColumnId = state.columnIds[block.column + block.columns - 1]
+    if (first === undefined || rowId === undefined || columnId === undefined || lastRowId === undefined
+            || lastColumnId === undefined) {
+        return
+    }
+    const { formula, ...kept } = first
+    const row = state.rows[block.row]
+    if (row !== undefined) {
+        row[block.column] = { ...kept, value: value ?? '' }
+    }
+    state.rows = laidOut(state.rows, [...mergesOf(state.rows).filter(standing => !within(standing, block)), block])
+    state.merged.push({ rowId, columnId, lastRowId, lastColumnId })
+}
+
+/**
+ * Takes apart the merge a cell lies in. Its first cell keeps the value, and the cells it reached over are blank.
+ *
+ * <p>A merge the reader made is forgotten, and one the table was read with is noted to be taken apart.
+ */
+const unmerge = (state: EditedTable, at: CellAt): void => {
+    const merges = mergesOf(state.rows)
+    const taken = merges.find(standing => within({ row: at.row, column: at.column, rows: 1, columns: 1 }, standing))
+    const rowId = taken === undefined ? undefined : state.rowIds[taken.row]
+    const columnId = taken === undefined ? undefined : state.columnIds[taken.column]
+    if (taken === undefined || rowId === undefined || columnId === undefined) {
+        return
+    }
+    state.rows = laidOut(state.rows.map(cells => cells.map(cell => (cell.covered === true ? { value: '' } : cell))),
+        merges.filter(standing => standing !== taken))
+    const made = state.merged.findIndex(merged => merged.rowId === rowId && merged.columnId === columnId)
+    if (made >= 0) {
+        state.merged.splice(made, 1)
+    } else {
+        state.unmerged.push({ rowId, columnId })
     }
 }
 
@@ -317,6 +447,8 @@ export const replay = (rows: RawTableCell[][], steps: EditStep[]): EditedTable =
         columnIds: idsOf(rows[0]?.length ?? 0),
         touched: new Set(),
         styled: new Map(),
+        merged: [],
+        unmerged: [],
     }
     let added = 0
     for (const step of steps) {
@@ -466,6 +598,52 @@ const valueEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[]
     return edits
 }
 
+/** Where a line named by what it is sits now, or undefined when the reader took it away. */
+const placeOf = (ids: string[], id: string): number | undefined => {
+    const at = ids.indexOf(id)
+    return at < 0 ? undefined : at
+}
+
+/** The merges of the table the reader took apart, addressed by their first cell as it stands now. */
+const unmergeEdits = (state: EditedTable): TableEdit[] => state.unmerged.flatMap(({ rowId, columnId }) => {
+    const row = placeOf(state.rowIds, rowId)
+    const column = placeOf(state.columnIds, columnId)
+    return row === undefined || column === undefined
+        ? []
+        : [{ operation: 'unmerge' as const, target: { type: 'cells' as const, row, column } }]
+})
+
+/**
+ * The cells the reader merged, addressed as they stand now.
+ *
+ * <p>The table refuses to merge cells holding different values, so the cells a merge reaches over that held a value
+ * when the table was read are cleared first. The value the merged cell ends with is written after it, among the cells
+ * the reader wrote.
+ */
+const mergeEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[] => state.merged.flatMap(merged => {
+    const row = placeOf(state.rowIds, merged.rowId)
+    const column = placeOf(state.columnIds, merged.columnId)
+    const lastRow = placeOf(state.rowIds, merged.lastRowId)
+    const lastColumn = placeOf(state.columnIds, merged.lastColumnId)
+    if (row === undefined || column === undefined || lastRow === undefined || lastColumn === undefined) {
+        return []
+    }
+    const clears: TableEdit[] = []
+    for (let at: number = row; at <= lastRow; at++) {
+        for (let along: number = column; along <= lastColumn; along++) {
+            const wasRow = readAt(state.rowIds[at] ?? '')
+            const wasColumn = readAt(state.columnIds[along] ?? '')
+            const was = wasRow === null || wasColumn === null ? undefined : original[wasRow]?.[wasColumn]
+            if ((at !== row || along !== column) && was?.covered !== true && !empty(was)) {
+                clears.push({ operation: 'update', target: { type: 'cell', row: at, column: along, value: '' } })
+            }
+        }
+    }
+    return [...clears, { operation: 'merge' as const, target: {
+        type: 'cells' as const, row, column, rowspan: lastRow - row + 1, colspan: lastColumn - column + 1,
+    } }]
+})
+
 /** The styling the reader asked for, addressed as the cells stand now. */
 const styleEdits = (state: EditedTable): TableEdit[] => {
     // The reader styles a few cells of a table that holds thousands, so the asking is read from what they
@@ -495,8 +673,8 @@ const styleEdits = (state: EditedTable): TableEdit[] => {
  *
  * <p>What the reader did is not sent step by step: the table as they left it is compared with the table that was
  * read, and only the difference crosses the wire. Rows and columns they took away go first, highest position
- * first so the ones before them do not move; what they added follows, carrying the values it ended with; then
- * the cells they wrote, and last the styling they asked for.
+ * first so the ones before them do not move; what they added follows, carrying the values it ended with; then the
+ * merges they took apart and the ones they made, the cells they wrote, and last the styling they asked for.
  *
  * <p>A cell written and written back to what it held produces nothing at all.
  */
@@ -509,6 +687,9 @@ export const compile = (original: RawTableCell[][], state: EditedTable): TableEd
     ...columnInserts(state),
     // An added row carries a cell per column, the added ones among them, so it goes in once they are there.
     ...rowInserts(state),
+    // Merges are taken apart before any is made, so cells merged again a different way are free to be.
+    ...unmergeEdits(state),
+    ...mergeEdits(original, state),
     ...valueEdits(original, state),
     ...styleEdits(state),
 ]

@@ -152,14 +152,13 @@ class TableIdAfterWriteTest {
         var sourceId = source.getId();
         var copier = new TableCopyServiceImpl(mock(SystemPropertiesService.class), new TableVersionService(),
                 mock(TableFormatting.class));
-        var creator = new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class));
+        var creator = new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class), null);
 
         // The copy is written below the source, then the source takes the properties of the version it stood for,
         // and moves below the copy: the two share what they are, and are told apart by their order.
         var grid = creator.sheetGridModel(model, SHEET);
         var copyId = copier.copyInto(source, "greet", List.of(new TableProperty("version", "0.0.2")), grid,
                 model.getTableSyntaxNodes());
-        creator.save(grid);
 
         var compiled = TableTestProjects.projectModel(dir);
         assertEquals(copyId, versionOf(compiled, "0.0.2").getId(), "the copy is known by the id it was given");

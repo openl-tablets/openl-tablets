@@ -3,18 +3,23 @@ package org.openl.studio.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.file.FileSystemException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
@@ -29,6 +34,7 @@ import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -42,6 +48,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import org.openl.excel.parser.markdown.MarkdownWriteException;
 import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
@@ -51,6 +58,10 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.model.ValidationError;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.TableTestProjects;
+import org.openl.studio.projects.service.tables.write.RawTableWriter;
 import org.openl.util.FileLockedException;
 
 class ApiExceptionControllerAdviceTest {
@@ -124,6 +135,45 @@ class ApiExceptionControllerAdviceTest {
         var error = assertInstanceOf(BaseError.class, response.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("openl.error.400.default.message", error.code);
+    }
+
+    @Test
+    void tableWithNoMarkdownFormIsRefusedAsTheClientsError(@TempDir Path project) throws IOException {
+        var advice = advice();
+        var request = new ServletWebRequest(new MockHttpServletRequest());
+        Files.writeString(project.resolve("rules.xml"), """
+                <project>
+                    <name>Values</name>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/Values"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var file = Files.createDirectories(project.resolve("rules/Values")).resolve("values.md");
+        Files.writeString(file, """
+                ---
+                table: Data String values
+                ---
+
+                | Value |
+                |-------|
+                | one   |
+                """);
+        var writer = new RawTableWriter(TableTestProjects.onlyTable(project));
+        // A cell of a Markdown table is one line of text: a break in a value has no Markdown form
+        var update = List.<RawTableSourceAction>of(new RawTableSourceAction.Update(new UpdateTarget.Cell(2, 0,
+                "one <br> two")));
+        var failure = assertThrows(MarkdownWriteException.class, () -> writer.apply(update));
+
+        var response = advice.handleMarkdownWrite(failure, request);
+
+        var error = assertInstanceOf(BaseError.class, response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("openl.error.400.table.markdown.layout.message", error.code);
+        assertEquals("The value 'one <br> two' cannot be written in a Markdown table: the table is not written.",
+                error.message);
     }
 
     @Test

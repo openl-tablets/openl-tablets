@@ -3,7 +3,6 @@ package org.openl.studio.projects.service.tables.format;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
@@ -28,8 +27,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableSignaturePart;
-import org.openl.studio.projects.model.tables.RawTableSignaturePiece;
-import org.openl.studio.projects.service.tables.format.TableStyle.Line;
 import org.openl.studio.projects.service.tables.format.WorkbookStyles.Edges;
 
 /**
@@ -294,9 +291,8 @@ public final class ExcelTableFormatter {
         private void writeRow(RawTableRegion region, int row, Set<Integer> groupRows, Set<Integer> groupColumns,
                               @Nullable Set<Integer> columns) {
             var style = TableStyle.of(region.role());
-            var bottom = table.getBottom() - table.getTop();
-            var edges = new Edges(topOf(style, region, row, groupRows), bottomOf(style, region, row, bottom), null);
-            var grouped = style.isHeaderPart() ? edges : new Edges(edges.top(), edges.bottom(), Line.GROUP);
+            var edges = Edges.of(style, region, row, groupRows, table.getBottom() - table.getTop());
+            var grouped = edges.grouped(style);
             var sheetRow = rowOf(table.getTop() + row);
             if (columns == null) {
                 for (var column = region.left(); column <= region.right(); column++) {
@@ -307,21 +303,6 @@ public final class ExcelTableFormatter {
                     write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges);
                 }
             }
-        }
-
-        /** The line above a cell of a region: the line of its role on its first row, or the line above a group. */
-        private static @Nullable Line topOf(TableStyle style, RawTableRegion region, int row, Set<Integer> groups) {
-            var above = row == region.top() ? style.getLook().top() : null;
-            return above == null && groups.contains(row) ? Line.GROUP : above;
-        }
-
-        /**
-         * The line below a cell of a region: the line below its role at the bottom of the region, or the line closing
-         * the table.
-         */
-        private static @Nullable Line bottomOf(TableStyle style, RawTableRegion region, int row, int bottom) {
-            var below = row == region.bottom() ? style.getLook().bottom() : null;
-            return below == null && row == bottom ? Line.ROLE : below;
         }
 
         /** The row of the sheet, created when it has none. */
@@ -374,7 +355,7 @@ public final class ExcelTableFormatter {
                 return;
             }
             var text = cell.getStringCellValue();
-            TextMarks.writeText(cell, covers(regions.signature(), text) ? inPieces(text) : new XSSFRichTextString(text));
+            TextMarks.writeText(cell, regions.splits(text) ? inPieces(text) : new XSSFRichTextString(text));
         }
 
         /** The header text, a run of its own font for each piece. */
@@ -391,17 +372,10 @@ public final class ExcelTableFormatter {
             return rich;
         }
 
-        private static boolean covers(List<RawTableSignaturePiece> pieces, String text) {
-            return !pieces.isEmpty() && pieces.getLast().to() == text.length();
-        }
-
-        /** The font of a piece of the header: the name bold, the names of the parameters in the text colour. */
+        /** The font of a piece of the header. */
         private XSSFFont pieceFont(RawTableSignaturePart part) {
-            return switch (part) {
-                case NAME -> styles.pieceFont(true, TableStyle.Look.TEXT);
-                case PARAMETER_NAME -> styles.pieceFont(false, TableStyle.Look.TEXT);
-                case KEYWORD, TYPE, PUNCTUATION, PARAMETER_TYPE -> styles.pieceFont(false, TableStyle.Look.MUTED);
-            };
+            var piece = TableStyle.Piece.of(part);
+            return styles.pieceFont(piece.bold(), piece.colour());
         }
     }
 }

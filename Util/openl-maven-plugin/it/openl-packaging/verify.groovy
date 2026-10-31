@@ -29,6 +29,7 @@ try {
             'Packaging tests',
             'Manifest Generation',
             'Jar Packaging',
+            'Markdown Packaging',
             'Projects without Excel files',
             'Package tests classifier',
     ].each { name ->
@@ -227,6 +228,26 @@ try {
         assert fileNames.contains('META-INF/MANIFEST.MF')
         assert fileNames.contains('tests/MyTests.xlsx')
         assert zf.entries().findAll { !it.directory }.size() == 2
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // openl-markdown-package: the workbook is compiled and tested as it is, then packaged as a
+    // module folder of Markdown files, a table to a file, which the verification deploys.
+    // ---------------------------------------------------------------------------------------
+    def markdown = sections['openl-markdown-package']
+    assert markdown.any { it.contains("module 'Rates' rules/Rates.xlsx (") && it.contains(') -> rules/Rates (2 files, ') }
+    assert markdown.any { it.contains('Total tests run: 2, Failures: 0, Errors: 0') }
+    assert markdown.any { it.contains("Packaging the Markdown copy of the project from '") }
+    assert markdown.any { it.contains("Verification is passed for 'org.openl.internal:openl-markdown-package' artifact.") }
+    new ZipFile(new File(folder, 'openl-markdown-package/target/openl-markdown-package-0.0.0.zip')).withCloseable { closeable ->
+        ZipFile zf = closeable as ZipFile
+        def fileNames = zf.entries().findAll { !it.directory }.collect { it.name }
+        assert fileNames.contains('rules/Rates/rate.md')
+        assert fileNames.contains('rules/Rates/rateTest.md')
+        assert !fileNames.any { it.endsWith('.xlsx') }
+        def rulesXml = zf.getInputStream(zf.getEntry('rules.xml')).text
+        assert rulesXml.contains('rules/Rates"') || rulesXml.contains('rules/Rates<')
+        assert !rulesXml.contains('Rates.xlsx')
     }
 
     return true

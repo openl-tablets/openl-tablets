@@ -27,3 +27,4 @@ Verify content against source code, not existing docs:
 - `IXlsTableNames.java` — table type keywords
 - `RulesDeploy.java` — rules-deploy.xml model
 - `ProjectDescriptor.java` — rules.xml model
+- `MarkdownTableParser.java`, `MarkdownFolderModule.java` — the Markdown table format and module folders

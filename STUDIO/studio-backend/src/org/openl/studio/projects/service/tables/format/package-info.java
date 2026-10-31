@@ -6,7 +6,9 @@
  * {@link org.openl.studio.projects.service.tables.format.ExcelTableFormatter} writes the style of each role into the
  * workbook from them, so the screen and the file show a table alike.
  *
- * <p>A table is laid out once for each compilation of it. Only {@code .xlsx} workbooks are formatted.
+ * <p>A table is laid out once for each compilation of it. Only {@code .xlsx} workbooks are formatted. A table whose
+ * file keeps no formatting, a table of a Markdown module, is read in the style through
+ * {@link org.openl.studio.projects.service.tables.format.StyledGrid}, as if it were formatted.
  */
 @NullMarked
 package org.openl.studio.projects.service.tables.format;

@@ -433,7 +433,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     Marks are offered for a text, an expression and a text of several lines, in every cell of a table but its
     header. A value written as a number, a date, a value chosen from a list, or an Excel formula keeps no marks.
-    Marks are saved to `.xlsx` files only: a table of an `.xls` file offers no marks.
+    Marks are saved to `.xlsx` files only: a table of an `.xls` file or of a Markdown file offers no marks.
 3.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell. A formula entered here is an OpenL formula, such as
@@ -444,7 +444,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     To enter an MS Excel formula, such as `=B2*C2`, select **Excel Formula Editor** in the same list. The formula is
     saved as an MS Excel formula, and OpenL reads the value MS Excel computes for it. A cell that holds an MS Excel
     formula opens in **Excel Formula Editor**. As in MS Excel, a value typed there without `=` replaces the formula;
-    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor.
+    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor. A
+    Markdown file holds no MS Excel formulas, so a table of a Markdown module does not offer **Excel Formula Editor**.
 
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
 

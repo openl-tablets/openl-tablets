@@ -66,6 +66,36 @@ class ProjectDescriptorTest {
     }
 
     @Test
+    void wildcardMatchesAFolderOfMarkdownFilesAsAModuleOfItsOwn(@TempDir Path projectFolder) throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules/Auto-CA"));
+        Files.createDirectories(projectFolder.resolve("rules/Auto-NY/Rates"));
+        Files.createDirectories(projectFolder.resolve("rules/Auto-TX"));
+        Files.write(projectFolder.resolve("rules/Auto-CA/rate.md"), new byte[0]);
+        // The Markdown file of a folder can lie in a sub-folder of it
+        Files.write(projectFolder.resolve("rules/Auto-NY/Rates/rate.md"), new byte[0]);
+        // A folder of no Markdown file is no module
+        Files.write(projectFolder.resolve("rules/Auto-TX/rate.xlsx"), new byte[0]);
+        Files.write(projectFolder.resolve("rules/Auto-FL.xlsx"), new byte[0]);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+        var wildcardModule = new Module();
+        wildcardModule.setRulesRootPath("rules/Auto-*");
+
+        var modules = descriptor.getAllModulesMatchingPathPattern(wildcardModule, "rules/Auto-*");
+
+        assertEquals(List.of("rules/Auto-CA", "rules/Auto-FL.xlsx", "rules/Auto-NY"),
+                modules.stream().map(Module::getRulesRootPath).toList());
+        assertEquals(List.of("Auto-CA", "Auto-FL", "Auto-NY"), modules.stream().map(Module::getName).toList());
+        // The files of a module folder belong to it: none is a module of its own
+        assertEquals(List.of("rules/Auto-CA", "rules/Auto-NY"),
+                descriptor.getAllModulesMatchingPathPattern(wildcardModule, "rules/**")
+                        .stream()
+                        .map(Module::getRulesRootPath)
+                        .filter(path -> !path.endsWith(".xlsx"))
+                        .toList());
+    }
+
+    @Test
     void readsAPathDeclaredWithBackslashesAsSlashes() {
         var declared = """
                 <project>

@@ -378,8 +378,9 @@ inside a marked piece takes its mark; one without is written in the plain field.
 
 - `marks` absent — a new value is written as plain text, and an unchanged value keeps the marks it has.
 - `marks: []` — the value is written with no marks.
-- Marks are refused with `400` on the header, on a value that is not a text, out of the text or overlapping, and in
-  an `.xls` workbook, whose tables the editor offers no marks for. A text the cell type turns into a number, or an Excel formula, keeps no marks.
+- Marks are refused with `400` on the header, on a value that is not a text, out of the text or overlapping, in
+  an `.xls` workbook and in a Markdown file, whose tables the editor offers no marks for. A text the cell type turns
+  into a number, or an Excel formula, keeps no marks.
 
 The read returns the marks as the `runs` of the cell, like any other rich text; a client tells a mark by its bold
 and its colour.
@@ -417,6 +418,10 @@ unique header texts, which OpenL tables cannot guarantee.
   formatting.
 - **An `.xlsx` without a theme part** — files written by tools other than Excel may have none. The writer adds the
   Office theme first (POI `StylesTable.ensureThemesTable`), so the theme references resolve as Excel resolves them.
+- **A Markdown file** — keeps no formatting, so nothing is written into it. A read with the styles lays the style over
+  a table of a Markdown module instead (`StyledGrid`): each cell takes the look of its role, the lines at the edges of
+  its region and the pieces of the header, as `ExcelTableFormatter` writes them, in the colours of the Office theme.
+  The Excel look draws the table as a workbook formatted on save shows it.
 
 ## The two looks on the screen
 
@@ -481,7 +486,8 @@ Code keeps the table's proportional font. A monospace font would widen every col
 
 The grid draws each cell format from the style dictionary of the response. Theme colours are resolved on the
 server with the workbook's own theme, so the client receives plain colours. Shared borders are not merged on the
-server: the grid collapses them as Excel does, the wider line winning.
+server: the grid collapses them as Excel does, the wider line winning. A table of a Markdown module comes in the
+OpenL table style the read lays over it, see [Files the style is not written to](#files-the-style-is-not-written-to).
 
 Both looks write the text in the font of the application, at the size the screen gives tables, whatever font the
 workbook names: the read carries no font name or size.

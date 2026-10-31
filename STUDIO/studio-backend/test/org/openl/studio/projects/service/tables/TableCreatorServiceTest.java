@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -16,7 +17,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,11 +38,16 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import org.openl.excel.parser.markdown.MarkdownWriteException;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
@@ -63,6 +71,8 @@ class TableCreatorServiceTest {
     private final SystemPropertiesService systemPropertiesService = mock(SystemPropertiesService.class);
     private final RulesProject project = mock(RulesProject.class);
     private final FileRoot root = mock(FileRoot.class);
+    private final MarkdownTableFiles markdownTableFiles = new MarkdownTableFiles(projectFilesService,
+            projectFileRootFactory);
     private final Map<String, byte[]> createdResources = new LinkedHashMap<>();
     private final Map<String, byte[]> updatedResources = new LinkedHashMap<>();
 
@@ -78,7 +88,7 @@ class TableCreatorServiceTest {
                 tableWriterExecutor,
                 projectFilesService,
                 projectFileRootFactory,
-                systemPropertiesService, mock(TableFormatting.class));
+                systemPropertiesService, mock(TableFormatting.class), markdownTableFiles);
         when(systemPropertiesService.onCreate()).thenReturn(Map.of());
         when(projectFileRootFactory.of(project)).thenReturn(root);
         when(project.getBusinessName()).thenReturn("Example");
@@ -105,6 +115,30 @@ class TableCreatorServiceTest {
         var error = assertThrows(NullPointerException.class, () -> service.sheetGridModel(model, "Sheet1"));
 
         assertEquals("The module is not compiled", error.getMessage());
+    }
+
+    @Test
+    void refusesToWriteATableIntoAMarkdownModule() {
+        var model = mock(ProjectModel.class);
+        var moduleNode = mock(XlsModuleSyntaxNode.class);
+        var workbookNode = mock(WorkbookSyntaxNode.class);
+        // The first workbook of the module may be an Excel file it includes: the module itself decides
+        var included = mock(XlsWorkbookSourceCodeModule.class);
+        when(model.getXlsModuleNode()).thenReturn(moduleNode);
+        when(moduleNode.getWorkbookSyntaxNodes()).thenReturn(new WorkbookSyntaxNode[]{workbookNode});
+        when(workbookNode.getWorkbookSourceCodeModule()).thenReturn(included);
+        when(included.getUri()).thenReturn("file:/projects/Example/rules/Rates.xlsx");
+        var module = new Module();
+        module.setName("Rating");
+        module.setRulesRootPath("rules/Rating.md");
+        when(model.getModuleInfo()).thenReturn(module);
+
+        var error = assertThrows(BadRequestException.class, () -> service.sheetGridModel(model, "Sheet1"));
+
+        // A module of one Markdown file holds its one table, and is never a sheet POI writes on.
+        assertEquals("openl.error.400.table.markdown.destination.message", error.getErrorCode());
+        assertArrayEquals(new Object[]{"Rating"}, error.getArgs());
+        verify(included, never()).getWorkbook();
     }
 
     @Test
@@ -490,7 +524,7 @@ class TableCreatorServiceTest {
         var formatting = mock(TableFormatting.class);
         when(formatting.onSave()).thenReturn(true);
         var formatted = new TableCreatorService(tableWritersFactory, tableWriterExecutor, projectFilesService,
-                projectFileRootFactory, systemPropertiesService, formatting);
+                projectFileRootFactory, systemPropertiesService, formatting, markdownTableFiles);
         var regions = List.of(
                 new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 1),
                 new RawTableRegion(RawTableRole.INPUT_TITLE, null, 1, 0, 1, 0),
@@ -521,7 +555,7 @@ class TableCreatorServiceTest {
         var formatting = mock(TableFormatting.class);
         when(formatting.onSave()).thenReturn(true);
         var formatted = new TableCreatorService(tableWritersFactory, tableWriterExecutor, projectFilesService,
-                projectFileRootFactory, systemPropertiesService, formatting);
+                projectFileRootFactory, systemPropertiesService, formatting, markdownTableFiles);
         var request = request("rules/Greeting.xlsx", rawTable(mergedHeader()));
 
         formatted.createModuleWithTable(project, simpleDescriptor(), request, (RawTableView) request.table());
@@ -617,6 +651,132 @@ class TableCreatorServiceTest {
         }
     }
 
+    @Test
+    void writesATableOfAMarkdownModuleIntoAFileOfItsOwn() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(Map.of("createdBy", "jane"));
+        var request = new CreateNewTableRequest("Greetings", null, null, premium(), null);
+
+        var id = markdownCreator().createTable(request, markdownModule());
+
+        assertEquals(List.of("rules/Greetings/Premium.md"), createdResources.keySet().stream().toList());
+        // The properties the table is stamped with go into the front matter, the rows of the body into the table
+        assertEquals("""
+                ---
+                table: SmartRules String Premium(Integer age)
+                properties:
+                  createdBy: jane
+                ---
+
+                | Age | Premium |
+                |---|---|
+                | 0-17 | Low |
+                | 18-120 | High |
+                """, written("rules/Greetings/Premium.md"));
+        // The editor opens the new table by the id the module compiles it under
+        assertEquals(compiled("Premium").getId(), id);
+    }
+
+    @Test
+    void writesATableOfAMarkdownModuleIntoTheFolderItsSheetNames() throws Exception {
+        var request = new CreateNewTableRequest("Greetings", "rates", null, premium(), null);
+
+        var id = markdownCreator().createTable(request, markdownModule());
+
+        assertEquals(List.of("rules/Greetings/rates/Premium.md"), createdResources.keySet().stream().toList());
+        written("rules/Greetings/rates/Premium.md");
+        assertEquals(compiled("Premium").getId(), id);
+    }
+
+    @Test
+    void createsAModuleOfMarkdownFilesForAPathThatIsNoWorkbook() throws Exception {
+        var request = new CreateNewTableRequest("Greeting", "rates", "rules/Greetings", rawTable(mergedHeader()), null);
+
+        createModuleWithTable(simpleDescriptor(), request);
+
+        // The sheet is the folder of the file in the module
+        assertEquals(List.of("rules/Greetings/rates/Greeting.md", ProjectDescriptor.FILE_NAME),
+                createdResources.keySet().stream().toList());
+        assertEquals("""
+                ---
+                table: Rules Boolean Greeting()
+                ---
+
+                | Condition | Result |
+                |---|---|
+                | true | true |
+                """, new String(createdResources.get("rules/Greetings/rates/Greeting.md"), StandardCharsets.UTF_8));
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(
+                createdResources.get(ProjectDescriptor.FILE_NAME)));
+        assertEquals(List.of("Main.xlsx", "rules/Greetings"),
+                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
+    void refusesAMarkdownModuleWhoseMergesReachPastTheTableOrOverlap() {
+        var descriptor = simpleDescriptor();
+        var overlapping = request("rules/Greetings", rawTable(List.of(
+                List.of(cell("Rules Boolean Greeting()", 3), RawTableCell.COVERED_CELL, RawTableCell.COVERED_CELL),
+                List.of(cell("Condition", 2), cell("Result", 2), RawTableCell.COVERED_CELL),
+                List.of(cell("true"), cell("true"), cell("true")))));
+        var oversized = request("rules/Greetings", rawTable(List.of(
+                List.of(cell("Rules Boolean Greeting()", 2), RawTableCell.COVERED_CELL),
+                List.of(RawTableCell.builder().value("Condition").rowspan(Integer.MAX_VALUE).build(), cell("Result")),
+                List.of(RawTableCell.COVERED_CELL, cell("true")))));
+
+        for (var request : List.of(overlapping, oversized)) {
+            var error = assertThrows(BadRequestException.class, () -> createModuleWithTable(descriptor, request));
+            assertEquals("openl.error.400.table.new-module.merge-range.message", error.getErrorCode());
+        }
+        verify(projectFilesService, never()).createResource(any(), anyString(), any(), anyBoolean());
+    }
+
+    @Test
+    void refusesAMarkdownModuleWhoseTableHoldsAnExcelFormula() {
+        var descriptor = simpleDescriptor();
+        var request = request("rules/Greetings", rawTable(List.of(
+                List.of(cell("Rules Boolean Greeting()", 2), RawTableCell.COVERED_CELL),
+                List.of(cell("Condition"), cell("Result")),
+                List.of(cell("true"), RawTableCell.builder().value(true).formula("=TRUE()").build()))));
+
+        // A Markdown file holds no Excel formulas: a text starting with = is an OpenL formula
+        var error = assertThrows(MarkdownWriteException.class, () -> createModuleWithTable(descriptor, request));
+
+        assertEquals("""
+                The Excel formula '=TRUE()' cannot be written in a Markdown table, which holds values and OpenL \
+                formulas""", error.getMessage());
+        verify(projectFilesService, never()).createResource(any(), anyString(), any(), anyBoolean());
+    }
+
+    @Test
+    void writesANewModuleOfMarkdownFilesWithItsFirstTable() throws Exception {
+        // The sheet of the module's own name is the module folder
+        var grid = service.newMarkdownModule(project, simpleDescriptor(), "Greetings", "rules/Greetings/", "Greetings",
+                "Greeting", TableKind.RULES);
+        grid.setCellValue(0, 0, "Rules Boolean Greeting()");
+        grid.setCellValue(0, 1, "Condition");
+        grid.setCellValue(0, 2, "true");
+
+        grid.save();
+
+        assertEquals(List.of("rules/Greetings/Greeting.md", ProjectDescriptor.FILE_NAME),
+                createdResources.keySet().stream().toList());
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(
+                createdResources.get(ProjectDescriptor.FILE_NAME)));
+        assertEquals(List.of("Main.xlsx", "rules/Greetings"),
+                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
+    void removesTheFolderOfAMarkdownModuleTheDescriptorFailedToTake() throws Exception {
+        mockBrokenDescriptor();
+        var request = request("rules/Greetings", rawTable(mergedHeader()));
+        var descriptor = simpleDescriptor();
+
+        assertThrows(BadRequestException.class, () -> createModuleWithTable(descriptor, request));
+
+        verify(projectFilesService).deleteResource(root, "rules/Greetings");
+    }
+
     private static Map<String, Object> stamp() {
         var stamped = new LinkedHashMap<String, Object>();
         stamped.put("createdBy", "jane");
@@ -634,6 +794,73 @@ class TableCreatorServiceTest {
         var descriptorResource = mock(AProjectResource.class);
         when(descriptorResource.getContent()).thenReturn(new ByteArrayInputStream("<broken".getBytes()));
         when(projectFilesService.getResource(root, ProjectDescriptor.FILE_NAME, null)).thenReturn(descriptorResource);
+    }
+
+    /** The creator writing tables for real, as the endpoint does. */
+    private TableCreatorService markdownCreator() {
+        var formatting = mock(TableFormatting.class);
+        return new TableCreatorService(new TableWritersFactory(formatting), new TableWriterExecutor(),
+                projectFilesService, projectFileRootFactory, systemPropertiesService, formatting, markdownTableFiles);
+    }
+
+    /** A compiled module written as a folder of Markdown files, holding one table. */
+    private ProjectModel markdownModule() throws Exception {
+        Files.writeString(dir.resolve(ProjectDescriptor.FILE_NAME), """
+                <project>
+                    <name>Greetings</name>
+                    <modules>
+                        <module>
+                            <name>Greetings</name>
+                            <rules-root path="rules/Greetings"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var folder = Files.createDirectories(dir.resolve("rules/Greetings/rates"));
+        Files.writeString(folder.resolveSibling("greeting.md"), """
+                ---
+                table: SmartRules String greeting(Integer hour)
+                ---
+
+                | Hour  | Greeting       |
+                |-------|----------------|
+                | 0-11  | Good Morning   |
+                | 12-23 | Good Afternoon |
+                """);
+        Files.writeString(folder.resolve("discount.md"), """
+                ---
+                table: SmartRules Double discount(Integer age)
+                ---
+
+                | Age    | Discount |
+                |--------|----------|
+                | 0-120  | 0.1      |
+                """);
+        return TableTestProjects.projectModel(dir);
+    }
+
+    /** Writes the created file into the project, returning its text. */
+    private String written(String path) throws IOException {
+        var text = new String(createdResources.get(path), StandardCharsets.UTF_8);
+        Files.writeString(dir.resolve(path), text);
+        return text;
+    }
+
+    /** The table of the project as a fresh compilation reads it. */
+    private IOpenLTable compiled(String name) {
+        return TableTestProjects.table(TableTestProjects.projectModel(dir), name);
+    }
+
+    private static RawTableView premium() {
+        return RawTableView.builder()
+                .kind(TableKind.RULES)
+                .name("Premium")
+                .source(List.of(
+                        List.of(cell("SmartRules String Premium(Integer age)", 2), RawTableCell.COVERED_CELL),
+                        List.of(cell("Age"), cell("Premium")),
+                        List.of(cell("0-17"), cell("Low")),
+                        List.of(cell("18-120"), cell("High"))))
+                .build();
     }
 
     private static CreateNewTableRequest request(String modulePath, RawTableView table) {

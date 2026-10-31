@@ -1,0 +1,8 @@
+<project>
+    <name>EPBDS-17019_Context_dispatching</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

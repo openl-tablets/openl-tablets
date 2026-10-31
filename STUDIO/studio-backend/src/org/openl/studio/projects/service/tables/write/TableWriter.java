@@ -258,14 +258,14 @@ public abstract class TableWriter<T extends TableView> {
             clearCells(gridTable);
             // The table is meant to be gone, so the area it occupied is left blank on purpose — saved past the
             // blank-line guard that every write goes through.
-            saveWorkbook((XlsSheetGridModel) gridTable.getGrid());
+            saveWorkbook((IWritableGrid) gridTable.getGrid());
         } finally {
             gridTable.stopEditing();
         }
     }
 
     private void clearCells(IGridTable gridTable) {
-        var grid = (XlsSheetGridModel) gridTable.getGrid();
+        var grid = (IWritableGrid) gridTable.getGrid();
         var region = gridTable.getRegion();
         for (var row = region.getTop(); row <= region.getBottom(); row++) {
             for (var col = region.getLeft(); col <= region.getRight(); col++) {
@@ -591,8 +591,11 @@ public abstract class TableWriter<T extends TableView> {
         var formatted = formatTable(position);
         // Read while the table is open for writing too: once saved, the sheet is read as it was compiled.
         writtenId = idAsWritten();
-        var grid = (XlsSheetGridModel) getGridTable().getGrid();
-        PoiExcelHelper.evaluateFormulas(grid.getSheetToWrite(), getGridTable().getRegion());
+        var grid = (IWritableGrid) getGridTable().getGrid();
+        if (grid instanceof XlsSheetGridModel workbook) {
+            // A Markdown file holds no Excel formulas to compute
+            PoiExcelHelper.evaluateFormulas(workbook.getSheetToWrite(), getGridTable().getRegion());
+        }
         saveWorkbook(grid);
         if (formatted != null) {
             FormattedTables.formatted(position, formatted);
@@ -670,14 +673,14 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     /**
-     * Persist the workbook the grid belongs to.
+     * Persist the file the grid belongs to: its workbook, or the text of a Markdown file.
      *
      * <p>Writes what the grid holds as it stands. A caller writing a table saves through {@link #save()} instead,
      * which first refuses a table left split by a blank line.
      */
-    public static void saveWorkbook(XlsSheetGridModel gridModel) {
+    public static void saveWorkbook(IWritableGrid grid) {
         try {
-            gridModel.getSheetSource().getWorkbookSource().save();
+            grid.save();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }

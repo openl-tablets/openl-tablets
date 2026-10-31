@@ -37,11 +37,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.util.WebUtils;
 
+import org.openl.excel.parser.markdown.MarkdownWriteException;
 import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
 import org.openl.studio.audit.model.AuditTargetType;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.common.exception.RestRuntimeException;
@@ -155,6 +157,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     public @Nullable ResponseEntity<Object> handleInvalidPath(InvalidPathException e, WebRequest request) {
         log.debug(e.getMessage(), e);
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    /**
+     * A table whose layout has no Markdown form cannot be written into its file. The table is the client's, so the
+     * refusal is a client error that names what keeps it from being written.
+     */
+    @ExceptionHandler(MarkdownWriteException.class)
+    public ResponseEntity<BaseError> handleMarkdownWrite(MarkdownWriteException e, WebRequest request) {
+        return handleAllRestRuntimeExceptions(new BadRequestException("table.markdown.layout.message",
+                new Object[]{e.getMessage()}), request);
     }
 
     @ExceptionHandler({Exception.class, RuntimeException.class})

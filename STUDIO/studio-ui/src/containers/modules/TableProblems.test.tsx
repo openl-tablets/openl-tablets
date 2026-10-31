@@ -33,6 +33,14 @@ describe('TableProblems', () => {
         expect(screen.getByTestId('table-problems-partial')).toHaveTextContent('browser.module.partial_table')
     })
 
+    it('sends the reader to the files of the parts of a Markdown table', () => {
+        render(<TableProblems markdown partial messages={[]} />)
+
+        // The parts of a Markdown table are files of their own, changed as text rather than in Excel
+        expect(screen.getByTestId('table-problems-partial'))
+            .toHaveTextContent('browser.module.partial_markdown_table')
+    })
+
     it('counts what the table raised, and lists it by severity', () => {
         const raised = [
             message(1, 'ERROR', 'Identifier is not found'),

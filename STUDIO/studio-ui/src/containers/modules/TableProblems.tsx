@@ -92,6 +92,8 @@ interface TableProblemsProps {
      * whole point of the notice — the reader is otherwise left wondering why nothing can be edited.
      */
     partial?: boolean
+    /** Set on a table of a Markdown file, whose parts are files changed as text rather than in Excel. */
+    markdown?: boolean
 }
 
 /**
@@ -101,7 +103,14 @@ interface TableProblemsProps {
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
  */
-export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, partial = false }: TableProblemsProps) => {
+export const TableProblems = ({
+    messages,
+    onEditCell,
+    onStacktrace,
+    cellText,
+    partial = false,
+    markdown = false,
+}: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
@@ -154,7 +163,7 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, pa
                         {partial && (
                             <div className={styles.partial} data-testid="table-problems-partial">
                                 <WarningFilled className={styles.warningMark} />
-                                {t('browser.module.partial_table')}
+                                {t(markdown ? 'browser.module.partial_markdown_table' : 'browser.module.partial_table')}
                             </div>
                         )}
                         <CompileMessages

@@ -13,15 +13,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellReference;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.project.model.Module;
@@ -29,23 +33,26 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.util.FileTypeHelper;
 
 /**
  * Shared compile-and-rewrite helper used by every {@code rules.*} migrator, such as
- * {@link RulesRemovedFunctionsMigrator}. It rewrites the rules code in the workbooks of the project that fails to
- * compile with an error one of the fixes is for.
+ * {@link RulesRemovedFunctionsMigrator}. It rewrites the rules code in the workbooks and the Markdown files of the
+ * project that fails to compile with an error one of the fixes is for.
  * <p>
  * Only the code the compiler rejects is changed, so a valid call that looks like a removed one, such as a call of a
  * rule of the project named {@code dateToString}, stays as it is. The compiler names the cell of each error and the
  * piece of its text,
  * a row of a Method table body included. An error in the code a table generates from its cells is left for a manual
- * fix. Only the workbooks of the modules of the project are changed, not those of a dependency.
+ * fix. Only the files of the modules of the project are changed, not those of a dependency. A Markdown file keeps
+ * its text but for the rows of the table that changed.
  * <p>
  * The project is compiled again after the rewrite, until no fix applies, so a removed call inside the arguments of
  * another one is rewritten too.
  *
  * @author Yury Molchan
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 final class RulesCodeIO {
 
@@ -54,14 +61,11 @@ final class RulesCodeIO {
      */
     private static final int MAX_PASSES = 10;
 
-    private RulesCodeIO() {
-    }
-
     /**
      * Rewrites the code that fails to compile with an error one of the fixes is for, and emits a
-     * {@code Migrate: …} info line for each rewritten workbook.
+     * {@code Migrate: …} info line for each rewritten file.
      *
-     * @return the rewritten workbooks; empty when no fix applied or the folder holds no project
+     * @return the rewritten files; empty when no fix applied or the folder holds no project
      */
     static List<Path> rewrite(Migrator migrator, Path sourceFolder, MigrationContext context, List<CodeFix> fixes)
             throws IOException {
@@ -93,8 +97,8 @@ final class RulesCodeIO {
     }
 
     /**
-     * Collects the edits of the errors the fixes apply to, by workbook. An error reported twice, as by a module and
-     * by the project that holds it, gives one edit.
+     * Collects the edits of the errors the fixes apply to, by file. An error reported twice, as by a module and by the
+     * project that holds it, gives one edit.
      */
     private static Map<Path, Set<Edit>> edits(List<Module> modules,
                                               Collection<OpenLMessage> messages,
@@ -125,7 +129,7 @@ final class RulesCodeIO {
                 .map(fix -> fix.fix(piece, error.getError().getCause()))
                 .filter(Objects::nonNull)
                 .findFirst()
-                .map(replacement -> new Edit(module.getRulesPath(),
+                .map(replacement -> new Edit(fileOf(module, range.uri()),
                         url.getWsName(),
                         url.getCell(),
                         code,
@@ -136,32 +140,53 @@ final class RulesCodeIO {
     }
 
     /**
-     * Applies the edits to the workbook and saves it when a cell changed.
+     * The file the code of a cell is written in: the workbook of the module, or the Markdown file of a module folder
+     * the cell belongs to.
      *
-     * @return {@code true} when the workbook is rewritten
+     * @param uri the URI of the cell, which names the file within the module after the module itself
+     */
+    private static Path fileOf(Module module, String uri) {
+        var rules = module.getRulesPath();
+        if (!Files.isDirectory(rules)) {
+            return rules;
+        }
+        var inFolder = uri.substring(module.getRelativeUri().length());
+        var query = inFolder.indexOf('?');
+        return Path.of(rules.toUri().resolve(query < 0 ? inFolder : inFolder.substring(0, query)));
+    }
+
+    /**
+     * Applies the edits to the file and saves it when a cell changed.
+     *
+     * @return {@code true} when the file is rewritten
      */
     private static boolean apply(Path file, Set<Edit> edits) throws IOException {
+        return FileTypeHelper.isMarkdownFile(file.toString())
+                ? applyToMarkdown(file, edits)
+                : applyToWorkbook(file, edits);
+    }
+
+    /**
+     * Applies the edits to the cells of a workbook.
+     * <p>
+     * The new text keeps the style of the cell and is stored as a shared string, also in a cell that held an inline
+     * string.
+     */
+    private static boolean applyToWorkbook(Path file, Set<Edit> edits) throws IOException {
         var bytes = new ByteArrayOutputStream();
         try (var in = Files.newInputStream(file); var workbook = WorkbookFactory.create(in)) {
-            var cells = new LinkedHashMap<Cell, List<CellEdit>>();
-            for (var edit : edits) {
+            var changed = rewrite(file, edits, edit -> {
                 var sheet = workbook.getSheet(edit.sheet());
-                var located = sheet == null ? null : locate(sheet, edit);
-                if (located == null) {
-                    log.warn("Cannot find '{}' in {}!{} of {}. Rewrite it with '{}'.",
-                            edit.piece(),
-                            edit.sheet(),
-                            edit.cell(),
-                            file.getFileName(),
-                            edit.replacement());
-                } else {
-                    cells.computeIfAbsent(located.cell(), x -> new ArrayList<>()).add(located);
-                }
-            }
-            var changed = false;
-            for (var entry : cells.entrySet()) {
-                changed |= replace(entry.getKey(), entry.getValue());
-            }
+                var reference = new CellReference(edit.cell());
+                var cell = sheet == null ? null : PoiExcelHelper.getCell(reference.getCol(), reference.getRow(), sheet);
+                return cell == null || cell.getCellType() != CellType.STRING
+                        ? null
+                        : new CellText(cell.getStringCellValue(), text -> {
+                            // POI changes only the cached value of an inline string, which readers ignore
+                            cell.setBlank();
+                            cell.setCellValue(text);
+                        });
+            });
             if (!changed) {
                 return false;
             }
@@ -172,29 +197,91 @@ final class RulesCodeIO {
     }
 
     /**
-     * Finds the piece in the cell. The cell holds the text the compiler read the code from, or, for a text read from
-     * somewhere else, holds it once.
+     * Applies the edits to the table of a Markdown file. Only the rows that changed are written; the rest of the
+     * file keeps its text.
      */
-    private static @Nullable CellEdit locate(Sheet sheet, Edit edit) {
-        var reference = new CellReference(edit.cell());
-        var cell = PoiExcelHelper.getCell(reference.getCol(), reference.getRow(), sheet);
-        var text = cell == null || cell.getCellType() != CellType.STRING ? null : cell.getStringCellValue();
-        var at = text == null ? -1 : text.indexOf(edit.code());
-        return at < 0 || text.indexOf(edit.code(), at + 1) >= 0
-                ? null
-                : new CellEdit(cell, at + edit.start(), edit.piece(), edit.replacement());
+    private static boolean applyToMarkdown(Path file, Set<Edit> edits) throws IOException {
+        var grid = MarkdownGrid.read(file.toUri().toString(),
+                Files.readString(file),
+                text -> Files.writeString(file, text));
+        var changed = rewrite(file, edits, edit -> {
+            var reference = new CellReference(edit.cell());
+            var text = grid.getCell(reference.getCol(), reference.getRow()).getStringValue();
+            return text == null
+                    ? null
+                    : new CellText(text, value -> grid.setCellValue(reference.getCol(), reference.getRow(), value));
+        });
+        if (changed) {
+            grid.save();
+        }
+        return changed;
     }
 
     /**
-     * Replaces the pieces in the cell, from the last one to the first, so that the positions of the others stay
-     * valid. A piece that is no longer in its place, or that overlaps another one, as the same piece reported twice,
-     * is left as it is.
-     * <p>
-     * The new text keeps the style of the cell and is stored as a shared string, also in a cell that held an inline
-     * string.
+     * Rewrites the pieces of the edits in the cells that hold them.
+     *
+     * @param cellOf the cell an edit is in, or {@code null} for a cell that holds no text
+     * @return {@code true} when a cell changed
      */
-    private static boolean replace(Cell cell, List<CellEdit> edits) {
-        var text = cell.getStringCellValue();
+    private static boolean rewrite(Path file, Set<Edit> edits, Function<Edit, @Nullable CellText> cellOf) {
+        var byCell = edits.stream()
+                .collect(Collectors.groupingBy(edit -> edit.sheet() + "!" + edit.cell(),
+                        LinkedHashMap::new,
+                        Collectors.toList()));
+        var changed = false;
+        for (var entry : byCell.entrySet()) {
+            var cell = cellOf.apply(entry.getValue().getFirst());
+            changed |= rewrite(file, entry.getKey(), cell, entry.getValue());
+        }
+        return changed;
+    }
+
+    /**
+     * Rewrites the pieces of the edits in one cell.
+     *
+     * @return {@code true} when the cell changed
+     */
+    private static boolean rewrite(Path file, String where, @Nullable CellText cell, List<Edit> edits) {
+        var located = new ArrayList<CellEdit>();
+        for (var edit : edits) {
+            var piece = cell == null ? null : locate(cell.text(), edit);
+            if (piece == null) {
+                log.warn("Cannot find '{}' in {} of {}. Rewrite it with '{}'.",
+                        edit.piece(),
+                        where,
+                        file.getFileName(),
+                        edit.replacement());
+            } else {
+                located.add(piece);
+            }
+        }
+        var text = cell == null ? null : replaced(where, cell.text(), located);
+        if (cell == null || text == null) {
+            return false;
+        }
+        cell.writer().accept(text);
+        return true;
+    }
+
+    /**
+     * Finds the piece in the text of a cell. The cell holds the text the compiler read the code from, or, for a text
+     * read from somewhere else, holds it once.
+     */
+    private static @Nullable CellEdit locate(String text, Edit edit) {
+        var at = text.indexOf(edit.code());
+        return at < 0 || text.indexOf(edit.code(), at + 1) >= 0
+                ? null
+                : new CellEdit(at + edit.start(), edit.piece(), edit.replacement());
+    }
+
+    /**
+     * Replaces the pieces in the text of a cell, from the last one to the first, so that the positions of the others
+     * stay valid. A piece that is no longer in its place, or that overlaps another one, as the same piece reported
+     * twice, is left as it is.
+     *
+     * @return the text with the pieces replaced, or {@code null} when none was
+     */
+    private static @Nullable String replaced(String where, String text, List<CellEdit> edits) {
         var result = new StringBuilder(text);
         var limit = text.length();
         var replaced = false;
@@ -205,19 +292,10 @@ final class RulesCodeIO {
                 result.replace(edit.offset(), end, edit.replacement());
                 limit = edit.offset();
                 replaced = true;
-                log.info("{}!{}: {} -> {}",
-                        cell.getSheet().getSheetName(),
-                        cell.getAddress().formatAsString(),
-                        edit.piece(),
-                        edit.replacement());
+                log.info("{}: {} -> {}", where, edit.piece(), edit.replacement());
             }
         }
-        if (replaced) {
-            // POI changes only the cached value of an inline string, which readers ignore
-            cell.setBlank();
-            cell.setCellValue(result.toString());
-        }
-        return replaced;
+        return replaced ? result.toString() : null;
     }
 
     /**
@@ -228,8 +306,14 @@ final class RulesCodeIO {
     }
 
     /**
+     * The text of a cell, and how a new text is written into the cell.
+     */
+    private record CellText(String text, Consumer<String> writer) {
+    }
+
+    /**
      * The replacement of the piece that starts at the position in the text of a cell.
      */
-    private record CellEdit(Cell cell, int offset, String piece, String replacement) {
+    private record CellEdit(int offset, String piece, String replacement) {
     }
 }

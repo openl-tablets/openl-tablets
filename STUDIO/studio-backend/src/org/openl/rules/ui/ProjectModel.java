@@ -1,6 +1,9 @@
 package org.openl.rules.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,6 +99,7 @@ import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
+import org.openl.util.FileTypeHelper;
 
 @Slf4j
 public class ProjectModel {
@@ -832,6 +836,9 @@ public class ProjectModel {
     /**
      * Keeps the writes to a workbook in the history of a module of this project. A workbook already listened to is
      * left alone, and a model outside a workspace keeps no history.
+     *
+     * <p>A write to a Markdown file marks the project modified, but keeps no history yet: the files of a module folder
+     * would share the history of the module, which tells no file from another.
      */
     private void listen(XlsWorkbookSourceCodeModule workbook, Module module) {
         if (workbook.getListeners().stream().anyMatch(XlsModificationListener.class::isInstance)) {
@@ -840,7 +847,8 @@ public class ProjectModel {
         var repository = getLocalRepository();
         var storagePath = historyFolderOf(module);
         if (repository != null && storagePath != null) {
-            workbook.addListener(new XlsModificationListener(repository, storagePath));
+            var history = FileTypeHelper.isMarkdownFile(workbook.getUri()) ? null : storagePath;
+            workbook.addListener(new XlsModificationListener(repository, history));
         }
     }
 
@@ -1493,8 +1501,24 @@ public class ProjectModel {
             return false;
         }
         var modificationTime = moduleLastModified;
-        moduleLastModified = moduleInfo.getRulesPath().toFile().lastModified();
+        moduleLastModified = lastModified(moduleInfo.getRulesPath());
         return modificationTime != moduleLastModified;
+    }
+
+    /**
+     * When a module was changed last. A module written as a folder changes with any file in it, while the folder
+     * itself keeps its time when a file is rewritten.
+     */
+    static long lastModified(Path module) {
+        if (!Files.isDirectory(module)) {
+            return module.toFile().lastModified();
+        }
+        try (var files = Files.walk(module)) {
+            return files.mapToLong(file -> file.toFile().lastModified()).max().orElse(0);
+        } catch (IOException | UncheckedIOException e) {
+            // Unreadable: taken as changed, so the module is compiled again
+            return -1;
+        }
     }
 
     private CompiledOpenClass validate(ProjectDescriptor projectDescriptor) throws RulesInstantiationException {
@@ -1672,10 +1696,10 @@ public class ProjectModel {
     /**
      * Notes whether the files of the open project changed since it was compiled.
      *
-     * <p>A workbook added to the modules of the project, or one taken away, and a changed project descriptor are
-     * changes: the modules compiled are not the modules the project declares now. The descriptor is read again from
-     * the project folder, which costs a read of the folder, so this runs when the repository tells that its files
-     * changed, and {@link #isChangedOnDisk()} answers what it noted.
+     * <p>A workbook added to the modules of the project, or one taken away, a Markdown file added to a module folder,
+     * and a changed project descriptor are changes: the modules compiled are not the modules the project declares now.
+     * The descriptor is read again from the project folder, which costs a read of the folder, so this runs when the
+     * repository tells that its files changed, and {@link #isChangedOnDisk()} answers what it noted.
      *
      * <p>A descriptor that cannot be read any more is a change too: compiling the project again tells why.
      */
@@ -1699,7 +1723,7 @@ public class ProjectModel {
      *
      * @param folder     the project folder
      * @param descriptor the size and the modification time of the project descriptor, or {@code null} without one
-     * @param workbooks  the workbooks of the modules of the project
+     * @param workbooks  the workbooks of the modules of the project, and the Markdown files of its module folders
      */
     private record ProjectFiles(Path folder, @Nullable String descriptor, Set<Path> workbooks) {
 
@@ -1712,8 +1736,21 @@ public class ProjectModel {
                     .map(Module::getRulesPath)
                     .filter(Objects::nonNull)
                     .map(path -> path.toAbsolutePath().normalize())
+                    .flatMap(ProjectFiles::filesOf)
                     .collect(Collectors.toUnmodifiableSet());
             return new ProjectFiles(folder, stamp, workbooks);
+        }
+
+        /** The workbook of a module, or the Markdown files of a module folder; the folder when it cannot be read. */
+        private static Stream<Path> filesOf(Path module) {
+            if (!Files.isDirectory(module)) {
+                return Stream.of(module);
+            }
+            try (var files = Files.walk(module)) {
+                return files.filter(file -> FileTypeHelper.isMarkdownFile(file.toString())).toList().stream();
+            } catch (IOException | UncheckedIOException e) {
+                return Stream.of(module);
+            }
         }
     }
 
@@ -1778,10 +1815,14 @@ public class ProjectModel {
     private final class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
-        private final String storagePath;
+        /** Where the history of the workbook is kept, or {@code null} when it keeps none. */
+        private final @Nullable String storagePath;
 
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            if (storagePath == null) {
+                return;
+            }
             var sourceFile = workbookSourceCodeModule.getSourceFile();
             ProjectHistoryService.init(storagePath, sourceFile);
             // Another program may have written the file since the history took it: the history keeps that version
@@ -1799,8 +1840,10 @@ public class ProjectModel {
             isModified();
             var sourceFile = workbookSourceCodeModule.getSourceFile();
             repository.getProjectState(sourceFile.getPath()).notifyModified();
-            ProjectHistoryService.save(storagePath, sourceFile);
-            keptInHistory.put(sourceFile, stampOf(sourceFile));
+            if (storagePath != null) {
+                ProjectHistoryService.save(storagePath, sourceFile);
+                keptInHistory.put(sourceFile, stampOf(sourceFile));
+            }
         }
 
         private static String stampOf(File file) {
