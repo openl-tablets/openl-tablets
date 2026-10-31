@@ -77,14 +77,15 @@ class MarkdownModuleWriterTest {
         assertEquals(List.of(), written.leftOut());
         assertEquals(List.of("Rates/rate.md", "Model/Driver.md", "Model/drivers.md", "Model/Adult.md", "Constants.md"),
                 written.files().stream().map(file -> module.relativize(file).toString().replace('\\', '/')).toList());
+        // The description of a table of the workbook is the text above the table of its file
         assertEquals("""
                 ---
                 table: SmartRules Double rate(Integer age, String state)
-                properties:
-                  description: Rates by age
                 merges:
                   - A2:A3
                 ---
+
+                Rates by age
 
                 | Age | State | Rate |
                 |---|---|---|

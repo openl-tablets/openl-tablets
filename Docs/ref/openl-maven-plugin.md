@@ -106,6 +106,8 @@ with its workbooks written as Markdown. The setting is off by default.
   the text for each level, `&nbsp;&nbsp;SET`.
 - The Environment tables of a workbook are joined in the one `Environment.md` of its module, and so are its Constants
   tables in `Constants.md`; a Properties table is written as any other table, in the folder of its sheet.
+- The `description` property of a table is written as the text between the front matter and the table, where a
+  Markdown file holds a description; the other properties go into the front matter.
 - A Markdown file keeps no formatting, comments or formulas: a cell keeps the value its formula computed. A table of
   no kind OpenL knows, such as a note, is kept as text in the `notes.md` file of its sheet.
 - A value is written as its text, and a whole number, a boolean and a date read back as the values of the types the

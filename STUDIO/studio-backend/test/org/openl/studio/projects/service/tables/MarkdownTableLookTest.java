@@ -33,10 +33,10 @@ class MarkdownTableLookTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            properties:
-              description: Greeting by the hour
             merges: [A3:A4]
             ---
+
+            Greeting by the hour
 
             | Hour  | Greeting       |
             |-------|----------------|

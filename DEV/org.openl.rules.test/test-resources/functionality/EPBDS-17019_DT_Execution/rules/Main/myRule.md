@@ -3,7 +3,7 @@ table: Rules MyObject myRule()
 merges: [C1:D1, C2:D2]
 ---
 
-Markdown copy of `EPBDS-13605_DT_Execution.xlsx`: a decision table whose return spans two parameters.
+> Markdown copy of `EPBDS-13605_DT_Execution.xlsx`: a decision table whose return spans two parameters.
 
 | Rule     | C1                                          | RET1                  |                |
 |----------|---------------------------------------------|-----------------------|----------------|

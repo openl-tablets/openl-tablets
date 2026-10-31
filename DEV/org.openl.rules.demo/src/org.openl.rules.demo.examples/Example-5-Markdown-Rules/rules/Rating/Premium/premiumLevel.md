@@ -1,10 +1,10 @@
 ---
 table: SmartRules String premiumLevel(Double premium)
-properties:
-  description: How expensive a premium is
 ---
 
-The first row the premium matches gives its level. An empty condition matches any premium.
+How expensive a premium is.
+
+> The first row the premium matches gives its level. An empty condition matches any premium.
 
 | Premium | Level  |
 |---------|--------|

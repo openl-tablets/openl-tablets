@@ -137,7 +137,8 @@ A module can be a folder of Markdown files, one table per file. The format is sp
 [Markdown Modules](../Docs/architecture/markdown-modules.md).
 
 **Rules**: a file reads as a workbook of one sheet, laid out as Excel holds the table, so nothing above the reader
-knows about Markdown — keep it so. A save writes only the keys and rows that changed (`MarkdownTableWriter`), and what
+knows about Markdown — keep it so. A save writes only the keys, the description and the rows that changed
+(`MarkdownTableWriter`; the description is the text above the table, `MarkdownDescription`), and what
 a file cannot hold is refused with the reason (`SheetLayout`), never dropped. A change of the format updates the
 specification, the JavaDoc of `MarkdownTableParser` and the README of `Example-5-Markdown-Rules`.
 

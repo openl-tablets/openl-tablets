@@ -40,40 +40,50 @@ rules/
 ---
 table: SmartRules Double ageFactor(Integer age)
 properties:
-  description: The younger or the older the driver, the higher the risk
+  tags: age
 merges:
   - A1:B1
 ---
 
-Text before or after the table is documentation.
+The younger or the older the driver, the higher the risk.
+
+> A comment for the authors: no part of the description.
 
 | Age |     | Factor |
 |-----|-----|--------|
 | 0   | 25  | 1.5    |
 | 25  | 65  | 1      |
 | 65  | 120 | 1.2    |
+
+Text after the table is documentation.
 ```
 
 | Part | What it holds | Rule |
 |---|---|---|
 | Front matter | The header of the table, YAML between two `---` lines | Starts on the first line of the file |
+| Description | The text between the front matter and the body: the `description` property of the table | Taken as written; blocks of text joined with a blank line |
+| Comment | A quote (`> …`) or an HTML comment (`<!-- … -->`) above the body | Not compiled, no part of the description |
 | Body | The first GFM table, or the first code block, after the front matter | Every row is a body row, the first one too |
 | Code block | The body of a `Method` table, one cell | Any fence language; a new file writes `java` |
-| No body | A table of a header alone | `Datatype Adult extends Driver` |
-| Anything else | Documentation: not compiled | Paragraphs, headings, comments |
+| No body | A table of a header alone; the text after its front matter is its description | `Datatype Adult extends Driver` |
+| Text after the body | Documentation: not compiled | Paragraphs, headings, tables |
 
 - One table per file: only the first GFM table or code block is the body. Rows a blank line cuts off it are a problem.
 - A file without front matter is documentation as a whole, even with a GFM table in it.
+- A line of a description starting with `>`, a code fence or `|` is written with `\` before it, as Markdown escapes it,
+  so it is not taken for a comment, a code block or the body.
 
 ## Front Matter Keys
 
 | Key | Value | Example |
 |---|---|---|
 | `table` | The text of the first table cell, the header | `table: Rules String greeting(Integer hour)` |
-| `properties` | The table properties, `name: value` one to a line under it | `properties:` then `  description: Rates` |
+| `properties` | The table properties but the description, `name: value` one to a line under it | `properties:` then `  tags: rates` |
 | `merges` | The merged ranges of the body, one to a line under it, in A1 notation | `merges:` then `  - A1:B1` |
 
 - Any other key is a problem: the table is read without it, and the key stays in the file as written.
+- The description is never a property of the front matter: a `description` under `properties` is a problem, and the
+  table is read without it.
 - Values are read as written: `NO` stays `NO`; a list is joined with commas.
 - A YAML comment, `# SPDX-License-Identifier: Apache-2.0`, may stand in the front matter.
 
@@ -123,6 +133,7 @@ Text before or after the table is documentation.
 | `The front matter has no 'table' key with the header of the table` | Line 1 | No table |
 | `The properties of the table must be a set of 'name: value' lines under 'properties'` | The key | No table |
 | `'<key>' is not a key of the front matter: a table property is written under 'properties'` | The key | Key ignored |
+| `The description of a table is the text between the front matter and the table, not a property under 'properties'` | The property | Property ignored |
 | `The row has more cells than the first row of the table` | The row | Extra cells ignored |
 | `A blank line cuts these rows off the table above. Remove it: a file holds one table` | The rows | Rows ignored |
 | `The Environment table of a module is written in Environment.md at the root of the module folder` | The table | Error |
@@ -137,8 +148,9 @@ Text before or after the table is documentation.
 |---|---|
 | Change a cell, a row, a column | Only the rows that changed are written; the rest keep their text |
 | Change a property, merge or unmerge cells | Only the keys that changed are written |
+| Change the description | The text above the table is written where its first block stood; the comments stay |
 | Create a table | A new file named after the table, in the folder of its category |
-| Copy a table | Between workbooks and Markdown modules, both ways: the table alone, without the text around it |
+| Copy a table | Between workbooks and Markdown modules, both ways: the table and its description, without the comments and the text after it |
 | Remove a table | The file is deleted; the last table of a module stays |
 | Change the look | Refused: a file keeps no formatting; OpenL Studio draws the table in the OpenL table style |
 | Write an Excel formula | Refused: a text starting with `=` is an OpenL formula, written as it is |

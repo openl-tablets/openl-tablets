@@ -4,11 +4,13 @@ import java.io.StringReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.SequencedMap;
 import java.util.Set;
 
 import lombok.AccessLevel;
@@ -25,9 +27,12 @@ import org.openl.util.StringUtils;
 /**
  * Writes a table back into the text of its Markdown file.
  *
- * <p>Only the front matter and the body of the table are written; the text around them stays as it is. What did not
- * change keeps its text too: a key of the front matter whose value is the same, and a row of the body whose cells
- * are the same. So a change to a cell touches its row alone, and the file stays easy to compare and to merge.
+ * <p>Only the front matter, the description and the body of the table are written; the comments and the text after the
+ * body stay as they are. What did not change keeps its text too: a key of the front matter whose value is the same,
+ * the description while it is the same, and a row of the body whose cells are the same. So a change to a cell touches
+ * its row alone, and the file stays easy to compare and to merge.
+ *
+ * <p>The description is the text between the front matter and the body, never a property of the front matter.
  *
  * <p>The merged ranges are written a range to a line under the {@code merges} key, in reading order, so a range added
  * or taken away is a line of its own. The same ranges keep their lines, in whatever order the file lists them.
@@ -96,14 +101,20 @@ final class MarkdownTableWriter {
         var text = new ArrayList<String>();
         text.add(DELIMITER);
         text.add(rendered(TABLE, table.header()));
-        if (!table.properties().isEmpty()) {
+        var properties = frontMatterProperties(table);
+        if (!properties.isEmpty()) {
             text.add(PROPERTIES + ":");
-            table.properties().forEach((name, value) -> text.add(INDENT + rendered(name, value)));
+            properties.forEach((name, value) -> text.add(INDENT + rendered(name, value)));
         }
         if (!table.merges().isEmpty()) {
             text.addAll(mergesLines(table.merges()));
         }
         text.add(DELIMITER);
+        var description = MarkdownDescription.linesOf(descriptionOf(table));
+        if (!description.isEmpty()) {
+            text.add("");
+            text.addAll(description);
+        }
         text.addAll(newBody(table));
         // The file ends with a line break, as a text file does
         text.add("");
@@ -117,10 +128,79 @@ final class MarkdownTableWriter {
         var lines = file.lines();
         var body = file.body();
         var text = new ArrayList<>(frontMatter(file, table));
-        text.addAll(lines.subList(file.frontMatterEnd() + 1, body.firstLine()));
+        text.addAll(beforeBody(file, table));
         text.addAll(body(file, table));
         text.addAll(lines.subList(body.lastLine() + 1, lines.size()));
         return String.join(file.lineSeparator(), text);
+    }
+
+    /**
+     * Returns the properties written in the front matter: all but the description, which is the text above the body.
+     */
+    private static SequencedMap<String, String> frontMatterProperties(RulesTable table) {
+        var properties = new LinkedHashMap<>(table.properties());
+        properties.remove(MarkdownDescription.PROPERTY);
+        return properties;
+    }
+
+    private static @Nullable String descriptionOf(RulesTable table) {
+        return table.properties().get(MarkdownDescription.PROPERTY);
+    }
+
+    // Description
+
+    /**
+     * Returns the lines between the front matter and the body: as they are while the description is the same.
+     *
+     * <p>A changed description is written where the first block of the description stands, and the other blocks of
+     * the description are taken away; the comments stay. A description written into a file without one goes right
+     * after the front matter. A block taken away takes a blank line beside it along, so no blank lines pile up.
+     */
+    private static List<String> beforeBody(TableFile file, RulesTable table) {
+        var lines = file.lines();
+        var from = file.frontMatterEnd() + 1;
+        var to = file.body().firstLine();
+        if (Objects.equals(descriptionOf(file.table()), descriptionOf(table))) {
+            return lines.subList(from, to);
+        }
+        var description = MarkdownDescription.linesOf(descriptionOf(table));
+        var blocks = file.description();
+        var text = new ArrayList<String>();
+        if (blocks.isEmpty()) {
+            text.add("");
+            text.addAll(description);
+            if (from == to || !lines.get(from).isBlank()) {
+                text.add("");
+            }
+            text.addAll(lines.subList(from, to));
+            return text;
+        }
+        var afterTakenAway = false;
+        for (var line = from; line < to; line++) {
+            var block = blockAt(blocks, line);
+            if (block == null) {
+                // The blank line after a block taken away goes with it
+                if (!afterTakenAway || !lines.get(line).isBlank()) {
+                    text.add(lines.get(line));
+                }
+                afterTakenAway = false;
+            } else {
+                var rewritten = block == blocks.getFirst() && !description.isEmpty();
+                if (rewritten && line == block.firstLine()) {
+                    text.addAll(description);
+                }
+                afterTakenAway = !rewritten && line == block.lastLine();
+            }
+        }
+        // A block taken away with no blank line after it takes the one before it
+        if (afterTakenAway && !text.isEmpty() && text.getLast().isBlank()) {
+            text.removeLast();
+        }
+        return text;
+    }
+
+    private static TableFile.@Nullable Block blockAt(List<TableFile.Block> blocks, int line) {
+        return blocks.stream().filter(block -> block.holds(line)).findFirst().orElse(null);
     }
 
     // Front matter
@@ -156,7 +236,8 @@ final class MarkdownTableWriter {
      * property keeps its lines when its value is the same, and a new one is indented as the others are.
      */
     private static List<String> properties(TableFile file, RulesTable table) {
-        if (table.properties().isEmpty()) {
+        var properties = frontMatterProperties(table);
+        if (properties.isEmpty()) {
             return List.of();
         }
         var written = file.propertyKeys();
@@ -170,9 +251,8 @@ final class MarkdownTableWriter {
         var text = new ArrayList<String>();
         text.add(block.map(key -> file.lines().get(key.line())).orElse(PROPERTIES + ":"));
         var indent = block.map(key -> indentOf(file.lines().get(written.getFirst().line()))).orElse(INDENT);
-        table.properties()
-                .forEach((name, value) -> text.addAll(block.flatMap(key -> writtenProperty(file, key, name, value))
-                        .orElseGet(() -> List.of(indent + rendered(name, value)))));
+        properties.forEach((name, value) -> text.addAll(block.flatMap(key -> writtenProperty(file, key, name, value))
+                .orElseGet(() -> List.of(indent + rendered(name, value)))));
         return text;
     }
 
@@ -199,7 +279,8 @@ final class MarkdownTableWriter {
     }
 
     private static boolean sameProperties(RulesTable original, RulesTable table) {
-        return List.copyOf(original.properties().entrySet()).equals(List.copyOf(table.properties().entrySet()));
+        return List.copyOf(frontMatterProperties(original).entrySet())
+                .equals(List.copyOf(frontMatterProperties(table).entrySet()));
     }
 
     /**

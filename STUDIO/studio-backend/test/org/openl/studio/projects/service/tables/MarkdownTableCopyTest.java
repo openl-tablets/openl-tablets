@@ -40,12 +40,12 @@ class MarkdownTableCopyTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            properties:
-              description: Greeting by the hour
             merges: [A3:A4]
             ---
 
-            Picks a greeting.
+            Greeting by the hour
+
+            > Picks a greeting.
 
             | Hour  | Greeting       |
             |-------|----------------|
@@ -96,15 +96,15 @@ class MarkdownTableCopyTest {
         var copyId = copier.copyInto(TableTestProjects.table(model, "greeting"), "salutation", null,
                 newFile(model, "salutation"), model.getTableSyntaxNodes());
 
-        // The text around the table stays with the source: the copy is the table alone, its properties kept
+        // The comments and the text after the table stay with the source: the copy is the table with its description
         assertEquals("""
                 ---
                 table: SmartRules String salutation(Integer hour)
-                properties:
-                  description: Greeting by the hour
                 merges:
                   - A3:A4
                 ---
+
+                Greeting by the hour
 
                 | Hour | Greeting |
                 |---|---|

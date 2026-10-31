@@ -2,7 +2,7 @@
 table: SmartRules Double myRule(MyCoverage covera)
 ---
 
-Rules2 has no properties.
+> Rules2 has no properties.
 
 | coverInfo | Result |
 |-----------|--------|

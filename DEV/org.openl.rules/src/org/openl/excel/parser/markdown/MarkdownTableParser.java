@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.commonmark.node.BlockQuote;
 import org.commonmark.node.FencedCodeBlock;
+import org.commonmark.node.HtmlBlock;
 import org.commonmark.node.Node;
 import org.commonmark.node.Paragraph;
 import org.commonmark.parser.IncludeSourceSpans;
@@ -37,16 +39,21 @@ import org.openl.util.StringUtils;
  * range to a line under it. Values are read as written: {@code NO} stays {@code NO}, and a list is joined with commas.
  * Any other key is a problem: the table is read without it.
  *
+ * <p>The text between the front matter and the body is the description of the table, its {@code description}
+ * property; a quote and an HTML comment there are comments, and no part of it (see {@link MarkdownDescription}). A
+ * {@code description} under {@code properties} is a problem: the table is read without it.
+ *
  * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
  * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with
- * neither holds a table of a header alone, such as a {@code Datatype} that adds no field to its parent.
+ * neither holds a table of a header alone, such as a {@code Datatype} that adds no field to its parent; the text after
+ * its front matter is its description.
  *
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
  * {@code \|} gives a vertical bar and {@code <br>} a line break. A whole number, {@code true} and {@code false}, and a
  * date, in a cell or a property, read as the values a cell of a workbook holds, and any other text as a text, see
  * {@link MarkdownValues}.
  *
- * <p>Everything else in the file is documentation. A file without front matter is documentation as a whole.
+ * <p>The text after the body is documentation. A file without front matter is documentation as a whole.
  *
  * <p>A file that breaks the format in the front matter holds no table. One that breaks it in the body, or in the
  * merged ranges, keeps the table without the part that breaks it: a merged range that does not fit, the cells of a
@@ -124,22 +131,28 @@ final class MarkdownTableParser {
         if (end == lines.size()) {
             throw error(1, "The front matter is not closed with a line of '---'");
         }
-        var header = readHeader(String.join("\n", lines.subList(1, end)));
+        var written = readHeader(String.join("\n", lines.subList(1, end)));
 
         // The front matter is blanked out rather than cut off, so the lines keep their numbers.
         var body = new ArrayList<>(lines);
         Collections.fill(body.subList(0, end + 1), "");
         var document = PARSER.parse(String.join("\n", body));
         var node = document.getFirstChild();
+        var description = new ArrayList<TableFile.Block>();
         while (node != null && !(node instanceof TableLines) && !(node instanceof FencedCodeBlock)) {
+            if (!isComment(node)) {
+                description.add(blockOf(node));
+            }
             node = node.getNext();
         }
+        var header = described(written, MarkdownDescription.of(lines, description));
         // A table with no table nor code block after its front matter has a header alone
         var table = readTable(header, node);
         if (node != null) {
             checkNotSplit(node);
         }
         var separator = LINE_SEPARATOR.matcher(text);
+        var afterDescription = description.isEmpty() ? end + 1 : description.getLast().lastLine() + 1;
         return Optional.of(new TableFile(text,
                 lines,
                 separator.find() ? separator.group() : "\n",
@@ -147,8 +160,36 @@ final class MarkdownTableParser {
                 end,
                 keysOf(header, table),
                 header.propertyKeys(),
-                node == null ? new TableFile.NoBody(end + 1) : bodyOf(node),
+                List.copyOf(description),
+                node == null ? new TableFile.NoBody(afterDescription) : bodyOf(node),
                 List.copyOf(problems)));
+    }
+
+    /**
+     * Tells a comment: a quote, or an HTML comment, which a preview does not show.
+     */
+    private static boolean isComment(Node node) {
+        return node instanceof BlockQuote || node instanceof HtmlBlock html && html.getLiteral().startsWith("<!--");
+    }
+
+    private static TableFile.Block blockOf(Node node) {
+        var spans = node.getSourceSpans();
+        return new TableFile.Block(spans.getFirst().getLineIndex(), spans.getLast().getLineIndex());
+    }
+
+    /**
+     * Returns the header with the description of the table first among its properties, as the description is the
+     * first thing written about the table.
+     */
+    private static Header described(Header header, @Nullable String description) {
+        if (description == null) {
+            return header;
+        }
+        var properties = new LinkedHashMap<String, String>();
+        properties.put(MarkdownDescription.PROPERTY, description);
+        properties.putAll(header.properties());
+        return new Header(header.text(), properties, header.merges(), header.mergesLine(), header.keys(),
+                header.propertyKeys());
     }
 
     /**
@@ -242,7 +283,14 @@ final class MarkdownTableParser {
             var keyLine = firstLine + tuple.getKeyNode().getStartMark().getLine();
             var name = scalar(tuple.getKeyNode(), keyLine);
             var value = String.join(",", values(tuple.getValueNode(), keyLine));
-            properties.put(name, value);
+            if (MarkdownDescription.PROPERTY.equals(name)) {
+                // The table is read without it
+                problem(keyLine, """
+                        The description of a table is the text between the front matter and the table, not a \
+                        property under '%s'""".formatted(PROPERTIES), null);
+            } else {
+                properties.put(name, value);
+            }
             keys.add(new TableFile.Key(name, value, keyLine - 1));
         }
     }
