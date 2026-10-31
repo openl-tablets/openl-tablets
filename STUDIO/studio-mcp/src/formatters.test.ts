@@ -203,6 +203,17 @@ describe("formatters", () => {
       expect(outline).not.toContain("Injected (");
     });
 
+    it.each([
+      ["a fence indented as code", ["    ```", "## After"]],
+      ["a closing fence with text after it", ["```", "```typescript", "## Inside", "```", "## After"]],
+    ])("tells the headings around %s", (_, lines) => {
+      const project = ["# Project guide", "", ...lines, "x".repeat(13_000)].join("\n");
+
+      const outline = formatAgentsDocument([{ path: "AGENTS.md", content: project }]);
+      expect(outline).toContain("- After (");
+      expect(outline).not.toContain("Inside (");
+    });
+
     it("keeps short guidance whole", () => {
       const doc = formatAgentsDocument([{ path: "AGENTS.md", content: "# Guide\n\n## Scope\n\nshort" }]);
       expect(doc).toContain("## Scope\n\nshort");

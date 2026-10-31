@@ -151,8 +151,9 @@ function sectionsOf(text: string): Section[] {
   let fence: string | undefined;
   let offset = 0;
   for (const line of text.split("\n")) {
-    const marker = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
-    if (marker && (fence === undefined || (marker[0] === fence[0] && marker.length >= fence.length))) {
+    // A fence is indented by at most three spaces, more is indented code; a closing one has nothing after it
+    const [, marker, after] = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line) ?? [];
+    if (fence === undefined ? marker : marker?.[0] === fence[0] && marker.length >= fence.length && !after.trim()) {
       fence = fence === undefined ? marker : undefined;
     }
     const heading = fence !== undefined || marker ? null : /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line);
