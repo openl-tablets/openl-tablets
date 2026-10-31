@@ -289,9 +289,36 @@ describe("project status", () => {
 
     expect(response.compilation).toEqual({
       messages: { items: [], total: 1, errors: 0, warnings: 0 },
-      modules: { total: 2, compiled: 2, compiledModules: ["A", "B"] },
+      // The modules are counted, not named again
+      modules: { total: 2, compiled: 2 },
       tests: { total: 7 },
     });
+  });
+
+  it("names the table of a message without the project the status is of", async () => {
+    const table = { type: "table", id: "t1", name: "Rates", module: "Main", cell: "B2" };
+    const fixture: ProjectStatusView = {
+      projectId,
+      compileState: "errors",
+      compilation: {
+        messages: {
+          items: [
+            { id: 1, summary: "Bad formula", severity: "ERROR", location: { ...table, projectId, project: "Rating" } },
+            { id: 2, summary: "Bad type", severity: "ERROR", location: { ...table, projectId: "dep", project: "Common" } },
+          ],
+          total: 2, errors: 2, warnings: 0,
+        },
+        modules: { total: 1, compiled: 1 },
+        tests: { total: 0 },
+      },
+    };
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus(fixture));
+
+    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+
+    expect(response.compilation.messages.items.map((item: { location: object }) => item.location)).toEqual([
+      table, { ...table, projectId: "dep", project: "Common" },
+    ]);
   });
 
   it.each([
