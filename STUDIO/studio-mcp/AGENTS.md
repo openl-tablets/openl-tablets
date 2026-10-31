@@ -224,7 +224,9 @@ and resolve its relative links against the folder of that `SKILL.md`. `skills/li
 frontmatter as JSON and every file with its SHA-256 digest and size — and `skills/get` one skill by the URI of its
 `SKILL.md`; an unknown URI is `-32602`. `resources/directory/read` lists the files of a folder of a skill. A client
 without the extension finds the skills in the server instructions, which also send the agent to `openl_get_started`
-first, and in `openl_get_started` itself.
+first, and in `openl_get_started` itself. Both say the skills are MCP resources, not skills of the client: a client
+with skills of its own, such as Claude Code, otherwise calls its skill tool by the name of an OpenL skill and fails, as
+11 of 29 runs of an eval did.
 
 ## Local projects (repository: local)
 

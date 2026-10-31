@@ -24,9 +24,11 @@ export const SKILLS = await SkillsExtension.load(memorySkillFiles(files), { stri
  */
 export const SKILLS_OVERVIEW = `## Skills
 
-OpenL skills are step-by-step workflows for common tasks. Read the \`SKILL.md\` of the one that matches
-the task as an MCP resource before you start, and the files it references the same way: a relative path
-resolves against the folder of its \`SKILL.md\`.
+OpenL skills are step-by-step workflows for common tasks, which this server serves as MCP resources: they
+are no skills or commands of your client, whose own skill tool does not know them. Read the \`SKILL.md\` of
+the one that matches the task with the tool of your client that reads an MCP resource, by its URI, before you
+start, and the files it references the same way: a relative path resolves against the folder of its
+\`SKILL.md\`.
 
 ${SKILLS.entries
   .map(({ uri, frontmatter: { name, description } }) =>
