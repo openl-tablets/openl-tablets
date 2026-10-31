@@ -26,6 +26,7 @@ import org.apache.maven.scm.manager.ScmManager;
 
 import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.maven.migration.ConfigDeployJacksonTypingMigrator;
 import org.openl.rules.maven.migration.ConfigDeployRuntimeContextMigrator;
 import org.openl.rules.maven.migration.ConfigDeployTemplateClassMigrator;
 import org.openl.rules.maven.migration.ConfigEmptyTagMigrator;
@@ -250,6 +251,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 // rules-deploy.xml: one atomic step per content rewrite.
                 new ConfigDeployRuntimeContextMigrator(),
                 new ConfigDeployTemplateClassMigrator(),
+                new ConfigDeployJacksonTypingMigrator(),
                 // pom.xml: the plugin configuration.
                 new PomUnusedParametersMigrator());
     }

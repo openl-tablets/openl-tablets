@@ -73,7 +73,8 @@ class MigrateMojoSelectionTest {
                         "config.project.default-modules"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.project"))));
         assertEquals(ids("config.deploy.runtime-context",
-                        "config.deploy.template-class"),
+                        "config.deploy.template-class",
+                        "config.deploy.jackson-typing"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.deploy"))));
         // `config` covers everything below it, including the shared empty-tag phase.
         assertEquals(allConfigIds(),
@@ -189,6 +190,7 @@ class MigrateMojoSelectionTest {
                 "config.project.default-modules",
                 "config.deploy.runtime-context",
                 "config.deploy.template-class",
+                "config.deploy.jackson-typing",
                 "pom.unused-parameters");
     }
 
@@ -199,7 +201,8 @@ class MigrateMojoSelectionTest {
                 "config.project.method-filter",
                 "config.project.default-modules",
                 "config.deploy.runtime-context",
-                "config.deploy.template-class");
+                "config.deploy.template-class",
+                "config.deploy.jackson-typing");
     }
 
     private static List<String> ids(String... ids) {

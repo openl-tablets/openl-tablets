@@ -612,12 +612,18 @@ from Maven.
 * **The `EVERYTHING` default typing mode is removed, as Jackson deprecated it.** A service fails to deploy when
   `ruleservice.jackson.defaultTypingMode` or `jackson.defaultTypingMode` in its `rules-deploy.xml` is `EVERYTHING`.
   `NON_FINAL_AND_ENUMS` is the closest mode: it writes the type of every value except a value of a final class, such
-  as `Long` or `LocalDate`.
+  as `Long` or `LocalDate`. The `config.deploy.jackson-typing` step of `openl:migrate` and the **Migrate** button of
+  the **Deploy Configuration** tab in OpenL Studio put it in place of `EVERYTHING` in `rules-deploy.xml`.
 
 * **`ruleservice.jackson.simpleClassNameAsTypingPropertyValue` is no longer read**, nor
   `jackson.simpleClassNameAsTypingPropertyValue` in `rules-deploy.xml`. It turned the `CLASS` type id into `NAME`,
   which is the default of `ruleservice.jackson.jsonTypeInfoId`. A service that sets `jackson.jsonTypeInfoId` to
   `CLASS` together with it now writes and expects full class names; set `jackson.jsonTypeInfoId` to `NAME` instead.
+  The `config.deploy.jackson-typing` step of `openl:migrate` and the **Migrate** button of the **Deploy
+  Configuration** tab remove the setting from `rules-deploy.xml` and, where it was `true`, set `jackson.jsonTypeInfoId`
+  to `NAME` unless it names a type id other than `CLASS`. Where `rules-deploy.xml` sets no type id, they set `NAME`
+  too, so a service whose `ruleservice.jackson.jsonTypeInfoId` is another id, such as `MINIMAL_CLASS`, needs that id in
+  `jackson.jsonTypeInfoId` instead.
 
 * **Repoint anything that routes or allows `/web`.** Check reverse-proxy location blocks, ingress rules, API
   gateway routes, WAF path rules and the `cors.allowed.origins` consumers for `/web`, and change them to
