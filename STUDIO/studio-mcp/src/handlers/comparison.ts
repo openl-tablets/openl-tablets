@@ -28,6 +28,25 @@ export interface ChangedTable {
  * The tables the second version holds otherwise than the first, of the comparison `start` asks Studio for; a sheet
  * Studio compares as a whole, without its tables, is named alone. The comparison is dropped once read.
  */
+/**
+ * The tables a comparison names, or undefined when it fails: a comparison only adds to an answer. A cancelled call
+ * still ends at once.
+ */
+export async function changedTablesIfCompared(
+  client: OpenLClient,
+  start: () => Promise<string>,
+  extra: ToolHandlerExtra | undefined,
+): Promise<ChangedTable[] | undefined> {
+  try {
+    return await changedTables(client, start, extra);
+  } catch (error) {
+    if (extra?.signal.aborted) {
+      throw error;
+    }
+    return undefined;
+  }
+}
+
 export async function changedTables(
   client: OpenLClient,
   start: () => Promise<string>,

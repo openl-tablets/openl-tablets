@@ -11,7 +11,7 @@ import { type Truncation } from "../formatters.js";
 import { formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
-import { changedTables } from "./comparison.js";
+import { changedTablesIfCompared } from "./comparison.js";
 import { refreshFromDisk } from "./freshness.js";
 
 /**
@@ -93,8 +93,8 @@ async function withChangedTables(
       continue;
     }
     const path = root && file.path.startsWith(`${root}/`) ? file.path.slice(root.length + 1) : file.path;
-    const tables = await changedTables(client,
-      () => client.compareProjectFiles(projectId, { path, branch, revision }, { path }), extra).catch(() => undefined);
+    const tables = await changedTablesIfCompared(client,
+      () => client.compareProjectFiles(projectId, { path, branch, revision }, { path }), extra);
     files.push(tables ? { ...file, tables } : file);
   }
   return { ...status, pendingChanges: { ...pendingChanges, files } };
