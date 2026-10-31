@@ -295,6 +295,22 @@ describe("project status", () => {
     });
   });
 
+  it("keeps the messages of a successful compilation of the severity asked for", async () => {
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus({
+      projectId,
+      branch: "main",
+      compileState: "ok",
+      compilation: {
+        messages: { items: [{ id: 1, summary: "INFO_ITEM", severity: "INFO" }], total: 1, errors: 0, warnings: 0 },
+        modules: { total: 1, compiled: 1 },
+      },
+    }));
+
+    const response = dataOf(await executeTool("project_status", { projectId, severity: ["INFO"] }, harness.client));
+
+    expect(response.compilation.messages.items).toEqual([{ id: 1, summary: "INFO_ITEM", severity: "INFO" }]);
+  });
+
   it("names the tables of each changed workbook on request, comparing them one by one with the saved revision", async () => {
     const fixture: ProjectStatusView = {
       projectId,

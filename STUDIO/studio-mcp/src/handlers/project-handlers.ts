@@ -46,7 +46,8 @@ function shapeStatusResponse(
   if (!status.compilation?.messages) {
     return status;
   }
-  let items = status.compileState === "ok" ? [] : (status.compilation.messages.items ?? [])
+  // An "ok" project has no errors or warnings: its messages are left out unless a severity is asked for
+  let items = status.compileState === "ok" && !severityFilter?.length ? [] : (status.compilation.messages.items ?? [])
     .toSorted((a, b) => severityRank(a.severity) - severityRank(b.severity));
   if (severityFilter?.length) {
     const allowed = new Set<string>(severityFilter);
