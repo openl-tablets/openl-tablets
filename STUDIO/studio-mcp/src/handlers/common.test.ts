@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { pageOf } from "../testing/openl-api-mocks.js";
 import { executeTool, getAllTools } from "./index.js";
 import { harness, useToolHarness } from "../testing/harness.js";
 
@@ -112,6 +113,39 @@ describe("argument validation", () => {
   it("names the tool that lists the missing identifier", async () => {
     await expect(executeTool("get_project", {}, harness.client))
       .rejects.toThrow(/Invalid arguments for get_project.*projectId.*openl_list_projects/s);
+  });
+});
+
+describe("a table named by its name", () => {
+  const tablesPath = "/projects/p1/tables";
+
+  it("is read by the id of the one table of that name, with a note naming the id", async () => {
+    harness.mockHttp.onGet(`${tablesPath}/AgeFactor`).reply(404, { message: "The table is not found." });
+    harness.mockHttp.onGet(tablesPath, { params: { name: "AgeFactor", size: 50 } })
+      .reply(200, pageOf([{ id: "T1", name: "AgeFactor" }, { id: "T2", name: "AgeFactorOld" }], { total: 2 }));
+    harness.mockHttp.onGet(`${tablesPath}/T1`).reply(200, { id: "T1", name: "AgeFactor", tableType: "RawSource", source: [[{ value: "x" }]] });
+
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "AgeFactor" }, harness.client);
+
+    expect(JSON.parse(result.content[0].text).data.rows).toEqual([["x"]]);
+    expect(result.content[1].text).toBe("'AgeFactor' is the name of a table, not its id: its id is 'T1', which the table tools take.");
+  });
+
+  it("is refused with the ids of the tables of that name when there are several", async () => {
+    harness.mockHttp.onGet(`${tablesPath}/Rate`).reply(404, { message: "The table is not found." });
+    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
+      { id: "T1", name: "Rate", module: "Rates-2026" }, { id: "T2", name: "Rate", module: "Rates-2027" },
+    ], { total: 2 }));
+
+    await expect(executeTool("get_table", { projectId: "p1", tableId: "Rate" }, harness.client))
+      .rejects.toThrow("'Rate' is the name of 2 tables, not an id: give the id of one of them, T1 (Rates-2026), T2 (Rates-2027).");
+  });
+
+  it("is not looked for when no table has that name", async () => {
+    harness.mockHttp.onGet(`${tablesPath}/T9`).reply(404, { message: "The table is not found." });
+    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([], { total: 0 }));
+
+    await expect(executeTool("get_table", { projectId: "p1", tableId: "T9" }, harness.client)).rejects.toThrow(/not found/);
   });
 });
 
