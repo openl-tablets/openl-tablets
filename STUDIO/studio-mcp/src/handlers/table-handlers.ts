@@ -8,7 +8,7 @@ import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import { findRows, gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
 import { isPlainObject, sanitizeError } from "../utils.js";
-import { formatResult, registerTool, textResult, type ToolResponse } from "./common.js";
+import { formatResult, registerTool, textResult, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
 import { cellText, formatStudioPage } from "../markdown-list.js";
 import type * as Types from "../types.js";
 import { finishTableEdit } from "./table-edit.js";
@@ -85,6 +85,7 @@ export function registerTableHandlers(): void {
     description:
       "List the tables of a project by module, as a table of id, name and kind, and of the dimension properties that tell versions of one table apart, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
+    aliases: { search: "name" },
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -135,6 +136,7 @@ export function registerTableHandlers(): void {
       "the 'version' the edit tools " +
       "take back. An id from before a rename still reads the table; a deleted table answers 410.",
     schema: schemas.getTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -174,6 +176,7 @@ export function registerTableHandlers(): void {
     description:
       "Delete an ENTIRE table from a project. The whole table area is cleared from the sheet regardless of table type, so the table no longer exists once the project is recompiled. To remove only a row or column WITHIN a table, use openl_edit_table instead. The studio does not auto-compile after the delete — run openl_project_status afterward to confirm the project still compiles (a dangling reference to the deleted table surfaces there). 'version' from openl_get_table is required: Studio deletes nothing when the table changed since.",
     schema: schemas.tableOnlySchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
@@ -199,6 +202,7 @@ export function registerTableHandlers(): void {
       "write when the table changed since the read and writes nothing: read it again and repeat the change. The " +
       "answer gives the current 'tableId' and the new 'version' of the table.",
     schema: schemas.updateTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       destructiveHint: true,
       idempotentHint: true,

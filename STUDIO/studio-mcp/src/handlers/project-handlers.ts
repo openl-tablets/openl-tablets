@@ -212,6 +212,7 @@ export function registerProjectHandlers(): void {
     description:
       "List projects as a table, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. Each project names its id as 'projectId', which the other tools take as it is, and leaves its capabilities to openl_get_project; include 'status' adds its compileState. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
     schema: schemas.listProjectsSchema,
+    aliases: { search: "name" },
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,

@@ -7,7 +7,7 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import * as schemas from "../schemas.js";
 
 import { isRequestTimeout } from "../http.js";
-import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
 import { formatWholeList } from "../markdown-list.js";
 import { waitForResult } from "./wait.js";
 import { finishTableEdit } from "./table-edit.js";
@@ -45,6 +45,7 @@ export function registerTableWorkflowHandlers(): void {
     description:
       "Execute a regular (non-Test) table with caller-provided JSON and return its result. The tool waits for the result inside the call. Pass inputJson as an object keyed by method parameter name, as { params, runtimeContext? } with params keyed by name or listed in order, or as an array of the argument values in order, each also as a JSON string; for a method whose only parameter is an array, a top-level array is that parameter's value. To build an input of datatypes, call it first with withSchema: true, and inputJson {} when no input is known yet: the answer gives the JSON Schema of each parameter, with its fields and the values each vocabulary allows. Studio keeps one table run per client, so wait for an active call to finish before starting another. Use openl_start_project_tests and the test-result tools for Test tables. Cancelling the MCP call also cancels and clears the Studio run.",
     schema: schemas.runTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       destructiveHint: false,
       openWorldHint: true,
@@ -106,6 +107,7 @@ export function registerTableWorkflowHandlers(): void {
     description:
       "Get the table dependency graph as an adjacency list of nodes: id, name, kind, and the ids of the tables it calls (dependencies) and that call it (dependents). Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
     schema: schemas.getTableDependenciesSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -153,6 +155,7 @@ export function registerTableWorkflowHandlers(): void {
     description:
       "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties. The copy remains in the working copy—use openl_save_project for Git-backed projects. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
     schema: schemas.copyTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: {
       destructiveHint: false,
       openWorldHint: true,

@@ -108,6 +108,34 @@ describe("argument validation", () => {
   });
 });
 
+describe("argument aliases", () => {
+  it("takes the name a tool declares as an alias for the argument it has under another name", async () => {
+    harness.mockHttp.onGet("/projects").reply(200, pageOf([]));
+    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
+    harness.mockHttp.onPost("/projects/p1/tables/t1/actions").reply(204);
+    harness.mockHttp.onGet("/projects/p1/tables/t1").reply(200, { id: "t1", tableType: "RawSource", source: [] });
+
+    await executeTool("list_projects", { search: "Rating" }, harness.client);
+    await executeTool("search_project_files", { projectId: "p1", query: "rate", recursive: false }, harness.client);
+    await executeTool("edit_table", {
+      projectId: "p1", id: "t1", version: "v1", actions: [{ action: "delete_rows", position: 2 }],
+    }, harness.client);
+
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ name: "Rating" });
+    expect(JSON.parse(harness.mockHttp.history.post[0].data as string)).toMatchObject({ content: "rate" });
+    const edit = harness.mockHttp.history.post.find((request) => request.url?.endsWith("/actions"));
+    expect(JSON.parse(edit?.data as string)).toMatchObject({ target: { type: "rows", position: 2 } });
+  });
+
+  it("leaves a name to a tool that takes it itself, and refuses an argument given under both names", async () => {
+    harness.mockHttp.onGet("../docs/toc.json").reply(200, { title: "Docs", children: [] });
+
+    await executeTool("list_guides", { search: "spreadsheet" }, harness.client);
+    await expect(executeTool("list_projects", { search: "a", name: "b" }, harness.client))
+      .rejects.toThrow(/Unrecognized key: "search"/);
+  });
+});
+
 describe("a table named by its name", () => {
   const tablesPath = "/projects/p1/tables";
 

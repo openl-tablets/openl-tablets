@@ -222,6 +222,7 @@ export function registerFileHandlers(): void {
     description:
       "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content' substring. A content search looks in every folder, any other search in the top level only unless recursive=true; to list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
     schema: schemas.searchProjectFilesSchema,
+    aliases: { query: "content" },
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
