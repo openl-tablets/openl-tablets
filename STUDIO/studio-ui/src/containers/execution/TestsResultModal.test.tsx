@@ -135,6 +135,29 @@ describe('TestsResultModal', () => {
         readWorkbook.mockResolvedValue(new Blob(['x']))
     })
 
+    it('names the field of a column whose description another column shares', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    id: '2',
+                    status: 'TR_NEQ',
+                    executionTimeMs: 1,
+                    parameters: driver('Bob'),
+                    testAssertions: [
+                        { description: 'Rate', field: '$ManualRate', expectedValue: 2.99, actualValue: 2.68, status: 'TR_NEQ' },
+                        { description: 'Rate', field: '$FormulaRate', expectedValue: 2.68, actualValue: 2.68, status: 'TR_OK' },
+                    ],
+                }],
+            }],
+        })
+        await show()
+
+        expect(screen.getByText('Rate ($ManualRate)')).toBeInTheDocument()
+        expect(screen.getByText('Rate ($FormulaRate)')).toBeInTheDocument()
+    })
+
     it('waits for the tests while they are still running', async () => {
         readSummary.mockReturnValue(new Promise(() => undefined))
         render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)

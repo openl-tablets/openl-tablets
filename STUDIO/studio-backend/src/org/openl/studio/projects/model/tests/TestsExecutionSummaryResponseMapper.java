@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tests;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -130,11 +131,16 @@ public class TestsExecutionSummaryResponseMapper {
             var resultColumnNames = actualResult instanceof Exception && testUnit.getTest().getExpectedResult() == null
                     ? testCase.getTestErrorColumnDisplayNames()
                     : testCase.getTestResultColumnDisplayNames();
+            var descriptions = IntStream.range(0, results.size())
+                    .mapToObj(i -> i < resultColumnNames.length ? resultColumnNames[i] : null)
+                    .toList();
+            // A description two columns share does not tell which field an assertion compares
+            var counts = new HashMap<String, Integer>();
+            descriptions.forEach(description -> counts.merge(description, 1, Integer::sum));
             IntStream.range(0, results.size())
                     .mapToObj(i -> mapToTestAssertionResult(results.get(i),
-                            i < resultColumnNames.length
-                                    ? resultColumnNames[i]
-                                    : null,
+                            descriptions.get(i),
+                            counts.get(descriptions.get(i)) > 1 ? results.get(i).getFieldName() : null,
                             query))
                     .forEach(builder::testAssertion);
         }
@@ -221,6 +227,7 @@ public class TestsExecutionSummaryResponseMapper {
      */
     private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion,
                                                                   String description,
+                                                                  @Nullable String field,
                                                                   TestExecutionSummaryQuery query) {
         // Read once: a value held softly can be given back to free memory between two reads.
         var actualValue = assertion.getActualValue();
@@ -234,6 +241,7 @@ public class TestsExecutionSummaryResponseMapper {
                 .expectedValue(expectedLazy ? null : writeAssertionValue(expectedValue))
                 .expectedLazy(expectedLazy ? Boolean.TRUE : null)
                 .description(description)
+                .field(field)
                 .build();
     }
 
