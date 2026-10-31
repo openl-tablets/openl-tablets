@@ -55,6 +55,13 @@ class IdentifierTokenTest {
         assertEquals(name, firstToken(name).image);
     }
 
+    /** A parse error names where the parser stopped, not the dozens of tokens any of which could follow. */
+    @Test
+    void reportsWhereAParseStoppedWithoutTheTokensThatCouldFollow() {
+        var code = new Parser().parseAsMethodBody(new StringSourceCodeModule("monthDiff(endDate, startDate) > 12 &&", null));
+        assertEquals("Encountered \"<EOF>\" at line 1, column 37.", code.getErrors()[0].getMessage());
+    }
+
     @Test
     void parsesKoreanRuleHeader() {
         var code = new Parser().parseAsMethodHeader(new StringSourceCodeModule("Double 면간거리(FinalCode FC)", null));
