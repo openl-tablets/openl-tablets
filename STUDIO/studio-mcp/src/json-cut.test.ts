@@ -62,8 +62,17 @@ describe("cutJson", () => {
 
     const { value, cuts } = cutJson(schema, 300);
 
-    expect(value).toEqual({ properties: "{2 keys cut}" });
-    expect(cuts).toEqual(["properties (2 keys)"]);
+    expect(value).toEqual({ properties: { state: "{2 keys cut}", name: { type: "string" } } });
+    expect(cuts).toEqual(["properties.state (2 keys)"]);
+  });
+
+  it("keeps the name of a parameter whose schema is cut for its vocabulary", () => {
+    const codes = Array.from({ length: 200 }, (_, i) => `CODE${i}`);
+    const answer = { parameters: [{ name: "classCode", schema: { type: "string", enum: codes } }] };
+
+    const { value } = cutJson(answer, 300);
+
+    expect(value).toEqual({ parameters: [{ name: "classCode", schema: "{2 keys cut}" }] });
   });
 
   it("cuts an enum when nothing else is left to cut", () => {

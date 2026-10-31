@@ -20,8 +20,8 @@ interface Node {
 /**
  * The value cut to fit `limit` characters of JSON, and the cuts made, by path; a value that fits is left whole.
  * Strings longer than 200 characters are shortened first; then the largest arrays lose items from their middle,
- * keeping their first and their last ones, and when no array has more than one item left, the largest objects are
- * replaced by the number of their keys. An `enum` of a JSON Schema is cut only when nothing else is left to cut: what
+ * keeping their first and their last ones, and when no array has more than one item left, objects are replaced by the
+ * number of their keys: the innermost one that frees enough alone, else the largest ones. An `enum` of a JSON Schema is cut only when nothing else is left to cut: what
  * is left of it would name the values allowed wrong, where the count of the keys of the object holding it names a cut.
  */
 export function cutJson(value: unknown, limit: number): { value: unknown; cuts: string[] } {
@@ -41,7 +41,11 @@ export function cutJson(value: unknown, limit: number): { value: unknown; cuts: 
     if (cuttable.length > 0) {
       cutLargest(cuttable, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
     } else if (scan.objects.length > 0) {
-      cutLargest(scan.objects, scan.size, limit, (node) => cutObject(node, cuts));
+      // The smallest object that frees the excess alone is the one nested deepest: what holds it keeps its other keys
+      const excess = scan.size - limit;
+      const enough = scan.objects.filter((node) => node.size - cutObjectSize(node) >= excess);
+      const objects = enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a))] : scan.objects;
+      cutLargest(objects, scan.size, limit, (node) => cutObject(node, cuts));
     } else if (arrays.length > 0) {
       cutLargest(arrays, scan.size, limit, (node, size) => cutMiddle(node, size, limit, cuts));
     } else {
@@ -103,10 +107,20 @@ function cutMiddle(node: Node, size: number, limit: number, cuts: string[]): num
   return sizeOf(kept);
 }
 
+/** The text that replaces an object: the number of its keys. */
+function objectReplacement(node: Node): string {
+  return `{${Object.keys(node.value as object).length} keys cut}`;
+}
+
+/** The size in JSON of what replaces an object. */
+function cutObjectSize(node: Node): number {
+  return sizeOf(objectReplacement(node));
+}
+
 /** Replace an object by the number of its keys, name the cut, and answer the size of what replaces it. */
 function cutObject(node: Node, cuts: string[]): number {
   const keys = Object.keys(node.value as object).length;
-  const replacement = `{${keys} keys cut}`;
+  const replacement = objectReplacement(node);
   (node.parent as Record<string | number, unknown>)[node.key] = replacement;
   cuts.push(`${node.path} (${keys} keys)`);
   return sizeOf(replacement);
