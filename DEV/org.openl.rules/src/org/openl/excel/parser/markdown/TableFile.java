@@ -46,8 +46,8 @@ record TableFile(String text,
      * A key of the front matter.
      *
      * @param name  the name of the key
-     * @param value the value as read: the header text, a property value, or the merged ranges joined with commas;
-     *              empty for {@code properties} and for a key the table is read without
+     * @param value the value as read: the header text or a property value; empty for {@code properties} and for a
+     *              key the table is read without
      * @param line  the line the key starts on
      */
     record Key(String name, String value, int line) {
@@ -56,7 +56,7 @@ record TableFile(String text,
     /**
      * Where the body of the table stands.
      */
-    sealed interface Body permits GfmBody, CodeBody, NoBody {
+    sealed interface Body permits GfmBody, HtmlBody, CodeBody, NoBody {
 
         /** Returns the first line of the body. */
         int firstLine();
@@ -82,6 +82,18 @@ record TableFile(String text,
         public int lastLine() {
             return Math.max(rowLines.getLast(), delimiterLine);
         }
+    }
+
+    /**
+     * A body written as an HTML table, the body of a table with merged cells.
+     *
+     * @param firstLine the line that opens the table
+     * @param lastLine  the line that closes the table, or its last line when nothing closes it
+     * @param rowLines  the line of each row, when the rows stand one to a line between the lines that open and close
+     *                  the table, as the writer writes them, and the table is read without a problem; none otherwise,
+     *                  so the table is written anew
+     */
+    record HtmlBody(int firstLine, int lastLine, List<Integer> rowLines) implements Body {
     }
 
     /**

@@ -18,8 +18,13 @@ works.
 
 - **A module is a folder**, a file is one table, a sub-folder is a sheet, so a category. Several tables in one file
   repeat the problems of a workbook: merge conflicts, shifting addresses, a hard read.
-- **The header is the YAML front matter** of the file: `table`, `properties` and `merges`, a merged range to a line.
-  The body is the first GFM table or code block after it; the text after the body is documentation.
+- **The header is the YAML front matter** of the file: `table` and `properties`. The body is the first GFM table,
+  HTML table or code block after it; the text after the body is documentation.
+- **Merged cells make the body an HTML table**, one `<td>` spanning its rows and columns with `rowspan` and
+  `colspan`, which GFM has no syntax for; a body without any stays a GFM table. A merged cell is a part of the logic of
+  a table — a title over its columns, a condition for several rules, the rows of one Data record — so it is kept. The
+  previews of GitHub and GitLab show the table with its merged cells, and a row inserted changes its own line alone.
+  An HTML table takes about 1.8 times the bytes of a GFM one, and the same once compressed, as Git keeps it.
 - **The description is the text above the table**, between the front matter and the body (`MarkdownDescription`), as a
   reader of the file expects it: never a property of the front matter. A quote and an HTML comment there are comments,
   so a note for the authors stays out of the description, which OpenL Studio shows and Rule Services puts into the
@@ -88,10 +93,14 @@ flowchart TD
   documentation as a whole.
 - The body is found as `TableLines`: the rows of a GFM table are known by their lines alone, and the cells are cut out
   of the lines. A table of millions of cells costs the numbers of its lines; the GFM tables extension of `commonmark`
-  serves only the tests, which check that the two agree.
-- A problem in the front matter leaves the file without a table. A problem in the body — a merged range that does not
-  fit, the cells of a row past those of the first row, rows a blank line cuts off — leaves the table without the part
-  that breaks the format. `MarkdownProblem` keeps the line, and the cell when the table shows it.
+  serves only the tests, which check that the two agree. An HTML table is found as `HtmlTableLines`, from its
+  `<table>` line to the line that closes it.
+- A reader of each syntax gives the rows of the table and their cells, a merged cell with its spans
+  (`MarkdownTableReader`: `GfmTableReader`, `HtmlTableReader`). `TableLayout` lays them out in the body whatever the
+  syntax: a cell takes the first column of its row that no merged cell above spans down into.
+- A problem in the front matter leaves the file without a table. A problem in the body — a merged cell past the table
+  or over another, the cells of a row past those of the first row, rows a blank line cuts off — leaves the table
+  without the part that breaks the format. `MarkdownProblem` keeps the line, and the cell when the table shows it.
 
 ### Laying the table out
 
@@ -134,14 +143,15 @@ Create Table or by the converter, is written by `MarkdownTableWriter.newFile`.
 ### Keeping the lines
 
 - **Front matter** — a key keeps its lines while its value is the same. A property keeps its line; a new one is
-  indented as the others. The merged ranges are written a range to a line in reading order, so a range added or taken
-  away is a line of its own; the same ranges keep their lines in whatever order the file lists them.
+  indented as the others.
 - **Description** — kept as written while it is the same. A changed one is written where its first block of text
   stood, and its other blocks are taken away; a new one goes right after the front matter.
-- **Body** — a row keeps its line while its cells are the same. A changed row is padded to the widths of the delimiter
-  row, so a table aligned by hand stays aligned. A code block stays a code block.
-- **Everything else** — the comments, the text after the table, a key the table is read without, a range left out —
-  stays as written.
+- **Body** — a builder of each syntax writes the rows (`MarkdownTableBuilder`: `GfmTableBuilder`, `HtmlTableBuilder`),
+  and a row keeps its line while its cells and their spans are the same. A changed row of a GFM table is padded to
+  the widths of the delimiter row, so a table aligned by hand stays aligned. An HTML table keeps its rows while they
+  stand one to a line and the table reads without a problem, and is written anew otherwise. The first merge writes
+  the table anew as an HTML table, the last unmerge as a GFM table. A code block stays a code block.
+- **Everything else** — the comments, the text after the table, a key the table is read without — stays as written.
 
 ### What a file refuses
 
@@ -151,7 +161,7 @@ Create Table or by the converter, is written by `MarkdownTableWriter.newFile`.
 - a `properties` cell over more than one column, a property without a name in a cell of its own or with a name
   already taken, properties in a table narrower than three columns, where the value has no column;
 - a value above the body other than the header and the properties, a merged range a file cannot write;
-- a value under a merged range, or a value holding the text `<br>`, which reads as a line break.
+- a value under a merged range, or a value holding the text `<br>` in a GFM table, which reads as a line break.
 
 The converter leaves such a table in its workbook; OpenL Studio shows the reason to the author.
 
@@ -191,7 +201,8 @@ The converter leaves such a table in its workbook; OpenL Studio shows the reason
 
 ## Dependencies
 
-- **commonmark** — finds the blocks of a file: the GFM table, the code block, the paragraphs around them.
+- **commonmark** — finds the blocks of a file: the GFM table, the HTML table, the code block, the paragraphs around
+  them.
 - **SnakeYAML** — reads the front matter and writes a value that needs quotes.
 - Both are dependencies of `org.openl.rules`, so the engine, OpenL Studio, OpenL Rule Services and the plugin read
   Markdown modules with no setting.
@@ -209,9 +220,13 @@ The converter leaves such a table in its workbook; OpenL Studio shows the reason
 
 - **Several tables in one file** — the first version of the format. It repeats the problems of a workbook: every
   change of a module touches one file, tables move when others grow, and the file is hard to read.
+- **A table without merged cells** — a merged title, condition value or Data record written into each of its cells
+  fails the compilation or changes the results: an empty condition value means any.
 - **Marks of merged cells in the cells**, `<` for the cell on the left and `^` for the cell above — they move with the
-  text but clutter the table; the `merges` key keeps the table clean and readable on GitHub.
-- **Merged ranges on one line**, `merges: [A1:B1, A2:A3]` — every change edits the same line, so two changes conflict.
+  text but clutter the table, and a preview shows them as text.
+- **Merged ranges in the front matter**, `merges:` and a range to a line in A1 notation — a range counts its rows from
+  the top of the body, so a row inserted above it rewrites the range, and a preview shows the table without its
+  merged cells.
 - **Properties as keys next to `table`** — the keys of the file and the table properties shared one name space, and a
   typo of a key read as a property.
 - **Types in the file** — a step named with its type, `Count : Integer`, or a value written as a cast,

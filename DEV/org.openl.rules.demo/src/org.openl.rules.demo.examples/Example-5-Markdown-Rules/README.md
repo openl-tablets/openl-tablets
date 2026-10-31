@@ -19,9 +19,7 @@ policy.
   category stands in the folder of the category, as it stands on the sheet of the category in a workbook.
 - The front matter of a file is the header of its table: the `table` key holds the text of the first table cell.
   The `properties` key holds the table properties, a name and a value on each line under it, such as
-  `tags: rating`. The `merges` key lists the merged cells of the table, a range to a line
-  under it, such as `- A1:B1`, counted from the first row of the table. A range added or taken away is a line of its
-  own, so two changes of one table merge as text. Any other key is an error, and the table is read without it.
+  `tags: rating`. Any other key is an error, and the table is read without it.
 - The text between the front matter and the table is the description of the table, such as `Yearly premium of a
   policy.` in `premium.md`. A quote, a block of lines starting with `>`, is a comment for the authors and no part of
   the description; so is an HTML comment. The description is never written under `properties`.
@@ -30,6 +28,9 @@ policy.
 - The first table after the front matter is the body of the table: every row of it, its first row included, is a
   row of the rules table. A table with no body, such as a `Datatype` that adds no field to its parent, is its front
   matter and its description.
+- A table with merged cells is written as an HTML table, as in `experienceDiscount.md`: a merged cell is one `<td>`
+  that spans its rows and columns with `rowspan` and `colspan`, and a cell it covers is not written. GitHub and GitLab
+  show it with its merged cells. A table without any is a GFM table, which has no merged cell.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
 - A cell is indented by two `&nbsp;` before its text for each level, as a workbook indents it: `&nbsp;&nbsp;Fee` is
@@ -57,8 +58,8 @@ the **Files** tab of the project, where **Open in Editor** opens the table of th
   place.
 - A file whose front matter breaks the format holds no table. The error points at the line of the file, and OpenL
   Studio opens the file on that line, on the **Files** tab.
-- A table whose body breaks the format is read without the part that breaks it: a merged range over a value, over
-  another range or outside the table, the cells of a row beyond those of the first row, the rows a blank line cuts
-  off. So is a table whose front matter holds a key other than `table`, `properties` and `merges`, such as a property
-  written beside `table` rather than under `properties`. The error points at the cell of the table that shows the
+- A table whose body breaks the format is read without the part that breaks it: a merged cell past the table or over
+  another one, the cells of a row beyond those of the first row, the rows a blank line cuts off. So is a table whose
+  front matter holds a key other than `table` and `properties`, such as a property written beside `table` rather than
+  under `properties`, or `merges`, as merged cells are written in an HTML table. The error points at the cell of the table that shows the
   problem, or at the line of the file when no cell shows it.

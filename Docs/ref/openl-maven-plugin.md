@@ -104,6 +104,8 @@ with its workbooks written as Markdown. The setting is off by default.
   holds a table of any size.
 - The indent of a cell of a TBasic or a ColumnMatch table, which builds the table, is written as two `&nbsp;` before
   the text for each level, `&nbsp;&nbsp;SET`.
+- A table with merged cells is written as an HTML table, each merged cell spanning its rows and columns, as GitHub and
+  GitLab show it; a table without any as a GFM table.
 - The Environment tables of a workbook are joined in the one `Environment.md` of its module, and so are its Constants
   tables in `Constants.md`; a Properties table is written as any other table, in the folder of its sheet.
 - The `description` property of a table is written as the text between the front matter and the table, where a

@@ -187,7 +187,7 @@ final class SheetLayout {
     }
 
     private static boolean isReserved(String name) {
-        return "table".equals(name) || "merges".equals(name);
+        return "table".equals(name);
     }
 
     /**

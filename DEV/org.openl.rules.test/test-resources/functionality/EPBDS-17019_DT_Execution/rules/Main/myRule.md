@@ -1,14 +1,14 @@
 ---
 table: Rules MyObject myRule()
-merges: [C1:D1, C2:D2]
 ---
 
 > Markdown copy of `EPBDS-13605_DT_Execution.xlsx`: a decision table whose return spans two parameters.
 
-| Rule     | C1                                          | RET1                  |                |
-|----------|---------------------------------------------|-----------------------|----------------|
-|          | `p2.toString().trim().equals("") \|\| true` | new MyObject(p1,  p2) |                |
-|          | Boolean p                                   | String p1             | Double p2      |
-| Rule num | My Conditon                                 |                       |                |
-| R1       | true                                        | test                  |                |
-| R2       | false                                       |                       | =MyData[2]=3;2 |
+<table>
+<tr><td>Rule</td><td>C1</td><td colspan="2">RET1</td></tr>
+<tr><td></td><td>p2.toString().trim().equals("") || true</td><td colspan="2">new MyObject(p1,  p2)</td></tr>
+<tr><td></td><td>Boolean p</td><td>String p1</td><td>Double p2</td></tr>
+<tr><td>Rule num</td><td>My Conditon</td><td></td><td></td></tr>
+<tr><td>R1</td><td>true</td><td>test</td><td></td></tr>
+<tr><td>R2</td><td>false</td><td></td><td>=MyData[2]=3;2</td></tr>
+</table>

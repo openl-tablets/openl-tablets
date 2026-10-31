@@ -1,10 +1,10 @@
 ---
 table: SmartRules String WeightClass(Double weight)
-merges: [A1:B1]
 ---
 
-| Weight |  | Class |
-|---|---|---|
-| 0 | 2 | Light |
-| 2 | 20 | Medium |
-| 20 | 1000 | Heavy |
+<table>
+<tr><td colspan="2">Weight</td><td>Class</td></tr>
+<tr><td>0</td><td>2</td><td>Light</td></tr>
+<tr><td>2</td><td>20</td><td>Medium</td></tr>
+<tr><td>20</td><td>1000</td><td>Heavy</td></tr>
+</table>

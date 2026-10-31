@@ -1,11 +1,11 @@
 ---
 table: SmartRules Double basePremium(Integer age)
-merges: [A1:B1]
 ---
 
 Base premium by the age of the driver
 
-| Age |    | Premium |
-|-----|----|---------|
-| 16  | 24 | 1200    |
-| 25  | 64 | 900     |
+<table>
+<tr><td colspan="2">Age</td><td>Premium</td></tr>
+<tr><td>16</td><td>24</td><td>1200</td></tr>
+<tr><td>25</td><td>64</td><td>900</td></tr>
+</table>

@@ -41,19 +41,17 @@ rules/
 table: SmartRules Double ageFactor(Integer age)
 properties:
   tags: age
-merges:
-  - A1:B1
 ---
 
 The younger or the older the driver, the higher the risk.
 
 > A comment for the authors: no part of the description.
 
-| Age |     | Factor |
-|-----|-----|--------|
-| 0   | 25  | 1.5    |
-| 25  | 65  | 1      |
-| 65  | 120 | 1.2    |
+| Age     | Factor |
+|---------|--------|
+| < 25    | 1.5    |
+| 25 - 65 | 1      |
+| >= 65   | 1.2    |
 
 Text after the table is documentation.
 ```
@@ -63,12 +61,13 @@ Text after the table is documentation.
 | Front matter | The header of the table, YAML between two `---` lines | Starts on the first line of the file |
 | Description | The text between the front matter and the body: the `description` property of the table | Taken as written; blocks of text joined with a blank line |
 | Comment | A quote (`> …`) or an HTML comment (`<!-- … -->`) above the body | Not compiled, no part of the description |
-| Body | The first GFM table, or the first code block, after the front matter | Every row is a body row, the first one too |
+| Body | The first GFM table, HTML table or code block after the front matter | Every row is a body row, the first one too |
 | Code block | The body of a `Method` table, one cell | Any fence language; a new file writes `java` |
 | No body | A table of a header alone; the text after its front matter is its description | `Datatype Adult extends Driver` |
 | Text after the body | Documentation: not compiled | Paragraphs, headings, tables |
 
-- One table per file: only the first GFM table or code block is the body. Rows a blank line cuts off it are a problem.
+- One table per file: only the first GFM table, HTML table or code block is the body. Rows a blank line cuts off it
+  are a problem.
 - A file without front matter is documentation as a whole, even with a GFM table in it.
 - A line of a description starting with `>`, a code fence or `|` is written with `\` before it, as Markdown escapes it,
   so it is not taken for a comment, a code block or the body.
@@ -79,25 +78,53 @@ Text after the table is documentation.
 |---|---|---|
 | `table` | The text of the first table cell, the header | `table: Rules String greeting(Integer hour)` |
 | `properties` | The table properties but the description, `name: value` one to a line under it | `properties:` then `  tags: rates` |
-| `merges` | The merged ranges of the body, one to a line under it, in A1 notation | `merges:` then `  - A1:B1` |
 
-- Any other key is a problem: the table is read without it, and the key stays in the file as written.
+- Any other key is a problem: the table is read without it, and the key stays in the file as written. So is `merges`:
+  merged cells are written in an HTML table.
 - The description is never a property of the front matter: a `description` under `properties` is a problem, and the
   table is read without it.
 - Values are read as written: `NO` stays `NO`; a list is joined with commas.
 - A YAML comment, `# SPDX-License-Identifier: Apache-2.0`, may stand in the front matter.
 
-## Merged Ranges
+## Merged Cells
+
+A body with merged cells is an HTML table, as GFM has no merged cell; a body without any is a GFM table. A merged
+cell is one `<td>` that spans its rows and columns with `rowspan` and `colspan`, and a cell it covers is not written.
+
+```
+---
+table: SmartRules Double ageFactor(Integer age)
+---
+
+<table>
+<tr><td colspan="2">Age</td><td>Factor</td></tr>
+<tr><td>0</td><td>25</td><td>1.5</td></tr>
+<tr><td>25</td><td>65</td><td>1</td></tr>
+<tr><td>65</td><td>120</td><td>1.2</td></tr>
+</table>
+```
 
 | Rule | Detail |
 |---|---|
-| Counted from the body | `A1` is the first cell of the first body row; the header and properties are not counted |
-| One to a line | OpenL Studio writes them in reading order: by the row of the first cell, then by its column |
-| The same ranges | Kept as written while they stay the same, in whatever order the file lists them |
-| Covered cells | Left empty in the body; the first cell of the range holds the value |
-| Outside the table | Problem `The merged range A1:C1 is outside the table`, range left out |
-| Overlapping | Problem `The merged ranges A1:B1 and B1:B2 overlap`, range left out |
-| Over a value | Problem `The cell B1 has a value, but the merged range A1:B1 covers it`, range left out |
+| Layout | A cell takes the first column of its row that no merged cell above spans down into |
+| Width | The columns the first row spans |
+| Written by OpenL Studio | A row to a line between `<table>` and `</table>`; the first merge turns a GFM table into an HTML one, the last unmerge back |
+| Read | Any layout: a cell to a line, `<th>` for `<td>`, `<thead>` and `<tbody>`, the closing tags a browser does without |
+| Blank line | Ends the table, as it ends a block of HTML in GFM: the rows after it are lost |
+| Preview | GitHub and GitLab show the table with its merged cells |
+
+| Written in a cell | Read as | Note |
+|---|---|---|
+| `<br>` | A line break | `<br/>` too |
+| `&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;` | `<`, `>`, `&`, `"`, `'` | Any other named reference stays as written |
+| `&#65;`, `&#x41;` | `A` | A number of no character stays as written |
+| `&nbsp;&nbsp;SET` | `SET` indented by one level | As in a GFM table |
+| A line break of the file | A space | With the spaces around it |
+| Any other tag | Text of the cell | — |
+
+- A cell is taken as written otherwise, as in a GFM table: `|` and backticks are characters of the cell.
+- OpenL Studio writes `<` as `&lt;` only before a letter, `/`, `!` or `?`, and `&` as `&amp;` only before a reference
+  other than `&nbsp;`, so `<= 14` and `a && b` stay as written.
 
 ## Cells
 
@@ -111,7 +138,7 @@ Text after the table is documentation.
 | `= $Premium * 2` | Text that starts with `=`: a formula | As in a workbook cell |
 | `` `$Age * 2` `` | `$Age * 2` | A cell wrapped in backticks as a whole is unwrapped; GitHub shows it as code |
 | `a \\| b` | `a \| b` | A pipe is escaped, inside backticks too |
-| `line 1<br>line 2` | Two lines | A line break; a value holding the text `<br>` cannot be written |
+| `line 1<br>line 2` | Two lines | A line break; a GFM table cannot hold the text `<br>` |
 | `&nbsp;&nbsp;SET` | `SET` indented by one level | TBasic and ColumnMatch: two `&nbsp;` per level |
 
 - A cell is taken as written, not rendered as Markdown.
@@ -134,7 +161,11 @@ Text after the table is documentation.
 | `The properties of the table must be a set of 'name: value' lines under 'properties'` | The key | No table |
 | `'<key>' is not a key of the front matter: a table property is written under 'properties'` | The key | Key ignored |
 | `The description of a table is the text between the front matter and the table, not a property under 'properties'` | The property | Property ignored |
+| `Merged cells are written in an HTML table, with 'rowspan' and 'colspan', not under 'merges'` | The key | Key ignored |
 | `The row has more cells than the first row of the table` | The row | Extra cells ignored |
+| `The merged cell reaches past the table` | The cell | Cut to the table |
+| `The merged cell overlaps another one` | The cell | Cut to the cells no other merged cell takes |
+| `The table is not closed with '</table>': a blank line or the end of the file cuts it off` | The last row | Rows after it ignored |
 | `A blank line cuts these rows off the table above. Remove it: a file holds one table` | The rows | Rows ignored |
 | `The Environment table of a module is written in Environment.md at the root of the module folder` | The table | Error |
 | `Environment.md holds the Environment table of the module and nothing else` | The table | Error |
@@ -147,7 +178,8 @@ Text after the table is documentation.
 | Action | Result in the file |
 |---|---|
 | Change a cell, a row, a column | Only the rows that changed are written; the rest keep their text |
-| Change a property, merge or unmerge cells | Only the keys that changed are written |
+| Merge or unmerge cells | Only the rows of the merged cell are written; the first merge or the last unmerge writes the table anew, as an HTML or a GFM table |
+| Change a property | Only the keys that changed are written |
 | Change the description | The text above the table is written where its first block stood; the comments stay |
 | Create a table | A new file named after the table, in the folder of its category |
 | Copy a table | Between workbooks and Markdown modules, both ways: the table and its description, without the comments and the text after it |

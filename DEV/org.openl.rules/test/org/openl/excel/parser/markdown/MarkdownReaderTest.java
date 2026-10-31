@@ -99,16 +99,16 @@ class MarkdownReaderTest {
     }
 
     @Test
-    void mergesBecomeMarkers() {
+    void mergedCellsOfAnHtmlTableBecomeMarkers() {
         var text = """
                 ---
                 table: Rules Double BasePremium(Integer age)
-                merges: [A1:B1, C2:C3]
                 ---
-                | Age |    | Premium |
-                |-----|----|---------|
-                | 16  | 24 | 1200    |
-                | 25  | 64 |         |
+                <table>
+                <tr><td colspan="2">Age</td><td>Premium</td></tr>
+                <tr><td>16</td><td>24</td><td rowspan="2">1200</td></tr>
+                <tr><td>25</td><td>64</td></tr>
+                </table>
                 """;
 
         // A whole number reads as the Integer a cell of a workbook holds
@@ -117,6 +117,37 @@ class MarkdownReaderTest {
                 {"Age", MERGE_WITH_LEFT, "Premium"},
                 {16, 24, 1200},
                 {25, 64, MERGE_WITH_UP}}, cellsOf("BasePremium.md", text));
+    }
+
+    @Test
+    void htmlTableIsReadAsABrowserShowsIt() {
+        var text = """
+                ---
+                table: Rules Double BasePremium(Integer age)
+                ---
+                <TABLE class="rates">
+                  <thead>
+                    <tr>
+                      <th COLSPAN='2'>Age</th>
+                      <th>Premium
+                  </thead>
+                  <tbody>
+                    <tr><td>16<td>24<td rowspan=2>a &amp; b<br/>&lt;c&gt; &#65;&#x42; &copy; &#1114112;
+                    <tr><td>25<td>
+                      sixty
+                      four
+                  </tbody>
+                </TABLE>
+
+                Notes after the table.
+                """;
+
+        // The closing tags a browser does without are left out; a line break of the file is a space
+        assertArrayEquals(new Object[][]{
+                {"Rules Double BasePremium(Integer age)", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
+                {"Age", MERGE_WITH_LEFT, "Premium"},
+                {16, 24, "a & b\n<c> AB &copy; &#1114112;"},
+                {25, "sixty four", MERGE_WITH_UP}}, cellsOf("BasePremium.md", text));
     }
 
     @Test
@@ -261,7 +292,8 @@ class MarkdownReaderTest {
         assertArrayEquals(new Object[][]{{"Data String values"}, {"a"}}, cellsOf("Bom.md", text));
     }
 
-    // {h} opens the front matter of a table X, {/h} closes it, and \n is a line break.
+    // {h} opens the front matter of a table X, {/h} closes it, {t} is the front matter and the line opening an HTML
+    // table, {/t} the line closing it, and \n is a line break.
     @ParameterizedTest(name = "{0}")
     @CsvSource(delimiter = ';', quoteCharacter = '"', textBlock = """
             not closed;          {h}| a |\\n|---|\\n; 1; not closed
@@ -287,15 +319,12 @@ class MarkdownReaderTest {
     @CsvSource(delimiter = ';', quoteCharacter = '"', textBlock = """
             extra cells;    {h}{/h}| a | b |\\n|---|---|\\n| 1 | 2 | 3 |\\n; 6; more cells; B3
             split table;    {h}{/h}| a |\\n|---|\\n| 1 |\\n\\n| 2 |\\n; 8; blank line cuts these rows off;
-            merge outside;  {h}merges: [A1:C1]\\n{/h}| a | b |\\n|---|---|\\n; 3; A1:C1 is outside; A2
-            merge below;    {h}merges: A1:A2\\n{/h}| a |\\n|---|\\n; 3; A1:A2 is outside; A2
-            merge away;     {h}merges: C3\\n{/h}| a |\\n|---|\\n; 3; C3 is outside;
-            overlap;        {h}merges: [A1:B1, B1:B2]\\n{/h}| a | |\\n|---|---|\\n| 1 | |\\n; 3; and B1:B2 overlap; B2
-            covered value;  {h}merges: [A1:B1]\\n{/h}| a | b |\\n|---|---|\\n; 3; B1 has a value; B2
-            bad range;      {h}merges: [1A]\\n{/h}| a |\\n|---|\\n; 3; '1A' is not a cell range;
-            reversed range; {h}merges: [B2:A1]\\n{/h}| a |\\n|---|\\n; 3; from its top left;
-            row too far;    {h}merges: [A99999999999]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range;
-            column too far; {h}merges: [ZZZZZZZZZ1]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range;
+            merges key;     {h}merges: [A1:B1]\\n{/h}| a | b |\\n|---|---|\\n; 3; in an HTML table, with 'rowspan';
+            span below;     {t}<tr><td rowspan='2'>a</td></tr>\\n{/t}; 5; reaches past the table; A2
+            span right;     {t}<tr><td>a<td>b\\n<tr><td colspan='3'>1\\n{/t}; 6; reaches past the table; A3
+            overlap;        {t}<tr><td>a<td rowspan='2'>b\\n<tr><td colspan='2'>1\\n{/t}; 6; overlaps another one; A3
+            covered cell;   {t}<tr><td>a<td rowspan='2'>b\\n<tr><td>1<td>2\\n{/t}; 6; more cells; B3
+            html not closed; {t}<tr><td>a</td></tr>\\n\\n{/t}; 5; not closed with '</table>';
             property above; {h}state: CA\\n{/h}| a |\\n|---|\\n; 3; a table property is written under 'properties';
             """)
     void problemOfTheBodyLeavesTheTableReadable(String name, String text, int line, String message,
@@ -312,33 +341,49 @@ class MarkdownReaderTest {
     }
 
     @Test
-    void tableIsReadWithoutTheMergedRangesThatBreakTheFormat() {
-        // A1:B1 overlaps A1:A2, so it is left out; B1:B2 fits
-        var text = "---\ntable: Data String values\nmerges: [A1:A2, A1:B1, B1:B2]\n---\n| a | |\n|---|---|\n| | |\n";
+    void mergedCellThatBreaksTheFormatIsCutToTheCellsItCanTake() {
+        // c spans the column b takes, so it keeps its own column alone; d takes the first column left
+        var text = """
+                ---
+                table: Data String values
+                ---
+                <table>
+                <tr><td>a</td><td rowspan="3">b</td></tr>
+                <tr><td colspan="2">c</td></tr>
+                <tr><td>d</td></tr>
+                </table>
+                """;
 
         assertArrayEquals(new Object[][]{
                 {"Data String values", MERGE_WITH_LEFT},
-                {"a", null},
-                {MERGE_WITH_UP, MERGE_WITH_UP}}, cellsOf("Merges.md", text));
+                {"a", "b"},
+                {"c", MERGE_WITH_UP},
+                {"d", MERGE_WITH_UP}}, cellsOf("Merges.md", text));
     }
 
     private static String source(String text) {
-        return text.replace("{h}", "---\\ntable: Rules X()\\n")
+        return text.replace("{t}", "{h}{/h}<table>\\n")
+                .replace("{/t}", "</table>\\n")
+                .replace("{h}", "---\\ntable: Rules X()\\n")
                 .replace("{/h}", "---\\n")
                 .replace("\\n", "\n");
     }
 
     @Test
     void countsCellsAsGfmSplitsThem() {
-        assertEquals(1, MarkdownTableParser.countCells("| a |"));
-        assertEquals(1, MarkdownTableParser.countCells("a |"));
-        assertEquals(1, MarkdownTableParser.countCells("| a"));
-        assertEquals(2, MarkdownTableParser.countCells("a | b"));
-        assertEquals(2, MarkdownTableParser.countCells(" | a \\| b | c | "));
-        assertEquals(1, MarkdownTableParser.countCells("| a \\|"));
+        assertEquals(1, cellsIn("| a |"));
+        assertEquals(1, cellsIn("a |"));
+        assertEquals(1, cellsIn("| a"));
+        assertEquals(2, cellsIn("a | b"));
+        assertEquals(2, cellsIn(" | a \\| b | c | "));
+        assertEquals(1, cellsIn("| a \\|"));
         // GFM escapes the pipe after a backslash even when another backslash stands before it
-        assertEquals(2, MarkdownTableParser.countCells("| a \\\\| b | c |"));
-        assertEquals(1, MarkdownTableParser.countCells("| a \\b |"));
+        assertEquals(2, cellsIn("| a \\\\| b | c |"));
+        assertEquals(1, cellsIn("| a \\b |"));
+    }
+
+    private static int cellsIn(String row) {
+        return GfmTableReader.cellsOf(row).size();
     }
 
     private static Object[][] cellsOf(String name, String text) {

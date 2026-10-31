@@ -34,6 +34,14 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
  */
 class MarkdownTableWriteTest {
 
+    private static final String GREETING_TABLE = """
+            | Hour  | Greeting       |
+            |-------|----------------|
+            | 0-11  | Good Morning   |
+            | 12-17 | Good Afternoon |
+            | 18-23 | Good Evening   |
+            """;
+
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
@@ -43,17 +51,17 @@ class MarkdownTableWriteTest {
 
             > Picks a greeting.
 
-            | Hour  | Greeting       |
-            |-------|----------------|
-            | 0-11  | Good Morning   |
-            | 12-17 | Good Afternoon |
-            | 18-23 | Good Evening   |
-            """;
+            """ + GREETING_TABLE;
 
-    /** The greeting with the afternoon and the evening under one merged hour. */
-    private static final String MERGED = GREETING.replace("category: Greetings\n",
-                    "category: Greetings\nmerges:\n  - A3:A4\n")
-            .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |");
+    /** The greeting with the afternoon and the evening under one merged hour, an HTML table. */
+    private static final String MERGED = GREETING.replace(GREETING_TABLE, """
+            <table>
+            <tr><td>Hour</td><td>Greeting</td></tr>
+            <tr><td>0-11</td><td>Good Morning</td></tr>
+            <tr><td rowspan="2">12-17</td><td>Good Afternoon</td></tr>
+            <tr><td>Good Evening</td></tr>
+            </table>
+            """);
 
     @TempDir
     Path project;
@@ -113,22 +121,26 @@ class MarkdownTableWriteTest {
     }
 
     @Test
-    void mergedCellsAreWrittenIntoTheFrontMatter() throws IOException {
+    void mergedCellsMakeTheTableAnHtmlTable() throws IOException {
         apply(new RawTableSourceAction.Update(new UpdateTarget.Cell(5, 0, null)),
                 new RawTableSourceAction.Merge(new MergeTarget.Cells(4, 0, 2, 1)));
 
-        assertEquals(GREETING.replace("category: Greetings\n",
-                        "category: Greetings\nmerges:\n  - A3:A4\n")
-                .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), written());
+        assertEquals(MERGED, written());
     }
 
     @Test
-    void unmergedCellsLeaveTheFrontMatter() throws IOException {
+    void lastUnmergeMakesTheTableAGfmTableAgain() throws IOException {
         Files.writeString(file, MERGED, StandardCharsets.UTF_8);
 
         apply(new RawTableSourceAction.Unmerge(new UnmergeTarget.Cells(4, 0)));
 
-        assertEquals(MERGED.replace("merges:\n  - A3:A4\n", ""), written());
+        assertEquals(GREETING.replace(GREETING_TABLE, """
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                | 12-17 | Good Afternoon |
+                |  | Good Evening |
+                """), written());
     }
 
     @Test
@@ -138,7 +150,12 @@ class MarkdownTableWriteTest {
         apply(new RawTableSourceAction.Delete(new DeleteTarget.Rows(5, 1)));
 
         // A merge left over a single cell is a merge no longer
-        assertEquals(MERGED.replace("merges:\n  - A3:A4\n", "").replace("|       | Good Evening   |\n", ""), written());
+        assertEquals(GREETING.replace(GREETING_TABLE, """
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                | 12-17 | Good Afternoon |
+                """), written());
     }
 
     @Test

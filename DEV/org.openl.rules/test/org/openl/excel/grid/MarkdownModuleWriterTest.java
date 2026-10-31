@@ -81,17 +81,16 @@ class MarkdownModuleWriterTest {
         assertEquals("""
                 ---
                 table: SmartRules Double rate(Integer age, String state)
-                merges:
-                  - A2:A3
                 ---
 
                 Rates by age
 
-                | Age | State | Rate |
-                |---|---|---|
-                | 0-17 | AL | 0.1 |
-                |  | AK | 0.2 |
-                | 18-120 | AL | 0.3 |
+                <table>
+                <tr><td>Age</td><td>State</td><td>Rate</td></tr>
+                <tr><td rowspan="2">0-17</td><td>AL</td><td>0.1</td></tr>
+                <tr><td>AK</td><td>0.2</td></tr>
+                <tr><td>18-120</td><td>AL</td><td>0.3</td></tr>
+                </table>
                 """, Files.readString(module.resolve("Rates/rate.md")));
         assertEquals("---\ntable: Datatype Adult extends Driver\n---\n",
                 Files.readString(module.resolve("Model/Adult.md")));

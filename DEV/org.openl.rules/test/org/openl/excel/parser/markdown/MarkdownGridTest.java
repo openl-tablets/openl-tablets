@@ -90,7 +90,7 @@ class MarkdownGridTest {
     }
 
     @Test
-    void mergeIsSavedIntoTheFrontMatter() throws Exception {
+    void mergeIsSavedAsAnHtmlTable() throws Exception {
         grid.edit();
         var writable = (IWritableGrid) grid.getGrid();
 
@@ -99,9 +99,20 @@ class MarkdownGridTest {
         writable.save();
 
         var text = Files.readString(file, StandardCharsets.UTF_8);
-        assertEquals(GREETING.replace("category: Greetings\n",
-                        "category: Greetings\nmerges:\n  - A3:A4\n")
-                .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), text);
+        assertEquals(GREETING.replace("""
+                | Hour  | Greeting       |
+                |-------|----------------|
+                | 0-11  | Good Morning   |
+                | 12-17 | Good Afternoon |
+                | 18-23 | Good Evening   |
+                """, """
+                <table>
+                <tr><td>Hour</td><td>Greeting</td></tr>
+                <tr><td>0-11</td><td>Good Morning</td></tr>
+                <tr><td rowspan="2">12-17</td><td>Good Afternoon</td></tr>
+                <tr><td>Good Evening</td></tr>
+                </table>
+                """), text);
     }
 
     @Test
@@ -300,22 +311,21 @@ class MarkdownGridTest {
 
         sheet.save();
 
-        // The range is written once: the cell it covers takes no value of its own. The description is the text above
+        // The merged cell is written once, and the cell it covers is not written. The description is the text above
         // the table
         assertEquals("""
                 ---
                 table: SmartRules String salutation(Integer hour)
-                merges:
-                  - A3:A4
                 ---
 
                 Greeting by the hour
 
-                | Hour | Greeting |
-                |---|---|
-                | 0-11 | Good Morning |
-                | 12-17 | Good Afternoon |
-                |  | Good Evening |
+                <table>
+                <tr><td>Hour</td><td>Greeting</td></tr>
+                <tr><td>0-11</td><td>Good Morning</td></tr>
+                <tr><td rowspan="2">12-17</td><td>Good Afternoon</td></tr>
+                <tr><td>Good Evening</td></tr>
+                </table>
                 """, text[0]);
     }
 

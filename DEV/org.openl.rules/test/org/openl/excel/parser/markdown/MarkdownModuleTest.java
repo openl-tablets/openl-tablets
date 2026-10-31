@@ -119,9 +119,9 @@ class MarkdownModuleTest {
         var module = new RulesEngineFactory<>(BROKEN).getCompiledOpenClass();
 
         var error = errorOf(module, "broken.md");
-        assertEquals("The merged range A1:C1 is outside the table", error.getSummary());
-        // The range starts in the first cell of the body, which lies under the header
-        assertTrue(error.getSourceLocation().endsWith("Broken/broken.md?sheet=Broken&cell=A2"),
+        assertEquals("The merged cell reaches past the table", error.getSummary());
+        // The merged cell is the first cell of the second row of the body, which lies under the header
+        assertTrue(error.getSourceLocation().endsWith("Broken/broken.md?sheet=Broken&cell=A3"),
                 error::getSourceLocation);
         assertTrue(hasMethod(module, "broken"));
     }

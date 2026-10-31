@@ -40,18 +40,18 @@ class MarkdownTableCopyTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            merges: [A3:A4]
             ---
 
             Greeting by the hour
 
             > Picks a greeting.
 
-            | Hour  | Greeting       |
-            |-------|----------------|
-            | 0-11  | Good Morning   |
-            | 12-23 | Good Afternoon |
-            |       | Good Evening   |
+            <table>
+            <tr><td>Hour</td><td>Greeting</td></tr>
+            <tr><td>0-11</td><td>Good Morning</td></tr>
+            <tr><td rowspan="2">12-23</td><td>Good Afternoon</td></tr>
+            <tr><td>Good Evening</td></tr>
+            </table>
             """;
 
     private static final String COVERED = "(covered)";
@@ -100,17 +100,16 @@ class MarkdownTableCopyTest {
         assertEquals("""
                 ---
                 table: SmartRules String salutation(Integer hour)
-                merges:
-                  - A3:A4
                 ---
 
                 Greeting by the hour
 
-                | Hour | Greeting |
-                |---|---|
-                | 0-11 | Good Morning |
-                | 12-23 | Good Afternoon |
-                |  | Good Evening |
+                <table>
+                <tr><td>Hour</td><td>Greeting</td></tr>
+                <tr><td>0-11</td><td>Good Morning</td></tr>
+                <tr><td rowspan="2">12-23</td><td>Good Afternoon</td></tr>
+                <tr><td>Good Evening</td></tr>
+                </table>
                 """, text("rules/Greetings/salutation.md"));
         assertEquals(GREETING, text("rules/Greetings/greeting.md"));
         var compiled = TableTestProjects.projectModel(project);
@@ -164,15 +163,14 @@ class MarkdownTableCopyTest {
         assertEquals("""
                 ---
                 table: SmartRules Double rateCopy(Integer age, String state)
-                merges:
-                  - A2:A3
                 ---
 
-                | Age | State | Rate |
-                |---|---|---|
-                | 0-17 | AL | 0.1 |
-                |  | AK | 0.2 |
-                | 18-120 | AL | 0.3 |
+                <table>
+                <tr><td>Age</td><td>State</td><td>Rate</td></tr>
+                <tr><td rowspan="2">0-17</td><td>AL</td><td>0.1</td></tr>
+                <tr><td>AK</td><td>0.2</td></tr>
+                <tr><td>18-120</td><td>AL</td><td>0.3</td></tr>
+                </table>
                 """, text[0]);
     }
 

@@ -33,16 +33,16 @@ class MarkdownTableLookTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            merges: [A3:A4]
             ---
 
             Greeting by the hour
 
-            | Hour  | Greeting       |
-            |-------|----------------|
-            | 0-11  | Good Morning   |
-            | 12-23 | Good Afternoon |
-            |       | Good Evening   |
+            <table>
+            <tr><td>Hour</td><td>Greeting</td></tr>
+            <tr><td>0-11</td><td>Good Morning</td></tr>
+            <tr><td rowspan="2">12-23</td><td>Good Afternoon</td></tr>
+            <tr><td>Good Evening</td></tr>
+            </table>
             """;
 
     private final TableFormatting formatting = mock(TableFormatting.class);

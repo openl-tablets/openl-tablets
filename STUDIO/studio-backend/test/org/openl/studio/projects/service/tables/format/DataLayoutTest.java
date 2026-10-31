@@ -86,16 +86,15 @@ class DataLayoutTest {
         Files.writeString(folder.resolve("policies.md"), """
                 ---
                 table: Data Policy policies
-                merges:
-                  - A3:A4
                 ---
 
-                | name   | vehicles.name |
-                |--------|---------------|
-                | Policy | Vehicle       |
-                | P1     | A             |
-                |        | B             |
-                | P2     | C             |
+                <table>
+                <tr><td>name</td><td>vehicles.name</td></tr>
+                <tr><td>Policy</td><td>Vehicle</td></tr>
+                <tr><td rowspan="2">P1</td><td>A</td></tr>
+                <tr><td>B</td></tr>
+                <tr><td>P2</td><td>C</td></tr>
+                </table>
                 """);
 
         var policies = TableTestProjects.table(TableTestProjects.projectModel(project), "policies");

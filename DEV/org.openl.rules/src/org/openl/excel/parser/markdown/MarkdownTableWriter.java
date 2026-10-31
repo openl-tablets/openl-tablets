@@ -15,14 +15,11 @@ import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.ScalarNode;
-
-import org.openl.util.StringUtils;
 
 /**
  * Writes a table back into the text of its Markdown file.
@@ -34,20 +31,21 @@ import org.openl.util.StringUtils;
  *
  * <p>The description is the text between the front matter and the body, never a property of the front matter.
  *
- * <p>The merged ranges are written a range to a line under the {@code merges} key, in reading order, so a range added
- * or taken away is a line of its own. The same ranges keep their lines, in whatever order the file lists them.
+ * <p>A body with merged cells is written as an HTML table, a row to a line, each merged cell spanning its rows and
+ * columns (see {@link HtmlTableBuilder}); a body without any as a GFM table (see {@link GfmTableBuilder}). A merge
+ * added or taken away changes the rows of the merged cell alone, as a span counts from its own cell, but the first
+ * merge turns a GFM table into an HTML one, and the last one back.
  *
- * <p>A changed row is written with its cells padded to the widths of the delimiter row, so a table aligned by hand
- * stays aligned while a value fits. A body of one cell, read from a code block, stays a code block.
+ * <p>A changed row of a GFM table is written with its cells padded to the widths of the delimiter row, so a table
+ * aligned by hand stays aligned while a value fits. A body of one cell, read from a code block, stays a code block.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class MarkdownTableWriter {
 
     private static final String TABLE = "table";
     private static final String PROPERTIES = "properties";
-    private static final String MERGES = "merges";
     /** The keys of the front matter the table is read from; any other key stays in the file as written. */
-    private static final Set<String> TABLE_KEYS = Set.of(TABLE, PROPERTIES, MERGES);
+    private static final Set<String> TABLE_KEYS = Set.of(TABLE, PROPERTIES);
     /** How far a new property is indented under {@code properties}. */
     private static final String INDENT = "  ";
     private static final String DELIMITER = "---";
@@ -105,9 +103,6 @@ final class MarkdownTableWriter {
         if (!properties.isEmpty()) {
             text.add(PROPERTIES + ":");
             properties.forEach((name, value) -> text.add(INDENT + rendered(name, value)));
-        }
-        if (!table.merges().isEmpty()) {
-            text.addAll(mergesLines(table.merges()));
         }
         text.add(DELIMITER);
         var description = MarkdownDescription.linesOf(descriptionOf(table));
@@ -208,9 +203,7 @@ final class MarkdownTableWriter {
     private static List<String> frontMatter(TableFile file, RulesTable table) {
         var original = file.table();
         var lines = file.lines();
-        if (original.header().equals(table.header())
-                && sameProperties(original, table)
-                && RulesTable.mergesText(original.merges()).equals(RulesTable.mergesText(table.merges()))) {
+        if (original.header().equals(table.header()) && sameProperties(original, table)) {
             return lines.subList(0, file.frontMatterEnd() + 1);
         }
         var keys = file.keys();
@@ -219,11 +212,6 @@ final class MarkdownTableWriter {
         text.addAll(lines.subList(0, keys.isEmpty() ? file.frontMatterEnd() : keys.getFirst().line()));
         text.addAll(key(file, TABLE, table.header()));
         text.addAll(properties(file, table));
-        // Ranges the table is read without stay as written until the ranges change, even when no range is left
-        var merges = RulesTable.mergesText(table.merges());
-        if (!merges.isEmpty() || written(file, MERGES, merges).isPresent()) {
-            text.addAll(written(file, MERGES, merges).orElseGet(() -> mergesLines(table.merges())));
-        }
         keys.stream()
                 .filter(key -> !TABLE_KEYS.contains(key.name()))
                 .forEach(key -> text.addAll(file.lines().subList(key.line(), endOf(file, key))));
@@ -318,17 +306,6 @@ final class MarkdownTableWriter {
     }
 
     /**
-     * Returns the lines of the merged ranges: the {@code merges} key, then a range to a line under it in reading
-     * order, so that a range added or taken away changes a line of its own.
-     */
-    private static List<String> mergesLines(List<CellRangeAddress> merges) {
-        var lines = new ArrayList<String>();
-        lines.add(MERGES + ":");
-        RulesTable.inReadingOrder(merges).forEach(range -> lines.add(INDENT + "- " + range.formatAsString()));
-        return lines;
-    }
-
-    /**
      * Writes a value as YAML: as it is when it reads back the same, in double quotes otherwise.
      */
     private static String scalar(String value) {
@@ -359,7 +336,9 @@ final class MarkdownTableWriter {
 
     private static List<String> body(TableFile file, RulesTable table) {
         var source = file.body();
-        if (file.table().body().equals(table.body())) {
+        var original = file.table();
+        if (original.body().equals(table.body())
+                && Set.copyOf(original.merges()).equals(Set.copyOf(table.merges()))) {
             return file.lines().subList(source.firstLine(), source.lastLine() + 1);
         }
         if (table.body().isEmpty()) {
@@ -373,12 +352,12 @@ final class MarkdownTableWriter {
                 && table.merges().isEmpty()) {
             return codeBlock(code, body.getFirst().getFirst());
         }
-        return gfmTable(file, table);
+        return table(file, table);
     }
 
     /**
      * Returns the lines of the body of a new file after its front matter: none for a table with a header alone, a code
-     * block for the code of a Method table, and a GFM table otherwise, each after a blank line.
+     * block for the code of a Method table, and a table otherwise, each after a blank line.
      */
     private static List<String> newBody(RulesTable table) {
         var body = table.body();
@@ -391,14 +370,84 @@ final class MarkdownTableWriter {
                 && table.merges().isEmpty()) {
             text.addAll(codeBlock(NEW_CODE, body.getFirst().getFirst()));
         } else {
-            text.addAll(gfmTable(null, table));
+            text.addAll(table(null, table));
         }
         return text;
     }
 
+    /**
+     * Writes the body as a table, keeping the rows of the file that did not change: a row whose cells and spans are the
+     * same keeps its line. A new file has none.
+     */
+    private static List<String> table(@Nullable TableFile file, RulesTable table) {
+        var source = sourceOf(file, table);
+        var rows = TableLayout.rowsOf(table);
+        var kept = keptRows(TableLayout.keysOf(source.original()), TableLayout.keysOf(table));
+        var builder = source.builder();
+        for (var i = 0; i < rows.size(); i++) {
+            if (kept[i] < 0) {
+                builder.row(rows.get(i));
+            } else {
+                builder.written(source.lineOf(kept[i]));
+            }
+        }
+        return builder.build();
+    }
+
+    /**
+     * Returns the builder that writes the body, and the lines of the rows of the file it may keep.
+     *
+     * <p>A body with merged cells is an HTML table, which a GFM table cannot hold, and one without any a GFM table.
+     * The rows of the file are kept while the table keeps its syntax, a GFM table its columns too; the builder then
+     * keeps the lines that frame the rows: the delimiter row of a GFM table, the lines that open and close an HTML
+     * one.
+     */
+    private static Source sourceOf(@Nullable TableFile file, RulesTable table) {
+        if (!table.merges().isEmpty()) {
+            if (file != null && file.body() instanceof TableFile.HtmlBody html && !html.rowLines().isEmpty()) {
+                var lines = file.lines();
+                var rowLines = html.rowLines();
+                return new Source(HtmlTableBuilder.over(lines.subList(html.firstLine(), rowLines.getFirst()),
+                        lines.subList(rowLines.getLast() + 1, html.lastLine() + 1)), file.table(), lines, rowLines);
+            }
+            return Source.anew(HtmlTableBuilder.of());
+        }
+        var width = table.width();
+        if (file != null && file.body() instanceof TableFile.GfmBody gfm && file.table().width() == width) {
+            return new Source(GfmTableBuilder.over(file.lines().get(gfm.delimiterLine()), width), file.table(),
+                    file.lines(), gfm.rowLines());
+        }
+        return Source.anew(GfmTableBuilder.of(width));
+    }
+
+    /**
+     * The builder that writes the body of a table, and the rows of the file it may keep.
+     *
+     * @param original the table as the file holds it
+     * @param lines    the lines of the file
+     * @param rowLines the line of each row of the file
+     */
+    private record Source(MarkdownTableBuilder builder,
+                          RulesTable original,
+                          List<String> lines,
+                          List<Integer> rowLines) {
+
+        /** Returns a source that keeps no row: the table is written anew. */
+        static Source anew(MarkdownTableBuilder builder) {
+            return new Source(builder, new RulesTable("", new LinkedHashMap<>(), List.of(), List.of()), List.of(),
+                    List.of());
+        }
+
+        String lineOf(int row) {
+            return lines.get(rowLines.get(row));
+        }
+    }
+
     private static List<String> codeBlock(TableFile.CodeBody code, @Nullable String value) {
         var indent = " ".repeat(code.indent());
-        var lines = value == null ? List.<String>of() : List.of(normalized(value).split("\n", -1));
+        var lines = value == null
+                ? List.<String>of()
+                : List.of(MarkdownTableBuilder.normalized(value).split("\n", -1));
         // A fence must be longer than any run of its character in the code
         var fence = new StringBuilder(code.fence());
         while (value != null && value.contains(fence)) {
@@ -412,49 +461,33 @@ final class MarkdownTableWriter {
     }
 
     /**
-     * Writes the body as a GFM table, keeping the rows of the file that did not change; a new file has none.
+     * Returns, for each row of the table, the row of the original body whose lines it keeps, or -1 for a row written
+     * anew. The rows above and below the change keep their lines as they stand; only the rows between are looked up,
+     * in their order, so a row inserted or removed leaves the rows around it as they are.
      */
-    private static List<String> gfmTable(@Nullable TableFile file, RulesTable table) {
-        var width = table.width();
-        var lines = file == null ? List.<String>of() : file.lines();
-        // The rows of the file are kept only while the table keeps its columns
-        var source = file != null && file.body() instanceof TableFile.GfmBody gfm && file.table().width() == width
-                ? gfm
-                : null;
-        var delimiter = source == null ? "|" + (DELIMITER + "|").repeat(width) : lines.get(source.delimiterLine());
-        var rowLines = source == null ? List.<Integer>of() : source.rowLines();
-        var original = source == null || file == null ? List.<List<@Nullable String>>of() : file.table().body();
-        var rows = table.body();
-        // The rows above and below the change keep their lines as they stand; only the rows between are looked up
+    private static <R> int[] keptRows(List<R> original, List<R> rows) {
         var top = sameAtTop(original, rows);
         var bottom = sameAtBottom(original, rows, top);
         var unchanged = rowsOf(original, top, original.size() - bottom);
-        // Cells are aligned only to the widths of a table aligned by hand
-        var widths = source == null ? new int[width] : widths(delimiter, width);
-        var text = new ArrayList<String>(rows.size() + 1);
+        var kept = new int[rows.size()];
         var lastKept = top - 1;
         for (var i = 0; i < rows.size(); i++) {
-            int kept;
             if (i < top) {
-                kept = i;
+                kept[i] = i;
             } else if (i >= rows.size() - bottom) {
-                kept = original.size() - rows.size() + i;
+                kept[i] = original.size() - rows.size() + i;
             } else {
-                kept = keptRow(unchanged, rows.get(i), lastKept);
-                lastKept = Math.max(lastKept, kept);
-            }
-            text.add(kept < 0 ? row(rows.get(i), widths) : lines.get(rowLines.get(kept)));
-            if (text.size() == 1) {
-                text.add(delimiter);
+                kept[i] = keptRow(unchanged, rows.get(i), lastKept);
+                lastKept = Math.max(lastKept, kept[i]);
             }
         }
-        return text;
+        return kept;
     }
 
     /**
      * Returns how many rows at the top of the table are the same as in the original body.
      */
-    private static int sameAtTop(List<List<@Nullable String>> original, List<List<@Nullable String>> rows) {
+    private static <R> int sameAtTop(List<R> original, List<R> rows) {
         var top = 0;
         while (top < original.size() && top < rows.size() && original.get(top).equals(rows.get(top))) {
             top++;
@@ -466,7 +499,7 @@ final class MarkdownTableWriter {
      * Returns how many rows at the bottom of the table are the same as in the original body, the rows the same at the
      * top left out.
      */
-    private static int sameAtBottom(List<List<@Nullable String>> original, List<List<@Nullable String>> rows, int top) {
+    private static <R> int sameAtBottom(List<R> original, List<R> rows, int top) {
         var bottom = 0;
         while (bottom < original.size() - top && bottom < rows.size() - top
                 && original.get(original.size() - 1 - bottom).equals(rows.get(rows.size() - 1 - bottom))) {
@@ -479,10 +512,8 @@ final class MarkdownTableWriter {
      * Returns the rows of the original body between two of them by their cells, each with the indexes of the rows
      * holding them.
      */
-    private static Map<List<@Nullable String>, Queue<Integer>> rowsOf(List<List<@Nullable String>> body,
-                                                                     int from,
-                                                                     int to) {
-        var rows = new HashMap<List<@Nullable String>, Queue<Integer>>();
+    private static <R> Map<R, Queue<Integer>> rowsOf(List<R> body, int from, int to) {
+        var rows = new HashMap<R, Queue<Integer>>();
         for (var i = from; i < to; i++) {
             rows.computeIfAbsent(body.get(i), cells -> new ArrayDeque<>()).add(i);
         }
@@ -493,77 +524,11 @@ final class MarkdownTableWriter {
      * Returns the original row with the same cells that comes after the last row kept, or -1 when there is none. Rows
      * are kept in their order, so a row inserted or removed leaves the rows around it as they are.
      */
-    private static int keptRow(Map<List<@Nullable String>, Queue<Integer>> rows,
-                               List<@Nullable String> cells,
-                               int lastKept) {
+    private static <R> int keptRow(Map<R, Queue<Integer>> rows, R cells, int lastKept) {
         var candidates = rows.getOrDefault(cells, new ArrayDeque<>());
         while (!candidates.isEmpty() && candidates.peek() <= lastKept) {
             candidates.remove();
         }
         return candidates.isEmpty() ? -1 : candidates.remove();
-    }
-
-    /**
-     * Returns the width of the text of each column, read from a delimiter row such as {@code |-------|---|}.
-     *
-     * <p>The shortest delimiter, {@code ---}, which a new file is written with, aligns no column.
-     */
-    private static int[] widths(String delimiter, int width) {
-        var row = delimiter.strip();
-        var from = row.startsWith("|") ? 1 : 0;
-        var to = row.endsWith("|") && row.length() > from ? row.length() - 1 : row.length();
-        var segments = row.substring(from, to).split("\\|", -1);
-        var widths = new int[width];
-        for (var column = 0; column < Math.min(width, segments.length); column++) {
-            var segment = segments[column];
-            widths[column] = DELIMITER.equals(segment.strip()) ? 0 : Math.max(segment.length() - 2, 0);
-        }
-        return widths;
-    }
-
-    private static String row(List<@Nullable String> cells, int[] widths) {
-        var row = new StringBuilder("|");
-        for (var column = 0; column < cells.size(); column++) {
-            var text = cell(cells.get(column));
-            row.append(' ').append(text).append(" ".repeat(Math.max(widths[column] - text.length(), 0))).append(" |");
-        }
-        return row.toString();
-    }
-
-    /**
-     * Returns the text of a cell that reads back as the value.
-     *
-     * @throws MarkdownWriteException when no text of a cell reads back as the value
-     */
-    private static String cell(@Nullable String value) {
-        if (value == null) {
-            return "";
-        }
-        var expected = StringUtils.trimToNull(normalized(value));
-        var text = normalized(value).replace("|", "\\|").replace("\n", "<br>");
-        if (Objects.equals(MarkdownTableParser.cellText(text), expected)) {
-            return text;
-        }
-        // Wrapped in backticks, a value is taken as it is: one that starts with a backtick, for example
-        var ticks = "`".repeat(longestRun(text, '`') + 1);
-        var wrapped = ticks + " " + text + " " + ticks;
-        if (Objects.equals(MarkdownTableParser.cellText(wrapped), expected)) {
-            return wrapped;
-        }
-        throw new MarkdownWriteException("The value '%s' cannot be written in a Markdown table".formatted(value));
-    }
-
-    private static int longestRun(String text, char c) {
-        var longest = 0;
-        var run = 0;
-        for (var i = 0; i < text.length(); i++) {
-            run = text.charAt(i) == c ? run + 1 : 0;
-            longest = Math.max(longest, run);
-        }
-        return longest;
-    }
-
-    private static String normalized(String value) {
-        return value.replace("\r\n", "\n").replace('\r', '\n');
     }
 }

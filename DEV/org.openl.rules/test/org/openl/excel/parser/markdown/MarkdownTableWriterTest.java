@@ -25,6 +25,14 @@ import org.openl.util.FileTypeHelper;
  */
 class MarkdownTableWriterTest {
 
+    private static final String GREETING_TABLE = """
+            | Hour  | Greeting       |
+            |-------|----------------|
+            | 0-11  | Good Morning   |
+            | 12-17 | Good Afternoon |
+            | 18-23 | Good Evening   |
+            """;
+
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
@@ -34,14 +42,19 @@ class MarkdownTableWriterTest {
 
             > Picks a greeting.
 
-            | Hour  | Greeting       |
-            |-------|----------------|
-            | 0-11  | Good Morning   |
-            | 12-17 | Good Afternoon |
-            | 18-23 | Good Evening   |
-
+            %s
             Notes after the table.
-            """;
+            """.formatted(GREETING_TABLE);
+
+    /** The greeting with the afternoon and the evening under one hour, which merges their cells of the hour. */
+    private static final String MERGED = GREETING.replace(GREETING_TABLE, """
+            <table>
+            <tr><td>Hour</td><td>Greeting</td></tr>
+            <tr><td>0-11</td><td>Good Morning</td></tr>
+            <tr><td rowspan="2">12-17</td><td>Good Afternoon</td></tr>
+            <tr><td>Good Evening</td></tr>
+            </table>
+            """);
 
     /** A table described in two blocks of text, with comments between them. */
     private static final String DESCRIBED = """
@@ -156,13 +169,7 @@ class MarkdownTableWriterTest {
     void addedColumnRewritesTheTable() {
         var cells = set(set(bodyUnmerged(cellsOf(GREETING)), 2, 2, "Note"), 3, 2, "early");
 
-        assertEquals(GREETING.replace("""
-                | Hour  | Greeting       |
-                |-------|----------------|
-                | 0-11  | Good Morning   |
-                | 12-17 | Good Afternoon |
-                | 18-23 | Good Evening   |
-                """, """
+        assertEquals(GREETING.replace(GREETING_TABLE, """
                 | Hour | Greeting | Note |
                 |---|---|---|
                 | 0-11 | Good Morning | early |
@@ -172,47 +179,86 @@ class MarkdownTableWriterTest {
     }
 
     @Test
-    void mergeIsWrittenIntoTheFrontMatter() {
+    void mergeTurnsTheTableIntoAnHtmlTable() {
         var cells = merge(set(cellsOf(GREETING), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
         var text = write(GREETING, cells);
 
-        assertEquals(GREETING.replace("category: Greetings\n",
-                        "category: Greetings\nmerges:\n  - A3:A4\n")
-                .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), text);
+        // A GFM table holds no merged cell
+        assertEquals(MERGED, text);
         assertEquals(List.of(CellRangeAddress.valueOf("A3:A4")), parse(text).table().merges());
     }
 
     @Test
-    void rangeAddedIsALineOfItsOwnInReadingOrder() {
-        var first = write(GREETING, merge(set(cellsOf(GREETING), 5, 1, null), new CellRangeAddress(4, 5, 1, 1)));
-        var second = write(first, merge(set(cellsOf(first), 5, 0, null), new CellRangeAddress(4, 5, 0, 0)));
+    void mergeRewritesTheRowsOfTheMergedCellAlone() {
+        // A row whose cells and spans are the same keeps its line, aligned by hand here
+        var aligned = MERGED.replace("<tr><td>Hour</td>", "<tr>  <td>Hour</td>");
+        var cells = merge(set(cellsOf(aligned), 5, 1, null), new CellRangeAddress(4, 5, 1, 1));
 
-        assertTrue(first.contains("merges:\n  - B3:B4\n---"), first);
-        // The range written before keeps its line, the new one comes before it as it stands before it in the table
-        assertTrue(second.contains("merges:\n  - A3:A4\n  - B3:B4\n---"), second);
+        assertEquals(aligned.replace("""
+                <tr><td rowspan="2">12-17</td><td>Good Afternoon</td></tr>
+                <tr><td>Good Evening</td></tr>
+                """, """
+                <tr><td rowspan="2">12-17</td><td rowspan="2">Good Afternoon</td></tr>
+                <tr></tr>
+                """), write(aligned, cells));
     }
 
     @Test
-    void sameRangesKeepTheirLinesInTheOrderTheFileListsThem() {
-        var listed = GREETING.replace("category: Greetings\n",
-                        "category: Greetings\nmerges: [B3:B4, A3:A4]\n")
-                .replace("| 18-23 | Good Evening   |", "|       |                |");
-        var renamed = set(cellsOf(listed), 0, 0, "SmartRules String greet(Integer hour)");
-
-        assertEquals(listed.replace("greeting(Integer hour)", "greet(Integer hour)"), write(listed, renamed));
-    }
-
-    @Test
-    void unmergeRemovesTheMergesFromTheFrontMatter() {
-        var merged = write(GREETING, merge(set(cellsOf(GREETING), 5, 0, null), new CellRangeAddress(4, 5, 0, 0)));
-        var cells = cellsOf(merged);
+    void lastUnmergeTurnsTheTableBackIntoAGfmTable() {
+        var cells = cellsOf(MERGED);
         var unmerged = new SheetCells(cells.values(), cells.merges()
                 .stream()
                 .filter(range -> !range.equals(new CellRangeAddress(4, 5, 0, 0)))
                 .toList());
 
-        assertEquals(GREETING.replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"),
-                write(merged, unmerged));
+        // The table is written anew, as a new file writes it
+        assertEquals(GREETING.replace(GREETING_TABLE, """
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                | 12-17 | Good Afternoon |
+                |  | Good Evening |
+                """), write(MERGED, unmerged));
+    }
+
+    @Test
+    void htmlTableKeepsTheLinesThatFrameItsRows() {
+        var framed = MERGED.replace("<table>\n", "<table>\n<tbody>\n").replace("</table>\n", "</tbody>\n</table>\n");
+        var cells = set(cellsOf(framed), 3, 1, "Morning");
+
+        assertEquals(framed.replace("<td>Good Morning</td>", "<td>Morning</td>"), write(framed, cells));
+    }
+
+    @Test
+    void htmlTableWithACellToALineIsWrittenAnewOnAChange() {
+        // A row keeps its line only when it is the one row of its line
+        var celled = MERGED.replace("<tr><td>Hour</td><td>Greeting</td></tr>",
+                "<tr>\n  <th>Hour</th>\n  <th>Greeting</th>\n</tr>");
+        var cells = set(cellsOf(celled), 3, 1, "Morning");
+
+        assertEquals(MERGED.replace("<td>Good Morning</td>", "<td>Morning</td>"), write(celled, cells));
+    }
+
+    @Test
+    void htmlTableReadWithoutAPartOfItIsWrittenAnewOnAChange() {
+        // The span reaches past the table: kept as written, the row would span the rows added below it
+        var broken = MERGED.replace("rowspan=\"2\"", "rowspan=\"5\"");
+        var cells = set(cellsOf(broken), 3, 1, "Morning");
+
+        assertEquals(MERGED.replace("<td>Good Morning</td>", "<td>Morning</td>"), write(broken, cells));
+    }
+
+    @Test
+    void mergesKeyIsAKeyTheTableIsReadWithout() {
+        var stray = GREETING.replace("category: Greetings\n", "category: Greetings\nmerges: [A3:A4]\n");
+        var file = parse(stray);
+
+        assertEquals(List.of(), file.table().merges());
+        assertTrue(file.problems().getFirst().problem().contains("written in an HTML table"), file::toString);
+        // The key stays in the file as written, as any key the table is read without
+        var merged = merge(set(cellsOf(stray), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
+        assertEquals(MERGED.replace("category: Greetings\n", "category: Greetings\nmerges: [A3:A4]\n"),
+                write(stray, merged));
     }
 
     @Test
@@ -301,20 +347,6 @@ class MarkdownTableWriterTest {
         var cells = set(cellsOf(GREETING), 0, 0, "SmartRules String greet(Integer hour)");
 
         assertEquals(GREETING.replace("greeting(Integer hour)", "greet(Integer hour)"), write(GREETING, cells));
-    }
-
-    @Test
-    void rangeTheTableIsReadWithoutStaysAsWrittenUntilTheRangesChange() {
-        // A2:B2 covers the value of B2, so the table is read without the range
-        var broken = GREETING.replace("category: Greetings\n",
-                "category: Greetings\nmerges: [A2:B2]\n");
-        var renamed = set(cellsOf(broken), 0, 0, "SmartRules String greet(Integer hour)");
-
-        assertEquals(broken.replace("greeting(Integer hour)", "greet(Integer hour)"), write(broken, renamed));
-
-        var merged = merge(set(cellsOf(broken), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
-
-        assertTrue(write(broken, merged).contains("category: Greetings\nmerges:\n  - A3:A4\n---"));
     }
 
     @Test
@@ -487,6 +519,28 @@ class MarkdownTableWriterTest {
     }
 
     @Test
+    void valuesReadBackAsWrittenInAnHtmlTable() {
+        var values = List.of("a <= b", "<b>not bold</b>", "a && b", "&amp; &lt;", "&nbsp;&nbsp;indented",
+                "line 1\nline 2", "a <br> b", "a | b", "`quoted`", "</td>");
+        var cells = cellsOf(MERGED);
+        for (var i = 0; i < values.size(); i++) {
+            cells = insertRow(cells, 3 + i, "x" + i, values.get(i));
+        }
+
+        var text = write(MERGED, cells);
+        var body = parse(text).table().body();
+
+        // What would read as a tag or a reference is escaped, the indent of a cell is not
+        assertTrue(text.contains("<td>a <= b</td>"), text);
+        assertTrue(text.contains("<td>&lt;b>not bold&lt;/b></td>"), text);
+        assertTrue(text.contains("<td>&amp;amp; &amp;lt;</td>"), text);
+        assertTrue(text.contains("<td>&nbsp;&nbsp;indented</td>"), text);
+        for (var i = 0; i < values.size(); i++) {
+            assertEquals(values.get(i), body.get(1 + i).get(1));
+        }
+    }
+
+    @Test
     void lineBreaksAndByteOrderMarkOfTheFileAreKept() {
         var text = "﻿" + GREETING.replace("\n", "\r\n");
         var cells = set(cellsOf(GREETING), 3, 1, "Morning");
@@ -518,8 +572,9 @@ class MarkdownTableWriterTest {
                 | 18-23 | Good Evening |
                 """, text);
         assertEquals(table, parse(text).table());
-        assertTrue(MarkdownTableWriter.newFile(merged)
-                .contains("category: Greetings\nmerges:\n  - A3:A4\n"));
+        // A table with merged cells is an HTML table
+        assertEquals(MERGED.replace("> Picks a greeting.\n\n", "").replace("\nNotes after the table.\n", ""),
+                MarkdownTableWriter.newFile(merged));
         assertEquals(merged, parse(MarkdownTableWriter.newFile(merged)).table());
     }
 
@@ -591,8 +646,8 @@ class MarkdownTableWriterTest {
                 merge(greeting, new CellRangeAddress(1, 2, 2, 2)));
         assertRefused(GREETING, "The cell A5 has a value, but the merged range A4:A5 covers it",
                 merge(greeting, new CellRangeAddress(3, 4, 0, 0)));
-        assertRefused(GREETING, "The property 'merges' cannot be written: the name is taken",
-                set(greeting, 1, 1, "merges"));
+        assertRefused(GREETING, "The property 'table' cannot be written: the name is taken",
+                set(greeting, 1, 1, "table"));
         assertRefused(GREETING, "The property in row 2 must have a name in a cell of its own",
                 set(greeting, 1, 1, null));
         var narrow = new @Nullable String[][]{

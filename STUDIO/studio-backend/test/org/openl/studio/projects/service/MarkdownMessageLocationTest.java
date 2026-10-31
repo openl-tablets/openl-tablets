@@ -107,12 +107,12 @@ class MarkdownMessageLocationTest {
         write("covered.md", """
                 ---
                 table: SmartRules Double covered(Integer age)
-                merges: [A2:B2]
                 ---
 
-                | Age  | Rate |
-                |------|------|
-                | < 25 | 1.5  |
+                <table>
+                <tr><td>Age</td><td>Rate</td></tr>
+                <tr><td>&lt; 25</td><td rowspan="2">1.5</td></tr>
+                </table>
                 """);
         write("Folder/unread.md", """
                 ---

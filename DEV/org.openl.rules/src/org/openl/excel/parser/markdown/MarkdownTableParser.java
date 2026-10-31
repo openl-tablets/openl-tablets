@@ -2,17 +2,15 @@ package org.openl.excel.parser.markdown;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import org.apache.poi.ss.util.CellAddress;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.HtmlBlock;
@@ -35,18 +33,19 @@ import org.openl.util.StringUtils;
  *
  * <p>The header of the table is the front matter of the file: the {@code table} key holds the text of the first table
  * cell, such as {@code Rules String Greeting(Integer hour)}. The {@code properties} key holds the table properties, a
- * name and a value on each line under it, and {@code merges} lists the merged ranges of the body in A1 notation, a
- * range to a line under it. Values are read as written: {@code NO} stays {@code NO}, and a list is joined with commas.
- * Any other key is a problem: the table is read without it.
+ * name and a value on each line under it. Values are read as written: {@code NO} stays {@code NO}, and a list is joined
+ * with commas. Any other key is a problem: the table is read without it.
  *
  * <p>The text between the front matter and the body is the description of the table, its {@code description}
  * property; a quote and an HTML comment there are comments, and no part of it (see {@link MarkdownDescription}). A
  * {@code description} under {@code properties} is a problem: the table is read without it.
  *
- * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
- * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with
- * neither holds a table of a header alone, such as a {@code Datatype} that adds no field to its parent; the text after
- * its front matter is its description.
+ * <p>The body is the first GFM table, HTML table or code block after the front matter. Every row of a table, its first
+ * row included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A body with
+ * merged cells is an HTML table, whose cells span them with {@code rowspan} and {@code colspan} (see
+ * {@link HtmlTableReader}); a GFM table has none (see {@link GfmTableReader}). A file with no body holds a table of a
+ * header alone, such as a {@code Datatype} that adds no field to its parent; the text after its front matter is its
+ * description.
  *
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
  * {@code \|} gives a vertical bar and {@code <br>} a line break. A whole number, {@code true} and {@code false}, and a
@@ -55,24 +54,24 @@ import org.openl.util.StringUtils;
  *
  * <p>The text after the body is documentation. A file without front matter is documentation as a whole.
  *
- * <p>A file that breaks the format in the front matter holds no table. One that breaks it in the body, or in the
- * merged ranges, keeps the table without the part that breaks it: a merged range that does not fit, the cells of a
- * row beyond those of the first row, the rows a blank line cuts off. The file tells each such problem.
+ * <p>A file that breaks the format in the front matter holds no table. One that breaks it in the body keeps the table
+ * without the part that breaks it: the cells of a row beyond those of the first row, the part of a merged cell past the
+ * table or over another, the rows a blank line cuts off. The file tells each such problem.
  */
 final class MarkdownTableParser {
 
     private static final Parser PARSER = Parser.builder()
             // A table is known by its lines: its cells are cut out of the lines of the file, whatever their number
             .customBlockParserFactory(new TableLines.Factory())
+            .customBlockParserFactory(new HtmlTableLines.Factory())
             .includeSourceSpans(IncludeSourceSpans.BLOCKS)
             // A cell is taken from the text of the file, so the Markdown inside it is never parsed
             .inlineParserFactory(context -> (content, node) -> {
             })
             .build();
     private static final Pattern LINE_SEPARATOR = Pattern.compile("\r\n|\r|\n");
-    private static final Pattern LINE_BREAK = Pattern.compile("<br\\s*/?>", Pattern.CASE_INSENSITIVE);
-    // No wider than an Excel sheet, so no row or column number overflows
-    private static final Pattern A1_RANGE = Pattern.compile("[A-Z]{1,3}[1-9]\\d{0,6}(?::[A-Z]{1,3}[1-9]\\d{0,6})?");
+    private static final String ROW_OPEN = "<tr";
+    private static final String ROW_CLOSE = "</tr>";
     private static final String FRONT_MATTER = "---";
     private static final String TABLE = "table";
     private static final String PROPERTIES = "properties";
@@ -81,6 +80,10 @@ final class MarkdownTableParser {
     private final String text;
     private final List<String> lines;
     private final List<MarkdownProblem> problems = new ArrayList<>();
+    /** The rows of the table of the body, once read. */
+    private List<TableRow> rows = List.of();
+    /** Whether the table of the body is read as written, without a problem. */
+    private boolean readAsWritten = true;
 
     private MarkdownTableParser(String text) {
         this.text = text;
@@ -139,7 +142,7 @@ final class MarkdownTableParser {
         var document = PARSER.parse(String.join("\n", body));
         var node = document.getFirstChild();
         var description = new ArrayList<TableFile.Block>();
-        while (node != null && !(node instanceof TableLines) && !(node instanceof FencedCodeBlock)) {
+        while (node != null && !isBody(node)) {
             if (!isComment(node)) {
                 description.add(blockOf(node));
             }
@@ -158,11 +161,18 @@ final class MarkdownTableParser {
                 separator.find() ? separator.group() : "\n",
                 table,
                 end,
-                keysOf(header, table),
+                header.keys(),
                 header.propertyKeys(),
                 List.copyOf(description),
                 node == null ? new TableFile.NoBody(afterDescription) : bodyOf(node),
                 List.copyOf(problems)));
+    }
+
+    /**
+     * Tells the body of a table: a GFM table, an HTML table, or a code block.
+     */
+    private static boolean isBody(Node node) {
+        return node instanceof TableLines || node instanceof HtmlTableLines || node instanceof FencedCodeBlock;
     }
 
     /**
@@ -188,21 +198,7 @@ final class MarkdownTableParser {
         var properties = new LinkedHashMap<String, String>();
         properties.put(MarkdownDescription.PROPERTY, description);
         properties.putAll(header.properties());
-        return new Header(header.text(), properties, header.merges(), header.mergesLine(), header.keys(),
-                header.propertyKeys());
-    }
-
-    /**
-     * Returns the keys of the front matter, the merged ranges among them as the table holds them: a range left out
-     * stays as written until the ranges change.
-     */
-    private static List<TableFile.Key> keysOf(Header header, RulesTable table) {
-        return header.keys()
-                .stream()
-                .map(key -> MERGES.equals(key.name())
-                        ? new TableFile.Key(MERGES, RulesTable.mergesText(table.merges()), key.line())
-                        : key)
-                .toList();
+        return new Header(header.text(), properties, header.keys(), header.propertyKeys());
     }
 
     // Header
@@ -226,8 +222,6 @@ final class MarkdownTableParser {
         String header = null;
         var properties = new LinkedHashMap<String, String>();
         var propertyKeys = new ArrayList<TableFile.Key>();
-        List<CellRangeAddress> merges = List.of();
-        var mergesLine = 1;
         var keys = new ArrayList<TableFile.Key>();
         for (var tuple : mapping.getValue()) {
             var keyLine = firstLine + tuple.getKeyNode().getStartMark().getLine();
@@ -239,18 +233,10 @@ final class MarkdownTableParser {
                     value = header;
                 }
                 case PROPERTIES -> readProperties(tuple.getValueNode(), keyLine, firstLine, properties, propertyKeys);
-                case MERGES -> {
-                    var values = values(tuple.getValueNode(), keyLine);
-                    value = String.join(",", values);
-                    mergesLine = keyLine;
-                    merges = values.stream()
-                            .flatMap(range -> Arrays.stream(range.split(",")))
-                            .map(String::strip)
-                            .filter(range -> !range.isEmpty())
-                            .flatMap(range -> range(range, keyLine).stream())
-                            .toList();
-                }
                 // The table is read without it, and the key stays in the file as written
+                case MERGES -> problem(keyLine, """
+                        Merged cells are written in an HTML table, with 'rowspan' and 'colspan', not under \
+                        'merges'""", null);
                 default -> problem(keyLine,
                         "'%s' is not a key of the front matter: a table property is written under '%s'".formatted(key,
                                 PROPERTIES),
@@ -261,7 +247,7 @@ final class MarkdownTableParser {
         if (header == null || header.isBlank()) {
             throw error(1, "The front matter has no 'table' key with the header of the table");
         }
-        return new Header(header, properties, merges, mergesLine, keys, propertyKeys);
+        return new Header(header, properties, keys, propertyKeys);
     }
 
     /**
@@ -310,52 +296,87 @@ final class MarkdownTableParser {
         };
     }
 
-    /**
-     * Returns a merged range written in A1 notation, or nothing for one written otherwise, which is a problem.
-     */
-    private Optional<CellRangeAddress> range(String text, int line) {
-        var range = text.toUpperCase(Locale.ROOT);
-        if (!A1_RANGE.matcher(range).matches()) {
-            problem(line, "'%s' is not a cell range such as A1:B2".formatted(text), null);
-            return Optional.empty();
-        }
-        try {
-            return Optional.of(CellRangeAddress.valueOf(range));
-        } catch (IllegalArgumentException e) {
-            problem(line, "The range '%s' must go from its top left cell to its bottom right one".formatted(text),
-                    null);
-            return Optional.empty();
-        }
-    }
-
     // Body
 
     private RulesTable readTable(Header header, @Nullable Node body) {
-        var rows = switch (body) {
-            case null -> List.<List<@Nullable String>>of();
-            case TableLines table -> readRows(table, header);
-            default -> List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body)
-                    .getLiteral())));
+        return switch (body) {
+            case null -> new RulesTable(header.text(), header.properties(), List.of(), List.of());
+            case TableLines table -> laidOut(header, new GfmTableReader(lines, table.rowLines()));
+            case HtmlTableLines table -> laidOut(header,
+                    new HtmlTableReader(lines, table.firstLine(), table.lastLine()));
+            default -> new RulesTable(header.text(), header.properties(),
+                    List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body).getLiteral()))),
+                    List.of());
         };
-        var written = new RulesTable(header.text(), header.properties(), rows, header.merges());
-        return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(written, header));
-    }
-
-    private static TableFile.Body bodyOf(Node body) {
-        var spans = body.getSourceSpans();
-        if (body instanceof FencedCodeBlock code) {
-            return new TableFile.CodeBody(spans.getFirst().getLineIndex(),
-                    spans.getLast().getLineIndex(),
-                    code.getFenceCharacter().repeat(code.getOpeningFenceLength()),
-                    StringUtils.trimToEmpty(code.getInfo()),
-                    code.getFenceIndent());
-        }
-        var table = (TableLines) body;
-        return new TableFile.GfmBody(table.rowLines(), table.delimiterLine());
     }
 
     /**
-     * Tells of table rows cut off from the body by a blank line: GFM reads them as a paragraph, so they are lost.
+     * Lays the rows of a table out in its body, whatever syntax writes the table. A part of the table that breaks the
+     * format is a problem, and the table is read without it.
+     */
+    private RulesTable laidOut(Header header, MarkdownTableReader reader) {
+        rows = reader.getRows();
+        var laidOut = TableLayout.bodyOf(rows);
+        readAsWritten = laidOut.problems().isEmpty();
+        laidOut.problems()
+                .forEach(problem -> problem(problem.line() + 1,
+                        problem.problem(),
+                        header.cellOf(problem.cell().getRow(), problem.cell().getColumn())));
+        return new RulesTable(header.text(), header.properties(), laidOut.body(), laidOut.merges());
+    }
+
+    private TableFile.Body bodyOf(Node body) {
+        return switch (body) {
+            case FencedCodeBlock code -> {
+                var spans = body.getSourceSpans();
+                yield new TableFile.CodeBody(spans.getFirst().getLineIndex(),
+                        spans.getLast().getLineIndex(),
+                        code.getFenceCharacter().repeat(code.getOpeningFenceLength()),
+                        StringUtils.trimToEmpty(code.getInfo()),
+                        code.getFenceIndent());
+            }
+            case HtmlTableLines table -> new TableFile.HtmlBody(table.firstLine(),
+                    table.lastLine(),
+                    readAsWritten && table.closed() ? rowLinesOf(table) : List.of());
+            default -> new TableFile.GfmBody(((TableLines) body).rowLines(), ((TableLines) body).delimiterLine());
+        };
+    }
+
+    /**
+     * Returns the line of each row of an HTML table, when the rows stand one to a line between the lines that open and
+     * close the table, each line holding its row alone; none otherwise.
+     */
+    private List<Integer> rowLinesOf(HtmlTableLines table) {
+        if (rows.isEmpty()) {
+            return List.of();
+        }
+        var first = rows.getFirst().lines().firstLine();
+        for (var i = 0; i < rows.size(); i++) {
+            if (!standsAlone(rows.get(i), first + i)) {
+                return List.of();
+            }
+        }
+        var end = first + rows.size();
+        return first > table.firstLine() && end <= table.lastLine()
+                ? IntStream.range(first, end).boxed().toList()
+                : List.of();
+    }
+
+    private boolean standsAlone(TableRow row, int line) {
+        return row.lines().firstLine() == line && row.lines().lastLine() == line && isRowLine(lines.get(line).strip());
+    }
+
+    /** Tells a line of an HTML table that holds a row alone, as the writer writes it: {@code <tr>…</tr>}. */
+    private static boolean isRowLine(String line) {
+        var length = line.length();
+        var opened = line.regionMatches(true, 0, ROW_OPEN, 0, ROW_OPEN.length()) && length > ROW_OPEN.length()
+                && (line.charAt(ROW_OPEN.length()) == '>' || Character.isWhitespace(line.charAt(ROW_OPEN.length())));
+        return opened && line.regionMatches(true, length - ROW_CLOSE.length(), ROW_CLOSE, 0, ROW_CLOSE.length());
+    }
+
+    /**
+     * Tells of table rows cut off from the body by a blank line: GFM reads them as a paragraph, so they are lost. An
+     * HTML table a blank line cuts is not closed.
      */
     private void checkNotSplit(Node body) {
         if (body instanceof TableLines && body.getNext() instanceof Paragraph next) {
@@ -366,164 +387,11 @@ final class MarkdownTableParser {
                         one table""", null);
             }
         }
-    }
-
-    /**
-     * Reads the rows of a GFM table. A row keeps as many cells as the first row has, as GFM reads it.
-     */
-    private List<List<@Nullable String>> readRows(TableLines table, Header header) {
-        var rowLines = table.rowLines();
-        var width = TableLines.cellBounds(lines.get(rowLines.getFirst())).length / 2;
-        var rows = new ArrayList<List<@Nullable String>>(rowLines.size());
-        for (var lineIndex : rowLines) {
-            var line = lines.get(lineIndex);
-            var bounds = TableLines.cellBounds(line);
-            var cells = new ArrayList<@Nullable String>(width);
-            for (var column = 0; column < width; column++) {
-                cells.add(cellText(line, bounds, column));
-            }
-            if (countCells(line) > width) {
-                problem(lineIndex + 1, "The row has more cells than the first row of the table",
-                        header.cellOf(rows.size(), width - 1));
-            }
-            rows.add(cells);
+        if (body instanceof HtmlTableLines table && !table.closed()) {
+            problem(table.lastLine() + 1, """
+                    The table is not closed with '</table>': a blank line or the end of the file cuts it off""",
+                    null);
         }
-        return rows;
-    }
-
-    /**
-     * Returns the value of a cell of a row, or {@code null} for a blank cell or one the row does not have.
-     *
-     * @param bounds where the cells of the row stand, see {@link TableLines#cellBounds}
-     */
-    private static @Nullable String cellText(String row, int[] bounds, int column) {
-        if (2 * column >= bounds.length) {
-            return null;
-        }
-        var from = bounds[2 * column];
-        var to = bounds[2 * column + 1];
-        while (from < to && Character.isWhitespace(row.charAt(from))) {
-            from++;
-        }
-        while (to > from && Character.isWhitespace(row.charAt(to - 1))) {
-            to--;
-        }
-        return from == to ? null : cellText(row.substring(from, to));
-    }
-
-    /**
-     * Returns the value of a cell written as {@code source}, or {@code null} for a blank cell.
-     */
-    static @Nullable String cellText(String source) {
-        var text = unwrapCode(source.strip().replace("\\|", "|"));
-        return StringUtils.trimToNull(text.indexOf('<') < 0 ? text : LINE_BREAK.matcher(text).replaceAll("\n"));
-    }
-
-    private static String unwrapCode(String text) {
-        var ticks = 0;
-        while (ticks < text.length() && text.charAt(ticks) == '`') {
-            ticks++;
-        }
-        if (ticks == 0 || text.length() <= 2 * ticks) {
-            return text;
-        }
-        var fence = text.substring(0, ticks);
-        var code = text.substring(ticks, text.length() - ticks);
-        return text.endsWith(fence) && !code.contains(fence) && !code.endsWith("`") ? code : text;
-    }
-
-    /**
-     * Counts the cells of a table row the way GFM splits it, before GFM drops the cells past the first row's.
-     */
-    static int countCells(String row) {
-        var start = 0;
-        var end = row.length();
-        while (start < end && Character.isWhitespace(row.charAt(start))) {
-            start++;
-        }
-        while (end > start && Character.isWhitespace(row.charAt(end - 1))) {
-            end--;
-        }
-        var pipes = 0;
-        var lastPipe = -1;
-        var i = start;
-        while (i < end) {
-            var c = row.charAt(i);
-            if (c == '|') {
-                pipes++;
-                lastPipe = i;
-            }
-            // GFM escapes a pipe only: a backslash before anything else is a character of the cell
-            i += c == '\\' && i + 1 < end && row.charAt(i + 1) == '|' ? 2 : 1;
-        }
-        var cells = pipes + 1;
-        if (start < end && row.charAt(start) == '|') {
-            cells--;
-        }
-        if (lastPipe > start && lastPipe == end - 1) {
-            cells--;
-        }
-        return cells;
-    }
-
-    /**
-     * Returns the merged ranges of the table that fit it. A range outside the table, over a range before it or over
-     * a value is a problem, and the table is read without it.
-     */
-    private List<CellRangeAddress> mergesThatFit(RulesTable table, Header header) {
-        var fit = new ArrayList<CellRangeAddress>();
-        for (var range : table.merges()) {
-            if (fits(table, range, fit, header)) {
-                fit.add(range);
-            }
-        }
-        return fit;
-    }
-
-    private boolean fits(RulesTable table, CellRangeAddress range, List<CellRangeAddress> before, Header header) {
-        var line = header.mergesLine();
-        var height = table.body().size();
-        var width = table.width();
-        if (range.getLastRow() >= height || range.getLastColumn() >= width) {
-            // The problem shows in the first cell of the range, when the table has that cell
-            var first = range.getFirstRow() < height && range.getFirstColumn() < width
-                    ? header.cellOf(range.getFirstRow(), range.getFirstColumn())
-                    : null;
-            problem(line, "The merged range %s is outside the table".formatted(range.formatAsString()), first);
-            return false;
-        }
-        var overlapped = before.stream().filter(range::intersects).findFirst();
-        if (overlapped.isPresent()) {
-            var other = overlapped.get();
-            problem(line, "The merged ranges %s and %s overlap".formatted(other.formatAsString(),
-                            range.formatAsString()),
-                    header.cellOf(Math.max(range.getFirstRow(), other.getFirstRow()),
-                            Math.max(range.getFirstColumn(), other.getFirstColumn())));
-            return false;
-        }
-        var covered = coveredValue(table.body(), range);
-        if (covered != null) {
-            problem(line, "The cell %s has a value, but the merged range %s covers it".formatted(
-                    covered.formatAsString(), range.formatAsString()),
-                    header.cellOf(covered.getRow(), covered.getColumn()));
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Returns the first cell of the body that holds a value and that the range covers but does not start with.
-     */
-    private static @Nullable CellAddress coveredValue(List<List<@Nullable String>> rows, CellRangeAddress range) {
-        for (var row = range.getFirstRow(); row <= range.getLastRow(); row++) {
-            for (var column = range.getFirstColumn(); column <= range.getLastColumn(); column++) {
-                var covered = row != range.getFirstRow() || column != range.getFirstColumn();
-                if (covered && rows.get(row).get(column) != null) {
-                    return new CellAddress(row, column);
-                }
-            }
-        }
-        return null;
     }
 
     private void problem(int line, String problem, @Nullable CellAddress cell) {
@@ -537,14 +405,11 @@ final class MarkdownTableParser {
     /**
      * The header of the table, read from the front matter.
      *
-     * @param mergesLine   the line of the file the merged ranges are written on
      * @param keys         the keys of the front matter
      * @param propertyKeys the keys under {@code properties}
      */
     private record Header(String text,
                           SequencedMap<String, String> properties,
-                          List<CellRangeAddress> merges,
-                          int mergesLine,
                           List<TableFile.Key> keys,
                           List<TableFile.Key> propertyKeys) {
 
