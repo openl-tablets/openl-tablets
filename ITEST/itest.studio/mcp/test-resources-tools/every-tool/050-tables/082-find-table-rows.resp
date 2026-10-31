@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"found\":{\"rows\":4,\"totalRows\":5},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"SimpleRules Double AgeFactor(Integer age)\"],[\"Age\",\"Factor\"],[\"25 - 65\",1],[\"> 65\",1.2]],\"rowIndexes\":[0,1,3,4]}}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
