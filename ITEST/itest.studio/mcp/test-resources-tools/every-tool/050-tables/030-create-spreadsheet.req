@@ -16,52 +16,28 @@ Authorization: Token ${PAT}
       "projectId": "${PROJECT_ID}",
       "module": "Main",
       "sheetName": "Rules",
-      "table": {
-        "tableType": "RawSource",
-        "name": "Premium",
-        "source": [
-          [
-            {
-              "value": "Spreadsheet Double Premium(Driver driver)"
-            },
-            {
-              "value": null
-            }
-          ],
-          [
-            {
-              "value": "Step"
-            },
-            {
-              "value": "Value"
-            }
-          ],
-          [
-            {
-              "value": "Base"
-            },
-            {
-              "value": 100
-            }
-          ],
-          [
-            {
-              "value": "Factor"
-            },
-            {
-              "value": "= AgeFactor(driver.age)"
-            }
-          ],
-          [
-            {
-              "value": "Total"
-            },
-            {
-              "value": "= $Value$Base * $Value$Factor"
-            }
-          ]
+      "name": "Premium",
+      "rows": [
+        [
+          "Spreadsheet Double Premium(Driver driver)"
+        ],
+        [
+          "Step",
+          "Value"
+        ],
+        [
+          "Base",
+          100
+        ],
+        [
+          "Factor",
+          "= AgeFactor(driver.age)"
+        ],
+        [
+          "Total",
+          "= $Value$Base * $Value$Factor"
         ]
-      }
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

@@ -59,7 +59,7 @@ describe("reading tables", () => {
     ]);
   });
 
-  it("openl_get_table forwards offset/limit/styles to the raw view query and returns the slice without addresses", async () => {
+  it("openl_get_table forwards offset/limit/styles to the raw view query and answers the rows, the styles apart", async () => {
     harness.mockHttp.onGet(tablePath("calculatePremium_1234")).reply(200, rawTable("calculatePremium_1234",
       [[{ cell: "A3", value: "Age", style: { bold: true, background: "#ccccff" } }]], { totalRows: 120 }));
 
@@ -72,8 +72,28 @@ describe("reading tables", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 2, maxRows: 1, cutMerges: true, styles: true });
-    expect(dataOf(result)).toMatchObject({ totalRows: 120 });
-    expect(dataOf(result).source).toEqual([[{ value: "Age", style: { bold: true, background: "#ccccff" } }]]);
+    // The window tells the rows, which the data does not repeat; a style is named by the position of its cell
+    expect(dataOf(result)).toEqual({
+      id: "calculatePremium_1234", name: "calc", kind: "Rules", version: "v1",
+      rows: [["Age"]], styles: [[2, 0, { bold: true, background: "#ccccff" }]],
+    });
+  });
+
+  it("openl_get_table answers merged cells, formulas and notes by their positions in the table", async () => {
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", [
+      [{ cell: "B2", value: "Rules Double rate(Integer age)", colspan: 3 }, { covered: true }, { covered: true }],
+      [{ cell: "B3", value: "Age" }, { cell: "C3", value: "Rate", comment: "per year" }, {}],
+      [{ cell: "B4", value: 25 }, { cell: "C4", value: 1.5 }, { cell: "D4", value: 3, formula: "=C4*2" }],
+    ], { pos: "B2:D4" }));
+
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client);
+
+    expect(dataOf(result)).toMatchObject({
+      rows: [["Rules Double rate(Integer age)"], ["Age", "Rate"], [25, 1.5, 3]],
+      merges: [[0, 0, 1, 3]],
+      formulas: [[2, 2, "=C4*2"]],
+      notes: [[1, 1, "per year"]],
+    });
   });
 
   /** Rows of five cells, as many as `count`, from row `first` of the sheet. */
@@ -88,8 +108,8 @@ describe("reading tables", () => {
     expect(textOf(result).length).toBeLessThanOrEqual(25_000);
     const response = JSON.parse(textOf(result));
     expect(response.truncated).toBeUndefined();
-    expect(response.data.source).toHaveLength(133);
-    expect(response.data.totalRows).toBeUndefined();
+    expect(response.data.rows).toHaveLength(133);
+    expect(response.window).toMatchObject({ rows: 133, totalRows: 133, complete: true });
   });
 
   it.each([
@@ -104,15 +124,13 @@ describe("reading tables", () => {
 
       expect(textOf(result).length).toBeLessThanOrEqual(25_000);
       const response = JSON.parse(textOf(result));
-      const delivered = response.data.source.length;
+      const delivered = response.data.rows.length;
       expect(delivered).toBeGreaterThan(0);
       expect(delivered).toBeLessThan(600);
-      expect(response.data.source.at(-1)).toHaveLength(5);
-      expect(response.data.totalRows).toBe(offset ? 700 : 600);
+      expect(response.data.rows.at(-1)).toHaveLength(5);
       expect(response.truncated).toBe(true);
       expect(response.truncation_message).toBe(`Response truncated due to size. It holds ${delivered} of 600 rows; `
         + `continue with offset=${first + delivered}.`);
-      expect(response.data).not.toHaveProperty("truncated_json_preview");
       expect(response.window).toEqual({
         offset: first, rows: delivered, totalRows: offset ? 700 : 600, complete: false, next_offset: first + delivered,
       });
@@ -139,66 +157,73 @@ describe("reading tables", () => {
   });
 });
 
-describe("structured table payloads", () => {
-  it("openl_create_project_table sends a complete RawSource table and answers the version of the new table", async () => {
-    harness.mockHttp.onPost(tablesPath).reply(201, { id: "t1", name: "LoanApplication", tableType: "RawSource", file: "Main.xlsx" });
+describe("openl_create_project_table", () => {
+  it("writes the rows, merges and formulas as Studio's cells and answers the version of the new table", async () => {
+    harness.mockHttp.onPost(tablesPath).reply(201, { id: "t1", name: "MinimumPremium", tableType: "RawSource", file: "Main.xlsx" });
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
-    const table = { tableType: "RawSource", kind: "Datatype", name: "LoanApplication", source: [[{ value: "Datatype LoanApplication" }]] };
 
     const result = await executeTool("create_project_table", {
       projectId: "p1",
       module: "Main",
-      table,
+      name: "MinimumPremium",
+      rows: [["SmartRules Double MinimumPremium(String state)"], ["State", "Minimum"], ["CA", 50, 0]],
+      merges: [[0, 0, 1, 3]],
+      formulas: [[2, 2, "=C4*2"]],
     }, harness.client);
 
-    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ moduleName: "Main", table });
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
+      moduleName: "Main",
+      table: {
+        tableType: "RawSource",
+        name: "MinimumPremium",
+        source: [
+          [{ value: "SmartRules Double MinimumPremium(String state)", colspan: 3 }, { covered: true }, { covered: true }],
+          [{ value: "State" }, { value: "Minimum" }, { value: null }],
+          [{ value: "CA" }, { value: 50 }, { formula: "=C4*2" }],
+        ],
+      },
+    });
     expect(dataOf(result)).toEqual({ tableId: "t1", version: "v1" });
   });
 
   it.each([
-    ["create_project_table", "an unknown tableType", { table: { tableType: "frobnicate", name: "X" } }],
-    ["create_project_table", "a typed table DTO", {
-      table: { tableType: "SimpleRules", name: "CreditCategory", signature: "String CreditCategory(Integer creditScore)", rules: [] },
-    }],
-    ["create_project_table", "no tableType", { table: { name: "X", fields: [] } }],
-    ["update_table", "a miscased RawSource", { view: { tableType: "rawsource", name: "calc", source: [[{ value: 1 }]] } }],
-    ["update_table", "a typed view", { view: { tableType: "SimpleRules", name: "calc", rules: [] } }],
-  ])("%s refuses %s with the raw-only guidance, before any request", async (tool, _case, payload) => {
-    await expect(executeTool(tool, { projectId: "p1", module: "Main", tableId: "t1", ...payload }, harness.client))
-      .rejects.toThrow(/tableType must be exactly "RawSource"\. Typed table DTOs are intentionally unsupported/);
-    expectNoRequest();
-  });
+    ["the rows sent as a JSON string", '[["Datatype X"]]', undefined],
+    ["rows sent as a string that is no JSON", '[["Datatype X"]', /not valid JSON/],
+    ["rows sent as a word", "Datatype X", /Invalid arguments for create_project_table/],
+  ])("takes %s", async (_case, rows, refusal) => {
+    harness.mockHttp.onPost(tablesPath).reply(201, { id: "t1" });
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
 
-  it("openl_update_table accepts view sent as a JSON string and forwards a real object", async () => {
-    const view = rawTable("t1");
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, view);
-    harness.mockHttp.onPut(tablePath("t1")).reply(204);
+    const call = executeTool("create_project_table", { projectId: "p1", module: "Main", name: "X", rows }, harness.client);
 
-    const result = await executeTool("update_table", { projectId: "p1", tableId: "t1", view: JSON.stringify(view) }, harness.client);
-
-    expect(dataOf(result)).toMatchObject({ tableId: "t1" });
-    expect(bodyOf(harness.mockHttp.history.put[0])).toEqual(view);
-  });
-
-  it.each([
-    ["update_table", "view", '{"tableType":"RawSource","source":[', /not valid JSON/],
-    ["update_table", "view", "SimpleRules", /Invalid arguments for update_table/],
-  ])("%s refuses a %s string that is no JSON object, before any request", async (tool, payloadArg, value, message) => {
-    await expect(executeTool(tool, { projectId: "p1", tableId: "t1", [payloadArg]: value }, harness.client)).rejects.toThrow(message);
-    expectNoRequest();
+    if (refusal) {
+      await expect(call).rejects.toThrow(refusal);
+      expectNoRequest();
+    } else {
+      await call;
+      expect(bodyOf(harness.mockHttp.history.post[0]).table.source).toEqual([[{ value: "Datatype X" }]]);
+    }
   });
 });
 
 describe("openl_update_table", () => {
-  it("replaces the table and reads it back to recompile it", async () => {
-    const view = rawTable("Rules.xls_1234");
-    harness.mockHttp.onPut(tablePath("Rules.xls_1234")).reply(204);
-    harness.mockHttp.onGet(tablePath("Rules.xls_1234")).reply(200, view);
+  it("replaces the table with the version it read, filling the columns a row leaves out, and recompiles it", async () => {
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", [[{ value: "Rules void calc()" }]], { pos: "B2:D3", totalRows: 2, version: "v2" }));
+    harness.mockHttp.onPut(tablePath("t1")).reply(204);
 
     const result = await executeTool("update_table", {
-      projectId: "p1", tableId: "Rules.xls_1234", view, }, harness.client);
+      projectId: "p1", tableId: "t1", version: "v1", rows: [["Rules void calc()"], ["a", 1]],
+    }, harness.client);
 
-    expect(dataOf(result)).toEqual({ tableId: "Rules.xls_1234", version: "v1" });
+    expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
+    expect(bodyOf(harness.mockHttp.history.put[0])).toEqual({
+      tableType: "RawSource",
+      source: [
+        [{ value: "Rules void calc()" }, { value: null }, { value: null }],
+        [{ value: "a" }, { value: 1 }, { value: null }],
+      ],
+    });
+    expect(dataOf(result)).toEqual({ tableId: "t1", version: "v2" });
     // The row-count probe before the PUT, and the recompile read after it
     expect(harness.mockHttp.history.get.map((request) => request.params)).toEqual([
       { raw: true, startRow: 0, maxRows: 1, cutMerges: true },
@@ -206,15 +231,24 @@ describe("openl_update_table", () => {
     ]);
   });
 
-  it("replaces the version of the table it read, and answers the version the write left", async () => {
+  it("writes back a table as openl_get_table read it: multi-value cells, merges and formulas", async () => {
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", [
+      [{ cell: "B2", value: "Data Rating ratings", colspan: 2 }, { covered: true }],
+      [{ cell: "B3", value: "ratings" }, { cell: "C3", value: 2, formula: "=1+1" }],
+      [{ cell: "B4", value: ["MA2", "FA+", "SPA"] }, {}],
+    ], { pos: "B2:C4" }));
     harness.mockHttp.onPut(tablePath("t1")).reply(204);
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", undefined, { version: "v2" }));
 
-    const result = await executeTool("update_table", {
-      projectId: "p1", tableId: "t1", view: rawTable("t1", undefined, { version: "v1" }), }, harness.client);
+    const read = dataOf<any>(await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client));
+    await executeTool("update_table", {
+      projectId: "p1", tableId: "t1", version: read.version, rows: read.rows, merges: read.merges, formulas: read.formulas,
+    }, harness.client);
 
-    expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
-    expect(dataOf(result)).toMatchObject({ tableId: "t1", version: "v2" });
+    expect(bodyOf(harness.mockHttp.history.put[0]).source).toEqual([
+      [{ value: "Data Rating ratings", colspan: 2 }, { covered: true }],
+      [{ value: "ratings" }, { formula: "=1+1" }],
+      [{ value: ["MA2", "FA+", "SPA"] }, { value: null }],
+    ]);
   });
 
   it("passes on Studio's refusal of a write over a table changed since it was read", async () => {
@@ -225,75 +259,48 @@ describe("openl_update_table", () => {
     });
 
     await expect(executeTool("update_table", {
-      projectId: "p1", tableId: "t1", view: rawTable("t1", undefined, { version: "v1" }),
+      projectId: "p1", tableId: "t1", version: "v1", rows: [["Rules void calc()"]],
     }, harness.client)).rejects.toThrow(/The table changed since it was read/);
   });
 
-  it("keeps multi-value cells through a get and a full update", async () => {
-    const view = rawTable("t1", [
-      [{ cell: "A1", value: "Data Rating ratings" }],
-      [{ cell: "A2", value: "attributes" }],
-      [{ cell: "A3", value: "Ratings" }],
-      [{ cell: "A4", value: ["MA2", "FA+", "SPA"] }],
-    ]);
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, view);
-    harness.mockHttp.onPut(tablePath("t1")).reply(204);
-
-    const read = dataOf(await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client));
-    await executeTool("update_table", { projectId: "p1", tableId: "t1", view: read }, harness.client);
-
-    expect(bodyOf(harness.mockHttp.history.put[0]).source[3][0].value).toEqual(["MA2", "FA+", "SPA"]);
-  });
-
-  it("rejects a windowed RawSource view before it can delete omitted rows", async () => {
-    await expect(executeTool("update_table", {
-      projectId: "p1",
-      tableId: "t1",
-      view: rawTable("t1", undefined, { totalRows: 400 }),
-    }, harness.client)).rejects.toThrow(/windowed RawSource view cannot replace the whole table/);
-    expectNoRequest();
-  });
-
-  it("rejects an incomplete view after totalRows was removed", async () => {
+  it("refuses fewer rows than the table has, which a slice would leave out, before writing", async () => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", undefined, { totalRows: 359 }));
 
     await expect(executeTool("update_table", {
-      projectId: "p1",
-      tableId: "t1",
-      view: rawTable("t1", Array.from({ length: 5 }, () => [{ value: null }])),
-    }, harness.client)).rejects.toThrow(/current table has 359 row\(s\)/);
-    expect(harness.mockHttp.history.get[0].params).toMatchObject({ startRow: 0, maxRows: 1 });
-    expect(harness.mockHttp.history.put).toHaveLength(0);
-  });
-
-  it("rejects mismatched table ids before probing the live table", async () => {
-    await expect(executeTool("update_table", {
-      projectId: "p1",
-      tableId: "t1",
-      view: rawTable("other-table"),
+      projectId: "p1", tableId: "t1", version: "v1", rows: Array.from({ length: 5 }, () => [null]),
     }, harness.client)).rejects.toMatchObject({
       code: ProtocolErrorCode.InvalidParams,
-      message: expect.stringMatching(/Table ID mismatch.*t1.*other-table/),
+      message: expect.stringMatching(/current table has 359 row\(s\)/),
     });
-    expectNoRequest();
+    expect(harness.mockHttp.history.put).toHaveLength(0);
   });
 });
 
 describe("openl_get_table cut by rows", () => {
-  it("cuts a merged cell crossing the last row it delivers as Studio cuts a window, naming its area", async () => {
-    // Column B of the first 400 rows is one merged cell, whose value is long enough to need a cut
+  it("keeps the whole area of a merged cell crossing the last row it delivers", async () => {
+    // Column B of the first 400 rows is one merged cell, whose rows are long enough to need a cut
     const source = Array.from({ length: 400 }, (_, row) => [
       row === 0 ? { cell: "B4", value: "Dog", rowspan: 400 } : { covered: true },
       { cell: `C${row + 4}`, value: "x".repeat(80) },
     ]);
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", source));
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", source, { pos: "B4:C403" }));
 
     const result = await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client);
 
     const response = JSON.parse(textOf(result));
-    const delivered = response.data.source.length;
-    expect(delivered).toBeLessThan(400);
-    expect(response.data.source[0][0]).toEqual({ value: "Dog", rowspan: delivered, mergedArea: "B4:B403" });
+    expect(response.data.rows.length).toBeLessThan(400);
+    expect(response.data.rows[0]).toEqual(["Dog", "x".repeat(80)]);
+    expect(response.data.rows[1]).toEqual([null, "x".repeat(80)]);
+    expect(response.data.merges).toEqual([[0, 0, 400, 1]]);
+  });
+
+  it("names the whole area of a merged cell a slice Studio read cuts", async () => {
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1",
+      [[{ cell: "B104", value: "Dog", mergedArea: "B4:B403" }, { cell: "C104", value: 1 }]], { pos: "B2:C500", totalRows: 499 }));
+
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1", offset: 102, limit: 1 }, harness.client);
+
+    expect(dataOf(result)).toMatchObject({ rows: [["Dog", 1]], merges: [[2, 0, 400, 1]] });
   });
 });
 

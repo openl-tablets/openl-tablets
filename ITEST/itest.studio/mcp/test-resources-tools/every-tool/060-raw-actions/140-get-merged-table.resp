@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":0,\"rows\":2,\"totalRows\":5,\"complete\":false,\"next_offset\":2},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:D6\",\"source\":[[{\"value\":\"SimpleRules String Grade(Integer score)\",\"colspan\":3},{\"covered\":true},{\"covered\":true}],[{\"value\":\"Score\"},{\"value\":\"Grade\"},{\"value\":\"Comment\"}]],\"totalRows\":5,\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":2,\"totalRows\":5,\"complete\":false,\"next_offset\":2},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:D6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"SimpleRules String Grade(Integer score)\"],[\"Score\",\"Grade\",\"Comment\"]],\"merges\":[[0,0,1,3]]}}"
       }
     ],
     "resultType": "complete",

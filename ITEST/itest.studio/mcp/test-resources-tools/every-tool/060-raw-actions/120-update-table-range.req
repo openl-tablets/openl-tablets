@@ -21,20 +21,12 @@ Authorization: Token ${PAT}
       "column": 0,
       "cells": [
         [
-          {
-            "value": "< 50"
-          },
-          {
-            "value": "F"
-          }
+          "< 50",
+          "F"
         ],
         [
-          {
-            "value": ">= 50"
-          },
-          {
-            "value": "P"
-          }
+          ">= 50",
+          "P"
         ]
       ]
     },

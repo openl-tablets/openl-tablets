@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":4,\"rows\":1,\"totalRows\":5,\"complete\":false},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:C6\",\"source\":[[{\"value\":\">= 90\"},{\"value\":\"A+\"}]],\"totalRows\":5,\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"offset\":4,\"rows\":1,\"totalRows\":5,\"complete\":false},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:C6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\">= 90\",\"A+\"]]}}"
       }
     ],
     "resultType": "complete",

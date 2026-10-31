@@ -20,15 +20,9 @@ Authorization: Token ${PAT}
       "position": 2,
       "cells": [
         [
-          {
-            "value": "< 40"
-          },
-          {
-            "value": "F"
-          },
-          {
-            "value": "failed"
-          }
+          "< 40",
+          "F",
+          "failed"
         ]
       ]
     },

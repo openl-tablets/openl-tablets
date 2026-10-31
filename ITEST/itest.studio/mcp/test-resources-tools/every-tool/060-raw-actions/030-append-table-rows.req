@@ -19,12 +19,8 @@ Authorization: Token ${PAT}
       "version": ${GRADE_VERSION},
       "cells": [
         [
-          {
-            "value": ">= 90"
-          },
-          {
-            "value": "A"
-          }
+          ">= 90",
+          "A"
         ]
       ]
     },

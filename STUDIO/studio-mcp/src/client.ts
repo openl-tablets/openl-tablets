@@ -1255,17 +1255,18 @@ export class OpenLClient {
   /**
    * Update table content
    *
-   * @param view - Complete raw table source; its `version`, as the read answered it, is named so that the write is
-   *   refused when the table changed since
+   * @param table - Complete raw table source
+   * @param version - The version of the table the read answered, so that the write is refused when the table changed
+   *   since
    * @returns the table's id after the write when Studio answered one, otherwise undefined (204 — id unchanged)
    */
   async updateTable(
     projectId: string,
     tableId: string,
-    view: Types.RawTableView
+    table: Types.RawTableWrite,
+    version: string,
   ): Promise<string | undefined> {
-    // Studio accepts RawTableView directly as the request body.
-    return this.writeTable("put", tablePath(projectId, tableId), view, view.version);
+    return this.writeTable("put", tablePath(projectId, tableId), table, version);
   }
 
   /**

@@ -685,7 +685,7 @@ interface RawTableCellBorder {
  * Every field is absent for its default (white background, black left-aligned
  * regular font, no borders). Mirrors `RawTableCellStyle` in the studio OpenAPI.
  */
-interface RawTableCellStyle {
+export interface RawTableCellStyle {
   /** Background colour as `#rrggbb`; absent when white (the default). */
   background?: string;
   /** Font colour as `#rrggbb`; absent when black (the default). */
@@ -731,6 +731,8 @@ export interface RawTableCell {
   mergedArea?: string;
   /** Excel cell style; only present when the raw view was requested with `styles=true`. */
   style?: RawTableCellStyle;
+  /** The Excel note of the cell. Read-only: a write keeps it. */
+  comment?: string;
 }
 
 /**
@@ -762,6 +764,10 @@ export interface RawTableView {
   pos?: string;
   /** Empty only for a slice whose `startRow` is past the last row. */
   source: RawTableCell[][];
+  /** The number of header rows of the table (read-only). */
+  headerHeight?: number;
+  /** The layout of a Test table (read-only). */
+  layout?: unknown;
   /**
    * The version of the table read (read-only). A write of the table names it, so that a write over a table changed
    * since the read — on disk or through another client — is refused rather than overwriting that change.
@@ -957,7 +963,14 @@ export interface CreateNewTableRequest {
   /** Name of the sheet where the table will be created (optional, uses table name if not provided) */
   sheetName?: string;
   /** Complete raw source structure; Studio requires a nonblank name on creation. */
-  table: RawTableView & { name: string };
+  table: RawTableWrite & { name: string };
+}
+
+/** A whole table as Studio takes it to write: its matrix of cells, with the spans of the merged ones. */
+export interface RawTableWrite {
+  tableType: "RawSource";
+  name?: string;
+  source: RawCellInput[][];
 }
 
 /** Generic paginated response */

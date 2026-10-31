@@ -20,21 +20,11 @@ Authorization: Token ${PAT}
       "position": 1,
       "cells": [
         [
-          {
-            "value": null
-          },
-          {
-            "value": "Level"
-          },
-          {
-            "value": 1
-          },
-          {
-            "value": 2
-          },
-          {
-            "value": 3
-          }
+          null,
+          "Level",
+          1,
+          2,
+          3
         ]
       ]
     },

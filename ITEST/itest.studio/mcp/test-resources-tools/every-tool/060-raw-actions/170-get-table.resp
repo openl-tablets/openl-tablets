@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:C6\",\"source\":[[{\"value\":\"SimpleRules String Grade(Integer score)\",\"colspan\":2},{\"covered\":true}],[{\"value\":\"Score\"},{\"value\":\"Grade\"}],[{\"value\":\"< 50\"},{\"value\":\"F\"}],[{\"value\":\">= 50\"},{\"value\":\"P\"}],[{\"value\":\">= 90\"},{\"value\":\"A+\"}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:C6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"SimpleRules String Grade(Integer score)\"],[\"Score\",\"Grade\"],[\"< 50\",\"F\"],[\">= 50\",\"P\"],[\">= 90\",\"A+\"]],\"merges\":[[0,0,1,2]]}}"
       }
     ],
     "resultType": "complete",

@@ -16,78 +16,37 @@ Authorization: Token ${PAT}
       "projectId": "${PROJECT_ID}",
       "module": "Main",
       "sheetName": "Tests",
-      "table": {
-        "tableType": "RawSource",
-        "name": "PremiumTest",
-        "source": [
-          [
-            {
-              "value": "Test Premium PremiumTest"
-            },
-            {
-              "value": null
-            },
-            {
-              "value": null
-            }
-          ],
-          [
-            {
-              "value": "driver.name"
-            },
-            {
-              "value": "driver.age"
-            },
-            {
-              "value": "_res_"
-            }
-          ],
-          [
-            {
-              "value": "Driver Name"
-            },
-            {
-              "value": "Driver Age"
-            },
-            {
-              "value": "Premium"
-            }
-          ],
-          [
-            {
-              "value": "Young"
-            },
-            {
-              "value": 20
-            },
-            {
-              "value": 150
-            }
-          ],
-          [
-            {
-              "value": "Adult"
-            },
-            {
-              "value": 40
-            },
-            {
-              "value": 100
-            }
-          ],
-          [
-            {
-              "value": "Senior"
-            },
-            {
-              "value": 70
-            },
-            {
-              "value": 120
-            }
-          ]
+      "name": "PremiumTest",
+      "rows": [
+        [
+          "Test Premium PremiumTest"
+        ],
+        [
+          "driver.name",
+          "driver.age",
+          "_res_"
+        ],
+        [
+          "Driver Name",
+          "Driver Age",
+          "Premium"
+        ],
+        [
+          "Young",
+          20,
+          150
+        ],
+        [
+          "Adult",
+          40,
+          100
+        ],
+        [
+          "Senior",
+          70,
+          120
         ]
-      }
+      ]
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
