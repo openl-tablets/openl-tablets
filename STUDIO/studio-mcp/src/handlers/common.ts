@@ -389,7 +389,7 @@ function httpErrorDetails(
 const NEXT_STEP_OF_CODE = new Map([
   ["openl.error.409.project.not.opened.message", "Open it with openl_open_project first."],
   ["openl.error.409.project.close.modified.message",
-    "Save the changes with openl_save_project, or drop them with openl_close_project discardChanges, first."],
+    "Save the changes with openl_save_project, or, once the user agrees, drop them with openl_close_project discardChanges, first."],
 ]);
 
 /**
