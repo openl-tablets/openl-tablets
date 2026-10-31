@@ -26,6 +26,7 @@ import org.springframework.security.acls.model.Permission;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
@@ -181,6 +182,18 @@ class ProjectFileLookupServiceImplTest {
 
         assertNull(((FileNode) files.getFirst()).getLastModified());
         assertEquals(ZonedDateTime.parse("2024-07-14T23:33:20.123Z"), ((FileNode) files.get(1)).getLastModified());
+    }
+
+    @Test
+    void looksUpNoFileInAFolderReachedThroughALink() throws IOException {
+        var files = mock(FileSystemRepository.class);
+        when(files.getId()).thenReturn("design");
+        when(files.isLinked(anyString())).thenAnswer(call -> call.<String>getArgument(0).startsWith("a/linked"));
+        for (var name : List.of("a/linked/AGENTS.md", "a/AGENTS.md", "AGENTS.md")) {
+            lenient().when(files.check(name)).thenReturn(fileData(name));
+        }
+
+        assertEquals(List.of("a/AGENTS.md", "AGENTS.md"), paths(service.lookup(files, "a/linked/AGENTS.md", false)));
     }
 
     private void repositoryHolds(FileData... files) {
