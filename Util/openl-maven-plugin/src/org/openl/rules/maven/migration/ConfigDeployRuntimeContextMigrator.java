@@ -15,26 +15,17 @@ import org.openl.rules.project.migration.RulesDeployMigrations;
  *
  * @author Yury Molchan
  */
-public final class ConfigDeployRuntimeContextMigrator implements Migrator {
+public final class ConfigDeployRuntimeContextMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "config.deploy.runtime-context";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "drop default isProvideRuntimeContext=false";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public ConfigDeployRuntimeContextMigrator() {
+        super("config.deploy.runtime-context",
+                "drop default isProvideRuntimeContext=false",
+                """
                 Drops the isProvideRuntimeContext element from rules-deploy.xml when its value is false,
                 because false is what the service does anyway by default. Explicit true or an absent value
                 stay untouched. Services that rely on the "no runtime context" behaviour keep working —
                 only the now-redundant line goes away.
-                """;
+                """);
     }
 
     @Override

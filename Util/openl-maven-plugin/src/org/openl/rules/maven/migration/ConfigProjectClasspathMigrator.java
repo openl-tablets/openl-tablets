@@ -15,26 +15,17 @@ import org.openl.rules.project.migration.RulesXmlMigrations;
  *
  * @author Yury Molchan
  */
-public final class ConfigProjectClasspathMigrator implements Migrator {
+public final class ConfigProjectClasspathMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "config.project.classpath";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "drop default classpath from rules.xml";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public ConfigProjectClasspathMigrator() {
+        super("config.project.classpath",
+                "drop default classpath from rules.xml",
+                """
                 Drops the entire <classpath> block from rules.xml when every entry is a path OpenL
                 already picks up automatically: groovy/, or lib/*.jar. Any unknown entry keeps
                 the block intact. After removal the project still finds the same classes in the same
                 folders — only the redundant declaration goes away.
-                """;
+                """);
     }
 
     @Override

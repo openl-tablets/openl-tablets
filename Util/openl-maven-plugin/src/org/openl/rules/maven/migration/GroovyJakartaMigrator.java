@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Yury Molchan
  */
 @Slf4j
-public final class GroovyJakartaMigrator implements Migrator {
+public final class GroovyJakartaMigrator extends AbstractMigrator {
 
     /**
      * Maps the legacy {@code javax.*} package roots used by Jakarta EE in groovy scripts to their Jakarta EE
@@ -49,6 +49,17 @@ public final class GroovyJakartaMigrator implements Migrator {
         map.put("javax.servlet.", "jakarta.servlet.");
         map.put("javax.inject.", "jakarta.inject.");
         JAKARTA_NAMESPACE_REWRITES = Map.copyOf(map);
+    }
+
+    public GroovyJakartaMigrator() {
+        super("groovy.jakarta",
+                "groovy scripts from javax to jakarta",
+                """
+                Rewrites javax.* imports and references to jakarta.* in every .groovy file under the
+                project for the six namespaces that fully moved in Jakarta EE 9/10: ws.rs, xml.bind,
+                persistence, validation, servlet, inject. Ambiguous prefixes overlapping with Java SE
+                (annotation.processing, transaction.xa, security.auth.*) are left untouched.
+                """);
     }
 
     /**
@@ -79,26 +90,6 @@ public final class GroovyJakartaMigrator implements Migrator {
             result = result.replace(entry.getKey(), entry.getValue());
         }
         return result;
-    }
-
-    @Override
-    public String getId() {
-        return "groovy.jakarta";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "groovy scripts from javax to jakarta";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
-                Rewrites javax.* imports and references to jakarta.* in every .groovy file under the
-                project for the six namespaces that fully moved in Jakarta EE 9/10: ws.rs, xml.bind,
-                persistence, validation, servlet, inject. Ambiguous prefixes overlapping with Java SE
-                (annotation.processing, transaction.xa, security.auth.*) are left untouched.
-                """;
     }
 
     /**

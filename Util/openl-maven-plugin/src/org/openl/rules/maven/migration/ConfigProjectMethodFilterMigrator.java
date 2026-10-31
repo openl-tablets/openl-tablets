@@ -33,7 +33,23 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
-public final class ConfigProjectMethodFilterMigrator implements Migrator {
+public final class ConfigProjectMethodFilterMigrator extends AbstractMigrator {
+
+    public ConfigProjectMethodFilterMigrator() {
+        super("config.project.method-filter",
+                "method-filter to exposed-methods",
+                """
+                Replaces module-level <method-filter> blocks with a single project-level
+                <exposed-methods> derived from the legacy regular expressions and the actual methods
+                of the built project. A method-name prefix regexp (e.g. '.+ _api_.+\\(.+\\)') becomes
+                the glob '_api_*', a match-everything regexp (e.g. '.*') the bare '*'; any other
+                matching regexp is unfolded into the matched method names; '.+' and '.*' are equal.
+                Unmatchable patterns disappear, covered patterns are dropped, and a filter with
+                excludes is unfolded into plain names.
+                An already-populated <exposed-methods> is kept untouched. Requires the project to
+                build; if it cannot, the filter is dropped and every method becomes exposed.
+                """);
+    }
 
     /**
      * Clears module-level {@code <method-filter>} elements. If at least one had content and no populated
@@ -288,31 +304,6 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
             var prefix = head.substring(1);
             return prefix.chars().allMatch(Character::isJavaIdentifierPart) ? prefix : null;
         }
-    }
-
-    @Override
-    public String getId() {
-        return "config.project.method-filter";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "method-filter to exposed-methods";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
-                Replaces module-level <method-filter> blocks with a single project-level
-                <exposed-methods> derived from the legacy regular expressions and the actual methods
-                of the built project. A method-name prefix regexp (e.g. '.+ _api_.+\\(.+\\)') becomes
-                the glob '_api_*', a match-everything regexp (e.g. '.*') the bare '*'; any other
-                matching regexp is unfolded into the matched method names; '.+' and '.*' are equal.
-                Unmatchable patterns disappear, covered patterns are dropped, and a filter with
-                excludes is unfolded into plain names.
-                An already-populated <exposed-methods> is kept untouched. Requires the project to
-                build; if it cannot, the filter is dropped and every method becomes exposed.
-                """;
     }
 
     @Override

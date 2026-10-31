@@ -21,26 +21,17 @@ import lombok.extern.slf4j.Slf4j;
  * @author Yury Molchan
  */
 @Slf4j
-public final class PomUnusedParametersMigrator implements Migrator {
+public final class PomUnusedParametersMigrator extends AbstractMigrator {
 
-    @Override
-    public String getId() {
-        return "pom.unused-parameters";
-    }
-
-    @Override
-    public String getCommitMessage() {
-        return "drop unused openl-maven-plugin parameters";
-    }
-
-    @Override
-    public String getDescription() {
-        return """
+    public PomUnusedParametersMigrator() {
+        super("pom.unused-parameters",
+                "drop unused openl-maven-plugin parameters",
+                """
                 Removes from the openl-maven-plugin configuration in pom.xml the parameters that have no
                 effect: the ones the plugin no longer declares and the deprecated ones it ignores, such as
                 deploymentName and deploymentPackage. A configuration left empty goes too. The build keeps
                 behaving the same, and the rest of pom.xml keeps its formatting. Pom-less projects are skipped.
-                """;
+                """);
     }
 
     @Override
