@@ -192,10 +192,6 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     }
 
     /**
-     * Tells whether a file or a folder met while listing is shown: its path is not ignored. A listing reads the names
-     * the file system gives, so the path is matched as it is.
-     */
-    /**
      * Whether a path of the repository goes through a link to a folder, which the listings never walk into: a path
      * read by its name would reach a file the repository does not show.
      */
@@ -211,6 +207,10 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
         return false;
     }
 
+    /**
+     * Tells whether a file or a folder met while listing is shown: its path is not ignored. A listing reads the names
+     * the file system gives, so the path is matched as it is.
+     */
     boolean isListed(Path file) {
         return !ignoredPaths.matches(nameOf(file));
     }
