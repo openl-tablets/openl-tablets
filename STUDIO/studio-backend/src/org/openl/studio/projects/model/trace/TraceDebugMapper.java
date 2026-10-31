@@ -134,10 +134,10 @@ public class TraceDebugMapper {
                     // Only a completed failure — not a live caller stamped for inspect while still parked —
                     // lights the stack's error mark. Ancestors keep the throwable for variables/step-inputs.
                     .error(frame.isCompleted() && frame.getError() != null)
-                    .steps(options.compact() && !active ? null : outlineSteps(frame, completedTree == null))
+                    .steps(stepsOf(frame, active, options, completedTree == null))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))
-                    .dispatch(frame.getDispatch())
+                    .dispatch(options.compact() && isSingleCandidate(frame.getDispatch()) ? null : frame.getDispatch())
                     .build());
         }
         var view = DebugStackView.builder()
@@ -410,6 +410,29 @@ public class TraceDebugMapper {
             }
         });
         return steps;
+    }
+
+    /**
+     * The steps a frame of the stack carries. The compact view lists the steps of the active frame only, and of a
+     * decision table only the rules that fired or ran: its outline lists every rule, which for a lookup of hundreds of
+     * rows would be sent again on every step of the run. The variables of the frame name every rule.
+     */
+    private static @Nullable List<StepValueView> stepsOf(DebugFrame frame,
+            boolean active,
+            StackRenderOptions options,
+            boolean withExecutedChildren) {
+        if (options.compact() && !active) {
+            return null;
+        }
+        var steps = outlineSteps(frame, withExecutedChildren);
+        return options.compact() && frame.getSource() instanceof IDecisionTable
+                ? steps.stream().filter(step -> step.status() != StepStatus.PENDING || step.durationMillis() != null).toList()
+                : steps;
+    }
+
+    /** Whether a dispatch had no choice to make, which the compact view does not repeat on every frame. */
+    private static boolean isSingleCandidate(@Nullable DispatchInfo dispatch) {
+        return dispatch != null && dispatch.candidates().size() <= 1;
     }
 
     /**

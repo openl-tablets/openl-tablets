@@ -172,9 +172,11 @@ previous); idle sessions are reaped after ~10 minutes.
 
 A traced value leaves out `lazy: false` and a `name` its step or watch series already tells; the variables of a frame
 leave out a runtime context with no field set and an empty `errors`, and a watch point names no 1-based `label` beside
-its `instance`. A stack lists its frames from the root to the active one, the last, and only the active frame lists its steps. A
-frame names its `depth` only when it differs from `index` + 1, its `completed` and `error` flags only when true, and its
-`location` only when no listed current step repeats it; the stack names no session id, which no tool takes.
+its `instance`. A stack lists its frames from the root to the active one, the last, and only the active frame lists its steps,
+of a decision table only the rules that fired or ran (`openl_inspect_trace_frame` names them all). A
+frame names its `depth` only when it differs from `index` + 1, its `completed` and `error` flags only when true, its
+`location` only when no listed current step repeats it, and its `dispatch` only when it had more than one candidate;
+the stack names no session id, which no tool takes.
 
 Lifecycle (status values are lowercase): `running ⇄ suspended → completed | error | terminated`.
 Stepping and inspection are valid only while `suspended`; on a terminal status read the

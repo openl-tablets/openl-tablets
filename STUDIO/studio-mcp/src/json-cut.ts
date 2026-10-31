@@ -89,8 +89,10 @@ function shortenTexts(parent: Record<string, unknown> | unknown[], key: string |
  */
 function cutMiddle(node: Node, size: number, limit: number, cuts: string[]): number {
   const items = node.value as unknown[];
-  // Keep the share of the items that the limit is of the whole, at most half of them, so a large excess is cut at once
-  const keep = Math.max(1, Math.min(Math.floor(items.length / 2), Math.floor((items.length * limit) / size)));
+  // Keep the share of the items that the limit is of the whole, at most half of them, so a large excess is cut at once;
+  // the first and the last item stay while the array has more than two: the last of a stack is where the run stopped
+  const keep = Math.max(items.length > 2 ? 2 : 1,
+    Math.min(Math.floor(items.length / 2), Math.floor((items.length * limit) / size)));
   const head = Math.ceil(keep / 2);
   const kept = [...items.slice(0, head), ...items.slice(items.length - (keep - head))];
   (node.parent as Record<string | number, unknown>)[node.key] = kept;
