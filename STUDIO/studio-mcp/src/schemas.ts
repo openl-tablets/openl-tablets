@@ -7,6 +7,7 @@ import { z } from "zod";
 import { parseJsonOrText } from "./http.js";
 import {
   BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, RESPONSE_FORMATS, TABLE_KINDS,
+  TABLE_SCOPES, TABLE_SORTS,
 } from "./types.js";
 
 /** What the compile state of `include: status` does not say: an idle project is not compiled yet. */
@@ -122,6 +123,11 @@ export const listTablesSchema = z.strictObject({
   projectId: projectIdSchema,
   kind: z.array(z.enum(TABLE_KINDS)).optional().describe("Filter by table kinds. Omit to show all kinds."),
   name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
+  text: nonBlankString.optional().describe("Text any cell of a table contains, case-insensitive: a value, a key, a message, a formula. The way to find where a value is used, which file search cannot, as it never reads a workbook cell."),
+  header: nonBlankString.optional().describe("Text the header line of a table contains: its keyword, return type, name and arguments, such as a datatype the rules take."),
+  module: nonBlankString.optional().describe("The module whose tables to list, as openl_list_project_modules names it."),
+  scope: z.enum(TABLE_SCOPES).optional().describe("How wide the search reaches: 'module' (the module named), 'project' (every module) or 'all' (the projects this one depends on as well); the module when one is named, else the project."),
+  sort: z.enum(TABLE_SORTS).optional().describe("'name' (default) or 'position': workbook by workbook, sheet by sheet, top to bottom."),
   properties: z.record(z.string(), z.string()).optional().describe("Filter by table properties, such as { state: 'CA', lob: 'Auto' }."),
   response_format: ResponseFormat,
   ...paginationShape,
@@ -854,7 +860,7 @@ export const searchProjectFilesSchema = z.strictObject({
   content: z
     .string()
     .optional()
-    .describe("Case-insensitive substring of a file read as text: the text of a workbook cell or of a compressed ZIP entry is never found, and a file over 1 MB is never read, so find workbooks, ZIP files, images and large files by pattern or extensions. The answer counts the workbooks the search covers in notSearched."),
+    .describe("Case-insensitive substring of a file read as text: the text of a workbook cell or of a compressed ZIP entry is never found, and a file over 1 MB is never read, so find workbooks, ZIP files, images and large files by pattern or extensions, and the tables a text is in with openl_list_tables text. The answer counts the workbooks the search covers in notSearched."),
   extensions: z
     .array(z.string())
     .optional()

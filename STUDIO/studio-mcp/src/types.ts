@@ -910,12 +910,28 @@ export interface TestResultsSummary {
   numberOfPassed: number;
 }
 
+/** How wide a search of tables reaches: the module named, the project, or the projects it depends on as well. */
+export const TABLE_SCOPES = ["module", "project", "all"] as const;
+
+/** The orders a list of tables comes in: by name, or as the workbooks hold them. */
+export const TABLE_SORTS = ["name", "position"] as const;
+
 /** Filters for listing tables */
 export interface TableFilters {
   /** Filter by table kinds, of {@link TABLE_KINDS} */
   kind?: string[];
   /** Filter by table name fragment */
   name?: string;
+  /** Text any cell of a table contains */
+  text?: string;
+  /** Text the header line of a table contains: its keyword, return type, name and arguments */
+  header?: string;
+  /** The module whose tables to list */
+  module?: string;
+  /** How wide the search reaches, of {@link TABLE_SCOPES} */
+  scope?: string;
+  /** The order of the tables, of {@link TABLE_SORTS} */
+  sort?: string;
   /** Filter by project properties (will be prefixed with 'properties.' in query string) */
   properties?: Record<string, string>;
   /** Pagination: item offset (0-based) */

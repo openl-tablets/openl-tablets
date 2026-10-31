@@ -1098,6 +1098,11 @@ export class OpenLClient {
       // Repeated 'kind' keys
       kind: filters?.kind?.length ? filters.kind : undefined,
       name: filters?.name || undefined,
+      text: filters?.text,
+      header: filters?.header,
+      module: filters?.module,
+      scope: filters?.scope,
+      sort: filters?.sort,
       ...prefixed("properties", filters?.properties),
       // The Studio API takes a true item offset
       offset: filters?.offset,
