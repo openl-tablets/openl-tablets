@@ -14,7 +14,7 @@ import { isHttpError } from "../http.js";
 import * as schemas from "../schemas.js";
 import { gridOf, widthOf } from "../table-grid.js";
 import type * as Types from "../types.js";
-import { registerTool, type ToolResponse } from "./common.js";
+import { registerTool, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
 import { finishTableEdit } from "./table-edit.js";
 
 type EditArgs = schemas.TableEdit;
@@ -180,6 +180,7 @@ export function registerTableActionHandlers(): void {
       "since and writes nothing. The answer gives the current 'tableId' and the new 'version' of the table, and " +
       "'compiles: false' with its 'errors' when the table no longer compiles.",
     schema: schemas.editTableSchema,
+    aliases: TABLE_ID_ALIAS,
     annotations: { destructiveHint: true, openWorldHint: true },
     compiled: true,
     handler: async (args, client): Promise<ToolResponse> => {

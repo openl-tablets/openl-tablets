@@ -436,7 +436,9 @@ OpenL Studio and where the server keeps its state; the
   `path` of a file, `name` of what the call creates; a list, and a slice of the rows of a table, is paged by `offset`
   and `limit`. An agent that learned an argument of one tool uses it on the next.
 - Every tool schema is a `z.strictObject`: an unknown argument, also a nested one, is refused, not ignored. The
-  refusal of an unknown argument of the tool itself lists the arguments the tool takes.
+  refusal of an unknown argument of the tool itself lists the arguments the tool takes. A name agents carry over
+  from another tool or an answer (`search`, `query`, the `id` of a table) is declared in the `aliases` of the tool
+  that has the argument under another name; it stays out of the published schema.
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
   leaves out what tells it nothing: the `$schema` dialect and the safe-integer bounds of `.int()`. Zod still checks
   them when the tool runs.
