@@ -8,7 +8,7 @@ import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import type { Truncation } from "../formatters.js";
+import { formatPage, type Truncation } from "../formatters.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
@@ -310,7 +310,7 @@ export function registerProjectMergeHandlers(): void {
     name: "list_project_branches",
     title: "List Project Branches",
     description:
-      "List branch metadata in the repository that hosts a project, including repository base and protected flags. scope='project' (default) returns branches that already hold the project and are candidates for switching or deletion. Inspect the flags before deletion: the base branch cannot be deleted, while a protected branch requires force and explicit confirmation. scope='repository' returns every repository branch, including branches that do not hold the project yet; use it to discover otherBranch values before openl_check_project_merge or openl_merge_project_branches. Unlike openl_list_branches, this tool is project-aware and returns safety metadata.",
+      "List branch metadata in the repository that hosts a project, including repository base and protected flags, the base branch first, then the protected ones, filtered by name and paged by limit and offset. scope='project' (default) returns branches that already hold the project and are candidates for switching or deletion. Inspect the flags before deletion: the base branch cannot be deleted, while a protected branch requires force and explicit confirmation. scope='repository' returns every repository branch, including branches that do not hold the project yet; use it to discover otherBranch values before openl_check_project_merge or openl_merge_project_branches. Unlike openl_list_branches, this tool is project-aware and returns safety metadata.",
     schema: schemas.listProjectBranchesSchema,
     annotations: {
       readOnlyHint: true,
@@ -319,7 +319,13 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const branches = await client.listProjectBranches(args.projectId, args.scope);
-      return formatResult(branches);
+      const fragment = args.name?.toLowerCase();
+      const matching = fragment === undefined
+        ? branches
+        : branches.filter((branch) => branch.name?.toLowerCase().includes(fragment));
+      // The base branch and the protected ones lead, as the branches a merge or a deletion is checked against
+      const ordered = matching.toSorted((a, b) => branchRank(a) - branchRank(b));
+      return textResult(formatPage(ordered, "json", args.limit, args.offset));
     },
   });
 
@@ -613,4 +619,12 @@ export function registerProjectMergeHandlers(): void {
       });
     },
   });
+}
+
+/** The order of a branch in a list: the base branch, then the protected ones, then the rest. */
+function branchRank(branch: Types.ProjectBranchInfo): number {
+  if (branch.base) {
+    return 0;
+  }
+  return branch.protected ? 1 : 2;
 }

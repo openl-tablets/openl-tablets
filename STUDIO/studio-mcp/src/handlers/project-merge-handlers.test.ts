@@ -35,6 +35,24 @@ describe("project branch and merge handlers", () => {
     expect(dataOf(repositoryResponse)).toEqual(repositoryBranches);
   });
 
+  it("lists the base and the protected branches first, filtered by name and paged", async () => {
+    harness.mockHttp.onGet("/projects/p1/branches").reply(200, [
+      ...Array.from({ length: 300 }, (_, i) => ({ name: `AT-${i}` })),
+      { name: "release-26", protected: true },
+      { name: "development", base: true },
+    ]);
+
+    const first = JSON.parse(textOf(await executeTool("list_project_branches", { projectId: "p1", limit: 3 }, harness.client)));
+    const filtered = JSON.parse(textOf(await executeTool("list_project_branches", {
+      projectId: "p1", name: "at-29", offset: 1, limit: 2,
+    }, harness.client)));
+
+    expect(first.data.map((branch: { name: string }) => branch.name)).toEqual(["development", "release-26", "AT-0"]);
+    expect(first.pagination).toMatchObject({ total_count: 302, next_offset: 3 });
+    expect(filtered.data.map((branch: { name: string }) => branch.name)).toEqual(["AT-290", "AT-291"]);
+    expect(filtered.pagination).toMatchObject({ offset: 1, total_count: 11, next_offset: 3 });
+  });
+
   it("checks merge direction with the current backend request shape", async () => {
     harness.mockHttp.onPost("/projects/p1/merge/check").reply(200, {
       sourceBranch: "feature", targetBranch: "main", status: "mergeable", canMerge: true,
