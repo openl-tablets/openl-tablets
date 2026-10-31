@@ -1168,9 +1168,10 @@ export class OpenLClient {
     return (await this.http.get<Types.TableNodeView[]>(url, { params })).data;
   }
 
-  /** Return the modules declared by a project descriptor. */
+  /** Return the modules declared by a project descriptor, each followed by the modules it holds. */
   async listProjectModules(projectId: string): Promise<Types.ModuleViewModel[]> {
-    return (await this.http.get<Types.ModuleViewModel[]>(`${projectPath(projectId)}/modules`)).data;
+    return (await this.http.get<Types.ModuleViewModel[]>(`${projectPath(projectId)}/modules`)).data
+      .flatMap((module) => [module, ...(module.modules ?? [])]);
   }
 
   /** Return worksheet names in one project module. */
@@ -1374,6 +1375,31 @@ export class OpenLClient {
       { version: historyId },
       { params: { module: moduleName } }
     );
+  }
+
+  /**
+   * Start comparing two versions of a module of its local edit history, which Studio does in the background: the id
+   * of the comparison, read by {@link getComparison} once it is done and dropped by {@link deleteComparison}.
+   */
+  async compareLocalVersions(projectId: string, moduleName: string, first: string, second: string): Promise<string> {
+    return (await this.http.post<{ id: string }>(
+      `${projectPath(projectId)}/local-history/compare`,
+      { first, second },
+      { params: { module: moduleName } },
+    )).data.id;
+  }
+
+  /** The tables the two versions of a comparison differ in, by sheet, or `notReady` while Studio compares them. */
+  async getComparison(
+    id: string,
+    request: { signal?: AbortSignal; timeoutMs?: number },
+  ): Promise<Types.ComparisonView | Types.ResultNotReadyView> {
+    return this.getResult<Types.ComparisonView>(`/compare/${encodeURIComponent(id)}`, request);
+  }
+
+  /** Drop a comparison Studio keeps. */
+  async deleteComparison(id: string): Promise<void> {
+    await this.http.delete(`/compare/${encodeURIComponent(id)}`);
   }
 
   // =============================================================================

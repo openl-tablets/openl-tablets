@@ -693,6 +693,15 @@ export const getProjectRevisionsSchema = z.strictObject({
 // Local Changes & Restore Schemas
 // =============================================================================
 
+export const listProjectLocalChangesSchema = z.strictObject({
+  projectId: projectIdSchema,
+  module: nonBlankString.optional().describe("The module whose history to list, as openl_list_project_modules names it; omit for every module."),
+  historyId: nonBlankString.optional().describe("A version of the history of the module: answer instead the tables a restore to it would change, those the version holds otherwise than the current one."),
+}).refine((args) => args.historyId === undefined || args.module !== undefined, {
+  error: "historyId is a version of the history of one module: name the module.",
+  path: ["historyId"],
+});
+
 export const restoreProjectLocalChangeSchema = z.strictObject({
   projectId: projectIdSchema,
   module: nonBlankString.describe("Module name used with openl_list_project_local_changes()."),
