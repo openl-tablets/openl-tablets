@@ -4,8 +4,9 @@
  */
 
 import * as schemas from "../schemas.js";
-import { formatPage, hasMoreItems } from "../formatters.js";
-import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+import { formatList, formatListOf, hasMoreItems } from "../markdown-list.js";
+import { namesOfSet } from "../utils.js";
+import { registerTool, textResult, type ToolResponse } from "./common.js";
 
 export function registerRepositoryHandlers(): void {
   registerTool({
@@ -22,8 +23,16 @@ export function registerRepositoryHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { limit, offset } = args;
 
-      const repositories = (await client.listRepositories()).map(({ aclId, ...repository }) => repository);
-      return textResult(formatPage(repositories, args.response_format, limit, offset, { dataType: "repositories" }));
+      const repositories = await client.listRepositories();
+      return textResult(formatListOf(repositories, limit, offset, {
+        noun: "repositories", one: "repository",
+        columns: [
+          { header: "id", value: (repository) => repository.id },
+          { header: "name", value: (repository) => repository.name },
+          { header: "type", value: (repository) => repository.type },
+          { header: "features", value: (repository) => namesOfSet(repository.features) },
+        ],
+      }));
     },
   });
 
@@ -45,7 +54,9 @@ export function registerRepositoryHandlers(): void {
       const repositoryId = await client.getRepositoryIdByName(args.repository);
       const branches = await client.listBranches(repositoryId);
 
-      return textResult(formatPage(branches, "json", limit, offset));
+      return textResult(formatListOf(branches, limit, offset, {
+        noun: "branches", one: "branch", columns: [{ header: "branch", value: (branch) => branch }],
+      }));
     },
   });
 
@@ -53,7 +64,7 @@ export function registerRepositoryHandlers(): void {
     name: "repository_project_revisions",
     title: "Get Project Revision History",
     description:
-      "Get revision history (commit history) of a project in the branch it is currently on. Addressing the project by its stable ID keeps history available after an unsaved rename. Returns revisions with commit hashes, authors, timestamps, and commit types, with pagination and optional search and technical-revision filters. Use the projectId returned by openl_list_projects; do not construct it from the displayed project name.",
+      "Get revision history (commit history) of a project in the branch it is currently on. Addressing the project by its stable ID keeps history available after an unsaved rename. Returns a table of revisions with commit hashes, dates, authors, the first line of each comment and the deleted and technical flags, with pagination and optional search and technical-revision filters. Use the projectId returned by openl_list_projects; do not construct it from the displayed project name.",
     schema: schemas.getProjectRevisionsSchema,
     annotations: {
       readOnlyHint: true,
@@ -67,16 +78,23 @@ export function registerRepositoryHandlers(): void {
       const { offset } = args;
       const { pageSize: limit, total } = revisions;
 
-      // The revisions alone: the page Studio wraps them in is told by the pagination, a short revision is a prefix of
-      // its revision, and a flag that is false tells nothing
-      const items = revisions.content.map(({ shortRevisionNo, deleted, technicalRevision, ...revision }) => ({
-        ...revision,
-        ...(deleted ? { deleted } : {}),
-        ...(technicalRevision ? { technicalRevision } : {}),
+      return textResult(formatList({
+        noun: "revisions",
+        items: revisions.content,
+        offset,
+        total,
+        hasMore: hasMoreItems(offset, revisions.numberOfElements, limit, total),
+        columns: [
+          { header: "revision", value: (revision) => revision.revisionNo },
+          { header: "date", value: (revision) => revision.createdAt },
+          { header: "author", value: (revision) => revision.author?.displayName ?? revision.author?.email },
+          // The first line of a comment names the change; the rest is its detail
+          { header: "comment", value: (revision) => revision.fullComment.split(/\r?\n/, 1)[0] },
+          { header: "flags", value: (revision) => [
+            ...(revision.deleted ? ["deleted"] : []), ...(revision.technicalRevision ? ["technical"] : []),
+          ] },
+        ],
       }));
-      return formatResult(items, "json", {
-        pagination: { limit, offset, total, hasMore: hasMoreItems(offset, revisions.numberOfElements, limit, total) },
-      });
     },
   });
 }

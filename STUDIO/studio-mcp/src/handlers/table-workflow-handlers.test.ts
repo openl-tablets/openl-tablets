@@ -225,13 +225,18 @@ describe("table workflow handlers", () => {
   );
 
   it("lists the properties a table type allows", async () => {
-    const properties = [{ name: "state", type: "enum", multiple: true, values: [{ code: "CA", value: "California" }] }];
+    const properties = [
+      { name: "state", type: "enum", multiple: true, dimensional: true, values: [{ code: "CA", value: "California" }, { code: "NY" }] },
+      { name: "active", type: "boolean", defaultValue: "true" },
+    ];
     harness.mockHttp.onGet("/projects/p1/properties", { params: { tableType: "Rules" } }).reply(200, properties);
 
     const result = await executeTool("list_table_property_definitions", {
       projectId: "p1", tableType: "Rules", }, harness.client);
 
-    expect(dataOf(result)).toEqual(properties);
+    expect(textOf(result)).toBe("2 properties.\n\n| name | type | multiple | dimensional | default | values |\n"
+      + "| --- | --- | --- | --- | --- | --- |\n| state | enum | yes | yes |  | CA (California), NY |\n"
+      + "| active | boolean |  |  | true |  |");
   });
 
   it("copies a table server-side with the exact current request shape", async () => {

@@ -26,17 +26,16 @@ const expectNoRequest = (): void => expect(harness.mockHttp.requests).toHaveLeng
 describe("reading tables", () => {
   it("openl_list_tables pages the tables Studio pages, also from an offset off the page grid", async () => {
     harness.mockHttp.onGet(tablesPath, { params: { offset: 25, size: 50 } }).reply(200, pageOf(
-      [{ id: "t26", name: "calculatePremium", tableType: "SimpleRules", kind: "Rules", project: "Rates", projectId: "p1" }],
+      [{ id: "t26", name: "calculatePremium", tableType: "SimpleRules", kind: "Rules", module: "Main", project: "Rates", projectId: "p1" }],
       { total: 26 },
     ));
 
     const result = await executeTool("list_tables", {
       projectId: "p1", limit: 50, offset: 25, }, harness.client);
 
-    const response = JSON.parse(textOf(result));
     // The project the caller named is not repeated in each table
-    expect(response.data).toEqual([{ id: "t26", name: "calculatePremium", tableType: "SimpleRules", kind: "Rules" }]);
-    expect(response.pagination).toEqual({ limit: 50, offset: 25, total_count: 26, has_more: false });
+    expect(textOf(result)).toBe("26 tables; 26–26 below.\n\n| id | name | kind | module |\n| --- | --- | --- | --- |\n"
+      + "| t26 | calculatePremium | Rules | Main |");
   });
 
   it("openl_list_tables finds the tables a text is in, and names the project of a table of a dependency", async () => {
@@ -53,10 +52,8 @@ describe("reading tables", () => {
     expect(harness.mockHttp.history.get[0].params).toMatchObject({
       kind: ["Rules"], text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
     });
-    expect(JSON.parse(textOf(result)).data).toEqual([
-      { id: "t1", name: "Messages", tableType: "SimpleRules", kind: "Rules" },
-      { id: "t9", name: "Codes", tableType: "Data", kind: "Data", project: "Common", projectId: "p9" },
-    ]);
+    expect(textOf(result)).toContain("| id | name | kind | module | project |");
+    expect(textOf(result)).toContain("| t1 | Messages | Rules |  |  |\n| t9 | Codes | Data |  | Common (p9) |");
   });
 
   it("openl_get_table forwards offset/limit/styles to the raw view query and answers the rows, the styles apart", async () => {

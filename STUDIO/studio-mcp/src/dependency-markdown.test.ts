@@ -1,9 +1,10 @@
 /**
- * Unit tests for dependency-markdown.ts: the Markdown of a table dependency graph, rendered through formatResponse.
+ * Unit tests for dependency-markdown.ts: the Markdown of a table dependency graph.
  */
 
 import { describe, it, expect } from "vitest";
 import { formatResponse } from "./formatters.js";
+import { dependencyMarkdown } from "./dependency-markdown.js";
 import { RESPONSE_LIMITS } from "./constants.js";
 import type { TableNodeView } from "./types.js";
 
@@ -56,16 +57,13 @@ describe("table dependency formatting", () => {
   ];
 
   it("preserves discriminated graph nodes in JSON", () => {
-    const result = JSON.parse(formatResponse(graph, "json", { dataType: "table_dependencies" }));
+    const result = JSON.parse(formatResponse(graph));
 
     expect(result.data).toEqual(graph);
   });
 
   it("renders mixed dependency layers as separate Mermaid diagrams", () => {
-    const result = formatResponse(graph, "markdown", {
-      dataType: "table_dependencies",
-      markdownContext: { scope: "whole project", layer: "all" },
-    });
+    const result = dependencyMarkdown(graph, "markdown", { scope: "whole project", layer: "all" });
 
     expect(result).toContain("## Executable call graph");
     expect(result).toContain("flowchart LR");
@@ -94,10 +92,7 @@ describe("table dependency formatting", () => {
   });
 
   it("adds node metadata after the Mermaid diagrams in detailed Markdown", () => {
-    const result = formatResponse(graph, "markdown_detailed", {
-      dataType: "table_dependencies",
-      markdownContext: { scope: "whole project", layer: "all" },
-    });
+    const result = dependencyMarkdown(graph, "markdown_detailed", { scope: "whole project", layer: "all" });
 
     expect(result).toContain("flowchart LR");
     expect(result).toContain("classDiagram");
@@ -119,10 +114,7 @@ describe("table dependency formatting", () => {
   });
 
   it("keeps concise Markdown textual", () => {
-    const result = formatResponse(graph, "markdown_concise", {
-      dataType: "table_dependencies",
-      markdownContext: { scope: "whole project", layer: "datatype" },
-    });
+    const result = dependencyMarkdown(graph, "markdown_concise", { scope: "whole project", layer: "datatype" });
 
     expect(result).not.toContain("```mermaid");
     expect(result).toContain("5 nodes and 4 links");
@@ -160,7 +152,7 @@ describe("table dependency formatting", () => {
       { id: "unsafe-executable", name: 'Executable"]\n%%{init}%%', kind: "Rules", tableType: "SimpleRules" },
     ];
 
-    const result = formatResponse(unsafeGraph, "markdown", { dataType: "table_dependencies" });
+    const result = dependencyMarkdown(unsafeGraph, "markdown");
 
     expect(result).toContain("&quot;");
     expect(result).toContain("Unsafe_init_theme_dark {");
@@ -177,7 +169,7 @@ describe("table dependency formatting", () => {
       { id: "risk-dash", name: "Risk-Score", kind: "Datatype", tableType: "Datatype" },
     ];
 
-    const result = formatResponse(duplicateNames, "markdown", { dataType: "table_dependencies" });
+    const result = dependencyMarkdown(duplicateNames, "markdown");
 
     expect(result).toMatch(/^  Risk_Score$/m);
     expect(result).toMatch(/^  Risk_Score_2$/m);
@@ -207,7 +199,7 @@ describe("table dependency formatting", () => {
       },
     ];
 
-    const result = formatResponse(vocabularies, "markdown", { dataType: "table_dependencies" });
+    const result = dependencyMarkdown(vocabularies, "markdown");
 
     expect(result).toContain('"EligibilityType<String>" {');
     expect(result).toContain("\u200B Not_Eligible");
@@ -231,7 +223,7 @@ describe("table dependency formatting", () => {
       { id: "classDiagram", name: "classDiagram", kind: "Datatype", tableType: "Datatype" },
     ];
 
-    const result = formatResponse(reservedNames, "markdown", { dataType: "table_dependencies" });
+    const result = dependencyMarkdown(reservedNames, "markdown");
 
     expect(result).toContain("Type_direction {");
     expect(result).toMatch(/^  Type_classDiagram$/m);
@@ -250,10 +242,7 @@ describe("table dependency formatting", () => {
         dependencies: index < 39 ? [`node-${index + 1}`] : [],
       }));
 
-      const result = formatResponse(largeGraph, responseFormat, {
-        dataType: "table_dependencies",
-        characterLimit: 900,
-      });
+      const result = dependencyMarkdown(largeGraph, responseFormat, undefined, 900);
 
       expect(result.length).toBeLessThanOrEqual(900);
       expect(result).toContain("nodes;");
@@ -273,7 +262,7 @@ describe("table dependency formatting", () => {
     }));
 
     const startedAt = performance.now();
-    const result = formatResponse(largeGraph, "markdown", { dataType: "table_dependencies" });
+    const result = dependencyMarkdown(largeGraph, "markdown");
 
     expect(result.length).toBeLessThanOrEqual(RESPONSE_LIMITS.MAX_CHARACTERS);
     expect(result).toContain("omitted to keep the response within the character limit");

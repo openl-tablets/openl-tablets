@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"revisionNo\":\"@\",\"createdAt\":\"#-#-#T#:#:#-#:#\",\"fullComment\":\"Build the rules\",\"author\":{\"email\":\"admin@example.com\",\"displayName\":\"Ada Admin\"}},{\"revisionNo\":\"@\",\"createdAt\":\"#-#-#T#:#:#-#:#\",\"fullComment\":\"Create the project\",\"author\":{\"email\":\"admin@example.com\",\"displayName\":\"Ada Admin\"}}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false}}"
+        "text": "2 revisions.\n\n| revision | date | author | comment | flags |\n| --- | --- | --- | --- | --- |\n| @@@ | * | Ada Admin | Build the rules |  |\n| @@@ | * | Ada Admin | Create the project |  |"
       }
     ],
     "resultType": "complete",

@@ -12,16 +12,16 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type * as Types from "./types.js";
 
 /** A value of a cell: a scalar, a one-dimensional array of scalars, or null for an empty or covered cell. */
-export type GridValue = string | number | boolean | null | Array<string | number | boolean | null>;
+type GridValue = string | number | boolean | null | Array<string | number | boolean | null>;
 
 /** A merged cell: its first row and column, and how many rows and columns it spans. */
-export type GridMerge = [row: number, column: number, rowspan: number, columns: number];
+type GridMerge = [row: number, column: number, rowspan: number, columns: number];
 
 /** Something a cell holds beside its value, such as its Excel formula, by the position of the cell. */
-export type GridEntry<T> = [row: number, column: number, entry: T];
+type GridEntry<T> = [row: number, column: number, entry: T];
 
 /** The cells of a table, as the table tools read and write them. */
-export interface Grid {
+interface Grid {
   /** Every row the answer holds, one value per column; a row ends at its last value that is not null. */
   rows: GridValue[][];
   merges?: GridMerge[];

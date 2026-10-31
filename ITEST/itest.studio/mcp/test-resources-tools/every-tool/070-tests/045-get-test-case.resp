@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"id\":\"1\",*\"status\":\"TR_OK\",*\"parameters\":[{\"name\":\"driver\",\"description\":\"driver\",\"value\":{\"name\":\"Young\",\"age\":20}}]}}"
+        "text": "Test 1: passed.\n\nInputs:\n\n```json\n{\"driver\":{\"name\":\"Young\",\"age\":20}}\n```\n\n| assertion | status | expected | actual |\n| --- | --- | --- | --- |\n| Premium | passed | 150 | 150 |"
       }
     ],
     "resultType": "complete",

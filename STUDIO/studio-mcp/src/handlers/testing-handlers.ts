@@ -4,9 +4,12 @@
  */
 
 import * as schemas from "../schemas.js";
-import { hasMoreItems, type FormatOptions, type Truncation } from "../formatters.js";
+import { RESPONSE_LIMITS } from "../constants.js";
+import { cutJson } from "../json-cut.js";
+import { countLine, fitItems, hasMoreItems, markdownTable, type Column } from "../markdown-list.js";
+import { formatCount } from "../text.js";
 import type * as Types from "../types.js";
-import { registerTool, formatResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
 
 const TEST_RESULTS_DEFAULT_TIMEOUT_MS = 120_000;
@@ -41,12 +44,14 @@ export function registerTestingHandlers(): void {
     name: "get_test_results",
     title: "Get Test Results",
     description:
-      "Read the results of the tests openl_start_project_tests started, waiting until Studio has run them: with " +
-      "summary: true the time of the run and the counts of passed and failed tests, with tableId the tests of one " +
-      "test table, with caseId as well one test with its inputs whole, otherwise every test table. A page is cut to " +
-      "25,000 characters by whole test tables, or by whole tests of one test table. Expected and actual values of " +
-      "spreadsheet results make test tables large: read the summary, the failures and the test tables you need " +
-      "rather than unpaged: true.",
+      "Read the results of the tests openl_start_project_tests started as Markdown tables, waiting until Studio has " +
+      "run them: the counts of the run; a table of the test tables with their tests and failures; and a table of the " +
+      "failed tests, one row per failed assertion with its expected and actual value and the inputs of the test, an " +
+      "input with inner structure named by its type and key. failuresOnly, true by default, lists only the failed " +
+      "tests, at most 'failures' of each test table, and tells how many it leaves out; false lists every test. " +
+      "summary: true answers the counts alone; tableId reads the tests of one test table, page by page, and caseId " +
+      "with it one test with its inputs as JSON, whole up to 12,500 characters and cut beyond, the cuts named. A page is cut to 25,000 characters by whole test tables, or by whole " +
+      "tests of one test table; the first lines name the offset of the next page.",
     schema: schemas.getTestResultsSchema,
     annotations: {
       readOnlyHint: true,
@@ -54,22 +59,23 @@ export function registerTestingHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {
-      const { response_format: format, projectId, summary, caseId, ...options } = args;
+      const { projectId, summary, caseId, ...options } = args;
       if (caseId !== undefined) {
         const unit = await waitForResult(
           (request) => client.getTestCase(projectId, args.tableId as string, caseId, request),
           TEST_RESULTS_WAIT,
           extra,
         );
-        return formatResult(withoutUnitSchemas(unit), format);
+        return textResult(testCaseMarkdown(unit));
       }
       if (summary) {
         const counts = await waitForResult(
-          (request) => client.getTestResultsSummary(projectId, { ...options, ...request }),
+          // The counts are of every test, whichever the list would hold
+          (request) => client.getTestResultsSummary(projectId, { ...options, failuresOnly: undefined, ...request }),
           TEST_RESULTS_WAIT,
           extra,
         );
-        return formatResult(counts, format, { dataType: "test_results_summary" });
+        return textResult(countsLine(counts));
       }
 
       const read = await waitForResult(
@@ -78,35 +84,24 @@ export function registerTestingHandlers(): void {
         extra,
       );
       // Only a read of the failed tests is cut to `failures` of them
-      const results = withoutValueSchemas(args.failuresOnly ? withOmittedFailures(read) : read);
-      // The page Studio read is told once, by the pagination of the answer
-      const { pageNumber, pageSize: studioPageSize, numberOfElements, total, ...answer } = results;
+      const results = args.failuresOnly ? withOmittedFailures(read) : read;
       if (args.tableId !== undefined) {
-        const { page, options: pageOptions } = testUnitPage(answer, args.offset ?? 0, args.unpaged ? undefined : args.limit ?? 50);
-        return formatResult(page, format, pageOptions);
+        return textResult(testsOfTable(results, args.offset ?? 0, args.unpaged ? undefined : args.limit ?? 50));
       }
-
-      const pageSize = studioPageSize || args.limit || 50;
-      const offset = args.offset ?? (pageNumber || 0) * pageSize;
-      const hasMore = args.unpaged !== true && hasMoreItems(offset, numberOfElements, pageSize, total);
-      return formatResult(answer, format, {
-        pagination: {
-          limit: pageSize,
-          offset,
-          total,
-          hasMore,
-        },
-        dataType: "test_results",
-        // Only an unpaged read asks for everything; a page is cut to the response limit by whole test tables
-        skipTruncation: args.unpaged === true,
-        truncation: testTableTruncation(answer, offset),
-      });
+      const pageSize = results.pageSize || args.limit || 50;
+      const offset = args.offset ?? (results.pageNumber || 0) * pageSize;
+      const hasMore = args.unpaged !== true && hasMoreItems(offset, results.numberOfElements, pageSize, results.total);
+      return textResult(testTables(results, offset, hasMore, args.unpaged === true));
     },
   });
 }
 
-/** The results of the tests without the page of them Studio read, which the pagination of the answer tells. */
-type TestResultsAnswer = Omit<Types.TestsExecutionSummary, "pageNumber" | "pageSize" | "numberOfElements" | "total">;
+/** The time and the counts of a run: `159 tests: 158 passed, 1 failed, in 6.13 s.` */
+function countsLine(run: { numberOfTests: number; numberOfFailures: number; executionTimeMs: number }): string {
+  const passed = run.numberOfTests - run.numberOfFailures;
+  return `${formatCount(run.numberOfTests, "test")}: ${passed} passed, ${run.numberOfFailures} failed, in ` +
+    `${(run.executionTimeMs / 1_000).toFixed(2)} s.`;
+}
 
 /**
  * The results with the number of failed tests each test table leaves out: with `failuresOnly`, Studio lists at most
@@ -123,73 +118,129 @@ function withOmittedFailures(results: Types.TestsExecutionSummary): Types.TestsE
   };
 }
 
-/**
- * The results without the JSON schema Studio writes beside every parameter of every test: the same schema of a type
- * again for each test, often most of a page, which the values themselves already show.
- */
-function withoutValueSchemas(results: Types.TestsExecutionSummary): Types.TestsExecutionSummary {
-  return {
-    ...results,
-    testCases: results.testCases.map((testCase) => ({
-      ...testCase,
-      testUnits: testCase.testUnits?.map(withoutUnitSchemas),
+/** A row of the table of tests: a test, or one failed assertion of it, in its test table. */
+interface TestRow {
+  table: string;
+  test?: string;
+  status?: string;
+  inputs?: string;
+  assertion?: string;
+  expected?: unknown;
+  actual?: unknown;
+}
+
+/** The longest text of an input the table of tests shows; caseId reads the test with its inputs as JSON. */
+const INPUT_TEXT = 120;
+
+/** The inputs of a test on one line: `age=25; policy=Policy MP000001`, a long value cut. */
+function inputsOf(unit: Types.TestUnitExecutionResult): string {
+  return (unit.parameters ?? []).map(({ name, lazy, type, key, value }) => {
+    const text = lazy ? `${type ?? "value"} ${key ?? ""}`.trim() : JSON.stringify(value) ?? "";
+    const shown = text.length > INPUT_TEXT ? `${text.slice(0, INPUT_TEXT)}…` : text;
+    return `${name}=${shown}`;
+  }).join("; ");
+}
+
+/** The status of a test as a word. */
+function statusOf(status: Types.TestUnitExecutionResult["status"]): string {
+  switch (status) {
+    case "TR_OK": return "passed";
+    case "TR_EXCEPTION": return "error";
+    default: return "failed";
+  }
+}
+
+/** The rows of a test: one for a passed test, one per failed assertion, or one per error, of a failed one. */
+function rowsOf(table: string, unit: Types.TestUnitExecutionResult): TestRow[] {
+  const test = { table, test: unit.id, status: statusOf(unit.status), inputs: inputsOf(unit) };
+  const failures: TestRow[] = [
+    ...(unit.errors ?? []).map((error) => ({ ...test, assertion: "error", actual: error.summary })),
+    ...(unit.testAssertions ?? []).filter((assertion) => assertion.status !== "TR_OK").map((assertion) => ({
+      ...test, assertion: assertion.description, expected: assertion.expectedValue, actual: assertion.actualValue,
     })),
-  };
+  ];
+  return failures.length > 0 ? failures : [test];
 }
 
-/** A test without the JSON schema Studio writes beside each of its parameters. */
-function withoutUnitSchemas(unit: Types.TestUnitExecutionResult): Types.TestUnitExecutionResult {
-  const plain = (values?: Types.TraceParameterValue[]): Types.TraceParameterValue[] | undefined =>
-    values?.map(({ schema, ...value }) => value);
-  return {
-    ...unit,
-    ...(unit.parameters ? { parameters: plain(unit.parameters) } : {}),
-    ...(unit.contextParameters ? { contextParameters: plain(unit.contextParameters) } : {}),
+/** The columns of the table of tests. */
+const TEST_COLUMNS: Array<Column<TestRow>> = [
+  { header: "test table", value: (row) => row.table },
+  { header: "test", value: (row) => row.test },
+  { header: "status", value: (row) => row.status },
+  { header: "inputs", value: (row) => row.inputs },
+  { header: "assertion", value: (row) => row.assertion },
+  { header: "expected", value: (row) => (row.expected === undefined ? undefined : JSON.stringify(row.expected)) },
+  { header: "actual", value: (row) => (row.actual === undefined ? undefined : JSON.stringify(row.actual)) },
+];
+
+/** The table of the tests of test tables, and the note on the failed tests a list leaves out. */
+function testsSection(testCases: Types.TestCaseExecutionResult[]): string[] {
+  const rows = testCases.flatMap((testCase) => (testCase.testUnits ?? []).flatMap((unit) => rowsOf(testCase.name, unit)));
+  const omitted = testCases.filter((testCase) => (testCase.omittedFailures ?? 0) > 0)
+    .map((testCase) => `${testCase.name} has ${formatCount(testCase.omittedFailures ?? 0, "more failed test")}: ` +
+      `read them with tableId ${testCase.tableId}.`);
+  return [...(rows.length > 0 ? [markdownTable(rows, TEST_COLUMNS)] : []), ...omitted];
+}
+
+/** A page of the test tables of a run: their counts, and the tests they list; cut by whole test tables. */
+function testTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean, unpaged: boolean): string {
+  const list = { noun: "test tables", one: "test table", items: results.testCases, offset, total: results.total, hasMore };
+  const render = (count: number): string => {
+    const shown = results.testCases.slice(0, count);
+    return [
+      countsLine(results),
+      countLine(list, count),
+      ...(count > 0 ? [markdownTable(shown, [
+        { header: "test table", value: (testCase) => testCase.name },
+        { header: "tableId", value: (testCase) => testCase.tableId },
+        { header: "tests", value: (testCase) => testCase.numberOfTests },
+        { header: "failed", value: (testCase) => testCase.numberOfFailures },
+      ])] : []),
+      ...testsSection(shown),
+    ].join("\n\n");
   };
+  return fitItems(render, results.testCases.length, unpaged ? Infinity : undefined);
+}
+
+/** A page of the tests of one test table, at most `limit` from `offset`: cut by whole tests. */
+function testsOfTable(results: Types.TestsExecutionSummary, offset: number, limit: number | undefined): string {
+  const [table] = results.testCases;
+  if (!table) {
+    return "No test table of the run has that id.";
+  }
+  const units = table.testUnits ?? [];
+  const counts = `${table.name} (${table.tableId}): ${formatCount(table.numberOfTests, "test")}, ${table.numberOfFailures} failed.`;
+  // With only the failures asked for, a test table without them lists no test
+  if (units.length === 0) {
+    return counts;
+  }
+  const page = units.slice(offset, limit === undefined ? undefined : offset + limit);
+  const list = { noun: "tests listed", one: "test listed", items: page, offset, total: units.length };
+  const render = (count: number): string => [
+    counts,
+    countLine(list, count),
+    ...testsSection([{ ...table, testUnits: page.slice(0, count) }]),
+  ].join("\n\n");
+  return fitItems(render, page.length, limit === undefined ? Infinity : undefined);
 }
 
 /**
- * A page of the tests of one test table: Studio answers them all, so the server pages them, at most `limit` from
- * `offset`, every one when no limit is given, and cuts the page to the response limit by whole tests.
+ * One test with its inputs as JSON without indentation, whole unless they exceed half the response limit, and every
+ * assertion of it: the inputs are cut as they are written, so the answer stays within the limit.
  */
-function testUnitPage(
-  answer: TestResultsAnswer,
-  offset: number,
-  limit: number | undefined,
-): { page: TestResultsAnswer; options: FormatOptions } {
-  const [table] = answer.testCases;
-  const units = table?.testUnits ?? [];
-  const tests = units.slice(offset, limit === undefined ? undefined : offset + limit);
-  const withUnits = (count: number): TestResultsAnswer =>
-    ({ ...answer, testCases: table ? [{ ...table, testUnits: tests.slice(0, count) }] : [] });
-  return {
-    page: withUnits(tests.length),
-    options: {
-      dataType: "test_results",
-      skipTruncation: limit === undefined,
-      truncation: {
-        items: tests.length,
-        unit: "tests",
-        cut: withUnits,
-        next: (count) => `continue with offset=${offset + count}`,
-        metadata: (count) => ({ pagination: testPagination(offset, count, units.length) }),
-      },
-    },
-  };
-}
-
-/** Where a page of the tests of one test table starts, how many tests it has, and where the next page starts. */
-function testPagination(offset: number, count: number, total: number): Record<string, unknown> {
-  const hasMore = offset + count < total;
-  return { offset, count, total_count: total, has_more: hasMore, ...(hasMore ? { next_offset: offset + count } : {}) };
-}
-
-/** The cut of a page of test results: its leading test tables, continued from the offset of the next one. */
-function testTableTruncation(answer: TestResultsAnswer, offset: number): Truncation {
-  return {
-    items: answer.testCases.length,
-    unit: "test tables",
-    cut: (count) => ({ ...answer, testCases: answer.testCases.slice(0, count) }),
-    next: (count) => `continue with offset=${offset + count}`,
-  };
+function testCaseMarkdown(unit: Types.TestUnitExecutionResult): string {
+  const inputs = Object.fromEntries((unit.parameters ?? []).map(({ name, value }) => [name, value]));
+  const { value, cuts } = cutJson(inputs, RESPONSE_LIMITS.MAX_CHARACTERS / 2);
+  const cutNote = cuts.length > 0 ? `, cut to fit: ${cuts.join("; ")}` : "";
+  return [
+    `Test ${unit.id}: ${statusOf(unit.status)}.`,
+    `Inputs${cutNote}:\n\n\`\`\`json\n${JSON.stringify(value)}\n\`\`\``,
+    markdownTable(unit.testAssertions ?? [], [
+      { header: "assertion", value: (assertion) => assertion.description },
+      { header: "status", value: (assertion) => statusOf(assertion.status) },
+      { header: "expected", value: (assertion) => JSON.stringify(assertion.expectedValue) },
+      { header: "actual", value: (assertion) => JSON.stringify(assertion.actualValue) },
+    ]),
+    ...(unit.errors ?? []).map((error) => `Error: ${error.summary}`),
+  ].join("\n\n");
 }

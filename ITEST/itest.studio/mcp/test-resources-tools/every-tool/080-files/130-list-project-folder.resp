@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"path\":\"docs/notes.txt\"}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
+        "text": "1 match.\n\n| path |\n| --- |\n| docs/notes.txt |"
       }
     ],
     "resultType": "complete",

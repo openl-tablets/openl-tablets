@@ -4,15 +4,15 @@
  */
 
 import * as schemas from "../schemas.js";
-
-import { registerTool, formatResult, type ToolResponse } from "./common.js";
+import { formatList } from "../markdown-list.js";
+import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 
 export function registerLocalChangeHandlers(): void {
   registerTool({
     name: "list_project_local_changes",
     title: "List Local Change History",
     description:
-      "List a module's local edit history for an explicitly identified project. Returns each version by the historyId openl_restore_project_local_change takes, with its time, and marks the current one, which a restore leaves as it is. The project must be opened first with openl_open_project; repository 'local' is unsupported because local projects cannot be opened. Use openl_list_project_modules to obtain the required moduleName. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
+      "List a module's local edit history for an explicitly identified project. Returns each version by the historyId openl_restore_project_local_change takes, with its time, and marks the current one, which a restore leaves as it is. The project must be opened first with openl_open_project; repository 'local' is unsupported because local projects cannot be opened. Use openl_list_project_modules to obtain the required module. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
     schema: schemas.projectModuleSchema,
     annotations: {
       readOnlyHint: true,
@@ -23,7 +23,17 @@ export function registerLocalChangeHandlers(): void {
       const changes = await client.getProjectLocalChanges(args.projectId, args.module);
 
       // Each entry is named by the historyId openl_restore_project_local_change takes
-      return formatResult(changes.map(({ id, ...change }) => ({ historyId: id, ...change })));
+      return textResult(formatList({
+        noun: "versions",
+        items: changes,
+        offset: 0,
+        total: changes.length,
+        columns: [
+          { header: "historyId", value: (change) => change.id },
+          { header: "kept at", value: (change) => change.modifiedOn },
+          { header: "current", value: (change) => change.current },
+        ],
+      }));
     },
   });
 

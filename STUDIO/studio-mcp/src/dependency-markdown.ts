@@ -3,6 +3,7 @@
  * the details of the nodes, and the concise summary of the graph.
  */
 
+import { RESPONSE_LIMITS } from "./constants.js";
 import type * as Types from "./types.js";
 import { formatCount, largestFitting, trimChar } from "./text.js";
 
@@ -670,4 +671,19 @@ export function summarizeDependencyGraph(
     ...(datatypes.length > 0 ? dataModelLines(datatypes, datatypeLinks) : []),
     ...(query ? [query] : []),
   ];
+}
+
+/**
+ * The Markdown of a dependency graph within `characterLimit`: its Mermaid diagrams, with the metadata of every node
+ * when detailed, or a summary of a few sentences when concise.
+ */
+export function dependencyMarkdown(
+  graph: Types.TableNodeView[],
+  format: Exclude<Types.ResponseFormat, "json">,
+  context?: DependencyQuery,
+  characterLimit: number = RESPONSE_LIMITS.MAX_CHARACTERS,
+): string {
+  return format === "markdown_concise"
+    ? summarizeDependencyGraph(graph, graph.length, context).join(" ")
+    : formatTableDependencies(graph, context, { detailed: format === "markdown_detailed", characterLimit });
 }

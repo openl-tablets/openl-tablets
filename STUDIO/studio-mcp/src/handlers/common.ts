@@ -12,7 +12,6 @@ import type { ProgressToken, ServerNotification, ToolAnnotations } from "@modelc
 import { z, type ZodType } from "zod";
 
 import type { OpenLClient } from "../client.js";
-import type { ResponseFormat } from "../types.js";
 import { sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
 import { isHttpError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
@@ -33,9 +32,9 @@ export function textResult(text: string): ToolResponse {
   return { content: [{ type: "text", text }] };
 }
 
-/** The answer of a tool that renders `data` in the format the caller asked for. */
-export function formatResult(data: unknown, format?: ResponseFormat, options?: FormatOptions): ToolResponse {
-  return textResult(formatResponse(data, format, options));
+/** The answer of a tool that renders `data` as JSON, cut to the response limit. */
+export function formatResult(data: unknown, options?: FormatOptions): ToolResponse {
+  return textResult(formatResponse(data, options));
 }
 
 /**

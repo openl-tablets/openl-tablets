@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[\"Rules\",\"Data\",\"Tests\",\"Copies\"]}"
+        "text": "4 sheets.\n\n| sheet |\n| --- |\n| Rules |\n| Data |\n| Tests |\n| Copies |"
       }
     ],
     "resultType": "complete",

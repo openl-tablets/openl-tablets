@@ -8,7 +8,8 @@ import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { formatPage, type Truncation } from "../formatters.js";
+import type { Truncation } from "../formatters.js";
+import { formatListOf } from "../markdown-list.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
@@ -325,7 +326,13 @@ export function registerProjectMergeHandlers(): void {
         : branches.filter((branch) => branch.name?.toLowerCase().includes(fragment));
       // The base branch and the protected ones lead, as the branches a merge or a deletion is checked against
       const ordered = matching.toSorted((a, b) => branchRank(a) - branchRank(b));
-      return textResult(formatPage(ordered, "json", args.limit, args.offset));
+      return textResult(formatListOf(ordered, args.limit, args.offset, {
+        noun: "branches", one: "branch",
+        columns: [
+          { header: "branch", value: (branch) => branch.name },
+          { header: "flags", value: (branch) => [...(branch.base ? ["base"] : []), ...(branch.protected ? ["protected"] : [])] },
+        ],
+      }));
     },
   });
 
@@ -478,7 +485,7 @@ export function registerProjectMergeHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { blocks } = await client.getMergeConflictText(args.projectId, args.path);
       const overview = textOverview(args.path, blocks, args.fromConflict);
-      return formatResult(overview, "json", { truncation: textTruncation(overview) });
+      return formatResult(overview, { truncation: textTruncation(overview) });
     },
   });
 

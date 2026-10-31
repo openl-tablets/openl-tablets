@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{*\"numberOfTests\":3,*\"numberOfFailures\":0,*\"name\":\"PremiumTest\",*\"status\":\"TR_OK\",*}"
+        "text": "3 tests: 3 passed, 0 failed, in * s.\n\n1 test table.\n\n| test table | tableId | tests | failed |\n| --- | --- | --- | --- |\n| PremiumTest | * | 3 | 0 |"
       }
     ],
     "resultType": "complete",

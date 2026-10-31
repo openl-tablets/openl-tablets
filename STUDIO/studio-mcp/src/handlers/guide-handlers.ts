@@ -7,7 +7,8 @@
  */
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import * as schemas from "../schemas.js";
-import { formatPage, formatAgentsDocument } from "../formatters.js";
+import { formatAgentsDocument } from "../formatters.js";
+import { formatListOf } from "../markdown-list.js";
 import {
   findKnownGuideIds,
   guidesOverview,
@@ -127,9 +128,15 @@ export function registerGuideHandlers(): void {
       const { limit, offset } = args;
 
       // The id tells the type of an entry, and openl_get_guides the path a person opens it at
-      const entries = (await listGuides(client, { type: args.type, search: args.search }))
-        .map(({ type, path, ...entry }) => entry);
-      return textResult(formatPage(entries, "json", limit, offset));
+      const entries = await listGuides(client, { type: args.type, search: args.search });
+      return textResult(formatListOf(entries, limit, offset, {
+        noun: "documents",
+        columns: [
+          { header: "id", value: (entry) => entry.id },
+          { header: "title", value: (entry) => entry.title },
+          { header: "bytes", value: (entry) => entry.size },
+        ],
+      }));
     },
   });
 

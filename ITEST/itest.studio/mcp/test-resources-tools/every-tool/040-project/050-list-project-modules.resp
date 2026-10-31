@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"name\":\"Main\",\"path\":\"rules/Main.xlsx\"}]}"
+        "text": "1 module.\n\n| module | path |\n| --- | --- |\n| Main | rules/Main.xlsx |"
       }
     ],
     "resultType": "complete",

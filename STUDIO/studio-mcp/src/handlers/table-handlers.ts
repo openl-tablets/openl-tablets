@@ -6,10 +6,11 @@
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
-import { paginateCollection } from "../formatters.js";
 import { gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.js";
 import { isPlainObject, sanitizeError } from "../utils.js";
-import { formatResult, registerTool, type ToolResponse } from "./common.js";
+import { formatResult, registerTool, textResult, type ToolResponse } from "./common.js";
+import { formatStudioPage } from "../markdown-list.js";
+import type * as Types from "../types.js";
 import { finishTableEdit } from "./table-edit.js";
 
 /**
@@ -82,7 +83,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project as a table of id, name, kind and module, filtered by kind, name, module, table properties, the text of the header line and the text of any cell, page by page (50 by default, 200 at most): the first line names the offset of the next page while more follow. text finds every table a value, a key or a message is used in. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
     annotations: {
       readOnlyHint: true,
@@ -90,17 +91,23 @@ export function registerTableHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { response_format: format, projectId, ...filters } = args;
+      const { projectId, ...filters } = args;
       const tablesPage = await client.listTablesPage(projectId, filters);
       // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
-      const tables = tablesPage.items.map(({ project, projectId: owner, ...table }) =>
-        owner === projectId ? table : { ...table, project, projectId: owner });
-      const paginated = paginateCollection({ ...tablesPage, items: tables }, filters.offset);
-
-      return formatResult(paginated.data, format, {
-        pagination: paginated.pagination,
-        dataType: "tables",
-      });
+      const ofDependencies = tablesPage.items.some((table) => table.projectId !== undefined && table.projectId !== projectId);
+      return textResult(formatStudioPage(tablesPage, filters.offset, {
+        noun: "tables",
+        columns: [
+          { header: "id", value: (table) => table.id },
+          { header: "name", value: (table) => table.name },
+          { header: "kind", value: (table) => table.kind },
+          { header: "module", value: (table) => table.module },
+          ...(ofDependencies ? [{
+            header: "project",
+            value: (table: Types.TableMetadata) => (table.projectId === projectId ? "" : `${table.project} (${table.projectId})`),
+          }] : []),
+        ],
+      }));
     },
   });
 
@@ -131,7 +138,7 @@ export function registerTableHandlers(): void {
       const totalRows = total ?? offset + source.length;
       const grid = gridOf(source, offset, table.pos);
 
-      return formatResult({ ...about, ...grid }, "json", {
+      return formatResult({ ...about, ...grid }, {
         truncation: {
           items: grid.rows.length,
           unit: "rows",

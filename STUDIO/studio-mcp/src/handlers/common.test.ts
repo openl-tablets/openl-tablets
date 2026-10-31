@@ -36,14 +36,11 @@ describe("tool registry", () => {
     expect(lenient).toEqual([]);
   });
 
-  it("offers response_format only on the tools whose answer has a Markdown view of its own", () => {
+  it("offers response_format only on the dependency graph, whose Markdown draws it", () => {
     const formatted = getAllTools()
       .filter((tool) => "response_format" in (tool.inputSchema.properties as Record<string, unknown>))
       .map((tool) => tool.name);
-    expect(formatted.toSorted()).toEqual([
-      "get_table_dependencies", "get_test_results",
-      "list_deployments", "list_projects", "list_repositories", "list_tables",
-    ]);
+    expect(formatted).toEqual(["get_table_dependencies"]);
   });
 
   it("publishes no dialect and no safe-integer bounds, but the bounds of a tool", () => {
@@ -104,7 +101,7 @@ describe("argument validation", () => {
     ["get_test_results", { projectId: "p1", unpaged: true, offset: 0 }, /mutually exclusive/],
     ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
-    ["list_projects", { response_format: "xml" }, /markdown_concise.*markdown_detailed/],
+    ["get_table_dependencies", { projectId: "p1", response_format: "xml" }, /markdown_concise.*markdown_detailed/],
     ["get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, /response_format/],
     ["list_tables", { projectId: "p1", offset: 2 ** 60 }, /Invalid arguments for list_tables.*offset/s],
   ])("enforces the published %s constraints at runtime", async (toolName, args, message) => {

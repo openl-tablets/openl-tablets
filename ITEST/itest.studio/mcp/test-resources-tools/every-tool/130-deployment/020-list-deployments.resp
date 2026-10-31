@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"cHJvZHVjdGlvbjpNY3BUb29scw==\",\"name\":\"McpTools\",\"repository\":\"production\"}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
+        "text": "1 deployment.\n\n| id | name | repository | projects |\n| --- | --- | --- | --- |\n| cHJvZHVjdGlvbjpNY3BUb29scw== | McpTools | production |  |"
       }
     ],
     "resultType": "complete",

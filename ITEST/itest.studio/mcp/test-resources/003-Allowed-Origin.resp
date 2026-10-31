@@ -7,7 +7,7 @@ Access-Control-Expose-Headers: Mcp-Session-Id
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"design\",\"name\":\"Design\",\"type\":\"repo-git\",\"capabilities\":{\"canCreateProject\":true,\"canManage\":true},\"features\":{\"branches\":true,\"searchable\":true,\"mappedFolders\":true,\"comments\":true}}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
+        "text": "1 repository.\n\n| id | name | type | features |\n| --- | --- | --- | --- |\n| design | Design | repo-git | branches, searchable, mappedFolders, comments |"
       }
     ],
     "resultType": "complete",

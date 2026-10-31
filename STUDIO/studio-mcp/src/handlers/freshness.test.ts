@@ -7,7 +7,7 @@ import { describe, it, expect } from "vitest";
 import { executeTool } from "./index.js";
 import { STATUS_SUMMARY_QUERY } from "../client.js";
 import { pageOf } from "../testing/openl-api-mocks.js";
-import { dataOf, harness, useToolHarness } from "../testing/harness.js";
+import { textOf, harness, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
 
@@ -36,7 +36,7 @@ describe("a project whose files changed on disk", () => {
 
     const result = await executeTool("list_tables", { projectId: "p1" }, harness.client);
 
-    expect(dataOf(result)).toEqual([expect.objectContaining({ id: "t1" })]);
+    expect(textOf(result)).toContain("| t1 | Added |");
   });
 
   it("is compiled again before an edit, which names the version of the table it is based on", async () => {

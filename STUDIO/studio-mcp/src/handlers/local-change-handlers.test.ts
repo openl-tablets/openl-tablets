@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { executeTool } from "./index.js";
-import { dataOf, harness, useToolHarness } from "../testing/harness.js";
+import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
 
@@ -25,10 +25,8 @@ describe("local change handlers", () => {
     }, harness.client);
 
     // Each entry is named by the historyId a restore takes
-    expect(dataOf(response)).toEqual([
-      { historyId: "1787821200000_current", modifiedOn: "2026-08-27T09:00:00Z", current: true },
-      { historyId: "Revision Version" },
-    ]);
+    expect(textOf(response)).toBe("2 versions.\n\n| historyId | kept at | current |\n| --- | --- | --- |\n"
+      + "| 1787821200000_current | 2026-08-27T09:00:00Z | yes |\n| Revision Version |  |  |");
   });
 
   describe("restore", () => {

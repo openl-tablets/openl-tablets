@@ -7,7 +7,9 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import * as schemas from "../schemas.js";
 
 import { isRequestTimeout } from "../http.js";
-import { registerTool, formatResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+import { formatWholeList } from "../markdown-list.js";
+import { dependencyMarkdown } from "../dependency-markdown.js";
 import { waitForResult } from "./wait.js";
 import { finishTableEdit } from "./table-edit.js";
 import type { OpenLClient } from "../client.js";
@@ -99,11 +101,13 @@ export function registerTableWorkflowHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { response_format, projectId, ...query } = args;
       const graph = await client.getTableDependencies(projectId, query);
-      return formatResult(graph, response_format, {
-        dataType: "table_dependencies",
-        // The query line leaves out the arguments not given.
-        markdownContext: { scope: query.tableId ? "table neighborhood" : "whole project", ...query },
-      });
+      if (response_format === "json") {
+        return formatResult(graph);
+      }
+      // The query line leaves out the arguments not given.
+      return textResult(dependencyMarkdown(graph, response_format, {
+        scope: query.tableId ? "table neighborhood" : "whole project", ...query,
+      }));
     },
   });
 
@@ -120,7 +124,19 @@ export function registerTableWorkflowHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const properties = await client.listTablePropertyDefinitions(args.projectId, args.tableType);
-      return formatResult(properties);
+      return textResult(formatWholeList(properties, {
+        noun: "properties", one: "property",
+        columns: [
+          { header: "name", value: (property) => property.name },
+          { header: "type", value: (property) => property.type },
+          { header: "multiple", value: (property) => property.multiple },
+          { header: "dimensional", value: (property) => property.dimensional },
+          { header: "default", value: (property) => property.defaultValue },
+          // An enum value is named by its code: the label of a code tells nothing more, unless it differs
+          { header: "values", value: (property) => (property.values ?? []).map(({ code, value }) =>
+            (value === undefined || value === code ? code : `${code} (${value})`)) },
+        ],
+      }));
     },
   });
 

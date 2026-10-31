@@ -39,16 +39,10 @@ describe("guidance tools", () => {
       search: "smart",
     }, harness.client);
 
-    const parsed = JSON.parse(textOf(result));
-    expect(parsed.data).toHaveLength(1);
     const path = "reference-guide/02-working-with-openl-tables/01-table-types/02-decision-table/03-smart-rules-tables.md";
     // The id tells the type, and openl_get_guides the path
-    expect(parsed.data[0]).toEqual({
-      id: GUIDE_IDS.smartRules,
-      title: "Smart Rules Table",
-      size: Buffer.byteLength(GUIDE_PAGES[path]),
-    });
-    expect(parsed.pagination).toMatchObject({ total_count: 1 });
+    expect(textOf(result)).toBe("1 document.\n\n| id | title | bytes |\n| --- | --- | --- |\n"
+      + `| ${GUIDE_IDS.smartRules} | Smart Rules Table | ${Buffer.byteLength(GUIDE_PAGES[path])} |`);
   });
 
   it("openl_get_guides returns the full bodies for the requested ids", async () => {

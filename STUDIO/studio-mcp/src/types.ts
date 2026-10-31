@@ -266,6 +266,8 @@ export interface TableMetadata {
   signature?: string;
   file?: string;
   pos?: string;
+  /** The module the table is written in. */
+  module?: string;
   /** The name and the id of the project of the table, the one the list was asked for. */
   project?: string;
   projectId?: string;
@@ -331,6 +333,11 @@ interface PropertyValueView {
 export interface PropertyDefinitionView {
   multiple?: boolean;
   name?: string;
+  displayName?: string;
+  group?: string;
+  /** Whether the property selects a version of a table, such as a state or an effective date. */
+  dimensional?: boolean;
+  defaultValue?: string | null;
   type?: "text" | "date" | "boolean" | "enum";
   values?: PropertyValueView[];
 }
