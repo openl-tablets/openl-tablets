@@ -35,6 +35,7 @@ import org.openl.rules.maven.migration.ConfigProjectClasspathMigrator;
 import org.openl.rules.maven.migration.ConfigProjectCwProcessorMigrator;
 import org.openl.rules.maven.migration.ConfigProjectDefaultModulesMigrator;
 import org.openl.rules.maven.migration.ConfigProjectMethodFilterMigrator;
+import org.openl.rules.maven.migration.GroovyGenericStaticMigrator;
 import org.openl.rules.maven.migration.GroovyJakartaMigrator;
 import org.openl.rules.maven.migration.MigrationContext;
 import org.openl.rules.maven.migration.Migrator;
@@ -247,6 +248,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 // The sources go before the method-filter step, which compiles the project into the generated
                 // interface: groovy first, as the rules compile against its classes.
                 new GroovyJakartaMigrator(),
+                new GroovyGenericStaticMigrator(),
                 new RulesRemovedFunctionsMigrator(),
                 new RulesCurrencySignMigrator(),
                 new ConfigProjectMethodFilterMigrator(),
