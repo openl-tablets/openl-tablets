@@ -54,7 +54,7 @@ describe("reading tables", () => {
       + "module: Algorithm\n\n| id | name | kind | version |\n| --- | --- | --- | --- |\n| t2 | Premium | Spreadsheet |  |");
   });
 
-  it("openl_list_tables finds the tables a text is in, and names the project of a table of a dependency", async () => {
+  it("openl_list_tables finds the tables a text is in, names the module it filters by, and the project of a table of a dependency", async () => {
     harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
       { id: "t1", name: "Messages", tableType: "SimpleRules", kind: "Rules", project: "Rates", projectId: "p1" },
       { id: "t9", name: "Codes", tableType: "Data", kind: "Data", project: "Common", projectId: "p9" },
@@ -68,8 +68,10 @@ describe("reading tables", () => {
     expect(harness.mockHttp.history.get[0].params).toMatchObject({
       kind: ["Rules"], text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
     });
-    expect(textOf(result)).toContain("| id | name | kind | project |");
-    expect(textOf(result)).toContain("| t1 | Messages | Rules |  |\n| t9 | Codes | Data | Common (p9) |");
+    // Studio leaves out the module of the tables it filters by it, which the list names over the tables of the project
+    expect(textOf(result)).toBe("2 tables.\n\n"
+      + "module: Lookups\n\n| id | name | kind | project |\n| --- | --- | --- | --- |\n| t1 | Messages | Rules |  |\n\n"
+      + "| id | name | kind | project |\n| --- | --- | --- | --- |\n| t9 | Codes | Data | Common (p9) |");
   });
 
   it("openl_get_table forwards offset/limit/styles to the raw view query and answers the rows, the styles apart", async () => {
