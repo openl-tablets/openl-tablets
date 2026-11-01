@@ -1482,22 +1482,12 @@ export class OpenLClient {
   async getTestResultsSummary(
     projectId: string,
     options?: {
-      failuresOnly?: boolean;
-      failures?: number;
-      unpaged?: boolean;
       signal?: AbortSignal;
       timeoutMs?: number;
     }
   ): Promise<Types.TestResultsSummary | Types.ResultNotReadyView> {
-    const params = {
-      failuresOnly: options?.failuresOnly,
-      failures: options?.failures,
-      unpaged: options?.unpaged || undefined,
-    };
-    const summary = await this.getResult<Types.TestsExecutionSummary>(`${projectPath(projectId)}/tests/summary`, {
-      ...options,
-      params,
-    });
+    // The counts are of every test, whichever a list of them would hold
+    const summary = await this.getResult<Types.TestsExecutionSummary>(`${projectPath(projectId)}/tests/summary`, options);
     if (isResultNotReady(summary)) {
       return summary;
     }
@@ -1525,7 +1515,6 @@ export class OpenLClient {
       failures?: number;
       offset?: number;
       limit?: number;
-      unpaged?: boolean;
       signal?: AbortSignal;
       timeoutMs?: number;
     }
@@ -1539,7 +1528,6 @@ export class OpenLClient {
       allFailures: oneTable ? true : undefined,
       offset: oneTable ? undefined : options?.offset,
       size: oneTable ? undefined : options?.limit,
-      unpaged: options?.unpaged || undefined,
       // An input with inner structure is named by its type and key: the whole of it is often most of a result
       lazyValues: true,
     };

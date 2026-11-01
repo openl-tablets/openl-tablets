@@ -85,7 +85,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Run Table",
     description:
-      "Run a regular (non-Test) table with a JSON input and answer its result, waiting in this call. inputJson is an object keyed by parameter name; { params, runtimeContext? } with params by name or in order; or an array of the arguments in order; any of them also as a JSON string. For a method whose only parameter is an array, a top-level array is that parameter's value. To build an input of datatypes, call it first with withSchema: true and inputJson {}: the answer gives the JSON Schema of each parameter, with its fields and the values each vocabulary allows. Studio runs one table per client at a time; Test tables run with openl_start_project_tests. Cancelling the call cancels the run.",
+      "Run a regular (non-Test) table with a JSON input and answer its result, waiting in this call. inputJson is an object keyed by parameter name; { params, runtimeContext? } with params by name or in order; or an array of the arguments in order; any of them also as a JSON string. For a method whose only parameter is an array, a top-level array is that parameter's value. To build an input of datatypes, call it first with withSchema: true and inputJson {}: the answer gives the JSON Schema of each parameter, with its fields and the values each vocabulary allows. Studio runs one table per client at a time; Test tables run with openl_run_project_tests. Cancelling the call cancels the run.",
     schema: schemas.runTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {

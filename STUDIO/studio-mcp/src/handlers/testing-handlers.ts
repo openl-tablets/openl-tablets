@@ -1,5 +1,5 @@
 /**
- * Test-execution tool handlers — start project tests and read their results
+ * Test-execution tool handlers — run project tests and read their results
  * (summary, full, and by-table views).
  */
 
@@ -9,7 +9,8 @@ import { cutJson } from "../json-cut.js";
 import { countLine, fitItems, hasMoreItems, markdownTable, type Column } from "../markdown-list.js";
 import { cutText, formatCount } from "../text.js";
 import type * as Types from "../types.js";
-import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+import { registerTool, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
+import type { OpenLClient } from "../client.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
 
 const TEST_RESULTS_DEFAULT_TIMEOUT_MS = 120_000;
@@ -23,20 +24,20 @@ const TEST_RESULTS_WAIT: WaitOptions = {
 
 export function registerTestingHandlers(): void {
   registerTool({
-    name: "start_project_tests",
+    name: "run_project_tests",
     compiled: true,
-    title: "Start Project Tests",
+    title: "Run Project Tests",
     description:
-      "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Answers that the tests started, and projectOpened when it opened the project. Retrieve results with openl_get_test_results, which waits until Studio finishes instead of requiring agent-side polling.",
-    schema: schemas.startProjectTestsSchema,
+      "Run the tests of a project, of a module, or of one table (testRanges: '1-3,5' of a test table), wait until Studio has run them, and answer their results as openl_get_test_results reads them by default: the counts of the run, the test tables with their tests and failures, and the first failed tests of each with their inputs and failed assertions. A closed project is opened first. Read more of the results with openl_get_test_results.",
+    schema: schemas.runProjectTestsSchema,
     annotations: {
       destructiveHint: false,
       openWorldHint: true,
     },
-    handler: async (args, client): Promise<ToolResponse> => {
-      const result = await client.startProjectTests(args.projectId, args);
-
-      return formatResult(result);
+    handler: async (args, client, extra): Promise<ToolResponse> => {
+      const { projectOpened } = await client.startProjectTests(args.projectId, args);
+      const results = await testResultsText(client, args.projectId, { failuresOnly: true }, extra);
+      return textResult(projectOpened ? `Opened the project to run its tests.\n\n${results}` : results);
     },
   });
 
@@ -44,7 +45,7 @@ export function registerTestingHandlers(): void {
     name: "get_test_results",
     title: "Get Test Results",
     description:
-      "Read the results of the tests openl_start_project_tests started, waiting until Studio has run them: the counts of the run, a table of the test tables with their tests and failures, and, per test table, its failed tests, each with its inputs once and its failed assertions with their expected and actual values; an input with inner structure is named by its type and key. failuresOnly, true by default, lists at most 'failures' failed tests of each test table and counts the rest; false lists every test. summary: true answers the counts alone; tableId reads the tests of one test table, page by page, and caseId with it one test with its inputs as JSON, whole up to 12,500 characters, the cuts named beyond. A page holds up to 25,000 characters, cut by whole test tables or tests; its first lines name the offset of the next page.",
+      "Read the results of the tests openl_run_project_tests ran, waiting while Studio still runs them: the counts of the run, a table of the test tables with their tests and failures, and, per test table, its failed tests, each with its inputs once and its failed assertions with their expected and actual values; an input with inner structure is named by its type and key. failuresOnly, true by default, lists at most 5 failed tests of each test table and counts the rest; false lists every test. summary: true answers the counts alone; tableId reads the tests of one test table, page by page, every failed one, and caseId with it one test with its inputs as JSON, whole up to 12,500 characters, the cuts named beyond. A page holds up to 25,000 characters, cut by whole test tables or tests; its first lines name the offset of the next page.",
     schema: schemas.getTestResultsSchema,
     annotations: {
       readOnlyHint: true,
@@ -63,30 +64,44 @@ export function registerTestingHandlers(): void {
       }
       if (summary) {
         const counts = await waitForResult(
-          // The counts are of every test, whichever the list would hold
-          (request) => client.getTestResultsSummary(projectId, { ...options, failuresOnly: undefined, ...request }),
+          (request) => client.getTestResultsSummary(projectId, request),
           TEST_RESULTS_WAIT,
           extra,
         );
         return textResult(countsLine(counts));
       }
 
-      const read = await waitForResult(
-        (request) => client.getTestResults(projectId, { ...options, ...request }),
-        TEST_RESULTS_WAIT,
-        extra,
-      );
-      // Only a read of the failed tests is cut to `failures` of them
-      const results = args.failuresOnly ? withOmittedFailures(read) : read;
-      if (args.tableId !== undefined) {
-        return textResult(testsOfTable(results, args.offset ?? 0, args.unpaged ? undefined : args.limit ?? 50));
-      }
-      const pageSize = results.pageSize || args.limit || 50;
-      const offset = args.offset ?? (results.pageNumber || 0) * pageSize;
-      const hasMore = args.unpaged !== true && hasMoreItems(offset, results.numberOfElements, pageSize, results.total);
-      return textResult(testTables(results, offset, hasMore, args.unpaged === true));
+      return textResult(await testResultsText(client, projectId, options, extra));
     },
   });
+}
+
+/** How many failed tests of each test table a read of all of them lists; a test table with more counts the others. */
+const FAILURES_LISTED = 5;
+
+/**
+ * The results of the last run of the tests as text, waiting while Studio still runs them: a page of its test tables, or
+ * with `tableId` of the tests of one test table.
+ */
+async function testResultsText(
+  client: OpenLClient,
+  projectId: string,
+  options: { tableId?: string; failuresOnly: boolean; offset?: number; limit?: number },
+  extra: ToolHandlerExtra | undefined,
+): Promise<string> {
+  const read = await waitForResult(
+    (request) => client.getTestResults(projectId, { ...options, failures: FAILURES_LISTED, ...request }),
+    TEST_RESULTS_WAIT,
+    extra,
+  );
+  // Only a read of the failed tests is cut to some of them
+  const results = options.failuresOnly ? withOmittedFailures(read) : read;
+  if (options.tableId !== undefined) {
+    return testsOfTable(results, options.offset ?? 0, options.limit ?? 50);
+  }
+  const pageSize = results.pageSize || options.limit || 50;
+  const offset = options.offset ?? (results.pageNumber || 0) * pageSize;
+  return testTables(results, offset, hasMoreItems(offset, results.numberOfElements, pageSize, results.total));
 }
 
 /** The time and the counts of a run: `159 tests: 158 passed, 1 failed, in 6.13 s.` */
@@ -171,7 +186,7 @@ function testsSection(testCases: Types.TestCaseExecutionResult[]): string[] {
 }
 
 /** A page of the test tables of a run: their counts, and the tests they list; cut by whole test tables. */
-function testTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean, unpaged: boolean): string {
+function testTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean): string {
   const list = { noun: "test tables", one: "test table", items: results.testCases, offset, total: results.total, hasMore };
   const render = (count: number): string => {
     const shown = results.testCases.slice(0, count);
@@ -187,11 +202,11 @@ function testTables(results: Types.TestsExecutionSummary, offset: number, hasMor
       ...testsSection(shown),
     ].join("\n\n");
   };
-  return fitItems(render, results.testCases.length, unpaged ? Infinity : undefined);
+  return fitItems(render, results.testCases.length);
 }
 
 /** A page of the tests of one test table, at most `limit` from `offset`: cut by whole tests. */
-function testsOfTable(results: Types.TestsExecutionSummary, offset: number, limit: number | undefined): string {
+function testsOfTable(results: Types.TestsExecutionSummary, offset: number, limit: number): string {
   const [table] = results.testCases;
   if (!table) {
     return "No test table of the run has that id.";
@@ -202,14 +217,14 @@ function testsOfTable(results: Types.TestsExecutionSummary, offset: number, limi
   if (units.length === 0) {
     return counts;
   }
-  const page = units.slice(offset, limit === undefined ? undefined : offset + limit);
+  const page = units.slice(offset, offset + limit);
   const list = { noun: "tests listed", one: "test listed", items: page, offset, total: units.length };
   const render = (count: number): string => [
     counts,
     countLine(list, count),
     ...testsSection([{ ...table, testUnits: page.slice(0, count) }]),
   ].join("\n\n");
-  return fitItems(render, page.length, limit === undefined ? Infinity : undefined);
+  return fitItems(render, page.length);
 }
 
 /**
