@@ -33,6 +33,15 @@ const resultsPage = (results: Partial<Types.TestsExecutionSummary>): Types.Tests
   ...results,
 });
 
+const failed = (id: string, extra: object = {}): Types.TestUnitExecutionResult => ({
+  id, status: "TR_NEQ", executionTimeMs: 1,
+  testAssertions: [
+    { description: "Premium", expectedValue: 100, actualValue: 90, status: "TR_NEQ" },
+    { description: "Tax", expectedValue: 5, actualValue: 5, status: "TR_OK" },
+  ],
+  ...extra,
+});
+
 describe("openl_run_project_tests", () => {
   it("runs the tests the arguments select and answers their results", async () => {
     harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
@@ -53,6 +62,51 @@ describe("openl_run_project_tests", () => {
     expect(harness.mockHttp.history.get.filter((request) => request.url === summaryPath).map((request) => request.params))
       .toEqual([{ failuresOnly: true, failures: 5, lazyValues: true }, { failuresOnly: true, failures: 5, lazyValues: true }]);
     expect(textOf(result)).toMatch(/^0 tests: 0 passed, 0 failed, in /);
+  });
+
+  it("answers the counts alone when every test passed", async () => {
+    harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      executionTimeMs: 1_500, numberOfTests: 5, total: 2,
+      testCases: [testCase("Test_discount", "Test_discount_1", 3, 0), testCase("Test_premium", "Test_premium_1", 2, 0)],
+    }));
+
+    const result = await executeTool("run_project_tests", { projectId: "design-project1" }, harness.client);
+
+    expect(textOf(result)).toBe("5 tests: 5 passed, 0 failed, in 1.50 s.");
+  });
+
+  it("lists only the test tables that failed, which Studio lists first", async () => {
+    harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      executionTimeMs: 1_500, numberOfTests: 5, numberOfFailures: 1, total: 2,
+      testCases: [
+        { ...testCase("Test_premium", "Test_premium_1", 2, 1), testUnits: [failed("2")] },
+        testCase("Test_discount", "Test_discount_1", 3, 0),
+      ],
+    }));
+
+    const result = await executeTool("run_project_tests", { projectId: "design-project1" }, harness.client);
+
+    expect(textOf(result)).toBe([
+      "5 tests: 4 passed, 1 failed, in 1.50 s.",
+      "1 failed test table.",
+      "| test table | tableId | tests | failed |\n| --- | --- | --- | --- |\n| Test_premium | Test_premium_1 | 2 | 1 |",
+      "test table: Test_premium\n\n| test | status | inputs | failures |\n| --- | --- | --- | --- |\n" +
+        "| 2 | failed |  | Premium: expected 100, actual 90 |",
+    ].join("\n\n"));
+  });
+
+  it("names the next page of failed test tables when every test table of the page failed", async () => {
+    harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      numberOfTests: 4, numberOfFailures: 2, total: 4, pageSize: 2,
+      testCases: [testCase("Test_a", "Test_a_1", 1, 1), testCase("Test_b", "Test_b_1", 1, 1)],
+    }));
+
+    const result = await executeTool("run_project_tests", { projectId: "design-project1" }, harness.client);
+
+    expect(textOf(result).split("\n\n")[1]).toBe("failed test tables; 1–2 below, the next page at offset=2.");
   });
 
   it("opens a closed project Studio refuses to run the tests of, and says so", async () => {
@@ -127,15 +181,6 @@ describe("test results", () => {
     await expect(executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client))
       .rejects.toThrow(message);
     expect(harness.mockHttp.history.get).toHaveLength(0);
-  });
-
-  const failed = (id: string, extra: object = {}): Types.TestUnitExecutionResult => ({
-    id, status: "TR_NEQ", executionTimeMs: 1,
-    testAssertions: [
-      { description: "Premium", expectedValue: 100, actualValue: 90, status: "TR_NEQ" },
-      { description: "Tax", expectedValue: 5, actualValue: 5, status: "TR_OK" },
-    ],
-    ...extra,
   });
 
   it("answers the counts, the test tables, and a row per failed test with its inputs and failed assertions", async () => {

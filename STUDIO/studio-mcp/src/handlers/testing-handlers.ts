@@ -6,7 +6,7 @@
 import * as schemas from "../schemas.js";
 import { RESPONSE_LIMITS } from "../constants.js";
 import { cutJson } from "../json-cut.js";
-import { countLine, fitItems, hasMoreItems, markdownTable, type Column } from "../markdown-list.js";
+import { countLine, fitItems, hasMoreItems, markdownTable, type Column, type ListPage } from "../markdown-list.js";
 import { cutText, formatCount } from "../text.js";
 import type * as Types from "../types.js";
 import { registerTool, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
@@ -28,7 +28,7 @@ export function registerTestingHandlers(): void {
     compiled: true,
     title: "Run Project Tests",
     description:
-      "Run the tests of a project, a module or one table, wait for them, and answer the first page of results as openl_get_test_results reads it by default; read more with it.",
+      "Run the tests of a project, a module or one table, wait for them, and answer the counts and the test tables that failed, with their failed tests; read the others with openl_get_test_results.",
     schema: schemas.runProjectTestsSchema,
     annotations: {
       destructiveHint: false,
@@ -36,7 +36,7 @@ export function registerTestingHandlers(): void {
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {
       await client.startProjectTests(args.projectId, args);
-      return textResult(await testResultsText(client, args.projectId, { failuresOnly: true }, extra));
+      return textResult(await testResultsText(client, args.projectId, { failuresOnly: true, failedTables: true }, extra));
     },
   });
 
@@ -80,12 +80,12 @@ const FAILURES_LISTED = 5;
 
 /**
  * The results of the last run of the tests as text, waiting while Studio still runs them: a page of its test tables, or
- * with `tableId` of the tests of one test table.
+ * with `tableId` of the tests of one test table. With `failedTables` the page lists only the test tables that failed.
  */
 async function testResultsText(
   client: OpenLClient,
   projectId: string,
-  options: { tableId?: string; failuresOnly: boolean; offset?: number; limit?: number },
+  options: { tableId?: string; failuresOnly: boolean; failedTables?: boolean; offset?: number; limit?: number },
   extra: ToolHandlerExtra | undefined,
 ): Promise<string> {
   const read = await waitForResult(
@@ -100,7 +100,8 @@ async function testResultsText(
   }
   const pageSize = results.pageSize || options.limit || 50;
   const offset = options.offset ?? (results.pageNumber || 0) * pageSize;
-  return testTables(results, offset, hasMoreItems(offset, results.numberOfElements, pageSize, results.total));
+  const hasMore = hasMoreItems(offset, results.numberOfElements, pageSize, results.total);
+  return options.failedTables ? failedTestTables(results, offset, hasMore) : testTables(results, offset, hasMore);
 }
 
 /** The time and the counts of a run: `159 tests: 158 passed, 1 failed, in 6.13 s.` */
@@ -186,9 +187,37 @@ function testsSection(testCases: Types.TestCaseExecutionResult[]): string[] {
 
 /** A page of the test tables of a run: their counts, and the tests they list; cut by whole test tables. */
 function testTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean): string {
-  const list = { noun: "test tables", one: "test table", items: results.testCases, offset, total: results.total, hasMore };
+  return testTablesPage(results, { noun: "test tables", one: "test table", items: results.testCases, offset, total: results.total, hasMore });
+}
+
+/**
+ * The test tables of a page that failed, or the counts alone when none did. Studio lists the failed test tables first,
+ * so a page that also lists a passed one lists the last that failed, and the next page of failed ones starts where it
+ * stops.
+ */
+function failedTestTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean): string {
+  const failed = results.testCases.filter((testCase) => testCase.numberOfFailures > 0);
+  if (failed.length === 0) {
+    return countsLine(results);
+  }
+  const last = failed.length < results.testCases.length;
+  return testTablesPage(results, {
+    noun: "failed test tables",
+    one: "failed test table",
+    items: failed,
+    offset,
+    total: last ? offset + failed.length : undefined,
+    hasMore: !last && hasMore,
+  });
+}
+
+/** The counts of a run and a list of its test tables with the tests they list; cut by whole test tables. */
+function testTablesPage(
+  results: Types.TestsExecutionSummary,
+  list: Pick<ListPage<Types.TestCaseExecutionResult>, "noun" | "one" | "items" | "offset" | "total" | "hasMore">,
+): string {
   const render = (count: number): string => {
-    const shown = results.testCases.slice(0, count);
+    const shown = list.items.slice(0, count);
     return [
       countsLine(results),
       countLine(list, count),
@@ -201,7 +230,7 @@ function testTables(results: Types.TestsExecutionSummary, offset: number, hasMor
       ...testsSection(shown),
     ].join("\n\n");
   };
-  return fitItems(render, results.testCases.length);
+  return fitItems(render, list.items.length);
 }
 
 /** A page of the tests of one test table, at most `limit` from `offset`: cut by whole tests. */
