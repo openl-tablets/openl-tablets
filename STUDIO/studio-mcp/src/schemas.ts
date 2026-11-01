@@ -64,8 +64,8 @@ export const listProjectsSchema = z.strictObject({
   name: z.string().optional().describe("Project name filter (partial, case-insensitive)."),
   author: z.string().optional().describe("Last-modifying author filter (partial, case-insensitive)."),
   branch: z.string().optional().describe("Branch filter (partial, case-insensitive)."),
-  sort: z.enum(["name", "status", "updated"]).optional().describe("Field used to sort the returned page."),
-  include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe(`Optional response expansions and listing behavior from the Studio API. ${STATUS_INCLUDE_NOTE}`),
+  sort: z.enum(["name", "status", "updated"]).optional().describe("Field used to sort the returned page; 'updated' adds the last change of each project."),
+  include: z.array(z.enum([...PROJECT_INCLUDES, "details"])).optional().describe(`Optional response expansions and listing behavior from the Studio API; 'details' adds the last change of each project, as sort: 'updated' does. ${STATUS_INCLUDE_NOTE}`),
   tags: z.record(z.string(), z.string()).optional().describe("Filter by project tags. Tags must be prefixed with 'tags.' in the query string (e.g., tags.version='1.0', tags.environment='production'). This is handled automatically by the API client - provide as object with tag names as keys."),
   ...paginationShape,
 });
