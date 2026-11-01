@@ -93,14 +93,21 @@ export function leadingRows(grid: Grid, offset: number, count: number): Grid {
 
 /**
  * The rows of a whole grid with a cell whose text contains `text`, case-insensitive, and the header rows before them,
- * each by its position in the whole table, with the merges, formulas, notes and styles of those rows. A row named by
- * its position cannot be edited at its place among the rows found, which its merges and formulas do not name.
+ * each by its position in the whole table, with the merges, formulas, notes and styles of those rows; the first `count`
+ * of them when given. A row named by its position cannot be edited at its place among the rows found, which its merges
+ * and formulas do not name.
  */
-export function findRows(grid: Grid, text: string, headerRows: number): Omit<Grid, "rows"> & { rows: Record<number, GridValue[]> } {
+export function findRows(
+  grid: Grid,
+  text: string,
+  headerRows: number,
+  count?: number,
+): Omit<Grid, "rows"> & { rows: Record<number, GridValue[]> } {
   const wanted = text.toLowerCase();
   const matches = (value: GridValue): boolean =>
     value !== null && (Array.isArray(value) ? value : [value]).some((item) => String(item).toLowerCase().includes(wanted));
-  const rowIndexes = grid.rows.flatMap((row, index) => (index < headerRows || row.some(matches) ? [index] : []));
+  const rowIndexes = grid.rows.flatMap((row, index) => (index < headerRows || row.some(matches) ? [index] : []))
+    .slice(0, count);
   const kept = new Set(rowIndexes);
   // A merge goes with every row it spans
   const spanned = (row: number, rowspan: number): boolean => Array.from({ length: rowspan }, (_, i) => row + i).some((r) => kept.has(r));

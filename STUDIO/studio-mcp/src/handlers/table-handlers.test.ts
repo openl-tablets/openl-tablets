@@ -195,6 +195,21 @@ describe("openl_get_table find", () => {
     expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, cutMerges: true });
   });
 
+  it("cuts the rows found over the limit to the first of them whole, and tells to narrow the find", async () => {
+    const values = Array.from({ length: 600 }, (_, row) => ["B", "C", "D", "E", "F"].map((column) => ({ value: `value ${row} ${column}` })));
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", values));
+
+    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "t1", find: "value" }, harness.client)));
+
+    const found = Object.values(response.data.rows) as unknown[][];
+    expect(found.length).toBeGreaterThan(2);
+    expect(found.length).toBeLessThan(600);
+    expect(found.at(-1)).toHaveLength(5);
+    expect(response.found).toEqual({ rows: 600, totalRows: 600 });
+    expect(response.truncation_message).toBe(`Response truncated due to size. It holds ${found.length} of 600 rows found; `
+      + "narrow find to read the others.");
+  });
+
   it("refuses a find in a slice before reading", async () => {
     await expect(executeTool("get_table", { projectId: "p1", tableId: "t1", find: "42", limit: 10 }, harness.client))
       .rejects.toThrow(/find searches the whole table/);
