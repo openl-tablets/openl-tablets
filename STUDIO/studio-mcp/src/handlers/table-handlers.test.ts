@@ -34,24 +34,24 @@ describe("reading tables", () => {
       projectId: "p1", limit: 50, offset: 25, }, harness.client);
 
     // The project the caller named is not repeated in each table
-    expect(textOf(result)).toBe("26 tables; 26–26 below.\n\nmodule: Main\n\n| id | name | kind |\n| --- | --- | --- |\n"
-      + "| t26 | calculatePremium | Rules |");
+    expect(textOf(result)).toBe("26 tables; 26–26 below.\n\nmodule: Main\n\nRules: calculatePremium");
   });
 
-  it("openl_list_tables writes the module of its tables once over them, and tells the versions of a table apart", async () => {
+  it("openl_list_tables names its tables by module and kind, and the versions of a table by id and the properties they differ in", async () => {
     harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
       { id: "t1", name: "AreaFactor", kind: "Rules", module: "Lookups", projectId: "p1" },
       { id: "t2", name: "Premium", kind: "Spreadsheet", module: "Algorithm", projectId: "p1" },
       { id: "t3", name: "StateFactor", kind: "Rules", module: "Lookups", projectId: "p1", dimensions: { effectiveDate: "2027-01-01", state: ["CA", "NY"] } },
-      { id: "t4", name: "StateFactor", kind: "Rules", module: "Lookups", projectId: "p1", dimensions: {} },
-    ], { total: 4 }));
+      { id: "t4", name: "StateFactor", kind: "Rules", module: "Lookups", projectId: "p1", dimensions: { effectiveDate: "2026-01-01", state: ["CA", "NY"] } },
+      { id: "t5", name: "Rate", kind: "Rules", module: "Algorithm", projectId: "p1", dimensions: { state: "CA" } },
+    ], { total: 5 }));
 
     const result = await executeTool("list_tables", { projectId: "p1" }, harness.client);
 
-    expect(textOf(result)).toBe("4 tables.\n\n"
-      + "module: Lookups\n\n| id | name | kind | version |\n| --- | --- | --- | --- |\n| t1 | AreaFactor | Rules |  |\n"
-      + "| t3 | StateFactor | Rules | effectiveDate=2027-01-01; state=CA, NY |\n| t4 | StateFactor | Rules |  |\n\n"
-      + "module: Algorithm\n\n| id | name | kind | version |\n| --- | --- | --- | --- |\n| t2 | Premium | Spreadsheet |  |");
+    // A version whose others are on another page tells all its properties
+    expect(textOf(result)).toBe("5 tables.\n\n"
+      + "module: Lookups\n\nRules: AreaFactor, StateFactor (t3, effectiveDate=2027-01-01), StateFactor (t4, effectiveDate=2026-01-01)\n\n"
+      + "module: Algorithm\n\nSpreadsheet: Premium\nRules: Rate (t5, state=CA)");
   });
 
   it("openl_list_tables finds the tables a text is in, names the module it filters by, and the project of a table of a dependency", async () => {
@@ -69,18 +69,16 @@ describe("reading tables", () => {
       kind: ["Rules"], text: "BaseRate", header: "Policy", module: "Lookups", scope: "all", sort: "position",
     });
     // Studio leaves out the module of the tables it filters by it, which the list names over the tables of the project
-    expect(textOf(result)).toBe("2 tables.\n\n"
-      + "module: Lookups\n\n| id | name | kind | project |\n| --- | --- | --- | --- |\n| t1 | Messages | Rules |  |\n\n"
-      + "| id | name | kind | project |\n| --- | --- | --- | --- |\n| t9 | Codes | Data | Common (p9) |");
+    expect(textOf(result)).toBe("2 tables.\n\nmodule: Lookups\n\nRules: Messages\n\nData: Codes (t9, project Common p9)");
   });
 
   it("openl_get_table forwards offset/limit/styles to the raw view query and answers the rows, the styles apart", async () => {
-    harness.mockHttp.onGet(tablePath("calculatePremium_1234")).reply(200, rawTable("calculatePremium_1234",
+    harness.mockHttp.onGet(tablePath("TAB0000000000001")).reply(200, rawTable("TAB0000000000001",
       [[{ cell: "A3", value: "Age", style: { bold: true, background: "#ccccff" } }]], { totalRows: 120 }));
 
     const result = await executeTool("get_table", {
       projectId: "p1",
-      tableId: "calculatePremium_1234",
+      tableId: "TAB0000000000001",
       offset: 2,
       limit: 1,
       styles: true,
@@ -89,7 +87,7 @@ describe("reading tables", () => {
     expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 2, maxRows: 1, cutMerges: true, styles: true });
     // The window tells the rows, which the data does not repeat; a style is named by the position of its cell
     expect(dataOf(result)).toEqual({
-      id: "calculatePremium_1234", name: "calc", kind: "Rules", version: "v1",
+      id: "TAB0000000000001", name: "calc", kind: "Rules", version: "v1",
       rows: [["Age"]], styles: [[2, 0, { bold: true, background: "#ccccff" }]],
     });
   });
@@ -128,9 +126,9 @@ describe("reading tables", () => {
   });
 
   it("openl_get_table without a limit reads a table of up to 100 rows whole", async () => {
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(100)));
+    harness.mockHttp.onGet(tablePath("TAB0000000000001")).reply(200, rawTable("TAB0000000000001", rows(100)));
 
-    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client)));
+    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "TAB0000000000001" }, harness.client)));
 
     expect(harness.mockHttp.history.get[0].params).toMatchObject({ startRow: undefined, maxRows: 101 });
     expect(response.data.rows).toHaveLength(100);
@@ -195,7 +193,7 @@ describe("reading tables", () => {
 
 describe("openl_get_table find", () => {
   it("reads the header rows and the rows with a cell holding the text, a number by its digits, at their positions", async () => {
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", [
+    harness.mockHttp.onGet(tablePath("TAB0000000000001")).reply(200, rawTable("TAB0000000000001", [
       [{ value: "SmartLookup Double RegionFactor(String region, String plan)", colspan: 3 }, { covered: true }, { covered: true }],
       [{ value: "Region" }, { value: "Silver" }, { value: "Gold" }],
       [{ value: "north" }, { value: 1.1 }, { value: 1.2 }],
@@ -203,7 +201,7 @@ describe("openl_get_table find", () => {
       [{ value: "south" }, { value: 1.5 }, { value: 1.6 }],
     ], { pos: "B2:D6", headerHeight: 1 }));
 
-    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "t1", find: "42" }, harness.client)));
+    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "TAB0000000000001", find: "42" }, harness.client)));
 
     expect(response.found).toEqual({ rows: 3, totalRows: 5 });
     expect(response.data).toMatchObject({
@@ -290,11 +288,11 @@ describe("openl_create_project_table", () => {
 
 describe("openl_update_table", () => {
   it("replaces the table with the version it read, filling the columns a row leaves out, and recompiles it", async () => {
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", [[{ value: "Rules void calc()" }]], { pos: "B2:D3", totalRows: 2, version: "v2" }));
-    harness.mockHttp.onPut(tablePath("t1")).reply(204);
+    harness.mockHttp.onGet(tablePath("TAB0000000000001")).reply(200, rawTable("TAB0000000000001", [[{ value: "Rules void calc()" }]], { pos: "B2:D3", totalRows: 2, version: "v2" }));
+    harness.mockHttp.onPut(tablePath("TAB0000000000001")).reply(204);
 
     const result = await executeTool("update_table", {
-      projectId: "p1", tableId: "t1", version: "v1", rows: [["Rules void calc()"], ["a", 1]],
+      projectId: "p1", tableId: "TAB0000000000001", version: "v1", rows: [["Rules void calc()"], ["a", 1]],
     }, harness.client);
 
     expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
@@ -305,7 +303,7 @@ describe("openl_update_table", () => {
         [{ value: "a" }, { value: 1 }, { value: null }],
       ],
     });
-    expect(dataOf(result)).toEqual({ tableId: "t1", version: "v2" });
+    expect(dataOf(result)).toEqual({ tableId: "TAB0000000000001", version: "v2" });
     // The row-count probe before the PUT, and the recompile read after it
     expect(harness.mockHttp.history.get.map((request) => request.params)).toEqual([
       { raw: true, startRow: 0, maxRows: 1, cutMerges: true },

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "1 table.\n\nmodule: Main\n\n| id | name | kind |\n| --- | --- | --- |\n| * | AgeFactor | Rules |"
+        "text": "1 table.\n\nmodule: Main\n\nRules: AgeFactor"
       }
     ],
     "resultType": "complete",

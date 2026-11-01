@@ -263,7 +263,7 @@ describe("test results", () => {
 
     const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
-      tableId: "Test_calculatePremium_1234",
+      tableId: "TAB0000000000001",
       offset: 20,
       limit: 5,
     }, harness.client));
@@ -276,7 +276,7 @@ describe("test results", () => {
     expect(text).not.toContain("| 26 | failed |");
     // Studio answers every test of the table, its inputs named by their type and key
     expect(harness.mockHttp.history.get[0].params)
-      .toEqual({ tableId: "Test_calculatePremium_1234", failuresOnly: true, failures: 5, allFailures: true, lazyValues: true });
+      .toEqual({ tableId: "TAB0000000000001", failuresOnly: true, failures: 5, allFailures: true, lazyValues: true });
   });
 
   it("answers the counts alone of one table whose tests all passed, when only failures are asked for", async () => {

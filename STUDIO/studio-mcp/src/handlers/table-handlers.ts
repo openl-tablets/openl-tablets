@@ -10,6 +10,7 @@ import { findRows, gridOf, leadingRows, sourceOf, widthOf } from "../table-grid.
 import { isPlainObject, sanitizeError } from "../utils.js";
 import { formatResult, registerTool, textResult, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
 import { cellText, formatStudioPage } from "../markdown-list.js";
+import { tableLabel } from "../text.js";
 import type * as Types from "../types.js";
 import { finishTableEdit } from "./table-edit.js";
 
@@ -93,13 +94,38 @@ const TABLE_SHAPE =
   "column, '=B2*C2'] beside the values they compute. Positions count from 0 in the whole table, the header row and " +
   "the label column included.";
 
+/**
+ * The tables of a page by name, a line per kind: `Rules: AgeFactor, AreaFactor (QFVRFV3YHVHG7S4E, state=CA)`. The table
+ * tools take a name; its id follows a name several tables of the page share, with the dimension properties Studio
+ * tells of the versions of a table, those the versions of the page differ in, and the project of a table of a
+ * dependency, which scope 'all' finds. A Markdown row repeated the id and the kind of every table.
+ */
+function tableNames(page: Types.TableMetadata[], ofDependency: (table: Types.TableMetadata) => boolean): (tables: Types.TableMetadata[]) => string {
+  const byName = Map.groupBy(page, (table) => table.name);
+  const label = (table: Types.TableMetadata): string => {
+    const others = (byName.get(table.name) ?? []).filter((other) => other !== table);
+    if (others.length === 0 && table.dimensions === undefined && !ofDependency(table)) {
+      return tableLabel(table.name ?? table.id);
+    }
+    // Only one version on the page has nothing to differ from: all its properties tell it apart
+    const differs = (key: string, value: unknown): boolean =>
+      others.length === 0 || others.some((other) => JSON.stringify(other.dimensions?.[key]) !== JSON.stringify(value));
+    const dimensions = Object.entries(table.dimensions ?? {}).filter(([key, value]) => differs(key, value))
+      .map(([key, value]) => `${key}=${cellText(value)}`).join("; ");
+    return tableLabel(table.name ?? table.id, table.id, dimensions, ofDependency(table) ? `project ${table.project} ${table.projectId}` : undefined);
+  };
+  const kindLine = ([kind, tables]: [string | undefined, Types.TableMetadata[]]): string =>
+    `${kind ? `${kind}: ` : ""}${tables.map(label).join(", ")}`;
+  return (tables) => Array.from(Map.groupBy(tables, (table) => table.kind), kindLine).join("\n");
+}
+
 export function registerTableHandlers(): void {
   registerTool({
     name: "list_tables",
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project by module, a table of id, name and kind, with the dimension properties that tell versions of one table apart; 50 a page, 200 at most, the first line naming the offset of the next page. Filter by kind, name, module, properties, header and text. The 'id' is the tableId the table tools take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project by name, a line per module and kind; 50 a page, 200 at most, the first line naming the offset of the next page. Filter by kind, name, module, properties, header and text. The table tools take a name as their tableId; a name several tables share, such as the versions of a table, is followed by the id of each, which they take instead, and the dimension properties its versions differ in. An id stays while the table is edited or moved; a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
     aliases: { search: "name" },
     annotations: {
@@ -112,9 +138,6 @@ export function registerTableHandlers(): void {
       const tablesPage = await client.listTablesPage(projectId, filters);
       // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
       const ofDependency = (table: Types.TableMetadata): boolean => table.projectId !== undefined && table.projectId !== projectId;
-      const ofDependencies = tablesPage.items.some(ofDependency);
-      // Studio tells the dimension properties of a table only when it has other versions, which share its name
-      const versioned = tablesPage.items.some((table) => table.dimensions !== undefined);
       return textResult(formatStudioPage(tablesPage, filters.offset, {
         noun: "tables",
         // The module of a table, which many tables share, is written once over them. Studio leaves it out of the
@@ -123,20 +146,7 @@ export function registerTableHandlers(): void {
           header: "module",
           value: (table) => table.module ?? (ofDependency(table) ? undefined : filters.module),
         },
-        columns: [
-          { header: "id", value: (table) => table.id },
-          { header: "name", value: (table) => table.name },
-          { header: "kind", value: (table) => table.kind },
-          ...(versioned ? [{
-            header: "version",
-            value: (table: Types.TableMetadata) =>
-              Object.entries(table.dimensions ?? {}).map(([name, value]) => `${name}=${cellText(value)}`).join("; "),
-          }] : []),
-          ...(ofDependencies ? [{
-            header: "project",
-            value: (table: Types.TableMetadata) => (table.projectId === projectId ? "" : `${table.project} (${table.projectId})`),
-          }] : []),
-        ],
+        render: tableNames(tablesPage.items, ofDependency),
       }));
     },
   });

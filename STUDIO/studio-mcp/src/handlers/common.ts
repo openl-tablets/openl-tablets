@@ -13,7 +13,7 @@ import { z, type ZodType } from "zod";
 
 import type { OpenLClient } from "../client.js";
 import { isPlainObject, sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
-import { isHttpError, isNotFoundError, type HttpError } from "../http.js";
+import { isHttpError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
 import { refreshWhenChangedOnDisk } from "./freshness.js";
 
@@ -99,7 +99,7 @@ const toolHandlers = new Map<string, ToolDefinition>();
 /** The discovery hint for an identifier a caller got wrong, by the argument it names. */
 const IDENTIFIER_HINTS: ReadonlyArray<[string, string]> = [
   ["projectId", "Use openl_list_projects() to find valid project IDs."],
-  ["tableId", "Use openl_list_tables() to find valid table IDs."],
+  ["tableId", "Use openl_list_tables() to find the name, or the id, of a table."],
   ["repository", "Use openl_list_repositories() to find valid repositories."],
 ];
 
@@ -258,18 +258,7 @@ export async function executeTool(
       );
     }
     await keepCurrent(tool, result.data, client, extra);
-    try {
-      return await tool.handler(result.data, client, extra);
-    } catch (error: unknown) {
-      // An agent often names a table by its name where the tool takes its id
-      const named = isNotFoundError(error) ? await tableNamed(client, result.data) : undefined;
-      if (!named) {
-        throw error;
-      }
-      const answer = await tool.handler({ ...(result.data as object), tableId: named.id }, client, extra);
-      const note = `'${named.name}' is the name of a table, not its id: its id is '${named.id}', which the table tools take.`;
-      return { ...answer, content: [...answer.content, { type: "text", text: note }] };
-    }
+    return await tool.handler(await withTableId(client, result.data), client, extra);
   } catch (error: unknown) {
     throw isChangedOutside(error)
       ? new ProtocolError(ProtocolErrorCode.InvalidRequest, CHANGED_OUTSIDE_MESSAGE)
@@ -277,14 +266,19 @@ export async function executeTool(
   }
 }
 
+/** A table id of Studio: 16 upper-case characters of Crockford's Base32, as `TableIds` of org.openl.rules makes it. */
+const TABLE_ID = /^[0-9A-HJKMNP-TV-Z]{16}$/;
+
 /**
- * The table a tableId Studio does not know names by its name, when one table of the project has that name. A name of
- * several tables, such as the versions of a table, is refused with their ids: the agent must choose one.
+ * The arguments with a tableId that is not an id taken for the name of a table, and replaced by its id when one table
+ * of the project has that name: openl_list_tables names a table by its name alone when no other table of its page has
+ * it. A name of several tables, such as the versions of a table, is refused with their ids: the agent must choose one.
+ * A value no table is named is passed on as it is, for Studio to refuse.
  */
-async function tableNamed(client: OpenLClient, args: unknown): Promise<{ id: string; name: string } | undefined> {
+async function withTableId<T>(client: OpenLClient, args: T): Promise<T> {
   const { projectId, tableId } = args as { projectId?: unknown; tableId?: unknown };
-  if (typeof projectId !== "string" || typeof tableId !== "string") {
-    return undefined;
+  if (typeof projectId !== "string" || typeof tableId !== "string" || TABLE_ID.test(tableId)) {
+    return args;
   }
   const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch(() => undefined);
   const named = (page?.items ?? []).filter((table) => table.name === tableId);
@@ -295,7 +289,7 @@ async function tableNamed(client: OpenLClient, args: unknown): Promise<{ id: str
       `'${tableId}' is the name of ${named.length} tables, not an id: give the id of one of them, ${ids}.`,
     );
   }
-  return named.length === 1 ? { id: named[0].id, name: tableId } : undefined;
+  return named.length === 1 ? { ...args, tableId: named[0].id } : args;
 }
 
 /** The code OpenL Studio refuses a write with when another program changed the workbook since it was read. */

@@ -159,7 +159,7 @@ describe("options in other letters", () => {
 describe("a table named by its name", () => {
   const tablesPath = "/projects/p1/tables";
 
-  it("is read by the id of the one table of that name, with a note naming the id", async () => {
+  it("is read by the id of the one table of that name", async () => {
     harness.mockHttp.onGet(`${tablesPath}/AgeFactor`).reply(404, { message: "The table is not found." });
     harness.mockHttp.onGet(tablesPath, { params: { name: "AgeFactor", size: 50 } })
       .reply(200, pageOf([{ id: "T1", name: "AgeFactor" }, { id: "T2", name: "AgeFactorOld" }], { total: 2 }));
@@ -168,7 +168,7 @@ describe("a table named by its name", () => {
     const result = await executeTool("get_table", { projectId: "p1", tableId: "AgeFactor" }, harness.client);
 
     expect(JSON.parse(result.content[0].text).data.rows).toEqual([["x"]]);
-    expect(result.content[1].text).toBe("'AgeFactor' is the name of a table, not its id: its id is 'T1', which the table tools take.");
+    expect(result.content).toHaveLength(1);
   });
 
   it("is refused with the ids of the tables of that name when there are several", async () => {
@@ -181,11 +181,18 @@ describe("a table named by its name", () => {
       .rejects.toThrow("'Rate' is the name of 2 tables, not an id: give the id of one of them, T1 (Rates-2026), T2 (Rates-2027).");
   });
 
-  it("is not looked for when no table has that name", async () => {
+  it("is passed on for Studio to refuse when no table has that name", async () => {
     harness.mockHttp.onGet(`${tablesPath}/T9`).reply(404, { message: "The table is not found." });
     harness.mockHttp.onGet(tablesPath).reply(200, pageOf([], { total: 0 }));
 
     await expect(executeTool("get_table", { projectId: "p1", tableId: "T9" }, harness.client)).rejects.toThrow(/not found/);
+  });
+
+  it("is not looked for when it has the shape of an id", async () => {
+    harness.mockHttp.onGet(`${tablesPath}/QFVRFV3YHVHG7S4E`).reply(404, { message: "The table is not found." });
+
+    await expect(executeTool("get_table", { projectId: "p1", tableId: "QFVRFV3YHVHG7S4E" }, harness.client)).rejects.toThrow(/not found/);
+    expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual([`${tablesPath}/QFVRFV3YHVHG7S4E`]);
   });
 });
 

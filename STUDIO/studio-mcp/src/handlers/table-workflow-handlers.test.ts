@@ -30,13 +30,13 @@ describe("table workflow handlers", () => {
 
     const response = await executeTool("run_table", {
       projectId: "p1",
-      tableId: "t1",
+      tableId: "TAB0000000000001",
       inputJson: { params: { age: 25 }, runtimeContext: { state: "CA" } },
       module: "Main",
     }, harness.client);
 
     const [start] = harness.mockHttp.history.post;
-    expect(start.params).toEqual({ tableId: "t1", fromModule: "Main" });
+    expect(start.params).toEqual({ tableId: "TAB0000000000001", fromModule: "Main" });
     expect(bodyOf(start)).toEqual({ params: { age: 25 }, runtimeContext: { state: "CA" } });
     expect(harness.mockHttp.history.get).toHaveLength(3);
     const resultFields = harness.mockHttp.history.get[2].params?.fields;
@@ -58,7 +58,7 @@ describe("table workflow handlers", () => {
 
     const response = await executeTool("run_table", {
       projectId: "p1",
-      tableId: "t1",
+      tableId: "TAB0000000000001",
       inputJson: [],
       withSchema: true,
     }, harness.client);
@@ -199,34 +199,34 @@ describe("table workflow handlers", () => {
 
   it("maps whole-project and table-neighborhood graph options to their endpoints", async () => {
     harness.mockHttp.onGet(/\/projects\/p1\/tables(?:\/[^/]+)?\/graph/).reply(200, [
-      { id: "t1", name: "Rate", dependencies: ["base"], dependents: [] },
+      { id: "t1", name: "TAB0000000000001", dependencies: ["base"], dependents: [] },
     ]);
 
     await executeTool("get_table_dependencies", {
       projectId: "p1", module: "Main", layer: "datatype", }, harness.client);
     await executeTool("get_table_dependencies", {
-      projectId: "p1", tableId: "Rate #1", direction: "DEPENDENTS", depth: 3, }, harness.client);
-    await executeTool("get_table_dependencies", { projectId: "p1", tableId: "Rate" }, harness.client);
+      projectId: "p1", tableId: "TAB0000000000001", direction: "DEPENDENTS", depth: 3, }, harness.client);
+    await executeTool("get_table_dependencies", { projectId: "p1", tableId: "TAB0000000000001" }, harness.client);
 
     // The fields every read asks for are left out: toEqual takes an undefined field for a missing one
     expect(harness.mockHttp.history.get.map(({ url, params }) => ({ url, params: { ...params, fields: undefined } }))).toEqual([
       { url: "/projects/p1/tables/graph", params: { module: "Main", layer: "datatype" } },
-      { url: "/projects/p1/tables/Rate%20%231/graph", params: { direction: "DEPENDENTS", depth: 3 } },
+      { url: "/projects/p1/tables/TAB0000000000001/graph", params: { direction: "DEPENDENTS", depth: 3 } },
       // A neighborhood without direction leaves it to Studio, and reads one level without depth
-      { url: "/projects/p1/tables/Rate/graph", params: { depth: 1 } },
+      { url: "/projects/p1/tables/TAB0000000000001/graph", params: { depth: 1 } },
     ]);
   });
 
   it("reads of each node only what tells the graph, leaving where a table is and what it takes to the table", async () => {
-    harness.mockHttp.onGet("/projects/p1/tables/root/graph").reply(200, [
-      { id: "root", kind: "Spreadsheet", name: "Premium", dependencies: ["base"], dimensions: { state: "CA" } },
+    harness.mockHttp.onGet("/projects/p1/tables/TAB0000000000001/graph").reply(200, [
+      { id: "TAB0000000000001", kind: "Spreadsheet", name: "Premium", dependencies: ["base"], dimensions: { state: "CA" } },
     ]);
 
-    const result = await executeTool("get_table_dependencies", { projectId: "p1", tableId: "root" }, harness.client);
+    const result = await executeTool("get_table_dependencies", { projectId: "p1", tableId: "TAB0000000000001" }, harness.client);
 
     expect(harness.mockHttp.history.get[0].params?.fields)
       .toBe("id,kind,name,dependencies,dependents,dimensions,extends,fields,vocabulary");
-    expect(textOf(result)).toBe('1 table.\nPremium (Spreadsheet, root) calls: base; dimensions: {"state":"CA"}');
+    expect(textOf(result)).toBe('1 table.\nPremium (Spreadsheet, TAB0000000000001) calls: base; dimensions: {"state":"CA"}');
   });
 
   it("answers a table a line, naming the tables it calls by name, and by id where the graph holds several of the name", async () => {
