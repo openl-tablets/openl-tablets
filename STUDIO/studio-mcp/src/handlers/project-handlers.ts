@@ -207,6 +207,19 @@ function answeredProject({ capabilities, ...project }: Types.ProjectViewModel): 
   };
 }
 
+/**
+ * A note naming the repositories listed, all or `repositoryId`, whose cross-branch project index Studio has not
+ * finished or could not build, whose projects of other branches the list may miss; none while every index is ready.
+ */
+function unreadyIndexNote(health: unknown, repositoryId?: string): string | undefined {
+  const unready = Object.entries((health ?? {}) as Record<string, { state?: string }>)
+    .filter(([repository, index]) => index?.state !== "ready" && (!repositoryId || repository === repositoryId))
+    .map(([repository, index]) => `${repository} (${index?.state ?? "unknown"})`);
+  return unready.length > 0
+    ? `The project index of ${unready.join(", ")} is not ready: projects of other branches may be missing.`
+    : undefined;
+}
+
 export function registerProjectHandlers(): void {
   registerTool({
     name: "list_projects",
@@ -222,11 +235,10 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const { repository, ...filters } = args;
-      const projectsPage = await client.listProjectsPage({
-        ...filters,
-        // The client may name the repository; Studio takes its id.
-        repository: repository ? await client.getRepositoryIdByName(repository) : undefined,
-      });
+      // The client may name the repository; Studio takes its id.
+      const repositoryId = repository ? await client.getRepositoryIdByName(repository) : undefined;
+      const projectsPage = await client.listProjectsPage({ ...filters, repository: repositoryId });
+      const { projectIndexHealth, ...summary } = projectsPage.metadata ?? {};
       // Each project carries its opaque id as projectId, the name the other tools take it by; the capabilities of a
       // project are told by openl_get_project
       const columns: Array<Column<Types.ProjectViewModel>> = [
@@ -247,7 +259,10 @@ export function registerProjectHandlers(): void {
       return textResult(formatStudioPage(projectsPage, filters.offset, {
         noun: "projects",
         columns,
-        notes: projectsPage.metadata ? [`Listing: ${JSON.stringify(projectsPage.metadata)}`] : [],
+        notes: [
+          Object.keys(summary).length > 0 ? `Summary: ${JSON.stringify(summary)}` : undefined,
+          unreadyIndexNote(projectIndexHealth, repositoryId),
+        ].filter((note) => note !== undefined),
       }));
     },
   });

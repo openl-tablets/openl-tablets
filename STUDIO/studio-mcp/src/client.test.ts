@@ -112,24 +112,25 @@ describe("OpenLClient", () => {
   });
 
   describe("projects", () => {
-    it("reads a page of projects with the metadata Studio adds to it", async () => {
+    it("reads a page of projects with the metadata Studio adds to it, each project with its compile state", async () => {
       const content = Array.from({ length: 50 }, (_, i) =>
         projectView("CLOSED", { id: `design:p${i + 50}:hash${i + 50}`, name: `p${i + 50}` }));
       const metadata = {
-        projectIndexHealth: { healthy: true },
+        projectIndexHealth: { design: { state: "ready", failedBranches: [] } },
         repositoryCounts: [{ repository: "design", count: 120 }],
         statusCounts: { CLOSED: 120 },
-        statuses: ["CLOSED"],
         tagCounts: [{ tag: "release", count: 3 }],
       };
+      const status = { projectId: "design:p50:hash50", compileState: "warnings" };
       mockHttp.onGet("/projects", { params: { offset: 50, size: 50 } })
-        .reply(200, { ...pageOf(content, { pageNumber: 1, total: 120 }), ...metadata });
+        .reply(200, { ...pageOf(content, { pageNumber: 1, total: 120 }), ...metadata, statuses: [status] });
 
       const result = await client.listProjectsPage({ offset: 50, limit: 50 });
 
-      expect(result).toMatchObject({ pageNumber: 1, pageSize: 50, total: 120, metadata });
+      expect(result).toEqual(expect.objectContaining({ pageNumber: 1, pageSize: 50, total: 120, metadata }));
       expect(result.items).toHaveLength(50);
-      expect(result.items[0].name).toBe("p50");
+      expect(result.items[0]).toMatchObject({ name: "p50", compileStatus: status });
+      expect(result.items[1].compileStatus).toBeUndefined();
     });
 
     it("forwards the project filters, tags with their prefix, and the exact item offset", async () => {

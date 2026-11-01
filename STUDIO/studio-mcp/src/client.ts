@@ -507,8 +507,18 @@ export class OpenLClient {
       offset: filters?.offset,
       size: filters?.limit,
     };
-    const page = await this.http.get<Types.PageResponse<Types.ProjectViewModel>>("/projects", { params });
-    return toCollectionPage(page.data);
+    const page = await this.http.get<Types.PageResponse<Types.ProjectViewModel> & { statuses?: Types.ProjectStatusView[] }>(
+      "/projects", { params });
+    // Studio answers the compile states of the page beside its projects: each project takes its own
+    const { statuses, ...projects } = page.data;
+    const compileStatuses = new Map(statuses?.map((status) => [status.projectId, status]));
+    return toCollectionPage({
+      ...projects,
+      content: projects.content.map((project) => {
+        const compileStatus = compileStatuses.get(project.id);
+        return compileStatus ? { ...project, compileStatus } : project;
+      }),
+    });
   }
 
   /**
