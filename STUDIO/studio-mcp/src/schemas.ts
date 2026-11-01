@@ -452,24 +452,15 @@ export const mergeProjectBranchesSchema = z.strictObject({
   confirmForce: confirmForceSchema,
 }).superRefine(requireForceConfirmation);
 
-export const readMergeConflictFileSchema = z.strictObject({
+export const readMergeConflictSchema = z.strictObject({
   projectId: projectIdSchema,
-  path: nonBlankString.describe("Conflicted file path as openl_get_merge_conflicts() lists it, relative to the repository, or its path within the project."),
-  side: z.enum(["BASE", "OURS", "THEIRS"]).describe("Version to read: common ancestor, current branch, or merging branch."),
-});
-
-export const getMergeConflictWorkbookSchema = z.strictObject({
-  projectId: projectIdSchema,
-  path: nonBlankString.describe("Conflicted Excel file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-  table: nonBlankString.optional().describe(
-    "The id of one conflicting table from the overview. Omit to list every sheet and conflicting table with its conflicting cells; give it to read the rows of the conflict of that table in your, the base and their version, and merged cell by cell.",
-  ),
-});
-
-export const getMergeConflictTextSchema = z.strictObject({
-  projectId: projectIdSchema,
-  path: nonBlankString.describe("Conflicted text file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-  fromConflict: z.number().int().min(0).optional().describe("The conflict to start at, with the merged lines before it, to read the rest of a file an answer cut."),
+  path: nonBlankString.describe("Conflicted file path as openl_get_merge_conflicts() lists it, or its path within the project."),
+  table: nonBlankString.optional().describe("Of a workbook, the id of one conflicting table its overview lists, to read the rows of its conflict."),
+  fromConflict: z.number().int().min(0).optional().describe("Of a text file, the conflict to start at, with the merged lines before it, to read the rest of a file an answer cut."),
+  side: z.enum(["BASE", "OURS", "THEIRS"]).optional().describe("One whole version to read instead: the common ancestor, the current branch or the merging branch."),
+}).refine((args) => [args.table, args.fromConflict, args.side].filter((given) => given !== undefined).length <= 1, {
+  error: "table reads a workbook, fromConflict a text file, side one whole version: give one of them.",
+  path: ["side"],
 });
 
 const textDecisionSchema = z.union([
@@ -514,11 +505,11 @@ export const resolveMergeConflictsSchema = z.strictObject({
     }),
     z.strictObject({
       path: nonBlankString.describe("Conflicted Excel file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-      decisions: z.array(workbookDecisionSchema).min(1).describe("How each conflict of the workbook from openl_get_merge_conflict_workbook() is resolved; every conflict needs a decision, and a sheet taken whole needs none for its tables."),
+      decisions: z.array(workbookDecisionSchema).min(1).describe("How each conflict of the workbook from openl_read_merge_conflict is resolved; every conflict needs a decision, and a sheet taken whole needs none for its tables."),
     }),
     z.strictObject({
       path: nonBlankString.describe("Conflicted text file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-      conflicts: z.array(textDecisionSchema).describe("How each conflict of the text file from openl_get_merge_conflict_text() is resolved: one decision per conflict, in their order; the lines the merge took by itself are kept."),
+      conflicts: z.array(textDecisionSchema).describe("How each conflict of the text file from openl_read_merge_conflict is resolved: one decision per conflict, in their order; the lines the merge took by itself are kept."),
     }),
   ])).min(1).describe("One resolution for every conflicted file of the pending conflict."),
   message: z.string().optional().describe("Commit message; Studio builds one from the conflict when omitted."),

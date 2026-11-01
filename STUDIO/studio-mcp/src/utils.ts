@@ -243,3 +243,8 @@ export function extractApiErrorInfo(
     rawResponse: responseData,
   };
 }
+
+/** Whether a file is an Excel workbook, which Studio reads and compares table by table. */
+export function isWorkbook(path: string): boolean {
+  return /\.xls[xm]?$/i.test(path);
+}

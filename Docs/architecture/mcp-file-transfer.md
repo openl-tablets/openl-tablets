@@ -272,11 +272,11 @@ The file tools and what each one answers:
   an upload would take four calls.
 - **`openl_move_project_file`** — moves a file. It deletes its source, so it is a tool apart from copy, whose name and
   annotations say so.
-- **`openl_read_merge_conflict_file`** — reads `fileAvailability` of the pending conflict first: a version marked
-  `false` holds no file and is refused, and a version that is not text is answered with a link without being read. A
-  text version of up to 5,000 bytes is answered inline, a larger one with a link. A conflicted text file is decided
-  through `openl_get_merge_conflict_text` and a workbook through `openl_get_merge_conflict_workbook`, which show only
-  the conflicting lines, tables and cells; this tool is for a version read whole, a binary one above all. A conflict
+- **`openl_read_merge_conflict` with `side`** — reads `fileAvailability` of the pending conflict first: a version
+  marked `false` holds no file and is refused, and a version that is not text is answered with a link without being
+  read. A text version of up to 5,000 bytes is answered inline, a larger one with a link. Without `side` the tool
+  reads a conflicted text file line by line and a workbook table by table, showing only the conflicting lines, tables
+  and cells, from which they are decided; `side` is for a version read whole, a binary one above all. A conflict
   names its file by the path in the repository, so the link answers that path as it is, with the branch of the side —
   ours or theirs — and no branch for the base.
 

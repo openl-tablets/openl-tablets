@@ -14,7 +14,7 @@ import { formatListOf } from "../markdown-list.js";
 import { gridOf, rowIn, rowsAt, type Grid, type KeyedRows } from "../table-grid.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
-import { authorOf, headlineOf } from "../utils.js";
+import { authorOf, headlineOf, isWorkbook } from "../utils.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
 
@@ -342,7 +342,7 @@ function workbookTable(file: string, workbook: Types.ConflictWorkbookView, id: s
   }
   throw new ProtocolError(
     ProtocolErrorCode.InvalidParams,
-    `'${id}' is no conflicting table of '${file}'. Call openl_get_merge_conflict_workbook without table to list them.`,
+    `'${id}' is no conflicting table of '${file}'. Call openl_read_merge_conflict without table to list them.`,
   );
 }
 
@@ -409,7 +409,7 @@ async function mergedText(
     throw new ProtocolError(
       ProtocolErrorCode.InvalidParams,
       `'${file}' has ${conflicts} conflicts, but ${decisions.length} decisions were given. Give one decision per ` +
-        "conflict of openl_get_merge_conflict_text, in their order.",
+        "conflict of openl_read_merge_conflict, in their order.",
     );
   }
   return mergedTextOf(blocks, decisions);
@@ -436,6 +436,34 @@ async function fileResolution(
     );
   }
   return { file: resolution.path, strategy: "CUSTOM", content };
+}
+
+/**
+ * One whole version of a conflicted file: a text inline, verbatim, when it is short, else a download link. A version
+ * fileAvailability marks false does not hold the file, such as the base of a file both branches added.
+ */
+async function conflictVersion(
+  client: OpenLClient,
+  projectId: string,
+  file: string,
+  version: "BASE" | "OURS" | "THEIRS",
+): Promise<ToolResponse> {
+  const side = version.toLowerCase() as "base" | "ours" | "theirs";
+  const conflicts = await client.getMergeConflicts(projectId);
+  const path = conflictedPath(conflictedFiles(conflicts), file);
+  const branch = side === "base" ? undefined : conflicts[`${side}Revision`]?.branch;
+  const link = { kind: "conflictVersion", projectId, path, side, branch } as const;
+  const available = conflicts.fileAvailability?.[path];
+  if (available && !available[side]) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+      `The ${version} version of '${path}' does not hold the file: fileAvailability marks it false.`);
+  }
+  if (available && !available.text) {
+    return formatResult(await downloadLink(client, link));
+  }
+  const response = await client.readMergeConflictFile(projectId, path, version);
+  const text = inlineText(response);
+  return text === undefined ? formatResult(await downloadLink(client, link, response.data.length)) : textResult(text);
 }
 
 export function registerProjectMergeHandlers(): void {
@@ -552,71 +580,29 @@ export function registerProjectMergeHandlers(): void {
   });
 
   registerTool({
-    name: "read_merge_conflict_file",
-    title: "Read Merge Conflict File Version",
+    name: "read_merge_conflict",
+    title: "Read Merge Conflict",
     description:
-      "Read one BASE, OURS, or THEIRS version of a conflicted file from the current session as evidence for the resolution the user decides. Never infer or apply a winning side on your own; a conflicted text file reads line by line with openl_get_merge_conflict_text, a conflicted workbook table by table with openl_get_merge_conflict_workbook. A version fileAvailability marks false does not hold the file, such as the base of a file both branches added. " +
-      `A text version of up to ${INLINE_TEXT_BYTES} bytes is returned inline, verbatim; a larger or a binary version is returned as a download LINK: JSON with the url, a ready \`curl\` command that saves it locally and where the file lives in its repository. Run the curl command in a shell: the bytes never enter the conversation. Name the file by its path from openl_get_merge_conflicts, or by its path within the project.`,
-    schema: schemas.readMergeConflictFileSchema,
+      "Read a conflicted file of the pending merge, as openl_get_merge_conflicts lists it or by its path within the project, as evidence for the resolution the user decides; resolve with openl_resolve_merge_conflicts only as the user decides. " +
+      "An Excel file your, the base and their version all hold is read as Studio merges it table by table: without table, every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in, and what each holds. " +
+      "With table, that table in your, the base and their version and merged, each with its totalRows and, as openl_get_table reads rows found, its two header rows and the rows holding a changed or conflicting cell, keyed by their positions; a row past the first 200, which Studio sends, is named in rowsNotSent. The merged table's conflicting cells hold the base value until decided. " +
+      "A text file is read as Studio merges it line by line: the lines it took by itself (a run of more than 8 lines as its first and last 3) and each conflict, numbered from 0, with the lines of your, the base and their version; fromConflict reads on from a conflict an answer cut. " +
+      `side reads one whole version, BASE, OURS or THEIRS, instead: a text of up to ${INLINE_TEXT_BYTES} bytes inline, verbatim, a larger or a binary one as a download LINK with a ready curl command that saves it; a workbook both branches added, which has no base version, is resolved whole with a strategy.`,
+    schema: schemas.readMergeConflictSchema,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const side = args.side.toLowerCase() as "base" | "ours" | "theirs";
-      const conflicts = await client.getMergeConflicts(args.projectId);
-      const path = conflictedPath(conflictedFiles(conflicts), args.path);
-      const branch = side === "base" ? undefined : conflicts[`${side}Revision`]?.branch;
-      const link = { kind: "conflictVersion", projectId: args.projectId, path, side, branch } as const;
-      const available = conflicts.fileAvailability?.[path];
-      if (available && !available[side]) {
-        throw new ProtocolError(ProtocolErrorCode.InvalidParams,
-          `The ${args.side} version of '${path}' does not hold the file: fileAvailability marks it false.`);
+      if (args.side) {
+        return conflictVersion(client, args.projectId, args.path, args.side);
       }
-      if (available && !available.text) {
-        return formatResult(await downloadLink(client, link));
+      if (isWorkbook(args.path)) {
+        const [path, workbook] = await readConflicted(client, args.projectId, args.path,
+          (file) => client.getMergeConflictWorkbook(args.projectId, file));
+        return formatResult(args.table ? workbookTable(path, workbook, args.table) : workbookOverview(path, workbook));
       }
-      const response = await client.readMergeConflictFile(args.projectId, path, args.side);
-      const text = inlineText(response);
-      if (text !== undefined) {
-        return textResult(text);
-      }
-      return formatResult(await downloadLink(client, link, response.data.length));
-    },
-  });
-
-  registerTool({
-    name: "get_merge_conflict_workbook",
-    title: "Get Merge Conflict Workbook",
-    description:
-      "Read the conflicts of a conflicted Excel file of the pending merge, as Studio merges it table by table: a file that your, the base and their version all hold, as fileAvailability of openl_get_merge_conflicts tells. A workbook both branches added has no base version and is resolved whole, with a strategy. Without table: every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell — the cells only one branch changed are merged by Studio — and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in (ourCell, theirCell) and what your (ours) and their (theirs) version holds there. With table: that table in your, the base and their version, and merged, each with its totalRows and, as openl_get_table reads rows found, its two header rows and the rows holding a changed or conflicting cell, keyed by their positions in it (every row of a version that names no such cell); a row past the first 200, which Studio sends, is named in rowsNotSent and read in the conflicts. The merged table's conflicting cells hold the base value until decided, and its changedCells Studio took from the one branch that changed them. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides. A cell names no A1 address of its own: the cell in row r and column c of a grid lies r rows below and c columns right of the first cell of its range.",
-    schema: schemas.getMergeConflictWorkbookSchema,
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-      openWorldHint: true,
-    },
-    handler: async (args, client): Promise<ToolResponse> => {
-      const [path, workbook] = await readConflicted(client, args.projectId, args.path,
-        (file) => client.getMergeConflictWorkbook(args.projectId, file));
-      const data = args.table ? workbookTable(path, workbook, args.table) : workbookOverview(path, workbook);
-      return formatResult(data);
-    },
-  });
-
-  registerTool({
-    name: "get_merge_conflict_text",
-    title: "Get Merge Conflict Text",
-    description:
-      "Read a conflicted text file of the pending merge as Studio merges it line by line, as the Merge line by line window of Studio shows it: a file openl_get_merge_conflicts lists with fileAvailability text: true that your and their version both hold. The parts of the file come in their order: the lines the merge took by itself (kind merged: a run of more than 8 lines reads as its first and last 3 lines, head and tail, with omittedLines between them), and each conflict (kind conflict) numbered from 0, with the lines of your (ours), the base and their (theirs) version, every text with its line breaks. Each version holds every line its branch has in that place, so taking both keeps each whole. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides.",
-    schema: schemas.getMergeConflictTextSchema,
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-      openWorldHint: true,
-    },
-    handler: async (args, client): Promise<ToolResponse> => {
       const [path, { blocks }] = await readConflicted(client, args.projectId, args.path,
         (file) => client.getMergeConflictText(args.projectId, file));
       const overview = textOverview(path, blocks, args.fromConflict);
@@ -628,7 +614,7 @@ export function registerProjectMergeHandlers(): void {
     name: "resolve_merge_conflicts",
     title: "Resolve Merge Conflicts",
     description:
-      "Resolve the pending merge conflicts as the user decided and complete the merge, or the save that found them, in one commit. Give one resolution per conflicted file of openl_get_merge_conflicts: a strategy takes the whole file from a version, conflicts resolve a text file as openl_get_merge_conflict_text reads it, and decisions a workbook as openl_get_merge_conflict_workbook lists it. Never choose a side or type lines or a value the user did not decide or approve. A refused decision leaves the conflict pending, so the call can be repeated.",
+      "Resolve the pending merge conflicts as the user decided and complete the merge, or the save that found them, in one commit. Give one resolution per conflicted file of openl_get_merge_conflicts: a strategy takes the whole file from a version, conflicts resolve a text file and decisions a workbook as openl_read_merge_conflict reads them. Never choose a side or type lines or a value the user did not decide or approve. A refused decision leaves the conflict pending, so the call can be repeated.",
     schema: schemas.resolveMergeConflictsSchema,
     annotations: {
       destructiveHint: true,
