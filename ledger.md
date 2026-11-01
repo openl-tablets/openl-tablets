@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- #2465 (`dead-code/sweep-nov`) is open: maintain it first; add new change types to it as separate commits.
+- No PR is open: #2465 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
 - Everything up to `origin/main` 08c1a014b5 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
@@ -29,12 +29,11 @@
 
 ## Open PR
 
-- #2465 `dead-code/sweep-nov`, head 795b3aba6b, opened 2026-11-01, CI pending.
-  - 795b3aba6b (type 14) Drop the merge Docs note on the removed MergeConflictProjectResolveStrategy (-2).
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1), #2348 (-1), #2393 (-3)
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1), #2348 (-1), #2393 (-3), #2465 (-2)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
   rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
