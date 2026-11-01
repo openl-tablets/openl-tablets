@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\"},{\"id\":\"*\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"fields\":[{\"name\":\"name\",\"type\":\"String\"},{\"name\":\"age\",\"type\":\"Integer\"},{\"name\":\"married\",\"type\":\"Boolean\"}]},{\"id\":\"*\",\"kind\":\"Spreadsheet\",\"name\":\"Premium\",\"dependencies\":[\"*\"]},{\"id\":\"*\",\"kind\":\"Test\",\"name\":\"PremiumTest\",\"dependencies\":[\"*\"]}]}"
+        "text": "4 tables.\nAgeFactor (Rules, *)\nDriver (Datatype, *) fields: name String, age Integer, married Boolean\nPremium (Spreadsheet, *) calls: AgeFactor\nPremiumTest (Test, *) calls: Premium"
       }
     ],
     "resultType": "complete",

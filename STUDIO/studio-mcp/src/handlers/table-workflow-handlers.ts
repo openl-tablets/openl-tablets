@@ -8,7 +8,8 @@ import * as schemas from "../schemas.js";
 
 import { isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
-import { formatWholeList } from "../markdown-list.js";
+import { cellText, fitLines, formatWholeList } from "../markdown-list.js";
+import { formatCount, tableLabel } from "../text.js";
 import { waitForResult } from "./wait.js";
 import { finishTableEdit } from "./table-edit.js";
 import type { OpenLClient } from "../client.js";
@@ -35,6 +36,47 @@ function withoutSchemaDialects(result: Types.RunExecutionResult): Types.RunExecu
       return schema ? { ...parameter, schema: rest } : parameter;
     }),
   };
+}
+
+/** A field of a datatype: `name Type`, `name Type[]` for a collection. */
+function fieldText({ name, type, collection }: NonNullable<Types.TableNodeView["fields"]>[number]): string {
+  return `${name ?? ""} ${type ?? ""}${collection ? "[]" : ""}`.trim();
+}
+
+/** The values of a vocabulary: `values String, 3: CalendarYear, BenefitYear, Lifetime`, a preview marked as cut. */
+function vocabularyText({ valueType, valueCount, valuesPreview, truncated }: NonNullable<Types.TableNodeView["vocabulary"]>): string {
+  return `values ${[valueType, valueCount].filter((part) => part !== undefined).join(", ")}: ${cellText(valuesPreview)}${truncated ? ", …" : ""}`;
+}
+
+/**
+ * A dependency graph as text, a table a line: `AreaFactor (Rules, QFVRFV3YHVHG7S4E) called by: Calc1, Calc2`, then
+ * what a version, a datatype or a vocabulary adds. A table names its id once; the tables it calls and that call it are
+ * named by their names, which the table tools take, and by their ids where the graph holds several of a name. JSON
+ * spent two thirds of a whole-project graph on keys and on the ids of the tables named.
+ */
+function graphText(nodes: Types.TableNodeView[]): string {
+  const byId = new Map(nodes.map((node) => [node.id, node]));
+  const named = Map.groupBy(nodes, (node) => node.name);
+  const nameOf = (id: string): string => {
+    const name = byId.get(id)?.name;
+    return name !== undefined && named.get(name)?.length === 1 ? name : id;
+  };
+  const lines = nodes.map((node) => {
+    const parts = [
+      node.dependencies?.length && `calls: ${node.dependencies.map(nameOf).join(", ")}`,
+      node.dependents?.length && `called by: ${node.dependents.map(nameOf).join(", ")}`,
+      node.dimensions && `dimensions: ${JSON.stringify(node.dimensions)}`,
+      node.extends && `extends: ${nameOf(node.extends)}`,
+      node.fields?.length && `fields: ${node.fields.map(fieldText).join(", ")}`,
+      node.vocabulary && vocabularyText(node.vocabulary),
+    ].filter(Boolean);
+    return `${tableLabel(node.name ?? node.id, node.kind, node.id)}${parts.length ? ` ${parts.join("; ")}` : ""}`;
+  });
+  return fitLines({
+    head: [`${formatCount(nodes.length, "table")}.`],
+    lines,
+    more: (left) => `… ${formatCount(left, "more table")}: narrow the graph by tableId, module or layer to read them.`,
+  });
 }
 
 export function registerTableWorkflowHandlers(): void {
@@ -105,7 +147,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Get Table Dependencies",
     description:
-      "Get the table dependency graph as an adjacency list of nodes: id, name, kind, and the ids of the tables it calls (dependencies) and that call it (dependents). Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth, 1 by default: the tables it calls and that call it directly. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
+      "Get the table dependency graph as text, a table a line: its name, kind and id, the tables it calls and that call it, by name, or by id where the graph holds several tables of the name. Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth, 1 by default: the tables it calls and that call it directly. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
     schema: schemas.getTableDependenciesSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -115,7 +157,7 @@ export function registerTableWorkflowHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const { projectId, ...query } = args;
-      return formatResult(await client.getTableDependencies(projectId, query));
+      return textResult(graphText(await client.getTableDependencies(projectId, query)));
     },
   });
 

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"dependents\":[\"*\"]},{\"id\":\"*\",\"kind\":\"Spreadsheet\",\"name\":\"Premium\",\"dependencies\":[\"*\"],\"dependents\":[\"*\"]},{\"id\":\"*\",\"kind\":\"Test\",\"name\":\"PremiumTest\",\"dependencies\":[\"*\"]}]}"
+        "text": "3 tables.\nAgeFactor (Rules, *) called by: Premium\nPremium (Spreadsheet, *) calls: AgeFactor; called by: PremiumTest\nPremiumTest (Test, *) calls: Premium"
       }
     ],
     "resultType": "complete",
