@@ -668,7 +668,7 @@ export const getTraceValueSchema = z.strictObject({
 
 export const expandTraceTreeSchema = z.strictObject({
   projectId: projectIdSchema,
-  uri: nonBlankString.describe("Source URI of the node whose step to expand: the root node's `uri` from the /stack `tree` (a profiling openl_start_trace / openl_resume_trace with includeTree: true), or a child node's `uri` from an earlier openl_expand_trace_tree page."),
+  uri: nonBlankString.describe("Source URI of the node whose step to expand: the uri of the call-tree root a profiling openl_start_trace / openl_resume_trace with includeTree: true answers, or a child node's `uri` from an earlier openl_expand_trace_tree page."),
   instance: z.number().int().nonnegative().describe("Zero-based execution index of that node in the run (its `instance`; 0 for the root) — picks the exact loop iteration when the table ran more than once."),
   step: nonBlankString.describe("Reference of the step within that node to expand, e.g. 'R1C0' — a step whose `childrenTotal` > 0 (a step with childrenTotal 0 or absent made no sub-calls)."),
   offset: z.number().int().nonnegative().optional().describe("Index of the first sub-call to return, for paging a loop's thousands of children (default 0). When the response's total exceeds offset + returned children, call again with offset advanced by the returned count (the reply's nextOffset)."),

@@ -6,6 +6,7 @@
 
 import { describe, it, expect } from "vitest";
 import { executeTool } from "./index.js";
+import type { ToolResponse } from "./common.js";
 import { bodyOf, queryOf } from "../testing/mock-http.js";
 import { suspendedStack } from "../testing/openl-api-mocks.js";
 import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
@@ -14,6 +15,9 @@ useToolHarness();
 
 const projectId = "design:insurance-rules:hash123";
 const projectPath = `/projects/${encodeURIComponent(projectId)}`;
+
+/** The values of the active frame a stack read with them lists on its line `Values of #N: {...}`. */
+const valuesOf = (text: string): any => JSON.parse(/^Values of #\d+: (.*)$/m.exec(text)?.[1] ?? "null");
 
 describe("trace tools", () => {
   it.each([
@@ -43,18 +47,35 @@ describe("trace tools", () => {
       ],
     });
 
-    const data = dataOf<any>(await executeTool("start_trace", { projectId, tableId: "t0" }, harness.client));
+    const text = textOf(await executeTool("start_trace", { projectId, tableId: "t0" }, harness.client));
 
     expect(queryOf(harness.mockHttp.history.post[0]).view).toBe("compact");
-    expect(data).toEqual({
-      status: "suspended",
-      frames: [
-        { index: 0, uri: "u0", tableId: "t0", name: "Premium", kind: "spreadsheet",
-          location: { kind: "cell", ref: "R1C0", label: "$Factor" } },
-        { index: 1, uri: "u1", tableId: "t1", name: "AgeFactor", kind: "decisionTable",
-          steps: [{ ref: "R2", label: "R2", status: "current" }] },
-      ],
+    // No uri, which a breakpoint takes the name of the table for, and the place of a frame only where no step lists it
+    expect(text).toBe([
+      "Status: suspended.",
+      "",
+      "Frames, from the root:",
+      "#0 Premium (spreadsheet, t0) at R1C0 $Factor",
+      "#1 AgeFactor (decisionTable, t1)",
+      "",
+      "Steps of #1:",
+      "- R2 current",
+    ].join("\n"));
+  });
+
+  it("openl_start_trace answers the execution, the times and the chosen version of a frame, and the error of a run", async () => {
+    harness.mockHttp.onPost(`${projectPath}/trace`).reply(200, {
+      status: "error",
+      error: { summary: "Division by zero", table: "Rate", location: "R2C0", detail: "/ by zero" },
+      frames: [{ index: 0, depth: 1, instance: 3, uri: "u", tableId: "t0", name: "Rate", kind: "spreadsheet", active: true,
+        completed: true, error: true, durationMillis: 1.23456, selfMillis: 0.5,
+        dispatch: { candidates: [{ label: "state: CA", chosen: false }, { label: "state: NY", chosen: true }] } }],
     });
+
+    const text = textOf(await executeTool("start_trace", { projectId, tableId: "t0" }, harness.client));
+
+    expect(text).toBe("Status: error.\nError: Division by zero (Rate, R2C0): / by zero\n\nFrames, from the root:\n"
+      + "#0 Rate (spreadsheet, t0) @3 error completed in 1.23 ms, own 0.5 ms version state: NY");
   });
 
   it("openl_start_trace replaces the breakpoint set BEFORE starting when breakpoints are given", async () => {
@@ -100,8 +121,23 @@ describe("trace tools", () => {
 
     expect(queryOf(harness.mockHttp.history.post[0]).includeTree).toBe("false"); // never pull the >1MB tree by default
     expect(queryOf(harness.mockHttp.history.post[0]).profileTop).toBe("30");
-    expect(textOf(result)).toContain("VehiclePriceFactor");
-    expect(textOf(result)).toContain("hotspots");
+    expect(textOf(result)).toBe("Status: completed.\n\nProfile: 128.4 ms, 3571 calls of 42 tables, the call tree cut at its size "
+      + "limit; the slowest by own time:\n- VehiclePriceFactor (spreadsheet) own 83.4 ms, total 120.1 ms, 6 calls");
+  });
+
+  it("openl_start_trace cuts the steps of a large call tree to the size of an answer, keeping the uri its expansion takes", async () => {
+    const steps = Array.from({ length: 2000 }, (_, index) => ({ ref: `R${index}C0`, label: `$Step${index}`, status: "executed", childrenTotal: 1 }));
+    harness.mockHttp.onPost(`${projectPath}/trace`).reply(200, {
+      status: "completed", frames: [], tree: { uri: "P/Rules.xlsx?sheet=Main&range=B2:C2001", name: "Premium", kind: "spreadsheet", instance: 0, durationMillis: 5, selfMillis: 1, steps },
+    });
+
+    const text = textOf(await executeTool("start_trace", {
+      projectId, tableId: "t0", stopAtEntry: false, profiling: true, includeTree: true }, harness.client));
+
+    expect(text.length).toBeLessThanOrEqual(25_000);
+    expect(text).toContain("\nCall tree root: Premium (spreadsheet) in 5 ms, own 1 ms; uri P/Rules.xlsx?sheet=Main&range=B2:C2001, instance 0.\n");
+    expect(text).toContain("\nSteps of the call-tree root:\n- R0C0 $Step0 executed, 1 call\n");
+    expect(text).toMatch(/\n… \d+ more lines of steps: read a frame with openl_inspect_trace_frame\.$/);
   });
 
   it("openl_start_trace with includeTree: true asks the backend for the full tree", async () => {
@@ -224,8 +260,7 @@ describe("trace tools", () => {
       harness.client
     );
 
-    const data = dataOf<{ variables?: { parameters: Array<{ name: string }> } }>(result);
-    expect(data.variables?.parameters[0].name).toBe("policy");
+    expect(valuesOf(textOf(result)).parameters[0].name).toBe("policy");
   });
 
   it("openl_step_trace with withValues lists every step of the active frame once, with its value and cell", async () => {
@@ -246,15 +281,11 @@ describe("trace tools", () => {
       errors: [],
     });
 
-    const data = dataOf<any>(await executeTool("step_trace", { projectId, type: "over", withValues: true }, harness.client));
+    const text = textOf(await executeTool("step_trace", { projectId, type: "over", withValues: true }, harness.client));
 
-    expect(data.frames[0].steps).toEqual([
-      { ref: "R0C0", label: "$Base", status: "executed", value: { value: 100 } },
-      { ref: "R1C0", label: "$Factor", cell: "C11", status: "current" },
-      { ref: "R2C0", label: "$Total", cell: "C12", status: "pending" },
-    ]);
-    // A step value names no ref, nor its lazy default; an empty list of errors is left out
-    expect(data.variables).toEqual({ parameters: [] });
+    expect(text).toContain("Steps of #0:\n- R0C0 $Base executed = 100\n- R1C0 $Factor C11 current\n- R2C0 $Total C12 pending\n");
+    // The steps are listed once, and an empty list of errors is left out
+    expect(valuesOf(text)).toEqual({ parameters: [] });
   });
 
   it("openl_resume_trace resumes, polls the status until it leaves running, then returns the stack", async () => {
@@ -295,7 +326,7 @@ describe("trace tools", () => {
     const result = await executeTool("resume_trace", { projectId, attach: true }, harness.client);
 
     expect(harness.mockHttp.history.post).toHaveLength(0);
-    expect(dataOf<{ status: string }>(result).status).toBe("suspended");
+    expect(textOf(result)).toMatch(/^Status: suspended\.\n/);
   });
 
   it("openl_resume_trace rejects the resume 409 when the session is terminal (not merely running)", async () => {
@@ -317,11 +348,8 @@ describe("trace tools", () => {
       harness.client
     );
 
-    const data = dataOf<{ status?: string; message?: string }>(result);
-    // The actual status is carried through (not lost), and JSON consumers get a real object.
-    expect(data.status).toBe("running");
-    expect(data.message).toMatch(/still running/);
-    expect(data.message).toContain("openl_stop_trace");
+    // The actual status leads, as it leads a stop
+    expect(textOf(result)).toMatch(/^Status: running\.\n\nTrace is still running .*openl_stop_trace/s);
   });
 
   it("openl_resume_trace maps a session reaped mid-poll (404) to the actionable no-session message", async () => {
@@ -361,8 +389,8 @@ describe("trace tools", () => {
     });
 
   it.each([
-    ["inspect_trace_frame", { frameIndex: 0 }, (data: any) => data.context],
-    ["step_trace", { type: "out", withValues: true }, (data: any) => data.variables.context],
+    ["inspect_trace_frame", { frameIndex: 0 }, (result: ToolResponse) => dataOf<any>(result).context],
+    ["step_trace", { type: "out", withValues: true }, (result: ToolResponse) => valuesOf(textOf(result)).context],
   ])("openl_%s leaves out the fields of the runtime context the run left unset", async (tool, args, contextOf) => {
     harness.mockHttp.onPost(`${projectPath}/trace/step`).reply(200, suspendedStack);
     harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`).reply(200, {
@@ -375,7 +403,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(tool, { projectId, ...args }, harness.client);
 
-    expect(contextOf(dataOf(result))).toEqual({
+    expect(contextOf(result)).toEqual({
       name: "context", description: "DefaultRulesRuntimeContext", value: { lob: "Auto" },
     });
   });

@@ -1152,7 +1152,7 @@ interface MessageDescription {
 }
 
 /** Dispatcher badge — the table was chosen from overloaded (dimension-property) versions. */
-interface DispatchInfo {
+export interface DispatchInfo {
   candidates: Array<{ label: string; chosen: boolean }>;
 }
 
@@ -1168,7 +1168,7 @@ interface DebugLocationView {
 }
 
 /** A sub-step of a frame (only executable cells are steps). */
-interface StepValueView {
+export interface StepValueView {
   ref: string;
   /** A1 source-cell address for spreadsheet steps. */
   cell?: string;
@@ -1198,7 +1198,7 @@ interface StepValueView {
 }
 
 /** A node of the executed call tree (profiling) — structure and timings only, no values. */
-interface CallNodeView {
+export interface CallNodeView {
   uri: string;
   name: string;
   kind: FrameKind;
@@ -1241,7 +1241,7 @@ export interface TreeChildrenView {
 }
 
 /** One frame of the live execution stack. */
-interface DebugFrameView {
+export interface DebugFrameView {
   index: number;
   depth: number;
   /**
@@ -1291,7 +1291,7 @@ interface ProfileHotspotView {
  * Constant-size profile overview (unlike the unbounded `tree`): the top-N
  * slowest tables plus run-wide totals. Present after a profiling run completes.
  */
-interface ProfileSummaryView {
+export interface ProfileSummaryView {
   /** Top-N slowest tables by selfMillis, most-expensive first. */
   hotspots: ProfileHotspotView[];
   /** Distinct tables that executed (may exceed hotspots.length). */

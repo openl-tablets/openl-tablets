@@ -7,6 +7,11 @@ export function formatCount(count: number, singular: string, plural: string = `$
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+/** The text cut to `max` characters, a cut one marked by `…`. */
+export function cutText(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
+
 /** A table as a text answer names it: `AreaFactor (Rules, QFVRFV3YHVHG7S4E)`, its details in parentheses, if any. */
 export function tableLabel(name: string | undefined, ...details: Array<string | undefined>): string {
   const told = details.filter(Boolean);

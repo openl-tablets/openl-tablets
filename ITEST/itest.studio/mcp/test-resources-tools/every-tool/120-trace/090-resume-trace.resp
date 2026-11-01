@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"status\":\"completed\",\"frames\":[{\"index\":0,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"durationMillis\":#.#,\"selfMillis\":#.#,\"completed\":true},{\"index\":1,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\"tableId\":\"*\",\"name\":\"AgeFactor\",\"kind\":\"decisionTable\",\"steps\":[{\"ref\":\"R3\",\"label\":\"R3\",\"status\":\"executed\",\"durationMillis\":#.#}],\"durationMillis\":#.#,\"selfMillis\":#.#,\"completed\":true}]}}"
+        "text": "Status: completed.\n\nFrames, from the root:\n#0 Premium (spreadsheet, *) completed in * ms\n#1 AgeFactor (decisionTable, *) completed in * ms\n\nSteps of #1:\n- R3 executed * ms"
       }
     ],
     "resultType": "complete",
