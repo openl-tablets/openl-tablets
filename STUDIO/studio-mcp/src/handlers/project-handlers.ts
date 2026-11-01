@@ -364,7 +364,7 @@ export function registerProjectHandlers(): void {
     name: "open_project",
     title: "Open Project for Editing",
     description:
-      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions; a project open already is left as it is when neither asks otherwise. Use this before making changes to project tables or rules — unless the capabilities of openl_get_project lack canOpen: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
+      "Open a project on a branch or at a Git revision for viewing; a project open already is left as it is when neither asks otherwise. The other tools open a closed project themselves. A project whose capabilities of openl_get_project lack canOpen (a file repository in single-user mode) is always open.",
     schema: schemas.openProjectSchema,
     annotations: {
       destructiveHint: false,

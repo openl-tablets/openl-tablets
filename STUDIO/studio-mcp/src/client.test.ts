@@ -423,13 +423,12 @@ describe("OpenLClient", () => {
       });
     });
 
-    it("starts the tests of a project of the local repository without opening it", async () => {
-      mockHttp.onGet("/projects/local-project1").reply(200, projectView("CLOSED", { repository: "local" }));
+    it("starts the tests without reading or opening the project, which the tools open on Studio's refusal", async () => {
       mockHttp.onPost("/projects/local-project1/tests/run").reply(202);
 
-      const result = await client.startProjectTests("local-project1");
+      await client.startProjectTests("local-project1");
 
-      expect(result).toEqual({ started: true });
+      expect(mockHttp.history.get).toHaveLength(0);
       expect(mockHttp.history.patch).toHaveLength(0);
     });
   });

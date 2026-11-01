@@ -13,7 +13,7 @@ import { z, type ZodType } from "zod";
 
 import type { OpenLClient } from "../client.js";
 import { isPlainObject, sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
-import { isHttpError, type HttpError } from "../http.js";
+import { isConflictError, isHttpError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
 import { refreshWhenChangedOnDisk } from "./freshness.js";
 
@@ -258,9 +258,24 @@ export async function executeTool(
       );
     }
     await keepCurrent(tool, result.data, client, extra);
-    return await tool.handler(await withTableId(client, result.data), client, extra);
+    try {
+      return await tool.handler(await withTableId(client, result.data), client, extra);
+    } catch (error: unknown) {
+      // A closed project is opened for the call, which an agent made a turn of its own before every first read
+      const { projectId } = result.data as { projectId?: unknown };
+      if (!isConflictOf(error, NOT_OPENED_CODE) || typeof projectId !== "string") {
+        throw error;
+      }
+      // A project that cannot be opened answers why the open was refused, which Studio's refusal of the call does not
+      await client.openProject(projectId).catch((openError: unknown) => {
+        const refusal = handleToolError(openError, name, args);
+        throw new ProtocolError(refusal.code, `${OPEN_FAILED}${refusal.message}`, refusal.data);
+      });
+      const answer = await tool.handler(await withTableId(client, result.data), client, extra);
+      return { ...answer, content: [...answer.content, { type: "text", text: OPENED_NOTE }] };
+    }
   } catch (error: unknown) {
-    throw isChangedOutside(error)
+    throw isConflictOf(error, CHANGED_OUTSIDE_CODE)
       ? new ProtocolError(ProtocolErrorCode.InvalidRequest, CHANGED_OUTSIDE_MESSAGE)
       : handleToolError(error, name, args);
   }
@@ -280,7 +295,13 @@ async function withTableId<T>(client: OpenLClient, args: T): Promise<T> {
   if (typeof projectId !== "string" || typeof tableId !== "string" || TABLE_ID.test(tableId)) {
     return args;
   }
-  const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch(() => undefined);
+  // A closed project is opened before the lookup is made again; any other failure leaves the call to refuse the name
+  const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch((error: unknown) => {
+    if (isConflictOf(error, NOT_OPENED_CODE)) {
+      throw error;
+    }
+    return undefined;
+  });
   const named = (page?.items ?? []).filter((table) => table.name === tableId);
   if (named.length > 1) {
     const ids = named.map((table) => (table.module ? `${table.id} (${table.module})` : table.id)).join(", ");
@@ -304,11 +325,21 @@ const CHANGED_OUTSIDE_MESSAGE =
   + "OpenL Studio reads the project files again by itself, so no refresh is needed: read the table again with "
   + "openl_get_table and repeat the edit on what it holds now.";
 
-/** Whether Studio refused a write because another program changed the workbook since it was read. */
-function isChangedOutside(error: unknown): boolean {
-  return isHttpError(error) && error.response?.status === 409
-    && extractApiErrorInfo(error.response.data, 409).code === CHANGED_OUTSIDE_CODE;
+/** The code OpenL Studio refuses a call with that needs the project opened. */
+const NOT_OPENED_CODE = "openl.error.409.project.not.opened.message";
+
+/** What an answer adds when its call opened the project, which stays open until it is closed. */
+const OPENED_NOTE = "Opened the project in OpenL Studio for this call.";
+
+/** What the refusal of the open a call needed starts with: the call itself was refused only as the project is closed. */
+const OPEN_FAILED = "The project is closed, and opening it for this call failed: ";
+
+/** Whether Studio refused a call with a 409 of the code given. */
+function isConflictOf(error: unknown, code: string): boolean {
+  return isConflictError(error) && extractApiErrorInfo((error as HttpError).response?.data, 409).code === code;
 }
+
+
 
 /** Compiles the project a tool works with again when its files changed on disk; see {@link ToolDefinition.compiled}. */
 async function keepCurrent(
@@ -439,7 +470,8 @@ function httpErrorDetails(
  * terms of its user interface, which has no such calls.
  */
 const NEXT_STEP_OF_CODE = new Map([
-  ["openl.error.409.project.not.opened.message", "Open it with openl_open_project first."],
+  // The tools open a closed project themselves: this one was closed again before the call was made once more
+  [NOT_OPENED_CODE, "Open it with openl_open_project, and repeat the call."],
   ["openl.error.409.project.close.modified.message",
     "Save the changes with openl_save_project, or, once the user agrees, drop them with openl_close_project discardChanges, first."],
 ]);

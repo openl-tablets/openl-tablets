@@ -35,7 +35,6 @@ const resultsPage = (results: Partial<Types.TestsExecutionSummary>): Types.Tests
 
 describe("openl_run_project_tests", () => {
   it("runs the tests the arguments select and answers their results", async () => {
-    harness.mockHttp.onGet(projectPath).reply(200, projectView("OPENED"));
     harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
     harness.mockHttp.onGet(summaryPath).replyOnce(202, { status: "notReady" }).onGet(summaryPath).reply(200, resultsPage({}));
 
@@ -56,16 +55,19 @@ describe("openl_run_project_tests", () => {
     expect(textOf(result)).toMatch(/^0 tests: 0 passed, 0 failed, in /);
   });
 
-  it("opens a closed project before running its tests, and says so", async () => {
+  it("opens a closed project Studio refuses to run the tests of, and says so", async () => {
     harness.mockHttp.onGet(projectPath).reply(200, projectView("CLOSED"));
     harness.mockHttp.onPatch(projectPath).reply(204);
-    harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
+    harness.mockHttp.onPost(`${projectPath}/tests/run`)
+      .replyOnce(409, { code: "openl.error.409.project.not.opened.message", message: "The project is not opened." })
+      .onPost(`${projectPath}/tests/run`).reply(202);
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({}));
 
     const result = await executeTool("run_project_tests", { projectId: "design-project1" }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "OPENED" }]);
-    expect(textOf(result)).toMatch(/^Opened the project to run its tests\.\n\n0 tests:/);
+    expect(textOf(result)).toMatch(/^0 tests:/);
+    expect(result.content[1].text).toBe("Opened the project in OpenL Studio for this call.");
   });
 });
 

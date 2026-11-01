@@ -1,0 +1,26 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "5 tables.\n\nmodule: Main\n\nRules: AgeFactor, Grade\nDatatype: Driver\nSpreadsheet: Premium\nTest: PremiumTest"
+      },
+      {
+        "type": "text",
+        "text": "Opened the project in OpenL Studio for this call."
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
