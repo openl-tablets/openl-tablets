@@ -68,22 +68,41 @@ describe("project lists and details", () => {
     harness.mockHttp.onGet("/projects", {
       params: { include: ["summary", "status"], offset: 0, size: 50 },
     }).reply(200, {
-      ...pageOf([projectView("OPENED", { compileStatus: { projectId: "p", compileState: "warnings" } })], { total: 1 }),
+      ...pageOf([projectView("OPENED", { id: "p1" }), projectView("CLOSED", { id: "p2" })], { total: 2 }),
       repositoryCounts: [{ repository: "design", count: 3 }],
       statusCounts: { OPENED: 2, CLOSED: 1 },
-      statuses: ["OPENED", "CLOSED"],
+      statuses: [
+        { projectId: "p1", branch: "main", revision: "r1", compileState: "warnings" },
+        { projectId: "p2", branch: "main", revision: "r2", compileState: "idle" },
+      ],
       tagCounts: [{ tag: "release", count: 1 }],
+      projectIndexHealth: { design: { state: "ready", failedBranches: [] }, rating: { state: "indexing", failedBranches: [] } },
     });
 
-    const result = await executeTool("list_projects", {
+    const text = textOf(await executeTool("list_projects", {
       include: ["summary", "status"],
-    }, harness.client);
+    }, harness.client));
 
-    // The status adds the compile state of each project; the summary of the listing follows the table
-    expect(textOf(result)).toContain("| modified | compileState |");
-    expect(textOf(result)).toContain("| 2024-01-01T00:00:00Z by admin | warnings |");
-    expect(textOf(result)).toContain('Listing: {"repositoryCounts":[{"repository":"design","count":3}],'
-      + '"statusCounts":{"OPENED":2,"CLOSED":1},"statuses":["OPENED","CLOSED"],"tagCounts":[{"tag":"release","count":1}]}');
+    // The compile states Studio answers beside the projects fill their column, and are not repeated after it
+    expect(text).toContain("| modified | compileState |");
+    expect(text).toContain("| p1 | project1 | design |  | OPENED | 2024-01-01T00:00:00Z by admin | warnings |");
+    expect(text).toContain("| p2 | project1 | design |  | CLOSED | 2024-01-01T00:00:00Z by admin | idle |");
+    expect(text).not.toContain("r1");
+    expect(text).toContain('Summary: {"repositoryCounts":[{"repository":"design","count":3}],'
+      + '"statusCounts":{"OPENED":2,"CLOSED":1},"tagCounts":[{"tag":"release","count":1}]}');
+    expect(text).toContain("The project index of rating (indexing) is not ready: projects of other branches may be missing.");
+  });
+
+  it("openl_list_projects adds nothing after the table while the project index of the repository listed is ready", async () => {
+    harness.mockHttp.onGet("/repos").reply(200, mockRepositories);
+    harness.mockHttp.onGet("/projects", { params: { repository: "design", offset: 0, size: 50 } }).reply(200, {
+      ...pageOf([projectView("CLOSED", { id: "p1" })]),
+      projectIndexHealth: { design: { state: "ready", failedBranches: [] }, rating: { state: "indexing", failedBranches: [] } },
+    });
+
+    const text = textOf(await executeTool("list_projects", { repository: "design" }, harness.client));
+
+    expect(text.trimEnd().split("\n").at(-1)).toMatch(/^\| p1 \|/);
   });
 
   it("openl_list_projects pages the projects Studio pages, also from an offset off the page grid", async () => {
