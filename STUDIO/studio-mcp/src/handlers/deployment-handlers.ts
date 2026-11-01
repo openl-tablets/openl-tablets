@@ -12,7 +12,7 @@ export function registerDeploymentHandlers(): void {
     name: "list_deploy_repositories",
     title: "List Deployment Repositories",
     description:
-      "List the production repositories a project is deployed to, each with its 'id', 'name' and type; openl_deploy_project takes either.",
+      "List the production repositories with their id, name and type; openl_deploy_project takes the id or the name.",
     schema: schemas.pagedListSchema,
     annotations: {
       readOnlyHint: true,
@@ -38,7 +38,7 @@ export function registerDeploymentHandlers(): void {
     name: "list_deployments",
     title: "List Active Deployments",
     description:
-      "List the deployments of the production repositories, filtered by repository and deployed project. Each deployment answers its 'id', which openl_deploy_project takes to deploy to it again, its name and repository; the revisions and authors of its projects come only with the project filter, the exact name of a deployed project.",
+      "List the deployments with their id, name, repository and projects; openl_deploy_project takes the id to deploy there again.",
     schema: schemas.listDeploymentsSchema,
     annotations: {
       readOnlyHint: true,
@@ -68,10 +68,7 @@ export function registerDeploymentHandlers(): void {
     name: "deploy_project",
     title: "Deploy Project",
     description:
-      "Deploy a project to a production repository, where OpenL Rule Services runs its rules. A new deployment " +
-      "takes deploymentName and the production repository; deploymentId, from openl_list_deployments, deploys the " +
-      "project to that deployment again, as a newer version or a rollback. Save the project first: Studio refuses " +
-      "one with unsaved changes, and deploys the projects it depends on with it.",
+      "Deploy a project, with the projects it depends on, to a production repository, where OpenL Rule Services runs it: as a new deployment, or again to an existing one, a newer version or a rollback. Save the project first.",
     schema: schemas.deployProjectSchema,
     annotations: {
       openWorldHint: true,

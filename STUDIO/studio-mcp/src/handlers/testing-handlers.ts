@@ -28,7 +28,7 @@ export function registerTestingHandlers(): void {
     compiled: true,
     title: "Run Project Tests",
     description:
-      "Run the tests of a project, of a module, or of one table (testRanges: '1-3,5' of a test table), wait until Studio has run them, and answer their results as openl_get_test_results reads them by default: the counts of the run, the test tables with their tests and failures, and the first failed tests of each with their inputs and failed assertions. Read more of the results with openl_get_test_results.",
+      "Run the tests of a project, a module or one table, wait for them, and answer the first page of results as openl_get_test_results reads it by default; read more with it.",
     schema: schemas.runProjectTestsSchema,
     annotations: {
       destructiveHint: false,
@@ -44,7 +44,7 @@ export function registerTestingHandlers(): void {
     name: "get_test_results",
     title: "Get Test Results",
     description:
-      "Read the results of the tests openl_run_project_tests ran, waiting while Studio still runs them: the counts of the run, a table of the test tables with their tests and failures, and, per test table, its failed tests, each with its inputs once and its failed assertions with their expected and actual values; an input with inner structure is named by its type and key. failuresOnly, true by default, lists at most 5 failed tests of each test table and counts the rest; false lists every test. summary: true answers the counts alone; tableId reads the tests of one test table, page by page, every failed one, and caseId with it one test with its inputs as JSON, whole up to 12,500 characters, the cuts named beyond. A page holds up to 25,000 characters, cut by whole test tables or tests; its first lines name the offset of the next page.",
+      "Read the results of the last openl_run_project_tests, waiting while it runs: the counts, the test tables with their tests and failures, and the failed tests of each with their inputs and failed assertions, expected and actual. An input with inner structure shows only its type and key; caseId reads it whole. A page holds up to 25,000 characters, cut at whole test tables or tests; its first lines name the next offset.",
     schema: schemas.getTestResultsSchema,
     annotations: {
       readOnlyHint: true,

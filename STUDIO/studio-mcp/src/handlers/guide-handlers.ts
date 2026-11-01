@@ -20,7 +20,7 @@ export function registerGuideHandlers(): void {
     name: "list_guides",
     title: "List Guides",
     description:
-      "List the OpenL reference documentation OpenL Studio serves for its own version — METADATA ONLY (id, title, size in bytes), never bodies; fetch bodies with openl_get_guides. 'specification' entries are config-file/project-layout specs (rules.xml, rules-deploy.xml, project structure, table types, openl-maven-plugin), 'guide' entries are the Reference Guide chapters (table types, table properties, functions and data types, projects, BEX/function appendices). An id starts with 'spec/' or 'guide/', its type; openl_get_guides names the path a person opens the document at. Filter with 'type' and/or case-insensitive 'search' over id+title; results are paginated (limit/offset).",
+      "List the OpenL reference documents Studio serves for its version: id, title and size in bytes, no bodies (openl_get_guides reads them). An id starting 'spec/' is a specification of a config file or the project layout (rules.xml, rules-deploy.xml, table types, openl-maven-plugin), one starting 'guide/' a chapter of the Reference Guide (table types and properties, functions, data types, BEX).",
     schema: schemas.listGuidesSchema,
     // The ids of the specifications start with 'spec', which agents take for their type
     valueAliases: { spec: "specification" },
@@ -49,7 +49,7 @@ export function registerGuideHandlers(): void {
     name: "get_guides",
     title: "Get Guides",
     description:
-      "Return the FULL markdown bodies of 1-5 documents by the exact ids from openl_list_guides (e.g. 'spec/rules.xml', 'guide/introduction/basic-concepts'). Unknown ids fail with an error naming them — this tool never falls back to the index; look ids up with openl_list_guides first. Bodies are returned verbatim and are NOT truncated, so mind each entry's size from the index and request only what you need. Links and images in a body are relative to the path of its document.",
+      "Read the full Markdown of documents by their exact ids from openl_list_guides; an unknown id fails. A body is never cut: mind the sizes in the index. Links and images in a body are relative to its path.",
     schema: schemas.getGuidesSchema,
     annotations: {
       readOnlyHint: true,
@@ -82,7 +82,7 @@ export function registerGuideHandlers(): void {
     name: "get_project_agent_context",
     title: "Get Project Agent Context",
     description:
-      "Read the agent guidance that applies to a project before changing it: one Markdown document of every AGENTS.md from the repository root down to the project folder, or to its 'folder', where a later file overrides an earlier one; a project with none answers a short note. Short guidance comes whole; longer guidance comes as the opening of each file and the contents of its sections with their sizes, and 'sections' reads the ones a task needs. The ids of the guides the guidance references end the document: read them with openl_get_guides.",
+      "Read the AGENTS.md guidance of a project as one Markdown document, from the repository root down to the project or its folder, a later file overriding an earlier one; none answers a short note. Longer guidance answers the opening of each file and its sections with their sizes, to read with sections. The guide ids it references end it, for openl_get_guides.",
     schema: schemas.getProjectAgentContextSchema,
     annotations: {
       readOnlyHint: true,

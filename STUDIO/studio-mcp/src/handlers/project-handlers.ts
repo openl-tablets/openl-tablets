@@ -276,7 +276,7 @@ export function registerProjectHandlers(): void {
     name: "list_projects",
     title: "List Projects",
     description:
-      "List projects as a table, filtered by repository (an id or name from openl_list_repositories), status, dependsOn, name, author, branch and tags; 50 a page, 200 at most, the first line naming the offset of the next page. Its 'projectId' is what the other tools take, as it is; include 'status' adds the compile state, and openl_get_project tells the capabilities. Filtering by repository 'local' may fail: list without it and pick those. A project of repository 'local', or edited in place (no canOpen, canSave, canClose), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
+      "List projects as a table, the first line naming the offset of the next page. Its projectId is what the other tools take, as it is; openl_get_project tells the capabilities. Filtering by repository 'local' may fail: list without it and pick those. A project of repository 'local', or edited in place (no canOpen, canSave, canClose), is never opened, saved or closed and has no branches.",
     schema: schemas.listProjectsSchema,
     aliases: { search: "name" },
     annotations: {
@@ -319,7 +319,7 @@ export function registerProjectHandlers(): void {
     name: "get_project",
     title: "Get Project Details",
     description:
-      "Get a project: its name, branch, status, repository, last change and revision, and its 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when the operation is not available: for a project edited in place (a file repository in single-user mode) the first three always are, as the project is always open and every edit is already in its files. include adds its compile status (status), its rules.xml descriptor (descriptor), or its path, tags and last comment (details).",
+      "Get a project: its name, branch, status, repository, last change, revision and 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when not available; a project edited in place (a file repository in single-user mode) never has the first three, as it is always open and its edits are in its files.",
     schema: schemas.getProjectSchema,
     annotations: {
       readOnlyHint: true,
@@ -338,7 +338,7 @@ export function registerProjectHandlers(): void {
     name: "project_status",
     title: "Get Project Status",
     description:
-      "Get the project's compile state, diagnostics, pending changes by file, and module/test summary; with changes: true, each changed workbook names the tables it holds otherwise than the saved revision. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it before answering, and a compilation already running, after an edit for one, is waited for, both up to timeoutMs; one that outlasts it is reported as compiling, without counts: call the tool again for its result. The answer is text lines: the state and counts, the branch, the files changed since the last save, then a message a line, its table by name and id; the messages of one table after its first of a severity are counted in its '(+N more)': an error in one table makes the tables that use it fail too, so fix the first error of the table you changed. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
+      "Get the compile state of a project, its messages, its files changed since the last save, and its module and test counts. A project not compiled yet (idle) is compiled first and a running compilation waited for, up to timeoutMs; one that outlasts it is answered as compiling, without counts: call again.",
     schema: schemas.projectStatusSchema,
     annotations: {
       destructiveHint: false,
@@ -361,7 +361,7 @@ export function registerProjectHandlers(): void {
     name: "open_project",
     title: "Open Project for Editing",
     description:
-      "Open a project on a branch or at a Git revision for viewing; a project open already is left as it is when neither asks otherwise. The other tools open a closed project themselves. A project whose capabilities of openl_get_project lack canOpen (a file repository in single-user mode) is always open.",
+      "Open a project on a branch or at a Git revision for viewing; an open project stays as it is unless one is asked. A project without canOpen in openl_get_project (edited in place) is always open.",
     schema: schemas.openProjectSchema,
     annotations: {
       destructiveHint: false,
@@ -382,7 +382,7 @@ export function registerProjectHandlers(): void {
     name: "save_project",
     title: "Save Project",
     description:
-      "Save project changes. Works when project status is EDITING (after opening and making changes). Without a comment Studio writes the one the repository configures for a save. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when the capabilities of openl_get_project lack canSave: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
+      "Save the unsaved edits of a project (status EDITING) as a new revision; the project becomes OPENED.",
     schema: schemas.saveProjectSchema,
     annotations: {
       destructiveHint: false,
@@ -399,7 +399,7 @@ export function registerProjectHandlers(): void {
     name: "close_project",
     title: "Close Project",
     description:
-      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; without a comment Studio writes the one the repository configures for a save) or discard (discardChanges: true), which loses every unsaved change: ask the user first. Not for a project whose capabilities (openl_get_project) lack canClose: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
+      "Close a project, saving or discarding its unsaved changes. Not for a project without canClose in openl_get_project (edited in place).",
     schema: schemas.closeProjectSchema,
     annotations: {
       destructiveHint: true, // Can discard changes if requested
@@ -447,7 +447,7 @@ export function registerProjectHandlers(): void {
     name: "create_project_branch",
     title: "Create Project Branch",
     description:
-      "Create a branch in a project's repository from a revision, a tag or another branch; without a revision, from HEAD. Only for a repository with branches (features.branches of openl_list_repositories; canManageBranches in the capabilities of openl_get_project): the folder of a file repository has none, a project edited in place included.",
+      "Create a branch in the repository of a project. Only for a repository with branches (features.branches of openl_list_repositories, canManageBranches of openl_get_project); a file repository has none.",
     schema: schemas.createBranchSchema,
     annotations: {
       destructiveHint: false,
@@ -463,7 +463,7 @@ export function registerProjectHandlers(): void {
     name: "create_project",
     title: "Create or Copy Project",
     description:
-      "Create a project in a design repository: a blank one from the 'Empty Project' template Studio ships, or, with 'template', a copy of the whole structure of that project (its exact projectId from openl_list_projects, never a displayed name) renamed to 'name'. Omit 'branch' for the default branch of the repository, or name one from openl_list_branches; Studio creates a missing branch from the base one. Omit 'comment' when the features.comments of the repository is false. The answer gives the projectId, branch and revision of the project. Not for repository 'local'.",
+      "Create a project in a design repository, blank or as a copy of the template project renamed to name. Answers its projectId, branch and revision.",
     schema: schemas.createProjectSchema,
     annotations: {
       readOnlyHint: false,
@@ -508,7 +508,7 @@ export function registerProjectHandlers(): void {
     name: "list_project_modules",
     title: "List Project Modules",
     description:
-      "List the modules declared by a project, including module names, rules-root paths/patterns, and modules matched by a pattern. Use the returned name when creating/copying a table, selecting a module graph, or listing worksheets.",
+      "List the modules of a project with their rules paths or patterns, and the modules a pattern matches. A tool that takes a module takes the name answered.",
     schema: schemas.projectOnlySchema,
     annotations: {
       readOnlyHint: true,
@@ -531,7 +531,7 @@ export function registerProjectHandlers(): void {
     name: "list_module_sheets",
     title: "List Module Worksheets",
     description:
-      "List worksheet names in a project module. First call openl_list_project_modules to get the exact module name. Use a returned sheet name as the destination sheet when creating or copying a table.",
+      "List the worksheets of a module, the destination sheets of a table created or copied.",
     schema: schemas.projectModuleSchema,
     annotations: {
       readOnlyHint: true,

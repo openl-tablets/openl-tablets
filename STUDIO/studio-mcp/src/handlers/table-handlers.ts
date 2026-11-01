@@ -89,10 +89,7 @@ function tableRowsTool(toolName: string): { name: string; validateArgs: (args: u
 
 /** The description of the shape a table is read and written in, which every table tool shares. */
 const TABLE_SHAPE =
-  "A table is 'rows', one value per column: a scalar, an array of scalars, or null for an empty cell or one a merge " +
-  "covers; 'merges' lists merged cells as [row, column, rowspan, colspan], 'formulas' Excel formulas as [row, " +
-  "column, '=B2*C2'] beside the values they compute. Positions count from 0 in the whole table, the header row and " +
-  "the label column included.";
+  "A table is 'rows', one value per column: a scalar, an array of scalars, or null for an empty cell or one a merge covers; 'merges' lists [row, column, rowspan, colspan], 'formulas' Excel formulas as [row, column, '=B2*C2']. Positions count from 0, the header row and the label column included.";
 
 /**
  * The tables of a page by name, a line per kind: `Rules: AgeFactor, AreaFactor (QFVRFV3YHVHG7S4E, state=CA)`. The table
@@ -125,7 +122,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project by name, a line per module and kind; 50 a page, 200 at most, the first line naming the offset of the next page. Filter by kind, name, module, propertyFilter, header and text. The table tools take a name as their tableId; a name several tables share, such as the versions of a table, is followed by the id of each, which they take instead, and the dimension properties its versions differ in. An id stays while the table is edited or moved; a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project by name, a line per module and kind; the first line names the next page's offset. A name several tables share, such as the versions of a table, is followed by the id of each and the properties they differ in: the table tools take that id instead of the name. A rename gives a table a new id, which the edit tools answer.",
     schema: schemas.listTablesSchema,
     // The filter was named 'properties', which agents read as the properties to show
     aliases: { search: "name", properties: "propertyFilter" },
@@ -157,7 +154,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes and, with styles=true, 'styles' the cell styles; a write keeps both. Compilation messages name cells by A1 address, 'pos' giving the first cell of the table. For a large table, find='900' reads only the rows holding a text, with the header rows, 'rows' then keyed by the position of each; offset/limit read a slice ('window' tells offset, totalRows and next_offset), and a read without a limit answers the first 50 rows of a table of more than 100, the others read on by offset or find, its positions those of the whole table, for reading and for openl_edit_table. The answer carries the 'version' the edit tools take. An id from before a rename still reads the table; a deleted table answers 410.`,
+      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes, 'styles' the cell styles; writes keep both. 'pos' is the A1 address of the first cell, for the cells compilation messages name. Positions are those of the whole table, also in a slice. Answers the 'version' the edit tools take.`,
     schema: schemas.getTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -211,7 +208,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Delete Table",
     description:
-      "Delete an ENTIRE table from a project. The whole table area is cleared from the sheet regardless of table type, so the table no longer exists once the project is recompiled. To remove only a row or column WITHIN a table, use openl_edit_table instead. The studio does not auto-compile after the delete — run openl_project_status afterward to confirm the project still compiles (a dangling reference to the deleted table surfaces there). 'version' from openl_get_table is required: Studio deletes nothing when the table changed since.",
+      "Delete a whole table, of any type, from its sheet; openl_edit_table removes rows or columns. The project is not compiled after it: check with openl_project_status that nothing references the table.",
     schema: schemas.tableOnlySchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -232,7 +229,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Replace Entire Table",
     description:
-      `Replace a whole table with the rows, merges and formulas openl_get_table answered, changed, and its 'version'. ${TABLE_SHAPE} Rows are added, never removed: fewer rows than the table has are refused; remove rows with the delete_rows action of openl_edit_table, which also suits an isolated edit. A row may end before the last column; notes and styles are kept. The answer gives the current 'tableId' and the new 'version'.`,
+      `Replace a whole table with the rows, merges and formulas openl_get_table answered, changed; to change a few cells or remove rows use openl_edit_table. A row may end before the last column; notes and styles are kept. Example: {"tableId":"rates","version":"…","rows":[["Data Rate rates"],["code","rate"],["Code","Rate"],["A",1.5]]}.`,
     schema: schemas.updateTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -255,7 +252,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Create New Table",
     description:
-      `Create a table in the module 'module', or in a new module at the .xlsx 'modulePath', from its rows, merges and formulas. ${TABLE_SHAPE} Build the rows as the OpenL guides (openl_get_guides) describe the table type, or as openl_get_table answers a table like it; the header row names the table as 'name' does. The answer gives the 'tableId' and 'version' of the table, and 'compiles: false' with its errors when it does not compile.`,
+      `Create a table in a module, or in a new .xlsx module at modulePath, its rows, merges and formulas as openl_get_table answers a table like it. Example: {"module":"Rules","name":"rates","rows":[["Data Rate rates",null],["code","rate"],["Code","Rate"],["A",1.5]],"merges":[[0,0,1,2]]}.`,
     schema: schemas.createProjectTableSchema,
     annotations: {
       destructiveHint: false,

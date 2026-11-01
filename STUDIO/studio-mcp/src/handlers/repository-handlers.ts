@@ -13,7 +13,7 @@ export function registerRepositoryHandlers(): void {
     name: "list_repositories",
     title: "List Design Repositories",
     description:
-      "List the design repositories, each with its 'id' and 'name' and the features it supports (branches, comments, searchable, mapped folders). Every tool takes a repository by its id or name in any case: use the values listed, never a made-up one.",
+      "List the design repositories with their id, name, type and features (branches, comments, searchable, mapped folders). Tools take a repository by either, in any case.",
     schema: schemas.listRepositoriesSchema,
     annotations: {
       readOnlyHint: true,
@@ -40,7 +40,7 @@ export function registerRepositoryHandlers(): void {
     name: "list_branches",
     title: "List Git Branches",
     description:
-      "List the Git branches of a repository, named by its id or name from openl_list_repositories, in any case.",
+      "List the Git branches of a repository.",
     schema: schemas.listBranchesSchema,
     annotations: {
       readOnlyHint: true,
@@ -64,7 +64,7 @@ export function registerRepositoryHandlers(): void {
     name: "repository_project_revisions",
     title: "Get Project Revision History",
     description:
-      "Get revision history (commit history) of a project in the branch it is currently on, or in another 'branch'. Addressing the project by its stable ID keeps history available after an unsaved rename. Returns a table of revisions with commit hashes, dates, authors, the first line of each comment and the deleted and technical flags, with pagination and optional search and technical-revision filters. Use the projectId returned by openl_list_projects; do not construct it from the displayed project name.",
+      "List the revisions of a project on its branch or another: revision, date, author, the first line of the comment, and the deleted and technical flags. openl_open_project and openl_create_project_branch take a revision.",
     schema: schemas.getProjectRevisionsSchema,
     annotations: {
       readOnlyHint: true,
