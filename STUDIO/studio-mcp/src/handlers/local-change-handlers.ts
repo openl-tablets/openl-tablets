@@ -15,7 +15,7 @@ export function registerLocalChangeHandlers(): void {
     name: "list_project_local_changes",
     title: "List Local Change History",
     description:
-      "List the local edit history of a module of a project, or of every module, as a table: each version by the historyId openl_restore_project_local_change takes, with the time it was kept, the current one marked, which a restore leaves as it is. With a historyId, answer instead the tables a restore of the module to that version would change: every edit of the module after it is undone with them. The project must be opened first with openl_open_project; repository 'local' is unsupported because local projects cannot be opened. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
+      "List the local edit history of a module of a project, or of every module, as a table: each version by the historyId openl_restore_project_local_change takes, with the time it was kept, the current one marked, which a restore leaves as it is. With a historyId, answer instead the tables a restore of the module to that version would change: every edit of the module after it is undone with them. Repository 'local' is unsupported, as its projects have no edit history. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
     schema: schemas.listProjectLocalChangesSchema,
     annotations: {
       readOnlyHint: true,

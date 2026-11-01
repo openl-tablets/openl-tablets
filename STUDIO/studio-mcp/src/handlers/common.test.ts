@@ -4,7 +4,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { pageOf } from "../testing/openl-api-mocks.js";
+import { pageOf, projectView } from "../testing/openl-api-mocks.js";
+import { bodyOf } from "../testing/mock-http.js";
 import { executeTool, getAllTools } from "./index.js";
 import { harness, useToolHarness } from "../testing/harness.js";
 
@@ -262,14 +263,44 @@ describe("errors of OpenL Studio", () => {
       + "Personal Access Tokens of OpenL Studio and use it instead.");
   });
 
-  it("names the call that opens a project Studio refuses to read while it is closed", async () => {
+  it("answers why a closed project could not be opened for the call, not Studio's refusal of the call", async () => {
     harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
       code: "openl.error.409.project.not.opened.message",
       message: "The project is not opened.",
     });
+    harness.mockHttp.onGet("/projects/p1").reply(200, projectView("CLOSED", { id: "p1" }));
+    harness.mockHttp.onPatch("/projects/p1").reply(409, { message: "The project is locked by another user." });
 
     const msg = (await callAndCatch()).message;
-    expect(msg).toBe("OpenL Studio API error (409): The project is not opened.\nOpen it with openl_open_project first.");
+    expect(msg).toBe("The project is closed, and opening it for this call failed: "
+      + "OpenL Studio API error (409): The project is locked by another user.");
+  });
+
+  it("tells to open a project Studio still finds closed once the call opened it", async () => {
+    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+      code: "openl.error.409.project.not.opened.message",
+      message: "The project is not opened.",
+    });
+    harness.mockHttp.onGet("/projects/p1").reply(200, projectView("CLOSED", { id: "p1" }));
+    harness.mockHttp.onPatch("/projects/p1").reply(204);
+
+    const msg = (await callAndCatch()).message;
+    expect(msg).toBe("OpenL Studio API error (409): The project is not opened.\nOpen it with openl_open_project, and repeat the call.");
+  });
+
+  it("opens a closed project for a call Studio refuses while it is closed, and makes the call again", async () => {
+    const table = "/projects/p1/tables/QFVRFV3YHVHG7S4E";
+    harness.mockHttp.onGet(table)
+      .replyOnce(409, { code: "openl.error.409.project.not.opened.message", message: "The project is not opened." })
+      .onGet(table).reply(200, { id: "QFVRFV3YHVHG7S4E", name: "T", tableType: "RawSource", source: [[{ value: "x" }]] });
+    harness.mockHttp.onGet("/projects/p1").reply(200, projectView("CLOSED", { id: "p1" }));
+    harness.mockHttp.onPatch("/projects/p1").reply(204);
+
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "QFVRFV3YHVHG7S4E" }, harness.client);
+
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "OPENED" }]);
+    expect(JSON.parse(result.content[0].text).data.rows).toEqual([["x"]]);
+    expect(result.content[1].text).toBe("Opened the project in OpenL Studio for this call.");
   });
 
   it("tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists", async () => {

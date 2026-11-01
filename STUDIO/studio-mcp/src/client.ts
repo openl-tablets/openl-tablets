@@ -1431,15 +1431,8 @@ export class OpenLClient {
   // =============================================================================
 
   /**
-   * Start project tests execution
-   *
-   * For design repositories: ensures project is opened before starting tests; automatically opens if closed.
-   * For repository 'local': does not open the project; runs tests directly (local projects are always editable).
-   *
-   * @param projectId - Project ID
-   * @param options - Test execution options
-   * @returns That the tests started, and whether the project was opened for them
-   * @throws Error if test execution fails
+   * Starts the tests of a project, of a module or of one table. Studio refuses a closed project of a design repository
+   * as not opened, which the tools open on such a refusal; a project of the local repository is always open.
    */
   async startProjectTests(
     projectId: string,
@@ -1448,27 +1441,16 @@ export class OpenLClient {
       testRanges?: string;
       module?: string;
     }
-  ): Promise<Types.TestExecutionStartResponse> {
-    // Local projects are always editable — skip open; for design repos open if needed
-    const project = await this.getProject(projectId);
-    const projectWasOpened = project.repository !== REPOSITORY_LOCAL &&
-      project.status !== "OPENED" && project.status !== "EDITING";
-    if (projectWasOpened) {
-      await this.http.patch(projectPath(projectId), { status: "OPENED" });
-    }
-
+  ): Promise<void> {
     const params = {
       tableId: options?.tableId || undefined,
       testRanges: options?.testRanges || undefined,
       fromModule: options?.module || undefined,
     };
 
-    // Start test execution. Studio keeps the run for this client: its session, or the credential
-    // of a request that has one, so the results are read with the same client, not a stored token.
+    // Studio keeps the run for this client: its session, or the credential of a request that has one, so the results
+    // are read with the same client, not a stored token.
     await this.http.post(`${projectPath(projectId)}/tests/run`, undefined, { params });
-
-    // The tests the call selected are not told back
-    return projectWasOpened ? { started: true, projectOpened: true } : { started: true };
   }
 
   /**

@@ -28,16 +28,15 @@ export function registerTestingHandlers(): void {
     compiled: true,
     title: "Run Project Tests",
     description:
-      "Run the tests of a project, of a module, or of one table (testRanges: '1-3,5' of a test table), wait until Studio has run them, and answer their results as openl_get_test_results reads them by default: the counts of the run, the test tables with their tests and failures, and the first failed tests of each with their inputs and failed assertions. A closed project is opened first. Read more of the results with openl_get_test_results.",
+      "Run the tests of a project, of a module, or of one table (testRanges: '1-3,5' of a test table), wait until Studio has run them, and answer their results as openl_get_test_results reads them by default: the counts of the run, the test tables with their tests and failures, and the first failed tests of each with their inputs and failed assertions. Read more of the results with openl_get_test_results.",
     schema: schemas.runProjectTestsSchema,
     annotations: {
       destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {
-      const { projectOpened } = await client.startProjectTests(args.projectId, args);
-      const results = await testResultsText(client, args.projectId, { failuresOnly: true }, extra);
-      return textResult(projectOpened ? `Opened the project to run its tests.\n\n${results}` : results);
+      await client.startProjectTests(args.projectId, args);
+      return textResult(await testResultsText(client, args.projectId, { failuresOnly: true }, extra));
     },
   });
 

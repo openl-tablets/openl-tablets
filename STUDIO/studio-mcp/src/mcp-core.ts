@@ -45,8 +45,8 @@ live in Excel tables (decision tables, spreadsheets, datatypes, tests) inside ve
 
 ## How to work
 
-1. Find the project with \`openl_list_projects\` (\`name\`). Open it with \`openl_open_project\` before any table, \
-test or trace tool; a project whose \`capabilities\` of \`openl_get_project\` lack \`canOpen\` is always open.
+1. Find the project with \`openl_list_projects\` (\`name\`). A tool opens a closed project itself; \
+\`openl_open_project\` opens one on another branch or at a revision.
 2. Before you change a project, read its guidance with \`openl_get_project_agent_context\`. Look up OpenL syntax, \
 table types and functions with \`openl_list_guides\` and \`openl_get_guides\`, never from memory.
 3. Find tables with \`openl_list_tables\` by \`name\`, \`kind\` or \`module\`; its \`text\` finds every table a \

@@ -896,13 +896,6 @@ export interface TestsExecutionSummary {
   total?: number;
 }
 
-/** Test execution start response */
-export interface TestExecutionStartResponse {
-  started: true;
-  /** True when a closed project of a design repository was opened to run its tests */
-  projectOpened?: true;
-}
-
 /** Test results summary (without testCases array) */
 export interface TestResultsSummary {
   executionTimeMs: number;
