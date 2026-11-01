@@ -209,15 +209,19 @@ function answeredProject({ capabilities, ...project }: Types.ProjectViewModel): 
 
 /**
  * A note naming the repositories listed, all or `repositoryId`, whose cross-branch project index Studio has not
- * finished or could not build, whose projects of other branches the list may miss; none while every index is ready.
+ * finished or could not build: the list may miss their projects of other branches, and a branch that failed lists its
+ * projects as Studio last indexed them. None while every index is ready.
  */
 function unreadyIndexNote(health: unknown, repositoryId?: string): string | undefined {
-  const unready = Object.entries((health ?? {}) as Record<string, { state?: string }>)
-    .filter(([repository, index]) => index?.state !== "ready" && (!repositoryId || repository === repositoryId))
-    .map(([repository, index]) => `${repository} (${index?.state ?? "unknown"})`);
-  return unready.length > 0
-    ? `The project index of ${unready.join(", ")} is not ready: projects of other branches may be missing.`
-    : undefined;
+  const unready = Object.entries((health ?? {}) as Record<string, { state?: string; failedBranches?: string[] }>)
+    .filter(([repository, index]) => index?.state !== "ready" && (!repositoryId || repository === repositoryId));
+  if (unready.length === 0) {
+    return undefined;
+  }
+  const failed = unready.flatMap(([, index]) => index?.failedBranches ?? []);
+  const named = unready.map(([repository, index]) => `${repository} (${index?.state ?? "unknown"})`).join(", ");
+  return `The project index of ${named} is not ready: projects of other branches may be missing`
+    + (failed.length > 0 ? `, and a branch that failed lists its projects as last indexed: ${failed.join(", ")}.` : ".");
 }
 
 export function registerProjectHandlers(): void {
