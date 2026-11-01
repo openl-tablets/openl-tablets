@@ -13,6 +13,13 @@ import type { OpenLClient } from "../client.js";
 import type { RawTableView } from "../types.js";
 import { formatResult, type ToolResponse } from "./common.js";
 
+
+/** The compile message Studio gives a lookup whose inputs are all vertical. */
+const NO_HORIZONTAL_INPUT = "No input parameter found for horizontal condition";
+
+/** What the answer of a write adds to that message: the table type of such a lookup. */
+const ONE_INPUT_LOOKUP =
+  "A SmartLookup or SimpleLookup takes a horizontal input: a lookup of one input, or of vertical inputs only, is a SmartRules or SimpleRules table.";
 /**
  * Read a table back after an edit, with the messages of its compilation.
  *
@@ -90,6 +97,9 @@ export async function finishTableEdit(
     notes.push(
       `The table does NOT compile after the ${editVerb}, which WAS applied: fix the errors, or restore the module from its local edit history (openl_list_project_local_changes, openl_restore_project_local_change).`,
     );
+  }
+  if (errors.some((error) => error.includes(NO_HORIZONTAL_INPUT))) {
+    notes.push(ONE_INPUT_LOOKUP);
   }
 
   return formatResult({
