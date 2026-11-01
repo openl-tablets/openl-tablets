@@ -3,7 +3,7 @@ name: planning
 description: >
   OpenL change planning — the entry point for building, changing, or fixing
   anything in an OpenL Tablets project: readies the projects, drafts one
-  ordered plan with test cases, gets one approval, executes it item by item
+  ordered plan with test cases, gets approval when it needs one, executes it item by item
   through the owning skills, verifies, and summarizes. Use proactively for
   "configure X", "add/update the rule for Y", "fix bug in Z", "implement
   PROJ-1234", "apply this ticket", or continuing or redoing an earlier task.
@@ -13,7 +13,7 @@ description: >
 
 # OpenL Change Planning
 
-This skill owns the plan, the one approval, the tracking in `plan.md`, and the summary. It delegates:
+This skill owns the plan, its approval, the tracking in `plan.md`, and the summary. It delegates:
 
 - root cause of a wrong result → `trace-investigation`;
 - branch creation, sync, merge → `branching` (repositories that support branches only);
@@ -40,8 +40,9 @@ re-estimate.
    record whether the repository supports branches (`features.branches` of `openl_list_repositories`): branch,
    sync and Finish items exist only when it does.
 4. **Find the test cases.** Every change needs at least one input with its expected output, configuration changes
-   included. When none is given, draft them from the catalog's evidence scenarios, mark them drafted, and have the
-   user confirm them with the plan.
+   included. A request that names its check, such as "it returns 1.2 for NY", or sets a value, checked by reading it
+   back, gives its own. When none is given, draft them from the catalog's evidence scenarios, mark them drafted, and
+   have the user confirm them with the plan.
 5. **Load the domain catalog** that covers the project's domain and take its change plan as the ordered domain items.
    Without a catalog, plan from the project's own conventions and say so.
 6. **Choose the view** ([Views](#views)) and **draft one plan** — read
@@ -53,14 +54,16 @@ re-estimate.
    reverse, data that cannot be inferred, drafted test cases, and every decision the catalog marks **Ask** — with
    its options and the recommended one, never recorded as an assumption. An assumption is only what no reviewer
    would decide differently. Never ask what the project conventions or the catalog already answer.
-8. **Get one approval** with the approval block, then stop. Silence or an unrelated reply is not approval. A scope
-   edit means restating the plan and asking again. Save the approved plan as `plan.md` — in the change log folder,
-   otherwise in `openl-change-log/<slug>/` of the user's working folder.
+8. **Get the approval** with the approval block, then stop — unless the plan needs none ([Approval rules](#approval-rules)):
+   then state it in a line and execute it. Silence or an unrelated reply is not approval. A scope edit means restating
+   the plan and asking again. Keep the plan as `plan.md` — in the change log folder, otherwise in
+   `openl-change-log/<slug>/` of the user's working folder — when you can write files, else in the conversation.
 9. **Execute item by item.** Never silently add, drop or reorder items. After each item: read back the changed rows,
-   check compilation with `openl_project_status`, then save (remote) and mark the item done in `plan.md` at once.
+   check compilation with `openl_project_status`, then save (remote, unless the user asked not to) and mark the item
+   done in the plan at once.
    Add no test rows and run no tests between changes. If execution proves the plan wrong or incomplete (for example
    a new dimension is needed), stop, restate the plan and get approval again.
-10. **Test, then summarize.** Add the test rows for the confirmed cases, save, run the full suite once through
+10. **Test, then summarize.** Add the test rows for the confirmed cases, save as in step 9, run the full suite once through
     `testing`. A fix inside an approved item is verified, saved and the suite re-run once; a fix outside the plan
     needs a restated plan. Before the summary, check every requirement and every confirmed case against readback and
     test evidence and close gaps inside the approved items. The summary lists every open problem the user must decide
@@ -74,8 +77,10 @@ re-estimate.
 
 ## Approval rules
 
-- **Nothing is written before approval** — no cell, branch, change log or save.
-- **Exactly one approval**, for the plan. A catalog or mechanic skill called from the plan does not ask again for
+- **Nothing is written before approval** — no cell, branch, change log or save — unless the plan needs none: a plan
+  that asks nothing of step 7 and saves, merges, deploys and deletes nothing, such as "set X to Y, check it, do not
+  save".
+- **At most one approval**, for the plan. A catalog or mechanic skill called from the plan does not ask again for
   work the plan covers. Green tests, clean compilation or a clean preflight are checks to record, not approvals.
 - **Existing test rows** may change only if the plan item names the Test table, the row key, and the old and new
   expected value; otherwise `testing` asks its own named approval.
