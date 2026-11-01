@@ -58,14 +58,30 @@ function coercePayloadJson(value: unknown, payloadArg: string, toolName: string)
   }
 }
 
-/** The name and the validation hook of a tool that takes the rows of a table, which a client may send as a string. */
+/**
+ * A merged cell named as the merge action of openl_edit_table names it, which agents carry over, as the [row, column,
+ * rowspan, colspan] a table takes, a span left out being 1; any other value as it is.
+ */
+function mergeTuple(merge: unknown): unknown {
+  if (!isPlainObject(merge) || !("row" in merge && "column" in merge)) return merge;
+  const { row, column, rowspan = 1, colspan = 1, ...other } = merge;
+  return Object.keys(other).length === 0 ? [row, column, rowspan, colspan] : merge;
+}
+
+/**
+ * The name and the validation hook of a tool that takes the rows of a table, which a client may send as a string, and
+ * its merged cells, which it may name.
+ */
 function tableRowsTool(toolName: string): { name: string; validateArgs: (args: unknown) => unknown } {
   return {
     name: toolName,
     validateArgs: (args: unknown): unknown => {
       if (!isPlainObject(args)) return args;
-      const coerced = coercePayloadJson(args.rows, "rows", toolName);
-      return coerced === args.rows ? args : { ...args, rows: coerced };
+      return {
+        ...args,
+        rows: coercePayloadJson(args.rows, "rows", toolName),
+        ...(Array.isArray(args.merges) ? { merges: args.merges.map(mergeTuple) } : {}),
+      };
     },
   };
 }

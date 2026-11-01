@@ -204,6 +204,7 @@ describe("openl_get_table find", () => {
 
 describe("openl_create_project_table", () => {
   it("writes the rows, merges and formulas as Studio's cells and answers the version of the new table", async () => {
+    // A merge is taken named, as openl_edit_table names it, too, a span left out being 1
     harness.mockHttp.onPost(tablesPath).reply(201, { id: "t1", name: "MinimumPremium", tableType: "RawSource", file: "Main.xlsx" });
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
 
@@ -212,7 +213,7 @@ describe("openl_create_project_table", () => {
       module: "Main",
       name: "MinimumPremium",
       rows: [["SmartRules Double MinimumPremium(String state)"], ["State", "Minimum"], ["CA", 50, 0]],
-      merges: [[0, 0, 1, 3]],
+      merges: [{ row: 0, column: 0, colspan: 3 }],
       formulas: [[2, 2, "=C4*2"]],
     }, harness.client);
 
