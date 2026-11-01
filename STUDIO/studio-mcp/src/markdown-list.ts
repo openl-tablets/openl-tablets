@@ -62,13 +62,16 @@ export function markdownTable<T>(items: T[], columns: Array<Column<T>>): string 
   ].join("\n");
 }
 
-/** The items as Markdown tables, one per value of `groupBy` under a line naming it, or as one table without it. */
+/**
+ * The items as Markdown tables, one per value of `groupBy` under a line naming it, or as one table without it; the
+ * items without a value make a table without that line.
+ */
 function groupedTables<T>(items: T[], columns: Array<Column<T>>, groupBy?: Column<T>): string {
   if (!groupBy) {
     return markdownTable(items, columns);
   }
   return Array.from(Map.groupBy(items, (item) => cellText(groupBy.value(item))),
-    ([value, group]) => `${groupBy.header}: ${value}\n\n${markdownTable(group, columns)}`).join("\n\n");
+    ([value, group]) => (value ? `${groupBy.header}: ${value}\n\n` : "") + markdownTable(group, columns)).join("\n\n");
 }
 
 /**

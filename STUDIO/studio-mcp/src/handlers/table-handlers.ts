@@ -95,13 +95,18 @@ export function registerTableHandlers(): void {
       const { projectId, ...filters } = args;
       const tablesPage = await client.listTablesPage(projectId, filters);
       // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
-      const ofDependencies = tablesPage.items.some((table) => table.projectId !== undefined && table.projectId !== projectId);
+      const ofDependency = (table: Types.TableMetadata): boolean => table.projectId !== undefined && table.projectId !== projectId;
+      const ofDependencies = tablesPage.items.some(ofDependency);
       // Studio tells the dimension properties of a table only when it has other versions, which share its name
       const versioned = tablesPage.items.some((table) => table.dimensions !== undefined);
       return textResult(formatStudioPage(tablesPage, filters.offset, {
         noun: "tables",
-        // The module of a table, which many tables share, is written once over them
-        groupBy: { header: "module", value: (table) => table.module },
+        // The module of a table, which many tables share, is written once over them. Studio leaves it out of the
+        // tables of the project when they are filtered by it
+        groupBy: {
+          header: "module",
+          value: (table) => table.module ?? (ofDependency(table) ? undefined : filters.module),
+        },
         columns: [
           { header: "id", value: (table) => table.id },
           { header: "name", value: (table) => table.name },
