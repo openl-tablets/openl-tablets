@@ -93,9 +93,10 @@ export function leadingRows(grid: Grid, offset: number, count: number): Grid {
 
 /**
  * The rows of a whole grid with a cell whose text contains `text`, case-insensitive, and the header rows before them,
- * with the positions of the rows kept and the merges, formulas, notes and styles of those rows.
+ * each by its position in the whole table, with the merges, formulas, notes and styles of those rows. A row named by
+ * its position cannot be edited at its place among the rows found, which its merges and formulas do not name.
  */
-export function findRows(grid: Grid, text: string, headerRows: number): Grid & { rowIndexes: number[] } {
+export function findRows(grid: Grid, text: string, headerRows: number): Omit<Grid, "rows"> & { rows: Record<number, GridValue[]> } {
   const wanted = text.toLowerCase();
   const matches = (value: GridValue): boolean =>
     value !== null && (Array.isArray(value) ? value : [value]).some((item) => String(item).toLowerCase().includes(wanted));
@@ -104,8 +105,7 @@ export function findRows(grid: Grid, text: string, headerRows: number): Grid & {
   // A merge goes with every row it spans
   const spanned = (row: number, rowspan: number): boolean => Array.from({ length: rowspan }, (_, i) => row + i).some((r) => kept.has(r));
   return {
-    rows: rowIndexes.map((index) => grid.rows[index]),
-    rowIndexes,
+    rows: Object.fromEntries(rowIndexes.map((index) => [index, grid.rows[index]])),
     ...nonEmpty({ merges: grid.merges?.filter(([row, , rowspan]) => spanned(row, rowspan)), ...entriesIn(grid, (row) => kept.has(row)) }),
   };
 }

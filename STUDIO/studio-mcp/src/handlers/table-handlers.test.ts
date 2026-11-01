@@ -186,8 +186,8 @@ describe("openl_get_table find", () => {
 
     expect(response.found).toEqual({ rows: 3, totalRows: 5 });
     expect(response.data).toMatchObject({
-      rows: [["SmartLookup Double RegionFactor(String region, String plan)"], ["Region", "Silver", "Gold"], [42, 1.3, 1.4]],
-      rowIndexes: [0, 1, 3],
+      // Each row by its position in the table, as the merges and formulas name it
+      rows: { 0: ["SmartLookup Double RegionFactor(String region, String plan)"], 1: ["Region", "Silver", "Gold"], 3: [42, 1.3, 1.4] },
       merges: [[0, 0, 1, 3]],
       formulas: [[3, 2, "=1+0.4"]],
     });

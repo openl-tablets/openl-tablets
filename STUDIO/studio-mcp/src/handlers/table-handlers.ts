@@ -146,7 +146,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes and, with styles=true, 'styles' the cell styles; a write keeps both. Compilation messages name cells by A1 address, 'pos' giving the first cell of the table. For a large table, find='900' reads only the rows holding a text, with the header rows, each at its position in 'rowIndexes'; offset/limit read a slice ('window' tells offset, totalRows and next_offset), its positions those of the whole table, for reading and for openl_edit_table. The answer carries the 'version' the edit tools take. An id from before a rename still reads the table; a deleted table answers 410.`,
+      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes and, with styles=true, 'styles' the cell styles; a write keeps both. Compilation messages name cells by A1 address, 'pos' giving the first cell of the table. For a large table, find='900' reads only the rows holding a text, with the header rows, 'rows' then keyed by the position of each; offset/limit read a slice ('window' tells offset, totalRows and next_offset), its positions those of the whole table, for reading and for openl_edit_table. The answer carries the 'version' the edit tools take. An id from before a rename still reads the table; a deleted table answers 410.`,
     schema: schemas.getTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -165,7 +165,7 @@ export function registerTableHandlers(): void {
         // The header and the row of the titles of the columns tell what the rows found hold
         const found = findRows(grid, args.find, (table.headerHeight ?? 1) + 1);
         return formatResult({ ...about, ...found }, {
-          responseMetadata: { found: { rows: found.rows.length, totalRows } },
+          responseMetadata: { found: { rows: Object.keys(found.rows).length, totalRows } },
         });
       }
 
