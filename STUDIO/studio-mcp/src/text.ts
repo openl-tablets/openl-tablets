@@ -7,6 +7,12 @@ export function formatCount(count: number, singular: string, plural: string = `$
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+/** A table as a text answer names it: `AreaFactor (Rules, QFVRFV3YHVHG7S4E)`, its details in parentheses, if any. */
+export function tableLabel(name: string | undefined, ...details: Array<string | undefined>): string {
+  const told = details.filter(Boolean);
+  return told.length ? `${name ?? ""} (${told.join(", ")})` : name ?? "";
+}
+
 /** The text without the repeats of `char` it ends with, and those it starts with unless `atStart` is false. */
 export function trimChar(text: string, char: string, atStart = true): string {
   let from = 0;

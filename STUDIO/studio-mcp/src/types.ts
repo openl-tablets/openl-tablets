@@ -1060,7 +1060,7 @@ interface ProjectModifiedBy {
  */
 type FileChangeType = "added" | "modified" | "deleted";
 
-interface FileChange {
+export interface FileChange {
   /** `<projectRealPath>/<file>` (forward slashes), matching the merge API. */
   path: string;
   type: FileChangeType;

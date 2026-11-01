@@ -127,6 +127,29 @@ export function fitItems(render: (count: number) => string, items: number, charL
   return largestFitting(1, items - 1, render, charLimit) ?? render(1);
 }
 
+/**
+ * Lines of text cut to the response limit by whole lines of `lines`, keeping at least one: the `head` and the `tail`
+ * stay whole, and a cut ends the lines it keeps with the line `more` writes of the count it leaves out. The lines kept
+ * are counted by their lengths in one pass, so a list far over the limit is not rendered again and again.
+ */
+export function fitLines(
+  { head = [], lines, tail = [], more }: { head?: string[]; lines: string[]; tail?: string[]; more: (left: number) => string },
+  charLimit: number = RESPONSE_LIMITS.MAX_CHARACTERS,
+): string {
+  const whole = [...head, ...lines, ...tail].join("\n");
+  if (whole.length <= charLimit || lines.length <= 1) {
+    return whole;
+  }
+  let size = [...head, ...tail].join("\n").length + more(lines.length).length + 2;
+  let kept = 0;
+  while (kept < lines.length - 1 && size + lines[kept].length + 1 <= charLimit) {
+    size += lines[kept].length + 1;
+    kept++;
+  }
+  kept = Math.max(kept, 1);
+  return [...head, ...lines.slice(0, kept), more(lines.length - kept), ...tail].join("\n");
+}
+
 /** `381 tables; 1–50 below, the next page at offset=50.`, for the first `count` items of the page. */
 export function countLine<T>({ noun, one, items, offset, total, hasMore }: Pick<ListPage<T>, "noun" | "one" | "items" | "offset" | "total" | "hasMore">, count: number): string {
   const counted = (number: number): string => formatCount(number, one ?? noun.replace(/s$/, ""), noun);

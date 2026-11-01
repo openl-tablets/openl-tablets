@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { cellText, formatList, formatListOf, type Column } from "./markdown-list.js";
+import { cellText, fitLines, formatList, formatListOf, type Column } from "./markdown-list.js";
 
 interface Item { id: number; name: string }
 
@@ -70,5 +70,26 @@ describe("markdown list", () => {
     ["a | b\nc", String.raw`a \| b c`],
   ])("writes %j in a cell as %j", (value, text) => {
     expect(cellText(value)).toBe(text);
+  });
+});
+
+describe("lines cut to a size", () => {
+  const more = (left: number): string => `… ${left} more`;
+
+  it("answers lines that fit whole", () => {
+    expect(fitLines({ head: ["head"], lines: ["a", "b"], tail: ["tail"], more }, 100)).toBe("head\na\nb\ntail");
+  });
+
+  it("cuts the lines by whole lines, keeping the head and the tail, and counts the lines it leaves out", () => {
+    const lines = Array.from({ length: 10 }, (_, index) => `line ${index}`);
+
+    const text = fitLines({ head: ["head"], lines, tail: ["tail"], more }, 40);
+
+    expect(text).toBe("head\nline 0\nline 1\n… 8 more\ntail");
+    expect(text.length).toBeLessThanOrEqual(40);
+  });
+
+  it("keeps one line when not even one fits", () => {
+    expect(fitLines({ lines: ["x".repeat(50), "y"], more }, 10)).toBe(`${"x".repeat(50)}\n… 1 more`);
   });
 });
