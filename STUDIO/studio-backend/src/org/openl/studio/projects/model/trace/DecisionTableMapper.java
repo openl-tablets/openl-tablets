@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.trace;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,21 +25,26 @@ final class DecisionTableMapper {
     }
 
     /**
-     * Every rule of a decision table as a step. A decision-table frame on the live stack is always
-     * mid-firing, so the rule whose action is running is the current one — and the called sub-table nests
-     * under it. The rest are still pending and can be armed for a run-to.
+     * Every rule of a decision table as a step. The rule whose action is running is the current one — and the
+     * called sub-table nests under it. A rule that fired and whose action has returned, such as the rules of a
+     * lookup that answered, is executed. The rest are still pending and can be armed for a run-to.
      */
-    static List<StepValueView> ruleOutline(IDecisionTable decisionTable, int[] firedRuleIndices) {
-        var fired = Arrays.stream(firedRuleIndices)
-                .mapToObj(decisionTable::getRuleName)
-                .collect(Collectors.toSet());
+    static List<StepValueView> ruleOutline(IDecisionTable decisionTable, int[] firedRuleIndices,
+                                           int[] runningRuleIndices) {
+        var fired = namesOf(decisionTable, firedRuleIndices);
+        var running = namesOf(decisionTable, runningRuleIndices);
         return ruleNames(decisionTable).stream()
                 .map(name -> StepValueView.builder()
                         .ref(name)
                         .label(name)
-                        .status(fired.contains(name) ? StepStatus.CURRENT : StepStatus.PENDING)
+                        .status(running.contains(name) ? StepStatus.CURRENT
+                                : fired.contains(name) ? StepStatus.EXECUTED : StepStatus.PENDING)
                         .build())
                 .toList();
+    }
+
+    private static Set<String> namesOf(IDecisionTable decisionTable, int[] ruleIndices) {
+        return Arrays.stream(ruleIndices).mapToObj(decisionTable::getRuleName).collect(Collectors.toSet());
     }
 
     /** Every distinct rule name of a decision-table frame, so any rule can be armed; {@code null} otherwise. */
