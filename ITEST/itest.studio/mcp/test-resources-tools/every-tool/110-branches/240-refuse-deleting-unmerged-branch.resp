@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "Branch 'feature' has commits that are not merged into base branch 'master'. No branch was deleted. Review the risk, then either make the branch safe or call again with confirmDataLoss=true to explicitly accept possible data loss."
+        "text": "Branch 'feature' has commits that are not merged into base branch 'master'. Its revisions of this project that the base branch does not hold:\n- * Ada Admin: Raise the base premium on feature\nNo branch was deleted. Review the risk, then either make the branch safe or call again with confirmDataLoss=true to explicitly accept possible data loss."
       }
     ],
     "isError": true,

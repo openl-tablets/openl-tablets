@@ -660,13 +660,29 @@ describe("project branch and merge handlers", () => {
     harness.mockHttp.onPost("/projects/p1/merge/check").reply(200, {
       sourceBranch: "feature/rates", targetBranch: "main", status: "mergeable", canMerge: true,
     });
+    const revision = (revisionNo: string, fullComment?: string) => ({
+      revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment, author: { displayName: "Ann" },
+      deleted: false, technicalRevision: false,
+    });
+    // The branch holds two revisions of the project the base branch does not, over one both hold
+    const histories: Record<string, unknown[]> = {
+      "feature/rates": [revision("c3", "Raise rates\n\nDetail"), revision("c2"), revision("c1", "Start")],
+      main: [revision("m2", "Other"), revision("c1", "Start")],
+    };
+    harness.mockHttp.onGet("/projects/p1/history").reply((config) => {
+      const content = histories[config.params?.branch as string];
+      return [200, { content, pageNumber: 0, pageSize: config.params?.size, numberOfElements: content.length, total: content.length }];
+    });
     harness.mockHttp.onDelete("/projects/p1/branches/feature/rates").reply(204);
 
     const request = {
       projectId: "p1", branch: "feature/rates", confirmBranchName: "feature/rates",
     };
     await expect(executeTool("delete_project_branch", request, harness.client)).rejects.toThrow(
-      /not merged into base branch 'main'.*confirmDataLoss=true/,
+      "Branch 'feature/rates' has commits that are not merged into base branch 'main'. "
+        + "Its revisions of this project that the base branch does not hold:\n"
+        + "- c3 2026-01-01T00:00:00Z Ann: Raise rates\n- c2 2026-01-01T00:00:00Z Ann\n"
+        + "No branch was deleted.",
     );
     expect(harness.mockHttp.history.delete).toHaveLength(0);
 
