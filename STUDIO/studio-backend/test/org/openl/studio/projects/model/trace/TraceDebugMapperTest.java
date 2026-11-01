@@ -224,24 +224,26 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void outlinesDecisionTableRulesMarkingTheFiredOneCurrent() {
+    void outlinesDecisionTableRulesMarkingTheFiringOneCurrentAndTheReturnedOnesExecuted() {
         IDecisionTable dt = mock(IDecisionTable.class);
         when(dt.getNumberOfRules()).thenReturn(3);
         when(dt.getRuleName(0)).thenReturn("R1");
         when(dt.getRuleName(1)).thenReturn("R2");
         when(dt.getRuleName(2)).thenReturn("R3");
 
-        var steps = DecisionTableMapper.ruleOutline(dt, new int[]{0});  // R1 fired and is mid-action
+        // R1 fired and is mid-action, R2 fired and its action returned
+        var steps = DecisionTableMapper.ruleOutline(dt, new int[]{0, 1}, new int[]{0});
 
         assertEquals(List.of("R1", "R2", "R3"), steps.stream().map(StepValueView::ref).toList());
-        // The fired rule is current so a sub-table called from its action nests under it, not the last rule.
+        // The firing rule is current so a sub-table called from its action nests under it, not the last rule.
         assertEquals(StepStatus.CURRENT, steps.getFirst().status(), "the firing rule is the current one");
-        assertEquals(StepStatus.PENDING, steps.get(1).status(), "rules that did not fire are pending");
+        assertEquals(StepStatus.EXECUTED, steps.get(1).status(), "a rule whose action returned has run");
         assertEquals(StepStatus.PENDING, steps.get(2).status(), "rules that did not fire are pending");
         assertTrue(steps.stream().allMatch(s -> s.value() == null), "the outline carries no values");
 
         // Nothing fired yet (suspended at entry): every rule is pending and run-to-able.
-        assertTrue(DecisionTableMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> s.status() == StepStatus.PENDING));
+        assertTrue(DecisionTableMapper.ruleOutline(dt, new int[0], new int[0]).stream()
+                .allMatch(s -> s.status() == StepStatus.PENDING));
     }
 
     @Test
@@ -623,6 +625,8 @@ class TraceDebugMapperTest {
                 new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false).frames().getFirst();
         assertEquals(List.of("R2", "R4"), compact.steps().stream().map(StepValueView::ref).toList(),
                 "the rules the action fired stay listed after it returned");
+        assertTrue(compact.steps().stream().allMatch(step -> step.status() == StepStatus.EXECUTED),
+                "a rule whose action returned has run, not pending");
     }
 
     @Test

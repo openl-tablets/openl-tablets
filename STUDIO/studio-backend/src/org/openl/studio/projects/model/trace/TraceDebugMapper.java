@@ -425,16 +425,12 @@ public class TraceDebugMapper {
             return null;
         }
         var steps = outlineSteps(frame, withExecutedChildren);
-        if (!options.compact() || !(frame.getSource() instanceof IDecisionTable decisionTable)) {
+        if (!options.compact() || !(frame.getSource() instanceof IDecisionTable)) {
             return steps;
         }
-        // The rules of an action that has returned, such as the rules a collecting table fired, are timed as one action
-        var fired = Arrays.stream(DecisionTableMapper.allFiredRuleIndices(frame))
-                .mapToObj(decisionTable::getRuleName)
-                .collect(Collectors.toSet());
+        // A rule that fired is current or executed, also after its action returned
         return steps.stream()
-                .filter(step -> step.status() != StepStatus.PENDING || step.durationMillis() != null
-                        || fired.contains(step.ref()))
+                .filter(step -> step.status() != StepStatus.PENDING || step.durationMillis() != null)
                 .toList();
     }
 
@@ -491,7 +487,8 @@ public class TraceDebugMapper {
             return steps;
         }
         if (frame.getSource() instanceof IDecisionTable decisionTable) {
-            return DecisionTableMapper.ruleOutline(decisionTable, DecisionTableMapper.firedRuleIndices(frame));
+            return DecisionTableMapper.ruleOutline(decisionTable, DecisionTableMapper.allFiredRuleIndices(frame),
+                    DecisionTableMapper.firedRuleIndices(frame));
         }
         return frame.getExecutedSteps().stream()
                 .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status(StepStatus.EXECUTED).build())
