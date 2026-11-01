@@ -212,9 +212,10 @@ describe("project branch and merge handlers", () => {
       });
 
       const response = await executeTool("read_merge_conflict_file", {
-        projectId: "p1", path: "Rating/rules/config.txt", side: "THEIRS",
+        projectId: "p1", path: "Rating/rules/config.txt", side: "theirs",
       }, harness.client);
 
+      // The side is taken in small letters too, as the decisions of a resolution name it
       expect(textOf(response)).toBe("rate = 1.5\n");
       expect(harness.mockHttp.history.get[1].params).toEqual({ file: "Rating/rules/config.txt", side: "THEIRS" });
     });
@@ -494,7 +495,7 @@ describe("project branch and merge handlers", () => {
       expect(harness.mockHttp.history.post).toHaveLength(0);
     });
 
-    it("resolves with a workbook merged as decided and the other files by their strategies", async () => {
+    it("resolves with a workbook merged as decided and the other files by their strategies, in either case", async () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
         conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml", "rules-deploy.xml"] }],
       });
@@ -507,13 +508,15 @@ describe("project branch and merge handlers", () => {
         { id: "Rules/A1:B2", cells: { side: "ours", cells: [{ row: 1, column: 1, side: "theirs" }, { row: 1, column: 0, value: "USA" }] } },
         { id: "Notes", side: "base" },
       ];
+      // A side or a strategy is taken in capitals or in small letters, and sent as Studio names it
+      const typed = [decisions[0], { id: "Notes", side: "BASE" }];
 
       const response = await executeTool("resolve_merge_conflicts", {
         projectId: "p1",
         resolutions: [
-          { path: "rules/Main.xlsx", decisions },
-          { path: "rules.xml", conflicts: [{ side: "ours-theirs" }, { lines: "  <v>4</v>\n" }] },
-          { path: "rules-deploy.xml", strategy: "THEIRS" },
+          { path: "rules/Main.xlsx", decisions: typed },
+          { path: "rules.xml", conflicts: [{ side: "OURS-THEIRS" }, { lines: "  <v>4</v>\n" }] },
+          { path: "rules-deploy.xml", strategy: "theirs" },
         ],
         message: "Merge rates",
       }, harness.client);

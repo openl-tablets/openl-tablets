@@ -76,6 +76,11 @@ interface ToolDefinition<TSchema extends ZodType = ZodType> {
    * filtered by name, which the tool takes for that argument. They stay out of the published schema.
    */
   aliases?: Readonly<Record<string, string>>;
+  /**
+   * The values agents give an option of this tool for the one it names, such as 'spec' for 'specification', the way
+   * the ids of the specifications start. Like a value in other letters, they stay out of the published schema.
+   */
+  valueAliases?: Readonly<Record<string, string>>;
   /** Optional tool-specific enrichment for schema validation failures. */
   formatValidationError?: (error: z.ZodError) => string;
   /**
@@ -165,6 +170,52 @@ function withAliases(args: unknown, aliases: Readonly<Record<string, string>> | 
   }));
 }
 
+/**
+ * The arguments with each option `issues` refuse replaced by the one it names in other letters or by a value alias,
+ * such as 'theirs' for 'THEIRS': a tool names an option as Studio does, and agents carry over the spelling of another.
+ * Of a union, the first alternative refused only for such options is taken. Undefined unless every issue is one.
+ */
+function withOptionsNamed(
+  args: unknown,
+  issues: readonly z.core.$ZodIssue[],
+  valueAliases: Readonly<Record<string, string>> = {},
+): unknown {
+  const optionsNamed = (list: readonly z.core.$ZodIssue[], at: PropertyKey[]): Array<[PropertyKey[], unknown]> | undefined => {
+    const options: Array<[PropertyKey[], unknown]> = [];
+    for (const issue of list) {
+      const path = [...at, ...issue.path];
+      if (issue.code === "invalid_union") {
+        const alternative = issue.errors.map((errors) => optionsNamed(errors, path)).find((named) => named !== undefined);
+        if (alternative === undefined) return undefined;
+        options.push(...alternative);
+        continue;
+      }
+      const given = issue.code === "invalid_value" ? valueAt(args, path) : undefined;
+      const option = typeof given === "string" && issue.code === "invalid_value"
+        ? issue.values.find((value) => value === valueAliases[given] || String(value).toLowerCase() === given.toLowerCase())
+        : undefined;
+      if (option === undefined) return undefined;
+      options.push([path, option]);
+    }
+    return options;
+  };
+  const options = optionsNamed(issues, []);
+  if (!options?.length) {
+    return undefined;
+  }
+  const named = structuredClone(args);
+  for (const [path, option] of options) {
+    const key = path[path.length - 1];
+    (valueAt(named, path.slice(0, -1)) as Record<PropertyKey, unknown>)[key] = option;
+  }
+  return named;
+}
+
+/** The value at `path` within `value`, undefined where the path leaves it. */
+function valueAt(value: unknown, path: readonly PropertyKey[]): unknown {
+  return path.reduce<unknown>((at, key) => (at as Record<PropertyKey, unknown> | undefined)?.[key], value);
+}
+
 /** The registered tools as the MCP tool list advertises them. */
 export function getAllTools(): Array<
   Pick<ToolDefinition, "name" | "title" | "description" | "annotations"> & { inputSchema: Record<string, unknown> }
@@ -192,7 +243,11 @@ export async function executeTool(
   try {
     const rawArgs = withAliases(args ?? {}, tool.aliases);
     const preparedArgs = tool.validateArgs ? tool.validateArgs(rawArgs) : rawArgs;
-    const result = tool.schema.safeParse(preparedArgs);
+    let result = tool.schema.safeParse(preparedArgs);
+    const named = result.success ? undefined : withOptionsNamed(preparedArgs, result.error.issues, tool.valueAliases);
+    if (named !== undefined) {
+      result = tool.schema.safeParse(named);
+    }
     if (!result.success) {
       throw new ProtocolError(
         ProtocolErrorCode.InvalidParams,

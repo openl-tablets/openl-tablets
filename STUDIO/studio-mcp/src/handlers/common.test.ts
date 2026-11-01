@@ -136,6 +136,24 @@ describe("argument aliases", () => {
   });
 });
 
+describe("options in other letters", () => {
+  it("takes an option in other letters for the one the tool names, which it publishes alone", async () => {
+    harness.mockHttp.onGet("/projects").reply(200, pageOf([]));
+    const sides = getAllTools().find((tool) => tool.name === "read_merge_conflict_file")?.inputSchema.properties;
+
+    await executeTool("list_projects", { status: "opened" }, harness.client);
+
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ status: "OPENED" });
+    expect(sides).toMatchObject({ side: { enum: ["BASE", "OURS", "THEIRS"] } });
+  });
+
+  it("refuses an option no spelling names, with the options of the tool", async () => {
+    await expect(executeTool("list_projects", { status: "open" }, harness.client))
+      .rejects.toThrow(/Invalid arguments for list_projects.*"OPENED"/s);
+    expect(harness.mockHttp.history.get).toHaveLength(0);
+  });
+});
+
 describe("a table named by its name", () => {
   const tablesPath = "/projects/p1/tables";
 
