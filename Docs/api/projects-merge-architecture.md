@@ -353,8 +353,6 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 - `check` and `merge` refuse with `409` while the conflict of the project is stored.
 - A conflict ends when it is resolved, when `DELETE /merge/conflicts` cancels it, or with the client, after the idle
   time of its session (`session-timeout` in `web.xml`, 30 minutes).
-- While a save conflict is stored, its project id keeps resolving to the conflicted project, even after a workspace
-  refresh renamed the project (`MergeConflictProjectResolveStrategy`).
 - The holder stores two kinds of conflict. A **merge conflict** has the branches (`mergeBranchFrom`,
   `mergeBranchTo`, `currentBranch`). A **save conflict** has none: the project save found that another user changed
   the project, and `PATCH /rest/projects/{projectId}` answers `409` with `project.save.merge.conflict.message`.
