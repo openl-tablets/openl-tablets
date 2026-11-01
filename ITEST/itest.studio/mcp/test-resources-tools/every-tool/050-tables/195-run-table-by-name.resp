@@ -6,10 +6,6 @@ HTTP/1.1 200 OK
       {
         "type": "text",
         "text": "{\"data\":{\"executionTimeMs\":*,\"result\":1}}"
-      },
-      {
-        "type": "text",
-        "text": "'AgeFactor' is the name of a table, not its id: its id is '*', which the table tools take."
       }
     ],
     "resultType": "complete",

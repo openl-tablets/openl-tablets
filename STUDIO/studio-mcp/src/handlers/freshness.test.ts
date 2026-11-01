@@ -36,7 +36,7 @@ describe("a project whose files changed on disk", () => {
 
     const result = await executeTool("list_tables", { projectId: "p1" }, harness.client);
 
-    expect(textOf(result)).toContain("| t1 | Added |");
+    expect(textOf(result)).toContain("\nAdded");
   });
 
   it("is compiled again before an edit, which names the version of the table it is based on", async () => {

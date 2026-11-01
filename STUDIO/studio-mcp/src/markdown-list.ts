@@ -1,5 +1,5 @@
 /**
- * A list a tool answers as a Markdown table: a line that counts the items and tells the page, the table of the page
+ * A list a tool answers as a Markdown table, or as the text its `render` writes: a line that counts the items and tells the page, the table of the page
  * with one row per item, and the notes that go with it. A table names each field once, in its header, where a JSON
  * list repeats every name in every item: the same page reads in about a third of the tokens.
  */
@@ -22,7 +22,8 @@ export interface ListPage<T> {
   one?: string;
   /** The items of the page. */
   items: T[];
-  columns: Array<Column<T>>;
+  /** The columns of the Markdown table of the items, unless `render` writes them otherwise. */
+  columns?: Array<Column<T>>;
   /**
    * A column whose value many items share, such as the module of a table: the items come in a table of their own per
    * value, in the order of their first item, under a line naming it, so the value is written once.
@@ -36,6 +37,8 @@ export interface ListPage<T> {
   hasMore?: boolean;
   /** Lines after the table. */
   notes?: string[];
+  /** The items, or a group of them, as text in place of a Markdown table of the columns, such as names a line per kind. */
+  render?: (items: T[]) => string;
 }
 
 /** The text of a value in a cell of a table: a list joined by commas, an object as JSON, on one line. */
@@ -63,15 +66,15 @@ export function markdownTable<T>(items: T[], columns: Array<Column<T>>): string 
 }
 
 /**
- * The items as Markdown tables, one per value of `groupBy` under a line naming it, or as one table without it; the
- * items without a value make a table without that line.
+ * The items as `render` writes them, or as Markdown tables: one per value of `groupBy` under a line naming it, or one
+ * without it; the items without a value come without that line.
  */
-function groupedTables<T>(items: T[], columns: Array<Column<T>>, groupBy?: Column<T>): string {
+function groupedItems<T>({ items, columns = [], groupBy, render = (group) => markdownTable(group, columns) }: ListPage<T>): string {
   if (!groupBy) {
-    return markdownTable(items, columns);
+    return render(items);
   }
   return Array.from(Map.groupBy(items, (item) => cellText(groupBy.value(item))),
-    ([value, group]) => (value ? `${groupBy.header}: ${value}\n\n` : "") + markdownTable(group, columns)).join("\n\n");
+    ([value, group]) => (value ? `${groupBy.header}: ${value}\n\n` : "") + render(group)).join("\n\n");
 }
 
 /**
@@ -81,7 +84,7 @@ function groupedTables<T>(items: T[], columns: Array<Column<T>>, groupBy?: Colum
 export function formatList<T>(page: ListPage<T>, charLimit: number = RESPONSE_LIMITS.MAX_CHARACTERS): string {
   return fitItems((count) => [
     countLine(page, count),
-    ...(count > 0 ? [groupedTables(page.items.slice(0, count), page.columns, page.groupBy)] : []),
+    ...(count > 0 ? [groupedItems({ ...page, items: page.items.slice(0, count) })] : []),
     ...(page.notes ?? []),
   ].join("\n\n"), page.items.length, charLimit);
 }

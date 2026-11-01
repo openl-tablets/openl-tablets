@@ -542,7 +542,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "watch_trace_cells",
-      { projectId, tableId: "calc_42", cells: ["$VehiclePriceFactor"], testRanges: "1" },
+      { projectId, tableId: "TAB0000000000001", cells: ["$VehiclePriceFactor"], testRanges: "1" },
       harness.client
     );
 
