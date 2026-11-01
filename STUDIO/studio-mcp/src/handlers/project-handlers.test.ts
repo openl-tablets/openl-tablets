@@ -209,10 +209,9 @@ describe("project status", () => {
       .replyOnce(200, withStatus(compiled("ok", [], 34)));
     harness.mockHttp.onGet(`${projectPath}/tables`, { params: { offset: 0, size: 1 } }).reply(200, pageOf([], { pageSize: 1, total: 0 }));
 
-    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
-    expect(response.compileState).toBe("ok");
-    expect(response.compilation.tests.total).toBe(34);
+    expect(text).toBe("Compile state: ok; 0 errors, 0 warnings; 34 test tables; 1 of 1 module compiled.\nBranch: main.");
     expect(harness.mockHttp.history.get.filter((request) => request.url.endsWith("/tables"))).toHaveLength(1);
     // The default path above starts compilation, so MCP clients must not be
     // told that the tool is unconditionally read-only.
@@ -223,10 +222,11 @@ describe("project status", () => {
     const items = Array.from({ length: 400 }, (_, id) => ({ id, summary: `Field 'f${id}' is not defined.${" ".repeat(60)}`, severity: "ERROR" }));
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(compiled("errors", items)));
 
-    const response = JSON.parse(textOf(await executeTool("project_status", { projectId }, harness.client)));
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
-    expect(response.truncated).toBe(true);
-    expect(response.truncation_message).toMatch(/of 400 compile messages; choose the messages to read with severity or limit\.$/);
+    expect(text.length).toBeLessThanOrEqual(25_000);
+    expect(text).toContain("\nMessages, errors first, 400 of 400:\n");
+    expect(text).toMatch(/\n… \d+ more messages: choose them with severity or limit\.$/);
   });
 
   it("compiles the project again from files another program changed, with a note to read its tables again", async () => {
@@ -245,12 +245,11 @@ describe("project status", () => {
     harness.mockHttp.onGet(`${projectPath}/modules`).reply(200, [{ name: "Main Rules", path: "rules/Main.xlsx" }]);
     harness.mockHttp.onPost(`${projectPath}/modules/Main%20Rules/compile`).reply((config) => [config.params?.reset ? 202 : 400]);
 
-    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(harness.mockHttp.history.post).toHaveLength(1);
-    expect(response.compileState).toBe("ok");
-    expect(response.note).toContain("Read the tables again");
-    expect(response.refreshed).toBeUndefined();
+    expect(text).toMatch(/^Compile state: ok; .*35 test tables/);
+    expect(text).toMatch(/\n\nFiles of the project were changed outside Studio, .*Read the tables again/);
   });
 
   it("waits for a compilation already running, such as the one after an edit, and answers its result", async () => {
@@ -264,21 +263,21 @@ describe("project status", () => {
       .onGet(projectPath)
       .replyOnce(200, withStatus(compiled("errors", [{ summary: "Bad formula", severity: "ERROR" }])));
 
-    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
-    expect(response.compileState).toBe("errors");
-    expect(response.note).toBeUndefined();
+    expect(text).toBe("Compile state: errors; 0 errors, 0 warnings; 0 test tables; 1 of 1 module compiled.\nBranch: main.\n\n"
+      + "Messages, errors first, 1 of 1:\nERROR: Bad formula");
     expect(harness.mockHttp.history.get.some((request) => request.url.endsWith("/tables"))).toBe(false);
   });
 
   it("reports a compilation that outlasts timeoutMs as compiling, without the counts it has not made yet", async () => {
     harness.mockHttp.onGet(projectPath).reply(200, withStatus({ ...compiled("compiling"), compileState: "compiling" }));
 
-    const response = dataOf(await executeTool("project_status", { projectId, timeoutMs: 300 }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId, timeoutMs: 300 }, harness.client));
 
-    expect(response.compileState).toBe("compiling");
-    expect(response.compilation).toEqual({ modules: { total: 1, compiled: 1 } });
-    expect(response.note).toContain("Call openl_project_status again");
+    // Zero errors of a compilation that has not ended would read as a project that compiles
+    expect(text).toBe("Compile state: compiling; 1 of 1 module compiled.\nBranch: main.\n\n"
+      + "The compilation is still running in Studio. Call openl_project_status again for its result.");
   });
 
   it("reports an idle project as compiling when its compilation outlasts timeoutMs", async () => {
@@ -289,11 +288,10 @@ describe("project status", () => {
       .reply(200, withStatus({ projectId, branch: "main", compileState: "compiling" }));
     harness.mockHttp.onGet(`${projectPath}/tables`).timeout();
 
-    const response = dataOf(await executeTool("project_status", {
+    const text = textOf(await executeTool("project_status", {
       projectId, timeoutMs: 300, }, harness.client));
 
-    expect(response.compileState).toBe("compiling");
-    expect(response.note).toContain("Call openl_project_status again");
+    expect(text).toMatch(/^Compile state: compiling\.\n.*Call openl_project_status again/s);
     expect(harness.mockHttp.history.get.find((request) => request.url.endsWith("/tables"))?.timeout).toBe(300);
   });
 
@@ -309,7 +307,7 @@ describe("project status", () => {
 
     const result = await executeTool("project_status", { projectId, branch: "develop" }, harness.client);
 
-    expect(dataOf(result).branch).toBe("develop");
+    expect(textOf(result)).toContain("\nBranch: develop.");
     expect(harness.mockHttp.history.patch).toHaveLength(1);
   });
 
@@ -318,7 +316,7 @@ describe("project status", () => {
 
     const result = await executeTool("project_status", { projectId, branch: "develop" }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({ compileState: "ok", branch: "develop" });
+    expect(textOf(result)).toMatch(/^Compile state: ok; .*\nBranch: develop\.$/);
     expect(harness.mockHttp.history.patch).toHaveLength(0);
   });
 
@@ -327,10 +325,9 @@ describe("project status", () => {
       { id: 7, summary: "Datatype 'Foo' not found", severity: "ERROR" },
     ])));
 
-    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
-    expect(response.compileState).toBe("errors");
-    expect(response.compilation.messages.items).toEqual([{ summary: "Datatype 'Foo' not found", severity: "ERROR" }]);
+    expect(text).toMatch(/^Compile state: errors;.*\nERROR: Datatype 'Foo' not found$/s);
     expect(harness.mockHttp.history.get).toHaveLength(1);
   });
 
@@ -347,14 +344,10 @@ describe("project status", () => {
     };
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(fixture));
 
-    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
-    expect(response.compilation).toEqual({
-      messages: { items: [], total: 1, errors: 0, warnings: 0 },
-      // The modules are counted, not named again
-      modules: { total: 2, compiled: 2 },
-      tests: { total: 7 },
-    });
+    // The modules are counted, not named again
+    expect(text).toBe("Compile state: ok; 0 errors, 0 warnings; 7 test tables; 2 of 2 modules compiled.\nBranch: main.");
   });
 
   it("keeps the messages of a successful compilation of the severity asked for", async () => {
@@ -368,9 +361,9 @@ describe("project status", () => {
       },
     }));
 
-    const response = dataOf(await executeTool("project_status", { projectId, severity: ["INFO"] }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId, severity: ["INFO"] }, harness.client));
 
-    expect(response.compilation.messages.items).toEqual([{ summary: "INFO_ITEM", severity: "INFO" }]);
+    expect(text).toMatch(/\nMessages, errors first, 1 of 1:\nINFO: INFO_ITEM$/);
   });
 
   it("names the tables of each changed workbook on request, comparing them one by one with the saved revision", async () => {
@@ -393,17 +386,15 @@ describe("project status", () => {
     ] });
     harness.mockHttp.onDelete("/compare/c1").reply(204);
 
-    const response = dataOf(await executeTool("project_status", { projectId, changes: true }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId, changes: true }, harness.client));
 
     // Only the changed workbook is compared, by its path in the project, the saved revision against the working copy
     expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([{
       first: { path: "rules/Main.xlsx", branch: "main", revision: "r1" }, second: { path: "rules/Main.xlsx" },
     }]);
-    expect(response.pendingChanges.files).toEqual([
-      { path: "Rating/rules/Main.xlsx", type: "modified", tables: [{ sheet: "Rates", table: "RateCard", status: "changed" }] },
-      { path: "Rating/rules.xml", type: "modified" },
-      { path: "Rating/rules/New.xlsx", type: "added" },
-    ]);
+    expect(text).toBe("Compile state: ok; 0 errors, 0 warnings; 0 test tables; 1 of 1 module compiled.\nBranch: main. Revision: r1.\n"
+      + "Changed since the last save, 3 files:\n- Rating/rules/Main.xlsx modified: Rates/RateCard changed\n"
+      + "- Rating/rules.xml modified\n- Rating/rules/New.xlsx added");
   });
 
   it("names the place of a message by its table, without the project the status is of", async () => {
@@ -426,21 +417,23 @@ describe("project status", () => {
     };
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(fixture));
 
-    const response = dataOf(await executeTool("project_status", { projectId, grouped: false }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId, grouped: false }, harness.client));
 
-    // A message without a table keeps its module
-    expect(response.compilation.messages.items).toEqual([
-      { summary: "Bad formula", severity: "ERROR", location: { id: "t1", name: "Rates", cell: "B2" } },
-      { summary: "Bad type", severity: "ERROR", location: { projectId: "dep", project: "Common", id: "t1", name: "Rates", cell: "B2" } },
-      { summary: "Bad module", severity: "ERROR", location: { module: "Main" } },
+    // A message of a dependency names its project first, and one without a table its module
+    expect(text.split("\n").slice(-3)).toEqual([
+      "ERROR Rates (t1) B2: Bad formula",
+      "ERROR Common: Rates (t1) B2: Bad type",
+      "ERROR module Main: Bad module",
     ]);
   });
 
   it.each([
-    [{}, [["Need to close '('", 1], ["Cannot parse '2.55'", 2], ["Unused value", 0]]],
-    [{ grouped: false }, [["Need to close '('", 0], ["Identifier 'round' is not found", 0], ["Cannot parse '2.55'", 0],
-      ["Cannot parse '31.24'", 0], ["Cannot parse '47.96'", 0], ["Unused value", 0]]],
-  ])("counts the messages of a table after its first of a severity in 'more' unless %j", async (options, items) => {
+    [{}, ["ERROR RateCalc (RateCalc): Need to close '(' (+1 more)", "ERROR RateTest (RateTest): Cannot parse '2.55' (+2 more)",
+      "WARN RateCalc (RateCalc): Unused value"]],
+    [{ grouped: false }, ["ERROR RateCalc (RateCalc): Need to close '('", "ERROR RateCalc (RateCalc): Identifier 'round' is not found",
+      "ERROR RateTest (RateTest): Cannot parse '2.55'", "ERROR RateTest (RateTest): Cannot parse '31.24'",
+      "ERROR RateTest (RateTest): Cannot parse '47.96'", "WARN RateCalc (RateCalc): Unused value"]],
+  ])("counts the messages of a table after its first of a severity in 'more' unless %j", async (options, lines) => {
     const at = (id: string, summary: string, severity = "ERROR") => ({ summary, severity, location: { id, name: id } });
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(compiled("errors", [
       at("RateCalc", "Need to close '('"),
@@ -451,10 +444,9 @@ describe("project status", () => {
       at("RateTest", "Cannot parse '47.96'"),
     ])));
 
-    const response = dataOf(await executeTool("project_status", { projectId, ...options }, harness.client));
+    const text = textOf(await executeTool("project_status", { projectId, ...options }, harness.client));
 
-    expect(response.compilation.messages.items.map((item: { summary: string; more?: number }) => [item.summary, item.more ?? 0]))
-      .toEqual(items);
+    expect(text.split("\n").slice(-lines.length)).toEqual(lines);
   });
 
   it.each([
@@ -471,10 +463,10 @@ describe("project status", () => {
       { id: 5, summary: "ERROR_FIFTH", severity: "ERROR" },
     ])));
 
-    const response = dataOf(await executeTool("project_status", {
+    const text = textOf(await executeTool("project_status", {
       projectId, ...options, }, harness.client));
 
-    expect(response.compilation.messages.items.map((item: { summary: string }) => item.summary)).toEqual(summaries);
+    expect(text.split("\n").slice(-summaries.length)).toEqual(summaries.map((summary) => `${summary.split("_")[0]}: ${summary}`));
   });
 
   it("cuts a status over the size limit by whole messages, errors first, and says how to read the rest", async () => {
@@ -485,12 +477,14 @@ describe("project status", () => {
 
     const text = textOf(await executeTool("project_status", { projectId }, harness.client));
 
-    const response = JSON.parse(text);
+    const lines = text.split("\n");
+    const messages = lines.slice(lines.indexOf("Messages, errors first, 400 of 400:") + 1, -1);
     expect(text.length).toBeLessThanOrEqual(25_000);
-    expect(response.data.compileState).toBe("errors");
-    expect(response.data.compilation.messages.items.length).toBeLessThan(400);
-    expect(response.data.compilation.messages.items[0].severity).toBe("ERROR");
-    expect(response.truncation_message).toContain("compile messages; choose the messages to read with severity");
+    expect(lines[0]).toMatch(/^Compile state: errors;/);
+    expect(messages.length).toBeGreaterThan(100);
+    // The 200 errors come before the 200 warnings
+    expect(messages.slice(0, 200).every((line) => line.startsWith("ERROR: "))).toBe(true);
+    expect(lines.at(-1)).toBe(`… ${400 - messages.length} more messages: choose them with severity or limit.`);
   });
 });
 
