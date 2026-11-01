@@ -76,14 +76,16 @@ interface ToolDefinition<TSchema extends ZodType = ZodType> {
    * filtered by name, which the tool takes for that argument. They stay out of the published schema.
    */
   aliases?: Readonly<Record<string, string>>;
+  /** The lists of arguments, such as the edits of 'actions', whose objects take the aliases too. */
+  aliasedLists?: readonly string[];
+  /** What to do instead of an argument agents give the tool, which it does not take, named by that argument. */
+  argumentHints?: Readonly<Record<string, string>>;
   /**
    * The values agents give an option of this tool for the one it names, such as 'spec' for 'specification', the way
    * the ids of the specifications start, each in small letters and taken in any. Like a value in other letters, they
    * stay out of the published schema.
    */
   valueAliases?: Readonly<Record<string, string>>;
-  /** Optional tool-specific enrichment for schema validation failures. */
-  formatValidationError?: (error: z.ZodError) => string;
   /**
    * Whether the tool works with what Studio compiled of the project its `projectId` names. When another program
    * changed the files of the project since Studio compiled it, the project is compiled again first, and the tool
@@ -113,6 +115,10 @@ export function formatSchemaValidationError(name: string, error: z.ZodError): st
   const hints = IDENTIFIER_HINTS.filter(([field]) => topLevelFields.has(field)).map(([, hint]) => hint);
   const taken = takenArguments(name, error);
   if (taken) hints.push(taken);
+  // An argument the tool does not take, at any depth, which its hints name what to do instead of
+  const argumentHints = toolHandlers.get(name)?.argumentHints ?? {};
+  const unknown = error.issues.flatMap((issue) => (issue.code === "unrecognized_keys" ? issue.keys : []));
+  hints.push(...unknown.flatMap((key) => (argumentHints[key] ? [argumentHints[key]] : [])));
   return hints.length > 0 ? `${message}\n\n${hints.join(" ")}` : message;
 }
 
@@ -161,15 +167,27 @@ export function registerTool<TSchema extends ZodType>(tool: ToolDefinition<TSche
  */
 export const TABLE_ID_ALIAS: Readonly<Record<string, string>> = { id: "tableId" };
 
-/** The arguments with each alias of the tool renamed to the argument it stands for, unless that one is given too. */
-function withAliases(args: unknown, aliases: Readonly<Record<string, string>> | undefined): unknown {
+/**
+ * The arguments with each alias of the tool renamed to the argument it stands for, unless that one is given too, in the
+ * arguments and in the objects of the lists the tool names, such as the edits of 'actions'.
+ */
+function withAliases(args: unknown, { aliases, aliasedLists = [] }: Pick<ToolDefinition, "aliases" | "aliasedLists">): unknown {
   if (aliases === undefined || !isPlainObject(args)) {
     return args;
   }
-  return Object.fromEntries(Object.entries(args).map(([key, value]) => {
-    const target = aliases[key];
-    return [target !== undefined && !(target in args) ? target : key, value];
-  }));
+  const renamed = (object: Record<string, unknown>): Record<string, unknown> =>
+    Object.fromEntries(Object.entries(object).map(([key, value]) => {
+      const target = aliases[key];
+      return [target !== undefined && !(target in object) ? target : key, value];
+    }));
+  const named = renamed(args);
+  for (const list of aliasedLists) {
+    const items = named[list];
+    if (Array.isArray(items)) {
+      named[list] = items.map((item) => (isPlainObject(item) ? renamed(item) : item));
+    }
+  }
+  return named;
 }
 
 /**
@@ -244,7 +262,7 @@ export async function executeTool(
   }
 
   try {
-    const rawArgs = withAliases(args ?? {}, tool.aliases);
+    const rawArgs = withAliases(args ?? {}, tool);
     const preparedArgs = tool.validateArgs ? tool.validateArgs(rawArgs) : rawArgs;
     let result = tool.schema.safeParse(preparedArgs);
     const named = result.success ? undefined : withOptionsNamed(preparedArgs, result.error.issues, tool.valueAliases);
@@ -254,7 +272,7 @@ export async function executeTool(
     if (!result.success) {
       throw new ProtocolError(
         ProtocolErrorCode.InvalidParams,
-        tool.formatValidationError?.(result.error) ?? formatSchemaValidationError(name, result.error),
+        formatSchemaValidationError(name, result.error),
       );
     }
     await keepCurrent(tool, result.data, client, extra);

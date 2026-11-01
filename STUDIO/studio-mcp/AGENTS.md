@@ -438,7 +438,9 @@ OpenL Studio and where the server keeps its state; the
 - Every tool schema is a `z.strictObject`: an unknown argument, also a nested one, is refused, not ignored. The
   refusal of an unknown argument of the tool itself lists the arguments the tool takes. A name agents carry over
   from another tool or an answer (`search`, `query`, the `id` of a table) is declared in the `aliases` of the tool
-  that has the argument under another name; it stays out of the published schema. So does an option given in other
+  that has the argument under another name, and holds in the objects of the lists the tool names in `aliasedLists`,
+  such as the edits of `actions`; it stays out of the published schema. An argument a tool does not take, which agents
+  give it, gets the next step from the `argumentHints` of the tool in its refusal. So does an option given in other
   letters, such as `theirs` for `THEIRS`, which `executeTool` takes for the option the tool names, and a value in the
   `valueAliases` of the tool, such as `spec` for `specification`: the schema publishes each option once.
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`

@@ -15,6 +15,31 @@ const tablePath = "/projects/p1/tables/t1";
 const a = { value: "a" };
 const b = { value: "b" };
 
+describe("names agents give the arguments of an edit", () => {
+  it("takes op, type and col for action and column, in the tool and in each of its actions", async () => {
+    harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204);
+    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
+    harness.mockHttp.onGet(tablePath).reply(200, { id: "t1", name: "T", tableType: "RawSource", kind: "Other", source: [] });
+
+    await executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1", op: "update_cell", row: 1, col: 2, value: "a" }, harness.client);
+    await executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1",
+      actions: [{ type: "update_cell", row: 1, col: 2, value: "a" }, { op: "delete_rows", position: 3 }] }, harness.client);
+
+    const cell = { operation: "update", target: { type: "cell", row: 1, column: 2, value: "a" } };
+    expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([
+      cell, { actions: [cell, { operation: "delete", target: { type: "rows", position: 3, count: 1 } }] },
+    ]);
+  });
+
+  it("refuses find, which names cells by their text, with the read that finds them", async () => {
+    await expect(executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1", action: "update_cell", find: "900", column: 2, value: 1 }, harness.client))
+      .rejects.toThrow(/read the rows holding a value with openl_get_table find, then edit them/);
+  });
+});
+
 describe("raw table-source edits", () => {
   it.each([
     ["append_rows", { cells: [["a", "b"]] }, { operation: "append", target: { type: "rows", cells: [[a, b]] } }],

@@ -161,7 +161,12 @@ export function registerTableActionHandlers(): void {
     description:
       "Edit a table in place, whatever its type, by one 'action', or by several in 'actions' made as one write, in order, each on the table the previous one left, so an insert shifts the positions after it; when one is refused nothing is written.\n- update_cell: row, column, and 'value' (null clears it) or an Excel 'formula' such as '=B2*C2', never both.\n- update_range: row, column and 'cells', more than one cell. update_row / update_column: position and one line of 'cells'.\n- insert_rows / insert_columns: position, 1 to the height or width, and 'cells'; append_rows / append_columns: 'cells' at the end.\n- delete_rows / delete_columns: position, 1 or more, and count, 1 by default.\n- merge: row, column, rowspan, colspan; unmerge: row, column.\nPositions are those of openl_get_table: row 0 is the header, column 0 the labels. A line holds one value per column, or per row of a column: a scalar, an array of scalars, or null for an empty cell or one a merge covers; a value starting with '=' is an OpenL formula. The 'version' of the last read or edit is required: a table changed since is not written. The answer gives the current 'tableId', the new 'version', and 'compiles: false' with its 'errors' when the table no longer compiles.",
     schema: schemas.editTableSchema,
-    aliases: TABLE_ID_ALIAS,
+    // The names agents give the action and its column, in the tool and in each of its 'actions'
+    aliases: { ...TABLE_ID_ALIAS, op: "action", type: "action", col: "column" },
+    aliasedLists: ["actions"],
+    argumentHints: {
+      find: "An edit names its cells by position: read the rows holding a value with openl_get_table find, then edit them.",
+    },
     annotations: { destructiveHint: true, openWorldHint: true },
     compiled: true,
     handler: async (args, client): Promise<ToolResponse> => {
