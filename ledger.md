@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- No PR is open: #2393 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- Everything up to `origin/main` 38bdb7c561 is swept, Java included. A run is: sweep the delta since that SHA, then
+- #2465 (`dead-code/sweep-nov`) is open: maintain it first; add new change types to it as separate commits.
+- Everything up to `origin/main` 08c1a014b5 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
@@ -25,11 +25,12 @@
 | 11 | TypeScript exports, types, components, imports | done; dead imports in #2184, #2284, #2348, #2393 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
-| 14 | Documentation of settings and classes the code no longer has | done; 6 in #2212; re-run per new release note |
+| 14 | Documentation of settings and classes the code no longer has | done; 6 in #2212, 1 in #2465; re-run per delta |
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2465 `dead-code/sweep-nov`, head 795b3aba6b, opened 2026-11-01, CI pending.
+  - 795b3aba6b (type 14) Drop the merge Docs note on the removed MergeConflictProjectResolveStrategy (-2).
 
 ## Merged PRs
 
@@ -96,7 +97,8 @@
   fields in a binary .xls, YamlMapperFactoryTest transients, InterfaceTransformerTest.TestInterface. Error Prone
   reports BeanA.getAB every build; it stays.
 - Bundle conventions: ValidationMessages `openl.error.<status>.<code>.message` (Java passes `<code>.message` or the
-  `{full.key}`; unnumbered keys `openl.error.<code>.message` pass `<code>` alone), sql-errors
+  `{full.key}`; unnumbered keys `openl.error.<code>.message` pass `<code>` alone; a key with no `.message` is
+  `openl.error.<status>.` + the whole literal, so test that candidate too), sql-errors
   keyed by vendor error code, `openl-default.properties` keys composed as `repo-<id>.` and `$ref` indirection —
   the documented `repository.archive.*` and `repository.design.*` are that composition, not dead keys.
 - dependency:analyze FPs: a module declaring no `<dependencies>` still gets findings from its parent; the inherited
@@ -133,8 +135,8 @@
 - Build the whole repo once per run, detached in the FIRST minute, and mine read-only veins beside it:
   `LANG=C.UTF-8 mvn clean install -Dquick -DnoPerf -T2 -Dnpm.test.skip -Daether.syncContext.named.time=600`
   (vitest under the reactor's load times out `SimpleTraceTree` at 30 s). Never resume with `-rf`: the modules -T2
-  skipped before the failure stay unbuilt and later goals cannot resolve them. Unset
-  `gpg.format`/`commit.gpgsign` first. Before every push, list open `dead-code/*` PRs and re-fetch main.
+  skipped before the failure stay unbuilt and later goals cannot resolve them. Add
+  `-Dmaven.test.failure.ignore=true` (see Container facts: signing). Before every push, list open `dead-code/*` PRs and re-fetch main.
 - Index the whole tree once (regex `[A-Za-z_$][\w$]*` per file into a Counter, ~8 s) and answer every "is this name
   used" question from it; a name whose total count equals its count in its own file is unreferenced.
 - `-Dpmd.rulesets` on the CLI is IGNORED (default rules run): configure the plugin in the root pom.
@@ -221,19 +223,21 @@
 - No `gh` CLI: GitHub MCP tools only (create_pull_request then subscribe_pr_activity; pull_request_read,
   update_pull_request, add_issue_comment, actions_list list_workflow_jobs, actions_run_trigger rerun_failed_jobs
   with the workflow run id from a check's html_url).
-- Container presets `gpg.format=ssh` and `commit.gpgsign=true` globally (unset both) but no `GIT_AUTHOR_*`
-  variables; a plain `git config --global user.*` holds, and passing the identity inline as well costs nothing.
-- Error Prone IS enabled and its unused checks DO fire, so `mvn clean install` is a free Java detector: grep the
-  log for `[UnusedVariable|UnusedMethod|UnusedNestedClass|EffectivelyPrivate]` (now only BeanA.getAB) before paying for PMD; ignore `[NullAway]`.
+- Container presets `gpg.format=ssh` and `commit.gpgsign=true` globally; unsetting them is DENIED by the auto-mode
+  classifier. `git commit` still works (the allowedSignersFile error is harmless), but JGit tests fail with
+  `No signer for ssh signatures` (~80 in repository.git, studio-backend, ITEST): build with test failures ignored and
+  judge tests by PR CI. No `GIT_AUTHOR_*` preset: `git config --global user.*` holds; inline identity costs nothing.
+- Error Prone IS enabled and its unused checks DO fire, so `mvn clean install` is a free Java detector: grep the log for
+  `[Unused*|EffectivelyPrivate]` (only BeanA.getAB and TypedValues @Delegate) before paying for PMD; skip `[NullAway]`.
 - 4 cores, 15 GB RAM: `-T2` for the reactor, ~27 min with a warm `~/.m2`. `npx tsc` runs beside Maven, vitest not.
 - `.toDelete/` is gitignored: keep the PMD ruleset, scratch poms and detector scripts there. `~/.m2` and
   `STUDIO/studio-ui/node_modules` start COLD in a fresh container — check before budgeting.
 - Edit the ledger through `git worktree add` on `origin/dead-code/ledger`, never by switching the sweep branch.
-- A container restart mid-run resets `git config --global` (identity back to Claude, gpgsign back on) and kills
+- A container restart mid-run resets `git config --global` (identity back to Claude) and kills
   detached builds: re-set both and verify the author after every commit, not only the first.
 - The clone holds ~50 commits and a delta can far exceed that (one wave ran ~200): deepen until dates repeat.
-- `ITEST/itest.studio/mcp` McpTest.coversEveryTool fails on untouched main here (merge-conflict text answers
-  CRLF where LF is expected), skipping later ITEST studio suites; judge them by PR CI, not the local reactor.
+- ITEST studio suites are unreliable here (McpTest CRLF on untouched main; `UsersRestTest` hung 25 min): once the
+  reactor has compiled, kill Maven — Error Prone is done — and judge ITEST by PR CI.
 
 ## Exhausted veins
 
@@ -290,9 +294,7 @@
 
 ## Run log
 
-- 2026-10-18: delta was 15 commits (doc waves, guide sizes, postgres guard). Reactor green 25:09 cold; Error Prone,
-  tsc, Docs images and tokens, AGENTS/README names at zero; new veins `@ts-ignore`, `eslint-disable` closed. No commit.
-- 2026-10-24: delta was 104 commits (audit log, studio-mcp, project ids, My Settings to browser). Reactor 25:56 cold,
-  red only in ITEST McpTest (CRLF, pre-existing). i18n 2,057 keys, bundles, Docs, images, Error Prone at zero; found
-  1 orphaned openapi key and 1 dead React import, #2393 opened (-3).
+- 2026-10-24: delta 104 commits; 1 orphaned openapi key and 1 dead React import, #2393 opened (-3).
 - 2026-10-25: delta empty; #2393 green, unreviewed. Four new veins probed at zero, no build, no commit.
+- 2026-11-01: delta 205 commits (MCP tools, per-user date formats, table types out of tutorials). Error Prone,
+  tsc, i18n, bundles, defaults, Docs images and tokens at zero but 1 stale class in Docs: #2465 opened (-2).
