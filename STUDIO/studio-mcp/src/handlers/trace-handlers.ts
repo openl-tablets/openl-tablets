@@ -522,7 +522,7 @@ export function registerTraceHandlers(): void {
     name: "set_trace_breakpoints",
     title: "Read / Replace Breakpoints",
     description:
-      "Without 'breakpoints', read the active breakpoint keys and the available targets (rule tables, deduplicated by name; with an active session only tables reachable from the traced one). " +
+      "Without 'breakpoints', read the active breakpoint keys and the available targets, their names by kind ('name' filters them; rule tables, deduplicated by name; with an active session only tables reachable from the traced one). " +
       "With 'breakpoints', REPLACE the whole set (empty array clears all) and answer the set. Key forms: '<name>' stops at entry of every same-named table version; '<uri>' at that exact table " +
       "(uri from frames[].uri); '<uri>#R{r}C{c}' at a spreadsheet cell; '<uri>#rule' when ANY rule of that decision table fires; '<uri>#<ruleName>' when a specific rule fires " +
       "(rule names from openl_inspect_trace_frame ruleNames/decision). Append '@N' to any key to break only on the table's N-th execution (0-based) — e.g. '<uri>#R48C0@3'; without it a cell breakpoint hits every pass of a table that runs many times (one per coverage/iteration). N matches frames[].instance and the 'instance' of an openl_watch_trace_cells series, so a watch outlier at instance 3 is reached with '@3'. " +
@@ -544,7 +544,14 @@ export function registerTraceHandlers(): void {
         client.getTraceBreakpointTables(args.projectId),
       ]);
 
-      return formatResult({ breakpoints, targets });
+      // A project of hundreds of tables repeats the kind on each: the names are listed under their kind
+      const wanted = args.name?.toLowerCase();
+      const named = wanted === undefined ? targets : targets.filter((target) => target.name.toLowerCase().includes(wanted));
+      const byKind = Map.groupBy(named, (target) => target.kind);
+      return formatResult({
+        breakpoints,
+        targets: Object.fromEntries(byKind.entries().map(([kind, tables]) => [kind, tables.map((table) => table.name)])),
+      });
     },
   });
 

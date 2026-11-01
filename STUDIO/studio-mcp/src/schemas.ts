@@ -657,6 +657,7 @@ export const inspectTraceFrameSchema = z.strictObject({
 export const setTraceBreakpointsSchema = z.strictObject({
   projectId: projectIdSchema,
   breakpoints: z.array(z.string()).optional().describe("The breakpoints to replace the whole set with; an empty array clears it. Leave out to read the set."),
+  name: nonBlankString.optional().describe("Without breakpoints, list only the targets whose name contains this, case-insensitive."),
 });
 
 export const getTraceValueSchema = z.strictObject({
