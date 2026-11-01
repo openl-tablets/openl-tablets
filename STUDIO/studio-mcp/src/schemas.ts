@@ -12,8 +12,7 @@ import {
 
 /** What the compile state of `include: status` does not say: an idle project is not compiled yet. */
 const STATUS_INCLUDE_NOTE =
-  "'status' adds compileState: 'idle' means Studio has not compiled the project yet, not that it compiles; " +
-  "openl_project_status compiles it and reports its errors.";
+  "'status' adds compileState: 'idle' means not compiled yet, not that it compiles; openl_project_status compiles it.";
 
 
 // Pagination parameters, spread last into the arguments of a paged tool
@@ -26,12 +25,13 @@ const paginationShape = {
 // that lists them, and every agent loads their schemas in every session
 export const projectIdSchema = z.string().min(1, "Project ID must not be empty.");
 
-const repositoryNameSchema = z.string().describe("The 'id' or 'name' of a repository, as openl_list_repositories answers them; never a made-up one.");
+const repositoryNameSchema = z.string().describe("A repository id or name from openl_list_repositories.");
 
 /** A string with more than whitespace in it, trimmed. */
 const nonBlankString = z.string().trim().min(1);
 
-const tableIdSchema = z.string().describe("The table's id, or its name when no other table has it.");
+// A table is taken by its name too, which openl_list_tables answers, and a name of several tables is refused with their ids
+const tableIdSchema = z.string();
 
 /** The most characters of a commit comment Studio keeps: a database repository stores it in a column of 255. */
 const MAX_COMMIT_COMMENT_LENGTH = 255;
@@ -52,88 +52,87 @@ export const listRepositoriesSchema = z.strictObject({
 });
 
 export const listDeploymentsSchema = z.strictObject({
-  repository: z.string().optional().describe("The id of a production repository to filter deployments by."),
-  project: z.string().optional().describe("The exact name of a deployed project to filter deployments by; it adds the revisions and authors of its deployments."),
+  repository: z.string().optional().describe("A production repository id."),
+  project: z.string().optional().describe("The exact name of a deployed project; adds the revisions and authors of its deployments."),
   ...paginationShape,
 });
 
 export const listProjectsSchema = z.strictObject({
   repository: repositoryNameSchema.optional(),
-  status: z.enum(PROJECT_STATUSES).optional().describe("Filter by project status."),
-  dependsOn: z.string().optional().describe("The projectId of a project: return the projects that depend on it."),
-  name: z.string().optional().describe("Project name filter (partial, case-insensitive)."),
-  author: z.string().optional().describe("Last-modifying author filter (partial, case-insensitive)."),
-  branch: z.string().optional().describe("Branch filter (partial, case-insensitive)."),
-  sort: z.enum(["name", "status", "updated"]).optional().describe("Field used to sort the returned page; 'updated' adds the last change of each project."),
-  include: z.array(z.enum([...PROJECT_INCLUDES, "details"])).optional().describe(`Optional response expansions and listing behavior from the Studio API; 'details' adds the last change of each project, as sort: 'updated' does. ${STATUS_INCLUDE_NOTE}`),
-  tags: z.record(z.string(), z.string()).optional().describe("Filter by project tags. Tags must be prefixed with 'tags.' in the query string (e.g., tags.version='1.0', tags.environment='production'). This is handled automatically by the API client - provide as object with tag names as keys."),
+  status: z.enum(PROJECT_STATUSES).optional(),
+  dependsOn: z.string().optional().describe("A projectId: list the projects depending on it."),
+  name: z.string().optional().describe("Part of the name, in any case."),
+  author: z.string().optional().describe("Part of the last author's name, in any case."),
+  branch: z.string().optional().describe("Part of the branch name, in any case."),
+  sort: z.enum(["name", "status", "updated"]).optional().describe("'updated' adds the last change of each project."),
+  include: z.array(z.enum([...PROJECT_INCLUDES, "details"])).optional().describe(`'details' adds the last change of each project. ${STATUS_INCLUDE_NOTE}`),
+  tags: z.record(z.string(), z.string()).optional().describe("Tag values by tag name, such as {version: '1.0'}."),
   ...paginationShape,
 });
 
 export const getProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  include: z.array(z.enum(["status", "descriptor", "details"])).optional().describe(`What to add: the compile status (status), the rules.xml descriptor (descriptor), or the path, tags, last comment and the projects using it in full (details). ${STATUS_INCLUDE_NOTE}`),
+  include: z.array(z.enum(["status", "descriptor", "details"])).optional().describe(`'descriptor' adds rules.xml; 'details' the path, tags, last comment and the projects using it in full. ${STATUS_INCLUDE_NOTE}`),
 });
 
 export const projectStatusSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: z.string().optional().describe(
-    "Optional target branch: the tool puts the project on this branch before reading its state, switching an opened project and opening a closed one. Omit for repositories that do not support branches and for repository 'local'."
+    "Put the project on this branch first, opening a closed one. Omit for a repository without branches."
   ),
   timeoutMs: z.number().int().positive().max(600000).default(30000).describe(
-    "Max time in milliseconds to wait for Studio to compile the project. On expiry, the status is returned as compiling (no error). Default 30000 (30 seconds). Cap 600000 (10 minutes)."
+    "How long to wait for the compilation; on expiry the state is answered as compiling, with no error."
   ),
   severity: z.array(z.enum(["ERROR", "WARN", "INFO"])).optional().describe(
-    "Filter compilation.messages.items to only these severities. Useful when the project has many warnings and you want to isolate errors: pass severity: ['ERROR']. Default: all severities. Note: items are always sorted ERROR → WARN → INFO before any filter or truncation is applied, so errors are visible without this filter."
+    "Only these severities; messages come errors first anyway."
   ),
   limit: z.number().int().positive().max(1000).optional().describe(
-    "Cap the number of items returned in compilation.messages.items. The list is sorted ERROR → WARN → INFO first so the most actionable items are preserved when capped. Pair with severity to bound very large diagnostic lists. Default: no cap; an answer over the size limit keeps the first messages, errors first, and tells how many it holds."
+    "Most messages to answer, errors first. Without it, an answer too large keeps the first messages and says how many."
   ),
   grouped: z.boolean().default(true).describe(
-    "false lists every message of a table instead of its first with the count of the others in 'more'."
+    "false lists every message of a table instead of its first with '(+N more)'."
   ),
   changes: z.boolean().optional().describe(
-    "Also name in pendingChanges the tables each changed workbook holds otherwise than the saved revision, comparing the workbooks one by one: seconds each."
+    "Also name the tables each changed workbook holds otherwise than the saved revision, taking seconds a workbook."
   ),
 });
 
 export const openProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: z.string().optional().describe("Open the project on this branch."),
-  revision: z.string().optional().describe("Open project at a specific Git revision/commit hash for read-only viewing"),
-  openDependencies: z.boolean().optional().describe("Also open dependency projects (backend default false)."),
+  revision: z.string().optional().describe("A Git revision to open, read-only."),
+  openDependencies: z.boolean().optional().describe("Also open the projects it depends on."),
 });
 
 export const closeProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  saveChanges: z.boolean().optional().describe("If true, save changes before closing. If false or omitted and project has unsaved changes, will error unless discardChanges is true."),
-  comment: commitCommentSchema.optional().describe("Commit comment of at most 255 characters for saveChanges, ignored by a repository without comments. Omit it for the comment the repository configures for a save, such as 'Project X is saved.'"),
-  discardChanges: z.boolean().optional().describe("If true, close without saving: the unsaved changes are lost. Ask the user first."),
+  saveChanges: z.boolean().optional().describe("Save the changes before closing."),
+  comment: commitCommentSchema.optional().describe("Commit comment for saveChanges, ignored by a repository without comments; omit for the one the repository configures."),
+  discardChanges: z.boolean().optional().describe("Close without saving, losing every unsaved change: ask the user first."),
 });
 
 export const listTablesSchema = z.strictObject({
   projectId: projectIdSchema,
   kind: z.union([z.enum(TABLE_KINDS), z.array(z.enum(TABLE_KINDS))]).optional()
-    .transform((kind) => (typeof kind === "string" ? [kind] : kind))
-    .describe("Filter by a table kind or a list of them. Omit to show all kinds."),
-  name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
-  text: nonBlankString.optional().describe("Text any cell of a table contains, case-insensitive: a value, a key, a message, a formula. The way to find where a value is used, which file search cannot, as it never reads a workbook cell."),
-  header: nonBlankString.optional().describe("Text the header line of a table contains: its keyword, return type, name and arguments, such as a datatype the rules take."),
-  module: nonBlankString.optional().describe("The module whose tables to list, as openl_list_project_modules names it."),
-  scope: z.enum(TABLE_SCOPES).optional().describe("How wide the search reaches: 'module' (the module named), 'project' (every module) or 'all' (the projects this one depends on as well); the module when one is named, else the project."),
-  sort: z.enum(TABLE_SORTS).optional().describe("'name' (default) or 'position': workbook by workbook, sheet by sheet, top to bottom."),
+    .transform((kind) => (typeof kind === "string" ? [kind] : kind)),
+  name: z.string().optional().describe("A part of the table name."),
+  text: nonBlankString.optional().describe("Text any cell of the table contains, case-insensitive: a value, a key, a message, a formula."),
+  header: nonBlankString.optional().describe("Text of the header line: keyword, return type, name or arguments, such as a datatype the rules take."),
+  module: nonBlankString.optional().describe("A module as openl_list_project_modules names it."),
+  scope: z.enum(TABLE_SCOPES).optional().describe("'all' adds the projects this one depends on; by default the module when one is named, else the project."),
+  sort: z.enum(TABLE_SORTS).optional().describe("'position': workbook by workbook, sheet by sheet, top to bottom."),
   propertyFilter: z.record(z.string(), z.string(), { error: "propertyFilter keeps the tables with these property values, such as { state: 'CA' }." })
-    .optional().describe("The tables with these property values, such as { state: 'CA', lob: 'Auto' }."),
+    .optional().describe("Property values the tables have, such as { state: 'CA' }."),
   ...paginationShape,
 });
 
 export const getTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  find: nonBlankString.optional().describe("Read only the rows with a cell whose text contains this, case-insensitive, such as a key or a value, with the header rows; 'rows' then keys each row by its position in the table, which the edit tools take. A number is found by its digits, '900' finding 900."),
-  offset: z.number().int().min(0).optional().describe("Zero-based index of the first row to read; omit to start at the top. Combine with limit to read a large table in slices: the next slice starts at window.next_offset."),
-  limit: z.number().int().min(1).optional().describe("Maximum number of rows, counted from offset; omit to read a table of up to 100 rows whole, or the first 50 rows of a larger one. A slice holds exactly these rows: a merged cell that its edge cuts keeps its value in the first row of the slice, and merges names its whole area."),
-  styles: z.boolean().optional().describe("If true, 'styles' lists the Excel style of each styled cell (background/font colour, bold/italic/underline, alignment, indent, borders)."),
+  find: nonBlankString.optional().describe("Read only the rows with a cell containing this text, case-insensitive, and the header rows, 'rows' keyed by position. '900' finds the number 900."),
+  offset: z.number().int().min(0).optional().describe("The first row to read, from 0; the next slice starts at window.next_offset."),
+  limit: z.number().int().min(1).optional().describe("How many rows to read from offset; omit to read up to 100 rows whole, or the first 50 of a larger table. A merged cell the slice cuts keeps its value in its first row there, and merges names its whole area."),
+  styles: z.boolean().optional().describe("Add 'styles', the Excel style of each styled cell: colours, font, alignment, indent, borders."),
 }).refine((args) => args.find === undefined || (args.offset === undefined && args.limit === undefined), {
   error: "find searches the whole table: it takes no offset or limit.",
   path: ["find"],
@@ -141,8 +140,7 @@ export const getTableSchema = z.strictObject({
 
 /** The version of a table a write is based on, as openl_get_table or the previous edit answered it. */
 const tableVersionSchema = nonBlankString.describe(
-  "The 'version' the last read or edit of the table answered. A table changed since, in Excel or by another client, " +
-  "is not written: read it again and repeat the edit.",
+  "The 'version' the last read or edit of the table answered.",
 );
 
 const tableActionBase = {
@@ -162,24 +160,24 @@ function isJsonInput(text: string): boolean {
 
 export const runTableSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.describe("A table that is not a test table, which the test tools run."),
+  tableId: tableIdSchema,
   inputJson: z.union([
     z.string().refine(isJsonInput, { error: "inputJson as a string must be a JSON object or array" }),
     z.array(z.unknown()),
     z.record(z.string(), z.unknown()),
-  ]).describe("Method input as JSON, or the same as a JSON string: an object keyed by method parameter name; { params, runtimeContext? } with params keyed by name or listed in order; or an array of the argument values in order. For a method whose only parameter is an array, a top-level array is that parameter's value. The value is sent to Studio unchanged."),
-  module: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
-  withSchema: z.boolean().optional().describe("Also answer the JSON Schema of each parameter: its fields and the values each vocabulary allows."),
-  timeoutMs: z.number().int().positive().max(600000).default(120000).describe("Maximum time for the complete Studio start-and-result workflow, in milliseconds. Default 120000 (2 minutes), maximum 600000 (10 minutes). A timeout cancels the pending Studio run."),
+  ]).describe("Also as a JSON string: an object keyed by parameter name; { params, runtimeContext? } with params by name or in order; or an array of the arguments in order. A method whose only parameter is an array takes a top-level array as its value."),
+  module: nonBlankString.optional().describe("The module whose runtime context to use; usually omitted."),
+  withSchema: z.boolean().optional().describe("Also answer the JSON Schema of each parameter."),
+  timeoutMs: z.number().int().positive().max(600000).default(120000).describe("How long to wait for the result; a timeout cancels the run."),
 });
 
 export const getTableDependenciesSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.optional().describe("Optional table whose dependency neighborhood to return. Omit to return the whole project (or module) graph."),
-  module: nonBlankString.optional().describe("When tableId is omitted, limit the project graph to this module. Discover names with openl_list_project_modules()."),
-  layer: z.enum(["executable", "datatype", "all"]).optional().describe("When tableId is omitted, return executable tables, datatype/vocabulary nodes, or both (backend default all)."),
-  direction: z.enum(["DEPENDENCIES", "DEPENDENTS", "BOTH"]).optional().describe("When tableId is provided, relations to traverse. Default BOTH: the tables it calls and the tables calling it."),
-  depth: z.number().int().min(1).optional().describe("When tableId is provided, maximum traversal depth from that table; 1 by default."),
+  tableId: tableIdSchema.optional().describe("The table whose neighborhood to read; omit for the whole graph."),
+  module: nonBlankString.optional().describe("Without tableId, the module to limit the graph to."),
+  layer: z.enum(["executable", "datatype", "all"]).optional().describe("Without tableId: executable tables, datatypes and vocabularies, or all of them."),
+  direction: z.enum(["DEPENDENCIES", "DEPENDENTS", "BOTH"]).optional().describe("With tableId: DEPENDENCIES it calls, DEPENDENTS calling it, BOTH by default."),
+  depth: z.number().int().min(1).optional().describe("With tableId, how many calls away to go; 1 by default, the direct ones."),
 }).superRefine((value, ctx) => {
   if (value.tableId) {
     if (value.module) {
@@ -205,22 +203,27 @@ export const projectOnlySchema = z.strictObject({
  */
 export const projectModuleSchema = z.strictObject({
   projectId: projectIdSchema,
-  module: nonBlankString.describe("Module name exactly as returned by openl_list_project_modules()."),
+  module: nonBlankString.describe("As openl_list_project_modules names it."),
 });
 
 export const listTablePropertyDefinitionsSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableType: z.enum(TABLE_KINDS).optional().describe("A table kind, for the properties allowed on it; omit for those allowed in a Properties table."),
+  tableType: z.enum(TABLE_KINDS).optional().describe("Omit for the properties of a Properties table."),
 });
+
+/** Where a table copied or created goes when it is not in a module of the project yet, and its sheet. */
+const newModuleParams = {
+  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("The project-relative .xlsx path of a new module."),
+  sheetName: z.string().optional().describe("The sheet; the table name by default."),
+};
 
 export const copyTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  module: nonBlankString.describe("Name of the destination module. It must already exist unless modulePath is supplied."),
-  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new destination module. Omit when module already exists."),
-  name: nonBlankString.describe("Name for the copied table."),
-  sheetName: z.string().optional().describe("Destination worksheet name. Defaults to the copied table's name."),
-  properties: z.record(nonBlankString, z.string()).optional().describe("The properties of the copy, such as { state: 'CA' }, replacing all of the source's: name every one the copy keeps. Omit to keep the source's."),
+  module: nonBlankString.describe("The destination module, an existing one unless modulePath is given."),
+  ...newModuleParams,
+  name: nonBlankString.describe("The name of the copy."),
+  properties: z.record(nonBlankString, z.string()).optional().describe("Replace all of the source's properties: name every one the copy keeps. Omit to keep them."),
 });
 
 const scalarCellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
@@ -244,11 +247,11 @@ const positionSchema = z.number().int().min(0);
 
 /** The cells of a whole table, as openl_get_table answers them: its rows, its merged cells and its Excel formulas. */
 const tableGridShape = {
-  rows: z.array(z.array(cellValueSchema)).describe("Every row of the table, top to bottom, one value per column: a scalar, a one-dimensional array of scalars, or null for an empty cell or one a merged cell covers. A text starting with '=' is an OpenL formula."),
+  rows: z.array(z.array(cellValueSchema)).describe("Every row, top to bottom. A text starting with '=' is an OpenL formula."),
   merges: z.array(z.tuple([positionSchema, positionSchema, z.number().int().min(1), z.number().int().min(1)]))
-    .optional().describe("The merged cells, each as [row, column, rowspan, colspan] from 0; the value of a merged cell is at its first row and column."),
+    .optional().describe("A merged cell holds its value at its first row and column."),
   formulas: z.array(z.tuple([positionSchema, positionSchema, z.string().startsWith("=")]))
-    .optional().describe("The Excel formulas, each as [row, column, '=B2*C2']: the cell is written as the formula, whatever its value in rows."),
+    .optional().describe("Written as the Excel formula, whatever the value in rows."),
 };
 
 // =============================================================================
@@ -364,15 +367,15 @@ const describedEditShape = {
   action: editShape.action.describe("The edit to make."),
   position: editShape.position.describe("The row or column the action starts at."),
   count: editShape.count.describe("How many rows or columns to delete; 1 by default."),
-  row: editShape.row.describe("The row of the cell, or of the top-left cell of a range."),
-  column: editShape.column.describe("The column of the cell, or of the top-left cell of a range."),
+  row: editShape.row.describe("The row of the cell, or of the top-left cell."),
+  column: editShape.column.describe("The column of the cell, or of the top-left cell."),
   rowspan: editShape.rowspan.describe("How many rows the merged cell spans."),
   colspan: editShape.colspan.describe("How many columns the merged cell spans."),
   cells: editShape.cells.describe(
-    "Lines of values, as the rows of openl_get_table hold them: rows top to bottom for a row action and a range, columns left to right for a column action.",
+    "Lines of values as openl_get_table rows hold them: rows for a row action and a range, columns for a column action; null for an empty or merge-covered cell.",
   ),
-  value: editShape.value.describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
-  formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2'. The cell is written as this Excel formula; send it without 'value', which Studio refuses beside it. An OpenL formula is a 'value' starting with '='."),
+  value: editShape.value.describe("null clears the cell. A text starting with '=' is an OpenL formula."),
+  formula: editShape.formula.describe("An Excel formula such as '=B2*C2', without 'value'; an OpenL formula is a 'value' starting with '='."),
 };
 
 /** One edit of a table: an action and the arguments it takes. */
@@ -384,7 +387,7 @@ export const editTableSchema = z.strictObject({
   ...tableActionBase,
   ...describedEditShape,
   action: describedEditShape.action.optional(),
-  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an object of an 'action' and the arguments above, made in order as one write. Give either 'actions' or one 'action' with its arguments."),
+  actions: z.array(editSchema).min(1).optional().describe("Several edits, each an 'action' with its arguments, instead of one 'action'."),
 }).superRefine((data, ctx) => {
   if (data.actions === undefined) {
     if (data.action === undefined) {
@@ -411,22 +414,22 @@ export const listBranchesSchema = z.strictObject({
 export const createBranchSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: z.string(),
-  revision: z.string().optional().describe("Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used."),
+  revision: z.string().optional().describe("A revision, tag or branch to branch from; HEAD when omitted."),
 });
 
 export const listProjectBranchesSchema = z.strictObject({
   projectId: projectIdSchema,
   scope: z.enum(BRANCH_SCOPES).default("project").describe(
-    "Branches to list: 'project' (default) returns branches that already hold the project and can be switched to; 'repository' returns every repository branch, including merge targets that do not hold the project yet.",
+    "'project': the branches holding the project, to switch to or delete; 'repository': every branch, such as a merge target without the project.",
   ),
-  name: z.string().optional().describe("Branch name filter (partial, case-insensitive)."),
+  name: z.string().optional().describe("Part of the branch name, case-insensitive."),
   ...paginationShape,
 });
 
 const mergeRequestFields = {
   projectId: projectIdSchema,
-  otherBranch: nonBlankString.describe("The other branch: source for receive mode, target for send mode. Discover all merge targets with openl_list_project_branches(scope='repository')."),
-  mode: z.enum(MERGE_MODES).describe("receive merges the other branch into the project's current branch; send merges the current branch into otherBranch."),
+  otherBranch: nonBlankString.describe("The source branch with receive, the target with send; openl_list_project_branches scope 'repository' lists them."),
+  mode: z.enum(MERGE_MODES).describe("receive merges otherBranch into the project's current branch; send merges the current branch into otherBranch."),
 };
 
 export const checkProjectMergeSchema = z.strictObject({
@@ -435,15 +438,18 @@ export const checkProjectMergeSchema = z.strictObject({
 
 export const mergeProjectBranchesSchema = z.strictObject({
   ...mergeRequestFields,
-  force: z.boolean().optional().describe("Bypass eligible protected-target restrictions, once the user approves it. Default false. Use only after Studio reports blockedBy='bypass-required'."),
+  force: z.boolean().optional().describe("Bypass a protected target, only after blockedBy 'bypass-required' and once the user approves it."),
 });
+
+/** A conflicted file, as the conflict tools take it. */
+const conflictPathSchema = nonBlankString.describe("A conflicted file as openl_get_merge_conflicts lists it, or its path in the project.");
 
 export const readMergeConflictSchema = z.strictObject({
   projectId: projectIdSchema,
-  path: nonBlankString.describe("Conflicted file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-  table: nonBlankString.optional().describe("Of a workbook, the id of one conflicting table its overview lists, to read the rows of its conflict."),
-  fromConflict: z.number().int().min(0).optional().describe("Of a text file, the conflict to start at, with the merged lines before it, to read the rest of a file an answer cut."),
-  side: z.enum(["BASE", "OURS", "THEIRS"]).optional().describe("One whole version to read instead: the common ancestor, the current branch or the merging branch."),
+  path: conflictPathSchema,
+  table: nonBlankString.optional().describe("The id of a conflicting table the workbook overview lists, to read its rows."),
+  fromConflict: z.number().int().min(0).optional().describe("The conflict of a text file to read on from, when an answer was cut."),
+  side: z.enum(["BASE", "OURS", "THEIRS"]).optional().describe("One whole version: the common ancestor, the current branch or the other branch."),
 }).refine((args) => [args.table, args.fromConflict, args.side].filter((given) => given !== undefined).length <= 1, {
   error: "table reads a workbook, fromConflict a text file, side one whole version: give one of them.",
   path: ["side"],
@@ -451,10 +457,10 @@ export const readMergeConflictSchema = z.strictObject({
 
 const textDecisionSchema = z.union([
   z.strictObject({
-    side: z.enum(["ours", "theirs", "base", "ours-theirs", "theirs-ours"]).describe("The lines the conflict takes: of your, their or the base version, or of both versions whole, yours first (ours-theirs) or theirs first (theirs-ours)."),
+    side: z.enum(["ours", "theirs", "base", "ours-theirs", "theirs-ours"]).describe("The lines the conflict takes: yours, theirs, the base, or both, yours first (ours-theirs) or theirs first."),
   }),
   z.strictObject({
-    lines: z.string().describe("The lines written in place of the conflict, separated by \\n; a line break after the last line is optional, and '' leaves no line. They are written with the line breaks of the file."),
+    lines: z.string().describe("Lines written in place of the conflict, separated by \\n, with the line breaks of the file; '' leaves none."),
   }),
 ]);
 
@@ -464,21 +470,21 @@ const cellIndexSchema = z.number().int().min(0);
 const workbookDecisionSchema = z.union([
   z.strictObject({
     id: nonBlankString.describe("A table id, a sheet name (taking the whole sheet), or '/palette'."),
-    side: z.enum(["ours", "theirs", "base"]).describe("The version the conflict is taken from whole, with the cells only the other branch changed lost; a table that says byCells: true keeps them with cells. The palette takes ours or theirs only."),
+    side: z.enum(["ours", "theirs", "base"]).describe("The version the conflict takes whole, losing the cells only the other branch changed, which cells keeps for a byCells table. The palette takes ours or theirs."),
   }),
   z.strictObject({
     id: nonBlankString.describe("The id of a table whose overview says byCells: true."),
     cells: z.strictObject({
-      side: cellSideSchema.optional().describe("The version every conflicting cell of the table takes, unless the cell is decided otherwise."),
+      side: cellSideSchema.optional().describe("The version every conflicting cell takes unless decided singly."),
       cells: z.array(z.strictObject({
         row: cellIndexSchema.describe("Row of the merged table, from 0."),
         column: cellIndexSchema.describe("Column of the merged table, from 0."),
-        side: cellSideSchema.optional().describe("The version a conflicting cell takes its value and its comment from."),
-        value: z.string().optional().describe("A value typed for any cell, read as Excel reads typing: '=' starts a formula, TRUE/FALSE are booleans, numbers use a dot, dates are 2026-10-22 or 2026-10-22 14:30, an apostrophe keeps text, '' clears the cell. It keeps the formatting of the merged cell."),
+        side: cellSideSchema.optional().describe("The version the cell takes its value and comment from."),
+        value: z.string().optional().describe("A value typed as in Excel: '=' starts a formula, TRUE/FALSE are booleans, numbers use a dot, dates are 2026-10-22 or 2026-10-22 14:30, an apostrophe keeps text, '' clears the cell; the formatting stays."),
       }).refine((cell) => cell.side !== undefined || cell.value !== undefined, {
         error: "A cell decision gives a side, a value, or both.",
-      })).optional().describe("Decisions for single cells; a cell decision overrides the one of the table."),
-    }).describe("How the table is merged cell by cell: the cells only one branch changed are merged by Studio, and every conflicting cell needs a side or a value."),
+      })).optional().describe("Single cells, overriding the side of the table."),
+    }).describe("The cell-by-cell merge: Studio merges the cells one branch changed, and every conflicting cell needs a side or a value."),
   }),
 ]);
 
@@ -486,34 +492,34 @@ export const resolveMergeConflictsSchema = z.strictObject({
   projectId: projectIdSchema,
   resolutions: z.array(z.union([
     z.strictObject({
-      path: nonBlankString.describe("Conflicted file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-      strategy: z.enum(["BASE", "OURS", "THEIRS"]).describe("Take the whole file from the base version, your version (the current branch) or their version; a version fileAvailability marks false, which does not hold the file, deletes it."),
+      path: conflictPathSchema,
+      strategy: z.enum(["BASE", "OURS", "THEIRS"]).describe("Take the whole file from the base, your (current branch) or their version; a version fileAvailability marks false deletes the file."),
     }),
     z.strictObject({
-      path: nonBlankString.describe("Conflicted Excel file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-      decisions: z.array(workbookDecisionSchema).min(1).describe("How each conflict of the workbook from openl_read_merge_conflict is resolved; every conflict needs a decision, and a sheet taken whole needs none for its tables."),
+      path: conflictPathSchema,
+      decisions: z.array(workbookDecisionSchema).min(1).describe("One decision per conflict openl_read_merge_conflict lists; a sheet taken whole covers its tables."),
     }),
     z.strictObject({
-      path: nonBlankString.describe("Conflicted text file path as openl_get_merge_conflicts() lists it, or its path within the project."),
-      conflicts: z.array(textDecisionSchema).describe("How each conflict of the text file from openl_read_merge_conflict is resolved: one decision per conflict, in their order; the lines the merge took by itself are kept."),
+      path: conflictPathSchema,
+      conflicts: z.array(textDecisionSchema).describe("One decision per conflict of openl_read_merge_conflict, in their order; the merged lines stay."),
     }),
-  ])).min(1).describe("One resolution for every conflicted file of the pending conflict."),
-  message: z.string().optional().describe("Commit message; Studio builds one from the conflict when omitted."),
+  ])).min(1).describe("One per conflicted file."),
+  message: z.string().optional().describe("Commit message; Studio builds one when omitted."),
 });
 
 export const deleteProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  confirmProjectName: nonBlankString.describe("Required safety confirmation: exact project name returned by openl_get_project(). The delete is rejected if it does not match."),
-  comment: commitCommentSchema.optional().describe("Optional deletion commit message of at most 255 characters, validated by the repository's comment template when configured."),
+  confirmProjectName: nonBlankString.describe("The exact current name of the project, from openl_get_project, to confirm the deletion."),
+  comment: commitCommentSchema.optional().describe("Deletion commit message, checked against the comment template of the repository."),
 });
 
 export const deleteProjectBranchSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: nonBlankString.describe("Exact branch name from openl_list_project_branches(). The repository base branch cannot be deleted."),
+  branch: nonBlankString.describe("The exact name from openl_list_project_branches."),
   confirmDataLoss: z.boolean().optional().describe(
-    "Explicitly allow deletion after the tool reports that the branch has commits absent from the base branch, has unsaved working-copy changes, or its divergence from base cannot be verified (for example, the base is unknown, the merge check fails or checks different branches, or the target is not current). Omit for the initial safe-delete attempt.",
+    "Accept the data loss a first attempt reported, once the user approves it.",
   ),
-  force: z.boolean().optional().describe("Bypass protected-branch restrictions for eligible managers, once the user approves it. Default false."),
+  force: z.boolean().optional().describe("Delete a protected branch, as an eligible manager, once the user approves it."),
 });
 
 // =============================================================================
@@ -523,24 +529,24 @@ export const deleteProjectBranchSchema = z.strictObject({
 export const createProjectSchema = z.strictObject({
   repository: repositoryNameSchema,
   name: z.string().describe(
-    "Name for the new project. Becomes the project folder name and — when cloning — the renamed project name written into rules.xml. Must be unique in the repository; a collision is rejected with 409. Allowed characters: letters, digits, space, '_' and '-'."
+    "The folder name of the project, and the new name in rules.xml of a copy; unique in the repository. Letters, digits, space, '_' and '-'."
   ),
   template: projectIdSchema.optional().describe(
-    "How to create the project. OMIT to create a BLANK project from the \"Empty Project\" template OpenL Studio ships. To CLONE an existing project, pass its exact opaque projectId from openl_list_projects() without modification: its full structure is copied (rules, tests, settings, request/response examples) and the project is renamed to name. Never pass the displayed project name because mapped repositories may contain multiple projects with the same name."
+    "The exact projectId from openl_list_projects of the project to copy, rules, tests and settings, never its displayed name. Omit for a blank project from Studio's \"Empty Project\" template."
   ),
   branch: z.string().optional().describe(
-    "Target branch for either BLANK creation or CLONING. Omit for the repository's configured/default branch. Studio selects an existing branch case-insensitively; when the branch does not exist, Studio may create it from the repository base branch. Use openl_list_branches() first to avoid accidental branch creation."
+    "Omit for the default branch of the repository. Studio takes an existing branch in any case and creates a missing one: check openl_list_branches first."
   ),
   comment: commitCommentSchema.optional().describe(
-    "Change comment of at most 255 characters for repositories that support comments. Applied to both BLANK creation and CLONING; Studio supplies its configured create/copy comment when omitted. Omit for repositories whose features.comments is false."
+    "Commit comment; omit for the one the repository configures, and for a repository whose features.comments is false."
   ),
 });
 
 export const deployProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   deploymentName: z.string().optional().describe("The name of a new deployment."),
-  repository: z.string().optional().describe("The 'id' or 'name' of the production repository of a new deployment, as openl_list_deploy_repositories and openl_list_deployments answer them."),
-  deploymentId: z.string().optional().describe("The 'id' of a deployment to deploy the project to again, from openl_list_deployments."),
+  repository: z.string().optional().describe("The production repository of a new deployment, by an id or name from openl_list_deploy_repositories."),
+  deploymentId: z.string().optional().describe("A deployment from openl_list_deployments to deploy to again."),
   comment: z.string().optional(),
 }).superRefine((data, ctx) => {
   const created = data.deploymentName !== undefined || data.repository !== undefined;
@@ -559,8 +565,8 @@ export const deployProjectSchema = z.strictObject({
 
 export const saveProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  comment: nonBlankString.max(MAX_COMMIT_COMMENT_LENGTH, commitCommentTooLong).optional().describe("Commit comment of at most 255 characters, ignored by a repository without comments. Omit it for the comment the repository configures for a save, such as 'Project X is saved.' Save only works when project status is EDITING; after save a new revision is created and project transitions to OPENED."),
-  closeAfterSave: z.boolean().optional().describe("Optional. If true, close the project after saving (sends status CLOSED with the comment when supported in one request). Use when user asks to 'save and close'."),
+  comment: nonBlankString.max(MAX_COMMIT_COMMENT_LENGTH, commitCommentTooLong).optional().describe("Commit comment, ignored by a repository without comments; omit for the one the repository configures."),
+  closeAfterSave: z.boolean().optional().describe("Close the project after saving; one without unsaved changes is closed as it is."),
 });
 
 // A table is read and written in one shape: its rows of values, and its merged cells and Excel formulas by position.
@@ -572,10 +578,9 @@ export const updateTableSchema = z.strictObject({
 
 export const createProjectTableSchema = z.strictObject({
   projectId: projectIdSchema,
-  module: nonBlankString.describe("Name of an existing project module where the table will be created (for example, 'Main' or 'Rules')."),
-  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new module. When omitted, module must identify an existing module."),
-  sheetName: z.string().optional().describe("Name of the sheet where the table will be created within the Excel file. If not provided, the table name will be used as the sheet name."),
-  name: nonBlankString.describe("The name of the table, a valid Java identifier such as 'calculatePremium', as its header row names it."),
+  module: nonBlankString.describe("The module to create the table in, a new one with modulePath."),
+  ...newModuleParams,
+  name: nonBlankString.describe("The table name, a Java identifier, as its header row names it."),
   ...tableGridShape,
 });
 
@@ -587,77 +592,80 @@ export const createProjectTableSchema = z.strictObject({
  * Shaping the answer of a profiling run, which completes in a start, a step or a resume: the constant-size `profile`,
  * and the root of the call tree only when asked.
  */
+/** The input of a traced run, of a start and of a watch alike. */
+const traceInputParams = {
+  testRanges: z.string().optional().describe("Test-case ranges of a test table, such as '1-3,5'; a replay does not remember them."),
+  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("The input of a rule, keyed by parameter name, or { params, runtimeContext? }. Without inputJson and testRanges the input of the previous run is replayed."),
+  module: z.string().optional().describe("The module whose context to run in; usually omit."),
+};
+
 const traceProfileParams = {
-  includeTree: z.boolean().optional().describe("Add 'tree', the root of the executed call tree of a profiling run, one level deep, which openl_expand_trace_tree walks."),
-  profileTop: z.number().int().min(1).max(500).optional().describe("How many of the slowest tables 'profile' lists; 20 by default."),
+  includeTree: z.boolean().optional().describe("Add the call-tree root line of a profiling run, whose uri and instance openl_expand_trace_tree takes."),
+  profileTop: z.number().int().min(1).max(500).optional().describe("How many slowest tables 'profile' lists, 20 by default."),
 };
 
 export const startTraceSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember: pass them again. Omit for regular rule execution."),
-  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }, e.g. { params: { age: 25 }, runtimeContext: { lob: 'Auto' } }. Omit BOTH inputJson and testRanges to replay the input of the previous run, e.g. restarting with profiling or new breakpoints."),
-  module: z.string().optional().describe("Module name to trace in the context of a specific opened module. Usually omit."),
-  stopAtEntry: z.boolean().optional().describe("Suspend at the entry of the first frame (default true). Set false to run straight to the first breakpoint — or, with no breakpoints, to completion."),
-  profiling: z.boolean().optional().describe("Retain the executed call tree — structure and timings, NO values (default false). With stopAtEntry: false and no breakpoints the run completes in this single call and returns a constant-size 'profile' overview (top-N slowest tables); the tree's root node comes with includeTree: true and is browsed level by level with openl_expand_trace_tree."),
-  detailedTitles: z.boolean().optional().describe("Build value-rich business-view titles in the retained tree (backend default false). This can substantially increase response size."),
-  breakOnErrors: z.boolean().optional().describe("Suspend on an uncaught rule error so its frame can be inspected (backend default true). Set false to let the error terminate the run."),
-  breakpoints: z.array(z.string()).optional().describe("Breakpoints to set before the start, replacing the set, with the keys openl_set_trace_breakpoints describes."),
+  ...traceInputParams,
+  stopAtEntry: z.boolean().optional().describe("Suspend at the entry of the table, true by default; false runs to the first breakpoint, or with none to the end."),
+  profiling: z.boolean().optional().describe("Retain the call tree, its timings without values, for 'profile' and openl_expand_trace_tree."),
+  detailedTitles: z.boolean().optional().describe("Put values in the titles of the call tree; this can make the answers much larger."),
+  breakOnErrors: z.boolean().optional().describe("Suspend at an uncaught rule error, true by default; false lets the error end the run."),
+  breakpoints: z.array(z.string()).optional().describe("Breakpoint keys, as openl_set_trace_breakpoints takes them, to replace the set with first; left out, the set stays."),
   ...traceProfileParams,
 });
 
 export const stepTraceSchema = z.strictObject({
   projectId: projectIdSchema,
-  type: z.enum(["into", "over", "out"]).describe("'out' (main tool for declarative rules — decision tables, spreadsheets, rating): run the current frame to its own exit so its result is inspectable, then continue in the caller. 'into' / 'over' are ADVANCED (imperative TBasic / loops): 'into' enters the next call or sub-step; 'over' advances to the next sub-step of the current frame (nested calls run through). For 'which table returned what', prefer 'out' plus breakpoints over stepping through expressions."),
-  withValues: z.boolean().optional().describe("After the step, also return the active frame's variables (the same content as openl_inspect_trace_frame on the top frame) as 'variables' — saves the usual step→inspect round-trip when you step 'out' to read a frame's result. Default false."),
+  type: z.enum(["into", "over", "out"]).describe("'out' runs the current frame to its exit, the main step for decision tables and spreadsheets; 'into' enters the next call and 'over' runs to the next step of the frame, both for TBasic and loops."),
+  withValues: z.boolean().optional().describe("Also answer the values of the current frame as openl_inspect_trace_frame reads them: a step out and its result in one call."),
   ...traceProfileParams,
 });
 
 export const resumeTraceSchema = z.strictObject({
   projectId: projectIdSchema,
-  attach: z.boolean().optional().describe("Wait for the next stop of a run an earlier call left running at its timeout, without resuming the session again: a resume would run past a stop the run reached since."),
-  timeoutMs: z.number().int().positive().max(600000).optional().describe("Maximum time to wait for the next suspension or completion, in milliseconds. Default 30000, cap 600000. On timeout the current (still running) status is returned — call openl_resume_trace again to keep waiting, or openl_stop_trace to give up."),
+  attach: z.boolean().optional().describe("Keep waiting for a run an earlier call left running at its timeout, without resuming again, which would run past a stop reached since."),
+  timeoutMs: z.number().int().positive().max(600000).optional().describe("How long to wait for the next stop; 30000 by default."),
   ...traceProfileParams,
 });
 
 export const inspectTraceFrameSchema = z.strictObject({
   projectId: projectIdSchema,
-  frameIndex: z.number().int().nonnegative().describe("Stack frame index from the frames[] of the last stack response (0 = root, highest = current)."),
-  withHighlights: z.boolean().optional().describe("Also return the frame's cell-highlight overlay (A1-keyed) plus the raw table grid to merge it with (default false)."),
-  full: z.boolean().optional().describe("Return the complete untrimmed response, including value JSON schemas but the one of the runtime context (default false — trimmed via ?fields to save tokens)."),
-  onlyExecutedSteps: z.boolean().optional().describe("Keep only executed steps (drop pending/current-without-value) so the response is just the computed factors (default false)."),
-  excludeStepValues: z.array(z.union([z.number(), z.string(), z.boolean()])).optional().describe("Drop executed steps whose scalar value equals one of these — to hide neutral factors and surface the outlier (e.g. [1] in rating, where a factor of 1.0 means 'no effect'). Lazy step values are resolved before the comparison, so a neutral factor that came lazy is dropped too. Do not use for tables where those values are meaningful."),
+  frameIndex: z.number().int().nonnegative().describe("The '#N' of a frame of the last stack: 0 is the root, the highest the current frame."),
+  withHighlights: z.boolean().optional().describe("Also answer the cell highlights of the frame, keyed by A1 address, and the table grid to lay them on."),
+  full: z.boolean().optional().describe("Answer untrimmed: the JSON schemas of the values and every rule name."),
+  onlyExecutedSteps: z.boolean().optional().describe("Keep only the steps that computed a value."),
+  excludeStepValues: z.array(z.union([z.number(), z.string(), z.boolean()])).optional().describe("Drop the executed steps whose value equals one of these, lazy values resolved first, to hide neutral factors, such as [1] in rating. Not for a table where these values matter."),
 });
 
 export const setTraceBreakpointsSchema = z.strictObject({
   projectId: projectIdSchema,
-  breakpoints: z.array(z.string()).optional().describe("The breakpoints to replace the whole set with; an empty array clears it. Leave out to read the set."),
-  name: nonBlankString.optional().describe("Without breakpoints, list only the targets whose name contains this, case-insensitive."),
+  breakpoints: z.array(z.string()).optional().describe("The keys to replace the whole set with; [] clears it. Leave out to read the set."),
+  name: nonBlankString.optional().describe("Without breakpoints, list only the targets whose name contains this, ignoring case."),
 });
 
 export const getTraceValueSchema = z.strictObject({
   projectId: projectIdSchema,
-  parameterId: z.number().int().nonnegative().describe("The parameterId of a lazy value (lazy: true) of openl_inspect_trace_frame, openl_step_trace with withValues, or openl_watch_trace_cells."),
-  withSchema: z.boolean().optional().describe("Also return the value's JSON Schema (default false — the schema is large and rarely needed; the value itself already shows the structure)."),
+  parameterId: z.number().int().nonnegative().describe("The parameterId of a lazy value of openl_inspect_trace_frame, openl_step_trace withValues or openl_watch_trace_cells."),
+  withSchema: z.boolean().optional().describe("Also answer the JSON Schema of the value, which is large: ask it only when the type structure matters."),
 });
 
 export const expandTraceTreeSchema = z.strictObject({
   projectId: projectIdSchema,
-  uri: nonBlankString.describe("Source URI of the node whose step to expand: the uri of the call-tree root a profiling openl_start_trace / openl_resume_trace with includeTree: true answers, or a child node's `uri` from an earlier openl_expand_trace_tree page."),
-  instance: z.number().int().nonnegative().describe("Zero-based execution index of that node in the run (its `instance`; 0 for the root) — picks the exact loop iteration when the table ran more than once."),
-  step: nonBlankString.describe("Reference of the step within that node to expand, e.g. 'R1C0' — a step whose `childrenTotal` > 0 (a step with childrenTotal 0 or absent made no sub-calls)."),
-  offset: z.number().int().nonnegative().optional().describe("Index of the first sub-call to return, for paging a loop's thousands of children (default 0). When the response's total exceeds offset + returned children, call again with offset advanced by the returned count (the reply's nextOffset)."),
-  limit: z.number().int().min(1).max(200).optional().describe("How many sub-calls to return per page (backend default 100). Keep it modest — a page of many wide nodes can still be large."),
+  uri: nonBlankString.describe("The uri of the node: the call-tree root of a stack, or a child of an earlier answer."),
+  instance: z.number().int().nonnegative().describe("The instance of that node, the execution of its table from 0."),
+  step: nonBlankString.describe("The ref of the step of that node to expand, such as 'R1C0', one whose childrenTotal is above 0."),
+  offset: z.number().int().nonnegative().optional().describe("The first sub-call to answer: the nextOffset of the previous page."),
+  limit: z.number().int().min(1).max(200).optional().describe("Sub-calls per page, 100 by default; a page of wide nodes can still be large."),
 });
 
 export const watchTraceCellsSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  cells: z.array(z.string()).min(1).describe("Cell names to watch, e.g. ['$VehiclePriceFactor']. The value of each named cell is captured at EVERY execution of its table across the whole run — one series per cell."),
-  testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember."),
-  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }. Omit BOTH inputJson and testRanges to replay the input of the previous run."),
-  module: z.string().optional().describe("Module name to run in the context of a specific opened module. Usually omit."),
-  withSchema: z.boolean().optional().describe("Include each watched value's JSON Schema (default false — the schema is large and rarely needed; a value that came lazy still carries its parameterId for openl_get_trace_value)."),
+  cells: z.array(z.string()).min(1).describe("The names of the cells to watch, such as ['$VehiclePriceFactor']."),
+  ...traceInputParams,
+  withSchema: z.boolean().optional().describe("Also answer the JSON Schema of each value, which is large."),
 });
 
 // =============================================================================
@@ -666,9 +674,9 @@ export const watchTraceCellsSchema = z.strictObject({
 
 export const getProjectRevisionsSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: z.string().optional().describe("The branch whose history to read, as openl_list_project_branches names it; omit for the branch the project is on. A branch that does not hold the project has no revisions."),
-  search: z.string().optional().describe("Search term to filter revisions by commit message or author"),
-  techRevs: z.boolean().default(false).describe("Include technical revisions (default: false)"),
+  branch: z.string().optional().describe("As openl_list_project_branches names it; omit for the branch the project is on. A branch without the project has no revisions."),
+  search: z.string().optional().describe("Matched against the commit comment and the author."),
+  techRevs: z.boolean().default(false).describe("Also list technical revisions."),
   ...paginationShape,
 });
 
@@ -678,8 +686,8 @@ export const getProjectRevisionsSchema = z.strictObject({
 
 export const listProjectLocalChangesSchema = z.strictObject({
   projectId: projectIdSchema,
-  module: nonBlankString.optional().describe("The module whose history to list, as openl_list_project_modules names it; omit for every module."),
-  historyId: nonBlankString.optional().describe("A version of the history of the module: answer instead the tables a restore to it would change, those the version holds otherwise than the current one."),
+  module: nonBlankString.optional().describe("As openl_list_project_modules names it; omit for every module."),
+  historyId: nonBlankString.optional().describe("A version of the module: answer instead the tables a restore to it would change."),
 }).refine((args) => args.historyId === undefined || args.module !== undefined, {
   error: "historyId is a version of the history of one module: name the module.",
   path: ["historyId"],
@@ -687,8 +695,8 @@ export const listProjectLocalChangesSchema = z.strictObject({
 
 export const restoreProjectLocalChangeSchema = z.strictObject({
   projectId: projectIdSchema,
-  module: nonBlankString.describe("Module name used with openl_list_project_local_changes()."),
-  historyId: nonBlankString.describe("Local history entry ID to restore, from openl_list_project_local_changes()."),
+  module: nonBlankString.describe("As openl_list_project_local_changes names it."),
+  historyId: nonBlankString.describe("The version to restore, from openl_list_project_local_changes."),
 });
 
 // =============================================================================
@@ -697,8 +705,8 @@ export const restoreProjectLocalChangeSchema = z.strictObject({
 
 export const runProjectTestsSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
-  testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
+  tableId: tableIdSchema.optional().describe("A table whose tests to run, or a test table."),
+  testRanges: z.string().optional().describe("Tests of the test table tableId, such as '1-3,5'."),
   module: z.string().optional().describe("Module name to run tests from."),
 });
 
@@ -722,9 +730,9 @@ function checkTestResultOptions(data: {
 export const getTestResultsSchema = z.strictObject({
   projectId: projectIdSchema,
   summary: z.boolean().default(false).describe("Read only the time of the run and how many tests passed and failed."),
-  tableId: tableIdSchema.optional().describe("The test table to read, page by page of its tests; omit to read every test table, page by page."),
-  caseId: nonBlankString.optional().describe("The id of one test of tableId, to read it with its inputs as JSON, whole up to 12,500 characters and cut in their structure beyond, the cuts named: the other reads name an input with inner structure only by its type and key."),
-  failuresOnly: z.boolean().default(true).describe("List only the failed tests, true by default; false lists every test."),
+  tableId: tableIdSchema.optional().describe("The test table whose tests to read, every failed one; omit for every test table."),
+  caseId: nonBlankString.optional().describe("A test of tableId, to read with its inputs as JSON, whole up to 12,500 characters."),
+  failuresOnly: z.boolean().default(true).describe("Only the failed tests; without tableId at most 5 of each test table, the rest counted."),
   offset: z.number().int().nonnegative().optional().describe("The test table to start from, or with tableId the test, as pagination.next_offset names it."),
   limit: z.number().int().positive().max(200).optional().describe("How many test tables a page holds, or with tableId how many tests, 50 by default."),
 }).superRefine(checkTestResultOptions);
@@ -744,7 +752,7 @@ const filePathSchema = z
   .string()
   .min(1)
   .describe(
-    "The path in the project, such as 'rules/Model.xlsx', without the folder of the project; a folder ends with '/'."
+    "Path relative to the project folder, e.g. 'rules/Model.xlsx'; a folder ends with '/'."
   );
 
 const fileBranchSchema = z.string().optional().describe("Fails unless the project is on this branch.");
@@ -755,19 +763,18 @@ export const readProjectFileSchema = z.strictObject({
     .string()
     .default("")
     .describe(
-      "Project-relative path of a file (e.g. 'rules.xml', 'rules/Model.xlsx'), or of a folder ('rules/', or empty for the project root), which is answered as a ZIP archive by link. List a folder with openl_search_project_files."
+      "Path relative to the project folder; a folder ends with '/' ('' for the root)."
     ),
   revision: z
     .string()
     .optional()
-    .describe("A commit to read the file at, as openl_repository_project_revisions lists it; omit for the working copy. Not the 'version' a write or a deletion takes, which the answer then leaves out."),
+    .describe("A commit from openl_repository_project_revisions to read the file at, not the working copy; the answer then has no 'version'."),
   branch: fileBranchSchema,
 });
 
 /** The version of a file a write replaces or a deletion removes, as openl_read_project_file answered it. */
 const fileVersionText =
-  "The 'version' openl_read_project_file answered for the file. A file changed since, in an IDE, in Excel or through " +
-  "another client, is left as it is: read it again and repeat the change.";
+  "The file's 'version' from openl_read_project_file or the last write.";
 
 const writeProjectFileBaseSchema = z.strictObject({
   projectId: projectIdSchema,
@@ -775,21 +782,21 @@ const writeProjectFileBaseSchema = z.strictObject({
   createFolders: z
     .boolean()
     .default(true)
-    .describe("If true (default), missing intermediate folders of a new file are created automatically; otherwise the parent folder must already exist."),
+    .describe("Create the missing folders of a new file."),
   version: nonBlankString
     .optional()
-    .describe(`Required to replace a file that exists. ${fileVersionText} Omit it to create a new file: Studio writes nothing when a file is already at the path.`),
+    .describe(`${fileVersionText} Required to replace a file; without it the write creates a new file and writes nothing over one.`),
   branch: fileBranchSchema,
 });
 
 export const writeProjectFileSchema = writeProjectFileBaseSchema.extend({
   content: z
     .string()
-    .describe("UTF-8 text content of the file."),
+    .describe("The whole text of the file."),
   message: z
     .string()
     .optional()
-    .describe("Optional commit message. PRESENT → the write is committed to Git after saving the project (a new revision is created). ABSENT → the write stays in the project WORKING COPY (commit it later with openl_save_project). NOTE: committing saves ALL pending project changes (OpenL has no per-file commit), and only works for design (Git) repositories — not 'local'."),
+    .describe("Commits the write with every pending change of the project; without it the write stays in the working copy."),
 });
 
 export const createUploadLinkSchema = writeProjectFileBaseSchema.extend({
@@ -798,12 +805,12 @@ export const createUploadLinkSchema = writeProjectFileBaseSchema.extend({
     .int()
     .nonnegative()
     .optional()
-    .describe("Size in bytes the uploaded file must have; where Studio authenticates its clients, it refuses a body of another size and writes nothing."),
+    .describe("Bytes the uploaded file must have; another size is refused."),
   sha256: z
     .string()
     .regex(/^[0-9a-fA-F]{64}$/, "sha256 is the hex SHA-256 of the file, 64 characters.")
     .optional()
-    .describe("Hex SHA-256 the uploaded file must have, e.g. from `sha256sum`; where Studio authenticates its clients, it refuses other content and writes nothing."),
+    .describe("Hex SHA-256 the uploaded file must have, from `sha256sum`; other content is refused."),
 });
 
 export const deleteProjectFileSchema = z.strictObject({
@@ -811,7 +818,7 @@ export const deleteProjectFileSchema = z.strictObject({
   path: filePathSchema,
   version: nonBlankString
     .optional()
-    .describe(`Required to delete a file. ${fileVersionText} A folder is deleted without it.`),
+    .describe(`${fileVersionText} Required for a file, not for a folder.`),
   branch: fileBranchSchema,
 });
 
@@ -820,40 +827,40 @@ export const searchProjectFilesSchema = z.strictObject({
   pattern: z
     .string()
     .optional()
-    .describe("Ant-glob path pattern, such as 'rules/**/*.xlsx' or '**/*.xml'; a pattern of a name, such as '*.xlsx', matches at any depth with recursive."),
+    .describe("Ant-glob path pattern, e.g. 'rules/**/*.xlsx'; a name pattern such as '*.xlsx' matches at any depth with recursive."),
   content: z
     .string()
     .optional()
-    .describe("Case-insensitive substring of a file read as text: the text of a workbook cell or of a compressed ZIP entry is never found, and a file over 1 MB is never read, so find workbooks, ZIP files, images and large files by pattern or extensions, and the tables a text is in with openl_list_tables text. The answer counts the workbooks the search covers in notSearched."),
+    .describe("Case-insensitive text; workbook cells, compressed ZIP entries and files over 1 MB are never searched: find those by pattern or extensions."),
   extensions: z
     .array(z.string())
     .optional()
-    .describe("File extensions without the dot, such as ['xlsx','xml']."),
+    .describe("Without the dot, e.g. ['xlsx','xml']."),
   type: z
     .enum(["FILE", "FOLDER", "ANY"])
     .optional()
-    .describe("Restrict results to files, folders, or both (ANY, default)."),
+    .describe("ANY by default."),
   scope: z
     .enum(["SUBTREE", "ANCESTORS"])
     .optional()
-    .describe("SUBTREE (default) searches within the project; ANCESTORS walks up from 'from' to the repository root, finding at each level the text file, such as a .md, .json or .yaml file up to 1 MB, whose exact name 'pattern' gives, not a glob, whatever content, extensions and type say; it answers its content up to 5,000 bytes and contentOmitted beyond."),
+    .describe("SUBTREE (default) searches the project; ANCESTORS walks up from 'from' to the repository root and answers at each level the text file up to 1 MB named exactly 'pattern' (no glob), its content up to 5,000 bytes or contentOmitted."),
   recursive: z
     .boolean()
     .optional()
-    .describe("Search the nested folders too; false searches the top level only, even with a '**' pattern. True by default with content, false otherwise."),
+    .describe("Search nested folders too; false keeps to the top level even with '**'. True by default with content, else false."),
   from: z
     .string()
     .optional()
-    .describe("A project-relative folder: SUBTREE lists its entries, everything under it with recursive; ANCESTORS walks up from it."),
+    .describe("A folder to search in (its entries, or all under it with recursive), or to walk up from with ANCESTORS."),
   revision: z
     .string()
     .optional()
-    .describe("A commit to search the files at, SUBTREE scope only; omit for the working copy."),
+    .describe("A commit to search at instead of the working copy; SUBTREE only."),
   branch: fileBranchSchema,
   fields: z
     .string()
     .optional()
-    .describe("Comma-separated fields of a match, such as 'path,name,type'; path, type, size and lastModified by default, every field of an ANCESTORS match."),
+    .describe("Comma-separated match fields, e.g. 'path,name,type'; an ANCESTORS match has every field."),
   ...paginationShape,
 });
 
@@ -866,13 +873,13 @@ export const getProjectAgentContextSchema = z.strictObject({
     .max(1024)
     .optional()
     .describe(
-      "A folder of the project, such as 'rules/pricing', for the guidance of a file inside it; the project root when omitted."
+      "A folder of the project, such as 'rules/pricing', for the guidance of the files in it."
     ),
   sections: z
     .array(nonBlankString)
     .min(1)
     .optional()
-    .describe("The headings of the sections to read, as the contents of the guidance names them, case-insensitive; a section comes with its subsections."),
+    .describe("Section headings, case-insensitive; a section comes with its subsections."),
   branch: fileBranchSchema,
 });
 
@@ -886,7 +893,7 @@ export const getServerInfoSchema = z.strictObject({
     .boolean()
     .optional()
     .describe(
-      "Add the build number, the start and the current time, and the operating system, architecture, Java, CPUs and their load, threads, and the memory of the machine and of the JVM OpenL Studio runs on. Default false: the version and the address only."
+      "Add the build number, the start and current time, the system, architecture, Java, CPUs and their load, threads, and the memory of the machine and the JVM."
     ),
 });
 
@@ -899,14 +906,14 @@ export const listGuidesSchema = z.strictObject({
     .enum(GUIDE_TYPES)
     .optional()
     .describe(
-      "Filter by document type: 'specification' (config-file and project-layout specs, e.g. rules.xml) or 'guide' (OpenL Tablets Reference Guide chapters). Omit for both."
+      "The type its id starts with: 'spec/' or 'guide/'."
     ),
   search: z
     .string()
     .max(200)
     .optional()
     .describe(
-      "Case-insensitive substring matched against each entry's id and title (e.g. 'decision table', 'spreadsheet', 'rules.xml')."
+      "A case-insensitive part of the id or the title."
     ),
   ...paginationShape,
 });
@@ -917,20 +924,14 @@ export const getGuidesSchema = z.strictObject({
     .min(1)
     .max(5)
     .describe(
-      "1-5 guide ids exactly as returned by openl_list_guides (e.g. 'spec/rules.xml', 'guide/introduction/basic-concepts'). Each entry's size is in the index — fetch only what you need."
+      "Ids exactly as openl_list_guides answers them, such as 'spec/rules.xml'."
     ),
 });
 
 const copyMovePairSchema = {
   projectId: projectIdSchema,
-  sourcePath: z
-    .string()
-    .min(1)
-    .describe("Project-relative path of the source file (e.g. 'rules/Model.xlsx')."),
-  destinationPath: z
-    .string()
-    .min(1)
-    .describe("Project-relative destination path (e.g. 'rules/Model-copy.xlsx'). Intermediate folders are created automatically."),
+  sourcePath: filePathSchema.describe("The path of the file in the project."),
+  destinationPath: filePathSchema.describe("The new path in the project."),
   branch: fileBranchSchema,
 };
 

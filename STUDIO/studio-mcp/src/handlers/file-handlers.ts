@@ -89,11 +89,7 @@ export function registerFileHandlers(): void {
     name: "read_project_file",
     title: "Read Project File",
     description:
-      "Read a file of a project by its project-relative path. " +
-      `A text file of up to ${INLINE_TEXT_BYTES} bytes — text/*, JSON, XML or YAML, as the Content-Type Studio answers says — comes inline, verbatim. ` +
-      "Any other file, a text with bytes its charset does not decode too, and a folder as a ZIP archive, comes as a download LINK: JSON with the url, a ready `curl` command that saves it, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
-      "Run the command in a shell, so the bytes never enter the conversation; where Studio authenticates, the link needs no credential and works until expiresAt. An agent that has the repository itself can read repositoryPath there. " +
-      "Read the TABLES of a workbook with openl_get_table. The answer tells the current 'version' of the file, beside the inline text or in the link JSON, which a replacement or a deletion of the file takes back.",
+      `Read a file of a project. A text file (text/*, JSON, XML, YAML) of up to ${INLINE_TEXT_BYTES} bytes comes inline, verbatim; any other file, and a folder as a ZIP archive, comes as a download link: JSON with the url, a ready curl command, the size and the repositoryPath. Run the command in a shell, so the bytes stay out of the conversation; the link needs no credential and works until expiresAt. Read workbook tables with openl_get_table. The answer holds the file's 'version', which a write or a deletion of it takes.`,
     schema: schemas.readProjectFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -128,7 +124,7 @@ export function registerFileHandlers(): void {
     name: "write_project_file",
     title: "Write Project File",
     description:
-      "Create or replace a TEXT file of a project from UTF-8 'content'; a workbook, an image or any binary or large file goes by openl_create_upload_link. Without 'version' it creates a new file, with its missing folders unless createFolders is false, and writes nothing over a file there; with the file's 'version' it replaces it, keeping the CRLF line ends of the file. 'message' commits the write with every pending change of the project. The change stays in the working copy of an opened project until openl_save_project; a closed project is committed at once, and a project edited in place written at once. Change the tables of a workbook with the table tools.",
+      "Create or replace a text file of a project; a workbook, an image or a binary or large file goes by openl_create_upload_link, and workbook tables change with the table tools. A replacement keeps CRLF line ends. The answer holds the new 'version' and whether the write was committed.",
     schema: schemas.writeProjectFileSchema,
     annotations: {
       openWorldHint: true,
@@ -169,7 +165,7 @@ export function registerFileHandlers(): void {
     name: "create_upload_link",
     title: "Create Upload Link",
     description:
-      "Get a link that uploads a file from disk into a project, a workbook, an image or any binary or large file, without its bytes passing through the conversation. Its target is as for openl_write_project_file: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; the 'size' and hex 'sha256' of the local file are checked before anything is written where Studio authenticates its clients. The answer holds the url, a ready curl command (curl 7.76 or newer) that sends the file named after the path from the current folder, to adjust, and where the file lands in its repository. Where Studio authenticates, the link needs no credential, works until expiresAt and writes once: a failed upload needs a new link. The change lands as a write of openl_write_project_file does.",
+      "Get a link that uploads a local file, such as a workbook, an image or any binary or large file, into a project without its bytes entering the conversation. The answer holds the url and a ready curl command (curl 7.76+) sending the file named after the path from the current folder, to adjust. The link needs no credential, works until expiresAt and writes once: a failed upload needs a new link.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
       destructiveHint: false,
@@ -196,7 +192,7 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or a folder of a project by its project-relative path; a file by the 'version' openl_read_project_file answered for it. Studio removes the references the project configuration holds to it. The change lands as a write of openl_write_project_file does. Destructive.",
+      "Delete a file or a folder of a project; Studio also removes the references the project configuration holds to it.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
@@ -220,7 +216,7 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search the files and folders of a project by an ant-glob 'pattern' ('rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content'. A content search looks in every folder, any other search in the top level unless recursive=true; search 'from' a folder with nothing else to list it. Content is read as text: the cells of a workbook are never searched, which openl_list_tables 'text' does. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
+      "Search the files and folders of a project by path pattern, extensions, type or text content; give only 'from' to list a folder. Each match carries its path, type, size and lastModified, more with fields.",
     schema: schemas.searchProjectFilesSchema,
     aliases: { query: "content" },
     annotations: {
@@ -275,7 +271,7 @@ export function registerFileHandlers(): void {
     name: "copy_project_file",
     title: "Copy Project File",
     description:
-      "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change lands as a write of openl_write_project_file does.",
+      "Copy a file of a project to a new path, creating missing folders.",
     schema: schemas.fileTransferSchema,
     // The names agents give the two paths
     aliases: { from: "sourcePath", to: "destinationPath" },
@@ -290,7 +286,7 @@ export function registerFileHandlers(): void {
     name: "move_project_file",
     title: "Move or Rename Project File",
     description:
-      "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change lands as a write of openl_write_project_file does.",
+      "Move or rename a file of a project, creating missing folders.",
     schema: schemas.fileTransferSchema,
     // The names agents give the two paths
     aliases: { from: "sourcePath", to: "destinationPath" },

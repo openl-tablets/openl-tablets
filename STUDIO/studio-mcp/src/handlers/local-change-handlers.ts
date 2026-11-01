@@ -15,7 +15,7 @@ export function registerLocalChangeHandlers(): void {
     name: "list_project_local_changes",
     title: "List Local Change History",
     description:
-      "List the local edit history of a module of a project, or of every module, as a table: each version by the historyId openl_restore_project_local_change takes, with the time it was kept, the current one marked, which a restore leaves as it is. With a historyId, answer instead the tables a restore of the module to that version would change: every edit of the module after it is undone with them. Repository 'local' is unsupported, as its projects have no edit history. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
+      "List the local edit history of a module, or of every module: each version by historyId, the time it was kept, the current one marked. openl_project_status tells the unsaved changes.",
     schema: schemas.listProjectLocalChangesSchema,
     annotations: {
       readOnlyHint: true,
@@ -51,7 +51,7 @@ export function registerLocalChangeHandlers(): void {
     name: "restore_project_local_change",
     title: "Restore Previous Local Version",
     description:
-      "Restore a project module to a version from its local edit history. Use the projectId and module from the corresponding openl_list_project_local_changes call, plus a historyId returned by it; the same call with the historyId tells first which tables the restore changes. The project must be opened first; repository 'local' is unsupported. The whole module takes that version, so every later edit of the module is undone too: the answer names in 'undone' every table the restore changed, and as 'undo' the historyId of the module as it was right before, which restores it back. To put back one value only: restore, read the value with openl_get_table, restore 'undo', and set the value with openl_edit_table on the table read again.",
+      "Restore a module to a version of its local history, previewed by openl_list_project_local_changes with the historyId. Every later edit of the module is undone too. The answer names the tables changed in 'undone', and in 'undo' the historyId that restores the module back. To bring back one value: restore, read it with openl_get_table, restore 'undo', then set it with openl_edit_table on the table read again.",
     schema: schemas.restoreProjectLocalChangeSchema,
     annotations: {
       destructiveHint: true,

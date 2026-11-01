@@ -12,7 +12,7 @@ import type * as Types from "../types.js";
 import type { Truncation } from "../formatters.js";
 import { formatListOf } from "../markdown-list.js";
 import { gridOf, rowIn, rowsAt, type Grid, type KeyedRows } from "../table-grid.js";
-import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
+import { downloadLink, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
 import { authorOf, headlineOf, isWorkbook } from "../utils.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
@@ -471,7 +471,7 @@ export function registerProjectMergeHandlers(): void {
     name: "list_project_branches",
     title: "List Project Branches",
     description:
-      "List branch metadata in the repository that hosts a project, including repository base and protected flags, the base branch first, then the protected ones, filtered by name and paged by limit and offset. scope='project' (default) returns branches that already hold the project and are candidates for switching or deletion. Inspect the flags before deletion: the base branch cannot be deleted, while a protected branch requires force and explicit confirmation. scope='repository' returns every repository branch, including branches that do not hold the project yet; use it to discover otherBranch values before openl_check_project_merge or openl_merge_project_branches. Unlike openl_list_branches, this tool is project-aware and returns safety metadata.",
+      "List the branches of the repository hosting a project with their base and protected flags, the base branch first, then the protected ones; unlike openl_list_branches, it is project-aware.",
     schema: schemas.listProjectBranchesSchema,
     annotations: {
       readOnlyHint: true,
@@ -500,7 +500,7 @@ export function registerProjectMergeHandlers(): void {
     name: "check_project_merge",
     title: "Check Project Merge",
     description:
-      "Check merge direction, branch relationship, permissions, and blockers without changing Git. This is not a conflict preview: status='mergeable' means the source has changes absent from the target, not that the merge is conflict-free; conflicts are discovered only by openl_merge_project_branches. status='up-to-date' means the target already contains the source. canMerge reports whether Studio permits the attempt after permission, protection, and lock checks. scope tells what the merge would bring in: every project the source changed, how many of its files, and the files both branches changed, which the merge combines or reports as conflicts. mode='receive' merges otherBranch into the project's current branch; mode='send' merges the current branch into otherBranch. Discover merge targets with openl_list_project_branches(scope='repository'), because a valid target may not hold the project yet.",
+      "Check a merge without changing Git. It is no conflict preview: 'mergeable' means the source has changes the target lacks, and only openl_merge_project_branches finds conflicts; 'up-to-date' means the target holds the source. canMerge tells whether Studio allows the attempt after permission, protection and lock checks, and scope what the merge brings in: every project the source changed, its file count, and the files both branches changed.",
     schema: schemas.checkProjectMergeSchema,
     annotations: {
       readOnlyHint: true,
@@ -517,7 +517,7 @@ export function registerProjectMergeHandlers(): void {
     name: "merge_project_branches",
     title: "Merge Project Branches",
     description:
-      "Merge project branches: mode='receive' merges otherBranch into the current branch, mode='send' the current branch into otherBranch. The tool first rechecks the branches: up to date answers without a write, and a permission or lock blocker fails before the merge; conflicts show only in the attempt, as status='conflicts'. Studio runs the merge in the background and the tool waits for it, up to 10 minutes. The merge brings in every project the source branch changed: summary of a success lists them with their files, and summary.before and summary.after are the revisions of the target branch before and after it. Conflicts stay pending for this client: present them to the user, who resolves them in Studio or decides how openl_resolve_merge_conflicts resolves them; cancel them when the user takes over. Never choose OURS or THEIRS automatically. force bypasses an eligible protected target, once the user approves it.",
+      "Merge one branch of a project into another, after checking it: an up-to-date target answers without a write, and a blocker fails first. It waits up to 10 minutes. Conflicts answer status 'conflicts' and stay pending for this client: present them to the user, who resolves them in Studio or decides how openl_resolve_merge_conflicts does; cancel them when the user takes over. Never choose OURS or THEIRS yourself. The summary of a success lists every project the source changed with its files, and the target revisions before and after.",
     schema: schemas.mergeProjectBranchesSchema,
     annotations: {
       destructiveHint: true,
@@ -566,7 +566,7 @@ export function registerProjectMergeHandlers(): void {
     name: "get_merge_conflicts",
     title: "Get Merge Conflicts",
     description:
-      "Get the pending merge conflicts Studio keeps for this client: grouped file paths, which versions hold each file and whether it is UTF-8 text (fileAvailability), BASE/OURS/THEIRS revision details, and the default merge commit message. Present them to the user, who decides how each file is resolved: in Studio, or through openl_resolve_merge_conflicts with the decisions the user made. Available only after openl_merge_project_branches returns status='conflicts'; use the same MCP server instance throughout inspection and resolution.",
+      "Get the pending merge conflicts of this client, after openl_merge_project_branches answered 'conflicts': the conflicted files in groups, fileAvailability (the versions holding each file, and whether it is UTF-8 text), the BASE, OURS and THEIRS revisions and the default commit message. Present them to the user, who decides how each file is resolved: in Studio, or through openl_resolve_merge_conflicts.",
     schema: schemas.projectOnlySchema,
     annotations: {
       readOnlyHint: true,
@@ -583,11 +583,7 @@ export function registerProjectMergeHandlers(): void {
     name: "read_merge_conflict",
     title: "Read Merge Conflict",
     description:
-      "Read a conflicted file of the pending merge, as openl_get_merge_conflicts lists it or by its path within the project, as evidence for the resolution the user decides; resolve with openl_resolve_merge_conflicts only as the user decides. " +
-      "An Excel file your, the base and their version all hold is read as Studio merges it table by table: without table, every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in, and what each holds. " +
-      "With table, that table in your, the base and their version and merged, each with its totalRows and, as openl_get_table reads rows found, its two header rows and the rows holding a changed or conflicting cell, keyed by their positions; a row past the first 200, which Studio sends, is named in rowsNotSent. The merged table's conflicting cells hold the base value until decided. " +
-      "A text file is read as Studio merges it line by line: the lines it took by itself (a run of more than 8 lines as its first and last 3) and each conflict, numbered from 0, with the lines of your, the base and their version; fromConflict reads on from a conflict an answer cut. " +
-      `side reads one whole version, BASE, OURS or THEIRS, instead: a text of up to ${INLINE_TEXT_BYTES} bytes inline, verbatim, a larger or a binary one as a download LINK with a ready curl command that saves it; a workbook both branches added, which has no base version, is resolved whole with a strategy.`,
+      "Read a conflicted file of the pending merge as evidence for the user's decision. A workbook all three versions hold: without table, the sheets a branch changed and the conflicting tables, a table with byCells: true with its conflictCells, each by its row and column in the merged table; with table, that table in your, the base and their version and merged, the header and the rows of changed cells only, keyed by position. A text file: the merged lines and each conflict, numbered from 0, with your, the base and their lines. side reads one whole version, a short text inline, else by a download link; a workbook both branches added has no base and takes a strategy.",
     schema: schemas.readMergeConflictSchema,
     annotations: {
       readOnlyHint: true,
@@ -614,7 +610,7 @@ export function registerProjectMergeHandlers(): void {
     name: "resolve_merge_conflicts",
     title: "Resolve Merge Conflicts",
     description:
-      "Resolve the pending merge conflicts as the user decided and complete the merge, or the save that found them, in one commit. Give one resolution per conflicted file of openl_get_merge_conflicts: a strategy takes the whole file from a version, conflicts resolve a text file and decisions a workbook as openl_read_merge_conflict reads them. Never choose a side or type lines or a value the user did not decide or approve. A refused decision leaves the conflict pending, so the call can be repeated.",
+      "Resolve the pending merge conflicts as the user decided and complete the merge, or the save that found them, in one commit: one resolution per conflicted file, by strategy (the whole file from a version), conflicts (a text file) or decisions (a workbook), as openl_read_merge_conflict reads them. Never choose a side, lines or a value the user did not decide. Example: {\"projectId\":\"…\",\"resolutions\":[{\"path\":\"rules/Rates.xlsx\",\"decisions\":[{\"id\":\"…\",\"side\":\"theirs\"}]}]}. A refused call leaves the conflicts pending.",
     schema: schemas.resolveMergeConflictsSchema,
     annotations: {
       destructiveHint: true,
@@ -644,7 +640,7 @@ export function registerProjectMergeHandlers(): void {
     name: "cancel_merge_conflicts",
     title: "Clear Pending Merge Conflicts",
     description:
-      "Abort the pending merge: clear its conflict state, discarding the stored conflict analysis, and stop a merge Studio still runs. Files and branches stay as they are; run the merge again to recreate the conflicts.",
+      "Abort the pending merge: discard its conflicts and stop a merge still running. Files and branches stay as they are; merging again recreates the conflicts.",
     schema: schemas.projectOnlySchema,
     annotations: {
       destructiveHint: true,
@@ -660,7 +656,7 @@ export function registerProjectMergeHandlers(): void {
     name: "delete_project",
     title: "Delete Project",
     description:
-      "Permanently delete a project through Studio. This may create a deletion commit in its design repository. Safety guard: confirmProjectName is required and must exactly match the project's current backend name; the handler reads the project immediately before deletion. An optional comment becomes the deletion commit message only when the repository supports comments. In a repository with branches it deletes the project on its current branch only, answered as deletedOnBranch: another branch that holds the project keeps it.",
+      "Permanently delete a project, with a deletion commit where the repository makes one. On a repository with branches it deletes the project on its current branch only, answered as deletedOnBranch: other branches keep it.",
     schema: schemas.deleteProjectSchema,
     annotations: {
       destructiveHint: true,
@@ -685,7 +681,7 @@ export function registerProjectMergeHandlers(): void {
     name: "delete_project_branch",
     title: "Delete Project Branch",
     description:
-      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true, once the user approves it, and eligible Studio permissions. It then performs a safe-delete preflight against the repository base branch when the project is on the target or on the base branch. A branch with commits absent from base, which the refusal lists, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
+      "Delete a branch of the repository hosting a project, once it is merged into the base branch; a refusal names the risk and the argument that accepts it, which needs the user's approval. Studio closes the project first when it is open on the branch.",
     schema: schemas.deleteProjectBranchSchema,
     annotations: {
       destructiveHint: true,

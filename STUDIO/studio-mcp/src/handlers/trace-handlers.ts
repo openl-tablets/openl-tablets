@@ -429,7 +429,7 @@ export function registerTraceHandlers(): void {
     compiled: true,
     title: "Start Debug Session",
     description:
-      "Start a debug session on a table and run to its first stop, by default the entry of the table; the answer is the stack: the status and the frames from the root to the current one. A test table takes testRanges ('2'), which a replay does not remember, a rule its inputJson; with neither, the input of the previous run is replayed. Go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame; 'breakpoints' replaces the set first. profiling: true with stopAtEntry: false and breakpoints: [] runs to the end in this call and answers 'profile', the slowest tables (pass the input again: a replay of a run that did not profile answers the whole stack); includeTree: true adds the root of the call tree, which openl_expand_trace_tree walks. A user has one session: a new start ends the previous one, and an idle one ends after about 10 minutes.",
+      "Start a debug session on a table and run to its first stop. Example: {\"projectId\":\"…\",\"tableId\":\"CalculatePremium\",\"inputJson\":{\"age\":25},\"stopAtEntry\":false,\"breakpoints\":[\"AgeFactor#rule\"]}. The answer is the stack: the status and a line per frame from the root, its '#N' the frameIndex the frame tools take and its '@N' the execution of the table a breakpoint takes. Go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame. profiling: true with stopAtEntry: false and breakpoints: [] runs to the end in this call and answers 'profile', the slowest tables; pass the input again for it, as a replay of a run that did not profile answers the stack.",
     schema: schemas.startTraceSchema,
     annotations: {
       destructiveHint: false,
@@ -455,7 +455,7 @@ export function registerTraceHandlers(): void {
     name: "step_trace",
     title: "Step (Into / Over / Out)",
     description:
-      "Step the suspended debug session once and answer the new stack, whose current frame alone lists its steps. For decision tables and spreadsheets the main step is type 'out', which runs the current frame to its exit so its result can be read, with breakpoints; 'into' and 'over' suit TBasic and loops. A finished frame first stops at its exit, completed: true, its result read with openl_inspect_trace_frame, or here with withValues: true; the next step goes on in the caller. An exception stops at the throwing frame. Valid only while suspended; openl_resume_trace runs to the next breakpoint or the end instead.",
+      "Step the suspended debug session once and answer the new stack, as openl_start_trace does. A finished frame stops first at its exit, marked completed, so its result can be read; the next step goes on in the caller. An exception stops at the throwing frame. openl_resume_trace runs to the next breakpoint or the end instead.",
     schema: schemas.stepTraceSchema,
     annotations: {
       destructiveHint: false,
@@ -484,7 +484,7 @@ export function registerTraceHandlers(): void {
     name: "resume_trace",
     title: "Resume to Next Stop",
     description:
-      "Resume the suspended debug session and wait in this call until it stops: at the next breakpoint, at an exception or at the end. The answer is the stack, whose current frame alone lists its steps; a terminal 'error' carries the 'error', and the end of a profiling run the 'profile' (includeTree: true adds the root of the call tree, which openl_expand_trace_tree walks). On timeout, 30 s by default, the running status is answered: call again with attach: true to keep waiting without resuming again, or openl_stop_trace to give up.",
+      "Resume the suspended debug session and wait in this call for the next stop: a breakpoint, an exception or the end. The answer is the stack, as openl_start_trace answers it, with the 'error' of a failed run and the 'profile' at the end of a profiling run. A timeout answers the running status and how to keep waiting.",
     schema: schemas.resumeTraceSchema,
     annotations: {
       destructiveHint: false,
@@ -542,11 +542,7 @@ export function registerTraceHandlers(): void {
     name: "inspect_trace_frame",
     title: "Inspect Stack Frame",
     description:
-      "Freeze and read the full state of one suspended stack frame: input parameters, runtime context, result (for a completed frame), sub-steps with computed values, and for a " +
-      "decision table the killer feature — 'decision' (which rule fired and how each condition evaluated per rule) plus 'ruleNames' (the rules, for per-rule breakpoints; a table of more than 50 rules answers 'ruleCount', and full: true lists them; a table naming none of its rules answers 'ruleCount', its rules being R1 to R<ruleCount>). " +
-      "Values may come lazy (lazy: true + parameterId) — expand with openl_get_trace_value. By default the response is trimmed (no value JSON schemas); full: true lifts the trim. " +
-      "To surface an anomaly among many neutral factors, filter the steps: onlyExecutedSteps drops not-yet-computed ones, and excludeStepValues drops steps whose value is a neutral constant (e.g. [1] in rating) — lazy step values are resolved before the comparison, so a neutral factor that came lazy is dropped too. " +
-      "withHighlights: true additionally returns the A1-keyed cell highlight overlay and the raw table grid to merge it with. Valid only while suspended (a terminal session answers 409 — read its final state from the last returned stack).",
+      "Read the state of one frame of the suspended debug session: parameters, runtime context, steps with their values, the result of a completed frame, and for a decision table 'decision', which rule fired and how each condition evaluated, and 'ruleNames', which per-rule breakpoints take. A table of more than 50 rules answers 'ruleCount' instead, unless full: true, and a table naming none of its rules answers 'ruleCount', its rules being R1 to R<ruleCount>. A large value comes lazy with a parameterId, which openl_get_trace_value reads.",
     schema: schemas.inspectTraceFrameSchema,
     annotations: {
       readOnlyHint: true,
@@ -597,10 +593,7 @@ export function registerTraceHandlers(): void {
     name: "set_trace_breakpoints",
     title: "Read / Replace Breakpoints",
     description:
-      "Without 'breakpoints', read the active breakpoint keys and the available targets, their names by kind ('name' filters them; rule tables, deduplicated by name; with an active session only tables reachable from the traced one). " +
-      "With 'breakpoints', REPLACE the whole set (empty array clears all) and answer the set. Key forms: '<name>' stops at the entry of every version of the table; '<name>#R{r}C{c}' at a spreadsheet cell; '<name>#rule' when ANY rule of that decision table fires; '<name>#<ruleName>' when a specific rule fires " +
-      "(rule names from openl_inspect_trace_frame ruleNames/decision, R1 to R<ruleCount> for a table naming none); a uri of the call tree or of a watch series in place of the name stops at that one version. Append '@N' to any key to break only on the table's N-th execution (0-based) — e.g. 'Premium#R48C0@3'; without it a cell breakpoint hits every pass of a table that runs many times (one per coverage/iteration). N is the '@N' of a frame, left out for 0, and the 'instance' of an openl_watch_trace_cells series, so a watch outlier at instance 3 is reached with '@3'. " +
-      "Works without a session — set breakpoints before openl_start_trace; changes during a session apply at the next frame enter or line change.",
+      "Read or replace the breakpoints, with or without a debug session; a change applies from the next frame entered. Example: {\"projectId\":\"…\",\"breakpoints\":[\"AgeFactor#rule\",\"Premium#R48C0@3\"]}. A read answers the set and the targets by kind. Keys: '<name>' stops at the entry of every version of the table, '<name>#R{r}C{c}' at a spreadsheet cell, '<name>#rule' when any rule fires, '<name>#<ruleName>' when that rule fires; a uri in place of the name stops at that one version; '@N' stops only at the N-th execution of the table, from 0, a frame's '@N'.",
     schema: schemas.setTraceBreakpointsSchema,
     annotations: {
       destructiveHint: false,
@@ -633,8 +626,7 @@ export function registerTraceHandlers(): void {
     name: "get_trace_value",
     title: "Expand Lazy Value",
     description:
-      "Fetch the full value of a lazy value (lazy: true with a parameterId) of openl_inspect_trace_frame, openl_step_trace with withValues or openl_watch_trace_cells. Valid while the debug session is alive. " +
-      "By default only name, description, and value are returned; withSchema: true adds the value's JSON Schema (large — request it only when the type structure itself matters).",
+      "Read the whole of a lazy trace value (lazy: true) while the debug session lives: its name, description and value.",
     schema: schemas.getTraceValueSchema,
     annotations: {
       readOnlyHint: true,
@@ -656,7 +648,7 @@ export function registerTraceHandlers(): void {
     name: "expand_trace_tree",
     title: "Expand Call-Tree Node",
     description:
-      "Load one level of the executed call tree of a profiling run. The call-tree root that openl_start_trace or openl_resume_trace answer with includeTree: true, its uri and instance on its line, and every node this tool answers, is one level deep: each step carries a 'childrenTotal' count instead of its children. Expand a step whose childrenTotal is above 0 by its node (uri and instance) and the 'ref' of the step; the answer { children, total } is one level deep again. offset/limit, 100 by default, page the many sub-calls of a loop: 'hasMore' and 'nextOffset' tell the next page. 'notRetained' counts the sub-calls dropped once the tree reached its size limit. To find what is slow, read the 'profile' instead. The tree lives as long as the debug session, also after the run completes.",
+      "Load one level of the call tree of a profiling run, which lives as long as the debug session: the sub-calls one step of a node made, each a node with its uri, instance and steps, and each step counting its own sub-calls in 'childrenTotal'. Start from the call-tree root line of a stack read with includeTree: true. The answer { children, total, hasMore, nextOffset } pages the sub-calls of a loop; 'notRetained' counts the sub-calls dropped at the size limit of the tree. To find what is slow, read the 'profile' instead.",
     schema: schemas.expandTraceTreeSchema,
     annotations: {
       readOnlyHint: true,
@@ -691,7 +683,7 @@ export function registerTraceHandlers(): void {
     name: "stop_trace",
     title: "Terminate Debug Session",
     description:
-      "Terminate the debug session and free its worker and lazy-value registry. Idempotent — succeeds even when no session is active. Breakpoints survive (they are session-scoped, not run-scoped).",
+      "End the debug session, which frees its lazy values; it succeeds without a session too. The breakpoints stay set.",
     schema: schemas.projectOnlySchema,
     annotations: {
       destructiveHint: false,
@@ -710,7 +702,7 @@ export function registerTraceHandlers(): void {
     compiled: true,
     title: "Watch Cells Across a Run",
     description:
-      "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. A series lists its first 100 points: one marked 'truncated' leaves later executions out, which its 'total' counts, and a 'note' tells when the run reached its capture limit, after which the totals count only what it captured. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
+      "Run a table to the end and answer one 'series' per watched cell: a point for each execution of its table, with its instance, ref, path and value; a large value comes lazy, for openl_get_trace_value. The call starts a new debug session and clears the breakpoints. Watch scalar cells: every point of an aggregate, such as a whole spreadsheet result, carries all of it; break on it instead. A series lists its first 100 points. To see why a point stands out, replay with the breakpoint '<point.ref>@<point.instance>'.",
     schema: schemas.watchTraceCellsSchema,
     annotations: {
       destructiveHint: false,

@@ -85,7 +85,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Run Table",
     description:
-      "Run a regular (non-Test) table with a JSON input and answer its result, waiting in this call. inputJson is an object keyed by parameter name; { params, runtimeContext? } with params by name or in order; or an array of the arguments in order; any of them also as a JSON string. For a method whose only parameter is an array, a top-level array is that parameter's value. To build an input of datatypes, call it first with withSchema: true and inputJson {}: the answer gives the JSON Schema of each parameter, with its fields and the values each vocabulary allows. Studio runs one table per client at a time; Test tables run with openl_run_project_tests. Cancelling the call cancels the run.",
+      "Run a table with a JSON input and answer its result; test tables run with openl_run_project_tests. For an input of datatypes, call it first with withSchema: true and inputJson {}: the schema of each parameter names its fields and the values of each vocabulary. Example: {\"tableId\":\"calculatePremium\",\"inputJson\":{\"age\":30,\"state\":\"CA\"}}.",
     schema: schemas.runTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -147,7 +147,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Get Table Dependencies",
     description:
-      "Get the table dependency graph as text, a table a line: its name, kind and id, the tables it calls and that call it, by name, or by id where the graph holds several tables of the name. Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth, 1 by default: the tables it calls and that call it directly. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
+      "Get the dependency graph of a project, or around the table tableId, a table a line: name, kind and id, then the tables it calls and that call it, by name, or by id where several share it. A table version adds its dimension properties, a datatype its parent and fields, a vocabulary its value type, count and first and last values. A dispatcher stands for versioned tables.",
     schema: schemas.getTableDependenciesSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -165,7 +165,7 @@ export function registerTableWorkflowHandlers(): void {
     name: "list_table_property_definitions",
     title: "List Allowed Table Properties",
     description:
-      "List the properties Studio allows in the requested table context, including value type, whether multiple values are accepted, and allowed enum values. Omit tableType for entries inside a Properties table; provide a public table kind for properties that may be declared on that kind.",
+      "List the properties a table of the kind tableType may declare: their type, whether they take several values or are dimensional, their default and their allowed values.",
     schema: schemas.listTablePropertyDefinitionsSchema,
     annotations: {
       readOnlyHint: true,
@@ -195,7 +195,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Copy Table",
     description:
-      "Copy a table inside the same project, keeping its formatting, merged cells and comments, into the destination module under the new name; optionally on a sheet, into a new .xlsx module by modulePath, or with new 'properties'. The copy stays in the working copy until openl_save_project. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
+      "Copy a table within its project, with its formatting, merges and comments, under a new name into a module, or into a new .xlsx module at modulePath. Example: {\"tableId\":\"AgeFactor\",\"module\":\"Rules\",\"name\":\"AgeFactorNY\",\"properties\":{\"state\":\"NY\"}}. Answers the 'tableId' and 'version' of the copy.",
     schema: schemas.copyTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
