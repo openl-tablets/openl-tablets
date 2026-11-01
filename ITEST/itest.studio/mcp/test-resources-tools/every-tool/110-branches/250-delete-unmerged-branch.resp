@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"deleted\":\"feature\",\"divergenceStatus\":\"unmerged\",\"baseBranch\":\"master\",\"dataLossConfirmed\":true,\"reason\":\"Branch 'feature' has commits that are not merged into base branch 'master'.\"}}"
+        "text": "{\"data\":{\"deleted\":\"feature\",\"divergenceStatus\":\"unmerged\",\"baseBranch\":\"master\",\"dataLossConfirmed\":true,\"reason\":\"Branch 'feature' has commits that are not merged into base branch 'master'. Its revisions of this project that the base branch does not hold:\\n- * Ada Admin: Raise the base premium on feature\"}}"
       }
     ],
     "resultType": "complete",

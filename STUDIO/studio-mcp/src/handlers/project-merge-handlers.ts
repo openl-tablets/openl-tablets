@@ -13,6 +13,7 @@ import type { Truncation } from "../formatters.js";
 import { formatListOf } from "../markdown-list.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
+import { authorOf, headlineOf } from "../utils.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
 
@@ -147,8 +148,51 @@ async function checkDivergence(
     safety.divergenceStatus = "up-to-date";
   } else {
     safety.divergenceStatus = "unmerged";
-    safety.reason = `Branch '${branchName}' has commits that are not merged into base branch '${baseBranch}'.`;
+    safety.reason = `Branch '${branchName}' has commits that are not merged into base branch '${baseBranch}'.` +
+      await unmergedRevisions(client, projectId, branchName, baseBranch);
   }
+}
+
+/** How many of the newest revisions of the deletion target a refusal names, and of the base branch it compares them with. */
+const UNMERGED_SHOWN = 10;
+const BASE_REVISIONS_READ = 100;
+
+/**
+ * The newest revisions of the project on the deletion target that the base branch does not hold, one line each, for
+ * the user to decide on: the merge check tells only that there are some. Revisions are taken until the first one the
+ * base branch holds, among its newest {@link BASE_REVISIONS_READ}. Empty when the histories cannot be read, or when
+ * the commits the base branch misses change other projects only.
+ */
+async function unmergedRevisions(
+  client: OpenLClient,
+  projectId: string,
+  branchName: string,
+  baseBranch: string,
+): Promise<string> {
+  const pages = await Promise.all([
+    client.getProjectRevisions(projectId, { branch: branchName, offset: 0, limit: UNMERGED_SHOWN }),
+    client.getProjectRevisions(projectId, { branch: baseBranch, offset: 0, limit: BASE_REVISIONS_READ }),
+  ]).catch(() => undefined);
+  if (!pages) {
+    return "";
+  }
+  const [target, base] = pages;
+  const merged = new Set(base.content.map((revision) => revision.revisionNo));
+  const first = target.content.findIndex((revision) => merged.has(revision.revisionNo));
+  const unmerged = first === -1 ? target.content : target.content.slice(0, first);
+  if (unmerged.length === 0) {
+    return "";
+  }
+  const lines = unmerged.map((revision) => {
+    const author = authorOf(revision);
+    const comment = headlineOf(revision);
+    return `\n- ${revision.revisionNo} ${revision.createdAt}${author ? ` ${author}` : ""}${comment ? `: ${comment}` : ""}`;
+  });
+  // A full page the base branch holds none of may go on past it
+  const more = unmerged.length === UNMERGED_SHOWN
+    ? "\n- … older ones: openl_repository_project_revisions with this branch lists them"
+    : "";
+  return ` Its revisions of this project that the base branch does not hold:${lines.join("")}${more}`;
 }
 
 function mergeRequest(
@@ -613,7 +657,7 @@ export function registerProjectMergeHandlers(): void {
     name: "delete_project_branch",
     title: "Delete Project Branch",
     description:
-      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true plus confirmForce=true (and eligible Studio permissions). It then performs a safe-delete preflight against the repository base branch when the project is on the target or on the base branch. A branch with commits absent from base, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. confirmBranchName must exactly equal branch. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
+      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true plus confirmForce=true (and eligible Studio permissions). It then performs a safe-delete preflight against the repository base branch when the project is on the target or on the base branch. A branch with commits absent from base, which the refusal lists, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. confirmBranchName must exactly equal branch. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
     schema: schemas.deleteProjectBranchSchema,
     annotations: {
       destructiveHint: true,
@@ -658,7 +702,8 @@ export function registerProjectMergeHandlers(): void {
       if (safety.reason && args.confirmDataLoss !== true) {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidRequest,
-          `${safety.reason} No branch was deleted. Review the risk, then either make the branch safe ` +
+          // The revisions a reason lists end it on a line of their own
+          `${safety.reason}${safety.reason.includes("\n") ? "\n" : " "}No branch was deleted. Review the risk, then either make the branch safe ` +
             "or call again with confirmDataLoss=true to explicitly accept possible data loss.",
         );
       }
