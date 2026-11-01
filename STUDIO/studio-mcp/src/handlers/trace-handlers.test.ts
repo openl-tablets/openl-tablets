@@ -159,8 +159,8 @@ describe("trace tools", () => {
     expect(parsed.nextOffset).toBeUndefined();
   });
 
-  it("openl_expand_trace_tree normalizes a childless step (backend returns { total: 0 }, no children) to an empty list", async () => {
-    // A step that made no sub-calls answers 200 with just { total: 0 } — the
+  it("openl_expand_trace_tree answers a childless or unknown step as an empty list with a note, and refuses a blank one", async () => {
+    // A step that made no sub-calls, and one the node does not hold, answers 200 with just { total: 0 } — the
     // backend omits the children array — so the tool fills in children: [].
     harness.mockHttp.onGet(`${projectPath}/trace/tree/children`).reply(200, { total: 0 });
 
@@ -170,10 +170,13 @@ describe("trace tools", () => {
       harness.client
     );
 
-    const parsed = dataOf(result);
-    expect(parsed.children).toEqual([]);
-    expect(parsed.total).toBe(0);
-    expect(parsed.hasMore).toBe(false);
+    expect(dataOf(result)).toEqual({
+      children: [], total: 0, hasMore: false,
+      note: "Step 'R9C9' of this node made no sub-calls, or the node has no such step: expand a step whose childrenTotal is above 0.",
+    });
+    await expect(executeTool("expand_trace_tree", { projectId, uri: "u", instance: 0, step: " " }, harness.client))
+      .rejects.toThrow(/step/);
+    expect(harness.mockHttp.history.get).toHaveLength(1);
   });
 
   it("openl_expand_trace_tree stops paging when a page comes back empty even though total still exceeds offset (dropped sub-calls)", async () => {

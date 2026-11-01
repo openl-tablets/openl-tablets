@@ -595,8 +595,10 @@ export function registerTraceHandlers(): void {
       const payload = hasMore
         ? { children, total, hasMore, nextOffset: offset + children.length }
         : { children, total, hasMore };
-
-      return formatResult(payload);
+      // Studio answers a step it does not hold as one that made no sub-calls
+      return formatResult(total === 0
+        ? { ...payload, note: `Step '${args.step}' of this node made no sub-calls, or the node has no such step: expand a step whose childrenTotal is above 0.` }
+        : payload);
     },
   });
 
