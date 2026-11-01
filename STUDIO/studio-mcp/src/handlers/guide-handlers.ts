@@ -22,6 +22,8 @@ export function registerGuideHandlers(): void {
     description:
       "List the OpenL reference documentation OpenL Studio serves for its own version — METADATA ONLY (id, title, size in bytes), never bodies; fetch bodies with openl_get_guides. 'specification' entries are config-file/project-layout specs (rules.xml, rules-deploy.xml, project structure, table types, openl-maven-plugin), 'guide' entries are the Reference Guide chapters (table types, table properties, functions and data types, projects, BEX/function appendices). An id starts with 'spec/' or 'guide/', its type; openl_get_guides names the path a person opens the document at. Filter with 'type' and/or case-insensitive 'search' over id+title; results are paginated (limit/offset).",
     schema: schemas.listGuidesSchema,
+    // The ids of the specifications start with 'spec', which agents take for their type
+    valueAliases: { spec: "specification" },
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
