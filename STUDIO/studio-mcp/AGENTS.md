@@ -442,8 +442,9 @@ OpenL Studio and where the server keeps its state; the
   letters, such as `theirs` for `THEIRS`, which `executeTool` takes for the option the tool names, and a value in the
   `valueAliases` of the tool, such as `spec` for `specification`: the schema publishes each option once.
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
-  leaves out what tells it nothing: the `$schema` dialect and the safe-integer bounds of `.int()`. Zod still checks
-  them when the tool runs.
+  leaves out what tells it nothing: the `$schema` dialect, the safe-integer bounds of `.int()` and the `minLength: 1`
+  of a non-empty string. Zod still checks them when the tool runs. For the same reason the ids most tools take,
+  `projectId` first, carry no description or a short one: a refusal names the tool that lists them.
 - A mistake of the caller throws `ProtocolError` with `InvalidParams` or `InvalidRequest`; any other `Error` reaches
   the agent as an internal error.
 - Long work waits inside one call — `waitForResult` of `handlers/wait.ts` for Studio's `202 notReady` — honours the
