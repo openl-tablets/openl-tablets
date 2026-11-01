@@ -76,7 +76,11 @@ describe("project lists and details", () => {
         { projectId: "p2", branch: "main", revision: "r2", compileState: "idle" },
       ],
       tagCounts: [{ tag: "release", count: 1 }],
-      projectIndexHealth: { design: { state: "ready", failedBranches: [] }, rating: { state: "indexing", failedBranches: [] } },
+      projectIndexHealth: {
+        design: { state: "ready", failedBranches: [] },
+        rating: { state: "indexing", failedBranches: [] },
+        archive: { state: "degraded", failedBranches: ["release"] },
+      },
     });
 
     const text = textOf(await executeTool("list_projects", {
@@ -90,7 +94,9 @@ describe("project lists and details", () => {
     expect(text).not.toContain("r1");
     expect(text).toContain('Summary: {"repositoryCounts":[{"repository":"design","count":3}],'
       + '"statusCounts":{"OPENED":2,"CLOSED":1},"tagCounts":[{"tag":"release","count":1}]}');
-    expect(text).toContain("The project index of rating (indexing) is not ready: projects of other branches may be missing.");
+    // A branch that failed keeps the projects Studio last indexed of it
+    expect(text).toContain("The project index of rating (indexing), archive (degraded) is not ready: projects of other "
+      + "branches may be missing, and a branch that failed lists its projects as last indexed: release.");
   });
 
   it("openl_list_projects adds nothing after the table while the project index of the repository listed is ready", async () => {
