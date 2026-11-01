@@ -146,7 +146,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes and, with styles=true, 'styles' the cell styles; a write keeps both. Compilation messages name cells by A1 address, 'pos' giving the first cell of the table. For a large table, find='900' reads only the rows holding a text, with the header rows, 'rows' then keyed by the position of each; offset/limit read a slice ('window' tells offset, totalRows and next_offset), its positions those of the whole table, for reading and for openl_edit_table. The answer carries the 'version' the edit tools take. An id from before a rename still reads the table; a deleted table answers 410.`,
+      `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes and, with styles=true, 'styles' the cell styles; a write keeps both. Compilation messages name cells by A1 address, 'pos' giving the first cell of the table. For a large table, find='900' reads only the rows holding a text, with the header rows, 'rows' then keyed by the position of each; offset/limit read a slice ('window' tells offset, totalRows and next_offset), and a read without a limit answers the first 50 rows of a table of more than 100, the others read on by offset or find, its positions those of the whole table, for reading and for openl_edit_table. The answer carries the 'version' the edit tools take. An id from before a rename still reads the table; a deleted table answers 410.`,
     schema: schemas.getTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {
@@ -155,12 +155,16 @@ export function registerTableHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const table = await client.getTable(args.projectId, args.tableId, args);
+      // A read without a limit answers a small table whole and the first rows of a large one, which the agent reads
+      // on by slices or by find: a lookup of 900 rows read for its layout would fill its context
+      const unbounded = args.find === undefined && args.limit === undefined;
+      const table = await client.getTable(args.projectId, args.tableId, unbounded ? { ...args, limit: WHOLE_TABLE_ROWS + 1 } : args);
       const offset = args.offset ?? 0;
       const { source, tableType: _, totalRows: total, ...about } = table;
       // Studio names the rows of the table only when the window leaves some out
       const totalRows = total ?? offset + source.length;
-      const grid = gridOf(source, offset, table.pos);
+      const read = gridOf(source, offset, table.pos);
+      const grid = unbounded && read.rows.length > WHOLE_TABLE_ROWS ? leadingRows(read, offset, FIRST_ROWS) : read;
       const text = args.find;
       if (text !== undefined) {
         // The header and the row of the titles of the columns tell what the rows found hold
@@ -258,6 +262,10 @@ export function registerTableHandlers(): void {
     },
   });
 }
+
+/** The most rows a read without a limit answers of a table whole, and the rows it answers of a larger one. */
+const WHOLE_TABLE_ROWS = 100;
+const FIRST_ROWS = 50;
 
 /**
  * The rows a table read answers: the first of them and how many, how many rows the table has, whether the answer
