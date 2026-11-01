@@ -132,7 +132,7 @@ export const getTableSchema = z.strictObject({
   tableId: tableIdSchema,
   find: nonBlankString.optional().describe("Read only the rows with a cell whose text contains this, case-insensitive, such as a key or a value, with the header rows; 'rows' then keys each row by its position in the table, which the edit tools take. A number is found by its digits, '900' finding 900."),
   offset: z.number().int().min(0).optional().describe("Zero-based index of the first row to read; omit to start at the top. Combine with limit to read a large table in slices: the next slice starts at window.next_offset."),
-  limit: z.number().int().min(1).optional().describe("Maximum number of rows, counted from offset; omit to read to the end. A slice holds exactly these rows: a merged cell that its edge cuts keeps its value in the first row of the slice, and merges names its whole area."),
+  limit: z.number().int().min(1).optional().describe("Maximum number of rows, counted from offset; omit to read a table of up to 100 rows whole, or the first 50 rows of a larger one. A slice holds exactly these rows: a merged cell that its edge cuts keeps its value in the first row of the slice, and merges names its whole area."),
   styles: z.boolean().optional().describe("If true, 'styles' lists the Excel style of each styled cell (background/font colour, bold/italic/underline, alignment, indent, borders)."),
 }).refine((args) => args.find === undefined || (args.offset === undefined && args.limit === undefined), {
   error: "find searches the whole table: it takes no offset or limit.",

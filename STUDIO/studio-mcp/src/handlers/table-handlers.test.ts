@@ -118,13 +118,34 @@ describe("reading tables", () => {
   it("openl_get_table returns a table that fits the limit without indentation whole (EPBDS-16853)", async () => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(133)));
 
-    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client);
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1", limit: 133 }, harness.client);
 
     expect(textOf(result).length).toBeLessThanOrEqual(25_000);
     const response = JSON.parse(textOf(result));
     expect(response.truncated).toBeUndefined();
     expect(response.data.rows).toHaveLength(133);
     expect(response.window).toMatchObject({ rows: 133, totalRows: 133, complete: true });
+  });
+
+  it("openl_get_table without a limit reads a table of up to 100 rows whole", async () => {
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(100)));
+
+    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client)));
+
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ startRow: undefined, maxRows: 101 });
+    expect(response.data.rows).toHaveLength(100);
+    expect(response.window).toEqual({ offset: 0, rows: 100, totalRows: 100, complete: true });
+  });
+
+  it("openl_get_table without a limit answers the first 50 rows of a larger table, and where the others start", async () => {
+    // Studio answers the 101 rows asked for and names the rows of the whole table
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(101), { totalRows: 919 }));
+
+    const response = JSON.parse(textOf(await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client)));
+
+    expect(response.data.rows).toHaveLength(50);
+    expect(response.data.rows.at(-1)[0]).toBe("value 49 B");
+    expect(response.window).toEqual({ offset: 0, rows: 50, totalRows: 919, complete: false, next_offset: 50 });
   });
 
   it.each([
@@ -135,7 +156,7 @@ describe("reading tables", () => {
       harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(600), offset ? { totalRows: 700 } : {}));
 
       const result = await executeTool("get_table", {
-        projectId: "p1", tableId: "t1", offset, }, harness.client);
+        projectId: "p1", tableId: "t1", offset, limit: 600 }, harness.client);
 
       expect(textOf(result).length).toBeLessThanOrEqual(25_000);
       const response = JSON.parse(textOf(result));
@@ -346,7 +367,7 @@ describe("openl_get_table cut by rows", () => {
     ]);
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", source, { pos: "B4:C403" }));
 
-    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client);
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1", limit: 400 }, harness.client);
 
     const response = JSON.parse(textOf(result));
     expect(response.data.rows.length).toBeLessThan(400);
