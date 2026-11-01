@@ -26,7 +26,7 @@ public record ProjectRevision(
         @Parameter(description = "Creation date-time", required = true)
         ZonedDateTime createdAt,
 
-        @Parameter(description = "Full comment", required = true)
+        @Parameter(description = "Full comment; absent for a commit without one, such as the one that deleted a project")
         String fullComment,
 
         @Parameter(description = "Author")

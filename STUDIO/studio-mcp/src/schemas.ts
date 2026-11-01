@@ -690,6 +690,7 @@ export const watchTraceCellsSchema = z.strictObject({
 
 export const getProjectRevisionsSchema = z.strictObject({
   projectId: projectIdSchema,
+  branch: branchNameSchema.optional().describe("The branch whose history to read, as openl_list_project_branches names it; omit for the branch the project is on. A branch that does not hold the project has no revisions."),
   search: z.string().optional().describe("Search term to filter revisions by commit message or author"),
   techRevs: z.boolean().default(false).describe("Include technical revisions (default: false)"),
   ...paginationShape,

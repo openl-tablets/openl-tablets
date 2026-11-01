@@ -35,27 +35,34 @@ describe("repository tools", () => {
     expect(text).toContain("development");
   });
 
-  it("openl_repository_project_revisions uses the current revision total to derive more pages", async () => {
-    const revision = (revisionNo: string, fullComment: string) => ({
+  it("openl_repository_project_revisions reads a branch and uses the current revision total to derive more pages", async () => {
+    const revision = (revisionNo: string, fullComment?: string) => ({
       revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment, deleted: false, technicalRevision: false,
     });
-    harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 0, size: 2 } }).reply(200, {
-      content: [revision("abc123", "First\n\nDetail"), { ...revision("def456", "Second"), technicalRevision: true }],
+    harness.mockHttp.onGet(historyPath, { params: { branch: "feature", techRevs: false, offset: 0, size: 3 } }).reply(200, {
+      // Studio sends the commit that deleted a project without a comment
+      content: [
+        revision("abc123", "First\n\nDetail"),
+        { ...revision("def456", "Second"), technicalRevision: true },
+        { ...revision("fed789"), deleted: true },
+      ],
       pageNumber: 0,
-      pageSize: 2,
-      numberOfElements: 2,
+      pageSize: 3,
+      numberOfElements: 3,
       total: 4,
     });
 
     const result = await executeTool("repository_project_revisions", {
       projectId,
-      limit: 2,
+      branch: "feature",
+      limit: 3,
     }, harness.client);
 
     // A revision is named by its first line of comment; the flags that are false are left out
-    expect(textOf(result)).toBe("4 revisions; 1–2 below, the next page at offset=2.\n\n"
+    expect(textOf(result)).toBe("4 revisions; 1–3 below, the next page at offset=3.\n\n"
       + "| revision | date | author | comment | flags |\n| --- | --- | --- | --- | --- |\n"
-      + "| abc123 | 2026-01-01T00:00:00Z |  | First |  |\n| def456 | 2026-01-01T00:00:00Z |  | Second | technical |");
+      + "| abc123 | 2026-01-01T00:00:00Z |  | First |  |\n| def456 | 2026-01-01T00:00:00Z |  | Second | technical |\n"
+      + "| fed789 | 2026-01-01T00:00:00Z |  |  | deleted |");
   });
 
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {

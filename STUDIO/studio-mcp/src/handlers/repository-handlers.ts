@@ -5,7 +5,7 @@
 
 import * as schemas from "../schemas.js";
 import { formatList, formatListOf, hasMoreItems } from "../markdown-list.js";
-import { namesOfSet } from "../utils.js";
+import { authorOf, headlineOf, namesOfSet } from "../utils.js";
 import { registerTool, textResult, type ToolResponse } from "./common.js";
 
 export function registerRepositoryHandlers(): void {
@@ -64,7 +64,7 @@ export function registerRepositoryHandlers(): void {
     name: "repository_project_revisions",
     title: "Get Project Revision History",
     description:
-      "Get revision history (commit history) of a project in the branch it is currently on. Addressing the project by its stable ID keeps history available after an unsaved rename. Returns a table of revisions with commit hashes, dates, authors, the first line of each comment and the deleted and technical flags, with pagination and optional search and technical-revision filters. Use the projectId returned by openl_list_projects; do not construct it from the displayed project name.",
+      "Get revision history (commit history) of a project in the branch it is currently on, or in another 'branch'. Addressing the project by its stable ID keeps history available after an unsaved rename. Returns a table of revisions with commit hashes, dates, authors, the first line of each comment and the deleted and technical flags, with pagination and optional search and technical-revision filters. Use the projectId returned by openl_list_projects; do not construct it from the displayed project name.",
     schema: schemas.getProjectRevisionsSchema,
     annotations: {
       readOnlyHint: true,
@@ -87,9 +87,8 @@ export function registerRepositoryHandlers(): void {
         columns: [
           { header: "revision", value: (revision) => revision.revisionNo },
           { header: "date", value: (revision) => revision.createdAt },
-          { header: "author", value: (revision) => revision.author?.displayName ?? revision.author?.email },
-          // The first line of a comment names the change; the rest is its detail
-          { header: "comment", value: (revision) => revision.fullComment.split(/\r?\n/, 1)[0] },
+          { header: "author", value: authorOf },
+          { header: "comment", value: headlineOf },
           { header: "flags", value: (revision) => [
             ...(revision.deleted ? ["deleted"] : []), ...(revision.technicalRevision ? ["technical"] : []),
           ] },

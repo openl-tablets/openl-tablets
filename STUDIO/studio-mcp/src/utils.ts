@@ -2,7 +2,17 @@
  * Utility functions for the OpenL MCP Server
  */
 
-import type { ProjectViewModel, ResultNotReadyView } from "./types.js";
+import type { ProjectRevision, ProjectViewModel, ResultNotReadyView } from "./types.js";
+
+/** Who made a revision: the name Studio shows, or the email without one. */
+export function authorOf(revision: ProjectRevision): string | undefined {
+  return revision.author?.displayName ?? revision.author?.email;
+}
+
+/** The first line of the comment of a revision, which names the change; a commit without a comment has none. */
+export function headlineOf(revision: ProjectRevision): string | undefined {
+  return revision.fullComment?.split(/\r?\n/, 1)[0];
+}
 
 /** Error detail in API error response (for 400 status) */
 interface ApiErrorDetail {

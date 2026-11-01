@@ -31261,7 +31261,6 @@ Content-Type: application/json
         "required": [
           "createdAt",
           "deleted",
-          "fullComment",
           "revisionNo",
           "technicalRevision"
         ]
