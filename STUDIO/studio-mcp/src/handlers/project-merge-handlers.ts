@@ -11,6 +11,7 @@ import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import type { Truncation } from "../formatters.js";
 import { formatListOf } from "../markdown-list.js";
+import { gridOf, rowIn, rowsAt, type Grid, type KeyedRows } from "../table-grid.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
 import { authorOf, headlineOf } from "../utils.js";
@@ -216,10 +217,6 @@ function cellOf(cell: Types.ConflictWorkbookCell): Record<string, unknown> {
   };
 }
 
-function cellsOf(cells: Types.ConflictWorkbookCell[][]): Record<string, unknown>[][] {
-  return cells.map((row) => row.map(cellOf));
-}
-
 /** What a cell of a merged table both branches changed differently holds with either version. */
 function conflictCellsOf(merged: Types.ConflictTableMerge): Record<string, unknown>[] {
   return merged.conflicts.map((conflict) => ({
@@ -234,14 +231,60 @@ function conflictCellsOf(merged: Types.ConflictTableMerge): Record<string, unkno
   }));
 }
 
-function versionOf(version: Types.ConflictTableVersion | undefined): Record<string, unknown> | undefined {
-  return version && {
-    range: version.range,
-    rows: version.rows,
-    changedCells: version.changedCells ?? [],
-    conflictCells: version.conflictCells ?? [],
+/** The rows of a version of a conflicting table an answer holds: every row Studio sent, or the rows of the conflict. */
+type ConflictRows = Grid | (KeyedRows & { rowsNotSent?: number[] });
+
+/** The rows of a conflicting table that name it and its columns, kept beside the rows of the conflict. */
+const CONFLICT_HEADER_ROWS = 2;
+
+/**
+ * The rows of one version of a conflicting table that tell the conflict, in the shape openl_get_table reads rows found:
+ * the header rows and the rows holding one of `addresses`, A1 cells of the sheet, keyed by their positions in the
+ * version, without the formatting of the cells. Studio sends the first 200 rows of a version: the rows of the conflict
+ * past them are named in `rowsNotSent`, their cells being in the conflicts alone. A version that names no such cell
+ * answers every row sent. One conflicting cell of a lookup of hundreds of rows was four versions of every row sent.
+ */
+function conflictRowsOf(cells: Types.ConflictWorkbookCell[][], range: string, addresses: string[]): ConflictRows {
+  const source = cells.map((row) => row.map(({ style: _style, runs: _runs, type: _type, ...cell }) => cell as Types.RawTableCell));
+  const grid = gridOf(source, 0, range);
+  const rows = new Set(addresses.flatMap((address) => {
+    const row = rowIn(address, range);
+    return row !== undefined && row >= CONFLICT_HEADER_ROWS ? [row] : [];
+  }));
+  if (rows.size === 0) {
+    return grid;
+  }
+  const notSent = [...rows].filter((row) => row >= cells.length).toSorted((a, b) => a - b);
+  return {
+    ...rowsAt(grid, cells.keys().filter((row) => row < CONFLICT_HEADER_ROWS || rows.has(row)).toArray()),
+    ...(notSent.length > 0 ? { rowsNotSent: notSent } : {}),
+  };
+}
+
+/** A version of a conflicting table, or the merged table, with the rows of its changed cells and of `cells`. */
+function tableRowsOf(
+  table: Pick<Types.ConflictTableVersion, "range" | "rows" | "cells" | "changedCells">,
+  cells: string[],
+): ConflictRows & { range: string; totalRows: number; changedCells: string[] } {
+  const changedCells = table.changedCells ?? [];
+  return {
+    range: table.range,
+    totalRows: table.rows,
+    changedCells,
+    ...conflictRowsOf(table.cells, table.range, [...changedCells, ...cells]),
+  };
+}
+
+/** A version of a conflicting table with the rows of its changed and conflicting cells, and of the cells `also` names. */
+function versionOf(version: Types.ConflictTableVersion | undefined, also: string[]): Record<string, unknown> | undefined {
+  if (!version) {
+    return undefined;
+  }
+  const conflictCells = version.conflictCells ?? [];
+  return {
+    conflictCells,
     formattingChanged: version.formattingChanged ?? false,
-    cells: cellsOf(version.cells),
+    ...tableRowsOf(version, [...conflictCells, ...also]),
   };
 }
 
@@ -277,6 +320,7 @@ function workbookTable(file: string, workbook: Types.ConflictWorkbookView, id: s
   for (const sheet of workbook.sheets) {
     const table = sheet.tables.find((candidate) => candidate.id === id);
     if (table) {
+      const conflicts = table.merged?.conflicts ?? [];
       return {
         file,
         sheet: sheet.name,
@@ -284,15 +328,13 @@ function workbookTable(file: string, workbook: Types.ConflictWorkbookView, id: s
         name: table.name,
         reason: table.reason,
         byCells: Boolean(table.merged),
-        // A version without the table, and a table not merged cell by cell, are left out of the answer.
-        ours: versionOf(table.ours),
-        base: versionOf(table.base),
-        theirs: versionOf(table.theirs),
+        // A version without the table, and a table not merged cell by cell, are left out of the answer. Each version
+        // keeps the rows of the conflicting cells at its own address of them, which rows a branch inserted move
+        ours: versionOf(table.ours, conflicts.map((conflict) => conflict.ourCell)),
+        base: versionOf(table.base, conflicts.map((conflict) => conflict.cell)),
+        theirs: versionOf(table.theirs, conflicts.map((conflict) => conflict.theirCell)),
         merged: table.merged && {
-          range: table.merged.range,
-          rows: table.merged.rows,
-          changedCells: table.merged.changedCells ?? [],
-          cells: cellsOf(table.merged.cells),
+          ...tableRowsOf(table.merged, conflicts.map((conflict) => conflict.cell)),
           conflicts: conflictCellsOf(table.merged),
         },
       };
@@ -548,7 +590,7 @@ export function registerProjectMergeHandlers(): void {
     name: "get_merge_conflict_workbook",
     title: "Get Merge Conflict Workbook",
     description:
-      "Read the conflicts of a conflicted Excel file of the pending merge, as Studio merges it table by table: a file that your, the base and their version all hold, as fileAvailability of openl_get_merge_conflicts tells. A workbook both branches added has no base version and is resolved whole, with a strategy. Without table: every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell — the cells only one branch changed are merged by Studio — and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in (ourCell, theirCell) and what your (ours) and their (theirs) version holds there. With table: that table's cells in your, the base and their version, and in the merged table, whose conflicting cells hold the base value until decided and whose changedCells Studio took from the one branch that changed them. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides. A cell names no A1 address of its own: the cell in row r and column c of a grid lies r rows below and c columns right of the first cell of its range.",
+      "Read the conflicts of a conflicted Excel file of the pending merge, as Studio merges it table by table: a file that your, the base and their version all hold, as fileAvailability of openl_get_merge_conflicts tells. A workbook both branches added has no base version and is resolved whole, with a strategy. Without table: every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell — the cells only one branch changed are merged by Studio — and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in (ourCell, theirCell) and what your (ours) and their (theirs) version holds there. With table: that table in your, the base and their version, and merged, each with its totalRows and, as openl_get_table reads rows found, its two header rows and the rows holding a changed or conflicting cell, keyed by their positions in it (every row of a version that names no such cell); a row past the first 200, which Studio sends, is named in rowsNotSent and read in the conflicts. The merged table's conflicting cells hold the base value until decided, and its changedCells Studio took from the one branch that changed them. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides. A cell names no A1 address of its own: the cell in row r and column c of a grid lies r rows below and c columns right of the first cell of its range.",
     schema: schemas.getMergeConflictWorkbookSchema,
     annotations: {
       readOnlyHint: true,

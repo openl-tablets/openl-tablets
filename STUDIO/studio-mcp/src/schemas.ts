@@ -460,7 +460,7 @@ export const getMergeConflictWorkbookSchema = z.strictObject({
   projectId: projectIdSchema,
   path: nonBlankString.describe("Conflicted Excel file path as openl_get_merge_conflicts() lists it, or its path within the project."),
   table: nonBlankString.optional().describe(
-    "The id of one conflicting table from the overview. Omit to list every sheet and conflicting table with its conflicting cells; give it to read that table in your, the base and their version, and merged cell by cell.",
+    "The id of one conflicting table from the overview. Omit to list every sheet and conflicting table with its conflicting cells; give it to read the rows of the conflict of that table in your, the base and their version, and merged cell by cell.",
   ),
 });
 
