@@ -192,20 +192,18 @@ describe("project branch and merge schemas", () => {
     });
   });
 
-  it("requires explicit confirmation for protected-branch force", () => {
+  it("takes force as the one confirmation of a protected-branch bypass", () => {
     const merge = { projectId: "p1", otherBranch: "release", mode: "send", force: true } as const;
-    expect(mergeProjectBranchesSchema.safeParse(merge).success).toBe(false);
-    expect(mergeProjectBranchesSchema.safeParse({ ...merge, confirmForce: true }).success).toBe(true);
+    expect(mergeProjectBranchesSchema.safeParse(merge).success).toBe(true);
+    expect(mergeProjectBranchesSchema.safeParse({ ...merge, confirmForce: true }).success).toBe(false);
   });
 
-  it("requires exact deletion confirmations and force acknowledgement", () => {
+  it("requires exact deletion confirmations, force being its own", () => {
     expect(deleteProjectSchema.safeParse({ projectId: "p1" }).success).toBe(false);
     expect(deleteProjectSchema.safeParse({ projectId: "p1", confirmProjectName: "Rating" }).success).toBe(true);
-    const branch = { projectId: "p1", branch: "feature/rate", confirmBranchName: "feature/rate" };
+    const branch = { projectId: "p1", branch: "feature/rate" };
     expect(deleteProjectBranchSchema.safeParse(branch).success).toBe(true);
-    expect(deleteProjectBranchSchema.safeParse({ ...branch, confirmBranchName: "feature/other" }).success).toBe(false);
-    expect(deleteProjectBranchSchema.safeParse({ ...branch, force: true }).success).toBe(false);
-    expect(deleteProjectBranchSchema.safeParse({ ...branch, force: true, confirmForce: true }).success).toBe(true);
+    expect(deleteProjectBranchSchema.safeParse({ ...branch, force: true }).success).toBe(true);
   });
 });
 

@@ -399,7 +399,7 @@ export function registerProjectHandlers(): void {
     name: "close_project",
     title: "Close Project",
     description:
-      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; without a comment Studio writes the one the repository configures for a save) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss. Not for a project whose capabilities (openl_get_project) lack canClose: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
+      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; without a comment Studio writes the one the repository configures for a save) or discard (discardChanges: true), which loses every unsaved change: ask the user first. Not for a project whose capabilities (openl_get_project) lack canClose: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
     schema: schemas.closeProjectSchema,
     annotations: {
       destructiveHint: true, // Can discard changes if requested
@@ -434,17 +434,10 @@ export function registerProjectHandlers(): void {
           ProtocolErrorCode.InvalidParams,
           "Project has unsaved changes. You must either:\n" +
           "1. Set saveChanges: true (with comment if supported) to save and close\n" +
-          "2. Set discardChanges: true to close without saving (then ask user to confirm and call again with confirmDiscard: true)"
+          "2. Set discardChanges: true to close without saving, once the user agrees to lose the changes"
         );
       }
-
-      // Only confirmDiscard: true discards the changes; false or undefined asks the user first
-      if (args.confirmDiscard !== true) {
-        return reply({
-          confirmationRequired: true,
-          message: "The project has unsaved changes. Closing without saving will discard all changes permanently. Ask the user: 'Do you really want to close without saving? All unsaved changes will be lost.' If the user confirms, call openl_close_project again with the same projectId, discardChanges: true, and confirmDiscard: true (confirmDiscard must be set to true explicitly, not just provided).",
-        });
-      }
+      // discardChanges is the confirmation: the tool is marked destructive for the client to ask the user too
       await client.closeProject(args.projectId, { discardChanges: true });
       return reply({ closed: true, discarded: true });
     },

@@ -590,7 +590,7 @@ describe("open, save and close", () => {
     ["a project without unsaved changes", "OPENED", {}, { status: "CLOSED" }, { closed: true }],
     ["saving the changes", "EDITING", { saveChanges: true, comment: "Save before close" },
       { save: true, comment: "Save before close", status: "CLOSED" }, { closed: true, saved: true }],
-    ["discarding the changes", "EDITING", { discardChanges: true, confirmDiscard: true },
+    ["discarding the changes", "EDITING", { discardChanges: true },
       { status: "CLOSED", discardChanges: true }, { closed: true, discarded: true }],
   ] as const)("openl_close_project closes %s in one PATCH", async (_case, status, args, patch, answer) => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView(status));
@@ -616,16 +616,9 @@ describe("open, save and close", () => {
     expect(dataOf(result)).toEqual({ closed: true, saved: true });
   });
 
-  it("openl_close_project asks for confirmDiscard before discarding unsaved changes", async () => {
-    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("EDITING"));
-
-    const result = await executeTool("close_project", {
-      projectId: "design-project1", discardChanges: true, }, harness.client);
-
-    expect(dataOf(result)).toMatchObject({ confirmationRequired: true });
-    expect(dataOf(result)).not.toHaveProperty("success");
-    expect(dataOf(result).message).toContain("confirmDiscard");
-    expect(harness.mockHttp.history.patch).toHaveLength(0);
+  it("openl_close_project takes discardChanges as the one confirmation of discarding unsaved changes", async () => {
+    // The tool is marked destructive, for the client to ask the user too
+    expect(getAllTools().find((tool) => tool.name === "close_project")?.inputSchema.properties).not.toHaveProperty("confirmDiscard");
   });
 
   it.each([

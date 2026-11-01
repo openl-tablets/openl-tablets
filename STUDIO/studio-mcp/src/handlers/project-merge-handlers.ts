@@ -517,7 +517,7 @@ export function registerProjectMergeHandlers(): void {
     name: "merge_project_branches",
     title: "Merge Project Branches",
     description:
-      "Merge project branches: mode='receive' merges otherBranch into the current branch, mode='send' the current branch into otherBranch. The tool first rechecks the branches: up to date answers without a write, and a permission or lock blocker fails before the merge; conflicts show only in the attempt, as status='conflicts'. Studio runs the merge in the background and the tool waits for it, up to 10 minutes. The merge brings in every project the source branch changed: summary of a success lists them with their files, and summary.before and summary.after are the revisions of the target branch before and after it. Conflicts stay pending for this client: present them to the user, who resolves them in Studio or decides how openl_resolve_merge_conflicts resolves them; cancel them when the user takes over. Never choose OURS or THEIRS automatically. force bypasses an eligible protected target and needs confirmForce=true.",
+      "Merge project branches: mode='receive' merges otherBranch into the current branch, mode='send' the current branch into otherBranch. The tool first rechecks the branches: up to date answers without a write, and a permission or lock blocker fails before the merge; conflicts show only in the attempt, as status='conflicts'. Studio runs the merge in the background and the tool waits for it, up to 10 minutes. The merge brings in every project the source branch changed: summary of a success lists them with their files, and summary.before and summary.after are the revisions of the target branch before and after it. Conflicts stay pending for this client: present them to the user, who resolves them in Studio or decides how openl_resolve_merge_conflicts resolves them; cancel them when the user takes over. Never choose OURS or THEIRS automatically. force bypasses an eligible protected target, once the user approves it.",
     schema: schemas.mergeProjectBranchesSchema,
     annotations: {
       destructiveHint: true,
@@ -685,7 +685,7 @@ export function registerProjectMergeHandlers(): void {
     name: "delete_project_branch",
     title: "Delete Project Branch",
     description:
-      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true plus confirmForce=true (and eligible Studio permissions). It then performs a safe-delete preflight against the repository base branch when the project is on the target or on the base branch. A branch with commits absent from base, which the refusal lists, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. confirmBranchName must exactly equal branch. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
+      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true, once the user approves it, and eligible Studio permissions. It then performs a safe-delete preflight against the repository base branch when the project is on the target or on the base branch. A branch with commits absent from base, which the refusal lists, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
     schema: schemas.deleteProjectBranchSchema,
     annotations: {
       destructiveHint: true,
@@ -709,7 +709,7 @@ export function registerProjectMergeHandlers(): void {
       if (branch.protected && args.force !== true) {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidParams,
-          `Branch '${args.branch}' is protected. If an eligible manager explicitly approves the bypass, call again with force=true and confirmForce=true.`,
+          `Branch '${args.branch}' is protected. If an eligible manager explicitly approves the bypass, call again with force=true.`,
         );
       }
 

@@ -108,8 +108,7 @@ export const closeProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   saveChanges: z.boolean().optional().describe("If true, save changes before closing. If false or omitted and project has unsaved changes, will error unless discardChanges is true."),
   comment: commitCommentSchema.optional().describe("Commit comment of at most 255 characters for saveChanges, ignored by a repository without comments. Omit it for the comment the repository configures for a save, such as 'Project X is saved.'"),
-  discardChanges: z.boolean().optional().describe("If true, close without saving (unsaved changes will be lost). When project is EDITING, you must also set confirmDiscard: true to confirm."),
-  confirmDiscard: z.boolean().optional().describe("When closing with discardChanges: true and project has unsaved changes, must be set to true (explicitly) to confirm. Omitted or false will return a confirmation prompt. Ask the user first, then call again with confirmDiscard: true."),
+  discardChanges: z.boolean().optional().describe("If true, close without saving: the unsaved changes are lost. Ask the user first."),
 });
 
 export const listTablesSchema = z.strictObject({
@@ -430,27 +429,14 @@ const mergeRequestFields = {
   mode: z.enum(MERGE_MODES).describe("receive merges the other branch into the project's current branch; send merges the current branch into otherBranch."),
 };
 
-const confirmForceSchema = z.boolean().optional().describe("Must be true when force=true, confirming the protected-branch bypass.");
-
-/** Refuses a `force` the caller did not confirm with `confirmForce`. */
-function requireForceConfirmation(
-  value: { force?: boolean; confirmForce?: boolean },
-  ctx: z.RefinementCtx<{ force?: boolean; confirmForce?: boolean }>,
-): void {
-  if (value.force && value.confirmForce !== true) {
-    ctx.addIssue({ code: "custom", path: ["confirmForce"], message: "confirmForce must be true when force=true." });
-  }
-}
-
 export const checkProjectMergeSchema = z.strictObject({
   ...mergeRequestFields,
 });
 
 export const mergeProjectBranchesSchema = z.strictObject({
   ...mergeRequestFields,
-  force: z.boolean().optional().describe("Bypass eligible protected-target restrictions. Default false. Use only after Studio reports blockedBy='bypass-required'."),
-  confirmForce: confirmForceSchema,
-}).superRefine(requireForceConfirmation);
+  force: z.boolean().optional().describe("Bypass eligible protected-target restrictions, once the user approves it. Default false. Use only after Studio reports blockedBy='bypass-required'."),
+});
 
 export const readMergeConflictSchema = z.strictObject({
   projectId: projectIdSchema,
@@ -524,17 +510,10 @@ export const deleteProjectSchema = z.strictObject({
 export const deleteProjectBranchSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: nonBlankString.describe("Exact branch name from openl_list_project_branches(). The repository base branch cannot be deleted."),
-  confirmBranchName: nonBlankString.describe("Required safety confirmation; must exactly equal branch."),
   confirmDataLoss: z.boolean().optional().describe(
     "Explicitly allow deletion after the tool reports that the branch has commits absent from the base branch, has unsaved working-copy changes, or its divergence from base cannot be verified (for example, the base is unknown, the merge check fails or checks different branches, or the target is not current). Omit for the initial safe-delete attempt.",
   ),
-  force: z.boolean().optional().describe("Bypass protected-branch restrictions for eligible managers. Default false."),
-  confirmForce: confirmForceSchema,
-}).superRefine((value, ctx) => {
-  if (value.branch !== value.confirmBranchName) {
-    ctx.addIssue({ code: "custom", path: ["confirmBranchName"], message: "confirmBranchName must exactly equal branch." });
-  }
-  requireForceConfirmation(value, ctx);
+  force: z.boolean().optional().describe("Bypass protected-branch restrictions for eligible managers, once the user approves it. Default false."),
 });
 
 // =============================================================================

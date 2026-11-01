@@ -149,7 +149,7 @@ describe("project branch and merge handlers", () => {
     });
 
     await expect(executeTool("merge_project_branches", {
-      projectId: "p1", otherBranch: "feature", mode: "receive", force: true, confirmForce: true,
+      projectId: "p1", otherBranch: "feature", mode: "receive", force: true,
     }, harness.client)).rejects.toThrow(/bypass-required/);
     expect(harness.mockHttp.history.post).toHaveLength(1);
 
@@ -162,7 +162,7 @@ describe("project branch and merge handlers", () => {
     harness.mockHttp.onGet("/projects/p1/merge").reply(200, { status: "success" });
 
     await executeTool("merge_project_branches", {
-      projectId: "p1", otherBranch: "feature", mode: "receive", force: true, confirmForce: true,
+      projectId: "p1", otherBranch: "feature", mode: "receive", force: true,
     }, harness.client);
     expect(harness.mockHttp.history.post[1].params).toEqual({ force: true });
   });
@@ -649,25 +649,22 @@ describe("project branch and merge handlers", () => {
     harness.mockHttp.onDelete(/\/projects\/p1\/branches\//).reply(204);
 
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "main", confirmBranchName: "main",
+      projectId: "p1", branch: "main",
     }, harness.client)).rejects.toThrow(/base branch/);
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "release", confirmBranchName: "release",
+      projectId: "p1", branch: "release",
     }, harness.client)).rejects.toThrow(/protected/);
 
     await executeTool("delete_project_branch", {
       projectId: "p1",
       branch: "release",
-      confirmBranchName: "release",
       force: true,
-      confirmForce: true,
       confirmDataLoss: true,
     }, harness.client);
 
     await executeTool("delete_project_branch", {
       projectId: "p1",
       branch: "feature/rates 2026",
-      confirmBranchName: "feature/rates 2026",
     }, harness.client);
     expect(harness.mockHttp.history.delete.map(({ url, params }) => ({ url, params }))).toEqual([
       { url: "/projects/p1/branches/release", params: { force: true } },
@@ -703,7 +700,7 @@ describe("project branch and merge handlers", () => {
     harness.mockHttp.onDelete("/projects/p1/branches/feature/rates").reply(204);
 
     const request = {
-      projectId: "p1", branch: "feature/rates", confirmBranchName: "feature/rates",
+      projectId: "p1", branch: "feature/rates",
     };
     await expect(executeTool("delete_project_branch", request, harness.client)).rejects.toThrow(
       "Branch 'feature/rates' has commits that are not merged into base branch 'main'. "
@@ -742,7 +739,7 @@ describe("project branch and merge handlers", () => {
     });
 
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "feature/other", confirmBranchName: "feature/other",
+      projectId: "p1", branch: "feature/other",
     }, harness.client)).rejects.toThrow(/current branch 'develop'.*Open 'feature\/other' or base branch 'main'/);
 
     expect(harness.mockHttp.history.post).toHaveLength(0);
@@ -770,10 +767,10 @@ describe("project branch and merge handlers", () => {
     harness.mockHttp.onDelete(/\/projects\/p1\/branches\//).reply(204);
 
     const response = await executeTool("delete_project_branch", {
-      projectId: "p1", branch: "feature/merged", confirmBranchName: "feature/merged",
+      projectId: "p1", branch: "feature/merged",
     }, harness.client);
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "feature/open", confirmBranchName: "feature/open",
+      projectId: "p1", branch: "feature/open",
     }, harness.client)).rejects.toThrow(/'feature\/open' has commits that are not merged into base branch 'main'/);
 
     expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([
@@ -803,7 +800,7 @@ describe("project branch and merge handlers", () => {
     });
 
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "feature/rates", confirmBranchName: "feature/rates",
+      projectId: "p1", branch: "feature/rates",
     }, harness.client)).rejects.toThrow(
       `Studio checked branch '${sourceBranch}' into '${targetBranch}' instead of ` +
         "'feature/rates' into 'main', so deletion-target divergence was not verified.",
@@ -823,7 +820,7 @@ describe("project branch and merge handlers", () => {
     });
 
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "feature/rates", confirmBranchName: "feature/rates",
+      projectId: "p1", branch: "feature/rates",
     }, harness.client)).rejects.toThrow(/unsaved working-copy changes.*confirmDataLoss=true/);
 
     expect(harness.mockHttp.history.post).toHaveLength(0);
