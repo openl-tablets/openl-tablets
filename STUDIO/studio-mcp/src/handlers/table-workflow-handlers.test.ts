@@ -226,9 +226,43 @@ describe("table workflow handlers", () => {
 
     expect(harness.mockHttp.history.get[0].params?.fields)
       .toBe("id,kind,name,dependencies,dependents,dimensions,extends,fields,vocabulary");
-    expect(dataOf(result)).toEqual([
-      { id: "root", kind: "Spreadsheet", name: "Premium", dependencies: ["base"], dimensions: { state: "CA" } },
+    expect(textOf(result)).toBe('1 table.\nPremium (Spreadsheet, root) calls: base; dimensions: {"state":"CA"}');
+  });
+
+  it("answers a table a line, naming the tables it calls by name, and by id where the graph holds several of the name", async () => {
+    harness.mockHttp.onGet("/projects/p1/tables/graph").reply(200, [
+      { id: "calc", kind: "Spreadsheet", name: "Premium", dependencies: ["rate1", "rate2", "factor"], dependents: ["test"] },
+      { id: "rate1", kind: "Rules", name: "Rate", dimensions: { state: "CA" }, dependents: ["calc"] },
+      { id: "rate2", kind: "Rules", name: "Rate", dimensions: { state: "NY" }, dependents: ["calc"] },
+      { id: "factor", kind: "Rules", name: "Factor", dependents: ["calc"] },
+      { id: "test", kind: "Test", name: "PremiumTest", dependencies: ["calc"] },
+      { id: "car", kind: "Datatype", name: "Car", extends: "vehicle", fields: [{ name: "drivers", type: "Driver", collection: true }] },
+      { id: "lob", kind: "Datatype", name: "Lob", vocabulary: { valueType: "String", valueCount: 9, valuesPreview: ["Auto", "Home"], truncated: true } },
     ]);
+
+    const text = textOf(await executeTool("get_table_dependencies", { projectId: "p1" }, harness.client));
+
+    expect(text).toBe([
+      "7 tables.",
+      "Premium (Spreadsheet, calc) calls: rate1, rate2, Factor; called by: PremiumTest",
+      'Rate (Rules, rate1) called by: Premium; dimensions: {"state":"CA"}',
+      'Rate (Rules, rate2) called by: Premium; dimensions: {"state":"NY"}',
+      "Factor (Rules, factor) called by: Premium",
+      "PremiumTest (Test, test) calls: Premium",
+      "Car (Datatype, car) extends: vehicle; fields: drivers Driver[]",
+      "Lob (Datatype, lob) values String, 9: Auto, Home, …",
+    ].join("\n"));
+  });
+
+  it("cuts a graph over the size of an answer by whole tables, and says how to read the others", async () => {
+    harness.mockHttp.onGet("/projects/p1/tables/graph").reply(200, Array.from({ length: 400 }, (_, index) => (
+      { id: `t${index}`, kind: "Rules", name: `Table${index}`, dependents: Array.from({ length: 10 }, (_, other) => `t${other}`) })));
+
+    const text = textOf(await executeTool("get_table_dependencies", { projectId: "p1" }, harness.client));
+
+    expect(text.length).toBeLessThanOrEqual(25_000);
+    expect(text).toMatch(/^400 tables\.\n/);
+    expect(text).toMatch(/\n… \d+ more tables: narrow the graph by tableId, module or layer to read them\.$/);
   });
 
   it("lists the properties a table type allows", async () => {
