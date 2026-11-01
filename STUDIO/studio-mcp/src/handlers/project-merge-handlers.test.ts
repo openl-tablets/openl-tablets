@@ -275,14 +275,22 @@ describe("project branch and merge handlers", () => {
     const cell = (address: string, value: unknown, more: Record<string, unknown> = {}) => ({
       cell: address, value, style: 0, ...more,
     });
-    const version = (rate: number) => ({
-      range: "A1:B2",
-      cells: [[cell("A1", "Rules rate", { colspan: 2 }), { covered: true }], [cell("A2", "US"), cell("B2", rate)]],
+    // A cell of the grid of a version, which Studio sends without its address
+    const value = (content: unknown, more: Record<string, unknown> = {}) => ({ value: content, style: 0, ...more });
+    // A rate table of three countries, the rate in Excel row `row` of a version being the one both branches changed
+    const rows = (row: number, rate: number) => [
+      [value("Rules rate", { colspan: 2 }), { covered: true }],
+      [value("Country"), value("Rate")],
+      ...["US", "CA", "MX"].map((country, index) => [value(country), value(index + 3 === row ? rate : index + 1)]),
+    ];
+    const version = (rate: number, row = 4) => ({
+      range: "A1:B5",
+      cells: rows(row, rate),
       styles: [{ bold: true }],
-      rows: 2,
-      changedCells: ["B2"],
+      rows: 5,
+      changedCells: [`B${row}`],
       formattingChanged: false,
-      conflictCells: ["B2"],
+      conflictCells: [`B${row}`],
     });
     const workbook = {
       sheets: [
@@ -300,16 +308,16 @@ describe("project branch and merge handlers", () => {
               reason: "cells",
               ours: version(10),
               base: version(1),
-              theirs: version(20),
+              theirs: version(20, 5),
               merged: {
-                range: "A1:B2",
-                cells: [[cell("A1", "Rules rate", { colspan: 2 }), { covered: true }], [cell("A2", "USA"), cell("B2", 1)]],
+                range: "A1:B5",
+                cells: rows(4, 1).with(2, [value("USA"), value(1)]),
                 styles: [{ bold: true }],
-                rows: 2,
-                changedCells: ["A2"],
+                rows: 5,
+                changedCells: ["A3"],
                 conflicts: [{
-                  row: 1, column: 1, cell: "B2", ourCell: "B2", theirCell: "B1",
-                  ours: cell("B2", 10), theirs: cell("B2", 20),
+                  row: 3, column: 1, cell: "B4", ourCell: "B4", theirCell: "B5",
+                  ours: cell("B4", 10), theirs: cell("B5", 20),
                 }],
               },
             },
@@ -336,13 +344,13 @@ describe("project branch and merge handlers", () => {
           name: "Rules rate",
           reason: "cells",
           byCells: true,
-          ranges: { ours: "A1:B2", base: "A1:B2", theirs: "A1:B2", merged: "A1:B2" },
+          ranges: { ours: "A1:B5", base: "A1:B5", theirs: "A1:B5", merged: "A1:B5" },
           conflictCells: [{
-            row: 1,
+            row: 3,
             column: 1,
-            cell: "B2",
+            cell: "B4",
             // The address in a version is named only where it moved the cell
-            theirCell: "B1",
+            theirCell: "B5",
             ours: { value: 10 },
             theirs: { value: 20 },
           }],
@@ -352,32 +360,51 @@ describe("project branch and merge handlers", () => {
           name: "Data Driver drivers",
           reason: "rows",
           byCells: false,
-          ranges: { ours: "A1:B2", base: "A1:B2" },
+          ranges: { ours: "A1:B5", base: "A1:B5" },
         },
       ]);
     });
 
-    it("reads one table in every version and merged, without the formatting of its cells", async () => {
+    it("reads the rows of the conflict of one table in every version and merged, without the formatting of its cells", async () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
 
       const table = dataOf(await executeTool("get_merge_conflict_workbook", {
         projectId: "p1", path: "rules/Main.xlsx", table: "Rules/A1:B2", }, harness.client));
 
       expect(table).toMatchObject({ sheet: "Rules", id: "Rules/A1:B2", byCells: true });
+      // Each version keeps the header rows and the row that holds the conflict in it
+      const header = { 0: ["Rules rate"], 1: ["Country", "Rate"] };
       expect(table.theirs).toEqual({
-        range: "A1:B2",
-        rows: 2,
-        changedCells: ["B2"],
-        conflictCells: ["B2"],
+        range: "A1:B5",
+        totalRows: 5,
+        changedCells: ["B5"],
+        conflictCells: ["B5"],
         formattingChanged: false,
-        cells: [
-          [{ value: "Rules rate", colspan: 2 }, { covered: true }],
-          [{ value: "US" }, { value: 20 }],
-        ],
+        rows: { ...header, 4: ["MX", 20] },
+        merges: [[0, 0, 1, 2]],
       });
-      expect(table.merged.cells[1]).toEqual([{ value: "USA" }, { value: 1 }]);
-      expect(table.merged.changedCells).toEqual(["A2"]);
-      expect(table.merged.conflicts[0]).toMatchObject({ cell: "B2", ours: { value: 10 }, theirs: { value: 20 } });
+      expect(table.ours.rows).toEqual({ ...header, 3: ["CA", 10] });
+      expect(table.merged).toMatchObject({
+        totalRows: 5, changedCells: ["A3"], rows: { ...header, 2: ["USA", 1], 3: ["CA", 1] },
+      });
+      expect(table.merged.conflicts[0]).toMatchObject({ cell: "B4", ours: { value: 10 }, theirs: { value: 20 } });
+    });
+
+    it("names the rows of the conflict past the rows Studio sends of a version", async () => {
+      // Studio sends the first rows of a long table: the conflict in Excel row 900 is in its conflicts alone
+      const merged = workbook.sheets[1].tables[0].merged!;
+      const far = { ...merged, conflicts: [{ ...merged.conflicts[0], row: 899, cell: "B900", ourCell: "B900", theirCell: "B900" }] };
+      const long = { ...workbook, sheets: [workbook.sheets[0], {
+        ...workbook.sheets[1], tables: [{ ...workbook.sheets[1].tables[0], ours: version(10, 900), merged: far }],
+      }] };
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, long);
+
+      const table = dataOf(await executeTool("get_merge_conflict_workbook", {
+        projectId: "p1", path: "rules/Main.xlsx", table: "Rules/A1:B2", }, harness.client));
+
+      expect(table.ours.rows).toEqual({ 0: ["Rules rate"], 1: ["Country", "Rate"] });
+      expect(table.ours.rowsNotSent).toEqual([899]);
+      expect(table.merged.rowsNotSent).toEqual([899]);
     });
 
     it("refuses a table that is no conflict of the workbook", async () => {

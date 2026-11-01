@@ -21,7 +21,7 @@ type GridMerge = [row: number, column: number, rowspan: number, columns: number]
 type GridEntry<T> = [row: number, column: number, entry: T];
 
 /** The cells of a table, as the table tools read and write them. */
-interface Grid {
+export interface Grid {
   /** Every row the answer holds, one value per column; a row ends at its last value that is not null. */
   rows: GridValue[][];
   merges?: GridMerge[];
@@ -102,12 +102,19 @@ export function findRows(
   text: string,
   headerRows: number,
   count?: number,
-): Omit<Grid, "rows"> & { rows: Record<number, GridValue[]> } {
+): KeyedRows {
   const wanted = text.toLowerCase();
   const matches = (value: GridValue): boolean =>
     value !== null && (Array.isArray(value) ? value : [value]).some((item) => String(item).toLowerCase().includes(wanted));
-  const rowIndexes = grid.rows.flatMap((row, index) => (index < headerRows || row.some(matches) ? [index] : []))
-    .slice(0, count);
+  return rowsAt(grid, grid.rows.flatMap((row, index) => (index < headerRows || row.some(matches) ? [index] : []))
+    .slice(0, count));
+}
+
+/** Rows of a grid keyed by their positions in the whole table, with what the grid lists of their cells. */
+export type KeyedRows = Entries & { rows: Record<number, GridValue[]> };
+
+/** The rows of a whole grid at `rowIndexes`, keyed by their positions, with their merges, formulas, notes and styles. */
+export function rowsAt(grid: Grid, rowIndexes: number[]): KeyedRows {
   const kept = new Set(rowIndexes);
   // A merge goes with every row it spans
   const spanned = (row: number, rowspan: number): boolean => Array.from({ length: rowspan }, (_, i) => row + i).some((r) => kept.has(r));
@@ -155,6 +162,13 @@ export function sourceOf(grid: Pick<Grid, "rows" | "merges" | "formulas">, width
 export function widthOf(pos: string | undefined): number {
   const range = pos === undefined ? undefined : rangeOf(pos);
   return range ? range.lastColumn - range.firstColumn + 1 : 0;
+}
+
+/** The row of the cell at an A1 `address` in the table at `pos`, counted from 0 in the table, such as 826 of D828 in B2:E920. */
+export function rowIn(address: string, pos: string): number | undefined {
+  const cell = firstCellOf(address);
+  const origin = firstCellOf(pos);
+  return cell && origin && cell.row - origin.row;
 }
 
 /** The column and the row of the first cell of an A1 position, such as `B2` of `B2:E920`, from 1. */
