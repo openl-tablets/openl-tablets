@@ -78,7 +78,8 @@ interface ToolDefinition<TSchema extends ZodType = ZodType> {
   aliases?: Readonly<Record<string, string>>;
   /**
    * The values agents give an option of this tool for the one it names, such as 'spec' for 'specification', the way
-   * the ids of the specifications start. Like a value in other letters, they stay out of the published schema.
+   * the ids of the specifications start, each in small letters and taken in any. Like a value in other letters, they
+   * stay out of the published schema.
    */
   valueAliases?: Readonly<Record<string, string>>;
   /** Optional tool-specific enrichment for schema validation failures. */
@@ -192,7 +193,7 @@ function withOptionsNamed(
       }
       const given = issue.code === "invalid_value" ? valueAt(args, path) : undefined;
       const option = typeof given === "string" && issue.code === "invalid_value"
-        ? issue.values.find((value) => value === valueAliases[given] || String(value).toLowerCase() === given.toLowerCase())
+        ? issue.values.find((value) => value === valueAliases[given.toLowerCase()] || String(value).toLowerCase() === given.toLowerCase())
         : undefined;
       if (option === undefined) return undefined;
       options.push([path, option]);
