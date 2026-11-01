@@ -195,8 +195,9 @@ const LISTED_RULE_NAMES = 50;
 
 /**
  * The variables of a frame as the trace tools answer them: each value without its defaults, a step value without the
- * ref of its step as its name, and without a runtime context that holds no field or a list of no errors. The rule
- * names of a table of more than {@link LISTED_RULE_NAMES} rules are counted instead, unless `allRuleNames`.
+ * ref of its step as its name, and without a runtime context that holds no field, the schema of the runtime context,
+ * or a list of no errors. The rule names of a table of more than {@link LISTED_RULE_NAMES} rules are counted instead,
+ * unless `allRuleNames`, and so are rules numbered R1 to Rn, which a table that names none of its rules has.
  */
 function trimmedVariables(
   variables: Types.DebugFrameVariables,
@@ -207,7 +208,8 @@ function trimmedVariables(
       case "parameters":
         return [key, (value as Types.TraceParameterValue[]).map((parameter) => trimmedValue(parameter))];
       case "context": {
-        const context = value as Types.TraceParameterValue;
+        // The schema of the runtime context lists every country, currency and language it takes, which no frame needs
+        const { schema: _, ...context } = value as Types.TraceParameterValue;
         const fields = context.value;
         const empty = typeof fields === "object" && fields !== null && !Array.isArray(fields) && Object.keys(fields).length === 0;
         return empty ? [] : [key, trimmedValue(context)];
@@ -221,7 +223,9 @@ function trimmedVariables(
         return (value as unknown[]).length === 0 ? [] : [key, value];
       case "ruleNames": {
         const names = value as string[];
-        return names.length > LISTED_RULE_NAMES && !allRuleNames ? ["ruleCount", names.length] : [key, names];
+        // The rules of a table that names none are R1 to Rn, which their count tells
+        const numbered = names.every((name, index) => name === `R${index + 1}`);
+        return numbered || (names.length > LISTED_RULE_NAMES && !allRuleNames) ? ["ruleCount", names.length] : [key, names];
       }
       default:
         return [key, value];
@@ -464,7 +468,7 @@ export function registerTraceHandlers(): void {
     title: "Inspect Stack Frame",
     description:
       "Freeze and read the full state of one suspended stack frame: input parameters, runtime context, result (for a completed frame), sub-steps with computed values, and for a " +
-      "decision table the killer feature — 'decision' (which rule fired and how each condition evaluated per rule) plus 'ruleNames' (the rules, for per-rule breakpoints; a table of more than 50 rules answers 'ruleCount', and full: true lists them). " +
+      "decision table the killer feature — 'decision' (which rule fired and how each condition evaluated per rule) plus 'ruleNames' (the rules, for per-rule breakpoints; a table of more than 50 rules answers 'ruleCount', and full: true lists them; a table naming none of its rules answers 'ruleCount', its rules being R1 to R<ruleCount>). " +
       "Values may come lazy (lazy: true + parameterId) — expand with openl_get_trace_value. By default the response is trimmed (no value JSON schemas); full: true lifts the trim. " +
       "To surface an anomaly among many neutral factors, filter the steps: onlyExecutedSteps drops not-yet-computed ones, and excludeStepValues drops steps whose value is a neutral constant (e.g. [1] in rating) — lazy step values are resolved before the comparison, so a neutral factor that came lazy is dropped too. " +
       "withHighlights: true additionally returns the A1-keyed cell highlight overlay and the raw table grid to merge it with. Valid only while suspended (a terminal session answers 409 — read its final state from the last returned stack).",

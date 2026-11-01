@@ -336,25 +336,29 @@ describe("trace tools", () => {
     ).rejects.toThrow(/openl_start_trace/);
   });
 
-  it("openl_inspect_trace_frame trims the response via ?fields by default and lifts the trim with full: true", async () => {
-    const ruleNames = Array.from({ length: 60 }, (_, index) => `R${index + 1}`);
-    harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`)
-      .reply(200, { parameters: [], steps: [], errors: [], decision: { firedRules: ["R10"], conditions: [] }, ruleNames });
+  it.each([
+    ["names", (index: number) => `Rule${index + 1}`, (names: string[]) => ({ ruleNames: names })],
+    ["numbers", (index: number) => `R${index + 1}`, () => ({ ruleCount: 60 })],
+  ])("openl_inspect_trace_frame trims the response via ?fields by default and lifts the trim with full: true, of rules by %s",
+    async (_case, name, fullRules) => {
+      const ruleNames = Array.from({ length: 60 }, (_, index) => name(index));
+      const context = { name: "context", description: "DefaultRulesRuntimeContext", value: { lob: "Auto" } };
+      harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`).reply(200, {
+        parameters: [], steps: [], errors: [], decision: { firedRules: ["R10"], conditions: [] }, ruleNames,
+        context: { ...context, schema: { type: "object" } },
+      });
 
-    const result = await executeTool(
-      "inspect_trace_frame",
-      { projectId, frameIndex: 0 },
-      harness.client
-    );
-    expect(dataOf<any>(result)).toEqual({ parameters: [], steps: [], decision: { firedRules: ["R10"], conditions: [] }, ruleCount: 60 });
-    expect(harness.mockHttp.history.get[0].params?.fields).toContain("decision");
-    expect(harness.mockHttp.history.get[0].params?.fields).toContain("parameters(name,description,lazy,parameterId,value)");
-    expect(harness.mockHttp.history.get[0].params?.fields).not.toContain("schema");
+      const result = await executeTool("inspect_trace_frame", { projectId, frameIndex: 0 }, harness.client);
+      expect(dataOf<any>(result)).toMatchObject({ decision: { firedRules: ["R10"], conditions: [] }, ruleCount: 60 });
+      expect(harness.mockHttp.history.get[0].params?.fields).toContain("decision");
+      expect(harness.mockHttp.history.get[0].params?.fields).toContain("parameters(name,description,lazy,parameterId,value)");
+      expect(harness.mockHttp.history.get[0].params?.fields).not.toContain("schema");
 
-    const full = await executeTool("inspect_trace_frame", { projectId, frameIndex: 0, full: true }, harness.client);
-    expect(harness.mockHttp.history.get[1].params).toEqual({ includeSchema: true });
-    expect(dataOf<any>(full).ruleNames).toEqual(ruleNames);
-  });
+      const full = dataOf<any>(await executeTool("inspect_trace_frame", { projectId, frameIndex: 0, full: true }, harness.client));
+      expect(harness.mockHttp.history.get[1].params).toEqual({ includeSchema: true });
+      // Numbered rules are counted, and the schema of the runtime context, every country and currency, left out
+      expect(full).toEqual({ parameters: [], steps: [], decision: { firedRules: ["R10"], conditions: [] }, context, ...fullRules(ruleNames) });
+    });
 
   it.each([
     ["inspect_trace_frame", { frameIndex: 0 }, (data: any) => data.context],
