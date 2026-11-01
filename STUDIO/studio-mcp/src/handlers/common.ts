@@ -128,8 +128,8 @@ function takenArguments(name: string, error: z.ZodError): string | undefined {
 
 /**
  * The JSON Schema a tool publishes. Every agent loads it in every session, so it leaves out what tells the agent
- * nothing: the dialect, and the bounds of a safe integer Zod puts on every integer. `executeTool` still validates the
- * arguments with the Zod schema.
+ * nothing: the dialect, the bounds of a safe integer Zod puts on every integer, and the length of 1 a non-empty string
+ * must have. `executeTool` still validates the arguments with the Zod schema.
  */
 function getInputSchema(schema: ZodType): Record<string, unknown> {
   // The input side: a field with a default may be omitted by the client.
@@ -138,6 +138,7 @@ function getInputSchema(schema: ZodType): Record<string, unknown> {
     override: ({ jsonSchema }) => {
       if (jsonSchema.maximum === Number.MAX_SAFE_INTEGER) delete jsonSchema.maximum;
       if (jsonSchema.minimum === Number.MIN_SAFE_INTEGER) delete jsonSchema.minimum;
+      if (jsonSchema.minLength === 1) delete jsonSchema.minLength;
     },
   }) as Record<string, unknown>;
   delete inputSchema.$schema;

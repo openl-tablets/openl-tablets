@@ -22,19 +22,16 @@ const paginationShape = {
   offset: z.number().int().nonnegative().default(0),
 };
 
-// The ids take a short description, as most tools take one of them and every agent loads their schemas every session
-export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The projectId openl_list_projects answers.");
+// The ids most tools take carry no description, or a short one: their names say what they are, a refusal names the tool
+// that lists them, and every agent loads their schemas in every session
+export const projectIdSchema = z.string().min(1, "Project ID must not be empty.");
 
 const repositoryNameSchema = z.string().describe("The 'id' or 'name' of a repository, as openl_list_repositories answers them; never a made-up one.");
 
 /** A string with more than whitespace in it, trimmed. */
 const nonBlankString = z.string().trim().min(1);
 
-const tableIdSchema = z.string().describe("The 'id' openl_list_tables answers, or the 'tableId' of the last edit; a table name works too.");
-
-const branchNameSchema = z.string().describe("Git branch name (e.g., 'main', 'development', 'feature/new-rules')");
-
-const commentSchema = z.string().optional().describe("Commit comment describing the change (e.g., 'Updated CA premium rates', 'Fixed calculation bug')");
+const tableIdSchema = z.string().describe("The table's id, or its name when no other table has it.");
 
 /** The most characters of a commit comment Studio keeps: a database repository stores it in a column of 255. */
 const MAX_COMMIT_COMMENT_LENGTH = 255;
@@ -80,7 +77,7 @@ export const getProjectSchema = z.strictObject({
 
 export const projectStatusSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: branchNameSchema.optional().describe(
+  branch: z.string().optional().describe(
     "Optional target branch: the tool puts the project on this branch before reading its state, switching an opened project and opening a closed one. Omit for repositories that do not support branches and for repository 'local'."
   ),
   timeoutMs: z.number().int().positive().max(600000).default(30000).describe(
@@ -102,7 +99,7 @@ export const projectStatusSchema = z.strictObject({
 
 export const openProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: branchNameSchema.optional().describe("Open project on a specific Git branch (e.g., 'main', 'development', 'feature/new-rules')"),
+  branch: z.string().optional().describe("Open the project on this branch."),
   revision: z.string().optional().describe("Open project at a specific Git revision/commit hash for read-only viewing"),
   openDependencies: z.boolean().optional().describe("Also open dependency projects (backend default false)."),
 });
@@ -165,7 +162,7 @@ function isJsonInput(text: string): boolean {
 
 export const runTableSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.describe("Table ID of a regular executable table. Use openl_list_tables() to discover it; use the Tests tools instead for Test tables."),
+  tableId: tableIdSchema.describe("A table that is not a test table, which the test tools run."),
   inputJson: z.union([
     z.string().refine(isJsonInput, { error: "inputJson as a string must be a JSON object or array" }),
     z.array(z.unknown()),
@@ -218,7 +215,7 @@ export const listTablePropertyDefinitionsSchema = z.strictObject({
 
 export const copyTableSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.describe("ID of the source table to copy."),
+  tableId: tableIdSchema,
   module: nonBlankString.describe("Name of the destination module. It must already exist unless modulePath is supplied."),
   modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new destination module. Omit when module already exists."),
   name: nonBlankString.describe("Name for the copied table."),
@@ -409,7 +406,7 @@ export const listBranchesSchema = z.strictObject({
 
 export const createBranchSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: branchNameSchema,
+  branch: z.string(),
   revision: z.string().optional().describe("Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used."),
 });
 
@@ -556,7 +553,7 @@ export const createProjectSchema = z.strictObject({
   template: projectIdSchema.optional().describe(
     "How to create the project. OMIT to create a BLANK project from the \"Empty Project\" template OpenL Studio ships. To CLONE an existing project, pass its exact opaque projectId from openl_list_projects() without modification: its full structure is copied (rules, tests, settings, request/response examples) and the project is renamed to name. Never pass the displayed project name because mapped repositories may contain multiple projects with the same name."
   ),
-  branch: branchNameSchema.optional().describe(
+  branch: z.string().optional().describe(
     "Target branch for either BLANK creation or CLONING. Omit for the repository's configured/default branch. Studio selects an existing branch case-insensitively; when the branch does not exist, Studio may create it from the repository base branch. Use openl_list_branches() first to avoid accidental branch creation."
   ),
   comment: commitCommentSchema.optional().describe(
@@ -569,7 +566,7 @@ export const deployProjectSchema = z.strictObject({
   deploymentName: z.string().optional().describe("The name of a new deployment."),
   repository: z.string().optional().describe("The 'id' or 'name' of the production repository of a new deployment, as openl_list_deploy_repositories and openl_list_deployments answer them."),
   deploymentId: z.string().optional().describe("The 'id' of a deployment to deploy the project to again, from openl_list_deployments."),
-  comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
+  comment: z.string().optional(),
 }).superRefine((data, ctx) => {
   const created = data.deploymentName !== undefined || data.repository !== undefined;
   if (data.deploymentId !== undefined && created) {
@@ -622,7 +619,7 @@ const traceProfileParams = {
 
 export const startTraceSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.describe("Table ID to debug (e.g., 'calculatePremium_1234'). Get from openl_list_tables()."),
+  tableId: tableIdSchema,
   testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember: pass them again. Omit for regular rule execution."),
   inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }, e.g. { params: { age: 25 }, runtimeContext: { lob: 'Auto' } }. Omit BOTH inputJson and testRanges to replay the input of the previous run, e.g. restarting with profiling or new breakpoints."),
   module: z.string().optional().describe("Module name to trace in the context of a specific opened module. Usually omit."),
@@ -679,7 +676,7 @@ export const expandTraceTreeSchema = z.strictObject({
 
 export const watchTraceCellsSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableId: tableIdSchema.describe("Table ID to run (e.g., 'calculatePremium_1234'). Get from openl_list_tables()."),
+  tableId: tableIdSchema,
   cells: z.array(z.string()).min(1).describe("Cell names to watch, e.g. ['$VehiclePriceFactor']. The value of each named cell is captured at EVERY execution of its table across the whole run — one series per cell."),
   testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember."),
   inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }. Omit BOTH inputJson and testRanges to replay the input of the previous run."),
@@ -693,7 +690,7 @@ export const watchTraceCellsSchema = z.strictObject({
 
 export const getProjectRevisionsSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: branchNameSchema.optional().describe("The branch whose history to read, as openl_list_project_branches names it; omit for the branch the project is on. A branch that does not hold the project has no revisions."),
+  branch: z.string().optional().describe("The branch whose history to read, as openl_list_project_branches names it; omit for the branch the project is on. A branch that does not hold the project has no revisions."),
   search: z.string().optional().describe("Search term to filter revisions by commit message or author"),
   techRevs: z.boolean().default(false).describe("Include technical revisions (default: false)"),
   ...paginationShape,
@@ -780,11 +777,7 @@ const filePathSchema = z
     "The path in the project, such as 'rules/Model.xlsx', without the folder of the project; a folder ends with '/'."
   );
 
-const fileBranchSchema = branchNameSchema
-  .optional()
-  .describe(
-    "The branch the project must be on, else the call fails; omit for a repository without branches."
-  );
+const fileBranchSchema = z.string().optional().describe("Fails unless the project is on this branch.");
 
 export const readProjectFileSchema = z.strictObject({
   projectId: projectIdSchema,

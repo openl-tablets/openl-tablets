@@ -37,12 +37,14 @@ describe("tool registry", () => {
     expect(lenient).toEqual([]);
   });
 
-  it("publishes no dialect and no safe-integer bounds, but the bounds of a tool", () => {
+  it("publishes no dialect, no safe-integer bounds and no length of a non-empty string, but the bounds of a tool", () => {
     const published = JSON.stringify(getAllTools().map((tool) => tool.inputSchema));
     const listTables = getAllTools().find((tool) => tool.name === "list_tables")?.inputSchema;
 
     expect(published).not.toContain("$schema");
     expect(published).not.toContain(String(Number.MAX_SAFE_INTEGER));
+    expect(published).not.toContain('"minLength":1');
+    expect(published).toContain('"maxLength":255');
     expect(listTables?.properties).toMatchObject({
       limit: { type: "integer", exclusiveMinimum: 0, maximum: 200 },
       offset: { type: "integer", minimum: 0 },
