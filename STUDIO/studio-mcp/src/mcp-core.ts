@@ -1,4 +1,4 @@
-import { CLIENT_INFO_META_KEY, McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/server";
+import { CLIENT_INFO_META_KEY, McpServer, type StandardSchemaWithJSON, type ToolAnnotations } from "@modelcontextprotocol/server";
 import { SERVER_INFO, mcpToolName } from "./constants.js";
 import { registerAllTools, getAllTools, executeTool } from "./handlers/index.js";
 import type { OpenLClient } from "./client.js";
@@ -66,13 +66,23 @@ are in its files already.
 
 ${SKILLS_OVERVIEW}`;
 
+/** The values MCP takes for an annotation a tool leaves out, which a tool publishes only to say otherwise. */
+const ANNOTATION_DEFAULTS: Readonly<Record<string, boolean>> = {
+  readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true,
+};
+
+/** The annotations of a tool without those of the default value, which every agent would load for nothing. */
+function withoutDefaults(annotations: ToolAnnotations | undefined): ToolAnnotations | undefined {
+  return annotations && Object.fromEntries(Object.entries(annotations).filter(([key, value]) => ANNOTATION_DEFAULTS[key] !== value));
+}
+
 // The tools are the same for every server, so they are registered, and their wire names and configurations built,
 // once, when the module loads.
 registerAllTools();
 const TOOLS = getAllTools().map(({ name, title, description, inputSchema, annotations }) => ({
   name,
   wireName: mcpToolName(name),
-  config: { title, description, inputSchema: publishedSchema(inputSchema), annotations },
+  config: { title, description, inputSchema: publishedSchema(inputSchema), annotations: withoutDefaults(annotations) },
 }));
 
 

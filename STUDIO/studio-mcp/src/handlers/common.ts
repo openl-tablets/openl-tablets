@@ -145,6 +145,8 @@ function getInputSchema(schema: ZodType): Record<string, unknown> {
       if (jsonSchema.maximum === Number.MAX_SAFE_INTEGER) delete jsonSchema.maximum;
       if (jsonSchema.minimum === Number.MIN_SAFE_INTEGER) delete jsonSchema.minimum;
       if (jsonSchema.minLength === 1) delete jsonSchema.minLength;
+      // Zod names the check of a prefix, which its pattern publishes, by a format no JSON Schema knows
+      if (jsonSchema.format === "starts_with") delete jsonSchema.format;
     },
   }) as Record<string, unknown>;
   delete inputSchema.$schema;

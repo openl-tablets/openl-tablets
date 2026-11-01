@@ -444,7 +444,11 @@ OpenL Studio and where the server keeps its state; the
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
   leaves out what tells it nothing: the `$schema` dialect, the safe-integer bounds of `.int()` and the `minLength: 1`
   of a non-empty string. Zod still checks them when the tool runs. For the same reason the ids most tools take,
-  `projectId` first, carry no description or a short one: a refusal names the tool that lists them.
+  `projectId` first, carry no description or a short one: a refusal names the tool that lists them. A test of
+  `mcp-core.test.ts` caps what a client loads, the tool list and the server instructions: a description says what a
+  tool does and answers, when to take it instead of its neighbour, and shows one call where the argument shape is
+  nested; an argument says what its name does not; a fact several tools share is said once, in the instructions; and a
+  tool publishes no annotation of the value MCP takes when it is left out.
 - A mistake of the caller throws `ProtocolError` with `InvalidParams` or `InvalidRequest`; any other `Error` reaches
   the agent as an internal error.
 - Long work waits inside one call — `waitForResult` of `handlers/wait.ts` for Studio's `202 notReady` — honours the

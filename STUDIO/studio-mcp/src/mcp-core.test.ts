@@ -110,11 +110,27 @@ describe("MCP core — tool-call error channel", () => {
     }
   });
 
+  it("keeps what a client loads, the tool list and the instructions, under the size they were cut to", async () => {
+    // A client without deferred tools loads every definition on every request: raise the ceiling only for a reason
+    const { tools } = await client.listTools();
+    const size = JSON.stringify(tools).length + (client.getInstructions() ?? "").length;
+
+    expect(size).toBeLessThanOrEqual(75_000);
+  });
+
+  it("publishes no annotation of the value MCP takes when it is left out", async () => {
+    const { tools } = await client.listTools();
+
+    expect(tools.flatMap(({ annotations }) => Object.entries(annotations ?? {}))).not.toContainEqual(["openWorldHint", true]);
+  });
+
   it("advertises whole-table replacement as destructive and idempotent", async () => {
     const tools = await client.listTools();
     const update = tools.tools.find((tool) => tool.name === "openl_update_table");
 
-    expect(update?.annotations?.destructiveHint).toBe(true);
+    // MCP takes a tool that is not read-only for destructive unless it says otherwise
+    expect(update?.annotations?.readOnlyHint).toBeUndefined();
+    expect(update?.annotations?.destructiveHint).not.toBe(false);
     expect(update?.annotations?.idempotentHint).toBe(true);
   });
 
