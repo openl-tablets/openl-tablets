@@ -218,10 +218,11 @@ function unreadyIndexNote(health: unknown, repositoryId?: string): string | unde
   if (unready.length === 0) {
     return undefined;
   }
-  const failed = unready.flatMap(([, index]) => index?.failedBranches ?? []);
-  const named = unready.map(([repository, index]) => `${repository} (${index?.state ?? "unknown"})`).join(", ");
-  return `The project index of ${named} is not ready: projects of other branches may be missing`
-    + (failed.length > 0 ? `, and a branch that failed lists its projects as last indexed: ${failed.join(", ")}.` : ".");
+  // Each repository names its own branches that failed
+  const failed = (branches: string[] | undefined): string => (branches?.length ? `, failed: ${branches.join(", ")}` : "");
+  const named = unready.map(([repository, index]) => `${repository} (${index?.state ?? "unknown"}${failed(index?.failedBranches)})`);
+  return `The project index of ${named.join(", ")} is not ready: projects of other branches may be missing`
+    + (unready.some(([, index]) => index?.failedBranches?.length) ? ", and a branch that failed lists its projects as last indexed." : ".");
 }
 
 export function registerProjectHandlers(): void {

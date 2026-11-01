@@ -27,7 +27,7 @@ describe("guidance tools", () => {
   });
 
   it("openl_list_guides takes the 'spec' the ids of the specifications start with for their type", async () => {
-    const text = textOf(await executeTool("list_guides", { type: "spec", search: "rules.xml" }, harness.client));
+    const text = textOf(await executeTool("list_guides", { type: "SPEC", search: "rules.xml" }, harness.client));
 
     expect(text).toContain(`| ${GUIDE_IDS.rulesXml} |`);
     expect(text).not.toContain("| guide/");
