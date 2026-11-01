@@ -1035,9 +1035,10 @@ interface CompilationTests {
 }
 
 interface CompilationDetails {
-  messages: CompilationMessages;
+  /** Left out of a status `openl_project_status` answers while compiling, as the tests: they are not counted yet. */
+  messages?: CompilationMessages;
   modules: CompilationModules;
-  tests: CompilationTests;
+  tests?: CompilationTests;
 }
 
 interface ProjectModifiedBy {

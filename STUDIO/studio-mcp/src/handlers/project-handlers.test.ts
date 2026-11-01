@@ -234,14 +234,32 @@ describe("project status", () => {
     expect(response.refreshed).toBeUndefined();
   });
 
-  it("reports a compilation already running as compiling, with a note to call again", async () => {
-    harness.mockHttp.onGet(projectPath).reply(200, withStatus({ projectId, branch: "main", compileState: "compiling" }));
+  it("waits for a compilation already running, such as the one after an edit, and answers its result", async () => {
+    harness.mockHttp
+      .onGet(projectPath)
+      .replyOnce(200, withStatus({ ...compiled("compiling"), compileState: "compiling" }))
+      .onGet(projectPath, { params: STATUS_SUMMARY_QUERY })
+      .replyOnce(200, withStatus({ compileState: "compiling" }))
+      .onGet(projectPath, { params: STATUS_SUMMARY_QUERY })
+      .replyOnce(200, withStatus({ compileState: "errors" }))
+      .onGet(projectPath)
+      .replyOnce(200, withStatus(compiled("errors", [{ summary: "Bad formula", severity: "ERROR" }])));
 
     const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
-    expect(response.compileState).toBe("compiling");
-    expect(response.note).toContain("Call openl_project_status again");
+    expect(response.compileState).toBe("errors");
+    expect(response.note).toBeUndefined();
     expect(harness.mockHttp.history.get.some((request) => request.url.endsWith("/tables"))).toBe(false);
+  });
+
+  it("reports a compilation that outlasts timeoutMs as compiling, without the counts it has not made yet", async () => {
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus({ ...compiled("compiling"), compileState: "compiling" }));
+
+    const response = dataOf(await executeTool("project_status", { projectId, timeoutMs: 300 }, harness.client));
+
+    expect(response.compileState).toBe("compiling");
+    expect(response.compilation).toEqual({ modules: { total: 1, compiled: 1 } });
+    expect(response.note).toContain("Call openl_project_status again");
   });
 
   it("reports an idle project as compiling when its compilation outlasts timeoutMs", async () => {
@@ -249,15 +267,15 @@ describe("project status", () => {
       .onGet(projectPath)
       .replyOnce(200, withStatus({ projectId, branch: "main", compileState: "idle" }))
       .onGet(projectPath)
-      .replyOnce(200, withStatus({ projectId, branch: "main", compileState: "compiling" }));
+      .reply(200, withStatus({ projectId, branch: "main", compileState: "compiling" }));
     harness.mockHttp.onGet(`${projectPath}/tables`).timeout();
 
     const response = dataOf(await executeTool("project_status", {
-      projectId, timeoutMs: 5_000, }, harness.client));
+      projectId, timeoutMs: 300, }, harness.client));
 
     expect(response.compileState).toBe("compiling");
     expect(response.note).toContain("Call openl_project_status again");
-    expect(harness.mockHttp.history.get.find((request) => request.url.endsWith("/tables"))?.timeout).toBe(5_000);
+    expect(harness.mockHttp.history.get.find((request) => request.url.endsWith("/tables"))?.timeout).toBe(300);
   });
 
   it("switches an opened project to the requested branch before reading its state", async () => {
@@ -293,7 +311,7 @@ describe("project status", () => {
     const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(response.compileState).toBe("errors");
-    expect(response.compilation.messages.items).toEqual([{ id: 7, summary: "Datatype 'Foo' not found", severity: "ERROR" }]);
+    expect(response.compilation.messages.items).toEqual([{ summary: "Datatype 'Foo' not found", severity: "ERROR" }]);
     expect(harness.mockHttp.history.get).toHaveLength(1);
   });
 
@@ -333,7 +351,7 @@ describe("project status", () => {
 
     const response = dataOf(await executeTool("project_status", { projectId, severity: ["INFO"] }, harness.client));
 
-    expect(response.compilation.messages.items).toEqual([{ id: 1, summary: "INFO_ITEM", severity: "INFO" }]);
+    expect(response.compilation.messages.items).toEqual([{ summary: "INFO_ITEM", severity: "INFO" }]);
   });
 
   it("names the tables of each changed workbook on request, comparing them one by one with the saved revision", async () => {
@@ -369,18 +387,19 @@ describe("project status", () => {
     ]);
   });
 
-  it("names the table of a message without the project the status is of", async () => {
-    const table = { type: "table", id: "t1", name: "Rates", module: "Main", cell: "B2" };
+  it("names the place of a message by its table, without the project the status is of", async () => {
+    const table = { type: "table", id: "t1", name: "Rates", module: "Main", cell: "B2", start: 0, end: 4 };
     const fixture: ProjectStatusView = {
       projectId,
       compileState: "errors",
       compilation: {
         messages: {
           items: [
-            { id: 1, summary: "Bad formula", severity: "ERROR", location: { ...table, projectId, project: "Rating" } },
+            { id: 1, summary: "Bad formula", severity: "ERROR", stacktrace: true, location: { ...table, projectId, project: "Rating" } },
             { id: 2, summary: "Bad type", severity: "ERROR", location: { ...table, projectId: "dep", project: "Common" } },
+            { id: 3, summary: "Bad module", severity: "ERROR", location: { type: "module", module: "Main", projectId } },
           ],
-          total: 2, errors: 2, warnings: 0,
+          total: 3, errors: 3, warnings: 0,
         },
         modules: { total: 1, compiled: 1 },
         tests: { total: 0 },
@@ -388,11 +407,35 @@ describe("project status", () => {
     };
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(fixture));
 
-    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
+    const response = dataOf(await executeTool("project_status", { projectId, grouped: false }, harness.client));
 
-    expect(response.compilation.messages.items.map((item: { location: object }) => item.location)).toEqual([
-      table, { ...table, projectId: "dep", project: "Common" },
+    // A message without a table keeps its module
+    expect(response.compilation.messages.items).toEqual([
+      { summary: "Bad formula", severity: "ERROR", location: { id: "t1", name: "Rates", cell: "B2" } },
+      { summary: "Bad type", severity: "ERROR", location: { projectId: "dep", project: "Common", id: "t1", name: "Rates", cell: "B2" } },
+      { summary: "Bad module", severity: "ERROR", location: { module: "Main" } },
     ]);
+  });
+
+  it.each([
+    [{}, [["Need to close '('", 1], ["Cannot parse '2.55'", 2], ["Unused value", 0]]],
+    [{ grouped: false }, [["Need to close '('", 0], ["Identifier 'round' is not found", 0], ["Cannot parse '2.55'", 0],
+      ["Cannot parse '31.24'", 0], ["Cannot parse '47.96'", 0], ["Unused value", 0]]],
+  ])("counts the messages of a table after its first of a severity in 'more' unless %j", async (options, items) => {
+    const at = (id: string, summary: string, severity = "ERROR") => ({ summary, severity, location: { id, name: id } });
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus(compiled("errors", [
+      at("RateCalc", "Need to close '('"),
+      at("RateCalc", "Identifier 'round' is not found"),
+      at("RateTest", "Cannot parse '2.55'"),
+      at("RateTest", "Cannot parse '31.24'"),
+      at("RateCalc", "Unused value", "WARN"),
+      at("RateTest", "Cannot parse '47.96'"),
+    ])));
+
+    const response = dataOf(await executeTool("project_status", { projectId, ...options }, harness.client));
+
+    expect(response.compilation.messages.items.map((item: { summary: string; more?: number }) => [item.summary, item.more ?? 0]))
+      .toEqual(items);
   });
 
   it.each([

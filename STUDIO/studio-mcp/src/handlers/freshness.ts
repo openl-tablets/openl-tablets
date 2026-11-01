@@ -14,6 +14,7 @@ import type { OpenLClient } from "../client.js";
 const REFRESH_WAIT_MS = 60_000;
 
 const REFRESH_POLL_MS = 250;
+const REFRESH_POLL_MAX_MS = 2_000;
 
 /**
  * Compiles the project again from its files when another program changed them since Studio compiled it.
@@ -50,7 +51,7 @@ export async function refreshFromDisk(
     return false;
   }
   await client.recompileProject(projectId, module);
-  await untilTaken(client, projectId, Date.now() + waitMs, signal);
+  await untilCompiled(client, projectId, Date.now() + waitMs, signal);
   return true;
 }
 
@@ -61,19 +62,19 @@ export async function refreshFromDisk(
  * Studio lets go of what it compiled as soon as the compilation starts, so a status that tells no change is not enough:
  * the tables of the other modules of the project come with the end of the compilation.
  */
-async function untilTaken(
+export async function untilCompiled(
   client: OpenLClient,
   projectId: string,
   deadline: number,
   signal?: AbortSignal,
 ): Promise<void> {
-  if (Date.now() >= deadline) {
-    return;
-  }
-  // An unreferenced timer does not keep the process alive; a cancelled call rejects with an AbortError
-  await sleep(REFRESH_POLL_MS, undefined, { signal, ref: false });
-  const status = await client.getProjectStatusSummary(projectId, signal);
-  if (status.changedOnDisk === true || status.compileState === "compiling") {
-    await untilTaken(client, projectId, deadline, signal);
+  // A pause twice as long as the previous one, up to a ceiling: a long compilation is read a few times a minute
+  for (let pauseMs = REFRESH_POLL_MS; Date.now() < deadline; pauseMs = Math.min(pauseMs * 2, REFRESH_POLL_MAX_MS)) {
+    // An unreferenced timer does not keep the process alive; a cancelled call rejects with an AbortError
+    await sleep(Math.min(pauseMs, deadline - Date.now()), undefined, { signal, ref: false });
+    const status = await client.getProjectStatusSummary(projectId, signal);
+    if (status.changedOnDisk !== true && status.compileState !== "compiling") {
+      return;
+    }
   }
 }
