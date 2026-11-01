@@ -92,7 +92,7 @@ describe("MCP core — tool-call error channel", () => {
     const tools = await client.listTools();
     for (const name of [
       "openl_edit_table",
-      "openl_start_project_tests",
+      "openl_run_project_tests",
       "openl_deploy_project",
     ]) {
       const tool = tools.tools.find((candidate) => candidate.name === name);

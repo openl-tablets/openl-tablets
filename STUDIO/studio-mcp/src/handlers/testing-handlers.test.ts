@@ -8,7 +8,7 @@ import { executeTool } from "./index.js";
 import type * as Types from "../types.js";
 import { bodyOf } from "../testing/mock-http.js";
 import { projectView } from "../testing/openl-api-mocks.js";
-import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
+import { harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
 
@@ -33,12 +33,13 @@ const resultsPage = (results: Partial<Types.TestsExecutionSummary>): Types.Tests
   ...results,
 });
 
-describe("openl_start_project_tests", () => {
-  it("starts the tests the arguments select", async () => {
+describe("openl_run_project_tests", () => {
+  it("runs the tests the arguments select and answers their results", async () => {
     harness.mockHttp.onGet(projectPath).reply(200, projectView("OPENED"));
     harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
+    harness.mockHttp.onGet(summaryPath).replyOnce(202, { status: "notReady" }).onGet(summaryPath).reply(200, resultsPage({}));
 
-    const result = await executeTool("start_project_tests", {
+    const result = await executeTool("run_project_tests", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
       testRanges: "1-3",
@@ -49,18 +50,22 @@ describe("openl_start_project_tests", () => {
       tableId: "Test_calculatePremium_1234", testRanges: "1-3", fromModule: "Rules",
     });
     expect(harness.mockHttp.history.patch).toHaveLength(0);
-    expect(dataOf(result)).toEqual({ started: true });
+    // The results are read as openl_get_test_results reads them by default, once Studio has run the tests
+    expect(harness.mockHttp.history.get.filter((request) => request.url === summaryPath).map((request) => request.params))
+      .toEqual([{ failuresOnly: true, failures: 5, lazyValues: true }, { failuresOnly: true, failures: 5, lazyValues: true }]);
+    expect(textOf(result)).toMatch(/^0 tests: 0 passed, 0 failed, in /);
   });
 
-  it("opens a closed project before starting its tests", async () => {
+  it("opens a closed project before running its tests, and says so", async () => {
     harness.mockHttp.onGet(projectPath).reply(200, projectView("CLOSED"));
     harness.mockHttp.onPatch(projectPath).reply(204);
     harness.mockHttp.onPost(`${projectPath}/tests/run`).reply(202);
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({}));
 
-    const result = await executeTool("start_project_tests", { projectId: "design-project1" }, harness.client);
+    const result = await executeTool("run_project_tests", { projectId: "design-project1" }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "OPENED" }]);
-    expect(dataOf(result)).toEqual({ started: true, projectOpened: true });
+    expect(textOf(result)).toMatch(/^Opened the project to run its tests\.\n\n0 tests:/);
   });
 });
 
@@ -99,10 +104,9 @@ describe("test results", () => {
   });
 
   it.each([
-    [{ summary: true }, { failures: 5 }],
-    [{ summary: true, failures: 3, unpaged: true }, { failures: 3, unpaged: true }],
+    [{ summary: true }, undefined],
     [{}, { failuresOnly: true, failures: 5, lazyValues: true }],
-    [{ failuresOnly: false, unpaged: true }, { failures: 5, unpaged: true, lazyValues: true }],
+    [{ failuresOnly: false }, { failures: 5, lazyValues: true }],
   ])("openl_get_test_results asks Studio for the results %j select", async (args, params) => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({}));
 
@@ -115,7 +119,7 @@ describe("test results", () => {
     [{ summary: true, tableId: "t1" }, /A summary takes no tableId/],
     [{ summary: true, limit: 10 }, /A summary takes no tableId, offset/],
     [{ page: 0 }, /page/],
-    [{ unpaged: true, limit: 10 }, /unpaged is mutually exclusive/],
+    [{ unpaged: true }, /unpaged/],
     [{ caseId: "1" }, /caseId names a test of the test table tableId names/],
   ])("openl_get_test_results refuses %j before any request", async (args, message) => {
     await expect(executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client))
@@ -352,16 +356,5 @@ describe("test results", () => {
     expect(tables).toBeGreaterThan(0);
     expect(tables).toBeLessThan(13);
     expect(text).toContain(`13 test tables; 1–${tables} below, the next page at offset=${tables}.`);
-  });
-
-  it("reads every test table without a limit only when unpaged (EPBDS-16807)", async () => {
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
-      testCases: Array.from({ length: 13 }, (_, i) => ({ ...tableOfTests(3, 1_000), name: `Test_${i}` })), total: 13,
-    }));
-
-    const text = textOf(await executeTool("get_test_results", { projectId: "design-project1", unpaged: true }, harness.client));
-
-    expect(text.length).toBeGreaterThan(25_000);
-    expect(text).toContain("13 test tables.");
   });
 });

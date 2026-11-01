@@ -110,7 +110,7 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   cut in its structure (`json-cut.ts`): texts longer than 200 characters are shortened, then the largest array loses
   items from its middle, keeping its first and last ones, then the largest object is replaced by the count of its keys,
   and the note names each cut by its path. A page of `openl_get_test_results` is cut by
-  whole test tables, and the tests of one test table by whole tests. An unpaged read of test results, guides and the
+  whole test tables, and the tests of one test table by whole tests. Guides and the
   AGENTS.md guidance of a project are never cut. A file
   read answers a text of up to 5,000 bytes inline, and any other file by a link the agent runs `curl` with
   ([MCP File Transfer Links](mcp-file-transfer.md)).
@@ -173,7 +173,6 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 - **A text write** travels in the MCP request, whose whole body — JSON escaping included — is limited to 5 MB, so
   a text well under that size may already need an upload link; a binary file always goes by one.
 - **The REST timeout** of 30 seconds cannot be changed.
-- **Unbounded answers** — `openl_get_test_results` with `unpaged: true`.
 - **`openl_open_project` with a branch** ignores a failed branch switch and opens the project again, and ignores
   `revision` for a project that is already open.
 - **`openl_deploy_project`** finds the deployment repository by its exact name, case included.

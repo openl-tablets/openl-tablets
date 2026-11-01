@@ -720,7 +720,7 @@ export const restoreProjectLocalChangeSchema = z.strictObject({
 // Test Execution Schemas
 // =============================================================================
 
-export const startProjectTestsSchema = z.strictObject({
+export const runProjectTestsSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema.optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
   testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
@@ -734,12 +734,8 @@ function checkTestResultOptions(data: {
   caseId?: string;
   offset?: number;
   limit?: number;
-  unpaged: boolean;
 }, ctx: z.RefinementCtx): void {
   const paged = data.offset !== undefined || data.limit !== undefined;
-  if (data.unpaged && paged) {
-    ctx.addIssue({ code: "custom", path: ["unpaged"], message: "unpaged is mutually exclusive with offset and limit." });
-  }
   if (data.summary && (paged || data.tableId !== undefined)) {
     ctx.addIssue({ code: "custom", path: ["summary"], message: "A summary takes no tableId, offset or limit." });
   }
@@ -754,10 +750,8 @@ export const getTestResultsSchema = z.strictObject({
   tableId: tableIdSchema.optional().describe("The test table to read, page by page of its tests; omit to read every test table, page by page."),
   caseId: nonBlankString.optional().describe("The id of one test of tableId, to read it with its inputs as JSON, whole up to 12,500 characters and cut in their structure beyond, the cuts named: the other reads name an input with inner structure only by its type and key."),
   failuresOnly: z.boolean().default(true).describe("List only the failed tests, true by default; false lists every test."),
-  failures: z.number().int().positive().default(5).describe("With failuresOnly, how many failed tests each test table lists, 5 by default; a test table with more tells how many it leaves out. The results of one tableId list them all."),
   offset: z.number().int().nonnegative().optional().describe("The test table to start from, or with tableId the test, as pagination.next_offset names it."),
   limit: z.number().int().positive().max(200).optional().describe("How many test tables a page holds, or with tableId how many tests, 50 by default."),
-  unpaged: z.boolean().default(false).describe("Read every test table in one answer without a size limit, which can exceed what the client accepts."),
 }).superRefine(checkTestResultOptions);
 
 // =============================================================================
