@@ -72,7 +72,7 @@ export const listProjectsSchema = z.strictObject({
 
 export const getProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  include: z.array(z.enum(["status", "descriptor"])).optional().describe(`What to add: the compile status (status) or the rules.xml descriptor (descriptor). ${STATUS_INCLUDE_NOTE}`),
+  include: z.array(z.enum(["status", "descriptor", "details"])).optional().describe(`What to add: the compile status (status), the rules.xml descriptor (descriptor), or the path, tags, last comment and the projects using it in full (details). ${STATUS_INCLUDE_NOTE}`),
 });
 
 export const projectStatusSchema = z.strictObject({

@@ -77,6 +77,8 @@ export interface ProjectViewModel {
   revision: string;
   branch?: string;
   branchDefault?: boolean;
+  /** Whether the branch of the project holds it as the default branch does. */
+  inDefaultBranch?: boolean;
   branchProtected?: boolean;
   compileStatus?: ProjectStatusView;
   path?: string;
@@ -88,6 +90,8 @@ export interface ProjectViewModel {
   repositoryInfo?: { name: string; features?: RepositoryFeatures };
   /** What the user may do with the project: an operation left out is not available. */
   capabilities?: ProjectCapabilities;
+  /** The projects that depend on the project. */
+  usedBy?: Array<{ id: string; name: string; branch?: string; status?: ProjectStatus; repository?: string }>;
 }
 
 /** The lifecycle operations a project takes; the ones left out do not apply to it. */
