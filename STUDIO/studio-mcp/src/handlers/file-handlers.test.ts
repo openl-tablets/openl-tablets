@@ -468,6 +468,8 @@ describe("delete, search, copy and move", () => {
     ["delete_project_file", "delete", { path: "old.txt", version: "v1" }],
     ["copy_project_file", "post", { sourcePath: "a.txt", destinationPath: "b.txt" }],
     ["move_project_file", "post", { sourcePath: "a.txt", destinationPath: "b.txt" }],
+    // The names agents give the two paths
+    ["copy_project_file", "post", { from: "a.txt", to: "b.txt" }],
   ] as const)("openl_%s answers what it changed with no request for the project", async (tool, method, args) => {
     harness.mockHttp.onDelete("/projects/p1/files/old.txt").reply(204);
     harness.mockHttp.onPost(/\/projects\/p1\/file-(copy|move)/).reply(201);

@@ -197,6 +197,15 @@ describe("table workflow handlers", () => {
     expect(harness.mockHttp.history.delete).toHaveLength(1);
   });
 
+  it("passes the objects of a run input on as they are, whatever the aliases of the tool", async () => {
+    harness.mockHttp.onPost("/projects/p1/run").reply(202);
+    harness.mockHttp.onGet("/projects/p1/run/result").reply(200, { result: 1, executionTimeMs: 1 });
+
+    await executeTool("run_table", { projectId: "p1", tableId: "TAB0000000000001", inputJson: [{ id: 5 }] }, harness.client);
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual([{ id: 5 }]);
+  });
+
   it("maps whole-project and table-neighborhood graph options to their endpoints", async () => {
     harness.mockHttp.onGet(/\/projects\/p1\/tables(?:\/[^/]+)?\/graph/).reply(200, [
       { id: "t1", name: "TAB0000000000001", dependencies: ["base"], dependents: [] },

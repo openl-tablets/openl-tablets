@@ -277,6 +277,8 @@ export function registerFileHandlers(): void {
     description:
       "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change lands as a write of openl_write_project_file does.",
     schema: schemas.fileTransferSchema,
+    // The names agents give the two paths
+    aliases: { from: "sourcePath", to: "destinationPath" },
     annotations: {
       destructiveHint: false,
       openWorldHint: true,
@@ -290,6 +292,8 @@ export function registerFileHandlers(): void {
     description:
       "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change lands as a write of openl_write_project_file does.",
     schema: schemas.fileTransferSchema,
+    // The names agents give the two paths
+    aliases: { from: "sourcePath", to: "destinationPath" },
     annotations: {
       openWorldHint: true,
     },
