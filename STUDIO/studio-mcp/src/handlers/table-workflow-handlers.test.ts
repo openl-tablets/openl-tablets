@@ -212,8 +212,8 @@ describe("table workflow handlers", () => {
     expect(harness.mockHttp.history.get.map(({ url, params }) => ({ url, params: { ...params, fields: undefined } }))).toEqual([
       { url: "/projects/p1/tables/graph", params: { module: "Main", layer: "datatype" } },
       { url: "/projects/p1/tables/Rate%20%231/graph", params: { direction: "DEPENDENTS", depth: 3 } },
-      // A neighborhood without direction and depth leaves them to Studio.
-      { url: "/projects/p1/tables/Rate/graph", params: {} },
+      // A neighborhood without direction leaves it to Studio, and reads one level without depth
+      { url: "/projects/p1/tables/Rate/graph", params: { depth: 1 } },
     ]);
   });
 

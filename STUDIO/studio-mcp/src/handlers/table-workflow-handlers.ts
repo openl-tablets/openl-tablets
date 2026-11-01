@@ -105,7 +105,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Get Table Dependencies",
     description:
-      "Get the table dependency graph as an adjacency list of nodes: id, name, kind, and the ids of the tables it calls (dependencies) and that call it (dependents). Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
+      "Get the table dependency graph as an adjacency list of nodes: id, name, kind, and the ids of the tables it calls (dependencies) and that call it (dependents). Without tableId the whole project, optionally by module and layer; with tableId the neighborhood of the table, by direction and depth, 1 by default: the tables it calls and that call it directly. A version of a table names its dimension properties; a datatype its parent and fields; a vocabulary its value type, value count and first and last values. Dispatchers stand for versioned tables, self-loops for recursion. Read a table itself with openl_get_table.",
     schema: schemas.getTableDependenciesSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {

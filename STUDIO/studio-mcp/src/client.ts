@@ -1174,9 +1174,10 @@ export class OpenLClient {
     const url = options?.tableId
       ? `${tablePath(projectId, options.tableId)}/graph`
       : `${projectPath(projectId)}/tables/graph`;
-    // A table's neighborhood is read by direction and depth; the whole graph by module and layer.
+    // A table's neighborhood is read by direction and depth, one level unless asked: without a depth it is every table
+    // the table reaches both ways, most of a large project. The whole graph is read by module and layer.
     const params = options?.tableId
-      ? { direction: options.direction || undefined, depth: options.depth }
+      ? { direction: options.direction || undefined, depth: options.depth ?? 1 }
       : { module: options?.module || undefined, layer: options?.layer || undefined };
     return (await this.http.get<Types.TableNodeView[]>(url, { params: { ...params, fields: GRAPH_NODE_FIELDS } })).data;
   }
