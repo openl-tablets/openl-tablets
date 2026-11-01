@@ -16,7 +16,9 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import * as schemas from "../schemas.js";
 
 import { isConflictError, isNotFoundError } from "../http.js";
-import { registerTool, formatResult, type ToolResponse, type ToolHandlerExtra } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse, type ToolHandlerExtra } from "./common.js";
+import { fitLines } from "../markdown-list.js";
+import { cutText, formatCount, tableLabel } from "../text.js";
 import { reportProgress } from "./wait.js";
 import type { OpenLClient } from "../client.js";
 import type * as Types from "../types.js";
@@ -234,26 +236,105 @@ function trimmedVariables(
   return Object.fromEntries(Object.entries(variables).map(([key, value]) => trimmed(key, value)).filter((entry) => entry.length > 0));
 }
 
+/** The longest text of a traced value a step line shows: openl_get_trace_value or openl_inspect_trace_frame read it whole. */
+const VALUE_TEXT = 200;
+
+/** A time in milliseconds as an agent reads it: `0.26 ms`. */
+function millis(value: number): string {
+  return `${Number(value.toFixed(2))} ms`;
+}
+
+/** A step or a place by its ref, which a breakpoint takes, and its label when it says more: `R1C0 $Factor`. */
+function refLabel(ref: string | undefined, label: string | undefined): string {
+  return label === undefined || label === ref ? ref ?? "" : `${ref} ${label}`;
+}
+
+/** A traced value on one line: its JSON, cut, or the parameterId openl_get_trace_value reads a lazy one by. */
+function valueText(value: Partial<Types.TraceParameterValue>): string {
+  return value.lazy ? `lazy, parameterId ${value.parameterId}` : cutText(JSON.stringify(value.value) ?? "null", VALUE_TEXT);
+}
+
+/** A step of a frame or of a call-tree node on one line: `- R1C0 $Factor C11 executed 0.02 ms = 1.4, 2 calls`. */
+function stepLine(step: Types.StepValueView): string {
+  const head = [`- ${refLabel(step.ref, step.label)}`, step.cell, step.status, step.decision,
+    step.durationMillis === undefined ? undefined : millis(step.durationMillis)].filter(Boolean).join(" ");
+  const value = step.value ? ` = ${valueText(step.value)}` : "";
+  return `${head}${value}${step.childrenTotal ? `, ${formatCount(step.childrenTotal, "call")}` : ""}`;
+}
+
+/** The version a dispatcher chose, when it had several to choose from. */
+function chosenVersion(dispatch: Types.DispatchInfo | undefined): string | undefined {
+  return (dispatch?.candidates.length ?? 0) > 1 ? dispatch?.candidates.find((candidate) => candidate.chosen)?.label : undefined;
+}
+
 /**
- * A stack as the trace tools answer it, without what tells an agent nothing: the id of the session, which no tool
- * takes, and of each frame its depth when it follows the index, its active flag, which the last frame carries, its
- * completed and error flags while false, and its location when a listed current step repeats it.
+ * A frame on one line: `#3 AreaFactor (decisionTable, QFVRFV3YHVHG7S4E) @2 at R4C0 $Zip completed in 0.3 ms`. `#N` is the
+ * frameIndex the frame tools take, `@N` the execution of the table a `<name>@N` breakpoint stops at, left out for the
+ * first; its depth is told only when it does not follow the index, and its place only when no listed step is current.
  */
-function compactStack<S extends Types.DebugStackView>(stack: S): Omit<S, "sessionId" | "frames"> & { frames: object[] } {
-  const { sessionId, frames, ...rest } = stack as S & { sessionId?: string };
-  return {
-    ...rest,
-    frames: frames.map(({ depth, active, completed, error, location, ...frame }) => {
-      const repeated = frame.steps?.some((step) => step.status === "current" && step.ref === location?.ref);
-      return {
-        ...frame,
-        ...(depth === frame.index + 1 ? {} : { depth }),
-        ...(completed ? { completed } : {}),
-        ...(error ? { error } : {}),
-        ...(location && !repeated ? { location } : {}),
-      };
-    }),
-  };
+function frameLine(frame: Types.DebugFrameView): string {
+  const { location } = frame;
+  const listed = frame.steps?.some((step) => step.status === "current" && step.ref === location?.ref);
+  const own = frame.selfMillis !== undefined && frame.selfMillis !== frame.durationMillis ? `, own ${millis(frame.selfMillis)}` : "";
+  const version = chosenVersion(frame.dispatch);
+  return [
+    `#${frame.index} ${tableLabel(frame.name, frame.kind, frame.tableId)}`,
+    frame.instance ? `@${frame.instance}` : undefined,
+    frame.depth === frame.index + 1 ? undefined : `depth ${frame.depth}`,
+    location && !listed ? `at ${refLabel(location.ref, location.label)}` : undefined,
+    frame.error ? "error" : undefined,
+    frame.completed ? "completed" : undefined,
+    frame.durationMillis === undefined ? undefined : `in ${millis(frame.durationMillis)}${own}`,
+    version && `version ${version}`,
+  ].filter(Boolean).join(" ");
+}
+
+/** The profile of a run: its time and calls, and its slowest tables by their own time. */
+function profileLines(profile: Types.ProfileSummaryView): string[] {
+  const cut = profile.truncated ? ", the call tree cut at its size limit" : "";
+  return [
+    "",
+    `Profile: ${millis(profile.totalMillis)}, ${formatCount(profile.nodeCount, "call")} of ${formatCount(profile.distinctTables, "table")}${cut}; the slowest by own time:`,
+    ...profile.hotspots.map((hot) =>
+      `- ${tableLabel(hot.name, hot.kind)} own ${millis(hot.selfMillis)}, total ${millis(hot.totalMillis)}, ${formatCount(hot.count, "call")}`),
+  ];
+}
+
+/** The root of the call tree, by the uri and instance openl_expand_trace_tree takes. */
+function treeLine(tree: Types.CallNodeView): string {
+  const dropped = tree.notRetained ? `; ${tree.notRetained} sub-calls not retained` : "";
+  return `Call tree root: ${tableLabel(tree.name, tree.kind)} in ${millis(tree.durationMillis)}, own ${millis(tree.selfMillis)}${dropped}; ` +
+    `uri ${tree.uri}, instance ${tree.instance ?? 0}.`;
+}
+
+/**
+ * A stack as text, which an agent reads after every step of a debug session: the status, a frame a line from the root,
+ * the profile and the root of the call tree of a profiling run, the steps of the frames listing them and of the root,
+ * cut by whole steps to the size of an answer, then the values of the active frame when read with it, and a note. JSON
+ * spent most of a stack on keys and on the uri of every frame, which no breakpoint needs: Studio takes a table by name.
+ */
+function stackText(stack: Types.DebugStackView & { variables?: Partial<Types.DebugFrameVariables> }, note?: string): string {
+  const { status, frames, error, tree, profile, variables } = stack;
+  const active = frames.find((frame) => frame.active) ?? frames.at(-1);
+  const where = error ? [error.table, error.location].filter(Boolean).join(", ") : "";
+  return fitLines({
+    head: [
+      `Status: ${status}.`,
+      ...(error ? [`Error: ${error.summary}${where ? ` (${where})` : ""}${error.detail ? `: ${error.detail}` : ""}`] : []),
+      ...(frames.length ? ["", "Frames, from the root:", ...frames.map(frameLine)] : []),
+      ...(profile ? profileLines(profile) : []),
+      ...(tree ? ["", treeLine(tree)] : []),
+    ],
+    lines: [
+      ...frames.flatMap((frame) => (frame.steps?.length ? ["", `Steps of #${frame.index}:`, ...frame.steps.map(stepLine)] : [])),
+      ...(tree?.steps.length ? ["", "Steps of the call-tree root:", ...tree.steps.map(stepLine)] : []),
+    ],
+    tail: [
+      ...(variables && active ? ["", `Values of #${active.index}: ${JSON.stringify(variables)}`] : []),
+      ...(note ? ["", note] : []),
+    ],
+    more: (left) => `… ${left} more lines of steps: read a frame with openl_inspect_trace_frame.`,
+  });
 }
 
 /**
@@ -301,7 +382,7 @@ function rethrowTraceTreeError(error: unknown): never {
     throw new ProtocolError(
       ProtocolErrorCode.InvalidRequest,
       `Call-tree expansion found no target: either ${NO_ACTIVE_SESSION}, ` +
-        "or the uri/instance/step does not name a retained node. The executed tree exists only for a profiling run (openl_start_trace with profiling: true), and a step is expandable only when its childrenTotal > 0; take the uri/instance from the /stack `tree` root (includeTree: true) or an earlier openl_expand_trace_tree page.",
+        "or the uri/instance/step does not name a retained node. The executed tree exists only for a profiling run (openl_start_trace with profiling: true), and a step is expandable only when its childrenTotal > 0; take the uri/instance from the call-tree root of the stack (includeTree: true) or an earlier openl_expand_trace_tree page.",
     );
   }
   if (isConflictError(error)) {
@@ -366,7 +447,7 @@ export function registerTraceHandlers(): void {
         includeTree: args.profiling ? (args.includeTree ?? false) : undefined,
       });
 
-      return formatResult(compactStack(stack));
+      return textResult(stackText(stack));
     },
   });
 
@@ -388,14 +469,14 @@ export function registerTraceHandlers(): void {
 
       // Bundle the active frame's variables so a `step out → inspect` cycle is
       // one call. Only meaningful while suspended with a frame on the stack.
-      let result: unknown = compactStack(stack);
       const active = stack.frames.find((f) => f.active) ?? stack.frames.at(-1);
       if (args.withValues && stack.status === "suspended" && active) {
         const variables = await client.getTraceFrameVariables(args.projectId, active.index, INSPECT_FIELDS);
-        result = compactStack(withStepValues(stack, active.index, trimmedVariables(withoutUnsetContext(variables)) as Types.DebugFrameVariables));
+        const values = trimmedVariables(withoutUnsetContext(variables)) as Types.DebugFrameVariables;
+        return textResult(stackText(withStepValues(stack, active.index, values)));
       }
 
-      return formatResult(result);
+      return textResult(stackText(stack));
     },
   });
 
@@ -448,18 +529,12 @@ export function registerTraceHandlers(): void {
       }
 
       if ("stillRunning" in outcome) {
-        // Timed out — report the actual status in the same format as a stop, so
-        // JSON consumers stay consistent and can read `status`.
-        const timedOut = {
-          status: outcome.stillRunning,
-          message:
-            `Trace is still ${outcome.stillRunning} after waiting ${Math.round(timeoutMs / 1000)}s — the rule may be computing or looping. ` +
-            `Call openl_resume_trace again with attach: true to keep waiting (optionally with a larger timeoutMs), or openl_stop_trace to terminate.`,
-        };
-        return formatResult(timedOut);
+        return textResult(stackText({ status: outcome.stillRunning, frames: [] },
+          `Trace is still ${outcome.stillRunning} after waiting ${Math.round(timeoutMs / 1000)}s — the rule may be computing or looping. ` +
+          "Call openl_resume_trace again with attach: true to keep waiting (optionally with a larger timeoutMs), or openl_stop_trace to terminate."));
       }
 
-      return formatResult(compactStack(outcome.stack));
+      return textResult(stackText(outcome.stack));
     },
   });
 
@@ -523,9 +598,8 @@ export function registerTraceHandlers(): void {
     title: "Read / Replace Breakpoints",
     description:
       "Without 'breakpoints', read the active breakpoint keys and the available targets, their names by kind ('name' filters them; rule tables, deduplicated by name; with an active session only tables reachable from the traced one). " +
-      "With 'breakpoints', REPLACE the whole set (empty array clears all) and answer the set. Key forms: '<name>' stops at entry of every same-named table version; '<uri>' at that exact table " +
-      "(uri from frames[].uri); '<uri>#R{r}C{c}' at a spreadsheet cell; '<uri>#rule' when ANY rule of that decision table fires; '<uri>#<ruleName>' when a specific rule fires " +
-      "(rule names from openl_inspect_trace_frame ruleNames/decision). Append '@N' to any key to break only on the table's N-th execution (0-based) — e.g. '<uri>#R48C0@3'; without it a cell breakpoint hits every pass of a table that runs many times (one per coverage/iteration). N matches frames[].instance and the 'instance' of an openl_watch_trace_cells series, so a watch outlier at instance 3 is reached with '@3'. " +
+      "With 'breakpoints', REPLACE the whole set (empty array clears all) and answer the set. Key forms: '<name>' stops at the entry of every version of the table; '<name>#R{r}C{c}' at a spreadsheet cell; '<name>#rule' when ANY rule of that decision table fires; '<name>#<ruleName>' when a specific rule fires " +
+      "(rule names from openl_inspect_trace_frame ruleNames/decision, R1 to R<ruleCount> for a table naming none); a uri of the call tree or of a watch series in place of the name stops at that one version. Append '@N' to any key to break only on the table's N-th execution (0-based) — e.g. 'Premium#R48C0@3'; without it a cell breakpoint hits every pass of a table that runs many times (one per coverage/iteration). N is the '@N' of a frame, left out for 0, and the 'instance' of an openl_watch_trace_cells series, so a watch outlier at instance 3 is reached with '@3'. " +
       "Works without a session — set breakpoints before openl_start_trace; changes during a session apply at the next frame enter or line change.",
     schema: schemas.setTraceBreakpointsSchema,
     annotations: {
@@ -582,7 +656,7 @@ export function registerTraceHandlers(): void {
     name: "expand_trace_tree",
     title: "Expand Call-Tree Node",
     description:
-      "Load one level of the executed call tree of a profiling run. The 'tree' root that openl_start_trace or openl_resume_trace answer with includeTree: true, and every node this tool answers, is one level deep: each step carries a 'childrenTotal' count instead of its children. Expand a step whose childrenTotal is above 0 by its node (uri and instance) and the 'ref' of the step; the answer { children, total } is one level deep again. offset/limit, 100 by default, page the many sub-calls of a loop: 'hasMore' and 'nextOffset' tell the next page. 'notRetained' counts the sub-calls dropped once the tree reached its size limit. To find what is slow, read the 'profile' instead. The tree lives as long as the debug session, also after the run completes.",
+      "Load one level of the executed call tree of a profiling run. The call-tree root that openl_start_trace or openl_resume_trace answer with includeTree: true, its uri and instance on its line, and every node this tool answers, is one level deep: each step carries a 'childrenTotal' count instead of its children. Expand a step whose childrenTotal is above 0 by its node (uri and instance) and the 'ref' of the step; the answer { children, total } is one level deep again. offset/limit, 100 by default, page the many sub-calls of a loop: 'hasMore' and 'nextOffset' tell the next page. 'notRetained' counts the sub-calls dropped once the tree reached its size limit. To find what is slow, read the 'profile' instead. The tree lives as long as the debug session, also after the run completes.",
     schema: schemas.expandTraceTreeSchema,
     annotations: {
       readOnlyHint: true,

@@ -7,7 +7,7 @@ import * as schemas from "../schemas.js";
 import { RESPONSE_LIMITS } from "../constants.js";
 import { cutJson } from "../json-cut.js";
 import { countLine, fitItems, hasMoreItems, markdownTable, type Column } from "../markdown-list.js";
-import { formatCount } from "../text.js";
+import { cutText, formatCount } from "../text.js";
 import type * as Types from "../types.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
@@ -118,8 +118,7 @@ const INPUT_TEXT = 120;
 function inputsOf(unit: Types.TestUnitExecutionResult): string {
   return (unit.parameters ?? []).map(({ name, lazy, type, key, value }) => {
     const text = lazy ? `${type ?? "value"} ${key ?? ""}`.trim() : JSON.stringify(value) ?? "";
-    const shown = text.length > INPUT_TEXT ? `${text.slice(0, INPUT_TEXT)}…` : text;
-    return `${name}=${shown}`;
+    return `${name}=${cutText(text, INPUT_TEXT)}`;
   }).join("; ");
 }
 
