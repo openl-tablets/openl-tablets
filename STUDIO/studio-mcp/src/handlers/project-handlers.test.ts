@@ -145,13 +145,19 @@ describe("project lists and details", () => {
     expect(shifted[4]).toContain("| p25 |");
   });
 
-  it("openl_get_project answers the project Studio describes", async () => {
-    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED"));
+  it("openl_get_project answers the project Studio describes, its details and the projects using it in full on request", async () => {
+    const usedBy = [{ id: "p2", name: "Rating (Deployment)", branch: "main", status: "CLOSED", repository: "design" }];
+    const details = { tags: { LOB: "Dental" }, comment: "Add rates", branchDefault: true, inDefaultBranch: true };
+    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", { ...details, usedBy: usedBy as ProjectViewModel["usedBy"] }));
 
     const result = await executeTool("get_project", { projectId: "design-project1" }, harness.client);
+    const detailed = await executeTool("get_project", { projectId: "design-project1", include: ["details"] }, harness.client);
 
-    const { id, ...project } = projectView("OPENED");
-    expect(dataOf(result)).toEqual({ projectId: id, ...project });
+    const { id, path, ...project } = projectView("OPENED");
+    expect(dataOf(result)).toEqual({ projectId: id, ...project, usedBy: [{ id: "p2", name: "Rating (Deployment)" }] });
+    expect(dataOf(detailed)).toEqual({ projectId: id, ...project, path, ...details, usedBy });
+    // details is the tool's own: Studio is asked for none
+    expect(harness.mockHttp.history.get.map((request) => request.params?.include)).toEqual([undefined, undefined]);
   });
 
   it("names the capabilities of a project it reads, leaving out one Studio marks unavailable", async () => {

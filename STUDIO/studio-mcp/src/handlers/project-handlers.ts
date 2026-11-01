@@ -228,9 +228,12 @@ type AnsweredProject = Omit<Types.ProjectViewModel, "compileStatus" | "capabilit
 /**
  * A project as the project tools answer it: its capabilities as a list of names, and its compile status without the
  * id, the branch, the revision and the last change the project names already, which an agent would otherwise read
- * twice. A value that differs stays.
+ * twice; a value that differs stays. Without its `details` it leaves out where it lives, its tags, its last comment and
+ * its default-branch flags, and names the projects using it by their ids and names.
  */
-function answeredProject({ capabilities, ...project }: Types.ProjectViewModel): AnsweredProject {
+function answeredProject({ capabilities, ...whole }: Types.ProjectViewModel, details: boolean): AnsweredProject {
+  const { path: _path, tags: _tags, comment: _comment, branchDefault: _default, inDefaultBranch: _inDefault, usedBy, ...brief } = whole;
+  const project = details ? whole : { ...brief, ...(usedBy ? { usedBy: usedBy.map(({ id, name }) => ({ id, name })) } : {}) };
   const answered = { ...project, ...(capabilities ? { capabilities: namesOfSet(capabilities) } : {}) };
   if (!project.compileStatus) {
     return answered;
@@ -327,7 +330,7 @@ export function registerProjectHandlers(): void {
     name: "get_project",
     title: "Get Project Details",
     description:
-      "Get a project: its name, branch, status, repository, last change and revision, and its 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when the operation is not available: for a project edited in place (a file repository in single-user mode) the first three always are, as the project is always open and every edit is already in its files. include adds its compile status (status) or its rules.xml descriptor (descriptor).",
+      "Get a project: its name, branch, status, repository, last change and revision, and its 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when the operation is not available: for a project edited in place (a file repository in single-user mode) the first three always are, as the project is always open and every edit is already in its files. include adds its compile status (status), its rules.xml descriptor (descriptor), or its path, tags and last comment (details).",
     schema: schemas.getProjectSchema,
     annotations: {
       readOnlyHint: true,
@@ -335,9 +338,9 @@ export function registerProjectHandlers(): void {
       idempotentHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const project = await client.getProject(args.projectId, args.include);
+      const project = await client.getProject(args.projectId, studioIncludes(args.include));
 
-      const { id, ...answered } = answeredProject(project);
+      const { id, ...answered } = answeredProject(project, args.include?.includes("details") === true);
       return formatResult({ projectId: id, ...answered });
     },
   });
