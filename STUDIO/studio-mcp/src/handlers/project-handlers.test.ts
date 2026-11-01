@@ -44,19 +44,32 @@ describe("project lists and details", () => {
 
     const result = await executeTool("list_projects", { repository: "Design Repository" }, harness.client);
 
-    expect(textOf(result)).toBe("1 project.\n\n| projectId | name | repository | branch | status | modified |\n"
-      + "| --- | --- | --- | --- | --- | --- |\n"
-      + "| design:Project 1:hash123 | Project 1 | design |  | OPENED | 2024-01-01T00:00:00Z by admin |");
+    expect(textOf(result)).toBe("1 project.\n\n| projectId | name | repository | branch | status |\n"
+      + "| --- | --- | --- | --- | --- |\n"
+      + "| design:Project 1:hash123 | Project 1 | design |  | OPENED |");
   });
 
-  it("openl_list_projects leaves out the time or the author of a change Studio does not name", async () => {
-    harness.mockHttp.onGet("/projects", { params: { offset: 0, size: 50 } }).reply(200, pageOf([
+  it.each([
+    [{ include: ["details"] }, {}],
+    [{ sort: "updated" }, { sort: "updated" }],
+  ])("openl_list_projects with %j names the last change, which Studio is not asked for", async (args, params) => {
+    harness.mockHttp.onGet("/projects", { params: { ...params, offset: 0, size: 50 } })
+      .reply(200, pageOf([projectView("CLOSED", { id: "p1" })]));
+
+    const text = textOf(await executeTool("list_projects", args, harness.client));
+
+    expect(text).toContain("| status | modified |");
+    expect(text).toContain("| CLOSED | 2024-01-01T00:00:00Z by admin |");
+  });
+
+  it("openl_list_projects sorted by the last change names it, leaving out the time or the author Studio does not name", async () => {
+    harness.mockHttp.onGet("/projects", { params: { sort: "updated", offset: 0, size: 50 } }).reply(200, pageOf([
       projectView("CLOSED", { id: "p1", modifiedBy: undefined }),
       projectView("CLOSED", { id: "p2", modifiedAt: undefined }),
       projectView("CLOSED", { id: "p3", modifiedAt: undefined, modifiedBy: undefined }),
     ]));
 
-    const text = textOf(await executeTool("list_projects", {}, harness.client));
+    const text = textOf(await executeTool("list_projects", { sort: "updated" }, harness.client));
 
     expect(text).toContain("| CLOSED | 2024-01-01T00:00:00Z |");
     expect(text).toContain("| CLOSED | by admin |");
@@ -88,9 +101,9 @@ describe("project lists and details", () => {
     }, harness.client));
 
     // The compile states Studio answers beside the projects fill their column, and are not repeated after it
-    expect(text).toContain("| modified | compileState |");
-    expect(text).toContain("| p1 | project1 | design |  | OPENED | 2024-01-01T00:00:00Z by admin | warnings |");
-    expect(text).toContain("| p2 | project1 | design |  | CLOSED | 2024-01-01T00:00:00Z by admin | idle |");
+    expect(text).toContain("| status | compileState |");
+    expect(text).toContain("| p1 | project1 | design |  | OPENED | warnings |");
+    expect(text).toContain("| p2 | project1 | design |  | CLOSED | idle |");
     expect(text).not.toContain("r1");
     expect(text).toContain('Summary: {"repositoryCounts":[{"repository":"design","count":3}],'
       + '"statusCounts":{"OPENED":2,"CLOSED":1},"tagCounts":[{"tag":"release","count":1}]}');

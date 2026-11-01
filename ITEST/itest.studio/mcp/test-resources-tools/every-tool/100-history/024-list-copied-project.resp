@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "1 project.\n\n| projectId | name | repository | branch | status | modified |\n| --- | --- | --- | --- | --- | --- |\n| Y6F4YG1RVP1GN | McpToolsCopy | design | master | CLOSED | * by Ada Admin |"
+        "text": "1 project.\n\n| projectId | name | repository | branch | status |\n| --- | --- | --- | --- | --- |\n| Y6F4YG1RVP1GN | McpToolsCopy | design | master | CLOSED |"
       }
     ],
     "resultType": "complete",

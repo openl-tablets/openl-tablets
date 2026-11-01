@@ -249,6 +249,18 @@ function answeredProject({ capabilities, ...project }: Types.ProjectViewModel): 
   };
 }
 
+/** The includes of a project tool that Studio takes, if any: `details`, the details of a project, is the tool's own. */
+function studioIncludes<T extends string>(include: Array<T | "details"> | undefined): T[] | undefined {
+  const studios = include?.filter((name): name is T => name !== "details");
+  return studios?.length ? studios : undefined;
+}
+
+/** The last change of a project; Studio may leave its time or its author out. */
+const MODIFIED_COLUMN: Column<Types.ProjectViewModel> = {
+  header: "modified",
+  value: (project) => [project.modifiedAt, project.modifiedBy && `by ${project.modifiedBy}`].filter(Boolean).join(" "),
+};
+
 /**
  * A note naming the repositories listed, all or `repositoryId`, whose cross-branch project index Studio has not
  * finished or could not build: the list may miss their projects of other branches, and a branch that failed lists its
@@ -284,7 +296,7 @@ export function registerProjectHandlers(): void {
       const { repository, ...filters } = args;
       // The client may name the repository; Studio takes its id.
       const repositoryId = repository ? await client.getRepositoryIdByName(repository) : undefined;
-      const projectsPage = await client.listProjectsPage({ ...filters, repository: repositoryId });
+      const projectsPage = await client.listProjectsPage({ ...filters, include: studioIncludes(filters.include), repository: repositoryId });
       const { projectIndexHealth, ...summary } = projectsPage.metadata ?? {};
       // Each project carries its opaque id as projectId, the name the other tools take it by; the capabilities of a
       // project are told by openl_get_project
@@ -294,11 +306,8 @@ export function registerProjectHandlers(): void {
         { header: "repository", value: (project) => project.repository },
         { header: "branch", value: (project) => project.branch },
         { header: "status", value: (project) => project.status },
-        // Studio may leave the time or the author of the last change out
-        {
-          header: "modified",
-          value: (project) => [project.modifiedAt, project.modifiedBy && `by ${project.modifiedBy}`].filter(Boolean).join(" "),
-        },
+        // The last change, a third of each row, is read only by a list sorted by it, or asked for
+        ...(filters.sort === "updated" || filters.include?.includes("details") ? [MODIFIED_COLUMN] : []),
         ...(filters.include?.includes("status")
           ? [{ header: "compileState", value: (project: Types.ProjectViewModel) => project.compileStatus?.compileState }]
           : []),
