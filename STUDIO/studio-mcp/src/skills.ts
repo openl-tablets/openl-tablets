@@ -26,9 +26,9 @@ export const SKILLS_OVERVIEW = `## Skills
 OpenL skills are step-by-step workflows this server serves as MCP resources. They are no skills of your client:
 never call its skill tool or a slash command for them. Before you start a task, read the \`SKILL.md\` of the skill
 that matches it with the tool of your client that reads an MCP resource, such as \`ReadMcpResourceTool\` in Claude
-Code, by its URI, and the files it references the same way: a relative path resolves against the
-folder of its \`SKILL.md\`. A question why a rule gives a wrong, missing or unexpected result starts with
-\`trace-investigation\`, which finds the root cause before \`planning\` plans any fix.
+Code, by its URI below, which lists them all, so the resources need no listing, and the files it references the same
+way: a relative path resolves against the folder of its \`SKILL.md\`. A question why a rule gives a wrong, missing or unexpected result starts with \`trace-investigation\`, which finds the
+root cause before \`planning\` plans any fix.
 
 ${SKILLS.entries
   .map(({ uri, frontmatter: { name, description } }) =>
