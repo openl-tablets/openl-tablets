@@ -14,8 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_delete_project_branch",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "branch": "feature",
-      "confirmBranchName": "feature"
+      "branch": "feature"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
