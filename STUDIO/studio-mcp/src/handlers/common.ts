@@ -205,7 +205,8 @@ function withOptionsNamed(
   }
   const named = structuredClone(args);
   for (const [path, option] of options) {
-    const key = path[path.length - 1];
+    // A path of an issue names the option it refuses, never the arguments themselves
+    const key = path.at(-1) as PropertyKey;
     (valueAt(named, path.slice(0, -1)) as Record<PropertyKey, unknown>)[key] = option;
   }
   return named;
