@@ -393,6 +393,7 @@ export class OpenLClient {
   async getProjectRevisions(
     projectId: string,
     options?: {
+      branch?: string;
       search?: string;
       techRevs?: boolean;
       offset?: number;
@@ -400,6 +401,7 @@ export class OpenLClient {
     }
   ): Promise<Types.PageResponse<Types.ProjectRevision>> {
     const params = {
+      branch: options?.branch,
       search: options?.search || undefined,
       techRevs: options?.techRevs,
       offset: options?.offset,

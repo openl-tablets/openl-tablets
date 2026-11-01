@@ -55,7 +55,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 ### Repository Tools (3)
 - `openl_list_repositories` - List the design repositories with the features each supports (branches, comments, search, mapped folders), in JSON and in either Markdown view
 - `openl_list_branches` - List Git branches in a repository
-- `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch
+- `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch, or in another `branch`; a commit without a comment, such as the deletion of the project, has an empty comment
 
 ### Project Tools (14)
 - `openl_list_projects` - List projects as a table of `projectId`, name, repository, branch, status and last change, with filters and pagination; the first line names the offset of the next page while more follow. Each project names its id once, as `projectId`, the name the other tools take it by, and leaves its capabilities to `openl_get_project`. `include: status` adds a `compileState` column, filled from the compile states Studio answers beside the page, the summary counts of `include: summary` follow the table, and a note names a repository whose cross-branch project index is not ready, which may miss projects of other branches, and the branches that failed, which list their projects as last indexed; a `compileState` of `idle` means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it

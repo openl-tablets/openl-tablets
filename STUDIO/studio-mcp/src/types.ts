@@ -562,7 +562,8 @@ export interface ProjectRevision {
   revisionNo: string;
   shortRevisionNo?: string;
   createdAt: string;
-  fullComment: string;
+  /** Absent for a commit without a comment, such as the deletion of the project. */
+  fullComment?: string;
   author?: {
     displayName?: string;
     email?: string;
