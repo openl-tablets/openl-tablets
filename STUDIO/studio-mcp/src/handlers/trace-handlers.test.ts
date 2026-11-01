@@ -437,9 +437,14 @@ describe("trace tools", () => {
       harness.client
     );
 
-    const text = textOf(result);
-    expect(text).toContain("BankRatingGroup");
+    expect(dataOf(result)).toEqual({
+      breakpoints: ["CalcRule"],
+      targets: { spreadsheet: ["CalcRule"], decisionTable: ["BankRatingGroup"] },
+    });
     expect(harness.mockHttp.history.put).toHaveLength(0);
+
+    const named = await executeTool("set_trace_breakpoints", { projectId, name: "bank" }, harness.client);
+    expect(dataOf(named)).toEqual({ breakpoints: ["CalcRule"], targets: { decisionTable: ["BankRatingGroup"] } });
   });
 
   it("openl_set_trace_breakpoints with breakpoints replaces the whole set and answers it, without the targets", async () => {
