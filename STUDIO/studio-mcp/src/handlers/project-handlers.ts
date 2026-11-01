@@ -6,7 +6,7 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { namesOfSet } from "../utils.js";
+import { isWorkbook, namesOfSet } from "../utils.js";
 import { fitLines, formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
 import { formatCount, tableLabel } from "../text.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
@@ -61,9 +61,6 @@ function groupedByTable(messages: Types.DetailedMessageDescription[]): AnsweredM
   return groups.values().map(([first, ...rest]) => (rest.length > 0 ? { ...first, more: rest.length } : first)).toArray();
 }
 
-/** The workbooks of a project, the files a comparison reads tables of. */
-const WORKBOOK = /\.xls[xm]?$/i;
-
 /**
  * The status with the tables each changed workbook holds otherwise than the saved revision, when they are asked for:
  * the pending changes name files only. Studio holds one comparison per client, so the workbooks are compared one by
@@ -84,7 +81,7 @@ async function withChangedTables(
   const files = [];
   // One workbook after another: Studio keeps one comparison per client, and a second one cancels the first
   for (const file of pendingChanges.files) {
-    if (file.type !== "modified" || !WORKBOOK.test(file.path)) {
+    if (file.type !== "modified" || !isWorkbook(file.path)) {
       files.push(file);
       continue;
     }

@@ -95,6 +95,7 @@ describe("argument validation", () => {
   it.each([
     ["project_status", { projectId: "p1", timeoutMs: 600_001 }, /timeoutMs/],
     ["create_upload_link", { projectId: "p1", path: "a.bin", size: -1 }, /size/],
+    ["read_merge_conflict", { projectId: "p1", path: "rules/Main.xlsx", table: "Rates/B2:C6", side: "OURS" }, /give one of them/],
     ["get_test_results", { projectId: "p1", summary: true, offset: 0 }, /A summary takes no tableId, offset or limit/],
     ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
@@ -142,7 +143,7 @@ describe("argument aliases", () => {
 describe("options in other letters", () => {
   it("takes an option in other letters for the one the tool names, which it publishes alone", async () => {
     harness.mockHttp.onGet("/projects").reply(200, pageOf([]));
-    const sides = getAllTools().find((tool) => tool.name === "read_merge_conflict_file")?.inputSchema.properties;
+    const sides = getAllTools().find((tool) => tool.name === "read_merge_conflict")?.inputSchema.properties;
 
     await executeTool("list_projects", { status: "opened" }, harness.client);
 
