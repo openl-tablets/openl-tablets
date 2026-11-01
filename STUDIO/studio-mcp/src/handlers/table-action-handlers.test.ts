@@ -229,6 +229,19 @@ describe("raw table-source edits", () => {
     expect(dataOf(result).note).toContain("The table does NOT compile after the edit, which WAS applied");
   });
 
+  it("names the table type of a lookup of one input when Studio refuses a SmartLookup without a horizontal input", async () => {
+    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
+    harness.mockHttp.onGet(tablePath).reply(200, {
+      id: "t1", name: "StateFactor", tableType: "RawSource", kind: "Rules", source: [],
+      messages: [{ severity: "ERROR", summary: "No input parameter found for horizontal condition.", location: { cell: "B2" } }],
+    });
+
+    const result = await executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [["NY", 1.2]], }, harness.client);
+
+    expect(dataOf(result).note).toContain("a lookup of one input, or of vertical inputs only, is a SmartRules or SimpleRules table");
+  });
+
   it("reports the new table id and previousTableId when Studio answers a new id for the table", async () => {
     harness.mockHttp.onPost(`${tablePath}/actions`).reply(200, { id: "t1_renamed" });
     harness.mockHttp.onGet("/projects/p1/tables/t1_renamed").reply(200, { id: "t1_renamed", name: "T", tableType: "RawSource" });
