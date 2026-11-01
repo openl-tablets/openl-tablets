@@ -161,11 +161,21 @@ export function registerTableHandlers(): void {
       // Studio names the rows of the table only when the window leaves some out
       const totalRows = total ?? offset + source.length;
       const grid = gridOf(source, offset, table.pos);
-      if (args.find !== undefined) {
+      const text = args.find;
+      if (text !== undefined) {
         // The header and the row of the titles of the columns tell what the rows found hold
-        const found = findRows(grid, args.find, (table.headerHeight ?? 1) + 1);
+        const headerRows = (table.headerHeight ?? 1) + 1;
+        const found = findRows(grid, text, headerRows);
+        const rows = Object.keys(found.rows).length;
         return formatResult({ ...about, ...found }, {
-          responseMetadata: { found: { rows: Object.keys(found.rows).length, totalRows } },
+          responseMetadata: { found: { rows, totalRows } },
+          // Too many rows found are cut to the first of them whole, as a slice is
+          truncation: {
+            items: rows,
+            unit: "rows found",
+            cut: (count) => ({ ...about, ...findRows(grid, text, headerRows, count) }),
+            next: () => "narrow find to read the others",
+          },
         });
       }
 
