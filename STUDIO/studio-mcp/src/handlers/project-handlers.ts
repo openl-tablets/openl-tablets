@@ -12,7 +12,7 @@ import { formatStudioPage, formatWholeList, type Column } from "../markdown-list
 import { isNotFoundError, isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
 import { changedTablesIfCompared } from "./comparison.js";
-import { refreshFromDisk } from "./freshness.js";
+import { refreshFromDisk, untilCompiled } from "./freshness.js";
 
 /**
  * Severity ordering for `compilation.messages.items`. Anything not recognised
@@ -34,37 +34,56 @@ function severityRank(severity: string | undefined): number {
  *     actionable diagnostics survive the cut to the response limit, which keeps
  *     the leading messages (the backend returns them in id order).
  *  3. Optional `severity` filter narrows items to the requested severities.
- *  4. Optional `limit` caps the (already-sorted) items list.
- *  5. A message names its table without the project the status is of, and the modules are counted, not named:
+ *  4. Unless `grouped` is false, the messages of one table after its first of a severity are counted in `more` of
+ *     the first: an error in one table makes every table that uses it fail too, hundreds of messages of one cause.
+ *  5. Optional `limit` caps the (already-sorted) items list.
+ *  6. A message names its table without the project the status is of, and the modules are counted, not named:
  *     openl_list_project_modules names them.
+ *  7. A compilation still running has no counts of messages or tests yet, only of the modules it compiled.
  */
 function shapeStatusResponse(
   status: Types.ProjectStatusView,
-  severityFilter?: ("ERROR" | "WARN" | "INFO")[],
-  limit?: number,
+  { severity, limit, grouped }: { severity?: ("ERROR" | "WARN" | "INFO")[]; limit?: number; grouped?: boolean },
 ): Types.ProjectStatusView {
   if (!status.compilation?.messages) {
     return status;
   }
-  // An "ok" project has no errors or warnings: its messages are left out unless a severity is asked for
-  let items = status.compileState === "ok" && !severityFilter?.length ? [] : (status.compilation.messages.items ?? [])
-    .toSorted((a, b) => severityRank(a.severity) - severityRank(b.severity));
-  if (severityFilter?.length) {
-    const allowed = new Set<string>(severityFilter);
-    items = items.filter((m) => m.severity !== undefined && allowed.has(m.severity));
-  }
-  if (limit) {
-    items = items.slice(0, limit);
-  }
   const { compiledModules, ...modules } = status.compilation.modules;
+  if (status.compileState === "compiling") {
+    // Zero errors of a compilation that has not ended read as a project that compiles
+    return { ...status, compilation: { modules } };
+  }
+  const allowed = new Set<string>(severity);
+  // An "ok" project has no errors or warnings: its messages are left out unless a severity is asked for
+  const items = (status.compileState === "ok" && allowed.size === 0 ? [] : status.compilation.messages.items ?? [])
+    .filter((m) => allowed.size === 0 || (m.severity !== undefined && allowed.has(m.severity)))
+    .toSorted((a, b) => severityRank(a.severity) - severityRank(b.severity));
+  // Grouped and cut first: a cascade compacts only the messages it answers
+  const answered = (grouped === false ? items : groupedByTable(items)).slice(0, limit)
+    .map((item) => compactMessage(item, status.projectId));
   return {
     ...status,
     compilation: {
       ...status.compilation,
-      messages: { ...status.compilation.messages, items: items.map((item) => compactMessage(item, status.projectId)) },
+      messages: { ...status.compilation.messages, items: answered },
       modules,
     },
   };
+}
+
+/** A compile message as `openl_project_status` answers it, with the count of the messages of its table it stands for. */
+type AnsweredMessage = Types.DetailedMessageDescription & { more?: number };
+
+/**
+ * The first message of each table and severity, with the count of the others of them in `more`, in the order of the
+ * first ones. A message that names no table stands for itself.
+ */
+function groupedByTable(messages: Types.DetailedMessageDescription[]): AnsweredMessage[] {
+  const groups = Map.groupBy(messages, (message, index) => {
+    const table = message.location?.id;
+    return typeof table === "string" ? `${message.severity} ${table}` : index;
+  });
+  return groups.values().map(([first, ...rest]) => (rest.length > 0 ? { ...first, more: rest.length } : first)).toArray();
 }
 
 /** The workbooks of a project, the files a comparison reads tables of. */
@@ -102,10 +121,26 @@ async function withChangedTables(
   return { ...status, pendingChanges: { ...pendingChanges, files } };
 }
 
-/** A compile message whose location names the project the status is of without the project. */
-function compactMessage(message: Types.DetailedMessageDescription, statusProject: string): Types.DetailedMessageDescription {
-  const { projectId, project, ...location } = message.location ?? {};
-  return projectId === statusProject ? { ...message, location } : message;
+/**
+ * A compile message as an agent reads it: its summary, severity and place. The place names the project only when it is
+ * another than the one of the status, and the module only when it names no table, which the table tools take by its
+ * id. The id of the message, its offsets in the cell, the type of its place and whether Studio holds a stack trace of
+ * it are left out: no tool takes them.
+ */
+function compactMessage(message: AnsweredMessage, statusProject: string): AnsweredMessage {
+  const { id: _id, stacktrace: _stacktrace, location: source, ...rest } = message;
+  if (!source) {
+    return rest;
+  }
+  const { projectId, project, type: _type, start: _start, end: _end, module, ...location } = source;
+  return {
+    ...rest,
+    location: {
+      ...(projectId === statusProject ? {} : { projectId, project }),
+      ...(location.id === undefined ? { module } : {}),
+      ...location,
+    },
+  };
 }
 
 /**
@@ -142,9 +177,10 @@ const STATUS_NOTES: Partial<Record<Types.CompileState, string>> = {
  * Reads the compile state of a project for `openl_project_status`.
  *
  * A given branch that differs from the one the project is opened on is switched to first. A project Studio has not
- * compiled yet (`idle`) is compiled through the tables API, which answers once the compilation ends.
+ * compiled yet (`idle`) is compiled through the tables API, which answers once the compilation ends, and a compilation
+ * that is running, after an edit for one, is waited for: both up to `timeoutMs`.
  *
- * A compilation that was already running, or that outlasts `timeoutMs`, is reported as it is: `compiling`.
+ * A compilation that outlasts `timeoutMs` is reported as it is: `compiling`.
  *
  * A project whose files another program changed since Studio compiled them is compiled again from those files, waiting
  * for the compilation up to `timeoutMs` as for an idle project: the status that is answered tells `refreshed`.
@@ -153,8 +189,9 @@ async function readProjectStatus(
   client: OpenLClient,
   projectId: string,
   branch: string | undefined,
-  options: { signal?: AbortSignal; timeoutMs?: number },
+  options: { signal?: AbortSignal; timeoutMs: number },
 ): Promise<Types.ProjectStatusView & { refreshed?: true }> {
+  const deadline = Date.now() + options.timeoutMs;
   let status = await client.getProjectStatus(projectId);
   if (branch && status.branch && branch !== status.branch) {
     await client.openOnBranch(projectId, branch);
@@ -163,17 +200,22 @@ async function readProjectStatus(
   if (status.changedOnDisk && await refreshFromDisk(client, projectId, options.signal, options.timeoutMs)) {
     return { ...(await client.getProjectStatus(projectId)), refreshed: true };
   }
-  if (status.compileState !== "idle") {
+  if (status.compileState === "idle") {
+    try {
+      await client.triggerProjectCompilation(projectId, options);
+    } catch (error) {
+      // Studio goes on compiling after the wait gives up; the status read below reports it as running.
+      if (!isRequestTimeout(error)) {
+        throw error;
+      }
+    }
+    // The compilation ended, or outlasted timeoutMs
+    return client.getProjectStatus(projectId);
+  }
+  if (status.compileState !== "compiling") {
     return status;
   }
-  try {
-    await client.triggerProjectCompilation(projectId, options);
-  } catch (error) {
-    // Studio goes on compiling after the wait gives up; the status read below reports it as running.
-    if (!isRequestTimeout(error)) {
-      throw error;
-    }
-  }
+  await untilCompiled(client, projectId, deadline, options.signal);
   return client.getProjectStatus(projectId);
 }
 
@@ -295,7 +337,7 @@ export function registerProjectHandlers(): void {
     name: "project_status",
     title: "Get Project Status",
     description:
-      "Get the project's compile state, diagnostics, pending changes by file, and module/test summary; with changes: true, each changed workbook names the tables it holds otherwise than the saved revision. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
+      "Get the project's compile state, diagnostics, pending changes by file, and module/test summary; with changes: true, each changed workbook names the tables it holds otherwise than the saved revision. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it before answering, and a compilation already running, after an edit for one, is waited for, both up to timeoutMs; one that outlasts it is reported as compiling, without counts: call the tool again for its result. The messages of one table after its first of a severity are counted in its 'more': an error in one table makes the tables that use it fail too, so fix the first error of the table you changed. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
     schema: schemas.projectStatusSchema,
     annotations: {
       destructiveHint: false,
@@ -309,7 +351,7 @@ export function registerProjectHandlers(): void {
         timeoutMs: args.timeoutMs,
       });
       const { refreshed, ...read } = status;
-      const shaped = await withChangedTables(client, shapeStatusResponse(read, args.severity, args.limit), args.changes, extra);
+      const shaped = await withChangedTables(client, shapeStatusResponse(read, args), args.changes, extra);
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 

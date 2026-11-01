@@ -84,13 +84,16 @@ export const projectStatusSchema = z.strictObject({
     "Optional target branch: the tool puts the project on this branch before reading its state, switching an opened project and opening a closed one. Omit for repositories that do not support branches and for repository 'local'."
   ),
   timeoutMs: z.number().int().positive().max(600000).default(30000).describe(
-    "Max time in milliseconds to wait for Studio to compile an idle project. On expiry, the status is returned as compiling (no error). Default 30000 (30 seconds). Cap 600000 (10 minutes)."
+    "Max time in milliseconds to wait for Studio to compile the project. On expiry, the status is returned as compiling (no error). Default 30000 (30 seconds). Cap 600000 (10 minutes)."
   ),
   severity: z.array(z.enum(["ERROR", "WARN", "INFO"])).optional().describe(
     "Filter compilation.messages.items to only these severities. Useful when the project has many warnings and you want to isolate errors: pass severity: ['ERROR']. Default: all severities. Note: items are always sorted ERROR → WARN → INFO before any filter or truncation is applied, so errors are visible without this filter."
   ),
   limit: z.number().int().positive().max(1000).optional().describe(
     "Cap the number of items returned in compilation.messages.items. The list is sorted ERROR → WARN → INFO first so the most actionable items are preserved when capped. Pair with severity to bound very large diagnostic lists. Default: no cap; an answer over the size limit keeps the first messages, errors first, and tells how many it holds."
+  ),
+  grouped: z.boolean().default(true).describe(
+    "false lists every message of a table instead of its first with the count of the others in 'more'."
   ),
   changes: z.boolean().optional().describe(
     "Also name in pendingChanges the tables each changed workbook holds otherwise than the saved revision, comparing the workbooks one by one: seconds each."
