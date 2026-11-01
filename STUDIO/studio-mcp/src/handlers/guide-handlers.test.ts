@@ -26,6 +26,13 @@ describe("guidance tools", () => {
       + `| ${GUIDE_IDS.smartRules} | Smart Rules Table | ${Buffer.byteLength(GUIDE_PAGES[path])} |`);
   });
 
+  it("openl_list_guides takes the 'spec' the ids of the specifications start with for their type", async () => {
+    const text = textOf(await executeTool("list_guides", { type: "spec", search: "rules.xml" }, harness.client));
+
+    expect(text).toContain(`| ${GUIDE_IDS.rulesXml} |`);
+    expect(text).not.toContain("| guide/");
+  });
+
   it("openl_get_guides returns the full bodies for the requested ids", async () => {
     const result = await executeTool("get_guides", {
       ids: [GUIDE_IDS.rulesXml, GUIDE_IDS.basicConcepts],
