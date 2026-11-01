@@ -234,6 +234,8 @@ describe("raw table-source edits", () => {
     ["delete_rows", "of the header row", { position: 0 }, /'position' starts at 1/],
     ["insert_columns", "before the label column", { position: 0, cells: [["a"]] }, /'position' starts at 1/],
     ["delete_rows", "with cells it does not take", { position: 1, cells: [["a"]] }, /'delete_rows' does not take 'cells'/],
+    ["insert_rows", "with the count a delete takes", { position: 1, count: 1, cells: [["a"]] },
+      /'insert_rows' does not take 'count': it inserts the lines of 'cells', each with a value, as Studio refuses an empty line/],
     ["update_row", "of two lines", { position: 1, cells: [["a"], ["b"]] }, /'update_row' takes one line of cells/],
     ["update_cell", "without a value", { row: 2, column: 1 }, /'update_cell' needs 'value'/],
     ["update_cell", "with both a value and a formula", { row: 2, column: 1, value: 4, formula: "=B2*2" },

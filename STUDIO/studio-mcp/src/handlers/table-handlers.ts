@@ -125,17 +125,18 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "List Project Tables",
     description:
-      "List the tables of a project by name, a line per module and kind; 50 a page, 200 at most, the first line naming the offset of the next page. Filter by kind, name, module, properties, header and text. The table tools take a name as their tableId; a name several tables share, such as the versions of a table, is followed by the id of each, which they take instead, and the dimension properties its versions differ in. An id stays while the table is edited or moved; a rename gives a new one, which the edit tools answer.",
+      "List the tables of a project by name, a line per module and kind; 50 a page, 200 at most, the first line naming the offset of the next page. Filter by kind, name, module, propertyFilter, header and text. The table tools take a name as their tableId; a name several tables share, such as the versions of a table, is followed by the id of each, which they take instead, and the dimension properties its versions differ in. An id stays while the table is edited or moved; a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
-    aliases: { search: "name" },
+    // The filter was named 'properties', which agents read as the properties to show
+    aliases: { search: "name", properties: "propertyFilter" },
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { projectId, ...filters } = args;
-      const tablesPage = await client.listTablesPage(projectId, filters);
+      const { projectId, propertyFilter, ...filters } = args;
+      const tablesPage = await client.listTablesPage(projectId, { ...filters, properties: propertyFilter });
       // A table of the project the caller named does not repeat it; one of a dependency, which scope 'all' finds, does
       const ofDependency = (table: Types.TableMetadata): boolean => table.projectId !== undefined && table.projectId !== projectId;
       return textResult(formatStudioPage(tablesPage, filters.offset, {

@@ -72,6 +72,22 @@ describe("reading tables", () => {
     expect(textOf(result)).toBe("2 tables.\n\nmodule: Lookups\n\nRules: Messages\n\nData: Codes (t9, project Common p9)");
   });
 
+  it.each([
+    ["propertyFilter", { propertyFilter: { state: "CA" } }],
+    ["the name it had, properties", { properties: { state: "CA" } }],
+  ])("openl_list_tables filters by property values given as %s", async (_case, filter) => {
+    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([], { total: 0 }));
+
+    await executeTool("list_tables", { projectId: "p1", ...filter }, harness.client);
+
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ "properties.state": "CA" });
+  });
+
+  it("openl_list_tables refuses property names to show in place of property values to filter by", async () => {
+    await expect(executeTool("list_tables", { projectId: "p1", properties: ["state"] }, harness.client))
+      .rejects.toThrow("propertyFilter keeps the tables with these property values, such as { state: 'CA' }.");
+  });
+
   it("openl_get_table forwards offset/limit/styles to the raw view query and answers the rows, the styles apart", async () => {
     harness.mockHttp.onGet(tablePath("TAB0000000000001")).reply(200, rawTable("TAB0000000000001",
       [[{ cell: "A3", value: "Age", style: { bold: true, background: "#ccccff" } }]], { totalRows: 120 }));

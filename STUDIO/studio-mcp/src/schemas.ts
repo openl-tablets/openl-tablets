@@ -123,7 +123,8 @@ export const listTablesSchema = z.strictObject({
   module: nonBlankString.optional().describe("The module whose tables to list, as openl_list_project_modules names it."),
   scope: z.enum(TABLE_SCOPES).optional().describe("How wide the search reaches: 'module' (the module named), 'project' (every module) or 'all' (the projects this one depends on as well); the module when one is named, else the project."),
   sort: z.enum(TABLE_SORTS).optional().describe("'name' (default) or 'position': workbook by workbook, sheet by sheet, top to bottom."),
-  properties: z.record(z.string(), z.string()).optional().describe("Filter by table properties, such as { state: 'CA', lob: 'Auto' }."),
+  propertyFilter: z.record(z.string(), z.string(), { error: "propertyFilter keeps the tables with these property values, such as { state: 'CA' }." })
+    .optional().describe("The tables with these property values, such as { state: 'CA', lob: 'Auto' }."),
   ...paginationShape,
 });
 
@@ -299,6 +300,10 @@ function argumentIssue(action: EditAction, name: string, present: boolean): stri
     return `'${action}' needs '${name}'.`;
   }
   const refused = present && !takes.includes(name) && !takes.includes(`${name}?`);
+  if (refused && name === "count" && action.startsWith("insert_")) {
+    // Agents give an insert the count a delete takes
+    return `'${action}' does not take 'count': it inserts the lines of 'cells', each with a value, as Studio refuses an empty line, which would split the table.`;
+  }
   return refused ? `'${action}' does not take '${name}'.` : undefined;
 }
 
