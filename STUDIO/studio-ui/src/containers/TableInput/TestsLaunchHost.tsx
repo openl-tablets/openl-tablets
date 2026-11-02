@@ -1,9 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Space, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CompoundResultOption, CountSelect, FailuresOption } from 'containers/execution/ResultOptions'
-import { TestsResultModal } from 'containers/execution/TestsResultModal'
-import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { isFinished, useExecutionProgress, useQuietSpells } from 'containers/execution/useExecutionProgress'
 import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
@@ -16,7 +14,7 @@ import {
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
-import { openExecutionWindow, publishExecution } from 'services/executionWindow'
+import { launchInWindow, publishExecution } from 'services/executionWindow'
 import { savedTestsOptions } from 'store/settingsStore'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
@@ -44,7 +42,6 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
     const [options, setOptions] = useState<TestsOptions>(savedTestsOptions)
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
-    const [ran, setRan] = useState(false)
     const [savingFile, setSavingFile] = useState(false)
     // Whether the results are still being saved, as the reads waiting their turn below see it: one of them
     // may come up after another has already saved the workbook.
@@ -61,20 +58,38 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
     const progress = useExecutionProgress(testsTopics(project.id, detail.tableId).status)
     const quietSpells = useQuietSpells(progress, savingFile)
 
-    const start = (intoFile: boolean) => {
+    const run = () => {
+        const table = detail.tableId ? { tableId: detail.tableId } : {}
+        return runTests(project.id, { ...table, ...(moduleOnly && { fromModule: detail.moduleName }) })
+    }
+    const request = () => ({ kind: 'tests' as const, projectId: project.id, tableId: detail.tableId, options })
+
+    /** Runs the tests and shows them in the results window, which opens at the click. */
+    const start = () => {
+        setStarting(true)
+        setError(null)
+        launchInWindow('tests', () => run().then(request), {
+            blocked: t('windowBlocked'),
+            unsaved: t('windowUnsaved'),
+        })
+            .then(onClose)
+            .catch(startError => {
+                setError(errorMessage(startError))
+                setStarting(false)
+            })
+    }
+
+    /** Runs the tests and saves the results as a workbook, without showing them. */
+    const startIntoFile = () => {
         setStarting(true)
         setError(null)
         // What an earlier run reported is forgotten, so that its end is not taken for the end of this one.
         progress.reset()
-        const table = detail.tableId ? { tableId: detail.tableId } : {}
-        runTests(project.id, { ...table, ...(moduleOnly && { fromModule: detail.moduleName }) })
+        run()
             .then(() => {
-                publishExecution({ kind: 'tests', projectId: project.id, tableId: detail.tableId, options })
-                if (intoFile) {
-                    setSaving(true)
-                } else {
-                    setRan(true)
-                }
+                // A results window that is open follows this run as it follows any other.
+                publishExecution(request())
+                setSaving(true)
             })
             .catch(startError => {
                 setError(errorMessage(startError))
@@ -130,24 +145,6 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
         reads.current = reads.current.then(() => (saving.current ? saveResults(ended) : undefined))
     }, [savingFile, progress.status, progress.subscribed, quietSpells])
 
-    const windowContext = useMemo(() => ({
-        open: (currentOptions?: Partial<TestsQuery>) => {
-            const opened = openExecutionWindow({
-                kind: 'tests', projectId: project.id, tableId: detail.tableId, options: currentOptions ?? options,
-            })
-            if (opened) onClose()
-            return opened
-        },
-    }), [project.id, detail.tableId, options, onClose])
-
-    if (ran) {
-        return (
-            <ExecutionWindowContext.Provider value={windowContext}>
-                <TestsResultModal onClose={onClose} options={options} projectId={project.id} tableId={detail.tableId} />
-            </ExecutionWindowContext.Provider>
-        )
-    }
-
     const moduleOnlyOption = (
         <Checkbox
             checked={moduleOnly}
@@ -168,10 +165,10 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
             width={380}
             footer={(
                 <>
-                    <Button data-testid="tests-start" loading={starting && !savingFile} onClick={() => start(false)} type="primary">
+                    <Button data-testid="tests-start" loading={starting && !savingFile} onClick={start} type="primary">
                         {t('tests.start')}
                     </Button>
-                    <Button data-testid="tests-into-file" loading={savingFile} onClick={() => start(true)}>
+                    <Button data-testid="tests-into-file" loading={savingFile} onClick={startIntoFile}>
                         {t('tests.intoFile')}
                     </Button>
                 </>
@@ -212,7 +209,7 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
  *
  * The Test button of a rule table runs every test that tests it. The button of the module toolbar names no
  * table and runs every test of the project, or of the current module when the user asks for that. Both report
- * in the same window, which opens with the options the panel was left with.
+ * in the results window, which opens at the click with the options the panel was left with; the panel closes then.
  *
  * Test into File saves the results as a workbook without showing them, which is what a run too large to read
  * on screen is taken with.

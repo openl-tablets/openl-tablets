@@ -1,11 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { App } from 'antd'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
-import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { useEventProject } from 'hooks'
 import { startBenchmark } from 'services/execution'
-import { openExecutionWindow, publishExecution } from 'services/executionWindow'
+import { launchInWindow } from 'services/executionWindow'
 import type { Project } from 'types/projects'
 import { errorMessage } from 'utils/errorMessage'
 import { TableInputLauncher, type TableLaunchDetail, type TableLaunchValue } from './TableInputLauncher'
@@ -17,49 +14,31 @@ interface BenchmarkLaunchProps {
 }
 
 const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onClose }) => {
-    const { notification } = App.useApp()
     const { t } = useTranslation('execution')
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
-    const [measuring, setMeasuring] = useState(false)
 
     /**
      * Measures what the panel collected.
      *
      * A test table is measured over the cases that are picked, and over the whole table when all of them are.
-     * Any other table is measured over the input the panel collected.
+     * Any other table is measured over the input the panel collected. The measurements are shown in the results
+     * window, which opens at the click.
      */
     const start = useCallback((value: TableLaunchValue) => {
         setStarting(true)
         setError(null)
-        return startBenchmark(project.id, detail.tableId, {
+        return launchInWindow('benchmark', () => startBenchmark(project.id, detail.tableId, {
             ...(value.testRanges && { testRanges: value.testRanges }),
             ...(value.fromModule && { fromModule: value.fromModule }),
             ...(value.inputJson !== undefined && { inputJson: value.inputJson }),
+        }).then(() => ({ kind: 'benchmark' as const, projectId: project.id, tableId: detail.tableId })), {
+            blocked: t('windowBlocked'),
+            unsaved: t('windowUnsaved'),
         })
-            .then(() => {
-                publishExecution({ kind: 'benchmark', projectId: project.id, tableId: detail.tableId })
-                setMeasuring(true)
-            })
+            .then(onClose)
             .finally(() => setStarting(false))
-    }, [project.id, detail.tableId])
-    const windowContext = useMemo(() => ({
-        open: () => {
-            const opened = openExecutionWindow({
-                kind: 'benchmark', projectId: project.id, tableId: detail.tableId,
-            })
-            if (opened) onClose()
-            return opened
-        },
-    }), [project.id, detail.tableId, onClose])
-
-    if (measuring) {
-        return (
-            <ExecutionWindowContext.Provider value={windowContext}>
-                <BenchmarkResultModal onClose={onClose} projectId={project.id} tableId={detail.tableId} />
-            </ExecutionWindowContext.Provider>
-        )
-    }
+    }, [project.id, detail.tableId, onClose, t])
 
     return (
         <TableInputLauncher
@@ -77,12 +56,6 @@ const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onCl
                 loading: starting,
                 run: value => start(value).catch(startError => setError(errorMessage(startError))),
             }]}
-            onNothingToAsk={value => {
-                start(value).catch(startError => {
-                    notification.error({ title: t('benchmark.startFailed'), description: errorMessage(startError) })
-                    onClose()
-                })
-            }}
         />
     )
 }
@@ -92,7 +65,7 @@ const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onCl
  *
  * A test table is measured over the cases that are picked: the whole table at once when every case is asked
  * for, and each of the chosen cases on its own otherwise. Any other table is measured over the input the panel
- * collects, and a table that takes nothing is measured at once.
+ * collects; the panel of a table that takes nothing holds only the button, so the results window opens at its click.
  */
 export const BenchmarkLaunchHost: React.FC = () => {
     const { detail, project, close } = useEventProject<TableLaunchDetail>('openBenchmarkLaunch', 'execution:benchmark.startFailed')

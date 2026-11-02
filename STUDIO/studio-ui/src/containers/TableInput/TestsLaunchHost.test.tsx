@@ -6,7 +6,6 @@ import { getTestsSummaryWorkbook, readTestsSummaryWorkbook, runTests } from 'ser
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsLaunchHost } from 'containers/TableInput/TestsLaunchHost'
-import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { currentExecution } from 'services/executionWindow'
 
 vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
@@ -37,18 +36,6 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
     }),
     isFinished: (status: string | null) => status === 'COMPLETED',
     useQuietSpells: () => reported.quietSpells,
-}))
-
-// The results have their own tests; here only the window that opens for a test run is of interest.
-vi.mock('containers/execution/TestsResultModal', () => ({
-    TestsResultModal: () => {
-        const { open: openWindow } = React.useContext(ExecutionWindowContext)
-        return (
-            <div data-testid="tests-result-modal">
-                <button data-testid="test-result-open-window" onClick={() => openWindow?.()} type="button">Open</button>
-            </div>
-        )
-    },
 }))
 
 vi.mock('react-i18next', () => {
@@ -82,6 +69,13 @@ describe('TestsLaunchHost', () => {
         tests.mockResolvedValue(undefined)
         workbook.mockResolvedValue(new Blob(['x']))
         probe.mockResolvedValue(new Blob(['x']))
+        localStorage.clear()
+        // The results window opens; a test of a blocked window says otherwise.
+        vi.spyOn(window, 'open').mockReturnValue({ location: { pathname: '' }, focus: vi.fn() } as unknown as Window)
+    })
+
+    afterEach(() => {
+        vi.restoreAllMocks()
     })
 
     it('asks what the results should show before the tests are run', async () => {
@@ -115,7 +109,7 @@ describe('TestsLaunchHost', () => {
             compoundResult: true,
         })))
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'test-results.xlsx', 'application/xlsx')
-        expect(screen.queryByTestId('tests-result-modal')).toBeNull()
+        expect(window.open).not.toHaveBeenCalled()
         // What an earlier run reported must not be taken for the end of this one.
         expect(reset).toHaveBeenCalled()
         expect(currentExecution()).toEqual(expect.objectContaining({
@@ -123,28 +117,32 @@ describe('TestsLaunchHost', () => {
         }))
     })
 
-    it('runs every test that tests the table the page shows', async () => {
+    it('runs every test that tests the table the page shows, in the results window that opens at the click', async () => {
         render(<TestsLaunchHost />)
 
         await open({ tableId: 't1' })
         await userEvent.click(await screen.findByTestId('tests-start'))
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1' }))
-        expect(await screen.findByTestId('tests-result-modal')).toBeInTheDocument()
+        // The window opens before the tests start: a browser may refuse one asked for once the click is old.
+        expect(window.open).toHaveBeenCalledWith('', 'execution_results', expect.any(String))
+        expect(vi.mocked(window.open).mock.invocationCallOrder[0]).toBeLessThan(tests.mock.invocationCallOrder[0]!)
+        await waitFor(() => expect(currentExecution()).toEqual(expect.objectContaining({
+            kind: 'tests', projectId: 'real-p1', tableId: 't1',
+        })))
+        await waitFor(() => expect(screen.queryByTestId('tests-start')).toBeNull())
     })
 
-    it('keeps the dialog when a popup is blocked and closes it after the window opens', async () => {
-        const browserOpen = vi.spyOn(window, 'open').mockReturnValue(null)
+    it('starts nothing and says how to let the window open when the browser blocks it', async () => {
+        vi.mocked(window.open).mockReturnValue(null)
         render(<TestsLaunchHost />)
+
         await open({ tableId: 't1' })
         await userEvent.click(await screen.findByTestId('tests-start'))
-        await userEvent.click(await screen.findByTestId('test-result-open-window'))
 
-        expect(screen.getByTestId('tests-result-modal')).toBeInTheDocument()
-        browserOpen.mockReturnValue({} as Window)
-        await userEvent.click(screen.getByTestId('test-result-open-window'))
-        await waitFor(() => expect(screen.queryByTestId('tests-result-modal')).toBeNull())
-        browserOpen.mockRestore()
+        expect(await screen.findByTestId('tests-launch-error')).toBeInTheDocument()
+        expect(tests).not.toHaveBeenCalled()
+        expect(screen.getByTestId('tests-start')).toBeInTheDocument()
     })
 
     it('runs every test of the project when no table is named, within the module on request', async () => {
@@ -155,7 +153,7 @@ describe('TestsLaunchHost', () => {
         await userEvent.click(screen.getByTestId('tests-start'))
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { fromModule: 'Main' }))
-        expect(await screen.findByTestId('tests-result-modal')).toBeInTheDocument()
+        await waitFor(() => expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'tests', projectId: 'real-p1' })))
     })
 
     it('keeps the panel open with the reason when the tests cannot be started', async () => {
@@ -166,7 +164,8 @@ describe('TestsLaunchHost', () => {
         await userEvent.click(await screen.findByTestId('tests-start'))
 
         expect(await screen.findByTestId('tests-launch-error')).toHaveTextContent('the project is being compiled')
-        expect(screen.queryByTestId('tests-result-modal')).toBeNull()
+        // The window that opened at the click says why nothing runs there.
+        expect(currentExecution()).toEqual({ kind: 'failed', of: 'tests', message: 'the project is being compiled' })
     })
     it('asks for the results when the panel stops hearing the run', async () => {
         // The run has not said it has ended, and the connection carrying that message is gone. The panel

@@ -5,6 +5,7 @@ import { startBenchmark } from 'services/execution'
 import { getTableInput, getTableInputCases } from 'services/tables'
 import type { TableInput } from 'types/tables'
 import { BenchmarkLaunchHost } from 'containers/TableInput/BenchmarkLaunchHost'
+import { currentExecution } from 'services/executionWindow'
 
 vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
 
@@ -16,18 +17,6 @@ vi.mock('services/tables', () => ({
 }))
 
 vi.mock('services/execution', () => ({ startBenchmark: vi.fn() }))
-
-// The results have their own tests; here only the window that opens for a measurement is of interest.
-vi.mock('containers/execution/BenchmarkResultModal', () => ({
-    BenchmarkResultModal: () => <div data-testid="benchmark-result-modal" />,
-}))
-
-// The static notification renders outside the tree and schedules a timer; the tests assert on the measurement.
-vi.mock('antd', async importOriginal => {
-    const actual = await importOriginal<typeof import('antd')>()
-    const { withStaticApp } = await import('testing/staticAntdApp')
-    return withStaticApp({ ...actual, notification: { ...actual.notification, error: vi.fn() } })
-})
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -68,7 +57,21 @@ describe('BenchmarkLaunchHost', () => {
                 { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }]},
             ],
         })
+        localStorage.clear()
+        // The results window opens; a test of a blocked window says otherwise.
+        vi.spyOn(window, 'open').mockReturnValue({ location: { pathname: '' }, focus: vi.fn() } as unknown as Window)
     })
+
+    afterEach(() => {
+        vi.restoreAllMocks()
+    })
+
+    /** The panel has closed, and the results window follows the measurement it started. */
+    const shownInWindow = async () => {
+        await waitFor(() => expect(currentExecution()).toEqual({ kind: 'benchmark', projectId: 'real-p1', tableId: 't1' }))
+        await waitFor(() => expect(screen.queryByTestId('benchmark-start')).toBeNull())
+        expect(window.open).toHaveBeenCalledWith('', 'execution_results', expect.any(String))
+    }
 
     it('measures a rule table over the input the panel collected', async () => {
         inputRead.mockResolvedValue(ruleTable)
@@ -84,7 +87,7 @@ describe('BenchmarkLaunchHost', () => {
         expect(projectId).toBe('real-p1')
         expect(tableId).toBe('t1')
         expect(JSON.parse(options.inputJson)).toEqual({ params: { age: 42 } })
-        expect(await screen.findByTestId('benchmark-result-modal')).toBeInTheDocument()
+        await shownInWindow()
     })
 
     it('measures a test table over every one of its cases at once', async () => {
@@ -96,7 +99,7 @@ describe('BenchmarkLaunchHost', () => {
         await userEvent.click(screen.getByTestId('benchmark-start'))
 
         await waitFor(() => expect(benchmark).toHaveBeenCalledWith('real-p1', 't1', {}))
-        expect(await screen.findByTestId('benchmark-result-modal')).toBeInTheDocument()
+        await shownInWindow()
     })
 
     it('measures only the cases that are ticked, and within the module when that is asked for', async () => {
@@ -116,14 +119,28 @@ describe('BenchmarkLaunchHost', () => {
         }))
     })
 
-    it('measures a table that asks for nothing without a panel', async () => {
+    it('measures a table that asks for nothing at the click, so the results window opens with it', async () => {
         inputRead.mockResolvedValue({ tableId: 't1', name: 'Premium' })
         render(<BenchmarkLaunchHost />)
 
         await open()
+        expect(benchmark).not.toHaveBeenCalled()
+        await userEvent.click(await screen.findByTestId('benchmark-start'))
 
-        await waitFor(() => expect(benchmark).toHaveBeenCalledWith('real-p1', 't1', { inputJson: '{}' }))
-        expect(screen.queryByTestId('benchmark-start')).toBeNull()
+        await waitFor(() => expect(benchmark).toHaveBeenCalledTimes(1))
+        await shownInWindow()
+    })
+
+    it('measures nothing and says how to let the window open when the browser blocks it', async () => {
+        vi.mocked(window.open).mockReturnValue(null)
+        inputRead.mockResolvedValue({ tableId: 't1', name: 'Premium' })
+        render(<BenchmarkLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('benchmark-start'))
+
+        expect(await screen.findByText('windowBlocked')).toBeInTheDocument()
+        expect(benchmark).not.toHaveBeenCalled()
     })
 
     it('says why the measurement could not be started', async () => {

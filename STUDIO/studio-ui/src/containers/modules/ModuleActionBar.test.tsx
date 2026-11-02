@@ -28,7 +28,7 @@ vi.mock('../projects/LocalChangesView', () => ({
     ),
 }))
 
-vi.mock('../execution/TestsResultModal', () => ({ TestsResultModal: () => <div data-testid="tests-result" /> }))
+vi.mock('../execution/TestsResults', () => ({ TestsResults: () => <div data-testid="tests-result" /> }))
 
 vi.mock('../projects/SaveProjectModal', () => ({
     SaveProjectModal: ({ open }: { open: boolean }) => open ? <div data-testid="save-project-modal" /> : null,

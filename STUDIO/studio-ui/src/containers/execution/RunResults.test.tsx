@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { getRunResult, getRunResultWorkbook, readRunResult, stopExecution } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
-import { RunResultModal } from 'containers/execution/RunResultModal'
+import { RunResults } from 'containers/execution/RunResults'
 import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 
 vi.mock('services/execution', () => ({
@@ -26,23 +26,6 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
     useQuietSpells: vi.fn(() => run.quietSpells),
 }))
 
-// The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
-vi.mock('antd', async () => {
-    const actual = await vi.importActual<typeof import('antd')>('antd')
-    const MockModal = ({ title, children, footer }: {
-        title?: React.ReactNode
-        children?: React.ReactNode
-        footer?: React.ReactNode
-    }) => (
-        <div role="dialog">
-            <div data-testid="modal-title">{title}</div>
-            {children}
-            <div data-testid="modal-footer">{footer}</div>
-        </div>
-    )
-    return { ...actual, Modal: MockModal }
-})
-
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
@@ -60,11 +43,11 @@ const value = { tableName: 'DetermineVehiclePremium', executionTimeMs: 12.4 }
 
 const show = async (result: Record<string, unknown>) => {
     readResult.mockResolvedValue(result)
-    render(<RunResultModal fileOptions={{ skipEmptyParameters: true }} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+    render(<RunResults fileOptions={{ skipEmptyParameters: true }} onClose={vi.fn()} projectId="p1" tableId="t1" />)
     await screen.findByTestId('run-save')
 }
 
-describe('RunResultModal', () => {
+describe('RunResults', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         run.status = null
@@ -75,7 +58,7 @@ describe('RunResultModal', () => {
 
     it('waits for the run while it is still on its way', async () => {
         readResult.mockReturnValue(new Promise(() => undefined))
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         expect(await screen.findByText('run.running')).toBeInTheDocument()
     })
@@ -90,7 +73,7 @@ describe('RunResultModal', () => {
         // A run still going on answers one read, and the window waits for the run to say more rather than
         // asking over and over.
         readResult.mockRejectedValue(new ResultNotReadyError())
-        const window = () => <RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />
+        const window = () => <RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />
         const { rerender } = render(window())
         expect(await screen.findByText('run.running')).toBeInTheDocument()
         await act(async () => {
@@ -111,7 +94,7 @@ describe('RunResultModal', () => {
     it('waits out the result of a run that said it ended', async () => {
         run.status = 'COMPLETED'
         readEndedResult.mockResolvedValue({ ...value, result: 1200 })
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         expect(await screen.findByTestId('run-result-table')).toBeInTheDocument()
         expect(readEndedResult).toHaveBeenCalledWith('p1', { spreadsheet: true })
@@ -221,7 +204,7 @@ describe('RunResultModal', () => {
 
     it('says why the result could not be read', async () => {
         readResult.mockRejectedValue(new Error('No run execution task found'))
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         expect(await screen.findByText('No run execution task found')).toBeInTheDocument()
         expect(screen.getByText('run.failed')).toBeInTheDocument()
@@ -229,7 +212,7 @@ describe('RunResultModal', () => {
 
     it('stops polling when the saved run result is gone', async () => {
         readResult.mockRejectedValue({ status: 404 })
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         expect(await screen.findByText('noResults')).toBeInTheDocument()
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
@@ -239,7 +222,7 @@ describe('RunResultModal', () => {
     it('stops the run the reader asks to stop, and says it was stopped', async () => {
         readResult.mockReturnValue(new Promise(() => undefined))
         stop.mockResolvedValue(undefined)
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         await userEvent.click(await screen.findByTestId('execution-stop'))
 
@@ -251,7 +234,7 @@ describe('RunResultModal', () => {
     it('says why the run could not be stopped', async () => {
         readResult.mockReturnValue(new Promise(() => undefined))
         stop.mockRejectedValue(new Error('The server is not available'))
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         await userEvent.click(await screen.findByTestId('execution-stop'))
 
@@ -260,7 +243,7 @@ describe('RunResultModal', () => {
 
     it('says the project changed when the server dropped the result for it', async () => {
         readResult.mockRejectedValue(Object.assign(new Error('The project has changed'), { status: 410 }))
-        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<RunResults fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         expect(await screen.findByTestId('run-outdated')).toHaveTextContent('The project has changed')
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)

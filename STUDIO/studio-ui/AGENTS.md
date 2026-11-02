@@ -138,15 +138,25 @@ The build writes two pages (`build.rollupOptions.input`):
   shows that no result is available. For completed benchmarks, a missing saved list shows an empty measurement
   list; a missing project while a benchmark is pending remains an error.
   While an execution goes on, its screen offers Stop (`useStopExecution`, `stopExecution` of `services/execution.ts`)
-  and, once it is stopped, says so; a stopped benchmark shows the measurements before it. A `410` from a read says the
-  project changed since the execution started (`isOutdatedExecution`): the server dropped what it produced, and the
-  screen says why instead of showing no results.
-  The same result components render in the editor dialog and at `/execution-results`. The named browser window
-  reads the latest launch from `services/executionWindow.ts` after refresh and receives later launches through
-  the browser storage event. Every launch, including a run saved straight to a file, writes a new id even when
-  its options match the previous launch. Storage failure leaves the editor dialog usable. A table link in the
-  separate window asks the original editor's router to navigate and leaves the results window open. The dialog's
-  Open in Window button uses the Ant Design export icon. A refused focus does not undo navigation.
+  and, once it is stopped, says so; a stopped benchmark shows the measurements before it, and a test run that stopped by
+  itself shows the tables that ran under a note that it stopped. Polling of tests and of a run ends once Stop answers; a
+  stopped benchmark is polled on until its measurements are read, as Stop does not wait for them. A `410` from a read
+  says a project was changed or reloaded since the execution started (`isOutdatedExecution`): the server dropped what it
+  produced, and the screen says why instead of showing no results, or the results it showed.
+  The results are shown only at `/execution-results`, the one named browser window Test, Run and Benchmark share; the
+  editor shows no results dialog. A launch opens the window in the click handler, before the execution starts
+  (`launchInWindow` of `services/executionWindow.ts`): starting waits for the project to compile, and a browser refuses
+  a window asked for once the click is old, so no launch starts on its own after a read (a table that takes no input
+  still shows its panel and button), and the panel reads the ids of every case of a table of several pages as soon as a
+  case is left out, not at the click (`TableInputLauncher`). A window that shows the results already is focused, not
+  loaded again, and follows the launch through the browser storage event; any other is sent to the results page. The
+  request is published once the window is open: the window says the execution is starting until the start answers, then
+  follows it, or says why it could not start. A refused window, or a launch the browser will not store, starts nothing
+  and publishes nothing, so an open window keeps what it showed, and the launch panel says what to allow
+  (`WindowRefusals`). The window reads the latest launch after a refresh. Every launch, including a run saved straight
+  to a file, writes a new id even when its options match the previous launch, so an open window follows it. A table link
+  in the window asks the original editor's router to navigate and leaves the results window open; a refused focus does
+  not undo navigation.
 - **State**: Zustand stores in `src/store/`. Use selectors that subscribe to specific slices to avoid re-renders.
 - **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
   with `AdministrationLayout`.

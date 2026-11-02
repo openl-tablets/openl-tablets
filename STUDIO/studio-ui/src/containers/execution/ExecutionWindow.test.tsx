@@ -2,30 +2,30 @@ import React from 'react'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ExecutionWindow } from './ExecutionWindow'
-import { ExecutionWindowContext } from './ExecutionModal'
+import { ExecutionWindowContext } from './ExecutionScreen'
 import { EXECUTION_EDITOR_NAVIGATION, EXECUTION_WINDOW_KEY, publishExecution } from 'services/executionWindow'
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
-vi.mock('./TestsResultModal', () => ({
-    TestsResultModal: ({ projectId }: { projectId: string }) => {
+vi.mock('./TestsResults', () => ({
+    TestsResults: ({ projectId }: { projectId: string }) => {
         const { openTable } = React.useContext(ExecutionWindowContext)
         const [opened, setOpened] = React.useState<boolean | null>(null)
         return (
             <button
                 data-opened={String(opened)}
                 data-testid="tests-window"
-                onClick={() => setOpened(openTable?.('/projects/p1/modules/Rules?table=t1') ?? null)}
+                onClick={() => setOpened(openTable('/projects/p1/modules/Rules?table=t1'))}
             >
                 {projectId}
             </button>
         )
     },
 }))
-vi.mock('./RunResultModal', () => ({
-    RunResultModal: ({ tableId }: { tableId: string }) => <div data-testid="run-window">{tableId}</div>,
+vi.mock('./RunResults', () => ({
+    RunResults: ({ tableId }: { tableId: string }) => <div data-testid="run-window">{tableId}</div>,
 }))
-vi.mock('./BenchmarkResultModal', () => ({
-    BenchmarkResultModal: ({ tableId }: { tableId: string }) => <div data-testid="benchmark-window">{tableId}</div>,
+vi.mock('./BenchmarkResults', () => ({
+    BenchmarkResults: ({ tableId }: { tableId: string }) => <div data-testid="benchmark-window">{tableId}</div>,
 }))
 
 describe('ExecutionWindow', () => {
@@ -47,6 +47,20 @@ describe('ExecutionWindow', () => {
             window.dispatchEvent(new StorageEvent('storage', { key: EXECUTION_WINDOW_KEY }))
         })
         expect(screen.getByTestId('benchmark-window')).toHaveTextContent('t2')
+    })
+
+    it('says an execution is starting, and why it could not start', () => {
+        publishExecution({ kind: 'starting', of: 'benchmark' })
+        render(<ExecutionWindow />)
+        expect(screen.getByRole('heading', { name: 'benchmark.title' })).toBeInTheDocument()
+        expect(screen.getByTestId('execution-starting')).toHaveTextContent('starting')
+
+        act(() => {
+            publishExecution({ kind: 'failed', of: 'benchmark', message: 'The project is not compiled' })
+            window.dispatchEvent(new StorageEvent('storage', { key: EXECUTION_WINDOW_KEY }))
+        })
+        expect(screen.getByTestId('execution-start-failed')).toHaveTextContent('benchmark.startFailed')
+        expect(screen.getByTestId('execution-start-failed')).toHaveTextContent('The project is not compiled')
     })
 
     it('restores the last run when the window is refreshed', () => {

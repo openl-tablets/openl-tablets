@@ -64,8 +64,6 @@ interface TableInputLauncherProps {
      * table but some: the rest are read first. While they are read, the buttons wait under a spinner.
      */
     actions: TableLaunchAction[]
-    /** Starts the action for a table that asks for nothing, so no panel is shown for it. */
-    onNothingToAsk?: ((value: TableLaunchValue) => void) | undefined
     /** Reports a reason of its own, such as a case that is not picked. */
     onError: (reason: string | null) => void
     onClose: () => void
@@ -87,7 +85,6 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     error,
     options,
     actions,
-    onNothingToAsk,
     onError,
     onClose,
 }) => {
@@ -125,10 +122,6 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     // the table each time, and the form would start again under the user.
     const declaredParameters = useMemo(() => input?.parameters ?? [], [input])
     const withCases = testTable && caseSelection !== 'none'
-    // A table with a runtime context always has something to ask for: the rules read the context even when the
-    // table itself takes no parameters, and versions of a rule are chosen by it.
-    const nothingToAsk = input !== null && !withCases && !input.runtimeContext
-        && (testTable || declaredParameters.length === 0)
 
     useEffect(() => {
         let active = true
@@ -150,6 +143,11 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
             active = false
         }
     }, [project.id, detail.tableId, readWithin, showLoader, hideLoader, t, onClose])
+
+    // A page read in another scope counts other cases: it is not taken for the cases of this one.
+    useEffect(() => {
+        setCasesPage(null)
+    }, [readWithin])
 
     useEffect(() => {
         if (!withCases) {
@@ -189,6 +187,31 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
         [project.id, readWithin]
     )
 
+    // Every case of a table of several pages, read once a case is left out of them. The click that starts the action
+    // finds them read, so a window the action opens is not refused for a click grown old over the read.
+    // The read is kept for the scope and the number of cases it was asked for, and asked again for any other.
+    const everyCase = useRef<{ within: typeof readWithin, total: number, read: Promise<TableInputCasesPage> } | null>(null)
+    const readEveryCase = useCallback((total: number): Promise<TableInputCasesPage> => {
+        const kept = everyCase.current
+        if (kept?.within === readWithin && kept.total === total) {
+            return kept.read
+        }
+        const read = getTableInputCases(project.id, detail.tableId, { ...readWithin, page: 0, size: total })
+        everyCase.current = { within: readWithin, total, read }
+        read.catch(() => {
+            if (everyCase.current?.read === read) {
+                everyCase.current = null
+            }
+        })
+        return read
+    }, [project.id, detail.tableId, readWithin])
+    const leavesOutCases = isEveryCase(cases) && cases.except.length > 0
+    useEffect(() => {
+        if (leavesOutCases && casesPage && casesPage.content.length < casesPage.total) {
+            readEveryCase(casesPage.total).catch(() => undefined)
+        }
+    }, [leavesOutCases, casesPage, readEveryCase])
+
     // The cases picked, named by ids and ranges. Every case but some are the rest of every page of the table,
     // read in one go unless the page at hand holds them all.
     const pickedCases = async (): Promise<string> => {
@@ -196,9 +219,7 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
             return cases.join(',')
         }
         const total = casesPage?.total ?? 0
-        const all = casesPage && casesPage.content.length >= total
-            ? casesPage
-            : await getTableInputCases(project.id, detail.tableId, { ...readWithin, page: 0, size: total })
+        const all = casesPage && casesPage.content.length >= total ? casesPage : await readEveryCase(total)
         const left = new Set(cases.except)
         return testRangesOf(all.content.map(testCase => testCase.id), id => !left.has(id))
     }
@@ -257,14 +278,7 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
         })
     }
 
-    useEffect(() => {
-        if (nothingToAsk && onNothingToAsk) {
-            onNothingToAsk({ ...(testTable ? {} : { inputJson: '{}' }), fromModule })
-        }
-        // The action starts once, as soon as the table says it asks for nothing.
-    }, [nothingToAsk])
-
-    if (input === null || (nothingToAsk && onNothingToAsk)) {
+    if (input === null) {
         return null
     }
 

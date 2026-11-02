@@ -242,12 +242,14 @@ included in this section:
     has errors, only the current module can be used: the option is selected and cannot be changed.
 1.  **Failures Only**, **Failures per test** and **Compound Result** say what the results show; they can be
     changed there as well.
-1.  Click **Test**. Every test table that tests this rule table runs, and the results open in a window over the
-    table. Closing the window returns to the table, so a rule can be corrected and the tests run again.
-    **Test into File** runs them and saves the results as a workbook without showing them.
+1.  Click **Test**. Every test table that tests this rule table runs, and the results open in the results window,
+    a separate browser window beside the editor; the panel closes. The editor stays as it was, so a rule can be
+    corrected and the tests run again; the correction drops the results shown, as described in
+    [Reading Test Results](#reading-test-results). **Test into File** runs them and saves the results as a workbook
+    without opening the results window.
 
 To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them ticked, and
-the results open in the same window. Untick the cases to leave out, or clear the box in the header of the list and
+the results open in the results window. Untick the cases to leave out, or clear the box in the header of the list and
 tick the cases to run; the box in the header stands for every case of the table, on every page of the list, and a
 case unticked stays out while the cases of the other pages stay in.
 Selecting the cases is described in [Starting a Trace](#starting-a-trace), which lists them the same way. To name
@@ -265,26 +267,27 @@ the table does not have starts nothing: the panel says which case it is.
     the current module run with the tests of the modules and projects it depends on. **Tests per page**, **Failures Only**,
     **Failures per test** and **Compound Result** say what the results show.
 1.  Click **Test**. The results are shown the same way as the tests of a single table, so only one kind of
-    results screen has to be read. **Test into File** saves them as a workbook without showing them.
+    results screen has to be read. **Test into File** saves them as a workbook without opening the results window.
 
 ##### Reading Test Results
 
-The results dialog lists every test table that ran, with the number of cases it holds and, in red, how many of
+The results window lists every test table that ran, with the number of cases it holds and, in red, how many of
 them failed. The name of a table is green when every case of it passed and red when one did not, and it opens
 that test table in the editor. Every case is a row of that table: its id, a column for each value it was given,
 and a column for each value the test compares. A tick or a cross stands next to the case and next to every
 value that was compared, and a case that failed says how many of its comparisons did not match and shows the
 value that was expected under the value that came out.
 
-Click **Open in Window** (the square-and-arrow button) to move the results out of the dialog. The dialog closes,
-and the separate window can be resized or moved beside the editor or to another monitor. The same filters, page
-controls and **Save to Excel** action are available there. The filters and page currently selected in the dialog
-carry over. Clicking a table name opens it in the original editor and leaves the separate window open. If the
-editor tab was closed, the table opens in a new tab. Opening results in a window again reuses that window. When
-another Test, Run or Benchmark starts, the open window follows its progress and shows its results. This includes
-a run saved with **Test into File** or **Run into File**. Refreshing the window shows the latest results. When the
-server no longer has a Test or Run result, the window says **No results to show**; an empty Benchmark list says
-**No measurements**. If the browser blocks the window, the dialog stays open and explains how to allow it.
+Test, Run and Benchmark show their results in one separate browser window, the results window, which can be resized
+or moved beside the editor or to another monitor. It opens at the click on **Test**, **Run** or **Benchmark**, says
+the execution is starting, then follows its progress and shows its results; if the execution cannot start, the
+window says why. A later Test, Run or Benchmark shows its results in the window already open and brings it to the
+front. A run saved with **Test into File** or **Run into File** opens no window of its own; a results window
+already open shows its results too, without coming to the front. Clicking a table name opens it in the original
+editor and leaves the results window open. If the editor tab was closed, the table opens in a new tab. Refreshing
+the window shows the latest results. When the server no longer has a Test or Run result, the window says **No
+results to show**; an empty Benchmark list says **No measurements**. If the browser blocks pop-up windows, or the
+storage of the site, nothing starts, and the panel says what to allow for the site.
 
 While tests, a run or a benchmark go on, the results show their progress and a **Stop** button. **Stop** ends the
 execution before its next test case or run of the rules, and the results say it was stopped. A test case, or a run
@@ -292,12 +295,13 @@ of a rule table, that has already started finishes on the server, and its result
 measures nothing and keeps the measurements taken before it.
 
 The editor stays available while an execution goes on: tables can be opened, searched and edited. An execution
-works with the projects as they were when it started. A change, such as an edited or saved table, an uploaded file
-or a reloaded project, stops an execution that is still going on and drops the results of the last Test, Run and
-Benchmark, whether they ended or not, with the measurements of the benchmarks before them. The results then say
-that a project was changed or reloaded since the execution started; start it again to see the results of the
-project as it is now. Closing the project, or switching its branch, stops the execution too, after the test case
-it is running.
+works with the projects as they were when it started. A change to the project, such as an edited table, stops an
+execution of it that is still going on and drops the results of its last Test, Run and Benchmark, whether they
+ended or not, with the measurements of the benchmarks before them. A change that reloads the projects, such as a
+saved project or an uploaded file, does so for every project. The results window then says that a project was
+changed or reloaded since the execution started; start it again to see the results of the project as it is now.
+Closing the project, or switching its branch, stops the execution too, after the test case it is running. Tests of
+one module stop when another module is opened: the results show the tests that ran and say the tests were stopped.
 
 A fractional number is rounded when a decimal with at least two fewer digits lies within two floating-point steps of
 it, as the saved workbook does: a rule that computes `1.1 ** 3` returns `1.3310000000000004`, and the window shows
@@ -366,7 +370,7 @@ A rule table can be run on its own, without a test table for it.
 
     *Running a table with the input it takes*
 
-1.  Click **Run**. The result opens in a window over the table: one row of what the table was given and what it
+1.  Click **Run**. The result opens in the results window: one row of what the table was given and what it
     returned, a column each, with the runtime context first when one was entered. The runtime context shows the
     fields that were set, the way the rules received them.
 
@@ -383,8 +387,6 @@ A rule table can be run on its own, without a test table for it.
     A run that fails shows its error in the **Result** column, in place of the value it did not return. A table
     that returns nothing shows `null` there, as does an input left empty.
 
-1.  To read the result beside the editor, click **Open in Window**. The dialog closes and a resizable separate
-    window opens with **Save to Excel**. Later Test, Run and Benchmark results use the same window.
 1.  To save the result, click **Save to Excel**. The workbook is written the way the options of the panel ask, as
     described after these steps.
 
@@ -686,24 +688,18 @@ section:
     vocabulary is checked, including versions selected using context properties from input parameters. When the
     runtime context selects no single version, the values are not checked in advance.
 1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,
-    so it takes a few seconds. The results then open in a window over the table.
+    so it takes a few seconds. The results window opens at once and shows the measurements when it ends.
 
 #### Reading Benchmark Results
 
-Every measurement is a row of the results. A change to a project drops every measurement, as described in
-[Reading Test Results](#reading-test-results), so measurements to compare are taken after the last change.
+Every measurement is a row of the results window. Later measurements appear there too. If the server has released
+every measurement, the window says **No measurements**. A change to a project drops every measurement, as
+described in [Reading Test Results](#reading-test-results), so measurements to compare are taken after the last
+change.
 
-![Benchmark results](images/benchmarking-results.png "Reading benchmark results")
+![Benchmark results in the results window](images/benchmarking-results.png "Reading benchmark results")
 
 *Benchmark results*
-
-Click **Open in Window** to move the results to a resizable separate window. The dialog closes; **Compare**,
-**Delete** and the comparison remain available in the separate window. Later measurements appear there too.
-If the server has released every measurement, the separate window says **No measurements**.
-
-![Benchmark results in a separate window](images/benchmarking-results-window.png "Benchmark results in a separate window")
-
-*Benchmark results beside the editor*
 
 A row reports the measured table, the number of test cases one run covered, the input of the measured case, and
 the following numbers:

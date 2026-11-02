@@ -212,11 +212,14 @@ the edit icon next to each parameter and enter its value, `Chicago` for `departu
 
 *Figure 11: Running ad hoc test*
 
-The following result will appear:
+The result opens in a separate window:
 
 ![Figure 12: Results of test run](images/test-run-results.png "Results of test run")
 
 *Figure 12: Results of test run*
+
+If the browser blocks pop-up windows, nothing runs, and the panel says how to allow them for the site. Go back to the
+editor window to continue.
 
 The second way to test the rule is to create a test table where you define test cases — their input and expected result
 values. A test table calls the rule for each test case and checks whether the actual returned value matches the expected
@@ -281,7 +284,7 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
 
    *Figure 18: Run Test*
 
-2. OpenL Studio will display the test results.
+2. The test results open in a separate window.
 
    ![Figure 19: Test results window](images/test-results-window.png "Test results window")
 
@@ -291,8 +294,8 @@ Failed test cases are marked by the ![Failed](images/icon-failed.png) icon.
 
 Passed test cases are marked by the ![Passed](images/icon-passed.png) icon.
 
-All test cases passed. Hence, our rule `AirTicketsPrice` works correctly. Click **Save** at the top of the page to store
-the test table in the repository.
+All test cases passed. Hence, our rule `AirTicketsPrice` works correctly. Go back to the editor window and click
+**Save** at the top of the page to store the test table in the repository.
 
 ---
 

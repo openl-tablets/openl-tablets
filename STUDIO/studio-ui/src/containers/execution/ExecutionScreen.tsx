@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState } from 'react'
-import { ExportOutlined, StopOutlined } from '@ant-design/icons'
-import { Alert, Button, Flex, Modal, Space } from 'antd'
+import React, { createContext, useState } from 'react'
+import { StopOutlined } from '@ant-design/icons'
+import { Alert, Button, Flex, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { stopExecution, type ExecutionKind, type TestsQuery } from 'services/execution'
+import { stopExecution, type ExecutionKind } from 'services/execution'
 import { useListPageStyles } from 'styles/listPageStyles'
 import type { MessageDescription, TraceParameterValue } from 'types/trace'
 import { errorMessage } from 'utils/errorMessage'
-import { useStyles } from './ExecutionModal.styles'
+import { useStyles } from './ExecutionScreen.styles'
 
 /** The name a value is shown under: the column the table author wrote, or the name of the parameter. */
 export const nameOf = (value: TraceParameterValue): string => value.description || value.name
@@ -31,8 +31,8 @@ export const ExecutionErrors: React.FC<{ errors?: MessageDescription[] | undefin
 interface ExecutionStop {
     /** Whether the reader stopped the execution from this screen. */
     stopped: boolean
-    /** Why the execution could not be stopped, when it could not. */
-    stopError: string | null
+    /** Says why the execution could not be stopped, when it could not. */
+    stopFailed: React.ReactNode
     /** The button that stops the execution, shown while it goes on. */
     stopButton: React.ReactNode
 }
@@ -64,89 +64,52 @@ export const useStopExecution = (projectId: string, kind: ExecutionKind): Execut
             {t('stop')}
         </Button>
     )
-    return { stopped, stopError, stopButton }
+    const stopFailed = stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />
+    return { stopped, stopFailed, stopButton }
 }
 
-interface ExecutionModalProps {
+interface ExecutionScreenProps {
     title: string
     /** What the window has to say about the whole of what it shows, under the title. */
     subtitle?: React.ReactNode
-    /** The actions of the whole window, shown in the footer before Close. */
+    /** The actions of the whole window, shown at its foot before Close. */
     extra?: React.ReactNode
-    /** Test result filters and page to carry into a separate window. */
-    openOptions?: Partial<TestsQuery>
     onClose: () => void
     children: React.ReactNode
 }
 
-/** The same result body can be shown in the editor dialog or its separate window. */
+/** What the results window offers the results it shows. */
 export const ExecutionWindowContext = createContext<{
-    /** Whether the result renders outside the editor dialog. */
-    standalone?: boolean
-    /** Opens the named browser window; false means the browser blocked it. */
-    open?: (options?: Partial<TestsQuery>) => boolean
-    /** Navigates to a table in the original editor when available. */
-    openTable?: (href: string) => boolean
-}>({})
+    /**
+     * Navigates to a table in the editor that started the execution, or opens it in a new tab. False leaves the
+     * navigation to the screen itself.
+     */
+    openTable: (href: string) => boolean
+}>({ openTable: () => false })
 
 /**
- * The result of a run, test run, or benchmark: its title, actions, and body.
+ * The result of a run, test run, or benchmark in the results window: its title, actions, and body.
  *
  * The heading reads the way a list screen of OpenL Studio reads: the name of what is shown, and under it one
- * line about the whole of it. The body appears in an editor dialog or a separate browser window.
+ * line about the whole of it. The actions stand at the foot of the window.
  */
-export const ExecutionModal: React.FC<ExecutionModalProps> = ({
-    title, subtitle, extra, openOptions, onClose, children,
-}) => {
+export const ExecutionScreen: React.FC<ExecutionScreenProps> = ({ title, subtitle, extra, onClose, children }) => {
     const { t } = useTranslation('execution')
     const { styles } = useListPageStyles()
     const { styles: executionStyles } = useStyles()
-    const executionWindow = useContext(ExecutionWindowContext)
-    const [windowBlocked, setWindowBlocked] = useState(false)
-    const actions = (
-        <Space>
-            {extra}
-            {executionWindow.open && (
-                <Button
-                    data-testid="execution-open-window"
-                    icon={<ExportOutlined />}
-                    onClick={() => setWindowBlocked(!executionWindow.open?.(openOptions))}
-                >
-                    {t('openInWindow')}
-                </Button>
-            )}
-            <Button data-testid="execution-close" onClick={onClose}>{t('close')}</Button>
-        </Space>
-    )
-    const heading = (
-        <>
+    return (
+        <main className={executionStyles.window}>
             <h1 className={styles.pageTitle}>{title}</h1>
             {subtitle !== undefined && <div className={styles.subtitle}>{subtitle}</div>}
-        </>
-    )
-    const body = <>{windowBlocked && <Alert showIcon title={t('windowBlocked')} type="warning" />}{children}</>
-    if (executionWindow.standalone) {
-        return (
-            <main className={executionStyles.window}>
-                {heading}
-                {body}
-                <Flex className={executionStyles.actions} justify="end">{actions}</Flex>
-            </main>
-        )
-    }
-    return (
-        <Modal
-            centered
-            destroyOnHidden
-            open
-            footer={actions}
-            onCancel={onClose}
-            title={heading}
-            width={{ xs: '100%', sm: '100%', md: '92%', lg: '88%', xl: 1200, xxl: 1400 }}
-        >
-            {body}
-        </Modal>
+            {children}
+            <Flex className={executionStyles.actions} justify="end">
+                <Space>
+                    {extra}
+                    <Button data-testid="execution-close" onClick={onClose}>{t('close')}</Button>
+                </Space>
+            </Flex>
+        </main>
     )
 }
 
-export default ExecutionModal
+export default ExecutionScreen

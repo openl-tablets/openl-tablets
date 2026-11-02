@@ -21,7 +21,7 @@ import { errorMessage } from 'utils/errorMessage'
 import { formatSmartNumber } from 'utils/smartNumber'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { runStatusTopic } from './topics'
-import { ExecutionErrors, ExecutionModal, nameOf, useStopExecution } from './ExecutionModal'
+import { ExecutionErrors, ExecutionScreen, nameOf, useStopExecution } from './ExecutionScreen'
 
 /** The single row of the result table: the values the table ran with, and the value it returned. */
 interface RunRow {
@@ -80,7 +80,7 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
     )
 }
 
-interface RunResultModalProps {
+interface RunResultsProps {
     projectId: string
     tableId: string
     /** How the workbook of this run is written, as the launch panel asked for it. */
@@ -95,7 +95,7 @@ interface RunResultModalProps {
  * table ran with and the value it returned stand side by side, a column each, and a spreadsheet result is shown
  * as the table it was calculated by.
  */
-export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, tableId, fileOptions, onClose }) => {
+export const RunResults: React.FC<RunResultsProps> = ({ projectId, tableId, fileOptions, onClose }) => {
     const { t } = useTranslation('execution')
     const [result, setResult] = useState<RunResult | null>(null)
     const [failure, setFailure] = useState<string | null>(null)
@@ -104,7 +104,7 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
     const [outdated, setOutdated] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
-    const { stopped, stopError, stopButton } = useStopExecution(projectId, 'run')
+    const { stopped, stopFailed, stopButton } = useStopExecution(projectId, 'run')
     const progress = useExecutionProgress(runStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
@@ -132,6 +132,8 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
                     if (isMissingExecution(readError)) {
                         setMissing(true)
                     } else if (isOutdatedExecution(readError)) {
+                        // The server dropped the result: the one on screen is no longer to be read.
+                        setResult(null)
                         setOutdated(errorMessage(readError))
                     } else {
                         setFailure(errorMessage(readError))
@@ -166,15 +168,15 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
             content = <Result status="error" subTitle={reason ?? undefined} title={t('run.failed')} />
         }
         return (
-            <ExecutionModal extra={running && stopButton} onClose={onClose} title={t('run.title')}>
-                {stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />}
+            <ExecutionScreen extra={running && stopButton} onClose={onClose} title={t('run.title')}>
+                {stopFailed}
                 {content}
-            </ExecutionModal>
+            </ExecutionScreen>
         )
     }
 
     return (
-        <ExecutionModal
+        <ExecutionScreen
             onClose={onClose}
             subtitle={t('run.time', { ms: Math.round(result.executionTimeMs) })}
             title={t('run.of', { table: result.tableName })}
@@ -188,8 +190,8 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
                 {error && <Alert showIcon closable={{ onClose: () => setError(null) }} title={error} type="error" />}
                 <RunResultTable result={result} />
             </Space>
-        </ExecutionModal>
+        </ExecutionScreen>
     )
 }
 
-export default RunResultModal
+export default RunResults
