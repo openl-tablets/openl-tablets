@@ -121,10 +121,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         overflow: auto;
         padding: ${token.paddingSM}px;
     `,
-    // The two files share the room left by the list of elements, and the divider between them gives
-    // either file more of it.
+    // The two files share the room left by the list of elements and the line of notes above them, and the
+    // divider between them gives either file more of it.
     panes: css`
-        height: 100%;
+        flex: 1;
+        min-height: 0;
+    `,
+    // What is said about the compared table, on a line of its own above the files.
+    notes: css`
+        flex: none;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     // The project and the two revisions compared, above the files changed between them.
     revisionsHead: css`

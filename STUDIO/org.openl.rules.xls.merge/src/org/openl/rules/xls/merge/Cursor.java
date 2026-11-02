@@ -2,7 +2,9 @@ package org.openl.rules.xls.merge;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -66,6 +68,12 @@ class Cursor {
      */
     private List<CellRangeAddress> mergedRegions;
 
+    /**
+     * The merged regions of {@code sheet} that cover a row, by the rows asked about: a region over a whole column is
+     * listed for those rows only.
+     */
+    private final Map<Integer, List<CellRangeAddress>> mergedRegionsByRow = new HashMap<>();
+
     public Cursor(Workbook workbook, Sheet sheet) {
         this.workbook = workbook;
         this.sheet = sheet;
@@ -87,7 +95,10 @@ class Cursor {
      * @return merged region or {@code null}
      */
     public CellRangeAddress getMergedRegion(int row, int column) {
-        for (CellRangeAddress range : getMergedRegions()) {
+        var ofRow = mergedRegionsByRow.computeIfAbsent(row, key -> getMergedRegions().stream()
+                .filter(range -> range.getFirstRow() <= row && row <= range.getLastRow())
+                .toList());
+        for (var range : ofRow) {
             if (range.isInRange(row, column)) {
                 return range;
             }

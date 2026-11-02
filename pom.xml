@@ -1016,11 +1016,6 @@
             <!-- STUDIO -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.diff</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.project</artifactId>
                 <version>${project.version}</version>
             </dependency>

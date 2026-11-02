@@ -15,22 +15,28 @@ Content-Type: application/json
           "id": "0-0",
           "name": "Datatype Person",
           "type": "table",
-          "status": "changed"
+          "status": "changed",
+          "moved": false,
+          "firstRange": "A1:B3",
+          "secondRange": "A1:B3"
         },
         {
           "id": "0-1",
           "name": "Datatype Contact",
           "type": "table",
-          "status": "removed"
+          "status": "removed",
+          "moved": false,
+          "firstRange": "A5:B6"
         },
         {
           "id": "0-2",
           "name": "Datatype Address",
           "type": "table",
-          "status": "added"
+          "status": "added",
+          "moved": false,
+          "secondRange": "A8:B9"
         }
       ]
     }
   ]
 }
-

@@ -943,7 +943,7 @@ final class XlsTableMerger {
     /**
      * Digests of lines from the digests of their cells, which tell lines apart.
      */
-    private static long[] lineDigests(long[][] cells) {
+    static long[] lineDigests(long[][] cells) {
         var digests = new long[cells.length];
         for (var line = 0; line < cells.length; line++) {
             digests[line] = lineDigest(cells[line]);
@@ -969,7 +969,7 @@ final class XlsTableMerger {
      * @param cells      the digests of the values the cells of one table show, by line and position
      * @param otherCells the digests of the values the cells of the other table show, by line and position
      */
-    private static LineAlignment.Similarity similarity(long[][] cells, long[][] otherCells) {
+    static LineAlignment.Similarity similarity(long[][] cells, long[][] otherCells) {
         return (line, otherLine) -> {
             var shared = 0;
             var filled = 0;
@@ -1210,11 +1210,11 @@ final class XlsTableMerger {
         return place(start, height(table), width(table));
     }
 
-    private static int height(CellRangeAddress table) {
+    static int height(CellRangeAddress table) {
         return table.getLastRow() - table.getFirstRow() + 1;
     }
 
-    private static int width(CellRangeAddress table) {
+    static int width(CellRangeAddress table) {
         return table.getLastColumn() - table.getFirstColumn() + 1;
     }
 
@@ -1495,7 +1495,7 @@ final class XlsTableMerger {
      * A table of a revision seen as lines: its rows, or its columns when it is transposed. A position is the place of a
      * cell along its line.
      */
-    private record View(Cursor cursor, CellRangeAddress table, boolean transposed) {
+    record View(Cursor cursor, CellRangeAddress table, boolean transposed) {
 
         int lines() {
             return transposed ? columns() : rows();

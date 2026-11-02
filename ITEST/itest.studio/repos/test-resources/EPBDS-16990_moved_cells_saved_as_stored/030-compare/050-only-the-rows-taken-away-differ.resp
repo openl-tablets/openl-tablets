@@ -5,6 +5,10 @@ Content-Type: application/json
   "id": "0-1",
   "name": "SmartRules Collect Option[] OptionsOf(String group)",
   "status": "changed",
+  "moved": false,
+  "formattingChanged": true,
+  "firstRange": "B11:H21",
+  "secondRange": "B11:H19",
   "first": {
     "source": [
       [
@@ -396,22 +400,6 @@ Content-Type: application/json
       {
         "bold": true
       }
-    ],
-    "changedCells": [
-      "B13",
-      "C13",
-      "D13",
-      "E13",
-      "F13",
-      "G13",
-      "H13",
-      "B14",
-      "C14",
-      "D14",
-      "E14",
-      "F14",
-      "G14",
-      "H14"
     ]
   },
   "second": {
@@ -889,5 +877,97 @@ Content-Type: application/json
         }
       }
     ]
-  }
+  },
+  "rows": [
+    {
+      "first": 0,
+      "second": 0,
+      "status": "equal"
+    },
+    {
+      "first": 1,
+      "second": 1,
+      "status": "equal"
+    },
+    {
+      "first": 2,
+      "status": "removed"
+    },
+    {
+      "first": 3,
+      "status": "removed"
+    },
+    {
+      "first": 4,
+      "second": 2,
+      "status": "equal"
+    },
+    {
+      "first": 5,
+      "second": 3,
+      "status": "equal"
+    },
+    {
+      "first": 6,
+      "second": 4,
+      "status": "equal"
+    },
+    {
+      "first": 7,
+      "second": 5,
+      "status": "equal"
+    },
+    {
+      "first": 8,
+      "second": 6,
+      "status": "equal"
+    },
+    {
+      "first": 9,
+      "second": 7,
+      "status": "equal"
+    },
+    {
+      "first": 10,
+      "second": 8,
+      "status": "equal"
+    }
+  ],
+  "columns": [
+    {
+      "first": 0,
+      "second": 0,
+      "status": "equal"
+    },
+    {
+      "first": 1,
+      "second": 1,
+      "status": "equal"
+    },
+    {
+      "first": 2,
+      "second": 2,
+      "status": "equal"
+    },
+    {
+      "first": 3,
+      "second": 3,
+      "status": "equal"
+    },
+    {
+      "first": 4,
+      "second": 4,
+      "status": "equal"
+    },
+    {
+      "first": 5,
+      "second": 5,
+      "status": "equal"
+    },
+    {
+      "first": 6,
+      "second": 6,
+      "status": "equal"
+    }
+  ]
 }

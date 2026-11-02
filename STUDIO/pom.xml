@@ -28,7 +28,6 @@
         <module>org.openl.rules.project.openapi</module>
         <module>org.openl.rules.project.validation.openapi</module>
         <module>studio-backend</module>
-        <module>org.openl.rules.diff</module>
         <module>org.openl.rules.xls.merge</module>
     </modules>
 </project>

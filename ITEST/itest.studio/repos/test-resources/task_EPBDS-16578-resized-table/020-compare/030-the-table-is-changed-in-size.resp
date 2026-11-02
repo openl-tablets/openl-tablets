@@ -16,13 +16,9 @@ Content-Type: application/json
           "name": "Datatype Person",
           "type": "table",
           "status": "changed",
-          "changes": [
-            {
-              "property": "size",
-              "first": "2x3",
-              "second": "3x4"
-            }
-          ]
+          "moved": false,
+          "firstRange": "B2:C4",
+          "secondRange": "B2:D5"
         }
       ]
     }

@@ -27082,17 +27082,37 @@ Content-Type: application/json
           "second"
         ]
       },
+      "ComparisonLineView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "first": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "second": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
+            ]
+          }
+        }
+      },
       "ComparisonNodeView": {
         "type": "object",
         "description": "***",
         "properties": {
-          "changes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ComparisonPropertyChange"
-            }
-          },
           "children": {
             "type": "array",
             "description": "***",
@@ -27100,11 +27120,23 @@ Content-Type: application/json
               "$ref": "#/components/schemas/ComparisonNodeView"
             }
           },
+          "firstRange": {
+            "type": "string",
+            "description": "***"
+          },
           "id": {
             "type": "string",
             "description": "***"
           },
+          "moved": {
+            "type": "boolean",
+            "description": "***"
+          },
           "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "secondRange": {
             "type": "string",
             "description": "***"
           },
@@ -27114,6 +27146,7 @@ Content-Type: application/json
             "enum": [
               "equal",
               "changed",
+              "moved",
               "added",
               "removed"
             ]
@@ -27125,24 +27158,6 @@ Content-Type: application/json
               "sheet",
               "table"
             ]
-          }
-        }
-      },
-      "ComparisonPropertyChange": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "first": {
-            "type": "string",
-            "description": "***"
-          },
-          "property": {
-            "type": "string",
-            "description": "***"
-          },
-          "second": {
-            "type": "string",
-            "description": "***"
           }
         }
       },
@@ -27214,19 +27229,49 @@ Content-Type: application/json
       "ComparisonTableView": {
         "type": "object",
         "properties": {
+          "columns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ComparisonLineView"
+            }
+          },
           "first": {
             "$ref": "#/components/schemas/ComparisonSideView"
           },
+          "firstRange": {
+            "type": "string",
+            "description": "***"
+          },
+          "formattingChanged": {
+            "type": "boolean",
+            "description": "***"
+          },
           "id": {
             "type": "string",
+            "description": "***"
+          },
+          "moved": {
+            "type": "boolean",
             "description": "***"
           },
           "name": {
             "type": "string",
             "description": "***"
           },
+          "rows": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ComparisonLineView"
+            }
+          },
           "second": {
             "$ref": "#/components/schemas/ComparisonSideView"
+          },
+          "secondRange": {
+            "type": "string",
+            "description": "***"
           },
           "status": {
             "type": "string",
@@ -27234,6 +27279,7 @@ Content-Type: application/json
             "enum": [
               "equal",
               "changed",
+              "moved",
               "added",
               "removed"
             ]

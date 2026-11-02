@@ -15,10 +15,12 @@ Content-Type: application/json
           "id": "0-0",
           "name": "Spreadsheet SpreadsheetResult Greeting()",
           "type": "table",
-          "status": "changed"
+          "status": "changed",
+          "moved": false,
+          "firstRange": "B2:C4",
+          "secondRange": "B2:C4"
         }
       ]
     }
   ]
 }
-

@@ -1,17 +1,13 @@
 import type { RawTableCell, RawTableCellData, RawTableCellStyle } from './tables'
 
 /** How an element of the second file relates to the same element of the first one. */
-type ComparisonNodeStatus = 'equal' | 'changed' | 'added' | 'removed'
+type ComparisonNodeStatus = 'equal' | 'changed' | 'moved' | 'added' | 'removed'
+
+/** What became of a row or a column of a table both files hold. */
+export type ComparisonLineStatus = 'equal' | 'changed' | 'added' | 'removed'
 
 /** Kind of element in a comparison tree. */
 type ComparisonNodeType = 'sheet' | 'table'
-
-/** A property of a table that reads differently in the two files, such as its name or its size. */
-export interface ComparisonPropertyChange {
-    property: string
-    first?: string | null
-    second?: string | null
-}
 
 /** An element of the comparison tree: a sheet, or a table of a sheet. */
 export interface ComparisonNode {
@@ -20,10 +16,27 @@ export interface ComparisonNode {
     name: string
     type: ComparisonNodeType
     status: ComparisonNodeStatus
-    /** Properties that read differently in the two files; absent when there are none. */
-    changes?: ComparisonPropertyChange[]
+    /** Whether the second file moved the table to another place on purpose, whatever else changed. */
+    moved?: boolean
+    /** The place of the table in the first file; absent for a sheet and for a table the first file does not hold. */
+    firstRange?: string | null
+    /** The place of the table in the second file; absent for a sheet and for a table the second file does not hold. */
+    secondRange?: string | null
     /** Tables of a sheet; absent for a table. */
     children?: ComparisonNode[]
+}
+
+/**
+ * A row or a column of a table both files hold, lined up as a text comparison lines up lines.
+ *
+ * A line only one file holds has no place in the other one.
+ */
+export interface ComparisonLine {
+    /** The line in the first file, from 0; absent when only the second file holds it. */
+    first?: number | null
+    /** The line in the second file, from 0; absent when only the first file holds it. */
+    second?: number | null
+    status: ComparisonLineStatus
 }
 
 /** What the two compared files hold, grouped by sheet. */
@@ -38,7 +51,10 @@ export interface Comparison {
 export interface ComparisonSide {
     /** The table as a matrix of cells, with its merges and its Excel styling. */
     source: RawTableCell[][]
-    /** Addresses of the cells that read differently in the other file, in A1 notation; absent when none do. */
+    /**
+     * Addresses of the cells that read differently in the other file, in A1 notation; absent when none do.
+     * Only the cells of the lines both files hold are listed.
+     */
     changedCells?: string[]
 }
 
@@ -60,6 +76,18 @@ export interface ComparisonTable {
     id: string
     name: string
     status: ComparisonNodeStatus
+    /** Whether the second file moved the table to another place on purpose, whatever else changed. */
+    moved?: boolean
+    /** Whether the formatting of a cell both files hold differs; a change of formatting alone marks no cell. */
+    formattingChanged?: boolean
+    /** The place of the table in the first file; absent when only the second file holds it. */
+    firstRange?: string | null
+    /** The place of the table in the second file; absent when only the first file holds it. */
+    secondRange?: string | null
+    /** The rows, lined up; absent or empty for a table only one file holds. */
+    rows?: ComparisonLine[]
+    /** The columns, lined up; absent or empty for a table only one file holds. */
+    columns?: ComparisonLine[]
     /** Absent when only the second file holds the table. */
     first?: ComparisonSide
     /** Absent when only the first file holds the table. */

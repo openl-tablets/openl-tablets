@@ -1,9 +1,10 @@
 import React from 'react'
-import { Empty, Spin, Splitter } from 'antd'
+import { Badge, Empty, Flex, Spin, Splitter, Tag, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RawTableGrid, type CellDecoration } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
-import type { ComparisonSide, ComparisonTable } from 'types/compare'
+import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTable } from 'types/compare'
+import { alignmentOf, alignSide, ownStatusOf, type Alignment, type FileSide } from './alignment'
 import { combine, type CellMark, type CombinedTable } from './combinedDiff'
 import { keepRows, rowsToShow } from './diffRows'
 import { useStyles } from './ComparePage.styles'
@@ -31,17 +32,44 @@ interface ComparisonPanesProps {
     secondOnLeft?: boolean | undefined
 }
 
+/** The sign a row of the combined view is read by. */
+const SIGNS: Record<ComparisonLineStatus, string> = { equal: '', changed: '→', added: '+', removed: '−' }
+
+/** The kinds of change a legend explains, in the order it explains them. */
+const KINDS = ['changed', 'added', 'removed'] as const
+
+type ChangeKind = typeof KINDS[number]
+
+/** The colour of the dot a legend marks a kind of change with, matching the colour its cells are painted in. */
+const DOTS: Record<ChangeKind, 'warning' | 'success' | 'error'> = {
+    changed: 'warning',
+    added: 'success',
+    removed: 'error',
+}
+
+/** The kinds of change a table shows: changed cells, and lines or a whole table only one file holds. */
+const kindsOf = (table: ComparisonTable, alignment: Alignment | null): ChangeKind[] => {
+    if (!alignment) {
+        return table.first ? ['removed'] : ['added']
+    }
+    const lines = [...alignment.rows, ...alignment.columns]
+    const changed = (table.first?.changedCells?.length ?? 0) > 0
+    return KINDS.filter(kind => (kind === 'changed' ? changed : lines.some(line => line.status === kind)))
+}
+
 /**
- * The two versions of the picked table, side by side or drawn as one table, with the cells that
- * differ marked.
+ * The two versions of the picked table, side by side or drawn as one table, with what differs marked.
  *
- * Side by side, each file heads its own column, on the line the controls of the comparison are on, and
- * the divider between them gives either file more room. The first file stands on the left unless the second
- * one is asked to. A table only one file holds is shown on that side alone; the other side says the file does
- * not have it.
+ * Side by side, each file heads its own column, on the line the controls of the comparison are on. The divider
+ * between them gives either file more room. The rows of both files stand against each other. A row only one file
+ * holds stands against an empty row in the other one, and so does a column. The first file stands on the left
+ * unless the second one is asked to. A table only one file holds is shown on that side alone.
  *
- * Drawn as one, the two versions share a table: a cell the files read differently carries both values,
- * and every row is led by the sign it is read by.
+ * Drawn as one, the two versions share a table. A cell the files read differently carries both values, and every
+ * row is led by the sign it is read by.
+ *
+ * A legend above the table tells what each colour means. A table moved on its sheet says where from and where to, and
+ * a table whose formatting changed says so.
  */
 export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     table,
@@ -56,7 +84,8 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
 }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
-    const rows = table ? rowsToShow(table, showEqualRows) : null
+    const alignment = table ? alignmentOf(table) : null
+    const rows = rowsToShow(alignment, showEqualRows)
 
     /** What is shown instead of a table: the comparison is not ready, or there is nothing to show. */
     const insteadOfTable = (): React.ReactNode => {
@@ -72,11 +101,6 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
         return null
     }
 
-    const content = (side: ComparisonSide | undefined) => insteadOfTable()
-        ?? (side
-            ? <Side rows={rows} side={side} />
-            : <Empty description={t('absent')} image={Empty.PRESENTED_IMAGE_SIMPLE} />)
-
     const pane = (head: React.ReactNode, testId: string, body: React.ReactNode) => (
         <div className={styles.column}>
             <div className={styles.head}>{head}</div>
@@ -84,41 +108,51 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
         </div>
     )
 
-    const named = (title: string, before?: React.ReactNode, after?: React.ReactNode) => (
-        <>
-            {before}
-            <span className={cx(styles.headLabel)}>{title}</span>
-            {after && <span className={styles.headAction}>{after}</span>}
-        </>
+    // What is said about the table stands on a line of its own above the files, so the rows of both files stay
+    // level with each other.
+    const notes = table && !loading && !error && (
+        <Notes alignment={alignment} combined={view === 'combined'} table={table} />
+    )
+    const withNotes = (panes: React.ReactNode) => (
+        <div className={styles.column}>
+            {notes}
+            {panes}
+        </div>
     )
 
     if (view === 'combined') {
-        const combined = table ? combine(table, rows) : null
         const head = (
             <>
                 {leading}
                 <span className={cx(styles.headLabel)}>
                     {`${titles?.first ?? t('file_first')} ${SIGNS.changed} ${titles?.second ?? t('file_second')}`}
                 </span>
-                {(combined || trailing) && (
-                    <span className={styles.headTail}>
-                        {combined && <Legend of={combined} />}
-                        {trailing}
-                    </span>
-                )}
+                {trailing && <span className={styles.headAction}>{trailing}</span>}
             </>
         )
-        const body = insteadOfTable() ?? <Combined combined={combined!} />
-        return pane(head, 'compare-pane-combined', body)
+        const body = insteadOfTable() ?? <Combined combined={combine(table!, rows)} />
+        return withNotes(<div className={styles.panes}>{pane(head, 'compare-pane-combined', body)}</div>)
+    }
+
+    const content = (side: FileSide) => {
+        const source = table?.[side]
+        return insteadOfTable()
+            ?? (source
+                ? <Side alignment={alignment} rows={rows} side={side} source={source} />
+                : <Empty description={t('absent')} image={Empty.PRESENTED_IMAGE_SIMPLE} />)
     }
 
     // The pane of a file; the controls lead the left pane and end the right one, whichever file each pane shows.
-    const sidePane = (side: 'first' | 'second', left: boolean) => pane(
-        named(titles?.[side] ?? t(`file_${side}`), left && leading, !left && trailing),
+    const sidePane = (side: FileSide, left: boolean) => pane(
+        <>
+            {left && leading}
+            <span className={cx(styles.headLabel)}>{titles?.[side] ?? t(`file_${side}`)}</span>
+            {!left && trailing && <span className={styles.headAction}>{trailing}</span>}
+        </>,
         `compare-pane-${side}`,
-        content(table?.[side]))
+        content(side))
     const [left, right] = secondOnLeft ? ['second', 'first'] as const : ['first', 'second'] as const
-    return (
+    return withNotes(
         <Splitter className={styles.panes}>
             <Splitter.Panel min="20%">{sidePane(left, true)}</Splitter.Panel>
             <Splitter.Panel min="20%">{sidePane(right, false)}</Splitter.Panel>
@@ -126,47 +160,95 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     )
 }
 
-const Side: React.FC<{ side: ComparisonSide; rows: ReadonlySet<number> | null }> = ({ side, rows }) => {
-    const { styles } = useCellStyles()
-    const changed = new Set(side.changedCells ?? [])
-
-    // What differs is what the reader came for, so the rest of the table steps back into grey. A table
-    // that differs in nothing has nothing to step back from and keeps the colours the workbook gives it.
-    const decorate = (cell: RawTableCell) => {
-        const marked = !!cell.cell && changed.has(cell.cell)
-        return {
-            className: marked ? styles.changed : undefined,
-            painted: marked,
-            muted: !marked && changed.size > 0,
-        }
-    }
-
-    return <RawTableGrid decorate={decorate} rows={rows ? keepRows(side.source, rows) : side.source} />
-}
-
-/** The sign a row of the combined view is read by. */
-const SIGNS: Record<CellMark['row'], string> = { equal: '', changed: '→', added: '+', removed: '−' }
-
-/** The signs a combined table is read by, in the order they are explained. */
-const SIGNED: CellMark['row'][] = ['changed', 'added', 'removed']
-
-/** What the signs leading the rows of this table mean, for the reader who meets them for the first time. */
-const Legend: React.FC<{ of: CombinedTable }> = ({ of }) => {
+/**
+ * What is said about a table, on a line above the files.
+ *
+ * A legend tells what each colour means. A moved table says where from and where to. A table whose formatting
+ * changed says so, since its cells are not marked for it.
+ */
+const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; combined: boolean }> = ({
+    table,
+    alignment,
+    combined,
+}) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
-    const used = new Set([...of.marks.values()].map(mark => mark.row))
-    const kinds = SIGNED.filter(kind => used.has(kind))
-
-    return kinds.length === 0 ? null : (
-        <span className={styles.legend} data-testid="compare-legend">
-            {kinds.map(kind => (
-                <span key={kind}>
-                    <span className={styles.legendSign}>{SIGNS[kind]}</span>
-                    {t(`status_${kind}`)}
-                </span>
-            ))}
-        </span>
+    const kinds = table.status === 'equal' || table.status === 'moved' ? [] : kindsOf(table, alignment)
+    const moved = table.moved && table.firstRange && table.secondRange
+    if (kinds.length === 0 && !moved && !table.formattingChanged) {
+        return null
+    }
+    return (
+        <Flex wrap align="center" className={styles.notes} data-testid="compare-notes" gap="small">
+            {kinds.length > 0 && (
+                <Flex data-testid="compare-legend" gap="small">
+                    {kinds.map(kind => (
+                        <Badge
+                            key={kind}
+                            status={DOTS[kind]}
+                            text={combined ? `${SIGNS[kind]} ${t(`status_${kind}`)}` : t(`status_${kind}`)}
+                        />
+                    ))}
+                </Flex>
+            )}
+            {table.formattingChanged && (
+                <Tag color="warning" data-testid="compare-formatting-changed">{t('formatting_changed')}</Tag>
+            )}
+            {moved && (
+                <Typography.Text data-testid="compare-moved" type="secondary">
+                    {t('moved_places', { first: table.firstRange, second: table.secondRange })}
+                </Typography.Text>
+            )}
+        </Flex>
     )
+}
+
+/**
+ * One file of the table, its rows and its columns standing where they stand against the other file.
+ *
+ * A line only this file holds is painted as added or removed. A line only the other file holds is an empty line
+ * here. A cell the other file reads differently is painted as changed. What differs is what the reader came for, so
+ * the rest of the table steps back into grey. A table that differs in nothing keeps the colours the workbook gives
+ * it.
+ */
+const Side: React.FC<{
+    source: ComparisonSide
+    side: FileSide
+    alignment: Alignment | null
+    rows: ReadonlySet<number> | null
+}> = ({ source, side, alignment, rows }) => {
+    const { styles } = useCellStyles()
+    const changed = new Set(source.changedCells ?? [])
+    const own = ownStatusOf(side)
+    const paint = own === 'added' ? styles.rowAdded : styles.rowRemoved
+
+    if (!alignment) {
+        // A table only this file holds is all of it added or removed.
+        const decorate = (): CellDecoration => ({ className: paint, painted: true })
+        return <RawTableGrid decorate={decorate} rows={source.source} />
+    }
+
+    const grid = alignSide(source.source, alignment, side)
+    const shown = rows ? keepRows(grid, rows) : grid
+    const shownRows = rows ? alignment.rows.filter((_, index) => rows.has(index)) : alignment.rows
+    const differs = changed.size > 0 || [...alignment.rows, ...alignment.columns].some(line => line.status !== 'equal')
+    const ownLine = (line: ComparisonLine | undefined) => line?.status === own
+
+    const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
+        const rowLine = shownRows[row]
+        const columnLine = alignment.columns[column]
+        if (rowLine?.[side] == null || columnLine?.[side] == null) {
+            // A line only the other file holds has nothing here to mark.
+            return undefined
+        }
+        if (ownLine(rowLine) || ownLine(columnLine)) {
+            return { className: paint, painted: true }
+        }
+        const marked = !!cell.cell && changed.has(cell.cell)
+        return { className: marked ? styles.changed : undefined, painted: marked, muted: !marked && differs }
+    }
+
+    return <RawTableGrid decorate={decorate} rows={shown} />
 }
 
 /**
@@ -178,10 +260,10 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
     const { styles, cx } = useCellStyles()
     const { rows: source, marks } = combined
     // A table that differs in nothing has nothing to step back from, as in the view beside this one.
-    const differs = [...marks.values()].some(mark => mark.before !== undefined || mark.row !== 'equal')
+    const differs = [...marks.values()].some(mark => mark.before !== undefined || mark.row !== 'equal' || mark.paint)
 
-    /** The colour a row that is wholly of one file or the other is drawn in. */
-    const ofSide = (kind: CellMark['row']) => {
+    /** The colour a cell wholly of one file or the other is drawn in. */
+    const ofSide = (kind: CellMark['paint']) => {
         if (kind === 'added') {
             return styles.rowAdded
         }
@@ -194,8 +276,9 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
             return undefined
         }
         if (mark.lead) {
+            const row = mark.row === 'added' || mark.row === 'removed' ? mark.row : undefined
             return {
-                className: cx(styles.combinedLead, ofSide(mark.row)),
+                className: cx(styles.combinedLead, ofSide(row)),
                 painted: true,
                 // The sign says what became of the row, and says so in words to whoever hovers it. A
                 // row that reads the same in both files carries no sign, so there is nothing to hover.
@@ -215,9 +298,9 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
                 ),
             }
         }
-        // Only a row wholly of one file or the other is painted over; a row that merely changed keeps
-        // what the workbook fills its cells with, muted like every other cell that does not differ.
-        const paint = ofSide(mark.row)
+        // Only a cell wholly of one file or the other is painted over. A cell of a row that merely changed keeps
+        // what the workbook fills it with, muted like every other cell that does not differ.
+        const paint = ofSide(mark.paint)
         return { className: paint, painted: !!paint, muted: differs }
     }
 

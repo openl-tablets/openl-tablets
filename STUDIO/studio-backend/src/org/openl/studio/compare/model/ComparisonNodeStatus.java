@@ -17,6 +17,12 @@ public enum ComparisonNodeStatus {
     @JsonProperty("changed")
     CHANGED,
 
+    @Schema(description = """
+            The table is the same in both files, and the second file moved it to another place of its sheet on \
+            purpose""")
+    @JsonProperty("moved")
+    MOVED,
+
     @Schema(description = "The element is in the second file only")
     @JsonProperty("added")
     ADDED,

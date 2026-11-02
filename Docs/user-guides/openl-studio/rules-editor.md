@@ -965,13 +965,28 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
 2.  Click **Compare.**
 
-    The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other, with the cells that differ highlighted. The cells that read the same in both files are drawn in grey, so that the differences are what the eye lands on. A table that gained or lost rows or columns is compared by the rows and columns both of its versions hold: the cells that differ in them are highlighted, and so is every cell of a row or a column only one of the files holds.
+    The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other. The rows and the columns of the two versions stand against each other, the way the lines of two texts do in a text comparison:
+
+    -   A row or a column only the second file holds is painted green, and an empty row or column stands against it in the first file.
+    -   A row or a column only the first file holds is painted red, and an empty row or column stands against it in the second file.
+    -   A cell the two files read differently is highlighted.
+    -   The cells that read the same in both files are drawn in grey, so that the differences are what the eye lands on.
+
+    A legend on the line above the files tells what each colour means. A cell differs when its value, its formula, the result of its formula, its comment or its merging differs: a formula kept as it was differs too once a cell it reads changed its result. Merged cells stretched over an added row or column are the same merged cells. A change of formatting alone highlights no cell, and the line above the files says **Formatting changed** instead.
+
+    The tables are found by their headers and their places, the way a merge of two branches finds them, so a table moved to another place of its sheet is still the same table. Such a table says where it was moved from and where to, as **Moved from A16:B20 to E1:F5**, both under its name in the list of elements and on the line above the files. A table only pushed down or up by the rows inserted or deleted above it is not moved and reads the same. A table renamed and moved at once is still the same table when the rest of its header, such as its parameters, stays and it keeps at least half of its values. Cells outside OpenL tables, such as notes or formulas beside them, kept at their place are the same cells changed, whatever they hold. Rows are paired by the values they hold, so a row removed and another one added read as removed and added, and the rows between them as changed only where their values changed. A row of a single value, as a value of a vocabulary is, replaced by another value is that row changed, also when a row is added next to it. A table that changed both its rows and its columns pairs its columns by the values they share first. The workbooks are read as they are and are not compiled, so a module with errors or with dependencies on other modules is compared as well as any other.
 
     ![Excel comparison results](images/excel-comparison-results.jpeg)
 
     *Excel file comparison results*
 
-    Every element is marked with what became of it. An element that changed its location or its contents carries the changed file icon ![Changed](images/excel-compare-changed-icon.png), one that the second file adds carries the added file icon ![Added](images/excel-compare-added-icon.png), one that it no longer holds carries the removed file icon ![Removed](images/excel-compare-removed-icon.png), and one that reads the same in both files carries a plain file icon.
+    Every element is marked with what became of it:
+
+    -   An element that changed its contents carries the changed file icon ![Changed](images/excel-compare-changed-icon.png).
+    -   A table moved to another place of its sheet with nothing else changed carries the moved file icon ![Moved](images/excel-compare-moved-icon.png). The places it was moved from and to are listed under it, as they are under a moved table that changed too.
+    -   An element the second file adds carries the added file icon ![Added](images/excel-compare-added-icon.png).
+    -   An element the second file no longer holds carries the removed file icon ![Removed](images/excel-compare-removed-icon.png).
+    -   An element that reads the same in both files carries a plain file icon.
 
     The list of elements, the first file and the second one are separated by dividers. Drag a divider to give
     either side more room. The button above the list hides it and leaves the tables alone; while the list is
@@ -979,15 +994,15 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
 1.  To read the two versions as one table instead of two, select **Combined** at the end of the line the files are named on.
 
-    Each row is led by the sign that says what became of it, and a cell the two files read differently carries both values, the one the first file has before the one the second file has in its place. The signs the table is read by are listed beside the file names, and each sign in the table says what it means when the pointer rests on it.
+    Each row is led by the sign that says what became of it, and a cell the two files read differently carries both values, the one the first file has before the one the second file has in its place. The signs the table is read by are listed on the line above the table, and each sign in the table says what it means when the pointer rests on it.
+
+    A row only one file holds stands where it stands in that file. A row the second file adds is marked with a plus and painted green, and a row it no longer holds is marked with a minus and painted red. A column only one file holds stands beside the columns of the other file, painted the same way.
 
     ![The two versions drawn as one table](images/excel-comparison-combined.jpeg)
 
     *The two versions drawn as one table*
 
-    When the two files hold a different number of rows, there is nothing to read one against the other. What the first file holds is shown first, each row marked with a minus, and what the second file holds after it, each row marked with a plus.
-
-1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows only the rows that differ.
+1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows only the rows that differ: the rows added, removed or holding a highlighted cell. A table with a column added or removed shows every row, since the column runs through all of them.
 2.  To compare another pair of files, click **Select other files**.
 
 If the two files hold the same elements with the same contents, the **File elements are identical** message is displayed.

@@ -5,6 +5,10 @@ Content-Type: application/json
   "id": "0-0",
   "name": "Datatype Person",
   "status": "changed",
+  "moved": false,
+  "formattingChanged": false,
+  "firstRange": "B2:C4",
+  "secondRange": "B2:D5",
   "first": {
     "source": [
       [
@@ -80,7 +84,7 @@ Content-Type: application/json
         },
         {
           "cell": "D4",
-          "value": 30
+          "value": "30"
         }
       ],
       [
@@ -94,18 +98,49 @@ Content-Type: application/json
         },
         {
           "cell": "D5",
-          "value": true
+          "value": "true"
         }
       ]
     ],
     "changedCells": [
-      "C4",
-      "B5",
-      "C5",
-      "D2",
-      "D3",
-      "D4",
-      "D5"
+      "C4"
     ]
-  }
+  },
+  "rows": [
+    {
+      "first": 0,
+      "second": 0,
+      "status": "equal"
+    },
+    {
+      "first": 1,
+      "second": 1,
+      "status": "equal"
+    },
+    {
+      "first": 2,
+      "second": 2,
+      "status": "changed"
+    },
+    {
+      "second": 3,
+      "status": "added"
+    }
+  ],
+  "columns": [
+    {
+      "first": 0,
+      "second": 0,
+      "status": "equal"
+    },
+    {
+      "first": 1,
+      "second": 1,
+      "status": "changed"
+    },
+    {
+      "second": 2,
+      "status": "added"
+    }
+  ]
 }

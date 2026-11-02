@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.xls2.XlsDiff2;
+import org.openl.rules.xls.merge.XlsWorkbookComparator;
+import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.projects.service.ExecutionLifecycle;
 import org.openl.studio.projects.service.ExecutionProgressListener;
 
@@ -25,10 +25,10 @@ public class ExcelComparisonServiceImpl implements ExcelComparisonService {
 
     @Override
     @Async("comparisonExecutor")
-    public CompletableFuture<DiffTreeNode> compare(@NotNull ExecutionProgressListener listener,
-                                                   @NotNull Path first,
-                                                   @NotNull Path second) {
+    public CompletableFuture<WorkbookComparison> compare(@NotNull ExecutionProgressListener listener,
+                                                         @NotNull Path first,
+                                                         @NotNull Path second) {
         return ExecutionLifecycle.execute(listener,
-                () -> new XlsDiff2().diffFiles(first.toFile(), second.toFile()));
+                () -> XlsWorkbookComparator.compare(first.toFile(), second.toFile()));
     }
 }

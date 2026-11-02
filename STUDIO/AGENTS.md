@@ -110,10 +110,9 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
 
 **Supporting modules**:
 - **org.openl.rules.workspace** — Workspace management
-- **org.openl.rules.diff** — Rule diff/comparison
 - **org.openl.rules.jackson** / **org.openl.rules.jackson.configuration** — JSON serialization
 - **org.openl.rules.project.openapi** / **org.openl.rules.project.validation.openapi** — OpenAPI generation and validation
-- **org.openl.rules.xls.merge** — Excel merge utilities
+- **org.openl.rules.xls.merge** — Excel merge and comparison of two versions of a workbook
 - **`../WSFrontend/org.openl.rules.ruleservice.annotation`**, **`.common`**, **`.ws.common`** — modules of OpenL Rule
   Services that `STUDIO/pom.xml` builds as well
 

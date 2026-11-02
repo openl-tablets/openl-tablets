@@ -3,17 +3,20 @@ package org.openl.studio.compare.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import org.openl.rules.diff.tree.DiffTreeNode;
+import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
@@ -34,7 +37,7 @@ class CompareControllerTest {
 
     private final ComparisonRegistry registry = mock(ComparisonRegistry.class);
     private final ComparisonMapper mapper = mock(ComparisonMapper.class);
-    private final DiffTreeNode found = mock(DiffTreeNode.class);
+    private final WorkbookComparison found = mock(WorkbookComparison.class);
     private final CompareController controller = new CompareController(mock(ComparisonLauncher.class), registry,
             mapper);
 
@@ -45,7 +48,14 @@ class CompareControllerTest {
 
     private void comparisonHasEnded() {
         when(registry.isDone(COMPARISON_ID)).thenReturn(true);
-        when(registry.result(COMPARISON_ID)).thenReturn(found);
+        holds(found);
+    }
+
+    /** The registry reads the given comparison to the reader the controller hands it. */
+    @SuppressWarnings("unchecked")
+    private void holds(WorkbookComparison comparison) {
+        when(registry.read(eq(COMPARISON_ID), any()))
+                .thenAnswer(call -> call.getArgument(1, Function.class).apply(comparison));
     }
 
     private static void assertNotReady(ResponseEntity<?> answer) {
@@ -84,6 +94,15 @@ class CompareControllerTest {
         when(registry.isDone(COMPARISON_ID)).thenReturn(true);
 
         assertThrows(ConflictException.class, () -> controller.getComparison(COMPARISON_ID));
+    }
+
+    @Test
+    void getComparison_releasedWhileTheRequestWasOnItsWay() {
+        when(registry.isDone(COMPARISON_ID)).thenReturn(true);
+        // Held when the request asks, gone when it reads
+        when(registry.has(COMPARISON_ID)).thenReturn(true, false);
+
+        assertThrows(NotFoundException.class, () -> controller.getComparison(COMPARISON_ID));
     }
 
     @Test

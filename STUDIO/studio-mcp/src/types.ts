@@ -600,12 +600,15 @@ export interface ProjectHistoryItem {
   modifiedOn?: string;
 }
 
-/** An element of a comparison of two workbooks: a sheet with its tables, or a table, and whether it differs. */
+/**
+ * An element of a comparison of two workbooks: a sheet with its tables, or a table, and whether it differs. A table
+ * only pushed by the rows inserted above it is equal; one moved on purpose is moved.
+ */
 export interface ComparisonNodeView {
   id?: string;
   name?: string;
   type?: "sheet" | "table";
-  status?: "equal" | "changed" | "added" | "removed";
+  status?: "equal" | "changed" | "moved" | "added" | "removed";
   children?: ComparisonNodeView[];
 }
 

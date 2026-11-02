@@ -75,7 +75,7 @@ page of the React application for every other address.
 | `org.openl.rules.repository`             | The repository abstraction; JDBC repositories                        |
 | `org.openl.rules.repository.git`, `.aws`, `.azure` | Git, AWS S3 and Azure Blob repositories                    |
 | `org.openl.rules.workspace`              | Workspaces and project management                                    |
-| `org.openl.rules.diff`, `org.openl.rules.xls.merge` | Comparison and merge of workbooks                         |
+| `org.openl.rules.xls.merge`              | Comparison and merge of workbooks                                    |
 | `org.openl.rules.jackson`, `.jackson.configuration` | JSON serialization                                        |
 | `org.openl.rules.project.openapi`, `.validation.openapi` | OpenAPI generation and validation of projects        |
 

@@ -160,7 +160,7 @@ class ConflictWorkbookMapper {
                         range.getFirstColumn(),
                         range.getLastColumn());
         var cells = readers.computeIfAbsent(sheet, tableReader::cellsOf).apply(shown);
-        var styles = Objects.requireNonNullElse(cells.styles(), List.<RawTableCellStyle>of());
+        var styles = cells.styles();
         return new Read(range.formatAsString(), cells.source(), styles, rows,
                 looksOf(cells.source(), styles, sheet, shown));
     }

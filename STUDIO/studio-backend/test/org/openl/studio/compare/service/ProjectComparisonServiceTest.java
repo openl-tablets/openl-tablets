@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.diff.tree.DiffStatus;
-import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -31,6 +29,8 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.xls.merge.XlsWorkbookComparator;
+import org.openl.rules.xls.merge.compare.ChangeStatus;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.compare.model.ComparisonSideRequest;
@@ -154,11 +154,11 @@ class ProjectComparisonServiceTest {
             workbook.write(out);
         }
 
-        var tree = new XlsDiff2().diffFiles(absent.toFile(), added.toFile());
-
-        var sheet = tree.getChildren().getFirst();
-        assertEquals(DiffStatus.ADDED, sheet.getElement(1).getDiffStatus());
-        assertEquals(DiffStatus.ADDED, sheet.getChildren().getFirst().getElement(1).getDiffStatus());
+        try (var comparison = XlsWorkbookComparator.compare(absent.toFile(), added.toFile())) {
+            var sheet = comparison.getSheets().getFirst();
+            assertEquals(ChangeStatus.ADDED, sheet.status());
+            assertEquals(ChangeStatus.ADDED, sheet.tables().getFirst().status());
+        }
     }
 
     @Test

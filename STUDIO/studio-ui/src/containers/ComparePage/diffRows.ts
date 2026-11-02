@@ -1,35 +1,19 @@
 import type { RawTableCell } from 'types/tables'
-import type { ComparisonSide, ComparisonTable } from 'types/compare'
-
-/** The rows of one side that hold a cell reading differently in the other file. */
-const changedRowsOf = (side: ComparisonSide): number[] => {
-    const changed = new Set(side.changedCells ?? [])
-    return side.source
-        .map((row, index) => (row.some(cell => cell.cell && changed.has(cell.cell)) ? index : -1))
-        .filter(index => index >= 0)
-}
+import type { Alignment } from './alignment'
 
 /**
- * The rows both files show, or null for the whole table.
+ * The rows lined up that differ, or null for the whole table.
  *
- * The two versions keep the same rows, whichever side a difference was found on. A row one file adds
- * is marked on that side alone, and showing it there against the whole table on the other side would
- * put the two versions out of step.
- *
- * That holds only while the versions have the same number of rows. Once they do not, the rows no
- * longer stand against each other, so both versions are shown whole. A table that differs in what it
- * is rather than in what it holds - its name, its place, its size - has no row to keep, and is shown
- * whole as well.
+ * A row differs when it is added, removed or holds a changed cell. Every row is kept once a column is added or
+ * removed, because such a column runs through the equal rows too. A table with no row that differs is shown
+ * whole.
  */
-export const rowsToShow = (table: ComparisonTable, showEqualRows: boolean): ReadonlySet<number> | null => {
-    const { first, second } = table
-    if (showEqualRows || !first || !second) {
+export const rowsToShow = (alignment: Alignment | null, showEqualRows: boolean): ReadonlySet<number> | null => {
+    const columnsDiffer = alignment?.columns.some(column => column.status === 'added' || column.status === 'removed')
+    if (showEqualRows || !alignment || columnsDiffer) {
         return null
     }
-    if (first.source.length !== second.source.length) {
-        return null
-    }
-    const rows = new Set([...changedRowsOf(first), ...changedRowsOf(second)])
+    const rows = new Set(alignment.rows.flatMap((row, index) => (row.status === 'equal' ? [] : [index])))
     return rows.size === 0 ? null : rows
 }
 

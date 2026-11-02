@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -89,10 +90,33 @@ final class LineAlignment {
     /**
      * Aligns the lines of BASE revision with the lines of another revision by their digests.
      *
+     * <p>A run of changed lines with as many lines in both revisions is read as its lines changed in place, as a merge
+     * reads it.
+     *
      * @param similarity tells how alike two lines are, to find the lines changed in place among inserted ones
      * @return the alignment, or {@code null} when too many lines changed to align them
      */
     static @Nullable LineAlignment align(long[] base, long[] side, Similarity similarity) {
+        return align(base, side, similarity, false);
+    }
+
+    /**
+     * Aligns the lines of BASE revision with the lines of another revision by their digests, the way a comparison
+     * shows them.
+     *
+     * <p>A run of changed lines with as many lines in both revisions is read as its lines changed in place only when
+     * each line is alike the line at its place, or when no lines of the run are alike at all. Otherwise its lines are
+     * paired by what they hold, as any other run is: a line removed and another one added below the lines changed
+     * between them are not read as every line changed.
+     *
+     * @param similarity tells how alike two lines are, to find the lines changed in place among inserted ones
+     * @return the alignment, or {@code null} when too many lines changed to align them
+     */
+    static @Nullable LineAlignment alignByContent(long[] base, long[] side, Similarity similarity) {
+        return align(base, side, similarity, true);
+    }
+
+    private static @Nullable LineAlignment align(long[] base, long[] side, Similarity similarity, boolean byContent) {
         var prefix = 0;
         while (prefix < base.length && prefix < side.length && base[prefix] == side[prefix]) {
             prefix++;
@@ -117,7 +141,7 @@ final class LineAlignment {
         if (!matchMiddle(base, side, new Hunk(prefix, prefix + n, prefix, prefix + m), sideOf, baseOf)) {
             return null;
         }
-        return new LineAlignment(sideOf, baseOf, pairChangedRuns(sideOf, baseOf, similarity));
+        return new LineAlignment(sideOf, baseOf, pairChangedRuns(sideOf, baseOf, similarity, byContent));
     }
 
     /**
@@ -261,7 +285,7 @@ final class LineAlignment {
     /**
      * Pairs the changed lines of every run of changed lines, and lists the rest as structural changes.
      */
-    private static List<Hunk> pairChangedRuns(int[] sideOf, int[] baseOf, Similarity similarity) {
+    private static List<Hunk> pairChangedRuns(int[] sideOf, int[] baseOf, Similarity similarity, boolean byContent) {
         var hunks = new ArrayList<Hunk>();
         var baseFrom = 0;
         var sideFrom = 0;
@@ -274,7 +298,7 @@ final class LineAlignment {
             while (sideTo < baseOf.length && baseOf[sideTo] < 0) {
                 sideTo++;
             }
-            pairRun(new Hunk(baseFrom, baseTo, sideFrom, sideTo), sideOf, baseOf, similarity, hunks);
+            pairRun(new Hunk(baseFrom, baseTo, sideFrom, sideTo), sideOf, baseOf, similarity, byContent, hunks);
             // the lines at baseTo and sideTo are a pair, or the ends of both sequences
             baseFrom = baseTo + 1;
             sideFrom = sideTo + 1;
@@ -283,35 +307,63 @@ final class LineAlignment {
     }
 
     /**
-     * Pairs the lines of a run of changed lines: all of them when the run has as many lines in both revisions, and
-     * otherwise the most alike lines, in order. The lines left between the pairs are paired the same way when there
-     * are as many of them in both revisions, and are a structural change otherwise.
+     * Pairs the lines of a run of changed lines: all of them when the run has as many lines in both revisions and is
+     * read as changed in place, and otherwise the most alike lines, in order. The lines left between the pairs are
+     * paired the same way, and are a structural change when none of them pair.
+     *
+     * <p>Read by content, a run is changed in place when each line is alike the line at its place, or when no lines of
+     * the run are alike at all, as when every line was rewritten. A run too long to compare line by line is read in
+     * place.
+     *
+     * @param byContent whether a run of as many lines in both revisions is read in place only when its lines are alike
      */
-    private static void pairRun(Hunk run, int[] sideOf, int[] baseOf, Similarity similarity, List<Hunk> hunks) {
+    private static void pairRun(Hunk run,
+                                int[] sideOf,
+                                int[] baseOf,
+                                Similarity similarity,
+                                boolean byContent,
+                                List<Hunk> hunks) {
         var k = run.baseTo() - run.baseFrom();
         var m = run.sideTo() - run.sideFrom();
-        if (k == m) {
-            for (var i = 0; i < k; i++) {
-                pair(sideOf, baseOf, run.baseFrom() + i, run.sideFrom() + i);
-            }
+        var comparable = k > 0 && m > 0 && (long) k * m <= MAX_SIMILARITIES;
+        if (k == m && (!byContent || !comparable || alikeInPlace(run, similarity))) {
+            pairInPlace(run, sideOf, baseOf);
+            return;
+        }
+        var alike = comparable ? alike(run, similarity) : List.<Pair>of();
+        if (k == m && alike.isEmpty()) {
+            // No lines of the run are alike at all, as when every line was rewritten.
+            pairInPlace(run, sideOf, baseOf);
             return;
         }
         var baseLine = run.baseFrom();
         var sideLine = run.sideFrom();
-        if (k > 0 && m > 0 && (long) k * m <= MAX_SIMILARITIES) {
-            for (var pair : alike(run, similarity)) {
-                pairRun(new Hunk(baseLine, pair.baseLine(), sideLine, pair.sideLine()), sideOf, baseOf, similarity,
-                        hunks);
-                pair(sideOf, baseOf, pair.baseLine(), pair.sideLine());
-                baseLine = pair.baseLine() + 1;
-                sideLine = pair.sideLine() + 1;
-            }
+        for (var pair : alike) {
+            pairRun(new Hunk(baseLine, pair.baseLine(), sideLine, pair.sideLine()), sideOf, baseOf, similarity,
+                    byContent, hunks);
+            pair(sideOf, baseOf, pair.baseLine(), pair.sideLine());
+            baseLine = pair.baseLine() + 1;
+            sideLine = pair.sideLine() + 1;
         }
         if (baseLine == run.baseFrom() && sideLine == run.sideFrom()) {
             hunks.add(run);
         } else {
-            pairRun(new Hunk(baseLine, run.baseTo(), sideLine, run.sideTo()), sideOf, baseOf, similarity, hunks);
+            pairRun(new Hunk(baseLine, run.baseTo(), sideLine, run.sideTo()), sideOf, baseOf, similarity, byContent,
+                    hunks);
         }
+    }
+
+    /** Pairs each line of a run of as many lines in both revisions with the line at its place. */
+    private static void pairInPlace(Hunk run, int[] sideOf, int[] baseOf) {
+        for (var i = 0; i < run.baseTo() - run.baseFrom(); i++) {
+            pair(sideOf, baseOf, run.baseFrom() + i, run.sideFrom() + i);
+        }
+    }
+
+    /** Tells whether each line of a run of as many lines in both revisions is alike the line at its place. */
+    private static boolean alikeInPlace(Hunk run, Similarity similarity) {
+        return IntStream.range(0, run.baseTo() - run.baseFrom())
+                .allMatch(i -> similarity.of(run.baseFrom() + i, run.sideFrom() + i) >= 0);
     }
 
     /**
