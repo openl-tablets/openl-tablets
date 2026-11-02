@@ -13,7 +13,7 @@ import { errorMessage } from 'utils/errorMessage'
 import { formatRate, formatRatio, formatTime, metricsOf } from './benchmarkMetrics'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { benchmarkStatusTopic } from './topics'
-import { ExecutionModal, ExecutionWindowContext, useStopExecution } from './ExecutionModal'
+import { ExecutionScreen, ExecutionWindowContext, useStopExecution } from './ExecutionScreen'
 
 const { Text, Title } = Typography
 
@@ -40,7 +40,7 @@ const metricColumn = (
     render,
 })
 
-interface BenchmarkResultModalProps {
+interface BenchmarkResultsProps {
     projectId: string
     /** The table the benchmark that is still running was started on. */
     tableId: string
@@ -54,7 +54,7 @@ interface BenchmarkResultModalProps {
  * rows above the ones taken before it, so that measurements of different tables and test cases stand side by
  * side. The rows that are ticked can be compared with each other, which places them by speed, or deleted.
  */
-export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ projectId, tableId, onClose }) => {
+export const BenchmarkResults: React.FC<BenchmarkResultsProps> = ({ projectId, tableId, onClose }) => {
     const { i18n, t } = useTranslation('execution')
     const { openTable } = useContext(ExecutionWindowContext)
     const locale = i18n.resolvedLanguage ?? i18n.language
@@ -66,11 +66,13 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
     const [outdated, setOutdated] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [deleting, setDeleting] = useState(false)
-    const { stopped, stopError, stopButton } = useStopExecution(projectId, 'benchmark')
+    const { stopped, stopFailed, stopButton } = useStopExecution(projectId, 'benchmark')
     const progress = useExecutionProgress(benchmarkStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
     const interrupted = stopped || progress.status === 'INTERRUPTED'
+    // A stopped benchmark is followed on until its measurements are read: Stop does not wait for them, and the
+    // window shows them, not a word of its own.
     const quietSpells = useQuietSpells(progress, measurements === null && failure === null && outdated === null)
 
     // A benchmark that failed measured nothing; the rows of the ones before it are not its result, so the
@@ -158,7 +160,7 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
                 <TableLink
                     data-testid={`benchmark-table-${row.id}`}
                     module={row.module}
-                    onOpen={openTable ?? onClose}
+                    onOpen={openTable}
                     projectId={projectId}
                     tableId={row.tableId}
                 >
@@ -232,25 +234,25 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
 
     if (outdated !== null) {
         return (
-            <ExecutionModal onClose={onClose} title={t('benchmark.title')}>
+            <ExecutionScreen onClose={onClose} title={t('benchmark.title')}>
                 <Result data-testid="benchmark-outdated" status="warning" title={outdated} />
-            </ExecutionModal>
+            </ExecutionScreen>
         )
     }
 
     if (measurements === null || benchmarkFailed) {
         return (
-            <ExecutionModal extra={!benchmarkFailed && !interrupted && stopButton} onClose={onClose} title={t('benchmark.title')}>
-                {stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />}
+            <ExecutionScreen extra={!benchmarkFailed && !interrupted && stopButton} onClose={onClose} title={t('benchmark.title')}>
+                {stopFailed}
                 {benchmarkFailed
                     ? <Result status="error" subTitle={progress.error ?? failure ?? undefined} title={t('benchmark.failed')} />
                     : <RunningCard data-testid="benchmark-running" description={t('benchmark.running')} />}
-            </ExecutionModal>
+            </ExecutionScreen>
         )
     }
 
     return (
-        <ExecutionModal
+        <ExecutionScreen
             onClose={onClose}
             subtitle={t('benchmark.summary', { count: rows.length })}
             title={t('benchmark.title')}
@@ -302,8 +304,8 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
                     </Space>
                 )}
             </Space>
-        </ExecutionModal>
+        </ExecutionScreen>
     )
 }
 
-export default BenchmarkResultModal
+export default BenchmarkResults

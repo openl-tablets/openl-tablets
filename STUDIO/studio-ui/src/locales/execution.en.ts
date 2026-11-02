@@ -2,8 +2,9 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'execution', {
     close: 'Close',
-    openInWindow: 'Open in Window',
-    windowBlocked: 'The results window did not open. Allow pop-up windows and browser storage for this site, then try again.',
+    starting: 'Starting\u2026',
+    windowBlocked: 'The results window did not open. Allow pop-up windows for this site, then try again.',
+    windowUnsaved: 'The browser did not let the results window know what to show. Allow browser storage for this site, then try again.',
     windowTitle: 'Execution Results — OpenL Studio',
     noResults: 'No results to show',
     stop: 'Stop',
@@ -91,6 +92,7 @@ i18next.addResourceBundle('en', 'execution', {
         intoFile: 'Test into File',
         startFailed: 'Failed to run the tests',
         stopped: 'The tests were stopped before they ended',
+        stoppedPartial: 'The tests were stopped before they ended: the results show the tests that ran',
     },
 
     benchmark: {

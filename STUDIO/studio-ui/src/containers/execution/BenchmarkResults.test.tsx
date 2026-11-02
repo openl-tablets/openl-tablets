@@ -3,7 +3,7 @@ import React from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { deleteBenchmarks, getBenchmarks, readBenchmarks, stopExecution } from 'services/execution'
-import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
+import { BenchmarkResults } from 'containers/execution/BenchmarkResults'
 import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 import type { BenchmarkResult } from 'types/execution'
 
@@ -24,23 +24,6 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
     isFinished: (status: string | null) => status !== null && ['COMPLETED', 'INTERRUPTED', 'ERROR'].includes(status),
     useQuietSpells: vi.fn(() => 0),
 }))
-
-// The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
-vi.mock('antd', async () => {
-    const actual = await vi.importActual<typeof import('antd')>('antd')
-    const MockModal = ({ title, children, footer }: {
-        title?: React.ReactNode
-        children?: React.ReactNode
-        footer?: React.ReactNode
-    }) => (
-        <div role="dialog">
-            <div data-testid="modal-title">{title}</div>
-            {children}
-            <div data-testid="modal-footer">{footer}</div>
-        </div>
-    )
-    return { ...actual, Modal: MockModal }
-})
 
 // The UI language the measured numbers are written in, so that the decimal point a test reads is the one an
 // English screen shows, whatever locale the machine running the test is set to.
@@ -69,11 +52,11 @@ const measurement = (over: Partial<BenchmarkResult> = {}): BenchmarkResult => ({
 const show = async (measurements: BenchmarkResult[]) => {
     read.mockResolvedValue(measurements)
     readAgain.mockResolvedValue(measurements)
-    render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+    render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
     await screen.findByTestId('benchmark-table')
 }
 
-describe('BenchmarkResultModal', () => {
+describe('BenchmarkResults', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         progress.current = { status: null, error: null, arrived: 0, subscribed: true }
@@ -81,14 +64,14 @@ describe('BenchmarkResultModal', () => {
 
     it('waits for the measurement while it is still going on', async () => {
         readAgain.mockReturnValue(new Promise(() => undefined))
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('benchmark.running')).toBeInTheDocument()
     })
 
     it('stops polling when the server has no saved measurements', async () => {
         readAgain.mockResolvedValue([])
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('benchmark.none')).toBeInTheDocument()
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
@@ -161,7 +144,7 @@ describe('BenchmarkResultModal', () => {
         progress.current = { status: 'COMPLETED', error: null, arrived: 0, subscribed: true }
         read.mockResolvedValue([measurement()])
 
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         // The read waits out the moment the benchmark needs to publish what it measured.
         expect(read).toHaveBeenCalledWith('p1')
@@ -174,7 +157,7 @@ describe('BenchmarkResultModal', () => {
         read.mockResolvedValue([measurement()])
         readAgain.mockResolvedValue([measurement()])
 
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(screen.getByText('Division by zero')).toBeInTheDocument()
         expect(screen.getByText('benchmark.failed')).toBeInTheDocument()
@@ -186,7 +169,7 @@ describe('BenchmarkResultModal', () => {
 
     it('says why the measurement could not be read', async () => {
         readAgain.mockRejectedValue(Object.assign(new Error('Unknown project'), { status: 404 }))
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('Unknown project')).toBeInTheDocument()
         expect(screen.getByText('benchmark.failed')).toBeInTheDocument()
@@ -197,7 +180,7 @@ describe('BenchmarkResultModal', () => {
         progress.current = { status: 'COMPLETED', error: null, arrived: 0, subscribed: true }
         read.mockRejectedValue(Object.assign(new Error('Released'), { status: 404 }))
 
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('benchmark.none')).toBeInTheDocument()
         expect(screen.queryByText('benchmark.failed')).toBeNull()
@@ -208,7 +191,7 @@ describe('BenchmarkResultModal', () => {
         readAgain.mockReturnValueOnce(new Promise(() => undefined))
         readAgain.mockResolvedValue([measurement()])
         stop.mockResolvedValue(undefined)
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         await userEvent.click(await screen.findByTestId('execution-stop'))
 
@@ -217,11 +200,22 @@ describe('BenchmarkResultModal', () => {
         expect(screen.getByTestId('benchmark-table')).toHaveTextContent('PolicyTest')
     })
 
+    it('keeps waiting for the measurements after Stop until they are read', async () => {
+        readAgain.mockReturnValue(new Promise(() => undefined))
+        stop.mockResolvedValue(undefined)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        await userEvent.click(await screen.findByTestId('execution-stop'))
+
+        await waitFor(() => expect(stop).toHaveBeenCalled())
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), true)
+    })
+
     it('shows the measurements before a benchmark that reports it was interrupted', async () => {
         progress.current = { status: 'INTERRUPTED', error: null, arrived: 0, subscribed: true }
         read.mockResolvedValue([measurement()])
 
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByTestId('benchmark-stopped')).toBeInTheDocument()
         expect(screen.getByTestId('benchmark-table')).toHaveTextContent('PolicyTest')
@@ -231,7 +225,7 @@ describe('BenchmarkResultModal', () => {
     it('says why the benchmark could not be stopped', async () => {
         readAgain.mockReturnValue(new Promise(() => undefined))
         stop.mockRejectedValue(new Error('The server is not available'))
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         await userEvent.click(await screen.findByTestId('execution-stop'))
 
@@ -240,7 +234,7 @@ describe('BenchmarkResultModal', () => {
 
     it('says the project changed when the server dropped the measurements for it', async () => {
         readAgain.mockRejectedValue(Object.assign(new Error('The project has changed'), { status: 410 }))
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByTestId('benchmark-outdated')).toHaveTextContent('The project has changed')
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)

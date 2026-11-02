@@ -1,10 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CompoundResultOption, FailuresOption } from 'containers/execution/ResultOptions'
-import { RunResultModal } from 'containers/execution/RunResultModal'
-import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
-import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress, useQuietSpells } from 'containers/execution/useExecutionProgress'
 import { runStatusTopic, testsTopics } from 'containers/execution/topics'
 import { carriesCases, isRunTable } from 'constants/tableKinds'
@@ -22,7 +19,7 @@ import {
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
-import { openExecutionWindow, publishExecution, type ExecutionWindowRequest } from 'services/executionWindow'
+import { launchInWindow, publishExecution, type ExecutionWindowRequest } from 'services/executionWindow'
 import { savedTestsOptions } from 'store/settingsStore'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
@@ -42,6 +39,9 @@ type TestsOptions = Required<Pick<TestsQuery, 'failuresOnly' | 'failures' | 'com
 /** The results the run opens: one result for a rule table, the results of the cases for a test table. */
 type RunResults = 'run' | 'tests'
 
+/** What a run of the collected value reports: the input of a rule table runs it, the picked cases are tested. */
+const resultsOf = (value: TableLaunchValue): RunResults => (value.inputJson === undefined ? 'tests' : 'run')
+
 interface RunLaunchProps {
     detail: TableLaunchDetail
     project: Project
@@ -56,7 +56,6 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     const runTable = isRunTable(detail.kind)
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
-    const [results, setResults] = useState<RunResults | null>(null)
     const [savingFile, setSavingFile] = useState<RunResults | null>(null)
     // What is being saved, as the reads waiting their turn below see it: one of them may come up after
     // another has already saved the file.
@@ -99,24 +98,23 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
      */
     const run = useCallback((value: TableLaunchValue): Promise<RunResults> => {
         const { inputJson, testRanges, fromModule } = value
-        return inputJson === undefined
+        const started = inputJson === undefined
             ? runTests(project.id, { tableId: detail.tableId, ...(testRanges && { testRanges }), ...(fromModule && { fromModule }) })
-                .then((): RunResults => 'tests')
             : startRun(project.id, detail.tableId, inputJson, { ...(fromModule && { fromModule }) })
-                .then((): RunResults => 'run')
+        return started.then(() => resultsOf(value))
     }, [project.id, detail.tableId])
 
-    /** Runs what the panel collected and opens the window it reports in. */
+    /** Runs what the panel collected and shows it in the results window, which opens at the click. */
     const start = useCallback((value: TableLaunchValue) => {
         setStarting(true)
         setError(null)
-        return run(value)
-            .then(kind => {
-                publishExecution(resultRequest(kind))
-                setResults(kind)
-            })
+        return launchInWindow(resultsOf(value), () => run(value).then(resultRequest), {
+            blocked: t('windowBlocked'),
+            unsaved: t('windowUnsaved'),
+        })
+            .then(onClose)
             .finally(() => setStarting(false))
-    }, [run, resultRequest])
+    }, [run, resultRequest, onClose, t])
 
     /** Runs what the panel collected and saves what came out, without showing it. */
     const startIntoFile = (value: TableLaunchValue) => {
@@ -211,35 +209,6 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             {label}
         </Checkbox>
     )
-
-    const windowContext = useMemo(() => ({
-        open: (currentOptions?: Partial<TestsQuery>) => {
-            if (results === null) return false
-            const request = resultRequest(results)
-            const opened = openExecutionWindow(request.kind === 'tests' && currentOptions
-                ? { ...request, options: currentOptions }
-                : request)
-            if (opened) onClose()
-            return opened
-        },
-    }), [results, resultRequest, onClose])
-
-    if (results !== null) {
-        return (
-            <ExecutionWindowContext.Provider value={windowContext}>
-                {results === 'run'
-                    ? <RunResultModal fileOptions={file} onClose={onClose} projectId={project.id} tableId={detail.tableId} />
-                    : (
-                        <TestsResultModal
-                            onClose={onClose}
-                            options={testsOptions}
-                            projectId={project.id}
-                            tableId={detail.tableId}
-                        />
-                    )}
-            </ExecutionWindowContext.Provider>
-        )
-    }
 
     return (
         <TableInputLauncher

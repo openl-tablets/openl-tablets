@@ -41,7 +41,7 @@ import { formatSmartNumber } from 'utils/smartNumber'
 import { CompoundResultOption, CountSelect, FailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
-import { ExecutionErrors, ExecutionModal, ExecutionWindowContext, nameOf, useStopExecution } from './ExecutionModal'
+import { ExecutionErrors, ExecutionScreen, ExecutionWindowContext, nameOf, useStopExecution } from './ExecutionScreen'
 
 const { Text, Title } = Typography
 
@@ -292,7 +292,7 @@ const savedQuery = (): Required<TestsQuery> => ({
     page: 0,
 })
 
-interface TestsResultModalProps {
+interface TestsResultsProps {
     projectId: string
     /** The table whose tests ran, when a single table was asked for. */
     tableId?: string | undefined
@@ -309,7 +309,7 @@ interface TestsResultModalProps {
  * decides what it shows - only the failures, how many of them, the whole returned value, how many tables to a
  * page - and the whole run can be saved as a workbook.
  */
-export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, tableId, options, onClose }) => {
+export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, options, onClose }) => {
     const { t } = useTranslation('execution')
     const { openTable } = useContext(ExecutionWindowContext)
     const valueStyles = useValueStyles()
@@ -328,7 +328,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     const [outdated, setOutdated] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
-    const { stopped, stopError, stopButton } = useStopExecution(projectId, 'tests')
+    const { stopped, stopFailed, stopButton } = useStopExecution(projectId, 'tests')
 
     const topics = testsTopics(projectId, tableId)
     const progress = useExecutionProgress(topics.status, topics.results)
@@ -359,6 +359,8 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                     if (isMissingExecution(readError)) {
                         setMissing(true)
                     } else if (isOutdatedExecution(readError)) {
+                        // The server dropped the results: those on screen are no longer to be read.
+                        setSummary(null)
                         setOutdated(errorMessage(readError))
                     }
                     setFailure(errorMessage(readError))
@@ -400,18 +402,17 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
             content = <Result status="error" subTitle={progress.error ?? failure ?? undefined} title={t('tests.startFailed')} />
         }
         return (
-            <ExecutionModal extra={running && stopButton} onClose={onClose} openOptions={query} title={t('tests.title')}>
-                {stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />}
+            <ExecutionScreen extra={running && stopButton} onClose={onClose} title={t('tests.title')}>
+                {stopFailed}
                 {content}
-            </ExecutionModal>
+            </ExecutionScreen>
         )
     }
 
     const tables = summary.testCases ?? []
     return (
-        <ExecutionModal
+        <ExecutionScreen
             onClose={onClose}
-            openOptions={query}
             title={t('tests.title')}
             extra={(
                 <Button data-testid="tests-save" icon={<DownloadOutlined />} loading={saving} onClick={save}>
@@ -428,6 +429,10 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                 {error && <Alert showIcon closable={{ onClose: () => setError(null) }} title={error} type="error" />}
                 {/* The results on screen are the ones that were read last: say so when a new read failed. */}
                 {failure && <Alert showIcon data-testid="tests-read-failed" title={failure} type="error" />}
+                {/* A run that stopped by itself, when the project was compiled again, keeps the tests that ran. */}
+                {progress.status === 'INTERRUPTED' && (
+                    <Alert showIcon data-testid="tests-stopped" title={t('tests.stoppedPartial')} type="warning" />
+                )}
                 <Flex wrap align="center" gap="middle">
                     <FailuresOption
                         failures={query.failures}
@@ -454,7 +459,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                         <TestTable
                             key={`${table.tableId} ${shownQuery.failuresOnly} ${shownQuery.failures}`}
                             compoundResult={shownQuery.compoundResult}
-                            onOpenTable={openTable ?? onClose}
+                            onOpenTable={openTable}
                             projectId={projectId}
                             readLines={readLines}
                             table={table}
@@ -474,8 +479,8 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                     />
                 )}
             </Space>
-        </ExecutionModal>
+        </ExecutionScreen>
     )
 }
 
-export default TestsResultModal
+export default TestsResults

@@ -7,8 +7,8 @@ import {
 } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
-import { TestsResultModal } from 'containers/execution/TestsResultModal'
-import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
+import { TestsResults } from 'containers/execution/TestsResults'
+import { ExecutionWindowContext } from 'containers/execution/ExecutionScreen'
 import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 import * as look from 'components/values/parameterValues.styles'
 import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
@@ -32,23 +32,6 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
     isFinished: (status: string | null) => status === 'COMPLETED',
     useQuietSpells: vi.fn(() => run.quietSpells),
 }))
-
-// The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
-vi.mock('antd', async () => {
-    const actual = await vi.importActual<typeof import('antd')>('antd')
-    const MockModal = ({ title, children, footer }: {
-        title?: React.ReactNode
-        children?: React.ReactNode
-        footer?: React.ReactNode
-    }) => (
-        <div role="dialog">
-            <div data-testid="modal-title">{title}</div>
-            {children}
-            <div data-testid="modal-footer">{footer}</div>
-        </div>
-    )
-    return { ...actual, Modal: MockModal }
-})
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -125,11 +108,11 @@ const turnTo = async (page: number) =>
     userEvent.click(within(screen.getByTestId('test-cases-pagination-tt1')).getByTitle(String(page)))
 
 const show = async () => {
-    render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+    render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
     await screen.findByTestId('tests-save')
 }
 
-describe('TestsResultModal', () => {
+describe('TestsResults', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS })
@@ -187,14 +170,14 @@ describe('TestsResultModal', () => {
 
     it('waits for the tests while they are still running', async () => {
         readSummary.mockReturnValue(new Promise(() => undefined))
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('tests.running')).toBeInTheDocument()
     })
 
     it('stops polling when the saved test results are gone', async () => {
         readSummary.mockRejectedValue({ status: 404 })
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('noResults')).toBeInTheDocument()
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
@@ -206,7 +189,7 @@ describe('TestsResultModal', () => {
         // asking over and over.
         readSummary.mockRejectedValue(new ResultNotReadyError())
         const window = () => (
-            <MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>
+            <MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>
         )
         const { rerender } = render(window())
         expect(await screen.findByText('tests.running')).toBeInTheDocument()
@@ -258,7 +241,7 @@ describe('TestsResultModal', () => {
                     tableId: `tt${index}`,
                 })),
             })
-            const view = render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" /></MemoryRouter>)
+            const view = render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" /></MemoryRouter>)
             expect(await screen.findByTestId(`test-results-tt${tables - 1}`)).toBeInTheDocument()
             view.unmount()
             return readLook.mock.calls.length
@@ -452,9 +435,15 @@ describe('TestsResultModal', () => {
         expect(listedCases()[0]).toHaveTextContent('"Driver 21"')
     })
 
-    it('leads to the test table, through the module it is written in', async () => {
-        const onClose = vi.fn()
-        render(<MemoryRouter><TestsResultModal onClose={onClose} projectId="p1" tableId="t1" /></MemoryRouter>)
+    it('leads to the test table, through the module it is written in, in the editor', async () => {
+        const openTable = vi.fn(() => true)
+        render(
+            <MemoryRouter>
+                <ExecutionWindowContext.Provider value={{ openTable }}>
+                    <TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" />
+                </ExecutionWindowContext.Provider>
+            </MemoryRouter>
+        )
 
         // The editor opens a module and reads the table through it; the results already name both.
         expect(await screen.findByTestId('test-table-tt1'))
@@ -462,7 +451,7 @@ describe('TestsResultModal', () => {
 
         await userEvent.click(screen.getByTestId('test-table-tt1'))
 
-        await waitFor(() => expect(onClose).toHaveBeenCalled())
+        expect(openTable).toHaveBeenCalledWith('/projects/p1/modules/Auto%20Policy%20Tests?table=tt1')
     })
 
     it('writes a table whose module is unknown as its name alone', async () => {
@@ -732,32 +721,9 @@ describe('TestsResultModal', () => {
         expect(screen.getByTestId('test-results-tt1')).toBeInTheDocument()
     })
 
-    it('carries the current filters and page into the separate window', async () => {
-        const openWindow = vi.fn(() => true)
-        render(
-            <MemoryRouter>
-                <ExecutionWindowContext.Provider value={{ open: openWindow }}>
-                    <TestsResultModal
-                        onClose={vi.fn()}
-                        options={{ page: 2, size: 10 }}
-                        projectId="p1"
-                        tableId="t1"
-                    />
-                </ExecutionWindowContext.Provider>
-            </MemoryRouter>
-        )
-        await screen.findByTestId('tests-save')
-        await userEvent.click(screen.getByTestId('execution-open-window'))
-
-        expect(openWindow).toHaveBeenCalledWith(expect.objectContaining({ page: 2, size: 10 }))
-        await userEvent.click(screen.getByTestId('tests-failures-only'))
-        await userEvent.click(screen.getByTestId('execution-open-window'))
-        expect(openWindow).toHaveBeenLastCalledWith(expect.objectContaining({ failuresOnly: true, page: 0, size: 10 }))
-    })
-
     it('says why the results could not be read', async () => {
         readSummary.mockRejectedValue(new Error('No tests execution task found'))
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('No tests execution task found')).toBeInTheDocument()
     })
@@ -765,7 +731,7 @@ describe('TestsResultModal', () => {
     it('stops the tests the reader asks to stop, and says they were stopped', async () => {
         readSummary.mockReturnValue(new Promise(() => undefined))
         stop.mockResolvedValue(undefined)
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         await userEvent.click(await screen.findByTestId('execution-stop'))
 
@@ -778,15 +744,24 @@ describe('TestsResultModal', () => {
     it('says the tests stopped when they report they were interrupted', async () => {
         run.status = 'INTERRUPTED'
         readSummary.mockReturnValue(new Promise(() => undefined))
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByTestId('tests-stopped')).toBeInTheDocument()
+    })
+
+    it('shows the tests that ran before the run stopped by itself, and says it stopped', async () => {
+        run.status = 'INTERRUPTED'
+
+        await show()
+
+        expect(screen.getByTestId('tests-stopped')).toHaveTextContent('tests.stoppedPartial')
+        expect(screen.getByTestId('test-results-tt1')).toBeInTheDocument()
     })
 
     it('says why the tests could not be stopped, and goes on waiting for them', async () => {
         readSummary.mockReturnValue(new Promise(() => undefined))
         stop.mockRejectedValue(new Error('The server is not available'))
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         await userEvent.click(await screen.findByTestId('execution-stop'))
 
@@ -796,10 +771,20 @@ describe('TestsResultModal', () => {
 
     it('says the project changed when the server dropped the results for it', async () => {
         readSummary.mockRejectedValue(Object.assign(new Error('The project has changed'), { status: 410 }))
-        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+        render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByTestId('tests-outdated')).toHaveTextContent('The project has changed')
         expect(screen.queryByTestId('execution-stop')).not.toBeInTheDocument()
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
+    })
+
+    it('stops showing the results on screen once the server dropped them', async () => {
+        await show()
+        readSummary.mockRejectedValue(Object.assign(new Error('The project has changed'), { status: 410 }))
+
+        await userEvent.click(screen.getByTestId('tests-failures-only'))
+
+        expect(await screen.findByTestId('tests-outdated')).toHaveTextContent('The project has changed')
+        expect(screen.queryByTestId('test-results-tt1')).not.toBeInTheDocument()
     })
 })

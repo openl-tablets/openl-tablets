@@ -1,16 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Empty } from 'antd'
+import { Empty, Result } from 'antd'
 import { useTranslation } from 'react-i18next'
 import {
     currentExecution, EXECUTION_EDITOR_NAVIGATION, EXECUTION_WINDOW_KEY, type ExecutionWindowRequest,
 } from 'services/executionWindow'
-import { useStyles } from './ExecutionModal.styles'
-import { BenchmarkResultModal } from './BenchmarkResultModal'
-import { ExecutionWindowContext } from './ExecutionModal'
-import { RunResultModal } from './RunResultModal'
-import { TestsResultModal } from './TestsResultModal'
+import { RunningCard } from 'components/RunningCard'
+import { useStyles } from './ExecutionScreen.styles'
+import { BenchmarkResults } from './BenchmarkResults'
+import { ExecutionScreen, ExecutionWindowContext } from './ExecutionScreen'
+import { RunResults } from './RunResults'
+import { TestsResults } from './TestsResults'
 
-/** A result screen that survives refresh and follows new executions started in the editor. */
+/**
+ * The results window: it shows every Test, Run and Benchmark started in the editor, one after another.
+ *
+ * It follows a new execution as soon as the editor starts it, and shows the latest one again after a refresh.
+ */
 export const ExecutionWindow: React.FC = () => {
     const { t } = useTranslation('execution')
     const { styles } = useStyles()
@@ -49,13 +54,30 @@ export const ExecutionWindow: React.FC = () => {
         }
         return true
     }, [])
-    const windowContext = useMemo(() => ({ standalone: true, openTable }), [openTable])
+    const windowContext = useMemo(() => ({ openTable }), [openTable])
     const content = (() => {
         if (!request) return <Empty className={styles.empty} description={t('noResults')} />
         switch (request.kind) {
+            case 'starting':
+                return (
+                    <ExecutionScreen onClose={close} title={t(`${request.of}.title`)}>
+                        <RunningCard data-testid="execution-starting" description={t('starting')} />
+                    </ExecutionScreen>
+                )
+            case 'failed':
+                return (
+                    <ExecutionScreen onClose={close} title={t(`${request.of}.title`)}>
+                        <Result
+                            data-testid="execution-start-failed"
+                            status="error"
+                            subTitle={request.message}
+                            title={t(`${request.of}.startFailed`)}
+                        />
+                    </ExecutionScreen>
+                )
             case 'tests':
                 return (
-                    <TestsResultModal
+                    <TestsResults
                         key={version}
                         onClose={close}
                         options={request.options}
@@ -65,7 +87,7 @@ export const ExecutionWindow: React.FC = () => {
                 )
             case 'run':
                 return (
-                    <RunResultModal
+                    <RunResults
                         key={version}
                         fileOptions={request.fileOptions}
                         onClose={close}
@@ -75,7 +97,7 @@ export const ExecutionWindow: React.FC = () => {
                 )
             case 'benchmark':
                 return (
-                    <BenchmarkResultModal
+                    <BenchmarkResults
                         key={version}
                         onClose={close}
                         projectId={request.projectId}

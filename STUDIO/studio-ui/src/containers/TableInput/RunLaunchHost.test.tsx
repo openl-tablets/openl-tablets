@@ -59,15 +59,6 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
 
 vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
 
-// The results have their own tests; here only the window that opens for a run is of interest.
-vi.mock('containers/execution/RunResultModal', () => ({
-    RunResultModal: () => <div data-testid="run-result-modal" />,
-}))
-
-vi.mock('containers/execution/TestsResultModal', () => ({
-    TestsResultModal: () => <div data-testid="tests-result-modal" />,
-}))
-
 // The static notification renders outside the tree and schedules a timer; the tests assert on the run.
 vi.mock('antd', async importOriginal => {
     const actual = await importOriginal<typeof import('antd')>()
@@ -132,6 +123,13 @@ describe('RunLaunchHost', () => {
                 { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }]},
             ],
         })
+        localStorage.clear()
+        // The results window opens at the click.
+        vi.spyOn(window, 'open').mockReturnValue({ location: { pathname: '' }, focus: vi.fn() } as unknown as Window)
+    })
+
+    afterEach(() => {
+        vi.restoreAllMocks()
     })
 
     it('runs a rule table with the input the panel collected and opens the window it reports in', async () => {
@@ -148,8 +146,9 @@ describe('RunLaunchHost', () => {
         expect(projectId).toBe('real-p1')
         expect(tableId).toBe('t1')
         expect(JSON.parse(inputJson)).toEqual({ params: { age: 42 } })
-        expect(await screen.findByTestId('run-result-modal')).toBeInTheDocument()
-        expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'run', projectId: 'real-p1' }))
+        await waitFor(() => expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'run', projectId: 'real-p1' })))
+        await waitFor(() => expect(screen.queryByTestId('run-start')).toBeNull())
+        expect(window.open).toHaveBeenCalledWith('', 'execution_results', expect.any(String))
     })
 
     it('runs every case of a test table, and reports them as a test run', async () => {
@@ -161,8 +160,8 @@ describe('RunLaunchHost', () => {
         await userEvent.click(screen.getByTestId('run-start'))
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1' }))
-        expect(await screen.findByTestId('tests-result-modal')).toBeInTheDocument()
-        expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'tests', projectId: 'real-p1' }))
+        await waitFor(() => expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'tests', projectId: 'real-p1' })))
+        await waitFor(() => expect(screen.queryByTestId('run-start')).toBeNull())
     })
 
     it('offers a Run table its cases and a run into a file, with no options of a test run', async () => {
@@ -195,7 +194,8 @@ describe('RunLaunchHost', () => {
 
     it('leaves an unticked case out of every page of a long table', async () => {
         inputRead.mockResolvedValue(testTable)
-        // The table is longer than its page: the ids of the cases the page does not show are read when it runs.
+        // The table is longer than its page: the ids of the cases the page does not show are read once a case is
+        // left out, before the run is asked for, so the results window opens at the click.
         casesRead.mockResolvedValue({
             total: 4,
             content: [{ id: '1', parameters: []}, { id: '2', parameters: []}],
@@ -203,16 +203,42 @@ describe('RunLaunchHost', () => {
         render(<RunLaunchHost />)
 
         await open({ kind: 'Test' })
-        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        await screen.findByTestId('pick-case-2')
         casesRead.mockResolvedValueOnce({
             total: 4,
             content: ['1', '2', '3', '4'].map(id => ({ id, parameters: []})),
         })
+        await userEvent.click(screen.getByTestId('pick-case-2'))
+        await waitFor(() => expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 0, size: 4 }))
+        const reads = casesRead.mock.calls.length
         await userEvent.click(screen.getByTestId('run-start'))
 
         // The cases kept one after another are named by their ends, so a long table is asked for in few words.
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '1,3 - 4' }))
-        expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 0, size: 4 })
+        expect(casesRead).toHaveBeenCalledTimes(reads)
+    })
+
+    it('reads every case again for the scope the run is asked for', async () => {
+        inputRead.mockResolvedValue(testTable)
+        // The module holds three cases of the table, the whole project five; a page shows two of them.
+        casesRead.mockImplementation((_project: string, _table: string, options: { fromModule?: string, size: number }) => {
+            const total = options.fromModule ? 3 : 5
+            const ids = Array.from({ length: total }, (_, index) => String(index + 1))
+            return Promise.resolve({
+                total,
+                content: ids.slice(0, options.size === total ? total : 2).map(id => ({ id, parameters: []})),
+            })
+        })
+        render(<RunLaunchHost />)
+
+        await open({ kind: 'Test' })
+        await userEvent.click(await screen.findByTestId('launch-module-only'))
+        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        await userEvent.click(screen.getByTestId('launch-module-only'))
+        await waitFor(() => expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 0, size: 5 }))
+        await userEvent.click(screen.getByTestId('run-start'))
+
+        await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '1,3 - 5' }))
     })
 
     it('starts the run once however often it is asked for while the rest of the cases are read', async () => {
@@ -221,11 +247,12 @@ describe('RunLaunchHost', () => {
         render(<RunLaunchHost />)
 
         await open({ kind: 'Test' })
-        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        await screen.findByTestId('pick-case-2')
         let releaseRest!: (page: unknown) => void
         casesRead.mockImplementationOnce(() => new Promise(resolve => {
             releaseRest = resolve
         }))
+        await userEvent.click(screen.getByTestId('pick-case-2'))
         await userEvent.click(screen.getByTestId('run-start'))
         // The buttons are held under a spinner while the read is on its way; a click that reaches one anyway
         // starts nothing more.
@@ -245,8 +272,10 @@ describe('RunLaunchHost', () => {
         render(<RunLaunchHost />)
 
         await open({ kind: 'Test' })
-        await userEvent.click(await screen.findByTestId('pick-case-2'))
-        casesRead.mockRejectedValueOnce(new Error('The project is being compiled'))
+        await screen.findByTestId('pick-case-2')
+        // The read ahead fails, and so does the read the click asks for again.
+        casesRead.mockRejectedValue(new Error('The project is being compiled'))
+        await userEvent.click(screen.getByTestId('pick-case-2'))
         await userEvent.click(screen.getByTestId('run-start'))
 
         expect(await screen.findByTestId('launch-error')).toHaveTextContent('The project is being compiled')
