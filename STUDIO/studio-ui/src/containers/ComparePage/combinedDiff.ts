@@ -1,13 +1,14 @@
 import type { RawTableCell } from 'types/tables'
-import type { ComparisonSide, ComparisonTable } from 'types/compare'
+import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTable } from 'types/compare'
+import { alignmentOf, alignSide, wholeMerges } from './alignment'
 import { keepRows } from './diffRows'
 
-/** What the combined view says about a row: how the second file arrived at it. */
-type RowKind = 'equal' | 'changed' | 'added' | 'removed'
-
-/** What the combined view says about one cell of such a row. */
+/** What the combined view says about one cell of the table. */
 export interface CellMark {
-    row: RowKind
+    /** What became of the row of the cell. */
+    row: ComparisonLineStatus
+    /** The file the cell is of alone, when its row or its column only one file holds. */
+    paint?: 'added' | 'removed'
     /** The value of the first file, when the two files read the cell differently. */
     before?: string
     /** The value of the second file, beside which the first one is shown. */
@@ -24,90 +25,83 @@ export interface CombinedTable {
 
 const text = (cell: RawTableCell | undefined): string => (cell?.value == null ? '' : String(cell.value))
 
-/** Whether the row holds a cell the file marks as read differently. */
-const holdsChange = (row: RawTableCell[] | undefined, changed: ReadonlySet<string>): boolean =>
-    !!row?.some(cell => cell.cell && changed.has(cell.cell))
-
 /**
  * The cell leading a row of the combined view. It carries the row's own address, because the rows of
  * the two files meet in one table and the address a cell has in its own file is not unique there.
  */
 const leadOf = (into: CombinedTable): RawTableCell => ({ cell: `#${into.rows.length}` })
 
-/** The rows of one side, each led by the sign the whole side is read by. */
-const oneSided = (side: ComparisonSide | undefined, kind: RowKind, into: CombinedTable): void => {
-    side?.source.forEach(row => {
-        const lead = leadOf(into)
-        into.marks.set(lead, { row: kind, lead: true })
-        row.forEach(cell => into.marks.set(cell, { row: kind }))
-        into.rows.push([lead, ...row])
-    })
+/** Adds a row led by the sign of what became of it. */
+const addRow = (into: CombinedTable, kind: ComparisonLineStatus, cells: RawTableCell[], marks: CellMark[]): void => {
+    const lead = leadOf(into)
+    into.marks.set(lead, { row: kind, lead: true })
+    cells.forEach((cell, column) => into.marks.set(cell, marks[column]!))
+    into.rows.push([lead, ...cells])
 }
 
-const stacked = (first: ComparisonSide | undefined, second: ComparisonSide | undefined): CombinedTable => {
-    const combined: CombinedTable = { rows: [], marks: new Map() }
-    oneSided(first, 'removed', combined)
-    oneSided(second, 'added', combined)
-    return combined
+/** The rows of a table only one file holds, each led by the sign the whole table is read by. */
+const oneSided = (side: ComparisonSide | undefined, kind: 'added' | 'removed', into: CombinedTable): void => {
+    side?.source.forEach(row => addRow(into, kind, row, row.map(() => ({ row: kind, paint: kind }))))
 }
 
-const aligned = (
-    first: ComparisonSide,
-    second: ComparisonSide,
-    keep: ReadonlySet<number> | null
-): CombinedTable => {
-    const combined: CombinedTable = { rows: [], marks: new Map() }
-    const changedFirst = new Set(first.changedCells ?? [])
-    const changedSecond = new Set(second.changedCells ?? [])
-    const was = keep ? keepRows(first.source, keep) : first.source
-    const now = keep ? keepRows(second.source, keep) : second.source
+/** The file a line is of alone, if any. */
+const ownerOf = (line: ComparisonLine): 'added' | 'removed' | undefined =>
+    line.status === 'added' || line.status === 'removed' ? line.status : undefined
 
-    now.forEach((row, index) => {
-        const kind: RowKind = holdsChange(row, changedSecond) || holdsChange(was[index], changedFirst)
-            ? 'changed'
-            : 'equal'
-        const lead = leadOf(combined)
-        combined.marks.set(lead, { row: kind, lead: true })
-        row.forEach((cell, column) => {
-            const differs = !!cell.cell && changedSecond.has(cell.cell)
-            combined.marks.set(cell, differs
-                ? { row: kind, before: text(was[index]?.[column]), after: text(cell) }
-                : { row: kind })
-        })
-        combined.rows.push([lead, ...row])
-    })
-    return combined
+/**
+ * The cell the combined view shows where a row and a column meet, and what it says about it.
+ *
+ * A removed row or a removed column shows the cell of the first file. A merge of the second file covering it wins.
+ * Everything else shows the cell of the second file.
+ */
+const pick = (
+    row: ComparisonLine,
+    column: ComparisonLine,
+    was: RawTableCell,
+    now: RawTableCell,
+    changed: ReadonlySet<string>
+): { cell: RawTableCell; mark: CellMark } => {
+    const fromFirst = row.status === 'removed' || (row.status !== 'added' && column.status === 'removed' && !now.covered)
+    const cell = fromFirst ? was : now
+    const paint = ownerOf(row) ?? ownerOf(column)
+    if (!paint && !!now.cell && changed.has(now.cell)) {
+        return { cell, mark: { row: row.status, before: text(was), after: text(now) } }
+    }
+    return { cell, mark: paint ? { row: row.status, paint } : { row: row.status } }
 }
 
 /**
  * The two versions of one table drawn as a single one.
  *
- * Where the two files read a cell differently, the cell carries both values - what the first file has
- * and what the second one has in its place. Every row is led by a sign saying what became of it, so a
- * row that changed is found without reading one table against another.
+ * Both files are lined up row by row and column by column, as the comparison found them. A row or a column only
+ * one file holds stands where it stands in that file. Where the two files read a cell differently, the cell
+ * carries both values. Every row is led by a sign saying what became of it.
  *
- * The two files are put against each other row by row while they hold the same number of rows. Once
- * they do not, there is nothing to put against anything: what the first file holds is shown as dropped
- * and what the second one holds as added, one after the other, as a diff reads a block it cannot align.
+ * A table only one file holds is shown whole, as dropped or as added.
  *
  * @param table the table as the comparison reports it
- * @param keep  the rows to draw, or null for all of them
+ * @param keep  the rows lined up to draw, or null for all of them
  * @return the rows to draw and what each of their cells stands for
  */
 export const combine = (table: ComparisonTable, keep: ReadonlySet<number> | null): CombinedTable => {
-    const { first, second } = table
-    return first && second && sameShape(first.source, second.source)
-        ? aligned(first, second, keep)
-        : stacked(first, second)
+    const combined: CombinedTable = { rows: [], marks: new Map() }
+    const alignment = alignmentOf(table)
+    if (!alignment || !table.first || !table.second) {
+        oneSided(table.first, 'removed', combined)
+        oneSided(table.second, 'added', combined)
+        return combined
+    }
+    const changed = new Set(table.second.changedCells ?? [])
+    const rows = alignment.rows.filter((_, index) => !keep || keep.has(index))
+    const was = alignSide(table.first.source, alignment, 'first')
+    const now = alignSide(table.second.source, alignment, 'second')
+    const wasKept = keep ? keepRows(was, keep) : was
+    const nowKept = keep ? keepRows(now, keep) : now
+    const picked = rows.map((row, y) => alignment.columns.map((column, x) =>
+        pick(row, column, wasKept[y]![x]!, nowKept[y]![x]!, changed)))
+    const cells = wholeMerges(picked.map(row => row.map(({ cell }) => cell)))
+    cells.forEach((row, y) => addRow(combined, rows[y]!.status, row, picked[y]!.map(({ mark }) => mark)))
+    return combined
 }
-
-/**
- * Whether the two tables can be read row against row: as many rows, and as many cells in each of them.
- *
- * A row of one file that is wider than the row beside it holds cells the other has no place for, and
- * drawing the two as one would leave those cells out of the table altogether.
- */
-const sameShape = (first: RawTableCell[][], second: RawTableCell[][]): boolean =>
-    first.length === second.length && first.every((row, index) => row.length === second[index]?.length)
 
 export default combine

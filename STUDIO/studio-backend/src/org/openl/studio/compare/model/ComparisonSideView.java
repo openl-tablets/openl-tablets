@@ -15,7 +15,7 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
  *
  * @param source       the table as a matrix of cells, with its merges and its Excel styling
  * @param styles       the Excel styles the cells name by index, each once
- * @param changedCells addresses of the cells that differ, in A1 notation
+ * @param changedCells addresses of the cells of the lines both files hold that differ, in A1 notation
  */
 @Builder
 public record ComparisonSideView(
@@ -29,7 +29,8 @@ public record ComparisonSideView(
         List<RawTableCellStyle> styles,
 
         @Schema(description = """
-                Addresses of the cells that read differently in the other file, in A1 notation. A row \
-                that the other file does not have at all is reported cell by cell.""")
+                Addresses of the cells that read differently in the other file, in A1 notation: a different value, \
+                formula, comment or merging. Only the cells of the rows and the columns both files hold are listed; \
+                a row or a column the other file does not hold is told by the lines of the table.""")
         List<String> changedCells) {
 }

@@ -280,7 +280,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.diff</artifactId>
+            <artifactId>org.openl.rules.xls.merge</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

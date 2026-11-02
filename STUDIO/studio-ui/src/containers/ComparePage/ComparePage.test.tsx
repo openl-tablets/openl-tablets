@@ -139,6 +139,7 @@ vi.mock('antd', async () => ({
     // The theme stays the real one: the tables of a comparison are drawn in the colours of its paper.
     theme: (await vi.importActual<typeof import('antd')>('antd')).theme,
     Alert: ({ title, showIcon, type, ...rest }: any) => <div data-type={type} role="alert" {...rest}>{title}</div>,
+    Badge: ({ text, status }: any) => <span data-status={status}>{text}</span>,
     Button: ({ children, onClick, disabled, loading, icon, ...rest }: any) => (
         <button disabled={disabled || loading} onClick={onClick} {...rest}>{icon}{children}</button>
     ),
@@ -158,6 +159,7 @@ vi.mock('antd', async () => ({
     Empty: Object.assign(({ description }: any) => <div>{description}</div>, { PRESENTED_IMAGE_SIMPLE: 'simple' }),
     Flex: ({ children, vertical, align, justify, gap, wrap, ...rest }: any) => <div {...rest}>{children}</div>,
     Skeleton: () => <div data-testid="skeleton" />,
+    Tag: ({ children, color, ...rest }: any) => <span {...rest}>{children}</span>,
     Tooltip: ({ children }: any) => children,
     Typography: {
         Link: ({ children, onClick }: any) => <a onClick={onClick}>{children}</a>,

@@ -15,20 +15,19 @@ Content-Type: application/json
           "id": "0-0",
           "name": "Datatype Option",
           "type": "table",
-          "status": "equal"
+          "status": "equal",
+          "moved": false,
+          "firstRange": "B2:C8",
+          "secondRange": "B2:C8"
         },
         {
           "id": "0-1",
           "name": "SmartRules Collect Option[] OptionsOf(String group)",
           "type": "table",
           "status": "changed",
-          "changes": [
-            {
-              "property": "size",
-              "first": "7x11",
-              "second": "7x9"
-            }
-          ]
+          "moved": false,
+          "firstRange": "B11:H21",
+          "secondRange": "B11:H19"
         }
       ]
     }

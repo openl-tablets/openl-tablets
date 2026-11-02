@@ -2,6 +2,7 @@ package org.openl.studio.compare.rest;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Function;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.openl.rules.diff.tree.DiffTreeNode;
+import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
@@ -38,7 +39,7 @@ import org.openl.studio.compare.service.ComparisonRegistry;
 /**
  * REST controller for comparing Excel files.
  *
- * <p>A comparison parses both files, so it is started and read in two steps: the start answers with
+ * <p>A comparison reads both files, so it is started and read in two steps: the start answers with
  * the identifier the comparison is known by, and the result is read once the comparison has
  * finished. Its progress is pushed to the topic {@code /topic/compare/{id}/status} of the user who
  * asked for it, which the client listens to as {@code /user/topic/compare/{id}/status}.
@@ -88,8 +89,8 @@ public class CompareController {
     public ResponseEntity<?> getComparison(
             @Parameter(description = "compare.param.comparison-id.desc")
             @PathVariable("comparisonId") String comparisonId) {
-        return resultOf(comparisonId)
-                .<ResponseEntity<?>>map(result -> ResponseEntity.ok(mapper.toView(comparisonId, result)))
+        return resultOf(comparisonId, result -> mapper.toView(comparisonId, result))
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(ResultNotReadyView::accepted);
     }
 
@@ -108,15 +109,10 @@ public class CompareController {
             @PathVariable("comparisonId") String comparisonId,
             @Parameter(description = "compare.param.table-id.desc")
             @PathVariable("tableId") String tableId) {
-        var result = resultOf(comparisonId);
-        if (result.isEmpty()) {
-            return ResultNotReadyView.accepted();
-        }
-        var table = mapper.toTable(result.get(), tableId);
-        if (table == null) {
-            throw new NotFoundException("compare.table.not-found.message");
-        }
-        return ResponseEntity.ok(table);
+        return resultOf(comparisonId, result -> Optional.ofNullable(mapper.toTable(result, tableId)))
+                .<ResponseEntity<?>>map(table -> ResponseEntity.ok(table.orElseThrow(
+                        () -> new NotFoundException("compare.table.not-found.message"))))
+                .orElseGet(ResultNotReadyView::accepted);
     }
 
     @Operation(summary = "compare.drop.summary", description = "compare.drop.desc")
@@ -129,21 +125,25 @@ public class CompareController {
     }
 
     /**
-     * What the named comparison found. A comparison this session no longer holds is gone, and one that is
+     * Reads what the named comparison found. A comparison this session no longer holds is gone, and one that is
      * still running has nothing to report yet: the request is accepted, and answered once it has ended.
      */
-    private Optional<DiffTreeNode> resultOf(String comparisonId) {
+    private <T> Optional<T> resultOf(String comparisonId, Function<? super WorkbookComparison, T> reader) {
         if (!registry.has(comparisonId)) {
             throw new NotFoundException("compare.not-found.message");
         }
         if (!registry.isDone(comparisonId)) {
             return Optional.empty();
         }
-        var result = registry.result(comparisonId);
-        if (result == null) {
-            // The comparison is still this session's; it was stopped before it found anything.
-            throw new ConflictException("compare.interrupted.message");
+        var result = registry.read(comparisonId, reader);
+        if (result != null) {
+            return Optional.of(result);
         }
-        return Optional.of(result);
+        if (!registry.has(comparisonId)) {
+            // The comparison was released while this request was on its way.
+            throw new NotFoundException("compare.not-found.message");
+        }
+        // The comparison is still this session's; it was stopped before it found anything.
+        throw new ConflictException("compare.interrupted.message");
     }
 }

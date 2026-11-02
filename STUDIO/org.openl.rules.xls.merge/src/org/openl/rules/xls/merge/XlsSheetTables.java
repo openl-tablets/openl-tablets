@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -24,11 +26,9 @@ import org.jspecify.annotations.Nullable;
  * no value, the way OpenL reads a sheet: a style or a comment of an empty cell does not join two tables. Cells with
  * values that touch each other, the diagonal included, belong to one table.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @NullMarked
 final class XlsSheetTables {
-
-    private XlsSheetTables() {
-    }
 
     /**
      * Finds the tables of a sheet, from top to bottom and from left to right.
@@ -157,10 +157,17 @@ final class XlsSheetTables {
     private static Map<CellRangeAddress, String> headers(Sheet sheet, List<CellRangeAddress> tables) {
         var headers = new HashMap<CellRangeAddress, String>();
         for (CellRangeAddress table : tables) {
-            var cell = SheetUtil.getCell(sheet, table.getFirstRow(), table.getFirstColumn());
-            headers.put(table, XlsSheetsMatcher.hasValue(cell) ? cell.toString().trim() : "");
+            headers.put(table, header(sheet, table));
         }
         return headers;
+    }
+
+    /**
+     * The text of the first cell of a table, the header of an OpenL table, or an empty text when the cell has no value.
+     */
+    static String header(Sheet sheet, CellRangeAddress table) {
+        var cell = SheetUtil.getCell(sheet, table.getFirstRow(), table.getFirstColumn());
+        return XlsSheetsMatcher.hasValue(cell) ? cell.toString().trim() : "";
     }
 
     private static boolean sameStart(CellRangeAddress a, CellRangeAddress b) {

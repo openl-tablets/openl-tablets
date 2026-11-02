@@ -2,33 +2,33 @@ package org.openl.studio.compare.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import org.openl.rules.diff.hierarchy.Projection;
-import org.openl.rules.diff.tree.DiffElement;
-import org.openl.rules.diff.tree.DiffStatus;
-import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.xls.XlsProjection;
-import org.openl.rules.table.ICell;
+import org.openl.rules.xls.merge.compare.ChangeStatus;
+import org.openl.rules.xls.merge.compare.LineChange;
+import org.openl.rules.xls.merge.compare.SheetComparison;
+import org.openl.rules.xls.merge.compare.TableComparison;
+import org.openl.rules.xls.merge.compare.WorkbookComparison;
+import org.openl.studio.compare.model.ComparisonLineView;
 import org.openl.studio.compare.model.ComparisonNodeStatus;
 import org.openl.studio.compare.model.ComparisonNodeType;
 import org.openl.studio.compare.model.ComparisonNodeView;
-import org.openl.studio.compare.model.ComparisonPropertyChange;
 import org.openl.studio.compare.model.ComparisonSideView;
 import org.openl.studio.compare.model.ComparisonTableView;
 import org.openl.studio.compare.model.ComparisonView;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
- * Turns what the comparison engine found into what the API reports.
+ * Turns what the comparison found into what the API reports.
  *
- * <p>The engine describes the two files as one tree of sheets and tables, holding an element per
- * file at every position. The element of the second file carries the status, and the element of the
- * first one is there whenever that file holds the position at all.
+ * <p>The comparison describes the two files sheet by sheet and table by table. A table is read from
+ * the workbooks the comparison holds open, only when it is asked for.
  *
  * <p>An element is addressed by its position in the tree: a sheet by its index, a table by the
  * index of its sheet and its own, so the two sides of a table are found again without an index of
@@ -38,28 +38,24 @@ import org.openl.studio.projects.service.tables.read.RawTableReader;
 @RequiredArgsConstructor
 public class ComparisonMapper {
 
-    /** The element of the second file; the first one is the original the second is compared against. */
-    private static final int SECOND = 1;
-    private static final int FIRST = 0;
-
     private final RawTableReader tableReader;
 
     /**
      * Describes what the two compared files hold, sheet by sheet.
      *
-     * @param id   identifier of the comparison
-     * @param root what the comparison engine found
+     * @param id         identifier of the comparison
+     * @param comparison what the comparison found
      * @return the comparison as the API reports it
      */
-    public ComparisonView toView(String id, DiffTreeNode root) {
+    public ComparisonView toView(String id, WorkbookComparison comparison) {
         var sheets = new ArrayList<ComparisonNodeView>();
-        var children = root.getChildren();
-        for (var index = 0; index < children.size(); index++) {
-            sheets.add(toSheet(String.valueOf(index), children.get(index)));
+        var compared = comparison.getSheets();
+        for (var index = 0; index < compared.size(); index++) {
+            sheets.add(toSheet(String.valueOf(index), compared.get(index)));
         }
         return ComparisonView.builder()
                 .id(id)
-                .identical(statusOf(root) == ComparisonNodeStatus.EQUAL)
+                .identical(compared.stream().allMatch(sheet -> sheet.status() == ChangeStatus.EQUAL))
                 .sheets(sheets)
                 .build();
     }
@@ -67,146 +63,116 @@ public class ComparisonMapper {
     /**
      * Reads a compared table as it stands in each of the two files.
      *
-     * @param root    what the comparison engine found
-     * @param tableId identifier of the table within the comparison
+     * @param comparison what the comparison found
+     * @param tableId    identifier of the table within the comparison
      * @return the two sides of the table, or null when the comparison holds no such table
      */
-    public @Nullable ComparisonTableView toTable(DiffTreeNode root, String tableId) {
-        var node = findTable(root, tableId);
-        if (node == null) {
-            return null;
-        }
-        return ComparisonTableView.builder()
-                .id(tableId)
-                .name(nameOf(node))
-                .status(statusOf(node))
-                .first(toSide(node.getElement(FIRST), node.getElement(SECOND)))
-                .second(toSide(node.getElement(SECOND), node.getElement(FIRST)))
-                .build();
-    }
-
-    private ComparisonNodeView toSheet(String id, DiffTreeNode node) {
-        var tables = new ArrayList<ComparisonNodeView>();
-        var children = node.getChildren();
-        for (var index = 0; index < children.size(); index++) {
-            tables.add(toTableNode(id + "-" + index, children.get(index)));
-        }
-        return ComparisonNodeView.builder()
-                .id(id)
-                .name(nameOf(node))
-                .type(ComparisonNodeType.SHEET)
-                .status(statusOf(node))
-                .changes(List.of())
-                .children(tables)
-                .build();
-    }
-
-    private ComparisonNodeView toTableNode(String id, DiffTreeNode node) {
-        return ComparisonNodeView.builder()
-                .id(id)
-                .name(nameOf(node))
-                .type(ComparisonNodeType.TABLE)
-                .status(statusOf(node))
-                .changes(changesOf(node))
-                .children(List.of())
-                .build();
-    }
-
-    /**
-     * The table of a comparison at the position the identifier names, in the form
-     * {@code <sheet index>-<table index>}.
-     */
-    private static @Nullable DiffTreeNode findTable(DiffTreeNode root, String tableId) {
+    public @Nullable ComparisonTableView toTable(WorkbookComparison comparison, String tableId) {
         var position = tableId.split("-", -1);
         if (position.length != 2) {
             return null;
         }
-        var sheet = childAt(root, position[0]);
-        return sheet == null ? null : childAt(sheet, position[1]);
+        var sheet = at(comparison.getSheets(), position[0]);
+        var table = sheet == null ? null : at(sheet.tables(), position[1]);
+        if (table == null) {
+            return null;
+        }
+        var firstSheet = comparison.firstSheet(sheet.name());
+        var secondSheet = comparison.secondSheet(sheet.name());
+        return ComparisonTableView.builder()
+                .id(tableId)
+                .name(table.name())
+                .status(statusOf(table.status()))
+                .moved(table.moved())
+                .formattingChanged(table.formattingChanged())
+                .firstRange(rangeOf(table.first()))
+                .secondRange(rangeOf(table.second()))
+                .first(toSide(firstSheet, table.first(), table.firstChanged()))
+                .second(toSide(secondSheet, table.second(), table.secondChanged()))
+                .rows(toLines(table.rows()))
+                .columns(toLines(table.columns()))
+                .build();
     }
 
-    private static @Nullable DiffTreeNode childAt(DiffTreeNode node, String index) {
+    private static <T> @Nullable T at(List<T> elements, String index) {
         try {
-            var children = node.getChildren();
             var at = Integer.parseInt(index);
-            return at >= 0 && at < children.size() ? children.get(at) : null;
+            return at >= 0 && at < elements.size() ? elements.get(at) : null;
         } catch (NumberFormatException e) {
             return null;
         }
     }
 
-    /**
-     * One side of a table, or null when that file does not hold the table at all. The cells that
-     * differ are the ones the engine found on this side.
-     */
-    private @Nullable ComparisonSideView toSide(DiffElement element, DiffElement other) {
-        if (!(element.getProjection() instanceof XlsProjection projection) || projection.getTable() == null) {
-            return null;
+    private static ComparisonNodeView toSheet(String id, SheetComparison sheet) {
+        var tables = new ArrayList<ComparisonNodeView>();
+        var compared = sheet.tables();
+        for (var index = 0; index < compared.size(); index++) {
+            tables.add(toTableNode(id + "-" + index, compared.get(index)));
         }
-        // A table the other file does not hold at all is not marked cell by cell: every one of its
-        // cells is new or gone, which the status of the table already says.
-        var comparable = other.getProjection() != null;
-        var cells = tableReader.readCells(projection.getTable(), true);
-        return ComparisonSideView.builder()
-                .source(cells.source())
-                .styles(cells.styles())
-                .changedCells(comparable ? changedCellsOf(projection) : List.of())
+        return ComparisonNodeView.builder()
+                .id(id)
+                .name(sheet.name())
+                .type(ComparisonNodeType.SHEET)
+                .status(statusOf(sheet.status()))
+                .children(tables)
                 .build();
     }
 
-    /** The addresses of the cells of this side that read differently in the other file. */
-    private static List<String> changedCellsOf(XlsProjection projection) {
-        if (projection.getDiffCells() == null) {
-            return List.of();
-        }
-        return projection.getDiffCells().stream()
-                .map(ICell::getUri)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+    private static ComparisonNodeView toTableNode(String id, TableComparison table) {
+        return ComparisonNodeView.builder()
+                .id(id)
+                .name(table.name())
+                .type(ComparisonNodeType.TABLE)
+                .status(statusOf(table.status()))
+                .moved(table.moved())
+                .firstRange(rangeOf(table.first()))
+                .secondRange(rangeOf(table.second()))
+                .children(List.of())
+                .build();
     }
 
-    /** Properties of the table that read differently in the two files, such as its name or its size. */
-    private static List<ComparisonPropertyChange> changesOf(DiffTreeNode node) {
-        var first = node.getElement(FIRST).getProjection();
-        var second = node.getElement(SECOND).getProjection();
-        if (first == null || second == null || node.getElement(SECOND).isSelfEqual()) {
-            return List.of();
-        }
-        var changes = new ArrayList<ComparisonPropertyChange>();
-        for (var property : first.getProperties()) {
-            var counterpart = second.getProperty(property.getName());
-            if (counterpart != null && !Objects.equals(property.getRawValue(), counterpart.getRawValue())) {
-                changes.add(new ComparisonPropertyChange(property.getName(),
-                        asText(property.getRawValue()),
-                        asText(counterpart.getRawValue())));
-            }
-        }
-        return changes;
-    }
-
-    private static @Nullable String asText(@Nullable Object value) {
-        return value == null ? null : String.valueOf(value);
+    private static @Nullable String rangeOf(@Nullable CellRangeAddress place) {
+        return place == null ? null : place.formatAsString();
     }
 
     /**
-     * The name of an element as the first file spells it, or as the second one does when the element
-     * was added there.
+     * One side of a table, or null when that file does not hold the table at all.
+     *
+     * @param changed the cells of this side that read differently in the other file
      */
-    private static String nameOf(DiffTreeNode node) {
-        var status = node.getElement(SECOND).getDiffStatus();
-        Projection projection = status == DiffStatus.ADDED
-                ? node.getElement(SECOND).getProjection()
-                : node.getElement(FIRST).getProjection();
-        return projection == null ? "" : projection.getName();
+    private @Nullable ComparisonSideView toSide(@Nullable Sheet sheet,
+                                                @Nullable CellRangeAddress place,
+                                                List<CellAddress> changed) {
+        if (sheet == null || place == null) {
+            return null;
+        }
+        var cells = tableReader.cellsOf(sheet).apply(place);
+        return ComparisonSideView.builder()
+                .source(cells.source())
+                .styles(cells.styles())
+                .changedCells(changed.stream().map(CellAddress::formatAsString).toList())
+                .build();
     }
 
-    private static ComparisonNodeStatus statusOf(DiffTreeNode node) {
-        return switch (node.getElement(SECOND).getDiffStatus()) {
+    private static List<ComparisonLineView> toLines(List<LineChange> lines) {
+        return lines.stream()
+                .map(line -> new ComparisonLineView(indexOf(line.first()),
+                        indexOf(line.second()),
+                        statusOf(line.status())))
+                .toList();
+    }
+
+    private static @Nullable Integer indexOf(int line) {
+        return line == LineChange.NONE ? null : line;
+    }
+
+    private static ComparisonNodeStatus statusOf(ChangeStatus status) {
+        return switch (status) {
+            case EQUAL -> ComparisonNodeStatus.EQUAL;
+            case CHANGED -> ComparisonNodeStatus.CHANGED;
+            case MOVED -> ComparisonNodeStatus.MOVED;
             case ADDED -> ComparisonNodeStatus.ADDED;
             case REMOVED -> ComparisonNodeStatus.REMOVED;
-            case EQUALS -> ComparisonNodeStatus.EQUAL;
-            default -> ComparisonNodeStatus.CHANGED;
         };
     }
 }

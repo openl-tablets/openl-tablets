@@ -16,16 +16,11 @@ Content-Type: application/json
           "name": "Datatype Foo",
           "type": "table",
           "status": "changed",
-          "changes": [
-            {
-              "property": "size",
-              "first": "2x3",
-              "second": "2x2"
-            }
-          ]
+          "moved": false,
+          "firstRange": "B7:C9",
+          "secondRange": "B7:C8"
         }
       ]
     }
   ]
 }
-

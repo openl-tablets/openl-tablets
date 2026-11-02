@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.mock.web.MockMultipartFile;
 
-import org.openl.rules.diff.tree.DiffTreeNode;
+import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.compare.messaging.SocketComparisonProgressListenerFactory;
 import org.openl.studio.security.CurrentUserInfo;
 
@@ -45,7 +45,7 @@ class ComparisonLauncherTest {
 
     @Test
     void namesTheComparisonItStarted() throws Exception {
-        var task = new CompletableFuture<DiffTreeNode>();
+        var task = new CompletableFuture<WorkbookComparison>();
         when(fileStore.store(any(), any())).thenReturn(STORED);
         when(comparisonService.compare(any(), any(), any())).thenReturn(task);
 
@@ -58,7 +58,7 @@ class ComparisonLauncherTest {
     @Test
     void comparesCopiesOfTheFilesItIsGiven() throws Exception {
         var versions = List.of(Path.of("history", "1700000000000"), Path.of("history", "Revision Version"));
-        var task = new CompletableFuture<DiffTreeNode>();
+        var task = new CompletableFuture<WorkbookComparison>();
         when(fileStore.copy(versions)).thenReturn(STORED);
         when(comparisonService.compare(any(), any(), any())).thenReturn(task);
 

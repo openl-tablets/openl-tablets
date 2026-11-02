@@ -382,7 +382,12 @@ describe("project status", () => {
     harness.mockHttp.onGet(projectPath).reply(200, { path: "Rating", ...withStatus(fixture) });
     harness.mockHttp.onPost(`${projectPath}/compare`).reply(202, { id: "c1" });
     harness.mockHttp.onGet("/compare/c1").reply(200, { id: "c1", identical: false, sheets: [
-      { name: "Rates", status: "changed", children: [{ name: "RateCard", status: "changed" }, { name: "Base", status: "equal" }] },
+      { name: "Rates", status: "changed", children: [
+        { name: "RateCard", status: "changed" },
+        // a table only pushed down by the rows inserted above it holds the same
+        { name: "Base", status: "equal" },
+        { name: "Limits", status: "moved" },
+      ] },
     ] });
     harness.mockHttp.onDelete("/compare/c1").reply(204);
 
@@ -393,7 +398,7 @@ describe("project status", () => {
       first: { path: "rules/Main.xlsx", branch: "main", revision: "r1" }, second: { path: "rules/Main.xlsx" },
     }]);
     expect(text).toBe("Compile state: ok; 0 errors, 0 warnings; 0 test tables; 1 of 1 module compiled.\nBranch: main. Revision: r1.\n"
-      + "Changed since the last save, 3 files:\n- Rating/rules/Main.xlsx modified: Rates/RateCard changed\n"
+      + "Changed since the last save, 3 files:\n- Rating/rules/Main.xlsx modified: Rates/RateCard changed, Rates/Limits moved\n"
       + "- Rating/rules.xml modified\n- Rating/rules/New.xlsx added");
   });
 

@@ -9,16 +9,17 @@ Content-Type: application/json
       "id": "0",
       "name": "Rules",
       "type": "sheet",
-      "status": "added",
+      "status": "changed",
       "children": [
         {
           "id": "0-0",
           "name": "Spreadsheet SpreadsheetResult Greeting()",
           "type": "table",
-          "status": "added"
+          "status": "added",
+          "moved": false,
+          "secondRange": "B2:C4"
         }
       ]
     }
   ]
 }
-

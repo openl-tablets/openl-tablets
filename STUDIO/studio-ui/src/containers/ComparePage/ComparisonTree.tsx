@@ -4,11 +4,12 @@ import {
     FileAddOutlined,
     FileExcelOutlined,
     FileExclamationOutlined,
+    FileSyncOutlined,
     FileTextOutlined,
-    TagOutlined,
+    SwapRightOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import type { Comparison, ComparisonNode, ComparisonPropertyChange } from 'types/compare'
+import type { Comparison, ComparisonNode } from 'types/compare'
 import { useStyles } from './ComparePage.styles'
 
 interface ComparisonTreeProps {
@@ -33,8 +34,7 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
      * The icon an element carries, saying how the second file holds it.
      *
      * Every element is a file of the workbook, drawn as one and marked with what became of it, as the
-     * old window drew them: a file gained, a file lost, a file that reads differently, a file that
-     * reads the same.
+     * old window drew them. A file is gained, lost, moved, reads differently or reads the same.
      */
     const statusIcon = (node: ComparisonNode) => {
         switch (node.status) {
@@ -44,6 +44,8 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
                 return <FileExcelOutlined className={styles.removed} title={t('status_removed')} />
             case 'changed':
                 return <FileExclamationOutlined className={styles.changedIcon} title={t('status_changed')} />
+            case 'moved':
+                return <FileSyncOutlined className={styles.changedIcon} title={t('status_moved')} />
             default:
                 return <FileTextOutlined className={styles.equalIcon} title={t('status_equal')} />
         }
@@ -55,18 +57,14 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
         </span>
     )
 
-    /** What a property of the table says in each file, as it reads under the table. */
-    const change = (element: ComparisonNode, property: ComparisonPropertyChange, index: number) => ({
-        key: `${element.id}:${index}`,
+    /** Where a table moved on purpose stood and stands now, as it reads under the table. */
+    const moved = (element: ComparisonNode) => ({
+        key: `${element.id}:moved`,
         title: (
             <span>
-                <TagOutlined className={styles.changedIcon} title={t('status_changed')} />
+                <SwapRightOutlined className={styles.changedIcon} title={t('status_moved')} />
                 {' '}
-                {t('change', {
-                    property: property.property,
-                    first: property.first ?? t('change_absent'),
-                    second: property.second ?? t('change_absent'),
-                })}
+                {t('moved_places', { first: element.firstRange, second: element.secondRange })}
             </span>
         ),
         selectable: false,
@@ -83,7 +81,7 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
                 .map(element => ({
                     key: element.id,
                     title: label(element),
-                    children: (element.changes ?? []).map((property, index) => change(element, property, index)),
+                    children: element.moved && element.firstRange && element.secondRange ? [moved(element)] : [],
                 })),
         }))
         .filter(sheet => sheet.children.length > 0)

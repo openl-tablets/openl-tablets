@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.openl.rules.diff.tree.DiffTreeNode;
+import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.compare.messaging.SocketComparisonProgressListenerFactory;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.security.CurrentUserInfo;
@@ -73,10 +73,10 @@ public class ComparisonLauncher {
     /** Runs the comparison of the files the store has taken over. */
     private ComparisonStartedView start(List<Path> files) {
         var comparisonId = UUID.randomUUID().toString();
-        CompletableFuture<DiffTreeNode> comparison;
+        CompletableFuture<WorkbookComparison> comparison;
         try {
             var listener = listenerFactory.create(currentUserInfo.getUserName(), comparisonId);
-            comparison = comparisonService.compare(listener, files.get(0), files.get(1));
+            comparison = comparisonService.compare(listener, files.getFirst(), files.get(1));
         } catch (RuntimeException e) {
             // Nothing was started, so nothing owns the files. A comparison that could not be started -
             // the executor is full, the Studio is stopping - takes them with it.

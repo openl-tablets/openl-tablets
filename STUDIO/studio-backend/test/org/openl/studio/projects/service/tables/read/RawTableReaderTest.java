@@ -387,9 +387,6 @@ class RawTableReaderTest {
         var plain = new RawTableReader().read(table, RawTableRead.builder().build());
         assertNull(plain.styles, "A read of the values names no styles");
         assertNull(plain.source.getFirst().getFirst().runs());
-        var cells = new RawTableReader().readCells(table, true);
-        assertEquals(view.styles, cells.styles(), "A matrix read alone names its styles the same way");
-        assertNull(new RawTableReader().readCells(table, false).styles());
     }
 
     @Test

@@ -17,7 +17,10 @@ const COMPARISON_WAIT: WaitOptions = {
   timeoutMessage: "The comparison of the two versions did not end in time.",
 };
 
-/** A table one version holds otherwise than the other: added, removed or changed since the first. */
+/**
+ * A table one version holds otherwise than the other: added, removed, moved or changed since the first. A table only
+ * pushed by the rows inserted above it holds the same and is not named.
+ */
 export interface ChangedTable {
   sheet?: string;
   table?: string;

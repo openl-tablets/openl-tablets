@@ -60,7 +60,26 @@ const COMPARISON: Comparison = {
                     name: 'Data Customer customers',
                     type: 'table',
                     status: 'changed',
-                    changes: [{ property: 'size', first: '5x6', second: '1x1' }, { property: 'name', second: 'Other' }],
+                    moved: true,
+                    firstRange: 'A1:F5',
+                    secondRange: 'H1:M6',
+                },
+                {
+                    id: '0-3',
+                    name: 'Data Integer ages',
+                    type: 'table',
+                    status: 'equal',
+                    firstRange: 'A9:B12',
+                    secondRange: 'A10:B13',
+                },
+                {
+                    id: '0-4',
+                    name: 'Data Integer limits',
+                    type: 'table',
+                    status: 'moved',
+                    moved: true,
+                    firstRange: 'A20:B22',
+                    secondRange: 'D20:E22',
                 },
             ],
         },
@@ -138,12 +157,22 @@ describe('ComparisonTree', () => {
         expect(marks).toContain('status_added')
     })
 
-    it('says what a property of a changed element reads in each file', () => {
-        render(<ComparisonTree comparison={COMPARISON} onSelect={vi.fn()} showEqualElements={false} />)
+    it('says where a table moved on purpose stood and stands now', () => {
+        const { container } = render(
+            <ComparisonTree comparison={COMPARISON} onSelect={vi.fn()} showEqualElements={false} />
+        )
 
-        expect(screen.getByText('change size 5x6 1x1')).toBeInTheDocument()
-        // A property only one file states reads as not set in the other.
-        expect(screen.getByText('change name change_absent Other')).toBeInTheDocument()
+        expect(screen.getByText('moved_places A1:F5 H1:M6')).toBeInTheDocument()
+        expect(screen.getByText('moved_places A20:B22 D20:E22')).toBeInTheDocument()
+        const marks = [...container.querySelectorAll('[title]')].map(node => node.getAttribute('title'))
+        expect(marks).toContain('status_moved')
+    })
+
+    it('says nothing of the place of a table only pushed down by the rows above it', () => {
+        render(<ComparisonTree showEqualElements comparison={COMPARISON} onSelect={vi.fn()} />)
+
+        expect(screen.getByText('Data Integer ages')).toBeInTheDocument()
+        expect(screen.queryByText('moved_places A9:B12 A10:B13')).toBeNull()
     })
 
     it('answers with the element that was picked', async () => {

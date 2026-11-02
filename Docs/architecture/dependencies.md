@@ -48,7 +48,6 @@ flowchart TB
 
 ## STUDIO
 
-- **`org.openl.rules.diff`** — `org.openl.rules`
 - **`org.openl.rules.jackson.configuration`** — no OpenL dependencies
 - **`org.openl.rules.jackson`** — `org.openl.rules.project`, `org.openl.rules.jackson.configuration`
 - **`org.openl.rules.project.openapi`** — `org.openl.rules.ruleservice.ws.common`, `org.openl.rules.jackson`
@@ -62,7 +61,7 @@ flowchart TB
   `org.openl.rules.repository`, `org.openl.rules.repository.aws`, `org.openl.rules.repository.git`,
   `org.openl.rules.repository.azure`, `org.openl.rules.workspace`, `org.openl.rules.project`,
   `org.openl.rules.jackson`, `org.openl.rules.demo`, `org.openl.rules.project.validation.openapi`,
-  `org.openl.rules.project.openapi`, `org.openl.rules.diff`, `openl-openapi-parser`, `openl-excel-builder`,
+  `org.openl.rules.project.openapi`, `org.openl.rules.xls.merge`, `openl-openapi-parser`, `openl-excel-builder`,
   `org.openl.spring`, `studio-ui`, `studio-docs` (runtime)
 - **`org.openl.rules.workspace`** — `org.openl.commons`, `org.openl.rules.repository`, `org.openl.rules.project`,
   `org.openl.spring`, `openl-yaml`

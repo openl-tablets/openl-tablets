@@ -5,6 +5,9 @@ Content-Type: application/json
   "id": "0-2",
   "name": "Datatype Address",
   "status": "added",
+  "moved": false,
+  "formattingChanged": false,
+  "secondRange": "A8:B9",
   "second": {
     "source": [
       [

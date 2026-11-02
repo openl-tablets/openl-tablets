@@ -31,6 +31,22 @@ const TABLE: ComparisonTable = {
     },
 }
 
+/** The table with a row the second file adds at its end, lined up as the comparison reports it. */
+const ADDED_ROW: ComparisonTable = {
+    ...TABLE,
+    second: {
+        source: [...TABLE.second!.source, [{ cell: 'A4', value: 'age' }]],
+        changedCells: ['A2'],
+    },
+    rows: [
+        { first: 0, second: 0, status: 'equal' },
+        { first: 1, second: 1, status: 'changed' },
+        { first: 2, second: 2, status: 'equal' },
+        { second: 3, status: 'added' },
+    ],
+    columns: [{ first: 0, second: 0, status: 'changed' }],
+}
+
 describe('ComparisonPanes', () => {
     it('shows the table of each file, with only the rows that differ', () => {
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />)
@@ -153,20 +169,113 @@ describe('ComparisonPanes', () => {
         expect(screen.getByTestId('compare-pane-second')).not.toHaveTextContent('name')
     })
 
-    it('shows both files whole when one of them has more rows than the other', () => {
-        const added: ComparisonTable = {
+    it('stands a row only the second file holds against an empty row of the first', () => {
+        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={ADDED_ROW} />)
+
+        // The changed row and the added one are left, and they stand against each other in both files.
+        const first = screen.getByTestId('compare-pane-first').querySelectorAll('tr')
+        const second = screen.getByTestId('compare-pane-second').querySelectorAll('tr')
+        expect(first).toHaveLength(2)
+        expect(second).toHaveLength(2)
+        expect(first[0]).toHaveTextContent('int')
+        expect(first[1]).toHaveTextContent('')
+        expect(second[1]).toHaveTextContent('age')
+    })
+
+    it('paints a row only one file holds in the colours of the paper', () => {
+        renderInTheme(
+            <ComparisonPanes showEqualRows error={null} loading={false} table={ADDED_ROW} />,
+            { theme: 'nord', mode: 'dark' }
+        )
+
+        const added = screen.getByTestId('compare-pane-second').querySelector('[data-cell="A4"]')
+        expect(added).toHaveStyle({ backgroundColor: paperToken().colorSuccessBg })
+    })
+
+    it('stands a column only the first file holds against an empty column of the second', () => {
+        const wider: ComparisonTable = {
             ...TABLE,
-            second: {
-                source: [...TABLE.second!.source, [{ cell: 'A4', value: 'age' }]],
-                changedCells: ['A4'],
+            first: {
+                source: [
+                    [{ cell: 'A1', value: 'Datatype Person' }, { cell: 'B1', value: 'note' }],
+                    [{ cell: 'A2', value: 'int' }, { cell: 'B2', value: 'kept' }],
+                    [{ cell: 'A3', value: 'name' }, { cell: 'B3', value: 'kept' }],
+                ],
+                changedCells: ['A2'],
             },
+            rows: [
+                { first: 0, second: 0, status: 'equal' },
+                { first: 1, second: 1, status: 'changed' },
+                { first: 2, second: 2, status: 'equal' },
+            ],
+            columns: [{ first: 0, second: 0, status: 'changed' }, { first: 1, status: 'removed' }],
         }
 
-        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={added} />)
+        renderInTheme(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={wider} />)
 
-        // The rows no longer stand against each other, so neither file is cut down to a part of itself.
-        expect(screen.getByTestId('compare-pane-first')).toHaveTextContent('name')
-        expect(screen.getByTestId('compare-pane-second')).toHaveTextContent('age')
+        // A column runs through every row, so no row is left out.
+        const second = screen.getByTestId('compare-pane-second').querySelectorAll('tr')
+        expect(second).toHaveLength(3)
+        expect(second[0]!.querySelectorAll('td')).toHaveLength(2)
+        const removed = screen.getByTestId('compare-pane-first').querySelector('[data-cell="B1"]')
+        expect(removed).toHaveStyle({ backgroundColor: paperToken().colorErrorBg })
+    })
+
+    it('keeps a merge whole over the empty row standing against a row the other file adds', () => {
+        const merged: ComparisonTable = {
+            ...TABLE,
+            first: {
+                source: [
+                    [{ cell: 'A1', value: 'US', rowspan: 2 }, { cell: 'B1', value: 'East' }],
+                    [{ covered: true }, { cell: 'B2', value: 'West' }],
+                ],
+            },
+            second: {
+                source: [
+                    [{ cell: 'A1', value: 'US', rowspan: 3 }, { cell: 'B1', value: 'East' }],
+                    [{ covered: true }, { cell: 'B2', value: 'South' }],
+                    [{ covered: true }, { cell: 'B3', value: 'West' }],
+                ],
+            },
+            rows: [
+                { first: 0, second: 0, status: 'equal' },
+                { second: 1, status: 'added' },
+                { first: 1, second: 2, status: 'equal' },
+            ],
+            columns: [{ first: 0, second: 0, status: 'equal' }, { first: 1, second: 1, status: 'equal' }],
+        }
+
+        render(<ComparisonPanes showEqualRows error={null} loading={false} table={merged} />)
+
+        const first = screen.getByTestId('compare-pane-first').querySelectorAll('tr')
+        expect(first).toHaveLength(3)
+        expect(first[0]!.querySelector('td')).toHaveAttribute('rowspan', '3')
+        expect(first[2]).toHaveTextContent('West')
+    })
+
+    it('explains the colours of the table and says where a moved table comes from', () => {
+        const moved: ComparisonTable = {
+            ...ADDED_ROW,
+            moved: true,
+            formattingChanged: true,
+            firstRange: 'A1:A3',
+            secondRange: 'C5:C8',
+        }
+
+        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={moved} />)
+
+        const legend = screen.getByTestId('compare-legend')
+        expect(legend).toHaveTextContent('status_changed')
+        expect(legend).toHaveTextContent('status_added')
+        expect(legend).not.toHaveTextContent('status_removed')
+        expect(screen.getByTestId('compare-moved')).toHaveTextContent('moved_places')
+        expect(screen.getByTestId('compare-formatting-changed')).toHaveTextContent('formatting_changed')
+    })
+
+    it('explains no colour of a table that differs in nothing', () => {
+        render(<ComparisonPanes showEqualRows error={null} loading={false} table={{ ...TABLE, status: 'equal' }} />)
+
+        expect(screen.queryByTestId('compare-legend')).toBeNull()
     })
 
     it('cuts a merge down to the rows that are left', () => {
@@ -208,6 +317,8 @@ describe('ComparisonPanes', () => {
         const [left, right] = panes.map(pane => pane.parentElement!.textContent)
         expect(left).toMatch(/^leadingYour version/)
         expect(right).toMatch(/^Base versiontrailing/)
+        // The legend of the colours stands on a line of its own above both files, so their rows stay level.
+        expect(screen.getByTestId('compare-notes')).toHaveTextContent('status_changed')
     })
 
     it('says which file does not hold the table', () => {
@@ -266,6 +377,53 @@ describe('ComparisonPanes', () => {
             expect(rows[1]!.querySelector('td')).toHaveTextContent('→')
         })
 
+        it('reads a row changed and a row inserted under it in a merged group as one table', () => {
+            const grouped: ComparisonTable = {
+                ...TABLE,
+                first: {
+                    source: [
+                        [{ cell: 'A1', value: 'SmartRules Collect TableHeader[] headers', colspan: 2 }, { covered: true }],
+                        [{ cell: 'A2', value: 'Table ID' }, { cell: 'B2', value: 'Id' }],
+                        [{ cell: 'A3', value: 'CostSummaryTable', rowspan: 2 }, { cell: 'B3', value: 'TotalMonthlyBenefit' }],
+                        [{ covered: true }, { cell: 'B4', value: 'CoverageRate' }],
+                        [{ cell: 'A5', value: 'ExpensesTable' }, { cell: 'B5', value: 'Tax' }],
+                    ],
+                    changedCells: ['B4'],
+                },
+                second: {
+                    source: [
+                        [{ cell: 'A1', value: 'SmartRules Collect TableHeader[] headers', colspan: 2 }, { covered: true }],
+                        [{ cell: 'A2', value: 'Table ID' }, { cell: 'B2', value: 'Id' }],
+                        [{ cell: 'A3', value: 'CostSummaryTable', rowspan: 3 }, { cell: 'B3', value: 'TotalMonthlyBenefit' }],
+                        [{ covered: true }, { cell: 'B4', value: 'ManualCoverageRate' }],
+                        [{ covered: true }, { cell: 'B5', value: 'PayableCoverageRate' }],
+                        [{ cell: 'A6', value: 'ExpensesTable' }, { cell: 'B6', value: 'Tax' }],
+                    ],
+                    changedCells: ['B4'],
+                },
+                rows: [
+                    { first: 0, second: 0, status: 'equal' },
+                    { first: 1, second: 1, status: 'equal' },
+                    { first: 2, second: 2, status: 'equal' },
+                    { first: 3, second: 3, status: 'changed' },
+                    { second: 4, status: 'added' },
+                    { first: 4, second: 5, status: 'equal' },
+                ],
+                columns: [{ first: 0, second: 0, status: 'equal' }, { first: 1, second: 1, status: 'changed' }],
+            }
+
+            combined(grouped)
+
+            const table = screen.getByTestId('compare-combined')
+            const leads = [...table.querySelectorAll('tr')].map(row => row.querySelector('td')?.textContent)
+            // Neither version is removed and added whole: one row changed, one added, the rest the same.
+            expect(leads).toEqual(['', '', '', '→', '+', ''])
+            expect(table).toHaveTextContent('CoverageRate → ManualCoverageRate')
+            // The id of the group stays one merged cell over its rows, the added one included.
+            expect(table.querySelector('[data-cell="A3"]')).toHaveAttribute('rowspan', '3')
+            expect(table.textContent?.match(/ExpensesTable/g)).toHaveLength(1)
+        })
+
         it('shows only the rows that differ when the equal ones are not asked for', () => {
             combined(TABLE, false)
 
@@ -302,17 +460,13 @@ describe('ComparisonPanes', () => {
             expect(screen.getByTestId('compare-pane-combined')).toHaveTextContent('int')
         })
 
-        it('reads two tables it cannot align as one dropped and one added', () => {
-            const longer: ComparisonTable = {
-                ...TABLE,
-                second: { source: [...TABLE.second!.source, [{ cell: 'A4', value: 'age' }]]},
-            }
-
-            combined(longer)
+        it('stands a row only the second file holds where it stands in that file', () => {
+            combined(ADDED_ROW)
 
             const leads = [...screen.getByTestId('compare-combined').querySelectorAll('tr')]
                 .map(row => row.querySelector('td')?.textContent)
-            expect(leads).toEqual(['−', '−', '−', '+', '+', '+', '+'])
+            expect(leads).toEqual(['', '→', '', '+'])
+            expect(screen.getByTestId('compare-pane-combined')).toHaveTextContent('age')
         })
 
         it('keeps what the workbook fills a changed row with, muted like the rest', () => {
@@ -340,7 +494,7 @@ describe('ComparisonPanes', () => {
 
             // Only the signs this table is actually read by are explained.
             const legend = screen.getByTestId('compare-legend')
-            expect(legend).toHaveTextContent('→status_changed')
+            expect(legend).toHaveTextContent('→ status_changed')
             expect(legend).not.toHaveTextContent('status_added')
             // The sign in the table says the same to whoever hovers it; a row that did not change
             // carries no sign at all.
@@ -350,39 +504,38 @@ describe('ComparisonPanes', () => {
             expect(leads[1]).toHaveAttribute('title', 'status_changed')
         })
 
-        it('explains both signs of two tables it cannot align', () => {
-            const longer: ComparisonTable = {
-                ...TABLE,
-                second: { source: [...TABLE.second!.source, [{ cell: 'A4', value: 'age' }]]},
-            }
-
-            combined(longer)
+        it('explains the sign of a row only one file holds', () => {
+            combined(ADDED_ROW)
 
             const legend = screen.getByTestId('compare-legend')
-            expect(legend).toHaveTextContent('+status_added')
-            expect(legend).toHaveTextContent('−status_removed')
-            expect(legend).not.toHaveTextContent('status_changed')
+            expect(legend).toHaveTextContent('+ status_added')
+            expect(legend).toHaveTextContent('→ status_changed')
+            expect(legend).not.toHaveTextContent('status_removed')
         })
 
-        it('reads two tables of different widths as one dropped and one added', () => {
-            // As many rows, but a row of the first file holds a cell the second one has no place for.
+        it('shows a column only the first file holds beside the columns of the second', () => {
             const wider: ComparisonTable = {
                 ...TABLE,
                 first: {
                     source: [
-                        [{ cell: 'A1', value: 'Datatype Person' }, { cell: 'B1', value: 'note' }],
+                        [{ cell: 'A1', value: 'Datatype Person', colspan: 2 }, { covered: true }],
                         [{ cell: 'A2', value: 'int' }, { cell: 'B2', value: 'kept' }],
                         [{ cell: 'A3', value: 'name' }, { cell: 'B3', value: 'kept' }],
                     ],
+                    changedCells: ['A2'],
                 },
+                columns: [{ first: 0, second: 0, status: 'changed' }, { first: 1, status: 'removed' }],
             }
 
             combined(wider)
 
-            // Nothing is left out: what one file holds is shown whole, then what the other holds.
-            const pane = screen.getByTestId('compare-pane-combined')
-            expect(pane).toHaveTextContent('note')
-            expect(screen.getByTestId('compare-combined').querySelectorAll('tr')).toHaveLength(6)
+            // The rows of both files stand against each other, and the column of the first file stands beside them.
+            const rows = screen.getByTestId('compare-combined').querySelectorAll('tr')
+            expect(rows).toHaveLength(3)
+            expect(rows[1]).toHaveTextContent('int → double')
+            expect(rows[1]).toHaveTextContent('kept')
+            // A merge of the first file reaching a column of the second one is undone rather than drawn wrong.
+            expect(rows[0]!.querySelectorAll('td')).toHaveLength(3)
         })
 
         it('says for itself that there is nothing to show yet', () => {

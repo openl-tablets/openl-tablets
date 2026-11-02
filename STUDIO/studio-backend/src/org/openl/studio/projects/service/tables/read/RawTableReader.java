@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
@@ -119,24 +121,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     }
 
     /**
-     * Reads the cells of a table as a matrix, without the identity a table has in a project.
-     *
-     * <p>Used where the table belongs to no open project — the two sides of a comparison come from
-     * files of their own — so it has no id, no kind and no properties to report.
-     *
-     * @param openLTable the table to read
-     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
-     * @return the cells of the table, row by row, and the styles they name, or no styles when none are read
-     */
-    public RawTableCells readCells(IOpenLTable openLTable, boolean withStyles) {
-        return readCells(openLTable.getGridTable(), metaInfoReaderOf(openLTable), withStyles);
-    }
-
-    /**
      * Reads areas of a sheet as matrices, with their Excel styles.
      *
-     * <p>Used where the sheet belongs to a workbook of no project, such as a version of a conflicted file, so the
-     * cells carry nothing a compilation knows of them. The sheet is prepared once for every area read from it.
+     * <p>Used where the sheet belongs to a workbook of no project, such as a version of a conflicted file or a side
+     * of a comparison, so the cells carry nothing a compilation knows of them. The sheet is prepared once for every
+     * area read from it.
      *
      * @param sheet the sheet
      * @return reads the cells of an area of the sheet, row by row, and the styles they name
@@ -150,16 +139,18 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 area.getFirstColumn(),
                 area.getLastRow(),
                 area.getLastColumn(),
-                grid), EmptyMetaInfoReader.getInstance(), true);
+                grid));
     }
 
-    private RawTableCells readCells(IGridTable gridTable, MetaInfoReader metaInfoReader, boolean withStyles) {
+    /** Reads the cells of an area of a sheet of no project as a matrix, with their Excel styles. */
+    private RawTableCells readCells(IGridTable gridTable) {
+        var metaInfoReader = EmptyMetaInfoReader.getInstance();
         var tableModel = TableModel.initializeTableModel(gridTable, TableWindow.EVERY_ROW, metaInfoReader);
-        var styled = withStyles ? new Styled(null) : null;
+        var styled = new Styled(null);
         var source = tableModel == null ? List.<List<RawTableCell>>of()
                 : convertTableModelToMatrix(tableModel, metaInfoReader,
-                        RawTableRead.builder().withStyles(withStyles).build(), styled);
-        return new RawTableCells(source, styled == null ? null : styled.styles.styles());
+                        RawTableRead.builder().withStyles(true).build(), styled);
+        return new RawTableCells(source, styled.styles.styles());
     }
 
     /** The table's meta info, or an empty one when the table carries none. */
@@ -214,6 +205,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     }
 
     /** What a read with the styles reports besides the values of the cells, gathered as the cells are read. */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class Styled {
 
         /** The styles the cells name. */
@@ -221,10 +213,6 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
         /** The roles of the cells of the table, or {@code null} for a table that has none. */
         private final @Nullable Layout layout;
-
-        Styled(@Nullable Layout layout) {
-            this.layout = layout;
-        }
 
         /** The number of the style of a cell. */
         @Nullable
@@ -426,7 +414,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      */
     private static @Nullable RawTableCellMetaInfo metaInfoOf(ICell cell, MetaInfoReader metaInfoReader,
             TableModules modules) {
-        CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+        var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
         if (metaInfo == null) {
             return null;
         }
