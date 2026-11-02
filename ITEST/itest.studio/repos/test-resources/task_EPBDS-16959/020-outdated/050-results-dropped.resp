@@ -1,0 +1,7 @@
+HTTP/1.1 410
+Content-Type: application/json
+
+{
+  "code": "openl.error.410.execution.outdated.message",
+  "message": "A project was changed or reloaded since the execution started, so its results were dropped. Start it again."
+}

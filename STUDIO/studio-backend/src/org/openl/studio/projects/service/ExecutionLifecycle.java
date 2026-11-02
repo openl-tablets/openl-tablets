@@ -3,6 +3,9 @@ package org.openl.studio.projects.service;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.util.StringUtils;
 
 /**
@@ -12,14 +15,12 @@ import org.openl.util.StringUtils;
  * {@link ExecutionStatus#COMPLETED}, {@link ExecutionStatus#INTERRUPTED} or an error afterwards.
  *
  * <p>A task is interrupted in either of two ways, and they end differently. One that gave up on the
- * interruption has nothing to give, so its future completes with no result. One that reached its end
- * while it was being asked to stop has a whole result, and its future completes with it - the listener
- * is told of the interruption all the same, because the work was asked to stop.
+ * interruption has nothing to give, so its future completes with no result. One that returned while it
+ * was being asked to stop completes with what it found: a test suite stops before its next case, so the
+ * result may hold only the cases that ran. The listener is told of the interruption either way.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ExecutionLifecycle {
-
-    private ExecutionLifecycle() {
-    }
 
     /**
      * Executes a task and reports its outcome to the listener.
@@ -35,8 +36,8 @@ public final class ExecutionLifecycle {
             var result = task.call();
 
             if (Thread.currentThread().isInterrupted()) {
-                // The task ran to its end while it was being asked to stop, so what it found is whole
-                // and is handed over; the listener hears that the stop came too late to take effect.
+                // The task returned while it was being asked to stop: what it found, maybe only a part, is
+                // handed over, and the listener hears that the work was stopped.
                 listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
                 return CompletableFuture.completedFuture(result);
             }

@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
@@ -23,6 +24,15 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.util.Arrays;
 import org.openl.types.IOpenMethod;
 
+/**
+ * Runs the tests of a project on the {@code testSuiteExecutor} pool.
+ *
+ * <p>A run tests the project as it was compiled when the run started, and holds nothing the editor waits for: the
+ * project can be read and written while the tests go on.
+ *
+ * <p>A run stops before the next case once its thread is interrupted, or once the project is compiled again, and
+ * reports itself {@link TestExecutionStatus#INTERRUPTED interrupted}. The results of the cases that ran are kept.
+ */
 @Service
 public class TestsExecutorServiceImpl implements TestsExecutorService {
 
@@ -31,12 +41,12 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     public CompletableFuture<TestRun> runAll(ProjectTestsExecutionProgressListener listener,
                                              ProjectModel projectModel,
                                              boolean currentOpenedModule) {
-        var rerun = TestsRerun.of(projectModel, currentOpenedModule);
+        var run = new Compiled(projectModel, currentOpenedModule);
         var testMethods = currentOpenedModule ? projectModel.getOpenedModuleTestMethods() : projectModel.getAllTestMethods();
         var notRun = notRunTables(projectModel, testMethods, currentOpenedModule);
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
-        runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
+        runAllTests(listener, executionResult, run, testMethods);
         return CompletableFuture.completedFuture(new TestRun(executionResult, notRun));
     }
 
@@ -61,7 +71,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                                                      ProjectModel projectModel,
                                                      IOpenLTable table,
                                                      boolean currentOpenedModule) {
-        var rerun = TestsRerun.of(projectModel, currentOpenedModule);
+        var run = new Compiled(projectModel, currentOpenedModule);
         var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
         var executionResult = new ArrayList<TestUnitsResults>();
@@ -71,7 +81,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             return CompletableFuture.completedFuture(new TestRun(executionResult));
         }
         var testMethods = projectModel.getTestMethods(uri, currentOpenedModule);
-        runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
+        runAllTests(listener, executionResult, run, testMethods);
         return CompletableFuture.completedFuture(new TestRun(executionResult));
     }
 
@@ -82,81 +92,113 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                                                 IOpenLTable table,
                                                 String testRanges,
                                                 boolean currentOpenedModule) {
-        var rerun = TestsRerun.of(projectModel, currentOpenedModule);
+        var run = new Compiled(projectModel, currentOpenedModule);
         var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         if (method instanceof TestSuiteMethod testSuiteMethod) {
-            TestSuite testSuite;
-            if (testRanges == null) {
-                // Run all test cases of selected test suite
-                testSuite = new TestSuite(testSuiteMethod);
-            } else {
-                // Run only selected test cases of selected test suite
-                var indices = testSuiteMethod.getIndices(testRanges);
-                testSuite = new TestSuite(testSuiteMethod, indices);
+            // Every case of the test table, or only the cases the ranges name.
+            var testSuite = testRanges == null
+                    ? new TestSuite(testSuiteMethod)
+                    : new TestSuite(testSuiteMethod, testSuiteMethod.getIndices(testRanges));
+            var unitsResult = run.test(testSuite);
+            if (unitsResult != null) {
+                listener.onTestUnitExecuted(unitsResult);
+                executionResult.add(unitsResult);
             }
-            var unitsResult = RetainedTestUnit.retain(projectModel.runTest(testSuite, currentOpenedModule), rerun);
-            listener.onTestUnitExecuted(unitsResult);
-            executionResult.add(unitsResult);
-            listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(new TestRun(executionResult));
         }
-        listener.onStatusChanged(TestExecutionStatus.COMPLETED);
+        listener.onStatusChanged(run.stopped() ? TestExecutionStatus.INTERRUPTED : TestExecutionStatus.COMPLETED);
         return CompletableFuture.completedFuture(new TestRun(executionResult));
     }
 
     private void runAllTests(ProjectTestsExecutionProgressListener listener,
                              List<TestUnitsResults> executionResult,
-                             ProjectModel model,
-                             TestSuiteMethod[] tests,
-                             boolean currentOpenedModule,
-                             TestsRerun rerun) {
+                             Compiled run,
+                             TestSuiteMethod[] tests) {
         if (Arrays.isEmpty(tests)) {
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
             return;
         }
 
-        var interrupted = false;
         for (TestSuiteMethod testSuiteMethod : tests) {
-            if (Thread.currentThread().isInterrupted()) {
-                listener.onStatusChanged(TestExecutionStatus.INTERRUPTED);
-                interrupted = true;
+            var testUnitsResults = runSingleTest(run, testSuiteMethod);
+            if (testUnitsResults == null) {
                 break;
             }
-            var testUnitsResults = runSingleTest(model, testSuiteMethod, currentOpenedModule, rerun);
             executionResult.add(testUnitsResults);
             listener.onTestUnitExecuted(testUnitsResults);
         }
-        if (!interrupted) {
-            listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-        }
+        listener.onStatusChanged(run.stopped() ? TestExecutionStatus.INTERRUPTED : TestExecutionStatus.COMPLETED);
     }
 
-    private TestUnitsResults runSingleTest(ProjectModel model,
-                                           TestSuiteMethod testSuiteMethod,
-                                           boolean currentOpenedModule,
-                                           TestsRerun rerun) {
+    /**
+     * Runs one test table.
+     *
+     * @return the results of its cases, or {@code null} when the run was stopped before the table
+     */
+    private static @Nullable TestUnitsResults runSingleTest(Compiled run, TestSuiteMethod testSuiteMethod) {
+        if (run.stopped()) {
+            return null;
+        }
         var testedMethod = testSuiteMethod.getTestedMethod();
         var testSuite = new TestSuite(testSuiteMethod);
-        TestUnitsResults testUnitsResults;
         Collection<IOpenMethod> methods = testedMethod instanceof OpenMethodDispatcher dispatcher
                 ? dispatcher.getCandidates()
                 : Set.of(testedMethod);
         var noErrors = true;
         for (IOpenMethod method : methods) {
-            if (!model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty()) {
+            if (!run.model().getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty()) {
                 noErrors = false;
                 break;
             }
         }
-        if (currentOpenedModule || noErrors) {
-            testUnitsResults = RetainedTestUnit.retain(model.runTest(testSuite, currentOpenedModule), rerun);
-        } else {
-            testUnitsResults = new TestUnitsResults(testSuite);
-            testUnitsResults.setTestedRulesHaveErrors(true);
+        if (run.currentOpenedModule() || noErrors) {
+            return run.test(testSuite);
         }
+        var testUnitsResults = new TestUnitsResults(testSuite);
+        testUnitsResults.setTestedRulesHaveErrors(true);
         return testUnitsResults;
+    }
+
+    /**
+     * The project, or the module that is open, as it was compiled when a run started.
+     *
+     * @param model               the project the run runs in
+     * @param currentOpenedModule whether the run is of the module that is open rather than of the whole project
+     * @param compiled            what the run tests
+     * @param rerun               runs a case of the run again for the values the run gives back
+     */
+    private record Compiled(ProjectModel model,
+                            boolean currentOpenedModule,
+                            CompiledOpenClass compiled,
+                            TestsRerun rerun) {
+
+        Compiled(ProjectModel model, boolean currentOpenedModule) {
+            this(model, currentOpenedModule, compiledOf(model, currentOpenedModule));
+        }
+
+        private Compiled(ProjectModel model, boolean currentOpenedModule, CompiledOpenClass compiled) {
+            this(model, currentOpenedModule, compiled, TestsRerun.of(model, currentOpenedModule, compiled));
+        }
+
+        /**
+         * Runs a test table, or the cases of it a suite names.
+         *
+         * @return the results of the cases that ran, or {@code null} when the project was compiled again
+         */
+        @Nullable TestUnitsResults test(TestSuite testSuite) {
+            var results = model.runTest(testSuite, currentOpenedModule, compiled);
+            return results == null ? null : RetainedTestUnit.retain(results, rerun);
+        }
+
+        /** Whether the run is asked to stop, or tests what the project no longer is, or what was let go of. */
+        boolean stopped() {
+            return Thread.currentThread().isInterrupted() || !model.isCompiledAsRead(compiled, currentOpenedModule);
+        }
+
+        private static CompiledOpenClass compiledOf(ProjectModel model, boolean currentOpenedModule) {
+            return currentOpenedModule ? model.getOpenedModuleCompiledOpenClass() : model.getCompiledOpenClass();
+        }
     }
 }

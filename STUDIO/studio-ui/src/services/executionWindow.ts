@@ -13,9 +13,14 @@ export const EXECUTION_WINDOW_KEY = 'openl.execution.window'
 export const EXECUTION_EDITOR_NAVIGATION = 'openl:execution:navigate'
 let launchSequence = 0
 
+const hasStatus = (error: unknown, status: number): boolean =>
+    error !== null && typeof error === 'object' && 'status' in error && error.status === status
+
 /** A saved window may outlive the result retained by the server. */
-export const isMissingExecution = (error: unknown): boolean =>
-    error !== null && typeof error === 'object' && 'status' in error && error.status === 404
+export const isMissingExecution = (error: unknown): boolean => hasStatus(error, 404)
+
+/** A project was changed or reloaded since the execution started, so the server dropped what it produced. */
+export const isOutdatedExecution = (error: unknown): boolean => hasStatus(error, 410)
 
 /** Publishes a new execution to a result window that may already be open. Returns false if storage refused it. */
 export const publishExecution = (request: ExecutionWindowRequest): boolean => {

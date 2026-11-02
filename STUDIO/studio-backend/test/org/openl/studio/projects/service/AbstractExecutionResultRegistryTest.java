@@ -12,8 +12,10 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.studio.common.exception.GoneException;
 
 class AbstractExecutionResultRegistryTest {
 
@@ -192,11 +194,53 @@ class AbstractExecutionResultRegistryTest {
         assertTrue(registry.hasTask(projectId));
     }
 
+    @Test
+    void cancel_stopsTheTaskOfTheProject() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.cancel(projectId);
+
+        assertTrue(task.isCancelled());
+    }
+
+    @Test
+    void cancel_leavesTheTaskOfAnotherProjectGoing() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.cancel(otherProjectId);
+
+        assertFalse(task.isCancelled());
+    }
+
     // --- clear ---
 
     @Test
+    void clearOfTheProject_forgetsAndStopsItsTask() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.clear(projectId);
+
+        assertTrue(task.isCancelled());
+        assertFalse(registry.hasTask(projectId));
+    }
+
+    @Test
+    void clearOfAnotherProject_leavesTheTaskGoing() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.clear(otherProjectId);
+
+        assertFalse(task.isCancelled());
+        assertTrue(registry.hasTask(projectId));
+    }
+
+    @Test
     void clear_empty() {
-        assertDoesNotThrow(registry::clear);
+        assertDoesNotThrow(() -> registry.clear());
         assertFalse(registry.hasTask(projectId));
     }
 
@@ -220,5 +264,63 @@ class AbstractExecutionResultRegistryTest {
 
         assertFalse(task.isCancelled());
         assertFalse(registry.hasTask(projectId));
+    }
+
+    // --- workspace reset ---
+
+    @Test
+    void workspaceReset_marksTheResultsOfTheProjectOutdated() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+
+        assertTrue(task.isCancelled());
+        assertFalse(registry.hasTask(projectId));
+        assertTrue(registry.isOutdated(projectId));
+        assertFalse(registry.isOutdated(otherProjectId));
+        var gone = assertThrows(GoneException.class, () -> registry.refuseIfOutdated(projectId));
+        assertEquals("openl.error.410.execution.outdated.message", gone.getErrorCode());
+        assertDoesNotThrow(() -> registry.refuseIfOutdated(otherProjectId));
+    }
+
+    @Test
+    void resetOfAnotherProject_keepsTheExecution() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, otherProjectId));
+
+        assertFalse(task.isCancelled());
+        assertTrue(registry.hasTask(projectId));
+        assertFalse(registry.isOutdated(projectId));
+    }
+
+    @Test
+    void resetOfTheProject_dropsItsExecution() {
+        var task = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", task);
+
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, projectId));
+
+        assertTrue(task.isCancelled());
+        assertTrue(registry.isOutdated(projectId));
+    }
+
+    @Test
+    void workspaceReset_marksNothingWithoutAnExecution() {
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+
+        assertFalse(registry.isOutdated(projectId));
+    }
+
+    @Test
+    void registerTask_forgetsThatTheResultsWereOutdated() {
+        registry.setTask(projectId, "t1", CompletableFuture.completedFuture("done"));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+
+        registry.setTask(projectId, "t1", new CompletableFuture<>());
+
+        assertFalse(registry.isOutdated(projectId));
     }
 }

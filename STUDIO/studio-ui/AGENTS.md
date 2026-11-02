@@ -137,6 +137,10 @@ The build writes two pages (`build.rollupOptions.input`):
   said it ended counts no spell. A confirmed missing result also ends the wait, so the screen stops polling and
   shows that no result is available. For completed benchmarks, a missing saved list shows an empty measurement
   list; a missing project while a benchmark is pending remains an error.
+  While an execution goes on, its screen offers Stop (`useStopExecution`, `stopExecution` of `services/execution.ts`)
+  and, once it is stopped, says so; a stopped benchmark shows the measurements before it. A `410` from a read says the
+  project changed since the execution started (`isOutdatedExecution`): the server dropped what it produced, and the
+  screen says why instead of showing no results.
   The same result components render in the editor dialog and at `/execution-results`. The named browser window
   reads the latest launch from `services/executionWindow.ts` after refresh and receives later launches through
   the browser storage event. Every launch, including a run saved straight to a file, writes a new id even when

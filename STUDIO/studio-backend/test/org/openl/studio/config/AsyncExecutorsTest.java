@@ -1,11 +1,16 @@
 package org.openl.studio.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -63,5 +68,73 @@ class AsyncExecutorsTest {
         executor.destroy();
 
         assertTrue(ended.getNow(false));
+    }
+
+    @Test
+    void interruptsATaskWhoseFutureIsCancelled() throws Exception {
+        var interruptible = AsyncExecutors.createInterruptible("async-interruptible-pool-", 1, 1);
+        interruptible.afterPropertiesSet();
+        try {
+            var started = new CountDownLatch(1);
+            var interrupted = new CompletableFuture<Boolean>();
+            var future = interruptible.submitCompletable(() -> {
+                started.countDown();
+                try {
+                    new CountDownLatch(1).await(5, TimeUnit.SECONDS);
+                    interrupted.complete(false);
+                } catch (InterruptedException e) {
+                    interrupted.complete(true);
+                }
+                return "ended";
+            });
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            future.cancel(true);
+
+            assertTrue(interrupted.get(5, TimeUnit.SECONDS));
+            assertTrue(future.isCancelled());
+        } finally {
+            interruptible.destroy();
+        }
+    }
+
+    @Test
+    void neverStartsAQueuedTaskWhoseFutureIsCancelled() throws Exception {
+        var interruptible = AsyncExecutors.createInterruptible("async-interruptible-pool-", 1, 1);
+        interruptible.afterPropertiesSet();
+        try {
+            var release = new CountDownLatch(1);
+            var first = interruptible.submitCompletable(() -> release.await(5, TimeUnit.SECONDS));
+            var queuedStarted = new AtomicBoolean();
+            var queued = interruptible.submitCompletable(() -> queuedStarted.getAndSet(true));
+
+            queued.cancel(true);
+            release.countDown();
+
+            assertTrue(first.get(5, TimeUnit.SECONDS));
+            // The pool has one thread: once a task after the cancelled one ends, the cancelled one had its turn.
+            assertEquals("next", interruptible.submitCompletable(() -> "next").get(5, TimeUnit.SECONDS));
+            assertFalse(queuedStarted.get());
+        } finally {
+            interruptible.destroy();
+        }
+    }
+
+    @Test
+    void completesTheFutureTheWayItsTaskEnds() throws Exception {
+        var interruptible = AsyncExecutors.createInterruptible("async-interruptible-pool-", 1, 1);
+        interruptible.afterPropertiesSet();
+        try {
+            assertEquals("done", interruptible.submitCompletable(() -> "done").get(5, TimeUnit.SECONDS));
+
+            var failure = new IllegalStateException("broken");
+            var failed = interruptible.submitCompletable(() -> {
+                throw failure;
+            });
+            var thrown = assertThrows(ExecutionException.class, () -> failed.get(5, TimeUnit.SECONDS));
+            assertSame(failure, thrown.getCause());
+        } finally {
+            interruptible.destroy();
+        }
     }
 }

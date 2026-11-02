@@ -25,7 +25,7 @@ import {
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
-import { isMissingExecution } from 'services/executionWindow'
+import { isMissingExecution, isOutdatedExecution } from 'services/executionWindow'
 import { savedTestsOptions } from 'store/settingsStore'
 import type {
     TestAssertionResult,
@@ -41,7 +41,7 @@ import { formatSmartNumber } from 'utils/smartNumber'
 import { CompoundResultOption, CountSelect, FailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
-import { ExecutionErrors, ExecutionModal, ExecutionWindowContext, nameOf } from './ExecutionModal'
+import { ExecutionErrors, ExecutionModal, ExecutionWindowContext, nameOf, useStopExecution } from './ExecutionModal'
 
 const { Text, Title } = Typography
 
@@ -324,14 +324,18 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     )
     const [failure, setFailure] = useState<string | null>(null)
     const [missing, setMissing] = useState(false)
+    // Why the results are gone: the project changed since the tests started.
+    const [outdated, setOutdated] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
+    const { stopped, stopError, stopButton } = useStopExecution(projectId, 'tests')
 
     const topics = testsTopics(projectId, tableId)
     const progress = useExecutionProgress(topics.status, topics.results)
 
     const finished = isFinished(progress.status)
-    const quietSpells = useQuietSpells(progress, summary === null && !missing)
+    const interrupted = stopped || progress.status === 'INTERRUPTED'
+    const quietSpells = useQuietSpells(progress, summary === null && !missing && outdated === null && !stopped)
 
     // The run says when it has ended, and the results are read then. The screen also reads once as soon as it is
     // listening, for a run that ended before the window was there to hear about it, whenever the reader changes
@@ -354,10 +358,10 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                 if (active && !isStillRunning(readError)) {
                     if (isMissingExecution(readError)) {
                         setMissing(true)
-                        setFailure(errorMessage(readError))
-                    } else {
-                        setFailure(errorMessage(readError))
+                    } else if (isOutdatedExecution(readError)) {
+                        setOutdated(errorMessage(readError))
                     }
+                    setFailure(errorMessage(readError))
                 }
             })
         return () => {
@@ -385,13 +389,19 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                     : t('tests.running')}
             />
         )
-        if (missing) {
+        const running = outdated === null && !interrupted && !missing && !testsFailed
+        if (outdated !== null) {
+            content = <Result data-testid="tests-outdated" status="warning" title={outdated} />
+        } else if (interrupted) {
+            content = <Result data-testid="tests-stopped" status="warning" title={t('tests.stopped')} />
+        } else if (missing) {
             content = <Empty description={t('noResults')} />
         } else if (testsFailed) {
             content = <Result status="error" subTitle={progress.error ?? failure ?? undefined} title={t('tests.startFailed')} />
         }
         return (
-            <ExecutionModal onClose={onClose} openOptions={query} title={t('tests.title')}>
+            <ExecutionModal extra={running && stopButton} onClose={onClose} openOptions={query} title={t('tests.title')}>
+                {stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />}
                 {content}
             </ExecutionModal>
         )

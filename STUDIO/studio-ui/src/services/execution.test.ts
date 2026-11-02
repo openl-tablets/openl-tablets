@@ -9,6 +9,7 @@ import {
     readTestsSummaryWorkbook,
     runTests,
     startRun,
+    stopExecution,
     XLSX_MEDIA_TYPE,
 } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
@@ -53,6 +54,18 @@ describe('execution service', () => {
 
         await runTests('p1')
         expect(call.mock.calls[1]?.[0]).toBe('/projects/p1/tests/run')
+    })
+
+    it('stops a test run, a run or a benchmark through the address of each', async () => {
+        await stopExecution('p1', 'tests')
+        await stopExecution('p1', 'run')
+        await stopExecution('p1', 'benchmark')
+
+        expect(call.mock.calls.map(([url, init]) => [url, (init as RequestInit).method])).toEqual([
+            ['/projects/p1/tests/run', 'DELETE'],
+            ['/projects/p1/run', 'DELETE'],
+            ['/projects/p1/benchmarks/running', 'DELETE'],
+        ])
     })
 
     it('asks the summary for what the results screen shows', async () => {

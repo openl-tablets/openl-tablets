@@ -1,7 +1,8 @@
 package org.openl.rules.testmethod;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class TestSuite implements INamedThing {
     public TestSuite(TestSuiteMethod testSuiteMethod, int... testIndices) {
         this.testSuiteMethod = testSuiteMethod;
         tests = new TestDescription[testIndices.length];
-        for (int i = 0; i < testIndices.length; i++) {
+        for (var i = 0; i < testIndices.length; i++) {
             tests[i] = testSuiteMethod.getTest(testIndices[i]);
         }
     }
@@ -51,23 +52,34 @@ public class TestSuite implements INamedThing {
         return tests[testNumber];
     }
 
+    /**
+     * Runs the cases on the threads of the executor, each thread taking every n-th case.
+     *
+     * <p>A caller asked to stop has the threads run no further case, and asks the threads running a case to stop too.
+     * It waits for the cases already running, and the results hold the cases that ran; the caller stays interrupted,
+     * so it sees why the results are short.
+     */
     public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor,
                                            final IOpenClass openClass,
                                            final int ntimes) {
-        final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
-        Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
+        final var THREAD_COUNT = testSuiteExecutor.getThreadCount();
+        var threadPoolExecutor = testSuiteExecutor.getExecutor();
 
-        final TestUnitsResults testUnitResults = new TestUnitsResults(this);
-        final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        final var testUnitResults = new TestUnitsResults(this);
+        final var countDownLatch = new CountDownLatch(THREAD_COUNT);
         final ITestUnit[] testUnitResultsArray = new ITestUnit[getNumberOfTests()];
+        // A caller asked to stop before the threads start has them run no case at all.
+        final var workers = new Workers(Thread.currentThread().isInterrupted());
 
-        for (int i = 0; i < THREAD_COUNT; i++) {
-            final int numThread = i;
+        for (var i = 0; i < THREAD_COUNT; i++) {
+            final var numThread = i;
             Runnable runnable = () -> {
                 try {
-                    for (int j = 0; j < getNumberOfTests(); j++) {
-                        if (j % THREAD_COUNT == numThread) {
+                    for (var j = numThread; j < getNumberOfTests() && workers.enter(); j += THREAD_COUNT) {
+                        try {
                             testUnitResultsArray[j] = executeTest(openClass, j, ntimes);
+                        } finally {
+                            workers.leave();
                         }
                     }
                 } catch (Exception e) {
@@ -80,25 +92,82 @@ public class TestSuite implements INamedThing {
         }
         try {
             countDownLatch.await();
-        } catch (InterruptedException ignored) {
-            // Restore interrupted state...
+        } catch (InterruptedException e) {
+            workers.stop();
+            awaitRunningCases(countDownLatch);
             Thread.currentThread().interrupt();
         }
-        for (int i = 0; i < getNumberOfTests(); i++) {
-            testUnitResults.addTestUnit(testUnitResultsArray[i]);
+        // A case that did not run - the caller was interrupted, or the case failed to run - has no result to show.
+        for (ITestUnit testUnit : testUnitResultsArray) {
+            if (testUnit != null) {
+                testUnitResults.addTestUnit(testUnit);
+            }
         }
         return testUnitResults;
+    }
+
+    /** The threads running a case of a parallel run, asked to stop together with the run. */
+    private static final class Workers {
+        private final Set<Thread> running = new HashSet<>();
+        private boolean stopped;
+
+        Workers(boolean stopped) {
+            this.stopped = stopped;
+        }
+
+        /** Lets the thread take a case, unless the run is asked to stop. */
+        synchronized boolean enter() {
+            if (stopped) {
+                return false;
+            }
+            running.add(Thread.currentThread());
+            return true;
+        }
+
+        /** The thread ran its case: asking the run to stop no longer reaches it. */
+        synchronized void leave() {
+            running.remove(Thread.currentThread());
+        }
+
+        /** Takes no further case, and asks the threads running a case to stop. */
+        synchronized void stop() {
+            stopped = true;
+            running.forEach(Thread::interrupt);
+        }
+    }
+
+    /**
+     * Waits for the cases the threads are running when the caller is asked to stop, so that their results are read
+     * once they are written. The caller restores its interruption afterwards.
+     */
+    @SuppressWarnings("java:S2142")
+    private static void awaitRunningCases(CountDownLatch countDownLatch) {
+        var ended = false;
+        while (!ended) {
+            try {
+                countDownLatch.await();
+                ended = true;
+            } catch (InterruptedException again) {
+                // Asked to stop once more: the cases that are running end all the same.
+            }
+        }
     }
 
     public TestUnitsResults invokeSequentially(final IOpenClass openClass, int ntimes) {
         return invokeSequentially(openClass, ntimes, null);
     }
 
-    /** Run the suite, attaching {@code tracer} to each test's environment so a debug session can observe it. */
+    /**
+     * Runs the cases one after another, attaching {@code tracer} to each test's environment so a debug session can
+     * observe it.
+     *
+     * <p>A thread asked to stop runs no further case. The results hold the cases that ran, and the thread stays
+     * interrupted, so the caller sees why the results are short.
+     */
     public TestUnitsResults invokeSequentially(final IOpenClass openClass, int ntimes, Tracer tracer) {
-        TestUnitsResults testUnitResults = new TestUnitsResults(this);
-        for (int i = 0; i < getNumberOfTests(); i++) {
-            final ITestUnit testUnit = executeTest(openClass, i, ntimes, tracer);
+        var testUnitResults = new TestUnitsResults(this);
+        for (var i = 0; i < getNumberOfTests() && !Thread.currentThread().isInterrupted(); i++) {
+            final var testUnit = executeTest(openClass, i, ntimes, tracer);
             testUnitResults.addTestUnit(testUnit);
         }
 
@@ -110,19 +179,19 @@ public class TestSuite implements INamedThing {
     }
 
     public ITestUnit executeTest(IOpenClass openClass, int test, int ntimes, Tracer tracer) {
-        TestDescription currentTest = getTest(test);
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        var currentTest = getTest(test);
+        var env = new SimpleRulesVM().getRuntimeEnv();
         env.setTracer(tracer);
-        final Object target = openClass.newInstance(env);
+        final var target = openClass.newInstance(env);
         return testRunner.runTest(currentTest, target, env, ntimes);
     }
 
     public TestUnitsResults invoke(Object target, IRuntimeEnv env) {
-        TestUnitsResults testUnitResults = new TestUnitsResults(this);
+        var testUnitResults = new TestUnitsResults(this);
 
-        for (int i = 0; i < getNumberOfTests(); i++) {
-            TestDescription currentTest = getTest(i);
-            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, 1);
+        for (var i = 0; i < getNumberOfTests(); i++) {
+            var currentTest = getTest(i);
+            var testUnit = testRunner.runTest(currentTest, target, env, 1);
             testUnitResults.addTestUnit(testUnit);
         }
 
@@ -137,34 +206,30 @@ public class TestSuite implements INamedThing {
     public String getName() {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getName();
-        } else {
-            return VIRTUAL_TEST_SUITE;
         }
+        return VIRTUAL_TEST_SUITE;
     }
 
     public IOpenMethod getTestedMethod() {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getTestedMethod();
-        } else {
-            return tests[0].getTestedMethod();
         }
+        return tests[0].getTestedMethod();
     }
 
     @Override
     public String getDisplayName(int mode) {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getDisplayName(mode);
-        } else {
-            return getName();
         }
+        return getName();
     }
 
     public String getUri() {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getSourceUrl();
-        } else {
-            return getTestedMethod().getInfo().getSourceUrl();
         }
+        return getTestedMethod().getInfo().getSourceUrl();
     }
 
     /**

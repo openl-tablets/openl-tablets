@@ -116,8 +116,42 @@ A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both trav
   the project while it is merged. See
   [`Docs/api/projects-merge-architecture.md`](../../Docs/api/projects-merge-architecture.md).
 
-## User Settings
+## Test Runs, Runs and Benchmarks
 
+- **An execution never holds the session.** A test run, a run and a benchmark run on the `testSuiteExecutor` pool,
+  against the compilation they read when they started (`ProjectModel.runTest(TestSuite, boolean, CompiledOpenClass)`)
+  and outside the `ProjectModel` monitor, so the editor reads and writes the project while they go on. A test run
+  takes the monitor only between test tables, for a short read; nothing an execution calls while a test case runs
+  may take it.
+- **What an execution runs on is let go of after it.** Tests, runs and benchmarks run the rules through
+  `ProjectModel.execute` (`runTest` calls it), which sets the classes of the project as the context class loader. Before
+  `ProjectModel` lets go of what was compiled — closing the project (`clearModuleInfo`), releasing the dependency
+  manager, dropping a module (`dropCompiled`) — it interrupts the threads inside `execute` and waits, holding the
+  monitor, for the case each of them runs. No execution starts while it lets go: one asked for waits, then reads what is
+  compiled by then, so a test read from the compilation let go of runs nothing. Neither wait ends on an interruption:
+  the thread stays asked to stop once it is safe. A case never runs on classes or jars let go of, and the editor waits
+  one case, or one measurement of a benchmark, at the most.
+- **Cancelling stops the work.** The pool is `AsyncExecutors.createInterruptible`: cancelling the future of an `@Async`
+  method interrupts its thread, which `TestSuite.invokeSequentially` and the loops of the executors check between test
+  cases; `TestSuite.invokeParallel`, used when the settings give a test run several threads, has its threads take no
+  further case and interrupts the cases they run. Rules that fail on the interruption, such as a `Thread.sleep` in a
+  rule, clear it; `TestRunner` sets it again, so the next case does not run. The default future of Spring ignores the
+  interruption, so a pool whose work is cancelled must be built this way.
+- **Stop answers for its project.** `DELETE` of a running execution cancels it only when the session runs it for the
+  project of the path (`AbstractExecutionResultRegistry.cancel(ProjectId)`). `DELETE /projects/{projectId}/run` also
+  clears the run of that project alone (`clear(ProjectId)`): the MCP server calls it to leave no run behind, and
+  `task_EPBDS-15752` reads no result after it. The window hides Stop once the run reports its end, so a Stop clearing a
+  run that has just ended is left to the time of one request.
+- **A reset of the workspace ends the execution.** A `WorkspaceResetEvent` cancels the execution of the session and
+  drops what it produced, finished or not, the earlier benchmarks included. An edit of the module open
+  (`WebStudio.rebuildCurrentModule`, `recompileCurrentModule`) names its project, and an execution of another project
+  stands (`WorkspaceResetEvent.concerns`); a reset of the projects of the session (`WebStudio.reset`: a save, a file
+  operation, a sync) names none and ends every execution, so the message says a project was changed or reloaded. The
+  registry remembers it, and a read of the results calls `AbstractExecutionResultRegistry.refuseIfOutdated`, which
+  answers `410` `execution.outdated.message` until the next execution starts. A test run also stops by itself once it
+  finds the project, or the module it tests, compiled again or let go of (`ProjectModel.isCompiledAsRead`: a release
+  marks what the model holds as let go of, though the model hands it out until it is compiled again); it keeps the
+  tables that ran and reports itself interrupted.  ## User Settings
 - **User administration is administrator-only.** `PUT /rest/users/{username}` can change groups and set a password
   without the current one, so only `@AdminPrivilege` may guard it. A user changes their own details through
   `PUT /rest/users/info` and their own password through `PUT /rest/users/profile`, which validates the current password.

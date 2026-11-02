@@ -138,6 +138,7 @@ public class ProjectsBenchmarkController {
     @ApiResponse(responseCode = "200", description = "benchmark.list.200.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     array = @ArraySchema(schema = @Schema(implementation = BenchmarkResult.class))))
+    @ApiResponse(responseCode = "410", description = "execution.outdated.410.desc")
     @ApiResponse(responseCode = "202", description = "benchmark.list.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping
@@ -145,6 +146,7 @@ public class ProjectsBenchmarkController {
     @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getBenchmarks(@ProjectId @PathVariable("projectId") RulesProject project) {
         var projectId = project.getProjectId();
+        benchmarkResultRegistry.refuseIfOutdated(projectId);
         if (benchmarkResultRegistry.hasTask(projectId) && !benchmarkResultRegistry.isDone(projectId)) {
             // The measurement goes on: the request is accepted, and there is nothing to report until it has ended.
             return ResultNotReadyView.accepted();
@@ -159,6 +161,15 @@ public class ProjectsBenchmarkController {
         return ResponseEntity.ok(measurements.stream()
                 .map(mapper::mapResult)
                 .toList());
+    }
+
+    @Operation(summary = "benchmark.stop.summary", description = "benchmark.stop.desc")
+    @ApiResponse(responseCode = "204", description = "benchmark.stop.204.desc")
+    @ChangesNothing
+    @DeleteMapping("/running")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void stopBenchmark(@ProjectId @PathVariable("projectId") RulesProject project) {
+        benchmarkResultRegistry.cancel(project.getProjectId());
     }
 
     @Operation(summary = "benchmark.delete.summary", description = "benchmark.delete.desc")

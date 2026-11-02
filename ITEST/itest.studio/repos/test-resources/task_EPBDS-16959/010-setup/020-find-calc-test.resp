@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "CalcTest",
+      "signature": "Calc CalcTest",
+      "file": "EPBDS-16959/Calc.xlsx",
+      "sheet": "Calc",
+      "pos": "B5:C9",
+      "module": "Calc",
+      "project": "EPBDS-16959",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

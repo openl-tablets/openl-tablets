@@ -276,6 +276,30 @@ export const deleteBenchmarks = async (projectId: string, ids: string[] = []): P
     )
 }
 
+/** The executions a results screen follows, by what stops each of them. */
+const STOP_PATHS = {
+    tests: '/tests/run',
+    run: '/run',
+    benchmark: '/benchmarks/running',
+} as const
+
+/** What a results screen follows: a test run, the run of one table, or a benchmark. */
+export type ExecutionKind = keyof typeof STOP_PATHS
+
+/**
+ * Stops the test run, the run or the benchmark going on in this session.
+ *
+ * It stops before its next test case or run of the rules, and reports itself interrupted on its topic. One that has
+ * already ended is left as it is.
+ */
+export const stopExecution = async (projectId: string, kind: ExecutionKind): Promise<void> => {
+    await apiCall(
+        projectUrl(projectId, STOP_PATHS[kind]),
+        { method: 'DELETE' },
+        { ...EXECUTION_API_OPTIONS, skipWorkspaceEvent: true }
+    )
+}
+
 /** Reads the test results as the workbook the user saves. */
 export const getTestsSummaryWorkbook = async (projectId: string, query: TestsQuery = {}): Promise<Blob> =>
     await readWorkbook(projectUrl(projectId, `/tests/summary?${testsQueryParams(query)}`))

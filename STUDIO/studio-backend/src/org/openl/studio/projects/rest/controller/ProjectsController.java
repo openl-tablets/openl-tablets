@@ -944,6 +944,15 @@ public class ProjectsController {
         executionTestsResultRegistry.setTask(projectId, testTask);
     }
 
+    @Operation(summary = "projects.tests.stop.summary", description = "projects.tests.stop.desc")
+    @ApiResponse(responseCode = "204", description = "projects.tests.stop.204.desc")
+    @ChangesNothing
+    @DeleteMapping("/{projectId}/tests/run")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void stopTests(@ProjectId @PathVariable("projectId") RulesProject project) {
+        executionTestsResultRegistry.cancel(project.getProjectId());
+    }
+
     /** The test suite the table compiles to: a test table or a run table, or {@code null} for any other table. */
     private static @Nullable TestSuiteMethod testSuiteOf(ProjectModel projectModel,
                                                          IOpenLTable table,
@@ -955,6 +964,7 @@ public class ProjectsController {
 
     @Operation(summary = "projects.tests.summary.summary")
     @ApiResponse(responseCode = "404", description = "projects.tests.summary.404.desc")
+    @ApiResponse(responseCode = "410", description = "execution.outdated.410.desc")
     @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @ApiResponse(responseCode = "406", description = "projects.tests.summary.406.desc")
@@ -1030,6 +1040,7 @@ public class ProjectsController {
     @ApiResponse(responseCode = "200", description = "projects.tests.case.200.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TestUnitExecutionResult.class)))
     @ApiResponse(responseCode = "404", description = "projects.tests.case.404.desc")
+    @ApiResponse(responseCode = "410", description = "execution.outdated.410.desc")
     @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}")
@@ -1067,6 +1078,7 @@ public class ProjectsController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ValueLevel.class)))
     @ApiResponse(responseCode = "404", description = "projects.tests.case.lines.404.desc")
+    @ApiResponse(responseCode = "410", description = "execution.outdated.410.desc")
     @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ResultNotReadyView.class)))
@@ -1207,6 +1219,7 @@ public class ProjectsController {
      */
     private Optional<TestRun> completedTests(RulesProject project) {
         var projectId = project.getProjectId();
+        executionTestsResultRegistry.refuseIfOutdated(projectId);
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
         }

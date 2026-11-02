@@ -2,7 +2,9 @@ import { MemoryRouter } from 'react-router'
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { getTestCaseLines, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary } from 'services/execution'
+import {
+    getTestCaseLines, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary, stopExecution,
+} from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
@@ -16,6 +18,7 @@ vi.mock('services/execution', () => ({
     readTestsSummary: vi.fn(),
     getTestCaseLines: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
+    stopExecution: vi.fn(),
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
 
@@ -59,6 +62,7 @@ const readEndedSummary = readTestsSummary as ReturnType<typeof vi.fn>
 const readWorkbook = getTestsSummaryWorkbook as ReturnType<typeof vi.fn>
 const readLines = getTestCaseLines as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
+const stop = stopExecution as ReturnType<typeof vi.fn>
 
 const driver = (name: string) => [{ name: 'driver', description: 'Driver', lazy: false, value: name }]
 
@@ -756,5 +760,46 @@ describe('TestsResultModal', () => {
         render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('No tests execution task found')).toBeInTheDocument()
+    })
+
+    it('stops the tests the reader asks to stop, and says they were stopped', async () => {
+        readSummary.mockReturnValue(new Promise(() => undefined))
+        stop.mockResolvedValue(undefined)
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        await userEvent.click(await screen.findByTestId('execution-stop'))
+
+        expect(stop).toHaveBeenCalledWith('p1', 'tests')
+        expect(await screen.findByTestId('tests-stopped')).toHaveTextContent('tests.stopped')
+        expect(screen.queryByTestId('execution-stop')).not.toBeInTheDocument()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
+    })
+
+    it('says the tests stopped when they report they were interrupted', async () => {
+        run.status = 'INTERRUPTED'
+        readSummary.mockReturnValue(new Promise(() => undefined))
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        expect(await screen.findByTestId('tests-stopped')).toBeInTheDocument()
+    })
+
+    it('says why the tests could not be stopped, and goes on waiting for them', async () => {
+        readSummary.mockReturnValue(new Promise(() => undefined))
+        stop.mockRejectedValue(new Error('The server is not available'))
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        await userEvent.click(await screen.findByTestId('execution-stop'))
+
+        expect(await screen.findByTestId('execution-stop-failed')).toHaveTextContent('The server is not available')
+        expect(screen.getByText('tests.running')).toBeInTheDocument()
+    })
+
+    it('says the project changed when the server dropped the results for it', async () => {
+        readSummary.mockRejectedValue(Object.assign(new Error('The project has changed'), { status: 410 }))
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        expect(await screen.findByTestId('tests-outdated')).toHaveTextContent('The project has changed')
+        expect(screen.queryByTestId('execution-stop')).not.toBeInTheDocument()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
     })
 })

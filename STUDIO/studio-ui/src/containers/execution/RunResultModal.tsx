@@ -14,14 +14,14 @@ import {
     type RunFileOptions,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
-import { isMissingExecution } from 'services/executionWindow'
+import { isMissingExecution, isOutdatedExecution } from 'services/executionWindow'
 import type { RunResult } from 'types/execution'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
 import { formatSmartNumber } from 'utils/smartNumber'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { runStatusTopic } from './topics'
-import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
+import { ExecutionErrors, ExecutionModal, nameOf, useStopExecution } from './ExecutionModal'
 
 /** The single row of the result table: the values the table ran with, and the value it returned. */
 interface RunRow {
@@ -100,12 +100,16 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
     const [result, setResult] = useState<RunResult | null>(null)
     const [failure, setFailure] = useState<string | null>(null)
     const [missing, setMissing] = useState(false)
+    // Why the result is gone: the project changed since the run started.
+    const [outdated, setOutdated] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
+    const { stopped, stopError, stopButton } = useStopExecution(projectId, 'run')
     const progress = useExecutionProgress(runStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
-    const quietSpells = useQuietSpells(progress, result === null && !missing)
+    const interrupted = stopped || progress.status === 'INTERRUPTED'
+    const quietSpells = useQuietSpells(progress, result === null && !missing && outdated === null && !stopped)
 
     // The run says when it has ended, and the result is read then. The screen also reads once as soon as it is
     // listening, for a run that ended before the window was there to hear about it, and again when the run has
@@ -127,6 +131,8 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
                 if (active && !isStillRunning(readError)) {
                     if (isMissingExecution(readError)) {
                         setMissing(true)
+                    } else if (isOutdatedExecution(readError)) {
+                        setOutdated(errorMessage(readError))
                     } else {
                         setFailure(errorMessage(readError))
                     }
@@ -149,13 +155,19 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
         const reason = progress.error ?? failure
         const runFailed = failure !== null || (finished && progress.status !== 'COMPLETED')
         let content = <RunningCard data-testid="run-running" description={t('run.running')} />
-        if (missing) {
+        const running = outdated === null && !interrupted && !missing && !runFailed
+        if (outdated !== null) {
+            content = <Result data-testid="run-outdated" status="warning" title={outdated} />
+        } else if (interrupted) {
+            content = <Result data-testid="run-stopped" status="warning" title={t('run.stopped')} />
+        } else if (missing) {
             content = <Empty description={t('noResults')} />
         } else if (runFailed) {
             content = <Result status="error" subTitle={reason ?? undefined} title={t('run.failed')} />
         }
         return (
-            <ExecutionModal onClose={onClose} title={t('run.title')}>
+            <ExecutionModal extra={running && stopButton} onClose={onClose} title={t('run.title')}>
+                {stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />}
                 {content}
             </ExecutionModal>
         )
