@@ -1,7 +1,7 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { getRunResult, getRunResultWorkbook, readRunResult } from 'services/execution'
+import { getRunResult, getRunResultWorkbook, readRunResult, stopExecution } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { RunResultModal } from 'containers/execution/RunResultModal'
@@ -11,6 +11,7 @@ vi.mock('services/execution', () => ({
     getRunResult: vi.fn(),
     readRunResult: vi.fn(),
     getRunResultWorkbook: vi.fn(),
+    stopExecution: vi.fn(),
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
 
@@ -53,6 +54,7 @@ const readResult = getRunResult as ReturnType<typeof vi.fn>
 const readEndedResult = readRunResult as ReturnType<typeof vi.fn>
 const readWorkbook = getRunResultWorkbook as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
+const stop = stopExecution as ReturnType<typeof vi.fn>
 
 const value = { tableName: 'DetermineVehiclePremium', executionTimeMs: 12.4 }
 
@@ -232,5 +234,35 @@ describe('RunResultModal', () => {
         expect(await screen.findByText('noResults')).toBeInTheDocument()
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
         expect(readResult).toHaveBeenCalledTimes(1)
+    })
+
+    it('stops the run the reader asks to stop, and says it was stopped', async () => {
+        readResult.mockReturnValue(new Promise(() => undefined))
+        stop.mockResolvedValue(undefined)
+        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+
+        await userEvent.click(await screen.findByTestId('execution-stop'))
+
+        expect(stop).toHaveBeenCalledWith('p1', 'run')
+        expect(await screen.findByTestId('run-stopped')).toHaveTextContent('run.stopped')
+        expect(screen.queryByTestId('execution-stop')).not.toBeInTheDocument()
+    })
+
+    it('says why the run could not be stopped', async () => {
+        readResult.mockReturnValue(new Promise(() => undefined))
+        stop.mockRejectedValue(new Error('The server is not available'))
+        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+
+        await userEvent.click(await screen.findByTestId('execution-stop'))
+
+        expect(await screen.findByTestId('execution-stop-failed')).toHaveTextContent('The server is not available')
+    })
+
+    it('says the project changed when the server dropped the result for it', async () => {
+        readResult.mockRejectedValue(Object.assign(new Error('The project has changed'), { status: 410 }))
+        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+
+        expect(await screen.findByTestId('run-outdated')).toHaveTextContent('The project has changed')
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
     })
 })

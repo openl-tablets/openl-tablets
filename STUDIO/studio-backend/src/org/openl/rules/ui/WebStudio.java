@@ -444,7 +444,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         // the compilation it followed, the results of the tests it ran, the trace it kept. None of that answers
         // for the module any more, so it is dropped — and the status says the module is waiting to be compiled
         // rather than reporting what the workbook used to say.
-        publishWorkspaceReset();
+        publishWorkspaceReset(true);
     }
 
     /**
@@ -466,7 +466,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return;
         }
         moduleToVerify.set(getCurrentModule());
-        publishWorkspaceReset();
+        publishWorkspaceReset(true);
         var compilation = model.getCurrentCompilation();
         if (announcedWrite.getAndSet(compilation) != compilation) {
             model.publishStatusChanged();
@@ -487,13 +487,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return rewrittenModule.get() != null;
     }
 
-    /** Tells the session's caches that what they hold was worked out from a workbook that has since changed. */
-    private void publishWorkspaceReset() {
+    /**
+     * Tells the session's caches that what they hold was worked out from a workbook that has since changed.
+     *
+     * @param currentProjectOnly whether only the project open changed, rather than any project of the session
+     */
+    private void publishWorkspaceReset(boolean currentProjectOnly) {
         if (eventPublisher == null) {
             return;
         }
         try {
-            eventPublisher.publishEvent(new WorkspaceResetEvent(this));
+            var project = currentProjectOnly ? getCurrentProject() : null;
+            eventPublisher.publishEvent(new WorkspaceResetEvent(this, project == null ? null : project.getProjectId()));
         } catch (RuntimeException e) {
             log.warn("Failed to publish workspace reset event", e);
         }
@@ -519,7 +524,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         // stale entries derived from the now-invalidated workspace state. A subscriber
         // failure must never break reset(): several critical flows (e.g. merge-conflict
         // resolution) rely on reset() completing so the workspace is left consistent.
-        publishWorkspaceReset();
+        publishWorkspaceReset(false);
     }
 
     private void reset(ReloadType reloadType) {

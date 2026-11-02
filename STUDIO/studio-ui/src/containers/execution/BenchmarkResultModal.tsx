@@ -6,14 +6,14 @@ import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
 import { ParameterValueList } from 'components/values/ParameterValues'
 import { deleteBenchmarks, getBenchmarks, readBenchmarks } from 'services/execution'
-import { isMissingExecution } from 'services/executionWindow'
+import { isMissingExecution, isOutdatedExecution } from 'services/executionWindow'
 import { isStillRunning } from 'services/taskResult'
 import type { BenchmarkResult } from 'types/execution'
 import { errorMessage } from 'utils/errorMessage'
 import { formatRate, formatRatio, formatTime, metricsOf } from './benchmarkMetrics'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { benchmarkStatusTopic } from './topics'
-import { ExecutionModal, ExecutionWindowContext } from './ExecutionModal'
+import { ExecutionModal, ExecutionWindowContext, useStopExecution } from './ExecutionModal'
 
 const { Text, Title } = Typography
 
@@ -62,22 +62,27 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
     const [picked, setPicked] = useState<string[]>([])
     const [compared, setCompared] = useState<string[] | null>(null)
     const [failure, setFailure] = useState<string | null>(null)
+    // Why the measurements are gone: the project changed since the benchmark started.
+    const [outdated, setOutdated] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [deleting, setDeleting] = useState(false)
+    const { stopped, stopError, stopButton } = useStopExecution(projectId, 'benchmark')
     const progress = useExecutionProgress(benchmarkStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
-    const quietSpells = useQuietSpells(progress, measurements === null && failure === null)
+    const interrupted = stopped || progress.status === 'INTERRUPTED'
+    const quietSpells = useQuietSpells(progress, measurements === null && failure === null && outdated === null)
 
-    // A benchmark that failed or was abandoned measured nothing; the rows of the ones before it are not its
-    // result, so the window says what went wrong instead of showing them.
-    const benchmarkFailed = failure !== null || (finished && progress.status !== 'COMPLETED')
+    // A benchmark that failed measured nothing; the rows of the ones before it are not its result, so the
+    // window says what went wrong instead of showing them. A benchmark that was stopped measured nothing either,
+    // and the window shows the rows before it, saying so.
+    const benchmarkFailed = failure !== null || (finished && progress.status !== 'COMPLETED' && !interrupted)
 
     // The benchmark says when it has ended. The screen also reads once as soon as it is listening, for a
     // measurement that ended before the window was there to hear about it. While it waits, a quiet spell also
     // prompts a read, because a disconnected socket cannot report that the measurement ended.
     useEffect(() => {
-        if (finished && progress.status !== 'COMPLETED') {
+        if (benchmarkFailed) {
             return undefined
         }
         let active = true
@@ -92,6 +97,8 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
                 if (active && !isStillRunning(readError)) {
                     if (finished && isMissingExecution(readError)) {
                         setMeasurements([])
+                    } else if (isOutdatedExecution(readError)) {
+                        setOutdated(errorMessage(readError))
                     } else {
                         setFailure(errorMessage(readError))
                     }
@@ -100,7 +107,7 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
         return () => {
             active = false
         }
-    }, [projectId, progress.subscribed, finished, quietSpells])
+    }, [projectId, progress.subscribed, finished, quietSpells, stopped, benchmarkFailed])
 
     const rows = measurements ?? []
 
@@ -223,9 +230,18 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
             row => formatRatio(ranking.get(row.id)?.ratio ?? Number.NaN, locale)),
     ]
 
-    if (measurements === null || benchmarkFailed) {
+    if (outdated !== null) {
         return (
             <ExecutionModal onClose={onClose} title={t('benchmark.title')}>
+                <Result data-testid="benchmark-outdated" status="warning" title={outdated} />
+            </ExecutionModal>
+        )
+    }
+
+    if (measurements === null || benchmarkFailed) {
+        return (
+            <ExecutionModal extra={!benchmarkFailed && !interrupted && stopButton} onClose={onClose} title={t('benchmark.title')}>
+                {stopError && <Alert showIcon data-testid="execution-stop-failed" title={stopError} type="error" />}
                 {benchmarkFailed
                     ? <Result status="error" subTitle={progress.error ?? failure ?? undefined} title={t('benchmark.failed')} />
                     : <RunningCard data-testid="benchmark-running" description={t('benchmark.running')} />}
@@ -260,6 +276,7 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
             )}
         >
             <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
+                {interrupted && <Alert showIcon data-testid="benchmark-stopped" title={t('benchmark.stopped')} type="warning" />}
                 {error && <Alert showIcon closable={{ onClose: () => setError(null) }} title={error} type="error" />}
                 {rows.length === 0
                     ? <Empty description={t('benchmark.none')} />

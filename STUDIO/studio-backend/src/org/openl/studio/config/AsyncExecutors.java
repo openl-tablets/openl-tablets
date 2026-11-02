@@ -1,5 +1,9 @@
 package org.openl.studio.config;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.FutureTask;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -32,7 +36,31 @@ public final class AsyncExecutors {
      * @return the pool, running each task with the security context and the client of the caller
      */
     public static ThreadPoolTaskExecutor create(String threadNamePrefix, int corePoolSize, int maxPoolSize) {
-        var exec = new ThreadPoolTaskExecutor();
+        return configure(new ThreadPoolTaskExecutor(), threadNamePrefix, corePoolSize, maxPoolSize);
+    }
+
+    /**
+     * Builds a pool whose tasks stop when they are cancelled.
+     *
+     * <p>A method run on the pool through {@code @Async} hands back a future. Cancelling that future interrupts the
+     * thread the task runs on, so a task that watches for the interruption ends early, and a task still waiting in
+     * the queue never starts. The pool is otherwise the one {@link #create} builds.
+     *
+     * @param threadNamePrefix the prefix of the names of its threads
+     * @param corePoolSize     how many tasks it runs at once while its queue has room
+     * @param maxPoolSize      how many tasks it runs at once when its queue is full
+     * @return the pool, running each task with the security context and the client of the caller
+     */
+    public static ThreadPoolTaskExecutor createInterruptible(String threadNamePrefix,
+                                                             int corePoolSize,
+                                                             int maxPoolSize) {
+        return configure(new InterruptibleTaskExecutor(), threadNamePrefix, corePoolSize, maxPoolSize);
+    }
+
+    private static ThreadPoolTaskExecutor configure(ThreadPoolTaskExecutor exec,
+                                                    String threadNamePrefix,
+                                                    int corePoolSize,
+                                                    int maxPoolSize) {
         exec.setThreadNamePrefix(threadNamePrefix);
         exec.setCorePoolSize(corePoolSize);
         exec.setMaxPoolSize(maxPoolSize);
@@ -41,5 +69,36 @@ public final class AsyncExecutors {
         exec.setWaitForTasksToCompleteOnShutdown(true);
         exec.setTaskDecorator(task -> new DelegatingSecurityContextRunnable(AuditClient.carry(task)));
         return exec;
+    }
+
+    /**
+     * A pool whose futures stop their tasks.
+     *
+     * <p>The future Spring makes for an {@code @Async} method ignores a request to interrupt the task. This one
+     * passes the cancellation on to the task.
+     */
+    private static final class InterruptibleTaskExecutor extends ThreadPoolTaskExecutor {
+
+        @Override
+        public <T> CompletableFuture<T> submitCompletable(Callable<T> task) {
+            var result = new CompletableFuture<T>();
+            var running = new FutureTask<>(task) {
+                @Override
+                protected void done() {
+                    switch (state()) {
+                        case SUCCESS -> result.complete(resultNow());
+                        case FAILED -> result.completeExceptionally(exceptionNow());
+                        default -> result.cancel(false);
+                    }
+                }
+            };
+            result.whenComplete((value, failure) -> {
+                if (result.isCancelled()) {
+                    running.cancel(true);
+                }
+            });
+            execute(running);
+            return result;
+        }
     }
 }

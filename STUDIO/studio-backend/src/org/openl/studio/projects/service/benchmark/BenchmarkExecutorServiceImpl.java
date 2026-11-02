@@ -60,7 +60,7 @@ public class BenchmarkExecutorServiceImpl extends AbstractMethodExecutorService 
                     ? suiteOf(testSuiteMethod, testRanges)
                     : new TestSuite(new TestDescription(method, runtimeContext, params,
                             getDb(projectModel, currentOpenedModule)));
-            return measure(projectModel, table, testSuite, currentOpenedModule);
+            return projectModel.execute(() -> measure(projectModel, table, testSuite, currentOpenedModule));
         });
     }
 

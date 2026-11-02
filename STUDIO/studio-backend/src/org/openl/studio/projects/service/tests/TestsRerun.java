@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tests;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -36,9 +37,10 @@ public interface TestsRerun {
      *
      * @param model               the project the run runs in
      * @param currentOpenedModule whether the run is of the module that is open rather than of the whole project
+     * @param compiled            what the run tests: the project, or the module that is open, as compiled when it
+     *                            started
      */
-    static TestsRerun of(ProjectModel model, boolean currentOpenedModule) {
-        var compiled = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass() : model.getCompiledOpenClass();
+    static TestsRerun of(ProjectModel model, boolean currentOpenedModule, CompiledOpenClass compiled) {
         return (method, test) -> {
             var results = model.runTest(new TestSuite(method, test.getIndex()), currentOpenedModule, compiled);
             return results == null || results.getTestUnits().isEmpty() ? null : results.getTestUnits().getFirst();

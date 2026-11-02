@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,6 +109,15 @@ public class ProjectModel {
      */
     private final AtomicReference<CompiledOpenClass> compiledOpenClass = new AtomicReference<>();
     private final AtomicReference<CompiledOpenClass> openedModuleCompiledOpenClass = new AtomicReference<>();
+    /** The threads running rules of the project now. What was compiled is let go of only once none of them uses it. */
+    private final Set<Thread> executions = new HashSet<>();
+    /** How many releases of what was compiled go on now: no execution starts meanwhile. Guarded by executions. */
+    private int releases;
+    /**
+     * What was compiled when a release let go of what it was compiled with: it is no longer run, though the model may
+     * hand it out until it is compiled again. Guarded by executions.
+     */
+    private final Set<CompiledOpenClass> released = Collections.newSetFromMap(new WeakHashMap<>());
     @Getter
     private volatile boolean compilationInProgress;
     /**
@@ -1063,7 +1075,8 @@ public class ProjectModel {
     /**
      * Drops what the session compiled from the workbook of the module, and from every module using it.
      *
-     * <p>Nothing is compiled here: each of them is built from its workbook the next time it is asked for.
+     * <p>Nothing is compiled here: each of them is built from its workbook the next time it is asked for. An execution
+     * running stops after the case it is running, and that case ends first.
      *
      * <p>The session may hold nothing compiled at all — the module was cleared when its project was closed
      * elsewhere — and then there is nothing to drop.
@@ -1071,18 +1084,24 @@ public class ProjectModel {
      * @param module the module to build from its workbook again
      */
     synchronized void dropCompiled(Module module) {
-        if (webStudioWorkspaceDependencyManager != null) {
-            webStudioWorkspaceDependencyManager.reset(AbstractDependencyManager.buildResolvedDependency(module));
-        }
+        releasing(() -> {
+            if (webStudioWorkspaceDependencyManager != null) {
+                webStudioWorkspaceDependencyManager.reset(AbstractDependencyManager.buildResolvedDependency(module));
+            }
+        });
     }
 
-    public synchronized TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
-        Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
-        var isParallel = threads != null && threads > 1;
-        return runTest(test,
-                isParallel,
-                currentOpenedModule ? openedModuleCompiledOpenClass.get().getOpenClassWithErrors()
-                        : compiledOpenClass.get().getOpenClassWithErrors());
+    /**
+     * Runs a test against the whole project, or the module that is open, as compiled now.
+     *
+     * <p>The test does not hold the session: the editor reads and writes the project while it runs. Letting go of
+     * what was compiled stops the test after the case it is running.
+     */
+    public TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
+        return execute(project -> {
+            var compiled = currentOpenedModule ? openedModuleCompiledOpenClass.get() : project;
+            return runTest(test, compiled.getOpenClassWithErrors());
+        });
     }
 
     /**
@@ -1094,24 +1113,142 @@ public class ProjectModel {
      * @param compiled what the test was read from: the whole project, or the module that was open
      * @return the results, or {@code null} when it was compiled again since
      */
-    public synchronized @Nullable TestUnitsResults runTest(TestSuite test,
-                                                           boolean currentOpenedModule,
-                                                           CompiledOpenClass compiled) {
-        var current = currentOpenedModule ? openedModuleCompiledOpenClass.get() : compiledOpenClass.get();
-        return current == compiled ? runTest(test, currentOpenedModule) : null;
+    public @Nullable TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule, CompiledOpenClass compiled) {
+        return execute(project -> isCompiledAsRead(compiled, currentOpenedModule)
+                ? runTest(test, compiled.getOpenClassWithErrors())
+                : null);
     }
 
-    private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
-        var oldClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.get().getClassLoader());
-            if (!isParallel) {
-                return test.invokeSequentially(openClass, 1);
-            }
-            return test.invokeParallel(testSuiteExecutor, openClass, 1);
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+    /**
+     * Whether the project, or the module that is open, is still compiled the way it was read: it was not compiled
+     * again, and what it was compiled with was not let go of.
+     *
+     * @param compiled what was read: the whole project, or the module that was open
+     */
+    public boolean isCompiledAsRead(CompiledOpenClass compiled, boolean currentOpenedModule) {
+        var current = currentOpenedModule ? openedModuleCompiledOpenClass.get() : compiledOpenClass.get();
+        synchronized (executions) {
+            return current == compiled && !released.contains(compiled);
         }
+    }
+
+    private TestUnitsResults runTest(TestSuite test, IOpenClass openClass) {
+        Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
+        var isParallel = threads != null && threads > 1;
+        return isParallel
+                ? test.invokeParallel(testSuiteExecutor, openClass, 1)
+                : test.invokeSequentially(openClass, 1);
+    }
+
+    /** Work that runs the rules of the project: test cases, a run, a benchmark. */
+    @FunctionalInterface
+    public interface Execution<T, E extends Exception> {
+        T run() throws E;
+    }
+
+    /** Work that runs the rules of the project as compiled when it is let start. */
+    @FunctionalInterface
+    private interface ExecutionOf<T, E extends Exception> {
+        T run(@Nullable CompiledOpenClass project) throws E;
+    }
+
+    /**
+     * Runs rules of the project, as compiled now, outside the session: the editor reads and writes the project while
+     * they run.
+     *
+     * <p>The classes of the project are the context class loader meanwhile. Letting go of what was compiled
+     * interrupts the execution and waits for it to return, so it should check the interruption between test cases.
+     * An execution asked for while what was compiled is let go of starts once it is, on what is compiled then.
+     */
+    public <T, E extends Exception> T execute(Execution<T, E> execution) throws E {
+        return execute(project -> execution.run());
+    }
+
+    private <T, E extends Exception> T execute(ExecutionOf<T, E> execution) throws E {
+        var thread = Thread.currentThread();
+        var oldClassLoader = thread.getContextClassLoader();
+        var project = admit(thread);
+        try {
+            thread.setContextClassLoader(project == null ? oldClassLoader : project.getClassLoader());
+            return execution.run(project);
+        } finally {
+            thread.setContextClassLoader(oldClassLoader);
+            synchronized (executions) {
+                executions.remove(thread);
+                executions.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * Lets an execution start: once no release of what was compiled goes on, the thread is counted among the
+     * executions, and the project is read as compiled then.
+     *
+     * <p>A thread asked to stop meanwhile waits all the same, and stays asked to stop: it runs no case.
+     *
+     * @return the project as compiled, or {@code null} when nothing is
+     */
+    private @Nullable CompiledOpenClass admit(Thread thread) {
+        synchronized (executions) {
+            var interrupted = awaitExecutions(() -> releases == 0);
+            executions.add(thread);
+            if (interrupted) {
+                thread.interrupt();
+            }
+            return compiledOpenClass.get();
+        }
+    }
+
+    /**
+     * Lets go of what was compiled once no execution uses it.
+     *
+     * <p>The executions running are asked to stop, and the release waits for the case each of them is running: a
+     * case running on classes let go of fails for no reason of its own. No execution starts until the release has
+     * ended. A thread asked to stop meanwhile waits and lets go all the same, and stays asked to stop.
+     */
+    private void releasing(Runnable release) {
+        boolean interrupted;
+        synchronized (executions) {
+            releases++;
+            executions.forEach(Thread::interrupt);
+            interrupted = awaitExecutions(executions::isEmpty);
+            // A release lets go of what the project and the module open were compiled with, or of a part of it.
+            Stream.of(compiledOpenClass.get(), openedModuleCompiledOpenClass.get())
+                    .filter(Objects::nonNull)
+                    .forEach(released::add);
+        }
+        try {
+            release.run();
+        } finally {
+            synchronized (executions) {
+                releases--;
+                executions.notifyAll();
+            }
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * Waits until the executions are as asked, however often the thread is asked to stop meanwhile: a wait cut short
+     * would let an execution run on what is let go of.
+     *
+     * @return whether the thread was asked to stop, for the caller to keep it so once it is safe
+     */
+    @SuppressWarnings("java:S2142")
+    private boolean awaitExecutions(BooleanSupplier ready) {
+        var interrupted = false;
+        synchronized (executions) {
+            while (!ready.getAsBoolean()) {
+                try {
+                    executions.wait();
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+        }
+        return interrupted;
     }
 
     /**
@@ -1144,9 +1281,14 @@ public class ProjectModel {
      * Lets go of the module and of everything compiled for it.
      *
      * <p>Returns once what was compiled is released, the jars of the project included, so the files of the project
-     * can be changed or removed right after it. A compilation on its way changes nothing.
+     * can be changed or removed right after it. A compilation on its way changes nothing. An execution running stops
+     * after the case it is running, and that case ends first.
      */
     public synchronized void clearModuleInfo() {
+        releasing(this::letGoOfModule);
+    }
+
+    private void letGoOfModule() {
         this.moduleInfo = null;
         compiledFiles.set(null);
         projectFilesChanged = false;
@@ -1164,9 +1306,14 @@ public class ProjectModel {
      * Lets go of the dependency manager and of everything compiled through it.
      *
      * <p>Waits for the module being compiled at this moment only. The compilation on its way ends without changing
-     * this model: its cycle is cancelled, and nothing is compiling until a compilation is asked for again.
+     * this model: its cycle is cancelled, and nothing is compiling until a compilation is asked for again. An execution
+     * running stops after the case it is running, and that case ends first.
      */
     private void releaseDependencyManager() {
+        releasing(this::letGoOfDependencyManager);
+    }
+
+    private void letGoOfDependencyManager() {
         var dependencyManager = webStudioWorkspaceDependencyManager;
         webStudioWorkspaceDependencyManager = null;
         endCurrentCompilation();

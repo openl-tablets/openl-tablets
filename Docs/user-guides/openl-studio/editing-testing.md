@@ -286,6 +286,19 @@ a run saved with **Test into File** or **Run into File**. Refreshing the window 
 server no longer has a Test or Run result, the window says **No results to show**; an empty Benchmark list says
 **No measurements**. If the browser blocks the window, the dialog stays open and explains how to allow it.
 
+While tests, a run or a benchmark go on, the results show their progress and a **Stop** button. **Stop** ends the
+execution before its next test case or run of the rules, and the results say it was stopped. A test case, or a run
+of a rule table, that has already started finishes on the server, and its result is not shown. A stopped benchmark
+measures nothing and keeps the measurements taken before it.
+
+The editor stays available while an execution goes on: tables can be opened, searched and edited. An execution
+works with the projects as they were when it started. A change, such as an edited or saved table, an uploaded file
+or a reloaded project, stops an execution that is still going on and drops the results of the last Test, Run and
+Benchmark, whether they ended or not, with the measurements of the benchmarks before them. The results then say
+that a project was changed or reloaded since the execution started; start it again to see the results of the
+project as it is now. Closing the project, or switching its branch, stops the execution too, after the test case
+it is running.
+
 A fractional number is rounded when a decimal with at least two fewer digits lies within two floating-point steps of
 it, as the saved workbook does: a rule that computes `1.1 ** 3` returns `1.3310000000000004`, and the window shows
 `1.331`. The test compares the value the rule returned, not the one shown. A comparison that failed is shown exactly
@@ -677,7 +690,8 @@ section:
 
 #### Reading Benchmark Results
 
-Every measurement is a row of the results.
+Every measurement is a row of the results. A change to a project drops every measurement, as described in
+[Reading Test Results](#reading-test-results), so measurements to compare are taken after the last change.
 
 ![Benchmark results](images/benchmarking-results.png "Reading benchmark results")
 
@@ -703,7 +717,8 @@ the following numbers:
 | Runs/sec       | Number of such rule sets that can be executed per second.                               |
 
 OpenL Studio remembers every benchmark taken within one session, the newest first, so measurements of different
-tables and cases stand side by side. Measuring another project starts a new list.
+tables and cases stand side by side. Measuring another project starts a new list, and so does a change to a
+project.
 
 Tick the rows and click **Compare** to find the most time consuming of them. The comparison is shown under the
 results: it places the measurements by speed, the fastest first, and says how many times slower each of the

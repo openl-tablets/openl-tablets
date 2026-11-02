@@ -6,6 +6,7 @@ i18next.addResourceBundle('en', 'execution', {
     windowBlocked: 'The results window did not open. Allow pop-up windows and browser storage for this site, then try again.',
     windowTitle: 'Execution Results — OpenL Studio',
     noResults: 'No results to show',
+    stop: 'Stop',
 
     input: {
         form: 'Form',
@@ -52,6 +53,7 @@ i18next.addResourceBundle('en', 'execution', {
         saveToExcel: 'Save to Excel',
         start: 'Run',
         startFailed: 'Failed to run the table',
+        stopped: 'The run was stopped before it ended',
         intoFile: 'Run into File',
         skipEmptyParameters: 'Skip Empty Parameters',
         flattenParameters: 'Flat Parameter Layout',
@@ -88,6 +90,7 @@ i18next.addResourceBundle('en', 'execution', {
         start: 'Test',
         intoFile: 'Test into File',
         startFailed: 'Failed to run the tests',
+        stopped: 'The tests were stopped before they ended',
     },
 
     benchmark: {
@@ -96,6 +99,7 @@ i18next.addResourceBundle('en', 'execution', {
         startFailed: 'Failed to measure the table',
         running: 'Measuring the table… this takes a few seconds',
         failed: 'The table could not be measured',
+        stopped: 'The benchmark was stopped before it ended, and measured nothing',
         summary_one: '{{count}} measurement',
         summary_other: '{{count}} measurements',
         none: 'No measurements',

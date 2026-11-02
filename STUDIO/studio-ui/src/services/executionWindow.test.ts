@@ -2,6 +2,7 @@ import {
     currentExecution,
     EXECUTION_WINDOW_KEY,
     isMissingExecution,
+    isOutdatedExecution,
     openExecutionWindow,
     publishExecution,
 } from './executionWindow'
@@ -49,6 +50,12 @@ describe('execution result window', () => {
         expect(isMissingExecution({ status: 404 })).toBe(true)
         expect(isMissingExecution({ status: 500 })).toBe(false)
         expect(isMissingExecution(new Error('offline'))).toBe(false)
+    })
+
+    it('recognizes results that the server dropped because the project changed', () => {
+        expect(isOutdatedExecution({ status: 410 })).toBe(true)
+        expect(isOutdatedExecution({ status: 404 })).toBe(false)
+        expect(isOutdatedExecution(null)).toBe(false)
     })
 
     it('keeps the editor result usable when browser storage refuses writes', () => {

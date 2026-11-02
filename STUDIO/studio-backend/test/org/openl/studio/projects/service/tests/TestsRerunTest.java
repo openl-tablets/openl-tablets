@@ -35,7 +35,6 @@ class TestsRerunTest {
     @Test
     void runsACaseAgainOnItsOwnAgainstTheProjectAsItWasCompiled() {
         var compiled = mock(CompiledOpenClass.class);
-        when(model.getCompiledOpenClass()).thenReturn(compiled);
         var second = mock(TestDescription.class);
         when(second.getIndex()).thenReturn(1);
         var method = methodOf(mock(TestDescription.class), second);
@@ -45,10 +44,7 @@ class TestsRerunTest {
             ran.add(call.getArgument(0));
             return results;
         });
-        var rerun = TestsRerun.of(model, false);
-        // The project is compiled again after the run started.
-        var compiledAgain = mock(CompiledOpenClass.class);
-        when(model.getCompiledOpenClass()).thenReturn(compiledAgain);
+        var rerun = TestsRerun.of(model, false, compiled);
 
         assertSame(unit, rerun.runCase(method, second));
         assertSame(method, ran.getFirst().getTestSuiteMethod());
@@ -58,12 +54,11 @@ class TestsRerunTest {
     @Test
     void runsACaseAgainInTheModuleThatWasOpen() {
         var compiled = mock(CompiledOpenClass.class);
-        when(model.getOpenedModuleCompiledOpenClass()).thenReturn(compiled);
         var test = mock(TestDescription.class);
         when(results.getTestUnits()).thenReturn(List.of(unit));
         when(model.runTest(any(), eq(true), same(compiled))).thenReturn(results);
 
-        assertSame(unit, TestsRerun.of(model, true).runCase(methodOf(test), test));
+        assertSame(unit, TestsRerun.of(model, true, compiled).runCase(methodOf(test), test));
     }
 
     @Test
@@ -72,7 +67,7 @@ class TestsRerunTest {
         when(results.getTestUnits()).thenReturn(List.of());
         when(model.runTest(any(), eq(false), any())).thenReturn(results);
 
-        assertNull(TestsRerun.of(model, false).runCase(methodOf(test), test));
+        assertNull(TestsRerun.of(model, false, mock(CompiledOpenClass.class)).runCase(methodOf(test), test));
     }
 
     /** Once the project is compiled again, the model runs nothing, and the case is not had. */
@@ -80,7 +75,7 @@ class TestsRerunTest {
     void answersNothingOnceTheProjectWasCompiledAgain() {
         var test = mock(TestDescription.class);
 
-        assertNull(TestsRerun.of(model, false).runCase(methodOf(test), test));
+        assertNull(TestsRerun.of(model, false, mock(CompiledOpenClass.class)).runCase(methodOf(test), test));
     }
 
     private static TestSuiteMethod methodOf(TestDescription... tests) {

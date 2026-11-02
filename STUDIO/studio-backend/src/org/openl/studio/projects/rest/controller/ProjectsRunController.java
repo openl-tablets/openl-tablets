@@ -145,6 +145,7 @@ public class ProjectsRunController {
 
     @Operation(summary = "run.get-result.summary", description = "run.get-result.desc")
     @ApiResponse(responseCode = "404", description = "run.execution.task.message")
+    @ApiResponse(responseCode = "410", description = "execution.outdated.410.desc")
     @ApiResponse(responseCode = "202", description = "run.get-result.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @ApiResponse(responseCode = "406", description = "Requested media type is not acceptable")
@@ -177,13 +178,14 @@ public class ProjectsRunController {
             String acceptMediaType) throws IOException {
 
         var projectId = project.getProjectId();
+        runResultRegistry.refuseIfOutdated(projectId);
         if (!runResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("run.execution.task.message");
         }
         if (!runResultRegistry.isDone(projectId)) {
             // The run goes on: the request is accepted, and there is nothing to report until it has ended. A
             // client that asked for a workbook is told by the status alone: it did not ask for JSON.
-            return acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)
+            return MediaType.APPLICATION_JSON_VALUE.equalsIgnoreCase(acceptMediaType)
                     ? ResultNotReadyView.accepted()
                     : ResponseEntity.accepted().build();
         }
@@ -192,22 +194,21 @@ public class ProjectsRunController {
             throw new NotFoundException("run.execution.task.message");
         }
 
-        if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
+        if (MediaType.APPLICATION_JSON_VALUE.equalsIgnoreCase(acceptMediaType)) {
             var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator,
                     projectService.getSpreadsheetResultNamingStrategy());
             return ResponseEntity.ok(mapper.mapResult(results, spreadsheet));
-        } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
+        } else if (APPLICATION_XLSX_MEDIATYPE.equalsIgnoreCase(acceptMediaType)) {
             var output = new ByteArrayOutputStream();
             new RulesResultExport().export(output, Integer.MAX_VALUE, skipEmptyParameters, flattenParameters, results);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("run-result.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)
                     .body(output.toByteArray());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 
     @Operation(summary = "run.cancel.summary", description = "run.cancel.desc")
@@ -215,7 +216,7 @@ public class ProjectsRunController {
     @ChangesNothing
     @DeleteMapping
     public void cancelRun(@ProjectId @PathVariable("projectId") RulesProject project) {
-        runResultRegistry.clear();
+        runResultRegistry.clear(project.getProjectId());
     }
 
 }

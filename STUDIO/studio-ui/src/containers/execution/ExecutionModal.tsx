@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState } from 'react'
-import { ExportOutlined } from '@ant-design/icons'
+import { ExportOutlined, StopOutlined } from '@ant-design/icons'
 import { Alert, Button, Flex, Modal, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
-import type { TestsQuery } from 'services/execution'
+import { stopExecution, type ExecutionKind, type TestsQuery } from 'services/execution'
 import { useListPageStyles } from 'styles/listPageStyles'
 import type { MessageDescription, TraceParameterValue } from 'types/trace'
+import { errorMessage } from 'utils/errorMessage'
 import { useStyles } from './ExecutionModal.styles'
 
 /** The name a value is shown under: the column the table author wrote, or the name of the parameter. */
@@ -25,6 +26,46 @@ export const ExecutionErrors: React.FC<{ errors?: MessageDescription[] | undefin
         ))}
     </>
 )
+
+/** What a screen needs to stop the execution it follows. */
+interface ExecutionStop {
+    /** Whether the reader stopped the execution from this screen. */
+    stopped: boolean
+    /** Why the execution could not be stopped, when it could not. */
+    stopError: string | null
+    /** The button that stops the execution, shown while it goes on. */
+    stopButton: React.ReactNode
+}
+
+/**
+ * Lets the reader stop the test run, the run or the benchmark a screen follows.
+ *
+ * The execution stops before its next test case or run of the rules. The screen hears the end the way it hears
+ * any other, and knows it was asked for here.
+ *
+ * @param projectId the project the execution runs in
+ * @param kind      what is executed
+ */
+export const useStopExecution = (projectId: string, kind: ExecutionKind): ExecutionStop => {
+    const { t } = useTranslation('execution')
+    const [stopping, setStopping] = useState(false)
+    const [stopped, setStopped] = useState(false)
+    const [stopError, setStopError] = useState<string | null>(null)
+    const stop = () => {
+        setStopping(true)
+        setStopError(null)
+        stopExecution(projectId, kind)
+            .then(() => setStopped(true))
+            .catch(error => setStopError(errorMessage(error)))
+            .finally(() => setStopping(false))
+    }
+    const stopButton = (
+        <Button danger data-testid="execution-stop" icon={<StopOutlined />} loading={stopping} onClick={stop}>
+            {t('stop')}
+        </Button>
+    )
+    return { stopped, stopError, stopButton }
+}
 
 interface ExecutionModalProps {
     title: string
