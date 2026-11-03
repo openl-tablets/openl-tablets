@@ -321,7 +321,9 @@ contain the project when it is opened. Proceed as follows:
         alone, such as another font. When both branches did, the window says so, and the table takes the formatting
         of the version you choose. A new default font of the workbook changes the font of every cell written in it.
 
-    A change both branches made alike, such as the formatting a save gives every table, is not marked. A table with
+    Cells next to each other framed in the same colour share one frame, so a row, a column or a whole table that
+    changed is framed as a whole. A change both branches made alike, such as the formatting a save gives every table,
+    is not marked. A table with
     conflicting cells shows only the rows around them, the same rows in every version, when that leaves out at least
     five rows; **Show Whole Table** shows every row and **Show Conflict Rows** goes back. A version of a table longer
     than 200 rows shows its first 200 rows.
@@ -411,7 +413,9 @@ contain the project when it is opened. Proceed as follows:
     [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements** and **Show
     equal rows** check boxes heading the list of elements. A text file is compared line by line: a line only the base
     version has is marked `-` and a line only the branch version has is marked `+`, and in **Both Versions** a line
-    only your version has is marked `-` and a line only their version has is marked `+`. A text file not written in
+    only your version has is marked `-` and a line only their version has is marked `+`. The line above the text
+    names the version each sign stands for, beside a red dot for `-` and a green one for `+`, the colours the lines
+    are painted in. A text file not written in
     UTF-8, such as a properties file in ISO-8859-1, is read as Western European text (Windows-1252). A file no view
     can be offered for has nothing to be compared with, and neither has a file that is neither text nor an Excel
     file, such as a library; the window says so.

@@ -65,4 +65,18 @@ describe('framesOf', () => {
         expect(frameAt(grid, 1, 0)).toEqual({ top: false, right: true, bottom: true, left: true })
         expect(frameAt(grid, 0, 0)).toEqual({ top: true, right: false, bottom: false, left: true })
     })
+
+    it('frames cells next to each other apart when they are framed in different ways', () => {
+        const grid = gridOf('ab')
+        const frames = framesOf(grid, cell => (cell.value === '.' ? undefined : cell.value))
+
+        expect(frames.get(grid[0]![0]!)).toEqual(ALL)
+        expect(frames.get(grid[0]![1]!)).toEqual(ALL)
+    })
+
+    it('leaves a cell framed as false unframed', () => {
+        const grid = gridOf('x.')
+
+        expect(framesOf(grid, cell => cell.value === 'x').size).toBe(1)
+    })
 })

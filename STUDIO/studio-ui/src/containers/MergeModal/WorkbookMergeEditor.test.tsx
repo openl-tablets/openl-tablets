@@ -326,6 +326,24 @@ describe('WorkbookMergeEditor', () => {
         expect(legend.querySelectorAll('span[aria-hidden="true"]')).toHaveLength(6)
     })
 
+    it('frames the changed cells of a version next to each other with one frame', async () => {
+        const table = WORKBOOK.sheets[1]!.tables[0]!
+        vi.mocked(getConflictWorkbook).mockResolvedValue({
+            sheets: [{ ...WORKBOOK.sheets[1]!, tables: [{ ...table, ours: rates(10, ['A2', 'B2']) }]}],
+            palette: false,
+        })
+        renderEditor()
+
+        const [ours] = within(await screen.findByTestId('workbook-merge-table-1')).getAllByRole('table')
+        const left = getComputedStyle(ours!.querySelector('[data-cell="A2"]') as HTMLElement)
+        const right = getComputedStyle(ours!.querySelector('[data-cell="B2"]') as HTMLElement)
+        // The frame runs round the row, so it is open between its cells.
+        expect(left.getPropertyValue('--frame-right')).toBe('0px')
+        expect(left.getPropertyValue('--frame-left')).toBe('')
+        expect(right.getPropertyValue('--frame-left')).toBe('0px')
+        expect(right.getPropertyValue('--frame-right')).toBe('')
+    })
+
     it('shows no sheet the merge takes by itself', async () => {
         renderEditor()
 

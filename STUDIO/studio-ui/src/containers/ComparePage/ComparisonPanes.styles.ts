@@ -1,5 +1,16 @@
 import { createStyles } from 'antd-style'
 import { paperToken } from '../../styles/paper'
+import type { FrameSides } from './frames'
+
+/**
+ * A frame drawn inside a cell, in a colour. It runs along every side the cell does not leave open ({@link sidesOf}).
+ */
+const framed = (colour: string) => `
+    box-shadow: inset var(--frame-left, 2px) 0 0 0 ${colour},
+        inset calc(-1 * var(--frame-right, 2px)) 0 0 0 ${colour},
+        inset 0 var(--frame-top, 2px) 0 0 ${colour},
+        inset 0 calc(-1 * var(--frame-bottom, 2px)) 0 0 ${colour};
+`
 
 /** The marks a comparison lays on the cells of a workbook, in the colours of its paper ({@link paperToken}). */
 export const useCellStyles = createStyles(({ css }) => ({
@@ -14,46 +25,40 @@ export const useCellStyles = createStyles(({ css }) => ({
         color: ${paperToken().colorTextTertiary};
         text-decoration: line-through;
     `,
-    // The cells that read differently in the other file: framed rather than filled, as a merge frames a change, so
-    // their own formatting stays in sight. The sides the frame runs along are set by the classes below.
-    changed: css`
-        box-shadow: inset var(--frame-left, 0px) 0 0 0 ${paperToken().colorWarning},
-            inset calc(-1 * var(--frame-right, 0px)) 0 0 0 ${paperToken().colorWarning},
-            inset 0 var(--frame-top, 0px) 0 0 ${paperToken().colorWarning},
-            inset 0 calc(-1 * var(--frame-bottom, 0px)) 0 0 ${paperToken().colorWarning};
-    `,
-    frameTop: css`
-        --frame-top: 2px;
-    `,
-    frameRight: css`
-        --frame-right: 2px;
-    `,
-    frameBottom: css`
-        --frame-bottom: 2px;
-    `,
-    frameLeft: css`
-        --frame-left: 2px;
-    `,
-    // A cell a branch of a merge changed: framed rather than filled, so its own formatting stays in sight.
+    // A cell a branch of a merge changed, or a cell the other file of a comparison reads differently: framed rather
+    // than filled, so its own formatting stays in sight.
     changedFrame: css`
-        box-shadow: inset 0 0 0 2px ${paperToken().colorWarning};
+        ${framed(paperToken().colorWarning)}
     `,
     // A cell both branches of a merge changed differently: framed in red, so it stands out among the changed cells.
     conflict: css`
-        box-shadow: inset 0 0 0 2px ${paperToken().colorError};
+        ${framed(paperToken().colorError)}
     `,
     // A cell of a table merged cell by cell the merge took from one branch by itself: framed in the colour of success.
     merged: css`
-        box-shadow: inset 0 0 0 2px ${paperToken().colorSuccess};
+        ${framed(paperToken().colorSuccess)}
     `,
     // A conflicting cell of a table merged cell by cell that the user chose a version for, in the result and in the
     // version chosen: framed in yellow.
     chosen: css`
-        box-shadow: inset 0 0 0 2px ${paperToken().colorWarning};
+        ${framed(paperToken().colorWarning)}
     `,
     // A cell of a table merged cell by cell that the user typed a value for.
     edited: css`
-        box-shadow: inset 0 0 0 2px ${paperToken().colorInfo};
+        ${framed(paperToken().colorInfo)}
+    `,
+    // The sides of a framed cell its frame leaves open, since the cell beyond is framed the same way.
+    openTop: css`
+        --frame-top: 0px;
+    `,
+    openRight: css`
+        --frame-right: 0px;
+    `,
+    openBottom: css`
+        --frame-bottom: 0px;
+    `,
+    openLeft: css`
+        --frame-left: 0px;
     `,
     // The cell of a table merged cell by cell the user picked, outlined over its frame.
     picked: css`
@@ -76,3 +81,14 @@ export const useCellStyles = createStyles(({ css }) => ({
         background: ${paperToken().colorErrorBg};
     `,
 }))
+
+/** The classes that leave the sides of a frame open. */
+type OpenSides = Pick<ReturnType<typeof useCellStyles>['styles'], 'openTop' | 'openRight' | 'openBottom' | 'openLeft'>
+
+/** The classes that leave open the sides of a framed cell its frame does not run along. */
+export const sidesOf = (styles: OpenSides, sides: FrameSides | undefined): string => [
+    sides?.top === false && styles.openTop,
+    sides?.right === false && styles.openRight,
+    sides?.bottom === false && styles.openBottom,
+    sides?.left === false && styles.openLeft,
+].filter(Boolean).join(' ')

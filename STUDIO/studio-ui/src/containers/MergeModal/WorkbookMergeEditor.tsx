@@ -33,7 +33,8 @@ import {
 import { errorMessage } from '../../utils/errorMessage'
 import { openConflictCompareWindow } from '../projects/compare'
 import { basename } from '../projects/projectPaths'
-import { useCellStyles } from '../ComparePage/ComparisonPanes.styles'
+import { sidesOf, useCellStyles } from '../ComparePage/ComparisonPanes.styles'
+import { framesOf, type FrameSides } from '../ComparePage/frames'
 import { CellValueEditor, type EditorKind } from '../modules/CellValueEditor'
 import { useStyles as useCellFieldStyles } from '../modules/TableEditor.styles'
 import { ButtonColumns, Columns, ColumnTitles, ConflictHeading, TakeBaseButton, TakeButton } from './MergeColumns'
@@ -103,6 +104,8 @@ interface CellMarks {
     chosen: string
     edited: string
     picked: string
+    /** The classes that leave open the sides of a framed cell a frame shared with the cells beyond runs through. */
+    sides: (sides: FrameSides | undefined) => string
 }
 
 /** Tells the editor the version a conflict is taken from, or none to leave it to resolve. */
@@ -167,10 +170,19 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
     const open = useRef(true)
     // The marks of the changed cells are read once for every table the editor draws. They are kept by their class
     // names, which stay the same while the theme does, so a table not decided again is not drawn again.
-    const { styles: { changedFrame, conflict, restyled, merged, chosen, edited, picked: pickedMark } } = useCellStyles()
-    const marks = useMemo<CellMarks>(
-        () => ({ changedFrame, conflict, restyled, merged, chosen, edited, picked: pickedMark }),
-        [changedFrame, conflict, restyled, merged, chosen, edited, pickedMark])
+    const { styles: cellStyles } = useCellStyles()
+    const { changedFrame, conflict, restyled, merged, chosen, edited, picked: pickedMark } = cellStyles
+    const { openTop, openRight, openBottom, openLeft } = cellStyles
+    const marks = useMemo<CellMarks>(() => ({
+        changedFrame,
+        conflict,
+        restyled,
+        merged,
+        chosen,
+        edited,
+        picked: pickedMark,
+        sides: sides => sidesOf({ openTop, openRight, openBottom, openLeft }, sides),
+    }), [changedFrame, conflict, restyled, merged, chosen, edited, pickedMark, openTop, openRight, openBottom, openLeft])
 
     useEffect(() => {
         open.current = true
@@ -1136,6 +1148,17 @@ const MergedPart: React.FC<MergedPartProps> = ({ merged, choices, onChoose, mark
             ),
         }
     }
+    /** The frame of a cell, which cells next to it framed the same way share. */
+    const cellFrame = (cell: RawTableCell, row: number, column: number): string | undefined => {
+        const conflict = conflicts.has(cellKey(row + offset, column))
+        return frameOf(marks, {
+            typed: typedOf(choices, row + offset, column) !== undefined,
+            conflict,
+            chosen: conflict && !!sideOfCell(choices, row + offset, column),
+            merged: !!cell.cell && changed.has(cell.cell),
+        })
+    }
+    const frames = framesOf(rows, cellFrame)
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
         if (cell.covered) {
             return undefined
@@ -1146,13 +1169,9 @@ const MergedPart: React.FC<MergedPartProps> = ({ merged, choices, onChoose, mark
         if (key === open) {
             return fieldOf(cell, key, typed, !!conflict && !isDecided(choices, conflict))
         }
-        const frame = frameOf(marks, {
-            typed,
-            conflict: !!conflict,
-            chosen: !!conflict && !!sideOfCell(choices, row + offset, column),
-            merged: !!cell.cell && changed.has(cell.cell),
-        })
-        const classes = [frame, key === offer?.key && marks.picked].filter(Boolean)
+        const frame = cellFrame(cell, row, column)
+        const classes = [frame, frame && marks.sides(frames.get(cell)), key === offer?.key && marks.picked]
+            .filter(Boolean)
         return classes.length === 0 ? undefined : { className: classes.join(' ') }
     }
     return (
@@ -1314,7 +1333,7 @@ const VersionGrid: React.FC<VersionGridProps> = ({ version, absent, marks, shown
     if (!version || !rows) {
         return absent === undefined ? null : <Typography.Text italic type="secondary">{absent}</Typography.Text>
     }
-    const decorate = (cell: RawTableCell): CellDecoration | undefined => {
+    const decorationOf = (cell: RawTableCell): CellDecoration | undefined => {
         if (!cell.cell) {
             return undefined
         }
@@ -1330,6 +1349,14 @@ const VersionGrid: React.FC<VersionGridProps> = ({ version, absent, marks, shown
         }
         // A change of a table merged cell by cell is merged by itself; one of a table taken whole is what a choice takes.
         return { className: take ? marks.merged : marks.changedFrame }
+    }
+    // Cells next to each other framed the same way share one frame.
+    const frames = framesOf(rows, cell => decorationOf(cell)?.className)
+    const decorate = (cell: RawTableCell): CellDecoration | undefined => {
+        const decoration = decorationOf(cell)
+        return decoration?.className
+            ? { ...decoration, className: `${decoration.className} ${marks.sides(frames.get(cell))}` }
+            : decoration
     }
     return (
         <Flex vertical gap={4}>

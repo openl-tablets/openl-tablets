@@ -9,7 +9,7 @@ import { combine, type CellMark, type CombinedTable } from './combinedDiff'
 import { keepRows, rowsToShow } from './diffRows'
 import { framesOf, type FrameSides } from './frames'
 import { useStyles } from './ComparePage.styles'
-import { useCellStyles } from './ComparisonPanes.styles'
+import { sidesOf, useCellStyles } from './ComparisonPanes.styles'
 
 /** Which of the two ways of reading a comparison is shown. */
 export type DiffView = 'sides' | 'combined'
@@ -69,8 +69,8 @@ const kindsOf = (table: ComparisonTable, alignment: Alignment | null): ChangeKin
  * Drawn as one, the two versions share a table. A cell the files read differently carries both values, and every
  * row is led by the sign it is read by.
  *
- * A legend above the table tells what each colour means. A table moved on its sheet says where from and where to, and
- * a table whose formatting changed says so.
+ * A legend above the table tells what each colour means. A table moved on its sheet says where from and where to. A
+ * table whose formatting changed says so and is framed whole with a dashed line, as a merge frames it.
  */
 export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     table,
@@ -131,7 +131,11 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
                 {trailing && <span className={styles.headAction}>{trailing}</span>}
             </>
         )
-        const body = insteadOfTable() ?? <Combined combined={combine(table!, rows)} />
+        const body = insteadOfTable() ?? (
+            <Restyled restyled={table!.formattingChanged}>
+                <Combined combined={combine(table!, rows)} />
+            </Restyled>
+        )
         return withNotes(<div className={styles.panes}>{pane(head, 'compare-pane-combined', body)}</div>)
     }
 
@@ -139,7 +143,11 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
         const source = table?.[side]
         return insteadOfTable()
             ?? (source
-                ? <Side alignment={alignment} rows={rows} side={side} source={source} />
+                ? (
+                    <Restyled restyled={table?.formattingChanged}>
+                        <Side alignment={alignment} rows={rows} side={side} source={source} />
+                    </Restyled>
+                )
                 : <Empty description={t('absent')} image={Empty.PRESENTED_IMAGE_SIMPLE} />)
     }
 
@@ -207,8 +215,13 @@ const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; com
 /** The class of a changed cell, framed along the sides its frame runs. */
 const useFrame = () => {
     const { styles, cx } = useCellStyles()
-    return (sides: FrameSides) => cx(styles.changed, sides.top && styles.frameTop, sides.right && styles.frameRight,
-        sides.bottom && styles.frameBottom, sides.left && styles.frameLeft)
+    return (sides: FrameSides) => cx(styles.changedFrame, sidesOf(styles, sides))
+}
+
+/** A version of a table, framed whole with a dashed line when its formatting changed, as a merge frames it. */
+const Restyled: React.FC<{ restyled: boolean | undefined; children: React.ReactNode }> = ({ restyled, children }) => {
+    const { styles } = useCellStyles()
+    return <div className={restyled ? styles.restyled : undefined} data-testid="compare-restyled">{children}</div>
 }
 
 /**
