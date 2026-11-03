@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import lombok.AccessLevel;
@@ -168,6 +171,28 @@ class GitRepositoryTest {
         assertEquals("user2@email.to", file3.getAuthor().getEmail());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
+    }
+
+    @Test
+    void aFileReadByManyRequestsAtOnceTellsEachOfThemItsSizeAndItsHistory() throws Exception {
+        var readers = 8;
+        try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (var round = 0; round < 50; round++) {
+                // A file listed anew reads its size and its history on first use, which all readers ask for at once
+                var file = getFileData(repo.list("rules/project1/"), "rules/project1/file2");
+                var start = new CyclicBarrier(readers);
+                var reads = new ArrayList<Future<String>>();
+                for (var reader = 0; reader < readers; reader++) {
+                    reads.add(pool.submit(() -> {
+                        start.await();
+                        return file.getSize() + " " + file.getComment();
+                    }));
+                }
+                for (var read : reads) {
+                    assertEquals("12 Second modification", read.get());
+                }
+            }
+        }
     }
 
     @Test
