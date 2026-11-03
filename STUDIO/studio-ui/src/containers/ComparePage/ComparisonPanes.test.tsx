@@ -31,6 +31,33 @@ const TABLE: ComparisonTable = {
     },
 }
 
+/** A table whose changed row stands far from its header, so that the equal rows between are left out. */
+const LONG: ComparisonTable = {
+    id: '0-1',
+    name: 'Datatype Person',
+    status: 'changed',
+    first: {
+        source: [
+            [{ cell: 'A1', value: 'Datatype Person' }],
+            [{ cell: 'A2', value: 'name' }],
+            [{ cell: 'A3', value: 'age' }],
+            [{ cell: 'A4', value: 'city' }],
+            [{ cell: 'A5', value: 'int' }],
+        ],
+        changedCells: ['A5'],
+    },
+    second: {
+        source: [
+            [{ cell: 'A1', value: 'Datatype Person' }],
+            [{ cell: 'A2', value: 'name' }],
+            [{ cell: 'A3', value: 'age' }],
+            [{ cell: 'A4', value: 'city' }],
+            [{ cell: 'A5', value: 'double' }],
+        ],
+        changedCells: ['A5'],
+    },
+}
+
 /** The table with a row the second file adds at its end, lined up as the comparison reports it. */
 const ADDED_ROW: ComparisonTable = {
     ...TABLE,
@@ -48,12 +75,20 @@ const ADDED_ROW: ComparisonTable = {
 }
 
 describe('ComparisonPanes', () => {
-    it('shows the table of each file, with only the rows that differ', () => {
-        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />)
+    it('shows the table of each file, the rows far from a change left out as a gap that says so', () => {
+        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={LONG} />)
 
         const first = screen.getByTestId('compare-pane-first')
+        // The header and the equal row beside the change stay, so the change is read in its place.
+        expect(first).toHaveTextContent('Datatype Person')
+        expect(first).toHaveTextContent('city')
         expect(first).toHaveTextContent('int')
         expect(first).not.toHaveTextContent('name')
+        expect(first).not.toHaveTextContent('age')
+        // The rows left out are one row across the table, in both files.
+        const gap = first.querySelectorAll('tr')[1]!.querySelector('td')!
+        expect(gap).toHaveTextContent('rows_hidden')
+        expect(screen.getByTestId('compare-pane-second').querySelectorAll('tr')[1]).toHaveTextContent('rows_hidden')
         expect(screen.getByTestId('compare-pane-second')).toHaveTextContent('double')
     })
 
@@ -147,37 +182,30 @@ describe('ComparisonPanes', () => {
         expect(cell.style.background).toContain('rgb(255, 255, 0)')
     })
 
-    it('keeps a merge whole when the rows it spans are kept apart', () => {
-        const merged: ComparisonTable = {
-            ...TABLE,
-            first: {
-                source: [
-                    [{ cell: 'A1', value: 'group', rowspan: 4 }, { cell: 'B1', value: 'one' }],
-                    [{ covered: true }, { cell: 'B2', value: 'two' }],
-                    [{ covered: true }, { cell: 'B3', value: 'three' }],
-                    [{ covered: true }, { cell: 'B4', value: 'four' }],
-                ],
-                changedCells: ['B2', 'B4'],
-            },
-            second: {
-                source: [
-                    [{ cell: 'A1', value: 'group', rowspan: 4 }, { cell: 'B1', value: 'one' }],
-                    [{ covered: true }, { cell: 'B2', value: 'TWO' }],
-                    [{ covered: true }, { cell: 'B3', value: 'three' }],
-                    [{ covered: true }, { cell: 'B4', value: 'FOUR' }],
-                ],
-                changedCells: ['B2', 'B4'],
-            },
-        }
+    it('draws a merge a gap cuts through on either side of the gap', () => {
+        const words = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']
+        const sideOf = (changed: string, last: string): ComparisonSide => ({
+            source: words.map((word, row) => [
+                row === 0 ? { cell: 'A1', value: 'group', rowspan: 8 } : { covered: true },
+                { cell: `B${row + 1}`, value: row === 1 ? changed : row === 7 ? last : word },
+            ]),
+            changedCells: ['B2', 'B8'],
+        })
+        const merged: ComparisonTable = { ...TABLE, first: sideOf('two', 'eight'), second: sideOf('TWO', 'EIGHT') }
 
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={merged} />)
 
-        // The merge reaches both rows that are kept, so the cells beside it stay in their column.
+        // The rows four to six are left out, and the merge is drawn above the gap and again below it, so the cells
+        // beside it stay in their column.
         const rows = screen.getByTestId('compare-pane-first').querySelectorAll('tr')
-        expect(rows[0]!.querySelectorAll('td')).toHaveLength(2)
-        expect(rows[0]!.querySelector('td')).toHaveAttribute('rowspan', '2')
-        expect(rows[1]!.querySelectorAll('td')).toHaveLength(1)
-        expect(rows[1]!.querySelector('td')).toHaveTextContent('four')
+        expect(rows).toHaveLength(6)
+        expect(rows[0]!.querySelector('td')).toHaveAttribute('rowspan', '3')
+        expect(rows[3]).toHaveTextContent('rows_hidden')
+        expect(rows[4]!.querySelectorAll('td')).toHaveLength(2)
+        expect(rows[4]!.querySelector('td')).toHaveTextContent('group')
+        expect(rows[4]!.querySelector('td')).toHaveAttribute('rowspan', '2')
+        expect(rows[5]!.querySelectorAll('td')).toHaveLength(1)
+        expect(rows[5]).toHaveTextContent('eight')
     })
 
     it('shows every row when the equal ones are asked for', () => {
@@ -201,14 +229,14 @@ describe('ComparisonPanes', () => {
 
     it('keeps the same rows in both files when only one of them marks a change', () => {
         const oneSided: ComparisonTable = {
-            ...TABLE,
-            first: { source: TABLE.first!.source },
-            second: { ...TABLE.second!, changedCells: ['A2']},
+            ...LONG,
+            first: { source: LONG.first!.source },
+            second: { ...LONG.second!, changedCells: ['A5']},
         }
 
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={oneSided} />)
 
-        // Without this the file that marks nothing would show every row against one row of the other.
+        // Without this the file that marks nothing would show every row against a few rows of the other.
         expect(screen.getByTestId('compare-pane-first')).toHaveTextContent('int')
         expect(screen.getByTestId('compare-pane-first')).not.toHaveTextContent('name')
         expect(screen.getByTestId('compare-pane-second')).toHaveTextContent('double')
@@ -218,14 +246,14 @@ describe('ComparisonPanes', () => {
     it('stands a row only the second file holds against an empty row of the first', () => {
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={ADDED_ROW} />)
 
-        // The changed row and the added one are left, and they stand against each other in both files.
+        // The rows stand against each other in both files, the added one against an empty row.
         const first = screen.getByTestId('compare-pane-first').querySelectorAll('tr')
         const second = screen.getByTestId('compare-pane-second').querySelectorAll('tr')
-        expect(first).toHaveLength(2)
-        expect(second).toHaveLength(2)
-        expect(first[0]).toHaveTextContent('int')
-        expect(first[1]).toHaveTextContent('')
-        expect(second[1]).toHaveTextContent('age')
+        expect(first).toHaveLength(4)
+        expect(second).toHaveLength(4)
+        expect(first[1]).toHaveTextContent('int')
+        expect(first[3]).toHaveTextContent('')
+        expect(second[3]).toHaveTextContent('age')
     })
 
     it('paints a row only one file holds in the colours of the paper', () => {
@@ -328,20 +356,25 @@ describe('ComparisonPanes', () => {
         const merged: ComparisonSide = {
             source: [
                 [{ cell: 'A1', value: 'Rules', colspan: 2 }, { covered: true }],
-                [{ cell: 'A2', value: 'Region', rowspan: 3 }, { cell: 'B2', value: 'one' }],
+                [{ cell: 'A2', value: 'Region', rowspan: 5 }, { cell: 'B2', value: 'one' }],
                 [{ covered: true }, { cell: 'B3', value: 'two' }],
                 [{ covered: true }, { cell: 'B4', value: 'three' }],
+                [{ covered: true }, { cell: 'B5', value: 'four' }],
+                [{ covered: true }, { cell: 'B6', value: 'five' }],
             ],
-            changedCells: ['B4'],
+            changedCells: ['B6'],
         }
         const table: ComparisonTable = { ...TABLE, first: merged, second: merged }
 
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={table} />)
 
-        // The row that is left keeps the value of the merge it was covered by, and both columns are drawn.
-        const cells = screen.getByTestId('compare-pane-first').querySelectorAll('td')
-        expect([...cells].map(cell => cell.textContent)).toEqual(['Region', 'three'])
-        expect(cells[0]).toHaveAttribute('rowspan', '1')
+        // The rows left after the gap keep the value of the merge they were covered by, and both columns are drawn.
+        const rows = screen.getByTestId('compare-pane-first').querySelectorAll('tr')
+        expect(rows).toHaveLength(4)
+        expect(rows[1]).toHaveTextContent('rows_hidden')
+        const cells = [...rows[2]!.querySelectorAll('td'), ...rows[3]!.querySelectorAll('td')]
+        expect(cells.map(cell => cell.textContent)).toEqual(['Region', 'four', 'five'])
+        expect(cells[0]).toHaveAttribute('rowspan', '2')
     })
 
     it('stands the second file on the left when asked to, the controls staying at the ends of the line', () => {
@@ -470,12 +503,17 @@ describe('ComparisonPanes', () => {
             expect(table.textContent?.match(/ExpensesTable/g)).toHaveLength(1)
         })
 
-        it('shows only the rows that differ when the equal ones are not asked for', () => {
-            combined(TABLE, false)
+        it('leaves out the rows far from a change when the equal ones are not asked for, as a gap that says so', () => {
+            combined(LONG, false)
 
             const pane = screen.getByTestId('compare-pane-combined')
             expect(pane).toHaveTextContent('int → double')
+            expect(pane).toHaveTextContent('city')
             expect(pane).not.toHaveTextContent('name')
+            // The gap runs across the signs and the table.
+            const gap = screen.getByTestId('compare-combined').querySelectorAll('tr')[1]!.querySelector('td')!
+            expect(gap).toHaveTextContent('rows_hidden')
+            expect(gap).toHaveAttribute('colspan', '2')
         })
 
         it('paints a row only one file holds in the colours of the paper, whatever the theme', () => {

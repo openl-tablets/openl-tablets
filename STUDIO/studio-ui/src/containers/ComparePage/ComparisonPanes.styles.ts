@@ -72,6 +72,12 @@ export const useCellStyles = createStyles(({ css }) => ({
         outline: 2px dashed ${paperToken().colorWarning};
         outline-offset: 2px;
     `,
+    // A row standing for the equal rows left out between the rows shown, as a diff marks the lines it skips.
+    gap: css`
+        color: ${paperToken().colorTextTertiary};
+        background: ${paperToken().colorFillAlter};
+        text-align: center;
+    `,
     // A row of the table only the second file has.
     rowAdded: css`
         background: ${paperToken().colorSuccessBg};

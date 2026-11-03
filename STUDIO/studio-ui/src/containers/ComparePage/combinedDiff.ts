@@ -1,7 +1,7 @@
 import type { RawTableCell } from 'types/tables'
 import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTable } from 'types/compare'
 import { alignmentOf, alignSide, wholeMerges } from './alignment'
-import { keepRows } from './diffRows'
+import { keepRows, type ShownLine } from './diffRows'
 
 /** What the combined view says about one cell of the table. */
 export interface CellMark {
@@ -15,6 +15,8 @@ export interface CellMark {
     after?: string
     /** The cell leads its row and carries the sign the row is read by rather than a value. */
     lead?: boolean
+    /** The cell stands for this many equal rows left out, across the whole table. */
+    gap?: number
 }
 
 /** The two versions drawn as one table, and what each of its cells stands for. */
@@ -42,6 +44,13 @@ const addRow = (into: CombinedTable, kind: ComparisonLineStatus, cells: RawTable
 /** The rows of a table only one file holds, each led by the sign the whole table is read by. */
 const oneSided = (side: ComparisonSide | undefined, kind: 'added' | 'removed', into: CombinedTable): void => {
     side?.source.forEach(row => addRow(into, kind, row, row.map(() => ({ row: kind, paint: kind }))))
+}
+
+/** Adds a row standing for the equal rows left out, one cell across the signs and the table. */
+const addGap = (into: CombinedTable, rows: number, width: number): void => {
+    const gap: RawTableCell = { colspan: width + 1 }
+    into.marks.set(gap, { row: 'equal', gap: rows })
+    into.rows.push([gap, ...Array.from({ length: width }, (): RawTableCell => ({ covered: true }))])
 }
 
 /** The file a line is of alone, if any. */
@@ -77,13 +86,14 @@ const pick = (
  * one file holds stands where it stands in that file. Where the two files read a cell differently, the cell
  * carries both values. Every row is led by a sign saying what became of it.
  *
- * A table only one file holds is shown whole, as dropped or as added.
+ * A table only one file holds is shown whole, as dropped or as added. Equal rows left out are one row that says how
+ * many they are.
  *
  * @param table the table as the comparison reports it
- * @param keep  the rows lined up to draw, or null for all of them
+ * @param shown the rows lined up to draw and the gaps between them, or null for all of them
  * @return the rows to draw and what each of their cells stands for
  */
-export const combine = (table: ComparisonTable, keep: ReadonlySet<number> | null): CombinedTable => {
+export const combine = (table: ComparisonTable, shown: readonly ShownLine[] | null): CombinedTable => {
     const combined: CombinedTable = { rows: [], marks: new Map() }
     const alignment = alignmentOf(table)
     if (!alignment || !table.first || !table.second) {
@@ -92,15 +102,24 @@ export const combine = (table: ComparisonTable, keep: ReadonlySet<number> | null
         return combined
     }
     const changed = new Set(table.second.changedCells ?? [])
-    const rows = alignment.rows.filter((_, index) => !keep || keep.has(index))
-    const was = alignSide(table.first.source, alignment, 'first')
-    const now = alignSide(table.second.source, alignment, 'second')
-    const wasKept = keep ? keepRows(was, keep) : was
-    const nowKept = keep ? keepRows(now, keep) : now
-    const picked = rows.map((row, y) => alignment.columns.map((column, x) =>
-        pick(row, column, wasKept[y]![x]!, nowKept[y]![x]!, changed)))
+    const width = alignment.columns.length
+    const lines = shown ?? alignment.rows.map((_, line): ShownLine => ({ line }))
+    const was = keepRows(alignSide(table.first.source, alignment, 'first'), lines, width).rows
+    const now = keepRows(alignSide(table.second.source, alignment, 'second'), lines, width).rows
+    // The merges are made whole over the rows drawn; none of them crosses a gap.
+    const drawn = lines.flatMap((line, y) => ('line' in line ? [{ row: alignment.rows[line.line]!, y }] : []))
+    const picked = drawn.map(({ row, y }) => alignment.columns.map((column, x) =>
+        pick(row, column, was[y]![x]!, now[y]![x]!, changed)))
     const cells = wholeMerges(picked.map(row => row.map(({ cell }) => cell)))
-    cells.forEach((row, y) => addRow(combined, rows[y]!.status, row, picked[y]!.map(({ mark }) => mark)))
+    let next = 0
+    lines.forEach(line => {
+        if ('gap' in line) {
+            addGap(combined, line.gap, width)
+            return
+        }
+        addRow(combined, drawn[next]!.row.status, cells[next]!, picked[next]!.map(({ mark }) => mark))
+        next++
+    })
     return combined
 }
 

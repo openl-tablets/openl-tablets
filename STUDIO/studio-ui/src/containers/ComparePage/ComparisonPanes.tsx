@@ -6,7 +6,7 @@ import type { RawTableCell } from 'types/tables'
 import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTable } from 'types/compare'
 import { alignmentOf, alignSide, ownStatusOf, type Alignment, type FileSide } from './alignment'
 import { combine, type CellMark, type CombinedTable } from './combinedDiff'
-import { keepRows, rowsToShow } from './diffRows'
+import { keepRows, rowsToShow, type ShownLine } from './diffRows'
 import { framesOf, type FrameSides } from './frames'
 import { useStyles } from './ComparePage.styles'
 import { sidesOf, useCellStyles } from './ComparisonPanes.styles'
@@ -218,6 +218,17 @@ const useFrame = () => {
     return (sides: FrameSides) => cx(styles.changedFrame, sidesOf(styles, sides))
 }
 
+/** The cell standing for the equal rows left out between the rows shown, saying how many they are. */
+const useGap = () => {
+    const { t } = useTranslation('compare')
+    const { styles } = useCellStyles()
+    return (rows: number): CellDecoration => ({
+        className: styles.gap,
+        painted: true,
+        content: t('rows_hidden', { count: rows }),
+    })
+}
+
 /** A version of a table, framed whole with a dashed line when its formatting changed, as a merge frames it. */
 const Restyled: React.FC<{ restyled: boolean | undefined; children: React.ReactNode }> = ({ restyled, children }) => {
     const { styles } = useCellStyles()
@@ -229,16 +240,18 @@ const Restyled: React.FC<{ restyled: boolean | undefined; children: React.ReactN
  *
  * A line only this file holds is painted as added or removed. A line only the other file holds is an empty line
  * here. The cells the other file reads differently are framed, and changed cells next to each other share one frame.
- * Every other cell keeps the colours the workbook gives it.
+ * Every other cell keeps the colours the workbook gives it. Equal rows left out are one row that says how many they
+ * are.
  */
 const Side: React.FC<{
     source: ComparisonSide
     side: FileSide
     alignment: Alignment | null
-    rows: ReadonlySet<number> | null
+    rows: ShownLine[] | null
 }> = ({ source, side, alignment, rows }) => {
     const { styles } = useCellStyles()
     const frame = useFrame()
+    const gapOf = useGap()
     const changed = new Set(source.changedCells ?? [])
     const own = ownStatusOf(side)
     const paint = own === 'added' ? styles.rowAdded : styles.rowRemoved
@@ -249,14 +262,18 @@ const Side: React.FC<{
         return <RawTableGrid decorate={decorate} rows={source.source} />
     }
 
-    const grid = alignSide(source.source, alignment, side)
-    const shown = rows ? keepRows(grid, rows) : grid
-    const shownRows = rows ? alignment.rows.filter((_, index) => rows.has(index)) : alignment.rows
+    const lines = rows ?? alignment.rows.map((_, line): ShownLine => ({ line }))
+    const { rows: shown, gaps } = keepRows(alignSide(source.source, alignment, side), lines, alignment.columns.length)
+    const shownRows = lines.map(line => ('line' in line ? alignment.rows[line.line] : undefined))
     // A changed cell stands on lines both files hold, so its address is enough to know it.
     const frames = framesOf(shown, cell => !!cell.cell && changed.has(cell.cell))
     const ownLine = (line: ComparisonLine | undefined) => line?.status === own
 
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
+        const gap = gaps.get(cell)
+        if (gap !== undefined) {
+            return gapOf(gap)
+        }
         const rowLine = shownRows[row]
         const columnLine = alignment.columns[column]
         if (rowLine?.[side] == null || columnLine?.[side] == null) {
@@ -281,6 +298,7 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useCellStyles()
     const frame = useFrame()
+    const gapOf = useGap()
     const { rows: source, marks } = combined
     const frames = framesOf(source, cell => marks.get(cell)?.before !== undefined)
 
@@ -296,6 +314,9 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
         const mark = marks.get(cell)
         if (!mark) {
             return undefined
+        }
+        if (mark.gap !== undefined) {
+            return gapOf(mark.gap)
         }
         if (mark.lead) {
             const row = mark.row === 'added' || mark.row === 'removed' ? mark.row : undefined

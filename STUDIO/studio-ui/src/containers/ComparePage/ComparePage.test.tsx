@@ -240,11 +240,21 @@ const TABLE: ComparisonTable = {
     name: 'Datatype Person',
     status: 'changed',
     first: {
-        source: [[{ cell: 'A1', value: 'int' }], [{ cell: 'A2', value: 'name' }]],
+        source: [
+            [{ cell: 'A1', value: 'int' }],
+            [{ cell: 'A2', value: 'name' }],
+            [{ cell: 'A3', value: 'age' }],
+            [{ cell: 'A4', value: 'zip' }],
+        ],
         changedCells: ['A1'],
     },
     second: {
-        source: [[{ cell: 'A1', value: 'double' }], [{ cell: 'A2', value: 'name' }]],
+        source: [
+            [{ cell: 'A1', value: 'double' }],
+            [{ cell: 'A2', value: 'name' }],
+            [{ cell: 'A3', value: 'age' }],
+            [{ cell: 'A4', value: 'zip' }],
+        ],
         changedCells: ['A1'],
     },
 }
@@ -974,12 +984,13 @@ describe('ComparePage', () => {
 
         await waitFor(() => expect(getComparisonTable).toHaveBeenCalledWith('cmp-1', '0-0'))
         const first = await screen.findByTestId('compare-pane-first')
-        // Only the row that differs is shown until the equal rows are asked for.
+        // The row that differs is shown with the row beside it until the equal rows are asked for.
         expect(first).toHaveTextContent('int')
-        expect(first).not.toHaveTextContent('name')
+        expect(first).toHaveTextContent('name')
+        expect(first).not.toHaveTextContent('zip')
 
         await userEvent.click(screen.getByTestId('compare-show-equal-rows'))
-        await waitFor(() => expect(screen.getByTestId('compare-pane-first')).toHaveTextContent('name'))
+        await waitFor(() => expect(screen.getByTestId('compare-pane-first')).toHaveTextContent('zip'))
     })
 
     it('reads a comparison that was over before the screen was listening', async () => {
