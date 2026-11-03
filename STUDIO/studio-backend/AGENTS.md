@@ -4,6 +4,17 @@ Rules for Studio REST controllers (`org.openl.studio.**.rest.controller`, `org.o
 request/response models. They keep the generated `/rest/openapi.json` spec consistent, localizable, and correctly
 validated. Follow them for **every** new or changed endpoint, DTO, and enum.
 
+## Endpoints Nobody Calls
+
+- **An endpoint lives only while a client calls it.** The clients are `studio-ui` and `studio-mcp`. When a change
+  leaves an endpoint that neither of them calls, the same change removes it — never keep one "in case" or because
+  it is public.
+- **Remove all of it**: the handler, the service code only it reached, its message keys in `openapi.properties` and
+  `ValidationMessages.properties`, its unit tests, its ITEST requests (and the README lines describing them), and its
+  part of the OpenAPI goldens (see [Regenerating OpenAPI Goldens](#regenerating-openapi-goldens)).
+- **Check both clients before keeping or removing one**: search `STUDIO/studio-ui/src` and `STUDIO/studio-mcp/src`
+  for the path, and count each HTTP method of a path apart: a `GET` nobody calls goes even when its `POST` stays.
+
 ## OpenAPI Descriptions
 
 Descriptions are resolved as **message keys**, not literal prose. `OpenApiPropertyResolverImpl.resolve(...)` looks each
