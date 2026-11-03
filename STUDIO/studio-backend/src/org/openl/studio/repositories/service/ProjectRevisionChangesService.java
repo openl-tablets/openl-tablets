@@ -23,6 +23,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -44,6 +45,10 @@ import org.openl.util.HashingUtils;
  * against the files the base holds, whatever revision the working copy was opened at. The base is then required. In a
  * repository with commits, a revision is named by its id, a short id or a branch, which names the last revision of
  * the branch.
+ *
+ * <p>In a repository with commits, a base that is not in the history of the other side, as a revision of another
+ * branch is not, comes with the revision both histories parted at. The working copy stands on the revision it was
+ * opened at. Two revisions of one line of history, either one first, have none.
  *
  * <p>Both revisions are told as the history of the project tells them. Only the files inside the project folder are
  * told, by their paths inside the project, ordered as the Merge Summary orders them. A repository with commits
@@ -100,17 +105,21 @@ public class ProjectRevisionChangesService {
     }
 
     /**
-     * The files the working copy of the project changed since the base, by the content of each file.
+     * The files the working copy of the project changed since the base, by the content of each file. A base of
+     * another history is told with the revision both parted at, and the files are the ones the working copy changed
+     * since that revision, as a pull request lists them.
      *
      * @throws NotFoundException when the repository has no such revision of the project
      */
     private ProjectRevisionChanges inWorkingCopy(RulesProject project, String base) throws IOException {
         var repository = project.getDesignRepository();
         var earlier = revisionNamed(project, base);
+        var common = commonOfWorkingCopy(project, earlier.getVersion());
         var after = new HashMap<String, String>();
         collect(project.getArtefacts(), after);
-        var files = differences(contentOf(project, project.getBranch(), earlier.getVersion()), after);
-        return new ProjectRevisionChanges(historyMappers.getObject(repository).revisionOf(earlier), null, files);
+        var since = common == null ? earlier : common;
+        var files = differences(contentOf(project, project.getBranch(), since.getVersion()), after);
+        return answer(repository, earlier, null, common, files);
     }
 
     /**
@@ -124,7 +133,7 @@ public class ProjectRevisionChangesService {
     private static FileData revisionNamed(RulesProject project, String base) throws IOException {
         var repository = project.getDesignRepository();
         var named = repository.supports().branches()
-                ? ((BranchRepository) repository).listChanges(project.getRealPath(), null, base).to()
+                ? commitNamed((BranchRepository) repository, project.getRealPath(), base)
                 : repository.checkHistory(project.getDesignFolderName(), base);
         if (named == null) {
             throw new NotFoundException("project.revision.message", base);
@@ -132,19 +141,90 @@ public class ProjectRevisionChangesService {
         return named;
     }
 
+    /**
+     * The commit a revision names, a branch or a short id included, as the history of the folder tells it. A revision
+     * parts from itself at itself, so it is read without comparing it with anything.
+     *
+     * @throws java.io.FileNotFoundException when the repository has no such revision
+     */
+    private static @Nullable FileData commitNamed(BranchRepository repository, String folder, String revision)
+            throws IOException {
+        return repository.findCommonRevision(folder, revision, revision);
+    }
+
+    /**
+     * The revision the working copy and the base parted at, when the base is not in the history of the working copy.
+     * The working copy stands on the revision it was opened at, so a later revision of its branch parts from it there.
+     */
+    private static @Nullable FileData commonOfWorkingCopy(RulesProject project, String base) throws IOException {
+        var repository = project.getDesignRepository();
+        // A project never opened at a revision stands on the last one of its branch; one never saved, on none.
+        var opened = project.getHistoryVersion() != null
+                ? project.getHistoryVersion()
+                : project.getLastHistoryVersion();
+        if (opened == null || !repository.supports().branches()) {
+            return null;
+        }
+        FileData common;
+        try {
+            common = ((BranchRepository) repository).findCommonRevision(project.getRealPath(), base, opened);
+        } catch (FileNotFoundException e) {
+            // The revision the working copy was opened at is gone, as after a forced push: no common revision is known
+            log.debug("Revision '{}' of project '{}' is gone.", opened, project.getName(), e);
+            return null;
+        }
+        return common == null || base.equals(common.getVersion()) ? null : common;
+    }
+
     private ProjectRevisionChanges byTrees(BranchRepository repository,
                                            String folder,
                                            String revision,
                                            @Nullable String base) throws IOException {
-        var changes = repository.listChanges(folder, base, revision);
-        var files = changes.changes()
+        if (base == null) {
+            var changes = repository.listChanges(folder, null, revision);
+            return answer(repository, changes.from(), changes.to(), null, filesOf(changes, folder));
+        }
+        var earlier = commitNamed(repository, folder, base);
+        var common = commonOfRevisions(repository, folder, base, revision);
+        // A base of another history: the files the revision changed since both parted, as a pull request lists them
+        var changes = repository.listChanges(folder, common == null ? base : common.getVersion(), revision);
+        return answer(repository, earlier, changes.to(), common, filesOf(changes, folder));
+    }
+
+    /** The files of the project folder a comparison of two revisions found changed, ordered by path. */
+    private static List<ProjectRevisionChanges.ChangedFile> filesOf(RevisionChanges changes, String folder) {
+        return changes.changes()
                 .stream()
                 .filter(change -> change.path().startsWith(folder + '/'))
                 .map(change -> new ProjectRevisionChanges.ChangedFile(FilePaths.inside(folder, change.path()),
                         ChangeType.of(change.kind())))
                 .sorted(FILE_ORDER)
                 .toList();
-        return answer(repository, changes.from(), changes.to(), files);
+    }
+
+    /**
+     * The revision two revisions parted at, when neither of them is in the history of the other one: two revisions
+     * of one line of history are compared with each other only.
+     */
+    private static @Nullable FileData commonOfRevisions(BranchRepository repository,
+                                                        String folder,
+                                                        String base,
+                                                        String revision) throws IOException {
+        var common = repository.findCommonRevision(folder, base, revision);
+        if (common == null) {
+            return null;
+        }
+        // A revision made on the other one parted from it at that one: both are on one line of history
+        var onOneLine = common.getVersion().equals(versionOf(repository, folder, base))
+                || common.getVersion().equals(versionOf(repository, folder, revision));
+        return onOneLine ? null : common;
+    }
+
+    /** The commit id a revision names, a branch or a short id included. */
+    private static @Nullable String versionOf(BranchRepository repository, String folder, String revision)
+            throws IOException {
+        var named = commitNamed(repository, folder, revision);
+        return named == null ? null : named.getVersion();
     }
 
     private ProjectRevisionChanges byContent(RulesProject project, String revision, @Nullable String base)
@@ -155,7 +235,7 @@ public class ProjectRevisionChangesService {
         var earlier = base != null ? history.get(indexOf(history, base)) : previous(history, later);
         var after = contentOf(project, null, revision);
         var before = earlier == null ? Map.<String, String>of() : contentOf(project, null, earlier.getVersion());
-        return answer(project.getDesignRepository(), earlier, history.get(later), differences(before, after));
+        return answer(project.getDesignRepository(), earlier, history.get(later), null, differences(before, after));
     }
 
     /** The files added, modified and deleted from one content of the project to another, ordered by path. */
@@ -197,13 +277,22 @@ public class ProjectRevisionChangesService {
         return index == 0 ? null : history.get(index - 1);
     }
 
-    /** The changed files with the two revisions, told as the history of the repository tells them. */
+    /**
+     * The changed files with the revisions compared, told as the history of the repository tells them.
+     *
+     * @param to     the later revision, or nothing for the working copy
+     * @param common the revision both parted at, or nothing when one is in the history of the other
+     */
     private ProjectRevisionChanges answer(Repository repository,
                                           @Nullable FileData from,
-                                          FileData to,
+                                          @Nullable FileData to,
+                                          @Nullable FileData common,
                                           List<ProjectRevisionChanges.ChangedFile> files) {
         var history = historyMappers.getObject(repository);
-        return new ProjectRevisionChanges(from == null ? null : history.revisionOf(from), history.revisionOf(to), files);
+        return new ProjectRevisionChanges(from == null ? null : history.revisionOf(from),
+                to == null ? null : history.revisionOf(to),
+                common == null ? null : history.revisionOf(common),
+                files);
     }
 
     /**

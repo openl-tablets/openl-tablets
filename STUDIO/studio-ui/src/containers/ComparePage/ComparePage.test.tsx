@@ -15,7 +15,7 @@ import {
     startProjectComparison,
 } from 'services/compare'
 import { getFileText } from 'services/files'
-import { getRevisionChanges } from 'services/repositories'
+import { getRevisionChanges, type RevisionChanges } from 'services/repositories'
 import { ResultNotReadyError } from 'services/taskResult'
 import type { Comparison, ComparisonTable, ConflictComparisonTable } from 'types/compare'
 
@@ -530,7 +530,7 @@ describe('ComparePage', () => {
 
     it('says when two revisions changed no file, and when their files could not be read', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1' })
-        vi.mocked(getRevisionChanges).mockResolvedValueOnce({ base: revisionOf('b1'), revision: revisionOf('a1'), files: []})
+        vi.mocked(getRevisionChanges).mockResolvedValueOnce({ base: revisionOf('b1'), revision: revisionOf('a1'), common: null, files: []})
         const { unmount } = openPage()
         expect(await screen.findByText('repository:browser.history.no_changes_between')).toBeInTheDocument()
         unmount()
@@ -705,6 +705,98 @@ describe('ComparePage', () => {
         expect(await screen.findByTestId('compare-revisions')).toHaveTextContent('user_workspace')
         push('COMPLETED')
         expect(await screen.findByText('selected_revision → user_workspace')).toBeInTheDocument()
+    })
+
+    it('tells the revision a revision of another branch parted at, and compares each file through it', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'feature', base: 't1' })
+        vi.mocked(getRevisionChanges).mockResolvedValueOnce({
+            base: revisionOf('t1'),
+            revision: null,
+            common: revisionOf('c1'),
+            files: CHANGED as RevisionChanges['files'],
+        })
+
+        openPage()
+
+        expect(await screen.findByTestId('compare-revisions-common')).toHaveTextContent('common_revision_note')
+        await userEvent.click(screen.getByTestId('changed-rules/Main.xlsx'))
+
+        const [next] = setSearchParams.mock.calls.at(-1)!
+        expect(Object.fromEntries(next)).toEqual({
+            projectId: 'p1', branch: 'feature', base: 't1', file: 'rules/Main.xlsx', common: 'c1',
+        })
+    })
+
+    it('compares a workbook of the working copy with a revision of another branch as a pull request does', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1', branch: 'feature', base: 't1', common: 'c1', file: 'rules/Main.xlsx',
+        })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+        vi.mocked(getRevisionChanges).mockResolvedValueOnce({
+            base: revisionOf('t1'),
+            revision: null,
+            common: revisionOf('c1'),
+            files: CHANGED as RevisionChanges['files'],
+        })
+
+        openPage()
+
+        // What the working copy changed since the revision both histories parted at, and no views to pick.
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Main.xlsx', branch: 'feature', revision: 'c1' },
+            { path: 'rules/Main.xlsx' }))
+        expect(screen.queryByTestId('compare-conflict-view')).toBeNull()
+        // The head names the revision the file is compared from, the one both histories parted at.
+        expect(await screen.findByTestId('compare-revisions')).toHaveTextContent('c1')
+        push('COMPLETED')
+        expect(await screen.findByText('common_revision → user_workspace')).toBeInTheDocument()
+    })
+
+    it('names the revision a file is compared from, the one the address names', async () => {
+        // An address made before the window named the common revision compares the file from the base.
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'feature', base: 't1', file: 'rules/Main.xlsx' })
+        vi.mocked(getRevisionChanges).mockResolvedValueOnce({
+            base: revisionOf('t1'),
+            revision: null,
+            common: revisionOf('c1'),
+            files: CHANGED as RevisionChanges['files'],
+        })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Main.xlsx', branch: 'feature', revision: 't1' },
+            { path: 'rules/Main.xlsx' }))
+        expect(await screen.findByTestId('compare-revisions')).toHaveTextContent('t1')
+        expect(screen.getByTestId('compare-revisions')).not.toHaveTextContent('c1')
+    })
+
+    it('reads a workbook the revision both histories parted at does not hold as an added one', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1', branch: 'feature', base: 't1', common: 'c1', file: 'rules/New.xlsx', change: 'added',
+        })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/New.xlsx', absent: true },
+            { path: 'rules/New.xlsx' }))
+    })
+
+    it('reads a text of another branch from the revision both histories parted at', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1', branch: 'feature', base: 't1', common: 'c1', file: 'rules.xml',
+        })
+
+        openPage()
+
+        await userEvent.click(await screen.findByTestId('text-versions'))
+        await waitFor(() => expect(getFileText).toHaveBeenCalledWith('p1', 'rules.xml', 'c1'))
+        expect(getFileText).toHaveBeenCalledWith('p1', 'rules.xml', undefined)
+        expect(getFileText).not.toHaveBeenCalledWith('p1', 'rules.xml', 't1')
+        expect(startProjectComparison).not.toHaveBeenCalled()
     })
 
     it('compares a conflicted workbook with its base, and its two versions on request', async () => {

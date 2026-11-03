@@ -532,6 +532,11 @@ export interface RevisionChanges {
     base: ProjectRevision | null
     /** The revision whose changes are told, as the history tells it; null for the working copy. */
     revision: ProjectRevision | null
+    /**
+     * The revision the histories of both sides parted at, as the history tells it. Null when the base is in the
+     * history of the revision or of the working copy; a revision of another branch is not.
+     */
+    common: ProjectRevision | null
     /** The changed files, by their paths inside the project. */
     files: ProjectFileChange[]
 }
@@ -555,7 +560,12 @@ export async function getRevisionChanges(
     const response: RevisionChanges = await apiCall(
         // The list shows its own error: a failed read must not replace the whole page with an error page.
         `/projects/${encodeURIComponent(projectId)}/history/changes?${params}`, undefined, LOCAL_LOAD_API_OPTIONS)
-    return { base: response.base ?? null, revision: response.revision ?? null, files: asArray(response.files) }
+    return {
+        base: response.base ?? null,
+        revision: response.revision ?? null,
+        common: response.common ?? null,
+        files: asArray(response.files),
+    }
 }
 
 /** Open a project at a specific historical revision. */

@@ -15,6 +15,8 @@ i18next.addResourceBundle('en', 'compare', {
     earlier_revision: 'Earlier revision',
     later_revision: 'Later revision',
     selected_revision: 'Selected revision',
+    common_revision: 'Common revision',
+    common_revision_note: 'Both sides were made from revision {{revision}}: the changes are shown since it, as a pull request shows them.',
     conflict_view_label: 'What the comparison shows',
     view_their_changes: 'Their Changes',
     view_your_changes: 'Your Changes',

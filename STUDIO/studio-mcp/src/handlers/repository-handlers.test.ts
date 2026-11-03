@@ -120,6 +120,22 @@ describe("repository tools", () => {
     expect(textOf(result)).toMatch(/^1 file\./);
   });
 
+  it("openl_repository_project_revision_changes tells the revision a base of another branch parted at", async () => {
+    const revision = (revisionNo: string, fullComment: string) => ({
+      revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment,
+      author: { displayName: "Ada Admin" }, deleted: false, technicalRevision: false,
+    });
+    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: undefined, base: "t1" } }).reply(200, {
+      base: revision("t1", "Their prices"),
+      common: revision("c1", "Before the branches parted"),
+      files: [{ path: "rules/Main.xlsx", type: "modified" }],
+    });
+
+    const result = await executeTool("repository_project_revision_changes", { projectId, base: "t1" }, harness.client);
+
+    expect(textOf(result)).toMatch(/\| revision \| working copy \|  \|  \|  \|  \|\n\| common \| c1 \| 2026-01-01T00:00:00Z \| Ada Admin \| Before the branches parted \|  \|$/);
+  });
+
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {
     harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 25, size: 50 } }).reply(200, {
       content: [],

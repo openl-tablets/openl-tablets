@@ -2504,6 +2504,25 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
     }
 
+    @Override
+    public @Nullable FileData findCommonRevision(String path, String first, String second) throws IOException {
+        initializeGit(true);
+
+        var readLock = repositoryLock.readLock();
+        try {
+            log.debug("findCommonRevision(): lock");
+            readLock.lock();
+            var repository = git().getRepository();
+            try (var walk = new RevWalk(repository)) {
+                var common = mergeBaseOf(repository, commitOf(walk, first), commitOf(walk, second));
+                return common == null ? null : revisionOf(path, walk.parseCommit(common));
+            }
+        } finally {
+            readLock.unlock();
+            log.debug("findCommonRevision(): unlock");
+        }
+    }
+
     /** A commit of the folder as its history lists it, read when it is first asked about. */
     private FileData revisionOf(String path, RevCommit commit) {
         return new LazyFileData(branch, path, this, commit, null);

@@ -1093,6 +1093,16 @@ revision of it. To compare the working copy with a revision, proceed as follows:
     its author, its date and its number, and the working copy stands beside it, headed **User workspace**. A file is
     changed when its content differs, so a file changed and then changed back is not listed.
 
+    A revision the working copy is not made on, such as a revision of another branch, comes with the common revision
+    both histories parted at, and a note under the two names it. The window then shows what the working copy changed
+    since that revision, the way a pull request shows what a branch changed: the files listed are the ones the working
+    copy changed since it. For the working copy, it is the revision the working copy was opened at or one before it, so
+    a later revision of the same branch has one too.
+
+    ![The common revision of the working copy and a revision of another branch](images/compare-workspace-common-revision.png "The working copy compared with a revision of another branch")
+
+    *The working copy compared with a revision of another branch, through their common revision*
+
     ![The files the working copy changed since a revision](images/compare-workspace-changes.png "The files the working copy changed since a revision")
 
     *The files the working copy changed since a revision*
@@ -1103,6 +1113,10 @@ revision of it. To compare the working copy with a revision, proceed as follows:
     [Comparing Two Revisions](#comparing-two-revisions): as of the revision against the working copy, an Excel file
     element by element as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), and any other
     file line by line.
+
+    With a common revision, the file is compared from it: **Common revision** against **User workspace**. The three
+    versions side by side are what a merge shows, as described in
+    [Working with Branches](project-branches.md#working-with-branches), and are not offered here.
 
 ### Exporting a Project or a File
 

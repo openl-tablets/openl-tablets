@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Breadcrumb, Button, Card, Empty, Flex, Skeleton, Tooltip, Typography } from 'antd'
+import { Alert, Breadcrumb, Button, Card, Empty, Flex, Skeleton, Tooltip, Typography } from 'antd'
 import { ArrowLeftOutlined, ArrowRightOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { getProject, type ProjectRevision } from 'services/repositories'
 import { errorHandler } from 'utils/errorHandling'
@@ -109,13 +109,25 @@ const RevisionCard: React.FC<RevisionCardProps> = ({ label, number, details, tes
     )
 }
 
-/** The two revisions compared, as a short pair whose numbers tell why each was made when pointed at. */
-const RevisionPair: React.FC<{ revisions: ComparedRevisions, changes: LoadedChanges }> = ({ revisions, changes }) => {
+/**
+ * The two revisions a file is compared at, as a short pair whose numbers tell why each was made when pointed at. A
+ * revision of another history is compared from the revision both parted at, so that one stands first.
+ *
+ * @param common the revision both histories parted at, which the file is compared from, or nothing
+ */
+const RevisionPair: React.FC<{ revisions: ComparedRevisions, changes: LoadedChanges, common?: string | undefined }> = ({
+    revisions,
+    changes,
+    common,
+}) => {
     const { t } = useTranslation('compare')
+    // The comment of the earlier side, which the changes tell for the base and for the revision both parted at.
+    const earlier = common ? changes?.common : changes?.base
+    const comment = !common || earlier?.revisionNo === common ? earlier?.fullComment : undefined
     return (
         <Flex align="center" data-testid="compare-revisions" gap="small">
-            <Tooltip title={changes?.base?.fullComment}>
-                <Typography.Text type="secondary">{shortRevision(revisions.base)}</Typography.Text>
+            <Tooltip title={comment}>
+                <Typography.Text type="secondary">{shortRevision(common ?? revisions.base)}</Typography.Text>
             </Tooltip>
             <ArrowRightOutlined />
             {revisions.revision
@@ -145,13 +157,15 @@ interface RevisionsHeadProps {
     file: ProjectFileChange
     onBack: () => void
     steps: FileSteps
+    /** The revision both histories parted at, which the file is compared from, or nothing. */
+    common?: string | undefined
 }
 
 /**
  * What the window compares while a file is: the way back to the changed files, the project and the file, its
  * neighbours among the changed files, and the two revisions.
  */
-export const RevisionsHead: React.FC<RevisionsHeadProps> = ({ revisions, projectName, changes, file, onBack, steps }) => {
+export const RevisionsHead: React.FC<RevisionsHeadProps> = ({ revisions, projectName, changes, file, onBack, steps, common }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const folder = parentFolder(file.path)
@@ -210,7 +224,7 @@ export const RevisionsHead: React.FC<RevisionsHeadProps> = ({ revisions, project
                     </Tooltip>
                 </Flex>
             )}
-            <RevisionPair changes={changes} revisions={revisions} />
+            <RevisionPair changes={changes} common={common} revisions={revisions} />
         </div>
     )
 }
@@ -233,8 +247,9 @@ interface RevisionsComparisonProps {
  * line.
  *
  * The head shows the two revisions side by side, each with why it was made, who made it and when, as the changes
- * tell them. The working copy stands in place of the later revision when it is the one compared. The files are listed
- * a page at a time, as the files a revision changed are listed in the history.
+ * tell them. The working copy stands in place of the later revision when it is the one compared. A revision of another
+ * history is told with the revision both histories parted at: the files and their changes are told since it, as a pull
+ * request tells them. The files are listed a page at a time, as the files a revision changed are listed in the history.
  */
 export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
     revisions,
@@ -304,6 +319,18 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
                         )
                         : <WorkspaceCard />}
                 </Flex>
+                {changes?.common && (
+                    <Alert
+                        showIcon
+                        data-testid="compare-revisions-common"
+                        type="info"
+                        title={(
+                            <Tooltip title={changes.common.fullComment}>
+                                {t('common_revision_note', { revision: shortRevision(changes.common.revisionNo) })}
+                            </Tooltip>
+                        )}
+                    />
+                )}
             </Flex>
             <div className={styles.changedFiles}>{body()}</div>
         </div>

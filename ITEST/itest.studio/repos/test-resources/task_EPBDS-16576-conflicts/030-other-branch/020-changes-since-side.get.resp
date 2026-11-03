@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "base": {
+    "revisionNo": "***",
+    "shortRevisionNo": "***",
+    "createdAt": "***",
+    "fullComment": "EPBDS-16576 Add Greeting to Main.xlsx in the side branch",
+    "author": {
+      "email": "admin@email",
+      "displayName": "Admin"
+    },
+    "deleted": false,
+    "technicalRevision": false
+  },
+  "common": {
+    "revisionNo": "***",
+    "shortRevisionNo": "***",
+    "createdAt": "***",
+    "fullComment": "Project EPBDS-16576-Conflicts is created.",
+    "author": {
+      "email": "admin@email",
+      "displayName": "Admin"
+    },
+    "deleted": false,
+    "technicalRevision": false
+  },
+  "files": [
+    {
+      "path": "rules/Main.xlsx",
+      "type": "modified"
+    }
+  ]
+}

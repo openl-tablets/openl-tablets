@@ -44,6 +44,23 @@ public interface BranchRepository extends Repository, SearchableRepository {
      */
     RevisionChanges listChanges(@NonNull String path, @Nullable String from, @NonNull String to) throws IOException;
 
+    /**
+     * Tells the revision the histories of two revisions parted at: the last one both of them were made on.
+     *
+     * <p>A revision made on the other one, or the same revision twice, parted at that revision. Two revisions of
+     * branches that never shared a revision have none. Of several such revisions, as a criss-cross history has, the
+     * first one is told.
+     *
+     * @param path   the folder the revision is told for, from the root of the repository
+     * @param first  a revision
+     * @param second another revision
+     * @return the revision as the history of the folder tells it, or {@code null} when the histories share none
+     * @throws java.io.FileNotFoundException when the repository has no such revision
+     * @throws IOException                    when a revision cannot be read
+     */
+    @Nullable FileData findCommonRevision(@NonNull String path, @NonNull String first, @NonNull String second)
+            throws IOException;
+
     String getBranch();
 
     boolean isBranchProtected(String branch);

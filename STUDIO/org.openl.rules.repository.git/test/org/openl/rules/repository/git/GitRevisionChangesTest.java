@@ -27,7 +27,7 @@ import org.openl.util.IOUtils;
 
 /**
  * A revision tells the files under a folder it changed, the way Git shows a commit: against the commit it was made
- * on, or against an earlier revision asked for.
+ * on, or against an earlier revision asked for. Two revisions tell the revision their histories parted at.
  */
 class GitRevisionChangesTest {
 
@@ -133,9 +133,52 @@ class GitRevisionChangesTest {
         assertThrows(FileNotFoundException.class, () -> repo.listChanges(PROJECT, "no-such-revision", head()));
     }
 
+    @Test
+    void twoBranchesPartedAtTheRevisionBothWereMadeOn() throws IOException {
+        write(repo, PROJECT + "/a.txt", "base");
+        var parted = head();
+        repo.createRepositoryBranch("feature", repo.getBranch());
+        write(repo, PROJECT + "/main.txt", "made on the main branch");
+        var main = head();
+        write(repo.forBranch("feature"), PROJECT + "/feature.txt", "made on the feature branch");
+        var feature = head("feature");
+
+        var common = repo.findCommonRevision(PROJECT, main, feature);
+
+        // The revision is told as the history lists it.
+        assertEquals(parted, common.getVersion());
+        assertEquals("Comment for " + PROJECT + "/a.txt", common.getComment());
+        assertEquals(parted, repo.findCommonRevision(PROJECT, feature, main).getVersion());
+    }
+
+    @Test
+    void aRevisionMadeOnAnotherOnePartedAtThatOne() throws IOException {
+        write(repo, PROJECT + "/a.txt", "1");
+        var first = head();
+        write(repo, PROJECT + "/a.txt", "2");
+        var second = head();
+
+        assertEquals(first, repo.findCommonRevision(PROJECT, first, second).getVersion());
+        assertEquals(first, repo.findCommonRevision(PROJECT, second, first).getVersion());
+        assertEquals(second, repo.findCommonRevision(PROJECT, second, second).getVersion());
+        // A branch named twice is the last revision of the branch, told by its id.
+        assertEquals(second, repo.findCommonRevision(PROJECT, repo.getBranch(), repo.getBranch()).getVersion());
+    }
+
+    @Test
+    void anUnknownRevisionHasNoCommonRevision() throws IOException {
+        write(repo, PROJECT + "/a.txt", "1");
+
+        assertThrows(FileNotFoundException.class, () -> repo.findCommonRevision(PROJECT, head(), "no-such-revision"));
+    }
+
     private String head() throws IOException {
+        return head(repo.getBranch());
+    }
+
+    private String head(String branch) throws IOException {
         try (var git = repo.getClosableGit()) {
-            return git.getRepository().resolve(Constants.R_HEADS + repo.getBranch()).getName();
+            return git.getRepository().resolve(Constants.R_HEADS + branch).getName();
         }
     }
 
