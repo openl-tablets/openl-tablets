@@ -7,6 +7,7 @@ import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTa
 import { alignmentOf, alignSide, ownStatusOf, type Alignment, type FileSide } from './alignment'
 import { combine, type CellMark, type CombinedTable } from './combinedDiff'
 import { keepRows, rowsToShow } from './diffRows'
+import { framesOf, type FrameSides } from './frames'
 import { useStyles } from './ComparePage.styles'
 import { useCellStyles } from './ComparisonPanes.styles'
 
@@ -203,13 +204,19 @@ const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; com
     )
 }
 
+/** The class of a changed cell, framed along the sides its frame runs. */
+const useFrame = () => {
+    const { styles, cx } = useCellStyles()
+    return (sides: FrameSides) => cx(styles.changed, sides.top && styles.frameTop, sides.right && styles.frameRight,
+        sides.bottom && styles.frameBottom, sides.left && styles.frameLeft)
+}
+
 /**
  * One file of the table, its rows and its columns standing where they stand against the other file.
  *
  * A line only this file holds is painted as added or removed. A line only the other file holds is an empty line
- * here. A cell the other file reads differently is painted as changed. What differs is what the reader came for, so
- * the rest of the table steps back into grey. A table that differs in nothing keeps the colours the workbook gives
- * it.
+ * here. The cells the other file reads differently are framed, and changed cells next to each other share one frame.
+ * Every other cell keeps the colours the workbook gives it.
  */
 const Side: React.FC<{
     source: ComparisonSide
@@ -218,6 +225,7 @@ const Side: React.FC<{
     rows: ReadonlySet<number> | null
 }> = ({ source, side, alignment, rows }) => {
     const { styles } = useCellStyles()
+    const frame = useFrame()
     const changed = new Set(source.changedCells ?? [])
     const own = ownStatusOf(side)
     const paint = own === 'added' ? styles.rowAdded : styles.rowRemoved
@@ -231,7 +239,8 @@ const Side: React.FC<{
     const grid = alignSide(source.source, alignment, side)
     const shown = rows ? keepRows(grid, rows) : grid
     const shownRows = rows ? alignment.rows.filter((_, index) => rows.has(index)) : alignment.rows
-    const differs = changed.size > 0 || [...alignment.rows, ...alignment.columns].some(line => line.status !== 'equal')
+    // A changed cell stands on lines both files hold, so its address is enough to know it.
+    const frames = framesOf(shown, cell => !!cell.cell && changed.has(cell.cell))
     const ownLine = (line: ComparisonLine | undefined) => line?.status === own
 
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
@@ -244,8 +253,8 @@ const Side: React.FC<{
         if (ownLine(rowLine) || ownLine(columnLine)) {
             return { className: paint, painted: true }
         }
-        const marked = !!cell.cell && changed.has(cell.cell)
-        return { className: marked ? styles.changed : undefined, painted: marked, muted: !marked && differs }
+        const sides = frames.get(cell)
+        return sides && { className: frame(sides) }
     }
 
     return <RawTableGrid decorate={decorate} rows={shown} />
@@ -258,9 +267,9 @@ const Side: React.FC<{
 const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useCellStyles()
+    const frame = useFrame()
     const { rows: source, marks } = combined
-    // A table that differs in nothing has nothing to step back from, as in the view beside this one.
-    const differs = [...marks.values()].some(mark => mark.before !== undefined || mark.row !== 'equal' || mark.paint)
+    const frames = framesOf(source, cell => marks.get(cell)?.before !== undefined)
 
     /** The colour a cell wholly of one file or the other is drawn in. */
     const ofSide = (kind: CellMark['paint']) => {
@@ -285,10 +294,10 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
                 content: SIGNS[mark.row] && <span title={t(`status_${mark.row}`)}>{SIGNS[mark.row]}</span>,
             }
         }
-        if (mark.before !== undefined) {
+        const sides = frames.get(cell)
+        if (sides) {
             return {
-                className: styles.changed,
-                painted: true,
+                className: frame(sides),
                 content: (
                     <>
                         <span className={styles.combinedBefore}>{mark.before}</span>
@@ -298,10 +307,10 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
                 ),
             }
         }
-        // Only a cell wholly of one file or the other is painted over. A cell of a row that merely changed keeps
-        // what the workbook fills it with, muted like every other cell that does not differ.
+        // Only a cell wholly of one file or the other is painted over. Every other cell keeps what the workbook
+        // fills it with.
         const paint = ofSide(mark.paint)
-        return { className: paint, painted: !!paint, muted: differs }
+        return paint ? { className: paint, painted: true } : undefined
     }
 
     return <RawTableGrid decorate={decorate} rows={source} testId="compare-combined" />

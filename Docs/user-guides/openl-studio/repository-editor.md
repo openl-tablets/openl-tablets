@@ -1086,7 +1086,7 @@ To compare the working copy with another revision, proceed as follows:
 1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
 2.  Click **Compare**.
 
-    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it next to each other, the working copy headed **User workspace** and the revision headed **Selected revision**, with the cells that read differently highlighted, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
+    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it drawn as one table, the working copy named **User workspace** and the revision named **Selected revision**, with the cells that read differently framed, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
 
 1.  To compare another pair, click **Select other files**.
 

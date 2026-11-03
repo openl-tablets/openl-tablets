@@ -15,7 +15,7 @@ import { type MarkInks, markInksOf, markedRuns, marksOf } from './textMarks'
 import { opaque } from '../styles/colorMath'
 import { themePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, roleColoursOf, useStyles } from './RawTableGrid.styles'
-import { borders, collapsedBorders, indentOf, textDecoration, tinted } from './rawTableStyle'
+import { borders, collapsedBorders, indentOf, textDecoration } from './rawTableStyle'
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { type CodeHighlighter, useCodeHighlighter } from '../hooks/useCodeHighlighter'
 import type { CodePiece } from '../utils/codeHighlight'
@@ -44,8 +44,6 @@ export interface CellDecoration {
     className?: string | undefined
     /** The screen paints the cell itself, so its Excel background is left out from under that paint. */
     painted?: boolean
-    /** The cell is beside the point on this screen, so its colours are drawn in grey. */
-    muted?: boolean
     /** What the cell shows, when the screen has more to say about it than the workbook does. */
     content?: React.ReactNode
     /** What the screen sets before or after the text of the cell, such as a button acting on the cell. */
@@ -177,8 +175,7 @@ const caseNumbersOf = (layout: TableLayout | undefined, lines: number): Map<numb
 
 /**
  * The cell's Excel styling. A cell the screen paints keeps its font and alignment but not its own
- * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
- * which are drawn in grey.
+ * background, which would otherwise sit over the paint.
  *
  * A side of the cell a border is drawn on, as the table collapses the lines its cells name
  * ({@link collapsedBorders}), is drawn with that border; any other side keeps the line of the grid, which the cell
@@ -186,21 +183,21 @@ const caseNumbersOf = (layout: TableLayout | undefined, lines: number): Map<numb
  * the workbook names. An indented cell leaves the room of its indent beside its text.
  */
 const cellStyle = (style: RawTableCell['style'], border: RawTableCellBorder | undefined, painted: boolean,
-    muted: boolean, ink: string): React.CSSProperties => {
+    ink: string): React.CSSProperties => {
     // Most cells of a workbook are written in no style at all, and a table holds thousands of them.
-    if (style === undefined && border === undefined && !painted && !muted) {
+    if (style === undefined && border === undefined && !painted) {
         return PLAIN
     }
     return {
-        background: painted ? undefined : tinted(style?.background, muted),
-        color: tinted(style?.color, muted),
+        background: painted ? undefined : style?.background,
+        color: style?.color,
         textAlign: style?.align as React.CSSProperties['textAlign'],
         verticalAlign: verticalAlignOf(style?.valign),
         fontWeight: style?.bold ? 'bold' : undefined,
         fontStyle: style?.italic ? 'italic' : undefined,
         textDecoration: textDecoration(style),
         ...indentOf(style),
-        ...borders(border, muted, ink),
+        ...borders(border, ink),
     }
 }
 
@@ -227,10 +224,10 @@ const roleAlignOf = (role: CellRole | undefined, style: RawTableCell['style']): 
  * formatting of the workbook is drawn.
  */
 const studioCellStyle = (role: CellRole | undefined, style: RawTableCell['style'], border: RawTableCellBorder | undefined,
-    muted: boolean, ink: string): React.CSSProperties => ({
+    ink: string): React.CSSProperties => ({
     textAlign: roleAlignOf(role, style),
     ...indentOf(style),
-    ...borders(border, muted, ink),
+    ...borders(border, ink),
 })
 
 /** The roles that hold the values of a table, which the Studio look colours by their type. */
@@ -259,8 +256,8 @@ const typeClassOf = (role: CellRole | undefined, styles: RawTableGridStyles): st
 }
 
 /** The classes a cell takes from its role in the Studio look: its text, and its fill unless the screen paints it. */
-const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles, painted: boolean,
-    muted: boolean): Array<string | false> => {
+const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles,
+    painted: boolean): Array<string | false> => {
     const name = role?.region.role
     const text = {
         signature: styles.signature,
@@ -284,8 +281,7 @@ const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles, p
         styles.studioCell,
         name !== undefined && text[name],
         typeClassOf(role, styles),
-        !painted && !muted && name !== undefined && name in fill && fill[name as keyof typeof fill],
-        muted && styles.mutedRole,
+        !painted && name !== undefined && name in fill && fill[name as keyof typeof fill],
     ]
 }
 
@@ -393,7 +389,7 @@ const shownMetaInfo = (cell: RawTableCell, asFormula: boolean, asDate: boolean):
  * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
  * what the legacy editor did, where the formula replaced the marked content.
  */
-const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles: RawTableGridStyles, ink: string,
+const cellText = (cell: RawTableCell, formulas: boolean, styles: RawTableGridStyles, ink: string,
     onOpenUsage?: OpenUsage, date = false) => {
     const asFormula = formulas && Boolean(cell.formula)
     const asDate = date && !asFormula
@@ -410,7 +406,6 @@ const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles:
         <RawTableCellText
             ink={ink}
             metaInfo={metaInfo}
-            muted={muted}
             onOpenUsage={onOpenUsage}
             runs={runs}
             styles={styles}
@@ -579,7 +574,6 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                     {row.map((cell, columnIndex) => {
                         if (cell.covered) return null
                         const decoration = decorate?.(cell, rowIndex, columnIndex)
-                        const muted = !!decoration?.muted
                         const painted = !!decoration?.painted
                         const key = cell.cell ?? `c${columnIndex}`
                         const border = borderLines[rowIndex]?.[columnIndex]
@@ -594,16 +588,16 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                 rowSpan={cell.rowspan}
                                 className={cx(styles.cell, cell.comment !== undefined && styles.commented,
-                                    ...(studio ? roleClassesOf(role, styles, painted, muted) : []),
+                                    ...(studio ? roleClassesOf(role, styles, painted) : []),
                                     decoration?.className)}
                                 style={studio
-                                    ? studioCellStyle(role, cell.style, border, muted, laidOn.text)
-                                    : cellStyle(cell.style, border, painted, muted, laidOn.text)}
+                                    ? studioCellStyle(role, cell.style, border, laidOn.text)
+                                    : cellStyle(cell.style, border, painted, laidOn.text)}
                             >
                                 {decoration?.before}
                                 {decoration?.content ?? cellText(studio
                                     ? studioTextOf(cell, role, roles, look.faint, codeRuns?.[rowIndex]?.[columnIndex], inks)
-                                    : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage,
+                                    : cell, !!formulas, styles, laidOn.text, onOpenUsage,
                                 typedRoles?.[rowIndex]?.[columnIndex]?.type === 'date')}
                                 {decoration?.after}
                             </td>

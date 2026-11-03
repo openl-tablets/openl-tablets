@@ -439,7 +439,7 @@ The project remains available to the dialog under the identifier issued after th
 *Resolving conflicts upon saving concurrent changes*
 
 The dialog contains the **Compare File Versions** link that opens, in a window of its own, what the other user
-changed against the version both users started from, what you changed, or the two conflicting versions side by side,
+changed against the version both users started from, what you changed, or the two conflicting versions against each other,
 as for a merge. As in a merge, **Merge line by line** in the **Resolution** column of the dialog resolves a
 conflicting text file in place, and **Merge table by table** a conflicting workbook.
 

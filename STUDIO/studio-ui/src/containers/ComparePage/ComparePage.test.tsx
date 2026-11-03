@@ -407,8 +407,7 @@ describe('ComparePage', () => {
         await screen.findByTestId('compare-tree')
         push('COMPLETED')
         // The two sides are the revisions before and after, not a first and a second file.
-        expect(await screen.findByText('earlier_revision')).toBeInTheDocument()
-        expect(screen.getByText('later_revision')).toBeInTheDocument()
+        expect(await screen.findByText('earlier_revision → later_revision')).toBeInTheDocument()
         expect(screen.queryByText('file_first')).toBeNull()
     })
 
@@ -596,8 +595,7 @@ describe('ComparePage', () => {
         await screen.findByTestId('compare-tree')
         push('COMPLETED')
         // The saved revision stands against your changes, the ones the save commits.
-        expect(await screen.findByText('saved_revision')).toBeInTheDocument()
-        expect(screen.getByText('your_changes')).toBeInTheDocument()
+        expect(await screen.findByText('saved_revision → your_changes')).toBeInTheDocument()
     })
 
     it('reads a file that is not a workbook at its saved revision and in the working copy', async () => {
@@ -641,8 +639,7 @@ describe('ComparePage', () => {
 
         expect(await screen.findByText('Rules')).toBeInTheDocument()
         // The working copy stands against the revision picked beside it.
-        expect(screen.getByText('user_workspace')).toBeInTheDocument()
-        expect(screen.getByText('selected_revision')).toBeInTheDocument()
+        expect(screen.getByText('user_workspace → selected_revision')).toBeInTheDocument()
         // The pickers are a click away, so another pair is compared in the same window.
         expect(screen.getByTestId('compare-back')).toBeInTheDocument()
     })
@@ -673,8 +670,8 @@ describe('ComparePage', () => {
         // There is nothing to pick here, so there is nowhere to go back to.
         expect(screen.queryByTestId('compare-back')).toBeNull()
         // The two sides are versions of the merge, not a first and a second file.
-        expect(screen.getByText('base_version')).toBeInTheDocument()
-        expect(screen.getByText('their_version')).toBeInTheDocument()
+        expect(screen.getByText('base_version → their_version')).toBeInTheDocument()
+        await userEvent.click(screen.getByText('view_sides'))
 
         await userEvent.click(screen.getByText('view_your_changes'))
 
@@ -899,20 +896,20 @@ describe('ComparePage', () => {
         expect(await screen.findByText('Datatype Address')).toBeInTheDocument()
     })
 
-    it('reads the two versions side by side, and as one table when that is asked for', async () => {
+    it('draws the two versions as one table, and side by side when that is asked for', async () => {
         openPage()
         await startComparison()
         push('COMPLETED')
         await screen.findByText('Rules')
 
-        // Side by side is how a comparison reads unless the reader says otherwise.
-        expect(screen.getByTestId('compare-pane-first')).toBeInTheDocument()
-        expect(screen.queryByTestId('compare-pane-combined')).toBeNull()
-
-        await userEvent.click(screen.getByText('view_combined'))
-
+        // One table is how a comparison reads unless the reader says otherwise.
         expect(screen.getByTestId('compare-pane-combined')).toBeInTheDocument()
         expect(screen.queryByTestId('compare-pane-first')).toBeNull()
+
+        await userEvent.click(screen.getByText('view_sides'))
+
+        expect(screen.getByTestId('compare-pane-first')).toBeInTheDocument()
+        expect(screen.queryByTestId('compare-pane-combined')).toBeNull()
     })
 
     it('lets the comparison go when the window is left, and only once', async () => {
@@ -948,6 +945,7 @@ describe('ComparePage', () => {
         openPage()
         await startComparison()
         push('COMPLETED')
+        await userEvent.click(await screen.findByText('view_sides'))
 
         await userEvent.click(await screen.findByText('Datatype Person'))
 
