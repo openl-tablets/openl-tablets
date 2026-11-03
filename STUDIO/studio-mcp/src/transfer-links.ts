@@ -48,7 +48,15 @@ interface UploadTarget {
  * writing back a text that lost them would change the file.
  */
 export function inlineText(file: Types.ProjectFileResponse): string | undefined {
-  if (file.data.length > INLINE_TEXT_BYTES || !isTextType(file.contentType)) {
+  return file.data.length > INLINE_TEXT_BYTES ? undefined : textOf(file);
+}
+
+/**
+ * The text of a file of any size whose content type is text, decoded as {@link inlineText} decodes it, or `undefined`
+ * for any other file and for bytes the charset does not decode.
+ */
+export function textOf(file: Types.ProjectFileResponse): string | undefined {
+  if (!isTextType(file.contentType)) {
     return undefined;
   }
   const charset = /charset=["']?([\w-]+)/i.exec(file.contentType)?.[1] ?? "utf-8";

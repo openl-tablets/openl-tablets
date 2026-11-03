@@ -682,8 +682,10 @@ export const getProjectRevisionsSchema = z.strictObject({
 
 export const getProjectRevisionChangesSchema = z.strictObject({
   projectId: projectIdSchema,
-  revision: nonBlankString.describe("The revision whose changes are listed: a 'revisionNo' from openl_repository_project_revisions()."),
-  base: nonBlankString.optional().describe("An earlier revision to compare it with, to list the files changed between the two. Omit to compare the revision with the one it was made on."),
+  revision: nonBlankString.optional().describe("Later revision, a 'revisionNo'; omit for the working copy."),
+  base: nonBlankString.optional().describe("Earlier revision; omit for the one 'revision' was made on."),
+  path: nonBlankString.optional().describe("A file: tell what changed in it."),
+  branch: z.string().optional().describe("Of the revisions of a workbook; omit for the project's."),
   ...paginationShape,
 });
 

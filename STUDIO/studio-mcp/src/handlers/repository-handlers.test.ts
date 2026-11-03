@@ -96,6 +96,30 @@ describe("repository tools", () => {
       + "| revision | def456 | 2026-01-01T00:00:00Z | Ada Admin | After | technical |");
   });
 
+  it("openl_repository_project_revision_changes lists the files the working copy changed since it was saved", async () => {
+    harness.mockHttp.onGet(`/projects/${encodeURIComponent(projectId)}`).reply(200, { id: projectId, revision: "abc123" });
+    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: undefined, base: "abc123" } }).reply(200, {
+      base: {
+        revisionNo: "abc123", createdAt: "2026-01-01T00:00:00Z", fullComment: "Before",
+        author: { displayName: "Ada Admin" }, deleted: false, technicalRevision: false,
+      },
+      // Studio leaves the list out when no file changed; one changed here, the empty answer is read below
+      files: [{ path: "rules/Main.xlsx", type: "modified" }],
+    });
+    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: undefined, base: "saved" } }).reply(200, {
+      base: { revisionNo: "saved", createdAt: "", deleted: false, technicalRevision: false },
+    });
+
+    const none = await executeTool("repository_project_revision_changes", { projectId, base: "saved" }, harness.client);
+    expect(textOf(none)).toMatch(/^No files\.|^0 files/);
+    const result = await executeTool("repository_project_revision_changes", { projectId }, harness.client);
+
+    // What a save would commit: the working copy against the revision it was saved at, named where the later
+    // revision stands, with nothing else told of it.
+    expect(textOf(result)).toMatch(/\| revision \| working copy \|  \|  \|  \|  \|$/);
+    expect(textOf(result)).toMatch(/^1 file\./);
+  });
+
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {
     harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 25, size: 50 } }).reply(200, {
       content: [],
