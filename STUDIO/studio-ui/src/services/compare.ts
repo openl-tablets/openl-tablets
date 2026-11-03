@@ -1,4 +1,4 @@
-import apiCall, { asArray, readTaskResult } from './apiCall'
+import apiCall, { readTaskResult } from './apiCall'
 import { decodeText } from '../utils/decodeText'
 import { expandCells } from './rawTables'
 import type { Comparison, ComparisonSide, ComparisonSideData, ComparisonTable, ComparisonTableData } from 'types/compare'
@@ -60,33 +60,6 @@ export interface ProjectFileSide {
     revision?: string | undefined
     /** Whether the side does not hold the file: it is compared as an empty workbook. */
     absent?: boolean | undefined
-}
-
-/**
- * The Excel files of the project that can be compared.
- *
- * @param projectId the project to read
- * @param where     the branch and the revision to read them at, or nothing for the working copy
- * @returns the paths of the files inside the project
- */
-export const getProjectCompareFiles = async (
-    projectId: string,
-    where: { branch?: string | undefined; revision?: string | undefined } = {}
-): Promise<string[]> => {
-    const query = new URLSearchParams()
-    if (where.branch) {
-        query.set('branch', where.branch)
-    }
-    if (where.revision) {
-        query.set('revision', where.revision)
-    }
-    const suffix = query.size > 0 ? `?${query}` : ''
-    const response = await apiCall(
-        `/projects/${projectId}/compare/files${suffix}`,
-        undefined,
-        API_OPTIONS
-    )
-    return asArray<string>(response)
 }
 
 /**

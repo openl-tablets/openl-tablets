@@ -23,9 +23,9 @@ export type LoadedChanges = Changes | null | undefined
 
 /**
  * The files a revision changed, against the given base or else the revision it was made on, read once for the
- * revisions named.
+ * revisions named. Without a revision, the files the working copy changed since the base.
  */
-export const useRevisionChanges = (projectId: string, revision: string, base?: string): LoadedChanges => {
+export const useRevisionChanges = (projectId: string, revision: string | undefined, base?: string): LoadedChanges => {
     const [changes, setChanges] = useState<LoadedChanges>(undefined)
     useEffect(() => {
         let cancelled = false
@@ -96,7 +96,7 @@ export const RevisionChanges = ({ projectId, branch, revision }: RevisionChanges
     if (changes.files.length === 0) {
         return <Empty description={t('browser.history.no_changes')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     }
-    const { base: before, revision: after, files } = changes
+    const { base: before, files } = changes
     return (
         <div data-testid={`revision-changes-${revision}`}>
             <ChangedFilePages
@@ -108,7 +108,7 @@ export const RevisionChanges = ({ projectId, branch, revision }: RevisionChanges
                     everyFile: true,
                     hint: t('browser.history.compare_hint'),
                     open: file => openFileRevisionsCompareWindow(projectId, file.path, branch ?? undefined,
-                        before?.revisionNo ?? null, after.revisionNo, file.type),
+                        before?.revisionNo ?? null, revision, file.type),
                 }}
             />
         </div>

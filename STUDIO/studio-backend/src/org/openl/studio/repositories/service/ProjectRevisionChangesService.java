@@ -16,7 +16,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -25,6 +24,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.project.status.ChangeType;
@@ -40,9 +40,16 @@ import org.openl.util.HashingUtils;
  * in. A repository without commits compares it with the previous revision of the project. The first revision of a
  * project has nothing to be compared with, and every file it holds is added.
  *
+ * <p>Without a revision, the working copy of the project is compared with the base: the files the user has now
+ * against the files the base holds, whatever revision the working copy was opened at. The base is then required. In a
+ * repository with commits, a revision is named by its id, a short id or a branch, which names the last revision of
+ * the branch.
+ *
  * <p>Both revisions are told as the history of the project tells them. Only the files inside the project folder are
- * told, by their paths inside the project, ordered as the Merge Summary orders them. A repository with commits compares trees, so the answer costs about the same however large the
- * files are. A repository without commits reads both revisions of the project and compares the content of each file.
+ * told, by their paths inside the project, ordered as the Merge Summary orders them. A repository with commits
+ * compares two revisions by their trees, so the answer costs about the same however large the files are. A repository
+ * without commits reads both revisions of the project and compares the content of each file, and so does a comparison
+ * with the working copy, in any repository.
  *
  * <p>Read access is not checked here: the project arrives already resolved for a caller allowed to read it.
  */
@@ -58,30 +65,71 @@ public class ProjectRevisionChangesService {
     private final ObjectProvider<HistoryRepositoryMapper> historyMappers;
 
     /**
-     * The files of the project the revision changed.
+     * The files of the project the revision changed, or the files the working copy changed since the base.
      *
      * @param project  the project the revisions belong to
-     * @param revision the revision whose changes are told
-     * @param base     the earlier revision to compare it with, or nothing for the one it was made on
-     * @return the changed files with the revisions compared
-     * @throws NotFoundException when the project has never been published or the repository has no such revision
-     * @throws IOException       when the repository cannot be read
+     * @param revision the revision whose changes are told, or nothing for the working copy
+     * @param base     the earlier revision to compare with: for a revision, nothing stands for the one it was made on
+     * @return the changed files with the revisions compared; the revision is {@code null} for the working copy
+     * @throws BadRequestException when neither a revision nor a base is named
+     * @throws NotFoundException   when the project has never been published or the repository has no such revision
+     * @throws IOException         when the repository cannot be read
      */
-    public ProjectRevisionChanges changesOf(RulesProject project, String revision, @Nullable String base)
+    public ProjectRevisionChanges changesOf(RulesProject project, @Nullable String revision, @Nullable String base)
             throws IOException {
+        if (revision == null && base == null) {
+            throw new BadRequestException("project.history.changes.base.required.message");
+        }
+        var asked = revision == null ? base : revision;
         if (project.isLocalOnly()) {
             // Never published, so no repository holds a revision of it.
-            throw new NotFoundException("project.revision.message", revision);
+            throw new NotFoundException("project.revision.message", asked);
         }
         try {
+            if (revision == null) {
+                return inWorkingCopy(project, base);
+            }
             var repository = project.getDesignRepository();
             return repository.supports().branches()
                     ? byTrees((BranchRepository) repository, project.getRealPath(), revision, base)
                     : byContent(project, revision, base);
         } catch (FileNotFoundException e) {
-            log.debug("Project '{}' has no revision '{}'.", project.getName(), revision, e);
-            throw new NotFoundException("project.revision.message", revision);
+            log.debug("Project '{}' has no revision '{}'.", project.getName(), asked, e);
+            throw new NotFoundException("project.revision.message", asked);
         }
+    }
+
+    /**
+     * The files the working copy of the project changed since the base, by the content of each file.
+     *
+     * @throws NotFoundException when the repository has no such revision of the project
+     */
+    private ProjectRevisionChanges inWorkingCopy(RulesProject project, String base) throws IOException {
+        var repository = project.getDesignRepository();
+        var earlier = revisionNamed(project, base);
+        var after = new HashMap<String, String>();
+        collect(project.getArtefacts(), after);
+        var files = differences(contentOf(project, project.getBranch(), earlier.getVersion()), after);
+        return new ProjectRevisionChanges(historyMappers.getObject(repository).revisionOf(earlier), null, files);
+    }
+
+    /**
+     * The revision a base names, as the history of the project names it. A repository with commits reads a branch or
+     * a short id as the commit it names, as it does for two revisions; any other repository knows a revision by its
+     * own name only.
+     *
+     * @throws java.io.FileNotFoundException when a repository with commits has no such revision
+     * @throws NotFoundException             when any other repository has no such revision of the project
+     */
+    private static FileData revisionNamed(RulesProject project, String base) throws IOException {
+        var repository = project.getDesignRepository();
+        var named = repository.supports().branches()
+                ? ((BranchRepository) repository).listChanges(project.getRealPath(), null, base).to()
+                : repository.checkHistory(project.getDesignFolderName(), base);
+        if (named == null) {
+            throw new NotFoundException("project.revision.message", base);
+        }
+        return named;
     }
 
     private ProjectRevisionChanges byTrees(BranchRepository repository,
@@ -105,8 +153,14 @@ public class ProjectRevisionChangesService {
         var history = project.getDesignRepository().listHistory(project.getDesignFolderName());
         var later = indexOf(history, revision);
         var earlier = base != null ? history.get(indexOf(history, base)) : previous(history, later);
-        var after = contentOf(project, revision);
-        var before = earlier == null ? Map.<String, String>of() : contentOf(project, earlier.getVersion());
+        var after = contentOf(project, null, revision);
+        var before = earlier == null ? Map.<String, String>of() : contentOf(project, null, earlier.getVersion());
+        return answer(project.getDesignRepository(), earlier, history.get(later), differences(before, after));
+    }
+
+    /** The files added, modified and deleted from one content of the project to another, ordered by path. */
+    private static List<ProjectRevisionChanges.ChangedFile> differences(Map<String, String> before,
+                                                                        Map<String, String> after) {
         var files = new ArrayList<ProjectRevisionChanges.ChangedFile>();
         after.forEach((path, hash) -> {
             var digest = before.get(path);
@@ -121,7 +175,7 @@ public class ProjectRevisionChangesService {
                 .filter(path -> !after.containsKey(path))
                 .forEach(path -> files.add(new ProjectRevisionChanges.ChangedFile(path, ChangeType.DELETED)));
         files.sort(FILE_ORDER);
-        return answer(project.getDesignRepository(), earlier, history.get(later), files);
+        return files;
     }
 
     /**
@@ -156,11 +210,13 @@ public class ProjectRevisionChangesService {
      * The files of the project at a revision, each by its path inside the project with a digest of its content. A
      * revision that deleted the project holds no file.
      *
+     * @param branch the branch the project is read on, or nothing for the repository as it is
      * @throws NotFoundException when the repository no longer lists the project at its path
      */
-    private Map<String, String> contentOf(RulesProject project, String revision) throws IOException {
+    private Map<String, String> contentOf(RulesProject project, @Nullable String branch, String revision)
+            throws IOException {
         var atRevision = designTimeRepository.getProjectByPath(project.getDesignRepository().getId(),
-                null,
+                branch,
                 project.getRealPath(),
                 revision);
         if (atRevision == null) {
@@ -168,21 +224,24 @@ public class ProjectRevisionChangesService {
         }
         var files = new HashMap<String, String>();
         if (!atRevision.isDeleted()) {
-            collect(atRevision, atRevision.getArtefacts(), files);
+            collect(atRevision.getArtefacts(), files);
         }
         return files;
     }
 
-    private static void collect(AProject project,
-                                Collection<? extends AProjectArtefact> artefacts,
-                                Map<String, String> files) throws IOException {
+    /**
+     * Adds the digest of every file of the project, by the path of the file inside the project.
+     *
+     * <p>The path is the one the project writes the file under. A working copy and a revision read from a repository
+     * with mapped folders name the project by different folders, so the path a file carries is not cut by either.
+     */
+    private static void collect(Collection<? extends AProjectArtefact> artefacts, Map<String, String> files)
+            throws IOException {
         for (var artefact : artefacts) {
             if (artefact instanceof AProjectFolder folder) {
-                collect(project, folder.getArtefacts(), files);
+                collect(folder.getArtefacts(), files);
             } else if (artefact instanceof AProjectResource resource) {
-                // An artefact carries the path of the project before its own.
-                files.put(FilePaths.inside(project.getArtefactPath().getStringValue(),
-                        resource.getArtefactPath().getStringValue()), digestOf(resource));
+                files.put(resource.getInternalPath(), digestOf(resource));
             }
         }
     }

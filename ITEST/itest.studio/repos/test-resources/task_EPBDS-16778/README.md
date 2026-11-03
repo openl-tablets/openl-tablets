@@ -14,5 +14,5 @@ changed the file before:
   declares it;
 - `060-project` — the project stays closed and nobody holds it;
 - `070-revision-changes` — the contributor reads which files a revision changed (EPBDS-17052): the last commit against
-  its parent, the net difference since the first commit of the project, and 404 for a revision the repository does
-  not hold.
+  its parent, the net difference since the first commit of the project, the working copy against the first commit,
+  400 when neither a revision nor a base is named, and 404 for a revision the repository does not hold.

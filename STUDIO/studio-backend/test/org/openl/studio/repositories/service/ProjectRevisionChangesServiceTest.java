@@ -37,6 +37,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.project.status.ChangeType;
 import org.openl.studio.repositories.model.ProjectRevisionChanges;
@@ -204,6 +205,101 @@ class ProjectRevisionChangesServiceTest {
         assertThrows(NotFoundException.class, () -> service.changesOf(project, "absent", null));
     }
 
+    @Test
+    void theWorkingCopyIsComparedWithTheBaseByTheContentOfItsFiles() throws Exception {
+        var repository = branchRepository();
+        when(repository.getId()).thenReturn(REPOSITORY_ID);
+        named(repository, "r1", "r1");
+        var project = project(repository);
+        when(project.getBranch()).thenReturn("main");
+        // The base is read on the branch the project is on.
+        var base = revision("r1", Map.of("rules.xml", "1", "rules/Rates.xlsx", "a", "Old.xlsx", "x"));
+        when(designTimeRepository.getProjectByPath(REPOSITORY_ID, "main", FOLDER, "r1")).thenReturn(base);
+        holds(project, Map.of("rules.xml", "1", "rules/Rates.xlsx", "b", "New.txt", "n"));
+
+        var changes = service.changesOf(project, null, "r1");
+
+        assertEquals("r1", changes.base().revisionNo());
+        assertEquals("Comment of r1", changes.base().fullComment());
+        // The working copy is no revision of the history.
+        assertNull(changes.revision());
+        assertEquals(List.of(new ChangedFile("Old.xlsx", ChangeType.DELETED),
+                new ChangedFile("rules/Rates.xlsx", ChangeType.MODIFIED),
+                new ChangedFile("New.txt", ChangeType.ADDED)), changes.files());
+    }
+
+    @Test
+    void theWorkingCopyIsComparedWithTheLastRevisionOfABranchNamedAsTheBase() throws Exception {
+        var repository = branchRepository();
+        when(repository.getId()).thenReturn(REPOSITORY_ID);
+        named(repository, "master", "r7");
+        var project = project(repository);
+        revision("r7", Map.of("rules.xml", "1"));
+        holds(project, Map.of("rules.xml", "1"));
+
+        var changes = service.changesOf(project, null, "master");
+
+        // The branch names its last revision, which the base is told and read as
+        assertEquals("r7", changes.base().revisionNo());
+        assertEquals(List.of(), changes.files());
+    }
+
+    @Test
+    void aBaseARepositoryWithCommitsDoesNotKnowIsNotFoundForTheWorkingCopy() throws IOException {
+        var repository = branchRepository();
+        when(repository.listChanges(FOLDER, null, "no-such-branch"))
+                .thenThrow(new FileNotFoundException("Cannot find revision 'no-such-branch'."));
+
+        assertThrows(NotFoundException.class, () -> service.changesOf(project(repository), null, "no-such-branch"));
+    }
+
+    @Test
+    void aWorkingCopyThatHoldsWhatTheBaseHoldsChangedNothing() throws Exception {
+        var repository = plainRepository("r1", "r2");
+        when(repository.checkHistory(FOLDER, "r1")).thenReturn(revisionData("r1"));
+        var project = project(repository);
+        revision("r1", Map.of("rules.xml", "1"));
+        holds(project, Map.of("rules.xml", "1"));
+
+        assertEquals(List.of(), service.changesOf(project, null, "r1").files());
+    }
+
+    @Test
+    void theWorkingCopyNeedsTheBaseItIsComparedWith() {
+        var project = project(branchRepository());
+
+        assertThrows(BadRequestException.class, () -> service.changesOf(project, null, null));
+        verifyNoInteractions(designTimeRepository);
+    }
+
+    @Test
+    void aBaseTheHistoryDoesNotHoldIsNotFoundForTheWorkingCopy() throws IOException {
+        var repository = plainRepository("r1");
+        var project = project(repository);
+
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "absent"));
+    }
+
+    @Test
+    void aProjectThatWasNeverPublishedHasNoBaseForItsWorkingCopy() {
+        var project = mock(RulesProject.class);
+        when(project.isLocalOnly()).thenReturn(true);
+
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "r1"));
+        verifyNoInteractions(designTimeRepository);
+    }
+
+    /**
+     * The working copy of the project, holding the given files by their paths inside it, each with its content. Its
+     * files carry the folder a repository with mapped folders keeps the project in, which differs from the folder of
+     * the project itself; the files are still told by their paths inside the project.
+     */
+    private static void holds(RulesProject project, Map<String, String> files) throws ProjectException {
+        when(project.getArtefactPath()).thenReturn(new ArtefactPathImpl(FOLDER));
+        var artefacts = artefactsOf(files, FOLDER + ":1a2b3c");
+        when(project.getArtefacts()).thenReturn(artefacts);
+    }
+
     /** Both revisions are told with their numbers and comments, as the history tells them. */
     private static void assertRevisions(String base, String revision, ProjectRevisionChanges changes) {
         assertEquals(base, changes.base().revisionNo());
@@ -246,6 +342,12 @@ class ProjectRevisionChangesServiceTest {
         return repository;
     }
 
+    /** A repository with commits that reads the given name, a revision or a branch, as the given revision. */
+    private static void named(BranchRepository repository, String name, String revision) throws IOException {
+        when(repository.listChanges(FOLDER, null, name))
+                .thenReturn(new RevisionChanges(null, revisionData(revision), List.of()));
+    }
+
     private static RulesProject project(Repository repository) {
         var project = mock(RulesProject.class);
         when(project.getDesignRepository()).thenReturn(repository);
@@ -262,23 +364,36 @@ class ProjectRevisionChangesServiceTest {
     private AProject revision(String revision, Map<String, String> files) throws Exception {
         var project = mock(AProject.class);
         when(project.getArtefactPath()).thenReturn(new ArtefactPathImpl(FOLDER));
-        var artefacts = new ArrayList<AProjectArtefact>();
-        var folder = mock(AProjectFolder.class);
-        var inFolder = new ArrayList<AProjectArtefact>();
-        for (var file : files.entrySet()) {
-            var resource = resource(file.getKey(), file.getValue());
-            (file.getKey().contains("/") ? inFolder : artefacts).add(resource);
-        }
-        when(folder.getArtefacts()).thenReturn(inFolder);
-        artefacts.add(folder);
+        var artefacts = artefactsOf(files, FOLDER);
         when(project.getArtefacts()).thenReturn(artefacts);
         when(designTimeRepository.getProjectByPath(REPOSITORY_ID, null, FOLDER, revision)).thenReturn(project);
         return project;
     }
 
-    private static AProjectResource resource(String path, String content) throws ProjectException {
+    /**
+     * The files of a project by their paths inside it, each with its content. A path with a folder is kept in a
+     * folder of the project.
+     *
+     * @param stored the folder the files carry in their paths
+     */
+    private static List<AProjectArtefact> artefactsOf(Map<String, String> files, String stored)
+            throws ProjectException {
+        var artefacts = new ArrayList<AProjectArtefact>();
+        var inFolder = new ArrayList<AProjectArtefact>();
+        for (var file : files.entrySet()) {
+            var resource = resource(stored, file.getKey(), file.getValue());
+            (file.getKey().contains("/") ? inFolder : artefacts).add(resource);
+        }
+        var folder = mock(AProjectFolder.class);
+        when(folder.getArtefacts()).thenReturn(inFolder);
+        artefacts.add(folder);
+        return artefacts;
+    }
+
+    private static AProjectResource resource(String stored, String path, String content) throws ProjectException {
         var resource = mock(AProjectResource.class);
-        when(resource.getArtefactPath()).thenReturn(new ArtefactPathImpl(FOLDER + "/" + path));
+        when(resource.getArtefactPath()).thenReturn(new ArtefactPathImpl(stored + "/" + path));
+        when(resource.getInternalPath()).thenReturn(path);
         when(resource.getContent())
                 .thenAnswer(invocation -> new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
         return resource;

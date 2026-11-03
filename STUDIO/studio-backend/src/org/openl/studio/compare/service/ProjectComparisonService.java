@@ -4,10 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -25,7 +25,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.compare.model.ComparisonSideRequest;
-import org.openl.studio.projects.service.files.FilePaths;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -48,22 +47,6 @@ public class ProjectComparisonService {
     }
 
     /**
-     * The Excel files that can be compared, by their path inside the project.
-     *
-     * @param project  the project the files belong to
-     * @param branch   the branch to read them on, or nothing for the working copy
-     * @param revision the revision to read them at, or nothing for the working copy
-     * @return the paths, in alphabetical order
-     */
-    public List<String> excelFiles(RulesProject project, @Nullable String branch, @Nullable String revision) {
-        var side = sideOf(project, branch, revision);
-        return excelArtefacts(side).stream()
-                .map(artefact -> insideProject(side, artefact))
-                .sorted(String.CASE_INSENSITIVE_ORDER)
-                .toList();
-    }
-
-    /**
      * Reads the file one side of a comparison names.
      *
      * <p>An absent side is an empty workbook of the format its name tells, and nothing is read for it.
@@ -81,11 +64,10 @@ public class ProjectComparisonService {
         if (side.absent()) {
             return emptyWorkbook(FileUtils.getName(side.path()));
         }
-        var read = sideOf(project, side.branch(), side.revision());
-        var artefact = excelArtefacts(read).stream()
-                .filter(candidate -> insideProject(read, candidate).equals(side.path()))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("file.not.found.message"));
+        var artefact = excelArtefacts(sideOf(project, side.branch(), side.revision())).get(side.path());
+        if (artefact == null) {
+            throw new NotFoundException("file.not.found.message");
+        }
         try {
             return new ComparisonContent(artefact.getName(), ((AProjectResource) artefact).getContent());
         } catch (ProjectException e) {
@@ -132,31 +114,26 @@ public class ProjectComparisonService {
         }
     }
 
-    /** Every Excel file of the project, wherever in it it lies. */
-    private static List<AProjectArtefact> excelArtefacts(AProject project) {
-        var excelArtefacts = new ArrayList<AProjectArtefact>();
+    /**
+     * Every Excel file of the project, wherever in it it lies, by its path inside the project.
+     *
+     * <p>The path is the one the project writes the file under. A working copy and a revision read from a repository
+     * with mapped folders name the project by different folders, so the path a file carries is not cut by either.
+     */
+    private static Map<String, AProjectArtefact> excelArtefacts(AProject project) {
+        var excelArtefacts = new HashMap<String, AProjectArtefact>();
         collectExcelArtefacts(project.getArtefacts(), excelArtefacts);
         return excelArtefacts;
     }
 
     private static void collectExcelArtefacts(Collection<? extends AProjectArtefact> artefacts,
-                                              List<AProjectArtefact> excelArtefacts) {
+                                              Map<String, AProjectArtefact> excelArtefacts) {
         for (AProjectArtefact artefact : artefacts) {
             if (artefact instanceof AProjectFolder folder) {
                 collectExcelArtefacts(folder.getArtefacts(), excelArtefacts);
             } else if (FileTypeHelper.isExcelFile(artefact.getName())) {
-                excelArtefacts.add(artefact);
+                excelArtefacts.put(artefact.getInternalPath(), artefact);
             }
         }
-    }
-
-    /**
-     * The path of a file as the project knows it.
-     *
-     * <p>An artefact carries the path of the project before its own: the name the workspace knows the
-     * project by, or the folder the repository keeps it in when a revision of it is read.
-     */
-    private static String insideProject(AProject project, AProjectArtefact artefact) {
-        return FilePaths.inside(project.getArtefactPath().getStringValue(), artefact.getArtefactPath().getStringValue());
     }
 }
