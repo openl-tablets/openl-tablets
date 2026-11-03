@@ -43,6 +43,8 @@ i18next.addResourceBundle('en', 'compare', {
     view_label: 'How the two versions are shown',
     show_equal_elements: 'Show equal elements',
     show_equal_rows: 'Show equal rows',
+    rows_hidden_one: '⋯ {{count}} equal row',
+    rows_hidden_other: '⋯ {{count}} equal rows',
     identical: 'File elements are identical',
     too_large: 'The files are too large to compare in the browser',
     file_name: 'File name',

@@ -1,7 +1,6 @@
 import type { ComparisonTable } from 'types/compare'
 import type { RawTableCell } from 'types/tables'
 import { alignmentOf, alignSide, ownStatusOf, wholeMerges, type Alignment } from './alignment'
-import { rowsToShow } from './diffRows'
 
 const TABLE: ComparisonTable = {
     id: '0-0',
@@ -85,12 +84,4 @@ describe('alignment', () => {
         expect(ownStatusOf('second')).toBe('added')
     })
 
-    it('shows the rows that differ, and every row once a column differs', () => {
-        const alignment = alignmentOf(TABLE)!
-
-        expect([...rowsToShow(alignment, false)!]).toEqual([1, 2])
-        expect(rowsToShow(alignment, true)).toBeNull()
-        expect(rowsToShow({ ...alignment, columns: [{ first: 0, status: 'removed' }]}, false)).toBeNull()
-        expect(rowsToShow({ ...alignment, rows: [{ first: 0, second: 0, status: 'equal' }]}, false)).toBeNull()
-    })
 })

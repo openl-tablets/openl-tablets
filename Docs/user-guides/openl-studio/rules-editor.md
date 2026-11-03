@@ -1003,7 +1003,7 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
     *The two versions side by side*
 
-1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows only the rows that differ: the rows added, removed or holding a framed cell. A table with a column added or removed shows every row, since the column runs through all of them.
+1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows the rows that differ, the rows added, removed or holding a framed cell, with one equal row on either side of each, and the first row of the table, its header, so that every change is read in its place. The equal rows left out in between are one row across the table that says how many they are, such as **⋯ 3 equal rows**, the way a text comparison marks the lines it skips. A single equal row is shown rather than left out. Merged cells cut by such a row are drawn on either side of it. A table with a column added or removed shows every row, since the column runs through all of them.
 2.  To compare another pair of files, click **Select other files**.
 
 If the two files hold the same elements with the same contents, the **File elements are identical** message is displayed.
