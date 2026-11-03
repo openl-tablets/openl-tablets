@@ -68,6 +68,52 @@ describe('ComparisonPanes', () => {
         expect(changed).toHaveStyle({ color: paperToken().colorText })
     })
 
+    it('frames changed cells next to each other with one frame', () => {
+        const twoChanged: ComparisonTable = {
+            ...TABLE,
+            first: { ...TABLE.first!, changedCells: ['A2', 'A3']},
+            second: {
+                source: [
+                    [{ cell: 'A1', value: 'Datatype Person' }],
+                    [{ cell: 'A2', value: 'double' }],
+                    [{ cell: 'A3', value: 'fullName' }],
+                ],
+                changedCells: ['A2', 'A3'],
+            },
+        }
+
+        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={twoChanged} />)
+
+        const pane = screen.getByTestId('compare-pane-first')
+        const upper = getComputedStyle(pane.querySelector('[data-cell="A2"]') as HTMLElement)
+        const lower = getComputedStyle(pane.querySelector('[data-cell="A3"]') as HTMLElement)
+        // The frame runs round both cells, so it is open between them.
+        expect(upper.getPropertyValue('--frame-bottom')).toBe('0px')
+        expect(upper.getPropertyValue('--frame-top')).toBe('')
+        expect(lower.getPropertyValue('--frame-top')).toBe('0px')
+        expect(lower.getPropertyValue('--frame-bottom')).toBe('')
+    })
+
+    it('frames with a dashed line a table whose formatting changed', () => {
+        render(<ComparisonPanes
+            error={null}
+            loading={false}
+            showEqualRows={false}
+            table={{ ...TABLE, formattingChanged: true }}
+            view="combined"
+        />)
+
+        expect(getComputedStyle(screen.getByTestId('compare-restyled')).outline).toContain('dashed')
+    })
+
+    it('frames no table whose formatting stayed', () => {
+        render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />)
+
+        for (const table of screen.getAllByTestId('compare-restyled')) {
+            expect(getComputedStyle(table).outline).toBe('')
+        }
+    })
+
     it('keeps the colours the workbook gives the cells, the changed ones included', () => {
         const coloured: ComparisonTable = {
             ...TABLE,

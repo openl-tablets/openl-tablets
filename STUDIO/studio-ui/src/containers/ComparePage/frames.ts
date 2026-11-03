@@ -25,47 +25,56 @@ const ownersOf = (grid: RawTableCell[][]): Array<Array<RawTableCell | undefined>
     return owners
 }
 
+/** Whether every step of a run beyond a side of a cell holds. */
+const everyStep = (count: number, holds: (step: number) => boolean): boolean => {
+    for (let step = 0; step < count; step++) {
+        if (!holds(step)) {
+            return false
+        }
+    }
+    return true
+}
+
 /**
- * The frame around the changed cells of a table, by the changed cell.
+ * The frames around the framed cells of a table, by the framed cell.
  *
- * Changed cells next to each other share one frame. So a changed row, a changed column or a table changed in every
- * cell is framed as a whole. A side of a changed cell is framed unless the cells beyond it changed too. A merged cell
- * is framed along a side unless every cell beyond that side changed.
+ * Cells framed the same way next to each other share one frame. So a framed row, a framed column or a table framed in
+ * every cell is framed as a whole. A side of a framed cell is framed unless the cells beyond it are framed the same
+ * way. A merged cell is framed along a side unless every cell beyond that side is framed the same way.
  *
  * @param grid the cells as they are drawn, a row and a column of every place
- * @param changed whether a cell of the grid, at its row and column, changed
+ * @param frameOf how a cell of the grid, at its row and column, is framed, or false or undefined for a cell with no
+ * frame
  */
-export const framesOf = (
+export const framesOf = <K, >(
     grid: RawTableCell[][],
-    changed: (cell: RawTableCell, row: number, column: number) => boolean
+    frameOf: (cell: RawTableCell, row: number, column: number) => K | false | undefined
 ): Map<RawTableCell, FrameSides> => {
     const owners = ownersOf(grid)
-    const marked = new Set<RawTableCell>()
+    const kinds = new Map<RawTableCell, K>()
     grid.forEach((row, rowIndex) => row.forEach((cell, columnIndex) => {
-        if (!cell.covered && changed(cell, rowIndex, columnIndex)) {
-            marked.add(cell)
+        const kind = cell.covered ? undefined : frameOf(cell, rowIndex, columnIndex)
+        if (kind !== undefined && kind !== false) {
+            kinds.set(cell, kind)
         }
     }))
-    const changedAt = (row: number, column: number) => {
-        const owner = owners[row]?.[column]
-        return owner !== undefined && marked.has(owner)
-    }
-    /** Whether every place of a run beyond a side changed. */
-    const allChanged = (count: number, at: (step: number) => boolean) =>
-        Array.from({ length: count }, (_, step) => at(step)).every(Boolean)
-
     const frames = new Map<RawTableCell, FrameSides>()
     grid.forEach((row, rowIndex) => row.forEach((cell, columnIndex) => {
-        if (!marked.has(cell)) {
+        const kind = kinds.get(cell)
+        if (kind === undefined) {
             return
+        }
+        const sameAt = (place: number, column: number) => {
+            const owner = owners[place]?.[column]
+            return owner !== undefined && kinds.get(owner) === kind
         }
         const height = cell.rowspan ?? 1
         const width = cell.colspan ?? 1
         frames.set(cell, {
-            top: !allChanged(width, step => changedAt(rowIndex - 1, columnIndex + step)),
-            bottom: !allChanged(width, step => changedAt(rowIndex + height, columnIndex + step)),
-            left: !allChanged(height, step => changedAt(rowIndex + step, columnIndex - 1)),
-            right: !allChanged(height, step => changedAt(rowIndex + step, columnIndex + width)),
+            top: !everyStep(width, step => sameAt(rowIndex - 1, columnIndex + step)),
+            bottom: !everyStep(width, step => sameAt(rowIndex + height, columnIndex + step)),
+            left: !everyStep(height, step => sameAt(rowIndex + step, columnIndex - 1)),
+            right: !everyStep(height, step => sameAt(rowIndex + step, columnIndex + width)),
         })
     }))
     return frames

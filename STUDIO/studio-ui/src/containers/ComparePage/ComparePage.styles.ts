@@ -190,23 +190,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         margin-left: auto;
         gap: ${token.marginSM}px;
     `,
-    legend: css`
-        display: flex;
-        gap: ${token.marginSM}px;
-        color: ${token.colorTextSecondary};
-        font-size: ${token.fontSizeSM}px;
-        white-space: nowrap;
-    `,
-    legendSign: css`
-        margin-right: ${token.marginXXS}px;
-        color: ${token.colorTextTertiary};
-    `,
-    // Which version a line of a file read line by line comes from, above the lines.
-    textLegend: css`
-        flex: none;
-        padding: ${token.paddingXS}px ${token.paddingSM}px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
     added: css`
         color: ${token.colorSuccess};
     `,

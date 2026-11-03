@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Empty, Spin } from 'antd'
+import { Alert, Badge, Empty, Flex, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from 'utils/errorMessage'
 import { SIGNS, TextDiffView } from './TextDiffView'
@@ -33,7 +33,7 @@ const isBinary = (version: string): boolean => version.slice(0, BINARY_HEAD).inc
  */
 export const TextVersionsView: React.FC<TextVersionsViewProps> = ({ read, titles, secondOnLeft = false }) => {
     const { t } = useTranslation('compare')
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
     // The two versions of the file, or null while they are being read.
     const [versions, setVersions] = useState<[string, string] | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -56,10 +56,11 @@ export const TextVersionsView: React.FC<TextVersionsViewProps> = ({ read, titles
         }
     }, [read, t])
 
-    // What the signs of the lines stand for: a line removed is of the first version, a line added of the second.
+    // What the signs of the lines stand for: a line removed is of the first version, a line added of the second. The
+    // dots are the colours of the lines, as the legend of a workbook shows them.
     const legend = titles && [
-        { sign: SIGNS.remove, className: styles.removed, name: titles.first },
-        { sign: SIGNS.add, className: styles.added, name: titles.second },
+        { sign: SIGNS.remove, status: 'error' as const, name: titles.first },
+        { sign: SIGNS.add, status: 'success' as const, name: titles.second },
     ]
     // Binary content has no lines to compare, and so no signs to explain.
     const binary = !!versions && versions.some(isBinary)
@@ -67,14 +68,11 @@ export const TextVersionsView: React.FC<TextVersionsViewProps> = ({ read, titles
     return (
         <div className={styles.column}>
             {legend && !binary && (
-                <div className={cx(styles.legend, styles.textLegend)} data-testid="compare-text-legend">
-                    {(secondOnLeft ? legend.toReversed() : legend).map(({ sign, className, name }) => (
-                        <span key={sign}>
-                            <span className={cx(styles.legendSign, className)}>{sign}</span>
-                            {name}
-                        </span>
+                <Flex wrap align="center" className={styles.notes} data-testid="compare-text-legend" gap="small">
+                    {(secondOnLeft ? legend.toReversed() : legend).map(({ sign, status, name }) => (
+                        <Badge key={sign} status={status} text={`${sign} ${name}`} />
                     ))}
-                </div>
+                </Flex>
             )}
             <div className={styles.body} data-testid="compare-conflict-text">
                 {error && <Alert showIcon data-testid="compare-error" title={error} type="error" />}

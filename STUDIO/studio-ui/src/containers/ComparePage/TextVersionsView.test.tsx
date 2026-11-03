@@ -12,6 +12,8 @@ vi.mock('antd', () => ({
     ),
     Empty: Object.assign(({ description }: any) => <div>{description}</div>, { PRESENTED_IMAGE_SIMPLE: 'simple' }),
     Spin: ({ description }: any) => <div role="status">{description}</div>,
+    Badge: ({ status, text }: any) => <span data-status={status}>{text}</span>,
+    Flex: ({ children, wrap: _wrap, align: _align, gap: _gap, ...rest }: any) => <div {...rest}>{children}</div>,
 }))
 
 describe('TextVersionsView', () => {
@@ -34,7 +36,11 @@ describe('TextVersionsView', () => {
         render(<TextVersionsView read={read} titles={{ first: 'Base version', second: 'Their version' }} />)
 
         await screen.findByTestId('compare-text-diff')
-        expect(screen.getByTestId('compare-text-legend')).toHaveTextContent('-Base version+Their version')
+        const legend = screen.getByTestId('compare-text-legend')
+        expect(legend).toHaveTextContent('- Base version+ Their version')
+        // The dots are the colours the lines are painted in, as in the legend of a workbook.
+        expect([...legend.querySelectorAll('[data-status]')].map(dot => dot.getAttribute('data-status')))
+            .toEqual(['error', 'success'])
     })
 
     it('names the second version first when it is shown on the left', async () => {
@@ -43,7 +49,7 @@ describe('TextVersionsView', () => {
         render(<TextVersionsView secondOnLeft read={read} titles={{ first: 'Base version', second: 'Your version' }} />)
 
         await screen.findByTestId('compare-text-diff')
-        expect(screen.getByTestId('compare-text-legend')).toHaveTextContent('+Your version-Base version')
+        expect(screen.getByTestId('compare-text-legend')).toHaveTextContent('+ Your version- Base version')
     })
 
     it('does not compare binary content line by line', async () => {
