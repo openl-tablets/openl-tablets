@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "identical": false,
+  "sheets": [
+    {
+      "id": "0",
+      "name": "Rules",
+      "type": "sheet",
+      "status": "changed",
+      "yours": "changed",
+      "theirs": "changed",
+      "children": [
+        {
+          "id": "0-0",
+          "name": "Spreadsheet SpreadsheetResult Greeting()",
+          "type": "table",
+          "status": "added",
+          "moved": false,
+          "yours": "added",
+          "theirs": "equal"
+        },
+        {
+          "id": "0-1",
+          "name": "Spreadsheet SpreadsheetResult Greeting()",
+          "type": "table",
+          "status": "added",
+          "moved": false,
+          "yours": "equal",
+          "theirs": "added"
+        }
+      ]
+    }
+  ]
+}

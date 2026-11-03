@@ -1,7 +1,15 @@
 import apiCall, { readTaskResult } from './apiCall'
 import { decodeText } from '../utils/decodeText'
 import { expandCells } from './rawTables'
-import type { Comparison, ComparisonSide, ComparisonSideData, ComparisonTable, ComparisonTableData } from 'types/compare'
+import type {
+    Comparison,
+    ComparisonSide,
+    ComparisonSideData,
+    ComparisonTable,
+    ComparisonTableData,
+    ConflictComparisonTable,
+    ConflictComparisonTableData,
+} from 'types/compare'
 import type { RawTableCell, RawTableCellData, RawTableCellStyle } from 'types/tables'
 
 const API_OPTIONS = { throwError: true, suppressErrorPages: true }
@@ -85,6 +93,20 @@ export const startProjectComparison = async (
  * version being merged in.
  */
 export type ConflictSide = 'base' | 'ours' | 'theirs'
+
+/**
+ * Starts comparing the base version of a conflicted workbook with your version and with their version at once.
+ *
+ * @returns the identifier the comparison is read and watched by
+ */
+export const startConflictVersionsComparison = async (projectId: string, path: string): Promise<string> => {
+    const response = await apiCall(
+        `/projects/${projectId}/merge/conflicts/compare-versions?file=${encodeURIComponent(path)}`,
+        { method: 'POST' },
+        API_OPTIONS
+    ) as { id: string }
+    return response.id
+}
 
 /**
  * Starts comparing two versions of a conflicted Excel file.
@@ -441,10 +463,21 @@ const readComparison = async (url: string): Promise<unknown> =>
 export const getComparison = async (comparisonId: string): Promise<Comparison> =>
     await readComparison(`/compare/${encodeURIComponent(comparisonId)}`) as Comparison
 
-/** A side of a compared table as a screen reads it: every cell carrying its own style. */
-const expandSide = (side: ComparisonSideData): ComparisonSide => {
-    const { source, styles, ...rest } = side
-    return { ...rest, source: expandCells(source, styles) }
+/** A side of a compared table as a screen reads it: every cell carrying its own style, the rest kept as it is. */
+const expandSide = <S extends ComparisonSideData>({ source, styles, ...rest }: S):
+    Omit<S, 'source' | 'styles'> & Pick<ComparisonSide, 'source'> => ({ ...rest, source: expandCells(source, styles) })
+
+/** One table of a comparison of a conflicted file with its base, as the base and the two versions hold it. */
+export const getConflictComparisonTable = async (comparisonId: string, tableId: string): Promise<ConflictComparisonTable> => {
+    const { base, yours, theirs, ...table } = await readComparison(
+        `/compare/${encodeURIComponent(comparisonId)}/conflict-tables/${encodeURIComponent(tableId)}`
+    ) as ConflictComparisonTableData
+    return {
+        ...table,
+        ...(base && { base: expandSide(base) }),
+        ...(yours && { yours: expandSide(yours) }),
+        ...(theirs && { theirs: expandSide(theirs) }),
+    }
 }
 
 /** One table of the comparison, as it stands in each of the two files. */
@@ -452,14 +485,7 @@ export const getComparisonTable = async (comparisonId: string, tableId: string):
     const { first, second, ...table } = await readComparison(
         `/compare/${encodeURIComponent(comparisonId)}/tables/${encodeURIComponent(tableId)}`
     ) as ComparisonTableData
-    const read: ComparisonTable = table
-    if (first !== undefined) {
-        read.first = expandSide(first)
-    }
-    if (second !== undefined) {
-        read.second = expandSide(second)
-    }
-    return read
+    return { ...table, ...(first && { first: expandSide(first) }), ...(second && { second: expandSide(second) }) }
 }
 
 /** Releases the comparison and the files it reads. */

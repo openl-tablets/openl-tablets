@@ -5,6 +5,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
@@ -15,7 +16,8 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
  *
  * @param source       the table as a matrix of cells, with its merges and its Excel styling
  * @param styles       the Excel styles the cells name by index, each once
- * @param changedCells addresses of the cells of the lines both files hold that differ, in A1 notation
+ * @param changedCells  addresses of the cells of the lines both files hold that differ, in A1 notation
+ * @param conflictCells addresses of the cells both versions of a conflict changed differently, or {@code null}
  */
 @Builder
 public record ComparisonSideView(
@@ -32,5 +34,10 @@ public record ComparisonSideView(
                 Addresses of the cells that read differently in the other file, in A1 notation: a different value, \
                 formula, comment or merging. Only the cells of the rows and the columns both files hold are listed; \
                 a row or a column the other file does not hold is told by the lines of the table.""")
-        List<String> changedCells) {
+        List<String> changedCells,
+
+        @Parameter(description = """
+                Addresses of the cells both versions of a conflict changed differently, in A1 notation; present \
+                only on a version of a comparison of a conflicted file with its base""")
+        @Nullable List<String> conflictCells) {
 }

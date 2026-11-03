@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.function.Function;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -23,6 +25,7 @@ import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.compare.model.ComparisonNodeStatus;
 import org.openl.studio.compare.model.ComparisonTableView;
 import org.openl.studio.compare.model.ComparisonView;
+import org.openl.studio.compare.model.ConflictComparisonTableView;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.compare.service.ComparisonMapper;
 import org.openl.studio.compare.service.ComparisonRegistry;
@@ -53,7 +56,7 @@ class CompareControllerTest {
 
     /** The registry reads the given comparison to the reader the controller hands it. */
     @SuppressWarnings("unchecked")
-    private void holds(WorkbookComparison comparison) {
+    private void holds(Closeable comparison) {
         when(registry.read(eq(COMPARISON_ID), any()))
                 .thenAnswer(call -> call.getArgument(1, Function.class).apply(comparison));
     }
@@ -127,5 +130,36 @@ class CompareControllerTest {
         comparisonHasEnded();
 
         assertThrows(NotFoundException.class, () -> controller.getTable(COMPARISON_ID, "unknown"));
+        // A comparison of two files holds no table of a conflict.
+        assertThrows(NotFoundException.class, () -> controller.getConflictTable(COMPARISON_ID, TABLE_ID));
+    }
+
+    @Test
+    void aConflictWithItsBaseIsReportedWithItsTablesInThreeVersions() {
+        var conflict = mock(ConflictComparison.class);
+        when(registry.isDone(COMPARISON_ID)).thenReturn(true);
+        holds(conflict);
+        var view = ComparisonView.builder().id(COMPARISON_ID).identical(false).sheets(List.of()).build();
+        when(mapper.toConflictView(COMPARISON_ID, conflict)).thenReturn(view);
+        var table = ConflictComparisonTableView.builder()
+                .id(TABLE_ID)
+                .name("Rates")
+                .status(ComparisonNodeStatus.CHANGED)
+                .build();
+        when(mapper.toConflictTable(conflict, TABLE_ID)).thenReturn(table);
+
+        assertSame(view, controller.getComparison(COMPARISON_ID).getBody());
+        assertSame(table, controller.getConflictTable(COMPARISON_ID, TABLE_ID).getBody());
+        assertNotReady(controllerWhileRunning().getConflictTable(COMPARISON_ID, TABLE_ID));
+        // Its tables are not tables of two files.
+        assertThrows(NotFoundException.class, () -> controller.getTable(COMPARISON_ID, TABLE_ID));
+        assertThrows(NotFoundException.class, () -> controller.getConflictTable(COMPARISON_ID, "unknown"));
+    }
+
+    /** A controller reading a comparison that still goes on. */
+    private CompareController controllerWhileRunning() {
+        var running = mock(ComparisonRegistry.class);
+        when(running.has(COMPARISON_ID)).thenReturn(true);
+        return new CompareController(mock(ComparisonLauncher.class), running, mapper);
     }
 }

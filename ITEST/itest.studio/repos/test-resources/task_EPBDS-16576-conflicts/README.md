@@ -8,6 +8,8 @@ This suite verifies that the file a merge could not settle is compared through t
   version of the workspace;
 - the base version is compared with the version being received, which tells what the side branch
   changed: the sheet and the table it added;
+- the base version is compared with both versions at once, which tells for each table what each branch did
+  to it, and a table is read in the three versions, lined up by the base;
 - the comparison answers with its own identifier and is read, watched and released as any other one;
 - a conflicted file that is not an Excel file is refused before a comparison is started, because the
   screen reads such a file line by line instead.

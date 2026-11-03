@@ -1,0 +1,45 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0-0",
+  "name": "Spreadsheet SpreadsheetResult Greeting()",
+  "status": "added",
+  "yoursStatus": "added",
+  "theirsStatus": "equal",
+  "yoursRange": "B2:C4",
+  "yours": {
+    "source": [
+      [
+        {
+          "cell": "B2",
+          "value": "Spreadsheet SpreadsheetResult Greeting()",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "cell": "B3",
+          "value": "Steps"
+        },
+        {
+          "cell": "C3",
+          "value": "Value"
+        }
+      ],
+      [
+        {
+          "cell": "B4",
+          "value": "RET"
+        },
+        {
+          "cell": "C4",
+          "value": "Hello from the main branch"
+        }
+      ]
+    ]
+  }
+}

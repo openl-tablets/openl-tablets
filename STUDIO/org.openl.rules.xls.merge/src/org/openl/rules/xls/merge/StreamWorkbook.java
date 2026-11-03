@@ -42,11 +42,20 @@ class StreamWorkbook implements Workbook {
         // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI
         // javadocs.
         this.tempFile = FileTool.toTempFile(is, "source.xls");
+        this.delegator = open(tempFile, readOnly);
+    }
+
+    /**
+     * Opens a workbook from a file, telling ZIP bombs apart from workbooks.
+     *
+     * @throws IOException when the file cannot be read as a workbook
+     */
+    static Workbook open(File file, boolean readOnly) throws IOException {
         // ZIP bomb detection tuning. Don't disable it by setting it in 0.
         // https://bz.apache.org/bugzilla/show_bug.cgi?id=58499
         // 0.001 is when 1MByte expands to 1 GByte
         ZipSecureFile.setMinInflateRatio(0.001);
-        this.delegator = WorkbookFactory.create(this.tempFile, null, readOnly);
+        return WorkbookFactory.create(file, null, readOnly);
     }
 
     @Override

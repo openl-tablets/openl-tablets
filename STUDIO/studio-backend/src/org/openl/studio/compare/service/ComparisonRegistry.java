@@ -1,5 +1,6 @@
 package org.openl.studio.compare.service;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.session.ClientSessionScope;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -42,7 +42,7 @@ public class ComparisonRegistry {
     private static final class Entry {
         private final String id;
         private final List<Path> files;
-        private final CompletableFuture<WorkbookComparison> task;
+        private final CompletableFuture<? extends Closeable> task;
         private final ReadWriteLock lease = new ReentrantReadWriteLock();
         /** Whether the workbooks are closed; written and read under the lease. */
         private boolean closed;
@@ -61,9 +61,9 @@ public class ComparisonRegistry {
      *
      * @param id    identifier of the comparison
      * @param files the compared files, deleted when the comparison is released
-     * @param task  the comparison itself
+     * @param task  the comparison itself: of two versions, or of the base and the two versions of a conflict
      */
-    public void register(String id, List<Path> files, CompletableFuture<WorkbookComparison> task) {
+    public void register(String id, List<Path> files, CompletableFuture<? extends Closeable> task) {
         release(current.getAndSet(new Entry(id, List.copyOf(files), task)));
     }
 
@@ -94,11 +94,11 @@ public class ComparisonRegistry {
      * is released meanwhile.
      *
      * @param id     identifier of the comparison
-     * @param reader reads what the comparison found
+     * @param reader reads the comparison: of two versions, or of the base and the two versions of a conflict
      * @return what the reader made of the comparison, or null when this session holds no such finished comparison
      * @throws RuntimeException what the comparison failed with
      */
-    public <T> @Nullable T read(String id, Function<? super WorkbookComparison, T> reader) {
+    public <T> @Nullable T read(String id, Function<? super Closeable, T> reader) {
         var entry = current.get();
         if (entry == null || !entry.is(id)) {
             return null;
@@ -116,7 +116,7 @@ public class ComparisonRegistry {
         }
     }
 
-    private static @Nullable WorkbookComparison resultOf(Entry entry) {
+    private static @Nullable Closeable resultOf(Entry entry) {
         var task = entry.task;
         if (!task.isDone() || task.isCancelled()) {
             return null;
@@ -173,7 +173,7 @@ public class ComparisonRegistry {
         }
     }
 
-    private static void close(WorkbookComparison comparison) {
+    private static void close(Closeable comparison) {
         try {
             comparison.close();
         } catch (IOException e) {

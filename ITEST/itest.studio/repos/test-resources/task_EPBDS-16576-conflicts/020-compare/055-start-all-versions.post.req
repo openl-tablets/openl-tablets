@@ -1,0 +1,3 @@
+POST /rest/projects/39G4KGA7YSZ13/merge/conflicts/compare-versions?file=EPBDS-16576-Conflicts%2Frules%2FMain.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+
