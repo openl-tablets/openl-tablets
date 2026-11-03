@@ -15,6 +15,13 @@ import org.jspecify.annotations.Nullable;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 
+/**
+ * A file of a Git revision whose size and history are read on first use.
+ *
+ * <p>The same data may be read by several requests at once, as when a revision of a project is listed twice. What is
+ * read lazily is published whole, so no request sees it half read. The history is read without holding the data:
+ * reading it may wait for the lock of the repository, which a request holding that lock may need the data under.
+ */
 @Slf4j
 class LazyFileData extends FileData {
 
@@ -62,7 +69,7 @@ class LazyFileData extends FileData {
     }
 
     @Override
-    public long getSize() {
+    public synchronized long getSize() {
         if (fileId != null) {
             try (var git = gitRepo.getClosableGit()) {
                 var loader = git.getRepository().open(fileId);
@@ -78,7 +85,7 @@ class LazyFileData extends FileData {
     }
 
     @Override
-    public void setSize(long size) {
+    public synchronized void setSize(long size) {
         fileId = null;
         super.setSize(size);
     }
@@ -133,85 +140,90 @@ class LazyFileData extends FileData {
 
     @Override
     public boolean isDeleted() {
-        verifyDeleteStatusLoaded();
-        return super.isDeleted();
+        // The history is read without holding the data, and the status read under it, as it is written
+        verifyLoaded();
+        return deleteStatus();
     }
 
     @Override
     public void setDeleted(boolean deleted) {
+        markDeleted(deleted);
+    }
+
+    /**
+     * Whether the file is deleted. A data item built from the selected branch tree exists in that branch. Historical
+     * deletions are marked explicitly by the history visitor.
+     */
+    private synchronized boolean deleteStatus() {
+        if (!deleteStatusLoaded) {
+            super.setDeleted(false);
+            deleteStatusLoaded = true;
+        }
+        return super.isDeleted();
+    }
+
+    private synchronized void markDeleted(boolean deleted) {
         super.setDeleted(deleted);
         deleteStatusLoaded = true;
     }
 
     private void verifyLoaded() {
-        if (loaded) {
-            return;
+        RevCommit known;
+        ObjectId from;
+        synchronized (this) {
+            if (loaded) {
+                return;
+            }
+            known = fileCommit;
+            from = fromCommit;
         }
 
         try (var git = gitRepo.getClosableGit()) {
-            if (fileCommit == null) {
-                fileCommit = findFileCommit(git);
-                if (fileCommit == null) {
-                    throw new IllegalStateException("Cannot find revision for the file " + fullPath);
+            var commit = known != null ? known : findFileCommit(git, from);
+            if (commit == null) {
+                throw new IllegalStateException("Cannot find revision for the file " + fullPath);
+            }
+            var committerIdent = commit.getCommitterIdent();
+            var version = resolveVersionName(git, commit);
+            var history = isTechnicalRevision() ? gitRepo.checkHistory(fullPath, version) : null;
+            synchronized (this) {
+                if (loaded) {
+                    return;
                 }
-
+                super.setComment(commit.getFullMessage());
+                super.setAuthor(new UserInfo(null, committerIdent.getEmailAddress(), committerIdent.getName()));
+                super.setModifiedAt(committerIdent.getWhen());
+                super.setVersion(version);
+                if (isTechnicalRevision()) {
+                    super.setDeleted(history == null || history.isDeleted());
+                    deleteStatusLoaded = true;
+                }
+                loaded = true;
                 fromCommit = null;
+                fileCommit = null;
             }
-
-            var message = fileCommit.getFullMessage();
-            var committerIdent = fileCommit.getCommitterIdent();
-
-            var userDisplayName = committerIdent.getName();
-            super.setComment(message);
-            super.setAuthor(new UserInfo(null, committerIdent.getEmailAddress(), userDisplayName));
-            super.setModifiedAt(committerIdent.getWhen());
-
-            var version = resolveVersionName(git);
-            super.setVersion(version);
-
-            if (isTechnicalRevision()) {
-                var data = gitRepo.checkHistory(fullPath, version);
-                super.setDeleted(data == null || data.isDeleted());
-                deleteStatusLoaded = true;
-            }
-
-            loaded = true;
-            fromCommit = null;
-            fileCommit = null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }
 
-    private @Nullable RevCommit findFileCommit(Git git) throws IOException {
+    private @Nullable RevCommit findFileCommit(Git git, ObjectId from) throws IOException {
         try {
-            return gitRepo.findFirstCommit(git, fromCommit, fullPath);
+            return gitRepo.findFirstCommit(git, from, fullPath);
         } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
             log.error(e.getMessage(), e);
             return null;
         }
     }
 
-    private String resolveVersionName(Git git) {
+    private String resolveVersionName(Git git, RevCommit commit) {
         try {
-            return GitRepository.getVersionName(git.getRepository(), git.tagList().call(), fileCommit.getId());
+            return GitRepository.getVersionName(git.getRepository(), git.tagList().call(), commit.getId());
         } catch (GitAPIException e) {
             throw new IllegalStateException("Cannot get tags list: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new IllegalStateException("Cannot get version name: " + e.getMessage(), e);
         }
-    }
-
-    private void verifyDeleteStatusLoaded() {
-        verifyLoaded();
-        if (deleteStatusLoaded) {
-            return;
-        }
-
-        // A data item built from the selected branch tree exists in that branch. Historical deletions are marked
-        // explicitly by the history visitor.
-        super.setDeleted(false);
-        deleteStatusLoaded = true;
     }
 
 }
