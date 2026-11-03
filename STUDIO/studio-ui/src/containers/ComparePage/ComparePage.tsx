@@ -403,8 +403,8 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
     const [starting, setStarting] = useState(false)
     const [showEqualElements, setShowEqualElements] = useState(false)
     const [showEqualRows, setShowEqualRows] = useState(false)
-    // Two versions read side by side, as the old page read them, or drawn as one table.
-    const [view, setView] = useState<DiffView>('sides')
+    // Two versions drawn as one table, or read side by side when the reader asks for that.
+    const [view, setView] = useState<DiffView>('combined')
     // The width the list of elements was last given, and whether it is shown at all. The list is
     // hidden and brought back by a button of its own rather than by the divider, so the control is
     // always in sight. A window that heads the list with both controls starts wider, so that neither

@@ -421,20 +421,19 @@ describe('RawTableGrid', () => {
         expect(cellAt('A1')).toHaveStyle({ borderRight: `1px solid ${paperToken().colorBorderSecondary}` })
     })
 
-    it('draws a line naming no colour in the ink of the paper, and in the grey of a muted cell', () => {
+    it('draws a line naming no colour in the ink of the paper, whatever colour the text has', () => {
         const line: RawTableCellBorder = { bottom: { style: 'solid', width: 1 } }
         const table: RawTableCell[][] = [[
             { cell: 'A1', value: 'filled', style: { background: '#ddebf7', border: line } },
-            { cell: 'B1', value: 'muted', style: { color: '#ff0000', border: line } },
+            { cell: 'B1', value: 'red', style: { color: '#ff0000', border: line } },
         ]]
 
-        render(<RawTableGrid decorate={cell => ({ muted: cell.cell === 'B1' })} rows={table} testId="grid" />)
+        render(<RawTableGrid rows={table} testId="grid" />)
 
-        const [filled, muted] = Array.from(screen.getByTestId('grid').querySelectorAll('td')) as HTMLElement[]
+        const [filled, red] = Array.from(screen.getByTestId('grid').querySelectorAll('td')) as HTMLElement[]
         // The line lies on the paper of the workbook, fill or not, as the text of the table does.
         expect(filled?.style.borderBottom).toBe(`1px solid ${written(paperToken().colorText)}`)
-        // A muted cell leaves the colour out, so its line is drawn in the grey its text is drawn in.
-        expect(muted?.style.borderBottom).toBe('1px solid')
+        expect(red?.style.borderBottom).toBe(`1px solid ${written(paperToken().colorText)}`)
     })
 
     it('draws the pieces of a text in the weights and the colours the workbook gives them', () => {
@@ -755,35 +754,6 @@ describe('RawTableGrid', () => {
         expect(marked.style.background).toBe('')
         // The rest of its Excel styling stays.
         expect(marked.style.fontWeight).toBe('bold')
-    })
-
-    it('draws a muted cell in grey, at the brightness of its own colour', () => {
-        render(
-            <RawTableGrid
-                decorate={cell => (cell.cell === 'A2' ? { muted: true } : undefined)}
-                rows={rows}
-                testId="grid"
-            />
-        )
-
-        // Yellow averages to 170, and four fifths of that is the grey it steps back to.
-        const muted = screen.getByTestId('grid').querySelectorAll('td')[1] as HTMLElement
-        expect(muted.style.background).toContain('rgb(136, 136, 136)')
-        // The cell keeps everything the colour does not decide.
-        expect(muted.style.fontWeight).toBe('bold')
-    })
-
-    it('leaves an unfilled cell unfilled when it is muted', () => {
-        render(
-            <RawTableGrid
-                decorate={() => ({ muted: true })}
-                rows={rows}
-                testId="grid"
-            />
-        )
-
-        const plain = screen.getByTestId('grid').querySelectorAll('td')[2] as HTMLElement
-        expect(plain.style.background).toBe('')
     })
 
     it('shows the note a reader left on a cell, and marks the cell carrying it', async () => {

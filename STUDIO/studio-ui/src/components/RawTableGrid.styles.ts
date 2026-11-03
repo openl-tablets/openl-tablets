@@ -252,10 +252,6 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
         stringValue: css`
         color: ${LIST_PAGE_COLORS.syntaxString};
     `,
-        /** A cell beside the point on this screen, drawn in the faintest text of the theme. */
-        mutedRole: css`
-        color: ${token.colorTextQuaternary};
-    `,
         /** The note itself, kept to the width the old editor gave it and to the lines its author typed. */
         note: css`
         display: block;

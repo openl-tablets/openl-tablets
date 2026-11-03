@@ -14,9 +14,25 @@ export const useCellStyles = createStyles(({ css }) => ({
         color: ${paperToken().colorTextTertiary};
         text-decoration: line-through;
     `,
-    // The cells that read differently in the other file, in the colour the rest of Studio marks a change with.
+    // The cells that read differently in the other file: framed rather than filled, as a merge frames a change, so
+    // their own formatting stays in sight. The sides the frame runs along are set by the classes below.
     changed: css`
-        background: ${paperToken().colorWarningBg};
+        box-shadow: inset var(--frame-left, 0px) 0 0 0 ${paperToken().colorWarning},
+            inset calc(-1 * var(--frame-right, 0px)) 0 0 0 ${paperToken().colorWarning},
+            inset 0 var(--frame-top, 0px) 0 0 ${paperToken().colorWarning},
+            inset 0 calc(-1 * var(--frame-bottom, 0px)) 0 0 ${paperToken().colorWarning};
+    `,
+    frameTop: css`
+        --frame-top: 2px;
+    `,
+    frameRight: css`
+        --frame-right: 2px;
+    `,
+    frameBottom: css`
+        --frame-bottom: 2px;
+    `,
+    frameLeft: css`
+        --frame-left: 2px;
     `,
     // A cell a branch of a merge changed: framed rather than filled, so its own formatting stays in sight.
     changedFrame: css`

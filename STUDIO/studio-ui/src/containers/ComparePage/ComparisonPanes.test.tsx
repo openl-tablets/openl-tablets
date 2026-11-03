@@ -57,17 +57,18 @@ describe('ComparisonPanes', () => {
         expect(screen.getByTestId('compare-pane-second')).toHaveTextContent('double')
     })
 
-    it('marks a changed cell in the colours of the paper, whatever the theme', () => {
+    it('frames a changed cell in the colours of the paper, whatever the theme', () => {
         renderInTheme(
             <ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />,
             { theme: 'nord', mode: 'dark' }
         )
 
-        const changed = screen.getByTestId('compare-pane-first').querySelector('[data-cell="A2"]')
-        expect(changed).toHaveStyle({ backgroundColor: paperToken().colorWarningBg, color: paperToken().colorText })
+        const changed = screen.getByTestId('compare-pane-first').querySelector('[data-cell="A2"]') as HTMLElement
+        expect(getComputedStyle(changed).boxShadow).toContain(paperToken().colorWarning)
+        expect(changed).toHaveStyle({ color: paperToken().colorText })
     })
 
-    it('draws in grey the cells that do not differ', () => {
+    it('keeps the colours the workbook gives the cells, the changed ones included', () => {
         const coloured: ComparisonTable = {
             ...TABLE,
             first: {
@@ -82,10 +83,9 @@ describe('ComparisonPanes', () => {
         render(<ComparisonPanes showEqualRows error={null} loading={false} table={coloured} />)
 
         const cells = screen.getByTestId('compare-pane-first').querySelectorAll('td')
-        // What does not differ steps back into grey, so that what does is what the eye lands on.
-        expect((cells[0] as HTMLElement).style.background).toContain('rgb(136, 136, 136)')
-        // The cell that differs is painted by the screen, so it carries no Excel background at all.
-        expect((cells[1] as HTMLElement).style.background).toBe('')
+        // A changed cell is framed rather than filled, so nothing of the workbook is drawn over.
+        expect((cells[0] as HTMLElement).style.background).toContain('rgb(255, 255, 0)')
+        expect((cells[1] as HTMLElement).style.background).toContain('rgb(255, 255, 0)')
     })
 
     it('keeps the colours of a table that differs in nothing', () => {
@@ -469,7 +469,7 @@ describe('ComparisonPanes', () => {
             expect(screen.getByTestId('compare-pane-combined')).toHaveTextContent('age')
         })
 
-        it('keeps what the workbook fills a changed row with, muted like the rest', () => {
+        it('keeps what the workbook fills a changed row with', () => {
             const coloured: ComparisonTable = {
                 ...TABLE,
                 second: {
@@ -485,8 +485,8 @@ describe('ComparisonPanes', () => {
             combined(coloured)
 
             const cells = screen.getByTestId('compare-combined').querySelectorAll('td')
-            // The lead, then the cell of the row the workbook fills: grey rather than painted over.
-            expect((cells[1] as HTMLElement).style.background).toContain('rgb(136, 136, 136)')
+            // The lead, then the cell of the row the workbook fills, not painted over.
+            expect((cells[1] as HTMLElement).style.background).toContain('rgb(255, 255, 0)')
         })
 
         it('says what the signs leading the rows mean', () => {
