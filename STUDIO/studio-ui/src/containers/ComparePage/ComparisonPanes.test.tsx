@@ -1,8 +1,46 @@
 import { render, screen } from '@testing-library/react'
-import { ComparisonPanes } from './ComparisonPanes'
+import { ComparisonPanes as Panes } from './ComparisonPanes'
 import { paperToken } from 'styles/paper'
 import { renderInTheme } from 'testing/theme'
-import type { ComparisonSide, ComparisonTable } from 'types/compare'
+import type { ComparisonLine, ComparisonSide, ComparisonTable } from 'types/compare'
+
+/**
+ * The lines of two files paired in their order, as the comparison lines up a table that keeps its lines: the longer
+ * file holds the lines the shorter one does not.
+ */
+const inOrder = (count: number, otherCount: number, changed: (line: number) => boolean): ComparisonLine[] =>
+    Array.from({ length: Math.max(count, otherCount) }, (_, line): ComparisonLine => {
+        if (line >= count) {
+            return { second: line, status: 'added' }
+        }
+        if (line >= otherCount) {
+            return { first: line, status: 'removed' }
+        }
+        return { first: line, second: line, status: changed(line) ? 'changed' : 'equal' }
+    })
+
+/** Whether a row of a side holds a cell the side marks as changed. */
+const holdsChange = (side: ComparisonSide, row: number) =>
+    !!side.source[row]?.some(cell => cell.cell && side.changedCells?.includes(cell.cell))
+
+const widthOf = (side: ComparisonSide) => Math.max(0, ...side.source.map(row => row.length))
+
+/** A table both files hold with its lines, as the comparison sends it: the lines a test leaves out paired in order. */
+const linedUp = (table: ComparisonTable | null): ComparisonTable | null => {
+    const { first, second } = table ?? {}
+    if (!table || !first || !second) {
+        return table
+    }
+    return {
+        ...table,
+        rows: table.rows ?? inOrder(first.source.length, second.source.length,
+            row => holdsChange(first, row) || holdsChange(second, row)),
+        columns: table.columns ?? inOrder(widthOf(first), widthOf(second), () => false),
+    }
+}
+
+/** The panes of a table, its lines as the comparison sends them. */
+const ComparisonPanes = (props: React.ComponentProps<typeof Panes>) => <Panes {...props} table={linedUp(props.table)} />
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key

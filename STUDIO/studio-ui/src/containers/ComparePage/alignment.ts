@@ -1,5 +1,5 @@
 import type { RawTableCell } from 'types/tables'
-import type { ComparisonLine, ComparisonSide, ComparisonTable } from 'types/compare'
+import type { ComparisonLine, ComparisonTable } from 'types/compare'
 
 /** One of the two files of a comparison. */
 export type FileSide = 'first' | 'second'
@@ -13,55 +13,15 @@ export interface Alignment {
 /** A cell merged with no other. */
 const withoutSpans = ({ rowspan: _rows, colspan: _columns, ...rest }: RawTableCell): RawTableCell => rest
 
-const widthOf = (source: RawTableCell[][]): number => Math.max(0, ...source.map(row => row.length))
-
-/** Tells whether a row of a side holds a cell the side marks as read differently. */
-const changedRowsOf = (side: ComparisonSide): ((row: number) => boolean) => {
-    const changed = new Set(side.changedCells ?? [])
-    return row => !!side.source[row]?.some(cell => cell.cell && changed.has(cell.cell))
-}
-
 /**
- * The lines of two files paired in their order.
- *
- * The longer file holds the lines the shorter one does not. Those lines are added or removed.
- */
-const inOrder = (count: number, otherCount: number, changed: (line: number) => boolean): ComparisonLine[] =>
-    Array.from({ length: Math.max(count, otherCount) }, (_, line): ComparisonLine => {
-        if (line >= count) {
-            return { second: line, status: 'added' }
-        }
-        if (line >= otherCount) {
-            return { first: line, status: 'removed' }
-        }
-        return { first: line, second: line, status: changed(line) ? 'changed' : 'equal' }
-    })
-
-/** The rows of two files paired in their order: a pair is changed when either row holds a changed cell. */
-const rowsInOrder = (first: ComparisonSide, second: ComparisonSide): ComparisonLine[] => {
-    const firstChanged = changedRowsOf(first)
-    const secondChanged = changedRowsOf(second)
-    return inOrder(first.source.length, second.source.length, row => firstChanged(row) || secondChanged(row))
-}
-
-/**
- * The rows and the columns of a table both files hold, as the comparison lined them up.
- *
- * Lines the comparison did not line up are paired in their order.
+ * The rows and the columns of a table both files hold, as the comparison lined them up: it lines up every line of
+ * such a table.
  *
  * @return the alignment, or null for a table only one file holds
  */
-export const alignmentOf = (table: ComparisonTable): Alignment | null => {
-    const { first, second } = table
-    if (!first || !second) {
-        return null
-    }
-    const rows = table.rows?.length ? table.rows : rowsInOrder(first, second)
-    const columns = table.columns?.length
-        ? table.columns
-        : inOrder(widthOf(first.source), widthOf(second.source), () => false)
-    return { rows, columns }
-}
+export const alignmentOf = (table: ComparisonTable): Alignment | null => (table.first && table.second
+    ? { rows: table.rows ?? [], columns: table.columns ?? []}
+    : null)
 
 /** The place of each line of a file among the lines lined up, by the line of the file. */
 const placesOf = (lines: ComparisonLine[], side: FileSide): Map<number, number> => {

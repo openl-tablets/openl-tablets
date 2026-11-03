@@ -19,17 +19,6 @@ const TABLE: ComparisonTable = {
 const values = (rows: RawTableCell[][]) => rows.map(row => row.map(cell => (cell.covered ? '^' : cell.value ?? '')))
 
 describe('alignment', () => {
-    it('pairs the lines in their order when the comparison did not line them up', () => {
-        const alignment = alignmentOf(TABLE)
-
-        expect(alignment!.rows).toEqual([
-            { first: 0, second: 0, status: 'equal' },
-            { first: 1, second: 1, status: 'changed' },
-            { second: 2, status: 'added' },
-        ])
-        expect(alignment!.columns).toEqual([{ first: 0, second: 0, status: 'equal' }])
-    })
-
     it('takes the lines as the comparison lined them up', () => {
         const rows = [{ first: 0, second: 0, status: 'equal' as const }, { first: 1, status: 'removed' as const }]
 

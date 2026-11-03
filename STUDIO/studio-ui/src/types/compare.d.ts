@@ -22,6 +22,10 @@ export interface ComparisonNode {
     firstRange?: string | null
     /** The place of the table in the second file; absent for a sheet and for a table the second file does not hold. */
     secondRange?: string | null
+    /** What your version did to the element, in a comparison of a conflicted file with its base. */
+    yours?: ComparisonNodeStatus | null
+    /** What their version did to the element, in a comparison of a conflicted file with its base. */
+    theirs?: ComparisonNodeStatus | null
     /** Tables of a sheet; absent for a table. */
     children?: ComparisonNode[]
 }
@@ -96,3 +100,55 @@ export interface ComparisonTable {
 
 /** How a comparison is going, as the server reports it over the WebSocket: as any other work. */
 export type ComparisonStatus = ExecutionStatus
+
+/**
+ * A row or a column of a table, as the base and the two versions of a conflict hold it. A line of the base stands
+ * against what each version made of it; a line a version inserted stands against no line of the others.
+ */
+export interface ConflictComparisonLine {
+    /** The line in the base, from 0; absent for a line a version inserted. */
+    base?: number | null
+    /** The line in your version, from 0; absent when it does not hold the line. */
+    yours?: number | null
+    /** The line in their version, from 0; absent when it does not hold the line. */
+    theirs?: number | null
+    /** What your version did to the line: `added` for a line it inserted, `equal` for one their version inserted. */
+    yoursStatus: ComparisonLineStatus
+    /** What their version did to the line: `added` for a line it inserted, `equal` for one your version inserted. */
+    theirsStatus: ComparisonLineStatus
+}
+
+/** A version of a table of a conflict: its cells, the ones it changed and the ones both versions changed differently. */
+export interface ConflictComparisonSide extends ComparisonSide {
+    conflictCells?: string[] | null
+}
+
+/** A table of a conflict, as the base and the two versions hold it, the lines lined up by the base. */
+export interface ConflictComparisonTable {
+    id: string
+    name: string
+    status: ComparisonNodeStatus
+    yoursStatus: ComparisonNodeStatus
+    theirsStatus: ComparisonNodeStatus
+    baseRange?: string | null
+    yoursRange?: string | null
+    theirsRange?: string | null
+    /** The table as the base holds it; absent for a table a version added. */
+    base?: ConflictComparisonSide
+    /** The table as your version holds it; absent when it does not hold the table. */
+    yours?: ConflictComparisonSide
+    /** The table as their version holds it; absent when it does not hold the table. */
+    theirs?: ConflictComparisonSide
+    rows?: ConflictComparisonLine[]
+    columns?: ConflictComparisonLine[]
+}
+
+/** A table of a conflict as the server sends it, each version naming its styles by index. */
+export interface ConflictComparisonTableData extends Omit<ConflictComparisonTable, 'base' | 'yours' | 'theirs'> {
+    base?: ConflictComparisonSideData
+    yours?: ConflictComparisonSideData
+    theirs?: ConflictComparisonSideData
+}
+
+/** A version of a table of a conflict as the server sends it, naming its styles by index. */
+export type ConflictComparisonSideData = ComparisonSideData & Pick<ConflictComparisonSide, 'conflictCells'>

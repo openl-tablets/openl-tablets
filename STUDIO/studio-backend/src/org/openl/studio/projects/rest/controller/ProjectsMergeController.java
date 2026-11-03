@@ -244,6 +244,35 @@ public class ProjectsMergeController {
         }
     }
 
+    @Operation(summary = "projects.merge.compare-conflict-versions.summary",
+            description = "projects.merge.compare-conflict-versions.desc")
+    @ApiResponse(responseCode = "202", description = "projects.merge.compare-conflict.202.desc")
+    @ApiResponse(responseCode = "400", description = "compare.file.not-excel.message")
+    @PostMapping("/conflicts/compare-versions")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ComparisonStartedView compareConflictedVersions(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @Parameter(description = "projects.merge.param.file.desc", required = true)
+            @RequestParam("file") String filePath) throws IOException {
+        var fileName = FileUtils.getName(filePath);
+        if (!FileTypeHelper.isExcelFile(fileName)) {
+            throw new BadRequestException("compare.file.not-excel.message");
+        }
+        var conflictInfo = getMergeConflictInfo0(project);
+        var versions = new ArrayList<ComparisonContent>();
+        try {
+            for (var side : List.of(ConflictBase.BASE, ConflictBase.OURS, ConflictBase.THEIRS)) {
+                versions.add(new ComparisonContent(fileName,
+                        mergeConflictsService.getConflictFileItem(conflictInfo, filePath, side).getStream()));
+            }
+            return comparisonLauncher.startContentOf(versions);
+        } catch (Exception e) {
+            // The versions read by now are open; one that cannot be read closes them.
+            versions.forEach(version -> IOUtils.closeQuietly(version.content()));
+            throw e;
+        }
+    }
+
     private MergeConflictInfo getMergeConflictInfo0(RulesProject project) {
         var projectId = project.getProjectId();
         if (!conflictsSessionHolder.hasConflictInfo(projectId)) {

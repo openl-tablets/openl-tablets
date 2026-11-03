@@ -20,15 +20,14 @@ import java.util.stream.IntStream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.SheetUtil;
+import org.apache.poi.util.IOUtils;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -74,11 +73,6 @@ public final class XlsWorkbookComparator {
             "runmethod", "run", "tablepart");
 
     /**
-     * Tells ZIP bombs apart from workbooks: 1 MB of a file may expand to 1 GB at most.
-     */
-    private static final double MIN_INFLATE_RATIO = 0.001;
-
-    /**
      * Compares two versions of a workbook.
      *
      * @param first  the first version, the one the second is compared against
@@ -87,22 +81,34 @@ public final class XlsWorkbookComparator {
      * @throws IOException when a version cannot be read as a workbook
      */
     public static WorkbookComparison compare(File first, File second) throws IOException {
-        ZipSecureFile.setMinInflateRatio(MIN_INFLATE_RATIO);
-        var firstBook = WorkbookFactory.create(first, null, true);
+        Workbook firstBook = null;
         Workbook secondBook = null;
         try {
-            secondBook = WorkbookFactory.create(second, null, true);
+            firstBook = open(first);
+            secondBook = open(second);
             return new WorkbookComparison(sheets(firstBook, secondBook), firstBook, secondBook);
         } catch (IOException | RuntimeException e) {
-            firstBook.close();
-            if (secondBook != null) {
-                secondBook.close();
-            }
+            IOUtils.closeQuietly(firstBook);
+            IOUtils.closeQuietly(secondBook);
             throw e;
         }
     }
 
-    private static List<SheetComparison> sheets(Workbook first, Workbook second) {
+    /**
+     * Opens a version of a workbook to read.
+     *
+     * @throws IOException when the file cannot be read as a workbook
+     */
+    static Workbook open(File file) throws IOException {
+        return StreamWorkbook.open(file, true);
+    }
+
+    /**
+     * Compares two open versions of a workbook sheet by sheet.
+     *
+     * @return the sheets of the first version in its order, then the sheets only the second version holds
+     */
+    static List<SheetComparison> sheets(Workbook first, Workbook second) {
         var sheets = new ArrayList<SheetComparison>();
         for (Sheet sheet : first) {
             var other = second.getSheet(sheet.getSheetName());

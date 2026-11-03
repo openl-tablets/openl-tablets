@@ -5,9 +5,11 @@ import {
     dropComparison,
     getComparison,
     getComparisonTable,
+    getConflictComparisonTable,
     getConflictFileText,
     getConflictFileVersions,
     startConflictComparison,
+    startConflictVersionsComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
@@ -15,7 +17,7 @@ import {
 import { getFileText } from 'services/files'
 import { getRevisionChanges } from 'services/repositories'
 import { ResultNotReadyError } from 'services/taskResult'
-import type { Comparison, ComparisonTable } from 'types/compare'
+import type { Comparison, ComparisonTable, ConflictComparisonTable } from 'types/compare'
 
 /** What the service raises while the comparison is still being made: nothing to read yet. */
 const stillRunning = () => new ResultNotReadyError()
@@ -23,11 +25,13 @@ const stillRunning = () => new ResultNotReadyError()
 vi.mock('services/compare', () => ({
     comparisonStatusTopic: (id: string) => `/user/topic/compare/${id}/status`,
     startConflictComparison: vi.fn(),
+    startConflictVersionsComparison: vi.fn(),
     startFileComparison: vi.fn(),
     startLocalHistoryComparison: vi.fn(),
     startProjectComparison: vi.fn(),
     getComparison: vi.fn(),
     getComparisonTable: vi.fn(),
+    getConflictComparisonTable: vi.fn(),
     getConflictFileVersions: vi.fn(),
     getConflictFileText: vi.fn(),
     dropComparison: vi.fn(),
@@ -235,6 +239,23 @@ const COMPARISON: Comparison = {
     }],
 }
 
+/** A table of a conflict: your version changed the rate the base holds, their version inserted a row. */
+const CONFLICT_TABLE: ConflictComparisonTable = {
+    id: '0-0',
+    name: 'Datatype Person',
+    status: 'changed',
+    yoursStatus: 'changed',
+    theirsStatus: 'changed',
+    base: { source: [[{ cell: 'A1', value: 'int' }]]},
+    yours: { source: [[{ cell: 'A1', value: 'double' }]], changedCells: ['A1']},
+    theirs: { source: [[{ cell: 'A1', value: 'int' }], [{ cell: 'A2', value: 'name' }]]},
+    rows: [
+        { base: 0, yours: 0, theirs: 0, yoursStatus: 'changed', theirsStatus: 'equal' },
+        { theirs: 1, yoursStatus: 'equal', theirsStatus: 'added' },
+    ],
+    columns: [{ base: 0, yours: 0, theirs: 0, yoursStatus: 'changed', theirsStatus: 'equal' }],
+}
+
 const TABLE: ComparisonTable = {
     id: '0-0',
     name: 'Datatype Person',
@@ -257,6 +278,13 @@ const TABLE: ComparisonTable = {
         ],
         changedCells: ['A1'],
     },
+    rows: [
+        { first: 0, second: 0, status: 'changed' },
+        { first: 1, second: 1, status: 'equal' },
+        { first: 2, second: 2, status: 'equal' },
+        { first: 3, second: 3, status: 'equal' },
+    ],
+    columns: [{ first: 0, second: 0, status: 'changed' }],
 }
 
 /** Pushes a status message onto the topic the screen is watching. */
@@ -294,6 +322,8 @@ describe('ComparePage', () => {
         vi.mocked(getComparisonTable).mockResolvedValue(TABLE)
         vi.mocked(dropComparison).mockResolvedValue()
         vi.mocked(getConflictFileVersions).mockResolvedValue(ALL_VERSIONS)
+        vi.mocked(startConflictVersionsComparison).mockResolvedValue('cmp-0')
+        vi.mocked(getConflictComparisonTable).mockResolvedValue(CONFLICT_TABLE)
     })
 
     it('asks for the two files before it compares anything', async () => {
@@ -686,15 +716,20 @@ describe('ComparePage', () => {
 
         openPage()
 
-        // What their branch changed since the base is what the window shows first, though your changes are offered
-        // first, as your version stands left of theirs.
-        await waitFor(() => expect(startConflictComparison)
-            .toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'base', 'theirs'))
+        // The three versions side by side are what the window shows first; the comparisons of two versions are a
+        // click away.
+        await waitFor(() => expect(startConflictVersionsComparison).toHaveBeenCalledWith('p1', 'rules/Main.xlsx'))
         expect(screen.queryByTestId('compare-files')).toBeNull()
         expect([...screen.getByTestId('compare-conflict-view').querySelectorAll('button')]
             .map(button => [button.textContent, button.getAttribute('aria-pressed')]))
-            .toEqual([['view_your_changes', 'false'], ['view_their_changes', 'true'], ['view_versions', 'false']])
+            .toEqual([['view_all_versions', 'true'], ['view_your_changes', 'false'], ['view_their_changes', 'false'],
+                ['view_versions', 'false']])
         expect(document.title).toBe('file_title')
+
+        await userEvent.click(screen.getByText('view_their_changes'))
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'base', 'theirs'))
+        await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-0'))
 
         await screen.findByTestId('compare-tree')
         push('COMPLETED')
@@ -730,16 +765,15 @@ describe('ComparePage', () => {
     it('lets go of a comparison that answers after another view was picked', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
         let answerFirst: (id: string) => void = () => undefined
-        vi.mocked(startConflictComparison)
-            .mockImplementationOnce(() => new Promise(resolve => {
-                answerFirst = resolve
-            }))
-            .mockResolvedValueOnce('cmp-2')
+        vi.mocked(startConflictVersionsComparison).mockImplementationOnce(() => new Promise(resolve => {
+            answerFirst = resolve
+        }))
+        vi.mocked(startConflictComparison).mockResolvedValueOnce('cmp-2')
 
         openPage()
-        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(1))
+        await waitFor(() => expect(startConflictVersionsComparison).toHaveBeenCalledTimes(1))
         await userEvent.click(screen.getByText('view_versions'))
-        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(2))
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(1))
 
         act(() => answerFirst('cmp-1'))
 
@@ -752,18 +786,18 @@ describe('ComparePage', () => {
     it('shows the comparison started last for a view picked again before its first comparison answers', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
         let answerFirst: (id: string) => void = () => undefined
-        vi.mocked(startConflictComparison)
+        vi.mocked(startConflictVersionsComparison)
             .mockImplementationOnce(() => new Promise(resolve => {
                 answerFirst = resolve
             }))
-            .mockResolvedValueOnce('cmp-2')
             .mockResolvedValueOnce('cmp-3')
+        vi.mocked(startConflictComparison).mockResolvedValueOnce('cmp-2')
 
         openPage()
-        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(1))
+        await waitFor(() => expect(startConflictVersionsComparison).toHaveBeenCalledTimes(1))
         await userEvent.click(screen.getByText('view_versions'))
-        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(2))
-        await userEvent.click(screen.getByText('view_their_changes'))
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(1))
+        await userEvent.click(screen.getByText('view_all_versions'))
         await waitFor(() => expect(subscribe).toHaveBeenLastCalledWith(
             '/user/topic/compare/cmp-3/status', expect.any(Function)))
 
@@ -773,6 +807,32 @@ describe('ComparePage', () => {
         await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-1'))
         expect(subscribe).not.toHaveBeenCalledWith('/user/topic/compare/cmp-1/status', expect.any(Function))
         expect(dropComparison).not.toHaveBeenCalledWith('cmp-3')
+    })
+
+    it('reads a table of a conflict in three columns, your version, the base and theirs, side by side only', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+
+        openPage()
+        await waitFor(() => expect(subscribe).toHaveBeenCalled())
+        push('COMPLETED')
+        await userEvent.click(await screen.findByText('Datatype Person'))
+
+        await waitFor(() => expect(getConflictComparisonTable).toHaveBeenCalledWith('cmp-0', '0-0'))
+        expect(getComparisonTable).not.toHaveBeenCalled()
+        expect(await screen.findByTestId('compare-pane-yours')).toHaveTextContent('double')
+        expect(screen.getByTestId('compare-pane-base')).toHaveTextContent('int')
+        expect(screen.getByTestId('compare-pane-theirs')).toHaveTextContent('name')
+        // One table would hold two changes of a cell, so the versions are not drawn as one.
+        expect(screen.queryByTestId('compare-view')).toBeNull()
+    })
+
+    it('offers no three columns for a text, which is read two versions at a time', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules.xml' })
+
+        openPage()
+
+        await waitFor(() => expect(screen.getByText('view_all_versions')).toBeDisabled())
+        expect(startConflictVersionsComparison).not.toHaveBeenCalled()
     })
 
     it('compares with the base the version of a branch that kept a file the other deleted', async () => {

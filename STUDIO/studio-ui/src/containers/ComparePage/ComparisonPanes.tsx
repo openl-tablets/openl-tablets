@@ -1,12 +1,19 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Badge, Empty, Flex, Spin, Splitter, Tag, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RawTableGrid, type CellDecoration } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
-import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTable } from 'types/compare'
+import type {
+    ComparisonLine,
+    ComparisonLineStatus,
+    ComparisonSide,
+    ComparisonTable,
+    ConflictComparisonLine,
+    ConflictComparisonTable,
+} from 'types/compare'
 import { alignmentOf, alignSide, ownStatusOf, type Alignment, type FileSide } from './alignment'
 import { combine, type CellMark, type CombinedTable } from './combinedDiff'
-import { keepRows, rowsToShow, type ShownLine } from './diffRows'
+import { keepRows, keptRows, rowsToShow, type ShownLine } from './diffRows'
 import { framesOf, type FrameSides } from './frames'
 import { useStyles } from './ComparePage.styles'
 import { sidesOf, useCellStyles } from './ComparisonPanes.styles'
@@ -41,11 +48,44 @@ const KINDS = ['changed', 'added', 'removed'] as const
 
 type ChangeKind = typeof KINDS[number]
 
-/** The colour of the dot a legend marks a kind of change with, matching the colour its cells are painted in. */
-const DOTS: Record<ChangeKind, 'warning' | 'success' | 'error'> = {
+/** What a legend explains: a kind of change, or the cells both versions of a conflict changed differently. */
+type LegendKind = ChangeKind | 'conflict'
+
+/** The colour of the dot a legend marks a kind with, matching the colour its cells are painted or framed in. */
+const DOTS: Record<LegendKind, 'warning' | 'success' | 'error'> = {
     changed: 'warning',
     added: 'success',
     removed: 'error',
+    conflict: 'error',
+}
+
+/** What each colour means, each kind led by the sign of its rows when the versions are drawn as one table. */
+const Legend: React.FC<{ kinds: LegendKind[]; combined?: boolean }> = ({ kinds, combined = false }) => {
+    const { t } = useTranslation('compare')
+    return (
+        <Flex data-testid="compare-legend" gap="small">
+            {kinds.map(kind => {
+                const label = t(`status_${kind}`)
+                return (
+                    <Badge
+                        key={kind}
+                        status={DOTS[kind]}
+                        text={combined && kind !== 'conflict' ? `${SIGNS[kind]} ${label}` : label}
+                    />
+                )
+            })}
+        </Flex>
+    )
+}
+
+/** What is shown instead of a table: the comparison is not ready, it failed, or nothing is picked. */
+const NoTable: React.FC<{ loading: boolean; error: string | null }> = ({ loading, error }) => {
+    const { t } = useTranslation('compare')
+    const { styles } = useStyles()
+    if (loading) {
+        return <div className={styles.center}><Spin /></div>
+    }
+    return <Empty description={error || t('nothing_selected')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
 }
 
 /** The kinds of change a table shows: changed cells, and lines or a whole table only one file holds. */
@@ -85,22 +125,11 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
 }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
-    const alignment = table ? alignmentOf(table) : null
-    const rows = rowsToShow(alignment, showEqualRows)
-
-    /** What is shown instead of a table: the comparison is not ready, or there is nothing to show. */
-    const insteadOfTable = (): React.ReactNode => {
-        if (loading) {
-            return <div className={styles.center}><Spin /></div>
-        }
-        if (error) {
-            return <Empty description={error} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-        }
-        if (!table) {
-            return <Empty description={t('nothing_selected')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-        }
-        return null
-    }
+    const alignment = useMemo(() => (table ? alignmentOf(table) : null), [table])
+    const rows = useMemo(() => rowsToShow(alignment, showEqualRows), [alignment, showEqualRows])
+    const combined = useMemo(() => (view === 'combined' && table ? combine(table, rows) : null), [view, table, rows])
+    const shown = !loading && !error && table
+    const insteadOfTable = shown ? null : <NoTable error={error} loading={loading} />
 
     const pane = (head: React.ReactNode, testId: string, body: React.ReactNode) => (
         <div className={styles.column}>
@@ -131,9 +160,9 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
                 {trailing && <span className={styles.headAction}>{trailing}</span>}
             </>
         )
-        const body = insteadOfTable() ?? (
+        const body = insteadOfTable ?? (
             <Restyled restyled={table!.formattingChanged}>
-                <Combined combined={combine(table!, rows)} />
+                <Combined combined={combined!} />
             </Restyled>
         )
         return withNotes(<div className={styles.panes}>{pane(head, 'compare-pane-combined', body)}</div>)
@@ -141,7 +170,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
 
     const content = (side: FileSide) => {
         const source = table?.[side]
-        return insteadOfTable()
+        return insteadOfTable
             ?? (source
                 ? (
                     <Restyled restyled={table?.formattingChanged}>
@@ -189,17 +218,7 @@ const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; com
     }
     return (
         <Flex wrap align="center" className={styles.notes} data-testid="compare-notes" gap="small">
-            {kinds.length > 0 && (
-                <Flex data-testid="compare-legend" gap="small">
-                    {kinds.map(kind => (
-                        <Badge
-                            key={kind}
-                            status={DOTS[kind]}
-                            text={combined ? `${SIGNS[kind]} ${t(`status_${kind}`)}` : t(`status_${kind}`)}
-                        />
-                    ))}
-                </Flex>
-            )}
+            {kinds.length > 0 && <Legend combined={combined} kinds={kinds} />}
             {table.formattingChanged && (
                 <Tag color="warning" data-testid="compare-formatting-changed">{t('formatting_changed')}</Tag>
             )}
@@ -212,10 +231,14 @@ const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; com
     )
 }
 
-/** The class of a changed cell, framed along the sides its frame runs. */
+/** How a cell of a version is framed: changed, or changed differently by both versions of a conflict. */
+type CellFrame = 'changed' | 'conflict'
+
+/** The class of a framed cell, framed along the sides its frame runs. */
 const useFrame = () => {
     const { styles, cx } = useCellStyles()
-    return (sides: FrameSides) => cx(styles.changedFrame, sidesOf(styles, sides))
+    return (sides: FrameSides, kind: CellFrame = 'changed') =>
+        cx(kind === 'conflict' ? styles.conflict : styles.changedFrame, sidesOf(styles, sides))
 }
 
 /** The cell standing for the equal rows left out between the rows shown, saying how many they are. */
@@ -241,32 +264,54 @@ const Restyled: React.FC<{ restyled: boolean | undefined; children: React.ReactN
  * A line only this file holds is painted as added or removed. A line only the other file holds is an empty line
  * here. The cells the other file reads differently are framed, and changed cells next to each other share one frame.
  * Every other cell keeps the colours the workbook gives it. Equal rows left out are one row that says how many they
- * are.
+ * are. A cell both versions of a conflict changed differently is framed in red.
  */
 const Side: React.FC<{
     source: ComparisonSide
     side: FileSide
     alignment: Alignment | null
     rows: ShownLine[] | null
-}> = ({ source, side, alignment, rows }) => {
+    conflicts?: ReadonlySet<string> | undefined
+}> = ({ source, side, alignment, rows, conflicts }) => {
     const { styles } = useCellStyles()
     const frame = useFrame()
     const gapOf = useGap()
-    const changed = new Set(source.changedCells ?? [])
+    /** How a cell is framed, by its address: a changed cell stands on lines both versions hold. */
+    const frameOfCell = useMemo(() => {
+        const changed = new Set(source.changedCells ?? [])
+        return (cell: RawTableCell): CellFrame | undefined => {
+            if (!cell.cell) {
+                return undefined
+            }
+            if (conflicts?.has(cell.cell)) {
+                return 'conflict'
+            }
+            return changed.has(cell.cell) ? 'changed' : undefined
+        }
+    }, [source, conflicts])
+    // The rows drawn, laid out over the lines both files hold, with their frames.
+    const drawn = useMemo(() => {
+        if (!alignment) {
+            return null
+        }
+        const lines = rows ?? alignment.rows.map((_, line): ShownLine => ({ line }))
+        const kept = keepRows(alignSide(source.source, alignment, side), lines, alignment.columns.length)
+        return {
+            ...kept,
+            shownRows: lines.map(line => ('line' in line ? alignment.rows[line.line] : undefined)),
+            frames: framesOf(kept.rows, frameOfCell),
+        }
+    }, [source, alignment, rows, side, frameOfCell])
     const own = ownStatusOf(side)
     const paint = own === 'added' ? styles.rowAdded : styles.rowRemoved
 
-    if (!alignment) {
+    if (!alignment || !drawn) {
         // A table only this file holds is all of it added or removed.
         const decorate = (): CellDecoration => ({ className: paint, painted: true })
         return <RawTableGrid decorate={decorate} rows={source.source} />
     }
 
-    const lines = rows ?? alignment.rows.map((_, line): ShownLine => ({ line }))
-    const { rows: shown, gaps } = keepRows(alignSide(source.source, alignment, side), lines, alignment.columns.length)
-    const shownRows = lines.map(line => ('line' in line ? alignment.rows[line.line] : undefined))
-    // A changed cell stands on lines both files hold, so its address is enough to know it.
-    const frames = framesOf(shown, cell => !!cell.cell && changed.has(cell.cell))
+    const { rows: shown, gaps, shownRows, frames } = drawn
     const ownLine = (line: ComparisonLine | undefined) => line?.status === own
 
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
@@ -284,10 +329,136 @@ const Side: React.FC<{
             return { className: paint, painted: true }
         }
         const sides = frames.get(cell)
-        return sides && { className: frame(sides) }
+        return sides && { className: frame(sides, frameOfCell(cell)) }
     }
 
     return <RawTableGrid decorate={decorate} rows={shown} />
+}
+
+/** Which version of a conflict a column shows, from left to right as merge tools lay them out. */
+type ConflictPane = 'yours' | 'base' | 'theirs'
+
+const CONFLICT_PANES: ConflictPane[] = ['yours', 'base', 'theirs']
+
+/** How each version of a conflict is named above its column. */
+const PANE_TITLES: Record<ConflictPane, string> = { yours: 'your_version', base: 'base_version', theirs: 'their_version' }
+
+/** Whether a line of a conflict is one a version changed, removed or inserted. */
+const differs = (line: ConflictComparisonLine): boolean => line.yoursStatus !== 'equal' || line.theirsStatus !== 'equal'
+
+/**
+ * The lines of a conflict as one column reads them, the way a side of two files reads them. The base is the first
+ * side: a line either version removed is removed there, and a line a version inserted stands as an empty line. A
+ * version is the second side: a line it inserted is added, and a line the other version inserted stands as an empty
+ * line.
+ */
+const paneLines = (lines: ConflictComparisonLine[], pane: ConflictPane): ComparisonLine[] => lines.map(line => {
+    if (pane === 'base') {
+        const removed = line.yoursStatus === 'removed' || line.theirsStatus === 'removed'
+        return { first: line.base ?? null, status: removed ? 'removed' : 'equal' }
+    }
+    const status = pane === 'yours' ? line.yoursStatus : line.theirsStatus
+    return { second: line[pane] ?? null, status }
+})
+
+/** The rows and the columns of a conflict as one column reads them, or null for a table no version shares. */
+const paneAlignment = (table: ConflictComparisonTable, pane: ConflictPane): Alignment | null => (table.rows?.length
+    ? { rows: paneLines(table.rows, pane), columns: paneLines(table.columns ?? [], pane) }
+    : null)
+
+/**
+ * The rows of a conflict to draw, as {@link rowsToShow} picks the rows of two files: a row differs when either
+ * version changed, removed or inserted it, and every row is drawn once either version added or removed a column.
+ */
+const conflictRowsToShow = (table: ConflictComparisonTable, showEqualRows: boolean): ShownLine[] | null => {
+    const columnsDiffer = (table.columns ?? []).some(column => [column.yoursStatus, column.theirsStatus]
+        .some(status => status === 'added' || status === 'removed'))
+    return table.rows?.length && !columnsDiffer ? keptRows(table.rows.map(differs), showEqualRows) : null
+}
+
+/** The kinds of change a conflict shows, for the legend above its columns. */
+const conflictKindsOf = (table: ConflictComparisonTable): LegendKind[] => {
+    const lines = [...(table.rows ?? []), ...(table.columns ?? [])]
+    const statuses = new Set(lines.flatMap(line => [line.yoursStatus, line.theirsStatus]))
+    const changed = !!(table.yours?.changedCells?.length || table.theirs?.changedCells?.length)
+    const conflict = !!(table.yours?.conflictCells?.length || table.theirs?.conflictCells?.length)
+    return [
+        ...KINDS.filter(kind => (kind === 'changed' ? changed : statuses.has(kind))),
+        ...(conflict ? ['conflict' as const] : []),
+    ]
+}
+
+interface ConflictPanesProps {
+    /** The table the user picked, or null while nothing is picked. */
+    table: ConflictComparisonTable | null
+    loading: boolean
+    showEqualRows: boolean
+    error: string | null
+    /** Put before the name of your version; carries the controls the hidden list of elements left behind. */
+    leading?: React.ReactNode
+}
+
+/**
+ * The three versions of a table of a conflict, side by side as merge tools lay them out: your version on the left,
+ * the base in the middle and their version on the right.
+ *
+ * The rows and the columns of the three stand against each other by the lines of the base. A line a version inserted
+ * is painted as added in it and stands against empty lines in the other two; a line a version removed is painted as
+ * removed in the base and stands against an empty line in that version. The cells each version changed are framed,
+ * and the cells both changed differently are framed in red. A table only some versions hold is shown in those.
+ */
+export const ConflictPanes: React.FC<ConflictPanesProps> = ({ table, loading, showEqualRows, error, leading }) => {
+    const { t } = useTranslation('compare')
+    const { styles, cx } = useStyles()
+    const rows = useMemo(() => (table ? conflictRowsToShow(table, showEqualRows) : null), [table, showEqualRows])
+    // How each column reads the conflict: its lines and the cells both versions changed differently.
+    const panes = useMemo(() => new Map(CONFLICT_PANES.map(pane => [pane, {
+        alignment: table && paneAlignment(table, pane),
+        conflicts: table?.[pane]?.conflictCells ? new Set(table[pane].conflictCells) : undefined,
+    }])), [table])
+
+    const content = (pane: ConflictPane) => {
+        if (loading || error || !table) {
+            return <NoTable error={error} loading={loading} />
+        }
+        const source = table[pane]
+        if (!source) {
+            return <Empty description={t('absent')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        }
+        return (
+            <Side
+                alignment={panes.get(pane)?.alignment ?? null}
+                conflicts={panes.get(pane)?.conflicts}
+                rows={rows}
+                side={pane === 'base' ? 'first' : 'second'}
+                source={source}
+            />
+        )
+    }
+
+    const kinds = table && !loading && !error ? conflictKindsOf(table) : []
+    return (
+        <div className={styles.column}>
+            {kinds.length > 0 && (
+                <Flex wrap align="center" className={styles.notes} gap="small">
+                    <Legend kinds={kinds} />
+                </Flex>
+            )}
+            <Splitter className={styles.panes}>
+                {CONFLICT_PANES.map((pane, index) => (
+                    <Splitter.Panel key={pane} min="15%">
+                        <div className={styles.column}>
+                            <div className={styles.head}>
+                                {index === 0 && leading}
+                                <span className={cx(styles.headLabel)}>{t(PANE_TITLES[pane])}</span>
+                            </div>
+                            <div className={styles.body} data-testid={`compare-pane-${pane}`}>{content(pane)}</div>
+                        </div>
+                    </Splitter.Panel>
+                ))}
+            </Splitter>
+        </div>
+    )
 }
 
 /**
@@ -300,7 +471,7 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
     const frame = useFrame()
     const gapOf = useGap()
     const { rows: source, marks } = combined
-    const frames = framesOf(source, cell => marks.get(cell)?.before !== undefined)
+    const frames = useMemo(() => framesOf(source, cell => marks.get(cell)?.before !== undefined), [source, marks])
 
     /** The colour a cell wholly of one file or the other is drawn in. */
     const ofSide = (kind: CellMark['paint']) => {

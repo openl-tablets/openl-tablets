@@ -17,17 +17,19 @@ import {
     dropComparison,
     getComparison,
     getComparisonTable,
+    getConflictComparisonTable,
     getConflictFileText,
     getConflictFileVersions,
     startConflictComparison,
+    startConflictVersionsComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
 import { getFileText } from 'services/files'
 import type { ConflictFileStatus, ConflictFileVersions, ConflictSide, ProjectFileSide } from 'services/compare'
-import type { Comparison, ComparisonTable } from 'types/compare'
-import { ComparisonPanes, type DiffView } from './ComparisonPanes'
+import type { Comparison, ComparisonTable, ConflictComparisonTable } from 'types/compare'
+import { ComparisonPanes, ConflictPanes, type DiffView } from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
 import { TextVersionsView } from './TextVersionsView'
 import {
@@ -52,16 +54,16 @@ const ASK_AGAIN = 2000
 const FILES_TO_COMPARE = 2
 
 /**
- * What the comparison of a conflicted file shows: what your branch changed since the base, what their branch changed,
- * or your version against theirs.
+ * What the comparison of a conflicted file shows: the three versions side by side, what your branch changed since the
+ * base, what their branch changed, or your version against theirs.
  */
-type ConflictView = 'yours' | 'theirs' | 'versions'
+type ConflictView = 'all' | 'yours' | 'theirs' | 'versions'
 
-/** How a view of a conflicted file is offered, and how it compares its two versions. */
+/** How a view of a conflicted file is offered, and how it compares its versions. */
 interface ConflictViewDefinition {
     label: string
-    /** The two versions it compares, the one it starts from first. */
-    compared: [ConflictSide, ConflictSide]
+    /** The versions it compares, the one it starts from first; the three of them in the view of all versions. */
+    compared: [ConflictSide, ConflictSide] | [ConflictSide, ConflictSide, ConflictSide]
     /** Whether the version it compares second is shown on the left. */
     secondOnLeft: boolean
 }
@@ -72,6 +74,7 @@ interface ConflictViewDefinition {
  * shows your version left of the base, though the comparison starts from the base.
  */
 const CONFLICT_VIEWS: Record<ConflictView, ConflictViewDefinition> = {
+    all: { label: 'view_all_versions', compared: ['base', 'ours', 'theirs'], secondOnLeft: false },
     yours: { label: 'view_your_changes', compared: ['base', 'ours'], secondOnLeft: true },
     theirs: { label: 'view_their_changes', compared: ['base', 'theirs'], secondOnLeft: false },
     versions: { label: 'view_versions', compared: ['ours', 'theirs'], secondOnLeft: false },
@@ -105,13 +108,23 @@ const WORKSPACE_TITLES: TitleKeys = { first: 'selected_revision', second: 'user_
 /** What is known of a conflicted file whose versions cannot be read: the merge compared their two versions. */
 const UNKNOWN_VERSIONS: ConflictFileVersions = { base: false, ours: true, theirs: true }
 
-/** The views of a conflicted file whose two versions both hold it. */
-const viewsOf = (versions: ConflictFileVersions): ConflictView[] =>
-    VIEWS.filter(view => CONFLICT_VIEWS[view].compared.every(side => versions[side]))
+/**
+ * The views of a conflicted file whose versions all hold it. The three versions side by side are offered for a
+ * workbook only: a text is read line by line, two versions at a time.
+ */
+const viewsOf = (versions: ConflictFileVersions, workbook: boolean): ConflictView[] =>
+    VIEWS.filter(view => (view !== 'all' || workbook) && CONFLICT_VIEWS[view].compared.every(side => versions[side]))
 
-/** The view a conflicted file opens on: what their branch changed, which the merge brings in, when it is offered. */
-const firstViewOf = (views: ConflictView[]): ConflictView | null =>
-    views.includes('theirs') ? 'theirs' : views[0] ?? null
+/**
+ * The view a conflicted file opens on: the three versions side by side, as the merge sees them, when they are
+ * offered; else what their branch changed, which the merge brings in.
+ */
+const firstViewOf = (views: ConflictView[]): ConflictView | null => {
+    if (views.includes('all')) {
+        return 'all'
+    }
+    return views.includes('theirs') ? 'theirs' : views[0] ?? null
+}
 
 /**
  * What became of a conflicted file: a file both branches still hold was modified on both sides, one that a branch no
@@ -292,6 +305,9 @@ const startOf = (
         return versions.start
     }
     // A conflicted workbook is compared once it is known which versions hold it, as the view picked compares it.
+    if (projectId && conflict && isWorkbookPath(conflict) && conflictView === 'all') {
+        return () => startConflictVersionsComparison(projectId, conflict)
+    }
     if (projectId && conflict && isWorkbookPath(conflict) && conflictView) {
         const [first, second] = CONFLICT_VIEWS[conflictView].compared
         return () => startConflictComparison(projectId, conflict, first, second)
@@ -330,9 +346,10 @@ const useConflictFile = (projectId: string | null, conflict: string | null) => {
     // The view the user picked; until then, the file is shown in the view it opens on.
     const [pickedView, setPickedView] = useState<ConflictView | null>(null)
     const conflictStatus = conflictVersions && conflictFileStatusOf(conflictVersions)
-    const conflictViews = useMemo(() => conflictVersions ? viewsOf(conflictVersions) : [], [conflictVersions])
-    const conflictView = pickedView ?? firstViewOf(conflictViews)
     const conflictWorkbook = !!conflict && isWorkbookPath(conflict)
+    const conflictViews = useMemo(() => conflictVersions ? viewsOf(conflictVersions, conflictWorkbook) : [],
+        [conflictVersions, conflictWorkbook])
+    const conflictView = pickedView ?? firstViewOf(conflictViews)
     const conflictTexts = useRef(new Map<ConflictSide, Promise<string>>())
     const conflictText = useMemo(() => {
         if (!projectId || !conflict || conflictWorkbook || !conflictView) {
@@ -404,6 +421,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
     const [attempt, setAttempt] = useState(0)
     const [selectedId, setSelectedId] = useState<string | null>(null)
     const [table, setTable] = useState<ComparisonTable | null>(null)
+    const [conflictTable, setConflictTable] = useState<ConflictComparisonTable | null>(null)
     const [tableLoading, setTableLoading] = useState(false)
     const [tableError, setTableError] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -518,19 +536,26 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
         }
     }, [comparisonId, progress.status, progress.error, progress.subscribed, attempt, t])
 
-    // The two sides of an element are read when it is picked, because each of them is a whole table.
+    // The sides of an element are read when it is picked, because each of them is a whole table: the two compared, or
+    // the three versions of a conflict side by side.
+    const threeWay = conflictView === 'all'
     useEffect(() => {
         if (!comparisonId || !selectedId) {
             setTable(null)
+            setConflictTable(null)
             return
         }
         let cancelled = false
         setTableLoading(true)
         setTableError(null)
-        getComparisonTable(comparisonId, selectedId)
-            .then(result => {
+        const read = threeWay
+            ? getConflictComparisonTable(comparisonId, selectedId).then(result => {
+                if (!cancelled) setConflictTable(result)
+            })
+            : getComparisonTable(comparisonId, selectedId).then(result => {
                 if (!cancelled) setTable(result)
             })
+        read
             .catch((tableReadError: unknown) => {
                 if (!cancelled) setTableError(errorMessage(tableReadError) || t('table_failed'))
             })
@@ -540,7 +565,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
         return () => {
             cancelled = true
         }
-    }, [comparisonId, selectedId, t])
+    }, [comparisonId, selectedId, threeWay, t])
 
     // A comparison holds both workbooks parsed, so a screen that is done with it puts them down at
     // once instead of leaving them until the session ends. The window may go without a word - closed,
@@ -802,7 +827,27 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
                         )}
                     </Splitter.Panel>
                     <Splitter.Panel>
-                        <ComparisonPanes
+                        {/* The three versions of a conflict are read side by side only: one table would hold two
+                            changes of each cell. */}
+                        {threeWay && (
+                            <ConflictPanes
+                                error={tableError}
+                                loading={tableLoading}
+                                showEqualRows={showEqualRows}
+                                table={conflictTable}
+                                leading={treeHidden && (
+                                    <Button
+                                        data-testid="compare-tree-show"
+                                        icon={<MenuUnfoldOutlined />}
+                                        onClick={() => setTreeHidden(false)}
+                                        size="small"
+                                        title={t('show_tree')}
+                                        type="text"
+                                    />
+                                )}
+                            />
+                        )}
+                        {!threeWay && <ComparisonPanes
                             error={tableError}
                             loading={tableLoading}
                             secondOnLeft={secondOnLeft}
@@ -836,7 +881,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
                                     ]}
                                 />
                             )}
-                        />
+                        />}
                     </Splitter.Panel>
                 </Splitter>
             )}

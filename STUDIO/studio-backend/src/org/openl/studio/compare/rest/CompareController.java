@@ -1,5 +1,6 @@
 package org.openl.studio.compare.rest;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -32,6 +34,7 @@ import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.model.ComparisonTableView;
 import org.openl.studio.compare.model.ComparisonView;
+import org.openl.studio.compare.model.ConflictComparisonTableView;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.compare.service.ComparisonMapper;
 import org.openl.studio.compare.service.ComparisonRegistry;
@@ -89,9 +92,11 @@ public class CompareController {
     public ResponseEntity<?> getComparison(
             @Parameter(description = "compare.param.comparison-id.desc")
             @PathVariable("comparisonId") String comparisonId) {
-        return resultOf(comparisonId, result -> mapper.toView(comparisonId, result))
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(ResultNotReadyView::accepted);
+        return resultOf(comparisonId, result -> switch (result) {
+            case ConflictComparison conflict -> mapper.toConflictView(comparisonId, conflict);
+            case WorkbookComparison workbooks -> mapper.toView(comparisonId, workbooks);
+            default -> throw new IllegalStateException("Unknown comparison " + result.getClass());
+        }).<ResponseEntity<?>>map(ResponseEntity::ok).orElseGet(ResultNotReadyView::accepted);
     }
 
     @Operation(summary = "compare.get-table.summary", description = "compare.get-table.desc")
@@ -109,7 +114,30 @@ public class CompareController {
             @PathVariable("comparisonId") String comparisonId,
             @Parameter(description = "compare.param.table-id.desc")
             @PathVariable("tableId") String tableId) {
-        return resultOf(comparisonId, result -> Optional.ofNullable(mapper.toTable(result, tableId)))
+        return resultOf(comparisonId, result -> Optional.ofNullable(
+                result instanceof WorkbookComparison workbooks ? mapper.toTable(workbooks, tableId) : null))
+                .<ResponseEntity<?>>map(table -> ResponseEntity.ok(table.orElseThrow(
+                        () -> new NotFoundException("compare.table.not-found.message"))))
+                .orElseGet(ResultNotReadyView::accepted);
+    }
+
+    @Operation(summary = "compare.get-conflict-table.summary", description = "compare.get-conflict-table.desc")
+    @ApiResponse(responseCode = "200", description = "compare.get-conflict-table.200.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ConflictComparisonTableView.class)))
+    @ApiResponse(responseCode = "404", description = "compare.table.not-found.message")
+    @ApiResponse(responseCode = "202", description = "compare.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
+    @GetMapping("/{comparisonId}/conflict-tables/{tableId}")
+    // The endpoint answers with another body while the result is not ready yet.
+    @SuppressWarnings("java:S1452")
+    public ResponseEntity<?> getConflictTable(
+            @Parameter(description = "compare.param.comparison-id.desc")
+            @PathVariable("comparisonId") String comparisonId,
+            @Parameter(description = "compare.param.table-id.desc")
+            @PathVariable("tableId") String tableId) {
+        return resultOf(comparisonId, result -> Optional.ofNullable(
+                result instanceof ConflictComparison conflict ? mapper.toConflictTable(conflict, tableId) : null))
                 .<ResponseEntity<?>>map(table -> ResponseEntity.ok(table.orElseThrow(
                         () -> new NotFoundException("compare.table.not-found.message"))))
                 .orElseGet(ResultNotReadyView::accepted);
@@ -128,7 +156,7 @@ public class CompareController {
      * Reads what the named comparison found. A comparison this session no longer holds is gone, and one that is
      * still running has nothing to report yet: the request is accepted, and answered once it has ended.
      */
-    private <T> Optional<T> resultOf(String comparisonId, Function<? super WorkbookComparison, T> reader) {
+    private <T> Optional<T> resultOf(String comparisonId, Function<? super Closeable, T> reader) {
         if (!registry.has(comparisonId)) {
             throw new NotFoundException("compare.not-found.message");
         }

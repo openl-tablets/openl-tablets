@@ -66,7 +66,7 @@ interface Sides {
 }
 
 /** The place of the cell that holds each place of the table: the cell itself, or the merged cell covering it. */
-const holdersOf = (rows: RawTableCell[][]): Array<Array<[number, number] | undefined>> => {
+export const holdersOf = (rows: RawTableCell[][]): Array<Array<[number, number] | undefined>> => {
     const holders: Array<Array<[number, number] | undefined>> = rows.map(row => row.map(() => undefined))
     rows.forEach((row, r) => row.forEach((cell, c) => {
         if (cell.covered) {

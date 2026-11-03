@@ -26,11 +26,23 @@ export interface ShownGrid {
  */
 export const rowsToShow = (alignment: Alignment | null, showEqualRows: boolean): ShownLine[] | null => {
     const columnsDiffer = alignment?.columns.some(column => column.status === 'added' || column.status === 'removed')
-    if (showEqualRows || !alignment || columnsDiffer) {
+    return alignment && !columnsDiffer
+        ? keptRows(alignment.rows.map(row => row.status !== 'equal'), showEqualRows)
+        : null
+}
+
+/**
+ * The rows to draw of a table whose columns all stand in both versions, or null for the whole table, as
+ * {@link rowsToShow} picks them.
+ *
+ * @param differs whether each row differs
+ */
+export const keptRows = (differs: readonly boolean[], showEqualRows: boolean): ShownLine[] | null => {
+    if (showEqualRows) {
         return null
     }
-    const count = alignment.rows.length
-    const differ = alignment.rows.flatMap((row, index) => (row.status === 'equal' ? [] : [index]))
+    const count = differs.length
+    const differ = differs.flatMap((rowDiffers, index) => (rowDiffers ? [index] : []))
     if (differ.length === 0) {
         return null
     }

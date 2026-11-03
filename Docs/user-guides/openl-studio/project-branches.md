@@ -397,19 +397,28 @@ contain the project when it is opened. Proceed as follows:
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
 
     **Compare File Versions** opens a window that shows what the branches changed in the file. The window names
-    the file, says whether the merge modified or deleted it, and offers three views of it:
+    the file, says whether the merge modified or deleted it, and offers four views of it:
 
-    -   **Your Changes** compares the base version, the one both branches started from, with the version of the
-        current branch.
+    -   **All Versions** shows an Excel file in three columns: the version of the current branch, the base version,
+        the one both branches started from, and the version being merged in. Each version is compared with the base,
+        and the rows and the columns of the three stand against each other by the base: a row a branch inserted is
+        painted green in its version and stands against empty rows in the other two, and a row a branch removed is
+        painted red in the base and stands against an empty row in that version. A row both branches inserted at
+        one place with the same values is one row, painted green in both versions. The cells each branch changed are
+        framed in orange, and the cells both branches changed differently are framed in red. The list of elements
+        marks each element with what the two branches did to it together. The three versions are read side by side
+        only, so **Combined** is not offered here. The window opens on this view when all three versions hold the
+        file.
+    -   **Your Changes** compares the base version with the version of the current branch.
     -   **Their Changes** compares the base version with the version being merged in. It shows what the other branch
-        changed. The window opens on this view.
+        changed. The window opens on this view when the three versions are not offered.
     -   **Both Versions** compares the version of the current branch with the version being merged in.
 
     The versions stand as merge tools lay them out: your version on the left, their version on the right and the
     base version between them, so **Your Changes** shows your version left of the base. A view is available only
-    when both versions it compares hold the file, and the other views are dimmed: a file both branches added has no
-    base version, so only **Both Versions** is available, and a file one branch deleted is compared only with the
-    base version, as the other branch changed it. An Excel file is compared element by element, as described in
+    when the versions it compares hold the file, and the other views are dimmed: **All Versions** is offered for an
+    Excel file only, a file both branches added has no base version, so only **Both Versions** is available, and a
+    file one branch deleted is compared only with the base version, as the other branch changed it. An Excel file is compared element by element, as described in
     [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements** and **Show
     equal rows** check boxes heading the list of elements. A text file is compared line by line: a line only the base
     version has is marked `-` and a line only the branch version has is marked `+`, and in **Both Versions** a line
@@ -442,14 +451,14 @@ The project remains available to the dialog under the identifier issued after th
 
 *Resolving conflicts upon saving concurrent changes*
 
-The dialog contains the **Compare File Versions** link that opens, in a window of its own, what the other user
-changed against the version both users started from, what you changed, or the two conflicting versions against each other,
-as for a merge. As in a merge, **Merge line by line** in the **Resolution** column of the dialog resolves a
+The dialog contains the **Compare File Versions** link that opens, in a window of its own, the three versions of the
+file side by side, what the other user changed against the version both users started from, what you changed, or the
+two conflicting versions against each other, as for a merge. As in a merge, **Merge line by line** in the **Resolution** column of the dialog resolves a
 conflicting text file in place, and **Merge table by table** a conflicting workbook.
 
-![What the other user changed in a conflicting workbook](images/compare-conflicting-versions.jpeg "Comparing conflicting versions")
+![Your version, the base version and their version of a conflicting workbook](images/compare-conflicting-versions.jpeg "Comparing conflicting versions")
 
-*Comparing conflicting versions*
+*Comparing the three versions of a conflicting workbook: the prices both users changed are framed in red*
 
 ### Using Protected Branches
 

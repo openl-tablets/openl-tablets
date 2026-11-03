@@ -8,7 +8,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import org.openl.rules.xls.merge.XlsConflictComparator;
 import org.openl.rules.xls.merge.XlsWorkbookComparator;
+import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.projects.service.ExecutionLifecycle;
 import org.openl.studio.projects.service.ExecutionProgressListener;
@@ -30,5 +32,15 @@ public class ExcelComparisonServiceImpl implements ExcelComparisonService {
                                                          @NotNull Path second) {
         return ExecutionLifecycle.execute(listener,
                 () -> XlsWorkbookComparator.compare(first.toFile(), second.toFile()));
+    }
+
+    @Override
+    @Async("comparisonExecutor")
+    public CompletableFuture<ConflictComparison> compare(@NotNull ExecutionProgressListener listener,
+                                                         @NotNull Path base,
+                                                         @NotNull Path yours,
+                                                         @NotNull Path theirs) {
+        return ExecutionLifecycle.execute(listener,
+                () -> XlsConflictComparator.compare(base.toFile(), yours.toFile(), theirs.toFile()));
     }
 }

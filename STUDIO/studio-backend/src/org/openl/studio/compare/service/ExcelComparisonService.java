@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import jakarta.validation.constraints.NotNull;
 
+import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.projects.service.ExecutionProgressListener;
 
@@ -27,4 +28,19 @@ public interface ExcelComparisonService {
     CompletableFuture<WorkbookComparison> compare(@NotNull ExecutionProgressListener listener,
                                                   @NotNull Path first,
                                                   @NotNull Path second);
+
+    /**
+     * Compares the base version of an Excel file with the two versions of a conflict.
+     *
+     * @param listener progress listener (must not be null)
+     * @param base     the version both versions started from (must not be null)
+     * @param yours    your version (must not be null)
+     * @param theirs   their version (must not be null)
+     * @return a future that completes with what the comparison found, holding the three workbooks open until it is
+     * closed
+     */
+    CompletableFuture<ConflictComparison> compare(@NotNull ExecutionProgressListener listener,
+                                                  @NotNull Path base,
+                                                  @NotNull Path yours,
+                                                  @NotNull Path theirs);
 }

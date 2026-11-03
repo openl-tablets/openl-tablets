@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.mock.web.MockMultipartFile;
 
+import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.compare.messaging.SocketComparisonProgressListenerFactory;
 import org.openl.studio.security.CurrentUserInfo;
@@ -67,6 +70,25 @@ class ComparisonLauncherTest {
         // The comparison reads the copies, so restoring a version leaves what is on screen alone.
         verify(registry).register(started.id(), STORED, task);
         verify(comparisonService).compare(any(), any(Path.class), any(Path.class));
+    }
+
+    @Test
+    void comparesTheBaseOfAConflictWithBothVersionsAtOnce() throws Exception {
+        var stored = List.of(Path.of("compare", "base.xlsx"), Path.of("compare", "yours.xlsx"),
+                Path.of("compare", "theirs.xlsx"));
+        var contents = List.of(content("base.xlsx"), content("yours.xlsx"), content("theirs.xlsx"));
+        var task = new CompletableFuture<ConflictComparison>();
+        when(fileStore.store(contents)).thenReturn(stored);
+        when(comparisonService.compare(any(), any(), any(), any())).thenReturn(task);
+
+        var started = launcher().startContentOf(contents);
+
+        verify(comparisonService).compare(any(), eq(stored.getFirst()), eq(stored.get(1)), eq(stored.get(2)));
+        verify(registry).register(started.id(), stored, task);
+    }
+
+    private static ComparisonContent content(String name) {
+        return new ComparisonContent(name, new ByteArrayInputStream(new byte[0]));
     }
 
     @Test

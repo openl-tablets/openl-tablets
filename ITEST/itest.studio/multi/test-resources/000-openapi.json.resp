@@ -7463,6 +7463,140 @@ Content-Type: application/json
         ]
       }
     },
+    "/compare/{comparisonId}/conflict-tables/{tableId}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "comparisonId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictComparisonTableView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Compare"
+        ]
+      }
+    },
     "/compare/{comparisonId}/tables/{tableId}": {
       "get": {
         "description": "***",
@@ -12998,6 +13132,130 @@ Content-Type: application/json
                 "ours",
                 "theirs"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonStartedView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/merge/conflicts/compare-versions": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -28464,12 +28722,34 @@ Content-Type: application/json
               "removed"
             ]
           },
+          "theirs": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
+            ]
+          },
           "type": {
             "type": "string",
             "description": "***",
             "enum": [
               "sheet",
               "table"
+            ]
+          },
+          "yours": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
             ]
           }
         }
@@ -28508,6 +28788,13 @@ Content-Type: application/json
             "items": {
               "type": "string",
               "description": "***"
+            }
+          },
+          "conflictCells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
             }
           },
           "source": {
@@ -28911,6 +29198,131 @@ Content-Type: application/json
               "base",
               "ours",
               "theirs"
+            ]
+          }
+        }
+      },
+      "ConflictComparisonLineView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "base": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "theirs": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "theirsStatus": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
+            ]
+          },
+          "yours": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "yoursStatus": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
+            ]
+          }
+        }
+      },
+      "ConflictComparisonTableView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/ComparisonSideView"
+          },
+          "baseRange": {
+            "type": "string",
+            "description": "***"
+          },
+          "columns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictComparisonLineView"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "rows": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictComparisonLineView"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
+            ]
+          },
+          "theirs": {
+            "$ref": "#/components/schemas/ComparisonSideView"
+          },
+          "theirsRange": {
+            "type": "string",
+            "description": "***"
+          },
+          "theirsStatus": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
+            ]
+          },
+          "yours": {
+            "$ref": "#/components/schemas/ComparisonSideView"
+          },
+          "yoursRange": {
+            "type": "string",
+            "description": "***"
+          },
+          "yoursStatus": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "equal",
+              "changed",
+              "moved",
+              "added",
+              "removed"
             ]
           }
         }

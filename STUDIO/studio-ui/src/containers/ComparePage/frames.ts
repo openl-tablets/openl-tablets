@@ -1,3 +1,4 @@
+import { holdersOf } from 'components/rawTableStyle'
 import type { RawTableCell } from 'types/tables'
 
 /** The sides of a cell a frame runs along. */
@@ -9,21 +10,8 @@ export interface FrameSides {
 }
 
 /** The cell drawn at each place of a table, the merged cell over it included. */
-const ownersOf = (grid: RawTableCell[][]): Array<Array<RawTableCell | undefined>> => {
-    const owners: Array<Array<RawTableCell | undefined>> = grid.map(() => [])
-    grid.forEach((row, rowIndex) => row.forEach((cell, columnIndex) => {
-        if (cell.covered) {
-            return
-        }
-        for (let down = 0; down < (cell.rowspan ?? 1); down++) {
-            const line = (owners[rowIndex + down] ??= [])
-            for (let across = 0; across < (cell.colspan ?? 1); across++) {
-                line[columnIndex + across] = cell
-            }
-        }
-    }))
-    return owners
-}
+const ownersOf = (grid: RawTableCell[][]): Array<Array<RawTableCell | undefined>> =>
+    holdersOf(grid).map(row => row.map(place => place && grid[place[0]]?.[place[1]]))
 
 /** Whether every step of a run beyond a side of a cell holds. */
 const everyStep = (count: number, holds: (step: number) => boolean): boolean => {

@@ -19,6 +19,8 @@ i18next.addResourceBundle('en', 'compare', {
     view_their_changes: 'Their Changes',
     view_your_changes: 'Your Changes',
     view_versions: 'Both Versions',
+    view_all_versions: 'All Versions',
+    status_conflict: 'Changed differently by both',
     clear: 'Clear',
     compare: 'Compare',
     back: 'Select other files',

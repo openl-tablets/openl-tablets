@@ -1,5 +1,6 @@
 package org.openl.studio.compare.service;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.compare.messaging.SocketComparisonProgressListenerFactory;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.security.CurrentUserInfo;
@@ -59,10 +59,13 @@ public class ComparisonLauncher {
     }
 
     /**
-     * Starts comparing two files that are read rather than kept on disk - a revision of a project, its
-     * working copy.
+     * Starts comparing files that are read rather than kept on disk - a revision of a project, its working copy.
      *
-     * @param files the content of the two files to compare
+     * <p>Two files are compared with each other. Three files are a base and two versions made from it: the base is
+     * compared with both versions at once.
+     *
+     * @param files the content of the two files to compare, or of the base, your version and their version, in that
+     *              order
      * @return the name the comparison is read and watched by
      * @throws IOException when the content cannot be written
      */
@@ -70,13 +73,18 @@ public class ComparisonLauncher {
         return start(fileStore.store(files));
     }
 
-    /** Runs the comparison of the files the store has taken over. */
+    /**
+     * Runs the comparison of the files the store has taken over: of two versions, or of the base and the two
+     * versions of a conflict.
+     */
     private ComparisonStartedView start(List<Path> files) {
         var comparisonId = UUID.randomUUID().toString();
-        CompletableFuture<WorkbookComparison> comparison;
+        CompletableFuture<? extends Closeable> comparison;
         try {
             var listener = listenerFactory.create(currentUserInfo.getUserName(), comparisonId);
-            comparison = comparisonService.compare(listener, files.getFirst(), files.get(1));
+            comparison = files.size() == 3
+                    ? comparisonService.compare(listener, files.getFirst(), files.get(1), files.get(2))
+                    : comparisonService.compare(listener, files.getFirst(), files.get(1));
         } catch (RuntimeException e) {
             // Nothing was started, so nothing owns the files. A comparison that could not be started -
             // the executor is full, the Studio is stopping - takes them with it.

@@ -17,6 +17,8 @@ import org.jspecify.annotations.Nullable;
  * @param moved       whether the second file moved the table to another place on purpose
  * @param firstRange  the place of the table in the first file
  * @param secondRange the place of the table in the second file
+ * @param yours       what your version did to the element, in a comparison of a conflict with its base
+ * @param theirs      what their version did to the element, in a comparison of a conflict with its base
  * @param children    tables of a sheet; empty for a table
  */
 @Builder
@@ -51,6 +53,16 @@ public record ComparisonNodeView(
                 The place of the table in the second file, in A1 notation; absent for a sheet and for a table only \
                 the first file holds""")
         @Nullable String secondRange,
+
+        @Parameter(description = """
+                What your version did to the element, against the base version both versions started from; \
+                present only in a comparison of a conflicted file with its base""")
+        @Nullable ComparisonNodeStatus yours,
+
+        @Parameter(description = """
+                What their version did to the element, against the base version both versions started from; \
+                present only in a comparison of a conflicted file with its base""")
+        @Nullable ComparisonNodeStatus theirs,
 
         @Schema(description = "Tables of the sheet; empty for a table")
         List<ComparisonNodeView> children) {

@@ -15,11 +15,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.xls.merge.XlsConflictComparator;
 import org.openl.rules.xls.merge.XlsWorkbookComparator;
+import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.WorkbookComparison;
 import org.openl.studio.compare.model.ComparisonLineView;
 import org.openl.studio.compare.model.ComparisonNodeStatus;
 import org.openl.studio.compare.model.ComparisonNodeType;
+import org.openl.studio.compare.model.ConflictComparisonLineView;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
@@ -197,6 +200,63 @@ class ComparisonMapperTest {
             assertNull(mapper.toTable(comparison, "0-0-"));
             assertNull(mapper.toTable(comparison, "-0-0"));
         }
+    }
+
+    @Test
+    void reportsWhatEachVersionOfAConflictDidAndWhatBothDidTogether() throws IOException {
+        String[][] yours = {{"Datatype Person"}, {"String", "fullName"}, {"int", "age"}};
+        String[][] theirs = {{"Datatype Person"}, {"String", "surname"}, {"int", "age"}, {}, {"Datatype Address"},
+                {"String", "city"}};
+        try (var comparison = compareConflict(PERSON, yours, theirs)) {
+            var view = mapper.toConflictView("cmp", comparison);
+
+            assertFalse(view.identical());
+            var sheet = view.sheets().getFirst();
+            assertEquals(ComparisonNodeStatus.CHANGED, sheet.yours());
+            assertEquals(ComparisonNodeStatus.CHANGED, sheet.theirs());
+            var person = sheet.children().getFirst();
+            assertEquals(ComparisonNodeStatus.CHANGED, person.status());
+            assertEquals(ComparisonNodeStatus.CHANGED, person.yours());
+            assertEquals(ComparisonNodeStatus.CHANGED, person.theirs());
+            // A table their version added is added as both did it together: your version did nothing to it.
+            var address = sheet.children().get(1);
+            assertEquals(ComparisonNodeStatus.ADDED, address.status());
+            assertEquals(ComparisonNodeStatus.EQUAL, address.yours());
+            assertEquals(ComparisonNodeStatus.ADDED, address.theirs());
+
+            var table = mapper.toConflictTable(comparison, "0-0");
+            assertEquals("A1:B3", table.baseRange());
+            assertEquals(List.of("B2"), table.yours().changedCells());
+            // Both renamed the field, each to another name.
+            assertEquals(List.of("B2"), table.yours().conflictCells());
+            assertEquals(List.of("B2"), table.theirs().conflictCells());
+            assertNull(table.base().conflictCells());
+            var changedByBoth = new ConflictComparisonLineView(1, 1, 1, ComparisonNodeStatus.CHANGED,
+                    ComparisonNodeStatus.CHANGED);
+            assertEquals(changedByBoth, table.rows().get(1));
+
+            var added = mapper.toConflictTable(comparison, "0-1");
+            assertNull(added.base());
+            assertNull(added.yours());
+            assertEquals("A5:B6", added.theirsRange());
+            assertNull(mapper.toConflictTable(comparison, "0-9"));
+        }
+    }
+
+    @Test
+    void aConflictBothVersionsLeftAloneIsIdentical() throws IOException {
+        try (var comparison = compareConflict(PERSON, PERSON, PERSON)) {
+            var view = mapper.toConflictView("cmp", comparison);
+
+            assertTrue(view.identical());
+            assertEquals(ComparisonNodeStatus.EQUAL, view.sheets().getFirst().children().getFirst().status());
+        }
+    }
+
+    private ConflictComparison compareConflict(String[][] base, String[][] yours, String[][] theirs) throws IOException {
+        return XlsConflictComparator.compare(workbook("base.xlsx", base).toFile(),
+                workbook("yours.xlsx", yours).toFile(),
+                workbook("theirs.xlsx", theirs).toFile());
     }
 
     private static ComparisonLineView line(Integer first, Integer second, ComparisonNodeStatus status) {
