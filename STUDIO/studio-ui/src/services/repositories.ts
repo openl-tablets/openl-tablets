@@ -526,32 +526,36 @@ export async function getProjectRevisions(
     return toRevisionPage(await apiCall(url, undefined, { throwError: true }), query)
 }
 
-/** The files of a project one revision changed against another. */
+/** The files of a project one revision, or the working copy, changed against another revision. */
 export interface RevisionChanges {
     /** The revision compared against, as the history tells it; absent when there is none, and then every file is added. */
     base: ProjectRevision | null
-    /** The revision whose changes are told, as the history tells it. */
-    revision: ProjectRevision
+    /** The revision whose changes are told, as the history tells it; null for the working copy. */
+    revision: ProjectRevision | null
     /** The changed files, by their paths inside the project. */
     files: ProjectFileChange[]
 }
 
 /**
  * The files of a project a revision changed: against the given base, or else against the revision it was made on.
+ * Without a revision, the files the working copy changed since the base.
  */
 export async function getRevisionChanges(
     projectId: string,
-    revision: string,
+    revision: string | undefined,
     base?: string
 ): Promise<RevisionChanges> {
-    const params = new URLSearchParams({ revision })
+    const params = new URLSearchParams()
+    if (revision) {
+        params.set('revision', revision)
+    }
     if (base) {
         params.set('base', base)
     }
     const response: RevisionChanges = await apiCall(
         // The list shows its own error: a failed read must not replace the whole page with an error page.
         `/projects/${encodeURIComponent(projectId)}/history/changes?${params}`, undefined, LOCAL_LOAD_API_OPTIONS)
-    return { base: response.base ?? null, revision: response.revision, files: asArray(response.files) }
+    return { base: response.base ?? null, revision: response.revision ?? null, files: asArray(response.files) }
 }
 
 /** Open a project at a specific historical revision. */

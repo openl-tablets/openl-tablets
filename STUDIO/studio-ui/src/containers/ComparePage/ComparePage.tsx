@@ -40,7 +40,7 @@ import {
 } from './RevisionsComparison'
 import { useRevisionChanges } from '../projects/RevisionChanges'
 import type { ProjectFileChange, ProjectFileChangeType } from 'services/projectStatus'
-import { RevisionPicker, type ProjectComparisonSides } from './RevisionPicker'
+import { RevisionPicker, type PickedRevision } from './RevisionPicker'
 import { ComparisonTree } from './ComparisonTree'
 import { isFinished, useComparisonProgress } from './useComparisonProgress'
 import { useStyles } from './ComparePage.styles'
@@ -99,8 +99,8 @@ const SAVE_TITLES: TitleKeys = { first: 'saved_revision', second: 'your_changes'
 /** A file at a revision against the same file at a later one, such as before and after a merge. */
 const REVISION_TITLES: TitleKeys = { first: 'earlier_revision', second: 'later_revision' }
 
-/** A file of the working copy against a file of the revision picked beside it. */
-const PICKED_TITLES: TitleKeys = { first: 'user_workspace', second: 'selected_revision' }
+/** A file of the revision picked against the same file of the working copy. */
+const WORKSPACE_TITLES: TitleKeys = { first: 'selected_revision', second: 'user_workspace' }
 
 /** What is known of a conflicted file whose versions cannot be read: the merge compared their two versions. */
 const UNKNOWN_VERSIONS: ConflictFileVersions = { base: false, ours: true, theirs: true }
@@ -146,23 +146,32 @@ interface TextVersionsRequest {
 type NamedVersions = Pick<ComparisonRequest, 'versions' | 'textVersions'>
 
 /**
- * The keys of the names of the two versions a comparison shows. The versions of a conflicted file, the versions the
- * screen that opened the window named, and the files picked of a project are named as what they are; only two files
- * picked from the computer are a first and a second file, with no names.
+ * The keys of the names of the two versions a comparison shows. The versions of a conflicted file and the versions the
+ * screen that opened the window named are named as what they are; only two files picked from the computer are a
+ * first and a second file, with no names.
  *
  * @param shownView the view of a conflicted file shown, or null for any other comparison
  * @param named the versions the window was opened for, or null when it was opened for none
- * @param picked whether the files compared were picked of a project
  */
 const titleKeysOf = (
     shownView: ConflictViewDefinition | null,
-    named: VersionsRequest | TextVersionsRequest | null,
-    picked: boolean
+    named: VersionsRequest | TextVersionsRequest | null
 ): TitleKeys | undefined => {
     if (shownView) {
         return { first: VERSION_TITLES[shownView.compared[0]], second: VERSION_TITLES[shownView.compared[1]] }
     }
-    return named?.titles ?? (picked ? PICKED_TITLES : undefined)
+    return named?.titles
+}
+
+/**
+ * What the two versions of a file of a project are called: the earlier and the later revision, or a revision against
+ * the working copy, as the revision picked against it or as the revision saved before the changes a save commits.
+ */
+const fileTitlesOf = (params: URLSearchParams, after: string | undefined): TitleKeys => {
+    if (after) {
+        return REVISION_TITLES
+    }
+    return params.get('base') ? WORKSPACE_TITLES : SAVE_TITLES
 }
 
 /** Two versions of a module, as Local Changes names them, or null when none are named. */
@@ -202,7 +211,7 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     // A file named without a later revision is compared with the working copy.
     const after = params.get('after') ?? params.get('revision') ?? undefined
     const absentAfter = change === 'deleted'
-    const titles = after ? REVISION_TITLES : SAVE_TITLES
+    const titles = fileTitlesOf(params, after)
     if (!isWorkbookPath(file)) {
         const read = () => Promise.all([
             absentBefore ? '' : getFileText(projectId, file, before),
@@ -241,11 +250,11 @@ interface ComparisonRequest {
     versions: VersionsRequest | null
     /** A file that is not a workbook at two revisions, when the window was opened for one. */
     textVersions: TextVersionsRequest | null
-    /** The project the window was opened for, whether to pick its files or to read its conflict. */
+    /** The project the window was opened for, whether to pick a revision of it or to read its conflict. */
     projectId: string | null
     /** The conflicted file of that project, when the window was opened for one. */
     conflict: string | null
-    /** The project whose two files are picked, or null when there is nothing to pick. */
+    /** The project whose revision is picked to compare its working copy with, or null when there is nothing to pick. */
     pickedProject: string | null
 }
 
@@ -303,10 +312,9 @@ const startOf = (
  * Save dialog does. There are no files to pick then, and the comparison starts as the window opens;
  * a file that is not a workbook reads line by line.
  *
- * A window opened for a project alone picks instead of files: which file of the working copy stands
- * against which file of which revision. One opened for a conflicted file of a project shows what each
- * branch changed since the base version, or the two versions against each other: a workbook as a
- * comparison, anything else line by line. A view whose versions do not both hold the file is not offered.
+ * A window opened for a conflicted file of a project shows what each branch changed since the base
+ * version, or the two versions against each other: a workbook as a comparison, anything else line by
+ * line. A view whose versions do not both hold the file is not offered.
  */
 /**
  * What the window knows of a conflicted file: which versions hold it, what became of it, the views it is offered in
@@ -371,10 +379,9 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const [params] = useSearchParams()
-    const { versions, textVersions, projectId, conflict, pickedProject } = useMemo(
+    const { versions, textVersions, projectId, conflict } = useMemo(
         () => requestOf(params), [params]
     )
-    const [sides, setSides] = useState<ProjectComparisonSides | null>(null)
     const { conflictVersions, conflictStatus, conflictViews, conflictView, setPickedView, conflictWorkbook, conflictText } =
         useConflictFile(projectId, conflict)
 
@@ -564,8 +571,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
         }
     }, [])
 
-    // Two files of a project are picked; without a project, two files are uploaded.
-    const ready = pickedProject ? sides !== null : files.length === FILES_TO_COMPARE
+    const ready = files.length === FILES_TO_COMPARE
 
     const compare = useCallback(async () => {
         if (!ready) {
@@ -574,15 +580,13 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
         setStarting(true)
         setError(null)
         try {
-            setComparisonId(pickedProject && sides
-                ? await startProjectComparison(pickedProject, sides.first, sides.second)
-                : await startFileComparison(files[0]!, files[1]!))
+            setComparisonId(await startFileComparison(files[0]!, files[1]!))
         } catch (startError) {
             setError(errorMessage(startError) || t('failed'))
         } finally {
             setStarting(false)
         }
-    }, [ready, pickedProject, sides, files, t])
+    }, [ready, files, t])
 
     /** Back to the files, leaving the comparison behind: another pair is compared from here. */
     const pickOtherFiles = useCallback(() => {
@@ -608,7 +612,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
 
     // The two versions a view compares, as the window names them, and where it shows them.
     const shownView = conflictView ? CONFLICT_VIEWS[conflictView] : null
-    const titleKeys = titleKeysOf(shownView, versions ?? textVersions, !!pickedProject)
+    const titleKeys = titleKeysOf(shownView, versions ?? textVersions)
     const titles = titleKeys && { first: t(titleKeys.first), second: t(titleKeys.second) }
     const secondOnLeft = !!shownView?.secondOnLeft
 
@@ -674,39 +678,36 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
             {head}
             {!comparing && (
                 <div className={styles.step}>
-                    {pickedProject && <RevisionPicker onChange={setSides} projectId={pickedProject} />}
-                    {!pickedProject && (
-                        <div className={styles.picker}>
-                            <Upload.Dragger
-                                multiple
-                                accept={ACCEPTED}
-                                beforeUpload={pick}
-                                data-testid="compare-files"
-                                fileList={[]}
-                                showUploadList={false}
-                            >
-                                <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                                <p className="ant-upload-text">{t('select')}</p>
-                                <p className="ant-upload-hint">{t('select_hint')}</p>
-                            </Upload.Dragger>
-                            <ul className={styles.files} data-testid="compare-file-list">
-                                {files.map((file, index) => (
-                                    <li key={`${index}-${file.name}`} className={styles.file}>
-                                        <PaperClipOutlined />
-                                        <span className={styles.fileName}>{file.name}</span>
-                                        <Button
-                                            data-testid="compare-file-clear"
-                                            onClick={() => setFiles(rest => rest.filter((_, at) => at !== index))}
-                                            size="small"
-                                            type="link"
-                                        >
-                                            {t('clear')}
-                                        </Button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                    <div className={styles.picker}>
+                        <Upload.Dragger
+                            multiple
+                            accept={ACCEPTED}
+                            beforeUpload={pick}
+                            data-testid="compare-files"
+                            fileList={[]}
+                            showUploadList={false}
+                        >
+                            <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                            <p className="ant-upload-text">{t('select')}</p>
+                            <p className="ant-upload-hint">{t('select_hint')}</p>
+                        </Upload.Dragger>
+                        <ul className={styles.files} data-testid="compare-file-list">
+                            {files.map((file, index) => (
+                                <li key={`${index}-${file.name}`} className={styles.file}>
+                                    <PaperClipOutlined />
+                                    <span className={styles.fileName}>{file.name}</span>
+                                    <Button
+                                        data-testid="compare-file-clear"
+                                        onClick={() => setFiles(rest => rest.filter((_, at) => at !== index))}
+                                        size="small"
+                                        type="link"
+                                    >
+                                        {t('clear')}
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                     <Checkbox
                         checked={showEqualElements}
                         data-testid="compare-show-equal-elements"
@@ -844,17 +845,58 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
 }
 
 /**
- * The comparison window. Opened for two revisions of a project, it lists the files changed between them first, and
- * compares the file picked of them in the same window, with the way back to the list; the address names the file, so
- * the browser goes back to the list as well. Opened for anything else, it compares what the address names.
+ * The comparison window. Opened for two revisions of a project, or for a revision and the working copy, it lists the
+ * files changed between them first, and compares the file picked of them in the same window, with the way back to the
+ * list; the address names the file, so the browser goes back to the list as well. Opened for a project alone, it picks
+ * the revision the working copy is compared with first. Opened for anything else, it compares what the address names.
  */
 export const ComparePage: React.FC = () => {
     const [params] = useSearchParams()
     const revisions = useMemo(() => comparedRevisionsOf(params), [params])
-    if (!revisions) {
-        return <ComparisonScreen />
+    const pickedProject = useMemo(() => requestOf(params).pickedProject, [params])
+    if (revisions) {
+        return <RevisionsWindow revisions={revisions} />
     }
-    return <RevisionsWindow revisions={revisions} />
+    return pickedProject ? <RevisionPickerScreen projectId={pickedProject} /> : <ComparisonScreen />
+}
+
+/**
+ * The revision the working copy of a project is compared with, picked before anything is compared. Compare lists the
+ * files changed between the two in the same window, and the browser goes back to the pick.
+ */
+const RevisionPickerScreen: React.FC<{ projectId: string }> = ({ projectId }) => {
+    const { t } = useTranslation('compare')
+    const { styles } = useStyles()
+    const [, setParams] = useSearchParams()
+    const [picked, setPicked] = useState<PickedRevision | null>(null)
+
+    useEffect(() => {
+        document.title = t('title')
+    }, [t])
+
+    const compare = () => {
+        if (!picked) {
+            return
+        }
+        const next = new URLSearchParams({ projectId, base: picked.revision })
+        if (picked.branch) {
+            next.set('branch', picked.branch)
+        }
+        setParams(next)
+    }
+
+    return (
+        <div className={styles.page}>
+            <div className={styles.step}>
+                <RevisionPicker onChange={setPicked} projectId={projectId} />
+                <div>
+                    <Button data-testid="compare-start" disabled={!picked} onClick={compare} type="primary">
+                        {t('compare')}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 /** What became of a file, as the address tells it: added or deleted, and modified when it tells anything else. */

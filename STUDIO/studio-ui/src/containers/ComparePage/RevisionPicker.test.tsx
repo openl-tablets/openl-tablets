@@ -1,10 +1,8 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { RevisionPicker } from './RevisionPicker'
-import { getProjectCompareFiles } from 'services/compare'
 import { getProject, getProjectBranches } from 'services/repositories'
 import { useProjectRevisions } from 'containers/projects/revisions'
 
-vi.mock('services/compare', () => ({ getProjectCompareFiles: vi.fn() }))
 vi.mock('services/repositories', () => ({ getProject: vi.fn(), getProjectBranches: vi.fn() }))
 vi.mock('containers/projects/revisions', () => ({ useProjectRevisions: vi.fn() }))
 
@@ -35,13 +33,19 @@ vi.mock('antd', () => ({
         <div role="alert" {...rest}>{title}</div>
     ),
     Select: ({ onChange, options, value, loading: _loading, popupMatchSelectWidth: _width,
-        placeholder: _placeholder, ...rest }: any) => (
-        <select {...rest} onChange={event => onChange?.(event.target.value)} value={value ?? ''}>
+        notFoundContent: _notFound, placeholder, ...rest }: any) => (
+        <select
+            {...rest}
+            data-placeholder={placeholder}
+            onChange={event => onChange?.(event.target.value)}
+            value={value ?? ''}
+        >
             {(options ?? []).map((option: any) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
             ))}
         </select>
     ),
+    Spin: () => <span data-testid="spin" />,
 }))
 
 const REVISIONS = [
@@ -65,41 +69,70 @@ describe('RevisionPicker', () => {
             loadMore: vi.fn(),
             loadingMore: false,
         })
-        vi.mocked(getProjectCompareFiles).mockResolvedValue(['rules/Main.xlsx', 'rules/Rates.xlsx'])
     })
 
     const renderPicker = async (onChange = vi.fn()) => {
         render(<RevisionPicker onChange={onChange} projectId="p1" />)
-        await waitFor(() => expect(getProjectCompareFiles)
-            .toHaveBeenCalledWith('p1', { branch: 'master', revision: 'rev-2' }))
+        await waitFor(() => expect(screen.getByTestId('compare-branch')).toHaveValue('master'))
         return onChange
     }
 
-    it('offers the newest revision of the branch the project is on, with its files', async () => {
-        const onChange = await renderPicker()
+    it('says the revisions are loading while the history is read, and why it could not be read', async () => {
+        vi.mocked(useProjectRevisions).mockReturnValue({
+            revisions: null,
+            options: [],
+            error: null,
+            hasMore: false,
+            loadMore: vi.fn(),
+            loadingMore: false,
+        })
+        await renderPicker()
 
-        await waitFor(() => expect(getProjectCompareFiles)
-            .toHaveBeenCalledWith('p1', { branch: 'master', revision: 'rev-2' }))
-        // The working copy is read as the project has it now, without a branch or a revision.
-        expect(getProjectCompareFiles).toHaveBeenCalledWith('p1', {})
-        expect(screen.getByTestId('compare-branch')).toHaveValue('master')
-        expect(screen.getByTestId('compare-revision')).toHaveValue('rev-2')
+        expect(screen.getByTestId('compare-revision')).toHaveAttribute('data-placeholder', 'revisions_loading')
 
-        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({
-            first: { path: 'rules/Main.xlsx' },
-            second: { path: 'rules/Main.xlsx', branch: 'master', revision: 'rev-2' },
-        }))
+        vi.mocked(useProjectRevisions).mockReturnValue({
+            revisions: [],
+            options: [],
+            error: 'History unavailable',
+            hasMore: false,
+            loadMore: vi.fn(),
+            loadingMore: false,
+        })
+        fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
+
+        expect(await screen.findByTestId('compare-picker-error')).toHaveTextContent('History unavailable')
+        expect(screen.getByTestId('compare-revision')).not.toHaveAttribute('data-placeholder')
     })
 
-    it('reads the revisions and the files of the branch that is picked', async () => {
+    it('offers the newest revision of the branch the project is on', async () => {
+        const onChange = await renderPicker()
+
+        expect(screen.getByTestId('compare-revision')).toHaveValue('rev-2')
+        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({ branch: 'master', revision: 'rev-2' }))
+    })
+
+    it('asks for no file: the files changed are listed once the comparison starts', async () => {
         await renderPicker()
-        await waitFor(() => expect(screen.getByTestId('compare-revision')).toHaveValue('rev-2'))
+
+        expect(screen.queryByTestId('compare-working-file')).toBeNull()
+        expect(screen.queryByTestId('compare-revision-file')).toBeNull()
+    })
+
+    it('reads the revisions of the branch that is picked', async () => {
+        const onChange = await renderPicker()
 
         fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
 
         expect(useProjectRevisions).toHaveBeenLastCalledWith({ id: 'p1' }, true, undefined, 'dev')
-        await waitFor(() => expect(getProjectCompareFiles)
-            .toHaveBeenCalledWith('p1', { branch: 'dev', revision: 'rev-2' }))
+        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({ branch: 'dev', revision: 'rev-2' }))
+    })
+
+    it('reports the revision that is picked', async () => {
+        const onChange = await renderPicker()
+
+        fireEvent.change(screen.getByTestId('compare-revision'), { target: { value: 'rev-1' } })
+
+        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({ branch: 'master', revision: 'rev-1' }))
     })
 
     it('hands the branch field the marks each branch carries', async () => {
@@ -114,77 +147,39 @@ describe('RevisionPicker', () => {
         await renderPicker()
 
         expect(await screen.findByTestId('compare-project-title')).toBeInTheDocument()
-        // The side of the working copy says which revision it is, as the old screen did.
-        expect(screen.getByTestId('compare-working-revision')).toHaveTextContent('user_workspace')
     })
 
-    it('says nothing to compare while a side has no file', async () => {
-        vi.mocked(getProjectCompareFiles).mockResolvedValue([])
+    it('reports nothing while the branch has no revision', async () => {
+        vi.mocked(useProjectRevisions).mockReturnValue({
+            revisions: [],
+            options: [],
+            error: null,
+            hasMore: false,
+            loadMore: vi.fn(),
+            loadingMore: false,
+        })
 
         const onChange = await renderPicker()
 
-        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith(null))
+        expect(onChange).toHaveBeenLastCalledWith(null)
     })
 
-    it('says why the files could not be read', async () => {
-        vi.mocked(getProjectCompareFiles).mockRejectedValue(new Error('The project is not found'))
+    it('asks for no branch in a repository without branches', async () => {
+        vi.mocked(getProjectBranches).mockResolvedValue([])
+        vi.mocked(getProject).mockResolvedValue({ id: 'p1', name: 'Pricing', branch: null } as never)
+        const onChange = vi.fn()
 
-        await renderPicker()
+        render(<RevisionPicker onChange={onChange} projectId="p1" />)
+
+        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({ branch: undefined, revision: 'rev-2' }))
+        expect(screen.queryByTestId('compare-branch')).toBeNull()
+    })
+
+    it('says why the project could not be read', async () => {
+        vi.mocked(getProject).mockRejectedValue(new Error('The project is not found'))
+
+        render(<RevisionPicker onChange={vi.fn()} projectId="p1" />)
 
         expect(await screen.findByTestId('compare-picker-error')).toHaveTextContent('The project is not found')
-    })
-
-    it('picks the same file on both sides whichever of them answers first', async () => {
-        // The revision answers before the working copy, so the file it picks cannot be read off it yet.
-        let answerWorkingCopy!: (files: string[]) => void
-        vi.mocked(getProjectCompareFiles).mockImplementation((_id: string, where: any) => (
-            where?.revision
-                ? Promise.resolve(['rules/Other.xlsx', 'rules/Main.xlsx'])
-                : new Promise<string[]>(resolve => {
-                    answerWorkingCopy = () => resolve(['rules/Main.xlsx', 'rules/Other.xlsx'])
-                })))
-
-        const onChange = await renderPicker()
-        await act(async () => {
-            answerWorkingCopy(['rules/Main.xlsx', 'rules/Other.xlsx'])
-        })
-
-        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({
-            first: { path: 'rules/Main.xlsx' },
-            second: { path: 'rules/Main.xlsx', branch: 'master', revision: 'rev-2' },
-        }))
-    })
-
-    it('keeps the failure of a read that was abandoned off the screen', async () => {
-        // The branch is switched while the revision of the old branch is still being read, and that
-        // read answers last, with a revision the new branch does not have.
-        let refuseTheOldRevision!: () => void
-        vi.mocked(getProjectCompareFiles).mockImplementation((_id: string, where: any) => {
-            if (where?.branch === 'master' && where?.revision) {
-                return new Promise<string[]>((_resolve, reject) => {
-                    refuseTheOldRevision = () => reject(new Error('The requested version is not found'))
-                })
-            }
-            return Promise.resolve(['rules/Main.xlsx'])
-        })
-
-        await renderPicker()
-        fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
-        await act(async () => {
-            refuseTheOldRevision()
-        })
-
-        expect(screen.queryByTestId('compare-picker-error')).toBeNull()
-    })
-
-    it('leaves the failure behind once the files are read', async () => {
-        vi.mocked(getProjectCompareFiles).mockRejectedValue(new Error('The revision is not found'))
-        await renderPicker()
-        await screen.findByTestId('compare-picker-error')
-
-        vi.mocked(getProjectCompareFiles).mockResolvedValue(['rules/Main.xlsx'])
-        fireEvent.change(screen.getByTestId('compare-revision'), { target: { value: 'rev-1' } })
-
-        await waitFor(() => expect(screen.queryByTestId('compare-picker-error')).toBeNull())
     })
 })

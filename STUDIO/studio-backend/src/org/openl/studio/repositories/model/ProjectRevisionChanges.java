@@ -14,7 +14,7 @@ import org.openl.studio.projects.model.project.status.ChangeType;
  * <p>Both revisions are told as the history of the project tells them: their number, author, time and comment.
  *
  * @param base     the revision compared against, or {@code null} when there is none
- * @param revision the revision whose changes are told
+ * @param revision the revision whose changes are told, or {@code null} for the working copy
  * @param files    the changed files
  */
 @Schema(description = "The files of the project one revision changed against another")
@@ -22,8 +22,8 @@ public record ProjectRevisionChanges(
         @Parameter(description = "The revision compared against, as the history of the project tells it: the one asked for, or else the revision the changes were made on. Absent when there is none, as for the first revision of the project; then every file is added")
         @Nullable ProjectRevision base,
 
-        @Parameter(description = "The revision whose changes are told, as the history of the project tells it")
-        ProjectRevision revision,
+        @Parameter(description = "The revision whose changes are told, as the history of the project tells it. Absent for the working copy of the project, compared with the base")
+        @Nullable ProjectRevision revision,
 
         @Parameter(description = "The changed files, ordered by path")
         List<ChangedFile> files

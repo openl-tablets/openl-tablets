@@ -1072,23 +1072,37 @@ To compare two revisions, proceed as follows:
 
 ### Comparing Project Revisions
 
-OpenL Studio compares an Excel file of the project as the working copy has it now with the same file as a revision holds it.
-To compare the working copy with another revision, proceed as follows:
+OpenL Studio compares the project as the working copy has it now, the changes not saved yet included, with a
+revision of it. To compare the working copy with a revision, proceed as follows:
 
-1.  On the page of the project, click **Compare**. On the **Projects** page, **Compare** is in the **Actions** menu **⋮** of the row.
+1.  On the page of the project, click **Compare**. On the **Projects** page, **Compare** is in the **Actions** menu
+    **⋮** of the row.
 
-    The comparison opens in a window of its own, where what to compare is picked: the Excel file of the working copy on the left, and the branch, the revision and the Excel file to compare it with on the right.
+    The comparison opens in a window of its own, where the revision to compare the working copy with is picked: the
+    branch, in a repository with branches, and a revision of it. The newest revision of the branch the project is on
+    is picked first.
 
-    ![](images/compare-project-revisions.png)
+    ![The branch and the revision the working copy is compared with](images/compare-project-revisions.png "Picking the revision the working copy is compared with")
 
-    *Picking the working copy on one side and a revision on the other*
+    *Picking the revision the working copy is compared with*
 
-1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
 2.  Click **Compare**.
 
-    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it drawn as one table, the working copy named **User workspace** and the revision named **Selected revision**, with the cells that read differently framed, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
+    The window lists the files changed between the revision and the working copy, ten files a page, as it lists the
+    files changed between two revisions. The revision stands first, headed **Selected revision**, with its comment,
+    its author, its date and its number, and the working copy stands beside it, headed **User workspace**. A file is
+    changed when its content differs, so a file changed and then changed back is not listed.
 
-1.  To compare another pair, click **Select other files**.
+    ![The files the working copy changed since a revision](images/compare-workspace-changes.png "The files the working copy changed since a revision")
+
+    *The files the working copy changed since a revision*
+
+1.  To see what changed in a file, click its row.
+
+    The file is compared in the same window, as described in
+    [Comparing Two Revisions](#comparing-two-revisions): as of the revision against the working copy, an Excel file
+    element by element as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), and any other
+    file line by line.
 
 ### Exporting a Project or a File
 

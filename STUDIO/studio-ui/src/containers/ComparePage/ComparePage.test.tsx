@@ -39,10 +39,8 @@ vi.mock('services/stompTopic', () => ({
     subscribeTopic: (destination: string, onBody: (body: string) => void) => subscribe(destination, onBody),
 }))
 
-const SIDES = {
-    first: { path: 'rules/Main.xlsx' },
-    second: { path: 'rules/Main.xlsx', branch: 'master', revision: 'rev-1' },
-}
+/** The revision the picker of a project hands the window. */
+const PICKED = { branch: 'master', revision: 'rev-1' }
 
 // A file that is not a workbook is drawn by a view of its own; the page is asked here only whether it
 // opens on that view instead of on a comparison, and which two versions the view reads.
@@ -66,7 +64,7 @@ vi.mock('services/files', () => ({
 // about what it does with the pair it is told about.
 vi.mock('./RevisionPicker', () => ({
     RevisionPicker: ({ onChange, projectId }: any) => (
-        <button data-testid="revision-picker" onClick={() => onChange(SIDES)}>{projectId}</button>
+        <button data-testid="revision-picker" onClick={() => onChange(PICKED)}>{projectId}</button>
     ),
 }))
 
@@ -100,9 +98,9 @@ function revisionOf(revisionNo: string) {
 vi.mock('services/repositories', () => ({
     getProject: vi.fn(async () => ({ name: 'Pricing' })),
     // The changes tell the two revisions as well.
-    getRevisionChanges: vi.fn(async (_project: string, revision: string, base: string) => ({
+    getRevisionChanges: vi.fn(async (_project: string, revision: string | undefined, base: string) => ({
         base: revisionOf(base),
-        revision: revisionOf(revision),
+        revision: revision ? revisionOf(revision) : null,
         files: CHANGED,
     })),
 }))
@@ -618,30 +616,55 @@ describe('ComparePage', () => {
         expect(screen.queryByTestId('compare-files')).toBeNull()
     })
 
-    it('compares two files of the project the window was opened for', async () => {
+    it('picks the revision the working copy of the project is compared with, then lists the files changed', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1' })
-        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
 
         openPage()
 
-        // The files are picked out of the project rather than uploaded.
+        // The revision is picked of the project, and no file is uploaded or picked.
         expect(screen.getByTestId('revision-picker')).toHaveTextContent('p1')
         expect(screen.queryByTestId('compare-files')).toBeNull()
+        expect(screen.queryByTestId('compare-show-equal-elements')).toBeNull()
         expect(screen.getByTestId('compare-start')).toBeDisabled()
 
         await userEvent.click(screen.getByTestId('revision-picker'))
         expect(screen.getByTestId('compare-start')).toBeEnabled()
         await userEvent.click(screen.getByTestId('compare-start'))
 
-        await waitFor(() => expect(startProjectComparison)
-            .toHaveBeenCalledWith('p1', SIDES.first, SIDES.second))
-        push('COMPLETED')
+        // Nothing is compared yet: the window turns to the files changed since the revision, which the browser goes
+        // back from to the pick.
+        expect(startProjectComparison).not.toHaveBeenCalled()
+        const [next, options] = setSearchParams.mock.calls[0]!
+        expect(Object.fromEntries(next)).toEqual({ projectId: 'p1', base: 'rev-1', branch: 'master' })
+        expect(options).toBeUndefined()
+    })
 
-        expect(await screen.findByText('Rules')).toBeInTheDocument()
-        // The working copy stands against the revision picked beside it.
-        expect(screen.getByText('user_workspace → selected_revision')).toBeInTheDocument()
-        // The pickers are a click away, so another pair is compared in the same window.
-        expect(screen.getByTestId('compare-back')).toBeInTheDocument()
+    it('lists the files the working copy changed since a revision', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1234567' })
+
+        openPage()
+
+        expect(await screen.findByTestId('changed-rules/Main.xlsx')).toBeInTheDocument()
+        expect(getRevisionChanges).toHaveBeenCalledWith('p1', undefined, 'b1234567')
+        expect(screen.getByTestId('compare-revisions-base')).toHaveTextContent('selected_revision')
+        // The working copy stands where the later revision would.
+        expect(screen.getByTestId('compare-revisions-workspace')).toHaveTextContent('user_workspace')
+        expect(screen.queryByTestId('compare-revisions-revision')).toBeNull()
+    })
+
+    it('compares a file of a revision against the same file of the working copy', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1', file: 'rules/Main.xlsx' })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Main.xlsx', branch: 'main', revision: 'b1' },
+            { path: 'rules/Main.xlsx' }))
+        // The head names the working copy in place of the later revision.
+        expect(await screen.findByTestId('compare-revisions')).toHaveTextContent('user_workspace')
+        push('COMPLETED')
+        expect(await screen.findByText('selected_revision → user_workspace')).toBeInTheDocument()
     })
 
     it('compares a conflicted workbook with its base, and its two versions on request', async () => {

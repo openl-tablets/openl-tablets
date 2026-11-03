@@ -50,30 +50,19 @@ class ProjectComparisonServiceTest {
     }
 
     @Test
-    void listsTheExcelFilesOfTheWorkingCopy() {
+    void readsTheFileOfTheWorkingCopyWhereverItLies() throws Exception {
         // Every mock is built before any stubbing takes it, or Mockito reads one stubbing inside another.
-        var rules = folder("rules", file("rules/Rates.xlsx"));
+        var resource = file("rules/Rates.xlsx");
+        var rules = folder("rules", resource);
         var main = file("Main.xlsx");
-        var descriptor = file("rules.xml");
+        when(resource.getContent()).thenReturn(new ByteArrayInputStream(new byte[0]));
 
-        when(project.getArtefacts()).thenReturn(List.of(rules, main, descriptor));
-
-        var files = service.excelFiles(project, null, null);
+        when(project.getArtefacts()).thenReturn(List.of(rules, main));
 
         // The project is read as its own user has it, and its own name is not part of the paths.
-        assertEquals(List.of("Main.xlsx", "rules/Rates.xlsx"), files);
-    }
+        var content = service.read(project, new ComparisonSideRequest("rules/Rates.xlsx", null, null));
 
-    @Test
-    void listsTheExcelFilesOfARevision() throws Exception {
-        var revision = mock(AProject.class);
-        var main = file("Main.xlsx");
-        givenRevision("master", "rev-1", revision);
-        when(revision.getArtefacts()).thenReturn(List.of(main));
-
-        var files = service.excelFiles(project, "master", "rev-1");
-
-        assertEquals(List.of("Main.xlsx"), files);
+        assertEquals("Rates.xlsx", content.name());
     }
 
     @Test
@@ -86,6 +75,22 @@ class ProjectComparisonServiceTest {
         when(revision.getArtefacts()).thenReturn(List.of(rules));
 
         var content = service.read(project, new ComparisonSideRequest("rules/Rates.xlsx", null, "rev-1"));
+
+        assertEquals("Rates.xlsx", content.name());
+    }
+
+    @Test
+    void readsTheFileOfAWorkingCopyKeptInAMappedFolder() throws Exception {
+        // A repository with mapped folders keeps the project in a folder of its own, which its files carry.
+        var resource = mock(AProjectResource.class);
+        when(resource.getArtefactPath()).thenReturn(new ArtefactPathImpl("DESIGN/rules/Pricing:1a2b3c/rules/Rates.xlsx"));
+        when(resource.getName()).thenReturn("Rates.xlsx");
+        when(resource.getInternalPath()).thenReturn("rules/Rates.xlsx");
+        when(resource.getContent()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        var rules = folder("rules", resource);
+        when(project.getArtefacts()).thenReturn(List.of(rules));
+
+        var content = service.read(project, new ComparisonSideRequest("rules/Rates.xlsx", null, null));
 
         assertEquals("Rates.xlsx", content.name());
     }
@@ -111,7 +116,9 @@ class ProjectComparisonServiceTest {
         when(designTimeRepository.getProjectByPath("design", null, "DESIGN/rules/Pricing", "gone"))
                 .thenThrow(new IllegalStateException("no such revision"));
 
-        assertThrows(NotFoundException.class, () -> service.excelFiles(project, null, "gone"));
+        var side = new ComparisonSideRequest("Main.xlsx", null, "gone");
+
+        assertThrows(NotFoundException.class, () -> service.read(project, side));
     }
 
     @Test
@@ -183,6 +190,7 @@ class ProjectComparisonServiceTest {
         var artefact = mock(AProjectResource.class);
         when(artefact.getArtefactPath()).thenReturn(new ArtefactPathImpl(PROJECT + "/" + path));
         when(artefact.getName()).thenReturn(path.substring(path.lastIndexOf('/') + 1));
+        when(artefact.getInternalPath()).thenReturn(path);
         return artefact;
     }
 

@@ -12,24 +12,26 @@ import { basename, parentFolder } from '../projects/projectPaths'
 import { authorName, shortRevision } from '../projects/revisions'
 import { useStyles } from './ComparePage.styles'
 
-/** Two revisions of a project the window compares, as its address names them. */
+/** Two revisions of a project the window compares, or a revision and the working copy, as its address names them. */
 export interface ComparedRevisions {
     projectId: string
     /** The branch holding the revisions, or nothing in a repository without branches. */
     branch: string | undefined
     /** The earlier revision. */
     base: string
-    /** The later revision. */
-    revision: string
+    /** The later revision, or nothing for the working copy. */
+    revision?: string | undefined
 }
 
-/** The two revisions the address names, or null when the window was opened for something else. */
+/**
+ * The two revisions the address names, or null when the window was opened for something else. An address naming a
+ * base alone compares it with the working copy.
+ */
 export const comparedRevisionsOf = (params: URLSearchParams): ComparedRevisions | null => {
     const projectId = params.get('projectId')
     const base = params.get('base')
-    const revision = params.get('revision')
-    return projectId && base && revision
-        ? { projectId, branch: params.get('branch') ?? undefined, base, revision }
+    return projectId && base
+        ? { projectId, branch: params.get('branch') ?? undefined, base, revision: params.get('revision') ?? undefined }
         : null
 }
 
@@ -69,6 +71,19 @@ interface RevisionCardProps {
     testId: string
 }
 
+/** The working copy compared with a revision: the project as its user has it now, the changes not saved included. */
+const WorkspaceCard: React.FC = () => {
+    const { t } = useTranslation('compare')
+    return (
+        <Card data-testid="compare-revisions-workspace" size="small" style={{ flex: '1 1 0', minWidth: 0 }}>
+            <Flex vertical gap={2}>
+                <Typography.Text type="secondary">{t('user_workspace')}</Typography.Text>
+                <Typography.Text strong>{t('user_workspace_hint')}</Typography.Text>
+            </Flex>
+        </Card>
+    )
+}
+
 /** One of the two revisions compared, as the history shows it: why it was made, who made it, when, and its number. */
 const RevisionCard: React.FC<RevisionCardProps> = ({ label, number, details, testId }) => {
     // The date is written in the formats of the reader, and again the moment the reader changes them.
@@ -95,17 +110,24 @@ const RevisionCard: React.FC<RevisionCardProps> = ({ label, number, details, tes
 }
 
 /** The two revisions compared, as a short pair whose numbers tell why each was made when pointed at. */
-const RevisionPair: React.FC<{ revisions: ComparedRevisions, changes: LoadedChanges }> = ({ revisions, changes }) => (
-    <Flex align="center" data-testid="compare-revisions" gap="small">
-        <Tooltip title={changes?.base?.fullComment}>
-            <Typography.Text type="secondary">{shortRevision(revisions.base)}</Typography.Text>
-        </Tooltip>
-        <ArrowRightOutlined />
-        <Tooltip title={changes?.revision.fullComment}>
-            <Typography.Text type="secondary">{shortRevision(revisions.revision)}</Typography.Text>
-        </Tooltip>
-    </Flex>
-)
+const RevisionPair: React.FC<{ revisions: ComparedRevisions, changes: LoadedChanges }> = ({ revisions, changes }) => {
+    const { t } = useTranslation('compare')
+    return (
+        <Flex align="center" data-testid="compare-revisions" gap="small">
+            <Tooltip title={changes?.base?.fullComment}>
+                <Typography.Text type="secondary">{shortRevision(revisions.base)}</Typography.Text>
+            </Tooltip>
+            <ArrowRightOutlined />
+            {revisions.revision
+                ? (
+                    <Tooltip title={changes?.revision?.fullComment}>
+                        <Typography.Text type="secondary">{shortRevision(revisions.revision)}</Typography.Text>
+                    </Tooltip>
+                )
+                : <Typography.Text type="secondary">{t('user_workspace')}</Typography.Text>}
+        </Flex>
+    )
+}
 
 /** Where a compared file stands among the changed files, and the way to its neighbours. */
 interface FileSteps {
@@ -206,11 +228,13 @@ interface RevisionsComparisonProps {
 }
 
 /**
- * The files changed between two revisions of a project, the first step of comparing them: each file is compared in
- * the same window, a workbook element by element and any other file line by line.
+ * The files changed between two revisions of a project, or between a revision and the working copy, the first step of
+ * comparing them: each file is compared in the same window, a workbook element by element and any other file line by
+ * line.
  *
  * The head shows the two revisions side by side, each with why it was made, who made it and when, as the changes
- * tell them. The files are listed a page at a time, as the files a revision changed are listed in the history.
+ * tell them. The working copy stands in place of the later revision when it is the one compared. The files are listed
+ * a page at a time, as the files a revision changed are listed in the history.
  */
 export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
     revisions,
@@ -235,7 +259,7 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
             return <Empty description={t('repository:browser.history.no_changes_between')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
         }
         return (
-            <Flex vertical data-testid={`revision-changes-${revisions.revision}`} gap="small">
+            <Flex vertical data-testid={`revision-changes-${revisions.revision ?? 'workspace'}`} gap="small">
                 <Typography.Text strong>{t('changed_files', { count: changes.files.length })}</Typography.Text>
                 <ChangedFilePages
                     files={changes.files}
@@ -259,21 +283,26 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
                 <Typography.Title level={5} style={{ margin: 0 }}>
                     {projectName ? t('revisions_title', { name: projectName }) : t('changed_files_title')}
                 </Typography.Title>
-                <Flex align="center" gap="middle">
+                {/* The two cards are as tall as each other, whatever each of them tells. */}
+                <Flex align="stretch" gap="middle">
                     <RevisionCard
                         // The failed read tells nothing of either revision, which keep their numbers.
                         details={changes === undefined ? undefined : changes?.base ?? null}
-                        label={t('earlier_revision')}
+                        label={t(revisions.revision ? 'earlier_revision' : 'selected_revision')}
                         number={revisions.base}
                         testId="compare-revisions-base"
                     />
-                    <ArrowRightOutlined />
-                    <RevisionCard
-                        details={changes === undefined ? undefined : changes?.revision ?? null}
-                        label={t('later_revision')}
-                        number={revisions.revision}
-                        testId="compare-revisions-revision"
-                    />
+                    <Flex align="center"><ArrowRightOutlined /></Flex>
+                    {revisions.revision
+                        ? (
+                            <RevisionCard
+                                details={changes === undefined ? undefined : changes?.revision ?? null}
+                                label={t('later_revision')}
+                                number={revisions.revision}
+                                testId="compare-revisions-revision"
+                            />
+                        )
+                        : <WorkspaceCard />}
                 </Flex>
             </Flex>
             <div className={styles.changedFiles}>{body()}</div>

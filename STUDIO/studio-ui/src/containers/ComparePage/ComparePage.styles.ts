@@ -54,19 +54,13 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-size: ${token.fontSizeLG}px;
         font-weight: 600;
     `,
-    // The two files to compare, each picked on its own side, as the old page had them side by side.
-    sides: css`
-        display: flex;
-        flex: none;
-        flex-wrap: wrap;
-        gap: ${token.marginLG}px;
-    `,
+    // The branch and the revision the working copy is compared with, one under the other.
     side: css`
         display: flex;
+        flex: none;
         flex-direction: column;
         gap: ${token.marginXS}px;
-        min-width: 320px;
-        flex: 1 1 320px;
+        max-width: 640px;
     `,
     // The comparison: the tree beside the two files, each column headed on the same line.
     result: css`

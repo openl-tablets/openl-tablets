@@ -46,9 +46,11 @@ public class ProjectRevisionChangesController {
     public ProjectRevisionChanges getRevisionChanges(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(description = "projects.history.changes.param.revision.desc")
-            @RequestParam("revision") String revision,
+            @RequestParam(value = "revision", required = false) @Nullable String revision,
             @Parameter(description = "projects.history.changes.param.base.desc")
             @RequestParam(value = "base", required = false) @Nullable String base) throws IOException {
-        return projectRevisionChangesService.changesOf(project, revision, StringUtils.trimToNull(base));
+        return projectRevisionChangesService.changesOf(project,
+                StringUtils.trimToNull(revision),
+                StringUtils.trimToNull(base));
     }
 }

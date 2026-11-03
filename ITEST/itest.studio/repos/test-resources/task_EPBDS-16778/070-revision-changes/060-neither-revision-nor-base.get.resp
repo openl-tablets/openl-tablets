@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.project.history.changes.base.required.message",
+  "message": "The changes of the working copy need the revision they are compared with."
+}

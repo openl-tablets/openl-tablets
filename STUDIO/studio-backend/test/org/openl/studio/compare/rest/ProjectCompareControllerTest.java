@@ -1,7 +1,6 @@
 package org.openl.studio.compare.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -28,16 +27,6 @@ class ProjectCompareControllerTest {
     private final ComparisonLauncher launcher = mock(ComparisonLauncher.class);
     private final ProjectCompareController controller = new ProjectCompareController(comparisonService, launcher);
     private final RulesProject project = mock(RulesProject.class);
-
-    @Test
-    void listsTheFilesOfTheRevisionAskedAbout() {
-        var expected = List.of("rules/Rates.xlsx");
-        when(comparisonService.excelFiles(project, "master", "rev-1")).thenReturn(expected);
-
-        var files = controller.getFiles(project, "master", "rev-1");
-
-        assertSame(expected, files);
-    }
 
     @Test
     void putsTheFirstFileDownWhenTheSecondCannotBeRead() {
