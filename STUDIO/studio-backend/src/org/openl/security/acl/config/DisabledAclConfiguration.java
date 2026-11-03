@@ -13,18 +13,18 @@ import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 
 /**
  * Configuration for ACL services that are disabled.
  */
 @Configuration
-@ConditionalOnProperty(name = "user.mode", havingValue = "single")
+@ConditionalOnExpression("'${user.mode}' == 'single'")
 public class DisabledAclConfiguration {
 
     @Bean

@@ -4,7 +4,6 @@ import java.util.Objects;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +35,7 @@ import org.openl.security.acl.repository.RepositoryAclServiceImpl;
 import org.openl.security.acl.repository.RepositoryObjectIdentity;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclServiceImpl;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 
 /**
  * Configuration for ACL services that are enabled.

@@ -5,7 +5,6 @@ import java.util.Map;
 import jakarta.servlet.Filter;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +35,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 import org.openl.rules.security.SimpleUser;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.security.oauth2.LazyClientRegistrationRepository;
 import org.openl.studio.security.oauth2.OAuth2AccessTokenConfiguration;
 import org.openl.studio.security.oauth2.Oauth2LogoutSuccessHandler;

@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +32,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.util.CollectionUtils;
 

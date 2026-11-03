@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.repository.api.Repository;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.converter.ProjectIdConverter;
 import org.openl.studio.projects.service.files.ConflictPolicy;

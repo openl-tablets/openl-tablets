@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +34,7 @@ import org.springframework.web.util.UriUtils;
 
 import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
 import org.openl.studio.common.ExceptionMappingService;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.exception.RestRuntimeException;

@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -21,6 +20,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import org.openl.rules.security.SimpleUser;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 
 /**
  * Configuration for OAuth2 access token authentication.

@@ -4,8 +4,8 @@ A Spring backend serving a REST API, and a React/TypeScript frontend that draws 
 
 The backend is a Spring web application, not a Spring Boot one: `SpringInitializer`, a listener declared in
 `studio-backend/webapp/WEB-INF/web.xml`, builds an `XmlWebApplicationContext` from `/WEB-INF/spring/webstudio.xml`.
-From Spring Boot it takes only the condition annotations of `spring-boot-autoconfigure`, such as
-`@ConditionalOnExpression` — see
+It takes nothing from Spring Boot: a bean that depends on the settings, such as `user.mode`, carries the
+`@ConditionalOnExpression` of `org.openl.studio.common.condition` — see
 [`mcp-server.md`](../Docs/architecture/mcp-server.md).
 
 ## Key Conventions

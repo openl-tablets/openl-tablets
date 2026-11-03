@@ -28,7 +28,7 @@ Non-goals: horizontal scaling, MCP client development, a rewrite of the server i
 - **Context refresh** — `SpringInitializer`, a `ServletContextListener` declared in `web.xml`, builds the
   `XmlWebApplicationContext` of Studio and refreshes it in place when the dynamic properties change, for example after
   an administrator saves the authentication settings. A component that follows the settings is a bean of that context.
-  Studio is not a Spring Boot application: it borrows only condition annotations such as `@ConditionalOnExpression`.
+  Studio is not a Spring Boot application: a bean that follows the settings carries its own `@ConditionalOnExpression`.
 - **Filters** — `web.xml` maps `CorsFilter`, `ForwardedHeaderFilter` (`X-Forwarded-*`), `SecurityFilter` and
   `ChangeOriginFilter` to `/*`, and every one supports asynchronous requests. `SecurityFilter` takes the
   `filterChainProxy` bean of the current context on every request.

@@ -1,11 +1,12 @@
 package org.openl.studio.socket.config;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
+
+import org.openl.studio.common.condition.ConditionalOnExpression;
 
 @Configuration
 public class WebSocketSecurityConfig {

@@ -11,7 +11,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
@@ -31,6 +30,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.repositories.service.ProjectCreationService;
@@ -44,8 +44,7 @@ import org.openl.studio.repositories.service.ProjectCreationService;
  * @author Yury Molchan
  */
 @Component
-@ConditionalOnProperty(name = "demo.init", havingValue = "true")
-@ConditionalOnProperty(name = "user.mode", havingValue = "single")
+@ConditionalOnExpression("'${demo.init}' == 'true' and '${user.mode}' == 'single'")
 @DependsOn("singleUserModeInit")
 @RequiredArgsConstructor
 @Slf4j

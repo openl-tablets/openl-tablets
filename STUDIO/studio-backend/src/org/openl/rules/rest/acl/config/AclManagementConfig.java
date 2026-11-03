@@ -2,7 +2,6 @@ package org.openl.rules.rest.acl.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.support.locks.LockRegistry;
@@ -26,6 +25,7 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassServiceImpl;
 

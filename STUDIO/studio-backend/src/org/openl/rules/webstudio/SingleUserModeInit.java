@@ -3,12 +3,12 @@ package org.openl.rules.webstudio;
 import jakarta.annotation.PostConstruct;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.security.NOPUserSettings;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 
 /**
  * Creates a user for single user mode.
@@ -20,7 +20,7 @@ import org.openl.rules.webstudio.web.admin.security.NOPUserSettings;
  * through the UI.
  */
 @Component("singleUserModeInit")
-@ConditionalOnProperty(name = "user.mode", havingValue = "single")
+@ConditionalOnExpression("'${user.mode}' == 'single'")
 @RequiredArgsConstructor
 public class SingleUserModeInit {
 

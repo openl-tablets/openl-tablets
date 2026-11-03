@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.function.BiFunction;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 
 @Configuration
 @ConditionalOnExpression("'${user.mode}' == 'multi'")

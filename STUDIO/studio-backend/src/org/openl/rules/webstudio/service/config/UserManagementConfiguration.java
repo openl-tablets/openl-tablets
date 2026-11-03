@@ -7,7 +7,6 @@ import java.util.function.BiFunction;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +30,7 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.studio.audit.service.ExternalGroupRolesAuditor;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.security.GetUserPrivileges;
 
 /**

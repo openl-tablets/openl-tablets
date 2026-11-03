@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +19,7 @@ import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
+import org.openl.studio.common.condition.ConditionalOnExpression;
 import org.openl.studio.security.pat.filter.PatAuthenticationFilter;
 import org.openl.studio.security.pat.service.PatAuthService;
 import org.openl.studio.security.pat.service.PatAuthServiceImpl;
