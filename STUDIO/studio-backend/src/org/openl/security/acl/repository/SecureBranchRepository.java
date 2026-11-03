@@ -60,6 +60,15 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     }
 
     @Override
+    public @Nullable FileData findCommonRevision(String path, String first, String second) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), path, List.of(BasePermission.READ))) {
+            return branchRepository.findCommonRevision(path, first, second);
+        }
+        throw new AccessDeniedException(
+                "There is no permission for reading '%s' from '%s' repository.".formatted(path, getName()));
+    }
+
+    @Override
     public String getBranch() {
         return branchRepository.getBranch();
     }

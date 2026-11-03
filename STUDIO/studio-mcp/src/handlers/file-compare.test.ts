@@ -464,4 +464,20 @@ describe("openl_repository_project_revision_changes of a file", () => {
     await expect(executeTool("repository_project_revision_changes", { projectId: "p1", path: "gone.txt", base: "r1" }, harness.client))
       .rejects.toThrow("Neither revision r1 nor the working copy holds 'gone.txt'.");
   });
+
+  it("compares a base of another branch from the revision both were made from, as a pull request does", async () => {
+    answerChanges({ base: "t1", common: "c1" });
+    answerMeta("notes.txt", "c1");
+    answerMeta("notes.txt", undefined);
+    answerText("notes.txt", "c1", "one\ntwo\n");
+    answerText("notes.txt", undefined, "one\nthree\n");
+
+    const text = textOf(await executeTool("repository_project_revision_changes", {
+      projectId: "p1", path: "notes.txt", base: "t1",
+    }, harness.client));
+
+    // What the working copy changed since it and t1 parted, not the difference from t1 itself
+    expect(text).toContain("notes.txt: revision c1 (where it and revision t1 parted) → the working copy");
+    expect(text).toContain("-two\n+three");
+  });
 });

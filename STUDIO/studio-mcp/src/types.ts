@@ -574,6 +574,8 @@ export interface ProjectRevisionChanges {
   base: ProjectRevision | null;
   /** The revision whose changes are told; absent when the working copy is compared with the base. */
   revision?: ProjectRevision | null;
+  /** The revision both histories parted at; absent when the base is in the history of the other side. */
+  common?: ProjectRevision | null;
   files: ProjectFileChange[];
 }
 

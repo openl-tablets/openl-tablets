@@ -9,6 +9,7 @@ import {
     getComparisonTable,
     mergeConflictWorkbook,
     startFileComparison,
+    startProjectComparison,
 } from './compare'
 import { jsonResponse } from 'testing/responses'
 
@@ -51,6 +52,18 @@ describe('compare service', () => {
         const body = call?.[1]?.body as FormData
         expect((body.get('file1') as File).name).toBe('first.xlsx')
         expect((body.get('file2') as File).name).toBe('second.xlsx')
+    })
+
+    it('sends the two files of a project', async () => {
+        vi.mocked(apiCall).mockResolvedValue({ id: 'cmp-2' })
+        const yours = { path: 'rules/Main.xlsx' }
+        const theirs = { path: 'rules/Main.xlsx', branch: 'feature', revision: 'r2' }
+
+        await expect(startProjectComparison('p1', yours, theirs)).resolves.toBe('cmp-2')
+
+        const [call] = vi.mocked(apiCall).mock.calls
+        expect(call?.[0]).toBe('/projects/p1/compare')
+        expect(JSON.parse(call?.[1]?.body as string)).toEqual({ first: yours, second: theirs })
     })
 
     it('reads what the comparison found, once the comparison has ended', async () => {

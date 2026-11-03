@@ -100,6 +100,7 @@ class ProjectRevisionChangesServiceTest {
         var r1 = revisionData("r1");
         var r3 = revisionData("r3");
         when(repository.listChanges(FOLDER, "r1", "r3")).thenReturn(new RevisionChanges(r1, r3, List.of()));
+        named(repository, "r1", "r1");
 
         var changes = service.changesOf(project(repository), "r3", "r1");
 
@@ -229,13 +230,101 @@ class ProjectRevisionChangesServiceTest {
     }
 
     @Test
-    void theWorkingCopyIsComparedWithTheLastRevisionOfABranchNamedAsTheBase() throws Exception {
+    void theWorkingCopyAndARevisionOfAnotherBranchTellTheRevisionTheyPartedAt() throws Exception {
+        var repository = workingCopyAgainst("t1");
+        when(repository.findCommonRevision(FOLDER, "t1", "w1")).thenReturn(revisionData("c1"));
+        revision("c1", Map.of("rules.xml", "0"));
+        var project = openedAt(repository, "w1");
+
+        var changes = service.changesOf(project, null, "t1");
+
+        assertEquals("t1", changes.base().revisionNo());
+        assertEquals("c1", changes.common().revisionNo());
+        assertEquals("Comment of c1", changes.common().fullComment());
+        // The base holds what the working copy holds; the files are what the working copy changed since both parted
+        assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.MODIFIED)), changes.files());
+    }
+
+    @Test
+    void aWorkingCopyOpenedAtARevisionThatIsGoneIsComparedWithTheBase() throws Exception {
+        var repository = workingCopyAgainst("t1");
+        when(repository.findCommonRevision(FOLDER, "t1", "gone"))
+                .thenThrow(new FileNotFoundException("Cannot find revision 'gone'."));
+        var project = openedAt(repository, "gone");
+
+        var changes = service.changesOf(project, null, "t1");
+
+        // No revision both parted at is known, so the working copy is compared with the base itself
+        assertNull(changes.common());
+        assertEquals(List.of(), changes.files());
+    }
+
+    @Test
+    void anEarlierRevisionOfTheBranchOfTheWorkingCopyHasNoRevisionToPartAt() throws Exception {
+        var repository = workingCopyAgainst("r1");
+        when(repository.findCommonRevision(FOLDER, "r1", "r3")).thenReturn(revisionData("r1"));
+        var project = openedAt(repository, "r3");
+
+        assertNull(service.changesOf(project, null, "r1").common());
+    }
+
+    @Test
+    void aLaterRevisionPartsFromTheWorkingCopyAtTheRevisionItWasOpenedAt() throws Exception {
+        var repository = workingCopyAgainst("r3");
+        when(repository.findCommonRevision(FOLDER, "r3", "r1")).thenReturn(revisionData("r1"));
+        revision("r1", Map.of("rules.xml", "1"));
+        var project = openedAt(repository, "r1");
+
+        // The changes not saved yet are made on the revision the working copy was opened at.
+        assertEquals("r1", service.changesOf(project, null, "r3").common().revisionNo());
+    }
+
+    @Test
+    void twoRevisionsOfTwoBranchesTellTheRevisionTheyPartedAt() throws IOException {
         var repository = branchRepository();
-        when(repository.getId()).thenReturn(REPOSITORY_ID);
-        named(repository, "master", "r7");
+        when(repository.listChanges(FOLDER, "t1", "w2"))
+                .thenReturn(new RevisionChanges(revisionData("t1"), revisionData("w2"), List.of()));
+        when(repository.findCommonRevision(FOLDER, "t1", "w2")).thenReturn(revisionData("c1"));
+        named(repository, "t1", "t1");
+        named(repository, "w2", "w2");
+        when(repository.listChanges(FOLDER, "c1", "w2")).thenReturn(new RevisionChanges(revisionData("c1"),
+                revisionData("w2"), List.of(new FileChange(FOLDER + "/rules.xml", FileChange.Kind.MODIFIED))));
+
+        var changes = service.changesOf(project(repository), "w2", "t1");
+
+        assertEquals("c1", changes.common().revisionNo());
+        // The revisions compared are the ones named; the files are what w2 changed since both parted
+        assertEquals("t1", changes.base().revisionNo());
+        assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.MODIFIED)), changes.files());
+    }
+
+    @Test
+    void twoRevisionsOfOneLineOfHistoryHaveNoRevisionToPartAt() throws IOException {
+        var repository = branchRepository();
+        when(repository.listChanges(FOLDER, "r1", "r3"))
+                .thenReturn(new RevisionChanges(revisionData("r1"), revisionData("r3"), List.of()));
+        when(repository.listChanges(FOLDER, "r3", "r1"))
+                .thenReturn(new RevisionChanges(revisionData("r3"), revisionData("r1"), List.of()));
+        when(repository.findCommonRevision(FOLDER, "r1", "r3")).thenReturn(revisionData("r1"));
+        when(repository.findCommonRevision(FOLDER, "r3", "r1")).thenReturn(revisionData("r1"));
+        named(repository, "r1", "r1");
+        named(repository, "r3", "r3");
         var project = project(repository);
-        revision("r7", Map.of("rules.xml", "1"));
-        holds(project, Map.of("rules.xml", "1"));
+
+        assertNull(service.changesOf(project, "r3", "r1").common());
+        // Either one first.
+        assertNull(service.changesOf(project, "r1", "r3").common());
+        // A revision compared with the one it was made on is never compared through another one.
+        when(repository.listChanges(FOLDER, null, "r3"))
+                .thenReturn(new RevisionChanges(revisionData("r2"), revisionData("r3"), List.of()));
+        assertNull(service.changesOf(project, "r3", null).common());
+    }
+
+    @Test
+    void theWorkingCopyIsComparedWithTheLastRevisionOfABranchNamedAsTheBase() throws Exception {
+        var repository = workingCopyAgainst("r7");
+        named(repository, "master", "r7");
+        var project = openedAt(repository, "r7");
 
         var changes = service.changesOf(project, null, "master");
 
@@ -247,10 +336,12 @@ class ProjectRevisionChangesServiceTest {
     @Test
     void aBaseARepositoryWithCommitsDoesNotKnowIsNotFoundForTheWorkingCopy() throws IOException {
         var repository = branchRepository();
-        when(repository.listChanges(FOLDER, null, "no-such-branch"))
+        when(repository.findCommonRevision(FOLDER, "no-such-branch", "no-such-branch"))
                 .thenThrow(new FileNotFoundException("Cannot find revision 'no-such-branch'."));
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project(repository), null, "no-such-branch"));
+        var project = project(repository);
+
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "no-such-branch"));
     }
 
     @Test
@@ -342,10 +433,29 @@ class ProjectRevisionChangesServiceTest {
         return repository;
     }
 
+    /**
+     * A repository with commits whose base revision of the project holds what the working copy holds: the working copy
+     * changed nothing, and only the revision the two parted at is asked about.
+     */
+    private BranchRepository workingCopyAgainst(String base) throws Exception {
+        var repository = branchRepository();
+        when(repository.getId()).thenReturn(REPOSITORY_ID);
+        named(repository, base, base);
+        revision(base, Map.of("rules.xml", "1"));
+        return repository;
+    }
+
     /** A repository with commits that reads the given name, a revision or a branch, as the given revision. */
     private static void named(BranchRepository repository, String name, String revision) throws IOException {
-        when(repository.listChanges(FOLDER, null, name))
-                .thenReturn(new RevisionChanges(null, revisionData(revision), List.of()));
+        when(repository.findCommonRevision(FOLDER, name, name)).thenReturn(revisionData(revision));
+    }
+
+    /** The working copy of the project, opened at a revision and holding what the base of its comparison holds. */
+    private static RulesProject openedAt(BranchRepository repository, String opened) throws ProjectException {
+        var project = project(repository);
+        when(project.getHistoryVersion()).thenReturn(opened);
+        holds(project, Map.of("rules.xml", "1"));
+        return project;
     }
 
     private static RulesProject project(Repository repository) {

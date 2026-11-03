@@ -1,6 +1,9 @@
 /**
  * What changed in one file of a project between two of its versions: two revisions, or a revision and the working
  * copy. A workbook is compared table by table, as OpenL Studio compares it; any other text is told as a unified diff.
+ *
+ * A base of another history, as a revision of another branch is, is compared from the revision both histories parted
+ * at, as a pull request shows what a branch changed: what the later side changed since then.
  */
 
 import type { OpenLClient } from "../client.js";
@@ -51,6 +54,8 @@ interface ComparedRevisions {
   base: string | undefined;
   /** The later revision, or nothing for the working copy. */
   revision: string | undefined;
+  /** The revision both parted at, when the base is not in the history of the later side. */
+  common: string | undefined;
 }
 
 /**
@@ -66,10 +71,14 @@ async function versionsOf(client: OpenLClient, request: FileComparisonRequest): 
     if (!revision) {
       throw new Error("The working copy has no saved revision to compare with: name the base.");
     }
-    return { base: revision, revision: undefined };
+    return { base: revision, revision: undefined, common: undefined };
   }
   const changes = await client.getProjectRevisionChanges(request.projectId, request.revision, request.base);
-  return { base: changes.base?.revisionNo, revision: changes.revision?.revisionNo };
+  return {
+    base: changes.base?.revisionNo,
+    revision: changes.revision?.revisionNo,
+    common: changes.common?.revisionNo,
+  };
 }
 
 /** Whether a version holds the file. A revision is a commit, so it is read whichever branch the project is on. */
@@ -94,18 +103,21 @@ export async function compareProjectFile(
   request: FileComparisonRequest,
   extra: ToolHandlerExtra | undefined,
 ): Promise<string> {
-  const { base, revision } = await versionsOf(client, request);
+  const { base, revision, common } = await versionsOf(client, request);
+  // A base of another branch is compared from the revision both parted at, as a pull request shows a branch
+  const since = common ?? base;
   // Both versions are asked about at once: neither answer waits for the other
   const [firstHolds, secondHolds] = await Promise.all([
-    base !== undefined && holds(client, request, base),
+    since !== undefined && holds(client, request, since),
     holds(client, request, revision),
   ]);
-  const first: Version = { revision: base, holds: firstHolds };
+  const first: Version = { revision: since, holds: firstHolds };
   const second: Version = { revision, holds: secondHolds };
   if (!first.holds && !second.holds) {
     throw new Error(`Neither ${labelOf({ ...first, holds: true })} nor ${labelOf({ ...second, holds: true })} holds '${request.path}'.`);
   }
-  const title = `${request.path}: ${labelOf(first)} → ${labelOf(second)}`;
+  const parted = common === undefined ? "" : ` (where it and revision ${base} parted)`;
+  const title = `${request.path}: ${labelOf(first)}${parted} → ${labelOf(second)}`;
   return isWorkbook(request.path)
     ? compareWorkbook(client, request, [first, second], title, extra)
     : compareText(client, request, [first, second], title);

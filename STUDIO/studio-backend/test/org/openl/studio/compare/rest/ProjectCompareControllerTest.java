@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -63,5 +64,15 @@ class ProjectCompareControllerTest {
         var started = controller.compare(project, new CompareProjectFilesRequest(first, second));
 
         assertEquals("cmp-1", started.id());
+    }
+
+    /** A file that counts how often it is closed. */
+    private static ComparisonContent closing(String name, AtomicInteger closed) {
+        return new ComparisonContent(name, new ByteArrayInputStream(new byte[0]) {
+            @Override
+            public void close() {
+                closed.incrementAndGet();
+            }
+        });
     }
 }

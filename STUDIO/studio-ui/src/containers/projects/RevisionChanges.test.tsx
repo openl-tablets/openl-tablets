@@ -30,7 +30,7 @@ const files = (count: number): ProjectFileChange[] =>
 
 describe('RevisionChanges', () => {
     it('reads the files the revision changed against the revision it was made on', async () => {
-        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), files: files(2) })
+        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), common: null, files: files(2) })
 
         render(<RevisionChanges branch="main" projectId="p1" revision="r2" />)
 
@@ -39,7 +39,7 @@ describe('RevisionChanges', () => {
     })
 
     it('shows ten files a page and pages through the rest', async () => {
-        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), files: files(25) })
+        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), common: null, files: files(25) })
 
         render(<RevisionChanges projectId="p1" revision="r2" />)
 
@@ -54,7 +54,7 @@ describe('RevisionChanges', () => {
     })
 
     it('offers no pages when the files fit on one', async () => {
-        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), files: files(10) })
+        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), common: null, files: files(10) })
 
         render(<RevisionChanges projectId="p1" revision="r2" />)
 
@@ -66,6 +66,7 @@ describe('RevisionChanges', () => {
         vi.mocked(getRevisionChanges).mockResolvedValue({
             base: revisionOf('r1'),
             revision: revisionOf('r2'),
+            common: null,
             files: [{ path: 'rules/Main.xlsx', type: 'modified' }],
         })
 
@@ -80,6 +81,7 @@ describe('RevisionChanges', () => {
         vi.mocked(getRevisionChanges).mockResolvedValue({
             base: revisionOf('r1'),
             revision: revisionOf('r2'),
+            common: null,
             files: [{ path: 'rules/New.xlsx', type: 'added' }, { path: 'notes.txt', type: 'deleted' }],
         })
 
@@ -95,7 +97,7 @@ describe('RevisionChanges', () => {
     })
 
     it('says that the revision changed no file of the project', async () => {
-        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), files: []})
+        vi.mocked(getRevisionChanges).mockResolvedValue({ base: revisionOf('r1'), revision: revisionOf('r2'), common: null, files: []})
 
         render(<RevisionChanges projectId="p1" revision="r2" />)
 
@@ -106,6 +108,7 @@ describe('RevisionChanges', () => {
         vi.mocked(getRevisionChanges).mockResolvedValue({
             base: null,
             revision: revisionOf('r1'),
+            common: null,
             files: [{ path: 'rules.xml', type: 'added' }],
         })
 

@@ -282,6 +282,14 @@ public class PathCheckedRepository implements BranchRepository {
     }
 
     @Override
+    public @Nullable FileData findCommonRevision(String path, String first, String second) throws IOException {
+        if (!path.isEmpty()) {
+            validatePath(path);
+        }
+        return ((BranchRepository) delegate).findCommonRevision(path, first, second);
+    }
+
+    @Override
     public String getBranch() {
         return ((BranchRepository) delegate).getBranch();
     }

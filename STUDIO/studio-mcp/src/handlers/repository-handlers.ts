@@ -109,7 +109,7 @@ export function registerRepositoryHandlers(): void {
     name: "repository_project_revision_changes",
     title: "Get the Changes of a Revision",
     description:
-      "List the files a revision changed, by path and change (added, modified or deleted), with the revisions compared in the columns of openl_repository_project_revisions: against the one it was made on (in Git its first parent, so a merge lists what it brought in) or base. Without a revision, the working copy with its unsaved changes, against its saved revision unless base is named: what a save commits. With a path, what changed in that file: a workbook as the tables that differ, a page at a time, with their moves, formatting, rows and columns added or removed and cells as 'B7: before → after'; other text as a unified diff. Ignored files and those outside the project folder are not listed.",
+      "List the files a revision changed, by path and change, with the revisions compared in the columns of openl_repository_project_revisions: against the one it was made on (in Git its first parent: a merge lists what it brought in) or base. Without a revision, the working copy with unsaved changes, against its saved revision unless base is named: what a save commits. With a path, what changed in it: a workbook as tables that differ, a page at a time, with moves, formatting, rows and columns added or removed and cells as 'B7: before → after'; other text as a unified diff. A base of another branch adds the common revision; files and changes are then told since it, as a PR tells them. Files ignored or outside the project are not listed.",
     schema: schemas.getProjectRevisionChangesSchema,
     annotations: {
       readOnlyHint: true,
@@ -124,12 +124,17 @@ export function registerRepositoryHandlers(): void {
       const savedAt = args.revision === undefined && args.base === undefined
         ? (await client.getProject(args.projectId)).revision
         : args.base;
-      const { base, revision, files } = await client.getProjectRevisionChanges(args.projectId, args.revision, savedAt);
+      const { base, revision, common, files } = await client.getProjectRevisionChanges(args.projectId, args.revision, savedAt);
       // The working copy is no revision of the history: it is named, with nothing else told of it
       const later: Compared = revision
         ? { ...revision, side: "revision" }
         : { revisionNo: "working copy", createdAt: "", deleted: false, technicalRevision: false, side: "revision" };
-      const compared: Compared[] = [...(base ? [{ ...base, side: "base" }] : []), later];
+      // A base of another history comes with the revision both sides were made from
+      const compared: Compared[] = [
+        ...(base ? [{ ...base, side: "base" }] : []),
+        later,
+        ...(common ? [{ ...common, side: "common" }] : []),
+      ];
       return textResult(formatListOf(files, args.limit, args.offset, {
         noun: "files",
         columns: [{ header: "path", value: (file) => file.path }, { header: "change", value: (file) => file.type }],

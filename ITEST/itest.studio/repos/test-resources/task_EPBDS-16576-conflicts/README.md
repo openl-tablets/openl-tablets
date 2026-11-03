@@ -11,6 +11,8 @@ This suite verifies that the file a merge could not settle is compared through t
 - the base version is compared with both versions at once, which tells for each table what each branch did
   to it, and a table is read in the three versions, lined up by the base;
 - the comparison answers with its own identifier and is read, watched and released as any other one;
+- once the merge is cancelled, the working copy is compared with the last revision of the side branch: the changed
+  files come with the common revision both branches parted at;
 - a conflicted file that is not an Excel file is refused before a comparison is started, because the
   screen reads such a file line by line instead.
 

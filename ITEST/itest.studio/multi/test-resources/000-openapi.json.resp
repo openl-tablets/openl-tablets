@@ -33412,6 +33412,9 @@ Content-Type: application/json
           "base": {
             "$ref": "#/components/schemas/ProjectRevision_Short"
           },
+          "common": {
+            "$ref": "#/components/schemas/ProjectRevision_Short"
+          },
           "files": {
             "type": "array",
             "description": "***",
