@@ -494,6 +494,9 @@ const NEXT_STEP_OF_CODE = new Map([
   [NOT_OPENED_CODE, "Open it with openl_open_project, and repeat the call."],
   ["openl.error.409.project.close.modified.message",
     "Save the changes with openl_save_project, or, once the user agrees, drop them with openl_close_project discardChanges, first."],
+  // HEAD~1 and alike name a commit of the branch the repository is on, not of the branch of the project
+  ["openl.error.404.project.revision.message",
+    "Name a revision by the revisionNo openl_repository_project_revisions lists, or by a branch for its last revision: no expression such as HEAD~1."],
 ]);
 
 /**

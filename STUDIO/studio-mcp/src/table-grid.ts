@@ -172,7 +172,7 @@ export function rowIn(address: string, pos: string): number | undefined {
 }
 
 /** The column and the row of the first cell of an A1 position, such as `B2` of `B2:E920`, from 1. */
-function firstCellOf(pos: string): { column: number; row: number } | undefined {
+export function firstCellOf(pos: string): { column: number; row: number } | undefined {
   const match = /^([A-Z]+)(\d+)/.exec(pos);
   return match ? { column: columnIndex(match[1]), row: Number(match[2]) } : undefined;
 }

@@ -572,7 +572,8 @@ export interface ProjectFileChange {
 export interface ProjectRevisionChanges {
   /** The revision compared against; null when there is none, and then every file is added. */
   base: ProjectRevision | null;
-  revision: ProjectRevision;
+  /** The revision whose changes are told; absent when the working copy is compared with the base. */
+  revision?: ProjectRevision | null;
   files: ProjectFileChange[];
 }
 
@@ -608,8 +609,44 @@ export interface ComparisonNodeView {
   id?: string;
   name?: string;
   type?: "sheet" | "table";
-  status?: "equal" | "changed" | "moved" | "added" | "removed";
+  status?: ComparisonStatus;
+  /** Whether a table stands elsewhere on its sheet; absent for a sheet. */
+  moved?: boolean;
+  /** Where a table stands in the first and the second workbook, in A1 notation. */
+  firstRange?: string;
+  secondRange?: string;
   children?: ComparisonNodeView[];
+}
+
+/** What became of a sheet, a table, a row or a column from the first workbook to the second. */
+export type ComparisonStatus = "equal" | "changed" | "moved" | "added" | "removed";
+
+/** A row or a column of a table lined up with its pair: its place in each workbook, absent for the one without it. */
+export interface ComparisonLine {
+  first?: number;
+  second?: number;
+  status: Exclude<ComparisonStatus, "moved">;
+}
+
+/** A table as one workbook of a comparison holds it: its cells, and the ones the other workbook reads differently. */
+export interface ComparisonTableSide {
+  source: RawTableCell[][];
+  changedCells?: string[];
+}
+
+/** One table of a comparison, both versions of it lined up row by row and column by column. */
+export interface ComparisonTableView {
+  id: string;
+  name: string;
+  status: ComparisonStatus;
+  moved?: boolean;
+  formattingChanged?: boolean;
+  firstRange?: string;
+  secondRange?: string;
+  first?: ComparisonTableSide;
+  second?: ComparisonTableSide;
+  rows?: ComparisonLine[];
+  columns?: ComparisonLine[];
 }
 
 /** The result of comparing two workbooks, sheet by sheet. */
@@ -1086,6 +1123,8 @@ export interface ComparisonSide {
   path: string;
   branch?: string;
   revision?: string;
+  /** The side does not hold the file: it is compared as an empty workbook. */
+  absent?: boolean;
 }
 
 interface PendingChanges {

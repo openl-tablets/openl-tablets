@@ -413,16 +413,19 @@ export class OpenLClient {
 
   /**
    * Get the files of a project a revision changed, against the given base or else the revision it was made on.
+   * Without a revision, the files the working copy changed since the base.
    *
    * Maps to `GET /projects/{projectId}/history/changes`.
    */
   async getProjectRevisionChanges(
     projectId: string,
-    revision: string,
+    revision: string | undefined,
     base?: string
   ): Promise<Types.ProjectRevisionChanges> {
     const url = `${projectPath(projectId)}/history/changes`;
-    return (await this.http.get<Types.ProjectRevisionChanges>(url, { params: { revision, base } })).data;
+    const changes = (await this.http.get<Types.ProjectRevisionChanges>(url, { params: { revision, base } })).data;
+    // Studio leaves an empty list out of its answer: no file changed
+    return { ...changes, files: changes.files ?? [] };
   }
 
   // =============================================================================
@@ -1433,6 +1436,16 @@ export class OpenLClient {
     request: { signal?: AbortSignal; timeoutMs?: number },
   ): Promise<Types.ComparisonView | Types.ResultNotReadyView> {
     return this.getResult<Types.ComparisonView>(`/compare/${encodeURIComponent(id)}`, request);
+  }
+
+  /** One table of a comparison, both of its versions lined up, or `notReady` while Studio compares them. */
+  async getComparisonTable(
+    id: string,
+    tableId: string,
+    request: { signal?: AbortSignal; timeoutMs?: number },
+  ): Promise<Types.ComparisonTableView | Types.ResultNotReadyView> {
+    return this.getResult<Types.ComparisonTableView>(
+      `/compare/${encodeURIComponent(id)}/tables/${encodeURIComponent(tableId)}`, request);
   }
 
   /** Drop a comparison Studio keeps. */
