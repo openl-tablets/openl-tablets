@@ -86,6 +86,24 @@ class SecureBranchRepositoryTest {
     }
 
     @Test
+    void tellsTheConflictsUnderAFolderTheUserMayRead() throws Exception {
+        when(aclService.isGranted(REPOSITORY_ID, "DESIGN/rules/Project", List.of(BasePermission.READ)))
+                .thenReturn(true);
+        when(delegate.findConflicts("DESIGN/rules/Project", "ours", "theirs"))
+                .thenReturn(Set.of("DESIGN/rules/Project/Rules.xlsx"));
+
+        assertEquals(Set.of("DESIGN/rules/Project/Rules.xlsx"),
+                repository.findConflicts("DESIGN/rules/Project", "ours", "theirs"));
+    }
+
+    @Test
+    void refusesTheConflictsUnderAFolderTheUserMayNotRead() throws Exception {
+        assertThrows(AccessDeniedException.class,
+                () -> repository.findConflicts("DESIGN/rules/Project", "ours", "theirs"));
+        verify(delegate, never()).findConflicts("DESIGN/rules/Project", "ours", "theirs");
+    }
+
+    @Test
     void hidesRepositoryBranchesWithoutReadPermission() throws Exception {
         assertEquals(List.of(), repository.listBranches());
         verify(delegate, never()).listBranches();

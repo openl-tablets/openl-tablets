@@ -290,6 +290,15 @@ public class PathCheckedRepository implements BranchRepository {
     }
 
     @Override
+    public Set<String> findConflicts(String path, String first, String second) throws IOException {
+        if (!path.isEmpty()) {
+            validatePath(path);
+        }
+        return Set.copyOf(shown(((BranchRepository) delegate).findConflicts(path, first, second),
+                Function.identity()));
+    }
+
+    @Override
     public String getBranch() {
         return ((BranchRepository) delegate).getBranch();
     }

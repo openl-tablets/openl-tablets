@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { Badge, Empty, Flex, Spin, Splitter, Tag, Typography } from 'antd'
+import { SwapOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { RawTableGrid, type CellDecoration } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
@@ -12,7 +13,7 @@ import type {
     ConflictComparisonTable,
 } from 'types/compare'
 import { alignmentOf, alignSide, ownStatusOf, type Alignment, type FileSide } from './alignment'
-import { combine, type CellMark, type CombinedTable } from './combinedDiff'
+import { combine, combineConflict, type CellMark, type CombinedTable } from './combinedDiff'
 import { keepRows, keptRows, rowsToShow, type ShownLine } from './diffRows'
 import { framesOf, type FrameSides } from './frames'
 import { useStyles } from './ComparePage.styles'
@@ -88,6 +89,21 @@ const NoTable: React.FC<{ loading: boolean; error: string | null }> = ({ loading
     return <Empty description={error || t('nothing_selected')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
 }
 
+/** A column of the comparison: the line its version is named on, with the controls, over what it shows. */
+const Pane: React.FC<{ head: React.ReactNode; testId: string; children: React.ReactNode }> = ({
+    head,
+    testId,
+    children,
+}) => {
+    const { styles } = useStyles()
+    return (
+        <div className={styles.column}>
+            <div className={styles.head}>{head}</div>
+            <div className={styles.body} data-testid={testId}>{children}</div>
+        </div>
+    )
+}
+
 /** The kinds of change a table shows: changed cells, and lines or a whole table only one file holds. */
 const kindsOf = (table: ComparisonTable, alignment: Alignment | null): ChangeKind[] => {
     if (!alignment) {
@@ -131,13 +147,6 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     const shown = !loading && !error && table
     const insteadOfTable = shown ? null : <NoTable error={error} loading={loading} />
 
-    const pane = (head: React.ReactNode, testId: string, body: React.ReactNode) => (
-        <div className={styles.column}>
-            <div className={styles.head}>{head}</div>
-            <div className={styles.body} data-testid={testId}>{body}</div>
-        </div>
-    )
-
     // What is said about the table stands on a line of its own above the files, so the rows of both files stay
     // level with each other.
     const notes = table && !loading && !error && (
@@ -165,7 +174,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
                 <Combined combined={combined!} />
             </Restyled>
         )
-        return withNotes(<div className={styles.panes}>{pane(head, 'compare-pane-combined', body)}</div>)
+        return withNotes(<div className={styles.panes}><Pane head={head} testId="compare-pane-combined">{body}</Pane></div>)
     }
 
     const content = (side: FileSide) => {
@@ -181,14 +190,20 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     }
 
     // The pane of a file; the controls lead the left pane and end the right one, whichever file each pane shows.
-    const sidePane = (side: FileSide, left: boolean) => pane(
-        <>
-            {left && leading}
-            <span className={cx(styles.headLabel)}>{titles?.[side] ?? t(`file_${side}`)}</span>
-            {!left && trailing && <span className={styles.headAction}>{trailing}</span>}
-        </>,
-        `compare-pane-${side}`,
-        content(side))
+    const sidePane = (side: FileSide, left: boolean) => (
+        <Pane
+            testId={`compare-pane-${side}`}
+            head={(
+                <>
+                    {left && leading}
+                    <span className={cx(styles.headLabel)}>{titles?.[side] ?? t(`file_${side}`)}</span>
+                    {!left && trailing && <span className={styles.headAction}>{trailing}</span>}
+                </>
+            )}
+        >
+            {content(side)}
+        </Pane>
+    )
     const [left, right] = secondOnLeft ? ['second', 'first'] as const : ['first', 'second'] as const
     return withNotes(
         <Splitter className={styles.panes}>
@@ -336,9 +351,18 @@ const Side: React.FC<{
 }
 
 /** Which version of a conflict a column shows, from left to right as merge tools lay them out. */
-type ConflictPane = 'yours' | 'base' | 'theirs'
+export type ConflictPane = 'yours' | 'base' | 'theirs'
 
 const CONFLICT_PANES: ConflictPane[] = ['yours', 'base', 'theirs']
+
+/**
+ * The two versions of a conflict compared with the base they were made from, without the base itself: the version a
+ * merge goes into first, then the version it brings in. Yours first when their changes come into your branch.
+ */
+export const VERSION_PANES: ConflictPane[] = ['yours', 'theirs']
+
+/** The two versions without the base when your changes go into their branch: theirs first. */
+export const THEIRS_FIRST_PANES: ConflictPane[] = ['theirs', 'yours']
 
 /** How each version of a conflict is named above its column. */
 const PANE_TITLES: Record<ConflictPane, string> = { yours: 'your_version', base: 'base_version', theirs: 'their_version' }
@@ -396,21 +420,41 @@ interface ConflictPanesProps {
     error: string | null
     /** Put before the name of your version; carries the controls the hidden list of elements left behind. */
     leading?: React.ReactNode
+    /** The versions drawn side by side, from left to right; all three unless the base is left out. */
+    panes?: ConflictPane[] | undefined
+    /** Whether the versions stand side by side or are drawn as one table. */
+    view?: DiffView | undefined
+    /** Put at the end of the line the versions are named on; the control that picks the view. */
+    trailing?: React.ReactNode
 }
 
 /**
- * The three versions of a table of a conflict, side by side as merge tools lay them out: your version on the left,
- * the base in the middle and their version on the right.
+ * The versions of a table of a conflict, side by side as merge tools lay them out: your version on the left, the base
+ * in the middle and their version on the right. Without the base, your version and theirs stand side by side, each
+ * compared with the base, or are drawn as one table.
  *
- * The rows and the columns of the three stand against each other by the lines of the base. A line a version inserted
- * is painted as added in it and stands against empty lines in the other two; a line a version removed is painted as
- * removed in the base and stands against an empty line in that version. The cells each version changed are framed,
+ * The rows and the columns of the versions stand against each other by the lines of the base. A line a version
+ * inserted is painted as added in it and stands against empty lines in the others; a line a version removed is painted
+ * as removed in the base and stands against an empty line in that version. The cells each version changed are framed,
  * and the cells both changed differently are framed in red. A table only some versions hold is shown in those.
+ *
+ * Drawn as one table, a cell one version changed carries the base value and the new one, and a cell both changed
+ * differently carries the base value and the values of both, framed in red.
  */
-export const ConflictPanes: React.FC<ConflictPanesProps> = ({ table, loading, showEqualRows, error, leading }) => {
+export const ConflictPanes: React.FC<ConflictPanesProps> = ({
+    table,
+    loading,
+    showEqualRows,
+    error,
+    leading,
+    panes: shownPanes = CONFLICT_PANES,
+    view = 'sides',
+    trailing,
+}) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
     const rows = useMemo(() => (table ? conflictRowsToShow(table, showEqualRows) : null), [table, showEqualRows])
+    const combined = useMemo(() => (view === 'combined' && table ? combineConflict(table, rows) : null), [view, table, rows])
     // How each column reads the conflict: its lines and the cells both versions changed differently.
     const panes = useMemo(() => new Map(CONFLICT_PANES.map(pane => [pane, {
         alignment: table && paneAlignment(table, pane),
@@ -437,23 +481,60 @@ export const ConflictPanes: React.FC<ConflictPanesProps> = ({ table, loading, sh
     }
 
     const kinds = table && !loading && !error ? conflictKindsOf(table) : []
+    const legend = kinds.length > 0 && (
+        <Flex wrap align="center" className={styles.notes} gap="small">
+            <Legend combined={view === 'combined'} kinds={kinds} />
+        </Flex>
+    )
+    if (view === 'combined') {
+        // Your version and theirs, in the order they stand side by side.
+        const versionOrder = shownPanes.filter(pane => pane !== 'base')
+        return (
+            <div className={styles.column}>
+                {legend}
+                <div className={styles.panes}>
+                    <Pane
+                        testId="compare-pane-combined"
+                        head={(
+                            <>
+                                {leading}
+                                <span className={cx(styles.headLabel)}>
+                                    {`${t('base_version')} ${SIGNS.changed} ${t(PANE_TITLES[versionOrder[0]!])} `}
+                                    <SwapOutlined />
+                                    {` ${t(PANE_TITLES[versionOrder[1]!])}`}
+                                </span>
+                                {trailing && <span className={styles.headAction}>{trailing}</span>}
+                            </>
+                        )}
+                    >
+                        {combined
+                            ? <Combined combined={combined} order={versionOrder} />
+                            : <NoTable error={error} loading={loading} />}
+                    </Pane>
+                </div>
+            </div>
+        )
+    }
     return (
         <div className={styles.column}>
-            {kinds.length > 0 && (
-                <Flex wrap align="center" className={styles.notes} gap="small">
-                    <Legend kinds={kinds} />
-                </Flex>
-            )}
+            {legend}
             <Splitter className={styles.panes}>
-                {CONFLICT_PANES.map((pane, index) => (
+                {shownPanes.map((pane, index) => (
                     <Splitter.Panel key={pane} min="15%">
-                        <div className={styles.column}>
-                            <div className={styles.head}>
-                                {index === 0 && leading}
-                                <span className={cx(styles.headLabel)}>{t(PANE_TITLES[pane])}</span>
-                            </div>
-                            <div className={styles.body} data-testid={`compare-pane-${pane}`}>{content(pane)}</div>
-                        </div>
+                        <Pane
+                            testId={`compare-pane-${pane}`}
+                            head={(
+                                <>
+                                    {index === 0 && leading}
+                                    <span className={cx(styles.headLabel)}>{t(PANE_TITLES[pane])}</span>
+                                    {index === shownPanes.length - 1 && trailing && (
+                                        <span className={styles.headAction}>{trailing}</span>
+                                    )}
+                                </>
+                            )}
+                        >
+                            {content(pane)}
+                        </Pane>
                     </Splitter.Panel>
                 ))}
             </Splitter>
@@ -461,17 +542,31 @@ export const ConflictPanes: React.FC<ConflictPanesProps> = ({ table, loading, sh
     )
 }
 
+/** How a cell of the combined view is framed: changed, or changed differently by both versions of a conflict. */
+const frameOfMark = (mark: CellMark | undefined): CellFrame | undefined => {
+    if (mark?.theirs !== undefined || mark?.conflict) {
+        return 'conflict'
+    }
+    return mark?.before === undefined ? undefined : 'changed'
+}
+
 /**
  * The two versions as one table: a cell the files read differently carries both values, and the sign
  * leading each row says what became of it.
+ *
+ * A cell both versions of a conflict changed differently is framed in red. It carries the base value on a line of its
+ * own, and under it the value of each version, named, in the order the versions stand.
  */
-const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
+const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | undefined }> = ({
+    combined,
+    order = VERSION_PANES,
+}) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useCellStyles()
     const frame = useFrame()
     const gapOf = useGap()
     const { rows: source, marks } = combined
-    const frames = useMemo(() => framesOf(source, cell => marks.get(cell)?.before !== undefined), [source, marks])
+    const frames = useMemo(() => framesOf(source, cell => frameOfMark(marks.get(cell))), [source, marks])
 
     /** The colour a cell wholly of one file or the other is drawn in. */
     const ofSide = (kind: CellMark['paint']) => {
@@ -500,9 +595,38 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
             }
         }
         const sides = frames.get(cell)
+        if (sides && mark.conflict) {
+            // A line one version removed while the other one changed it: painted as removed, framed as a conflict.
+            return { className: cx(ofSide(mark.paint), frame(sides, 'conflict')), painted: true }
+        }
+        if (sides && mark.theirs !== undefined) {
+            // Both values under the base one, each named, so neither reads as what the cell ends up holding.
+            const [first, second] = order.map(pane => (
+                <Flex key={pane} align="baseline" data-testid={`compare-combined-${pane}`} gap={4}>
+                    <span className={styles.combinedVersion}>{t(pane === 'yours' ? 'yours_short' : 'theirs_short')}</span>
+                    <span>{pane === 'yours' ? mark.after : mark.theirs}</span>
+                </Flex>
+            ))
+            return {
+                className: frame(sides, 'conflict'),
+                content: (
+                    <Flex vertical gap={2}>
+                        <span>
+                            <span className={styles.combinedBefore}>{mark.before}</span>
+                            {` ${SIGNS.changed}`}
+                        </span>
+                        <Flex wrap align="center" gap="small">
+                            {first}
+                            <SwapOutlined className={styles.combinedConflict} title={t('status_conflict')} />
+                            {second}
+                        </Flex>
+                    </Flex>
+                ),
+            }
+        }
         if (sides) {
             return {
-                className: frame(sides),
+                className: frame(sides, frameOfMark(mark)),
                 content: (
                     <>
                         <span className={styles.combinedBefore}>{mark.before}</span>

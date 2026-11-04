@@ -43,7 +43,7 @@ class ProjectCompareControllerTest {
                 }));
         when(comparisonService.read(project, second)).thenThrow(new NotFoundException("file.not.found.message"));
 
-        var request = new CompareProjectFilesRequest(first, second);
+        var request = new CompareProjectFilesRequest(first, second, null);
 
         assertThrows(NotFoundException.class, () -> controller.compare(project, request));
 
@@ -61,9 +61,44 @@ class ProjectCompareControllerTest {
         when(launcher.startContentOf(List.of(workingCopy, revision)))
                 .thenReturn(new ComparisonStartedView("cmp-1"));
 
-        var started = controller.compare(project, new CompareProjectFilesRequest(first, second));
+        var started = controller.compare(project, new CompareProjectFilesRequest(first, second, null));
 
         assertEquals("cmp-1", started.id());
+    }
+
+    @Test
+    void comparesBothFilesWithTheBaseTheyWereMadeFrom() throws Exception {
+        var yours = new ComparisonSideRequest("rules/Rates.xlsx", null, null);
+        var theirs = new ComparisonSideRequest("rules/Rates.xlsx", "feature", "rev-2");
+        var base = new ComparisonSideRequest("rules/Rates.xlsx", "feature", "rev-1");
+        var contents = List.of(new ComparisonContent("Rates.xlsx", new ByteArrayInputStream(new byte[0])),
+                new ComparisonContent("Rates.xlsx", new ByteArrayInputStream(new byte[0])),
+                new ComparisonContent("Rates.xlsx", new ByteArrayInputStream(new byte[0])));
+        when(comparisonService.read(project, base)).thenReturn(contents.getFirst());
+        when(comparisonService.read(project, yours)).thenReturn(contents.get(1));
+        when(comparisonService.read(project, theirs)).thenReturn(contents.get(2));
+        // The base first, as a conflict is compared
+        when(launcher.startContentOf(contents)).thenReturn(new ComparisonStartedView("cmp-3"));
+
+        var started = controller.compare(project, new CompareProjectFilesRequest(yours, theirs, base));
+
+        assertEquals("cmp-3", started.id());
+    }
+
+    @Test
+    void putsTheBaseAndYourFileDownWhenTheirFileCannotBeRead() {
+        var closed = new AtomicInteger();
+        var yours = new ComparisonSideRequest("rules/Rates.xlsx", null, null);
+        var theirs = new ComparisonSideRequest("rules/Gone.xlsx", "feature", "rev-2");
+        var base = new ComparisonSideRequest("rules/Rates.xlsx", "feature", "rev-1");
+        when(comparisonService.read(project, base)).thenReturn(closing("Rates.xlsx", closed));
+        when(comparisonService.read(project, yours)).thenReturn(closing("Rates.xlsx", closed));
+        when(comparisonService.read(project, theirs)).thenThrow(new NotFoundException("file.not.found.message"));
+
+        var request = new CompareProjectFilesRequest(yours, theirs, base);
+
+        assertThrows(NotFoundException.class, () -> controller.compare(project, request));
+        assertEquals(2, closed.get(), "the files that were already opened are not left open");
     }
 
     /** A file that counts how often it is closed. */

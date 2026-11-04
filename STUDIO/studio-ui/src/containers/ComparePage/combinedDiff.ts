@@ -1,5 +1,13 @@
 import type { RawTableCell } from 'types/tables'
-import type { ComparisonLine, ComparisonLineStatus, ComparisonSide, ComparisonTable } from 'types/compare'
+import type {
+    ComparisonLine,
+    ComparisonLineStatus,
+    ComparisonSide,
+    ComparisonTable,
+    ConflictComparisonLine,
+    ConflictComparisonSide,
+    ConflictComparisonTable,
+} from 'types/compare'
 import { alignmentOf, alignSide, wholeMerges } from './alignment'
 import { keepRows, type ShownLine } from './diffRows'
 
@@ -13,6 +21,13 @@ export interface CellMark {
     before?: string
     /** The value of the second file, beside which the first one is shown. */
     after?: string
+    /**
+     * The value of their version, when both versions of a conflict changed the cell differently: the base is
+     * `before`, your version `after`.
+     */
+    theirs?: string
+    /** The cell is of a line one version of a conflict removed and the other one changed. */
+    conflict?: boolean
     /** The cell leads its row and carries the sign the row is read by rather than a value. */
     lead?: boolean
     /** The cell stands for this many equal rows left out, across the whole table. */
@@ -53,6 +68,40 @@ const addGap = (into: CombinedTable, rows: number, width: number): void => {
     into.rows.push([gap, ...Array.from({ length: width }, (): RawTableCell => ({ covered: true }))])
 }
 
+/** A cell picked for the combined view, with what it says about itself. */
+interface PickedCell {
+    cell: RawTableCell
+    mark: CellMark
+}
+
+/**
+ * Adds the rows picked to draw, each led by the sign of what became of it, with the rows standing for the equal rows
+ * left out between them. The merges are made whole over the rows drawn; none of them crosses a gap.
+ *
+ * @param lines   the rows to draw and the gaps between them
+ * @param drawn   what became of each row drawn, in order
+ * @param picked  the cells of each row drawn, in order
+ * @param width   how many columns the table has
+ */
+const addLines = (
+    into: CombinedTable,
+    lines: readonly ShownLine[],
+    drawn: readonly ComparisonLineStatus[],
+    picked: readonly PickedCell[][],
+    width: number
+): void => {
+    const cells = wholeMerges(picked.map(row => row.map(({ cell }) => cell)))
+    let next = 0
+    lines.forEach(line => {
+        if ('gap' in line) {
+            addGap(into, line.gap, width)
+            return
+        }
+        addRow(into, drawn[next]!, cells[next]!, picked[next]!.map(({ mark }) => mark))
+        next++
+    })
+}
+
 /** The file a line is of alone, if any. */
 const ownerOf = (line: ComparisonLine): 'added' | 'removed' | undefined =>
     line.status === 'added' || line.status === 'removed' ? line.status : undefined
@@ -69,7 +118,7 @@ const pick = (
     was: RawTableCell,
     now: RawTableCell,
     changed: ReadonlySet<string>
-): { cell: RawTableCell; mark: CellMark } => {
+): PickedCell => {
     const fromFirst = row.status === 'removed' || (row.status !== 'added' && column.status === 'removed' && !now.covered)
     const cell = fromFirst ? was : now
     const paint = ownerOf(row) ?? ownerOf(column)
@@ -106,20 +155,97 @@ export const combine = (table: ComparisonTable, shown: readonly ShownLine[] | nu
     const lines = shown ?? alignment.rows.map((_, line): ShownLine => ({ line }))
     const was = keepRows(alignSide(table.first.source, alignment, 'first'), lines, width).rows
     const now = keepRows(alignSide(table.second.source, alignment, 'second'), lines, width).rows
-    // The merges are made whole over the rows drawn; none of them crosses a gap.
     const drawn = lines.flatMap((line, y) => ('line' in line ? [{ row: alignment.rows[line.line]!, y }] : []))
     const picked = drawn.map(({ row, y }) => alignment.columns.map((column, x) =>
         pick(row, column, was[y]![x]!, now[y]![x]!, changed)))
-    const cells = wholeMerges(picked.map(row => row.map(({ cell }) => cell)))
-    let next = 0
-    lines.forEach(line => {
-        if ('gap' in line) {
-            addGap(combined, line.gap, width)
-            return
+    addLines(combined, lines, drawn.map(({ row }) => row.status), picked, width)
+    return combined
+}
+
+/** What a version of a conflict did to a line: inserted it, removed it, changed it or left it as it was. */
+const lineStatusOf = (line: ConflictComparisonLine): ComparisonLineStatus => {
+    const statuses = new Set([line.yoursStatus, line.theirsStatus])
+    return (['removed', 'added', 'changed'] as const).find(status => statuses.has(status)) ?? 'equal'
+}
+
+/** The colour of a cell on a line a version removed or inserted: removed wins, as the base shows the cell. */
+const paintOf = (row: ComparisonLineStatus, column: ComparisonLineStatus): 'added' | 'removed' | undefined => {
+    if (row === 'removed' || column === 'removed') {
+        return 'removed'
+    }
+    return row === 'added' || column === 'added' ? 'added' : undefined
+}
+
+/** Whether one version of a conflict removed a line the other one changed. */
+const removedAgainstChange = (line: ConflictComparisonLine): boolean =>
+    (line.yoursStatus === 'removed' && line.theirsStatus === 'changed')
+    || (line.theirsStatus === 'removed' && line.yoursStatus === 'changed')
+
+/** The cell of a version where a row and a column meet, when the version holds both. */
+const cellAt = (
+    side: ConflictComparisonSide | undefined,
+    row: number | null | undefined,
+    column: number | null | undefined
+): RawTableCell | undefined => (side && row != null && column != null ? side.source[row]?.[column] : undefined)
+
+/**
+ * The two versions of a table of a conflict drawn as a single one, each compared with the base they were made from.
+ *
+ * The rows and the columns stand as the base lines them up. A line a version inserted is painted as added, and one
+ * a version removed as removed. A cell one version changed carries the base value and the value of that version. A
+ * cell both versions changed differently carries the base value and the values of both, your version first: that is
+ * a conflict. Every row is led by the sign of what became of it. Equal rows left out are one row that says how many
+ * they are.
+ *
+ * @param table the table of the conflict as the comparison reports it
+ * @param shown the rows to draw and the gaps between them, or null for all of them
+ */
+export const combineConflict = (table: ConflictComparisonTable, shown: readonly ShownLine[] | null): CombinedTable => {
+    const combined: CombinedTable = { rows: [], marks: new Map() }
+    const rows = table.rows ?? []
+    const columns = table.columns ?? []
+    const { base, yours, theirs } = table
+    if (rows.length === 0 || columns.length === 0) {
+        // A table only some versions hold: what the versions added is added, each of them, and what only the base holds
+        // is removed.
+        if (base) {
+            oneSided(!yours || !theirs ? base : undefined, 'removed', combined)
+        } else {
+            oneSided(yours, 'added', combined)
+            oneSided(theirs, 'added', combined)
         }
-        addRow(combined, drawn[next]!.row.status, cells[next]!, picked[next]!.map(({ mark }) => mark))
-        next++
-    })
+        return combined
+    }
+    const changedByYours = new Set(yours?.changedCells ?? [])
+    const changedByTheirs = new Set(theirs?.changedCells ?? [])
+    const conflicts = new Set(yours?.conflictCells ?? [])
+    const cellOf = (row: ConflictComparisonLine, column: ConflictComparisonLine): PickedCell => {
+        const was = cellAt(base, row.base, column.base)
+        const mine = cellAt(yours, row.yours, column.yours)
+        const other = cellAt(theirs, row.theirs, column.theirs)
+        const status = lineStatusOf(row)
+        const paint = paintOf(status, lineStatusOf(column))
+        if (paint) {
+            const cell = (paint === 'removed' ? was ?? mine ?? other : mine ?? other ?? was) ?? {}
+            // A line one version removed while the other one changed it is a conflict too.
+            const conflict = paint === 'removed' && (removedAgainstChange(row) || removedAgainstChange(column))
+            return { cell, mark: { row: status, paint, ...(conflict && { conflict }) } }
+        }
+        if (mine?.cell && conflicts.has(mine.cell)) {
+            return { cell: mine, mark: { row: status, before: text(was), after: text(mine), theirs: text(other) } }
+        }
+        if (mine?.cell && changedByYours.has(mine.cell)) {
+            return { cell: mine, mark: { row: status, before: text(was), after: text(mine) } }
+        }
+        if (other?.cell && changedByTheirs.has(other.cell)) {
+            return { cell: other, mark: { row: status, before: text(was), after: text(other) } }
+        }
+        return { cell: mine ?? other ?? was ?? {}, mark: { row: status } }
+    }
+    const lines = shown ?? rows.map((_, line): ShownLine => ({ line }))
+    const drawn = lines.flatMap(line => ('line' in line ? [rows[line.line]!] : []))
+    const picked = drawn.map(row => columns.map(column => cellOf(row, column)))
+    addLines(combined, lines, drawn.map(lineStatusOf), picked, columns.length)
     return combined
 }
 

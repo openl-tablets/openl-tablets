@@ -1,6 +1,7 @@
 package org.openl.studio.compare.rest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.validation.Valid;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.studio.compare.model.CompareProjectFilesRequest;
+import org.openl.studio.compare.model.ComparisonSideRequest;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonContent;
 import org.openl.studio.compare.service.ComparisonLauncher;
@@ -34,6 +36,9 @@ import org.openl.util.IOUtils;
  * <p>Either file is read from the working copy or from a revision the repository holds, so a user
  * sees what a revision changed without leaving the workspace. The comparison itself is the one the
  * Compare API answers for: this controller only starts it.
+ *
+ * <p>With a base, both files are compared with it, as the two versions of a conflict are, so a user sees what each
+ * side changed and where both changed the same cells before any merge is started.
  */
 @RequiredArgsConstructor
 @RestController
@@ -54,15 +59,24 @@ public class ProjectCompareController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(description = "compare.project.req-body.desc")
             @Valid @RequestBody CompareProjectFilesRequest request) throws IOException {
-        var first = projectComparisonService.read(project, request.first());
-        ComparisonContent second;
+        // A conflict is compared as the base, your version and their version
+        var sides = request.base() == null
+                ? List.of(request.first(), request.second())
+                : List.of(request.base(), request.first(), request.second());
+        return launcher.startContentOf(read(project, sides));
+    }
+
+    /** Reads the file of each side. A side that cannot be read closes the files of the sides read before it. */
+    private List<ComparisonContent> read(RulesProject project, List<ComparisonSideRequest> sides) {
+        var contents = new ArrayList<ComparisonContent>();
         try {
-            second = projectComparisonService.read(project, request.second());
+            for (var side : sides) {
+                contents.add(projectComparisonService.read(project, side));
+            }
         } catch (RuntimeException e) {
-            // The file of the first side is open by now; a second side that cannot be read closes it.
-            IOUtils.closeQuietly(first.content());
+            contents.forEach(content -> IOUtils.closeQuietly(content.content()));
             throw e;
         }
-        return launcher.startContentOf(List.of(first, second));
+        return contents;
     }
 }

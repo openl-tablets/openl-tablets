@@ -82,6 +82,12 @@ describe('ChangedFileList', () => {
 
         expect(screen.getByText('details of rules/Main.xlsx')).toBeInTheDocument()
     })
+
+    it('shows the marks of a file after its name', () => {
+        render(<ChangedFileList files={files} renderMarks={file => <span>{`mark of ${file.path}`}</span>} testId="changes" />)
+
+        expect(screen.getByText('mark of rules/Main.xlsx')).toBeInTheDocument()
+    })
 })
 
 describe('FilePath', () => {

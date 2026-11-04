@@ -73,17 +73,21 @@ export interface ProjectFileSide {
 /**
  * Starts comparing two Excel files of a project, each taken from the working copy or from a revision.
  *
+ * With a base, each file is compared with the version both were made from, as the two versions of a conflict are:
+ * the result is read as a table of a conflict, the first file as your version and the second as their version.
+ *
  * @returns the identifier the comparison is read and watched by
  */
 export const startProjectComparison = async (
     projectId: string,
     first: ProjectFileSide,
-    second: ProjectFileSide
+    second: ProjectFileSide,
+    base?: ProjectFileSide
 ): Promise<string> => {
     const response = await apiCall(`/projects/${projectId}/compare`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ first, second }),
+        body: JSON.stringify(base ? { first, second, base } : { first, second }),
     }, API_OPTIONS) as { id: string }
     return response.id
 }

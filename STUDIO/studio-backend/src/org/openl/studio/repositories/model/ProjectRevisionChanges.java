@@ -15,13 +15,14 @@ import org.openl.studio.projects.model.project.status.ChangeType;
  *
  * <p>When the base is not in the history of the revision, as a revision of another branch is not, the revision
  * both histories parted at is told too, and the files are the ones the revision changed since it, as a pull request
- * lists them.
+ * lists them. The files among them that may conflict in a merge of both sides are named too.
  *
  * @param base     the revision compared against, or {@code null} when there is none
  * @param revision the revision whose changes are told, or {@code null} for the working copy
  * @param common   the revision the histories of both sides parted at, or {@code null} when the base is in the
  *                 history of the revision
- * @param files    the changed files
+ * @param files     the changed files
+ * @param conflicts the paths of the changed files that may conflict in a merge of both sides
  */
 @Schema(description = "The files of the project one revision changed against another")
 public record ProjectRevisionChanges(
@@ -35,7 +36,10 @@ public record ProjectRevisionChanges(
         @Nullable ProjectRevision common,
 
         @Parameter(description = "The changed files, ordered by path")
-        List<ChangedFile> files
+        List<ChangedFile> files,
+
+        @Parameter(description = "Paths of the changed files that may conflict in a merge of both sides, ordered by path: both sides changed the same parts of them. Told only with the common revision. An estimate made from the saved revisions, without merging, so the changes of the working copy not saved yet are not in it")
+        List<String> conflicts
 ) {
 
     /**

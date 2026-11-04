@@ -25,6 +25,15 @@ export const useCellStyles = createStyles(({ css }) => ({
         color: ${paperToken().colorTextTertiary};
         text-decoration: line-through;
     `,
+    // Which version of a conflict a value of a cell drawn as one table is, written before the value.
+    combinedVersion: css`
+        color: ${paperToken().colorTextSecondary};
+        font-size: ${paperToken().fontSizeSM}px;
+    `,
+    // The sign between the two values of a conflict, in the colour its frame is drawn in.
+    combinedConflict: css`
+        color: ${paperToken().colorError};
+    `,
     // A cell a branch of a merge changed, or a cell the other file of a comparison reads differently: framed rather
     // than filled, so its own formatting stays in sight.
     changedFrame: css`

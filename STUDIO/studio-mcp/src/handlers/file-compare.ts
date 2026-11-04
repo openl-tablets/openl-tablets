@@ -73,7 +73,8 @@ async function versionsOf(client: OpenLClient, request: FileComparisonRequest): 
     }
     return { base: revision, revision: undefined, common: undefined };
   }
-  const changes = await client.getProjectRevisionChanges(request.projectId, request.revision, request.base);
+  // Only the revisions are read here: the estimate of the conflicts is left out.
+  const changes = await client.getProjectRevisionChanges(request.projectId, request.revision, request.base, false);
   return {
     base: changes.base?.revisionNo,
     revision: changes.revision?.revisionNo,

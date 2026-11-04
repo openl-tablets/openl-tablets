@@ -65,6 +65,8 @@ interface ChangedFileListProps<T extends ProjectFileChange> {
     compare?: FileComparison<T> | undefined
     /** What a file tells under its row. */
     details?: ((file: T) => React.ReactNode) | undefined
+    /** The marks a file shows after its name, such as a conflict. */
+    renderMarks?: ((file: T) => React.ReactNode) | undefined
     /**
      * Whether the list scrolls within {@link LIST_HEIGHT}, drawing a screenful at a time; on by default. A list shown a
      * page at a time is short, so it is drawn whole.
@@ -87,6 +89,7 @@ export const ChangedFileList = <T extends ProjectFileChange>({
     testId,
     compare,
     details,
+    renderMarks,
     virtual = true,
     selected,
 }: ChangedFileListProps<T>) => {
@@ -123,6 +126,7 @@ export const ChangedFileList = <T extends ProjectFileChange>({
                             </Typography.Text>
                         )}
                     </Flex>
+                    {renderMarks?.(file)}
                     {comparable && (
                         <Tooltip title={compare.hint}>
                             <RightOutlined data-testid={`${testId}-compare`} />

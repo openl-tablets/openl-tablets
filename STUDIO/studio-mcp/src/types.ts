@@ -577,6 +577,8 @@ export interface ProjectRevisionChanges {
   /** The revision both histories parted at; absent when the base is in the history of the other side. */
   common?: ProjectRevision | null;
   files: ProjectFileChange[];
+  /** The changed files that may conflict in a merge of both sides, estimated without merging; told only with the common revision. */
+  conflicts: string[];
 }
 
 /** Project revision from GET /projects/{projectId}/history. */

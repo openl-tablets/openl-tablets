@@ -2523,6 +2523,36 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
     }
 
+    @Override
+    public Set<String> findConflicts(String path, String first, String second) throws IOException {
+        initializeGit(true);
+
+        var readLock = repositoryLock.readLock();
+        try {
+            log.debug("findConflicts(): lock");
+            readLock.lock();
+            var repository = git().getRepository();
+            try (var walk = new RevWalk(repository)) {
+                var ours = commitOf(walk, first);
+                var theirs = commitOf(walk, second);
+                initLfsCredentials();
+                try {
+                    return trialMergeOf(repository).conflictsOf(mergeBaseOf(repository, ours, theirs), ours, theirs, path);
+                } finally {
+                    resetLfsCredentials();
+                }
+            }
+        } finally {
+            readLock.unlock();
+            log.debug("findConflicts(): unlock");
+        }
+    }
+
+    /** The estimate of the conflicts of a merge, reading a workbook kept in LFS as it is. */
+    private TrialMerge trialMergeOf(Repository repository) {
+        return new TrialMerge(repository, ignoredPaths, this::downloadLfs);
+    }
+
     /** A commit of the folder as its history lists it, read when it is first asked about. */
     private FileData revisionOf(String path, RevCommit commit) {
         return new LazyFileData(branch, path, this, commit, null);
@@ -2605,7 +2635,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /** Whether two trees of the walk hold the current path alike: both lack it, or both hold the same content. */
-    private static boolean sameEntry(TreeWalk treeWalk, int first, int second) {
+    static boolean sameEntry(TreeWalk treeWalk, int first, int second) {
         return treeWalk.getRawMode(first) == treeWalk.getRawMode(second) && treeWalk.idEqual(first, second);
     }
 

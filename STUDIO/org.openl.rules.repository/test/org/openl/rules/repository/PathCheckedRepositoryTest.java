@@ -291,4 +291,15 @@ class PathCheckedRepositoryTest {
         assertThrows(InvalidPathException.class, () -> repository.listChanges("../outside", null, "after"));
         verify(delegate, never()).listChanges("../outside", null, "after");
     }
+
+    @Test
+    void tellsTheConflictsOfATrialMergeWithoutTheIgnoredFiles() throws Exception {
+        var delegate = mock(BranchRepository.class);
+        when(delegate.findConflicts("p", "ours", "theirs")).thenReturn(Set.of("p/rules.xml", "p/pom.xml"));
+        var repository = new PathCheckedRepository(delegate, IgnoredPaths.of("**/pom.xml"));
+
+        assertEquals(Set.of("p/rules.xml"), repository.findConflicts("p", "ours", "theirs"));
+        assertThrows(InvalidPathException.class, () -> repository.findConflicts("../outside", "ours", "theirs"));
+        verify(delegate, never()).findConflicts("../outside", "ours", "theirs");
+    }
 }

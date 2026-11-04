@@ -46,16 +46,19 @@ interface ChangedFilePagesProps {
     compare: FileComparison<ProjectFileChange>
     /** The path of the file compared last, which the list marks. */
     selected?: string | null | undefined
+    /** The marks a file shows after its name, such as a conflict. */
+    renderMarks?: ((file: ProjectFileChange) => React.ReactNode) | undefined
 }
 
 /** Changed files listed {@link CHANGED_FILES_PAGE_SIZE} to a page, with the pages to turn under them. */
-export const ChangedFilePages = ({ files, page, onPage, compare, selected }: ChangedFilePagesProps) => {
+export const ChangedFilePages = ({ files, page, onPage, compare, selected, renderMarks }: ChangedFilePagesProps) => {
     const start = (page - 1) * CHANGED_FILES_PAGE_SIZE
     return (
         <Flex vertical gap="small">
             <ChangedFileList
                 compare={compare}
                 files={files.slice(start, start + CHANGED_FILES_PAGE_SIZE)}
+                renderMarks={renderMarks}
                 selected={selected}
                 testId="revision-changes"
                 virtual={false}

@@ -7,6 +7,7 @@ import { errorHandler } from 'utils/errorHandling'
 import { formatDateTime, useDateFormats } from 'utils/dateFormat'
 import type { ProjectFileChange } from 'services/projectStatus'
 import { FileChangeIcon } from '../projects/FileChangeIcon'
+import { ConflictTag } from '../projects/ConflictTag'
 import { CHANGED_FILES_PAGE_SIZE, ChangedFilePages, type LoadedChanges } from '../projects/RevisionChanges'
 import { basename, parentFolder } from '../projects/projectPaths'
 import { authorName, shortRevision } from '../projects/revisions'
@@ -22,6 +23,15 @@ export interface ComparedRevisions {
     /** The later revision, or nothing for the working copy. */
     revision?: string | undefined
 }
+
+/**
+ * The numbers of the two revisions, as the changes name them once they are read: the address may name a branch for
+ * its last revision.
+ */
+const numbersOf = (revisions: ComparedRevisions, changes: LoadedChanges): { base: string, revision?: string | undefined } => ({
+    base: changes?.base?.revisionNo ?? revisions.base,
+    revision: changes?.revision?.revisionNo ?? revisions.revision,
+})
 
 /**
  * The two revisions the address names, or null when the window was opened for something else. An address naming a
@@ -124,16 +134,17 @@ const RevisionPair: React.FC<{ revisions: ComparedRevisions, changes: LoadedChan
     // The comment of the earlier side, which the changes tell for the base and for the revision both parted at.
     const earlier = common ? changes?.common : changes?.base
     const comment = !common || earlier?.revisionNo === common ? earlier?.fullComment : undefined
+    const numbers = numbersOf(revisions, changes)
     return (
         <Flex align="center" data-testid="compare-revisions" gap="small">
             <Tooltip title={comment}>
-                <Typography.Text type="secondary">{shortRevision(common ?? revisions.base)}</Typography.Text>
+                <Typography.Text type="secondary">{shortRevision(common ?? numbers.base)}</Typography.Text>
             </Tooltip>
             <ArrowRightOutlined />
-            {revisions.revision
+            {numbers.revision
                 ? (
                     <Tooltip title={changes?.revision?.fullComment}>
-                        <Typography.Text type="secondary">{shortRevision(revisions.revision)}</Typography.Text>
+                        <Typography.Text type="secondary">{shortRevision(numbers.revision)}</Typography.Text>
                     </Tooltip>
                 )
                 : <Typography.Text type="secondary">{t('user_workspace')}</Typography.Text>}
@@ -192,6 +203,7 @@ export const RevisionsHead: React.FC<RevisionsHeadProps> = ({ revisions, project
                             <Flex align="center" data-testid="compare-revisions-file" gap="small">
                                 <FileChangeIcon title={t(`repository:browser.files.change.${file.type}`)} type={file.type} />
                                 <Typography.Text strong>{basename(file.path)}</Typography.Text>
+                                {changes?.conflicts.includes(file.path) && <ConflictTag />}
                             </Flex>
                         ),
                     },
@@ -249,7 +261,11 @@ interface RevisionsComparisonProps {
  * The head shows the two revisions side by side, each with why it was made, who made it and when, as the changes
  * tell them. The working copy stands in place of the later revision when it is the one compared. A revision of another
  * history is told with the revision both histories parted at: the files and their changes are told since it, as a pull
- * request tells them. The files are listed a page at a time, as the files a revision changed are listed in the history.
+ * request tells them. It tells too whether a merge of both sides would stop at conflicts, and marks the files it would
+ * stop at. The files are listed a page at a time, as the files a revision changed are listed in the history.
+ *
+ * The revisions are named as the changes name them, once they are read: the address may name a branch for its last
+ * revision.
  */
 export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
     revisions,
@@ -262,6 +278,8 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
 }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
+    const conflicts = new Set(changes?.conflicts)
+    const numbers = numbersOf(revisions, changes)
 
     const body = () => {
         if (changes === undefined) {
@@ -280,6 +298,7 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
                     files={changes.files}
                     onPage={onPage}
                     page={page}
+                    renderMarks={file => conflicts.has(file.path) && <ConflictTag />}
                     selected={selected}
                     // An added or a deleted file is compared too: the side that does not hold it is empty.
                     compare={{
@@ -304,16 +323,16 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
                         // The failed read tells nothing of either revision, which keep their numbers.
                         details={changes === undefined ? undefined : changes?.base ?? null}
                         label={t(revisions.revision ? 'earlier_revision' : 'selected_revision')}
-                        number={revisions.base}
+                        number={numbers.base}
                         testId="compare-revisions-base"
                     />
                     <Flex align="center"><ArrowRightOutlined /></Flex>
-                    {revisions.revision
+                    {numbers.revision
                         ? (
                             <RevisionCard
                                 details={changes === undefined ? undefined : changes?.revision ?? null}
                                 label={t('later_revision')}
-                                number={revisions.revision}
+                                number={numbers.revision}
                                 testId="compare-revisions-revision"
                             />
                         )
@@ -323,7 +342,14 @@ export const RevisionsComparison: React.FC<RevisionsComparisonProps> = ({
                     <Alert
                         showIcon
                         data-testid="compare-revisions-common"
-                        type="info"
+                        type={conflicts.size > 0 ? 'warning' : 'info'}
+                        description={(
+                            <span data-testid="compare-revisions-merge">
+                                {conflicts.size > 0
+                                    ? t('merge_conflicts', { count: conflicts.size })
+                                    : t('merge_no_conflicts')}
+                            </span>
+                        )}
                         title={(
                             <Tooltip title={changes.common.fullComment}>
                                 {t('common_revision_note', { revision: shortRevision(changes.common.revisionNo) })}

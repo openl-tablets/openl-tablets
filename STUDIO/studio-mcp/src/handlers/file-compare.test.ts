@@ -227,7 +227,7 @@ describe("openl_repository_project_revision_changes of a file", () => {
   });
 
   it("tells what a revision changed in a text file against the revision it was made on, as a unified diff", async () => {
-    harness.mockHttp.onGet("/projects/p1/history/changes", { params: { revision: "r2" } })
+    harness.mockHttp.onGet("/projects/p1/history/changes", { params: { revision: "r2", fields: "base,revision,common,files" } })
       .reply(200, { base: { revisionNo: "r1" }, revision: { revisionNo: "r2" }, files: [] });
     answerMeta("notes.txt", "r1");
     answerMeta("notes.txt", "r2");
@@ -257,7 +257,7 @@ describe("openl_repository_project_revision_changes of a file", () => {
   });
 
   it("reads a revision named by a branch as the history names it, so its file is found", async () => {
-    harness.mockHttp.onGet("/projects/p1/history/changes", { params: { revision: "feature-vet-fee", base: "r1" } })
+    harness.mockHttp.onGet("/projects/p1/history/changes", { params: { revision: "feature-vet-fee", base: "r1", fields: "base,revision,common,files" } })
       .reply(200, { base: { revisionNo: "r1" }, revision: { revisionNo: "f9e8d7" }, files: [] });
     answerMeta("rules.xml", "r1");
     answerMeta("rules.xml", "f9e8d7");

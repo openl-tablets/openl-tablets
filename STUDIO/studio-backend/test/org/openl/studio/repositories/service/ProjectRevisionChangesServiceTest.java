@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +18,7 @@ import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +72,7 @@ class ProjectRevisionChangesServiceTest {
         var project = mock(RulesProject.class);
         when(project.isLocalOnly()).thenReturn(true);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, "r1", null));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, "r1", null, true));
         verifyNoInteractions(designTimeRepository);
     }
 
@@ -85,7 +88,7 @@ class ProjectRevisionChangesServiceTest {
                                 new FileChange(FOLDER + "/rules/Rates.xlsx", FileChange.Kind.ADDED),
                                 new FileChange(FOLDER + "/Old.xlsx", FileChange.Kind.DELETED))));
 
-        var changes = service.changesOf(project(repository), "r2", null);
+        var changes = service.changesOf(project(repository), "r2", null, true);
 
         // The workbooks come first, as the Merge Summary lists them; the revisions are told as the history tells them.
         assertRevisions("r1", "r2", changes);
@@ -102,7 +105,7 @@ class ProjectRevisionChangesServiceTest {
         when(repository.listChanges(FOLDER, "r1", "r3")).thenReturn(new RevisionChanges(r1, r3, List.of()));
         named(repository, "r1", "r1");
 
-        var changes = service.changesOf(project(repository), "r3", "r1");
+        var changes = service.changesOf(project(repository), "r3", "r1", true);
 
         assertRevisions("r1", "r3", changes);
         assertEquals(List.of(), changes.files());
@@ -114,7 +117,7 @@ class ProjectRevisionChangesServiceTest {
         when(repository.listChanges(FOLDER, null, "absent")).thenThrow(new FileNotFoundException("Cannot find revision"));
         var project = project(repository);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, "absent", null));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, "absent", null, true));
     }
 
     @Test
@@ -124,7 +127,7 @@ class ProjectRevisionChangesServiceTest {
         when(repository.listChanges(FOLDER, null, "r1")).thenThrow(failure);
         var project = project(repository);
 
-        assertSame(failure, assertThrows(IOException.class, () -> service.changesOf(project, "r1", null)));
+        assertSame(failure, assertThrows(IOException.class, () -> service.changesOf(project, "r1", null, true)));
     }
 
     @Test
@@ -133,7 +136,7 @@ class ProjectRevisionChangesServiceTest {
         when(repository.listChanges(FOLDER, null, "r1")).thenThrow(new AccessDeniedException(FOLDER));
         var project = project(repository);
 
-        assertThrows(AccessDeniedException.class, () -> service.changesOf(project, "r1", null));
+        assertThrows(AccessDeniedException.class, () -> service.changesOf(project, "r1", null, true));
     }
 
     @Test
@@ -143,7 +146,7 @@ class ProjectRevisionChangesServiceTest {
         revision("r2", Map.of("rules.xml", "1", "rules/Rates.xlsx", "a", "Old.xlsx", "x"));
         revision("r3", Map.of("rules.xml", "1", "rules/Rates.xlsx", "b", "New.txt", "n"));
 
-        var changes = service.changesOf(project, "r3", null);
+        var changes = service.changesOf(project, "r3", null, true);
 
         assertRevisions("r2", "r3", changes);
         assertEquals(List.of(new ChangedFile("Old.xlsx", ChangeType.DELETED),
@@ -157,7 +160,7 @@ class ProjectRevisionChangesServiceTest {
         var project = project(repository);
         revision("r1", Map.of("rules.xml", "1"));
 
-        var changes = service.changesOf(project, "r1", null);
+        var changes = service.changesOf(project, "r1", null, true);
 
         assertNull(changes.base());
         assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.ADDED)), changes.files());
@@ -171,7 +174,7 @@ class ProjectRevisionChangesServiceTest {
         var deleted = revision("r2", Map.of());
         when(deleted.isDeleted()).thenReturn(true);
 
-        var changes = service.changesOf(project, "r2", null);
+        var changes = service.changesOf(project, "r2", null, true);
 
         assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.DELETED)), changes.files());
     }
@@ -183,7 +186,7 @@ class ProjectRevisionChangesServiceTest {
         revision("r1", Map.of("rules.xml", "1"));
         revision("r3", Map.of("rules.xml", "2"));
 
-        var changes = service.changesOf(project, "r3", "r1");
+        var changes = service.changesOf(project, "r3", "r1", true);
 
         assertEquals("r1", changes.base().revisionNo());
         assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.MODIFIED)), changes.files());
@@ -195,7 +198,7 @@ class ProjectRevisionChangesServiceTest {
         revision("r1", Map.of("rules.xml", "1"));
         var project = project(repository);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, "r2", null));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, "r2", null, true));
     }
 
     @Test
@@ -203,7 +206,7 @@ class ProjectRevisionChangesServiceTest {
         var repository = plainRepository("r1");
         var project = project(repository);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, "absent", null));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, "absent", null, true));
     }
 
     @Test
@@ -218,7 +221,7 @@ class ProjectRevisionChangesServiceTest {
         when(designTimeRepository.getProjectByPath(REPOSITORY_ID, "main", FOLDER, "r1")).thenReturn(base);
         holds(project, Map.of("rules.xml", "1", "rules/Rates.xlsx", "b", "New.txt", "n"));
 
-        var changes = service.changesOf(project, null, "r1");
+        var changes = service.changesOf(project, null, "r1", true);
 
         assertEquals("r1", changes.base().revisionNo());
         assertEquals("Comment of r1", changes.base().fullComment());
@@ -233,16 +236,19 @@ class ProjectRevisionChangesServiceTest {
     void theWorkingCopyAndARevisionOfAnotherBranchTellTheRevisionTheyPartedAt() throws Exception {
         var repository = workingCopyAgainst("t1");
         when(repository.findCommonRevision(FOLDER, "t1", "w1")).thenReturn(revisionData("c1"));
+        when(repository.findConflicts(FOLDER, "t1", "w1")).thenReturn(Set.of(FOLDER + "/rules.xml"));
         revision("c1", Map.of("rules.xml", "0"));
         var project = openedAt(repository, "w1");
 
-        var changes = service.changesOf(project, null, "t1");
+        var changes = service.changesOf(project, null, "t1", true);
 
         assertEquals("t1", changes.base().revisionNo());
         assertEquals("c1", changes.common().revisionNo());
         assertEquals("Comment of c1", changes.common().fullComment());
         // The base holds what the working copy holds; the files are what the working copy changed since both parted
         assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.MODIFIED)), changes.files());
+        // A merge of the base and of the revision the working copy was opened at stops at it
+        assertEquals(List.of("rules.xml"), changes.conflicts());
     }
 
     @Test
@@ -252,11 +258,12 @@ class ProjectRevisionChangesServiceTest {
                 .thenThrow(new FileNotFoundException("Cannot find revision 'gone'."));
         var project = openedAt(repository, "gone");
 
-        var changes = service.changesOf(project, null, "t1");
+        var changes = service.changesOf(project, null, "t1", true);
 
         // No revision both parted at is known, so the working copy is compared with the base itself
         assertNull(changes.common());
         assertEquals(List.of(), changes.files());
+        assertEquals(List.of(), changes.conflicts());
     }
 
     @Test
@@ -265,7 +272,7 @@ class ProjectRevisionChangesServiceTest {
         when(repository.findCommonRevision(FOLDER, "r1", "r3")).thenReturn(revisionData("r1"));
         var project = openedAt(repository, "r3");
 
-        assertNull(service.changesOf(project, null, "r1").common());
+        assertNull(service.changesOf(project, null, "r1", true).common());
     }
 
     @Test
@@ -276,7 +283,7 @@ class ProjectRevisionChangesServiceTest {
         var project = openedAt(repository, "r1");
 
         // The changes not saved yet are made on the revision the working copy was opened at.
-        assertEquals("r1", service.changesOf(project, null, "r3").common().revisionNo());
+        assertEquals("r1", service.changesOf(project, null, "r3", true).common().revisionNo());
     }
 
     @Test
@@ -289,13 +296,33 @@ class ProjectRevisionChangesServiceTest {
         named(repository, "w2", "w2");
         when(repository.listChanges(FOLDER, "c1", "w2")).thenReturn(new RevisionChanges(revisionData("c1"),
                 revisionData("w2"), List.of(new FileChange(FOLDER + "/rules.xml", FileChange.Kind.MODIFIED))));
+        when(repository.findConflicts(FOLDER, "t1", "w2"))
+                .thenReturn(Set.of(FOLDER + "/rules.xml", FOLDER + "/rules/Rates.xlsx"));
 
-        var changes = service.changesOf(project(repository), "w2", "t1");
+        var changes = service.changesOf(project(repository), "w2", "t1", true);
 
         assertEquals("c1", changes.common().revisionNo());
         // The revisions compared are the ones named; the files are what w2 changed since both parted
         assertEquals("t1", changes.base().revisionNo());
         assertEquals(List.of(new ChangedFile("rules.xml", ChangeType.MODIFIED)), changes.files());
+        // By their paths inside the project, workbooks first
+        assertEquals(List.of("rules/Rates.xlsx", "rules.xml"), changes.conflicts());
+    }
+
+    @Test
+    void anAnswerThatLeavesTheConflictsOutDoesNotEstimateThem() throws IOException {
+        var repository = branchRepository();
+        when(repository.findCommonRevision(FOLDER, "t1", "w2")).thenReturn(revisionData("c1"));
+        named(repository, "t1", "t1");
+        named(repository, "w2", "w2");
+        when(repository.listChanges(FOLDER, "c1", "w2")).thenReturn(new RevisionChanges(revisionData("c1"),
+                revisionData("w2"), List.of(new FileChange(FOLDER + "/rules.xml", FileChange.Kind.MODIFIED))));
+
+        var changes = service.changesOf(project(repository), "w2", "t1", false);
+
+        assertEquals("c1", changes.common().revisionNo());
+        assertEquals(List.of(), changes.conflicts());
+        verify(repository, never()).findConflicts(FOLDER, "t1", "w2");
     }
 
     @Test
@@ -311,13 +338,13 @@ class ProjectRevisionChangesServiceTest {
         named(repository, "r3", "r3");
         var project = project(repository);
 
-        assertNull(service.changesOf(project, "r3", "r1").common());
+        assertNull(service.changesOf(project, "r3", "r1", true).common());
         // Either one first.
-        assertNull(service.changesOf(project, "r1", "r3").common());
+        assertNull(service.changesOf(project, "r1", "r3", true).common());
         // A revision compared with the one it was made on is never compared through another one.
         when(repository.listChanges(FOLDER, null, "r3"))
                 .thenReturn(new RevisionChanges(revisionData("r2"), revisionData("r3"), List.of()));
-        assertNull(service.changesOf(project, "r3", null).common());
+        assertNull(service.changesOf(project, "r3", null, true).common());
     }
 
     @Test
@@ -326,7 +353,7 @@ class ProjectRevisionChangesServiceTest {
         named(repository, "master", "r7");
         var project = openedAt(repository, "r7");
 
-        var changes = service.changesOf(project, null, "master");
+        var changes = service.changesOf(project, null, "master", true);
 
         // The branch names its last revision, which the base is told and read as
         assertEquals("r7", changes.base().revisionNo());
@@ -341,7 +368,7 @@ class ProjectRevisionChangesServiceTest {
 
         var project = project(repository);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "no-such-branch"));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "no-such-branch", true));
     }
 
     @Test
@@ -352,14 +379,14 @@ class ProjectRevisionChangesServiceTest {
         revision("r1", Map.of("rules.xml", "1"));
         holds(project, Map.of("rules.xml", "1"));
 
-        assertEquals(List.of(), service.changesOf(project, null, "r1").files());
+        assertEquals(List.of(), service.changesOf(project, null, "r1", true).files());
     }
 
     @Test
     void theWorkingCopyNeedsTheBaseItIsComparedWith() {
         var project = project(branchRepository());
 
-        assertThrows(BadRequestException.class, () -> service.changesOf(project, null, null));
+        assertThrows(BadRequestException.class, () -> service.changesOf(project, null, null, true));
         verifyNoInteractions(designTimeRepository);
     }
 
@@ -368,7 +395,7 @@ class ProjectRevisionChangesServiceTest {
         var repository = plainRepository("r1");
         var project = project(repository);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "absent"));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "absent", true));
     }
 
     @Test
@@ -376,7 +403,7 @@ class ProjectRevisionChangesServiceTest {
         var project = mock(RulesProject.class);
         when(project.isLocalOnly()).thenReturn(true);
 
-        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "r1"));
+        assertThrows(NotFoundException.class, () -> service.changesOf(project, null, "r1", true));
         verifyNoInteractions(designTimeRepository);
     }
 

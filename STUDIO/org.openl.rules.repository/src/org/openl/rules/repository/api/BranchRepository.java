@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -59,6 +60,26 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @throws IOException                    when a revision cannot be read
      */
     @Nullable FileData findCommonRevision(@NonNull String path, @NonNull String first, @NonNull String second)
+            throws IOException;
+
+    /**
+     * Tells which files under a folder may conflict when two revisions are merged. Nothing is merged.
+     *
+     * <p>The files the two revisions changed since they parted are found first; only the files both changed, each in
+     * its own way, are read. A text file may conflict when the lines both changed overlap. A workbook may conflict
+     * when both changed the same cells, rows or columns of a table. Any other file changed by both may conflict, and
+     * so may a file one revision deleted and the other one changed. An ignored file never conflicts.
+     *
+     * <p>It is an estimate of what a merge finds. Two revisions of one line of history never conflict.
+     *
+     * @param path   the folder, from the root of the repository; an empty path is the whole repository
+     * @param first  a revision
+     * @param second another revision
+     * @return the paths of the conflicting files from the root of the repository
+     * @throws java.io.FileNotFoundException when the repository has no such revision
+     * @throws IOException                    when a revision cannot be read
+     */
+    @NonNull Set<@NonNull String> findConflicts(@NonNull String path, @NonNull String first, @NonNull String second)
             throws IOException;
 
     String getBranch();
