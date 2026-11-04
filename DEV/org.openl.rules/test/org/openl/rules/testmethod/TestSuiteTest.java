@@ -121,8 +121,10 @@ class TestSuiteTest {
         }
         var results = new ITestUnit[cases.length];
         // The first case of each thread is running when the caller is asked to stop, and runs until it is asked to
-        // stop too.
+        // stop too. The caller is asked only once both wait to be stopped: a case stopped while it still waits for the
+        // other one would fail rather than end.
         var bothRunning = new CountDownLatch(2);
+        var bothWaitToStop = new CountDownLatch(2);
         for (var i = 0; i < cases.length; i++) {
             results[i] = mock(ITestUnit.class);
             var result = results[i];
@@ -130,7 +132,9 @@ class TestSuiteTest {
             when(runner.runTest(same(cases[i]), any(), any(), anyInt())).thenAnswer(call -> {
                 bothRunning.countDown();
                 assertTrue(bothRunning.await(5, TimeUnit.SECONDS));
+                bothWaitToStop.countDown();
                 if (interruptsCaller) {
+                    assertTrue(bothWaitToStop.await(5, TimeUnit.SECONDS));
                     caller.interrupt();
                 }
                 assertThrows(InterruptedException.class, () -> new CountDownLatch(1).await(5, TimeUnit.SECONDS));
