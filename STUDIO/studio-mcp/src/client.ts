@@ -415,17 +415,21 @@ export class OpenLClient {
    * Get the files of a project a revision changed, against the given base or else the revision it was made on.
    * Without a revision, the files the working copy changed since the base.
    *
-   * Maps to `GET /projects/{projectId}/history/changes`.
+   * Maps to `GET /projects/{projectId}/history/changes`. The files that may conflict are estimated by reading the
+   * workbooks both sides changed, so a caller that needs no estimate asks for the other fields alone.
    */
   async getProjectRevisionChanges(
     projectId: string,
     revision: string | undefined,
-    base?: string
+    base?: string,
+    withConflicts = true
   ): Promise<Types.ProjectRevisionChanges> {
     const url = `${projectPath(projectId)}/history/changes`;
-    const changes = (await this.http.get<Types.ProjectRevisionChanges>(url, { params: { revision, base } })).data;
-    // Studio leaves an empty list out of its answer: no file changed
-    return { ...changes, files: changes.files ?? [] };
+    const fields = withConflicts ? undefined : "base,revision,common,files";
+    const changes = (await this.http.get<Types.ProjectRevisionChanges>(url, { params: { revision, base, fields } }))
+      .data;
+    // Studio leaves an empty list out of its answer: no file changed, or none conflicts
+    return { ...changes, files: changes.files ?? [], conflicts: changes.conflicts ?? [] };
   }
 
   // =============================================================================

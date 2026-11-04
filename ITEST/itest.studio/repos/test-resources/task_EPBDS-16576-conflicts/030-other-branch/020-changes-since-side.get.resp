@@ -31,5 +31,8 @@ Content-Type: application/json
       "path": "rules/Main.xlsx",
       "type": "modified"
     }
+  ],
+  "conflicts": [
+    "rules/Main.xlsx"
   ]
 }

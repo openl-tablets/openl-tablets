@@ -539,6 +539,11 @@ export interface RevisionChanges {
     common: ProjectRevision | null
     /** The changed files, by their paths inside the project. */
     files: ProjectFileChange[]
+    /**
+     * The changed files a merge of both sides would stop at as conflicts, by their paths inside the project. Told only
+     * with the common revision; the merge is tried on the saved revisions.
+     */
+    conflicts: string[]
 }
 
 /**
@@ -565,6 +570,7 @@ export async function getRevisionChanges(
         revision: response.revision ?? null,
         common: response.common ?? null,
         files: asArray(response.files),
+        conflicts: asArray(response.conflicts),
     }
 }
 

@@ -107,7 +107,9 @@ describe('getProjects', () => {
         const base = { revisionNo: 'b1', fullComment: 'Before' }
         const revision = { revisionNo: 'a1', fullComment: 'After' }
         const common = { revisionNo: 'c1', fullComment: 'Parted' }
-        vi.mocked(apiCall).mockResolvedValueOnce({ base, revision, common, files: [{ path: 'rules.xml', type: 'modified' }]})
+        vi.mocked(apiCall).mockResolvedValueOnce({
+            base, revision, common, files: [{ path: 'rules.xml', type: 'modified' }], conflicts: ['rules.xml'],
+        })
             .mockResolvedValueOnce({ revision })
 
         await expect(getRevisionChanges('a+b', 'a1', 'b1')).resolves.toEqual({
@@ -115,13 +117,15 @@ describe('getProjects', () => {
             revision,
             common,
             files: [{ path: 'rules.xml', type: 'modified' }],
+            conflicts: ['rules.xml'],
         })
         expect(apiCall).toHaveBeenCalledWith('/projects/a%2Bb/history/changes?revision=a1&base=b1', undefined,
             { throwError: true, suppressErrorPages: true })
 
         // The first revision of a project has nothing before it, and an answer that lists no file changed none. A
-        // revision of the same history has no revision to part at.
-        await expect(getRevisionChanges('p', 'a1')).resolves.toEqual({ base: null, revision, common: null, files: []})
+        // revision of the same history has no revision to part at, and so no conflict.
+        await expect(getRevisionChanges('p', 'a1'))
+            .resolves.toEqual({ base: null, revision, common: null, files: [], conflicts: []})
     })
 
     it('passes local error-page handling options to project list and detail calls', async () => {

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
@@ -52,20 +53,32 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
      */
     @Override
     public RevisionChanges listChanges(String path, @Nullable String from, String to) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), path, List.of(BasePermission.READ))) {
-            return branchRepository.listChanges(path, from, to);
-        }
-        throw new AccessDeniedException(
-                "There is no permission for reading '%s' from '%s' repository.".formatted(path, getName()));
+        requireRead(path);
+        return branchRepository.listChanges(path, from, to);
     }
 
     @Override
     public @Nullable FileData findCommonRevision(String path, String first, String second) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), path, List.of(BasePermission.READ))) {
-            return branchRepository.findCommonRevision(path, first, second);
+        requireRead(path);
+        return branchRepository.findCommonRevision(path, first, second);
+    }
+
+    @Override
+    public Set<String> findConflicts(String path, String first, String second) throws IOException {
+        requireRead(path);
+        return branchRepository.findConflicts(path, first, second);
+    }
+
+    /**
+     * Lets on only a user who may read the folder.
+     *
+     * @throws AccessDeniedException when the user may not read the folder
+     */
+    private void requireRead(String path) throws AccessDeniedException {
+        if (!simpleRepositoryAclService.isGranted(getId(), path, List.of(BasePermission.READ))) {
+            throw new AccessDeniedException(
+                    "There is no permission for reading '%s' from '%s' repository.".formatted(path, getName()));
         }
-        throw new AccessDeniedException(
-                "There is no permission for reading '%s' from '%s' repository.".formatted(path, getName()));
     }
 
     @Override

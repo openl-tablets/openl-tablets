@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Empty, Segmented, Spin, Splitter, Upload } from 'antd'
+import { Alert, Button, Checkbox, Empty, Segmented, Skeleton, Spin, Splitter, Upload } from 'antd'
 import {
     ArrowLeftOutlined,
     InboxOutlined,
@@ -26,10 +26,17 @@ import {
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
-import { getFileText } from 'services/files'
+import { fileExistsAt, getFileText } from 'services/files'
 import type { ConflictFileStatus, ConflictFileVersions, ConflictSide, ProjectFileSide } from 'services/compare'
 import type { Comparison, ComparisonTable, ConflictComparisonTable } from 'types/compare'
-import { ComparisonPanes, ConflictPanes, type DiffView } from './ComparisonPanes'
+import {
+    ComparisonPanes,
+    ConflictPanes,
+    THEIRS_FIRST_PANES,
+    VERSION_PANES,
+    type ConflictPane,
+    type DiffView,
+} from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
 import { TextVersionsView } from './TextVersionsView'
 import {
@@ -40,7 +47,7 @@ import {
     RevisionsHead,
     useProjectName,
 } from './RevisionsComparison'
-import { useRevisionChanges } from '../projects/RevisionChanges'
+import { type LoadedChanges, useRevisionChanges } from '../projects/RevisionChanges'
 import type { ProjectFileChange, ProjectFileChangeType } from 'services/projectStatus'
 import { RevisionPicker, type PickedRevision } from './RevisionPicker'
 import { ComparisonTree } from './ComparisonTree'
@@ -151,6 +158,12 @@ interface VersionsRequest {
     start: () => Promise<string>
     /** What the two versions are called, or nothing for a first and a second version. */
     titles?: TitleKeys | undefined
+    /**
+     * Your version and theirs, in the order they stand, when both are compared with the version they were made from,
+     * as the two versions of a conflict are: the version a merge goes into first, with what each changed and where
+     * both changed the same cells.
+     */
+    panes?: ConflictPane[] | undefined
 }
 
 /** A file that is not a workbook at two versions: it reads line by line. */
@@ -248,7 +261,7 @@ const moduleVersionsOf = (params: URLSearchParams): VersionsRequest | null => {
  * An address naming the revision both histories parted at (`common`) compares the file from that revision, as a pull
  * request shows what a branch changed: the earlier revision is of another history.
  */
-const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
+const fileRevisionsOf = (params: URLSearchParams, conflicting: boolean): NamedVersions | null => {
     const projectId = params.get('projectId')
     const file = params.get('file')
     const change = params.get('change')
@@ -265,6 +278,14 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const branch = params.get('branch') ?? undefined
     const absentAfter = change === 'deleted'
     const titles = fileTitlesOf(params, after)
+    const earlier = params.get('base')
+    if (common && earlier && conflicting && isWorkbookPath(file)) {
+        // Both sides changed the same parts of the workbook: each is compared with the revision they parted at.
+        const yoursEarlier = params.get('yours') === 'earlier'
+        const start = () => startFromCommon({ projectId, path: file, branch, common, earlier, after, change, yoursEarlier })
+        const panes = yoursEarlier ? VERSION_PANES : THEIRS_FIRST_PANES
+        return { versions: { start, panes }, textVersions: null, threeVersions: null }
+    }
     if (!isWorkbookPath(file)) {
         const read = () => Promise.all([
             absentBefore ? '' : getFileText(projectId, file, before),
@@ -276,6 +297,39 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
         absentBefore ? { path: file, absent: true } : { path: file, branch, revision: before },
         absentAfter ? { path: file, absent: true } : sideAfter(file, branch, after))
     return { versions: { start, titles }, textVersions: null, threeVersions: null }
+}
+
+/** A workbook both sides of a comparison changed, as a pull request of the later side names them. */
+interface ChangedByBoth {
+    projectId: string
+    path: string
+    branch: string | undefined
+    /** The revision both sides were made from. */
+    common: string
+    /** The earlier revision, of the other history: the side a merge of the later one goes into. */
+    earlier: string
+    /** The later revision, or nothing for the working copy. */
+    after: string | undefined
+    /** What the later side did to the workbook since the common revision. */
+    change: string | null
+    /** Whether the earlier side is your version; otherwise the later side is. */
+    yoursEarlier: boolean
+}
+
+/**
+ * Starts comparing your version of a workbook and their version with the revision both were made from. A version that
+ * does not hold the workbook is compared as an empty one: the later side tells what it did to it, and the earlier
+ * revision is asked whether it holds it.
+ */
+const startFromCommon = async ({ projectId, path, branch, common, earlier, after, change, yoursEarlier }: ChangedByBoth) => {
+    const absent: ProjectFileSide = { path, absent: true }
+    const earlierHeld = await fileExistsAt(projectId, path, earlier)
+    const earlierSide: ProjectFileSide = earlierHeld ? { path, branch, revision: earlier } : absent
+    const laterSide = change === 'deleted' ? absent : sideAfter(path, branch, after)
+    return startProjectComparison(projectId,
+        yoursEarlier ? earlierSide : laterSide,
+        yoursEarlier ? laterSide : earlierSide,
+        change === 'added' ? absent : { path, branch, revision: common })
 }
 
 /** The later side of a file: at a revision of the branch, or in the working copy when none is named. */
@@ -315,9 +369,12 @@ interface ComparisonRequest {
  * A window is opened for two versions, for a project whose files are picked, or for a
  * conflicted file of a project. Reading them apart in one place keeps the screen itself to what it
  * draws.
+ *
+ * @param conflicting whether the file of two revisions the address names may conflict in a merge of both
  */
-const requestOf = (params: URLSearchParams): ComparisonRequest => {
-    const named = fileRevisionsOf(params) ?? { versions: moduleVersionsOf(params), textVersions: null, threeVersions: null }
+const requestOf = (params: URLSearchParams, conflicting = false): ComparisonRequest => {
+    const named = fileRevisionsOf(params, conflicting)
+        ?? { versions: moduleVersionsOf(params), textVersions: null, threeVersions: null }
     const projectId = named.versions || named.textVersions || named.threeVersions ? null : params.get('projectId')
     // A conflicted file of a project is named on its own; a project named without one is a project to
     // pick two files of.
@@ -437,6 +494,10 @@ const useReleasedOnLeave = (comparisonId: string | null) => {
 interface ComparisonScreenProps {
     /** What heads the screen instead of the name of the file compared, when the window names it otherwise. */
     head?: React.ReactNode
+    /** What the screen compares, when the window tells it otherwise than its address does. */
+    address?: URLSearchParams | undefined
+    /** Whether the file of two revisions compared may conflict in a merge of both. */
+    conflicting?: boolean | undefined
 }
 
 /** The views a file of three versions is offered in, each available only when its versions hold the file. */
@@ -480,12 +541,13 @@ const ViewPicker: React.FC<{
  * comparison, anything else line by line. A view whose versions do not all hold the file is not
  * offered.
  */
-const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
+const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conflicting = false }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
-    const [params] = useSearchParams()
+    const [routed] = useSearchParams()
+    const params = address ?? routed
     const { versions, textVersions, threeVersions: three } = useMemo(
-        () => requestOf(params), [params]
+        () => requestOf(params, conflicting), [params, conflicting]
     )
     const { conflictVersions, conflictStatus, conflictViews, conflictView, setPickedView, conflictWorkbook, conflictText } =
         useThreeVersions(three)
@@ -626,7 +688,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
 
     // The sides of an element are read when it is picked, because each of them is a whole table: the two compared, or
     // the three versions of a conflict side by side.
-    const threeWay = conflictView === 'all'
+    const threeWay = conflictView === 'all' || !!versions?.panes
     useEffect(() => {
         if (!comparisonId || !selectedId) {
             setTable(null)
@@ -708,6 +770,21 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
     const titleKeys = titleKeysOf(shownView, versions ?? textVersions)
     const titles = titleKeys && { first: t(titleKeys.first), second: t(titleKeys.second) }
     const secondOnLeft = !!shownView?.secondOnLeft
+
+    // Side by side or as one table: offered wherever the versions can be drawn either way.
+    const viewSwitch = (
+        <Segmented<DiffView>
+            aria-label={t('view_label')}
+            data-testid="compare-view"
+            onChange={setView}
+            size="small"
+            value={view}
+            options={[
+                { label: t('view_sides'), value: 'sides' },
+                { label: t('view_combined'), value: 'combined' },
+            ]}
+        />
+    )
 
     const views = three && conflictView && (
         <ViewPicker offered={conflictViews} onChange={showView} view={conflictView} />
@@ -882,13 +959,16 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
                     </Splitter.Panel>
                     <Splitter.Panel>
                         {/* Three versions are read side by side only: one table would hold two changes of each
-                            cell. */}
-                        {threeWay && three && (
+                            cell. Your version and theirs, each compared with the base, are read either way. */}
+                        {threeWay && (
                             <ConflictPanes
                                 error={tableError}
                                 loading={tableLoading}
+                                panes={versions?.panes}
                                 showEqualRows={showEqualRows}
                                 table={conflictTable}
+                                trailing={versions?.panes && comparison && viewSwitch}
+                                view={versions?.panes ? view : 'sides'}
                                 leading={treeHidden && (
                                     <Button
                                         data-testid="compare-tree-show"
@@ -908,6 +988,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
                             showEqualRows={showEqualRows}
                             table={table}
                             titles={titles}
+                            trailing={comparison && viewSwitch}
                             view={view}
                             leading={treeHidden && (
                                 <>
@@ -921,19 +1002,6 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
                                     />
                                     {back}
                                 </>
-                            )}
-                            trailing={comparison && (
-                                <Segmented<DiffView>
-                                    aria-label={t('view_label')}
-                                    data-testid="compare-view"
-                                    onChange={setView}
-                                    size="small"
-                                    value={view}
-                                    options={[
-                                        { label: t('view_sides'), value: 'sides' },
-                                        { label: t('view_combined'), value: 'combined' },
-                                    ]}
-                                />
                             )}
                         />}
                     </Splitter.Panel>
@@ -1002,7 +1070,38 @@ const RevisionPickerScreen: React.FC<{ projectId: string }> = ({ projectId }) =>
 const changeTypeOf = (change: string | null): ProjectFileChangeType =>
     change === 'added' || change === 'deleted' ? change : 'modified'
 
-/** Two revisions of a project: the files changed between them, or one of them compared. */
+/**
+ * The address a file of two revisions is compared by: the revisions as the changes name them. The address the window
+ * was opened with may name a branch for its last revision, as Sync names the branches it merges, and the file is read
+ * at a revision only. A revision of another history is compared from the revision both histories parted at.
+ */
+const fileAddressOf = (params: URLSearchParams, changes: LoadedChanges): URLSearchParams => {
+    if (!changes) {
+        return params
+    }
+    const address = new URLSearchParams(params)
+    if (changes.base) {
+        address.set('base', changes.base.revisionNo)
+    }
+    if (changes.revision) {
+        address.set('revision', changes.revision.revisionNo)
+    }
+    if (changes.common) {
+        address.set('common', changes.common.revisionNo)
+    }
+    // A file opened by its address is read as the changes tell what became of it: added or deleted on the later side.
+    const file = params.get('file')
+    const listed = changes.files.find(changed => changed.path === file)
+    if (listed && listed.type !== 'modified' && !params.has('change')) {
+        address.set('change', listed.type)
+    }
+    return address
+}
+
+/**
+ * Two revisions of a project: the files changed between them, or one of them compared. A file is compared once the
+ * changes are read, at the revisions they name; when they cannot be read, at the revisions the address names.
+ */
 const RevisionsWindow: React.FC<{ revisions: ComparedRevisions }> = ({ revisions }) => {
     const { t } = useTranslation('compare')
     const [params, setParams] = useSearchParams()
@@ -1023,6 +1122,7 @@ const RevisionsWindow: React.FC<{ revisions: ComparedRevisions }> = ({ revisions
     // Whether the file shown was picked of the list in this window, which is then the page before it.
     const pickedHere = useRef(false)
 
+    const fileAddress = useMemo(() => fileAddressOf(params, changes), [params, changes])
     const listed = changes?.files ?? []
     const index = file ? listed.findIndex(changed => changed.path === file) : -1
     // A file the address names that the list does not hold is still compared, as the address says it changed.
@@ -1095,13 +1195,17 @@ const RevisionsWindow: React.FC<{ revisions: ComparedRevisions }> = ({ revisions
                 />
             </div>
             {/* Each file is a comparison of its own, so nothing of the one before is left on screen. */}
-            {shownFile && (
+            {shownFile && changes === undefined && <Skeleton active paragraph={{ rows: 4 }} title={false} />}
+            {shownFile && changes !== undefined && (
                 <ComparisonScreen
                     key={shownFile.path}
+                    address={fileAddress}
+                    // A workbook both sides changed in the same parts is compared with the revision they parted at.
+                    conflicting={!!changes?.conflicts.includes(shownFile.path)}
                     head={(
                         <RevisionsHead
                             changes={changes}
-                            common={params.get('common') ?? undefined}
+                            common={fileAddress.get('common') ?? undefined}
                             file={shownFile}
                             onBack={backToFiles}
                             projectName={projectName}

@@ -231,12 +231,15 @@ class MappedRepositoryTest {
         when(repository.merge("feature", null, null)).thenReturn(outcome);
         var changes = new RevisionChanges(new FileData(), new FileData(), List.of(change));
         when(repository.listChanges("project", null, "after")).thenReturn(changes);
+        when(repository.findConflicts("project", "ours", "theirs")).thenReturn(Set.of("project/rules.xml"));
 
         var mapped = MappedRepository.create(repository, "DESIGN/");
         try {
             assertEquals(scope, ((BranchRepository) mapped).getMergeScope("feature", "main"));
             assertEquals(outcome, ((BranchRepository) mapped).merge("feature", null, null));
             assertEquals(changes, ((BranchRepository) mapped).listChanges("project", null, "after"));
+            assertEquals(Set.of("project/rules.xml"),
+                    ((BranchRepository) mapped).findConflicts("project", "ours", "theirs"));
         } finally {
             mapped.close();
         }

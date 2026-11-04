@@ -66,6 +66,18 @@ describe('compare service', () => {
         expect(JSON.parse(call?.[1]?.body as string)).toEqual({ first: yours, second: theirs })
     })
 
+    it('compares two files of a project with the version both were made from', async () => {
+        vi.mocked(apiCall).mockResolvedValue({ id: 'cmp-3' })
+        const yours = { path: 'rules/Main.xlsx' }
+        const theirs = { path: 'rules/Main.xlsx', branch: 'feature', revision: 't1' }
+        const base = { path: 'rules/Main.xlsx', branch: 'feature', revision: 'c1' }
+
+        await expect(startProjectComparison('p1', yours, theirs, base)).resolves.toBe('cmp-3')
+
+        const [call] = vi.mocked(apiCall).mock.calls
+        expect(JSON.parse(call?.[1]?.body as string)).toEqual({ first: yours, second: theirs, base })
+    })
+
     it('reads what the comparison found, once the comparison has ended', async () => {
         vi.mocked(readTaskResult).mockResolvedValue(jsonResponse({ id: 'cmp 1', identical: true, sheets: []}))
 

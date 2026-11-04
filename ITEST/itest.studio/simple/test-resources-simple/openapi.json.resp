@@ -27179,6 +27179,9 @@ Content-Type: application/json
       "CompareProjectFilesRequest": {
         "type": "object",
         "properties": {
+          "base": {
+            "$ref": "#/components/schemas/ComparisonSideRequest"
+          },
           "first": {
             "$ref": "#/components/schemas/ComparisonSideRequest"
           },
@@ -31886,6 +31889,13 @@ Content-Type: application/json
           },
           "common": {
             "$ref": "#/components/schemas/ProjectRevision_Short"
+          },
+          "conflicts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           },
           "files": {
             "type": "array",

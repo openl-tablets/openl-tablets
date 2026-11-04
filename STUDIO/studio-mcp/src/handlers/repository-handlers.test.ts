@@ -70,7 +70,7 @@ describe("repository tools", () => {
       revisionNo, shortRevisionNo: revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment,
       author: { displayName: "Ada Admin" }, deleted: false, technicalRevision: false,
     });
-    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: "def456", base: "abc123" } }).reply(200, {
+    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: "def456", base: "abc123", fields: "base,revision,common,files" } }).reply(200, {
       base: revision("abc123", "Before"),
       revision: { ...revision("def456", "After\n\nDetail"), technicalRevision: true },
       files: [
@@ -129,11 +129,13 @@ describe("repository tools", () => {
       base: revision("t1", "Their prices"),
       common: revision("c1", "Before the branches parted"),
       files: [{ path: "rules/Main.xlsx", type: "modified" }],
+      conflicts: ["rules/Main.xlsx"],
     });
 
     const result = await executeTool("repository_project_revision_changes", { projectId, base: "t1" }, harness.client);
 
-    expect(textOf(result)).toMatch(/\| revision \| working copy \|  \|  \|  \|  \|\n\| common \| c1 \| 2026-01-01T00:00:00Z \| Ada Admin \| Before the branches parted \|  \|$/);
+    expect(textOf(result)).toMatch(/\| revision \| working copy \|  \|  \|  \|  \|\n\| common \| c1 \| 2026-01-01T00:00:00Z \| Ada Admin \| Before the branches parted \|  \|\n/);
+    expect(textOf(result)).toMatch(/Possible merge conflicts \(both sides changed the same parts\): rules\/Main\.xlsx\.$/);
   });
 
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {

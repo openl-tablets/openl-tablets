@@ -109,7 +109,7 @@ export function registerRepositoryHandlers(): void {
     name: "repository_project_revision_changes",
     title: "Get the Changes of a Revision",
     description:
-      "List the files a revision changed, by path and change, with the revisions compared in the columns of openl_repository_project_revisions: against the one it was made on (in Git its first parent: a merge lists what it brought in) or base. Without a revision, the working copy with unsaved changes, against its saved revision unless base is named: what a save commits. With a path, what changed in it: a workbook as tables that differ, a page at a time, with moves, formatting, rows and columns added or removed and cells as 'B7: before → after'; other text as a unified diff. A base of another branch adds the common revision; files and changes are then told since it, as a PR tells them. Files ignored or outside the project are not listed.",
+      "List the files a revision changed, by path and change, with the revisions compared in the columns of openl_repository_project_revisions: against the one it was made on (in Git its first parent: a merge lists what it brought in) or base. Without a revision, the working copy against its saved revision unless base is named: what a save commits. With a path, what changed in it: a workbook as tables that differ, a page at a time, with moves, formatting, rows and columns added or removed and cells as 'B7: before → after'; other text as a unified diff. A base of another branch adds the common revision; files and changes are then told since it, as a PR does, with merge conflicts. Files ignored or outside the project are not listed.",
     schema: schemas.getProjectRevisionChangesSchema,
     annotations: {
       readOnlyHint: true,
@@ -124,7 +124,10 @@ export function registerRepositoryHandlers(): void {
       const savedAt = args.revision === undefined && args.base === undefined
         ? (await client.getProject(args.projectId)).revision
         : args.base;
-      const { base, revision, common, files } = await client.getProjectRevisionChanges(args.projectId, args.revision, savedAt);
+      // The estimate of the conflicts is told with the first page only, so the next pages do not wait for it
+      const firstPage = !args.offset;
+      const { base, revision, common, files, conflicts } =
+        await client.getProjectRevisionChanges(args.projectId, args.revision, savedAt, firstPage);
       // The working copy is no revision of the history: it is named, with nothing else told of it
       const later: Compared = revision
         ? { ...revision, side: "revision" }
@@ -138,8 +141,19 @@ export function registerRepositoryHandlers(): void {
       return textResult(formatListOf(files, args.limit, args.offset, {
         noun: "files",
         columns: [{ header: "path", value: (file) => file.path }, { header: "change", value: (file) => file.type }],
-        notes: [markdownTable(compared, [{ header: "compared", value: (side) => side.side }, ...REVISION_COLUMNS])],
+        notes: [
+          markdownTable(compared, [{ header: "compared", value: (side) => side.side }, ...REVISION_COLUMNS]),
+          // Sides of two histories are merged some day: whether that may conflict is estimated with them
+          ...(common && firstPage ? [mergeNoteOf(conflicts)] : []),
+        ],
       }));
     },
   });
+}
+
+/** Which files may conflict in a merge of the saved revisions of both sides, estimated without merging. */
+function mergeNoteOf(conflicts: string[]): string {
+  return conflicts.length > 0
+    ? `Possible merge conflicts (both sides changed the same parts): ${conflicts.join(", ")}.`
+    : "No merge conflicts expected: the changes of both sides do not overlap.";
 }

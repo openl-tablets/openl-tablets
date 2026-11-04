@@ -448,6 +448,11 @@ public final class MappedRepository implements BranchRepository, Closeable, Fold
     }
 
     @Override
+    public Set<String> findConflicts(String path, String first, String second) throws IOException {
+        return ((BranchRepository) delegate).findConflicts(path, first, second);
+    }
+
+    @Override
     public String getBranch() {
         return ((BranchRepository) delegate).getBranch();
     }

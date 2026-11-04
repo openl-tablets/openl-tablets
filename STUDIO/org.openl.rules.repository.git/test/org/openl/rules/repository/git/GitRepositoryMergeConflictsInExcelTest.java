@@ -218,6 +218,8 @@ class GitRepositoryMergeConflictsInExcelTest {
     @Test
     void testCase_04() throws IOException, GitAPIException {
         var testCaseData = initializeTestCase("04");
+        // Told beforehand: the workbook the merge combines by itself is no conflict.
+        assertEquals(Set.of("04/Bank Rating.xlsx"), repo.findConflicts("04", "04", Constants.MASTER));
         var branchRepo = repo.forBranch("04");
         var e = assertThrows(MergeConflictException.class, () -> branchRepo.merge(Constants.MASTER, USER_INFO, null));
         var conflictDetails = e.getDetails();
@@ -471,6 +473,42 @@ class GitRepositoryMergeConflictsInExcelTest {
         assertEquals(Set.of(), scope.changedInBoth());
     }
 
+    /**
+     * A trial merge tells the files the merge stops at: a text file both branches changed in the same lines, and a file
+     * one branch deleted and the other changed. A text file changed in other lines by each is combined.
+     */
+    @Test
+    void aTrialMergeTellsTheFilesTheMergeStopsAt() throws IOException, GitAPIException {
+        try (var git = repo.getClosableGit()) {
+            var gitRoot = git.getRepository().getDirectory().getParentFile();
+            createNewFile(gitRoot, "Lines.txt", "first\nsecond\nthird\n");
+            createNewFile(gitRoot, "Same.txt", "base\n");
+            createNewFile(gitRoot, "Gone.txt", "base\n");
+            git.add().addFilepattern(".").call();
+            git.commit().setMessage("Base").setCommitter("User 1", "user1@email.to").call();
+            git.branchCreate().setName("trial").call();
+            git.checkout().setName("trial").call();
+            Files.writeString(new File(gitRoot, "Lines.txt").toPath(), "first changed\nsecond\nthird\n");
+            Files.writeString(new File(gitRoot, "Same.txt").toPath(), "theirs\n");
+            git.rm().addFilepattern("Gone.txt").call();
+            git.add().addFilepattern(".").call();
+            git.commit().setMessage("Theirs").setCommitter("User 1", "user1@email.to").call();
+            git.checkout().setName(Constants.MASTER).call();
+            Files.writeString(new File(gitRoot, "Lines.txt").toPath(), "first\nsecond\nthird changed\n");
+            Files.writeString(new File(gitRoot, "Same.txt").toPath(), "ours\n");
+            Files.writeString(new File(gitRoot, "Gone.txt").toPath(), "ours\n");
+            git.add().addFilepattern(".").call();
+            git.commit().setMessage("Ours").setCommitter("User 1", "user1@email.to").call();
+            git.push().setPushAll().call();
+        }
+
+        var told = repo.findConflicts("", Constants.MASTER, "trial");
+
+        assertEquals(Set.of("Gone.txt", "Same.txt"), told);
+        var e = assertThrows(MergeConflictException.class, () -> repo.merge("trial", USER_INFO, null));
+        assertEquals(told, Set.copyOf(e.getDetails().getConflictedFiles()));
+    }
+
     @Test
     void savedOverChangeOfAnotherUser_isMergedCellByCell() throws IOException {
         // Both users opened the same revision; the second save merges the first one by itself.
@@ -549,8 +587,19 @@ class GitRepositoryMergeConflictsInExcelTest {
             link(sheet, "Rates.xlsx");
         })));
         saveText(repo, notes, "ours");
+        // An estimate: the workbook changed in other cells by each is foreseen to merge, though it cannot be written.
+        assertEquals(Set.of(notes), repo.findConflicts("mixed", Constants.MASTER, "mixed"));
+        assertEquals(Set.of(), repo.findConflicts("rates", Constants.MASTER, "mixed"));
+        // An estimate asked by an interrupted thread stops instead of reading on.
+        Thread.currentThread().interrupt();
+        try {
+            assertThrows(IOException.class, () -> repo.findConflicts("mixed", Constants.MASTER, "mixed"));
+        } finally {
+            Thread.interrupted();
+        }
 
         var e = assertThrows(MergeConflictException.class, () -> repo.merge("mixed", USER_INFO, null));
+
 
         assertEquals(Set.of(workbook, notes), Set.copyOf(e.getDetails().getConflictedFiles()));
         assertEquals(Map.of(), e.getDetails().toAutoResolve());

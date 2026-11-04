@@ -286,6 +286,8 @@ i18next.addResourceBundle('en', 'repository', {
                 modified: 'Modified',
                 deleted: 'Deleted',
             },
+            conflict: 'Possible conflict',
+            conflict_hint: 'Both sides changed the same parts of this file: a merge would ask you to resolve them.',
             select_hint: 'Select a file to view or edit',
             folder_hint: 'Select an action for this folder.',
             empty_folder_hint: 'This folder is empty. Add a file to save it.',

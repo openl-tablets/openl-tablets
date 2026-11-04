@@ -1097,7 +1097,10 @@ revision of it. To compare the working copy with a revision, proceed as follows:
     both histories parted at, and a note under the two names it. The window then shows what the working copy changed
     since that revision, the way a pull request shows what a branch changed: the files listed are the ones the working
     copy changed since it. For the working copy, it is the revision the working copy was opened at or one before it, so
-    a later revision of the same branch has one too.
+    a later revision of the same branch has one too. The note also estimates whether a merge of both sides would
+    conflict, the way Sync estimates it, without merging anything, and every file both sides changed in the same
+    parts is marked **Possible conflict** in the list and above the file compared. The estimate is made from the saved
+    revisions, so changes of the working copy not saved yet are not in it.
 
     ![The common revision of the working copy and a revision of another branch](images/compare-workspace-common-revision.png "The working copy compared with a revision of another branch")
 
@@ -1114,9 +1117,12 @@ revision of it. To compare the working copy with a revision, proceed as follows:
     element by element as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), and any other
     file line by line.
 
-    With a common revision, the file is compared from it: **Common revision** against **User workspace**. The three
-    versions side by side are what a merge shows, as described in
-    [Working with Branches](project-branches.md#working-with-branches), and are not offered here.
+    With a common revision, the file is compared from it: **Common revision** against **User workspace**. An Excel
+    file marked **Possible conflict** shows **Their version** and **Your version** instead, each compared with the
+    common revision, side by side or as one table: their version first, as the revision your changes would be
+    merged into. A cell one side changed is framed in orange and carries its value before and after; a cell both
+    sides changed differently is framed in red and carries the value both started from, and under it each value
+    with the name of its version.
 
 ### Exporting a Project or a File
 
