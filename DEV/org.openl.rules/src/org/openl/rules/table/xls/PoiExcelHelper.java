@@ -163,7 +163,8 @@ public final class PoiExcelHelper {
         }
     }
 
-    private static void evaluateFormula(FormulaEvaluator evaluator, @Nullable Cell cell) {
+    /** Computes the formula of a cell again: a formula Apache POI cannot compute keeps the value it had. */
+    static void evaluateFormula(FormulaEvaluator evaluator, @Nullable Cell cell) {
         if (cell != null && cell.getCellType() == CellType.FORMULA) {
             try {
                 evaluator.evaluateFormulaCell(cell);

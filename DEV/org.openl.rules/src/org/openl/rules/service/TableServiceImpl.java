@@ -3,9 +3,11 @@ package org.openl.rules.service;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.CellMove;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
@@ -55,6 +57,7 @@ public class TableServiceImpl {
             throw new TableServiceException("Could not move the table", e);
         }
         removeTable(table);
+        moveReferences(table, newRegion);
         return newRegion;
     }
 
@@ -71,5 +74,13 @@ public class TableServiceImpl {
             throw new TableServiceException("Could not move the table", e);
         }
         removeTable(table);
+        moveReferences(table, destRegion);
+    }
+
+    /**
+     * Points the Excel formulas of the workbook at the cells of the table in its new place.
+     */
+    private static void moveReferences(IGridTable table, IGridRegion destRegion) {
+        ((IWritableGrid) table.getGrid()).moveReferences(new CellMove.Transfer(table.getRegion(), destRegion));
     }
 }

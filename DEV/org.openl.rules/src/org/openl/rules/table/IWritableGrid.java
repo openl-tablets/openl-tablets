@@ -109,4 +109,16 @@ public interface IWritableGrid extends IGrid {
      * @throws IllegalArgumentException when Excel cannot read the formula or Apache POI cannot compute it
      */
     void setCellFormula(int col, int row, String formula);
+
+    /**
+     * Points the Excel formulas of the workbook at where cells of this sheet move, as Excel does when it shifts or
+     * moves cells.
+     *
+     * <p>A reference to a cell that moves follows it, a reference to a cell that stays keeps its address, and a
+     * reference to a cell taken away turns into {@code #REF!}. A formula of any sheet counts. A formula that changes is
+     * computed again.
+     *
+     * @param move how the cells move
+     */
+    void moveReferences(CellMove move);
 }

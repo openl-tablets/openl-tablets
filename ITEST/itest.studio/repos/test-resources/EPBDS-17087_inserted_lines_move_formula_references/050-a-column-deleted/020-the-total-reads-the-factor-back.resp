@@ -1,0 +1,97 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "HB724W6T7TAPZPT0",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Calc",
+  "pos": "B11:D16",
+  "source": [
+    [
+      {
+        "cell": "B11",
+        "value": "Spreadsheet Double Calc()",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": "Step"
+      },
+      {
+        "cell": "C12",
+        "value": "Value"
+      },
+      {
+        "cell": "D12",
+        "value": "Factor"
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": "More"
+      },
+      {
+        "cell": "C13",
+        "value": 5
+      },
+      {
+        "cell": "D13",
+        "value": 5
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "Extra"
+      },
+      {
+        "cell": "C14",
+        "value": 1
+      },
+      {
+        "cell": "D14",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "Base"
+      },
+      {
+        "cell": "C15",
+        "value": 10
+      },
+      {
+        "cell": "D15",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "RETURN"
+      },
+      {
+        "cell": "C16",
+        "value": 6,
+        "formula": "=D15*3"
+      },
+      {
+        "cell": "D16"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

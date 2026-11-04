@@ -10,12 +10,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,6 +29,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.AppendTarget;
+import org.openl.studio.projects.model.tables.DeleteTarget;
+import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
@@ -106,6 +110,30 @@ class ExcelFormulaWriteTest {
         apply(new UpdateTarget.Cell(3, 1, 7));
 
         assertEquals(14, cellOf(2, 1).value());
+    }
+
+    /** A row or a column put into the table or taken out of it leaves a formula computing from the cell it named. */
+    @Test
+    void movesTheReferencesOfAFormulaAlongTheCellsTheyName() {
+        // F1 stands in C4 of the sheet, F2 in C5.
+        new RawTableWriter(load()).apply(List.of(
+                new RawTableSourceAction.Update(new UpdateTarget.Cell(2, 1, 2)),
+                new RawTableSourceAction.Update(new UpdateTarget.Cell(3, 1, null, null, "=C4*3"))));
+
+        insert(new InsertTarget.Columns(1, List.of(cells(null, "Note", "a", "b"))));
+
+        assertEquals("=D4*3", cellOf(3, 2).formula());
+        assertEquals(6, cellOf(3, 2).value());
+
+        insert(new InsertTarget.Rows(2, List.of(cells("F0", "c", 1))));
+
+        assertEquals("=D5*3", cellOf(4, 2).formula());
+        assertEquals(6, cellOf(4, 2).value());
+
+        new RawTableWriter(load()).apply(new RawTableSourceAction.Delete(new DeleteTarget.Columns(1, 1)));
+
+        assertEquals("=C5*3", cellOf(4, 1).formula());
+        assertEquals(6, cellOf(4, 1).value());
     }
 
     @Test
@@ -190,6 +218,14 @@ class ExcelFormulaWriteTest {
 
     private void apply(AppendTarget target) {
         new RawTableWriter(load()).apply(new RawTableSourceAction.Append(target));
+    }
+
+    private void insert(InsertTarget target) {
+        new RawTableWriter(load()).apply(new RawTableSourceAction.Insert(target));
+    }
+
+    private static List<RawCellInput> cells(@Nullable Object... values) {
+        return Arrays.stream(values).map(value -> new RawCellInput(value, null, null, null)).toList();
     }
 
     private RawTableCell cellOf(int row, int column) {

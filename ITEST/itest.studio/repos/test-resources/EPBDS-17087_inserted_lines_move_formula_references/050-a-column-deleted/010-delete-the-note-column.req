@@ -1,0 +1,13 @@
+POST /rest/projects/{PROJECT}/tables/{TABLE}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "delete",
+  "target": {
+    "type": "columns",
+    "position": 1,
+    "count": 1
+  }
+}
+

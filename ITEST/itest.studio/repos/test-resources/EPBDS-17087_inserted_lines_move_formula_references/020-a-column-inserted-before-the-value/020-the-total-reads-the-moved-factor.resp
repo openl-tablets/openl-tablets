@@ -1,0 +1,82 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "HB724W6T7TAPZPT0",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Calc",
+  "pos": "B2:E5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet Double Calc()",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Step"
+      },
+      {
+        "cell": "C3",
+        "value": "Note"
+      },
+      {
+        "cell": "D3",
+        "value": "Value"
+      },
+      {
+        "cell": "E3",
+        "value": "Factor"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Base"
+      },
+      {
+        "cell": "C4"
+      },
+      {
+        "cell": "D4",
+        "value": 10
+      },
+      {
+        "cell": "E4",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "RETURN"
+      },
+      {
+        "cell": "C5"
+      },
+      {
+        "cell": "D5",
+        "value": 6,
+        "formula": "=E4*3"
+      },
+      {
+        "cell": "E5"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

@@ -381,6 +381,16 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     merged heading is banked across the table as that heading is. The table shows this before anything is
     typed into the new line, so every value is saved in the column it was typed under.
 
+    An MS Excel formula keeps computing from the cells it names, the way it does in Excel. A row or a column
+    inserted into a table moves the cells after it, and a formula that names one of them is changed to name it
+    where it moved: `=D4*3` becomes `=E4*3` once a column is inserted before column D of the table. A range over
+    the place grows over the new line, as `=SUM(B4:D4)` becomes `=SUM(B4:E4)`. A formula that names a cell which
+    stays where it is, beside the table, above it or before the place, keeps its text. A row or a column removed
+    turns a reference to its cells into `#REF!` and makes a range over it shorter. This holds for the formulas of
+    every sheet of the workbook and for its defined names, and also when a table moves to another place of its sheet
+    to make room for the new line. The formulas that refer to the sheet are computed again. Conditional formatting
+    and data validation keep the addresses they had.
+
     The first column is the reader's like any other: the table header is banked across every column, so a
     column inserted before the first one widens that bank and a first column removed narrows it. The header
     keeps the corner OpenL finds the table by. The header row itself cannot be removed, since a table that

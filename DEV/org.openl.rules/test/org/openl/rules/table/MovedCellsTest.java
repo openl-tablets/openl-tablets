@@ -281,7 +281,10 @@ class MovedCellsTest {
         }
     }
 
-    /** A formula shared with other cells is read relative to them, so it moves as the text it reads as. */
+    /**
+     * A formula shared with other cells is read relative to them, so it moves as the text it reads as, pointing at the
+     * cells it named where they moved.
+     */
     @Test
     void movesASharedFormulaAsItsText() throws IOException {
         var file = new ByteArrayOutputStream();
@@ -308,7 +311,7 @@ class MovedCellsTest {
             removeFirstRows(grid, table, 1);
 
             var moved = sheet.getRow(1).getCell(0);
-            assertEquals("B3+1", moved.getCellFormula());
+            assertEquals("B2+1", moved.getCellFormula());
             assertEquals(STCellFormulaType.NORMAL, moved.getCTCell().getF().getT());
         }
     }
