@@ -180,7 +180,10 @@ The build writes two pages (`build.rollupOptions.input`):
   (`RawTableGrid` reads the type from the roles of the read) — which is never shifted and shows its time only when it
   holds a time of day. They write it as the regional settings of the browser do while **Use System Preferences** of
   **My Settings** is on, as it is by default, or in the **Date Format**, a day.js pattern, and on the clock of
-  **24-Hour Time** the reader picked. A date picker shows its date in `datePickerFormat()` and sends it in ISO 8601.
+  **24-Hour Time** the reader picked. The regional settings of the browser are read once for the page, so a function
+  that writes a date costs no `Intl` call: a table of
+  thousands of date cells hung the page for seconds when each cell read the regional settings anew. A date picker
+  shows its date in `datePickerFormat()` and sends it in ISO 8601.
   Every component that writes a date — through these functions, `versionLabel` or a picker — calls
   `useDateFormats()`, which subscribes it to the date and time settings so a change redraws it at once. A `useMemo`
   that formats a date hands the patterns `useDateFormats()` answers to the functions that write it and names them

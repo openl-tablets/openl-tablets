@@ -77,20 +77,39 @@ export interface DateFormats {
     dateTime: string
 }
 
+/** The patterns of the regional settings of the browser, once the first date has been written in them. */
+let systemPatterns: DateFormats | undefined
+
+/**
+ * The patterns of the regional settings of the browser.
+ *
+ * The browser keeps its regional settings while the page is open, so they are read once.
+ */
+const systemFormats = (): DateFormats => {
+    if (systemPatterns === undefined) {
+        const date = datePickerFormatForLocale()
+        systemPatterns = { date, dateTime: `${date} ${timeFormatForLocale()}` }
+    }
+    return systemPatterns
+}
+
 /**
  * The patterns of the date and time settings of **My Settings**: the ones of the regional settings of the browser
  * while the reader follows the preferences of the system, or else the Date Format they picked and the time on the
  * clock they picked.
+ *
+ * Only the regional settings cost to read, and they are read once: a screen writing thousands of dates pays for
+ * them once.
  */
-const patternsOf = (system: boolean, dateFormat: string, hours24: boolean): DateFormats => {
-    if (system) {
-        const date = datePickerFormatForLocale()
-        return { date, dateTime: `${date} ${timeFormatForLocale()}` }
-    }
-    return { date: dateFormat, dateTime: `${dateFormat} ${hours24 ? TIME_24_HOURS : TIME_12_HOURS}` }
-}
+const patternsOf = (system: boolean, dateFormat: string, hours24: boolean): DateFormats => (system
+    ? systemFormats()
+    : { date: dateFormat, dateTime: `${dateFormat} ${hours24 ? TIME_24_HOURS : TIME_12_HOURS}` })
 
-/** The patterns dates are written in now, for a call that is handed none. */
+/**
+ * The patterns dates are written in now, for a call that is handed none.
+ *
+ * It costs no more than reading the settings, so a function writing a date may call it for every date it writes.
+ */
 export const formats = (): DateFormats => {
     const { useSystemDateFormat, dateFormat, hours24 } = useSettingsStore.getState().settings
     return patternsOf(useSystemDateFormat, dateFormat, hours24)
