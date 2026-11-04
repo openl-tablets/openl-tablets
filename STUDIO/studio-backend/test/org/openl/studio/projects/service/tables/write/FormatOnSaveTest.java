@@ -223,7 +223,6 @@ class FormatOnSaveTest {
         var grid = TableTestProjects.sheetGrid(dir, SHEET);
 
         copier.copyInto(table(), "Rate2", null, grid, model.getTableSyntaxNodes());
-        TableWriter.saveWorkbook(grid);
 
         var copy = TableTestProjects.table(TableTestProjects.projectModel(dir), "Rate2").getGridTable().getRegion();
         assertEquals("Title", styleAt(copy.getTop(), copy.getLeft()));
@@ -236,7 +235,7 @@ class FormatOnSaveTest {
     void formatsATableCreatedInTheModuleInTheRegionsItsBuilderSent() throws IOException {
         var formatting = formattingOn();
         var creator = new TableCreatorService(new TableWritersFactory(formatting), new TableWriterExecutor(), null,
-                null, mock(SystemPropertiesService.class), formatting);
+                null, mock(SystemPropertiesService.class), formatting, null);
         var view = RawTableView.builder()
                 .kind(TableKind.DATATYPE)
                 .name("Person")

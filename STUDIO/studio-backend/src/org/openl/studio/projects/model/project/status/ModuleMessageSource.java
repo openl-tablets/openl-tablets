@@ -14,6 +14,14 @@ public record ModuleMessageSource(
         String projectId,
 
         @Parameter(description = "Display name of the project the module belongs to.")
-        String project
+        String project,
+
+        @Parameter(description = """
+                Path in the project of the file of the module the message points to, such as a Markdown file of a \
+                module folder that holds no table. Absent when the message points to no line of a file.""")
+        String path,
+
+        @Parameter(description = "Line of the file the message points to, counted from 1.")
+        Integer line
 ) implements MessageSource {
 }

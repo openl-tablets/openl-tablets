@@ -442,7 +442,7 @@ Splits a large table across multiple worksheets in the **same workbook**.
 
 - **Header:** `TablePart myLargeTable row 1 of 3`
 - Split types: `row` (vertical split) or `column` (horizontal split)
-- All parts must be in the same Excel file
+- All parts must be in the same Excel file; in a module folder of Markdown files, each part is a file of the folder
 - Applicable to: Decision Table, Data, Test, Run tables
 - For `column` splits, the header row is repeated in each part
 

@@ -9,6 +9,11 @@ import {
     isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
+import { searchTables } from '../../services/modules'
+
+vi.mock('../../services/modules', () => ({
+    searchTables: vi.fn(),
+}))
 
 vi.mock('../../services/files', () => ({
     downloadFile: vi.fn(),
@@ -51,8 +56,9 @@ vi.mock('./MoveFileModal', () => ({
 }))
 
 vi.mock('./CodeEditor', () => ({
-    CodeEditor: ({ onChange, readOnly, value }: Record<string, unknown>) => (
+    CodeEditor: ({ line, onChange, readOnly, value }: Record<string, unknown>) => (
         <textarea
+            data-line={line as number | undefined}
             data-testid="code-editor"
             onChange={event => (onChange as (value: string) => void)(event.target.value)}
             readOnly={readOnly as boolean}
@@ -272,6 +278,19 @@ describe('FilePreviewPane', () => {
         await waitFor(() => expect(getFileContent).toHaveBeenCalledTimes(2))
     })
 
+    it('shows the file at the line it is opened on, and no line for a file still shown while it is left', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} line={3} path="first.txt" reloadToken={0} />)
+
+        expect((await screen.findByDisplayValue('first content')).getAttribute('data-line')).toBe('3')
+
+        await userEvent.click(screen.getByTestId('file-edit'))
+        await userEvent.type(screen.getByTestId('code-editor'), '!')
+        rerender(<FilePreviewPane {...baseProps} line={5} path="second.txt" reloadToken={0} />)
+
+        // The switch waits for the changes to be discarded; the line is the next file's
+        expect(screen.getByTestId('code-editor').getAttribute('data-line')).toBeNull()
+    })
+
     it('shows the empty state when no file is selected', () => {
         render(<FilePreviewPane {...baseProps} path={null} />)
         expect(screen.getByTestId('file-preview-empty')).toBeTruthy()
@@ -308,6 +327,64 @@ describe('FilePreviewPane', () => {
         // Exporting it stays in the toolbar; what the placeholder offers is the editor.
         expect(downloadFile).not.toHaveBeenCalled()
     })
+
+    it('opens in the editor the table a Markdown file of a module folder holds', async () => {
+        vi.mocked(searchTables).mockResolvedValue([
+            { file: 'Project/rules/Rating/Factors/baseRate.md', id: 't1', kind: 'Rules', name: 'baseRate', tableType: 'SmartRules' },
+            { file: 'Project/rules/Rating/Factors/rate.md', id: 't2', kind: 'Rules', name: 'rate', tableType: 'SmartRules' },
+        ])
+        const onOpenTable = vi.fn()
+
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules': 'Main', 'rules/Rating': 'Rating' }}
+                onOpenTable={onOpenTable}
+                path="rules/Rating/Factors/rate.md"
+            />
+        )
+        await screen.findByDisplayValue('first content')
+        await userEvent.click(screen.getByTestId('file-open-table'))
+
+        // The deepest module folder holding the file is its module
+        await waitFor(() => expect(onOpenTable).toHaveBeenCalledWith('Rating', 't2'))
+        expect(searchTables).toHaveBeenCalledWith('p1', { module: 'Rating' })
+    })
+
+    it('tells that a Markdown file of a module folder holds no table to open', async () => {
+        vi.mocked(searchTables).mockResolvedValue([])
+        const onOpenTable = vi.fn()
+
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules/Rating': 'Rating' }}
+                onOpenTable={onOpenTable}
+                path="rules/Rating/Factors/notes.md"
+            />
+        )
+        await userEvent.click(await screen.findByTestId('file-open-table'))
+
+        await waitFor(() => expect(notification.info).toHaveBeenCalledWith({ title: 'browser.files.no_table' }))
+        expect(onOpenTable).not.toHaveBeenCalled()
+    })
+
+    it.each(['docs/README.md', 'rules/RatingNotes/rate.md', 'rules/Rating/Factors/rate.txt'])(
+        'offers no table to open for %s, which no module folder holds as a table',
+        async path => {
+            render(
+                <FilePreviewPane
+                    {...baseProps}
+                    modules={{ 'rules/Rating': 'Rating' }}
+                    onOpenTable={vi.fn()}
+                    path={path}
+                />
+            )
+            await screen.findByDisplayValue('first content')
+
+            expect(screen.queryByTestId('file-open-table')).toBeNull()
+        }
+    )
 
     it('offers the export for a workbook that is no module of the project', async () => {
         vi.mocked(isEditableTextFile).mockReturnValue(false)

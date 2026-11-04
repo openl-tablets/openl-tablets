@@ -1,5 +1,6 @@
 import React, { type SetStateAction, useCallback, useMemo, useRef, useState } from 'react'
 import { App, Alert, Checkbox, Input, Modal, Select, Space, Spin, Tooltip } from 'antd'
+import type { ModalProps } from 'antd'
 import {
     DeleteColumnOutlined,
     DeleteRowOutlined,
@@ -75,9 +76,11 @@ import {
     asOptions,
     defaultModulePath,
     deleteAt,
+    destinationOf,
     IDENTIFIER,
     insertAt,
     isValidSheetName,
+    type ModuleFormat,
     type ModuleOption,
     preferredModule,
     sheetNameFrom,
@@ -88,6 +91,7 @@ import {
 } from '../tableModals/shared'
 import { useSharedStyles } from '../tableModals/sharedStyles'
 import { useSheetLoader } from '../tableModals/useSheetLoader'
+import { WriteButton } from '../tableModals/WriteButton'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { useStyles } from './CreateTableModal.styles'
 
@@ -1138,7 +1142,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         )
     }
 
-    const handleCreate = async () => {
+    /** Writes the table; a new module is written in the format given, a module the project has in its own. */
+    const handleCreate = async (format: ModuleFormat = 'excel') => {
         if (!valid || creating) {
             return
         }
@@ -1149,7 +1154,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             const table = await createTable(detail.projectId, {
                 moduleName,
                 sheetName: sheetName.trim(),
-                ...(isNewModule ? { modulePath: defaultModulePath(moduleName, tableKind(preset)) } : {}),
+                ...(isNewModule ? { modulePath: defaultModulePath(moduleName, tableKind(preset), format) } : {}),
                 table: {
                     tableType: 'RawSource',
                     kind: tableKind(preset),
@@ -1174,6 +1179,21 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     const busy = loadingModules || choosingTarget || sheetLoader.loading
 
+    const renderFooter: ModalProps['footer'] = (_, { CancelBtn }) => (
+        <>
+            <CancelBtn />
+            <WriteButton
+                destination={destinationOf(modules, moduleName)}
+                disabled={busy || !valid}
+                label={t('project:create_table_modal.create')}
+                loading={creating}
+                markdownLabel={t('project:create_table_modal.create_markdown')}
+                onWrite={format => void handleCreate(format)}
+                testId="create-table"
+            />
+        </>
+    )
+
     return (
         <Modal
             destroyOnHidden
@@ -1181,16 +1201,11 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             cancelButtonProps={{ disabled: creating }}
             cancelText={t('common:btn.cancel')}
             closable={!creating}
+            footer={renderFooter}
             keyboard={!creating}
             mask={{ closable: false }}
-            okText={t('project:create_table_modal.create')}
             onCancel={close}
-            onOk={handleCreate}
             width={1200}
-            okButtonProps={{
-                disabled: busy || !valid,
-                loading: creating,
-            }}
             title={(
                 <Space>
                     <TableOutlined />

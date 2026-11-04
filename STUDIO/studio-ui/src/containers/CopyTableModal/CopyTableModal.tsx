@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { CopyOutlined, DeleteRowOutlined } from '@ant-design/icons'
 import { App, Input, Modal, Select, Space, Spin } from 'antd'
+import type { ModalProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { FieldRow } from 'components/FieldRow'
 import { IconAction } from 'components/IconAction'
@@ -14,9 +15,11 @@ import {
     asOptions,
     defaultModulePath,
     deleteAt,
+    destinationOf,
     IDENTIFIER,
     isValidPropertyValue,
     isValidSheetName,
+    type ModuleFormat,
     type ModuleOption,
     PROPERTY_SEARCH,
     sheetNameFrom,
@@ -28,6 +31,7 @@ import {
 } from '../tableModals/shared'
 import { useSharedStyles } from '../tableModals/sharedStyles'
 import { useSheetLoader } from '../tableModals/useSheetLoader'
+import { WriteButton } from '../tableModals/WriteButton'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { useStyles } from './CopyTableModal.styles'
 
@@ -247,7 +251,8 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const removeProperty = (index: number) =>
         changeProperties(current => deleteAt(current, index))
 
-    const handleCopy = async () => {
+    /** Writes the copy; a new module is written in the format given, a module the project has in its own. */
+    const handleCopy = async (format: ModuleFormat = 'excel') => {
         if (!sourceInfo || !valid || copying) {
             return
         }
@@ -257,7 +262,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
             const table = await copyTable(detail.projectId, detail.sourceTableId, {
                 moduleName,
                 sheetName: sheetName.trim(),
-                ...(isNewModule ? { modulePath: defaultModulePath(moduleName, sourceInfo.kind) } : {}),
+                ...(isNewModule ? { modulePath: defaultModulePath(moduleName, sourceInfo.kind, format) } : {}),
                 name: copyName,
                 properties: submittedProperties.map(property => ({
                     name: property.name.trim(),
@@ -278,6 +283,21 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         }
     }
 
+    const renderFooter: ModalProps['footer'] = (_, { CancelBtn }) => (
+        <>
+            <CancelBtn />
+            <WriteButton
+                destination={destinationOf(modules, moduleName)}
+                disabled={!valid}
+                label={t('project:copy_table_modal.copy')}
+                loading={copying}
+                markdownLabel={t('project:copy_table_modal.copy_markdown')}
+                onWrite={format => void handleCopy(format)}
+                testId="copy-table"
+            />
+        </>
+    )
+
     return (
         <Modal
             destroyOnHidden
@@ -285,12 +305,10 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
             cancelButtonProps={{ disabled: copying }}
             cancelText={t('common:btn.cancel')}
             closable={!copying}
+            footer={renderFooter}
             keyboard={!copying}
             mask={{ closable: false }}
-            okButtonProps={{ disabled: !valid, loading: copying }}
-            okText={t('project:copy_table_modal.copy')}
             onCancel={close}
-            onOk={handleCopy}
             width={760}
             title={(
                 <Space>

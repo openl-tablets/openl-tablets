@@ -1,6 +1,8 @@
 package org.openl.excel.grid;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +17,8 @@ import org.openl.dependency.DependencyType;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.markdown.MarkdownFormatException;
+import org.openl.excel.parser.markdown.MarkdownReader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -52,6 +56,10 @@ public class SequentialXlsLoader {
     private final Collection<String> imports = new HashSet<>();
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
+    /**
+     * The workbooks read so far: by their file when they have one, which is named by more than one address, else by
+     * their address.
+     */
     private final Set<String> preprocessedWorkBooks = new HashSet<>();
     private final List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
     private final Set<IDependency> dependencies = new LinkedHashSet<>();
@@ -86,7 +94,9 @@ public class SequentialXlsLoader {
             // Example of such case is AlgorithmTableSpecification.xls.
             path = null;
         }
-        try (ExcelReader excelReader = path == null ? factory.create(source.getByteStream()) : factory.create(path)) {
+        try (ExcelReader excelReader = path == null
+                ? factory.create(source.getByteStream(), StringTool.decodeURL(source.getUri()))
+                : factory.create(path)) {
             List<SheetDescriptor> sheets = excelReader.getSheets();
             var use1904Windowing = excelReader.isUse1904Windowing();
 
@@ -101,8 +111,21 @@ public class SequentialXlsLoader {
                 var tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
             }
+            // A Markdown file breaking the format in the body of its table still compiles the table
+            if (excelReader instanceof MarkdownReader markdown) {
+                markdown.getProblems()
+                        .forEach(problem -> addError(MarkdownFormatErrors.of(problem, workbookSourceModule,
+                                sheetNodes)));
+            }
 
             return sheetNodes;
+        } catch (MarkdownFormatException e) {
+            // The file has nothing to compile; the error points at the line to fix. Its workbook keeps a sheet all
+            // the same: the compiler puts the table it builds to choose between rule versions on the first one.
+            addError(MarkdownFormatErrors.of(e.getProblem(), workbookSourceModule));
+            var sheet = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
+                    MarkdownReader.unreadSheet(StringTool.decodeURL(source.getUri())));
+            return new WorksheetSyntaxNode[]{new WorksheetSyntaxNode(TableSyntaxNode.EMPTY_ARRAY, sheet)};
         }
     }
 
@@ -204,17 +227,17 @@ public class SequentialXlsLoader {
         int len = p1.endsWith("/") ? pp1.length : pp1.length - 1;
 
         for (var i = 0; i < len; i++) {
-            if (pp1[i].equals("..") && !result.isEmpty() && !result.getLast().equals("..")) {
+            if ("..".equals(pp1[i]) && !result.isEmpty() && !"..".equals(result.getLast())) {
                 result.removeLast();
-            } else if (!pp1[i].equals(".")) {
+            } else if (!".".equals(pp1[i])) {
                 result.add(pp1[i]);
             }
         }
 
         for (String s : pp2) {
-            if (!result.isEmpty() && s.equals("..")) {
+            if (!result.isEmpty() && "..".equals(s)) {
                 result.removeLast();
-            } else if (!s.equals(".")) {
+            } else if (!".".equals(s)) {
                 result.add(s);
             }
         }
@@ -233,7 +256,7 @@ public class SequentialXlsLoader {
             if (StringUtils.isNotBlank(include)) {
                 try {
                     var newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
-                            StringTool.encodeURL(include));
+                            encodedPath(include));
                     var src = new URLSourceCodeModule(new URI(newURL).toURL());
                     preprocessWorkbook(src);
                 } catch (Exception t) {
@@ -241,6 +264,20 @@ public class SequentialXlsLoader {
                 }
             }
         }
+    }
+
+    /**
+     * Encodes each name of a relative path, keeping the separators between them.
+     *
+     * <p>The steps to a parent folder are then merged into the path the include is read from. A workbook read from
+     * an archive needs it: an entry of the archive is named by its path as it is, with no step to a parent folder.
+     */
+    private static String encodedPath(String path) {
+        var names = path.replace('\\', '/').split("/", -1);
+        for (var i = 0; i < names.length; i++) {
+            names[i] = StringTool.encodeURL(names[i]);
+        }
+        return String.join("/", names);
     }
 
     private void registerIncludeError(IGridTable table, int i, String include, Exception t) {
@@ -275,41 +312,87 @@ public class SequentialXlsLoader {
     }
 
     private void preprocessWorkbook(IOpenSourceCodeModule source) {
-
-        var uri = source.getUri();
-
-        if (preprocessedWorkBooks.contains(uri)) {
+        // An include names a file of a module folder by its path, while the folder gives it an address of its own
+        var path = MarkdownFolderModule.pathOf(source);
+        if (!preprocessedWorkBooks.add(path == null ? source.getUri() : path.toString())) {
             return;
         }
+        if (path != null && Files.isDirectory(path)) {
+            preprocessFolder(source, path);
+        } else {
+            workbookNodes.add(readWorkbook(source));
+        }
+    }
 
-        preprocessedWorkBooks.add(uri);
-
+    private WorkbookSyntaxNode readWorkbook(IOpenSourceCodeModule source) {
         var tablePartProcessor = new TablePartProcessor();
         var workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
         var sheetNodes = createWorksheetNodes(tablePartProcessor, workbookSourceModule);
-
-        workbookNodes.add(createWorkbookNode(tablePartProcessor, workbookSourceModule, sheetNodes));
-        messages.addAll(tablePartProcessor.getMessages());
+        var mergedNodes = mergeTableParts(tablePartProcessor);
+        return new WorkbookSyntaxNode(sheetNodes, mergedNodes.toArray(TableSyntaxNode.EMPTY_ARRAY),
+                workbookSourceModule);
     }
 
-    private WorkbookSyntaxNode createWorkbookNode(TablePartProcessor tablePartProcessor,
-                                                  XlsWorkbookSourceCodeModule workbookSourceModule,
-                                                  WorksheetSyntaxNode[] sheetNodes) {
-        TableSyntaxNode[] mergedNodes = {};
+    /**
+     * Reads a module written as a folder of Markdown files: every file is a workbook of the module.
+     *
+     * <p>A file already read, such as one of a sub-folder the module includes, is not read again.
+     *
+     * <p>A file holds one table, so each part of a table written in parts is a file of its own. The parts are joined
+     * across the folder, as a workbook joins the parts on its sheets, and the joined table belongs to the file of its
+     * first part.
+     */
+    private void preprocessFolder(IOpenSourceCodeModule module, Path folder) {
+        var files = MarkdownFolderModule.files(module, folder);
+        if (files.isEmpty()) {
+            addError(SyntaxNodeExceptionUtils.createError("The module folder holds no Markdown file.", module));
+        }
+        // All are known before any is read: an include of one of them reads nothing, the walk reads it by its place
+        var unread = files.stream().filter(file -> preprocessedWorkBooks.add(file.file().toString())).toList();
+        var tablePartProcessor = new TablePartProcessor();
+        var read = new ArrayList<ReadFile>();
+        for (var file : unread) {
+            var workbookSourceModule = new XlsWorkbookSourceCodeModule(file.source());
+            read.add(new ReadFile(file.path(), workbookSourceModule,
+                    List.of(createWorksheetNodes(tablePartProcessor, workbookSourceModule))));
+        }
+        var mergedNodes = mergeTableParts(tablePartProcessor);
+        for (var file : read) {
+            var joined = mergedNodes.stream()
+                    .filter(table -> table.getXlsSheetSourceCodeModule().getWorkbookSource() == file.workbook())
+                    .toArray(TableSyntaxNode[]::new);
+            var workbookNode = new WorkbookSyntaxNode(file.sheets().toArray(WorksheetSyntaxNode[]::new),
+                    joined,
+                    file.workbook());
+            workbookNodes.add(workbookNode);
+            MarkdownFolderModule.misplacedTables(file.path(), workbookNode).forEach(this::addError);
+        }
+    }
+
+    /**
+     * A file of a module folder as read, before the parts of its tables are joined.
+     *
+     * @param path     the path of the file in the folder
+     * @param workbook the workbook the file is read as
+     * @param sheets   the sheets of the file
+     */
+    private record ReadFile(String path, XlsWorkbookSourceCodeModule workbook, List<WorksheetSyntaxNode> sheets) {
+    }
+
+    /**
+     * Joins the parts of every table written in parts. A joined table stands on the sheet of its first part.
+     */
+    private List<TableSyntaxNode> mergeTableParts(TablePartProcessor tablePartProcessor) {
+        var mergedNodes = new ArrayList<TableSyntaxNode>();
         try {
-            List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
-            var n = tableParts.size();
-            mergedNodes = new TableSyntaxNode[n];
-            for (var i = 0; i < n; i++) {
-                mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
-                        tableParts.get(i).getSource(),
-                        tablePartProcessor);
+            for (TablePart tablePart : tablePartProcessor.mergeAllNodes()) {
+                mergedNodes.add(preprocessTable(tablePart.getTable(), tablePart.getSource(), tablePartProcessor));
             }
         } catch (OpenLCompilationException e) {
             messages.add(OpenLMessagesUtils.newErrorMessage(e));
         }
-
-        return new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceModule);
+        messages.addAll(tablePartProcessor.getMessages());
+        return mergedNodes;
     }
 
     private WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,

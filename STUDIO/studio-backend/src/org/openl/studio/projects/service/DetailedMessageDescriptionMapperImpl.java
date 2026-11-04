@@ -22,6 +22,7 @@ import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablesByLocation;
+import org.openl.util.text.TextInfo;
 
 @Service
 @RequiredArgsConstructor
@@ -102,13 +103,35 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                         .end(marked == null ? null : marked.end())
                         .build();
             }
-            return where != null
-                    ? ModuleMessageSource.builder()
-                            .name(where.module())
-                            .projectId(where.projectId())
-                            .project(where.projectName())
-                            .build()
-                    : null;
+            if (where == null) {
+                return null;
+            }
+            var line = lineOf(message);
+            var path = line == null ? null : tableModules.fileOf(sourceLocation);
+            return ModuleMessageSource.builder()
+                    .name(where.module())
+                    .projectId(where.projectId())
+                    .project(where.projectName())
+                    .path(path)
+                    .line(path == null ? null : line)
+                    .build();
+        }
+
+        /**
+         * The line of a file a message points at, counted from one: a Markdown file that holds no table tells the
+         * line its front matter breaks the format on.
+         *
+         * <p>Answers {@code null} for a message that points at no text.
+         */
+        private static @Nullable Integer lineOf(OpenLMessage message) {
+            var error = message instanceof OpenLErrorMessage errorMessage ? errorMessage.getError() : null;
+            if (error == null || error.getSourceCode() == null) {
+                return null;
+            }
+            var where = error.getLocation();
+            return where == null || !where.isTextLocation()
+                    ? null
+                    : where.getStart().getLine(new TextInfo(error.getSourceCode())) + 1;
         }
 
         /**

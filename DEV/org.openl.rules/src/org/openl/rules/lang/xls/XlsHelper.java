@@ -111,7 +111,9 @@ public final class XlsHelper {
 
         try {
             var url = new URL(uri);
-            var fileName = url.getFile();
+            var file = url.getFile();
+            // A module written as a folder is named after the folder
+            var fileName = file.endsWith("/") ? file.substring(0, file.length() - 1) : file;
             var index = fileName.lastIndexOf('/');
 
             fileName = index < 0 ? fileName : fileName.substring(index + 1);

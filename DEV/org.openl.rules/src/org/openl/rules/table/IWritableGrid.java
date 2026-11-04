@@ -1,7 +1,11 @@
 package org.openl.rules.table;
 
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import java.io.IOException;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.jspecify.annotations.Nullable;
+
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 
@@ -109,4 +113,18 @@ public interface IWritableGrid extends IGrid {
      * @throws IllegalArgumentException when Excel cannot read the formula or Apache POI cannot compute it
      */
     void setCellFormula(int col, int row, String formula);
+
+    /**
+     * Saves the file the grid writes into with what was written through the grid.
+     *
+     * @throws IOException when the file cannot be written
+     */
+    void save() throws IOException;
+
+    /**
+     * Returns the sheet the grid writes, which the module compiles the tables written on it from.
+     *
+     * @return the sheet, or {@code null} for a grid that writes no sheet of a module
+     */
+    @Nullable XlsSheetSourceCodeModule getSheetSource();
 }

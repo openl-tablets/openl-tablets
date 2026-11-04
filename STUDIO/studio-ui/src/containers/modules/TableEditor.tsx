@@ -28,6 +28,7 @@ import {
     type EditStep,
     keyOf,
     NO_EDITS,
+    rangeOf,
     redo,
     replay,
     rowAsRead,
@@ -35,6 +36,7 @@ import {
     sameCell,
     shownStyle,
     undo,
+    valuesIn,
     withStep,
 } from './tableEdits'
 
@@ -209,6 +211,12 @@ interface TableEditorProps {
     roles?: TableRoles | undefined
     /** The kind of the table, `Rules`, `TBasic`, `ColumnMatch` and so on, which tells whether its indent is structure. */
     kind?: string | undefined
+    /**
+     * Set on a table of a Markdown file, which keeps its values as text and no formatting: the look of a cell is not the
+     * reader's to set. The indent of a TBasic and a ColumnMatch table is, written in the file as non-breaking spaces.
+     * The file holds no Excel formulas either, so a cell is not offered to be written as one.
+     */
+    plainText?: boolean | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
@@ -259,6 +267,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     formulas,
     roles,
     kind,
+    plainText = false,
     onOpenUsage,
     canWrite,
     canMark = true,
@@ -279,14 +288,18 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // The formatting of the workbook lays the table on paper; the Studio look draws it in the theme of the application.
     const paper = onPaper(roles, excelFormatting)
     // The look of a cell is the reader's to set only where it is kept and seen: a save that formats the table would
-    // write the OpenL table style over it, and the Studio look would not show it.
-    const formatting = useContext(SystemContext).systemSettings?.formatTablesOnSave === false && excelFormatting
+    // write the OpenL table style over it, the Studio look would not show it, and a Markdown file does not keep it.
+    // The indent of a TBasic and a ColumnMatch table is their structure, which a Markdown file keeps too.
+    const formattedOnSave = useContext(SystemContext).systemSettings?.formatTablesOnSave !== false
+    const formatting = !plainText && !formattedOnSave && excelFormatting
     const indenting = formatting || INDENTED_KINDS.has(kind ?? '')
     const { styles, cx } = useStyles(paper)
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
     const [buffer, setBuffer] = useState(NO_EDITS)
     const [picked, setPicked] = useState<CellAt | null>(null)
+    // The other corner of the block the reader reached with Shift from the picked cell, or null for the cell alone.
+    const [corner, setCorner] = useState<CellAt | null>(null)
     // The table the picked cell belongs to; see where the picked cell is fitted to the table.
     const [pickedIn, setPickedIn] = useState(tableId)
     // The colour the reader is holding the pointer over in a palette, shown on the picked cell until they
@@ -495,15 +508,21 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // The way the reader came, so turning back lands on the cell they left rather than on its neighbour.
     const came = useRef<{ key: string, at: CellAt }[]>([])
 
-    const pick = useCallback((row: number, column: number) => {
+    const pick = useCallback((row: number, column: number, extend = false) => {
         came.current = []
-        setPicked({ row, column })
+        // Shift reaches from the cell picked before, which stays where the block began, as in a spreadsheet.
+        if (extend && picked !== null) {
+            setCorner({ row, column })
+        } else {
+            setPicked({ row, column })
+            setCorner(null)
+        }
         // The table takes the keys once a cell is picked — but never out of a field the reader is writing in,
         // nor out of the panel hanging under it, whose clicks reach here too.
         if (open === null) {
             grid.current?.focus()
         }
-    }, [open])
+    }, [open, picked])
 
     /**
      * The rows the grid is given: the ones the reader sees, with the header left off where it is hidden. The line under
@@ -538,6 +557,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 came.current.push({ key: BACK[event.key] ?? '', at: picked })
                 came.current = came.current.slice(-STEPS_REMEMBERED)
                 setPicked(next)
+                setCorner(null)
             }
             return
         }
@@ -724,6 +744,17 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             && written[at.row]?.[at.column]?.formula === undefined
     }
 
+    // The block the reader reached with Shift, grown over the merges it reaches into; null for a single cell.
+    const block = picked === null || corner === null ? null : rangeOf(written, picked, corner)
+    // Why the block cannot be merged: a merged cell keeps one value, and the table refuses to merge cells holding
+    // different ones.
+    let mergeBlocked: string | null = null
+    if (block === null || block.rows * block.columns < 2) {
+        mergeBlocked = t('browser.module.edit_merge_pick')
+    } else if (valuesIn(written, block).length > 1) {
+        mergeBlocked = t('browser.module.edit_merge_values')
+    }
+
     /** How a cell is drawn: picked, waiting to be written, or open for writing. */
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
         const at = { row, column }
@@ -735,6 +766,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     <OpenCell
                         address={written[at.row]?.[at.column]?.cell}
                         asked={asked}
+                        excelFormulas={!plainText}
                         from={open.from}
                         markable={markableAt(at)}
                         marks={open.marks}
@@ -750,8 +782,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             }
         }
         const isTouched = edited.touched.has(keyOf(edited, at))
+        const isSelected = block !== null && row >= block.row && row < block.row + block.rows
+            && column >= block.column && column < block.column + block.columns
         return {
-            className: cx(isTouched && styles.touched, sameCell(picked, at) && styles.picked,
+            className: cx(isTouched && styles.touched, isSelected && styles.selected, sameCell(picked, at) && styles.picked,
                 markCell != null && cell.cell === markCell && styles.raised, canWrite && styles.editable),
             painted: isTouched,
         }
@@ -775,7 +809,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             onKeyDown={canWrite ? onKeyDown : undefined}
             onOpenCell={canWrite ? (row, column) => openCell(row + hidden, column) : undefined}
             onOpenUsage={editing ? undefined : onOpenUsage}
-            onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
+            onPickCell={canWrite ? (row, column, extend) => pick(row + hidden, column, extend) : undefined}
             roles={roles}
             rows={drawn}
             tableRef={grid}
@@ -822,6 +856,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     indenting={indenting}
                     markers={markers}
                     marking={canMark}
+                    mergeBlocked={mergeBlocked}
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row + rowsOfChosen })}
@@ -830,9 +865,18 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onSave={save}
                     onStyle={(style: RawCellStyleInput) => step({ kind: 'style', at, style })}
                     onUndo={() => setBuffer(undo)}
+                    onUnmerge={() => step({ kind: 'unmerge', at })}
                     picked={picked}
                     saving={saving}
+                    unmergeable={rowsOfChosen > 1 || columnsOfChosen > 1}
                     whole={whole}
+                    onMerge={() => {
+                        if (block !== null) {
+                            step({ kind: 'merge', at: { row: block.row, column: block.column },
+                                rows: block.rows, columns: block.columns })
+                            pick(block.row, block.column)
+                        }
+                    }}
                     // The reader stays where they were, on the line that takes the place of the one gone, so
                     // several lines are taken away one after another without picking a cell each time. Picking
                     // it again hands the keys back to the table, which the click on the button took away.

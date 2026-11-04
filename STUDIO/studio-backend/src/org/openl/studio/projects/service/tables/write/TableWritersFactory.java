@@ -9,7 +9,7 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoWriter;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.studio.projects.model.tables.DataView;
 import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.model.tables.LookupView;
@@ -21,6 +21,7 @@ import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestView;
 import org.openl.studio.projects.model.tables.VocabularyView;
+import org.openl.studio.projects.service.tables.MarkdownTables;
 import org.openl.studio.projects.service.tables.TableFormatting;
 
 @Component
@@ -31,7 +32,7 @@ public class TableWritersFactory {
 
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
-    public TableWriter<? extends TableView> getNewTableWriter(TableView tableView, XlsSheetGridModel gridModel) {
+    public TableWriter<? extends TableView> getNewTableWriter(TableView tableView, IWritableGrid gridModel) {
         var rect = gridModel.findEmptyRect(tableView.getWidth(), tableView.getHeight());
         var gridTable = new GridTable(rect, gridModel);
         return switch (tableView) {
@@ -53,13 +54,14 @@ public class TableWritersFactory {
 
     /**
      * The writer of a table of the project, in the view of the given type. The save of the writer formats the table
-     * while the administrator has formatting on save turned on.
+     * while the administrator has formatting on save turned on, unless the table comes from a Markdown module, which
+     * keeps no formatting.
      */
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
     public TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
         var writer = writerOf(table, tableType);
-        writer.formatOnSave(formatting.onSave());
+        writer.formatOnSave(formatting.onSave() && !MarkdownTables.isMarkdown(table));
         return writer;
     }
 

@@ -14,6 +14,7 @@ import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 import org.openl.rules.table.actions.OtherTables;
@@ -21,7 +22,6 @@ import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
 import org.openl.rules.table.actions.UndoableRemoveMergedRowsAction;
-import org.openl.rules.table.xls.XlsSheetGridModel;
 
 /**
  * Writes a table's properties section.
@@ -57,7 +57,7 @@ public class TableEditorModel {
     }
 
     /**
-     * Saves the workbook of the table.
+     * Saves the file of the table: its workbook, or its Markdown file.
      *
      * <p>A table keeps its id when an edit moves it to make room for a property it takes; a new {@code id} property
      * gives it a new one.
@@ -65,10 +65,9 @@ public class TableEditorModel {
      * @return the id of the table as saved
      */
     public String save() throws IOException {
-        var xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         // Read while the table is open for writing: once saved, the sheet is read as it was compiled.
         var id = keepTableId();
-        xlsgrid.getSheetSource().getWorkbookSource().save();
+        ((IWritableGrid) gridTable.getGrid()).save();
         return id;
     }
 

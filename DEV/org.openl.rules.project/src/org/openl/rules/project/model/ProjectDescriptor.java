@@ -50,6 +50,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTool;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.OS;
@@ -523,6 +524,10 @@ public class ProjectDescriptor {
     /**
      * Resolves modules matched by a path pattern.
      *
+     * <p>A matched file is a module, and so is a matched folder that holds a Markdown file, in it or in a sub-folder:
+     * a module written as a folder of Markdown files. The files of such a folder belong to its module and are not
+     * matched on their own.
+     *
      * <p>Matches are returned in path order so the module order is stable across file systems.
      */
     public List<Module> getAllModulesMatchingPathPattern(Module module, String pathPattern) throws IOException {
@@ -546,28 +551,25 @@ public class ProjectDescriptor {
 
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                return ignored.test(dir) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                if (ignored.test(dir)) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                var relativePath = rootPath.relativize(dir).toString().replace("\\", "/");
+                if (relativePath.isEmpty() || !FileUtils.pathMatches(ptrn, relativePath)
+                        || !holdsMarkdown(dir, ignored)) {
+                    return FileVisitResult.CONTINUE;
+                }
+                matchedModules.add(matchedModule(module, pathPattern, relativePath, dir.getFileName().toString()));
+                return FileVisitResult.SKIP_SUBTREE;
             }
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 var relativePath = rootPath.relativize(file).toString().replace("\\", "/");
                 if (FileUtils.pathMatches(ptrn, relativePath) && !ignored.test(file) && isNotTemporaryFile(file)) {
-                    var modulePath = file.toAbsolutePath();
-                    var m = new Module();
-                    m.setProject(ProjectDescriptor.this);
-                    m.setRulesRootPath(relativePath);
-                    m.setName(FileUtils.getBaseName(modulePath.toString()));
-                    m.setMethodFilter(module.getMethodFilter());
-                    if (module.getWebstudioConfiguration() != null) {
-                        var webstudioConfiguration = new WebstudioConfiguration();
-                        webstudioConfiguration
-                                .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
-                        m.setWebstudioConfiguration(webstudioConfiguration);
-                    }
-                    m.setWildcardRulesRootPath(pathPattern);
-                    matchedModules.add(m);
+                    matchedModules.add(matchedModule(module, pathPattern, relativePath,
+                            FileUtils.getBaseName(file.toAbsolutePath().toString())));
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -575,6 +577,32 @@ public class ProjectDescriptor {
 
         matchedModules.sort(Comparator.comparing(Module::getRulesRootPath));
         return matchedModules;
+    }
+
+    /** A module a path pattern matched, set up as the module declaring the pattern. */
+    private Module matchedModule(Module module, String pathPattern, String relativePath, String name) {
+        var m = new Module();
+        m.setProject(this);
+        m.setRulesRootPath(relativePath);
+        m.setName(name);
+        m.setMethodFilter(module.getMethodFilter());
+        if (module.getWebstudioConfiguration() != null) {
+            var webstudioConfiguration = new WebstudioConfiguration();
+            webstudioConfiguration
+                    .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
+            m.setWebstudioConfiguration(webstudioConfiguration);
+        }
+        m.setWildcardRulesRootPath(pathPattern);
+        return m;
+    }
+
+    /** Whether a folder holds a Markdown file not ignored, in it or in a sub-folder. */
+    private static boolean holdsMarkdown(Path folder, Predicate<Path> ignored) throws IOException {
+        try (var files = Files.find(folder, Integer.MAX_VALUE,
+                (path, attributes) -> attributes.isRegularFile() && FileTypeHelper.isMarkdownFile(path.toString())
+                        && !ignored.test(path))) {
+            return files.findAny().isPresent();
+        }
     }
 
     private boolean isNotTemporaryFile(Path file) throws IOException {

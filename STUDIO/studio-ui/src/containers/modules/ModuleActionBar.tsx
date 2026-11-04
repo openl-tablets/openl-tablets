@@ -14,6 +14,7 @@ import { ACTION_ICONS } from '../projects/projectActionIcons'
 import { useProjectDialogs, type ProjectDialogActions } from '../projects/useProjectDialogs'
 import { ReformatExcelFilesModal } from './ReformatExcelFilesModal'
 import { useOverwriteConfirm } from './useOverwriteConfirm'
+import { isMarkdownPath, isWorkbookPath } from '../../utils/workbooks'
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
@@ -88,8 +89,15 @@ export const ModuleActionBar = ({
     // offered here exactly as the project's own screen offers them, by the same capabilities.
     const { actions, dialogs } = useProjectDialogs(project, { onChanged: () => onProjectChanged?.() })
     // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
-    // Files tab uses, restricted to Excel.
-    const canUpdateModule = !!project.capabilities?.canWrite && !!modulePath
+    // Files tab uses, restricted to Excel. A Markdown module is changed as text in the file editor: no workbook
+    // replaces it.
+    const canUpdateModule = !!project.capabilities?.canWrite && !!modulePath && isWorkbookPath(modulePath)
+    // A module of a single Markdown file holds its one table and takes no other. A folder of Markdown files takes a
+    // table as a file of its own, and a module whose path is not known yet may still take one.
+    const singleFile = isMarkdownPath(modulePath)
+    // Only a module of a single file is downloaded from here: a folder is downloaded with the project.
+    const exportable = !!modulePath && (isWorkbookPath(modulePath) || isMarkdownPath(modulePath))
+    const exportHint = modulePath ? 'browser.module.export_folder' : 'browser.module.export_unavailable'
     // Writing a table into the project is the project's own right, so it is offered by the same capability
     // the Files tab writes by.
     const canWrite = !!project.capabilities?.canWrite
@@ -193,10 +201,10 @@ export const ModuleActionBar = ({
                     {t('browser.module.update')}
                 </Button>
             )}
-            <Tooltip title={modulePath ? undefined : t('browser.module.export_unavailable')}>
+            <Tooltip title={exportable ? undefined : t(exportHint)}>
                 <Button
                     data-testid="module-export"
-                    disabled={disabled || !modulePath}
+                    disabled={disabled || !exportable}
                     icon={ACTION_ICONS.export}
                     onClick={() => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
                         detail: { projectId: project.id, filePath: modulePath },
@@ -216,7 +224,7 @@ export const ModuleActionBar = ({
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
                 )}
             </Button>
-            {canWrite && (
+            {canWrite && !singleFile && (
                 <Button
                     data-testid="module-createTable"
                     disabled={disabled}

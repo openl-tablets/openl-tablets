@@ -233,6 +233,8 @@ export type TableEdit =
     | { operation: 'insert', target: { type: 'columns', position: number, cells: RawTableCellInput[][] } }
     | { operation: 'delete', target: { type: 'rows', position: number, count: number } }
     | { operation: 'delete', target: { type: 'columns', position: number, count: number } }
+    | { operation: 'merge', target: { type: 'cells', row: number, column: number, rowspan: number, colspan: number } }
+    | { operation: 'unmerge', target: { type: 'cells', row: number, column: number } }
     | {
         operation: 'style'
         target: {

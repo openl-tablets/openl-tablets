@@ -12,6 +12,7 @@
     <modules>
         <module>openl-gen-manifest</module>
         <module>openl-jar-packaging</module>
+        <module>openl-markdown-package</module>
         <module>openl-no-xlsx</module>
         <module>openl-package-tests-classifier</module>
     </modules>

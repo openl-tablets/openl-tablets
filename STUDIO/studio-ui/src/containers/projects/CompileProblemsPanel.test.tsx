@@ -209,6 +209,32 @@ describe('CompileProblemsPanel', () => {
         expect(navigate).toHaveBeenCalledWith('/projects/p9/modules/Bank%20Rating?table=table-9&errorCell=D101')
     })
 
+    it('opens the line of the file a problem points to', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([{
+                    id: 7,
+                    severity: 'ERROR' as const,
+                    summary: 'A value of the front matter must be text or a list',
+                    stacktrace: false,
+                    location: {
+                        type: 'module' as const,
+                        name: 'Rates',
+                        projectId: 'p9',
+                        path: 'rules/Rates/Folder/unread.md',
+                        line: 3,
+                    },
+                }], 'errors'),
+            }}
+        />)
+
+        fireEvent.click(screen.getByTestId('compile-message-7'))
+
+        // A file that holds no table is fixed in the Files tab, on the line the problem points to.
+        expect(navigate).toHaveBeenCalledWith('/projects/p9?tab=files&file=rules%2FRates%2FFolder%2Funread.md&line=3')
+    })
+
     it('keeps the reader where they are while a module is being compiled', () => {
         render(<CompileProblemsPanel
             project={{

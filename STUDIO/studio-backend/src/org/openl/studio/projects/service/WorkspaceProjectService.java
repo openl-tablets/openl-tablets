@@ -83,6 +83,7 @@ import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -150,6 +151,8 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.GeneratedTables;
+import org.openl.studio.projects.service.tables.MarkdownTableFiles;
+import org.openl.studio.projects.service.tables.MarkdownTables;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
@@ -241,6 +244,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectListingContext listingContext;
     private final ObjectFactory<UserWorkspace> userWorkspaceFactory;
     private final UploadFormatting uploadFormatting;
+    private final MarkdownTableFiles markdownTableFiles;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -276,7 +280,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectListingContext listingContext,
             ModuleCompilationLauncher moduleCompilationLauncher,
             ObjectFactory<UserWorkspace> userWorkspaceFactory,
-            UploadFormatting uploadFormatting) {
+            UploadFormatting uploadFormatting,
+            MarkdownTableFiles markdownTableFiles) {
         super(designRepositoryAclService, projectAccessService);
         this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
@@ -298,6 +303,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
         this.uploadFormatting = uploadFormatting;
+        this.markdownTableFiles = markdownTableFiles;
         this.eventPublisher = eventPublisher;
         this.auditor = auditor;
         this.bypassService = bypassService;
@@ -2457,9 +2463,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         GeneratedTables.refuseAction(context.module(), context.table());
         // A table gathered from several partial tables is drawn from cells that do not sit together, and the
         // grid it is read through holds no place to write back into. Refused here, where every write resolves
-        // its table, rather than left to fail on the grid itself.
+        // its table, rather than left to fail on the grid itself. The parts of a Markdown table are files, changed
+        // as text.
         if (context.module().isTablePart(context.table().getUri())) {
-            throw new BadRequestException("table.partial.message");
+            throw new BadRequestException(MarkdownTables.isMarkdown(context.table())
+                    ? "table.markdown.partial.message"
+                    : "table.partial.message");
         }
         return context;
     }
@@ -2639,6 +2648,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                   @Nullable String moduleName,
                                   @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
+        MarkdownTables.refuseStyle(context.table(), actions);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
         return renamed(context,
@@ -2654,8 +2664,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * compilation the reader stopped is refused.
      *
      * <p>A table of a project this one depends on is left as it is, as is a table of the type Other and a table of an
-     * {@code .xls} workbook. A table gathered from several partial tables is left as it is too, and named among the
-     * skipped ones. No value is changed.
+     * {@code .xls} workbook, and a table of a Markdown module, which keeps no formatting: OpenL Studio draws its look
+     * alone. A table gathered from several partial tables is left as it is too, and named among the skipped ones. No
+     * value is changed.
      *
      * <p>Each workbook formatted is saved once, without the cell formats and the named styles no cell uses any more.
      * It keeps the change in the local history of its module, and the project is marked modified, as an edit of a
@@ -2677,7 +2688,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var skipped = new ArrayList<String>();
         for (var node : model.getAllTableSyntaxNodes()) {
             var table = new TableSyntaxNodeAdapter(node);
-            var owner = TableRegionLayout.formats(table)
+            var owner = TableRegionLayout.formats(table) && !MarkdownTables.isMarkdown(table)
                     ? CollectionUtils.findFirst(modules, module -> module.containsTable(node.getUri()))
                     : null;
             if (owner != null) {
@@ -2838,6 +2849,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * The whole table area is cleared from the sheet regardless of the table type. The table no longer exists once the
      * project is recompiled. Its id, and every id it had before, answer that the table is gone.
      *
+     * <p>A table of a Markdown module is a file of its own, and the file is deleted. The last table of such a module
+     * is refused: a module folder holds at least one file.
+     *
      * @param project project
      * @param tableId table id
      * @throws ConflictException if the project is held by another user
@@ -2848,11 +2862,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                             @Nullable String moduleName,
                             @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
-        var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        writing(context, expectedVersion, () -> {
-            writer.delete();
-            return null;
-        });
+        Supplier<Void> delete;
+        if (MarkdownTables.isMarkdown(context.table())) {
+            delete = () -> {
+                markdownTableFiles.delete(project, context.module().getModuleInfo(), context.table());
+                return null;
+            };
+        } else {
+            var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+            delete = () -> {
+                writer.delete();
+                return null;
+            };
+        }
+        writing(context, expectedVersion, delete);
         StaleTableIds.deleted(context.module(), context.table().getId());
     }
 
@@ -2913,6 +2936,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     /**
      * Copy a table into a module of the currently opened project, preserving its formatting.
+     *
+     * <p>The copy takes the format of its destination: a sheet of a workbook, or a file of its own in a module of
+     * Markdown files, in the folder its sheet names, which keeps no formatting. A new module is a workbook for a path
+     * of one, and a folder of Markdown files for any other path.
      * <p>
      * The table stays on the server, resolved by its id. It is rebuilt on the destination sheet the way the table
      * editor writes a new table: the body is copied with its styles, merged cells and comments, the header is renamed
@@ -2943,21 +2970,48 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
                 ? requestedSheet
                 : request.name();
-        if (StringUtils.isNotBlank(request.modulePath())) {
-            return copyIntoNewModule(project, source, request, sheetName);
+        var modulePath = request.modulePath();
+        if (modulePath != null && !modulePath.isBlank()) {
+            return FileTypeHelper.isExcelFile(modulePath)
+                    ? copyIntoNewModule(project, source, request, sheetName)
+                    : copyIntoNewMarkdownModule(project, source, request, modulePath);
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
         return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
-    /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */
+    /**
+     * Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. A module of
+     * Markdown files takes it as a file of its own, in the folder the requested sheet names.
+     */
     private String writeCopy(ProjectModel projectModel, IOpenLTable source, CopyTableRequest request,
                              String sheetName) {
-        var destGrid = tableCreatorService.sheetGridModel(projectModel, sheetName);
-        var copyId = tableCopyService.copyInto(source, request.name(), request.properties(), destGrid,
+        var folder = MarkdownTableFiles.folderOf(projectModel.getModuleInfo());
+        IWritableGrid destGrid = folder == null
+                ? tableCreatorService.sheetGridModel(projectModel, sheetName)
+                : markdownTableFiles.newFile(projectModel, folder, request.sheetName(), request.name(),
+                        OpenLTableUtils.kindOf(source));
+        return tableCopyService.copyInto(source, request.name(), request.properties(), destGrid,
                 projectModel.getTableSyntaxNodes());
-        tableCreatorService.save(destGrid);
-        return copyId;
+    }
+
+    /**
+     * Copy a table into a new module of Markdown files: the copy is the first file of the module, in the folder the
+     * requested sheet names, and the module is registered once the file is written.
+     *
+     * @return {@code null}, so the caller resolves the copy by name
+     */
+    private @Nullable String copyIntoNewMarkdownModule(RulesProject project,
+                                                       IOpenLTable source,
+                                                       CopyTableRequest request,
+                                                       String modulePath) {
+        var projectDescriptor = getProjectDescriptor(project);
+        requireModuleAbsent(projectDescriptor.getModules(), request.moduleName(), modulePath);
+        var grid = tableCreatorService.newMarkdownModule(project, projectDescriptor, request.moduleName(),
+                modulePath, request.sheetName(), request.name(), OpenLTableUtils.kindOf(source));
+        writing(() -> tableCopyService.copyInto(source, request.name(), request.properties(), grid,
+                new TableSyntaxNode[0]));
+        return null;
     }
 
     /**

@@ -30,26 +30,21 @@ vi.mock('antd', async () => {
         open,
         title,
         children,
-        okText,
         cancelText,
-        onOk,
         onCancel,
-        okButtonProps,
+        footer,
     }: {
         open?: boolean
         title?: React.ReactNode
         children?: React.ReactNode
-        okText?: React.ReactNode
         cancelText?: React.ReactNode
-        onOk?: () => void
         onCancel?: () => void
-        okButtonProps?: { disabled?: boolean, loading?: boolean }
+        footer: (origin: React.ReactNode, extra: { CancelBtn: React.FC }) => React.ReactNode
     }) => open ? (
         <div role="dialog">
             <div>{title}</div>
             {children}
-            <button onClick={onCancel}>{cancelText}</button>
-            <button disabled={okButtonProps?.disabled} onClick={onOk}>{okText}</button>
+            {footer(null, { CancelBtn: () => <button onClick={onCancel}>{cancelText}</button> })}
         </div>
     ) : null
     const MockSelect = ({
@@ -967,6 +962,50 @@ describe('CreateTableModal', () => {
             moduleName: 'Pricing',
             modulePath: defaultModulePath('Pricing'),
         } satisfies Partial<CreateTableRequest>)
+    })
+
+    it('creates a module of Markdown files from the arrow of the Create button', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+        await enterTableName(user)
+        await user.clear(screen.getByTestId('create-table-module'))
+        await user.type(screen.getByTestId('create-table-module'), 'Greetings')
+        await user.clear(screen.getByTestId('create-table-sheet'))
+        await user.type(screen.getByTestId('create-table-sheet'), 'rates')
+
+        await user.click(screen.getByTestId('create-table-more'))
+        await user.click(await screen.findByTestId('create-table-markdown'))
+
+        // The sheet is the folder of the file in the module
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1]).toMatchObject({
+            moduleName: 'Greetings',
+            sheetName: 'rates',
+            modulePath: 'rules/Greetings',
+        } satisfies Partial<CreateTableRequest>)
+    })
+
+    it('writes into a folder of Markdown files, its sheets being its folders', async () => {
+        mockGetModules.mockResolvedValueOnce([
+            { name: 'Main', path: 'rules/Main.xlsx' },
+            { name: 'Greetings', path: 'rules/Greetings' },
+        ])
+        mockGetSheets.mockResolvedValue(['Greetings', 'rates'])
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal({ currentModuleName: 'Greetings' })
+
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Greetings'))
+        expect(screen.getByTestId('create-table-sheet')).toHaveValue('Greetings')
+        // The module is there already: its format is its own, which the button names
+        await enterTableName(user)
+        expect(screen.queryByTestId('create-table-more')).toBeNull()
+        await user.click(screen.getByRole('button', { name: 'project:create_table_modal.create_markdown' }))
+        await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
+        expect(mockCreateTable.mock.calls[0]![1]).toMatchObject({ moduleName: 'Greetings', sheetName: 'Greetings' })
+        expect(mockCreateTable.mock.calls[0]![1]).not.toHaveProperty('modulePath')
     })
 
     it('keeps the modal open when creation fails', async () => {

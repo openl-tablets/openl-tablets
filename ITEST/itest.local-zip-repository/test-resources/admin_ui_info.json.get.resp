@@ -41,6 +41,17 @@ Content-Type: application/json
       "status": "DEPLOYED"
     },
     {
+      "startedTime": "*",
+      "name": "EPBDS-17019_EPBDS-17019",
+      "servicePath": "EPBDS-17019",
+      "urls": {
+        "RESTFUL": "EPBDS-17019/EPBDS-17019"
+      },
+      "hasManifest": false,
+      "deploymentName": "EPBDS-17019",
+      "status": "DEPLOYED"
+    },
+    {
       "hasManifest": false,
       "name": "multi_project_project1",
       "servicePath": "multiproject/project1",

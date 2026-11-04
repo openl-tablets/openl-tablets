@@ -24,7 +24,10 @@ import {
     isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
+import { searchTables } from '../../services/modules'
+import { isMarkdownPath } from '../../utils/workbooks'
 import { useSharedStyles } from './sharedStyles'
+import { trimTrailingSlashes } from './projectPaths'
 import { CopyFileModal } from './CopyFileModal'
 import { DeleteFileModal } from './DeleteFileModal'
 import { MoveFileModal } from './MoveFileModal'
@@ -67,6 +70,8 @@ interface FilePreviewPaneProps {
     projectName: string
     branch?: string | null
     path: string | null
+    /** The line of the file to show the cursor at, counted from 1: the one a compilation message points to. */
+    line?: number | undefined
     canWrite: boolean
     canDelete: boolean
     onChanged: () => void
@@ -85,6 +90,20 @@ interface FilePreviewPaneProps {
     modules?: Record<string, string>
     /** Opens the module the file is, in the editor. */
     onOpenModule?: (moduleName: string) => void
+    /** Opens a table of a module in the editor: the one a Markdown file of a module folder holds. */
+    onOpenTable?: (moduleName: string, tableId: string) => void
+}
+
+/**
+ * The module whose table a Markdown file holds: the module of the folder the file is in, at any depth.
+ *
+ * <p>A Markdown file of no module folder holds no table: it is documentation.
+ */
+const tableModuleOf = (modules: Record<string, string>, path: string): string | undefined => {
+    const folder = Object.keys(modules)
+        .filter(modulePath => path.startsWith(`${trimTrailingSlashes(modulePath)}/`))
+        .sort((a, b) => b.length - a.length)[0]
+    return folder === undefined ? undefined : modules[folder]
 }
 
 /**
@@ -212,8 +231,9 @@ const fileMenuItems = (
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, line, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule, onOpenTable }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
+    const { notification } = App.useApp()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const [activeSelection, setActiveSelection] = useState<FileSelection>({
@@ -231,6 +251,7 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     const [moving, setMoving] = useState<'move' | 'rename' | null>(null)
     const [deleting, setDeleting] = useState(false)
     const [editing, setEditing] = useState(false)
+    const [openingTable, setOpeningTable] = useState(false)
 
     const activePath = activeSelection.path
     const editable = !!activePath && isEditableTextFile(activePath)
@@ -238,6 +259,10 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         useFileText(activeSelection, editable, changedFiles, t)
     // A workbook the project declares as a module is opened in the editor rather than exported to be read.
     const openableModule = activePath && onOpenModule ? modules[activePath] : undefined
+    // A Markdown file of a module folder is a table, which the editor shows as any table of a workbook.
+    const tableModule = activePath && onOpenTable && isMarkdownPath(activePath)
+        ? tableModuleOf(modules, activePath)
+        : undefined
     const dirty = content !== original
     const incomingSelection: FileSelection = {
         branch: branch ?? null,
@@ -288,6 +313,28 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         }
     }
 
+    const openTable = async () => {
+        if (!activePath || !tableModule) {
+            return
+        }
+        setOpeningTable(true)
+        setError(null)
+        try {
+            const tables = await searchTables(activeSelection.projectId, { module: tableModule })
+            // A table is known by the file it is written in, named from the root of the workspace
+            const table = tables.find(candidate => candidate.file?.endsWith(`/${activePath}`))
+            if (table) {
+                onOpenTable?.(tableModule, table.id)
+            } else {
+                notification.info({ title: t('browser.files.no_table', { name: activePath.split('/').pop() }) })
+            }
+        } catch (e) {
+            setError(message(e))
+        } finally {
+            setOpeningTable(false)
+        }
+    }
+
     const cancelEdit = () => {
         setContent(original)
         setEditing(false)
@@ -335,7 +382,14 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         : (
             <div className={styles.body}>
                 <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />}>
-                    <CodeEditor onChange={setContent} path={activePath} readOnly={!editing} value={content} />
+                    <CodeEditor
+                        // The line belongs to the file the URL names, not to one still shown while it is left
+                        line={activePath === path ? line : undefined}
+                        onChange={setContent}
+                        path={activePath}
+                        readOnly={!editing}
+                        value={content}
+                    />
                 </Suspense>
             </div>
         )
@@ -367,6 +421,17 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                         </>
                     ) : (
                         <>
+                            {tableModule && (
+                                <Button
+                                    data-testid="file-open-table"
+                                    icon={<TableOutlined />}
+                                    loading={openingTable}
+                                    onClick={() => void openTable()}
+                                    size="small"
+                                >
+                                    {t('browser.files.open_in_editor')}
+                                </Button>
+                            )}
                             {editable && canWrite && (
                                 <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small">
                                     {t('browser.editor.edit')}
