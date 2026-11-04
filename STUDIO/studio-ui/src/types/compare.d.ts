@@ -26,6 +26,10 @@ export interface ComparisonNode {
     yours?: ComparisonNodeStatus | null
     /** What their version did to the element, in a comparison of a conflicted file with its base. */
     theirs?: ComparisonNodeStatus | null
+    /** Whether the table holds cells outside OpenL tables, such as notes or formulas beside them. */
+    other?: boolean | null
+    /** Whether both versions of a conflict changed cells of the table differently. */
+    conflict?: boolean | null
     /** Tables of a sheet; absent for a table. */
     children?: ComparisonNode[]
 }

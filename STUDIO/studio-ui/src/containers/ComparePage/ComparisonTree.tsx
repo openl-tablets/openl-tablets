@@ -16,15 +16,31 @@ interface ComparisonTreeProps {
     comparison: Comparison
     /** Whether the elements that read the same in both files are listed. */
     showEqualElements: boolean
+    /** Whether the cells outside OpenL tables are listed, such as notes or formulas beside them. */
+    showOtherTables?: boolean | undefined
     onSelect: (tableId: string | null) => void
 }
 
 /**
+ * Whether an element is listed: one that differs, unless the equal ones are asked for; an OpenL table, unless the
+ * other tables are asked for. A table both versions of a conflict changed differently is listed whatever it holds.
+ */
+const listed = (element: ComparisonNode, showEqualElements: boolean, showOtherTables: boolean): boolean =>
+    (showEqualElements || element.status !== 'equal') && (showOtherTables || !element.other || !!element.conflict)
+
+/**
  * What the two compared files hold, grouped by sheet, as a tree the user picks an element from.
  *
- * A sheet is a heading rather than a choice: it is the tables under it that have two sides to show.
+ * A sheet is a heading rather than a choice: it is the tables under it that have two sides to show. The cells outside
+ * OpenL tables, such as notes or formulas beside them, are left out unless they are asked for or both versions of a
+ * conflict changed them differently.
  */
-export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, showEqualElements, onSelect }) => {
+export const ComparisonTree: React.FC<ComparisonTreeProps> = ({
+    comparison,
+    showEqualElements,
+    showOtherTables = false,
+    onSelect,
+}) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
     /** The nodes the reader closed; every other one is open. */
@@ -77,7 +93,7 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
             title: label(sheet),
             selectable: false,
             children: (sheet.children ?? [])
-                .filter(element => showEqualElements || element.status !== 'equal')
+                .filter(element => listed(element, showEqualElements, showOtherTables))
                 .map(element => ({
                     key: element.id,
                     title: label(element),

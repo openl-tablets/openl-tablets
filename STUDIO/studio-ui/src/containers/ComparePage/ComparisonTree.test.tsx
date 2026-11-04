@@ -195,4 +195,32 @@ describe('ComparisonTree', () => {
 
         expect(screen.getByText('no_elements')).toBeInTheDocument()
     })
+
+    it('lists the cells outside OpenL tables only when asked for, unless both versions changed them differently', () => {
+        const withOther: Comparison = {
+            ...COMPARISON,
+            sheets: [{
+                id: '2',
+                name: 'Notes',
+                type: 'sheet',
+                status: 'changed',
+                children: [
+                    { id: '2-0', name: 'Rules String Hello', type: 'table', status: 'changed' },
+                    { id: '2-1', name: 'Note on prices', type: 'table', status: 'changed', other: true },
+                    { id: '2-2', name: 'Total', type: 'table', status: 'changed', other: true, conflict: true },
+                ],
+            }],
+        }
+        const { rerender } = render(
+            <ComparisonTree comparison={withOther} onSelect={vi.fn()} showEqualElements={false} />
+        )
+
+        expect(screen.getByText(/Rules String Hello/)).toBeInTheDocument()
+        expect(screen.queryByText(/Note on prices/)).toBeNull()
+        // A conflict is listed whatever it holds.
+        expect(screen.getByText(/Total/)).toBeInTheDocument()
+
+        rerender(<ComparisonTree showOtherTables comparison={withOther} onSelect={vi.fn()} showEqualElements={false} />)
+        expect(screen.getByText(/Note on prices/)).toBeInTheDocument()
+    })
 })

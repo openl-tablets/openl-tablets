@@ -431,8 +431,9 @@ contain the project when it is opened. Proceed as follows:
     when the versions it compares hold the file, and the other views are dimmed: **All Versions** is offered for an
     Excel file only, a file both branches added has no base version, so only **Both Versions** is available, and a
     file one branch deleted is compared only with the base version, as the other branch changed it. An Excel file is compared element by element, as described in
-    [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements** and **Show
-    equal rows** check boxes heading the list of elements. A text file is compared line by line: a line only the base
+    [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements**, **Other
+    tables** and **Show equal rows** check boxes heading the list of elements. Cells outside OpenL tables that both
+    branches changed differently are listed without **Other tables**. A text file is compared line by line: a line only the base
     version has is marked `-` and a line only the branch version has is marked `+`, and in **Both Versions** a line
     only your version has is marked `-` and a line only their version has is marked `+`. The line above the text
     names the version each sign stands for, beside a red dot for `-` and a green one for `+`, the colours the lines
