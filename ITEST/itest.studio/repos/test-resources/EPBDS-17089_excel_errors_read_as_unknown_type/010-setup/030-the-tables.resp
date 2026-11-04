@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "NVQW5FZVA9Y7Y92J",
+      "kind": "Spreadsheet",
+      "name": "Errors",
+      "pos": "B2:C7"
+    },
+    {
+      "id": "XH828RZA2R34MX0E",
+      "kind": "Spreadsheet",
+      "name": "Ratio",
+      "pos": "B10:C12",
+      "errors": 1
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
+

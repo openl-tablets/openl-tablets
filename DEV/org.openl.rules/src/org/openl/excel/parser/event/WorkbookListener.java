@@ -30,11 +30,13 @@ import org.apache.poi.hssf.record.SSTRecord;
 import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.ParserDateUtil;
 import org.openl.excel.parser.SheetDescriptor;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 
@@ -171,52 +173,47 @@ public class WorkbookListener implements HSSFListener {
         }
     }
 
+    /** A boolean, or an error typed into a cell, which reads as the text Excel shows for it, such as {@code #N/A}. */
     private void processBoolErr(BoolErrRecord berec) {
-        if (berec.isBoolean()) {
-
-            Object value = berec.getBooleanValue();
-            indent = formatListener.getIndent(berec);
-            if (indent > 0) {
-                value = new AlignedValue(value, indent);
-            }
-
-            setValue(berec.getRow(), berec.getColumn(), value);
+        Object value = berec.isBoolean()
+                ? berec.getBooleanValue()
+                : PoiExcelHelper.errorText(berec.getErrorValue());
+        indent = formatListener.getIndent(berec);
+        if (indent > 0) {
+            value = new AlignedValue(value, indent);
         }
+        setValue(berec.getRow(), berec.getColumn(), value);
     }
 
     private void processFormula(FormulaRecord frec) {
-        int row = frec.getRow();
-        int column = frec.getColumn();
+        var row = frec.getRow();
+        var column = frec.getColumn();
 
         switch (frec.getCachedResultType()) {
-            case NUMERIC:
-                Object value = getDateOrIntOrDouble(frec, frec.getValue());
-                if (indent > 0) {
-                    value = new AlignedValue(value, indent);
-                }
-                setValue(row, column, value);
-                break;
-            case BOOLEAN:
-                setValue(row, column, frec.getCachedBooleanValue());
-                break;
-            case STRING:
-                // Formula result is a string
-                // This is stored in the next record
+            case NUMERIC -> {
+                var value = getDateOrIntOrDouble(frec, frec.getValue());
+                setValue(row, column, indent > 0 ? new AlignedValue(value, indent) : value);
+            }
+            case BOOLEAN -> setValue(row, column, frec.getCachedBooleanValue());
+            case STRING -> {
+                // The text the formula computed is stored in the next record
                 outputNextStringRecord = true;
-                nextRow = frec.getRow();
-                nextColumn = frec.getColumn();
-                break;
-            default:
-                // an error result is not a cell value
-                break;
+                nextRow = row;
+                nextColumn = column;
+            }
+            // An error reads as the text Excel shows for it, such as #DIV/0!
+            case ERROR -> setValue(row, column, PoiExcelHelper.errorText(frec.getCachedErrorValue()));
+            default -> {
+                // A formula computes no blank cell and no other formula
+            }
         }
         indent = formatListener.getIndent(frec);
     }
 
     private void processFormulaString(StringRecord srec) {
         Object value = StringUtils.trimToNull(srec.getString());
-        int row = nextRow;
-        int column = nextColumn;
+        var row = nextRow;
+        var column = nextColumn;
         outputNextStringRecord = false;
 
         if (value != null && indent > 0) {
@@ -227,18 +224,17 @@ public class WorkbookListener implements HSSFListener {
     }
 
     private void processLabelSST(LabelSSTRecord lsrec) {
-        int row = lsrec.getRow();
-        int column = lsrec.getColumn();
+        var row = lsrec.getRow();
+        var column = lsrec.getColumn();
         if (sstRecord == null) {
             throw new IllegalStateException("No SST Record, cannot identify string");
-        } else {
-            Object value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
-            indent = formatListener.getIndent(lsrec);
-            if (value != null && indent > 0) {
-                value = new AlignedValue(value, indent);
-            }
-            setValue(row, column, value);
         }
+        Object value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
+        indent = formatListener.getIndent(lsrec);
+        if (value != null && indent > 0) {
+            value = new AlignedValue(value, indent);
+        }
+        setValue(row, column, value);
     }
 
     private void markMergedCells(MergeCellsRecord mergeRec) {
@@ -322,7 +318,7 @@ public class WorkbookListener implements HSSFListener {
         return sheets.get(sheetIndex);
     }
 
-    public Object[][] getCells(SheetDescriptor sheet) {
+    public Object @Nullable[][] getCells(SheetDescriptor sheet) {
         return cellsMap.get(sheet.getName());
     }
 }

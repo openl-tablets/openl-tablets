@@ -229,6 +229,14 @@ from Maven.
   `00` to `07` keep their value. A hexadecimal number such as `0xFF` and an octal escape in a character or a string,
   such as `'\101'`, are not affected.
 
+* **A cell holding an Excel error reads as the error Excel shows.** A formula that computes an error, such as
+  `=D5/0`, and an error typed into a cell read as `#DIV/0!`, `#N/A`, `#REF!` and so on. An `.xlsx` module read such a
+  cell as empty, and an `.xls` module read a typed error as empty and a formula error as the text
+  `unknown type: FORMULA` once OpenL Studio had the workbook open. A cell of a number type that holds an error is now a
+  compilation error that names the cell. A text cell takes the error as its text: a condition of a decision table that
+  held `#N/A` matched any value as an empty one, and now matches only the text `#N/A`, without a message. Fix the
+  formula in Excel, or clear the cell if it is meant to be empty.
+
 * **A percent value in a whole-number cell has to be a whole number.** A text such as `5%` or `250%` in an `Integer`,
   `Long`, `Short` or `Byte` cell no longer compiles, just as the number `2.5` there does not:
   `Cannot parse cell value '250%'. Expected value of type 'Long'.` Before, the fraction was dropped without a warning,

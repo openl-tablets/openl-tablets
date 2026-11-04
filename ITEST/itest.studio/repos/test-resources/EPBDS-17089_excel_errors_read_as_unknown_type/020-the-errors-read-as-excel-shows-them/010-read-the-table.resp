@@ -1,0 +1,76 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "NVQW5FZVA9Y7Y92J",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Errors",
+  "pos": "B2:C7",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet SpreadsheetResult Errors()",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Step"
+      },
+      {
+        "cell": "C3",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Base"
+      },
+      {
+        "cell": "C4",
+        "value": 10
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Ratio"
+      },
+      {
+        "cell": "C5",
+        "value": "#DIV/0!",
+        "formula": "=C4/0"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "Missing"
+      },
+      {
+        "cell": "C6",
+        "value": "#N/A",
+        "formula": "=NA()"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Broken"
+      },
+      {
+        "cell": "C7",
+        "value": "#REF!"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

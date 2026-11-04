@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.load.CellLoader;
 import org.openl.rules.table.GridRegion;
@@ -19,9 +20,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.TextRun;
-import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
-import org.openl.util.StringUtils;
 
 public class XlsCell implements ICell {
 
@@ -58,7 +57,7 @@ public class XlsCell implements ICell {
     }
 
     @Override
-    public ICellStyle getStyle() {
+    public @Nullable ICellStyle getStyle() {
         var cell = getCell();
         if (cell == null) {
             return null;
@@ -91,7 +90,7 @@ public class XlsCell implements ICell {
     }
 
     @Override
-    public ICellFont getFont() {
+    public @Nullable ICellFont getFont() {
         var cell = getCell();
         if (cell == null) {
             return null;
@@ -124,14 +123,13 @@ public class XlsCell implements ICell {
             // If the top left cell is the current cell instance, we just extract it`s value.
             // In other case get string value of top left cell of the region.
             return extractCellValue();
-        } else {
-            var topLeftCell = getTopLeftCellFromRegion();
-            return topLeftCell.getObjectValue();
         }
+        var topLeftCell = getTopLeftCellFromRegion();
+        return topLeftCell.getObjectValue();
     }
 
     @Override
-    public String getStringValue() {
+    public @Nullable String getStringValue() {
         var res = getObjectValue();
         return res == null ? null : String.valueOf(res);
     }
@@ -150,45 +148,20 @@ public class XlsCell implements ICell {
     }
 
     private Object extractCellValue() {
-        var cell = getCell();
-        if (cell != null) {
-            var type = cell.getCellType();
-            if (type == CellType.FORMULA) {
-                // Replace IGrid.CELL_TYPE_FORMULA with the type from the formula result
-                type = cell.getCachedFormulaResultType();
-            }
-            // There IGrid.CELL_TYPE_FORMULA should never be at this step
-            switch (type) {
-                case BLANK:
-                    return null;
-                case BOOLEAN:
-                    return cell.getBooleanCellValue();
-                case NUMERIC:
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        return cell.getDateCellValue();
-                    }
-                    var value = cell.getNumericCellValue();
-                    return NumberUtils.intOrDouble(value);
-                case STRING:
-                    String str = StringUtils.trimToNull(cell.getStringCellValue());
-                    return StringPool.intern(str);
-                default:
-                    return "unknown type: " + cell.getCellType();
-            }
-        }
-        return null;
+        var value = PoiExcelHelper.getCellValue(getCell());
+        // A text is interned: the cells of a workbook repeat the same texts many times
+        return value instanceof String text ? StringPool.intern(text) : value;
     }
 
     @Override
-    public String getFormula() {
+    public @Nullable String getFormula() {
         if (region == null || isCurrentCellATopLeftCellInRegion()) {
             // A merge may start at a cell the sheet holds nothing for, as may any cell
             var cell = getCell();
             return cell != null && cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
-        } else {
-            var topLeftCell = getTopLeftCellFromRegion();
-            return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
         }
+        var topLeftCell = getTopLeftCellFromRegion();
+        return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
     }
 
     @Override
@@ -196,11 +169,9 @@ public class XlsCell implements ICell {
         if (region == null || isCurrentCellATopLeftCellInRegion()) {
             var cell = getCell();
             return cell == null ? IGrid.CELL_TYPE_BLANK : getIGridCellType(cell.getCellType());
-        } else {
-            var topLeftCell = getTopLeftCellFromRegion();
-            return topLeftCell.getType();
         }
-
+        var topLeftCell = getTopLeftCellFromRegion();
+        return topLeftCell.getType();
     }
 
     @Override
@@ -246,12 +217,12 @@ public class XlsCell implements ICell {
      * null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
      */
     @Override
-    public Date getNativeDate() {
+    public @Nullable Date getNativeDate() {
         var cell = getCell();
         if (cell == null) {
             return null;
         }
-        if (CellType.STRING.equals(cell.getCellType())) {
+        if (CellType.STRING == cell.getCellType()) {
             double doubleValue;
             try {
                 doubleValue = Double.parseDouble(cell.getStringCellValue());
@@ -266,17 +237,16 @@ public class XlsCell implements ICell {
                 date1904 = fWorkbook.getInternalWorkbook().isUsing1904DateWindowing();
             }
             return DateUtil.getJavaDate(doubleValue, date1904);
-        } else {
-            try {
-                return cell.getDateCellValue();
-            } catch (NullPointerException npe) {
-                throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
-            }
+        }
+        try {
+            return cell.getDateCellValue();
+        } catch (NullPointerException npe) {
+            throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
         }
     }
 
     @Override
-    public ICellComment getComment() {
+    public @Nullable ICellComment getComment() {
         var cell = getCell();
         if (cell != null) {
             var comment = cell.getCellComment();
