@@ -963,7 +963,10 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
     *Excel files ready for comparison*
 
 1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
-2.  Click **Compare.**
+2.  To list the cells outside OpenL tables as well, such as notes or formulas beside them, select the **Other tables**
+    check box. Without it, such cells are left out of the list of elements, unless both versions of a
+    conflict changed them differently.
+3.  Click **Compare.**
 
     The elements of the two files are listed grouped by Excel sheet. Selecting an element displays its two versions drawn as one table. The rows and the columns of the two versions stand against each other, the way the lines of two texts do in a text comparison:
 

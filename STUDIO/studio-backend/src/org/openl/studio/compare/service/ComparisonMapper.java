@@ -12,6 +12,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.xls.merge.XlsWorkbookComparator;
 import org.openl.rules.xls.merge.compare.ChangeStatus;
 import org.openl.rules.xls.merge.compare.ConflictComparison;
 import org.openl.rules.xls.merge.compare.ConflictLine;
@@ -173,8 +174,15 @@ public class ComparisonMapper {
                 .yours(statusOf(table.yoursStatus()))
                 .theirs(statusOf(table.theirsStatus()))
                 .moved(false)
+                .other(otherOf(table.name()))
+                .conflict(table.yoursConflicts().isEmpty() ? null : Boolean.TRUE)
                 .children(List.of())
                 .build();
+    }
+
+    /** Marks the cells outside OpenL tables, such as notes or formulas beside them; an OpenL table is not marked. */
+    private static @Nullable Boolean otherOf(String name) {
+        return XlsWorkbookComparator.isOpenLTable(name) ? null : Boolean.TRUE;
     }
 
     private static List<ConflictComparisonLineView> toConflictLines(List<ConflictLine> lines) {
@@ -246,6 +254,7 @@ public class ComparisonMapper {
                 .moved(table.moved())
                 .firstRange(rangeOf(table.first()))
                 .secondRange(rangeOf(table.second()))
+                .other(otherOf(table.name()))
                 .children(List.of())
                 .build();
     }

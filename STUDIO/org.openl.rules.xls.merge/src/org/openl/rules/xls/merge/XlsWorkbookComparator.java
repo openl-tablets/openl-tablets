@@ -187,6 +187,16 @@ public final class XlsWorkbookComparator {
         return header.equals(otherHeader) || kindOf(header).equals(kindOf(otherHeader));
     }
 
+    /**
+     * Whether a table found in a workbook is an OpenL table: its header starts with the word of a kind of OpenL table.
+     * Cells outside OpenL tables, such as notes or formulas beside them, are not.
+     *
+     * @param header the header of the table, as its first cell reads
+     */
+    public static boolean isOpenLTable(String header) {
+        return !kindOf(header).isEmpty();
+    }
+
     /** The kind of a table: the first word of its header, or nothing for cells outside OpenL tables. */
     private static String kindOf(String header) {
         var end = header.indexOf(' ');

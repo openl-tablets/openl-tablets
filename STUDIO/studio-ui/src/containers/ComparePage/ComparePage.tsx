@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Empty, Segmented, Skeleton, Spin, Splitter, Upload } from 'antd'
+import { Alert, Button, Checkbox, Empty, Segmented, Skeleton, Spin, Splitter, Tooltip, Upload } from 'antd'
 import {
     ArrowLeftOutlined,
     InboxOutlined,
@@ -577,14 +577,27 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
     const [showEqualElements, setShowEqualElements] = useState(false)
+    // The cells outside OpenL tables are listed only when asked for.
+    const [showOtherTables, setShowOtherTables] = useState(false)
+    const otherTablesSwitch = (
+        <Tooltip title={t('show_other_tables_hint')}>
+            <Checkbox
+                checked={showOtherTables}
+                data-testid="compare-show-other-tables"
+                onChange={event => setShowOtherTables(event.target.checked)}
+            >
+                {t('show_other_tables')}
+            </Checkbox>
+        </Tooltip>
+    )
     const [showEqualRows, setShowEqualRows] = useState(false)
     // Two versions drawn as one table, or read side by side when the reader asks for that.
     const [view, setView] = useState<DiffView>('combined')
     // The width the list of elements was last given, and whether it is shown at all. The list is
     // hidden and brought back by a button of its own rather than by the divider, so the control is
-    // always in sight. A window that heads the list with both controls starts wider, so that neither
+    // always in sight. A window that heads the list with its three controls starts wider, so that none
     // of them is shortened before the user has touched the divider.
-    const [treeWidth, setTreeWidth] = useState<number | string>(versions || three ? '36%' : '30%')
+    const [treeWidth, setTreeWidth] = useState<number | string>(versions || three ? '42%' : '30%')
     const [treeHidden, setTreeHidden] = useState(false)
 
     // A window opened for a file says which file it compares, a workbook or not.
@@ -871,6 +884,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                     >
                         {t('show_equal_elements')}
                     </Checkbox>
+                    {otherTablesSwitch}
                     <div>
                         <Button
                             data-testid="compare-start"
@@ -912,6 +926,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                                             {t('show_equal_elements')}
                                         </Checkbox>
                                     )}
+                                    {comparison && !back && otherTablesSwitch}
                                     {comparison && (
                                         <Checkbox
                                             checked={showEqualRows}
@@ -951,6 +966,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                                             comparison={comparison}
                                             onSelect={setSelectedId}
                                             showEqualElements={showEqualElements}
+                                            showOtherTables={showOtherTables}
                                         />
                                     )}
                                 </div>

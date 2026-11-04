@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
  * @param secondRange the place of the table in the second file
  * @param yours       what your version did to the element, in a comparison of a conflict with its base
  * @param theirs      what their version did to the element, in a comparison of a conflict with its base
+ * @param other       whether the table holds cells outside OpenL tables, such as notes or formulas beside them
+ * @param conflict    whether both versions of a conflict changed cells of the table differently
  * @param children    tables of a sheet; empty for a table
  */
 @Builder
@@ -63,6 +65,16 @@ public record ComparisonNodeView(
                 What their version did to the element, against the base version both versions started from; \
                 present only in a comparison of a conflicted file with its base""")
         @Nullable ComparisonNodeStatus theirs,
+
+        @Parameter(description = """
+                True for a table of cells outside OpenL tables, such as notes or formulas beside them, which a \
+                reader lists only when asked for; absent for an OpenL table and for a sheet""")
+        @Nullable Boolean other,
+
+        @Parameter(description = """
+                True when both versions changed cells of the table differently; present only in a comparison of \
+                a conflicted file with its base""")
+        @Nullable Boolean conflict,
 
         @Schema(description = "Tables of the sheet; empty for a table")
         List<ComparisonNodeView> children) {

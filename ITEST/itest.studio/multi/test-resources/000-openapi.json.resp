@@ -28694,6 +28694,10 @@ Content-Type: application/json
               "$ref": "#/components/schemas/ComparisonNodeView"
             }
           },
+          "conflict": {
+            "type": "boolean",
+            "description": "***"
+          },
           "firstRange": {
             "type": "string",
             "description": "***"
@@ -28708,6 +28712,10 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
+            "description": "***"
+          },
+          "other": {
+            "type": "boolean",
             "description": "***"
           },
           "secondRange": {

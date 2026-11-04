@@ -51,6 +51,9 @@ i18next.addResourceBundle('en', 'compare', {
     view_combined: 'Combined',
     view_label: 'How the two versions are shown',
     show_equal_elements: 'Show equal elements',
+    show_other_tables: 'Other tables',
+    show_other_tables_hint: 'List the cells outside OpenL tables too, such as notes or formulas beside them. '
+        + 'One both sides changed differently is always listed.',
     show_equal_rows: 'Show equal rows',
     rows_hidden_one: '⋯ {{count}} equal row',
     rows_hidden_other: '⋯ {{count}} equal rows',

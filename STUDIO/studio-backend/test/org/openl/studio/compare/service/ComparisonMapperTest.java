@@ -190,6 +190,21 @@ class ComparisonMapperTest {
     }
 
     @Test
+    void marksTheCellsOutsideOpenLTablesAsOther() throws IOException {
+        String[][] noted = {{"Datatype Person"}, {"String", "name"}, {"int", "age"}, {}, {"Prices are in dollars"}};
+        String[][] renoted = {{"Datatype Person"}, {"String", "name"}, {"int", "age"}, {}, {"Prices are in euros"}};
+        try (var comparison = compare(noted, renoted)) {
+            var tables = mapper.toView("cmp", comparison).sheets().getFirst().children();
+
+            assertNull(tables.getFirst().other());
+            var note = tables.get(1);
+            assertEquals(ComparisonNodeStatus.CHANGED, note.status());
+            assertEquals(Boolean.TRUE, note.other());
+            assertNull(note.conflict());
+        }
+    }
+
+    @Test
     void answersWithNothingForATableTheComparisonDoesNotHold() throws IOException {
         try (var comparison = compare(PERSON, PERSON)) {
             assertNull(mapper.toTable(comparison, "0-9"));
@@ -218,11 +233,15 @@ class ComparisonMapperTest {
             assertEquals(ComparisonNodeStatus.CHANGED, person.status());
             assertEquals(ComparisonNodeStatus.CHANGED, person.yours());
             assertEquals(ComparisonNodeStatus.CHANGED, person.theirs());
+            // Both renamed the same field, each to another name: a conflict.
+            assertEquals(Boolean.TRUE, person.conflict());
+            assertNull(person.other());
             // A table their version added is added as both did it together: your version did nothing to it.
             var address = sheet.children().get(1);
             assertEquals(ComparisonNodeStatus.ADDED, address.status());
             assertEquals(ComparisonNodeStatus.EQUAL, address.yours());
             assertEquals(ComparisonNodeStatus.ADDED, address.theirs());
+            assertNull(address.conflict());
 
             var table = mapper.toConflictTable(comparison, "0-0");
             assertEquals("A1:B3", table.baseRange());
