@@ -219,6 +219,9 @@ class GitRepositoryMergeConflictsInExcelTest {
     void testCase_04() throws IOException, GitAPIException {
         var testCaseData = initializeTestCase("04");
         // Told beforehand: the workbook the merge combines by itself is no conflict.
+        assertEquals(Set.of("04/Bank Rating.xlsx", "04/MyBook.xlsx"),
+                repo.getMergeScope(Constants.MASTER, "04").changedInBoth());
+        assertEquals(Set.of("04/Bank Rating.xlsx"), repo.getMergeScope(Constants.MASTER, "04").conflicts());
         assertEquals(Set.of("04/Bank Rating.xlsx"), repo.findConflicts("04", "04", Constants.MASTER));
         var branchRepo = repo.forBranch("04");
         var e = assertThrows(MergeConflictException.class, () -> branchRepo.merge(Constants.MASTER, USER_INFO, null));
@@ -392,6 +395,7 @@ class GitRepositoryMergeConflictsInExcelTest {
         var scope = repo.getMergeScope(Constants.MASTER, "13");
         assertEquals(List.of(rates), scope.changes());
         assertEquals(Set.of("13/Rates.xlsx"), scope.changedInBoth());
+        assertEquals(Set.of(), scope.conflicts());
 
         var outcome = repo.forBranch("13").merge(Constants.MASTER, USER_INFO, null);
         assertEquals(testCaseData.ourRevision, outcome.before());
@@ -502,11 +506,13 @@ class GitRepositoryMergeConflictsInExcelTest {
             git.push().setPushAll().call();
         }
 
-        var told = repo.findConflicts("", Constants.MASTER, "trial");
+        var scope = repo.getMergeScope("trial", Constants.MASTER);
 
-        assertEquals(Set.of("Gone.txt", "Same.txt"), told);
+        assertEquals(Set.of("Gone.txt", "Lines.txt", "Same.txt"), scope.changedInBoth());
+        assertEquals(Set.of("Gone.txt", "Same.txt"), scope.conflicts());
+        assertEquals(scope.conflicts(), repo.findConflicts("", Constants.MASTER, "trial"));
         var e = assertThrows(MergeConflictException.class, () -> repo.merge("trial", USER_INFO, null));
-        assertEquals(told, Set.copyOf(e.getDetails().getConflictedFiles()));
+        assertEquals(scope.conflicts(), Set.copyOf(e.getDetails().getConflictedFiles()));
     }
 
     @Test

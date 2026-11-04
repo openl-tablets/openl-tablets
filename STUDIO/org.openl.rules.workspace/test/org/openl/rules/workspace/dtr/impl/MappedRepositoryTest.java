@@ -225,7 +225,7 @@ class MappedRepositoryTest {
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setFolders(true).build());
         when(repository.listFolders("")).thenReturn(List.of());
         var change = new FileChange("project/rules.xml", FileChange.Kind.MODIFIED);
-        var scope = new MergeScope(List.of(change), Set.of("project/rules.xml"));
+        var scope = new MergeScope(List.of(change), Set.of("project/rules.xml"), Set.of("project/rules.xml"));
         when(repository.getMergeScope("feature", "main")).thenReturn(scope);
         var outcome = new MergeOutcome("before", "after", List.of(change), List.of());
         when(repository.merge("feature", null, null)).thenReturn(outcome);

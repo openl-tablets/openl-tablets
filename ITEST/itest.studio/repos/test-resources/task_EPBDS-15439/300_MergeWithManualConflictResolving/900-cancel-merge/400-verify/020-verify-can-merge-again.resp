@@ -17,6 +17,9 @@ Content-Type: application/json
         "changedFiles": 1,
         "changedInBoth": [
           "EPBDS-15439/Main.xlsx"
+        ],
+        "conflicts": [
+          "EPBDS-15439/Main.xlsx"
         ]
       }
     ],

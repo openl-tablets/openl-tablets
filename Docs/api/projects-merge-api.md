@@ -112,8 +112,9 @@ of the client is running, `POST /merge` answers `409 Conflict` too.
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge/check`
 
-**Description**: Reports where two branches stand and whether the current user may merge them. Does not modify any
-data and does not look for conflicts: only the merge itself finds them.
+**Description**: Reports where two branches stand and whether the current user may merge them, and estimates which
+files may conflict. Does not modify any data and does not merge: the estimate compares what each branch changed, and
+only the merge itself tells the conflicts for certain.
 
 **HTTP Method**: POST
 
@@ -146,6 +147,10 @@ data and does not look for conflicts: only the merge itself finds them.
         "status": "modified",
         "changedFiles": 2,
         "changedInBoth": [
+          "DESIGN/rules/Pricing/rules/Main.xlsx",
+          "DESIGN/rules/Pricing/rules.xml"
+        ],
+        "conflicts": [
           "DESIGN/rules/Pricing/rules/Main.xlsx"
         ]
       },
@@ -184,7 +189,14 @@ not only the project of the request. A scope that cannot be read, for example of
 absent too and logged: the check still tells whether the branches can be merged.
 
 - Each project is told with the number of its files the merge would change, and the files both branches changed:
-  the merge either combines them by itself or reports them as conflicts, which is known only once it has run.
+  the merge either combines them by itself or reports them as conflicts.
+- `conflicts` names the files of them that may conflict. It is an estimate made without merging: the changes of both
+  branches since they parted are compared file by file, and only the files both changed are read. A text file may
+  conflict when the lines both changed overlap, a workbook when both changed the same cells, rows or columns of a
+  table, any other file whenever both branches changed it, and so may a file one branch deleted and the other one
+  changed. An ignored file never conflicts. The changes of a working copy not saved yet are not in the branches, so
+  they are not in the answer either. The check reads the files both branches changed, so it takes longer for large
+  workbooks.
 - `status` is `added` for a project the source branch holds and the target branch does not, `deleted` for one only the
   target branch holds, and `modified` otherwise.
 - The project of the request comes first, marked `current`, the other projects follow by name, and the files outside
@@ -1133,6 +1145,7 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 | `status`        | `added` \| `modified` \| `deleted`   | What the merge does to the project; absent outside projects |
 | `changedFiles`  | integer                              | How many of its files the merge changes                     |
 | `changedInBoth` | string[]                             | Its files both branches changed; absent when none           |
+| `conflicts`     | string[]                             | Those of them the merge would stop at; absent when none     |
 
 ---
 
@@ -1942,7 +1955,8 @@ curl -X DELETE http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts
 ### 1. Check Before Merging
 
 `POST /merge/check` tells whether there is anything to merge (`up-to-date`) and whether the user may perform the merge
-(`canMerge`, `blockedBy`). `POST /merge` refuses the same cases with `409` or `403`. Neither call predicts conflicts.
+(`canMerge`, `blockedBy`). `POST /merge` refuses the same cases with `409` or `403`. The `conflicts` of its `scope`
+estimate beforehand which files may conflict.
 
 ### 2. Download All Versions Before Custom Resolution
 

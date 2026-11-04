@@ -67,6 +67,24 @@ describe("project branch and merge handlers", () => {
     });
   });
 
+  it("tells the files that may conflict, estimated by the check without merging", async () => {
+    const scope = {
+      projects: [{
+        id: "p1", name: "Pricing", path: "Pricing", current: true, status: "modified", changedFiles: 2,
+        changedInBoth: ["Pricing/rules/Main.xlsx", "Pricing/rules.xml"], conflicts: ["Pricing/rules/Main.xlsx"],
+      }],
+      hiddenProjects: 0,
+    };
+    harness.mockHttp.onPost("/projects/p1/merge/check").reply(200, {
+      sourceBranch: "feature", targetBranch: "main", status: "mergeable", canMerge: true, scope,
+    });
+
+    const response = await executeTool("check_project_merge", {
+      projectId: "p1", otherBranch: "feature", mode: "receive", }, harness.client);
+
+    expect(dataOf<Record<string, unknown>>(response)).toMatchObject({ scope });
+  });
+
   it("returns up-to-date without issuing the mutating merge request", async () => {
     harness.mockHttp.onPost("/projects/p1/merge/check").reply(200, {
       sourceBranch: "feature", targetBranch: "main", status: "up-to-date", canMerge: true,

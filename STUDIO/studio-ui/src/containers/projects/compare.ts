@@ -89,14 +89,19 @@ export const openFileRevisionsCompareWindow = (
  *
  * @param projectId the project the revisions belong to
  * @param branch    the branch holding the revisions, or nothing in a repository without branches
- * @param base      the earlier revision
- * @param revision  the later revision
+ * @param base      the earlier revision, or a branch for its last revision
+ * @param revision  the later revision, or a branch for its last revision
+ * @param file      the path of a file inside the project to compare at once, or nothing to list the changed files
+ * @param yoursEarlier whether the earlier revision is your version, as when their branch is merged into yours; the
+ *                     later one is otherwise
  */
 export const openRevisionsCompareWindow = (
     projectId: string,
     branch: string | undefined,
     base: string,
-    revision: string
+    revision: string,
+    file?: string,
+    yoursEarlier = false
 ): void => {
     const query = new URLSearchParams({ projectId })
     if (branch) {
@@ -104,6 +109,12 @@ export const openRevisionsCompareWindow = (
     }
     query.set('base', base)
     query.set('revision', revision)
+    if (file) {
+        query.set('file', file)
+    }
+    if (yoursEarlier) {
+        query.set('yours', 'earlier')
+    }
     openCompare(query.toString())
 }
 

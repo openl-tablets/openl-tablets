@@ -269,33 +269,39 @@ public class PathCheckedRepository implements BranchRepository {
         validateBranch(to);
         var scope = ((BranchRepository) delegate).getMergeScope(from, to);
         return new MergeScope(shown(scope.changes(), FileChange::path),
-                Set.copyOf(shown(scope.changedInBoth(), Function.identity())));
+                shownPaths(scope.changedInBoth()),
+                shownPaths(scope.conflicts()));
     }
 
     @Override
     public RevisionChanges listChanges(String path, @Nullable String from, String to) throws IOException {
-        if (!path.isEmpty()) {
-            validatePath(path);
-        }
+        validateFolder(path);
         var changes = ((BranchRepository) delegate).listChanges(path, from, to);
         return new RevisionChanges(changes.from(), changes.to(), shown(changes.changes(), FileChange::path));
     }
 
     @Override
     public @Nullable FileData findCommonRevision(String path, String first, String second) throws IOException {
-        if (!path.isEmpty()) {
-            validatePath(path);
-        }
+        validateFolder(path);
         return ((BranchRepository) delegate).findCommonRevision(path, first, second);
     }
 
     @Override
     public Set<String> findConflicts(String path, String first, String second) throws IOException {
+        validateFolder(path);
+        return shownPaths(((BranchRepository) delegate).findConflicts(path, first, second));
+    }
+
+    /** Checks a folder named for a branch operation; an empty path is the whole repository. */
+    private void validateFolder(String path) {
         if (!path.isEmpty()) {
             validatePath(path);
         }
-        return Set.copyOf(shown(((BranchRepository) delegate).findConflicts(path, first, second),
-                Function.identity()));
+    }
+
+    /** The paths a listing shows: the ignored ones are left out. */
+    private Set<String> shownPaths(Set<String> paths) {
+        return Set.copyOf(shown(paths, Function.identity()));
     }
 
     @Override

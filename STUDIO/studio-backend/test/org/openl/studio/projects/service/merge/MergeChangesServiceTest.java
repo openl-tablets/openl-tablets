@@ -89,7 +89,8 @@ class MergeChangesServiceTest {
                 new FileChange(RULES_XML, FileChange.Kind.MODIFIED),
                 new FileChange(MAIN_XLSX, FileChange.Kind.MODIFIED),
                 new FileChange("DESIGN/rules/Secret/Secret.xlsx", FileChange.Kind.MODIFIED)),
-                Set.of(MAIN_XLSX, RULES_XML)));
+                Set.of(MAIN_XLSX, RULES_XML),
+                Set.of(MAIN_XLSX)));
         when(designRepository.getBranchProjects(REPOSITORY, "main")).thenReturn(List.of(pricing, secret));
         when(designRepository.getBranchProjects(REPOSITORY, "feature")).thenReturn(List.of(pricing, rating, secret));
 
@@ -106,12 +107,15 @@ class MergeChangesServiceTest {
         assertEquals(2, first.changedFiles());
         // Workbooks first.
         assertEquals(List.of(MAIN_XLSX, RULES_XML), first.changedInBoth());
+        // Of them, only the workbook stops the merge.
+        assertEquals(List.of(MAIN_XLSX), first.conflicts());
 
         var second = projects.get(1);
         assertEquals("Rating", second.name());
         assertFalse(second.current());
         assertEquals(ChangeType.ADDED, second.status());
         assertEquals(List.of(), second.changedInBoth());
+        assertEquals(List.of(), second.conflicts());
 
         var outside = projects.get(2);
         assertNull(outside.name());
@@ -126,7 +130,7 @@ class MergeChangesServiceTest {
     @Test
     void aProjectOnlyTheTargetHoldsIsDeletedByTheMerge() throws IOException {
         when(repository.getMergeScope("feature", "main")).thenReturn(new MergeScope(List.of(
-                new FileChange("DESIGN/rules/Rating/rules.xml", FileChange.Kind.DELETED)), Set.of()));
+                new FileChange("DESIGN/rules/Rating/rules.xml", FileChange.Kind.DELETED)), Set.of(), Set.of()));
         when(designRepository.getBranchProjects(REPOSITORY, "main")).thenReturn(List.of(rating));
         when(designRepository.getBranchProjects(REPOSITORY, "feature")).thenReturn(List.of());
 

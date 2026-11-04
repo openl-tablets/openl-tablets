@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"sourceBranch\":\"feature\",\"targetBranch\":\"master\",\"status\":\"mergeable\",\"canMerge\":true,\"scope\":{\"projects\":[{\"id\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"path\":\"McpTools\",\"current\":true,\"status\":\"modified\",\"changedFiles\":1,\"changedInBoth\":[\"McpTools/docs/notes.txt\"]}],\"hiddenProjects\":0}}}"
+        "text": "{\"data\":{\"sourceBranch\":\"feature\",\"targetBranch\":\"master\",\"status\":\"mergeable\",\"canMerge\":true,\"scope\":{\"projects\":[{\"id\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"path\":\"McpTools\",\"current\":true,\"status\":\"modified\",\"changedFiles\":1,\"changedInBoth\":[\"McpTools/docs/notes.txt\"],\"conflicts\":[\"McpTools/docs/notes.txt\"]}],\"hiddenProjects\":0}}}"
       }
     ],
     "resultType": "complete",

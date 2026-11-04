@@ -264,13 +264,15 @@ class PathCheckedRepositoryTest {
         var rules = new FileChange("p/rules.xml", FileChange.Kind.MODIFIED);
         var pom = new FileChange("p/pom.xml", FileChange.Kind.MODIFIED);
         when(delegate.getMergeScope("feature", "main"))
-                .thenReturn(new MergeScope(List.of(rules, pom), Set.of("p/rules.xml", "p/pom.xml")));
+                .thenReturn(new MergeScope(List.of(rules, pom),
+                        Set.of("p/rules.xml", "p/pom.xml"),
+                        Set.of("p/rules.xml", "p/pom.xml")));
         when(delegate.merge("feature", null, null))
                 .thenReturn(new MergeOutcome("before", "after", List.of(rules, pom), List.of()));
         var repository = new PathCheckedRepository(delegate, IgnoredPaths.of("**/pom.xml"));
 
         // The ignored files are left out of what a merge changes, as they are out of every listing.
-        assertEquals(new MergeScope(List.of(rules), Set.of("p/rules.xml")),
+        assertEquals(new MergeScope(List.of(rules), Set.of("p/rules.xml"), Set.of("p/rules.xml")),
                 repository.getMergeScope("feature", "main"));
         assertEquals(new MergeOutcome("before", "after", List.of(rules), List.of()),
                 repository.merge("feature", null, null));
