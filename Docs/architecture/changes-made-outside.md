@@ -63,10 +63,11 @@ A client sends a table or a file it built from an earlier read. When the table o
 through another client, the write would overwrite that change even when OpenL Studio holds the newest content. So a
 write names the version it is based on, and a write over another version is refused.
 
-- **Tables.** The version of a table is a digest of the text of its cells (`TableSyntaxNode.getVersion()`, read through
-  `IOpenLTable.getVersion()`). A compiled table reads its cells from the workbook as the module was compiled, so the
-  version is computed once and changes with a new compilation. A written table takes a new version at once
-  (`TableSyntaxNode.markWritten()`), as a module is not always compiled again after a write. A read answers the version
+- **Tables.** The version of a table is a digest of the text of its cells and of their Excel formulas
+  (`TableSyntaxNode.getVersion()`, read through `IOpenLTable.getVersion()`), so a formula replaced by another one that
+  computes the same value changes it too. A compiled table reads its cells from the workbook as the module was
+  compiled, so the version is computed once and changes with a new compilation. A written table takes a new version
+  at once (`TableSyntaxNode.markWritten()`), as a module is not always compiled again after a write. A read answers the version
   in the `ETag` header, and the body carries none. The table writes — a replacement, an append, an edit of the source, a
   write of the properties, a deletion — take it in `If-Match`, and `WorkspaceProjectService` compares it once the
   write's turn in the queue of the session has come, before anything is written. So of two writes based on one read, the

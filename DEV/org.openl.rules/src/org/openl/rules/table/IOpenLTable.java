@@ -40,8 +40,8 @@ public interface IOpenLTable {
     String getId();
 
     /**
-     * The version of the table: it changes whenever the text of a cell of the table changes. A client tells the
-     * version it read when it writes the table, so that a write over a newer table is refused.
+     * The version of the table: it changes whenever the text or the Excel formula of a cell of the table changes. A
+     * client tells the version it read when it writes the table, so that a write over a newer table is refused.
      */
     String getVersion();
 

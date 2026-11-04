@@ -38,4 +38,13 @@ the Excel formula `=D4*3`, the factor of `Base` times three. `Calc` returns `6`.
 - `020-the-total-reads-the-factor-back` — the formula reads `=D15*3`.
 - `030-run` … `050-calc-still-reads-6` — `Calc` still returns `6`.
 
+`060-a-formula-rewritten-to-the-same-value` — EPBDS-17088: the version of a table changes with the text of its Excel
+formulas, not only with the values they compute.
+
+- `010-read-the-table` — the table is read, and the version it answers in `ETag` is kept.
+- `020-rewrite-the-formula` — the formula of `RETURN` is rewritten as `=3*D15`, based on that version.
+- `030-the-cell-holds-the-new-formula` — the cell holds the new formula and still computes `6`.
+- `040-a-write-based-on-the-read-before-is-refused` — another edit based on the version of `010` is refused with
+  `412`, as the table changed since that read.
+
 `999-tierdown` closes the project without its changes and erases it.

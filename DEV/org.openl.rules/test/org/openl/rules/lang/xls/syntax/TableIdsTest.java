@@ -12,12 +12,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import lombok.Getter;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,6 +40,7 @@ import org.openl.util.HashingUtils;
 class TableIdsTest {
 
     private static final String RULES = "rules/Main.xlsx";
+    private static final String XLS_RULES = "rules/Main.xls";
 
     @TempDir
     private Path dir;
@@ -88,6 +91,24 @@ class TableIdsTest {
         assertEquals(version, only(parse(moved, RULES)).getVersion(), "where the table stands is not its content");
         assertNotEquals(version, only(parse(edited, RULES)).getVersion());
         assertEquals(version, new TableSyntaxNodeAdapter(table).getVersion());
+    }
+
+    /** A formula replaced by another one that computes the same value gives the table a new version. */
+    @Test
+    void aTableHasANewVersionWhenAnExcelFormulaChanges() throws IOException {
+        var twice = only(parse(project("a", sheet -> formulas(sheet, "2*3")), RULES)).getVersion();
+
+        assertEquals(twice, only(parse(project("b", sheet -> formulas(sheet, "2*3")), RULES)).getVersion());
+        assertNotEquals(twice, only(parse(project("c", sheet -> formulas(sheet, "3*2")), RULES)).getVersion());
+    }
+
+    /** An {@code .xls} formula naming another sheet counts by its text too, not only by the value it computes. */
+    @Test
+    void anXlsFormulaNamingAnotherSheetGivesANewVersionWhenItChanges() throws IOException {
+        var first = spreadsheet(parse(xlsProject("a", "Other!A1"), XLS_RULES)).getVersion();
+
+        assertEquals(first, spreadsheet(parse(xlsProject("b", "Other!A1"), XLS_RULES)).getVersion());
+        assertNotEquals(first, spreadsheet(parse(xlsProject("c", "Other!B1"), XLS_RULES)).getVersion());
     }
 
     /** The version is the digest of the text of the cells, row by row, cut to its first 16 hex digits. */
@@ -401,6 +422,38 @@ class TableIdsTest {
                 line.createCell(column + j).setCellValue(cells[j]);
             }
         }
+    }
+
+    /** An {@code .xls} project whose Spreadsheet returns a formula over the sheet {@code Other}, all of it 2. */
+    private Path xlsProject(String name, String formula) throws IOException {
+        var project = dir.resolve(name);
+        var file = project.resolve(XLS_RULES);
+        Files.createDirectories(file.getParent());
+        try (var workbook = new HSSFWorkbook(); OutputStream out = Files.newOutputStream(file)) {
+            var rules = workbook.createSheet("Rules");
+            var other = workbook.createSheet("Other").createRow(0);
+            other.createCell(0).setCellValue(2);
+            other.createCell(1).setCellValue(2);
+            formulas(rules, formula);
+            workbook.write(out);
+        }
+        return project;
+    }
+
+    /** The Spreadsheet of a module, the other tables aside. */
+    private static TableSyntaxNode spreadsheet(XlsModuleSyntaxNode module) {
+        return Arrays.stream(module.getXlsTableSyntaxNodes())
+                .filter(table -> table.getGridTable().getCell(0, 0).getStringValue().startsWith("Spreadsheet"))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    /** A Spreadsheet returning the Excel formula given, computed and stored with its value. */
+    private static void formulas(Sheet sheet, String formula) {
+        put(sheet, 1, 1, "Spreadsheet Double calc()", "Step|Value", "RETURN|0");
+        var cell = sheet.getRow(3).getCell(2);
+        cell.setCellFormula(formula);
+        sheet.getWorkbook().getCreationHelper().createFormulaEvaluator().evaluateFormulaCell(cell);
     }
 
     private static XlsModuleSyntaxNode parse(Path project, String path) {
