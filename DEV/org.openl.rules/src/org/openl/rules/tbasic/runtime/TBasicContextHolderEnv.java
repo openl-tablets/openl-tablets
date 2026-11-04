@@ -3,10 +3,13 @@
  */
 package org.openl.rules.tbasic.runtime;
 
+import lombok.Getter;
+
 import org.openl.IOpenRunner;
 import org.openl.rules.cloner.Cloner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.impl.DelegatedDynamicObject;
+import org.openl.vm.CheckedAliasValues;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -15,9 +18,13 @@ import org.openl.vm.Tracer;
  * variables and parameters to run with.
  */
 public class TBasicContextHolderEnv implements IRuntimeEnv {
+    @Getter
     private final IRuntimeEnv env;
+    @Getter
     private final TBasicVM tbasicVm;
+    @Getter
     private final DelegatedDynamicObject tbasicTarget;
+    @Getter
     private final Object[] tbasicParams;
 
     /**
@@ -49,10 +56,6 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
         tbasicTarget.setFieldValue(variableName, value);
     }
 
-    public IRuntimeEnv getEnv() {
-        return env;
-    }
-
     @Override
     public Object[] getLocalFrame() {
         return env.getLocalFrame();
@@ -61,21 +64,6 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
     @Override
     public IOpenRunner getRunner() {
         return env.getRunner();
-    }
-
-    /**
-     * @return the tbasicParams
-     */
-    public Object[] getTbasicParams() {
-        return tbasicParams;
-    }
-
-    public DelegatedDynamicObject getTbasicTarget() {
-        return tbasicTarget;
-    }
-
-    public TBasicVM getTbasicVm() {
-        return tbasicVm;
     }
 
     @Override
@@ -151,5 +139,10 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
     @Override
     public void setTracer(Tracer tracer) {
         env.setTracer(tracer);
+    }
+
+    @Override
+    public CheckedAliasValues getCheckedAliasValues() {
+        return env.getCheckedAliasValues();
     }
 }

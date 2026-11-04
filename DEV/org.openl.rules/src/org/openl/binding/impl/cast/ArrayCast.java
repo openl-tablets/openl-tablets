@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.types.IOpenClass;
 import org.openl.util.ArrayElements;
+import org.openl.vm.IRuntimeEnv;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ArrayCast implements IOpenCast {
@@ -17,6 +18,16 @@ final class ArrayCast implements IOpenCast {
 
     @Override
     public @Nullable Object convert(Object from) {
+        return convert(from, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Each element is converted during the same execution.
+     */
+    @Override
+    public @Nullable Object convert(Object from, @Nullable IRuntimeEnv env) {
         if (from == null) {
             return null;
         }
@@ -30,7 +41,7 @@ final class ArrayCast implements IOpenCast {
         Object convertedArray = Array.newInstance(toClass, length);
         for (var i = 0; i < length; i++) {
             Object fromValue = ArrayElements.get(from, i);
-            var toValue = openCast.convert(fromValue);
+            var toValue = openCast.convert(fromValue, env);
             ArrayElements.set(convertedArray, i, toValue);
         }
         return convertedArray;

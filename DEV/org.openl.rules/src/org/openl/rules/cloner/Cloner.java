@@ -222,7 +222,15 @@ public class Cloner {
     }
 
     private static boolean skipClone(Class<?> clazz) {
-        return clazz.isPrimitive() || immutable.contains(clazz) || skipCloneInstanceOf(clazz);
+        return clazz.isPrimitive() || isImmutable(clazz) || skipCloneInstanceOf(clazz);
+    }
+
+    /**
+     * Whether the values of {@code clazz} never change, so a value is shared instead of copied: texts, numbers,
+     * the dates and times of {@code java.time} and the ranges of OpenL, among others.
+     */
+    public static boolean isImmutable(Class<?> clazz) {
+        return immutable.contains(clazz);
     }
 
     private static boolean skipCloneInstanceOf(Class<?> clazz) {

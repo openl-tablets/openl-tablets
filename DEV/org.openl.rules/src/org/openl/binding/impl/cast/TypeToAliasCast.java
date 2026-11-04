@@ -1,12 +1,16 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
+import java.util.Optional;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
-import org.openl.domain.IDomain;
-import org.openl.types.IOpenClass;
-import org.openl.util.DomainUtils;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.vm.CheckedAliasValues;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * Class provides feature to convert alias data type to underlying type.
@@ -19,23 +23,20 @@ import org.openl.util.DomainUtils;
  *
  * @see IOpenCast
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
 
     /**
      * Result type of object after conversion.
      */
-    private final IOpenClass toClass;
+    private final DomainOpenClass toClass;
     @Getter
     private int distance = CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
     private IOpenCast typeCast;
     @Getter
     private boolean implicit = true;
 
-    TypeToAliasCast(IOpenClass to) {
-        this.toClass = to;
-    }
-
-    TypeToAliasCast(IOpenClass to, IOpenCast typeCast) {
+    TypeToAliasCast(DomainOpenClass to, IOpenCast typeCast) {
         this.toClass = to;
         this.typeCast = typeCast;
         this.distance = typeCast.getDistance() - 1;// This cast has higher priority
@@ -53,10 +54,25 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
     }
 
     @Override
-    public Object convert(Object from) {
-        if (typeCast != null) {
-            from = typeCast.convert(from);
-        }
+    public @Nullable Object convert(Object from) {
+        return convert(from, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A value the execution found in the domain before, the very same object, is not looked up again. Without an
+     * environment every value is looked up.
+     */
+    @Override
+    public @Nullable Object convert(Object from, @Nullable IRuntimeEnv env) {
+        var checked = Optional.ofNullable(env)
+                .map(IRuntimeEnv::getCheckedAliasValues)
+                .orElse(CheckedAliasValues.NONE);
+        return checkInDomain(typeCast != null ? typeCast.convert(from, env) : from, checked);
+    }
+
+    private @Nullable Object checkInDomain(@Nullable Object from, CheckedAliasValues checked) {
         if (from == null) {
             if (toClass.getInstanceClass().isPrimitive()) {
                 from = Array.get(Array.newInstance(toClass.getInstanceClass(), 1), 0);
@@ -64,25 +80,7 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
                 return null;
             }
         }
-
-        @SuppressWarnings("rawtypes")
-        IDomain domain = toClass.getDomain();
-
-        // Try to get given object from type domain. If object belongs to domain
-        // true value
-        // ill be returned; false - otherwise.
-        // NOTE: EnumDomain implementation of IDomain (used by alias types)
-        // throws runtime exception if object does not belong to domain.
-        @SuppressWarnings("unchecked")
-        boolean isInDomain = domain.selectObject(from);
-
-        // If object does not belong to domain throw runtime exception with
-        // appropriate message.
-        if (!isInDomain) {
-            throw new OutsideOfValidDomainException(from, toClass.getName(), DomainUtils.toString(domain));
-        }
-
-        // Return object as a converted value.
+        checked.check(from, toClass);
         return from;
     }
 
