@@ -181,11 +181,10 @@ public class XlsCell implements ICell {
 
     @Override
     public String getFormula() {
-        var cell = getCell();
-        if (cell == null && region == null) {
-            return null;
-        } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
-            return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
+        if (region == null || isCurrentCellATopLeftCellInRegion()) {
+            // A merge may start at a cell the sheet holds nothing for, as may any cell
+            var cell = getCell();
+            return cell != null && cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
         } else {
             var topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
@@ -194,11 +193,9 @@ public class XlsCell implements ICell {
 
     @Override
     public int getType() {
-        var cell = getCell();
-        if (cell == null && region == null) {
-            return IGrid.CELL_TYPE_BLANK;
-        } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
-            return getIGridCellType(cell.getCellType());
+        if (region == null || isCurrentCellATopLeftCellInRegion()) {
+            var cell = getCell();
+            return cell == null ? IGrid.CELL_TYPE_BLANK : getIGridCellType(cell.getCellType());
         } else {
             var topLeftCell = getTopLeftCellFromRegion();
             return topLeftCell.getType();

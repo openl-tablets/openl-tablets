@@ -3,7 +3,6 @@ package org.openl.excel.parser.event;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ddf.EscherContainerRecord;
+import org.apache.poi.hssf.eventusermodel.EventWorkbookBuilder;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
@@ -45,7 +45,7 @@ import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.formula.WorkbookDependentFormula;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
 
 import org.openl.excel.parser.TableStyles;
@@ -74,6 +74,8 @@ public class TableStyleListener implements HSSFListener {
 
     private FormulaRecord currentFormula;
     private SharedValueManager sharedValueManager;
+    /** The sheets and the links of the workbook a formula naming another sheet is written against. */
+    private HSSFWorkbook stubWorkbook;
 
     public TableStyleListener(EventSheetDescriptor sheet, IGridRegion tableRegion) {
         this.sheet = sheet;
@@ -86,9 +88,11 @@ public class TableStyleListener implements HSSFListener {
             var factory = new HSSFEventFactory();
             var request = new HSSFRequest();
             var sharedFormulaListener = new SharedValueListener(sheet);
-            request.addListenerForAllRecords(sharedFormulaListener);
+            var sheetRecords = new EventWorkbookBuilder.SheetRecordCollectingListener(sharedFormulaListener);
+            request.addListenerForAllRecords(sheetRecords);
             factory.processWorkbookEvents(request, poifs);
             sharedValueManager = sharedFormulaListener.getSharedValueManager();
+            stubWorkbook = sheetRecords.getStubHSSFWorkbook();
         }
 
         try (var poifs = new POIFSFileSystem(new File(fileName))) {
@@ -211,19 +215,24 @@ public class TableStyleListener implements HSSFListener {
                 var formulaAggregate = new FormulaRecordAggregate(currentFormula,
                         cachedText,
                         sharedValueManager);
-                var formulaTokens = formulaAggregate.getFormulaTokens();
-                var workbookDependentFormula = Arrays.stream(formulaTokens)
-                        .anyMatch(WorkbookDependentFormula.class::isInstance);
-                if (workbookDependentFormula) {
-                    formulas.put(new CellAddress(row, column), "");
-                } else {
-                    String formula = HSSFFormulaParser.toFormulaString(null, formulaTokens);
-                    formulas.put(new CellAddress(row, column), formula);
-                }
+                formulas.put(new CellAddress(row, column), formulaText(formulaAggregate.getFormulaTokens()));
             } catch (Exception e) {
                 log.error("Cannot read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
             }
             currentFormula = null;
+        }
+    }
+
+    /**
+     * The text of a formula. A formula naming another sheet or a defined name is written against the sheets and the
+     * links of the workbook; one that cannot be written even so, such as a name the workbook does not list, is empty.
+     */
+    private String formulaText(Ptg[] tokens) {
+        try {
+            return HSSFFormulaParser.toFormulaString(stubWorkbook, tokens);
+        } catch (RuntimeException e) {
+            log.debug("Cannot write a formula of sheet '{}'", sheet.getName(), e);
+            return "";
         }
     }
 

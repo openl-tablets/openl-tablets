@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -134,6 +135,19 @@ class ExcelFormulaWriteTest {
 
         assertEquals("=C5*3", cellOf(4, 1).formula());
         assertEquals(6, cellOf(4, 1).value());
+    }
+
+    /** A write based on the read before a formula changed is told apart, even when the value stays the same. */
+    @Test
+    void aFormulaReplacedByOneComputingTheSameValueGivesTheTableANewVersion() {
+        apply(new UpdateTarget.Cell(3, 1, null, null, "=2*3"));
+        var version = load().getVersion();
+        assertEquals(version, load().getVersion(), "the version stays while the table stays");
+
+        apply(new UpdateTarget.Cell(3, 1, null, null, "=3*2"));
+
+        assertEquals(6, cellOf(3, 1).value());
+        assertNotEquals(version, load().getVersion());
     }
 
     @Test

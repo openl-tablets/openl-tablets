@@ -116,7 +116,10 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     /**
-     * The version of the table: a digest of the text of its cells.
+     * The version of the table: a digest of the text of its cells and of their Excel formulas.
+     *
+     * <p>A formula counts as it is written, so a formula replaced by another one that computes the same value gives
+     * the table a new version.
      *
      * <p>The cells of a compiled table are read from the workbook as the module was compiled, so the version stays
      * the same until the module is compiled again or the table is written, and it is computed once. A table changed
@@ -150,12 +153,25 @@ public class TableSyntaxNode extends NaryNode {
         return digest.substring(0, 16);
     }
 
-    /** The digest of the text of the cells, read a cell at a time: a table of any size is never held as one text. */
+    /**
+     * The digest of the text of the cells and of their Excel formulas, read a cell at a time: a table of any size is
+     * never held as one text.
+     *
+     * <p>A cell without a formula adds its text alone, so the version of a table without formulas is the digest of
+     * its text.
+     */
     private static String digestOf(IGridTable grid) {
         return shortened(HashingUtils.sha256Hex(text -> {
             for (var row = 0; row < grid.getHeight(); row++) {
                 for (var column = 0; column < grid.getWidth(); column++) {
-                    text.accept(String.valueOf(grid.getCell(column, row).getStringValue()));
+                    var cell = grid.getCell(column, row);
+                    text.accept(String.valueOf(cell.getStringValue()));
+                    var formula = cell.getFormula();
+                    if (formula != null) {
+                        // A character no text of a cell holds keeps the formula apart from the text
+                        text.accept("\u0000");
+                        text.accept(formula);
+                    }
                     text.accept("\t");
                 }
                 text.accept("\n");

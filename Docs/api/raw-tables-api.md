@@ -376,10 +376,11 @@ PUT /rest/projects/{projectId}/tables/{tableId}
 If-Match: "9f2c…"
 ```
 
-The version is compared when the write's turn has come. A table changed since the read, in Excel, on disk or through
-another client, answers `412` with `openl.error.412.table.changed.since.read.message`, and nothing is written: read the
-table again and repeat the edit. A write without `If-Match`, or with `*`, is made over any version; a weak tag matches
-none. The headers follow RFC 9110: [`ETag`](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3),
+The version changes with the text and the Excel formula of any cell of the table: a formula replaced by another one
+that computes the same value is a change too. The version is compared when the write's turn has come. A table changed
+since the read, in Excel, on disk or through another client, answers `412` with
+`openl.error.412.table.changed.since.read.message`, and nothing is written: read the table again and repeat the edit.
+A write without `If-Match`, or with `*`, is made over any version; a weak tag matches none. The headers follow RFC 9110: [`ETag`](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3),
 [`If-Match`](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.1) and [`412 Precondition
 Failed`](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.13).
 

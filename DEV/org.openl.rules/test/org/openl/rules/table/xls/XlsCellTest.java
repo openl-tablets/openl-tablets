@@ -5,13 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.Calendar;
 
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.table.IGrid;
 import org.openl.source.impl.URLSourceCodeModule;
 
@@ -150,5 +154,23 @@ class XlsCellTest {
         assertTrue(objectValue instanceof Double);
         assertEquals(123.343, (Double) objectValue, 0.001); // the value will be taken from the top left
         // cell from the region
+    }
+
+    /**
+     * A merge may start at a cell the sheet holds nothing for: its cells have no formula and are blank, and the version
+     * of a table over them is computed.
+     */
+    @Test
+    void aMergeOverNoCellHasNoFormula() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            workbook.createSheet().addMergedRegion(CellRangeAddress.valueOf("A1:B2"));
+            var source = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule("./test/rules/XlsCellTest.xls"),
+                    new SimpleWorkbookLoader(workbook));
+            var grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, source));
+
+            assertNull(grid.getCell(0, 0).getFormula());
+            assertNull(grid.getCell(1, 1).getFormula());
+            assertEquals(IGrid.CELL_TYPE_BLANK, grid.getCell(1, 1).getType());
+        }
     }
 }
