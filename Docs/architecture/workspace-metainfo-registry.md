@@ -67,7 +67,9 @@ stateDiagram-v2
     end note
 ```
 
-- Only three coarse-grained operations write the record: open, save, close. They run under a per-project
+- Only three coarse-grained operations write the whole record: open, save, close. Besides them, a file written
+  back as the synchronized revision holds it gets a new baseline (see
+  [Local-Changes Detection](#local-changes-detection)). They run under a per-project
   in-JVM lock inside the registry. The open holds the lock for the whole operation — the file copy and
   the record write — so a reconciliation running in parallel cannot meet the half-copied folder.
 - Evicting an opened copy removes its record, project folder, edit history, and lock. Local changes do
@@ -98,6 +100,18 @@ stateDiagram-v2
 - **Reconstruction.** When the registry is loaded, the dirty-set is rebuilt by comparing project files
   against the baselines: a size or time mismatch, an extra file, or a missing baseline file means the
   project has local changes.
+- **Writes past the local repository.** A restore of a module from the local edit history writes the workbook
+  straight to disk, so no notification reaches the dirty-set. It asks `RulesProject.settleLocalChanges`
+  afterwards, which rebuilds the state of that project from its files (`MetainfoRegistry.settle`). A file written
+  back as the synchronized revision holds it is no change: each changed file that kept its baseline size is
+  compared with the revision of the record — read from the source repository at that revision, or as it is now
+  from a repository without versions. An equal file gets a new baseline with its actual size and modification
+  time and the same revision id and source stamp, so it is no local change, now and after a restart; the project
+  is clean when no other file is changed. A file whose revision cannot be read stays changed, and a local project,
+  which has no revision, compares nothing. A file written again between the comparison and the new baseline keeps
+  the baseline it has, and so does every file of a project saved or opened again meanwhile: the comparison carries
+  the revision of the record it read, and a record that names another one takes no new baseline. A restore whose
+  check fails still succeeds and leaves the project modified.
 - **Baseline-collision guard.** If a save produces the same size and modification time as the baseline
   (possible only for programmatic edits within the same millisecond), the local repository bumps the file
   modification time forward so the derivation stays reliable across restarts.
@@ -229,7 +243,8 @@ the target does not, so it never overwrites an existing workspace.
 - `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
   interactive sign-in.
 - `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save,
-  lists the local changes against it, and saves only them into a folder on the file system.
+  lists the local changes against it, saves only them into a folder on the file system, and settles them after a
+  write past the local repository.
 - `Migrator` — the `.studioProps` conversion and the single-user workspace rename, run unconditionally on
   every start.
 - `FolderHelper`, `ProjectHistoryService` — the edit-history location and its maintenance.

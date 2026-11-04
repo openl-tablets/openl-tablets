@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -26,6 +27,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.acls.domain.BasePermission;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -187,6 +189,7 @@ class ProjectHistoryServiceTest {
         assertTrue(Files.exists(history.resolve("2000")));
         assertFalse(Files.exists(history.resolve("2000_current")));
         verify(model, never()).reset(any());
+        verify(project).settleLocalChanges();
     }
 
     @Test
@@ -266,6 +269,21 @@ class ProjectHistoryServiceTest {
 
         assertEquals("revision version", Files.readString(moduleFile));
         verify(model).reset(ReloadType.RELOAD);
+    }
+
+    @Test
+    void aRestoreWhoseCheckOfChangesFailsLeavesTheProjectModified() throws Exception {
+        var moduleFile = Files.createDirectories(projectFolder.resolve("rules")).resolve("Bank Rating.xlsx");
+        Files.writeString(moduleFile, "current version");
+        var history = Files.createDirectories(historyFolder(workspace));
+        Files.writeString(history.resolve("Revision Version"), "revision version");
+        Files.writeString(history.resolve("2000_current"), "current version");
+        doThrow(new ProjectException("The project folder cannot be read.")).when(project).settleLocalChanges();
+
+        service.restore(project, "Bank Rating", "Revision Version", mock(WebStudio.class));
+
+        assertEquals("revision version", Files.readString(moduleFile));
+        verify(project).setModified();
     }
 
     @Test

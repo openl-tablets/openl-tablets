@@ -204,6 +204,95 @@ class MetainfoRegistryTest {
     }
 
     @Test
+    void aFileSettledAsUnchangedLeavesNoLocalChange() throws IOException {
+        saveProjectWithFile("data");
+        registry.markDirty(PROJECT);
+        var written = writtenLater("data");
+
+        registry.settle(PROJECT, "rev-1", Map.of("/rules/Main.xlsx", written));
+
+        assertFalse(registry.isDirty(PROJECT));
+        assertEquals(written, registry.baseline(PROJECT, "/rules/Main.xlsx"));
+        assertFalse(MetainfoRegistry.open(userDir).isDirty(PROJECT), "the new baseline survives a restart");
+    }
+
+    @Test
+    void aFileWrittenAgainAfterItWasComparedKeepsItsBaseline() throws IOException {
+        var metainfo = saveProjectWithFile("data");
+        var compared = writtenLater("data");
+        Files.setLastModifiedTime(projectFile(), FileTime.fromMillis(compared.modifiedAt() + 1000));
+
+        registry.settle(PROJECT, "rev-1", Map.of("/rules/Main.xlsx", compared));
+
+        assertTrue(registry.isDirty(PROJECT));
+        assertEquals(metainfo, registry.get(PROJECT));
+    }
+
+    @Test
+    void aBaselineRecordedAgainAfterTheFileWasComparedIsKept() throws IOException {
+        saveProjectWithFile("data");
+        var compared = writtenLater("data");
+        // A save meanwhile records the file at its own revision.
+        var saved = new FileBaseline("rev-file-2", compared.size(), compared.modifiedAt());
+        registry.save(PROJECT, registry.get(PROJECT).withFiles(Map.of("/rules/Main.xlsx", saved)));
+
+        registry.settle(PROJECT, "rev-1", Map.of("/rules/Main.xlsx", compared));
+
+        assertEquals(saved, registry.baseline(PROJECT, "/rules/Main.xlsx"));
+        assertFalse(registry.isDirty(PROJECT));
+    }
+
+    @Test
+    void aProjectSavedAgainAfterItsFilesWereComparedKeepsItsBaselines() throws IOException {
+        saveProjectWithFile("data");
+        var compared = writtenLater("data");
+        // A file of a repository with neither revision ids nor source stamps tells no revision of its own.
+        var saved = new FileBaseline(null, compared.size(), compared.modifiedAt() - 1000);
+        var metainfo = registry.get(PROJECT);
+        registry.save(PROJECT, new ProjectMetainfo(metainfo.repositoryId(), metainfo.pathInRepository(),
+                metainfo.branch(), "rev-2", metainfo.author(), metainfo.modifiedAt(), metainfo.size(),
+                metainfo.comment(), Map.of("/rules/Main.xlsx", saved)));
+
+        registry.settle(PROJECT, "rev-1", Map.of("/rules/Main.xlsx", new FileBaseline(null, compared.size(),
+                compared.modifiedAt())));
+
+        assertEquals(saved, registry.baseline(PROJECT, "/rules/Main.xlsx"));
+        assertTrue(registry.isDirty(PROJECT));
+    }
+
+    @Test
+    void aPathOutOfTheProjectFolderIsNoFileOfIt() throws IOException {
+        var metainfo = saveProjectWithFile("data");
+        Files.writeString(userDir.resolve("outside.txt"), "data");
+
+        registry.settle(PROJECT, "rev-1", Map.of("/../outside.txt", new FileBaseline(null, 4, 0)));
+
+        assertEquals(metainfo, registry.get(PROJECT));
+    }
+
+    @Test
+    void aWritePastTheRepositoryIsToldBySettling() throws IOException {
+        saveProjectWithFile("data");
+        writtenLater("changed data");
+        assertFalse(registry.isDirty(PROJECT), "nothing told the registry of the write");
+
+        registry.settle(PROJECT, "rev-1", Map.of());
+
+        assertTrue(registry.isDirty(PROJECT));
+    }
+
+    @Test
+    void settlingAProjectWithoutARecordTellsEveryFileAdded() throws IOException {
+        createProjectFolder();
+        Files.writeString(userDir.resolve(PROJECT).resolve("added.txt"), "new");
+
+        registry.settle(PROJECT, null, Map.of("/added.txt", new FileBaseline(null, 3, 0)));
+
+        assertTrue(registry.isDirty(PROJECT));
+        assertNull(registry.get(PROJECT));
+    }
+
+    @Test
     void snapshotSaveResetsDirtyState() {
         registry.markDirty(PROJECT);
         assertTrue(registry.isDirty(PROJECT));
@@ -521,5 +610,17 @@ class MetainfoRegistryTest {
 
     private Path projectFile() {
         return userDir.resolve(PROJECT).resolve("rules").resolve("Main.xlsx");
+    }
+
+    /**
+     * Writes the project file past the registry, later than its baseline, and answers the baseline it has now with
+     * the revision id of the one recorded.
+     */
+    private FileBaseline writtenLater(String content) throws IOException {
+        var recorded = registry.baseline(PROJECT, "/rules/Main.xlsx");
+        Files.writeString(projectFile(), content);
+        var modifiedAt = recorded.modifiedAt() + 2000;
+        Files.setLastModifiedTime(projectFile(), FileTime.fromMillis(modifiedAt));
+        return new FileBaseline(recorded.uniqueId(), Files.size(projectFile()), modifiedAt);
     }
 }
