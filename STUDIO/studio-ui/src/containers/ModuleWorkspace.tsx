@@ -27,7 +27,7 @@ import { useLoadGeneration, useReleaseOnClose } from '../hooks'
 import { useSettingsStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
-import { rolesOf } from '../components/tableRoles'
+import { originOf, placeOf, rolesOf } from '../components/tableRoles'
 import { CompileDot, getCompileTooltip, isNoteworthyCompileState } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
@@ -111,6 +111,18 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: 12px 0;
     `,
 }))
+
+/**
+ * How many rows of a table have to be read for the cell named in A1 notation to be among them, counted from its first
+ * row as the roles of its cells count them; undefined for no cell, one that lies above the table, or a table read
+ * without its place.
+ */
+const rowsReaching = (table: Pick<RawTableView, 'pos'>, address: string | null): number | undefined => {
+    const first = originOf(table)
+    const named = placeOf(address ?? undefined)
+    const rows = first === undefined || named === undefined ? 0 : named.row - first.row + 1
+    return rows > 0 ? rows : undefined
+}
 
 /** The project read for the address, or null while what was read belongs to another one. */
 const projectReadFor = (
@@ -768,8 +780,9 @@ export const ModuleWorkspace = () => {
         }
     }, [projectCompiled, projectId, selectedId, listed, moduleName, keptInModule])
 
-    // The next window of the same table, appended to what is already drawn.
-    const showMoreRows = useCallback(() => {
+    // The next rows of the same table, appended to what is already drawn: a window of them, or as many as reach a row
+    // the screen has to show.
+    const showMoreRows = useCallback((count: number = TABLE_PAGE_ROWS) => {
         if (!projectId || selectedId === null || table === null || moreLoading) {
             return
         }
@@ -780,7 +793,7 @@ export const ModuleWorkspace = () => {
         getRawTable(projectId, selectedId, {
             module: moduleName,
             startRow: table.source.length,
-            maxRows: TABLE_PAGE_ROWS,
+            maxRows: count,
             metaInfo: true,
         })
             .then(next => setTable(shown => (shown === null || !tableLoads.isLatest(generation) ? shown : {
@@ -794,6 +807,26 @@ export const ModuleWorkspace = () => {
             })
             .finally(() => setMoreLoading(false))
     }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads])
+
+    // A message names a cell, to open or to mark, below the rows read so far: the rows are read down to it, and the
+    // cell is opened once it is there. A message leading to another table waits for that table to be read: the rows
+    // of the one it leaves are not read on.
+    const namedRows = table?.id === selectedId ? rowsReaching(table, editCell ?? raisedCell) : undefined
+    const readRows = table?.source.length ?? 0
+    const belowRead = namedRows !== undefined && namedRows > readRows && namedRows <= (table?.totalRows ?? readRows)
+    // The rows last asked for: a read that failed or brought no rows is not asked for again until the table or the
+    // cell changes.
+    const askedRows = useRef<string | null>(null)
+    useEffect(() => {
+        if (moreLoading) {
+            return
+        }
+        const asked = belowRead ? `${selectedId}:${readRows}:${namedRows}` : null
+        if (belowRead && asked !== askedRows.current) {
+            showMoreRows(namedRows - readRows)
+        }
+        askedRows.current = asked
+    }, [belowRead, moreLoading, namedRows, readRows, selectedId, showMoreRows])
 
     if (linkProblem) {
         return (
@@ -1026,7 +1059,7 @@ export const ModuleWorkspace = () => {
                     onOpenedAt={() => setEditCell(null)}
                     onOpenUsage={openUsage}
                     onSaved={tableRewritten}
-                    openAt={editCell}
+                    openAt={belowRead ? null : editCell}
                     projectId={project.id}
                     roles={roles}
                     rows={table.source}
@@ -1040,7 +1073,7 @@ export const ModuleWorkspace = () => {
                             <Button
                                 data-testid="module-table-more"
                                 loading={moreLoading}
-                                onClick={showMoreRows}
+                                onClick={() => showMoreRows()}
                             >
                                 {t('browser.module.show_more_rows', { shown, total })}
                             </Button>

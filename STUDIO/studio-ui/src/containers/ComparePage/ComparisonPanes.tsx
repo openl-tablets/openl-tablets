@@ -3,6 +3,7 @@ import { Badge, Empty, Flex, Spin, Splitter, Tag, Typography } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { RawTableGrid, type CellDecoration } from 'components/RawTableGrid'
+import { joinClasses } from 'utils/joinClasses'
 import type { RawTableCell } from 'types/tables'
 import type {
     ComparisonLine,
@@ -249,11 +250,14 @@ const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; com
 /** How a cell of a version is framed: changed, or changed differently by both versions of a conflict. */
 type CellFrame = 'changed' | 'conflict'
 
-/** The class of a framed cell, framed along the sides its frame runs. */
+/**
+ * The classes of a framed cell, framed along the sides its frame runs: the names alone, which the grid puts together
+ * with its own.
+ */
 const useFrame = () => {
-    const { styles, cx } = useCellStyles()
+    const { styles } = useCellStyles()
     return (sides: FrameSides, kind: CellFrame = 'changed') =>
-        cx(kind === 'conflict' ? styles.conflict : styles.changedFrame, sidesOf(styles, sides))
+        joinClasses(kind === 'conflict' ? styles.conflict : styles.changedFrame, sidesOf(styles, sides))
 }
 
 /** The cell standing for the equal rows left out between the rows shown, saying how many they are. */
@@ -562,7 +566,7 @@ const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | und
     order = VERSION_PANES,
 }) => {
     const { t } = useTranslation('compare')
-    const { styles, cx } = useCellStyles()
+    const { styles } = useCellStyles()
     const frame = useFrame()
     const gapOf = useGap()
     const { rows: source, marks } = combined
@@ -587,7 +591,7 @@ const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | und
         if (mark.lead) {
             const row = mark.row === 'added' || mark.row === 'removed' ? mark.row : undefined
             return {
-                className: cx(styles.combinedLead, ofSide(row)),
+                className: joinClasses(styles.combinedLead, ofSide(row)),
                 painted: true,
                 // The sign says what became of the row, and says so in words to whoever hovers it. A
                 // row that reads the same in both files carries no sign, so there is nothing to hover.
@@ -597,7 +601,7 @@ const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | und
         const sides = frames.get(cell)
         if (sides && mark.conflict) {
             // A line one version removed while the other one changed it: painted as removed, framed as a conflict.
-            return { className: cx(ofSide(mark.paint), frame(sides, 'conflict')), painted: true }
+            return { className: joinClasses(ofSide(mark.paint), frame(sides, 'conflict')), painted: true }
         }
         if (sides && mark.theirs !== undefined) {
             // Both values under the base one, each named, so neither reads as what the cell ends up holding.

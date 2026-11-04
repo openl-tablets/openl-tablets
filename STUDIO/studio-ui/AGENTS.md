@@ -28,6 +28,7 @@ Use almost the latest versions when possible.
     - The rules that read types see them through TypeScript 6, so `npm run typecheck` (TypeScript 7) has the last
       word: an assertion the linter calls needless may still be one `tsc` needs.
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
+- **@tanstack/react-virtual** draws the rows of a long table as they scroll into sight (`RawTableGrid`)
 - **Vitest** + React Testing Library (`jsdom` environment)
 - **CodeMirror** through **`@uiw/react-codemirror`** for the code editor (`CodeEditor`), with the colour schemes of
   the **`@uiw/codemirror-theme-*`** packages
@@ -442,7 +443,27 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - **A long list is virtualised.** A tree or table that can hold hundreds of rows is given a height and drawn a
   screenful at a time (Ant Design's `Tree` takes `height`, `itemHeight` and `scrollWidth`); and a table is laid
   out at the width its values need rather than squeezed into the screen, which otherwise wraps every value into
-  a tower of lines and multiplies the pixels the browser has to paint.
+  a tower of lines and multiplies the pixels the browser has to paint. A table of a workbook that scrolls on a
+  screen of its own — the table of the module editor — is handed the element it scrolls in (`scroller` of
+  `RawTableGrid`) and draws the rows in sight through `@tanstack/react-virtual`: a test table of 221 columns hung
+  the page for 9 to 15 seconds drawn 2000 rows at once. The rows are drawn in blocks of about 2000 cells, each a
+  `<tbody>` of its own that a merged cell or a numbered case never crosses; a block is drawn again only when what
+  its rows are drawn from changes, so scrolling draws the blocks coming into sight alone. A column of the grid, the
+  margin included, keeps the widest width it has been drawn at (`<colgroup>`), read once a frame for the blocks
+  drawn with other values, so the columns stand still as the rows go by; the widths start anew when the cells are
+  written otherwise — their formulas, the other look, another density, other date formats. The cell the reader is on
+  (`keepInSight`) is scrolled into sight, down and across, as the keys move it out of sight; a cell partly in sight
+  stays where it is, or the second click of a double click would land on its neighbour. Its block is drawn wherever
+  the table is scrolled: an open cell keeps its draft while the reader scrolls away. The grid turns the scroll
+  anchoring of the element off while it draws as it scrolls, since the virtualizer keeps the place itself. A cell
+  a message names below the rows read has the rows down to it read, once the table it names is read, so it can be
+  opened and marked; a read of them
+  that fails or brings no rows is not asked for again until the table or the cell changes. The table tells
+  assistive technology how many rows it has and where each drawn one stands (`aria-rowcount`, `aria-rowindex`), and a
+  table read in part numbers its cases by the cases it was read with, cut at the last row read. The editor
+  reads a table
+  250 rows at a time (`TABLE_PAGE_ROWS`). An element with no height — jsdom lays nothing out — draws every row until
+  it is laid out; a test of the rows drawn as they scroll lays the elements out itself (`RawTableGrid.test.tsx`).
 - **A component drawn many times over reads no styles of its own.** antd-style's `useStyles()` copies the whole
   theme for every component that calls it, about 40 KB each: a table of test results with a hook in every cell
   ran the browser out of memory. Whatever draws the many — a list, a table, a tree — reads the styles once and
@@ -450,6 +471,11 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   result when the part also needs `cx`). `useValueStyles()` with `ValueCell` shows it for the values of a test
   run, `RawTableGrid` with `RawTableCellText` for the cells of a workbook table, `TraceTree` with `Twisty` and
   `DispatchBadge` for the rows of a trace. A part that needs no class of its own takes no hook at all.
+  Nor does it call `cx` for each of the many: antd-style's `cx` serializes and hashes the styles it merges at every
+  call, which cost 4.4 seconds over a table of 442 000 cells. The part puts the names together once for every set of
+  them it meets (`classOf` of `RawTableGrid`, through `cached` of `utils/`), and a screen marking the cells of a grid
+  hands it the names as they are, joined by spaces (`joinClasses` of `utils/`, as the `decorate` of `TableEditor`,
+  `TraceTableView` and `ComparisonPanes` do).
 - **What is being written lives in the cell it is written in.** A table draws every cell it holds on every
   render, so a draft kept in the table's own state redraws all of them at every keystroke — on a 22 000-cell
   test table a key cost an extra frame, 67 ms against 34. `OpenCell` in `containers/modules` owns the draft

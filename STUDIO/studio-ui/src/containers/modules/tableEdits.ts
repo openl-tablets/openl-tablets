@@ -1,14 +1,12 @@
 import { hexOf } from 'styles/excelColours'
+import type { CellPlace } from 'components/RawTableGrid'
 import { MARK_RGB, markedRuns, marksOf, sameMarks } from 'components/textMarks'
 import type {
     RawCellStyleInput, RawTableCell, RawTableCellStyle, RawTableCellInput, RawTextMark, TableEdit,
 } from 'types/tables'
 
 /** Where a cell sits in the table, as it stands on screen. */
-export interface CellAt {
-    row: number
-    column: number
-}
+export type CellAt = CellPlace
 
 /**
  * One thing the reader did, in the coordinates the table had when they did it.

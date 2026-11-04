@@ -972,6 +972,18 @@ describe('TableEditor', () => {
             expect(cellOf(0, 1).style.borderTop).toBe('1px solid rgb(255, 0, 0)')
         })
 
+        it('numbers the cases of a table read in part by its cases, the last one cut where the rows read end', async () => {
+            // Three cases of two rows each, of which the rows read hold the first two and the first row of the third.
+            const tests: RawTableCell[][] = [
+                [{ cell: 'B2', value: 'Test premium premiumTest' }],
+                ...['B3', 'B4', 'B5', 'B6', 'B7'].map(cell => [{ cell, value: cell }]),
+            ]
+            draw({ rows: tests, whole: false, layout: { firstDataLine: 1, caseLines: [2, 2, 2]} })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2', '3'])
+        })
+
         it('counts the rows put away out of the line numbers', async () => {
             draw({ rows: withHeader, hiddenRows: HIDDEN, layout: { firstDataLine: 5 } })
             await waitFor(() => expect(getTableEditors).toHaveBeenCalled())

@@ -6,6 +6,7 @@ import traceService from 'services/traceService'
 import { NotFoundError, isApiHttpError } from 'services'
 import type { HighlightState, RawTableCell } from 'types/trace'
 import { RawTableGrid } from 'components/RawTableGrid'
+import { joinClasses } from 'utils/joinClasses'
 import { onPaper, rolesOf } from 'components/tableRoles'
 import { useAppTheme } from 'providers/AppThemeProvider'
 import { useStyles } from './TraceTableView.styles'
@@ -142,7 +143,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
         const state = cell.cell ? highlights[cell.cell] : undefined
         const painted = paintedState(state)
         return {
-            className: cx(painted && styles[painted], dim && !state && styles.dimmed),
+            className: joinClasses(painted && styles[painted], dim && !state && styles.dimmed),
             painted: !!painted,
         }
     }

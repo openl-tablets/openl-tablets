@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { onTestFinished } from 'vitest'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { roleColoursOf } from 'components/RawTableGrid.styles'
 import { rolesOf } from 'components/tableRoles'
@@ -8,6 +9,7 @@ import { markInksOf } from './textMarks'
 import { paperToken } from 'styles/paper'
 import { LIST_PAGE_COLORS } from 'styles/listPageTheme'
 import { THEME_ORDER, variantOf } from 'styles/themes'
+import { layOut } from 'testing/layOut'
 import { hex, renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
 import { highlight } from 'utils/codeHighlight'
@@ -824,5 +826,256 @@ describe('RawTableGrid', () => {
         // at those positions — and lead somewhere else entirely.
         expect(screen.queryByTestId('cell-usage-0')).toBeNull()
         expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('=B1&C1')
+    })
+
+    // A table of thousands of rows and two hundred columns hung the page for seconds while every cell was drawn.
+    // See EPBDS-17096.
+    describe('drawn as it scrolls', () => {
+        /** How tall jsdom is told a row is, and how tall the element the table scrolls in. */
+        const ROW = 20
+        const VIEW = 200
+        /** A hundred columns: the grid draws rows in blocks of about 2000 cells, so twenty rows a block. */
+        const COLUMNS = 100
+
+        /** A table of plain cells, each named by its row and its column. */
+        const wide = (height: number): RawTableCell[][] => Array.from({ length: height }, (unused, row) =>
+            Array.from({ length: COLUMNS }, (none, column) => ({ cell: `R${row}C${column}`, value: `${row}:${column}` })))
+
+        /** How wide jsdom is told a column of the grid is, the margin included. */
+        const COLUMN = 50
+
+        beforeEach(() => {
+            // A block is as tall as its rows, a cell as wide as its column of the grid says.
+            layOut(HTMLTableSectionElement.prototype, 'offsetHeight', function () {
+                return this.querySelectorAll('tr').length * ROW
+            })
+            layOut(HTMLTableCellElement.prototype, 'offsetWidth', function () {
+                return 40 + Number(this.dataset['col'] ?? 0)
+            })
+        })
+
+        /**
+         * The element the table scrolls in, as tall as the screen shows it. A browser tells it scrolled after the
+         * scrolling, never while the table is drawn, so the test tells it when it has scrolled ({@code scrolled}).
+         * A cell lies where its row and its column of the grid put it, under what is scrolled away.
+         */
+        const scroller = (height = VIEW) => {
+            const element = document.createElement('div')
+            const at = { top: 0, left: 0, height }
+            Object.defineProperty(element, 'clientHeight', { get: () => at.height })
+            Object.defineProperty(element, 'clientWidth', { value: 800 })
+            // As tall as the rows it scrolls, at most as tall as the grid takes a row not measured yet to be.
+            Object.defineProperty(element, 'scrollHeight', { value: 300 * 40 })
+            Object.defineProperty(element, 'scrollTop', { get: () => at.top, set: (value: number) => { at.top = value } })
+            Object.defineProperty(element, 'scrollLeft', { get: () => at.left, set: (value: number) => { at.left = value } })
+            element.scrollTo = (({ top: to }: ScrollToOptions) => {
+                at.top = to ?? at.top
+            }) as typeof element.scrollTo
+            layOut(HTMLTableCellElement.prototype, 'getBoundingClientRect', function () {
+                const row = Number(this.closest('tr')?.dataset['row'] ?? 0)
+                const col = Number(this.dataset['col'] ?? 0)
+                const top = row * ROW - at.top
+                const left = col * COLUMN - at.left
+                return () => ({ top, bottom: top + ROW, left, right: left + COLUMN }) as DOMRect
+            })
+            document.body.append(element)
+            onTestFinished(() => element.remove())
+            const scrolled = (to = at.top) => act(() => {
+                at.top = to
+                element.dispatchEvent(new Event('scroll'))
+            })
+            return { element, at, scrolled }
+        }
+
+        /** The rows drawn, by their place in the table. */
+        const drawnRows = () => [...screen.getByTestId('grid').querySelectorAll<HTMLElement>('tr[data-row]')]
+            .map(row => Number(row.dataset['row']))
+        /** The widths the columns of the grid keep, the margin first. */
+        const widths = () => [...screen.getByTestId('table-column-widths').children]
+            .map(col => (col as HTMLElement).style.width)
+        /** The block a row is drawn in. */
+        const blockOf = (row: number) =>
+            screen.getByTestId('grid').querySelector(`tr[data-row="${row}"]`)?.closest('tbody')
+
+        it('draws the rows in sight and a few around them, not the rows far below', async () => {
+            const { element } = scroller()
+            render(<RawTableGrid rows={wide(300)} scroller={element} testId="grid" />, { container: element })
+
+            await waitFor(() => expect(drawnRows()).toContain(0))
+            const drawn = drawnRows()
+            expect(drawn).not.toContain(299)
+            expect(drawn.length).toBeLessThan(300)
+            // The rows left out keep their room, so the table scrolls as far as it would drawn whole.
+            const room = screen.getAllByTestId('table-rows-room')
+                .map(body => Number.parseFloat(body.querySelector<HTMLElement>('td')?.style.height ?? '0'))
+            expect(Math.max(...room)).toBeGreaterThan(0)
+        })
+
+        it('draws the rows scrolled to, and lets go of the ones scrolled past', async () => {
+            const { element, scrolled } = scroller()
+            render(<RawTableGrid rows={wide(300)} scroller={element} testId="grid" />, { container: element })
+            await waitFor(() => expect(drawnRows()).toContain(0))
+
+            // To the end: the rows not drawn yet are taken to be as tall as a row of one line in the theme.
+            scrolled(300 * 40)
+
+            await waitFor(() => expect(drawnRows()).toContain(299))
+            expect(drawnRows()).not.toContain(0)
+            // Assistive technology is told how many rows there are and where each drawn one stands among them.
+            expect(screen.getByTestId('grid')).toHaveAttribute('aria-rowcount', '300')
+            expect(screen.getByTestId('grid').querySelector('tr[data-row="299"]')).toHaveAttribute('aria-rowindex', '300')
+        })
+
+        it('draws a merged cell whole, never splitting it between two blocks of rows', async () => {
+            const table = wide(60)
+            // Rows 19 to 21 share the first cell, across the end of the first block of twenty rows.
+            table[19]![0] = { cell: 'R19C0', value: 'merged', rowspan: 3 }
+            table[20]![0] = { covered: true }
+            table[21]![0] = { covered: true }
+            const { element } = scroller()
+            render(<RawTableGrid rows={table} scroller={element} testId="grid" />, { container: element })
+
+            await waitFor(() => expect(drawnRows()).toContain(19))
+            expect(blockOf(20)).toBe(blockOf(19))
+            expect(blockOf(21)).toBe(blockOf(19))
+        })
+
+        it('draws a numbered case whole, its number beside every row it takes', async () => {
+            // The second case takes rows 19 to 21, across the end of the first block of twenty rows.
+            const caseLines = [19, 3, ...Array.from({ length: 38 }, () => 1)]
+            const { element } = scroller()
+            render(<RawTableGrid
+                layout={{ firstDataLine: 0, caseLines }}
+                rows={wide(60)}
+                scroller={element}
+                testId="grid"
+            />, { container: element })
+
+            await waitFor(() => expect(drawnRows()).toContain(19))
+            expect(blockOf(21)).toBe(blockOf(19))
+            const number = screen.getByTestId('grid')
+                .querySelector('tr[data-row="19"] [data-testid=table-line-number]')?.closest('td')
+            expect(number).toHaveTextContent('2')
+            expect(number).toHaveAttribute('rowspan', '3')
+            // The margin keeps its width as well, so a longer number further down does not move the columns.
+            await waitFor(() => expect(widths()[0]).toBe('40px'))
+        })
+
+        it('scrolls the cell kept in sight into view, down and across, drawn or not', async () => {
+            const { element, at } = scroller()
+            const { rerender } = render(<RawTableGrid rows={wide(300)} scroller={element} testId="grid" />,
+                { container: element })
+            await waitFor(() => expect(drawnRows()).toContain(0))
+
+            rerender(<RawTableGrid
+                keepInSight={{ row: 250, column: 50 }}
+                rows={wide(300)}
+                scroller={element}
+                testId="grid"
+            />)
+
+            // Its block is drawn at once, far below the rows in sight, and the table scrolls to the cell.
+            await waitFor(() => expect(drawnRows()).toContain(250))
+            await waitFor(() => expect(at.top).toBe(250 * ROW + ROW - VIEW))
+            expect(at.left).toBe(50 * COLUMN + COLUMN - 800)
+        })
+
+        it('leaves a cell partly in sight where it is, so a double click opens the cell it began on', async () => {
+            const { element, at } = scroller()
+            const { rerender } = render(<RawTableGrid rows={wide(300)} scroller={element} testId="grid" />,
+                { container: element })
+            await waitFor(() => expect(drawnRows()).toContain(0))
+
+            // The ninth row is cut off by the bottom of the sheet, the sixteenth column by its right edge.
+            rerender(<RawTableGrid
+                keepInSight={{ row: 9, column: 15 }}
+                rows={wide(300)}
+                scroller={element}
+                testId="grid"
+            />)
+
+            await waitFor(() => expect(drawnRows()).toContain(9))
+            expect(at.top).toBe(0)
+            expect(at.left).toBe(0)
+        })
+
+        it('keeps the cell being written in drawn while the reader scrolls away, so nothing written there is lost', async () => {
+            const { element, scrolled } = scroller()
+            render(<RawTableGrid
+                keepInSight={{ row: 5, column: 0 }}
+                rows={wide(300)}
+                scroller={element}
+                testId="grid"
+            />, { container: element })
+            await waitFor(() => expect(drawnRows()).toContain(5))
+            const open = screen.getByTestId('grid').querySelector('[data-cell="R5C0"]')
+
+            scrolled(300 * 40)
+
+            await waitFor(() => expect(drawnRows()).toContain(299))
+            // The block is the same, not drawn anew, and the rows between keep their room.
+            expect(screen.getByTestId('grid').querySelector('[data-cell="R5C0"]')).toBe(open)
+            expect(drawnRows()).not.toContain(150)
+            expect(screen.getAllByTestId('table-rows-room').length).toBeGreaterThan(2)
+        })
+
+        it('keeps the widest width each column was drawn at, so the columns stand still as the rows go by', async () => {
+            const { element } = scroller()
+            render(<RawTableGrid rows={wide(60)} scroller={element} testId="grid" />, { container: element })
+
+            await waitFor(() => expect(widths()[3]).toBe('43px'))
+            expect(widths()).toHaveLength(COLUMNS)
+        })
+
+        it('starts the widths anew when the cells are written otherwise, as their formulas', async () => {
+            const { element } = scroller()
+            const { rerender } = render(<RawTableGrid rows={wide(60)} scroller={element} testId="grid" />,
+                { container: element })
+            await waitFor(() => expect(widths()[3]).toBe('43px'))
+            const before = screen.getByTestId('table-column-widths')
+
+            rerender(<RawTableGrid formulas rows={wide(60)} scroller={element} testId="grid" />)
+
+            // Other widths, read from the cells as they are written now, not kept from the values before.
+            expect(screen.getByTestId('table-column-widths')).not.toBe(before)
+            await waitFor(() => expect(widths()[3]).toBe('43px'))
+        })
+
+        it('draws every row where the element it scrolls in has no layout to measure', () => {
+            const { element } = scroller(0)
+            render(<RawTableGrid rows={wide(300)} scroller={element} testId="grid" />, { container: element })
+
+            expect(screen.getByTestId('grid').querySelectorAll('tr')).toHaveLength(300)
+        })
+
+        it('draws the rows as they scroll once the element it scrolls in is laid out', async () => {
+            const resized: Array<() => void> = []
+            const observer = globalThis.ResizeObserver
+            globalThis.ResizeObserver = class {
+                constructor(told: ResizeObserverCallback) {
+                    resized.push(() => told([], this))
+                }
+
+                observe() {}
+
+                unobserve() {}
+
+                disconnect() {}
+            }
+            onTestFinished(() => {
+                globalThis.ResizeObserver = observer
+            })
+            const { element, at } = scroller(0)
+            render(<RawTableGrid rows={wide(300)} scroller={element} testId="grid" />, { container: element })
+            expect(drawnRows()).toHaveLength(0)
+            expect(screen.getByTestId('grid').querySelectorAll('tr')).toHaveLength(300)
+
+            // The screen it sits on is laid out, and the element is told it has a height now.
+            at.height = VIEW
+            act(() => resized.forEach(tell => tell()))
+
+            await waitFor(() => expect(drawnRows()).toContain(0))
+            expect(drawnRows()).not.toContain(299)
+        })
     })
 })
