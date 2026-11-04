@@ -2,6 +2,8 @@ import { MemoryRouter } from 'react-router'
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { onTestFinished } from 'vitest'
+import { layOut } from 'testing/layOut'
 import {
     getTestCaseLines, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary, stopExecution,
 } from 'services/execution'
@@ -786,5 +788,75 @@ describe('TestsResults', () => {
 
         expect(await screen.findByTestId('tests-outdated')).toHaveTextContent('The project has changed')
         expect(screen.queryByTestId('test-results-tt1')).not.toBeInTheDocument()
+    })
+
+    // A page can hold every test table of a project; drawn at once, their cells took the browser down. EPBDS-17091.
+    describe('on a page of many test tables', () => {
+        /** A page of the given number of test tables, each a copy of the table given. */
+        const manyTables = (count: number, table: object = summary.testCases[0]!) => ({
+            ...summary,
+            testCases: Array.from({ length: count }, (_, index) => ({ ...table, tableId: `t${index}` })),
+        })
+        const listedTables = () => [...document.querySelectorAll<HTMLElement>('[data-testid^="test-results-t"]')]
+            .map(table => table.dataset['testid'])
+
+        /**
+         * Lays the window out 768 pixels tall, as jsdom says, a table as tall as one not drawn yet is taken to be, and
+         * answers how to scroll it, telling the list it scrolled.
+         */
+        const laidOutWindow = () => {
+            let scrolled = 0
+            layOut(document.documentElement, 'clientHeight', () => 768)
+            layOut(HTMLDivElement.prototype, 'offsetHeight', () => 400)
+            layOut(window, 'scrollY', () => scrolled)
+            // The list keeps the place the reader scrolled to as tables are measured, which jsdom cannot scroll to.
+            const scrollTo = window.scrollTo
+            window.scrollTo = vi.fn() as typeof window.scrollTo
+            onTestFinished(() => {
+                window.scrollTo = scrollTo
+            })
+            return (to: number) => act(() => {
+                scrolled = to
+                window.dispatchEvent(new Event('scroll'))
+            })
+        }
+
+        it('draws the tables in sight as the window scrolls, not the ones far below', async () => {
+            const scrollTo = laidOutWindow()
+            readSummary.mockResolvedValue(manyTables(30))
+            render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+            await waitFor(() => expect(listedTables()).toContain('test-results-t0'))
+            expect(listedTables().length).toBeLessThan(10)
+            expect(listedTables()).not.toContain('test-results-t29')
+
+            scrollTo(27 * 400)
+
+            await waitFor(() => expect(listedTables()).toContain('test-results-t29'))
+            expect(listedTables()).not.toContain('test-results-t0')
+        })
+
+        it('keeps the page of cases a table was turned to while it is scrolled out of sight and back', async () => {
+            const scrollTo = laidOutWindow()
+            readSummary.mockResolvedValue(manyTables(30, manyCases(45).testCases[0] ?? {}))
+            render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+            await waitFor(() => expect(listedTables()).toContain('test-results-t0'))
+            await userEvent.click(within(screen.getByTestId('test-cases-pagination-t0')).getByTitle('2'))
+            expect(within(screen.getByTestId('test-results-t0')).getByText('21')).toBeInTheDocument()
+
+            scrollTo(27 * 400)
+            await waitFor(() => expect(listedTables()).not.toContain('test-results-t0'))
+            scrollTo(0)
+
+            await waitFor(() => expect(listedTables()).toContain('test-results-t0'))
+            expect(within(screen.getByTestId('test-results-t0')).getByText('21')).toBeInTheDocument()
+        })
+
+        it('draws every table where the window has no layout to measure', async () => {
+            readSummary.mockResolvedValue(manyTables(30))
+            render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+            await waitFor(() => expect(listedTables()).toHaveLength(30))
+        })
     })
 })

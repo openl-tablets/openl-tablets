@@ -2,6 +2,7 @@ import React, { createContext, type Key, useCallback, useContext, useMemo, useRe
 import { Spin, Tree, type TreeDataNode, type TreeProps } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useRemembered } from 'hooks/useRemembered'
 import type { ValueLevel } from 'types/execution'
 import type { TraceParameterValue } from 'types/trace'
 import { useDateFormats } from 'utils/dateFormat'
@@ -112,16 +113,19 @@ interface ReadOnDemand {
  * shown nor waited for. A screen reuses its lines - another step of a trace, another page of cases - so a read
  * that is still on its way when that happens is left behind. A value the API only refers to is told apart by
  * that reference, because the line itself holds nothing to compare.
+ *
+ * @param options.reference  what the API refers to the value by, which tells one value of a line from another
+ * @param options.rememberAs the key the screen remembers what was read by, so a value drawn again is not read again
  */
 const useReadOnDemand = (
     value: unknown,
     onLoad?: (() => Promise<Pick<TraceParameterValue, 'value'> | undefined>) | undefined,
-    reference?: unknown
+    { reference, rememberAs }: { reference?: unknown, rememberAs?: string } = {}
 ): ReadOnDemand => {
     const { t } = useTranslation('common')
     const [loading, setLoading] = useState(false)
-    const [loaded, setLoaded] = useState(false)
-    const [loadedValue, setLoadedValue] = useState<unknown>(undefined)
+    const [read, setRead] = useRemembered<{ loaded: boolean, value: unknown }>(rememberAs,
+        () => ({ loaded: false, value: undefined }))
     const [error, setError] = useState<string | null>(null)
     const [shown, setShown] = useState({ value, reference })
     const request = useRef(0)
@@ -130,12 +134,11 @@ const useReadOnDemand = (
         setShown({ value, reference })
         request.current += 1
         setLoading(false)
-        setLoaded(false)
-        setLoadedValue(undefined)
+        setRead({ loaded: false, value: undefined })
         setError(null)
     }
 
-    const read = () => {
+    const readNow = () => {
         if (!onLoad) {
             return
         }
@@ -145,8 +148,7 @@ const useReadOnDemand = (
         onLoad()
             .then(result => {
                 if (reading === request.current) {
-                    setLoadedValue(result?.value)
-                    setLoaded(true)
+                    setRead({ loaded: true, value: result?.value })
                 }
             })
             .catch(loadError => {
@@ -161,7 +163,7 @@ const useReadOnDemand = (
             })
     }
 
-    return { value: loaded ? loadedValue : value, loaded, loading, error, read }
+    return { value: read.loaded ? read.value : value, loaded: read.loaded, loading, error, read: readNow }
 }
 
 /**
@@ -286,8 +288,8 @@ interface ValueTreeProps extends ValueNodeTitle {
  */
 const ValueTree: React.FC<ValueTreeProps> = ({ name, value, type, summary, path, open, styles }) => {
     const { t } = useTranslation('common')
-    const [openKeys, setOpenKeys] = useState<Key[]>(open ? [path] : [])
-    const [listed, setListed] = useState<ReadonlyMap<Key, number>>(new Map())
+    const [openKeys, setOpenKeys] = useRemembered<Key[]>(`${path}:open`, () => (open ? [path] : []))
+    const [listed, setListed] = useRemembered<ReadonlyMap<Key, number>>(`${path}:listed`, () => new Map())
     const treeData = useMemo(
         () => [buildValueTreeData(
             { name, value, type, summary },
@@ -308,7 +310,7 @@ const ValueTree: React.FC<ValueTreeProps> = ({ name, value, type, summary, path,
                 ),
             }
         )],
-        [name, value, type, summary, path, styles, openKeys, listed, t]
+        [name, value, type, summary, path, styles, openKeys, listed, setListed, t]
     )
     return <ValueTreeFrame onOpen={setOpenKeys} openKeys={openKeys} styles={styles} treeData={treeData} />
 }
@@ -336,9 +338,10 @@ interface LevelTreeProps {
 const LevelTree: React.FC<LevelTreeProps> = ({ root, label, readLines, path, styles }) => {
     const { t } = useTranslation('common')
     const rootKey = levelKey(path, [])
-    const [levels, setLevels] = useState<ReadonlyMap<string, ValueLevel>>(() => new Map([[rootKey, root]]))
+    const [levels, setLevels] = useRemembered<ReadonlyMap<string, ValueLevel>>(`${path}:levels`,
+        () => new Map([[rootKey, root]]))
     const [failures, setFailures] = useState<ReadonlyMap<string, string>>(new Map())
-    const [openKeys, setOpenKeys] = useState<Key[]>([])
+    const [openKeys, setOpenKeys] = useRemembered<Key[]>(`${path}:open`, () => [])
 
     // Reads the lines of a level from the given one on, after the ones read before. A read that failed says why in
     // the level, and the tree does not ask again by itself.
@@ -355,7 +358,7 @@ const LevelTree: React.FC<LevelTreeProps> = ({ root, label, readLines, path, sty
             .catch(readError => {
                 setFailures(current => new Map(current).set(key, errorMessage(readError) || t('value.loadFailed')))
             })
-    }, [readLines, path, t])
+    }, [readLines, path, setLevels, t])
 
     const treeData = useMemo(() => {
         // Reads the lines of a level after the ones it has read: the next page, or the page that failed.
@@ -411,7 +414,7 @@ const LevelValueCell: React.FC<ValueCellProps & { readLines: ReadLines }> = (
 ) => {
     const { t } = useTranslation('common')
     const readRoot = useCallback(() => readLines([], 0).then(level => ({ value: level })), [readLines])
-    const state = useReadOnDemand(value, readRoot)
+    const state = useReadOnDemand(value, readRoot, { rememberAs: `${path}:root` })
 
     const placeholder = placeholderOf(state, true, path, styles, t, label)
     if (placeholder !== null) {
@@ -459,7 +462,7 @@ interface ParameterValueTreeProps {
 export const ParameterValueTree: React.FC<ParameterValueTreeProps> = ({ param, paramKey, onLoad, open }) => {
     const { t } = useTranslation('common')
     const { styles } = useStyles()
-    const state = useReadOnDemand(param.value, onLoad, param.parameterId)
+    const state = useReadOnDemand(param.value, onLoad, { reference: param.parameterId })
 
     const displayValue = state.value
     const isComplex = isComplexValue(displayValue)

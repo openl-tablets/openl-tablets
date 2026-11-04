@@ -463,7 +463,20 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   table read in part numbers its cases by the cases it was read with, cut at the last row read. The editor
   reads a table
   250 rows at a time (`TABLE_PAGE_ROWS`). An element with no height — jsdom lays nothing out — draws every row until
-  it is laid out; a test of the rows drawn as they scroll lays the elements out itself (`RawTableGrid.test.tsx`).
+  it is laid out (`useLaidOut` of `hooks/`); a test of the rows drawn as they scroll lays the elements out itself
+  (`RawTableGrid.test.tsx`). A list can be as wide as it is long: the results of a test table comparing 2559 values
+  drew 51 000 cells for 20 cases and took the browser down, the editor beside it included. `ListTable` given
+  `columnsInSight` draws the columns in sight through a horizontal virtualizer, each as wide as its header measures,
+  with the room of the others before and after them; the results of a test run list their cases so
+  (`TestsResults`), and a test table is drawn again only once the results read with a new choice are there. The test
+  tables of a page are drawn as the window scrolls to them (`useWindowVirtualizer`, each measured as it is drawn),
+  since a page can hold every test table of a project. An element laid out once stays so for `useLaidOut`: hidden
+  for a while, it does not have the list drawn whole while nobody sees it. A part drawn only while in sight loses its
+  state as it goes, so what the reader would miss is kept by the screen (`useRemembered` and `ScreenMemory` of
+  `hooks/`, by a key unique on the screen): the page of cases a test table was turned to, the values opened in it and
+  the levels read of them come back as the reader left them. Only a change is remembered, the moment it is made, so a
+  read that comes back after its part went out of sight is kept too. Where a list begins in what scrolls it — under the
+  headings of the grid, under the options of the results window — is measured by `useScrollMargin` of `hooks/`.
 - **A component drawn many times over reads no styles of its own.** antd-style's `useStyles()` copies the whole
   theme for every component that calls it, about 40 KB each: a table of test results with a hook in every cell
   ran the browser out of memory. Whatever draws the many — a list, a table, a tree — reads the styles once and

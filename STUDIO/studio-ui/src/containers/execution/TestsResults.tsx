@@ -1,6 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Empty, Flex, Pagination, Result, Space, Tag, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
+import { useLaidOut } from 'hooks/useLaidOut'
+import { ScreenMemory, useRemembered } from 'hooks/useRemembered'
+import { useScrollMargin } from 'hooks/useScrollMargin'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
@@ -42,6 +46,7 @@ import { CompoundResultOption, CountSelect, FailuresOption } from './ResultOptio
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
 import { ExecutionErrors, ExecutionScreen, ExecutionWindowContext, nameOf, useStopExecution } from './ExecutionScreen'
+import { useStyles as useScreenStyles } from './ExecutionScreen.styles'
 
 const { Text, Title } = Typography
 
@@ -215,9 +220,13 @@ const CASES_PER_PAGE = 20
  * The results of the test units of one test table, a case to a row.
  *
  * A table lists its cases a page at a time, and the pager under it reaches the rest. A test table can hold
- * thousands of cases, and drawn at once, their rows are more than the browser can hold.
+ * thousands of cases, and drawn at once, their rows are more than the browser can hold. It can compare thousands of
+ * values in a case as well, so only the columns in sight are drawn, the others as the reader scrolls across.
+ *
+ * A table is drawn again only when what it shows changes: a choice of the reader is drawn once the results read
+ * with it are there, not the moment it is made.
  */
-const TestTable: React.FC<{
+const TestTable = React.memo<{
     table: TestTableResult
     projectId: string
     compoundResult: boolean
@@ -225,9 +234,13 @@ const TestTable: React.FC<{
     /** The look of the values, read once by the window for every table it lists. */
     valueStyles: ValueStyles
     onOpenTable: (href: string) => boolean | void
-}> = ({ table, projectId, compoundResult, readLines, valueStyles, onOpenTable }) => {
+}>(function TestTable({ table, projectId, compoundResult, readLines, valueStyles, onOpenTable }) {
     const { t } = useTranslation('execution')
-    const [page, setPage] = useState(1)
+    // The page the reader turned to stays turned while the table is scrolled out of sight and back.
+    const [page, setPage] = useRemembered(`${table.tableId}:cases-page`, () => 1)
+    // The same columns for every page of the cases: the list keeps what it measured of them while the pages turn.
+    const columns = useMemo(() => columnsOf(table, compoundResult, t, readLines, valueStyles),
+        [compoundResult, readLines, t, table, valueStyles])
 
     // A test table holds test cases; a Run table holds runs, because it states no expected values.
     const kind = table.runTable ? 'runs' : 'cases'
@@ -261,7 +274,8 @@ const TestTable: React.FC<{
             {units.length > 0 && (
                 <NumberFormatContext.Provider value={formatSmartNumber}>
                     <ListTable<TestUnitResult>
-                        columns={columnsOf(table, compoundResult, t, readLines, valueStyles)}
+                        columnsInSight
+                        columns={columns}
                         data-testid={`test-results-${table.tableId}`}
                         rowKey={unit => unit.id}
                         rows={units.slice((page - 1) * CASES_PER_PAGE, page * CASES_PER_PAGE)}
@@ -281,6 +295,72 @@ const TestTable: React.FC<{
                 />
             )}
         </Space>
+    )
+})
+
+/** How tall a test table not drawn yet is taken to be, in pixels: its name and a page of its cases. */
+const TABLE_ESTIMATE = 400
+
+/** How many test tables beyond those in sight are drawn, above and below. */
+const TABLES_AHEAD = 2
+
+type TestTableProps = React.ComponentProps<typeof TestTable>
+
+interface TestTablesProps extends Omit<TestTableProps, 'table'> {
+    tables: TestTableResult[]
+    /**
+     * What the cases of a table are listed with, which the key of the table carries: a table set to list other cases
+     * lists them from its first page again.
+     */
+    listedWith: string
+}
+
+/**
+ * The test tables of a page of the results, drawn as the window scrolls to them.
+ *
+ * A page can hold every test table of the project, so only the tables in sight and a few around them are drawn;
+ * a table keeps the room it takes, measured as it is drawn. Where the window has no layout to measure, every table
+ * is drawn.
+ */
+const TestTables: React.FC<TestTablesProps> = ({ tables, listedWith, ...shown }) => {
+    const { styles } = useScreenStyles()
+    const list = useRef<HTMLDivElement>(null)
+    const laidOut = useLaidOut(document.documentElement, 'height')
+    // Where the list begins on the page, under the title and the options of the window.
+    const margin = useScrollMargin(list, undefined, laidOut)
+    const keyOf = useCallback((table: TestTableResult) => `${table.tableId} ${listedWith}`, [listedWith])
+    const getItemKey = useCallback((index: number) => (tables[index] ? keyOf(tables[index]) : index), [keyOf, tables])
+    const virtualizer = useWindowVirtualizer({
+        count: tables.length,
+        enabled: laidOut,
+        estimateSize: () => TABLE_ESTIMATE,
+        getItemKey,
+        overscan: TABLES_AHEAD,
+        scrollMargin: margin,
+        // The tables come into sight with the next frame rather than inside the scroll itself.
+        useFlushSync: false,
+    })
+
+    if (!laidOut) {
+        return tables.map(table => <TestTable key={keyOf(table)} table={table} {...shown} />)
+    }
+    return (
+        <div ref={list} className={styles.scrolledList} style={{ height: virtualizer.getTotalSize() }}>
+            {virtualizer.getVirtualItems().map(item => {
+                const table = tables[item.index]
+                return table && (
+                    <div
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        className={styles.scrolledEntry}
+                        data-index={item.index}
+                        style={{ transform: `translateY(${item.start - margin}px)` }}
+                    >
+                        <TestTable table={table} {...shown} />
+                    </div>
+                )
+            })}
+        </div>
     )
 }
 
@@ -315,6 +395,9 @@ export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, 
     const valueStyles = useValueStyles()
     const [query, setQuery] = useState<Required<TestsQuery>>(() => ({ ...savedQuery(), ...options }))
     const [summary, setSummary] = useState<TestsSummary | null>(null)
+    // What the tables of the results read last remember while they are scrolled out of sight. Every read starts anew,
+    // even one answering the same results: a table set to list other cases lists them from its first page.
+    const [memory, setMemory] = useState(() => new Map<string, unknown>())
     // What the results on screen were read with. The columns follow it rather than what was just asked for, so a
     // column added while the results are read again does not stand empty over the results before.
     const [shownQuery, setShownQuery] = useState(query)
@@ -349,6 +432,7 @@ export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, 
             .then(loaded => {
                 if (active) {
                     setSummary(loaded)
+                    setMemory(new Map())
                     setMissing(false)
                     setShownQuery(query)
                     setFailure(null)
@@ -454,18 +538,20 @@ export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, 
                 </Flex>
                 {tables.length === 0
                     ? <Empty description={t('tests.none')} />
-                    : tables.map(table => (
-                        // A table set to list other cases lists them from its first page again.
-                        <TestTable
-                            key={`${table.tableId} ${shownQuery.failuresOnly} ${shownQuery.failures}`}
-                            compoundResult={shownQuery.compoundResult}
-                            onOpenTable={openTable}
-                            projectId={projectId}
-                            readLines={readLines}
-                            table={table}
-                            valueStyles={valueStyles}
-                        />
-                    ))}
+                    : (
+                        // What a table drawn again picks up from: the page of its cases and the values opened in it.
+                        <ScreenMemory.Provider value={memory}>
+                            <TestTables
+                                compoundResult={shownQuery.compoundResult}
+                                listedWith={`${shownQuery.failuresOnly} ${shownQuery.failures}`}
+                                onOpenTable={openTable}
+                                projectId={projectId}
+                                readLines={readLines}
+                                tables={tables}
+                                valueStyles={valueStyles}
+                            />
+                        </ScreenMemory.Provider>
+                    )}
                 {query.size !== ALL_TESTS_ON_A_PAGE && summary.total > query.size && (
                     <Pagination
                         current={query.page + 1}

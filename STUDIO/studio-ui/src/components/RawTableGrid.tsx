@@ -18,6 +18,7 @@ import { opaque } from '../styles/colorMath'
 import { themePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, roleColoursOf, rowHeightOf, useStyles } from './RawTableGrid.styles'
 import { borders, collapsedBorders, indentOf, textDecoration } from './rawTableStyle'
+import { useLaidOut } from '../hooks/useLaidOut'
 import { useScrollMargin, windowRect } from '../hooks/useScrollMargin'
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { type CodeHighlighter, useCodeHighlighter } from '../hooks/useCodeHighlighter'
@@ -753,17 +754,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
 
     // A table drawn as it scrolls is measured as it is drawn. A screen with no layout to measure, as a test has, or
     // not laid out yet, draws every row, and draws them as they scroll once it is laid out.
-    const [measurable, setMeasurable] = React.useState(true)
-    React.useLayoutEffect(() => {
-        if (scroller == null) {
-            return undefined
-        }
-        const check = () => setMeasurable(scroller.clientHeight > 0)
-        check()
-        const observer = new ResizeObserver(check)
-        observer.observe(scroller)
-        return () => observer.disconnect()
-    }, [scroller])
+    const measurable = useLaidOut(scroller, 'height')
     const virtual = scroller !== undefined && measurable
     // The table keeps the place the reader scrolled to by itself as the rows above it are measured, so the browser is
     // not to move it a second time.
