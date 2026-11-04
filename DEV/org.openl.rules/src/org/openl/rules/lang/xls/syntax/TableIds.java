@@ -497,8 +497,15 @@ public final class TableIds {
         return sheets.length;
     }
 
-    /** The table as the compiler reads it from what is written, or {@code null} when its header cannot be read. */
-    private static @Nullable TableSyntaxNode nodeOf(IGridTable written) {
+    /**
+     * The table as the compiler reads it from what is written, before the module is compiled again.
+     *
+     * <p>The node holds the kind and the header the written text tells, and nothing bound.
+     *
+     * @param written the written table, its header included
+     * @return the table, or {@code null} when it is not on a sheet of a workbook or its header cannot be read
+     */
+    public static @Nullable TableSyntaxNode nodeOf(IGridTable written) {
         if (!(written.getGrid() instanceof XlsSheetGridModel sheet)) {
             return null;
         }

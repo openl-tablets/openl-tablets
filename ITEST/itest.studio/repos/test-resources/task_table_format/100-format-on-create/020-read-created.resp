@@ -1,0 +1,283 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Factor",
+  "pos": "B2:D5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "SmartRules Double Factor(String rating, Integer age)",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 10,
+            "style": 1
+          },
+          {
+            "to": 17,
+            "style": 1
+          },
+          {
+            "to": 24,
+            "style": 2
+          },
+          {
+            "to": 25,
+            "style": 1
+          },
+          {
+            "to": 31,
+            "style": 1
+          },
+          {
+            "to": 38,
+            "style": 3
+          },
+          {
+            "to": 39,
+            "style": 1
+          },
+          {
+            "to": 47,
+            "style": 1
+          },
+          {
+            "to": 51,
+            "style": 3
+          },
+          {
+            "to": 52,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Rating",
+        "style": 4
+      },
+      {
+        "cell": "C3",
+        "value": "Age",
+        "style": 4
+      },
+      {
+        "cell": "D3",
+        "value": "Factor",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "A",
+        "style": 6
+      },
+      {
+        "cell": "C4",
+        "value": "< 30",
+        "style": 6
+      },
+      {
+        "cell": "D4",
+        "value": 1.1,
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "B",
+        "style": 8
+      },
+      {
+        "cell": "C5",
+        "value": ">= 30",
+        "style": 8
+      },
+      {
+        "cell": "D5",
+        "value": 0.95,
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "align": "right",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "align": "right",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 2,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 2,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 2,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 2,
+      "bottom": 3,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 10
+    },
+    {
+      "part": "type",
+      "to": 17
+    },
+    {
+      "part": "name",
+      "to": 24
+    },
+    {
+      "part": "punctuation",
+      "to": 25
+    },
+    {
+      "part": "parameterType",
+      "to": 31
+    },
+    {
+      "part": "parameterName",
+      "to": 38
+    },
+    {
+      "part": "punctuation",
+      "to": 39
+    },
+    {
+      "part": "parameterType",
+      "to": 47
+    },
+    {
+      "part": "parameterName",
+      "to": 51
+    },
+    {
+      "part": "punctuation",
+      "to": 52
+    }
+  ],
+  "headerHeight": 1
+}

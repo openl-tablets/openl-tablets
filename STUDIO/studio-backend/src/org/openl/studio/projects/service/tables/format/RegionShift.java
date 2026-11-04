@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.IGridTable;
@@ -39,6 +40,7 @@ import org.openl.studio.projects.model.tables.RawTableValueType;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public final class RegionShift {
 
     /** The roles of the cells a line holds when it is a line of values, which a line inserted next to it repeats. */
@@ -98,6 +100,25 @@ public final class RegionShift {
         }
         var grid = table.getGridTable();
         return new RegionShift(regions, grid.getHeight(), grid.getWidth());
+    }
+
+    /**
+     * Starts from the regions of a table written for the first time that no builder laid out: the regions its text
+     * tells, see {@link TableRegionLayout#writtenRegionsOf}. Asked once the table is written. A layout that fails is
+     * logged, and the table is saved unformatted.
+     *
+     * @param written the table as it stands on its sheet once written, header included
+     * @return the shift, or {@code null} for a table of a kind OpenL Studio does not format, one whose header cannot be
+     *         read, and one whose layout failed
+     */
+    public static @Nullable RegionShift ofWritten(IGridTable written) {
+        try {
+            var regions = TableRegionLayout.writtenRegionsOf(written);
+            return regions == null ? null : new RegionShift(regions, written.getHeight(), written.getWidth());
+        } catch (RuntimeException e) {
+            log.warn("The table at {} is saved unformatted.", written.getUri(), e);
+            return null;
+        }
     }
 
     /**

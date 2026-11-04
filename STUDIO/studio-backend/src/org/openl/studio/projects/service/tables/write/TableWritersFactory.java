@@ -32,6 +32,13 @@ public class TableWritersFactory {
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
     public TableWriter<? extends TableView> getNewTableWriter(TableView tableView, XlsSheetGridModel gridModel) {
+        var writer = newWriterOf(tableView, gridModel);
+        writer.formatOnSave(formatting.onSave());
+        return writer;
+    }
+
+    @SuppressWarnings("java:S1452")
+    private static TableWriter<? extends TableView> newWriterOf(TableView tableView, XlsSheetGridModel gridModel) {
         var rect = gridModel.findEmptyRect(tableView.getWidth(), tableView.getHeight());
         var gridTable = new GridTable(rect, gridModel);
         return switch (tableView) {

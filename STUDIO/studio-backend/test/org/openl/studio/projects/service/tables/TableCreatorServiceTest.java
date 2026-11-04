@@ -520,16 +520,44 @@ class TableCreatorServiceTest {
     }
 
     @Test
-    void writesATableSentWithNoRegionsAsSent() throws Exception {
+    void formatsATableSentWithNoRegionsInTheRolesItsTextTells() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
         var formatting = mock(TableFormatting.class);
         when(formatting.onSave()).thenReturn(true);
         var formatted = new TableCreatorService(tableWritersFactory, tableWriterExecutor, projectFilesService,
                 projectFileRootFactory, systemPropertiesService, formatting);
-        var request = request("rules/Greeting.xlsx", rawTable(mergedHeader()));
+        var smartRules = RawTableView.builder()
+                .kind(TableKind.RULES)
+                .name("Greeting")
+                .source(List.of(
+                        List.of(cell("SmartRules String Greeting(Integer hour)")),
+                        List.of(cell("Hour"), cell("Greeting")),
+                        List.of(cell("< 12"), cell("Good Morning"))))
+                .build();
+        var request = request("rules/Greeting.xlsx", smartRules);
 
         formatted.createModuleWithTable(project, simpleDescriptor(), request, (RawTableView) request.table());
 
-        var module = dir.resolve("format-on-create-none.xlsx");
+        var module = dir.resolve("format-on-create-text.xlsx");
+        Files.write(module, createdResources.get("rules/Greeting.xlsx"));
+        // The properties OpenL Studio stamped under the header move the body down by two rows.
+        assertEquals("Title", TableTestProjects.styleNameAt(module, "Greeting", 1, 1));
+        assertEquals("Explanatory Text", TableTestProjects.styleNameAt(module, "Greeting", 2, 3));
+        assertEquals("Heading 3", TableTestProjects.styleNameAt(module, "Greeting", 4, 1));
+        assertEquals("Heading 2", TableTestProjects.styleNameAt(module, "Greeting", 4, 2));
+        assertEquals("Input", TableTestProjects.styleNameAt(module, "Greeting", 5, 1));
+        assertEquals("Output", TableTestProjects.styleNameAt(module, "Greeting", 5, 2));
+    }
+
+    @Test
+    void writesATableAsSentWhileTablesAreNotFormattedOnSave() throws Exception {
+        var regions = List.of(new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 1));
+        var request = new CreateNewTableRequest("Greeting", "Greeting", "rules/Greeting.xlsx",
+                rawTable(mergedHeader()), regions);
+
+        createModuleWithTable(simpleDescriptor(), request);
+
+        var module = dir.resolve("format-on-create-off.xlsx");
         Files.write(module, createdResources.get("rules/Greeting.xlsx"));
         assertNull(TableTestProjects.styleNameAt(module, "Greeting", 1, 1));
     }

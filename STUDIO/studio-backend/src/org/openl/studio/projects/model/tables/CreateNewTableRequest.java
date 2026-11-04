@@ -30,7 +30,8 @@ public record CreateNewTableRequest(
         @Parameter(description = """
                 The regions of the roles of a raw table, as the client built it, in the coordinates of its source: \
                 the header row is row 0. While tables are formatted on save, the table is written in the OpenL table \
-                style of these roles; without them it is written as sent, and formatted at its next save.""")
+                style of these roles; without them, or with none inside the source, the table is formatted in the \
+                roles its text tells once it is written.""")
         @Nullable List<@Valid RawTableRegion> regions
 ) {
 }

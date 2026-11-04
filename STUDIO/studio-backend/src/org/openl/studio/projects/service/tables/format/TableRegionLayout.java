@@ -17,7 +17,9 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -110,6 +112,22 @@ public final class TableRegionLayout {
             }
         }
         return regions;
+    }
+
+    /**
+     * The regions of a table written but not compiled yet, laid out from its text as a table the compiler read none of
+     * is laid out, see {@link GuessedReads}.
+     *
+     * <p>The header tells the kind of the table, and the parts of its body are found where the kind writes them. A
+     * created table no builder laid out is formatted in these regions, with no compile.
+     *
+     * @param written the table as it stands on its sheet, header included
+     * @return the regions, or {@code null} for a table of a kind OpenL Studio does not format, and for one that is not
+     *         on a sheet of a workbook or whose header cannot be read
+     */
+    static @Nullable TableRegions writtenRegionsOf(IGridTable written) {
+        var node = TableIds.nodeOf(written);
+        return node == null ? null : of(new TableSyntaxNodeAdapter(node), written);
     }
 
     /** Whether the workbook of a compiled table was saved since the compilation read it. */

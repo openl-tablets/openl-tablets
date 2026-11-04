@@ -629,7 +629,8 @@ Formatting a table edit must not compile, so it takes the regions from what is a
   Inserted and deleted rows and columns shift and stretch them, with no compile. A value edit changes no region.
 - **A created table** — the builder of the table type emits the regions of what it writes, and the create request
   carries them. The table creation window knows them: it writes the header, the titles and the rows. A table created
-  without them, such as one created through the API in a typed view, is formatted at its next save after a compile.
+  without them, such as one created through the API or the MCP server, or in a typed view, is laid out from its text
+  once written, as a table the compiler cannot read is laid out, and formatted in the same save.
 - **A copied table** — the regions of the source table, moved to the copy.
 - **Not known** — the module was written since its last compile, which happens only with **Verify on Edit** off.
   The save is not formatted, and inserted lines keep the format of their neighbours. The next save after **Verify**,

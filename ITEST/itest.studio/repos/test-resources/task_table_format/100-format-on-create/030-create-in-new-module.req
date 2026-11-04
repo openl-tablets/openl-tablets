@@ -1,0 +1,54 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Created",
+  "sheetName": "Created",
+  "modulePath": "Created.xlsx",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Rules",
+    "name": "NewFactor",
+    "source": [
+      [
+        {
+          "value": "SmartRules Double NewFactor(String rating, Integer age)"
+        }
+      ],
+      [
+        {
+          "value": "Rating"
+        },
+        {
+          "value": "Age"
+        },
+        {
+          "value": "Factor"
+        }
+      ],
+      [
+        {
+          "value": "A"
+        },
+        {
+          "value": "< 30"
+        },
+        {
+          "value": 1.1
+        }
+      ],
+      [
+        {
+          "value": "B"
+        },
+        {
+          "value": ">= 30"
+        },
+        {
+          "value": 0.95
+        }
+      ]
+    ]
+  }
+}

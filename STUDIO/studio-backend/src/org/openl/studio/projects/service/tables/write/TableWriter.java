@@ -29,6 +29,7 @@ import org.openl.rules.table.CellKey.CellKeyFactory;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridSplitter;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.ICell;
@@ -162,6 +163,10 @@ public abstract class TableWriter<T extends TableView> {
      * table whose workbook was written to since its last compile, are saved as they are written: what the compile read
      * no longer answers for the sheet.
      *
+     * <p>A table written for the first time is formatted in the regions its text tells once it is written, unless its
+     * builder laid it out, see {@link #formatOnSave(TableRegions, int, int)}. Its parts are found where its kind writes
+     * them, as for a table the compiler read none of.
+     *
      * @param format whether the save formats the table
      */
     public void formatOnSave(boolean format) {
@@ -181,6 +186,7 @@ public abstract class TableWriter<T extends TableView> {
         formattingOnSave = true;
         layout = RegionShift.of(regions, height, width);
     }
+
 
     /**
      * Tells the layout the save formats the table in that lines were inserted.
@@ -217,11 +223,12 @@ public abstract class TableWriter<T extends TableView> {
      * when its previous save left it formatted. A formatting that fails leaves the table as it is written, so the
      * edit is saved all the same.
      *
+     * @param written  the table as it stands once written
      * @param position where the table stands, read while it is open for writing
      * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
      */
-    private @Nullable TableRegions formatTable(FormattedTables.@Nullable Position position) {
-        return layout == null ? null : ExcelTableFormatter.formatOnSave(originalTable, layout,
+    private @Nullable TableRegions formatTable(IGridTable written, FormattedTables.@Nullable Position position) {
+        return layout == null ? null : ExcelTableFormatter.formatOnSave(written, layout,
                 FormattedTables.isFormatted(position, layout.start()));
     }
 
@@ -586,9 +593,14 @@ public abstract class TableWriter<T extends TableView> {
     protected void save() {
         recordEdit();
         requireNoBlankLine();
+        // A new table is written into an area that may be wider or taller than what it holds.
+        var written = isUpdateMode() ? originalTable : filledPart(originalTable);
+        if (layout == null && formattingOnSave && !isUpdateMode()) {
+            layout = RegionShift.ofWritten(written);
+        }
         // Read while the table is open for writing: the save closes it.
         var position = layout == null ? null : FormattedTables.positionOf(originalTable);
-        var formatted = formatTable(position);
+        var formatted = formatTable(written, position);
         // Read while the table is open for writing too: once saved, the sheet is read as it was compiled.
         writtenId = idAsWritten();
         var grid = (XlsSheetGridModel) getGridTable().getGrid();
@@ -642,15 +654,40 @@ public abstract class TableWriter<T extends TableView> {
     private void requireNoBlankLine() {
         var view = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
         var region = view.getRegion();
-        var grid = view.getGrid();
-        IntPredicate rowFilled = row -> IntStream.rangeClosed(region.getLeft(), region.getRight())
-                .anyMatch(column -> GridSplitter.containsCell(grid, column, row));
-        IntPredicate columnFilled = column -> IntStream.rangeClosed(region.getTop(), region.getBottom())
-                .anyMatch(row -> GridSplitter.containsCell(grid, column, row));
-        if (hasBlankLineInside(region.getTop(), region.getBottom(), rowFilled)
-                || hasBlankLineInside(region.getLeft(), region.getRight(), columnFilled)) {
+        if (hasBlankLineInside(region.getTop(), region.getBottom(), rowFilled(view))
+                || hasBlankLineInside(region.getLeft(), region.getRight(), columnFilled(view))) {
             throw new BadRequestException("table.action.line.all-empty.message");
         }
+    }
+
+    /**
+     * The table OpenL reads in an area a table was written into: from its top-left corner to its last filled row and
+     * column. Blank lines after the table are left out.
+     *
+     * @param area the area the table was written into
+     * @return the table as written
+     */
+    public static IGridTable filledPart(IGridTable area) {
+        var region = area.getRegion();
+        var bottom = IntStream.rangeClosed(region.getTop(), region.getBottom()).filter(rowFilled(area)).max()
+                .orElse(region.getBottom());
+        var right = IntStream.rangeClosed(region.getLeft(), region.getRight()).filter(columnFilled(area)).max()
+                .orElse(region.getRight());
+        return new GridTable(new GridRegion(region.getTop(), region.getLeft(), bottom, right), area.getGrid());
+    }
+
+    /** Whether a row of the sheet carries content within the columns of the table. */
+    private static IntPredicate rowFilled(IGridTable table) {
+        var region = table.getRegion();
+        return row -> IntStream.rangeClosed(region.getLeft(), region.getRight())
+                .anyMatch(column -> GridSplitter.containsCell(table.getGrid(), column, row));
+    }
+
+    /** Whether a column of the sheet carries content within the rows of the table. */
+    private static IntPredicate columnFilled(IGridTable table) {
+        var region = table.getRegion();
+        return column -> IntStream.rangeClosed(region.getTop(), region.getBottom())
+                .anyMatch(row -> GridSplitter.containsCell(table.getGrid(), column, row));
     }
 
     /**

@@ -35,6 +35,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
+import org.openl.studio.projects.model.tables.DatatypeFieldView;
+import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
@@ -256,6 +258,123 @@ class FormatOnSaveTest {
         assertEquals("Title", styleAt(person.getTop(), person.getLeft()));
         assertEquals("Calculation", styleAt(person.getTop() + 2, person.getLeft()));
         assertEquals("Output", styleAt(person.getTop() + 1, person.getLeft() + 1));
+    }
+
+    @Test
+    void formatsATableCreatedInTheModuleWithNoRegionsInTheRolesItsTextTells() throws IOException {
+        var view = RawTableView.builder()
+                .kind(TableKind.RULES)
+                .name("Factor")
+                .source(List.of(
+                        List.of(cell("SmartRules Double Factor(String rating, Integer age)")),
+                        List.of(cell("Rating"), cell("Age"), cell("Factor")),
+                        List.of(cell("A"), cell("< 30"), cell(1.1)),
+                        List.of(cell("B"), cell(">= 30"), cell(0.95))))
+                .build();
+
+        creator(formattingOn()).createTable(new CreateNewTableRequest("Rules", SHEET, null, view, null), model);
+
+        var factor = TableTestProjects.table(TableTestProjects.projectModel(dir), "Factor").getGridTable();
+        var top = factor.getRegion().getTop();
+        var left = factor.getRegion().getLeft();
+        assertEquals(3, factor.getCell(0, 0).getWidth(), "The header is merged across the table");
+        assertEquals("Title", styleAt(top, left));
+        assertEquals("Heading 3", styleAt(top + 1, left + 1));
+        assertEquals("Heading 2", styleAt(top + 1, left + 2));
+        assertEquals("Input", styleAt(top + 2, left + 1));
+        assertEquals("Output", styleAt(top + 3, left + 2));
+    }
+
+    @Test
+    void formatsATableCreatedWithNoRegionsWithinTheCellsItFills() throws IOException {
+        var view = RawTableView.builder()
+                .kind(TableKind.DATATYPE)
+                .name("Person")
+                .source(List.of(
+                        List.of(cell("Datatype Person"), cell(null), cell(null)),
+                        List.of(cell("String"), cell("name"), cell(null))))
+                .build();
+
+        creator(formattingOn()).createTable(new CreateNewTableRequest("Rules", SHEET, null, view, null), model);
+
+        var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person").getGridTable();
+        assertEquals(2, person.getWidth(), "The blank column after the table stays out of it");
+        assertEquals(2, person.getCell(0, 0).getWidth(), "The header is merged across the table alone");
+        var region = person.getRegion();
+        assertEquals("Output", styleAt(region.getTop() + 1, region.getLeft() + 1));
+        assertNull(styleAt(region.getTop() + 1, region.getLeft() + 2));
+    }
+
+    @Test
+    void formatsATableCreatedInATypedViewInTheRolesItsTextTells() throws IOException {
+        var view = DatatypeView.builder()
+                .name("Person")
+                .fields(List.of(DatatypeFieldView.builder().name("name").type("String").build()))
+                .build();
+
+        creator(formattingOn()).createTable(new CreateNewTableRequest("Rules", SHEET, null, view, null), model);
+
+        var table = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person").getGridTable();
+        var person = table.getRegion();
+        // The writer merges the header over the type, the name and the default, so the table reads three columns wide.
+        assertEquals(3, table.getWidth());
+        assertEquals(3, table.getCell(0, 0).getWidth(), "The header is merged across the table alone");
+        assertEquals("Title", styleAt(person.getTop(), person.getLeft()));
+        assertEquals("Calculation", styleAt(person.getTop() + 1, person.getLeft()));
+        assertEquals("Output", styleAt(person.getTop() + 1, person.getLeft() + 1));
+    }
+
+    @Test
+    void formatsATableCreatedWithAnEmptyListOfRegionsInTheRolesItsTextTells() throws IOException {
+        var view = RawTableView.builder()
+                .kind(TableKind.RULES)
+                .name("Factor")
+                .source(List.of(
+                        List.of(cell("SmartRules Double Factor(String rating)")),
+                        List.of(cell("Rating"), cell("Factor")),
+                        List.of(cell("A"), cell(1.1))))
+                .build();
+
+        creator(formattingOn()).createTable(new CreateNewTableRequest("Rules", SHEET, null, view, List.of()), model);
+
+        var factor = TableTestProjects.table(TableTestProjects.projectModel(dir), "Factor").getGridTable().getRegion();
+        assertEquals("Heading 3", styleAt(factor.getTop() + 1, factor.getLeft()));
+        assertEquals("Heading 2", styleAt(factor.getTop() + 1, factor.getLeft() + 1));
+        assertEquals("Output", styleAt(factor.getTop() + 2, factor.getLeft() + 1));
+    }
+
+    @Test
+    void leavesATableCreatedWithNoRegionsAsWrittenWhileFormattingOnSaveIsOff() throws IOException {
+        var view = DatatypeView.builder()
+                .name("Person")
+                .fields(List.of(DatatypeFieldView.builder().name("name").type("String").build()))
+                .build();
+
+        creator(mock(TableFormatting.class)).createTable(new CreateNewTableRequest("Rules", SHEET, null, view, null),
+                model);
+
+        var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person").getGridTable().getRegion();
+        assertNull(styleAt(person.getTop() + 1, person.getLeft() + 1));
+    }
+
+    @Test
+    void savesATableOfTheTypeOtherCreatedWithNoRegionsAsWritten() throws IOException {
+        var view = RawTableView.builder()
+                .kind(TableKind.OTHER)
+                .name("Notes")
+                .source(List.of(List.of(cell("Notes")), List.of(cell("anything"))))
+                .build();
+
+        creator(formattingOn()).createTable(new CreateNewTableRequest("Rules", SHEET, null, view, null), model);
+
+        var notes = TableTestProjects.tableHeaded(TableTestProjects.projectModel(dir), "Notes").getGridTable()
+                .getRegion();
+        assertNull(styleAt(notes.getTop(), notes.getLeft()));
+    }
+
+    private TableCreatorService creator(TableFormatting formatting) {
+        return new TableCreatorService(new TableWritersFactory(formatting), new TableWriterExecutor(), null, null,
+                mock(SystemPropertiesService.class), formatting);
     }
 
     @Test

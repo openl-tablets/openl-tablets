@@ -574,7 +574,9 @@ default, every table is formatted when it is saved, created, or copied, with no 
 -   **An edited table** keeps the roles OpenL Tablets compiled it with. A row or a column inserted inside a part of the
     table takes the role of that part, such as a rule inserted between two rules, and a line inserted where two parts
     meet takes the role of the line next to it that holds values, such as a rule inserted under the titles.
--   **A created table** takes the roles the table creation window lays it out in.
+-   **A created table** takes the roles the table creation window lays it out in. A table created through the REST
+    API or the MCP server takes the roles its request sends, and when the request sends none, the roles its text tells:
+    the parts its type writes, found where the type writes them.
 -   **A copied table** takes the roles of the table it is copied from.
 -   The header and the properties are formatted as they stand, so a property written by the edit takes the style of
     the properties.

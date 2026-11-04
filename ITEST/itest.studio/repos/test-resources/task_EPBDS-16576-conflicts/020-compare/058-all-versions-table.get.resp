@@ -14,7 +14,26 @@ Content-Type: application/json
         {
           "cell": "B2",
           "value": "Spreadsheet SpreadsheetResult Greeting()",
-          "colspan": 2
+          "colspan": 2,
+          "style": 0,
+          "runs": [
+            {
+              "to": 11,
+              "style": 1
+            },
+            {
+              "to": 29,
+              "style": 1
+            },
+            {
+              "to": 38,
+              "style": 2
+            },
+            {
+              "to": 40,
+              "style": 1
+            }
+          ]
         },
         {
           "covered": true
@@ -23,23 +42,91 @@ Content-Type: application/json
       [
         {
           "cell": "B3",
-          "value": "Steps"
+          "value": "Steps",
+          "style": 3
         },
         {
           "cell": "C3",
-          "value": "Value"
+          "value": "Value",
+          "style": 4
         }
       ],
       [
         {
           "cell": "B4",
-          "value": "RET"
+          "value": "RET",
+          "style": 5
         },
         {
           "cell": "C4",
-          "value": "Hello from the main branch"
+          "value": "Hello from the main branch",
+          "style": 6
         }
       ]
+    ],
+    "styles": [
+      {
+        "valign": "center",
+        "border": {
+          "top": {
+            "style": "solid",
+            "width": 1
+          },
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "color": "#808080"
+      },
+      {
+        "bold": true
+      },
+      {
+        "background": "#eeece1",
+        "align": "center",
+        "valign": "center",
+        "bold": true,
+        "border": {
+          "top": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#b8cce4",
+        "align": "center",
+        "valign": "center",
+        "bold": true,
+        "border": {
+          "top": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "valign": "center",
+        "border": {
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#dce6f1",
+        "valign": "center",
+        "border": {
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      }
     ]
   }
 }
