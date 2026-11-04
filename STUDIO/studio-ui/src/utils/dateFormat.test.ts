@@ -39,6 +39,27 @@ describe('dateFormat', () => {
             expect(formatDateTime('2026-07-15T12:00:38Z')).toMatch(/\d:\d{2}:38\b/))
     })
 
+    // A table of thousands of date cells read the regional settings anew for every cell, and the page hung for
+    // seconds. See EPBDS-17096.
+    it('reads the regional settings of the browser once, whatever the number of dates written', () => {
+        const value = '2026-07-15T12:00:38'
+        const system = dayjs(value).format(SYSTEM())
+        expect(formatDateTime(value)).toBe(system)
+        const parts = vi.spyOn(Intl.DateTimeFormat.prototype, 'formatToParts')
+        try {
+            for (let written = 0; written < 3; written++) {
+                expect(formatDateTime(value)).toBe(system)
+                expect(formatLocalDateTime(value)).toBe(system)
+            }
+            withSettings({ useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' }, () =>
+                expect(formatDate(value)).toBe('15.07.2026'))
+            expect(formatDateTime(value)).toBe(system)
+            expect(parts).not.toHaveBeenCalled()
+        } finally {
+            parts.mockRestore()
+        }
+    })
+
     it('returns null for a missing date-time value', () => {
         expect(formatDateTime(undefined)).toBeNull()
         expect(formatDateTime('')).toBeNull()
