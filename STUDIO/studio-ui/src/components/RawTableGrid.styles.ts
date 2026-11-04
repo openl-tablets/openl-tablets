@@ -12,6 +12,13 @@ import type { TablePaper } from '../styles/paper'
  */
 const MIN_CELL_WIDTH = 64
 
+/**
+ * How tall a row of one line is, in pixels, at the least: a little under the line a cell draws, which also holds the
+ * part of the text below its baseline.
+ */
+export const rowHeightOf = (token: Pick<GlobalToken, 'fontSizeSM' | 'lineHeightSM' | 'paddingXXS'>): number =>
+    Math.round(token.fontSizeSM * token.lineHeightSM) + 2 * token.paddingXXS + 1 + 0.4 * token.fontSizeSM
+
 /** The colours the Studio look draws the roles of a table in. */
 export interface RoleColours {
     /** The text of a table. */
@@ -78,11 +85,11 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
      * <p>A row whose cells all run on into the rows below it has no line of its own, and the browser folds it
      * away. A value merged over that row would then read as covering fewer rules than it does.
      *
-     * <p>The height is a little under the line a cell draws, which also holds the part of the text below its
-     * baseline: a row with something written in it keeps the height it has.
+     * <p>The height is a little under the line a cell draws ({@link rowHeightOf}): a row with something written in
+     * it keeps the height it has.
      */
         row: css`
-        height: calc(${Math.round(token.fontSizeSM * token.lineHeightSM) + 2 * token.paddingXXS + 1}px + 0.4em);
+        height: ${rowHeightOf(token)}px;
     `,
         /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past

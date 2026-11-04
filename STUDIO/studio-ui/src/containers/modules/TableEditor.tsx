@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router'
 import { PaperTheme } from '../../components/PaperTheme'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
+import { joinClasses } from '../../utils/joinClasses'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { onPaper, type TableRoles } from '../../components/tableRoles'
 import { SystemContext } from '../../contexts'
@@ -147,6 +148,23 @@ const stride = (key: string, forward: string, back: string, span: number | undef
     return key === back ? -1 : 0
 }
 
+/**
+ * The cases of a table as far as the given number of its lines: the lines each case takes, the last case cut where the
+ * lines end.
+ */
+const casesWithin = (caseLines: number[], lines: number): number[] => {
+    const within: number[] = []
+    let left = lines
+    for (const taken of caseLines) {
+        if (left <= 0) {
+            break
+        }
+        within.push(Math.min(taken, left))
+        left -= taken
+    }
+    return within
+}
+
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
 const DRAWN: ReadonlySet<string> = new Set([
     'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
@@ -282,7 +300,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // write the OpenL table style over it, and the Studio look would not show it.
     const formatting = useContext(SystemContext).systemSettings?.formatTablesOnSave === false && excelFormatting
     const indenting = formatting || INDENTED_KINDS.has(kind ?? '')
-    const { styles, cx } = useStyles(paper)
+    const { styles } = useStyles(paper)
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
     const [buffer, setBuffer] = useState(NO_EDITS)
@@ -477,9 +495,19 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * is given — so the rows kept out of sight come off that line. A transposed table numbers its columns,
      * which putting rows away does not move.
      */
-    const numbering = useMemo(() => (layout === undefined || hidden === 0 || layout.transposed
-        ? layout
-        : { ...layout, firstDataLine: layout.firstDataLine - hidden }), [hidden, layout])
+    // A table read in part holds its cases only as far as the rows read: they keep their numbers, cut at the last row
+    // read. A row laid down or taken away moves the cases, and the grid numbers every line then.
+    const movedRows = buffer.steps.some(one => one.kind === 'insertRow' || one.kind === 'removeRow')
+    const readLines = whole || movedRows || layout?.transposed ? undefined : rows.length - (layout?.firstDataLine ?? 0)
+    const numbering = useMemo(() => {
+        if (layout === undefined || layout.transposed) {
+            return layout
+        }
+        const cut = readLines === undefined || layout.caseLines === undefined
+            ? {}
+            : { caseLines: casesWithin(layout.caseLines, readLines) }
+        return { ...layout, firstDataLine: layout.firstDataLine - hidden, ...cut }
+    }, [hidden, layout, readLines])
 
     // Why the table cannot be saved, or null when it can.
     const blocked = useMemo(() => {
@@ -492,6 +520,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     // The table takes the focus once a cell is picked, so the keys reach the table and nothing else.
     const grid = useRef<HTMLTableElement>(null)
+    // The sheet the table scrolls on, which draws the rows of a long table as they come into sight. Kept as state, so
+    // the table is drawn again once the sheet is there to be measured.
+    const [canvas, setCanvas] = useState<HTMLDivElement | null>(null)
     // The way the reader came, so turning back lands on the cell they left rather than on its neighbour.
     const came = useRef<{ key: string, at: CellAt }[]>([])
 
@@ -751,7 +782,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
         const isTouched = edited.touched.has(keyOf(edited, at))
         return {
-            className: cx(isTouched && styles.touched, sameCell(picked, at) && styles.picked,
+            // The names alone: the grid puts the classes of a cell together, once for every set of them it draws.
+            className: joinClasses(isTouched && styles.touched, sameCell(picked, at) && styles.picked,
                 markCell != null && cell.cell === markCell && styles.raised, canWrite && styles.editable),
             painted: isTouched,
         }
@@ -764,11 +796,20 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const chosen = written[at.row]?.[at.column]
     const rowsOfChosen = chosen?.rowspan ?? 1
     const columnsOfChosen = chosen?.colspan ?? 1
+    // The cell being written in, or else the one picked, stays in sight as the reader moves; the grid counts its
+    // rows from the first one drawn.
+    const onScreen = open ?? picked
+    const inSight = onScreen === null || onScreen.row < hidden
+        ? undefined
+        : { row: onScreen.row - hidden, column: onScreen.column }
 
     const table = (
         <RawTableGrid
+            // Another table is measured anew: the widths its columns keep, the heights of its rows.
+            key={tableId}
             decorate={(cell, row, column) => decorate(cell, row + hidden, column)}
             formulas={formulas}
+            keepInSight={inSight}
             layout={numbering}
             // While the table is being edited its cells lead nowhere: a click is meant for the cell under it, and a
             // reader aiming at one must not be taken to another table by mistake.
@@ -778,6 +819,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
             roles={roles}
             rows={drawn}
+            scroller={canvas}
             tableRef={grid}
             testId={testId}
         />
@@ -846,7 +888,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     }}
                 />
             )}
-            <div className={canvasClassName}>
+            <div ref={setCanvas} className={canvasClassName}>
                 {/* The grid draws the rows it is given and numbers them from the first of them, so the rows
                     kept out of sight are taken off here and put back on every place it answers with. In the formatting
                     of the workbook, the field a cell is written in lies on the paper of the workbook, and so does the

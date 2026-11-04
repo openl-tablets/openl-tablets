@@ -132,10 +132,16 @@ vi.mock('./modules/TableDetailsPanel', () => ({
         return <div data-can-write={String(canWrite)} data-testid="table-details" />
     },
 }))
-// The problems are listed elsewhere; here a message only asks for the trace behind it.
+// The problems are listed elsewhere; here a message only asks for the trace behind it, or for the cell it names.
 vi.mock('./modules/TableProblems', () => ({
-    TableProblems: ({ onStacktrace }: { onStacktrace?: (message: { id: string }) => unknown }) => (
-        <button data-testid="table-stacktrace" onClick={() => onStacktrace?.({ id: 'm-1' })} type="button" />
+    TableProblems: ({ onStacktrace, onEditCell }: {
+        onStacktrace?: (message: { id: string }) => unknown
+        onEditCell?: (address: string) => void
+    }) => (
+        <>
+            <button data-testid="table-stacktrace" onClick={() => onStacktrace?.({ id: 'm-1' })} type="button" />
+            <button data-testid="table-problem-cell" onClick={() => onEditCell?.('A3')} type="button" />
+        </>
     ),
 }))
 // The search itself is tested elsewhere; here it only hands over the note it found.
@@ -176,10 +182,11 @@ vi.mock('./modules/TableEditor', async () => {
     return {
         TableEditor: ({
             ref, testId, rows, hiddenRows, editing, canWrite, roles, onEditingChange, onOpenUsage, onSaved,
-            children, canvasClassName,
+            children, canvasClassName, openAt,
         }: {
             ref?: Ref<unknown>
             canvasClassName?: string
+            openAt?: string | null
             canWrite?: boolean
             testId?: string
             rows?: unknown[]
@@ -198,6 +205,7 @@ vi.mock('./modules/TableEditor', async () => {
                     className={canvasClassName}
                     data-can-write={String(canWrite)}
                     data-editing={String(editing)}
+                    data-open-at={openAt ?? ''}
                     data-roles={roles?.regions.length ?? 0}
                     data-testid={testId}
                 >
@@ -249,6 +257,7 @@ describe('ModuleWorkspace', () => {
         workspace.gone = false
         routeParams.projectId = 'p1'
         searchParams.set('table', 't-1')
+        searchParams.delete('errorCell')
         vi.mocked(getProject).mockImplementation(() =>
             Promise.resolve(project(workspace.opened ? 'OPENED' : 'CLOSED') as never))
         vi.mocked(setProjectStatus).mockImplementation(() => {
@@ -987,6 +996,87 @@ describe('ModuleWorkspace', () => {
 
         // Still the one row of the table on screen: the other table's rows were not added to it.
         expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
+    })
+
+    it('reads the rows down to a cell a message names below them, and opens the cell once they are there', async () => {
+        workspace.opened = true
+        // A reader who may write the table, so a message offers to open the cell it names.
+        vi.mocked(getProject).mockImplementation(() =>
+            Promise.resolve({ ...project('OPENED'), capabilities: { canWrite: true } } as never))
+        // The first window holds the first row; the cell the message names is on the third.
+        let releaseMore!: (read: unknown) => void
+        vi.mocked(getRawTable)
+            .mockResolvedValueOnce({
+                id: 't-1', name: 'BankRating', pos: 'A1:A3', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+            })
+            .mockImplementationOnce(() => new Promise(resolve => {
+                releaseMore = resolve
+            }) as never)
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+
+        await userEvent.click(screen.getByTestId('table-problem-cell'))
+
+        // The two rows down to the cell are read, and the cell is not asked for before they are there.
+        await waitFor(() => expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1',
+            expect.objectContaining({ startRow: 1, maxRows: 2 })))
+        expect(screen.getByTestId('module-table')).toHaveAttribute('data-open-at', '')
+        await act(async () => {
+            releaseMore({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A2', value: '2' }], [{ cell: 'A3', value: '3' }]]})
+        })
+
+        expect(screen.getByTestId('module-table')).toHaveTextContent('rows:3')
+        expect(screen.getByTestId('module-table')).toHaveAttribute('data-open-at', 'A3')
+    })
+
+    it('asks once for the rows down to a cell a message names when the read fails', async () => {
+        workspace.opened = true
+        vi.mocked(getProject).mockImplementation(() =>
+            Promise.resolve({ ...project('OPENED'), capabilities: { canWrite: true } } as never))
+        vi.mocked(getRawTable)
+            .mockResolvedValueOnce({
+                id: 't-1', name: 'BankRating', pos: 'A1:A3', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+            })
+            .mockRejectedValue(new Error('The server is down.'))
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+
+        await userEvent.click(screen.getByTestId('table-problem-cell'))
+
+        expect(await screen.findByText('browser.module.table_load_failed')).toBeInTheDocument()
+        // The failed read is not asked for again: the table read and the one read of the rows below.
+        await act(async () => {
+            await new Promise(resolve => setTimeout(resolve, 50))
+        })
+        expect(getRawTable).toHaveBeenCalledTimes(2)
+    })
+
+    it('reads the table a message leads to before the rows down to the cell it names', async () => {
+        workspace.opened = true
+        vi.mocked(getModuleTables).mockResolvedValue([
+            { id: 't-1', name: 'BankRating', kind: 'Rules', tableType: 'SimpleRules' },
+            { id: 't-2', name: 'Limit', kind: 'Rules', tableType: 'SimpleRules' },
+        ] as never)
+        vi.mocked(getRawTable)
+            .mockResolvedValueOnce({
+                id: 't-1', name: 'BankRating', pos: 'A1:A3', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+            })
+            .mockResolvedValueOnce({
+                id: 't-2', name: 'Limit', pos: 'A1:A3', totalRows: 3,
+                source: [[{ cell: 'A1', value: '1' }], [{ cell: 'A2', value: '2' }], [{ cell: 'A3', value: '3' }]],
+            })
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+
+        // A message on the third row of another table: the table left behind holds one row read.
+        searchParams.set('table', 't-2')
+        searchParams.set('errorCell', 'A3')
+        rerender(<ModuleWorkspace />)
+
+        // The table the message leads to is drawn, and no rows of the one left were read on.
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:3'))
+        expect(getRawTable).toHaveBeenCalledTimes(2)
+        expect(getRawTable).not.toHaveBeenCalledWith('p1', expect.anything(), expect.objectContaining({ startRow: 1 }))
     })
 
     it('asks again how far a table may run once the rest of the project is built', async () => {

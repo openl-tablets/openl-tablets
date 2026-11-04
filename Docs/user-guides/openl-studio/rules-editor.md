@@ -386,10 +386,19 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     keeps the corner OpenL finds the table by. The header row itself cannot be removed, since a table that
     starts on a line OpenL reads as no header is a table nobody can find again.
 
-    A table too large to draw at once opens on its first rows, with **Show more rows** under it for the rest.
+    A table too large to draw at once opens on its first 250 rows, with **Show more rows** under it for the rest.
     A merged cell is never split between two of those readings: the first reading runs on to the end of a
     group it would otherwise have cut, so the group is one cell on screen and every action on it — taking its
-    rows away, adding a row after it, writing its value — acts on the whole of it.
+    rows away, adding a row after it, writing its value — acts on the whole of it. A column is added with a value
+    for each row, so **Insert Column Before** stays unavailable until every row of the table is shown. A cell a
+    compilation message points to is read with the rows down to it, however far below the first rows it lies. The
+    cases of a test table keep their numbers on the rows shown, even when the rows of the last case shown are not all
+    read yet.
+
+    The rows are drawn as they scroll into sight, so a long and wide table opens and scrolls without holding the
+    page up. A column keeps the widest width it has been shown at, and the selected cell stays in sight as the arrow
+    keys move it, down and across. A cell being edited keeps what is typed into it while the table is scrolled away
+    from it and back.
 
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
 

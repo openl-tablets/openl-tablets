@@ -19,6 +19,12 @@ interface Place {
     column: number
 }
 
+/**
+ * Where a table begins on its sheet: the place of its first cell, which the places of its cells are counted from.
+ * Undefined for a table read without its place.
+ */
+export const originOf = (view: Pick<RawTableView, 'pos'>): Place | undefined => placeOf(view.pos?.split(':')[0])
+
 /** The place of a cell of a sheet named in A1 notation, or undefined for a text naming no cell. */
 export const placeOf = (address: string | undefined): Place | undefined => {
     const match = address === undefined ? null : ADDRESS.exec(address)
@@ -73,7 +79,7 @@ export interface TableRoles {
  */
 export const rolesOf = (view: Pick<RawTableView, 'kind' | 'pos' | 'regions' | 'groups' | 'signature'>):
     TableRoles | undefined => {
-    const origin = placeOf(view.pos?.split(':')[0])
+    const origin = originOf(view)
     if (view.regions === undefined || view.regions.length === 0 || origin === undefined) {
         return undefined
     }

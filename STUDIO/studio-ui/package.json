@@ -31,6 +31,7 @@
     "@opentelemetry/sdk-trace": "^3.0.0",
     "@opentelemetry/semantic-conventions": "^1.44.0",
     "@stomp/stompjs": "^7.5.0",
+    "@tanstack/react-virtual": "^3.14.26",
     "@uiw/codemirror-theme-basic": "^4.25.12",
     "@uiw/codemirror-theme-dracula": "^4.25.12",
     "@uiw/codemirror-theme-duotone": "^4.25.12",
