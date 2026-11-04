@@ -341,6 +341,16 @@ The Excel formulas of a table are computed again when the table is saved, so a f
 from the cells as they are saved, a cell written after it included. A formula OpenL Studio cannot compute keeps the
 value it had.
 
+An `insert` or a `delete` of rows or columns, and a table moved to make room for them, change the Excel formulas of
+the whole workbook as Excel does when it shifts cells. A reference to a cell that moves names it where it moved:
+`=D4*3` becomes `=E4*3` once a column is inserted before column D of the table. A range over the place grows over the
+inserted lines or shrinks by the deleted ones, and a reference to a deleted cell turns into `#REF!`. A reference to a
+cell that does not move, outside the table or before the place, keeps its address. The defined names of the workbook
+follow the cells the same way, and the formulas that refer to the sheet are computed again. An array formula, a
+formula Apache POI cannot read, a reference to a range of sheets or to another workbook, conditional formatting and
+data validation are left as they are. A formula that changes is written as Apache POI writes it, so a structured
+reference to an Excel table in it becomes the address of the cells.
+
 A read returns an Excel formula in `formula`, beside the `value` it computed. So a cell read and written back as it is
 keeps its formula. To replace an Excel formula with a value, leave `formula` out of the cell. A cell that already holds
 the same Excel formula is left as it is.

@@ -40,6 +40,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.AGrid;
+import org.openl.rules.table.CellMove;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
@@ -505,6 +506,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.writeCellValue();
             apostrophes.set(poiCell);
         }
+    }
+
+    @Override
+    public void moveReferences(CellMove move) {
+        FormulaReferences.move(getSheetToWrite(), move);
     }
 
     private Map<String, AXlsCellWriter> getCellWriters() {

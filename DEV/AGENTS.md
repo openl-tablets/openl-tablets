@@ -123,6 +123,16 @@ is; a cell a merge covers stays empty. Reading a value and writing it back store
 Every moved cell then shows as changed in a diff and in a merge of the workbook. A number written anew is stored as
 Excel stores it, a whole one without a fraction (`PoiExcelHelper.setNumber`, `setDate`).
 
+**A moved cell takes its references along.** An Excel formula is text, so after the cells move it still names their old
+addresses. Each `GridTool` insert or removal and `TableServiceImpl.moveTable` therefore end with
+`IWritableGrid.moveReferences`, which rewrites the formulas of every sheet and the defined names the way Excel does: a
+reference to a moved cell follows it, a reference to a cell that stays keeps its address, and a reference to a removed
+cell becomes `#REF!`. A formula that refers to the sheet is computed again, since OpenL compiles the values the
+formulas computed. An array formula, a formula Apache POI cannot read and a reference to a range of sheets are neither
+rewritten nor computed again, and conditional formatting and data validation are not rewritten. `CellMove.Shift` describes lines
+moving along a table and `CellMove.Transfer` a whole table moving; an insert of many rows reports one move for the
+whole block. A new operation that moves cells reports its move the same way.
+
 A saved workbook says so (`XlsWorkbookSourceCodeModule.isSavedSinceRead()`): what was compiled from it no longer
 answers for the file. A compilation reads every workbook again, so the mark belongs to one compilation, and OpenL
 Studio tells by it whether what it compiled is out of date.

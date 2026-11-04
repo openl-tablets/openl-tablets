@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.CellMove.Axis;
 import org.openl.rules.table.actions.AUndoableCellAction;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
@@ -135,6 +136,7 @@ public final class GridTool {
         actions.addAll(copyCells(block, grid, metaInfoWriter));
         actions.addAll(resizeMergedRegions(grid, beforeColumns, nCols, COLUMNS, region, metaInfoWriter));
         actions.addAll(emptyCells(block, grid, true, COLUMNS, metaInfoWriter));
+        actions.add(moveReferences(new CellMove.Shift(region, Axis.COLUMNS, firstToMove, nCols)));
 
         return new UndoableCompositeAction(actions);
     }
@@ -153,12 +155,29 @@ public final class GridTool {
                                                        IGrid grid,
                                                        boolean before,
                                                        MetaInfoWriter metaInfoWriter) {
+        var actions = insertedRows(nRows, row, region, grid, before, metaInfoWriter);
+        // Rows laid down before a row move it down with the rows under it
+        var firstMoved = region.getTop() + row + (before ? 0 : nRows);
+        actions.add(moveReferences(new CellMove.Shift(region, Axis.ROWS, firstMoved, nRows)));
+        return new UndoableCompositeAction(actions);
+    }
+
+    /**
+     * The cells of rows laid down at a row of the table and of the rows they move down, the formulas that refer to
+     * them aside.
+     */
+    private static List<IUndoableGridTableAction> insertedRows(int nRows,
+                                                               int row,
+                                                               IGridRegion region,
+                                                               IGrid grid,
+                                                               boolean before,
+                                                               MetaInfoWriter metaInfoWriter) {
         var actions = new ArrayList<IUndoableGridTableAction>(
                 GridRegionUtils.width(region) * (GridRegionUtils.height(region) - row));
         // Shift cells by row, copy cells of inserted row and resize merged regions after
         actions.addAll(shiftRows(region.getTop() + row + nRows, nRows, INSERT, region, grid, metaInfoWriter));
         actions.addAll(layRows(nRows, row, region, grid, before, metaInfoWriter));
-        return new UndoableCompositeAction(actions);
+        return actions;
     }
 
     /**
@@ -185,7 +204,9 @@ public final class GridTool {
             var place = region.getTop() + afterRow;
             if (hasMergeUnder(grid, region, place)) {
                 for (var row = 0; row < nRows; row++) {
-                    insertRows(1, afterRow + row, grownBy(region, row), grid, metaInfoWriter).doAction(table);
+                    new UndoableCompositeAction(
+                            insertedRows(1, afterRow + row, grownBy(region, row), grid, false, metaInfoWriter))
+                            .doAction(table);
                 }
             } else {
                 new UndoableCompositeAction(shiftRows(place + 1, nRows, INSERT, region, grid, metaInfoWriter))
@@ -196,6 +217,8 @@ public final class GridTool {
                             .doAction(table);
                 }
             }
+            // The formulas follow the rows under the place once, for the whole block
+            moveReferences(new CellMove.Shift(region, Axis.ROWS, place + 1, nRows)).doAction(table);
         };
     }
 
@@ -395,8 +418,9 @@ public final class GridTool {
         int propValueCellOffset;
 
         if (tableWithoutPropertySection(propsHeader)) {
-            actions.addAll(
-                    shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, grid, metaInfoWriter));
+            var startRow = tableRegion.getTop() + firstPropertyRow;
+            actions.addAll(shiftRows(startRow, 1, INSERT, tableRegion, grid, metaInfoWriter));
+            actions.add(moveReferences(new CellMove.Shift(tableRegion, Axis.ROWS, startRow, 1)));
             actions.add(createPropertiesSection(tableRegion, grid, metaInfoWriter));
             propNameCellOffset = 1;
             propValueCellOffset = 2;
@@ -790,6 +814,7 @@ public final class GridTool {
             new UndoableCompositeAction(
                     clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, grid, metaInfoWriter))
                     .doAction(table);
+            moveReferences(new CellMove.Shift(region, Axis.COLUMNS, firstToMove, -nCols)).doAction(table);
         };
     }
 
@@ -814,6 +839,7 @@ public final class GridTool {
             new UndoableCompositeAction(
                     clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, grid, metaInfoWriter))
                     .doAction(table);
+            moveReferences(new CellMove.Shift(region, Axis.ROWS, firstToMove, -nRows)).doAction(table);
         };
     }
 
@@ -893,6 +919,13 @@ public final class GridTool {
         return isColumns
                 ? new UndoableShiftValueAction(merged.getLeft(), merged.getTop(), line, merged.getTop(), metaInfoWriter)
                 : new UndoableShiftValueAction(merged.getLeft(), merged.getTop(), merged.getLeft(), line, metaInfoWriter);
+    }
+
+    /**
+     * Points the Excel formulas of the workbook at where the cells of the table move, once all of them are moved.
+     */
+    private static IUndoableGridTableAction moveReferences(CellMove move) {
+        return table -> ((IWritableGrid) table.getGrid()).moveReferences(move);
     }
 
     /** Merges the region unless it is a single cell. */
