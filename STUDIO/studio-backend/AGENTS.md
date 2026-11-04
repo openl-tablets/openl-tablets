@@ -328,8 +328,11 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   tracking, and stretches or trims the regions to the size the table ends with. A property write
   (`TablePropertiesServiceImpl`) and a copy (`TableCopyServiceImpl`, the source's layout on the copy) take the layout
   the same way. A created table is formatted in the `regions` its create request carries, which the create dialog's
-  builder emits (`buildTableRegions` in `tableSkeletons.ts`); a table written into a new module is formatted on its POI
-  sheet (`ExcelTableFormatter.format(Sheet, IGridRegion, TableRegions)`). A formatting that fails is logged and the
+  builder emits (`buildTableRegions` in `tableSkeletons.ts`); a table created without them — through the API or the
+  MCP server, or in a typed view — is laid out from its text once written, in the same save
+  (`RegionShift.ofWritten`: `TableIds.nodeOf` reads a node from its header, so `GuessedReads` finds its parts);
+  `TableWritersFactory.getNewTableWriter` arms every new writer for it. A table written into a new module is
+  formatted on its POI sheet, read through `XlsSheetGridModel.of(Sheet)`. A formatting that fails is logged and the
   table saved unformatted.
 - **A formatting pass costs every cell of the table.** Reading a cell's format through XMLBeans creates an object per
   attribute, about 0.5 µs a cell on a freshly loaded workbook, so `ExcelTableFormatter` reads `getS()` (never

@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "NewFactor",
+  "returnType": "Double",
+  "signature": "NewFactor(String rating, Integer age)",
+  "file": "TableTheme/Created.xlsx",
+  "sheet": "Created",
+  "pos": "B2:D5"
+}

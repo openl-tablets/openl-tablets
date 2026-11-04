@@ -34,6 +34,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.xls.Apostrophes;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -53,7 +54,6 @@ import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.RegionShift;
-import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.studio.projects.service.tables.write.RawTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriter;
@@ -98,8 +98,9 @@ public class TableCreatorService {
         if (carriesProperties(table.kind)) {
             tableWriter.stampWith(systemPropertiesService.onCreate());
         }
+        // A table the client built no regions for is formatted in the regions its text tells, see TableWriter.
         var built = builtRegions(createTableRequest, table);
-        if (built != null) {
+        if (built != null && formatting.onSave()) {
             tableWriter.formatOnSave(built, table.getHeight(), table.getWidth());
         }
         return tableWriterExecutor.executeWrite(tableWriter, createTableRequest.table());
@@ -230,7 +231,9 @@ public class TableCreatorService {
             requireNoBlankLine(sheet, stamped.getHeight(), stamped.getWidth());
             PoiExcelHelper.evaluateFormulas(sheet, new GridRegion(TABLE_START_ROW, TABLE_START_COLUMN,
                     TABLE_START_ROW + stamped.getHeight() - 1, TABLE_START_COLUMN + stamped.getWidth() - 1));
-            format(sheet, builtRegions(request, table), table, stamped);
+            if (formatting.onSave()) {
+                format(sheet, builtRegions(request, table), table, stamped.getHeight(), stamped.getWidth());
+            }
             workbook.write(output);
             return output.toByteArray();
         } catch (IOException e) {
@@ -246,14 +249,14 @@ public class TableCreatorService {
     /**
      * The regions the client built the table in, which the table is formatted in while tables are formatted on save.
      *
-     * <p>A region outside the table as sent is left out. A table sent without regions, or in a view other than the
-     * raw one, is written as sent.
+     * <p>A region outside the table as sent is left out. A table sent without regions, with none inside it, or in a
+     * view other than the raw one, has none: it is formatted in the regions its text tells once it is written.
      *
-     * @return the regions, or {@code null} when the table is not formatted
+     * @return the regions, or {@code null} when the client built none
      */
-    private @Nullable TableRegions builtRegions(CreateNewTableRequest request, TableView table) {
+    private static @Nullable TableRegions builtRegions(CreateNewTableRequest request, TableView table) {
         var regions = request.regions();
-        if (regions == null || !(table instanceof RawTableView) || !formatting.onSave()) {
+        if (regions == null || !(table instanceof RawTableView)) {
             return null;
         }
         var height = table.getHeight();
@@ -262,32 +265,26 @@ public class TableCreatorService {
                 .filter(region -> region.top() >= 0 && region.left() >= 0 && region.top() <= region.bottom()
                         && region.left() <= region.right() && region.bottom() < height && region.right() < width)
                 .toList();
-        return new TableRegions(inside, RawTableGroups.NONE, List.of(), Map.of());
+        return inside.isEmpty() ? null : new TableRegions(inside, RawTableGroups.NONE, List.of(), Map.of());
     }
 
     /**
-     * Formats a table written into a workbook of its own in the regions the client built it in, its header and the
-     * properties OpenL Studio stamped under it laid out as written.
+     * Formats a table written into a workbook of its own in the regions the client built it in, fitted to the table as
+     * written: its header and the properties OpenL Studio stamped under it are laid out from the sheet. A table the
+     * client built no regions for is formatted in the regions its text tells.
+     *
+     * @param height how many rows the table has as written
+     * @param width  how many columns the table has as written
      */
-    private void format(Sheet sheet, @Nullable TableRegions built, RawTableView sent, RawTableView written) {
-        if (built == null) {
-            return;
+    private static void format(Sheet sheet, @Nullable TableRegions built, RawTableView sent, int height, int width) {
+        var grid = TableWriter.filledPart(new GridTable(new GridRegion(TABLE_START_ROW, TABLE_START_COLUMN,
+                TABLE_START_ROW + height - 1, TABLE_START_COLUMN + width - 1), XlsSheetGridModel.of(sheet)));
+        var layout = built == null
+                ? RegionShift.ofWritten(grid)
+                : RegionShift.of(built, sent.getHeight(), sent.getWidth());
+        if (layout != null) {
+            ExcelTableFormatter.formatOnSave(grid, layout);
         }
-        var head = TableRegionLayout.Head.of(written.getWidth(), propertyRowsOf(written));
-        var header = String.valueOf(firstCell(written.source.getFirst()));
-        var regions = RegionShift.of(built, sent.getHeight(), sent.getWidth())
-                .fittedTo(head, written.getHeight(), written.getWidth(), header);
-        new ExcelTableFormatter().format(sheet, new GridRegion(TABLE_START_ROW, TABLE_START_COLUMN,
-                TABLE_START_ROW + written.getHeight() - 1, TABLE_START_COLUMN + written.getWidth() - 1), regions);
-    }
-
-    /** How many rows the properties section under the header of a table takes: none for a table without one. */
-    private static int propertyRowsOf(RawTableView table) {
-        if (table.source.size() < 2 || !PROPERTIES_SECTION.equals(String.valueOf(firstCell(table.source.get(1))))) {
-            return 0;
-        }
-        var marker = table.source.get(1).getFirst();
-        return Optional.ofNullable(marker.rowspan()).orElse(1);
     }
 
     /**

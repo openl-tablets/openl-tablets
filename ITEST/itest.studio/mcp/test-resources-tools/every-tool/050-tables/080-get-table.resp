@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"SimpleRules Double AgeFactor(Integer age)\"],[\"Age\",\"Factor\"],[\"< 25\",1.5],[\"25 - 65\",1],[\"> 65\",1.2]]}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Rules\",\"name\":\"AgeFactor\",\"pos\":\"B2:C6\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"SimpleRules Double AgeFactor(Integer age)\"],[\"Age\",\"Factor\"],[\"< 25\",1.5],[\"25 - 65\",1],[\"> 65\",1.2]],\"merges\":[[0,0,1,2]]}}"
       }
     ],
     "resultType": "complete",

@@ -39,6 +39,9 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
 
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.CellMove;
 import org.openl.rules.table.GridRegion;
@@ -58,6 +61,7 @@ import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
 import org.openl.rules.table.xls.writers.XlsCellFormulaWriter;
 import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.rules.table.xls.writers.XlsCellStringWriter;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
 
@@ -74,6 +78,21 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private final Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
     private final Apostrophes apostrophes = new Apostrophes();
+
+    /**
+     * A grid over a sheet of a workbook that is no module of a project, such as one built in memory.
+     *
+     * <p>The engine reads a sheet only through the modules of its workbook, so the grid is read through modules of no
+     * file.
+     *
+     * @param sheet the sheet
+     * @return the grid over the sheet
+     */
+    public static XlsSheetGridModel of(Sheet sheet) {
+        var workbook = new XlsWorkbookSourceCodeModule(new StringSourceCodeModule("", ""),
+                new SimpleWorkbookLoader(sheet.getWorkbook()));
+        return new XlsSheetGridModel(new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), workbook));
+    }
 
     private void extractMergedRegions() {
         mergedRegionsPool = new RegionsPool(null);

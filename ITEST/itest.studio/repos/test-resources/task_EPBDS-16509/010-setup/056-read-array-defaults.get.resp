@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "ArrayDefaults",
   "pos": "B2:D4",
   "source": [
-    [{"cell": "B2", "value": "Datatype ArrayDefaults"}, {"cell": "C2"}, {"cell": "D2"}],
+    [{"cell": "B2", "value": "Datatype ArrayDefaults", "colspan": 3}, {"covered": true}, {"covered": true}],
     [{"cell": "B3", "value": "String[]"}, {"cell": "C3", "value": "attributes"}, {"cell": "D3", "value": ["C:\\", "ACME, Inc"]}],
     [
       {"cell": "B4", "value": "Date[]"},

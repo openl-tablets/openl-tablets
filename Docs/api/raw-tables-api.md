@@ -317,7 +317,8 @@ Content-Type: application/json
 - `regions` — optional, the roles of the cells of a raw table as the client built it, in the shape of
   [Roles of the Cells](#roles-of-the-cells) and in the coordinates of `source`. While tables are formatted on save, the
   table is written in the OpenL table style of these roles; a region outside `source` is left out. A table sent without
-  them, or in a typed view, is written as sent and formatted at its next save.
+  them, with none inside `source`, or in a typed view, is formatted in the roles its text tells once it is written, as a
+  table the compiler cannot read is laid out.
 
 The answer is `201 Created` with the summary of the new table.
 
