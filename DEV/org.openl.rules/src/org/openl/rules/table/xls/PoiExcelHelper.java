@@ -21,7 +21,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
@@ -42,6 +44,8 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.TextRun;
+import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PoiExcelHelper {
@@ -74,6 +78,50 @@ public final class PoiExcelHelper {
             return row.getCell(colIndex, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
         }
         return null;
+    }
+
+    /**
+     * The value a cell shows: for a cell holding an Excel formula, the value the formula computed.
+     *
+     * <p>A number formatted as a date is a date, and a whole number is an integer. A text is trimmed, and a blank one
+     * is no value. An error is the text Excel shows for it, such as {@code #DIV/0!} or {@code #N/A}.
+     *
+     * @return the value, or {@code null} for an empty cell or no cell at all
+     */
+    public static @Nullable Object getCellValue(@Nullable Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        var type = cell.getCellType();
+        if (type == CellType.FORMULA) {
+            type = cell.getCachedFormulaResultType();
+        }
+        return switch (type) {
+            case BLANK -> null;
+            case BOOLEAN -> cell.getBooleanCellValue();
+            case NUMERIC -> DateUtil.isCellDateFormatted(cell)
+                    ? cell.getDateCellValue()
+                    : NumberUtils.intOrDouble(cell.getNumericCellValue());
+            case STRING -> StringUtils.trimToNull(cell.getStringCellValue());
+            case ERROR -> errorText(cell);
+            // A formula computes no formula, and no cell is of type none
+            default -> "unknown type: " + cell.getCellType();
+        };
+    }
+
+    /**
+     * The text Excel shows for the error of a cell. An {@code .xlsx} cell stores it as text, so an error newer than
+     * Apache POI knows, such as {@code #SPILL!}, is shown as Excel wrote it.
+     */
+    private static String errorText(Cell cell) {
+        return cell instanceof XSSFCell xssf ? xssf.getErrorCellString() : errorText(cell.getErrorCellValue());
+    }
+
+    /**
+     * The text Excel shows for an error code of an {@code .xls} workbook, such as {@code #DIV/0!} for {@code 7}.
+     */
+    public static String errorText(int code) {
+        return FormulaError.forInt(code).getString();
     }
 
     public static Cell getOrCreateCell(int colIndex, int rowIndex, Sheet sheet) {

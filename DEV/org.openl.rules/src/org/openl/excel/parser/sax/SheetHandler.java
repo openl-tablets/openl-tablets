@@ -75,7 +75,7 @@ public class SheetHandler extends DefaultHandler {
 
     @Override
     public void startElement(String uri, String localName, String name, Attributes attributes) {
-        if (uri != null && !uri.equals(NS_SPREADSHEETML)) {
+        if (uri != null && !NS_SPREADSHEETML.equals(uri)) {
             return;
         }
 
@@ -160,37 +160,22 @@ public class SheetHandler extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String name) {
-        if (uri != null && !uri.equals(NS_SPREADSHEETML)) {
+        if (uri != null && !NS_SPREADSHEETML.equals(uri)) {
             return;
         }
-
-        Object parsedValue = null;
 
         if (isTextTag(localName)) {
             vIsOpen = false;
 
             // Process the value contents as required, now we have it all
-            switch (nextDataType) {
-                case BOOLEAN:
-                    var first = value.charAt(0);
-                    parsedValue = first != '0';
-                    break;
-                case FORMULA, INLINE_STRING:
-                    // To be precise a FORMULA is a formula with String type. But we care only about a value.
-                    // Fallback to INLINE_STRING
-                    parsedValue = StringUtils.trimToNull(value.toString());
-                    break;
-                case SHARED_STRING_TABLE_STRING:
-                    parsedValue = parseSharedString();
-                    break;
-                case NUMBER:
-                    parsedValue = parseNumber();
-                    break;
-                default:
-                    // Skip
-                    log.debug("Skipped data type: {}", nextDataType);
-                    break;
-            }
+            var parsedValue = switch (nextDataType) {
+                case BOOLEAN -> value.charAt(0) != '0';
+                // A FORMULA is a formula with a text result, and an ERROR the text Excel shows for the error, such
+                // as #DIV/0!: only the value counts, stored as inline text is
+                case FORMULA, INLINE_STRING, ERROR -> StringUtils.trimToNull(value.toString());
+                case SHARED_STRING_TABLE_STRING -> parseSharedString();
+                case NUMBER -> parseNumber();
+            };
 
             var row = current.getRow() - start.getRow();
             var col = current.getColumn() - start.getColumn();
@@ -224,15 +209,13 @@ public class SheetHandler extends DefaultHandler {
         try {
             if (n.isEmpty()) {
                 return null;
-            } else {
-                var d = Double.parseDouble(n);
-                if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
-                        formatString)) {
-                    return DateUtil.getJavaDate(d, use1904Windowing);
-                } else {
-                    return NumberUtils.intOrDouble(d);
-                }
             }
+            var d = Double.parseDouble(n);
+            if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
+                    formatString)) {
+                return DateUtil.getJavaDate(d, use1904Windowing);
+            }
+            return NumberUtils.intOrDouble(d);
         } catch (NumberFormatException e) {
             throw new ExcelParseException("Cannot get a number from string " + n, e);
         }

@@ -352,8 +352,9 @@ data validation are left as they are. A formula that changes is written as Apach
 reference to an Excel table in it becomes the address of the cells.
 
 A read returns an Excel formula in `formula`, beside the `value` it computed. So a cell read and written back as it is
-keeps its formula. To replace an Excel formula with a value, leave `formula` out of the cell. A cell that already holds
-the same Excel formula is left as it is.
+keeps its formula. A formula that computes an error, and an error typed into a cell, read as the text Excel shows for
+it, such as `#DIV/0!`, `#N/A` or `#REF!`. To replace an Excel formula with a value, leave `formula` out of the cell. A
+cell that already holds the same Excel formula is left as it is.
 
 ```json
 {"operation": "update", "target": {"type": "cell", "row": 4, "column": 1, "value": "= product($F1:$F4)"}}

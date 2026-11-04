@@ -10,12 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
@@ -28,13 +28,12 @@ import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellComment;
 import org.openl.rules.table.xls.XlsCellFont;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
-import org.openl.util.NumberUtils;
-import org.openl.util.StringUtils;
 
 @Slf4j
 public class DOMReader implements ExcelReader {
@@ -143,7 +142,7 @@ public class DOMReader implements ExcelReader {
 
             for (var j = firstCellNum; j < lastCellNum; j++) {
                 var cell = row.getCell(j);
-                Object value = extractCellValue(cell);
+                Object value = PoiExcelHelper.getCellValue(cell);
                 if (cell != null) {
                     short indention = cell.getCellStyle().getIndention();
                     if (indention > 0) {
@@ -222,7 +221,7 @@ public class DOMReader implements ExcelReader {
                 }
 
                 @Override
-                public String getFormula(int row, int column) {
+                public @Nullable String getFormula(int row, int column) {
                     var cell = getCell(row, column);
                     return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
                 }
@@ -256,35 +255,6 @@ public class DOMReader implements ExcelReader {
             // Open the file in read only mode
             workbook = WorkbookFactory.create(new File(fileName), null, true);
         }
-    }
-
-    // See OpenL Tablets implementation
-    private static Object extractCellValue(Cell cell) {
-        if (cell != null) {
-            var type = cell.getCellType();
-            if (type == CellType.FORMULA) {
-                // Replace IGrid.CELL_TYPE_FORMULA with the type from the formula result
-                type = cell.getCachedFormulaResultType();
-            }
-            // There IGrid.CELL_TYPE_FORMULA should never be at this step
-            switch (type) {
-                case BLANK:
-                    return null;
-                case BOOLEAN:
-                    return cell.getBooleanCellValue();
-                case NUMERIC:
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        return cell.getDateCellValue();
-                    }
-                    var value = cell.getNumericCellValue();
-                    return NumberUtils.intOrDouble(value);
-                case STRING:
-                    return StringUtils.trimToNull(cell.getStringCellValue());
-                default:
-                    return "unknown type: " + cell.getCellType();
-            }
-        }
-        return null;
     }
 
 }

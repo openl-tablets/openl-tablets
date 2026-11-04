@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "XH828RZA2R34MX0E",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "Ratio",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Cannot parse cell value '#DIV/0!' to the necessary type.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "XH828RZA2R34MX0E",
+        "name": "Ratio",
+        "module": "Rules",
+        "projectId": "E8JBMEFQNE1M5",
+        "project": "EPBDS-17089",
+        "cell": "C12",
+        "start": 0,
+        "end": 7
+      },
+      "stacktrace": true
+    }
+  ],
+  "returnType": "Double",
+  "steps": [
+    {
+      "name": "RETURN",
+      "value": "#DIV/0!"
+    }
+  ]
+}
+
