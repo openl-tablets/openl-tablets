@@ -1,10 +1,14 @@
 package org.openl.vm;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.IOpenRunner;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -15,16 +19,26 @@ import org.openl.types.IOpenClass;
 public class SimpleRuntimeEnv implements IRuntimeEnv {
 
     private static final Object[] NO_PARAMS = {};
+    // Shared by the environments that have checked no alias value yet
+    private static final SoftReference<CheckedAliasValues> NO_ALIAS_VALUES = new SoftReference<>(null);
     private static final Object NULL_THIS = new Object();
 
+    @Getter
     private final IOpenRunner runner;
     protected final ArrayDeque<Object> thisStack = new ArrayDeque<>();
     protected final ArrayDeque<Object[]> frameStack = new ArrayDeque<>();
     protected Deque<IRuntimeContext> contextStack;
+    @Getter
+    @Setter
     private IOpenClass topClass;
+    @Getter
+    @Setter
     private IRulesMethodWrapper methodWrapper;
     private Queue<RecursiveAction> actionStack;
+    @Getter
     private Tracer tracer = Tracer.NONE;
+    // Replaced on the first alias value an execution checks
+    private SoftReference<CheckedAliasValues> checkedAliasValues = NO_ALIAS_VALUES;
 
     public SimpleRuntimeEnv() {
         this.runner = SimpleRunner.SIMPLE_RUNNER;
@@ -48,22 +62,6 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
 
     private IRuntimeContext buildDefaultRuntimeContext() {
         return RulesRuntimeContextFactory.buildRulesRuntimeContext();
-    }
-
-    public IRulesMethodWrapper getMethodWrapper() {
-        return methodWrapper;
-    }
-
-    public void setMethodWrapper(IRulesMethodWrapper methodWrapper) {
-        this.methodWrapper = methodWrapper;
-    }
-
-    public IOpenClass getTopClass() {
-        return topClass;
-    }
-
-    public void setTopClass(IOpenClass topClass) {
-        this.topClass = topClass;
     }
 
 
@@ -112,11 +110,6 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     @Override
     public Object[] getLocalFrame() {
         return frameStack.peek();
-    }
-
-    @Override
-    public IOpenRunner getRunner() {
-        return runner;
     }
 
     @Override
@@ -187,12 +180,22 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     }
 
     @Override
-    public Tracer getTracer() {
-        return tracer;
-    }
-
-    @Override
     public void setTracer(Tracer tracer) {
         this.tracer = tracer == null ? Tracer.NONE : tracer;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The values are let go when memory runs short, and a copy of the environment starts without them.
+     */
+    @Override
+    public CheckedAliasValues getCheckedAliasValues() {
+        var values = checkedAliasValues.get();
+        if (values == null) {
+            values = new CheckedAliasValues();
+            checkedAliasValues = new SoftReference<>(values);
+        }
+        return values;
     }
 }

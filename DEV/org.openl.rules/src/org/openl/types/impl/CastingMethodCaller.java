@@ -33,7 +33,7 @@ public class CastingMethodCaller extends MethodCaller {
             if (casts[i] == null) {
                 newParams[i] = params[i];
             } else {
-                newParams[i] = casts[i].convert(params[i]);
+                newParams[i] = casts[i].convert(params[i], env);
             }
         }
 

@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -30,9 +31,9 @@ import org.openl.vm.IRuntimeEnv;
 public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     private final AtomicReference<StaticOpenClass> staticOpenClass = new AtomicReference<>();
 
+    // Never changes: the values found in it are remembered by executions, CheckedAliasValues
     @Getter
-    @Setter
-    private IDomain<?> domain;
+    private final IDomain<?> domain;
 
     private IAggregateInfo aggregateInfo;
     @Getter
@@ -61,7 +62,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
      * The values a vocabulary datatype allows, or {@code null} for any other type: a Java enum publishes its own
      * values. An array of a vocabulary answers the values of its elements.
      */
-    public static String[] vocabularyValues(IOpenClass type) {
+    public static String @Nullable[] vocabularyValues(IOpenClass type) {
         return type instanceof DomainOpenClass vocabulary ? DomainUtils.values(vocabulary.getDomain()) : null;
     }
 
@@ -112,7 +113,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     }
 
     @Override
-    public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
+    public @Nullable IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
         return null;
     }
 
@@ -217,7 +218,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     }
 
     @Override
-    public IOpenClass findType(String typeName) {
+    public @Nullable IOpenClass findType(String typeName) {
         // Default implementation.
         return null;
     }
@@ -266,9 +267,8 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
         if (name.equals(that.name)) {
             return domain.equals(that.domain);
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -292,12 +292,12 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     }
 
     @Override
-    public IOpenField getStaticField(String fname) {
+    public @Nullable IOpenField getStaticField(String fname) {
         return null;
     }
 
     @Override
-    public IOpenField getStaticField(String name, boolean strictMatch) {
+    public @Nullable IOpenField getStaticField(String name, boolean strictMatch) {
         return null;
     }
 

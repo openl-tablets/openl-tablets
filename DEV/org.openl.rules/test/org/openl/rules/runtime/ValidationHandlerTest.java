@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -45,6 +47,20 @@ class ValidationHandlerTest {
         public String getExtra() {
             return "bad";
         }
+    }
+
+    @Test
+    void anArgumentCheckedOnceIsNotLookedUpAgainInTheSameExecution() {
+        @SuppressWarnings("unchecked")
+        IDomain<Object> domain = mock(IDomain.class);
+        when(domain.selectObject("good")).thenReturn(true);
+        var signature = signatureOf(new DomainOpenClass("AllowedValue", JavaOpenClass.STRING, domain, null, null));
+        var env = new SimpleRulesVM().getRuntimeEnv();
+
+        ValidationHandler.validateArguments(signature, null, env, new Object[]{"good"});
+        ValidationHandler.validateArguments(signature, null, env, new Object[]{"good"});
+
+        verify(domain, times(1)).selectObject("good");
     }
 
     @Test

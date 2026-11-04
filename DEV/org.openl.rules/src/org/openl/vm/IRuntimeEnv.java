@@ -63,4 +63,13 @@ public interface IRuntimeEnv {
     default void setTracer(Tracer tracer) {
         // Environments that do not support tracing ignore it and stay untraced.
     }
+
+    /**
+     * The values this execution has found in the domains of alias types.
+     *
+     * <p>An environment that keeps none answers {@link CheckedAliasValues#NONE}, and every value is looked up again.
+     */
+    default CheckedAliasValues getCheckedAliasValues() {
+        return CheckedAliasValues.NONE;
+    }
 }

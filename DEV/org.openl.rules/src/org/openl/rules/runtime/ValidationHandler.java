@@ -8,7 +8,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
-import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -16,7 +15,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayElements;
-import org.openl.util.DomainUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -59,8 +57,9 @@ public final class ValidationHandler {
         if (obj != null) {
             if (type.isArray()) {
                 doValidateArray(env, module, obj, type);
-            } else if (type instanceof DomainOpenClass class2) {
-                validateAliasValue(obj, class2);
+            } else if (type instanceof DomainOpenClass aliasType) {
+                // Remembered for the rule, which checks its alias arguments again
+                env.getCheckedAliasValues().check(obj, aliasType);
             } else if (type instanceof DatatypeOpenClass class1) {
                 doValidateDatatype(env, module, obj, class1);
             }
@@ -131,14 +130,6 @@ public final class ValidationHandler {
             return beanClass.getField(name, false);
         } catch (AmbiguousFieldException e) {
             return null;
-        }
-    }
-
-    private static void validateAliasValue(Object value, DomainOpenClass domainOpenClass) {
-        IDomain domain = domainOpenClass.getDomain();
-        var isInDomain = domain.selectObject(value);
-        if (!isInDomain) {
-            throw new OutsideOfValidDomainException(value, domainOpenClass.getName(), DomainUtils.toString(domain));
         }
     }
 }

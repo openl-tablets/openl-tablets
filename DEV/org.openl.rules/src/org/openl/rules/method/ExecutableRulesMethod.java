@@ -2,6 +2,10 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.jspecify.annotations.Nullable;
+
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -24,22 +28,17 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     private ITableProperties properties;
     // Not an AMethodBasedNode: the bound node of a TestSuiteMethod is the node of a data table.
+    @Getter
+    @Setter
     private ATableBoundNode boundNode;
     private boolean hasAliasTypeParams;
     private IOpenCast[] aliasDatatypeCasts;
 
+    @Getter
+    @Setter
     private String moduleName;
     private String singleExpression;
     private boolean singleExpressionRead;
-
-    @Override
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
 
     protected ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
@@ -75,7 +74,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         if (hasAliasTypeParams) {
             for (var i = 0; i < getSignature().getNumberOfParameters(); i++) {
                 if (aliasDatatypeCasts[i] != null) {
-                    aliasDatatypeCasts[i].convert(params[i]); // Validate alias
+                    aliasDatatypeCasts[i].convert(params[i], env); // Validate alias
                     // datatypes
                 }
             }
@@ -84,10 +83,6 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     }
 
     protected abstract Object innerInvoke(Object target, Object[] params, IRuntimeEnv env);
-
-    public void setBoundNode(ATableBoundNode node) {
-        this.boundNode = node;
-    }
 
     /**
      * Returns the expression the table is written of, or {@code null} when it is written of anything else.
@@ -144,14 +139,10 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         }
     }
 
-    public ATableBoundNode getBoundNode() {
-        return boundNode;
-    }
-
     // Null marks a method without table properties: dimension keys skip its dimensions to hash and print it.
     @SuppressWarnings("java:S1168")
     @Override
-    public Map<String, Object> getProperties() {
+    public @Nullable Map<String, Object> getProperties() {
         if (getMethodProperties() != null) {
             return getMethodProperties().getAllProperties();
         }
@@ -177,7 +168,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
      * Overridden to get access to {@link TableSyntaxNode} from current implementation.
      */
     @Override
-    public TableSyntaxNode getSyntaxNode() {
+    public @Nullable TableSyntaxNode getSyntaxNode() {
         if (boundNode != null) {
             return boundNode.getTableSyntaxNode();
         }
