@@ -3,6 +3,7 @@ package org.openl.excel.parser.markdown;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
@@ -17,6 +18,9 @@ import org.openl.util.StringUtils;
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
  * {@code \|} gives a vertical bar and {@code <br>} a line break. A row gives every cell written in it, even those GFM
  * drops past the cells of the first row, so the parser tells of them.
+ *
+ * <p>A caption between the parts of a Spreadsheet is a row of its own, its text in the first cell (see
+ * {@link SpreadsheetParts}).
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class GfmTableReader implements MarkdownTableReader {
@@ -27,6 +31,8 @@ final class GfmTableReader implements MarkdownTableReader {
     private final List<String> lines;
     /** The line of each row, the delimiter row left out. */
     private final List<Integer> rowLines;
+    /** The text of each caption by its first line. */
+    private final Map<Integer, String> captions;
 
     /**
      * Returns the rows of the table. A row is cut out of its line when it is asked for, so a table of millions of
@@ -38,7 +44,9 @@ final class GfmTableReader implements MarkdownTableReader {
             @Override
             public TableRow get(int index) {
                 var line = rowLines.get(index);
-                return new TableRow(new TableFile.Block(line, line), cellsOf(lines.get(line)));
+                var caption = captions.get(line);
+                return new TableRow(new TableFile.Block(line, line),
+                        caption == null ? cellsOf(lines.get(line)) : List.of(caption));
             }
 
             @Override

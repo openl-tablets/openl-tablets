@@ -51,6 +51,10 @@ import org.openl.util.StringUtils;
  * {@code Method}. A file with neither holds a table of a header alone, such as a {@code Datatype} that adds no field to
  * its parent; the text after its front matter is its description.
  *
+ * <p>A Spreadsheet goes on in the GFM tables after the first one that repeat its first row, the paragraphs between
+ * them being captions: each caption is a row of the body, its text in the first cell, merged across the table (see
+ * {@link SpreadsheetParts}). The merged ranges of {@code merges} count the rows of the body so put together.
+ *
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
  * {@code \|} gives a vertical bar and {@code <br>} a line break. A whole number, {@code true} and {@code false}, and a
  * date, in a cell or a property, read as the values a cell of a workbook holds, and any other text as a text, see
@@ -60,7 +64,8 @@ import org.openl.util.StringUtils;
  *
  * <p>A file that breaks the format in the front matter holds no table. One that breaks it in the body, or in the
  * merged ranges, keeps the table without the part that breaks it: a merged range that does not fit, the cells of a
- * row beyond those of the first row, the rows a blank line cuts off. The file tells each such problem.
+ * row beyond those of the first row, the rows a blank line cuts off, a table after a Spreadsheet that does not repeat
+ * its first row. The file tells each such problem.
  */
 final class MarkdownTableParser {
 
@@ -148,11 +153,9 @@ final class MarkdownTableParser {
             node = node.getNext();
         }
         var header = described(written, MarkdownDescription.of(lines, description));
+        var gfm = node instanceof TableLines first ? new TableFile.GfmBody(partsOf(first, header)) : null;
         // A table with no table nor code block after its front matter has a header alone
-        var table = readTable(header, node);
-        if (node != null) {
-            checkNotSplit(node);
-        }
+        var table = readTable(header, node, gfm);
         var separator = LINE_SEPARATOR.matcher(text);
         var afterDescription = description.isEmpty() ? end + 1 : description.getLast().lastLine() + 1;
         return Optional.of(new TableFile(text,
@@ -160,10 +163,10 @@ final class MarkdownTableParser {
                 separator.find() ? separator.group() : "\n",
                 table,
                 end,
-                keysOf(header, table),
+                keysOf(header, table, gfm),
                 header.propertyKeys(),
                 List.copyOf(description),
-                node == null ? new TableFile.NoBody(afterDescription) : bodyOf(node),
+                gfm != null ? gfm : bodyOf(node, afterDescription),
                 List.copyOf(problems)));
     }
 
@@ -196,14 +199,17 @@ final class MarkdownTableParser {
 
     /**
      * Returns the keys of the front matter, the merged ranges among them as the table holds them: a range left out
-     * stays as written until the ranges change.
+     * stays as written until the ranges change. The ranges of the captions are no part of them.
      */
-    private static List<TableFile.Key> keysOf(Header header, RulesTable table) {
+    private static List<TableFile.Key> keysOf(Header header, RulesTable table, TableFile.@Nullable GfmBody gfm) {
+        var captions = new BitSet();
+        if (gfm != null) {
+            gfm.captions().keySet().forEach(captions::set);
+        }
+        var merges = RulesTable.mergesText(SpreadsheetParts.mergesBesides(table.merges(), captions));
         return header.keys()
                 .stream()
-                .map(key -> MERGES.equals(key.name())
-                        ? new TableFile.Key(MERGES, RulesTable.mergesText(table.merges()), key.line())
-                        : key)
+                .map(key -> MERGES.equals(key.name()) ? new TableFile.Key(MERGES, merges, key.line()) : key)
                 .toList();
     }
 
@@ -332,34 +338,89 @@ final class MarkdownTableParser {
 
     // Body
 
-    private RulesTable readTable(Header header, @Nullable Node body) {
-        var rows = switch (body) {
-            case null -> List.<List<@Nullable String>>of();
-            case TableLines table -> readRows(header, new GfmTableReader(lines, table.rowLines()));
-            default -> List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body)
-                    .getLiteral())));
-        };
-        return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(rows, header));
+    private RulesTable readTable(Header header, @Nullable Node body, TableFile.@Nullable GfmBody gfm) {
+        List<List<@Nullable String>> rows;
+        if (gfm != null) {
+            rows = readRows(header, new GfmTableReader(lines, gfm.rowLines(), captionTexts(gfm)));
+        } else if (body instanceof FencedCodeBlock code) {
+            rows = List.of(Collections.singletonList(StringUtils.trimToNull(code.getLiteral())));
+        } else {
+            rows = List.of();
+        }
+        var width = rows.isEmpty() ? 0 : rows.getFirst().size();
+        var captions = gfm == null || width < 2
+                ? List.<CellRangeAddress>of()
+                : gfm.captions().keySet().stream().sorted().map(row -> SpreadsheetParts.rangeOf(row, width)).toList();
+        return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(rows, header, captions));
     }
 
-    private static TableFile.Body bodyOf(Node body) {
-        var spans = body.getSourceSpans();
-        if (body instanceof FencedCodeBlock code) {
-            return new TableFile.CodeBody(spans.getFirst().getLineIndex(),
-                    spans.getLast().getLineIndex(),
-                    code.getFenceCharacter().repeat(code.getOpeningFenceLength()),
-                    StringUtils.trimToEmpty(code.getInfo()),
-                    code.getFenceIndent());
+    /**
+     * Returns the text of each caption of a body by the first line of the caption.
+     */
+    private Map<Integer, String> captionTexts(TableFile.GfmBody gfm) {
+        var texts = new HashMap<Integer, String>();
+        gfm.captions().values().forEach(block -> texts.put(block.firstLine(), SpreadsheetParts.captionOf(lines, block)));
+        return texts;
+    }
+
+    /**
+     * Returns the GFM tables of the body: the first one and, for a Spreadsheet, each table after it that repeats its
+     * first row, with the paragraphs above it as its captions. A paragraph after the last such table is documentation.
+     */
+    private List<TableFile.Part> partsOf(TableLines first, Header header) {
+        var parts = new ArrayList<TableFile.Part>();
+        parts.add(new TableFile.Part(List.of(), first.rowLines(), first.delimiterLine()));
+        var last = first;
+        if (SpreadsheetParts.isSpreadsheet(header.text())) {
+            var columns = GfmTableReader.cellsOf(lines.get(first.rowLines().getFirst()));
+            var captions = new ArrayList<TableFile.Block>();
+            var node = first.getNext();
+            while (isCaption(node) || node instanceof TableLines next && repeats(next, columns)) {
+                if (node instanceof TableLines table) {
+                    parts.add(new TableFile.Part(List.copyOf(captions), table.rowLines(), table.delimiterLine()));
+                    captions.clear();
+                    last = table;
+                } else {
+                    captions.add(blockOf(node));
+                }
+                node = node.getNext();
+            }
+            if (node instanceof TableLines table) {
+                problem(table.rowLines().getFirst() + 1, """
+                        The table does not repeat the first row of the Spreadsheet above, so it is no part of it""",
+                        null);
+            }
         }
-        var table = (TableLines) body;
-        return new TableFile.GfmBody(table.rowLines(), table.delimiterLine());
+        checkNotSplit(last);
+        return parts;
+    }
+
+    private boolean isCaption(@Nullable Node node) {
+        return node instanceof Paragraph
+                && SpreadsheetParts.isCaption(SpreadsheetParts.captionOf(lines, blockOf(node)));
+    }
+
+    private boolean repeats(TableLines table, List<@Nullable String> columns) {
+        return GfmTableReader.cellsOf(lines.get(table.rowLines().getFirst())).equals(columns);
+    }
+
+    private static TableFile.Body bodyOf(@Nullable Node body, int afterDescription) {
+        if (!(body instanceof FencedCodeBlock code)) {
+            return new TableFile.NoBody(afterDescription);
+        }
+        var spans = body.getSourceSpans();
+        return new TableFile.CodeBody(spans.getFirst().getLineIndex(),
+                spans.getLast().getLineIndex(),
+                code.getFenceCharacter().repeat(code.getOpeningFenceLength()),
+                StringUtils.trimToEmpty(code.getInfo()),
+                code.getFenceIndent());
     }
 
     /**
      * Tells of table rows cut off from the body by a blank line: GFM reads them as a paragraph, so they are lost.
      */
-    private void checkNotSplit(Node body) {
-        if (body instanceof TableLines && body.getNext() instanceof Paragraph next) {
+    private void checkNotSplit(TableLines body) {
+        if (body.getNext() instanceof Paragraph next) {
             var lineIndex = next.getSourceSpans().getFirst().getLineIndex();
             if (lines.get(lineIndex).strip().startsWith("|")) {
                 problem(lineIndex + 1, """
@@ -401,24 +462,31 @@ final class MarkdownTableParser {
     }
 
     /**
-     * Returns the merged ranges of the table that fit it. A range outside the table, over a range before it or over
-     * a value is a problem, and the table is read without it.
+     * Returns the merged ranges of the table that fit it: the ranges of the captions, then those of {@code merges}. A
+     * range outside the table, over a range before it or over a value is a problem, and the table is read without it.
      */
-    private List<CellRangeAddress> mergesThatFit(List<List<@Nullable String>> body, Header header) {
+    private List<CellRangeAddress> mergesThatFit(List<List<@Nullable String>> body,
+                                                 Header header,
+                                                 List<CellRangeAddress> captions) {
         var fit = new ArrayList<CellRangeAddress>();
         // The columns the ranges that fit take in each row, so a range is checked against its own cells alone
         var taken = new HashMap<Integer, BitSet>();
         var width = body.isEmpty() ? 0 : body.getFirst().size();
+        captions.forEach(range -> take(fit, taken, range, width));
         for (var range : header.merges()) {
             if (fits(body, width, range, taken, fit, header)) {
-                fit.add(range);
-                for (var row = range.getFirstRow(); row <= range.getLastRow(); row++) {
-                    taken.computeIfAbsent(row, r -> new BitSet(width))
-                            .set(range.getFirstColumn(), range.getLastColumn() + 1);
-                }
+                take(fit, taken, range, width);
             }
         }
         return fit;
+    }
+
+    private static void take(List<CellRangeAddress> fit, Map<Integer, BitSet> taken, CellRangeAddress range,
+                             int width) {
+        fit.add(range);
+        for (var row = range.getFirstRow(); row <= range.getLastRow(); row++) {
+            taken.computeIfAbsent(row, r -> new BitSet(width)).set(range.getFirstColumn(), range.getLastColumn() + 1);
+        }
     }
 
     private boolean fits(List<List<@Nullable String>> body,

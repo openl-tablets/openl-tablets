@@ -64,11 +64,13 @@ Text after the table is documentation.
 | Description | The text between the front matter and the body: the `description` property of the table | Taken as written; blocks of text joined with a blank line |
 | Comment | A quote (`> …`) or an HTML comment (`<!-- … -->`) above the body | Not compiled, no part of the description |
 | Body | The first GFM table, or the first code block, after the front matter | Every row is a body row, the first one too |
+| Parts of a Spreadsheet | The GFM tables after the body that repeat its first row, a caption above each | See [Spreadsheet Captions](#spreadsheet-captions) |
 | Code block | The body of a `Method` table, one cell | Any fence language; a new file writes `java` |
 | No body | A table of a header alone; the text after its front matter is its description | `Datatype Adult extends Driver` |
 | Text after the body | Documentation: not compiled | Paragraphs, headings, tables |
 
-- One table per file: only the first GFM table or code block is the body. Rows a blank line cuts off it are a problem.
+- One table per file: only the first GFM table or code block is the body, a Spreadsheet going on in its parts. Rows a
+  blank line cuts off it are a problem.
 - A file without front matter is documentation as a whole, even with a GFM table in it.
 - A line of a description starting with `>`, a code fence or `|` is written with `\` before it, as Markdown escapes it,
   so it is not taken for a comment, a code block or the body.
@@ -98,6 +100,46 @@ Text after the table is documentation.
 | Outside the table | Problem `The merged range A1:C1 is outside the table`, range left out |
 | Overlapping | Problem `The merged ranges A1:B1 and B1:B2 overlap`, range left out |
 | Over a value | Problem `The cell B1 has a value, but the merged range A1:B1 covers it`, range left out |
+
+## Spreadsheet Captions
+
+A Spreadsheet groups its steps under captions: in a workbook, a row whose first cell holds the caption and is merged
+across the table. A file writes the table in parts instead, the caption between two of them as a paragraph, so the
+caption needs no merged range.
+
+```
+---
+table: Spreadsheet SpreadsheetResult premium(Double base)
+---
+
+| Step     | Value           |
+|----------|-----------------|
+| Base     | `= base`        |
+| Discount | `= $Base * 0.1` |
+
+Final Calculation
+
+| Step     | Value                 |
+|----------|-----------------------|
+| Total    | `= $Base - $Discount` |
+```
+
+| Rule | Detail |
+|---|---|
+| A part | A GFM table after the body that repeats the first row of the table, the names of its columns |
+| A caption | A paragraph between two parts: a row of the body, its text in the first cell, merged across the table |
+| Blank lines | Around the caption: a line right under a row is a row of the table, as GFM reads it |
+| The repeated first row | Read once: it is no row of the table |
+| Several captions | Paragraphs one after another between two parts, a row each |
+| A part of the first row alone | Allowed: a table that ends with a caption ends with such a part |
+| Merged ranges | `merges` counts the rows of the table put together: the captions in, the repeated first rows out |
+| Text after the last part | Documentation, as after the body of any table |
+| Table types | `Spreadsheet` and `Calc` alone; a table of another type is one GFM table |
+
+- A table after a Spreadsheet that does not repeat its first row is a problem, and the table is read without it.
+- OpenL Studio writes a row merged across a Spreadsheet, with a value in its first cell alone, as a caption. A caption
+  that would read back as other Markdown, such as `# Total`, `- Total` or a text of two lines, stays a merged range.
+- The caption is a step of the Spreadsheet, as the merged row of a workbook is: the text is its name and its value.
 
 ## Cells
 
@@ -136,6 +178,7 @@ Text after the table is documentation.
 | `The description of a table is the text between the front matter and the table, not a property under 'properties'` | The property | Property ignored |
 | `The row has more cells than the first row of the table` | The row | Extra cells ignored |
 | `A blank line cuts these rows off the table above. Remove it: a file holds one table` | The rows | Rows ignored |
+| `The table does not repeat the first row of the Spreadsheet above, so it is no part of it` | The table | Table ignored |
 | `The Environment table of a module is written in Environment.md at the root of the module folder` | The table | Error |
 | `Environment.md holds the Environment table of the module and nothing else` | The table | Error |
 
@@ -148,6 +191,7 @@ Text after the table is documentation.
 |---|---|
 | Change a cell, a row, a column | Only the rows that changed are written; the rest keep their text |
 | Change a property, merge or unmerge cells | Only the keys that changed are written |
+| Merge a row of a Spreadsheet across the table, or unmerge it | The table is split into parts at the caption, or its parts are joined |
 | Change the description | The text above the table is written where its first block stood; the comments stay |
 | Create a table | A new file named after the table, in the folder of its category |
 | Copy a table | Between workbooks and Markdown modules, both ways: the table and its description, without the comments and the text after it |

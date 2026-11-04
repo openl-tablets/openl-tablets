@@ -20,6 +20,9 @@ works.
   repeat the problems of a workbook: merge conflicts, shifting addresses, a hard read.
 - **The header is the YAML front matter** of the file: `table`, `properties` and `merges`, a merged range to a line.
   The body is the first GFM table or code block after it; the text after the body is documentation.
+- **A Spreadsheet is written in parts** rather than with merged captions: a paragraph between two GFM tables is a row
+  merged across the table, and each table after the first repeats the first row (`SpreadsheetParts`). The reader puts
+  the merged row back, so the grid, OpenL Studio and the result are those of a workbook.
 - **The description is the text above the table**, between the front matter and the body (`MarkdownDescription`), as a
   reader of the file expects it: never a property of the front matter. A quote and an HTML comment there are comments,
   so a note for the authors stays out of the description, which OpenL Studio shows and Rule Services puts into the
@@ -91,6 +94,9 @@ flowchart TD
   the GFM tables extension of `commonmark` serves only the tests, which check that the two agree.
 - The syntax of a table stays in its reader and its builder (`MarkdownTableReader`, `MarkdownTableBuilder`): the
   parser gets rows of values, and the writer gives rows of values or the line of a row it keeps.
+- The parts of a Spreadsheet are one body (`TableFile.GfmBody`): the reader gives the captions as rows between the
+  rows of the parts, and the writer ends a part at a row that `SpreadsheetParts.captionRows` takes for a caption. A
+  caption that would read back as other Markdown stays a merged range under `merges`.
 - A problem in the front matter leaves the file without a table. A problem in the body — a merged range that does not
   fit, the cells of a row past those of the first row, rows a blank line cuts off — leaves the table without the part
   that breaks the format. `MarkdownProblem` keeps the line, and the cell when the table shows it.

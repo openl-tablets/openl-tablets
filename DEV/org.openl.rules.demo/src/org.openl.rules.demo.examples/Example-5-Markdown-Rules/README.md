@@ -30,6 +30,8 @@ policy.
 - The first table after the front matter is the body of the table: every row of it, its first row included, is a
   row of the rules table. A table with no body, such as a `Datatype` that adds no field to its parent, is its front
   matter and its description.
+- A `Spreadsheet` groups its steps under captions in parts: a paragraph between two tables is the caption, the row a
+  workbook merges across the table, and each table after the first repeats the names of the columns.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
 - A cell is indented by two `&nbsp;` before its text for each level, as a workbook indents it: `&nbsp;&nbsp;Fee` is

@@ -1,6 +1,9 @@
 package org.openl.excel.parser.markdown;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Markdown file of a rules table: the table, and where its parts stand in the text of the file.
@@ -66,20 +69,62 @@ record TableFile(String text,
     }
 
     /**
-     * A body written as a GFM table.
+     * A body written as GFM tables: one, or the parts of a Spreadsheet, a caption above each part after the first
+     * (see {@link SpreadsheetParts}).
      *
-     * @param rowLines      the line of each row, the first row included
-     * @param delimiterLine the line of the delimiter row under the first row
+     * @param parts the tables of the body in the order they are written
      */
-    record GfmBody(List<Integer> rowLines, int delimiterLine) implements Body {
+    record GfmBody(List<Part> parts) implements Body {
 
         @Override
         public int firstLine() {
-            return rowLines.getFirst();
+            return parts.getFirst().rowLines().getFirst();
         }
 
         @Override
         public int lastLine() {
+            return parts.getLast().lastLine();
+        }
+
+        /**
+         * Returns the line of each row of the table body: the rows of the first part, then for each part after it the
+         * first line of each caption above it and its rows but the first, which repeats the first row of the table.
+         */
+        List<Integer> rowLines() {
+            var rows = new ArrayList<>(parts.getFirst().rowLines());
+            parts.stream().skip(1).forEach(part -> {
+                part.captions().forEach(caption -> rows.add(caption.firstLine()));
+                rows.addAll(part.rowLines().subList(1, part.rowLines().size()));
+            });
+            return rows;
+        }
+
+        /**
+         * Returns the caption blocks by the rows of the table body they are.
+         */
+        Map<Integer, Block> captions() {
+            var captions = new HashMap<Integer, Block>();
+            var row = parts.getFirst().rowLines().size();
+            for (var part : parts.subList(1, parts.size())) {
+                for (var caption : part.captions()) {
+                    captions.put(row++, caption);
+                }
+                row += part.rowLines().size() - 1;
+            }
+            return captions;
+        }
+    }
+
+    /**
+     * A GFM table of the body.
+     *
+     * @param captions      the captions written above the table, a paragraph each; none above the first table
+     * @param rowLines      the line of each row, the first row included
+     * @param delimiterLine the line of the delimiter row under the first row
+     */
+    record Part(List<Block> captions, List<Integer> rowLines, int delimiterLine) {
+
+        int lastLine() {
             return Math.max(rowLines.getLast(), delimiterLine);
         }
     }

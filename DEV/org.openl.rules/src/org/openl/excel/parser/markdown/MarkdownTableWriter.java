@@ -3,6 +3,7 @@ package org.openl.excel.parser.markdown;
 import java.io.StringReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +39,10 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
  * <p>A changed row is written with its cells padded to the widths of the delimiter row, so a table aligned by hand
  * stays aligned while a value fits (see {@link GfmTableBuilder}). A body of one cell, read from a code block, stays a
  * code block.
+ *
+ * <p>A Spreadsheet is written in parts: a row that holds a caption, merged across the table, is written as a paragraph
+ * between two GFM tables rather than as a merged range, and the next table repeats the first row (see
+ * {@link SpreadsheetParts}).
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class MarkdownTableWriter {
@@ -105,8 +110,9 @@ final class MarkdownTableWriter {
             text.add(PROPERTIES + ":");
             properties.forEach((name, value) -> text.add(INDENT + rendered(name, value)));
         }
-        if (!table.merges().isEmpty()) {
-            text.addAll(mergesLines(table.merges()));
+        var merges = mergesToWrite(table);
+        if (!merges.isEmpty()) {
+            text.addAll(mergesLines(merges));
         }
         text.add(DELIMITER);
         var description = MarkdownDescription.linesOf(descriptionOf(table));
@@ -144,6 +150,31 @@ final class MarkdownTableWriter {
 
     private static @Nullable String descriptionOf(RulesTable table) {
         return table.properties().get(MarkdownDescription.PROPERTY);
+    }
+
+    /**
+     * Returns the merged ranges written under {@code merges}: all but those of the captions, which are paragraphs.
+     */
+    private static List<CellRangeAddress> mergesToWrite(RulesTable table) {
+        return SpreadsheetParts.mergesBesides(table.merges(), SpreadsheetParts.captionRows(table));
+    }
+
+    /**
+     * Returns the merged ranges of the table of a file as written under {@code merges}.
+     */
+    private static List<CellRangeAddress> mergesWritten(TableFile file) {
+        return SpreadsheetParts.mergesBesides(file.table().merges(), captionRowsOf(file));
+    }
+
+    /**
+     * Returns the rows of the table of a file written as captions.
+     */
+    private static BitSet captionRowsOf(TableFile file) {
+        var rows = new BitSet();
+        if (file.body() instanceof TableFile.GfmBody gfm) {
+            gfm.captions().keySet().forEach(rows::set);
+        }
+        return rows;
     }
 
     // Description
@@ -207,9 +238,11 @@ final class MarkdownTableWriter {
     private static List<String> frontMatter(TableFile file, RulesTable table) {
         var original = file.table();
         var lines = file.lines();
+        var toWrite = mergesToWrite(table);
+        var merges = RulesTable.mergesText(toWrite);
         if (original.header().equals(table.header())
                 && sameProperties(original, table)
-                && RulesTable.mergesText(original.merges()).equals(RulesTable.mergesText(table.merges()))) {
+                && RulesTable.mergesText(mergesWritten(file)).equals(merges)) {
             return lines.subList(0, file.frontMatterEnd() + 1);
         }
         var keys = file.keys();
@@ -219,9 +252,8 @@ final class MarkdownTableWriter {
         text.addAll(key(file, TABLE, table.header()));
         text.addAll(properties(file, table));
         // Ranges the table is read without stay as written until the ranges change, even when no range is left
-        var merges = RulesTable.mergesText(table.merges());
         if (!merges.isEmpty() || written(file, MERGES, merges).isPresent()) {
-            text.addAll(written(file, MERGES, merges).orElseGet(() -> mergesLines(table.merges())));
+            text.addAll(written(file, MERGES, merges).orElseGet(() -> mergesLines(toWrite)));
         }
         keys.stream()
                 .filter(key -> !TABLE_KEYS.contains(key.name()))
@@ -358,7 +390,7 @@ final class MarkdownTableWriter {
 
     private static List<String> body(TableFile file, RulesTable table) {
         var source = file.body();
-        if (file.table().body().equals(table.body())) {
+        if (file.table().body().equals(table.body()) && captionRowsOf(file).equals(SpreadsheetParts.captionRows(table))) {
             return file.lines().subList(source.firstLine(), source.lastLine() + 1);
         }
         if (table.body().isEmpty()) {
@@ -413,43 +445,146 @@ final class MarkdownTableWriter {
     }
 
     /**
-     * Writes the body as a GFM table, keeping the rows of the file that did not change; a new file has none.
+     * Writes the body as GFM tables, keeping the rows of the file that did not change; a new file has none. A caption
+     * of a Spreadsheet ends a table: it is written as a paragraph, and the next table repeats the first row.
      */
     private static List<String> gfmTable(@Nullable TableFile file, RulesTable table) {
         var width = table.width();
-        var lines = file == null ? List.<String>of() : file.lines();
         // The rows of the file are kept only while the table keeps its columns
         var source = file != null && file.body() instanceof TableFile.GfmBody gfm && file.table().width() == width
-                ? gfm
+                ? Source.of(file.lines(), gfm)
                 : null;
-        var builder = source == null
-                ? GfmTableBuilder.of(width)
-                : GfmTableBuilder.over(lines.get(source.delimiterLine()), width);
-        var rowLines = source == null ? List.<Integer>of() : source.rowLines();
         var original = source == null || file == null ? List.<List<@Nullable String>>of() : file.table().body();
         var rows = table.body();
+        var kept = keptRows(original, rows);
+        var captions = SpreadsheetParts.captionRows(table);
+        var text = new ArrayList<String>();
+        GfmTableBuilder builder = null;
+        var parts = 0;
+        for (var i = 0; i < rows.size(); i++) {
+            var row = kept[i] >= 0 && source != null ? source.row(kept[i], captions.get(i)) : null;
+            if (captions.get(i)) {
+                if (builder != null) {
+                    text.addAll(builder.build());
+                    builder = null;
+                }
+                text.add("");
+                text.addAll(row == null ? List.of(Objects.requireNonNull(rows.get(i).getFirst())) : row);
+            } else {
+                if (builder == null) {
+                    builder = startPart(source, parts++, width, rows.getFirst(), kept[0] == 0, text);
+                }
+                if (row == null) {
+                    builder.row(rows.get(i));
+                } else {
+                    builder.written(row.getFirst());
+                }
+            }
+        }
+        // A table ending with a caption ends with a part of its first row alone, so the caption reads back
+        if (builder == null) {
+            builder = startPart(source, parts, width, rows.getFirst(), kept[0] == 0, text);
+        }
+        text.addAll(builder.build());
+        return text;
+    }
+
+    /**
+     * Starts a GFM table of the body. A table after the first one stands after a blank line and starts with the first
+     * row of the body, as the table of the file writes it while that row is the same.
+     */
+    private static GfmTableBuilder startPart(@Nullable Source source,
+                                             int part,
+                                             int width,
+                                             List<@Nullable String> firstRow,
+                                             boolean firstRowKept,
+                                             List<String> text) {
+        var builder = source == null ? GfmTableBuilder.of(width) : source.builder(part, width);
+        if (part > 0) {
+            text.add("");
+            var written = firstRowKept && source != null ? source.firstRow(part) : null;
+            if (written == null) {
+                builder.row(firstRow);
+            } else {
+                builder.written(written);
+            }
+        }
+        return builder;
+    }
+
+    /**
+     * Returns for each row of the table the row of the original body it keeps the lines of, or -1 for a row written
+     * anew.
+     */
+    private static int[] keptRows(List<List<@Nullable String>> original, List<List<@Nullable String>> rows) {
         // The rows above and below the change keep their lines as they stand; only the rows between are looked up
         var top = sameAtTop(original, rows);
         var bottom = sameAtBottom(original, rows, top);
         var unchanged = rowsOf(original, top, original.size() - bottom);
         var lastKept = top - 1;
+        var kept = new int[rows.size()];
         for (var i = 0; i < rows.size(); i++) {
-            int kept;
             if (i < top) {
-                kept = i;
+                kept[i] = i;
             } else if (i >= rows.size() - bottom) {
-                kept = original.size() - rows.size() + i;
+                kept[i] = original.size() - rows.size() + i;
             } else {
-                kept = keptRow(unchanged, rows.get(i), lastKept);
-                lastKept = Math.max(lastKept, kept);
-            }
-            if (kept < 0) {
-                builder.row(rows.get(i));
-            } else {
-                builder.written(lines.get(rowLines.get(kept)));
+                kept[i] = keptRow(unchanged, rows.get(i), lastKept);
+                lastKept = Math.max(lastKept, kept[i]);
             }
         }
-        return builder.build();
+        return kept;
+    }
+
+    /**
+     * The GFM tables of a file a body is written over.
+     *
+     * @param lines    the lines of the file
+     * @param body     the tables of the body in the file
+     * @param rowLines the line of each row of the body
+     * @param captions the caption blocks by the rows of the body they are
+     */
+    private record Source(List<String> lines,
+                          TableFile.GfmBody body,
+                          List<Integer> rowLines,
+                          Map<Integer, TableFile.Block> captions) {
+
+        static Source of(List<String> lines, TableFile.GfmBody body) {
+            return new Source(lines, body, body.rowLines(), body.captions());
+        }
+
+        /**
+         * Returns the lines of a row of the original body, or nothing when the row is a caption and the row written is
+         * not, or the other way round.
+         */
+        @Nullable
+        List<String> row(int original, boolean caption) {
+            var block = captions.get(original);
+            if (caption != (block != null)) {
+                return null;
+            }
+            return block == null
+                    ? List.of(lines.get(rowLines.get(original)))
+                    : lines.subList(block.firstLine(), block.lastLine() + 1);
+        }
+
+        /**
+         * Returns a builder of a table of the body, aligned as the table of the file at that place, or as the first
+         * table of the file when it has fewer.
+         */
+        GfmTableBuilder builder(int part, int width) {
+            var parts = body.parts();
+            return GfmTableBuilder.over(lines.get(parts.get(Math.min(part, parts.size() - 1)).delimiterLine()), width);
+        }
+
+        /**
+         * Returns the first row of a table of the file as written, or nothing when the file has fewer tables.
+         */
+        @Nullable
+        String firstRow(int part) {
+            var parts = body.parts();
+            return part < parts.size() ? lines.get(parts.get(part).rowLines().getFirst()) : null;
+        }
     }
 
     /**

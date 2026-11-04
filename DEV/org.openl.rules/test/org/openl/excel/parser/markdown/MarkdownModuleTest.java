@@ -77,6 +77,14 @@ class MarkdownModuleTest {
     }
 
     @Test
+    void captionBetweenThePartsOfASpreadsheetIsARowMergedAcross() {
+        var caption = table("Spreadsheet SpreadsheetResult premium").getGridTable().getCell(0, 4);
+
+        assertEquals("Final Calculation", caption.getStringValue());
+        assertEquals(2, caption.getWidth());
+    }
+
+    @Test
     void subFoldersGroupTheTables() {
         var greeting = table("SmartRules String greeting");
 
