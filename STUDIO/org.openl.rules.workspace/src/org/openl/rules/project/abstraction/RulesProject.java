@@ -1,6 +1,9 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +30,7 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.workspace.ProjectId;
@@ -34,6 +38,7 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.FileUtils;
+import org.openl.util.HashingUtils;
 
 @Slf4j
 public class RulesProject extends UserWorkspaceProject {
@@ -386,6 +391,120 @@ public class RulesProject extends UserWorkspaceProject {
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Tells again whether the project is modified, by what its files hold now.
+     *
+     * <p>Serves a write that went past the workspace, such as a restore of an earlier version of a workbook. The
+     * project is modified when a file differs from the one it was opened or saved with, and is not otherwise.
+     *
+     * <p>A file written back as the revision the project was opened or saved at holds it is no change, though it was
+     * written. Each changed file that kept its size is compared with that revision, whatever the other files are. A
+     * file whose revision cannot be read stays changed.
+     *
+     * <p>A project that is not opened, or is edited in place, is left as it is.
+     *
+     * @throws ProjectException if the project folder cannot be read
+     */
+    public void settleLocalChanges() throws ProjectException {
+        if (isRepositoryOnly() || isInPlace()) {
+            return;
+        }
+        var registry = localRepository.getMetainfoRegistry();
+        var metainfo = registry.get(localFolderName);
+        if (isLocalOnly() || metainfo == null) {
+            // A project with no revision has nothing to compare its files with
+            registry.settle(localFolderName, null, Map.of());
+            return;
+        }
+        registry.settle(localFolderName, metainfo.version(), asInRevision(getLocalChanges().modified(), metainfo));
+    }
+
+    /**
+     * The new baselines of the given files that hold what the revision recorded for the project holds.
+     *
+     * @param paths    the files changed since the project was opened or saved, by their paths in the project
+     * @param metainfo what the project was opened or saved with
+     */
+    private Map<String, ProjectMetainfo.FileBaseline> asInRevision(List<String> paths,
+                                                                   ProjectMetainfo metainfo) {
+        var unchanged = new HashMap<String, ProjectMetainfo.FileBaseline>();
+        for (var path : paths) {
+            var baseline = metainfo.files().get(path);
+            var settled = baseline == null ? null : asInRevision(path, baseline, metainfo.version());
+            if (settled != null) {
+                unchanged.put(path, settled);
+            }
+        }
+        return unchanged;
+    }
+
+    /**
+     * The new baseline of a file that holds what the revision holds; {@code null} when it holds something else or
+     * either of them cannot be read.
+     */
+    private ProjectMetainfo.@Nullable FileBaseline asInRevision(String path,
+                                                                ProjectMetainfo.FileBaseline baseline,
+                                                                @Nullable String version) {
+        var projectFolder = localRepository.getRoot().resolve(localFolderName).normalize();
+        var file = projectFolder.resolve(path.substring(1)).normalize();
+        if (!file.startsWith(projectFolder)) {
+            // The changes are listed by a walk of the project folder: a path that leads out of it is no file of it
+            return null;
+        }
+        try {
+            // Read before the content: a file written again meanwhile is not taken as the one compared.
+            var attributes = Files.readAttributes(file, BasicFileAttributes.class);
+            if (baseline.size() != attributes.size() || !isAsInRevision(file, path, version)) {
+                return null;
+            }
+            return new ProjectMetainfo.FileBaseline(baseline.uniqueId(),
+                    attributes.size(),
+                    attributes.lastModifiedTime().toMillis(),
+                    baseline.sourceStamp());
+        } catch (IOException e) {
+            log.warn("Cannot compare '{}' of the '{}' project with its revision. The file stays changed.",
+                    path,
+                    localFolderName,
+                    e);
+            return null;
+        }
+    }
+
+    private boolean isAsInRevision(Path file, String path, @Nullable String version) throws IOException {
+        try (var revision = readRevisionFile(path, version)) {
+            if (revision == null) {
+                return false;
+            }
+            try (var local = Files.newInputStream(file); var stream = revision.getStream()) {
+                return HashingUtils.sha256Hex(local).equals(HashingUtils.sha256Hex(stream));
+            }
+        }
+    }
+
+    /**
+     * The file of the design project as the given revision holds it, or {@code null} when the revision holds no such
+     * file. A design repository without versions holds the file as it is now; one with versions holds nothing for an
+     * unknown revision.
+     *
+     * @param path    the file, by its path in the project
+     * @param version the revision the project was opened or saved at
+     */
+    private @Nullable FileItem readRevisionFile(String path, @Nullable String version) throws IOException {
+        var name = designFolderName + path;
+        var features = designRepository.supports();
+        if (!features.versions()) {
+            return features.folders()
+                    ? designRepository.read(name)
+                    : new ZipFolderRepository(designRepository, designFolderName, null).read(name);
+        }
+        if (version == null) {
+            return null;
+        }
+        return features.folders()
+                ? designRepository.readHistory(name, version)
+                : new ZipFolderRepository(designRepository, designFolderName, version).read(name);
     }
 
     private boolean isRepositoryOnly() {

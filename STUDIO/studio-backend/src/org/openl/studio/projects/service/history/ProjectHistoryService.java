@@ -128,6 +128,24 @@ public class ProjectHistoryService {
         reloadOpenedModule(webStudio, currentSourceFile);
         markAsCurrent(fileToRestore);
         removeCurrentVersion(currentVersion);
+        settleLocalChanges(project);
+    }
+
+    /**
+     * Tells the project modified by what its files hold now: the workbook is written past the workspace, and one
+     * restored as it was saved leaves no change to save.
+     *
+     * <p>The restore is done already, so a failure to tell does not fail it: the project is then taken as modified.
+     */
+    private static void settleLocalChanges(RulesProject project) {
+        try {
+            project.settleLocalChanges();
+        } catch (ProjectException | IllegalStateException e) {
+            log.warn("Cannot tell whether the '{}' project is modified after a restore. It is taken as modified.",
+                    project.getBusinessName(),
+                    e);
+            project.setModified();
+        }
     }
 
     /**

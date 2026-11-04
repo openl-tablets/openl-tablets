@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,7 +37,8 @@ import org.openl.util.PropertiesUtils;
  *
  * <p>The registry keeps one properties file per project under the {@code .metainfo} folder of the user
  * workspace directory. Project folders contain only project files. A record is written when the project
- * is opened or saved, and removed when the project is closed; editing project files never changes it.
+ * is opened or saved, and removed when the project is closed. Editing project files never changes it, except
+ * when a file is written back as the synchronized revision holds it ({@link #settle}).
  *
  * <p>The registry is authoritative. On load it reconciles the disk state: a record without a project
  * folder is dropped, a project folder without a record is deleted, an unreadable record is dropped
@@ -45,7 +47,8 @@ import org.openl.util.PropertiesUtils;
  *
  * <p>All records are cached in memory and written through. The local-changes state is not stored:
  * it is reconstructed on load by comparing project files against the recorded baselines and then
- * maintained by {@link #markDirty} notifications from the local repository.
+ * maintained by {@link #markDirty} notifications from the local repository. A write that goes past the local
+ * repository has the state reconstructed for its project by {@link #settle}.
  *
  * <p>One instance per user must be shared by all sessions and channels of that user.
  *
@@ -53,7 +56,7 @@ import org.openl.util.PropertiesUtils;
  */
 @Slf4j
 @NullMarked
-public class MetainfoRegistry {
+public final class MetainfoRegistry {
 
     public static final String METAINFO_FOLDER = ".metainfo";
 
@@ -101,8 +104,7 @@ public class MetainfoRegistry {
     /**
      * Returns the metainfo of the project, or {@code null} when the project is not registered.
      */
-    @Nullable
-    public ProjectMetainfo get(String projectName) {
+    public @Nullable ProjectMetainfo get(String projectName) {
         return records.get(projectName);
     }
 
@@ -293,8 +295,7 @@ public class MetainfoRegistry {
      * <p>The lock is reentrant: registry operations on the same project may be called inside the
      * action.
      */
-    @Nullable
-    public <T, E extends Exception> T runLocked(String projectName, LockedAction<T, E> action) throws E {
+    public <T, E extends Exception> @Nullable T runLocked(String projectName, LockedAction<T, E> action) throws E {
         return runLocked(projectName, projectName, action);
     }
 
@@ -305,8 +306,7 @@ public class MetainfoRegistry {
      * <p>Both locks are taken in a deterministic order, so two concurrent callers cannot deadlock.
      * The locks are reentrant, so both names may be the same project.
      */
-    @Nullable
-    private <T, E extends Exception> T runLocked(String projectName,
+    private <T, E extends Exception> @Nullable T runLocked(String projectName,
                                                  String secondProjectName,
                                                  LockedAction<T, E> action) throws E {
         var directOrder = projectName.compareTo(secondProjectName) <= 0;
@@ -348,6 +348,88 @@ public class MetainfoRegistry {
     }
 
     /**
+     * Tells again whether the project has local changes, by what its files hold now.
+     *
+     * <p>Each given file is taken as unchanged since the last synchronization: its baseline is replaced with the given
+     * one, which keeps the revision id and the source stamp it had. A file keeps its baseline when it was written
+     * again meanwhile, so that its size or modification time no longer matches the given baseline, or when the
+     * project was saved or opened again meanwhile, so that the record names another revision or the baseline of the
+     * file another revision of it.
+     *
+     * <p>The local-changes state is then recomputed from the project files, as on load: a file written past the local
+     * repository is told changed too.
+     *
+     * @param projectName the project folder in the user workspace
+     * @param version     the revision of the project the files were compared with
+     * @param unchanged   the new baselines of the files unchanged since the last synchronization, by path
+     */
+    public void settle(String projectName, @Nullable String version, Map<String, FileBaseline> unchanged) {
+        var lock = lockOf(projectName);
+        lock.lock();
+        try {
+            var metainfo = records.get(projectName);
+            if (metainfo != null && Objects.equals(metainfo.version(), version)) {
+                metainfo = withUnchanged(projectName, metainfo, unchanged);
+            }
+            recomputeLocalChanges(projectName, metainfo);
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot settle the metainfo of the '" + projectName + "' project.", e);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private ProjectMetainfo withUnchanged(String projectName,
+                                          ProjectMetainfo metainfo,
+                                          Map<String, FileBaseline> unchanged) throws IOException {
+        var files = new HashMap<>(metainfo.files());
+        var projectDir = userDir.resolve(projectName).normalize();
+        unchanged.forEach((path, baseline) -> {
+            if (isSameRevision(files.get(path), baseline) && isAsBaseline(projectDir, path, baseline)) {
+                files.put(path, baseline);
+            }
+        });
+        if (files.equals(metainfo.files())) {
+            return metainfo;
+        }
+        var settled = metainfo.withFiles(files);
+        store(userDir, projectName, settled);
+        records.put(projectName, settled);
+        return settled;
+    }
+
+    /**
+     * Whether the recorded baseline still names the revision of the file the new one was compared with: a project
+     * saved or opened again meanwhile records another one.
+     */
+    private static boolean isSameRevision(@Nullable FileBaseline recorded, FileBaseline baseline) {
+        return recorded != null
+                && recorded.size() == baseline.size()
+                && Objects.equals(recorded.uniqueId(), baseline.uniqueId())
+                && Objects.equals(recorded.sourceStamp(), baseline.sourceStamp());
+    }
+
+    /**
+     * Whether the file at the path in the project still has the size and the modification time of the baseline. A
+     * path that leads out of the project folder names no file of it.
+     */
+    private static boolean isAsBaseline(Path projectDir, String path, FileBaseline baseline) {
+        var file = projectDir.resolve(path.substring(1)).normalize();
+        if (!file.startsWith(projectDir)) {
+            return false;
+        }
+        try {
+            var attributes = Files.readAttributes(file, BasicFileAttributes.class);
+            return attributes.isRegularFile()
+                    && attributes.size() == baseline.size()
+                    && attributes.lastModifiedTime().toMillis() == baseline.modifiedAt();
+        } catch (IOException e) {
+            log.debug("Cannot read the attributes of {}", file, e);
+            return false;
+        }
+    }
+
+    /**
      * Returns whether the project has local changes.
      */
     public boolean isDirty(String projectName) {
@@ -360,8 +442,7 @@ public class MetainfoRegistry {
      * <p>Returns {@code null} when the file has no recorded baseline or differs from it by size or
      * modification time, which means the local content no longer matches any known repository revision.
      */
-    @Nullable
-    public String uniqueId(String projectName, String path, long size, long modifiedAt) {
+    public @Nullable String uniqueId(String projectName, String path, long size, long modifiedAt) {
         var metainfo = records.get(projectName);
         if (metainfo == null) {
             return null;
@@ -376,8 +457,7 @@ public class MetainfoRegistry {
     /**
      * Returns the recorded baseline of the file, or {@code null} when there is none.
      */
-    @Nullable
-    public FileBaseline baseline(String projectName, String path) {
+    public @Nullable FileBaseline baseline(String projectName, String path) {
         var metainfo = records.get(projectName);
         return metainfo == null ? null : metainfo.files().get(path);
     }
@@ -454,7 +534,7 @@ public class MetainfoRegistry {
         }
     }
 
-    private void recomputeLocalChanges(String projectName, ProjectMetainfo metainfo) {
+    private void recomputeLocalChanges(String projectName, @Nullable ProjectMetainfo metainfo) {
         if (hasLocalChanges(projectName, metainfo)) {
             dirtyProjects.add(projectName);
         } else {
@@ -512,7 +592,7 @@ public class MetainfoRegistry {
         FileUtils.deleteQuietly(userDir.resolve(folder).toFile());
     }
 
-    private boolean hasLocalChanges(String projectName, ProjectMetainfo metainfo) {
+    private boolean hasLocalChanges(String projectName, @Nullable ProjectMetainfo metainfo) {
         try {
             return !localChanges(projectName, metainfo).isEmpty();
         } catch (IOException e) {
@@ -622,8 +702,7 @@ public class MetainfoRegistry {
         return baselines;
     }
 
-    @Nullable
-    private static Long parseLong(@Nullable String value) {
+    private static @Nullable Long parseLong(@Nullable String value) {
         return value == null ? null : Long.valueOf(value);
     }
 

@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.zip.ZipInputStream;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -66,16 +68,23 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
-    public FileItem read(String name) throws IOException {
+    public @Nullable FileItem read(String name) throws IOException {
         var artefactName = name.substring(zipPath.length() + 1);
 
         var zipInputStream = getZipInputStream();
-        ZipEntry entry;
-        while ((entry = zipInputStream.getNextEntry()) != null) {
-            if (entry.getName().equals(artefactName)) {
-                return new FileItem(createFileData(entry), zipInputStream);
+        try {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                if (entry.getName().equals(artefactName)) {
+                    return new FileItem(createFileData(entry), zipInputStream);
+                }
             }
+        } catch (IOException | RuntimeException e) {
+            IOUtils.closeQuietly(zipInputStream);
+            throw e;
         }
+        // The archive holds no such file: its stream is not handed over, so it is closed here.
+        zipInputStream.close();
         return null;
     }
 
@@ -115,7 +124,7 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
-    public FileItem readHistory(String name, String version) throws IOException {
+    public @Nullable FileItem readHistory(String name, String version) throws IOException {
         return read(name);
     }
 
@@ -151,6 +160,9 @@ class ZipFolderRepository implements Repository {
 
     private ZipInputStream getZipInputStream() throws IOException {
         FileItem fileItem = version == null ? delegate.read(zipPath) : delegate.readHistory(zipPath, version);
+        if (fileItem == null) {
+            throw new FileNotFoundException("The '%s' archive is not found.".formatted(zipPath));
+        }
         return new ZipInputStream(fileItem.getStream());
     }
 

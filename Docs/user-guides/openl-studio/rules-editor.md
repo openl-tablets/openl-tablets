@@ -203,6 +203,18 @@ To compare module versions, proceed as follows:
 
     When **Restore** is clicked, the corresponding changes are restored but this action is not added to the history as a change.
 
+    The project is modified after a restore only when its files differ from the revision it was last opened or saved
+    at. The oldest version of the list is the module as that revision holds it, since saving the project clears the
+    list. Restoring it leaves the module with no unsaved change: when no other file was changed, the project can be
+    closed or switched to another branch without saving or discarding anything. Restoring a later version makes the
+    project modified again.
+
+    > [!Note]
+    > A repository that keeps no versions, such as a folder on the file system, holds only the files as they are now,
+    > so a restored module is compared with them. A module another program changed there since the project was opened
+    > stays modified after the restore. A project that is not in a repository yet has no revision to compare with and
+    > stays modified after any restore.
+
 ### Defining Project Dependencies
 
 A project dependency can be defined when a particular rule project, or **root project**, depends on contents of another project, or **dependency project**. Project dependencies are checked when projects are deployed to the deployment repository. OpenL Studio displays warning messages when a user deploys projects with conflicting dependencies.
