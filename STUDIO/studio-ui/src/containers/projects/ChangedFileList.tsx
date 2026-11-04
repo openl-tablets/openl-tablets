@@ -12,22 +12,6 @@ import { basename, parentFolder } from './projectPaths'
  */
 export const LIST_HEIGHT = 320
 
-/**
- * A path on one line of a row whose other parts stay in sight. A path too long for the line loses the end of its
- * folder rather than the name of the file, and shows whole when pointed at.
- */
-export const FilePath: React.FC<{ path: string }> = ({ path }) => {
-    const folder = parentFolder(path)
-    return (
-        <Typography.Text
-            ellipsis={folder ? { tooltip: path, suffix: `/${basename(path)}` } : { tooltip: path }}
-            style={{ flex: 1, minWidth: 0 }}
-        >
-            {folder || path}
-        </Typography.Text>
-    )
-}
-
 interface ChangesHeaderProps {
     /** What the files belong to, such as a project. */
     name: string

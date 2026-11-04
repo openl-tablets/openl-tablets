@@ -72,8 +72,7 @@ public class MergeChangesService {
      * What a merge of one branch into another would bring in, or nothing when it cannot be told.
      *
      * <p>A project the source branch holds and the target branch does not is added, and one only the target branch
-     * holds is deleted. The files both branches changed are named: the merge combines them or reports them as
-     * conflicts, which is known only once it has run.
+     * holds is deleted. The files both branches changed are named, and those of them that may conflict.
      *
      * @param project    the project the merge is asked for
      * @param repository the repository of the project
@@ -111,15 +110,20 @@ public class MergeChangesService {
                         .current(group.current())
                         .status(group.status())
                         .changedFiles(group.files().size())
-                        .changedInBoth(group.files()
-                                .stream()
-                                .map(FileChange::path)
-                                .filter(scope.changedInBoth()::contains)
-                                .sorted(ConflictGroup.FILE_ORDER)
-                                .toList())
+                        .changedInBoth(pathsOf(group.files(), scope.changedInBoth()))
+                        .conflicts(pathsOf(group.files(), scope.conflicts()))
                         .build())
                 .toList();
         return new MergeScopeView(projects, changed.hidden());
+    }
+
+    /** The paths of the files among the given ones, ordered as the Merge Summary orders them. */
+    private static List<String> pathsOf(List<FileChange> files, Set<String> among) {
+        return files.stream()
+                .map(FileChange::path)
+                .filter(among::contains)
+                .sorted(ConflictGroup.FILE_ORDER)
+                .toList();
     }
 
     /**

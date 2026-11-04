@@ -500,7 +500,7 @@ export function registerProjectMergeHandlers(): void {
     name: "check_project_merge",
     title: "Check Project Merge",
     description:
-      "Check a merge without changing Git. It is no conflict preview: 'mergeable' means the source has changes the target lacks, and only openl_merge_project_branches finds conflicts; 'up-to-date' means the target holds the source. canMerge tells whether Studio allows the attempt after permission, protection and lock checks, and scope what the merge brings in: every project the source changed, its file count, and the files both branches changed.",
+      "Check a merge without changing Git: 'mergeable' means the source has changes the target lacks; 'up-to-date' means the target holds the source. canMerge tells whether Studio allows the attempt after permission, protection and lock checks, and scope what the merge brings in: every project the source changed, its file count, the files both branches changed, and conflicts: those that may conflict, estimated without merging.",
     schema: schemas.checkProjectMergeSchema,
     annotations: {
       readOnlyHint: true,

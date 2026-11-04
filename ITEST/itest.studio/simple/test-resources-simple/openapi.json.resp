@@ -31971,6 +31971,13 @@ Content-Type: application/json
               "type": "string"
             }
           },
+          "conflicts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
           "current": {
             "type": "boolean",
             "description": "***"

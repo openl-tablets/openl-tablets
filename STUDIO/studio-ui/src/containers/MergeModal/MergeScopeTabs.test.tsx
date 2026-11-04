@@ -28,7 +28,8 @@ const receiveScope: MergeScope = {
             current: true,
             status: 'modified',
             changedFiles: 3,
-            changedInBoth: ['DESIGN/rules/Pricing/rules/Main.xlsx'],
+            changedInBoth: ['DESIGN/rules/Pricing/rules/Main.xlsx', 'DESIGN/rules/Pricing/rules.xml'],
+            conflicts: ['DESIGN/rules/Pricing/rules/Main.xlsx'],
         },
         {
             id: 'cmVwbzpSYXRpbmc',
@@ -58,10 +59,64 @@ describe('MergeScopeTabs', () => {
         expect(within(projects[2]!).getByText('merge:scope.outside')).toBeInTheDocument()
     })
 
-    it('names the files both branches changed', () => {
+    it('names the files both branches changed, each a conflict or merged by itself', () => {
         render(<MergeScopeTabs receive={checked(receiveScope)} send={checked()} />)
 
-        expect(screen.getByTestId('merge-scope-changed-in-both')).toHaveTextContent('DESIGN/rules/Pricing/rules/Main.xlsx')
+        const [workbook, rules] = screen.getAllByTestId('merge-scope-changed-in-both-file')
+        expect(workbook).toHaveTextContent('Main.xlsxDESIGN/rules/Pricing/rules')
+        expect(within(workbook!).getByTestId('file-conflict')).toBeInTheDocument()
+        expect(rules).toHaveTextContent('rules.xmlDESIGN/rules/Pricing')
+        expect(within(rules!).getByTestId('file-merges-by-itself')).toBeInTheDocument()
+        expect(screen.getByTestId('merge-scope-conflicts')).toHaveTextContent('merge:scope.conflicts:1')
+    })
+
+    it('compares a file both branches changed the way the option merges, inside its project', async () => {
+        const open = vi.spyOn(window, 'open').mockReturnValue(null)
+        render(<MergeScopeTabs receive={checked(receiveScope)} send={checked()} />)
+
+        await userEvent.click(screen.getAllByTestId('merge-scope-changed-in-both-file')[0]!)
+
+        const address = new URL(String(open.mock.calls[0]![0]), 'http://studio')
+        // Receiving: what their branch brings into yours, your branch the earlier side.
+        expect(Object.fromEntries(address.searchParams)).toEqual({
+            projectId: 'cmVwbzpQcmljaW5n',
+            branch: 'feature',
+            base: 'main',
+            revision: 'feature',
+            file: 'rules/Main.xlsx',
+            yours: 'earlier',
+        })
+        open.mockRestore()
+    })
+
+    it('compares a file the other way round when your updates are sent', async () => {
+        const open = vi.spyOn(window, 'open').mockReturnValue(null)
+        const sent: CheckMergeResult = { ...checked(receiveScope), sourceBranch: 'main', targetBranch: 'feature' }
+        render(<MergeScopeTabs receive={checked()} send={sent} />)
+
+        await userEvent.click(screen.getAllByRole('tab')[1]!)
+        await userEvent.click(screen.getAllByTestId('merge-scope-changed-in-both-file')[0]!)
+
+        const address = new URL(String(open.mock.calls[0]![0]), 'http://studio')
+        // Sending: what your branch brings into theirs, your branch the later side.
+        expect(Object.fromEntries(address.searchParams)).toEqual({
+            projectId: 'cmVwbzpQcmljaW5n',
+            branch: 'main',
+            base: 'feature',
+            revision: 'main',
+            file: 'rules/Main.xlsx',
+        })
+        open.mockRestore()
+    })
+
+    it('tells a merge free of conflicts only when it reaches no project the user may not read', () => {
+        const clean: MergeScope = { projects: [{ ...receiveScope.projects[0]!, conflicts: []}], hiddenProjects: 0 }
+        const { rerender } = render(<MergeScopeTabs receive={checked(clean)} send={checked()} />)
+
+        expect(screen.getByTestId('merge-scope-no-conflicts')).toBeInTheDocument()
+
+        rerender(<MergeScopeTabs receive={checked({ ...clean, hiddenProjects: 1 })} send={checked()} />)
+        expect(screen.queryByTestId('merge-scope-no-conflicts')).toBeNull()
     })
 
     it('warns that the merge reaches other projects and counts those the user may not read', () => {

@@ -63,6 +63,8 @@ export interface ProjectScope extends ChangedProject {
     changedFiles: number
     /** The files both branches changed: Sync merges them by itself or reports them as conflicts. */
     changedInBoth?: string[]
+    /** The files of them Sync would stop at as conflicts, for the user to resolve. */
+    conflicts?: string[]
 }
 
 /** What a merge would bring into the target branch. */

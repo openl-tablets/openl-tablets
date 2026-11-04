@@ -1,9 +1,12 @@
 import React from 'react'
 import { Alert, Flex, Listy, Space, Tabs, Tag, Tooltip, Typography } from 'antd'
-import { WarningOutlined } from '@ant-design/icons'
+import { CheckOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import type { ProjectFileChangeType } from '../../services/projectStatus'
-import { ChangesHeader, FilePath, LIST_HEIGHT } from '../projects/ChangedFileList'
+import type { ProjectFileChange, ProjectFileChangeType } from '../../services/projectStatus'
+import { ChangedFileList, ChangesHeader, LIST_HEIGHT } from '../projects/ChangedFileList'
+import { ConflictTag } from '../projects/ConflictTag'
+import { openRevisionsCompareWindow } from '../projects/compare'
+import { toProjectRelativePath } from '../projects/fileChanges'
 import type { ChangedProject, CheckMergeResult, MergeScope, ProjectScope } from './types'
 
 interface MergeScopeTabsProps {
@@ -29,28 +32,31 @@ const isKnown = (result: CheckMergeResult | null): boolean => result?.status ===
  *
  * A branch holds every project, so a merge brings in the changes of other projects too. The current project is
  * listed first and the others are marked as other projects; the files both branches changed are named under
- * their project.
+ * their project, each marked as a conflict or as merged by Sync itself. Sync tells beforehand whether it would stop
+ * at conflicts: it tries the merge without merging anything. A file of a project is compared as a pull request
+ * compares it, from the revision both branches parted at.
  */
 export const MergeScopeTabs: React.FC<MergeScopeTabsProps> = ({ receive, send }) => {
     const { t } = useTranslation()
-    const tab = (key: string, label: string, result: CheckMergeResult | null) => ({
+    // Your branch is the one the dialog was opened on: the target of a receive, the source of a send.
+    const tab = (key: string, label: string, result: CheckMergeResult | null, yoursEarlier: boolean) => ({
         key,
         label: isKnown(result) ? t('merge:scope.tab', { label, count: projectCount(result?.scope) }) : label,
-        children: <ScopeList result={result} />,
+        children: <ScopeList result={result} yoursEarlier={yoursEarlier} />,
     })
     return (
         <Tabs
             data-testid="merge-scope"
             size="small"
             items={[
-                tab('receive', t('merge:actions.receive'), receive),
-                tab('send', t('merge:actions.send'), send),
+                tab('receive', t('merge:actions.receive'), receive, true),
+                tab('send', t('merge:actions.send'), send, false),
             ]}
         />
     )
 }
 
-const ScopeList: React.FC<{ result: CheckMergeResult | null }> = ({ result }) => {
+const ScopeList: React.FC<{ result: CheckMergeResult | null; yoursEarlier: boolean }> = ({ result, yoursEarlier }) => {
     const { t } = useTranslation()
     if (!isKnown(result)) {
         return (
@@ -60,27 +66,19 @@ const ScopeList: React.FC<{ result: CheckMergeResult | null }> = ({ result }) =>
         )
     }
     const scope = result?.scope
-    if (!scope || (scope.projects.length === 0 && scope.hiddenProjects === 0)) {
+    if (!result || !scope || (scope.projects.length === 0 && scope.hiddenProjects === 0)) {
         return <Typography.Text type="secondary">{t('merge:scope.nothing')}</Typography.Text>
     }
     const reachesOthers = scope.hiddenProjects > 0 || scope.projects.some(project => project.name && !project.current)
     const renderProject = (project: ProjectScope) => (
         <Flex vertical data-testid="merge-scope-project" gap={2} style={{ paddingBlock: 4 }}>
             <ProjectHeader changedFiles={project.changedFiles} project={project} />
-            {project.changedInBoth?.map(file => (
-                <Flex key={file} align="center" data-testid="merge-scope-changed-in-both" gap="small">
-                    <FilePath path={file} />
-                    <Tooltip title={t('merge:scope.changed_in_both_hint')}>
-                        <Tag color="warning" icon={<WarningOutlined />}>
-                            {t('merge:scope.changed_in_both')}
-                        </Tag>
-                    </Tooltip>
-                </Flex>
-            ))}
+            <ChangedInBoth project={project} result={result} yoursEarlier={yoursEarlier} />
         </Flex>
     )
     return (
         <Space orientation="vertical" size="small" style={{ width: '100%' }}>
+            <ConflictsNote scope={scope} />
             {reachesOthers && (
                 <Alert showIcon data-testid="merge-scope-whole-branch" title={t('merge:scope.whole_branch')} type="info" />
             )}
@@ -102,6 +100,81 @@ const ScopeList: React.FC<{ result: CheckMergeResult | null }> = ({ result }) =>
                 </Typography.Text>
             )}
         </Space>
+    )
+}
+
+/**
+ * Whether Sync would stop at conflicts. Only conflicts in the projects the user may read are known, so a merge that
+ * reaches a project the user may not read is never told free of them.
+ */
+const ConflictsNote: React.FC<{ scope: MergeScope }> = ({ scope }) => {
+    const { t } = useTranslation()
+    const count = scope.projects.reduce((sum, project) => sum + (project.conflicts?.length ?? 0), 0)
+    if (count > 0) {
+        return (
+            <Alert
+                showIcon
+                data-testid="merge-scope-conflicts"
+                title={t('merge:scope.conflicts', { count })}
+                type="warning"
+            />
+        )
+    }
+    return scope.hiddenProjects === 0
+        ? <Alert showIcon data-testid="merge-scope-no-conflicts" title={t('merge:scope.no_conflicts')} type="success" />
+        : null
+}
+
+interface ChangedInBothProps {
+    project: ProjectScope
+    /** The check the project was told by: which branch it merges into which. */
+    result: CheckMergeResult
+    /** Whether your branch is the one merged into, as on receive: it then stands first in a comparison. */
+    yoursEarlier: boolean
+}
+
+/**
+ * The files of a project both branches changed, each marked as a possible conflict or as merged by Sync itself.
+ *
+ * A file of a project is compared in the comparison window the way the option merges: what the branch merged in
+ * changed since both branches parted, as a pull request shows it. A workbook that may conflict shows both versions,
+ * each compared with the revision both parted at, the version the merge goes into first. The files outside any
+ * project are not compared.
+ */
+const ChangedInBoth: React.FC<ChangedInBothProps> = ({ project, result, yoursEarlier }) => {
+    const { t } = useTranslation()
+    const files = project.changedInBoth ?? []
+    if (files.length === 0) {
+        return null
+    }
+    const conflicts = new Set(project.conflicts)
+    const { id, path } = project
+    return (
+        <ChangedFileList
+            files={files.map((file): ProjectFileChange => ({ path: file, type: 'modified' }))}
+            renderMarks={file => (conflicts.has(file.path) ? <ConflictTag /> : <MergesByItselfTag />)}
+            testId="merge-scope-changed-in-both"
+            virtual={false}
+            compare={id && path
+                ? {
+                    hint: t('merge:scope.compare_hint'),
+                    open: file => openRevisionsCompareWindow(id, result.sourceBranch, result.targetBranch,
+                        result.sourceBranch, toProjectRelativePath(file.path, path), yoursEarlier),
+                }
+                : undefined}
+        />
+    )
+}
+
+/** Marks a file both branches changed in different parts, which Sync combines by itself. */
+const MergesByItselfTag: React.FC = () => {
+    const { t } = useTranslation()
+    return (
+        <Tooltip title={t('merge:scope.merges_by_itself_hint')}>
+            <Tag color="success" data-testid="file-merges-by-itself" icon={<CheckOutlined />}>
+                {t('merge:scope.merges_by_itself')}
+            </Tag>
+        </Tooltip>
     )
 }
 

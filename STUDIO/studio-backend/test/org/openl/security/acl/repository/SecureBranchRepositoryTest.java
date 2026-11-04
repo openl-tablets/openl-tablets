@@ -56,7 +56,7 @@ class SecureBranchRepositoryTest {
 
     @Test
     void tellsTheScopeOfAMergeWithRepositoryReadPermission() throws Exception {
-        var scope = new MergeScope(List.of(), Set.of());
+        var scope = new MergeScope(List.of(), Set.of(), Set.of());
         when(aclService.isGranted(REPOSITORY_ID, null, List.of(BasePermission.READ))).thenReturn(true);
         when(delegate.getMergeScope("feature", "main")).thenReturn(scope);
 

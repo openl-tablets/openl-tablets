@@ -132,8 +132,20 @@ contain the project when it is opened. Proceed as follows:
         project**, and a note says that their changes are merged too.
     -   Each project shows how many of its files change, and **Added** or **Deleted** when the merge adds or removes
         the whole project.
-    -   The files both branches changed are listed under their project as **Changed in both branches**: Sync merges
-        them by itself where the changes do not overlap and asks you to resolve the rest.
+    -   The files both branches changed are listed under their project, each with an estimate of what Sync would
+        do with it. Nothing is merged to tell it: the changes of both branches since they parted are compared file
+        by file, and only the files both changed are read. A file is marked **Possible conflict** when both
+        branches changed the same parts of it — the same lines of a text, the same cells, rows or columns of a
+        table — and **Merges by itself** when their changes do not overlap. A note above the projects tells how many
+        files may conflict, or that no conflict is expected. A merge that reaches a project you cannot read is not
+        told free of conflicts.
+    -   Click a file of a project to compare it in the comparison window the way the tab merges: what the branch
+        merged in changed since both branches parted. An Excel file that may conflict shows **Your version** and
+        **Their version**, each compared with the revision both branches parted at, the version the merge goes into
+        first: yours on **Receive their updates**, theirs on **Send your updates**. The cells one branch changed are
+        framed in orange, the cells both changed differently in red. Drawn as one table, a conflicting cell shows
+        the value both started from, and under it each value with the name of its version. The comparison is
+        described in [Comparing Project Revisions](repository-editor.md#comparing-project-revisions).
     -   Files that belong to no project form a group of their own, **Files outside projects**.
     -   Projects you cannot read are only counted.
     -   If Sync cannot tell what an option brings in, its tab says so instead of listing projects. The option can

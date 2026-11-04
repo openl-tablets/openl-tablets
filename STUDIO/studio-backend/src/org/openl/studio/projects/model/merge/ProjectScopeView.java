@@ -37,6 +37,9 @@ public record ProjectScopeView(
         int changedFiles,
 
         @Parameter(description = "Paths of its files both branches changed: the merge combines them or reports them as conflicts")
-        List<String> changedInBoth
+        List<String> changedInBoth,
+
+        @Parameter(description = "Paths of its files that may conflict: both branches changed the same parts of them. An estimate made without merging; the other files both branches changed the merge would combine by itself")
+        List<String> conflicts
 ) {
 }

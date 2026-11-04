@@ -256,7 +256,7 @@ describe('MergeBranchesStep', () => {
 
             const scope = await screen.findByTestId('merge-scope')
             expect(within(scope).getByText('Pricing')).toBeInTheDocument()
-            expect(within(scope).getByTestId('merge-scope-changed-in-both')).toHaveTextContent('Pricing/rules/Main.xlsx')
+            expect(within(scope).getByTestId('merge-scope-changed-in-both-file')).toHaveTextContent('Main.xlsxPricing/rules')
         })
 
         it('enables receive button when receive is mergeable', async () => {

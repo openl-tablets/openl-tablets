@@ -2475,7 +2475,14 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             var repository = git().getRepository();
             var source = resolveBranchTip(repository, from);
             var target = resolveBranchTip(repository, to);
-            return scopeOf(repository, mergeBaseOf(repository, source, target), source, target);
+            // The workbooks both branches changed are read, the ones kept in LFS with the credentials of the repository.
+            initLfsCredentials();
+            try {
+                return scopeOf(repository, mergeBaseOf(repository, source, target), source, target,
+                        trialMergeOf(repository));
+            } finally {
+                resetLfsCredentials();
+            }
         } finally {
             readLock.unlock();
             log.debug("getMergeScope(): unlock");
@@ -2592,14 +2599,19 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
      * the target does not hold as the source does yet is a change the merge brings in. A file both branches made
      * alike brings in nothing.
      *
-     * @param base the commit the branches parted at, or {@code null} when their histories have none in common
+     * <p>Of the files both branches changed, the estimate tells the ones that may conflict, in the same walk.
+     *
+     * @param base     the commit the branches parted at, or {@code null} when their histories have none in common
+     * @param estimate tells whether a file both branches changed may conflict
      */
     private static MergeScope scopeOf(Repository repository,
                                       @Nullable ObjectId base,
                                       ObjectId source,
-                                      ObjectId target) throws IOException {
+                                      ObjectId target,
+                                      TrialMerge estimate) throws IOException {
         var changes = new ArrayList<FileChange>();
         var changedInBoth = new HashSet<String>();
+        var conflicts = new HashSet<String>();
         try (var treeWalk = new TreeWalk(repository)) {
             walkDiffering(treeWalk, repository, base, source, target);
             while (treeWalk.next()) {
@@ -2607,11 +2619,14 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                     changes.add(new FileChange(treeWalk.getPathString(), changeKindOf(treeWalk, 2, 1)));
                     if (!sameEntry(treeWalk, 0, 2)) {
                         changedInBoth.add(treeWalk.getPathString());
+                        if (estimate.mayConflict(treeWalk.getPathString(), treeWalk)) {
+                            conflicts.add(treeWalk.getPathString());
+                        }
                     }
                 }
             }
         }
-        return new MergeScope(changes, changedInBoth);
+        return new MergeScope(changes, changedInBoth, conflicts);
     }
 
     /**

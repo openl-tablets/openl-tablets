@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ChangedFileList, FilePath } from './ChangedFileList'
+import { ChangedFileList } from './ChangedFileList'
 import type { ProjectFileChange } from '../../services/projectStatus'
 
 vi.mock('react-i18next', () => {
@@ -87,19 +87,5 @@ describe('ChangedFileList', () => {
         render(<ChangedFileList files={files} renderMarks={file => <span>{`mark of ${file.path}`}</span>} testId="changes" />)
 
         expect(screen.getByText('mark of rules/Main.xlsx')).toBeInTheDocument()
-    })
-})
-
-describe('FilePath', () => {
-    it('writes a path whole, its folder and the name of its file', () => {
-        const { container } = render(<FilePath path="DESIGN/rules/Pricing/rules/Main.xlsx" />)
-
-        expect(container).toHaveTextContent('DESIGN/rules/Pricing/rules/Main.xlsx')
-    })
-
-    it('writes a file at the root of the repository as it is', () => {
-        const { container } = render(<FilePath path="README.md" />)
-
-        expect(container).toHaveTextContent('README.md')
     })
 })
