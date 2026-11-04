@@ -11,6 +11,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IMemberMetaInfo;
@@ -24,23 +27,18 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     private final Method method;
+    // Made on the first call: most methods of a Java class are never called by rules. Its final fields make a racy
+    // read safe, and a second invoker made by a race only repeats the warm-up.
+    private @Nullable MethodInvoker invoker;
+    @Getter
     private final IOpenClass[] parameterTypes;
+    @Getter
     private final IOpenClass declaringClass;
 
     public JavaOpenMethod(Method method) {
         this.method = Objects.requireNonNull(method, "method cannot be null");
         this.parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
         this.declaringClass = JavaOpenClass.getOpenClass(method.getDeclaringClass());
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IOpenMember#getDeclaringClass()
-     */
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
     }
 
     @Override
@@ -54,7 +52,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IOpenMember#getInfo()
      */
     @Override
-    public IMemberMetaInfo getInfo() {
+    public @Nullable IMemberMetaInfo getInfo() {
         return null;
     }
 
@@ -94,7 +92,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IMethodSignature#getParameterName(int)
      */
     @Override
-    public String getParameterName(int i) {
+    public @Nullable String getParameterName(int i) {
         return null;
     }
 
@@ -106,11 +104,6 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     @Override
     public IOpenClass getParameterType(int i) {
         return getParameterTypes()[i];
-    }
-
-    @Override
-    public IOpenClass[] getParameterTypes() {
-        return parameterTypes;
     }
 
     /*
@@ -141,7 +134,12 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
-            return method.invoke(target, params);
+            var methodInvoker = invoker;
+            if (methodInvoker == null) {
+                methodInvoker = new MethodInvoker(method);
+                invoker = methodInvoker;
+            }
+            return methodInvoker.invoke(target, params);
         } catch (InvocationTargetException t) {
             var targetException = t.getTargetException();
             if (targetException instanceof OpenLRuntimeException exception) {
