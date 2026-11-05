@@ -108,7 +108,7 @@
         <httpcomponents.core5.version>5.4.4</httpcomponents.core5.version>
         <jose4j.version>0.9.7</jose4j.version>
         <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
-        <json-smart.version>2.6.0</json-smart.version>
+        <json-smart.version>2.6.1</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.11.1</asm.version>
@@ -118,7 +118,7 @@
         <kafka.version>4.4.0</kafka.version>
         <!-- Newer lz4-java than kafka-clients pulls in by default, fixing CVE-2026-59949.
              Remove once Kafka ships this version by default. -->
-        <lz4.version>1.12.1</lz4.version>
+        <lz4.version>1.13.0</lz4.version>
         <!-- Newer snappy-java than kafka-clients pulls in by default, fixing CVE-2026-90559.
              Remove once Kafka ships this version by default. -->
         <snappy.version>1.1.10.12</snappy.version>
@@ -152,9 +152,9 @@
         <jetty.version>12.1.14</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.57.8</amazonaws.version>
-        <azure.version>12.36.0</azure.version>
-        <netty.version>4.2.19.Final</netty.version>
+        <amazonaws.version>2.57.9</amazonaws.version>
+        <azure.version>12.37.2</azure.version>
+        <netty.version>4.2.20.Final</netty.version>
         <jgit.version>7.8.0.202609011348-openl2</jgit.version>
 
         <!-- DB -->
@@ -178,7 +178,7 @@
         <ojdbc11.version>23.26.4.0.0</ojdbc11.version>
         <postgresql.version>42.7.14</postgresql.version>
         <mariadb.version>2.7.15</mariadb.version>
-        <mssql.version>13.6.1.jre11</mssql.version>
+        <mssql.version>13.6.2.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- Jakarta APIs -->
@@ -214,7 +214,7 @@
         <groovy.version>6.0.0</groovy.version>
         <poi.version>6.0.0</poi.version>
         <velocity.version>2.4.1</velocity.version>
-        <guava.version>33.7.2-jre</guava.version>
+        <guava.version>33.8.0-jre</guava.version>
         <xmlsec.version>4.0.4</xmlsec.version>
         <jcodemodel.version>4.1.0</jcodemodel.version>
 
@@ -1500,7 +1500,7 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>3.10.4</version>
+                <version>3.11.0</version>
                 <inherited>false</inherited>
                 <configuration>
                     <upToDateChecking>
