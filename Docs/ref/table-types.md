@@ -217,12 +217,15 @@ Calculation table with named rows and columns; cells reference each other via `$
 - Cell reference syntax: `$ColumnName$RowName`, `$ColumnName` (current row), `$RowName` (current column)
 - Return type can be `SpreadsheetResult` (full result object) or a specific cell type
 - `autoType` property (default `true`) infers cell types from values
+- A row name merged over every titled column is a caption: no step, no result field, no OpenAPI property, and
+  `$Caption` in a formula is not found; merged over some of them, it stays a step
 
 ```
 | Spreadsheet SpreadsheetResult Premium(Double base) |
 | Steps    | Formula                                 |  <- column names, written by the author
 | BaseRate | = base                                  |
 | Discount | = $BaseRate * 0.1                       |
+| Final    | ←                                       |  <- a caption: merged over every titled column
 | Total    | = $BaseRate - $Discount                 |  <- last row is the result of a typed return
 ```
 

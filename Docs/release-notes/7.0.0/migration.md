@@ -332,6 +332,15 @@ from Maven.
   instead of an empty array, as `slice`, `sort` and the other array functions give for a missing array. A missing
   array next to another one still adds no elements, so `flatten((Integer[]) null, new Integer[] {1})` is `[1]`.
 
+* **A Spreadsheet row whose name is merged over every titled column is a caption, not a step.** Its name cell spans
+  all the columns that have a title, so it marks a section of the steps below it. A name merged over only some of
+  them stays a step with its values, as before. A caption is no longer a field of the result: the response of a
+  service and its OpenAPI schema lose the field that held the caption text, such as `Final_Calculation`, and a test
+  cannot read it. When a Spreadsheet of several columns is left with one step, its fields are named by the columns
+  alone, as for any Spreadsheet of one step: `Base` instead of `Base_Calc`. A formula that refers to a caption, such
+  as `$Final Calculation` or `$Formula$Summary`, stops compiling with `Identifier '...' is not found`. Search the
+  formulas for the name of each caption before the upgrade, and a client of the service for the fields.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 

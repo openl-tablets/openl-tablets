@@ -68,6 +68,27 @@ Descriptions for spreadsheet columns can be provided by adding a dedicated **des
 
 *Value column description*
 
+A row whose name cell is merged to the right over every column that has a title is a **caption** of the steps below
+it. A caption is drawn with the table, but it is not a step:
+
+-   the result has no cell for it, so OpenL Rule Services return no field for it and the OpenAPI schema does not list it
+-   a formula cannot refer to it: `$Final Calculation` fails with `Identifier '$FinalCalculation' is not found`
+-   a test cannot check it
+
+```openl
+Spreadsheet SpreadsheetResult calc(Double x)
+Step,Formula
+---
+Calc,= x + 1
+Final Calculation,<
+Total,= $Calc * 2
+```
+
+The result of this table holds the steps **Calc** and **Total** only. Columns without a title are no part of the
+table, so a caption need not cover them. A step name merged over only some of the titled columns stays a step, and
+the cells to the right of it are its values; so does a name merged only over columns without a title, or only down
+over several rows. A name merged down and across every titled column is a caption: only the width of a name counts.
+
 In OpenL Rule Services, spreadsheet output can be customized by adding or removing rows and columns to display as described in [Spreadsheet Result Output Customization](06-spreadsheet-result-output-customization.md#spreadsheet-result-output-customization).
 
 The following topics are included in this section:

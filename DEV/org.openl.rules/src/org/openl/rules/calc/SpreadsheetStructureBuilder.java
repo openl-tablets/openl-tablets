@@ -144,6 +144,16 @@ public class SpreadsheetStructureBuilder {
     private Integer[] logicalToPhysicalRow;
     private Integer[] logicalToPhysicalColumn;
 
+    /**
+     * The header of the step or the column whose value the Spreadsheet returns: the one named {@code RETURN}, or else
+     * the last step.
+     *
+     * <p>A Spreadsheet that returns {@code SpreadsheetResult} and names no {@code RETURN} returns every step, and has
+     * no such header. Neither has a Spreadsheet none of whose steps has a name.
+     *
+     * <p>It is {@code null} for a Spreadsheet that returns every step or names no step.
+     */
+    @Getter
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     private SpreadsheetCell[][] cells;
 
@@ -824,6 +834,8 @@ public class SpreadsheetStructureBuilder {
     /**
      * Parses the headers of the rows or of the columns.
      *
+     * <p>A blank name makes no header, and neither does a caption of the steps: such a row or column is not a step.
+     *
      * @return the indexes of the description rows or columns, which are parsed after the headers
      */
     private List<Integer> parseHeaders(boolean row, int count, Set<String> registered) {
@@ -831,7 +843,7 @@ public class SpreadsheetStructureBuilder {
         for (var index = 0; index < count; index++) {
             var cell = row ? tableBody.getCell(0, index + 1) : tableBody.getCell(index + 1, 0);
             var value = cell.getStringValue();
-            if (StringUtils.isNotBlank(value)) {
+            if (StringUtils.isNotBlank(value) && !(row && isCaption(tableBody, cell))) {
                 if (value.trim().startsWith("//")) {
                     descriptions.add(index);
                 } else {
@@ -840,6 +852,36 @@ public class SpreadsheetStructureBuilder {
             }
         }
         return descriptions;
+    }
+
+    /**
+     * Checks whether a step name is a caption of the steps that follow it.
+     *
+     * <p>A name merged to the right over every column that has a title is a caption. A caption is drawn with the table
+     * but holds no value: it is neither a step, nor a field of the result, nor a name a formula can refer to.
+     *
+     * <p>A name merged over only some of the titled columns stays a step, and its cells to the right are its values.
+     * Columns without a title are no part of the Spreadsheet: a name need not cover them, and a name merged over them
+     * alone stays a step.
+     *
+     * @param body the body of the Spreadsheet, the titles of its columns in its first row
+     * @param name the cell of the first column that names a step
+     * @return {@code true} when the name is a caption
+     */
+    private static boolean isCaption(ILogicalTable body, ICell name) {
+        var titles = body.getSource();
+        var width = name.getWidth();
+        var column = titles.getCell(0, 0).getWidth();
+        var coversTitled = false;
+        var leavesTitled = false;
+        while (column < titles.getWidth() && !leavesTitled) {
+            var title = titles.getCell(column, 0);
+            var titled = StringUtils.isNotBlank(title.getStringValue());
+            coversTitled |= titled && column < width;
+            leavesTitled = titled && column >= width;
+            column += title.getWidth();
+        }
+        return coversTitled && !leavesTitled;
     }
 
     private void parseDescription(int index, boolean row, Map<String, Integer> names, Set<String> used) {
@@ -1062,7 +1104,8 @@ public class SpreadsheetStructureBuilder {
      * The header of each step, by the row of the body it names.
      *
      * <p>The rows are counted under the titles of the columns, so the row under them is row 0. A row whose name is
-     * empty, cannot be read, repeats another name or describes another row is not a step.
+     * empty, cannot be read, repeats another name or describes another row is not a step, and neither is a caption:
+     * a row whose name is merged to the right over every column that has a title.
      *
      * @return the headers of the steps
      */
@@ -1080,19 +1123,6 @@ public class SpreadsheetStructureBuilder {
      */
     public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {
         return Collections.unmodifiableMap(columnHeaders);
-    }
-
-    /**
-     * The header of the step or the column whose value the Spreadsheet returns: the one named {@code RETURN}, or else
-     * the last step.
-     *
-     * <p>A Spreadsheet that returns {@code SpreadsheetResult} and names no {@code RETURN} returns every step, and has
-     * no such header. Neither has a Spreadsheet none of whose steps has a name.
-     *
-     * @return the header, or {@code null} for a Spreadsheet that returns every step or names no step
-     */
-    public SpreadsheetHeaderDefinition getReturnHeaderDefinition() {
-        return returnHeaderDefinition;
     }
 
     public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet,
@@ -1239,25 +1269,22 @@ public class SpreadsheetStructureBuilder {
                                     .map(CompositeMethod::getMethodBodyBoundNode)
                                     .map(IBoundMethodNode::getSyntaxNode)
                                     .orElse(symbolicTypeDefinitionName));
-                } else {
-                    return null;
                 }
-            } else {
-                throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
-                        symbolicTypeDefinitionName);
+                return null;
             }
-        } else if (asArray) {
+            throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
+                    symbolicTypeDefinitionName);
+        }
+        if (asArray) {
             return new ArrayResultBuilder(returnSpreadsheetCells.toArray(new SpreadsheetCell[0]),
                     castsAsArray.toArray(new IOpenCast[]{}),
                     type,
                     isCalculateAllCellsInSpreadsheet(spreadsheet));
-        } else {
-            return new ScalarResultBuilder(
-                    returnSpreadsheetCells.getLast(),
-                    casts.getLast(),
-                    isCalculateAllCellsInSpreadsheet(spreadsheet));
-
         }
+        return new ScalarResultBuilder(
+                returnSpreadsheetCells.getLast(),
+                casts.getLast(),
+                isCalculateAllCellsInSpreadsheet(spreadsheet));
     }
 
     /**
@@ -1310,7 +1337,7 @@ public class SpreadsheetStructureBuilder {
      * Keeps a spreadsheet diagnostic linked to the exact workbook cell range, including after table properties and
      * across table parts.
      */
-    private static class CellSourceCodeModule extends StringSourceCodeModule {
+    private static final class CellSourceCodeModule extends StringSourceCodeModule {
 
         private CellSourceCodeModule(ICell cell, ILogicalTable table) {
             super(cell.getStringValue(), getSourceUri(cell, table));
