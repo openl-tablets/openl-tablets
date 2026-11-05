@@ -1,0 +1,4 @@
+POST /EPBDS-17094/EPBDS-17094/calcWiderProperties HTTP/1.1
+Content-Type: text/plain
+
+1

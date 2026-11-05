@@ -9,6 +9,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.SpreadsheetHeaderDefinition;
@@ -29,8 +31,8 @@ import org.openl.util.OpenClassUtils;
  * steps, such as {@code Step}, a title of what it takes. The first column names the steps: values the table holds,
  * names rather than values to type. Every other cell holds the value of a step, which the table gives.
  *
- * <p>A step whose name is merged across its row is a heading that splits the steps into sections: the compiler takes
- * it for a step with no value.
+ * <p>A step whose name is merged across its row is a heading that splits the steps into sections. The compiler takes
+ * a name merged over every titled column for no step at all, and a name merged over some of them for a step.
  *
  * <p>What a Spreadsheet returns is what the compiler returns:
  * <ul>
@@ -47,10 +49,8 @@ import org.openl.util.OpenClassUtils;
  * text the same way: the names of its steps down its first column, the titles of its columns across its first row,
  * and what it returns by the type its header names and by the marks of the names and the titles.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class SpreadsheetLayout {
-
-    private SpreadsheetLayout() {
-    }
 
     /**
      * The places of the body of a Spreadsheet the compiler read: the steps down its first column and the columns across
