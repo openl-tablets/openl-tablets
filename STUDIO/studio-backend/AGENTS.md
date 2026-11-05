@@ -126,6 +126,14 @@ A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both trav
   compilation, a run, a trace, a comparison: it carries `@ChangesNothing`, or the editor can neither show nor run
   the project while it is merged. See
   [`Docs/api/projects-merge-architecture.md`](../../Docs/api/projects-merge-architecture.md).
+- **The session's monitors are taken in one order: `WebStudio`, then `ProjectModel`.** A request opening a module
+  holds the studio while it waits for the model (`WebStudio.init` → `openModule`), and a compilation holds the model
+  for minutes. Whatever the model calls under its own monitor never waits for the studio's: the projects of the
+  session are read under a lock of their own (`WebStudio.getProjects`), since the model reads them to build its
+  dependency manager. That lock is the innermost: nothing done under it calls the studio or the model. The projects
+  are dropped only after the workspace is refreshed, since a compilation may read them meanwhile, and a pass that
+  needs them all reads them once. A compilation asked for in the background (`compile?reset=true`) and a read of the
+  tables sent with it once stopped the whole session for good this way (EPBDS-17111).
 
 ## Test Runs, Runs and Benchmarks
 

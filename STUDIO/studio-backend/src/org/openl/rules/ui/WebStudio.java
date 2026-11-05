@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import lombok.Getter;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -76,7 +77,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProjectModel model;
     @Getter
     private final ProjectResolver projectResolver;
-    private Map<String, List<ProjectDescriptor>> projects;
+    /**
+     * Guards {@link #projects}: the projects of the session are read, built and dropped under it alone.
+     *
+     * <p>Never the monitor of the studio. A model building its dependency manager reads the projects while it holds
+     * its own monitor, and a request opening a module holds the studio's monitor while it waits for the model's: a
+     * read waiting for the studio would leave both waiting for good.
+     */
+    private final Object projectsLock = new Object();
+    private @Nullable Map<String, List<ProjectDescriptor>> projects;
 
     @Getter
     private String currentRepositoryId;
@@ -375,39 +384,59 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return projectFolder.relativize(module.getRulesPath()).toString().replace('\\', '/');
     }
 
-    public synchronized List<ProjectDescriptor> getAllProjects() {
+    public List<ProjectDescriptor> getAllProjects() {
+        return sortedByName(getProjects());
+    }
+
+    /** The projects of every repository in one list, by name. */
+    private static List<ProjectDescriptor> sortedByName(Map<String, List<ProjectDescriptor>> projects) {
         var allProjects = new ArrayList<ProjectDescriptor>();
-        getProjects().values().forEach(allProjects::addAll);
+        projects.values().forEach(allProjects::addAll);
         allProjects.sort(PROJECT_DESCRIPTOR_COMPARATOR);
         return allProjects;
     }
 
-    public synchronized Map<String, List<ProjectDescriptor>> getProjects() {
+    /**
+     * The projects of the session's workspace by the repository they come from, resolved once and kept until the
+     * workspace changes.
+     *
+     * <p>Answered without the studio's monitor, so a model compiling a project may ask for them whatever request of
+     * the session holds the studio.
+     */
+    @Synchronized("projectsLock")
+    public Map<String, List<ProjectDescriptor>> getProjects() {
         if (projects == null) {
+            var resolved = new HashMap<String, List<ProjectDescriptor>>();
             try {
-                projects = new HashMap<>();
                 var localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
-
                 for (AProject project : localWorkspace.getProjects()) {
-                    addProjectDescriptor(localWorkspace, project);
+                    addProjectDescriptor(resolved, localWorkspace, project);
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                projects = null;
                 return Collections.emptyMap();
             }
+            projects = resolved;
         }
         return projects;
+    }
+
+    /** Drops the projects resolved so far: they are resolved afresh the next time they are asked for. */
+    @Synchronized("projectsLock")
+    private void dropProjects() {
+        projects = null;
     }
 
     /**
      * Resolves the descriptor of the project and adds it to the projects of its repository. A project that cannot be
      * resolved is logged and left out.
      */
-    private void addProjectDescriptor(LocalWorkspace localWorkspace, AProject project) {
+    private void addProjectDescriptor(Map<String, List<ProjectDescriptor>> resolved,
+                                      LocalWorkspace localWorkspace,
+                                      AProject project) {
         try {
             var repoId = project.getRepository().getId();
-            List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId, k -> new ArrayList<>());
+            List<ProjectDescriptor> projectDescriptors = resolved.computeIfAbsent(repoId, k -> new ArrayList<>());
             // A project edited in place is in a folder of the design repository, the others are in the workspace.
             var repository = project.getRepository() instanceof LocalRepository own
                     ? own
@@ -510,9 +539,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private void doResetProjects() {
         forcedCompile = true;
-        projects = null;
-        rulesUserSession.getUserWorkspace().syncProjects();
-        rulesUserSession.getUserWorkspace().refresh();
+        try {
+            rulesUserSession.getUserWorkspace().syncProjects();
+            rulesUserSession.getUserWorkspace().refresh();
+        } finally {
+            // Dropped once the workspace is read again: a compilation reads the projects without waiting for the
+            // studio, and what it resolved while the workspace was being refreshed would be kept otherwise.
+            dropProjects();
+        }
         model.resetSourceModified();
     }
 
@@ -720,8 +754,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
             moduleName = getCurrentModule() == null ? null : getCurrentModule().getName();
             projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
         } else {
-            // Get a project
-            List<ProjectDescriptor> allProjects = getAllProjects();
+            // Get a project. The project and its repository are read from one reading of the projects: a compilation
+            // may drop and resolve them again in between.
+            var projectsByRepository = getProjects();
+            List<ProjectDescriptor> allProjects = sortedByName(projectsByRepository);
             ProjectDescriptor project = CollectionUtils.findFirst(allProjects,
                     projectDescriptor -> tableURI.startsWith(projectDescriptor.getRelativeUri()));
             if (project == null) {
@@ -730,7 +766,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             // Get a module
             Module module = CollectionUtils.findFirst(project.getModules(), module1 -> module1.containsTable(tableURI));
-            repositoryId = projects.entrySet()
+            repositoryId = projectsByRepository.entrySet()
                     .stream()
                     .filter(
                             entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
@@ -882,7 +918,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     @Override
     public synchronized void onRepositoryModified() {
-        projects = null;
+        dropProjects();
         runAsSessionUser(() -> {
             if (currentProject != null) {
                 var project = getCurrentProject();
