@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -12,18 +14,18 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  * @author Yury Molchan
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class WebStudioMocks {
-
-    private WebStudioMocks() {
-    }
 
     /**
      * A session whose real methods run on the given model.
      *
-     * <p>The mock skips the constructor, so the holders of what a write leaves waiting are supplied here.
+     * <p>The mock skips the constructor, so the holders of what a write leaves waiting, and the lock of the projects,
+     * are supplied here.
      */
     static WebStudio studio(ProjectModel model) {
         var studio = mock(WebStudio.class, CALLS_REAL_METHODS);
+        ReflectionTestUtils.setField(studio, "projectsLock", new Object());
         ReflectionTestUtils.setField(studio, "rewrittenModule", new AtomicReference<>());
         ReflectionTestUtils.setField(studio, "moduleToVerify", new AtomicReference<>());
         ReflectionTestUtils.setField(studio, "announcedWrite", new AtomicReference<>());
