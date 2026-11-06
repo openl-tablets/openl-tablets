@@ -460,7 +460,8 @@ their own:
 | `result` | weight 600 |
 
 Every line the look draws — of the roles, of the result and above a group — is `colorTextBase`, so the parts of a
-table stand apart at a glance. The lines sit where the Excel style draws them.
+table stand apart at a glance. The lines sit where the Excel style draws them and keep its kind: a role line is
+solid, a group line dotted, as a hair line is drawn, and the line below the result double.
 
 The text of every role reads on its fill in every theme, light and dark, as the text of the application does on its
 surfaces: 4.5:1, and 3:1 for the grey pieces, as for the secondary text. The tertiary text, the secondary fill and the

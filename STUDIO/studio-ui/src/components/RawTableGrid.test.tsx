@@ -584,8 +584,9 @@ describe('RawTableGrid', () => {
             // The line above the titles is drawn by the header, the cell above them.
             expect(cellAt('B2').style.borderBottom).toBe(`1px solid ${written(dark.colorTextBase)}`)
             expect(cellAt('B3').style.borderTop).toBe('')
-            // The group of the last line is set apart by a line drawn on the line above it.
-            expect(cellAt('B4').style.borderBottom).toBe(`1px solid ${written(dark.colorTextBase)}`)
+            // The group of the last line is set apart by a dotted line, as the Excel style draws it, on the line
+            // above it.
+            expect(cellAt('B4').style.borderBottom).toBe(`1px dotted ${written(dark.colorTextBase)}`)
             // The last line closes the table.
             expect(cellAt('B5').style.borderBottom).toBe(`1px solid ${written(dark.colorTextBase)}`)
         })
