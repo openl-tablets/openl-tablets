@@ -140,6 +140,7 @@ export const MessagesTable = ({
             columns={columns}
             data-testid="localization-table"
             dataSource={rows}
+            locale={{ emptyText: t('no_match') }}
             pagination={false}
             rowKey="key"
             size="small"

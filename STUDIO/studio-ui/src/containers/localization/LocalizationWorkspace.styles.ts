@@ -47,6 +47,12 @@ export const useStyles = createStyles(({ css, token }) => ({
         padding: 8px 12px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
+    /** A choice of the filter dialog, on a line of its own. */
+    filterRow: css`
+        display: flex;
+        width: 100%;
+        margin-bottom: ${token.marginSM}px;
+    `,
     railBody: css`
         flex: 1;
         min-height: 0;

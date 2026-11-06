@@ -27,6 +27,7 @@ import { buildBundle, fileOfTag, languageName } from './bundle'
 import { KeyPanel } from './KeyPanel'
 import { KeyRail } from './KeyRail'
 import { useStyles } from './LocalizationWorkspace.styles'
+import { filterKeys, NO_FILTER, type MessageFilter } from './messageFilter'
 import { indexProblems } from './messageProblems'
 import { MessagesTable } from './MessagesTable'
 import { LOCALIZATION_ITEM, switchedRoute, switcherItems } from './moduleSwitcher'
@@ -77,6 +78,7 @@ export const LocalizationWorkspace = () => {
     // The files of the languages added and not saved yet. A new language starts as an empty file, so every key
     // of it shows the inherited text until it is written.
     const [created, setCreated] = useState<string[]>([])
+    const [filter, setFilter] = useState<MessageFilter>(NO_FILTER)
     const { modal, notification } = App.useApp()
     const { ref: canvasRef, size } = useElementSize<HTMLDivElement>()
     const confirmWrite = useOverwriteConfirm(project)
@@ -163,6 +165,11 @@ export const LocalizationWorkspace = () => {
     const problems = useMemo(
         () => indexProblems(bundle ?? { languages: [], keys: []}, drafts.keys, drafts.textOf),
         [bundle, drafts.keys, drafts.textOf]
+    )
+    // The keys the search and the filter leave, in the rail and in the table alike.
+    const shownKeys = useMemo(
+        () => (bundle === null ? null : filterKeys(bundle, drafts.keys, drafts.textOf, problems, filter)),
+        [bundle, drafts.keys, drafts.textOf, problems, filter]
     )
     const shownKey = selectedKey !== null && keys?.includes(selectedKey) === true ? selectedKey : null
 
@@ -312,7 +319,7 @@ export const LocalizationWorkspace = () => {
                 canWrite={canWrite}
                 drafts={drafts}
                 height={size.height}
-                keys={drafts.keys}
+                keys={shownKeys ?? []}
                 nameOf={nameOf}
                 onAddLanguage={() => setAddingLanguage(true)}
                 onOpenKey={openKey}
@@ -327,11 +334,16 @@ export const LocalizationWorkspace = () => {
         <div className={shared.workspacePage} data-testid="localization-workspace">
             <div className={shared.workspaceBody}>
                 <KeyRail
-                    keys={keys}
+                    filter={filter}
+                    keys={shownKeys}
+                    onFilter={setFilter}
                     onSelectKey={openKey}
                     problems={problems}
                     selectedKey={shownKey}
                     styles={styles}
+                    languages={bundle?.languages
+                        .filter(language => language.tag !== '')
+                        .map(language => ({ value: language.tag, label: nameOf(language.tag) })) ?? []}
                 />
                 <div className={styles.body}>
                     <WorkspaceHeader

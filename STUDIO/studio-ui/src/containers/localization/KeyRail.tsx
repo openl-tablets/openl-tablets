@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Skeleton, Tree } from 'antd'
+import { Badge, Button, Checkbox, Input, Modal, Select, Skeleton, Tooltip, Tree } from 'antd'
 import type { TreeDataNode } from 'antd'
-import { TranslationOutlined } from '@ant-design/icons'
+import { SlidersOutlined, TranslationOutlined } from '@ant-design/icons'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { useSharedStyles } from '../projects/sharedStyles'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
+import type { MessageFilter } from './messageFilter'
 import type { KeyProblems, ProblemIndex } from './messageProblems'
 import { useElementSize } from './useElementSize'
 
@@ -27,6 +28,11 @@ interface KeyRailProps {
     onSelectKey: (key: string | null) => void
     /** The problems of the keys, marked on each key. */
     problems: ProblemIndex
+    /** What the keys are narrowed down to; the keys handed in are the ones it leaves. */
+    filter: MessageFilter
+    onFilter: (filter: MessageFilter) => void
+    /** The languages a filter can ask for the keys not translated into, the default one left out. */
+    languages: Array<{ value: string, label: string }>
     styles: LocalizationStyles
 }
 
@@ -56,12 +62,19 @@ const titleOf = (key: string, problems: KeyProblems, marks: Marks) => (
  * <p>The root opens the table of every key in every language, a key opens that key alone. The list draws the rows
  * in sight and no more, so a bundle of thousands of keys scrolls as fast as one of ten; the key on screen is brought
  * into sight.
+ *
+ * <p>The search finds a key by a piece of its name or of any of its texts. The filter behind the sliders leaves
+ * only the keys with problems, or only those a language has no translation for; the filter dialog works on a copy
+ * of the choice, applied or thrown away when it closes.
  */
 export const KeyRail = ({
     keys,
     selectedKey,
     onSelectKey,
     problems,
+    filter,
+    onFilter,
+    languages,
     styles,
 }: KeyRailProps) => {
     const { t } = useTranslation('localization')
@@ -70,6 +83,8 @@ export const KeyRail = ({
     const { ref: bodyRef, size: body } = useElementSize<HTMLDivElement>()
     const treeRef = useRef<React.ComponentRef<typeof Tree>>(null)
     const [expanded, setExpanded] = useState<React.Key[]>([ROOT])
+    const [filterOpen, setFilterOpen] = useState(false)
+    const [draft, setDraft] = useState(filter)
 
     // Built once per list: the classes are named by their strings, which stay while the theme does.
     const marks = useMemo(
@@ -97,6 +112,33 @@ export const KeyRail = ({
     return (
         <aside className={`${shared.rail} ${styles.rail}`} data-testid="localization-rail" style={{ width }}>
             <ResizeHandle edge="right" onPointerDown={startResize} testId="localization-rail-resizer" />
+            <div className={styles.railTop}>
+                <Input
+                    allowClear
+                    data-testid="localization-search"
+                    onChange={event => onFilter({ ...filter, search: event.target.value })}
+                    placeholder={t('search_placeholder')}
+                    size="small"
+                    value={filter.search}
+                    suffix={(
+                        <Tooltip title={t('filter')}>
+                            <Badge dot={filter.onlyProblems || filter.notTranslatedInto !== null}>
+                                <Button
+                                    aria-label={t('filter')}
+                                    data-testid="localization-filter"
+                                    icon={<SlidersOutlined />}
+                                    size="small"
+                                    type="text"
+                                    onClick={() => {
+                                        setDraft(filter)
+                                        setFilterOpen(true)
+                                    }}
+                                />
+                            </Badge>
+                        </Tooltip>
+                    )}
+                />
+            </div>
             <div ref={bodyRef} className={styles.railBody}>
                 {keys === null
                     ? <Skeleton active paragraph={{ rows: 8 }} title={false} />
@@ -118,6 +160,37 @@ export const KeyRail = ({
                         />
                     )}
             </div>
+            <Modal
+                cancelText={t('common:btn.cancel')}
+                okButtonProps={{ 'data-testid': 'localization-filter-apply' }}
+                okText={t('common:btn.apply')}
+                onCancel={() => setFilterOpen(false)}
+                open={filterOpen}
+                title={t('filter')}
+                width={420}
+                onOk={() => {
+                    setFilterOpen(false)
+                    onFilter({ ...draft, search: filter.search })
+                }}
+            >
+                <Checkbox
+                    checked={draft.onlyProblems}
+                    className={styles.filterRow}
+                    data-testid="localization-only-problems"
+                    onChange={event => setDraft(current => ({ ...current, onlyProblems: event.target.checked }))}
+                >
+                    {t('only_problems')}
+                </Checkbox>
+                <Select
+                    allowClear
+                    className={styles.filterRow}
+                    data-testid="localization-not-translated"
+                    onChange={(tag?: string) => setDraft(current => ({ ...current, notTranslatedInto: tag ?? null }))}
+                    options={languages}
+                    placeholder={t('not_translated_into')}
+                    value={draft.notTranslatedInto ?? undefined}
+                />
+            </Modal>
         </aside>
     )
 }
