@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Table, Typography } from 'antd'
+import { Button, Table, Tooltip, Typography } from 'antd'
 import type { TableProps } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import type { Bundle } from './bundle'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
-import { MessageText, type TextOf } from './MessageText'
+import { MessageCell } from './MessageCell'
+import type { MessageDrafts } from './useMessageDrafts'
 
 /** The widths the columns are laid out at; the table scrolls sideways past them. */
 const KEY_WIDTH = 260
 const LANGUAGE_WIDTH = 280
+const ACTIONS_WIDTH = 48
 /** The height of the header row, taken off the height the rows scroll in. */
 const HEADER_HEIGHT = 56
 
@@ -20,7 +23,9 @@ interface Row {
 interface MessagesTableProps {
     bundle: Bundle
     keys: string[]
-    textOf: TextOf
+    drafts: MessageDrafts
+    canWrite: boolean
+    onRemoveKey: (key: string) => void
     /** Opens a key on its own, with its text in every language. */
     onOpenKey: (key: string) => void
     nameOf: (tag: string) => string
@@ -32,10 +37,20 @@ interface MessagesTableProps {
 /**
  * All the messages as one table: a row per key, a column per language.
  *
- * <p>The rows are drawn a screenful at a time, as bundles reach thousands of keys. The name of a key opens it on
- * its own.
+ * <p>The rows are drawn a screenful at a time, as bundles reach thousands of keys. A text is written in its cell;
+ * the name of a key opens it on its own.
  */
-export const MessagesTable = ({ bundle, keys, textOf, onOpenKey, nameOf, styles, height }: MessagesTableProps) => {
+export const MessagesTable = ({
+    bundle,
+    keys,
+    drafts,
+    canWrite,
+    onRemoveKey,
+    onOpenKey,
+    nameOf,
+    styles,
+    height,
+}: MessagesTableProps) => {
     const { t } = useTranslation('localization')
     const rows = useMemo<Row[]>(() => keys.map(key => ({ key })), [keys])
 
@@ -62,19 +77,37 @@ export const MessagesTable = ({ bundle, keys, textOf, onOpenKey, nameOf, styles,
                 </>
             ),
             render: (_: unknown, row: Row) => (
-                <div className={styles.cell} data-testid="localization-cell">
-                    <MessageText
-                        bundle={bundle}
-                        language={language}
-                        messageKey={row.key}
-                        nameOf={nameOf}
-                        styles={styles}
-                        textOf={textOf}
-                    />
-                </div>
+                <MessageCell
+                    bundle={bundle}
+                    canWrite={canWrite}
+                    drafts={drafts}
+                    language={language}
+                    messageKey={row.key}
+                    nameOf={nameOf}
+                    styles={styles}
+                />
             ),
         })),
-    ], [bundle, nameOf, onOpenKey, styles, t, textOf])
+        // The column after the last language removes the key of its row; it stays in sight however far the
+        // languages are scrolled.
+        ...(canWrite ? [{
+            key: 'actions',
+            fixed: 'right' as const,
+            width: ACTIONS_WIDTH,
+            render: (_: unknown, row: Row) => (
+                <Tooltip title={t('remove_key')}>
+                    <Button
+                        aria-label={t('remove_key')}
+                        data-testid="localization-remove-key"
+                        icon={<DeleteOutlined />}
+                        onClick={() => onRemoveKey(row.key)}
+                        size="small"
+                        type="text"
+                    />
+                </Tooltip>
+            ),
+        }] : []),
+    ], [bundle, canWrite, drafts, nameOf, onOpenKey, onRemoveKey, styles, t])
 
     return (
         <Table<Row>
@@ -87,7 +120,7 @@ export const MessagesTable = ({ bundle, keys, textOf, onOpenKey, nameOf, styles,
             rowKey="key"
             size="small"
             scroll={{
-                x: KEY_WIDTH + LANGUAGE_WIDTH * bundle.languages.length,
+                x: KEY_WIDTH + LANGUAGE_WIDTH * bundle.languages.length + (canWrite ? ACTIONS_WIDTH : 0),
                 y: Math.max(height - HEADER_HEIGHT, 100),
             }}
         />

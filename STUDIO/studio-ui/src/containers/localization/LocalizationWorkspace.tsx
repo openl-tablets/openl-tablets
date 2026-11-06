@@ -1,15 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Link, useBlocker, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Alert, Empty, Skeleton } from 'antd'
+import { Alert, App, Button, Empty, Modal, Skeleton, Space } from 'antd'
+import { PlusOutlined, SaveOutlined, UndoOutlined } from '@ant-design/icons'
 import type { Project } from '../../types/projects'
 import type { MessageFile } from '../../types/localization'
 import { getProject } from '../../services/repositories'
 import { listModules, type ModuleInfo } from '../../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
-import { readMessageFiles } from '../../services/localization'
+import { BUNDLE_FOLDER, readMessageFiles, saveMessageFiles } from '../../services/localization'
 import { isUnresolvedProjectLink } from '../../services/projectLink'
 import { errorMessage } from '../../utils/errorMessage'
+import { ProjectStatus } from '../../constants/project'
+import { useLiveProjectChanges } from '../../hooks/useLiveProjectChanges'
+import { useOverwriteConfirm } from '../modules/useOverwriteConfirm'
 import { supportsBranches } from '../../utils/repositoryFeatures'
 import { WorkspaceHeader } from '../../components/WorkspaceHeader'
 import { CompileProblemsPanel } from '../projects/CompileProblemsPanel'
@@ -17,14 +21,19 @@ import { CrumbSwitcher } from '../projects/CrumbSwitcher'
 import { useSharedStyles } from '../projects/sharedStyles'
 import { UnresolvedProjectLink } from '../projects/UnresolvedProjectLink'
 import { ValueText } from '../projects/ValueText'
+import { AddKeyModal } from './AddKeyModal'
 import { buildBundle, languageName } from './bundle'
 import { KeyPanel } from './KeyPanel'
 import { KeyRail } from './KeyRail'
 import { useStyles } from './LocalizationWorkspace.styles'
-import { fileTextOf } from './MessageText'
 import { MessagesTable } from './MessagesTable'
 import { LOCALIZATION_ITEM, switchedRoute, switcherItems } from './moduleSwitcher'
 import { useElementSize } from './useElementSize'
+import { useMessageDrafts } from './useMessageDrafts'
+
+/** Whether a change of the project names the localization files, or does not say which files it touched. */
+const touchesMessages = (files: string[]): boolean =>
+    files.length === 0 || files.some(file => file === BUNDLE_FOLDER || file.startsWith(`${BUNDLE_FOLDER}/`))
 
 /**
  * The messages of a project in all their languages: the `message*.properties` files of its `i18n` folder.
@@ -36,6 +45,12 @@ import { useElementSize } from './useElementSize'
  *
  * <p>The default language comes first, then the others by name, a regional language next to its parent. A key a
  * language lacks shows, faint, the text the language falls back to and where that text comes from.
+ *
+ * <p>The reader writes a text in its cell, in the table or on the key, adds a key, or takes one out of every
+ * language. What is written is kept while the reader moves from key to key, and Save writes every changed language
+ * at once, so the project is compiled once. Only the lines of the changed keys are written: comments, blank lines
+ * and the order of the keys stay as they were. A change of the files made elsewhere is read at once, and what the
+ * reader has written stays on it.
  */
 export const LocalizationWorkspace = () => {
     const { t, i18n } = useTranslation('localization')
@@ -54,7 +69,11 @@ export const LocalizationWorkspace = () => {
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
     const [files, setFiles] = useState<MessageFile[] | null>(null)
     const [failure, setFailure] = useState<string | null>(null)
+    const [saving, setSaving] = useState(false)
+    const [adding, setAdding] = useState(false)
+    const { modal, notification } = App.useApp()
     const { ref: canvasRef, size } = useElementSize<HTMLDivElement>()
+    const confirmWrite = useOverwriteConfirm(project)
 
     useEffect(() => {
         let current = true
@@ -82,14 +101,9 @@ export const LocalizationWorkspace = () => {
         }
     }, [projectId])
 
-    // The files are the branch's: they are read once the project says which branch it stands on.
-    useEffect(() => {
-        if (project === null) {
-            return undefined
-        }
+    const readFiles = useCallback(() => {
         let current = true
         setFailure(null)
-        listModules(projectId).then(setModules).catch(() => setModules([]))
         readMessageFiles(projectId)
             .then(read => {
                 if (current) {
@@ -104,17 +118,83 @@ export const LocalizationWorkspace = () => {
         return () => {
             current = false
         }
-    }, [projectId, project])
+    }, [projectId])
+
+    // The files are the branch's: they are read once the project says which branch it stands on.
+    const read = project !== null
+    const branch = project?.branch ?? null
+    useEffect(() => {
+        if (!read) {
+            return undefined
+        }
+        listModules(projectId).then(setModules).catch(() => setModules([]))
+        return readFiles()
+    }, [projectId, read, branch, readFiles])
+    useLiveProjectChanges(read ? projectId : undefined, changed => {
+        if (touchesMessages(changed)) {
+            readFiles()
+        }
+    }, { holdWhile: saving })
 
     const defaultName = t('default_language')
     const nameOf = useCallback((tag: string) => languageName(tag, uiLocale, defaultName), [uiLocale, defaultName])
     const bundle = useMemo(() => (files === null ? null : buildBundle(files, nameOf)), [files, nameOf])
-    const keys = bundle?.keys ?? null
+    const drafts = useMessageDrafts(bundle)
+    const { dirty, discard, remove, write } = drafts
+    const keys = bundle === null ? null : drafts.keys
     const shownKey = selectedKey !== null && keys?.includes(selectedKey) === true ? selectedKey : null
 
     const openKey = useCallback((key: string | null) => {
         setSearch(key === null ? {} : { key })
     }, [setSearch])
+
+    // What is written and not saved lives on this screen alone: the reader is asked before leaving it, by the
+    // switcher, a link, the Back button or by closing the page. Moving from key to key leaves nothing.
+    const leaving = useBlocker(({ currentLocation, nextLocation }) => dirty
+        && currentLocation.pathname !== nextLocation.pathname)
+    useEffect(() => {
+        if (!dirty) {
+            return undefined
+        }
+        const ask = (event: BeforeUnloadEvent) => event.preventDefault()
+        window.addEventListener('beforeunload', ask)
+        return () => window.removeEventListener('beforeunload', ask)
+    }, [dirty])
+
+    const save = async () => {
+        setSaving(true)
+        try {
+            await saveMessageFiles(projectId, drafts.edited())
+            setFiles(await readMessageFiles(projectId))
+            discard()
+            notification.success({ title: t('saved') })
+            // A write takes the project up for editing, which the project read before does not know.
+            setProject(await getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS))
+        } catch (error) {
+            notification.error({ title: t('save_failed'), description: errorMessage(error) })
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const removeKey = useCallback((key: string) => {
+        modal.confirm({
+            title: t('remove_key_title', { key }),
+            content: t('remove_key_content'),
+            okText: t('remove_key'),
+            okButtonProps: { danger: true },
+            onOk: () => remove(key),
+        })
+    }, [modal, remove, t])
+
+    const addKey = (key: string, text: string) => {
+        const defaultLanguage = bundle?.languages.find(language => language.tag === '')
+        if (defaultLanguage !== undefined) {
+            write(defaultLanguage, key, text)
+            openKey(key)
+        }
+        setAdding(false)
+    }
 
     // A file read in a legacy encoding is written in UTF-8 when it is saved, which the reader is told up front.
     const legacy = files?.filter(file => file.legacy).map(file => file.name) ?? []
@@ -139,7 +219,8 @@ export const LocalizationWorkspace = () => {
         )
     }
 
-    const branch = project.branch ?? null
+    // A project nobody opened has no copy in the workspace to write to: its messages are read only.
+    const canWrite = project.capabilities?.canWrite === true && project.status !== ProjectStatus.Closed
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && branch !== null
     const crumbs = (
         <>
@@ -172,22 +253,26 @@ export const LocalizationWorkspace = () => {
                 <KeyPanel
                     askedLanguage={askedLanguage}
                     bundle={bundle}
+                    canWrite={canWrite}
+                    drafts={drafts}
                     messageKey={shownKey}
                     nameOf={nameOf}
+                    onRemoveKey={removeKey}
                     styles={styles}
-                    textOf={fileTextOf}
                 />
             )
         }
         return (
             <MessagesTable
                 bundle={bundle}
+                canWrite={canWrite}
+                drafts={drafts}
                 height={size.height}
-                keys={bundle.keys}
+                keys={drafts.keys}
                 nameOf={nameOf}
                 onOpenKey={openKey}
+                onRemoveKey={removeKey}
                 styles={styles}
-                textOf={fileTextOf}
             />
         )
     }
@@ -200,6 +285,41 @@ export const LocalizationWorkspace = () => {
                     <WorkspaceHeader
                         crumbs={crumbs}
                         testId="localization-header"
+                        actions={canWrite && (
+                            <Space>
+                                <Button
+                                    data-testid="localization-add-key"
+                                    disabled={bundle?.languages.every(language => language.tag !== '') !== false}
+                                    icon={<PlusOutlined />}
+                                    onClick={() => setAdding(true)}
+                                >
+                                    {t('add_key')}
+                                </Button>
+                                <Button
+                                    data-testid="localization-discard"
+                                    disabled={!dirty || saving}
+                                    icon={<UndoOutlined />}
+                                    onClick={() => modal.confirm({
+                                        title: t('discard_title'),
+                                        content: t('discard_content'),
+                                        okText: t('discard'),
+                                        onOk: discard,
+                                    })}
+                                >
+                                    {t('discard')}
+                                </Button>
+                                <Button
+                                    data-testid="localization-save"
+                                    disabled={!dirty}
+                                    icon={<SaveOutlined />}
+                                    loading={saving}
+                                    onClick={() => confirmWrite(() => void save())}
+                                    type="primary"
+                                >
+                                    {t('save')}
+                                </Button>
+                            </Space>
+                        )}
                         title={(
                             <CrumbSwitcher
                                 current={title}
@@ -219,6 +339,21 @@ export const LocalizationWorkspace = () => {
                         )}
                         <div ref={canvasRef} className={styles.measured}>{canvas()}</div>
                     </div>
+                    <AddKeyModal keys={drafts.keys} onAdd={addKey} onClose={() => setAdding(false)} open={adding} />
+                    <Modal
+                        cancelText={t('common:btn.cancel')}
+                        okButtonProps={{ danger: true }}
+                        okText={t('discard')}
+                        onCancel={() => leaving.reset?.()}
+                        open={leaving.state === 'blocked'}
+                        title={t('leaving_title')}
+                        onOk={() => {
+                            discard()
+                            leaving.proceed?.()
+                        }}
+                    >
+                        {t('leaving_content')}
+                    </Modal>
                     <CompileProblemsPanel
                         project={project}
                         statusReadAt={statusReadAt}

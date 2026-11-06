@@ -67,3 +67,18 @@ export async function readMessageFiles(projectId: string): Promise<MessageFile[]
     const names = await listMessageFiles(projectId)
     return Promise.all(names.map(name => readMessageFile(projectId, name)))
 }
+
+/**
+ * Writes localization files of a project, all in one request: one change of the project, compiled once.
+ *
+ * <p>A file the folder holds is overwritten, a new one is added; the folder is created where the project has none.
+ */
+export async function saveMessageFiles(projectId: string, files: Array<{ name: string, text: string }>): Promise<void> {
+    const form = new FormData()
+    files.forEach(file => form.append('file', new File([file.text], file.name, { type: 'text/plain' }), file.name))
+    await apiCall(
+        `${filesUrl(projectId, BUNDLE_FOLDER)}/?createFolders=true&conflictPolicy=OVERWRITE`,
+        { method: 'POST', body: form },
+        { throwError: true }
+    )
+}

@@ -9,9 +9,6 @@ import type { LocalizationStyles } from './LocalizationWorkspace.styles'
  */
 export type TextOf = (language: BundleLanguage, key: string) => string | null | undefined
 
-/** The text of a key as the files hold it. */
-export const fileTextOf: TextOf = (language, key) => language.texts.get(key)
-
 interface MessageTextProps {
     bundle: Bundle
     language: BundleLanguage

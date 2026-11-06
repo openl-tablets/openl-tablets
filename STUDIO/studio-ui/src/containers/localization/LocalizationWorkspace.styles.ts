@@ -90,10 +90,26 @@ export const useStyles = createStyles(({ css, token }) => ({
     empty: css`
         color: ${token.colorTextQuaternary};
     `,
-    /** A cell fills its place in the row. */
+    /** A cell is written in by a click anywhere on it, so it fills its place in the row. */
     cell: css`
         position: relative;
         min-height: 22px;
+        cursor: text;
+    `,
+    /** A cell whose text the reader has changed and not saved yet. */
+    changed: css`
+        position: relative;
+        min-height: 22px;
+        cursor: text;
+        margin: -4px -8px;
+        padding: 4px 8px 4px 5px;
+        border-left: 3px solid ${token.colorWarning};
+        background: ${token.colorWarningBg};
+    `,
+    inherit: css`
+        padding: 0;
+        height: auto;
+        font-size: ${token.fontSizeSM}px;
     `,
     /** The picked key: its name over its text in every language. */
     keyPanel: css`
