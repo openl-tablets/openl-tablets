@@ -204,7 +204,8 @@ absent too and logged: the check still tells whether the branches can be merged.
 - A project the user may not read is counted in `hiddenProjects`, without its name or its files.
 - Files are told by their path from the root of the repository. A file both branches made alike is no change of the
   merge. A file outside any project is listed only when the user may read it.
-- The answer compares the trees of the branches only, so it costs about the same however large the files are.
+- The files the merge changes are found by comparing the trees of the branches, so finding them costs about the same
+  however large the files are. Only the estimate of `conflicts` reads files.
 
 **Errors**:
 - `409 Conflict`: Project has unresolved merge conflicts from a previous operation, the project cannot take a merge,
