@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
@@ -103,39 +104,36 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return repositories.get();
     }
 
+    @Synchronized("projects")
     public void init() {
-        synchronized (projects) {
-            if (repositories.get() != null) {
-                return;
-            }
-
-            var repositoryList = new ArrayList<Repository>();
-            repositories.set(repositoryList);
-
-            rulesLocation = getBasePath();
-            var designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
-                    .split(",", -1);
-            for (String repoId : designRepositories) {
-                var repository = createRepo(repoId.trim(), rulesLocation);
-
-                repositoryList.add(repository);
-                if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
-                    configuredBranchFallbacks.put(repository.getId(),
-                            Objects.requireNonNullElse(scanProjects(repository), Map.of()));
-                    // The callback runs after both the early default-branch snapshot and the complete one, so the
-                    // workspace refreshes as soon as the default branch's projects are mapped across their branches.
-                    indexService.register(branchRepository, rulesLocation, this::indexPublished);
-                    repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
-                } else {
-                    repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
-                }
-            }
-            repositories.set(repositoryList.stream()
-                    .filter(r -> Objects.nonNull(r.getName()))
-                    .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
-                    .toList());
-            refreshProjects();
+        if (repositories.get() != null) {
+            return;
         }
+
+        var repositoryList = new ArrayList<Repository>();
+        repositories.set(repositoryList);
+
+        rulesLocation = getBasePath();
+        var designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
+                .split(",", -1);
+        for (String repoId : designRepositories) {
+            var repository = createRepo(repoId.trim(), rulesLocation);
+
+            repositoryList.add(repository);
+            if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
+                configuredBranchFallbacks.put(repository.getId(),
+                        Objects.requireNonNullElse(scanProjects(repository), Map.of()));
+                // The callback runs after both the early default-branch snapshot and the complete one, so the
+                // workspace refreshes as soon as the default branch's projects are mapped across their branches.
+                indexService.register(branchRepository, rulesLocation, this::indexPublished);
+            }
+            repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
+        }
+        repositories.set(repositoryList.stream()
+                .filter(r -> Objects.nonNull(r.getName()))
+                .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
+                .toList());
+        refreshProjects();
     }
 
     private String getBasePath() {
@@ -220,65 +218,53 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    @Synchronized("projects")
     public AProject getProject(String repositoryId, String name) throws ProjectException {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
+        refreshIfNeeded();
 
-            var projectKey = ProjectKey.byName(repositoryId, name);
+        var projectKey = ProjectKey.byName(repositoryId, name);
 
-            var cached = projects.get(projectKey);
-            if (cached != null) {
-                return cached;
-            }
-            Optional<AProject> project = projects.values()
-                    .stream()
-                    .filter(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name))
-                    .min(Comparator.comparing(AProject::getName));
-            if (project.isPresent()) {
-                return project.get();
-            }
-            throw new ProjectException("Project '{0}' is not found.", null, name);
+        var cached = projects.get(projectKey);
+        if (cached != null) {
+            return cached;
         }
+        Optional<AProject> project = projects.values()
+                .stream()
+                .filter(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name))
+                .min(Comparator.comparing(AProject::getName));
+        if (project.isPresent()) {
+            return project.get();
+        }
+        throw new ProjectException("Project '{0}' is not found.", null, name);
     }
 
     @Override
+    @Synchronized("projects")
     public Optional<AProject> getProjectById(ProjectId id) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            return Optional.ofNullable(projectsById.get(id));
-        }
+        refreshIfNeeded();
+        return Optional.ofNullable(projectsById.get(id));
     }
 
     @Override
+    @Synchronized("projects")
     public Optional<StaleIds.Change<ProjectId>> getProjectIdChange(ProjectId id) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            return staleProjectIds.changeOf(id);
-        }
+        refreshIfNeeded();
+        return staleProjectIds.changeOf(id);
     }
 
     @Override
+    @Synchronized("projects")
     public Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            var direct = branchedProjects.get(ProjectKey.byName(repositoryId, name));
-            if (direct != null) {
-                return Optional.of(direct);
-            }
-            return branchedProjects.values()
-                    .stream()
-                    .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
-                    .filter(project -> knownAs(project.homeEntry().project(), name))
-                    .min(Comparator.comparing(project -> project.homeEntry().project().getName()));
+        refreshIfNeeded();
+        var direct = branchedProjects.get(ProjectKey.byName(repositoryId, name));
+        if (direct != null) {
+            return Optional.of(direct);
         }
+        return branchedProjects.values()
+                .stream()
+                .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
+                .filter(project -> knownAs(project.homeEntry().project(), name))
+                .min(Comparator.comparing(project -> project.homeEntry().project().getName()));
     }
 
     /**
@@ -309,41 +295,35 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    @Synchronized("projects")
     public RepositoryProjects getProjectsInAllBranches(String repositoryId) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            var listed = projects.entrySet()
-                    .stream()
-                    .filter(entry -> repositoryId.equals(entry.getKey().repositoryId()))
-                    .flatMap(entry -> {
-                        var branched = branchedProjects.get(entry.getKey());
-                        return branched == null
-                                ? Stream.of(entry.getValue())
-                                : branched.entries().values().stream().map(BranchEntry::project);
-                    })
-                    .toList();
-            return new RepositoryProjects(listed, repositoriesListedWhole.contains(repositoryId));
-        }
+        refreshIfNeeded();
+        var listed = projects.entrySet()
+                .stream()
+                .filter(entry -> repositoryId.equals(entry.getKey().repositoryId()))
+                .flatMap(entry -> {
+                    var branched = branchedProjects.get(entry.getKey());
+                    return branched == null
+                            ? Stream.of(entry.getValue())
+                            : branched.entries().values().stream().map(BranchEntry::project);
+                })
+                .toList();
+        return new RepositoryProjects(listed, repositoriesListedWhole.contains(repositoryId));
     }
 
     /**
      * The entries the branch holds of the projects of the repository that match the filter.
      */
+    @Synchronized("projects")
     private List<AProject> branchEntries(String repositoryId, String branch, Predicate<BranchedProject> filter) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            return branchedProjects.values()
-                    .stream()
-                    .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
-                    .filter(filter)
-                    .map(project -> project.entry(branch).map(BranchEntry::project).orElse(null))
-                    .filter(Objects::nonNull)
-                    .toList();
-        }
+        refreshIfNeeded();
+        return branchedProjects.values()
+                .stream()
+                .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
+                .filter(filter)
+                .map(project -> project.entry(branch).map(BranchEntry::project).orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     @Override
@@ -409,41 +389,38 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    @Synchronized("projects")
     public @Nullable AProject getProjectByPath(String repositoryId,
                                                String branch,
                                                String path,
                                                String version) throws IOException {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
+        refreshIfNeeded();
 
-            if (branch != null) {
-                var branchProject = branchedProjects.values()
-                        .stream()
-                        .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
-                        .map(project -> project.entry(branch).orElse(null))
-                        .filter(Objects::nonNull)
-                        .map(BranchEntry::project)
-                        .filter(project -> project.getRealPath().equals(path))
-                        .findFirst();
-                if (branchProject.isPresent()) {
-                    var project = branchProject.get();
-                    return new AProject(project.getRepository(), project.getFolderPath(), version);
-                }
-            }
-
-            Optional<AProject> project = projects.values()
+        if (branch != null) {
+            var branchProject = branchedProjects.values()
                     .stream()
-                    .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
+                    .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
+                    .map(project -> project.entry(branch).orElse(null))
+                    .filter(Objects::nonNull)
+                    .map(BranchEntry::project)
+                    .filter(project -> project.getRealPath().equals(path))
                     .findFirst();
-            if (project.isPresent()) {
-                var repository = project.get().getRepository();
-                if (branch != null && repository.supports().branches()) {
-                    repository = ((BranchRepository) repository).forBranch(branch);
-                }
-                return new AProject(repository, project.get().getFolderPath(), version);
+            if (branchProject.isPresent()) {
+                var project = branchProject.get();
+                return new AProject(project.getRepository(), project.getFolderPath(), version);
             }
+        }
+
+        Optional<AProject> project = projects.values()
+                .stream()
+                .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
+                .findFirst();
+        if (project.isPresent()) {
+            var repository = project.get().getRepository();
+            if (branch != null && repository.supports().branches()) {
+                repository = ((BranchRepository) repository).forBranch(branch);
+            }
+            return new AProject(repository, project.get().getFolderPath(), version);
         }
         return null;
     }
@@ -498,9 +475,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         List<AProject> result;
 
         synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
+            refreshIfNeeded();
 
             result = new ArrayList<>(projects.values());
         }
@@ -515,9 +490,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         List<DesignProject> result;
 
         synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
+            refreshIfNeeded();
 
             result = projects.entrySet()
                     .stream()
@@ -531,17 +504,24 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    @Synchronized("projects")
     public List<? extends AProject> getProjects(String repositoryId) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            return projects.entrySet()
-                    .stream()
-                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
-                    .map(Map.Entry::getValue)
-                    .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
-                    .toList();
+        refreshIfNeeded();
+        return projects.entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
+                .map(Map.Entry::getValue)
+                .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    /**
+     * Rebuilds the cached projects when a change of the repositories made them out of date. The caller holds the
+     * monitor of the cache.
+     */
+    private void refreshIfNeeded() {
+        if (projectsRefreshNeeded) {
+            refreshProjects();
         }
     }
 
@@ -662,22 +642,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    @Synchronized("projects")
     public boolean hasProject(String repositoryId, String name) {
-        synchronized (projects) {
-            if (projectsRefreshNeeded) {
-                refreshProjects();
-            }
-            // Check full name for mapped repositories
-            var project = projects.get(ProjectKey.byName(repositoryId, name));
-            if (project != null) {
-                return true;
-            }
-
-            // Check business name, and the folder a technical name of another branch carries
-            return projects.values()
-                    .stream()
-                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name));
+        refreshIfNeeded();
+        // Check full name for mapped repositories
+        var project = projects.get(ProjectKey.byName(repositoryId, name));
+        if (project != null) {
+            return true;
         }
+
+        // Check business name, and the folder a technical name of another branch carries
+        return projects.values()
+                .stream()
+                .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name));
     }
 
     // --- private
