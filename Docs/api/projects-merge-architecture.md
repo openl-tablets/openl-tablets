@@ -180,12 +180,20 @@ takes in, or sends out, the changes of every other project the source branch cha
 it, so the user sees what the merge takes in before it starts and what it changed once it is committed.
 
 - **Before the merge** — `BranchRepository.getMergeScope(source, target)` walks three trees at once — the commit the
-  branches parted at, the source and the target — and compares no content: a file the source changed since then
-  that the target does not hold as the source does is a change of the merge, and one the target changed too is changed
-  in both. A file both branches made alike changes nothing. The walk enters only the folders the source changed. Of
-  several commits the branches parted at, as a criss-cross history has, the first is taken. A tree walk costs about
-  the same however large the files are, so a mergeable check answers without a noticeable delay. It tells which files
-  may conflict, not how they merge: that is known only once the merge has run.
+  branches parted at, the source and the target: a file the source changed since then that the target does not hold
+  as the source does is a change of the merge, and one the target changed too is changed in both. A file both
+  branches made alike changes nothing. The walk enters only the folders the source changed. Of several commits the
+  branches parted at, as a criss-cross history has, the first is taken. Finding the changes compares no content, so
+  it costs about the same however large the files are.
+- **Possible conflicts** — in the same walk, `TrialMerge` estimates which of the files changed in both may conflict,
+  without merging or writing anything. It reads only those files. A text file may conflict when the lines both
+  branches changed overlap. A workbook may conflict when both changed the same cells, rows or columns of a table, as
+  `XlsWorkbookMerger` compares the versions before it combines them, and so may a workbook both branches added. Any
+  other file both changed may conflict, and so may a file one branch deleted and the other one changed. A file that
+  cannot be read may conflict, so it does not take the estimate of the others with it. An ignored file never
+  conflicts. The check answers them as `conflicts`, and Sync marks them **Possible conflict**. It is an estimate:
+  the merge also stops at a workbook it cannot write, which the estimate tells to merge by itself. Reading the
+  workbooks makes the check take longer for large ones, and a cancelled request stops it before the next file.
 - **After the merge** — `BranchRepository.merge` answers with a `MergeOutcome`: the revision of the target branch
   before the merge, the merge commit, the files the merge commit changes against the revision before, and the
   workbooks the merge combined by itself with the sheets taken from each branch. The commit message keeps listing
