@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -10,13 +11,16 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
+import org.openl.studio.projects.model.project.status.FileMessageSource;
 import org.openl.studio.projects.model.project.status.MessageSource;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
@@ -28,7 +32,7 @@ import org.openl.studio.projects.service.tables.TablesByLocation;
 public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDescriptionMapper {
 
     private static final Comparator<DetailedMessageDescription> BY_SEVERITY_AND_ID = Comparator
-            .<DetailedMessageDescription, org.openl.message.Severity>comparing(m -> m.source().severity())
+            .<DetailedMessageDescription, Severity>comparing(m -> m.source().severity())
             .thenComparingLong(m -> m.source().id());
 
     @Override
@@ -74,16 +78,25 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         private final TablesByLocation tables;
         /** Where a table lives — a message can come from a module of a project this one depends on. */
         private final TableModules tableModules;
+        /** The folder of the project being compiled, which the path of a file it raised a message about is told in. */
+        private final @Nullable Path projectFolder;
 
         MessageLocator(ProjectModel model) {
             tables = TablesByLocation.of(model);
             tableModules = TableModules.ofWorkspaceAddressed(model);
+            var module = model.getModuleInfo();
+            projectFolder = module == null || module.getProject() == null
+                    ? null
+                    : module.getProject().getProjectFolder();
         }
 
         MessageSource resolve(OpenLMessage message) {
             var sourceLocation = message.getSourceLocation();
             if (sourceLocation == null) {
                 return null;
+            }
+            if (message instanceof OpenLFileMessage fileMessage) {
+                return fileSource(fileMessage);
             }
             var location = new XlsUrlParser(sourceLocation);
             var where = tableModules.locationOf(sourceLocation);
@@ -109,6 +122,32 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                             .project(where.projectName())
                             .build()
                     : null;
+        }
+
+        /**
+         * The line of a file a message is about, with the key and the language it names.
+         *
+         * <p>The path is told from the project folder, so a screen can open the file of the project; a file
+         * outside the folder, or in an archive, is named by its address alone.
+         */
+        private FileMessageSource fileSource(OpenLFileMessage message) {
+            return FileMessageSource.builder()
+                    .path(pathOf(message.getFile()))
+                    .line(message.getLine())
+                    .key(message.getKey())
+                    .language(message.getLanguage())
+                    .build();
+        }
+
+        private String pathOf(Path file) {
+            var absolute = file.toAbsolutePath();
+            var folder = projectFolder == null ? null : projectFolder.toAbsolutePath();
+            if (folder == null || !absolute.startsWith(folder)) {
+                return file.toUri().toString();
+            }
+            return folder.relativize(absolute)
+                    .toString()
+                    .replace('\\', '/');
         }
 
         /**

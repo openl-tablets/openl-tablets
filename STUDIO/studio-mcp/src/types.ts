@@ -1057,7 +1057,7 @@ export interface CollectionPage<T> {
  */
 export type CompileState = "idle" | "compiling" | "ok" | "warnings" | "errors";
 
-/** Source-location discriminator. Backend has `TableMessageSource` and `ModuleMessageSource` variants; intentionally typed loosely to avoid coupling. */
+/** Source-location discriminator. Backend has `TableMessageSource`, `ModuleMessageSource` and `FileMessageSource` variants; intentionally typed loosely to avoid coupling. */
 type MessageSource = Record<string, unknown>;
 
 /**

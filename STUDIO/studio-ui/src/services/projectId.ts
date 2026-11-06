@@ -28,6 +28,10 @@ export const localizationRoute = (projectId: string, key?: string | null, langua
     return `/projects/${projectId}/localization${search ? `?${search}` : ''}`
 }
 
+/** The address of the messages of a project, filtered to the keys a language has no translation for. */
+export const untranslatedRoute = (projectId: string, language: string): string =>
+    `/projects/${projectId}/localization?untranslated=${encodeURIComponent(language)}`
+
 /**
  * The address of a project's Files tab, opened on one file of it.
  *

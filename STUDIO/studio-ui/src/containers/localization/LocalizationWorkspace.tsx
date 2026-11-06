@@ -64,6 +64,8 @@ export const LocalizationWorkspace = () => {
     const [search, setSearch] = useSearchParams()
     const selectedKey = search.get('key')
     const askedLanguage = search.get('lang')
+    // A link to the keys a language has not translated opens the messages filtered to them.
+    const untranslated = search.get('untranslated')
     const uiLocale = i18n.resolvedLanguage ?? i18n.language
 
     const [project, setProject] = useState<Project | null>(null)
@@ -79,6 +81,11 @@ export const LocalizationWorkspace = () => {
     // of it shows the inherited text until it is written.
     const [created, setCreated] = useState<string[]>([])
     const [filter, setFilter] = useState<MessageFilter>(NO_FILTER)
+    useEffect(() => {
+        if (untranslated !== null) {
+            setFilter({ ...NO_FILTER, notTranslatedInto: untranslated })
+        }
+    }, [untranslated])
     const { modal, notification } = App.useApp()
     const { ref: canvasRef, size } = useElementSize<HTMLDivElement>()
     const confirmWrite = useOverwriteConfirm(project)
