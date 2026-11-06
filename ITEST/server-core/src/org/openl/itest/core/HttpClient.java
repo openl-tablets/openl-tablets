@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -41,7 +42,9 @@ public class HttpClient implements AutoCloseable {
     private static final String WEB_SOCKET_PATH = "/ws";
 
     private final JettyServer server;
+    @Getter
     private final URI baseURL;
+    @Getter
     private final URI webSocketBaseURL;
     private final java.net.http.HttpClient client;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
@@ -55,11 +58,11 @@ public class HttpClient implements AutoCloseable {
         this.webSocketBaseURL = URI.create(baseURL.toString().replaceFirst("^http", "ws") + WEB_SOCKET_PATH);
         var builder = java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_1_1);
 
-        int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
+        var connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
         if (connectTimeout > 0) {
             builder.connectTimeout(Duration.ofMillis(connectTimeout));
         }
-        int retryMillis = Integer.parseInt(System.getProperty("http.timeout.read")) * 2;
+        var retryMillis = Integer.parseInt(System.getProperty("http.timeout.read")) * 2;
         if (retryMillis <= 0) {
             retryMillis = 120_000; // 2 minutes
         }
@@ -71,7 +74,7 @@ public class HttpClient implements AutoCloseable {
         var uri = baseURL.resolve(url);
         var builder = HttpRequest.newBuilder().uri(uri);
 
-        int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
+        var readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
         if (readTimeout > 0) {
             builder.timeout(Duration.ofMillis(readTimeout));
         }
@@ -129,7 +132,7 @@ public class HttpClient implements AutoCloseable {
         String currentCookieFolder = null;
         String currentEnvFolder = null;
         for (var p : requests) {
-            long start = System.currentTimeMillis();
+            var start = System.currentTimeMillis();
             try {
                 // Cookie is scoped to first-level subfolder (original behavior)
                 var cookieFolder = p.substring(0, p.indexOf(File.separatorChar, path.length() + 1) + 1);
@@ -155,10 +158,10 @@ public class HttpClient implements AutoCloseable {
                 Map<String, String> effectiveEnv = mergeEnvironments(currentFolderEnv, responseEnv, localEnv);
                 send(p + ".req", p + ".resp", effectiveEnv, responseEnv);
 
-                long end = System.currentTimeMillis();
+                var end = System.currentTimeMillis();
                 System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
             } catch (Exception | AssertionError ex) {
-                long end = System.currentTimeMillis();
+                var end = System.currentTimeMillis();
                 System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end - start) + "ms)");
                 ex.printStackTrace(System.err); // the console is the only log of the test harness
                 // Continuation lines of a multi-line message stay indented under their request
@@ -217,7 +220,7 @@ public class HttpClient implements AutoCloseable {
     private Map<String, String> mergeEnvironments(Map<String, String> fileEnv,
                                                   Map<String, String> responseEnv,
                                                   Map<String, String> programmaticEnv) {
-        Map<String, String> merged = new LinkedHashMap<>(fileEnv);
+        var merged = new LinkedHashMap<String, String>(fileEnv);
         merged.putAll(responseEnv);
         merged.putAll(programmaticEnv);
         return merged;
@@ -302,9 +305,10 @@ public class HttpClient implements AutoCloseable {
                 throw new FileNotFoundException(requestFile);
             }
 
-            var assertResponse = Objects.requireNonNullElse(read(responseFile), HttpData.ok());
-            String retry = request.getSetting("Retry");
-            long timeout = System.currentTimeMillis();
+            var assertResponse = Objects.requireNonNullElse(read(responseFile), HttpData.ok())
+                    .resolvePlaceholders(effectiveEnv);
+            var retry = request.getSetting("Retry");
+            var timeout = System.currentTimeMillis();
             if ("yes".equals(retry)) {
                 timeout += retryTimeout;
             }
@@ -374,20 +378,6 @@ public class HttpClient implements AutoCloseable {
     }
 
     /**
-     * @return the {@code http://...} base URL the server is bound to.
-     */
-    public URI getBaseURL() {
-        return baseURL;
-    }
-
-    /**
-     * @return the {@code ws://...} URL that the server's STOMP endpoint is served from.
-     */
-    public URI getWebSocketBaseURL() {
-        return webSocketBaseURL;
-    }
-
-    /**
      * @return the session cookie established by previous HTTP calls, or {@code null}
      *         if no session has been initialized yet (e.g. unauthenticated profiles).
      */
@@ -398,7 +388,7 @@ public class HttpClient implements AutoCloseable {
     public void tryWaitOK(String url) {
         var req = requestBuilder(url, null).GET().build();
         try {
-            for (int i = 0; i < 100; i++) {
+            for (var i = 0; i < 100; i++) {
                 if (respondsOK(req)) {
                     break;
                 }
