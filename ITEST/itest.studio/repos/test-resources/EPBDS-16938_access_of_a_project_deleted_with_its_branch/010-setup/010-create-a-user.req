@@ -1,0 +1,16 @@
+PUT /rest/users HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "displayName": "User 16938",
+  "groups": [],
+  "username": "${USER}",
+  "internalPassword": {
+    "password": "${USER}"
+  },
+  "firstName": "User",
+  "lastName": "16938",
+  "email": "${USER}@email"
+}
+

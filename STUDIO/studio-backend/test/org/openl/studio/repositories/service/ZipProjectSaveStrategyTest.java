@@ -125,6 +125,20 @@ class ZipProjectSaveStrategyTest {
     }
 
     @Test
+    void the_folder_of_a_project_is_its_internal_path_in_a_mapped_repository_and_its_key_otherwise()
+            throws IOException {
+        mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
+        mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
+        var mapped = new CreateUpdateProjectModel("design1", "jsmith", "Project 1", "foo/Project 1", "Bar", false);
+        var flat = new CreateUpdateProjectModel("design2", "jsmith", "Project 1", null, "Bar", false);
+
+        // The folder an access list is kept at is the folder the project is saved to.
+        assertEquals("foo/Project 1", saveStrategy.folderOf(designTimeRepositoryMock.getRepository("design1"), mapped));
+        assertEquals(BASE_RULES_LOCATION + "Project 1",
+                saveStrategy.folderOf(designTimeRepositoryMock.getRepository("design2"), flat));
+    }
+
+    @Test
     void testSaveMappedRepo2() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         var model = new CreateUpdateProjectModel("design1",
@@ -359,7 +373,7 @@ class ZipProjectSaveStrategyTest {
                     if (!ze.isDirectory()) {
                         var expected = root.resolve(ze.getName());
                         try (InputStream expectedStream = Files.newInputStream(expected)) {
-                            if (!ze.getName().equals("rules.xml")) {
+                            if (!"rules.xml".equals(ze.getName())) {
                                 assertTrue(
                                         org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualZipStream));
                             } else {
@@ -387,7 +401,7 @@ class ZipProjectSaveStrategyTest {
                 assertTrue(Files.exists(expected));
                 try (InputStream expectedStream = Files.newInputStream(expected);
                      var actualStream = actualItem.getStream()) {
-                    if (!actualFileName.equals("rules.xml")) {
+                    if (!"rules.xml".equals(actualFileName)) {
                         assertTrue(org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualStream));
                     } else {
                         // rules xml must be modified

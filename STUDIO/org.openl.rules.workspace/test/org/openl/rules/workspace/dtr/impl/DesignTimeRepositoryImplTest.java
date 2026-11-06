@@ -29,9 +29,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentMatchers;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -47,6 +49,7 @@ import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 
 class DesignTimeRepositoryImplTest {
 
@@ -152,6 +155,12 @@ class DesignTimeRepositoryImplTest {
             assertEquals(List.of(), repository.getBranchProjects("other", "feature/rates"));
             assertEquals(BranchedProjectIndexService.IndexState.READY,
                     repository.getProjectIndexHealth("design").orElseThrow().state());
+            // A repository indexed whole lists every project once for each branch holding it.
+            var inAllBranches = repository.getProjectsInAllBranches("design");
+            assertTrue(inAllBranches.complete());
+            assertEquals(List.of("DESIGN/Rates"),
+                    inAllBranches.projects().stream().map(AProject::getRealPath).toList());
+            assertEquals(RepositoryProjects.UNKNOWN, repository.getProjectsInAllBranches("other"));
             var historical = repository.getProjectByPath("design", "feature/rates", "DESIGN/Rates", "revision");
             assertEquals("feature/rates", ((BranchRepository) historical.getRepository()).getBranch());
             assertEquals("DESIGN/Rates", historical.getRealPath());
@@ -287,6 +296,10 @@ class DesignTimeRepositoryImplTest {
             var health = repository.getProjectIndexHealth("design").orElseThrow();
             assertEquals(BranchedProjectIndexService.IndexState.DEGRADED, health.state());
             assertEquals("Repository branches cannot be indexed.", health.lastError());
+            // A branch not read may hold a project the fallback does not list: the projects listed exist all the same.
+            var listed = repository.getProjectsInAllBranches("design");
+            assertFalse(listed.complete());
+            assertEquals(List.of("DESIGN/Rates"), listed.projects().stream().map(AProject::getRealPath).toList());
             repository.destroy();
         }
     }
@@ -339,6 +352,7 @@ class DesignTimeRepositoryImplTest {
         assertSame(listed, withoutBranches.project());
         assertNull(withoutBranches.branches());
         assertTrue(designRepository.getProjectIndexHealth("design").isEmpty());
+        assertEquals(new RepositoryProjects(List.of(listed), true), designRepository.getProjectsInAllBranches("design"));
         assertEquals("DESIGN/Rates",
                 designRepository.getProjectByPath("design", null, "DESIGN/Rates", "revision").getRealPath());
         assertNull(designRepository.getProjectByPath("design", null, "DESIGN/Missing", "revision"));
@@ -347,6 +361,8 @@ class DesignTimeRepositoryImplTest {
         assertEquals(1, notifications.get());
         assertTrue(designRepository.getProjects().isEmpty());
         assertEquals(List.of("Repository 'Design' : Repository unavailable"), designRepository.getExceptions());
+        // A repository that cannot be read is not listed whole.
+        assertEquals(RepositoryProjects.UNKNOWN, designRepository.getProjectsInAllBranches("design"));
 
         designRepository.destroy();
         verify(root).setListener(isNull());
@@ -390,7 +406,7 @@ class DesignTimeRepositoryImplTest {
         doAnswer(invocation -> {
             listener.set(invocation.getArgument(0));
             return null;
-        }).when(repository).setListener(org.mockito.ArgumentMatchers.nullable(Listener.class));
+        }).when(repository).setListener(ArgumentMatchers.nullable(Listener.class));
         return repository;
     }
 
@@ -474,7 +490,7 @@ class DesignTimeRepositoryImplTest {
     }
 
     private static Map<String, BranchStatus> statuses(Collection<String> branches) {
-        return branches.stream().collect(java.util.stream.Collectors.toMap(
+        return branches.stream().collect(Collectors.toMap(
                 branch -> branch,
                 branch -> new BranchStatus(
                         new UserInfo("author"),
@@ -485,7 +501,7 @@ class DesignTimeRepositoryImplTest {
     }
 
     private static Map<String, BranchTreeRevision> revisions(Collection<String> branches, int generation) {
-        return branches.stream().collect(java.util.stream.Collectors.toMap(
+        return branches.stream().collect(Collectors.toMap(
                 branch -> branch,
                 branch -> new BranchTreeRevision(branch + "-revision", branch + "-tree-" + generation)));
     }

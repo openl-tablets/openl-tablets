@@ -1141,7 +1141,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         validateComment(project, normalizedComment);
         var localOnly = project.isLocalOnly();
         var repository = project.getDesignRepository();
-        var projectName = project.getDesignProjectName();
         var branch = project.getBranch();
         var aclPath = localOnly ? null : designRepositoryAclService.getPath(project);
         // The repository forgets the folder of a deleted project, so the audit log is told it beforehand.
@@ -1156,11 +1155,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.delete.message");
         }
         var indexPublished = localOnly || refreshProjectIndex(repository, branch);
-        Map<Sid, List<Permission>> removedPermissions = Map.of();
-        if (!localOnly && indexPublished && !isAclPathStillUsed(repository, projectName, aclPath)) {
-            removedPermissions = designRepositoryAclService.listPermissions(repository.getId(), aclPath);
-            designRepositoryAclService.deleteAcl(repository.getId(), aclPath);
-        }
+        var removedPermissions = !localOnly && indexPublished && isAclLeftBehind(repository, aclPath)
+                ? removeAcl(repository.getId(), aclPath)
+                : Map.<Sid, List<Permission>>of();
         if (!localOnly) {
             auditor.deleted(project, path, normalizedComment, removedPermissions);
         }
@@ -1200,16 +1197,31 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return ProjectIndex.awaitRepository(getUserWorkspace().getDesignTimeRepository(), repository);
     }
 
-    private boolean isAclPathStillUsed(Repository repository, String projectName, String aclPath) {
-        if (!repository.supports().branches()) {
-            return false;
-        }
-        return getUserWorkspace().getDesignTimeRepository()
-                .getBranchedProject(repository.getId(), projectName)
-                .stream()
-                .flatMap(project -> project.entries().values().stream())
-                .map(entry -> designRepositoryAclService.getPath(entry.project()))
-                .anyMatch(path -> path != null && (path.equals(aclPath) || path.startsWith(aclPath + '/')));
+    /**
+     * Whether the access list of a deleted project's folder is left behind: no project of any branch lives in the
+     * folder, even one the caller cannot read.
+     *
+     * <p>A repository without branches holds a deleted project nowhere else. In a repository with branches the
+     * list stays while the repository is not indexed whole: a branch not read yet may hold the folder.
+     */
+    private boolean isAclLeftBehind(Repository repository, String aclPath) {
+        return !repository.supports().branches()
+                || projectFoldersOf(repository).useOf(aclPath) == ProjectFolders.Use.FREE;
+    }
+
+    private ProjectFolders projectFoldersOf(Repository repository) {
+        return ProjectFolders.of(getUserWorkspace().getDesignTimeRepository(), repository.getId());
+    }
+
+    /**
+     * Removes the access list of a folder.
+     *
+     * @return the permissions removed, by subject
+     */
+    private Map<Sid, List<Permission>> removeAcl(String repositoryId, String aclPath) {
+        var removed = designRepositoryAclService.listPermissions(repositoryId, aclPath);
+        designRepositoryAclService.deleteAcl(repositoryId, aclPath);
+        return removed;
     }
 
     /**
@@ -1498,14 +1510,47 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * <p>The holders come from the project index. An index that has no entry for the addressed project — a
      * repository still being indexed, or a branch it failed to read — answers "not known", not "no holders", so
      * the addressed project counts as held alone and the deletion still asks for the delete permission.
+     *
+     * @return the projects the deletion removes, by the folder their access list is kept at
      */
-    private void requireDeletionOfProjectsHeldOnlyBy(RulesProject project, String repositoryId, String branch) {
+    private Map<String, Place> requireDeletionOfProjectsHeldOnlyBy(RulesProject project,
+                                                                   String repositoryId,
+                                                                   String branch) {
         var designTimeRepository = getUserWorkspace().getDesignTimeRepository();
+        var removed = new LinkedHashMap<String, Place>();
         if (designTimeRepository.isLastProjectBranch(repositoryId, project.getDesignProjectName(), branch)) {
             requireDeletePermission(project);
+            removed.put(designRepositoryAclService.getPath(project), Place.project(project));
         }
         for (AProject held : designTimeRepository.getProjectsHeldOnlyBy(repositoryId, branch)) {
             requireDeletePermission(held);
+            removed.computeIfAbsent(designRepositoryAclService.getPath(held), path -> Place.project(held));
+        }
+        return removed;
+    }
+
+    /**
+     * Removes the access lists of the projects a deleted branch held alone, as deleting each project would.
+     *
+     * <p>The branch is gone by then, so a failure leaves the access lists in place and fails nothing: the creation
+     * of the next project in such a folder replaces what is left there.
+     *
+     * @param removed the projects the deletion removed, by the folder their access list is kept at
+     */
+    private void removeAclsLeftBy(Repository repository, Map<String, Place> removed) {
+        if (removed.isEmpty()) {
+            return;
+        }
+        try {
+            var folders = projectFoldersOf(repository);
+            removed.forEach((aclPath, place) -> {
+                if (folders.useOf(aclPath) == ProjectFolders.Use.FREE) {
+                    auditor.rolesRevoked(place, removeAcl(repository.getId(), aclPath));
+                }
+            });
+        } catch (RuntimeException e) {
+            log.warn("Failed to remove the access lists of the projects deleted with a branch of repository '{}'.",
+                    repository.getId(), e);
         }
     }
 
@@ -1584,7 +1629,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (repository.getBaseBranch().equalsIgnoreCase(branch)) {
                 throw new ConflictException("project.branch.delete.base.message");
             }
-            requireDeletionOfProjectsHeldOnlyBy(project, repositoryId, branch);
+            var removed = requireDeletionOfProjectsHeldOnlyBy(project, repositoryId, branch);
             requireNotLockedByAnotherUser(project, repository, branch);
             bypassService.requireBypassOrThrow(repository, branch, project, force);
             var restoreOpenedState = releaseProjectOnBranch(project, branch);
@@ -1594,6 +1639,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (!refreshRepositoryIndex(repository)) {
                 throw new ProjectException("The deleted branch was not published by the project index.");
             }
+            removeAclsLeftBy(repository, removed);
             var workspace = getUserWorkspace();
             workspace.refresh();
             if (restoreOpenedState) {

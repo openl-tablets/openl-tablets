@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
@@ -28,6 +30,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.rest.acl.service.AclRoleAuditor.Place;
 import org.openl.rules.webstudio.web.CopyProjectTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -48,6 +51,7 @@ import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.service.ProjectFolders;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
 import org.openl.studio.tags.service.TagAssignmentValidator;
 import org.openl.util.FileUtils;
@@ -67,6 +71,19 @@ public class ProjectCreationService {
     private static final String CUSTOM_TYPE = "custom";
     private static final String PREDEFINED_TYPE = "predefined";
     private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
+
+    /**
+     * What becomes of the access list found in the folder a project is written to.
+     *
+     * @param replaced   whether the access list is replaced by the role of the creator
+     * @param leftBehind the permissions a removed project left in the folder, by subject, which the replacement
+     *                   revokes
+     */
+    public record FolderAcl(boolean replaced, Map<Sid, List<Permission>> leftBehind) {
+
+        /** The access list of a project that still lives in the folder. */
+        public static final FolderAcl KEPT = new FolderAcl(false, Map.of());
+    }
 
     private final AclProjectsHelper aclProjectsHelper;
     private final RepositoryAclServiceProvider aclServiceProvider;
@@ -99,36 +116,91 @@ public class ProjectCreationService {
     }
 
     /**
-     * Grants the current user the CONTRIBUTOR role on a freshly created project, unless an ACL already
-     * exists.
+     * What becomes of the access list of the folder a project is about to be written to.
      *
+     * <p>The access list of a folder stays while a project of any branch lives in the folder: an archive uploaded
+     * over a project keeps the access of that project. Otherwise the access list is what a removed project left
+     * behind, deleted with Delete Branch, on the Git server or while OpenL Studio was stopped. The new project then
+     * starts with the access of its creator only, and the roles left there are revoked.
+     *
+     * <p>A folder no known project lives in needs the whole repository indexed. While it is not, a folder with access
+     * entries is refused: a branch not read yet may hold it.
+     *
+     * @param folder the folder the project is written to, as its access list is kept
+     * @throws ConflictException when the repository is not indexed whole and the folder has access entries
+     */
+    public FolderAcl folderAcl(Repository repository, String folder) {
+        var aclService = aclServiceProvider.getDesignRepoAclService();
+        var repositoryId = repository.getId();
+        var use = ProjectFolders.of(getUserWorkspace().getDesignTimeRepository(), repositoryId).useOf(folder);
+        if (use == ProjectFolders.Use.HELD) {
+            return FolderAcl.KEPT;
+        }
+        var leftBehind = aclService.listPermissions(repositoryId, folder);
+        if (use == ProjectFolders.Use.UNKNOWN && !leftBehind.isEmpty()) {
+            throw new ConflictException("project.create.indexing.message");
+        }
+        return new FolderAcl(true, leftBehind);
+    }
+
+    /**
+     * The folder a project of the name is written to, as its access list is kept: its folder followed by its name in
+     * a repository with mapped folders, the rules location followed by its name otherwise.
+     */
+    private String folderOf(Repository repository, @Nullable String folder, String projectName) {
+        return repository.supports().mappedFolders()
+                ? FileMappingData.internalPath(folder, projectName)
+                : getUserWorkspace().getDesignTimeRepository().getRulesLocation() + projectName;
+    }
+
+    /**
+     * Grants the current user the CONTRIBUTOR role on a freshly created project.
+     *
+     * <p>An access list found on the project stays unless it is to be replaced.
+     *
+     * @param folderAcl what becomes of the access list found, see {@link #folderAcl(Repository, String)}
      * @return whether the role was granted
      */
-    private static boolean grantContributorAclIfAbsent(RepositoryAclService acl, AProject project) {
-        if (acl.hasAcl(project)) {
+    private static boolean grantCreatorAcl(RepositoryAclService acl, AProject project, FolderAcl folderAcl) {
+        if (!folderAcl.replaced() && acl.hasAcl(project)) {
             return false;
         }
-        acl.createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+        if (!acl.createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
+            throw new ConflictException("project.create.failed.message");
+        }
         return true;
     }
 
     /**
+     * Announces the access a project got by its creation: the roles a removed project left in its folder revoked,
+     * and the role of the creator granted.
+     */
+    private void announceCreatorAcl(AProject project, FolderAcl folderAcl, boolean granted) {
+        if (!folderAcl.leftBehind().isEmpty()) {
+            auditor.rolesRevoked(Place.project(project), folderAcl.leftBehind());
+        }
+        if (granted) {
+            auditor.creatorRole(project);
+        }
+    }
+
+    /**
      * Finishes a project written from an uploaded archive outside this service: grants the current user the
-     * CONTRIBUTOR role on it, unless an ACL already exists, and records the write in the audit log.
+     * CONTRIBUTOR role on it and records the write in the audit log.
      *
      * @param overwrite whether the archive was uploaded to overwrite a project, which records a save rather than a
      *                  creation, even when no project had the name yet
+     * @param folderAcl what becomes of the access list found on the project, see
+     *                  {@link #folderAcl(Repository, String)}
      */
-    public void finishArchiveUpload(AProject project, boolean overwrite) {
-        var granted = grantContributorAclIfAbsent(aclServiceProvider.getDesignRepoAclService(), project);
+    public void finishArchiveUpload(AProject project, boolean overwrite, FolderAcl folderAcl) {
+        var granted = grantCreatorAcl(aclServiceProvider.getDesignRepoAclService(), project, folderAcl);
         if (overwrite) {
             auditor.saved(project, null, "archive");
         } else {
             auditor.created(project, "archive");
         }
-        if (granted) {
-            auditor.creatorRole(project);
-        }
+        announceCreatorAcl(project, folderAcl, granted);
     }
 
     /**
@@ -335,15 +407,20 @@ public class ProjectCreationService {
                             String modelsModuleName, String algorithmsModuleName, Map<String, String> tags) {
         var repositoryId = repository.getId();
         requireCreatePermission(repositoryId);
+        var folder = StringUtils.trimToEmpty(path);
+        var folderAcl = folderAcl(repository, folderOf(repository, folder, projectName));
+        var acl = aclServiceProvider.getDesignRepoAclService();
         try {
-            var created = new ProjectUploader(repository, files, projectName, StringUtils.trimToEmpty(path),
-                    getUserWorkspace(), aclServiceProvider.getDesignRepoAclService(), comment, zipFilter,
-                    zipCharsetDetector, modelsPath, algorithmsPath, modelsModuleName, algorithmsModuleName,
-                    tags != null ? tags : Map.of(), this::registerExtensibleTags,
-                    () -> awaitProjectVisibility(repository)).uploadProject();
-            auditor.created(created, source);
-            // The uploader always grants the creator the role: it fails the creation when it cannot.
-            auditor.creatorRole(created);
+            // The creation and the access it changed are announced before the wait for the index, which may fail
+            // after both are made.
+            var created = new ProjectUploader(repository, files, projectName, folder, getUserWorkspace(), comment,
+                    zipFilter, zipCharsetDetector, modelsPath, algorithmsPath, modelsModuleName, algorithmsModuleName,
+                    tags != null ? tags : Map.of(), project -> {
+                        var granted = grantCreatorAcl(acl, project, folderAcl);
+                        auditor.created(project, source);
+                        announceCreatorAcl(project, folderAcl, granted);
+                        registerExtensibleTags(project);
+                    }, () -> awaitProjectVisibility(repository)).uploadProject();
             return created.getFileData();
         } catch (ProjectException e) {
             throw new ConflictException("project.create.failed.message");
@@ -488,6 +565,7 @@ public class ProjectCreationService {
             if (targetRepository.supports().mappedFolders()) {
                 designData.addAdditionalData(FileMappingData.forProject(designPath, path, newName));
             }
+            var folderAcl = folderAcl(targetRepository, folderOf(targetRepository, path, newName));
             var user = workspace.getUser();
             var targetProject = new AProject(targetRepository, designData);
             targetProject.setResourceTransformer(new CopyProjectTransformer(newName, Map.of()));
@@ -495,11 +573,9 @@ public class ProjectCreationService {
             targetProject.setResourceTransformer(null);
             var copied = new RulesProject(user, workspace.getLocalWorkspace().getRepository(targetRepositoryId),
                     null, targetRepository, targetProject.getFileData(), workspace.getProjectsLockEngine());
-            var granted = grantContributorAclIfAbsent(designRepoAclService, copied);
+            var granted = grantCreatorAcl(designRepoAclService, copied, folderAcl);
             auditor.copied(copied, source, revision);
-            if (granted) {
-                auditor.creatorRole(copied);
-            }
+            announceCreatorAcl(copied, folderAcl, granted);
             registerExtensibleTags(copied);
             awaitProjectVisibility(targetRepository);
             refreshWorkspaceAfterDesignChange();

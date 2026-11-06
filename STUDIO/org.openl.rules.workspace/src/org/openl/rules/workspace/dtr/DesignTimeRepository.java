@@ -155,6 +155,18 @@ public interface DesignTimeRepository extends ProjectsContainer {
     }
 
     /**
+     * Returns every project of the repository, once for each branch that holds it.
+     *
+     * <p>The answer describes the repository, not what the caller may see.
+     *
+     * <p>The listing is not complete while the repository is not listed whole: while its index is still built, after
+     * a branch failed to be read, or when the repository cannot be read. It then lists the projects known so far.
+     */
+    default RepositoryProjects getProjectsInAllBranches(String repositoryId) {
+        return RepositoryProjects.UNKNOWN;
+    }
+
+    /**
      * Returns the current background-index health for a branch-capable repository.
      */
     default Optional<BranchedProjectIndexService.IndexHealth> getProjectIndexHealth(String repositoryId) {

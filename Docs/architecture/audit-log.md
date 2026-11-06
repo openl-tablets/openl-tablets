@@ -251,9 +251,11 @@ What the events tell, and what they leave out:
   the target finds every event of a project by its name. A branch created for a new project
   (`ProjectCreationTargetResolver`) is made from the base branch, not from a project, so it names none; the
   `projectCreated` event that follows names the branch.
-- **The role of the creator** is a `roleGranted` event, announced where the creator gets it; a copy or an archive
-  upload grants it only to a project without access rights. A deleted project that no branch holds any longer loses
-  its access rights, and each role on it is a `roleRevoked` event.
+- **The role of the creator** is a `roleGranted` event, announced where the creator gets it. A created project keeps
+  the access rights of a project of another branch in its folder, and gets no role then; the access rights a removed
+  project left in a folder no branch holds are replaced, and each role they held is a `roleRevoked` event. A deleted
+  project that no branch holds any longer loses its access rights, and each role on it is a `roleRevoked` event; so
+  does a project the deleted branch held alone (`ProjectAuditor.rolesRevoked`).
 - **A merge runs in a thread of its own**, and its events name the user, the way of sign-in and the client address of
   the request that started it, which the thread pool carries to the merge.
 - **An archive uploaded with `overwrite`** records a save, as the request asks to update the project.

@@ -245,9 +245,11 @@ public class DesignTimeRepositoryController {
             }
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
+            var folderAcl = projectCreationService.folderAcl(repository,
+                    zipProjectSaveStrategy.folderOf(repository, model));
             var data = zipProjectSaveStrategy.save(repository, model, archiveTmp);
             var project = new AProject(repository, data);
-            projectCreationService.finishArchiveUpload(project, model.isOverwrite());
+            projectCreationService.finishArchiveUpload(project, model.isOverwrite(), folderAcl);
             projectCreationService.registerExtensibleTags(project);
             projectCreationService.awaitProjectVisibility(repository);
             projectCreationService.refreshWorkspaceAfterDesignChange();

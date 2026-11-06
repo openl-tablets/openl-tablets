@@ -143,6 +143,17 @@ public final class ProjectAuditor {
     }
 
     /**
+     * Announces the roles held on a project whose access rights went with the deleted branch that alone held it.
+     *
+     * @param place              the project, as it was told before its branch was deleted
+     * @param removedPermissions the permissions held on the project, by subject, when its access rights were removed
+     */
+    public void rolesRevoked(Place place, Map<Sid, List<Permission>> removedPermissions) {
+        quietly(AuditAction.ROLE_REVOKED,
+                () -> roleAuditor.announce(place, AclRoleAuditor.rolesOf(removedPermissions), Map.of()));
+    }
+
+    /**
      * Announces the lock of another user released by force.
      *
      * @param lockedBy the user who held the lock
