@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useBlocker, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Alert, App, Button, Empty, Modal, Skeleton, Space } from 'antd'
-import { PlusOutlined, SaveOutlined, UndoOutlined } from '@ant-design/icons'
+import { GlobalOutlined, PlusOutlined, SaveOutlined, UndoOutlined } from '@ant-design/icons'
 import type { Project } from '../../types/projects'
 import type { MessageFile } from '../../types/localization'
 import { getProject } from '../../services/repositories'
@@ -22,7 +22,8 @@ import { useSharedStyles } from '../projects/sharedStyles'
 import { UnresolvedProjectLink } from '../projects/UnresolvedProjectLink'
 import { ValueText } from '../projects/ValueText'
 import { AddKeyModal } from './AddKeyModal'
-import { buildBundle, languageName } from './bundle'
+import { AddLanguageModal } from './AddLanguageModal'
+import { buildBundle, fileOfTag, languageName } from './bundle'
 import { KeyPanel } from './KeyPanel'
 import { KeyRail } from './KeyRail'
 import { useStyles } from './LocalizationWorkspace.styles'
@@ -71,6 +72,10 @@ export const LocalizationWorkspace = () => {
     const [failure, setFailure] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
     const [adding, setAdding] = useState(false)
+    const [addingLanguage, setAddingLanguage] = useState(false)
+    // The files of the languages added and not saved yet. A new language starts as an empty file, so every key
+    // of it shows the inherited text until it is written.
+    const [created, setCreated] = useState<string[]>([])
     const { modal, notification } = App.useApp()
     const { ref: canvasRef, size } = useElementSize<HTMLDivElement>()
     const confirmWrite = useOverwriteConfirm(project)
@@ -138,9 +143,21 @@ export const LocalizationWorkspace = () => {
 
     const defaultName = t('default_language')
     const nameOf = useCallback((tag: string) => languageName(tag, uiLocale, defaultName), [uiLocale, defaultName])
-    const bundle = useMemo(() => (files === null ? null : buildBundle(files, nameOf)), [files, nameOf])
+    const pending = useMemo(
+        () => created.filter(name => !files?.some(file => file.name === name)),
+        [created, files]
+    )
+    const bundle = useMemo(() => (files === null
+        ? null
+        : buildBundle([...files, ...pending.map(name => ({ name, text: '', legacy: false }))], nameOf)),
+    [files, pending, nameOf])
     const drafts = useMessageDrafts(bundle)
-    const { dirty, discard, remove, write } = drafts
+    const { remove, write, discard: discardDrafts } = drafts
+    const dirty = drafts.dirty || pending.length > 0
+    const discard = useCallback(() => {
+        discardDrafts()
+        setCreated([])
+    }, [discardDrafts])
     const keys = bundle === null ? null : drafts.keys
     const shownKey = selectedKey !== null && keys?.includes(selectedKey) === true ? selectedKey : null
 
@@ -164,7 +181,11 @@ export const LocalizationWorkspace = () => {
     const save = async () => {
         setSaving(true)
         try {
-            await saveMessageFiles(projectId, drafts.edited())
+            const written = drafts.edited()
+            const empty = pending
+                .filter(name => !written.some(file => file.name === name))
+                .map(name => ({ name, text: '' }))
+            await saveMessageFiles(projectId, [...written, ...empty])
             setFiles(await readMessageFiles(projectId))
             discard()
             notification.success({ title: t('saved') })
@@ -195,6 +216,11 @@ export const LocalizationWorkspace = () => {
         }
         setAdding(false)
     }
+
+    const addLanguage = useCallback((tag: string) => {
+        setCreated(current => [...current, fileOfTag(tag)])
+        setAddingLanguage(false)
+    }, [])
 
     // A file read in a legacy encoding is written in UTF-8 when it is saved, which the reader is told up front.
     const legacy = files?.filter(file => file.legacy).map(file => file.name) ?? []
@@ -246,7 +272,20 @@ export const LocalizationWorkspace = () => {
             return <Skeleton active />
         }
         if (bundle.languages.length === 0) {
-            return <Empty className={styles.centered} description={t('no_files')} />
+            return (
+                <Empty className={styles.centered} description={t('no_files')}>
+                    {canWrite && (
+                        <Button
+                            data-testid="localization-create"
+                            icon={<PlusOutlined />}
+                            onClick={() => addLanguage('')}
+                            type="primary"
+                        >
+                            {t('create_default')}
+                        </Button>
+                    )}
+                </Empty>
+            )
         }
         if (shownKey !== null) {
             return (
@@ -270,6 +309,7 @@ export const LocalizationWorkspace = () => {
                 height={size.height}
                 keys={drafts.keys}
                 nameOf={nameOf}
+                onAddLanguage={() => setAddingLanguage(true)}
                 onOpenKey={openKey}
                 onRemoveKey={removeKey}
                 styles={styles}
@@ -294,6 +334,14 @@ export const LocalizationWorkspace = () => {
                                     onClick={() => setAdding(true)}
                                 >
                                     {t('add_key')}
+                                </Button>
+                                <Button
+                                    data-testid="localization-add-language-header"
+                                    disabled={bundle === null || bundle.languages.length === 0}
+                                    icon={<GlobalOutlined />}
+                                    onClick={() => setAddingLanguage(true)}
+                                >
+                                    {t('add_language')}
                                 </Button>
                                 <Button
                                     data-testid="localization-discard"
@@ -340,6 +388,12 @@ export const LocalizationWorkspace = () => {
                         <div ref={canvasRef} className={styles.measured}>{canvas()}</div>
                     </div>
                     <AddKeyModal keys={drafts.keys} onAdd={addKey} onClose={() => setAdding(false)} open={adding} />
+                    <AddLanguageModal
+                        onAdd={addLanguage}
+                        onClose={() => setAddingLanguage(false)}
+                        open={addingLanguage}
+                        tags={bundle?.languages.map(language => language.tag) ?? []}
+                    />
                     <Modal
                         cancelText={t('common:btn.cancel')}
                         okButtonProps={{ danger: true }}

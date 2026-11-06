@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Table, Tooltip, Typography } from 'antd'
 import type { TableProps } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import type { Bundle } from './bundle'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
 import { MessageCell } from './MessageCell'
@@ -26,6 +26,7 @@ interface MessagesTableProps {
     drafts: MessageDrafts
     canWrite: boolean
     onRemoveKey: (key: string) => void
+    onAddLanguage: () => void
     /** Opens a key on its own, with its text in every language. */
     onOpenKey: (key: string) => void
     nameOf: (tag: string) => string
@@ -46,6 +47,7 @@ export const MessagesTable = ({
     drafts,
     canWrite,
     onRemoveKey,
+    onAddLanguage,
     onOpenKey,
     nameOf,
     styles,
@@ -88,12 +90,23 @@ export const MessagesTable = ({
                 />
             ),
         })),
-        // The column after the last language removes the key of its row; it stays in sight however far the
-        // languages are scrolled.
+        // The column after the last language adds a language, and in every row removes the key of the row; it
+        // stays in sight however far the languages are scrolled.
         ...(canWrite ? [{
             key: 'actions',
             fixed: 'right' as const,
             width: ACTIONS_WIDTH,
+            title: (
+                <Tooltip title={t('add_language')}>
+                    <Button
+                        aria-label={t('add_language')}
+                        data-testid="localization-add-language"
+                        icon={<PlusOutlined />}
+                        onClick={onAddLanguage}
+                        size="small"
+                    />
+                </Tooltip>
+            ),
             render: (_: unknown, row: Row) => (
                 <Tooltip title={t('remove_key')}>
                     <Button
@@ -107,7 +120,7 @@ export const MessagesTable = ({
                 </Tooltip>
             ),
         }] : []),
-    ], [bundle, canWrite, drafts, nameOf, onOpenKey, onRemoveKey, styles, t])
+    ], [bundle, canWrite, drafts, nameOf, onAddLanguage, onOpenKey, onRemoveKey, styles, t])
 
     return (
         <Table<Row>

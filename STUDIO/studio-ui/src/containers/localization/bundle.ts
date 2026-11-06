@@ -50,6 +50,9 @@ const tagOfFile = (name: string): string | null => {
     return middle.startsWith('_') ? middle.slice(1) : null
 }
 
+/** The name of the file of a language: `de_LU` → `message_de_LU.properties`, the default → `message.properties`. */
+export const fileOfTag = (tag: string): string => `${BASENAME}${tag === '' ? '' : `_${tag}`}${EXTENSION}`
+
 /** The tags a message is looked for in when a language lacks it: `de_LU_X` → `de_LU`, `de`, default. */
 const parentTags = (tag: string): string[] => {
     const parts = tag === '' ? [] : tag.split('_')
