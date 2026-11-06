@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.impl.MessageKeyUsage;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
@@ -441,6 +442,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                             .tableId(where == null ? null : modules.tableIdOf(node.getUri()))
                             .module(where == null ? null : where.module())
                             .projectId(where == null ? null : where.projectId())
+                            .messageKey(node instanceof MessageKeyUsage message ? message.getKey() : null)
                             .kind(RawTableUsageKind.of(node.getNodeType()))
                             .build();
                 })

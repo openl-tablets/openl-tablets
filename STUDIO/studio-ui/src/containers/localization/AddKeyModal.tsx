@@ -6,6 +6,8 @@ interface AddKeyModalProps {
     open: boolean
     /** The keys the messages hold already, which a new one may not repeat. */
     keys: readonly string[]
+    /** The key the dialog offers, as a rule that asks for a missing one names it. */
+    initialKey?: string | undefined
     onAdd: (key: string, text: string) => void
     onClose: () => void
 }
@@ -16,7 +18,7 @@ interface AddKeyForm {
 }
 
 /** Asks for a new key of the messages and its text in the default language. */
-export const AddKeyModal = ({ open, keys, onAdd, onClose }: AddKeyModalProps) => {
+export const AddKeyModal = ({ open, keys, initialKey, onAdd, onClose }: AddKeyModalProps) => {
     const { t } = useTranslation('localization')
     const [form] = Form.useForm<AddKeyForm>()
     return (
@@ -32,6 +34,7 @@ export const AddKeyModal = ({ open, keys, onAdd, onClose }: AddKeyModalProps) =>
         >
             <Form<AddKeyForm>
                 form={form}
+                initialValues={{ key: initialKey }}
                 layout="vertical"
                 onFinish={values => onAdd(values.key.trim(), values.text ?? '')}
             >

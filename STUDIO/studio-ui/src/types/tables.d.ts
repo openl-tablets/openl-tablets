@@ -145,7 +145,7 @@ export interface RawTableCellData extends Omit<RawTableCell, 'style' | 'runs'> {
 }
 
 /** What a piece of a cell's text refers to, as the compiler read it. */
-type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
+type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'message' | 'other'
 
 /** One piece of a cell's text the compiler resolved to something. */
 export interface RawTableCellUsage {
@@ -161,6 +161,8 @@ export interface RawTableCellUsage {
     module?: string
     /** The project that module belongs to, which for a table of a dependency is not the one being read */
     projectId?: string
+    /** The key of the localized message it names; absent for a usage of another kind */
+    messageKey?: string
     kind: RawTableUsageKind
 }
 

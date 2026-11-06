@@ -7,6 +7,7 @@ i18next.addResourceBundle('en', 'localization', {
     key: 'Key',
     load_failed: 'Failed to read the localization files',
     no_files: 'The project has no localization files yet',
+    key_missing: 'No localization file of the project has the key "{{key}}". A dependency or a library may hold its texts.',
     create_default: 'Create Default Language',
     add_language: 'Add Language',
     language: 'Language',

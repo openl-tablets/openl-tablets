@@ -33249,8 +33249,13 @@ Content-Type: application/json
               "data",
               "field",
               "underlined",
+              "message",
               "other"
             ]
+          },
+          "messageKey": {
+            "type": "string",
+            "description": "***"
           },
           "module": {
             "type": "string",

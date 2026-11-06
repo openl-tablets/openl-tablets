@@ -179,6 +179,8 @@ export const LocalizationWorkspace = () => {
         [bundle, drafts.keys, drafts.textOf, problems, filter]
     )
     const shownKey = selectedKey !== null && keys?.includes(selectedKey) === true ? selectedKey : null
+    // A key a rule asks for, which the reader followed from the rule, while no file of the project has it.
+    const missingKey = selectedKey !== null && keys !== null && !keys.includes(selectedKey) ? selectedKey : null
 
     const openKey = useCallback((key: string | null) => {
         setSearch(key === null ? {} : { key })
@@ -306,6 +308,21 @@ export const LocalizationWorkspace = () => {
                 </Empty>
             )
         }
+        if (missingKey !== null) {
+            return (
+                <Empty
+                    className={styles.centered}
+                    data-testid="localization-key-missing"
+                    description={t('key_missing', { key: missingKey })}
+                >
+                    {canWrite && (
+                        <Button icon={<PlusOutlined />} onClick={() => setAdding(true)} type="primary">
+                            {t('add_key')}
+                        </Button>
+                    )}
+                </Empty>
+            )
+        }
         if (shownKey !== null) {
             return (
                 <KeyPanel
@@ -418,7 +435,13 @@ export const LocalizationWorkspace = () => {
                         )}
                         <div ref={canvasRef} className={styles.measured}>{canvas()}</div>
                     </div>
-                    <AddKeyModal keys={drafts.keys} onAdd={addKey} onClose={() => setAdding(false)} open={adding} />
+                    <AddKeyModal
+                        initialKey={missingKey ?? undefined}
+                        keys={drafts.keys}
+                        onAdd={addKey}
+                        onClose={() => setAdding(false)}
+                        open={adding}
+                    />
                     <AddLanguageModal
                         onAdd={addLanguage}
                         onClose={() => setAddingLanguage(false)}
