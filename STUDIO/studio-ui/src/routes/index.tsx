@@ -17,6 +17,9 @@ const ProjectWorkspace = React.lazy(() =>
     import('../containers/ProjectWorkspace').then(module => ({ default: module.ProjectWorkspace })))
 const ModuleWorkspace = React.lazy(() =>
     import('../containers/ModuleWorkspace').then(module => ({ default: module.ModuleWorkspace })))
+const LocalizationWorkspace = React.lazy(() =>
+    import('../containers/localization/LocalizationWorkspace')
+        .then(module => ({ default: module.LocalizationWorkspace })))
 const ExecutionWindow = React.lazy(() =>
     import('../containers/execution/ExecutionWindow').then(module => ({ default: module.ExecutionWindow })))
 // The user guides bring a Markdown renderer, code highlighting and diagrams of their own, loaded on the first visit.
@@ -95,6 +98,17 @@ const router = createBrowserRouter([
                     <ProjectsThemeProvider>
                         <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
                             <ModuleWorkspace />
+                        </React.Suspense>
+                    </ProjectsThemeProvider>
+                ),
+            },
+            {
+                // The messages of the project in every language: shared by its modules, so a place of the project.
+                path: 'projects/:projectId/localization',
+                element: (
+                    <ProjectsThemeProvider>
+                        <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                            <LocalizationWorkspace />
                         </React.Suspense>
                     </ProjectsThemeProvider>
                 ),

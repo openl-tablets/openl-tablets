@@ -49,6 +49,7 @@ import { useDiscardConfirm } from './modules/useDiscardConfirm'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
+import { switchedRoute, switcherItems } from './localization/moduleSwitcher'
 
 const useStyles = createStyles(({ css, token }) => ({
     body: css`
@@ -616,14 +617,13 @@ export const ModuleWorkspace = () => {
     }, [navigate])
 
     /** The modules of this project, which the name in the header opens one of. */
-    const moduleItems = useMemo(
-        () => modules?.map(declared => ({ key: declared.name, label: declared.name, search: declared.name })) ?? null,
-        [modules]
-    )
+    // The modules of the project, and after them its messages, which they all share.
+    const localizationLabel = t('localization:title')
+    const moduleItems = useMemo(() => switcherItems(modules, localizationLabel), [modules, localizationLabel])
 
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
-            void navigate(moduleRoute(projectId, picked))
+            void navigate(switchedRoute(projectId, picked))
         }
     }, [moduleName, navigate, projectId])
 

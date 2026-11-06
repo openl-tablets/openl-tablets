@@ -1,0 +1,69 @@
+import apiCall, { isApiHttpError } from './apiCall'
+import { encodeProjectPath } from './projectId'
+import type { FsNode } from '../types/files'
+import type { MessageFile } from '../types/localization'
+
+/** The folder of a project the engine reads the messages from. */
+export const BUNDLE_FOLDER = 'i18n'
+
+/** The name of a localization file: `message.properties`, or `message_` with a language, `message_de_LU.properties`. */
+const MESSAGE_FILE = /^message(_[^.]+)?\.properties$/
+
+const UTF8 = new TextDecoder('utf-8', { fatal: true })
+const WINDOWS_1252 = new TextDecoder('windows-1252')
+
+const filesUrl = (projectId: string, path: string): string =>
+    `/projects/${projectId}/files/${encodeProjectPath(path)}`
+
+/**
+ * The names of the localization files of a project: the `message*.properties` files of its `i18n` folder.
+ *
+ * <p>A project without the folder has none, which is not a failure.
+ */
+export async function listMessageFiles(projectId: string): Promise<string[]> {
+    try {
+        const nodes = await apiCall(
+            `${filesUrl(projectId, BUNDLE_FOLDER)}/?viewMode=FLAT`,
+            undefined,
+            { throwError: true, suppressErrorPages: true }
+        ) as FsNode[] | null
+        return (nodes ?? [])
+            .filter(node => node.type === 'file' && MESSAGE_FILE.test(node.name))
+            .map(node => node.name)
+    } catch (error) {
+        if (isMissingFolder(error)) {
+            return []
+        }
+        throw error
+    }
+}
+
+/** Whether a listing failed because the project has no such folder: the server says the path is not one. */
+const isMissingFolder = (error: unknown): boolean => {
+    if (!isApiHttpError(error)) {
+        return false
+    }
+    const code = (error.payload as { code?: unknown } | undefined)?.code
+    return error.status === 404 || (typeof code === 'string' && code.endsWith('.not-folder.message'))
+}
+
+/** Reads one localization file, telling a file in UTF-8 from one in a legacy encoding. */
+async function readMessageFile(projectId: string, name: string): Promise<MessageFile> {
+    const response = await apiCall(
+        filesUrl(projectId, `${BUNDLE_FOLDER}/${name}`),
+        undefined,
+        { throwError: true, responseType: 'response', suppressErrorPages: true }
+    ) as Response
+    const bytes = await response.arrayBuffer()
+    try {
+        return { name, text: UTF8.decode(bytes), legacy: false }
+    } catch {
+        return { name, text: WINDOWS_1252.decode(bytes), legacy: true }
+    }
+}
+
+/** Reads every localization file of a project. */
+export async function readMessageFiles(projectId: string): Promise<MessageFile[]> {
+    const names = await listMessageFiles(projectId)
+    return Promise.all(names.map(name => readMessageFile(projectId, name)))
+}
