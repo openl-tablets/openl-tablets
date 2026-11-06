@@ -301,11 +301,11 @@ public final class ExcelTableFormatter {
             var sheetRow = rowOf(table.getTop() + row);
             if (columns == null) {
                 for (var column = region.left(); column <= region.right(); column++) {
-                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges);
+                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges, region.returned());
                 }
             } else {
                 for (var column : columns) {
-                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges);
+                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges, region.returned());
                 }
             }
         }
@@ -332,11 +332,11 @@ public final class ExcelTableFormatter {
         }
 
         /**
-         * Gives a cell its cell format. A text in pieces of their own fonts keeps its marks, in the font of the role
-         * of the cell, and loses every other font. An OpenL formula gets the apostrophe of Excel, and anything but a
-         * text loses it.
+         * Gives a cell its cell format, bold when the table returns it among other cells. A text in pieces of their own
+         * fonts keeps its marks, in the font of the role of the cell, and loses every other font. An OpenL formula gets
+         * the apostrophe of Excel, and anything but a text loses it.
          */
-        private void write(XSSFRow row, int column, TableStyle style, Edges edges) {
+        private void write(XSSFRow row, int column, TableStyle style, Edges edges, boolean bold) {
             var at = table.getLeft() + column;
             var found = row.getCell(at);
             var cell = found != null ? found : row.createCell(at);
@@ -344,7 +344,7 @@ public final class ExcelTableFormatter {
             // An absent cell format reads as the first one, as the schema of a workbook gives it.
             var source = (int) ct.getS();
             var text = textOf(cell);
-            var format = styles.format(style, edges, source, Quote.of(text == null ? null : text.getString()));
+            var format = styles.format(style, edges, bold, source, Quote.of(text == null ? null : text.getString()));
             if (format != source) {
                 ct.setS(format);
             }

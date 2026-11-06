@@ -445,7 +445,10 @@ const typeClassOf = (role: CellRole | undefined, styles: RawTableGridStyles): st
     }
 }
 
-/** The classes a cell takes from its role in the Studio look: its text, and its fill unless the screen paints it. */
+/**
+ * The classes a cell takes from its role in the Studio look: its text, and its fill unless the screen paints it. A cell
+ * the table returns among others, such as one a SpreadsheetResult marks, keeps the fill of its role, bold.
+ */
 const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles,
     painted: boolean): Array<string | false> => {
     const name = role?.region.role
@@ -470,6 +473,7 @@ const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles,
     return [
         styles.studioCell,
         name !== undefined && text[name],
+        role?.region.returned === true && styles.strong,
         typeClassOf(role, styles),
         !painted && name !== undefined && name in fill && fill[name as keyof typeof fill],
     ]
@@ -523,7 +527,7 @@ const codeRunsOf = (cell: RawTableCell, role: CellRole | undefined, roles: Table
     if (role === undefined || !holdsCode(role) || typeof cell.value !== 'string') {
         return undefined
     }
-    const bold = role.region.role === 'result'
+    const bold = role.region.role === 'result' || role.region.returned === true
     return highlighter.highlight(cell.value, roles.language, theme.name, theme.dark)?.map(piece => codeRunOf(piece, bold))
 }
 

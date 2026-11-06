@@ -30,7 +30,9 @@ import org.openl.studio.projects.model.tables.RawTableValueType;
  * holds values, as the rows of a rule or the steps of a Spreadsheet do, and the one after it otherwise, so a rule
  * inserted under the titles is a rule. A line removed takes its cells out of every region, and a region left with
  * none is dropped. The lines that start a group move with the lines, and a line left with no values before it starts
- * none. A group whose first lines are removed starts at the first line left of it.
+ * none. A group whose first lines are removed starts at the first line left of it. A line inserted next to or
+ * inside cells the table returns among others, as the cells a {@code SpreadsheetResult} marks, is none of them: it
+ * takes their role alone, until a compile reads the marks again.
  *
  * <p>Once the edit is done, the regions are fitted to the table as it stands: the header and the properties are laid
  * out again from the grid, a table grown at its end takes the roles of its last line for the lines it gained, and a
@@ -179,7 +181,7 @@ public final class RegionShift {
             } else if (region.top() >= at) {
                 moved.add(rows(region, region.top() + count, region.bottom() + count));
             } else {
-                moved.add(rows(region, region.top(), region.bottom() + count));
+                stretch(moved, region, at, count);
                 for (var column = region.left(); column <= region.right(); column++) {
                     covered[column] = true;
                 }
@@ -232,6 +234,20 @@ public final class RegionShift {
         });
         types = moved;
         height -= count;
+    }
+
+    /**
+     * Stretches a region over the rows inserted inside it. The cells the table returns among others are cut around
+     * them: an inserted row is none of them, and takes their role alone.
+     */
+    private static void stretch(List<RawTableRegion> into, RawTableRegion region, int at, int count) {
+        if (!region.returned()) {
+            into.add(rows(region, region.top(), region.bottom() + count));
+            return;
+        }
+        into.add(rows(region, region.top(), at - 1));
+        into.add(new RawTableRegion(region.role(), region.type(), at, region.left(), at + count - 1, region.right()));
+        into.add(rows(region, at + count, region.bottom() + count));
     }
 
     /**
@@ -392,12 +408,15 @@ public final class RegionShift {
         return at;
     }
 
-    /** Whether a row holds a value and no cell that stands alone, such as a section or the result. */
+    /**
+     * Whether a row holds a value and no cell that stands alone, such as a section, the result or a cell returned among
+     * others.
+     */
     private boolean holdsValues(int row) {
         var values = false;
         for (var region : regions) {
             if (region.top() <= row && row <= region.bottom()) {
-                if (ALONE.contains(region.role())) {
+                if (ALONE.contains(region.role()) || region.returned()) {
                     return false;
                 }
                 values |= VALUES.contains(region.role());
@@ -406,7 +425,10 @@ public final class RegionShift {
         return values;
     }
 
-    /** Adds the parts of a region's columns no other region covers yet on the inserted rows, as regions of its role. */
+    /**
+     * Adds the parts of a region's columns no other region covers yet on the inserted rows, as regions of its role. An
+     * inserted row is none of the cells the table returns among others.
+     */
     private static void addUncovered(List<RawTableRegion> into, RawTableRegion source, int top, int bottom,
                                      boolean[] covered) {
         var column = source.left();
@@ -428,7 +450,7 @@ public final class RegionShift {
     }
 
     private static RawTableRegion rows(RawTableRegion region, int top, int bottom) {
-        return new RawTableRegion(region.role(), region.type(), top, region.left(), bottom, region.right());
+        return region.withBounds(top, region.left(), bottom, region.right());
     }
 
     private static TreeSet<Integer> shifted(TreeSet<Integer> lines, int at, int count) {
@@ -476,8 +498,8 @@ public final class RegionShift {
     /** Swaps the rows and the columns, so a change of the columns is made as a change of the rows. */
     private void transpose() {
         var turned = new ArrayList<RawTableRegion>(regions.size());
-        regions.forEach(region -> turned.add(new RawTableRegion(region.role(), region.type(), region.left(),
-                region.top(), region.right(), region.bottom())));
+        regions.forEach(region -> turned.add(region.withBounds(region.left(), region.top(), region.right(),
+                region.bottom())));
         regions = turned;
         var rows = groupRows;
         groupRows = groupColumns;

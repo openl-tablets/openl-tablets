@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "Total",
+      "returnType": "Double",
+      "signature": "Total(Double amount)",
+      "file": "***",
+      "sheet": "Calculations",
+      "pos": "B10:D14",
+      "module": "SpreadsheetMarks",
+      "project": "EPBDS-17039-SpreadsheetMarks",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

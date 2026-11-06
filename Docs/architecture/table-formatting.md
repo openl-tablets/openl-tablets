@@ -64,13 +64,16 @@ compiled table.
 | `code` | Headers | A technical declaration the compiler reads | `C1`, `RET1`, `age >= min`, `policyNumber`, `>Policies` |
 | `inputTitle` | Headers | A title of what the table takes | **Driver Age**, **Step** |
 | `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title, a Data title, a horizontal value of a lookup |
-| `key` | Body | What names a row or a column | a Data ID, a rule name |
+| `key` | Body | What names a row or a column | a Data ID, a rule name, a step a `SpreadsheetResult` marks `*` |
 | `value` | Body | A value the table takes or holds | a condition value, a TBasic action, a Spreadsheet step name |
 | `output` | Body | A value the table gives | a returned value, an expected result, a data value, a Datatype field or a constant name |
 | `section` | Body | A heading inside the body | a merged Spreadsheet row, a TBasic `SUB` |
-| `result` | Body | What the table returns | the `RETURN` step, the steps marked `*` of a Spreadsheet |
+| `result` | Body | What the table returns | the `RETURN` step of a Spreadsheet returning one value, of a TBasic table |
 
-One modifier draws a separator inside the body:
+Two modifiers add to the look of a role, whatever the role:
+
+- **`returned`** — a cell a table returns among others: the cells of the steps and the columns a `SpreadsheetResult`
+  marks `*`. It keeps its role, fill included, and is bold, with no line.
 
 - **`group`** — a line above the first line of a group. A group is the rules that share a merged condition
   value, or the conditions of a ColumnMatch table indented under one name. Merged decision tables are hard to read
@@ -117,12 +120,12 @@ Which steps of a Spreadsheet take `result` depends on what it returns. The compi
 reads its answer:
 
 - **A single value** — such as `Double` above: the step named `RETURN`, or the last step when none is so named. A
-  column named `RETURN` takes the place of the step.
-- **`SpreadsheetResult`, with steps or columns marked `*`** — the returned cells are the marked steps × the marked
-  columns. When only steps are marked, every column the result keeps (not marked `~`) is returned, and the other
-  way round. The returned cells and the names of their steps and columns take `result`.
-- **`SpreadsheetResult`, nothing marked `*`** — every step not marked `~` is returned. Since that is the whole
-  table, or nearly, no cell takes `result`.
+  column named `RETURN` takes the place of the step: its cells take `result`, and its title stays an `outputTitle`.
+- **`SpreadsheetResult`** — it returns the whole table but the steps and columns marked `~`, or the ones marked
+  `*`, so no cell takes `result`: no fill changes and no line is added. With steps or columns marked `*`, it returns
+  the marked steps × the marked columns; with only steps marked, every column it keeps (not marked `~`), and the
+  other way round. Those cells stay `output` and are `returned`, so they are bold. The name of a marked step names a
+  field of what the table returns and takes `key`, so it is bold too. A title marked `*` stays an `outputTitle`.
 
 For example, a Spreadsheet returning two of its steps:
 
@@ -131,12 +134,13 @@ For example, a Spreadsheet returning two of its steps:
 | 1 | `Spreadsheet SpreadsheetResult Quote(Policy p)` · `signature` | |
 | 2 | **Step** · `inputTitle` | **Value** · `outputTitle` |
 | 3 | `Base Rate` · `value` | `= p.rate` · `output`, type `code` |
-| 4 | `Premium*` · `result` | `= $BaseRate * p.factor` · `result`, type `code` |
-| 5 | `Tax*` · `result` | `= $Premium * 0.05` · `result`, type `code` |
+| 4 | `Premium*` · `key` | `= $BaseRate * p.factor` · `output`, `returned`, type `code` |
+| 5 | `Tax*` · `key` | `= $Premium * 0.05` · `output`, `returned`, type `code` |
 | 6 | `Audit Note` · `value` | `= "checked"` · `output`, type `code` |
 
-Rows 4 and 5 are adjacent, so they are one `result` region: one line above row 4 and one double line below row 5.
-Marked steps apart from each other make regions of their own.
+The marks change only the weight of rows 4 and 5: the steps keep their fills, and no line sets them apart. Had the
+table more columns and one of them marked `*`, the names of rows 4 and 5 and their cells in that column alone would be
+bold. A table marking only columns makes bold the cells of every step it keeps in them, and no name.
 
 Every type takes `signature`, and `properties` when it has them. A transposed table takes the same roles, turned
 with its lines of data. The table below lists the remaining roles per type.
@@ -145,7 +149,7 @@ with its lines of data. The table below lists the remaining roles per type.
 |---|---|---|---|---|---|---|---|
 | Datatype | type column | title row | — | — | defaults, other columns | field names | — |
 | Vocabulary | — | — | — | — | values | — | — |
-| Spreadsheet | — | step column title | column titles | — | step names | cells | merged step rows; the returned step, or the steps and columns marked `*` |
+| Spreadsheet | — | step column title | column titles | step names a `SpreadsheetResult` marks `*` | step names | cells | merged step rows; the step or the column a single value returns |
 | Rules | `C`/`RET` row, expressions, parameters | condition titles | return and action titles | `RULE` column | condition values | return values | — |
 | SimpleRules, SmartRules | — | condition titles | return titles | rule names | condition values | return values | — |
 | SimpleLookup, SmartLookup | — | vertical titles in the corner | horizontal values | — | vertical values | the return grid | — |
@@ -183,8 +187,8 @@ above:
 - **Datatype, Constants** — the columns titled **Type** and **Name**, or else the first and the second column.
 - **Vocabulary** — a Datatype whose header names the type of its values, such as `Datatype Gender <String>`.
 - **Spreadsheet** — the step names down the first column and the column titles across the first row. It returns
-  nothing for `void`, the step or the column named `RETURN`, the steps and columns marked `*` for a
-  `SpreadsheetResult`, or else the last step.
+  nothing for `void`, the step or the column named `RETURN`, the whole table for a `SpreadsheetResult`, whose steps
+  marked `*` are keys, or else the last step.
 - **Rules** — three lines of code and a line of titles; a column is a condition, a return or the rule names by its
   kind.
 - **SimpleRules, SmartRules** — as many condition columns as the header names parameters, keeping at least the last
@@ -248,6 +252,8 @@ look of its role: theme colours and theme fonts only. No custom cell style is cr
 | `value` | Input | 20 | Normal (Office: 11) | `minorFont`, `dk1`, no fill |
 | `output` | Output | 21 | Normal (Office: 11) | `minorFont`, `dk1`; fill `accent1` lighter 80% |
 | `result` | Total | 25 | Normal (Office: 11) | bold; a thin line above, a double line below |
+
+A cell that is `returned` keeps the style of its role: its cell format adds the bold font.
 
 A heading inside the body looks like a title of what the table takes, so the two roles share **Heading 3**.
 
@@ -459,6 +465,8 @@ their own:
 | `key` | weight 600 |
 | `result` | weight 600 |
 
+A cell that is `returned` keeps the token of its role, fill included, and takes weight 600.
+
 Every line the look draws — of the roles, of the result and above a group — is `colorTextBase`, so the parts of a
 table stand apart at a glance. The lines sit where the Excel style draws them and keep its kind: a role line is
 solid, a group line dotted, as a hair line is drawn, and the line below the result double.
@@ -555,7 +563,8 @@ workbook names: the read carries no font name or size.
 The example shows the first three rows of a window. A run with no `style` takes the cell's style.
 
 - **`regions`** — the roles of the whole table, in table coordinates. They partition the table and cover it
-  whatever window of rows is read, so a page of rows needs no layout of its own. A region carries `type` when all
+  whatever window of rows is read, so a page of rows needs no layout of its own. A region carries `"returned": true`
+  when the table returns its cells among others; any other carries no `returned`. A region carries `type` when all
   its values have the same type. A cell whose type differs from its region's carries its own `type`.
 - **`groups`** — the `rows` and the `columns` of the body that start a group; a list without lines is left out, and so
   is `groups` of a table without groups.

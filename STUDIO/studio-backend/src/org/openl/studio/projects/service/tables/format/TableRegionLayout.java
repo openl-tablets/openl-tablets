@@ -475,9 +475,9 @@ public final class TableRegionLayout {
             var regions = rectangles(cells, (row, column) -> {
                 var place = cells[row][column];
                 return place == null ? null : new RoleKey(place.role(), lineTypes.get(lineKey(place, row, column)),
-                        place.byRow() ? row : null);
+                        place.byRow() ? row : null, place.returned());
             }, (key, rectangle) -> new RawTableRegion(key.role(), key.type(), rectangle.top, rectangle.left,
-                    rectangle.bottom, rectangle.right));
+                    rectangle.bottom, rectangle.right, key.returned()));
             var own = new HashMap<TableRegions.Cell, RawTableValueType>();
             for (var row = 0; row < cells.length; row++) {
                 for (var column = 0; column < cells[row].length; column++) {
@@ -526,7 +526,8 @@ public final class TableRegionLayout {
      * The key of a region of a role: the role, the type of its values, and the row of a place each row of which is a
      * region of its own.
      */
-    private record RoleKey(RawTableRole role, @Nullable RawTableValueType type, @Nullable Integer row) {
+    private record RoleKey(RawTableRole role, @Nullable RawTableValueType type, @Nullable Integer row,
+                           boolean returned) {
     }
 
     /**

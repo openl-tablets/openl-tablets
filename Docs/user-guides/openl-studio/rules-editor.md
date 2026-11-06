@@ -289,7 +289,11 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
         the theme, and the values it gives, the rows of a Data table and the names of the fields of a Datatype and of
         constants among them, in a lighter tint.
     -   The names of the rows and columns, such as the rule names of a Rules table or the keys of a Data table, are bold.
-        What a Spreadsheet returns is bold, with a line above it and a double line below it.
+        The step a Spreadsheet returning one value returns, the step RETURN or else the last step, is bold, with a
+        line above it and a double line below it. In a Spreadsheet returning `SpreadsheetResult`, the name of a step
+        marked `*` is bold, and so are the values it returns: the values of the marked steps in the marked columns,
+        or in every column when no column is marked. When only columns are marked, every value of those columns is
+        bold and no step name is. Their fill does not change and no line is added.
     -   A heading inside the body, such as a merged step of a Spreadsheet, is centered and filled like a title.
         A dotted line sets apart the rules that share a merged value of a condition, and the columns of a lookup that
         share a merged value, from the titles down. In a Data, a Test and a Run table where a row takes several lines,
@@ -516,11 +520,13 @@ itself offers, so the tables look the same in Excel and change with the theme of
         inside the body, such as a subroutine of a TBasic table.
     -   **Heading 2** — the titles of what the table gives, such as what a decision table returns, the fields of a
         Data table, or the horizontal values of a lookup.
-    -   **Heading 4** — the names of rows and columns, such as the rule names of a Rules table or the keys of a Data table.
+    -   **Heading 4** — the names of rows and columns, such as the rule names of a Rules table or the keys of a Data
+        table, and the names of the steps a Spreadsheet returning `SpreadsheetResult` marks `*`.
     -   **Input** — the values the table takes, and the step names of a Spreadsheet.
     -   **Output** — the values the table gives, such as the rows of a Data table, and the names of the fields of a
         Datatype and of constants.
-    -   **Total** — what the table returns, such as the `RETURN` step of a TBasic table.
+    -   **Total** — what the table returns, such as the step a Spreadsheet returning one value returns or the
+        `RETURN` step of a TBasic table.
 
     OpenL Studio redefines these styles in the Excel file with the theme colours and the theme fonts, in the font
     size of the **Normal** style, so the rows keep their height.

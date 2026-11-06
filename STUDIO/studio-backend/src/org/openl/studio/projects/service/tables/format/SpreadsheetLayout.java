@@ -34,16 +34,15 @@ import org.openl.util.OpenClassUtils;
  * <p>A step whose name is merged across its row is a heading that splits the steps into sections. The compiler takes
  * a name merged over every titled column for no step at all, and a name merged over some of them for a step.
  *
- * <p>What a Spreadsheet returns is what the compiler returns:
- * <ul>
- *     <li>A single value: the step named {@code RETURN}, or the last step when none is so named, its name and its
- *     cells; or a column named {@code RETURN}, its title and its cells, in place of the step.</li>
- *     <li>A {@code SpreadsheetResult} with steps or columns marked {@code *}: the marked steps × the marked columns.
- *     When only steps are marked, every column the result keeps (not marked {@code ~}) is returned, and the other way
- *     round. The names of the marked steps and the titles of the marked columns are returned too.</li>
- *     <li>A {@code SpreadsheetResult} with nothing marked {@code *} returns every step not marked {@code ~}, nearly
- *     the whole table, and a Spreadsheet returning {@code void} nothing: no cell is the result.</li>
- * </ul>
+ * <p>What a Spreadsheet returns is what the compiler returns. A Spreadsheet returning a single value returns the step
+ * named {@code RETURN}, or the last step when none is so named: its name and its cells are the result. A column named
+ * {@code RETURN} takes the place of the step: its cells are the result, its title stays a title.
+ *
+ * <p>A {@code SpreadsheetResult} returns the whole table but the steps and columns it leaves out, and a Spreadsheet
+ * returning {@code void} nothing: no cell of them is the result. A {@code SpreadsheetResult} marking steps or columns
+ * {@code *} returns the marked steps × the marked columns; with only steps marked, every column it keeps (not marked
+ * {@code ~}), and the other way round. Those cells keep their roles and are returned: bold, with no line. The name of a
+ * marked step names a field of what it returns, a key; the title of a marked column stays a title.
  *
  * <p>Every step and column is the one the compiler read. A Spreadsheet the compiler read none of is read from its
  * text the same way: the names of its steps down its first column, the titles of its columns across its first row,
@@ -87,6 +86,7 @@ final class SpreadsheetLayout {
         private static final Place TITLE = Place.of(RawTableRole.OUTPUT_TITLE);
         private static final Place STEP_TITLE = Place.of(RawTableRole.INPUT_TITLE);
         private static final Place STEP = Place.of(RawTableRole.VALUE).untyped();
+        private static final Place MARKED_STEP = Place.of(RawTableRole.KEY);
         private static final Place SECTION = Place.of(RawTableRole.SECTION);
         private static final Place VALUE = Place.of(RawTableRole.OUTPUT);
 
@@ -115,38 +115,45 @@ final class SpreadsheetLayout {
         @Override
         public Place at(ICell cell, int column, int row) {
             if (row == 0) {
-                if (column == 0) {
-                    return STEP_TITLE;
-                }
-                return returned.titles(cell) ? TITLE.as(RawTableRole.RESULT) : TITLE;
+                return column == 0 ? STEP_TITLE : TITLE;
             }
             if (column > 0) {
-                return returned.holds(cell) ? VALUE.as(RawTableRole.RESULT) : VALUE;
+                return returned.holds(cell) ? returned.place(VALUE) : VALUE;
             }
             // A step name merged over the values of its row heads a section.
             var section = cell.getAbsoluteRegion().getRight() > stepsEnd;
             if (section) {
                 return SECTION;
             }
-            return returned.names(cell) ? STEP.as(RawTableRole.RESULT) : STEP;
+            if (returned.names(cell)) {
+                return STEP.as(RawTableRole.RESULT);
+            }
+            return returned.marks(cell) ? MARKED_STEP : STEP;
         }
 
     }
 
     /**
-     * What a Spreadsheet returns: the cells of its rows and its columns, and the names and the titles returned with
-     * them, by the rows and the columns of the sheet.
+     * What a Spreadsheet returns, by the rows and the columns of the sheet: the cells it returns, the name of the step
+     * a single value returns, and the steps a {@code SpreadsheetResult} marks.
      *
      * @param rows    the rows of the sheet of the steps returned, or {@code null} for every step
      * @param columns the columns of the sheet of the columns returned, or {@code null} for every column
-     * @param names   the rows of the sheet of the steps whose names are returned
-     * @param titles  the columns of the sheet of the columns whose titles are returned
+     * @param steps   the rows of the sheet of the step whose name a single value returns, or of the steps a
+     *                {@code SpreadsheetResult} marks {@code *}
+     * @param single  whether a single value is returned, its cells being the result, rather than the cells a
+     *                {@code SpreadsheetResult} marks, which are bold
      */
-    private record Returned(@Nullable Set<Integer> rows, @Nullable Set<Integer> columns, Set<Integer> names,
-                            Set<Integer> titles) {
+    private record Returned(@Nullable Set<Integer> rows, @Nullable Set<Integer> columns, Set<Integer> steps,
+                            boolean single) {
 
         /** Nothing returned. */
-        static final Returned NOTHING = new Returned(Set.of(), Set.of(), Set.of(), Set.of());
+        static final Returned NOTHING = new Returned(Set.of(), Set.of(), Set.of(), false);
+
+        /** The place of a cell returned: the result of a single value, or a returned cell of its own role. */
+        Place place(Place cell) {
+            return single ? cell.as(RawTableRole.RESULT) : cell.asReturned();
+        }
 
         /** Whether a cell of the values of the steps is returned. */
         boolean holds(ICell cell) {
@@ -154,14 +161,14 @@ final class SpreadsheetLayout {
                     && (columns == null || columns.contains(cell.getAbsoluteColumn()));
         }
 
-        /** Whether the name of a step is returned. */
+        /** Whether the name of a step is returned, as a single value returns it. */
         boolean names(ICell cell) {
-            return names.contains(cell.getAbsoluteRow());
+            return single && steps.contains(cell.getAbsoluteRow());
         }
 
-        /** Whether the title of a column is returned. */
-        boolean titles(ICell cell) {
-            return titles.contains(cell.getAbsoluteColumn());
+        /** Whether the name of a step is marked {@code *}. */
+        boolean marks(ICell cell) {
+            return !single && steps.contains(cell.getAbsoluteRow());
         }
 
         /**
@@ -171,13 +178,13 @@ final class SpreadsheetLayout {
          * @param lines the rows of the sheet the step takes, or the columns the column takes
          */
         static Returned single(boolean step, Set<Integer> lines) {
-            return step ? new Returned(lines, null, lines, Set.of()) : new Returned(null, lines, Set.of(), lines);
+            return step ? new Returned(lines, null, lines, true) : new Returned(null, lines, Set.of(), true);
         }
 
         /**
          * What a {@code SpreadsheetResult} returns: the steps and the columns marked {@code *}, or with only one of
-         * them marked, every one of the other the result keeps, not marked {@code ~}. With nothing marked, nothing is
-         * the result.
+         * them marked, every one of the other it keeps, not marked {@code ~}. With nothing marked, it returns nearly
+         * the whole table, and no cell is told apart.
          */
         static Returned marked(List<Line> steps, List<Line> columns) {
             var markedSteps = linesOf(steps, Line::marked);
@@ -189,7 +196,7 @@ final class SpreadsheetLayout {
                     markedSteps.isEmpty() ? linesOf(steps, line -> !line.dropped()) : markedSteps,
                     markedColumns.isEmpty() ? linesOf(columns, line -> !line.dropped()) : markedColumns,
                     markedSteps,
-                    markedColumns);
+                    false);
         }
 
         /** The rows or the columns of the sheet the steps or the columns a filter keeps take. */
