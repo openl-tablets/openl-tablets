@@ -67,6 +67,88 @@ class HttpDataTest {
     }
 
     @Test
+    void placeholdersAreResolvedInTheExpectedResponse(@TempDir Path tempDir) throws IOException {
+        var actual = createResponse(tempDir.resolve("actual.resp"), "application/json",
+                "{\"branch\": \"feature\", \"name\": \"Rates\"}");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "application/json",
+                "{\"branch\": \"${BRANCH}\", \"name\": \"Rates\"}");
+        var other = createResponse(tempDir.resolve("other.resp"), "application/json",
+                "{\"branch\": \"${BRANCH}\", \"name\": \"Rates\"}");
+
+        assertDoesNotThrow(() -> actual.assertTo(expected.resolvePlaceholders(Map.of("BRANCH", "feature"))));
+        assertEquals("Body > branch ==> expected: <\"main\"> but was: <\"feature\">",
+                failure(actual, other.resolvePlaceholders(Map.of("BRANCH", "main"))));
+    }
+
+    @Test
+    void theExpectedBodyIsReadByTheResolvedHeaders(@TempDir Path tempDir) throws IOException {
+        var actual = createResponse(tempDir.resolve("actual.resp"), "application/json", "{\"name\": \"Rates\"}");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "${TYPE}", "{\"name\": \"${NAME}\"}");
+        var env = Map.of("TYPE", "application/json", "NAME", "Rates");
+
+        assertDoesNotThrow(() -> actual.assertTo(expected.resolvePlaceholders(env)));
+    }
+
+    @Test
+    void placeholdersAreResolvedInTheExpectedHeaders(@TempDir Path tempDir) throws IOException {
+        var actual = createResponse(tempDir.resolve("actual.resp"), "text/plain", "Hello");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "${TYPE}", "Hello");
+
+        assertDoesNotThrow(() -> actual.assertTo(expected.resolvePlaceholders(Map.of("TYPE", "text/plain"))));
+    }
+
+    @Test
+    void anUndefinedPlaceholderOfTheExpectedResponseIsRejected(@TempDir Path tempDir) throws IOException {
+        var expected = createResponse(tempDir.resolve("expected.resp"), "application/json", "{\"id\": \"${ID}\"}");
+        var env = Map.<String, String>of();
+
+        var error = assertThrows(IllegalArgumentException.class, () -> expected.resolvePlaceholders(env));
+
+        assertEquals("Undefined environment variable: ID", error.getMessage());
+    }
+
+    @Test
+    void aBodyTheExpectedResponseRefersToIsComparedAsTheFileHoldsIt(@TempDir Path tempDir) throws IOException {
+        // A script is content of its own: its ${...} expressions are no placeholders of the suite.
+        Files.writeString(tempDir.resolve("Service.groovy"), "def hello(name) { \"Hello ${name}\" }");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "text/plain", "&Service.groovy");
+        var actual = createResponse(tempDir.resolve("actual.resp"), "text/plain",
+                "def hello(name) { \"Hello ${name}\" }");
+
+        assertDoesNotThrow(() -> actual.assertTo(expected.resolvePlaceholders(Map.of())));
+    }
+
+    @Test
+    void anExpectedBodyWithoutPlaceholdersIgnoresAWildcardCharset(@TempDir Path tempDir) throws IOException {
+        // The charset is matched by a wildcard, so it names no charset the body could be read in.
+        var expected = createResponse(tempDir.resolve("expected.resp"), "text/plain;charset=***",
+                "Cross-site request rejected.");
+        var actual = createResponse(tempDir.resolve("actual.resp"), "text/plain;charset=UTF-8",
+                "Cross-site request rejected.");
+
+        assertDoesNotThrow(() -> actual.assertTo(expected.resolvePlaceholders(Map.of())));
+    }
+
+    @Test
+    void anExpectedHeaderWithoutAValueStaysAbsent(@TempDir Path tempDir) throws IOException {
+        var expected = tempDir.resolve("expected.resp");
+        Files.writeString(expected, "HTTP/1.1 200\r\nAccess-Control-Allow-Origin:\r\nContent-Type: text/plain\r\n\r\n"
+                + "Hello\r\n", StandardCharsets.UTF_8);
+        var actual = createResponse(tempDir.resolve("actual.resp"), "text/plain", "Hello");
+        var resolved = HttpData.readFile(expected.toString()).resolvePlaceholders(Map.of());
+
+        assertDoesNotThrow(() -> actual.assertTo(resolved));
+    }
+
+    @Test
+    void anExpectedResponseWithoutABodyIsResolved() throws IOException {
+        var expected = HttpData.readFile("/no-content-full.resp").resolvePlaceholders(Map.of());
+
+        assertEquals("Status code ==> expected: <204> but was: <200>",
+                failure(HttpData.readFile("/undefined-length.resp"), expected));
+    }
+
+    @Test
     void jsonBodyMismatchShowsThePathToIt(@TempDir Path tempDir) throws IOException {
         var actual = createResponse(tempDir.resolve("actual.resp"), "application/json", "{\"name\": \"foo\"}");
         var expected = createResponse(tempDir.resolve("expected.resp"), "application/json", "{\"name\": \"bar\"}");

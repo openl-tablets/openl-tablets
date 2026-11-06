@@ -199,13 +199,22 @@ missing, or its identity resolves to nothing at all.
 Values come from `itest.env` files (loaded hierarchically per folder) and `HttpClient.localEnv` (set programmatically,
 highest priority). Two substitution syntaxes apply:
 
-- `${VAR}` — in **header values** and unencoded textual request bodies (JSON, XML, URL-encoded forms and `text/*`);
-  an undefined variable fails the request. Text bodies use the charset declared by `Content-Type`, or UTF-8 when it
-  is absent. Bodies without placeholders and bodies with `Content-Encoding` are preserved byte-for-byte.
+- `${VAR}` — in **header values** and unencoded textual bodies (JSON, XML, URL-encoded forms and `text/*`) of the
+  request **and of the expected response**; an undefined variable fails the request. Text bodies use the charset
+  declared by `Content-Type`, or UTF-8 when it is absent. Bodies without placeholders and bodies with
+  `Content-Encoding` are preserved byte-for-byte. The expected response is resolved with the same environment as its
+  request, captured values included, so `"branch": "${BRANCH}"` or `"sid": "${USER}"` checks the value the suite chose.
+  A body the expected response refers to with `&file` is compared as the file holds it: a script's own `${...}` is
+  part of the content.
 - `{VAR}` — in the **request URL path** (e.g. `PUT /rest/repos/design/projects/{PROJECT}`); an undefined variable
   is left as-is.
 
 This lets one shared `.req`/`.resp` folder drive several projects/users by changing only `localEnv` between runs.
+
+**A name a suite uses more than once lives in the environment.** The name of a project, a branch, a user, a group or a
+file the suite chooses itself is written once, in the `itest.env` of the suite, and every request and expected
+response names it as `{VAR}` in a path or `${VAR}` in a header or a body. An id the server assigns is captured, never
+written down (see below). Text that names nothing, such as a comment or a display name, stays literal.
 
 ### Capturing Response Values
 
@@ -221,12 +230,16 @@ MCP_SESSION_ID=header:Mcp-Session-Id
 ```
 
 The captured value is available to later requests in the same first-level test folder: the folder of the suite, so a
-value captured in `010-setup` reaches every scenario and `999-tierdown` of the suite. Captured values override
-hierarchical `itest.env` values, while programmatic `HttpClient.localEnv` values keep the highest priority. A missing
-value, a missing header or an expression selecting an object or array fails the test instead of leaving a stale variable
-in use. The body is read as JSON only when an entry selects from it. Response content encoding is decoded before
-evaluating JSONPath, including layered, case-insensitive `gzip` and `x-gzip` JSON responses whose comma-separated
-encoding names contain surrounding whitespace.
+value captured in `010-setup` reaches every scenario and `999-tierdown` of the suite. Each `HttpClient.test(path)`
+call starts with an empty capture and reads `itest.env` from `path` down. A Java test that runs the phases of a suite
+one call at a time, such as `StableProjectIdTest`, gives the names every phase uses through `HttpClient.localEnv`,
+and captures an id again in the phase that needs it, for instance by finding the project by its name.
+
+Captured values override hierarchical `itest.env` values, while programmatic `HttpClient.localEnv` values keep the
+highest priority. A missing value, a missing header or an expression selecting an object or array fails the test
+instead of leaving a stale variable in use. The body is read as JSON only when an entry selects from it. Response
+content encoding is decoded before evaluating JSONPath, including layered, case-insensitive `gzip` and `x-gzip` JSON
+responses whose comma-separated encoding names contain surrounding whitespace.
 
 **Capture what the server assigns instead of writing it down.** A project id, a table id or a revision comes from
 the response that creates it — `PROJECT_ID=$.id` beside the creation of the project, `TABLE_ID=$.id` beside

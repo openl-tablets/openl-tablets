@@ -82,18 +82,25 @@ final class HttpData {
     private final TreeMap<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final Map<String, String> settings = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
+    /** Whether the body is the content of a file the resource refers to, which is taken as the file holds it. */
+    private final boolean bodyFromFile;
     private final String pathToResource;
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private String cookie;
 
-    private HttpData(String firstLine, Map<String, String> headers, byte[] body, String pathToResource) {
+    private HttpData(String firstLine,
+                     Map<String, String> headers,
+                     byte[] body,
+                     boolean bodyFromFile,
+                     String pathToResource) {
         this.firstLine = firstLine;
         this.headers.putAll(headers);
         var settingHeaders = this.headers.subMap("X-OpenL-Test-", "X-OpenL-Test.");
         this.settings.putAll(settingHeaders);
         settingHeaders.clear();
         this.body = body;
+        this.bodyFromFile = bodyFromFile;
         this.pathToResource = pathToResource;
     }
 
@@ -126,7 +133,7 @@ final class HttpData {
     }
 
     static HttpData ok() {
-        return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null, null);
+        return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null, false, null);
     }
 
     /**
@@ -184,6 +191,37 @@ final class HttpData {
         matcher.appendTail(result);
 
         return result.toString();
+    }
+
+    /**
+     * Returns this expected response with its {@code ${VAR}} placeholders resolved, in the header values and in an
+     * unencoded textual body written in the response file, as a request resolves them. The status line is taken as
+     * it is.
+     *
+     * <p>A body the response file refers to with {@code &file} is compared as the file holds it: the file is the
+     * content itself, such as a script whose own {@code ${...}} expressions are part of it.
+     *
+     * <p>An undefined variable fails the comparison.
+     */
+    HttpData resolvePlaceholders(Map<String, String> env) {
+        var resolvedHeaders = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+        // A header written without a value expects the header to be absent.
+        headers.forEach((key, value) -> resolvedHeaders.put(key,
+                value == null ? null : replacePlaceholders(value, env)));
+        resolvedHeaders.putAll(settings);
+        var resolved = new HttpData(firstLine, resolvedHeaders, body, bodyFromFile, pathToResource);
+        // A body without placeholders is left as it is, so a header matched by a wildcard, such as
+        // charset=***, is never read as the charset of the body. The body is read by the resolved headers, which
+        // tell its type.
+        if (body == null || bodyFromFile || !hasPlaceholders(body)) {
+            return resolved;
+        }
+        return new HttpData(firstLine, resolvedHeaders, resolved.resolveBodyPlaceholders(env), false, pathToResource);
+    }
+
+    /** Whether a body holds a {@code ${VAR}} placeholder, read in any charset that spells ASCII as ASCII. */
+    private static boolean hasPlaceholders(byte[] body) {
+        return PLACEHOLDER_PATTERN.matcher(new String(body, StandardCharsets.ISO_8859_1)).find();
     }
 
     byte[] resolveBodyPlaceholders(Map<String, String> env) {
@@ -441,7 +479,7 @@ final class HttpData {
             }
         }
 
-        var httpData = new HttpData(firstLine, headers, connection.body(), null);
+        var httpData = new HttpData(firstLine, headers, connection.body(), false, null);
         httpData.setCookie(cookie);
         return httpData;
     }
@@ -454,6 +492,7 @@ final class HttpData {
         Map<String, String> headers = readHeaders(input);
 
         byte[] body;
+        var bodyFromFile = false;
         var cl = headers.get("Content-Length");
         var te = headers.get("Transfer-Encoding");
         var ct = headers.get(CONTENT_TYPE_HEADER);
@@ -472,10 +511,13 @@ final class HttpData {
             // So for 204 status we just don't read body because it doesn't needed for this status.
             body = new byte[0];
         } else {
-            body = readInlineOrFileRef(input, resource);
+            var content = input.readAllBytes();
+            var fileRef = fileRefOf(content);
+            bodyFromFile = fileRef != null;
+            body = bodyFromFile ? readFileRef(resource, fileRef) : content;
         }
 
-        return new HttpData(firstLine, headers, body, resource);
+        return new HttpData(firstLine, headers, body, bodyFromFile, resource);
     }
 
     /**
@@ -529,17 +571,13 @@ final class HttpData {
     }
 
     /**
-     * Reads a body of any content type, resolving a body that is nothing but a file reference. It
-     * lets a binary payload of a type of its own - a workbook uploaded as {@code application/octet-stream},
-     * for one - be kept in a file of its own instead of being inlined into the request.
+     * The file reference a body of any content type is made of, or {@code null} for an inline body. It lets a binary
+     * payload of a type of its own - a workbook uploaded as {@code application/octet-stream}, for one - be kept in a
+     * file of its own instead of being inlined into the request.
      */
-    private static byte[] readInlineOrFileRef(InputStream input, String resource) throws IOException {
-        var content = input.readAllBytes();
+    private static @Nullable String fileRefOf(byte[] content) {
         var line = new String(content, StandardCharsets.UTF_8).trim();
-        if (!isFileRef(line) || line.indexOf('\n') >= 0) {
-            return content;
-        }
-        return readFileRef(resource, line);
+        return isFileRef(line) && line.indexOf('\n') < 0 ? line : null;
     }
 
     /**
