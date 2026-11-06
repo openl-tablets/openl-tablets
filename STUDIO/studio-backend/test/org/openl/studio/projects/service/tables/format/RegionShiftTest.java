@@ -91,8 +91,50 @@ class RegionShiftTest {
         var regions = shift.fittedTo(HEAD, 5, 3, "Rules");
         assertEquals(new RawTableRegion(RawTableRole.VALUE, RawTableValueType.NUMBER, 2, 0, 4, 1),
                 regions.regions().get(3));
-        assertEquals(RawTableGroups.NONE, regions.groups(), "The row starting the group is gone");
+        assertEquals(new RawTableGroups(List.of(3), List.of()), regions.groups(),
+                "The rest of the group starts at the first row left of it");
         assertEquals(Map.of(new TableRegions.Cell(3, 0), RawTableValueType.STRING), regions.types());
+    }
+
+    @Test
+    void keepsTheLineAboveAGroupWhoseFirstRuleIsRemoved() {
+        var shift = RegionShift.of(RULES, 7, 3);
+
+        shift.rowsRemoved(4, 1);
+
+        var regions = shift.fittedTo(HEAD, 6, 3, "Rules");
+        assertEquals(new RawTableGroups(List.of(4), List.of()), regions.groups(),
+                "The second rule of the group starts it now");
+    }
+
+    @Test
+    void dropsTheLineOfAGroupRemovedToTheEndOfTheTable() {
+        var shift = RegionShift.of(RULES, 7, 3);
+
+        shift.rowsRemoved(4, 3);
+
+        var regions = shift.fittedTo(HEAD, 4, 3, "Rules");
+        assertEquals(RawTableGroups.NONE, regions.groups(), "No rule of the group is left");
+    }
+
+    @Test
+    void keepsTheLineOnTheLeftOfAGroupOfColumnsWhoseFirstColumnIsRemoved() {
+        // A lookup: the titles of its vertical condition, then four columns of returned values; the two last ones
+        // share a merged horizontal value.
+        var lookup = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 4),
+                region(RawTableRole.INPUT_TITLE, 1, 0, 1, 0),
+                region(RawTableRole.OUTPUT_TITLE, 1, 1, 1, 4),
+                region(RawTableRole.VALUE, 2, 0, 3, 0),
+                region(RawTableRole.OUTPUT, 2, 1, 3, 4)), new RawTableGroups(List.of(), List.of(3)), List.of(),
+                Map.of());
+        var shift = RegionShift.of(lookup, 4, 5);
+
+        shift.columnsRemoved(3, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(4, 0), 4, 4, "SmartLookup");
+        assertEquals(new RawTableGroups(List.of(), List.of(3)), regions.groups(),
+                "The last column starts the group now");
     }
 
     @Test

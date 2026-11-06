@@ -30,7 +30,7 @@ import org.openl.studio.projects.model.tables.RawTableValueType;
  * holds values, as the rows of a rule or the steps of a Spreadsheet do, and the one after it otherwise, so a rule
  * inserted under the titles is a rule. A line removed takes its cells out of every region, and a region left with
  * none is dropped. The lines that start a group move with the lines, and a line left with no values before it starts
- * none.
+ * none. A group whose first lines are removed starts at the first line left of it.
  *
  * <p>Once the edit is done, the regions are fitted to the table as it stands: the header and the properties are laid
  * out again from the grid, a table grown at its end takes the roles of its last line for the lines it gained, and a
@@ -218,7 +218,7 @@ public final class RegionShift {
             }
         }
         regions = kept;
-        groupRows = removed(groupRows, at, count);
+        groupRows = groupsLeft(at, count);
         touchedRows = removed(touchedRows, at, count);
         touchedRows.add(Math.max(at - 1, 0));
         touchedRows.add(at);
@@ -435,6 +435,21 @@ public final class RegionShift {
         var moved = new TreeSet<Integer>();
         lines.forEach(line -> moved.add(line >= at ? line + count : line));
         return moved;
+    }
+
+    /**
+     * The lines that start a group once lines are removed. Those after the removed lines move back by as many.
+     *
+     * <p>A group that started among the removed lines and goes on after them starts at the first line left of it, so
+     * the line setting it apart from the group before stays. A group removed to the end of the table starts nowhere.
+     */
+    private TreeSet<Integer> groupsLeft(int at, int count) {
+        var left = removed(groupRows, at, count);
+        var end = at + count;
+        if (end < height && !groupRows.subSet(at, end).isEmpty()) {
+            left.add(at);
+        }
+        return left;
     }
 
     /** The lines left once lines are removed: those after the removed ones move back by as many. */

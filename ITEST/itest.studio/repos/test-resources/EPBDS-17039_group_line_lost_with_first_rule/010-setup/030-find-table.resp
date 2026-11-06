@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "Reserve",
+      "returnType": "Double",
+      "signature": "Reserve(String causeOfLoss, Boolean firstParty, Double estimatedLossAmount)",
+      "file": "***",
+      "sheet": "Rules",
+      "pos": "B2:E10",
+      "module": "GroupLines",
+      "project": "EPBDS-17039-GroupLines",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}
