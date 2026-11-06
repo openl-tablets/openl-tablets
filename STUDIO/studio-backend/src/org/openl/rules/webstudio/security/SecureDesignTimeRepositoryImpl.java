@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 
@@ -22,6 +23,7 @@ import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
 
@@ -114,7 +116,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     @Override
-    public AProject getProject(String repositoryId, String name, CommonVersion version) {
+    public @Nullable AProject getProject(String repositoryId, String name, CommonVersion version) {
         var project = designTimeRepository.getProject(repositoryId, name, version);
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             return secureProject(project);
@@ -227,6 +229,15 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     @Override
     public List<AProject> getBranchProjects(String repositoryId, String branch) {
         return designTimeRepository.getBranchProjects(repositoryId, branch);
+    }
+
+    /**
+     * Answers from the unfiltered index. Access is kept by folder for every branch at once, so whether a folder is
+     * still held must count the projects the caller cannot read, or an access list in use would look abandoned.
+     */
+    @Override
+    public RepositoryProjects getProjectsInAllBranches(String repositoryId) {
+        return designTimeRepository.getProjectsInAllBranches(repositoryId);
     }
 
     /**

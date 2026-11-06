@@ -1,4 +1,4 @@
-PUT /rest/repos/design-file/projects/EPBDS-16946-Removed HTTP/1.1
+PUT /rest/repos/design-file/projects/{REMOVED_NAME} HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 

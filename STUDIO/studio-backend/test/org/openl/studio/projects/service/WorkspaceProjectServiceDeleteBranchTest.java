@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -25,17 +26,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.PrincipalSid;
 
 import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -96,6 +102,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
         when(repository.getBaseBranch()).thenReturn("main");
         when(repository.listBranches()).thenReturn(List.of("main", BRANCH));
         when(repository.getId()).thenReturn("design");
+        lenient().when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
         var designTimeRepository = mock(DesignTimeRepository.class);
         when(designTimeRepository.refreshRepository("design"))
                 .thenReturn(CompletableFuture.completedFuture(null));
@@ -103,6 +110,8 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         project = mock(RulesProject.class);
         when(project.isSupportsBranches()).thenReturn(true);
+        lenient().when(project.getRepository()).thenReturn(repository);
+        lenient().when(project.getBusinessName()).thenReturn("P1");
         when(project.getDesignRepository()).thenReturn(repository);
         when(project.getRealPath()).thenReturn("DESIGN/rules/P1");
         when(project.getBranch()).thenReturn("main");
@@ -251,6 +260,83 @@ class WorkspaceProjectServiceDeleteBranchTest {
         assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
 
         verify(repository, never()).deleteRepositoryBranch(anyString());
+    }
+
+    @Test
+    void theAccessOfAProjectTheDeletedBranchHeldAloneGoesWithIt() {
+        heldOnlyBy(BRANCH);
+        allowedToDeleteAnUnlockedProject();
+        when(userWorkspace.getDesignTimeRepository().getProjectsInAllBranches("design"))
+                .thenReturn(new RepositoryProjects(List.of(), true));
+        var jdoe = new PrincipalSid("jdoe");
+        when(designRepositoryAclService.listPermissions("design", "/DESIGN/rules/P1"))
+                .thenReturn(Map.of(jdoe, List.of(BasePermission.READ)));
+
+        service.deleteBranch(project, BRANCH, false);
+
+        verify(designRepositoryAclService).deleteAcl("design", "/DESIGN/rules/P1");
+        assertEquals(List.of(AuditAction.BRANCH_DELETED, AuditAction.ROLE_REVOKED), auditActions());
+    }
+
+    @Test
+    void theAccessOfAFolderAnotherBranchHoldsStays() {
+        heldOnlyBy(BRANCH);
+        allowedToDeleteAnUnlockedProject();
+        var survivor = mock(AProject.class);
+        var survivorData = new FileData();
+        survivorData.setName("DESIGN/rules/P1");
+        when(survivor.getFileData()).thenReturn(survivorData);
+        when(userWorkspace.getDesignTimeRepository().getProjectsInAllBranches("design"))
+                .thenReturn(new RepositoryProjects(List.of(survivor), true));
+
+        service.deleteBranch(project, BRANCH, false);
+
+        verify(designRepositoryAclService, never()).deleteAcl(anyString(), anyString());
+        assertEquals(List.of(AuditAction.BRANCH_DELETED), auditActions());
+    }
+
+    @Test
+    void theAccessStaysWhileTheRepositoryIsNotIndexedWhole() {
+        heldOnlyBy(BRANCH);
+        allowedToDeleteAnUnlockedProject();
+        when(userWorkspace.getDesignTimeRepository().getProjectsInAllBranches("design"))
+                .thenReturn(RepositoryProjects.UNKNOWN);
+
+        service.deleteBranch(project, BRANCH, false);
+
+        verify(designRepositoryAclService, never()).deleteAcl(anyString(), anyString());
+    }
+
+    @Test
+    void aFailureToRemoveTheAccessFailsNoBranchDeletion() throws IOException {
+        heldOnlyBy(BRANCH);
+        allowedToDeleteAnUnlockedProject();
+        when(userWorkspace.getDesignTimeRepository().getProjectsInAllBranches("design"))
+                .thenReturn(new RepositoryProjects(List.of(), true));
+        doThrow(new IllegalStateException("database unavailable"))
+                .when(designRepositoryAclService).deleteAcl("design", "/DESIGN/rules/P1");
+
+        // The branch is gone already: the next project created in the folder replaces what is left there.
+        assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository).deleteRepositoryBranch(BRANCH);
+        verify(userWorkspace).refresh();
+    }
+
+    @Test
+    void theAccessOfAProjectOtherBranchesHoldIsNotTouched() {
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+
+        service.deleteBranch(project, BRANCH, false);
+
+        verify(userWorkspace.getDesignTimeRepository(), never()).getProjectsInAllBranches(anyString());
+        verify(designRepositoryAclService, never()).deleteAcl(anyString(), anyString());
+    }
+
+    private void allowedToDeleteAnUnlockedProject() {
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+        when(designRepositoryAclService.getPath(project)).thenReturn("/DESIGN/rules/P1");
     }
 
     /** The index reports a project that no branch other than this one holds. */

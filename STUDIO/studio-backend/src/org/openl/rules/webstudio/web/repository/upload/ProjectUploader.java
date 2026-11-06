@@ -13,18 +13,14 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
-import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclRole;
-import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.FileTypeHelper;
 
 public class ProjectUploader {
     private final String projectName;
     private final String projectFolder;
     private final UserWorkspace userWorkspace;
-    private final RepositoryAclService designRepositoryAclService;
     private final PathFilter zipFilter;
     private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
@@ -47,7 +43,6 @@ public class ProjectUploader {
                            String projectName,
                            String projectFolder,
                            UserWorkspace userWorkspace,
-                           RepositoryAclService repositoryAclService,
                            String comment,
                            PathFilter zipFilter,
                            ZipCharsetDetector zipCharsetDetector,
@@ -63,7 +58,6 @@ public class ProjectUploader {
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = repositoryAclService;
         this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -120,12 +114,6 @@ public class ProjectUploader {
                         uploadedFiles.toArray(new ProjectFile[0]));
             }
             var rulesProject = projectCreator.createRulesProject();
-            if (!designRepositoryAclService.createAcl(rulesProject,
-                    List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
-                    true)) {
-                throw new ProjectException("Granting permissions to a new project '%s' is failed.".formatted(
-                        ProjectArtifactUtils.extractResourceName(rulesProject)));
-            }
             createdProjectName = projectCreator.getCreatedProjectName();
             finalizeProject.accept(rulesProject);
             awaitProjectVisibility.run();

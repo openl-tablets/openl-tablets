@@ -684,6 +684,11 @@ Keep in mind:
     repository, so it is read-only here and is changed by an Administrator in the **Administration** panel.
 -   A Manager cannot change or revoke their own role on the project: the role of that row cannot be selected, and the
     row has no trash icon.
+-   Roles assigned on a project are shared by every branch that holds it. They are removed with the last branch
+    holding the project, whether the project is deleted with **Delete** or its branch with **Delete Branch**. A
+    project created later in the same folder starts with the role of its creator only, also when the old project was
+    removed outside OpenL Studio, for example with its branch deleted on the Git server. While the repository is
+    still being indexed, creating a project in such a folder is refused with a message to try again later.
 
 ### Modifying Project Contents
 

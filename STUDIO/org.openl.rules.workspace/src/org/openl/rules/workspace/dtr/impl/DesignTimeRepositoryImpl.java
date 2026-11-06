@@ -18,6 +18,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,6 +51,7 @@ import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -81,6 +83,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private Map<ProjectId, AProject> projectsById = Map.of();
     /** The ids that stopped naming a project, learned from the listings of the projects. */
     private final StaleProjectIds staleProjectIds = new StaleProjectIds();
+    /** The repositories whose every project the cache lists. */
+    private Set<String> repositoriesListedWhole = Set.of();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
@@ -302,6 +306,26 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public List<AProject> getBranchProjects(String repositoryId, String branch) {
         return branchEntries(repositoryId, branch, project -> true);
+    }
+
+    @Override
+    public RepositoryProjects getProjectsInAllBranches(String repositoryId) {
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+            var listed = projects.entrySet()
+                    .stream()
+                    .filter(entry -> repositoryId.equals(entry.getKey().repositoryId()))
+                    .flatMap(entry -> {
+                        var branched = branchedProjects.get(entry.getKey());
+                        return branched == null
+                                ? Stream.of(entry.getValue())
+                                : branched.entries().values().stream().map(BranchEntry::project);
+                    })
+                    .toList();
+            return new RepositoryProjects(listed, repositoriesListedWhole.contains(repositoryId));
+        }
     }
 
     /**
@@ -544,6 +568,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         projectsById = ProjectIds.index(projects.values(),
                 project -> new ProjectKey(project.getRepository().getId(), project.getRealPath()));
         learnStaleProjectIds(listedWhole);
+        repositoriesListedWhole = Set.copyOf(listedWhole);
 
         projectsRefreshNeeded = false;
     }

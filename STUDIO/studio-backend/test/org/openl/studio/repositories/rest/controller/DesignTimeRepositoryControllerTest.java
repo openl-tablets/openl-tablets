@@ -282,12 +282,21 @@ class DesignTimeRepositoryControllerTest {
         data.setName("Project");
         when(zipProjectSaveStrategy.save(eq(repository), any(CreateUpdateProjectModel.class), any(Path.class)))
                 .thenReturn(data);
+        when(zipProjectSaveStrategy.folderOf(eq(repository), any(CreateUpdateProjectModel.class)))
+                .thenReturn("DESIGN/rules/Project");
+        var folderAcl = new ProjectCreationService.FolderAcl(true, Map.of());
+        when(projectCreationService.folderAcl(repository, "DESIGN/rules/Project")).thenReturn(folderAcl);
 
         controller.createProject(repository, "Project", null, "comment", List.of(archive), null, null, null,
                 "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx", false, null, null, false);
 
+        // The access list is weighed before the archive is written: the write publishes the project to the index.
+        var written = inOrder(projectCreationService, zipProjectSaveStrategy);
+        written.verify(projectCreationService).folderAcl(repository, "DESIGN/rules/Project");
+        written.verify(zipProjectSaveStrategy).save(eq(repository), any(CreateUpdateProjectModel.class),
+                any(Path.class));
         var order = inOrder(projectCreationService);
-        order.verify(projectCreationService).finishArchiveUpload(any(AProject.class), eq(false));
+        order.verify(projectCreationService).finishArchiveUpload(any(AProject.class), eq(false), eq(folderAcl));
         order.verify(projectCreationService).registerExtensibleTags(any(AProject.class));
         order.verify(projectCreationService).awaitProjectVisibility(repository);
         order.verify(projectCreationService).refreshWorkspaceAfterDesignChange();
@@ -362,7 +371,7 @@ class DesignTimeRepositoryControllerTest {
                         null, null, "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx",
                         false, null, null, false));
 
-        verify(projectCreationService).finishArchiveUpload(any(AProject.class), eq(false));
+        verify(projectCreationService).finishArchiveUpload(any(AProject.class), eq(false), any());
         verify(projectCreationService).registerExtensibleTags(any(AProject.class));
         verify(projectCreationService, never()).refreshWorkspaceAfterDesignChange();
     }

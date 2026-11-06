@@ -97,7 +97,8 @@ The log records these actions:
   and the reason given to the user.
 - **Project created**, **Project copied** — a project created from a template, from files or from an archive, or as
   a copy of another project, with its repository, branch and revision. Its creator gets the **Contributor** role on
-  it, recorded as **Role granted**, unless the project already had access rights.
+  it, recorded as **Role granted**, unless the project already had access rights that another branch still uses.
+  The roles a removed project left in the folder are revoked, each recorded as **Role revoked**.
 - **Project saved** — the changes of a project saved to its repository, with the revision and the comment. An archive
   uploaded over a project and the files chosen to resolve the conflicts of a save are recorded as a save too. A file
   written to a closed project through the REST API is a revision of the repository with its author, not an event of
@@ -106,7 +107,8 @@ The log records these actions:
   rights go with it, and each role it had is recorded as **Role revoked**.
 - **Project unlocked** — the lock of another user released by force, naming that user.
 - **Branch created**, **Branch deleted** — a branch of a design repository, which is the object, created from a branch
-  or a revision, or deleted with the projects only it held.
+  or a revision, or deleted with the projects only it held. The access rights of those projects go with them, and each
+  role they had is recorded as **Role revoked**.
 - **Branches merged** — a branch merged into another one, also when the conflicts of the merge were resolved first.
 - **Branch protection bypassed** — a protected branch changed by a user allowed to bypass its protection, who
   confirmed it.

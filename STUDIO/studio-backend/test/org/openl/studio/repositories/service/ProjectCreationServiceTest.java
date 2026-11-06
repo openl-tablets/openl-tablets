@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -18,11 +19,17 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -38,10 +45,12 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
+import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -63,6 +72,7 @@ class ProjectCreationServiceTest {
 
     private AclProjectsHelper aclProjectsHelper;
     private RepositoryAclServiceProvider aclServiceProvider;
+    private RepositoryAclService folderAcl;
     private TagAssignmentValidator tagAssignmentValidator;
     private ProjectCreationService service;
 
@@ -84,11 +94,10 @@ class ProjectCreationServiceTest {
     @Test
     void an_archive_upload_grants_the_creator_role_and_records_the_creation() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("jdoe", "secret"));
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+        var acl = creatorAcl();
         var project = uploadedProject();
 
-        service.finishArchiveUpload(project, false);
+        service.finishArchiveUpload(project, false, ProjectCreationService.FolderAcl.KEPT);
 
         verify(acl).createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
         assertEquals(List.of(AuditAction.PROJECT_CREATED, AuditAction.ROLE_GRANTED),
@@ -99,16 +108,130 @@ class ProjectCreationServiceTest {
 
     @Test
     void an_archive_over_a_project_records_a_save_and_keeps_its_access_rights() {
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+        var acl = creatorAcl();
         var project = uploadedProject();
         when(acl.hasAcl(project)).thenReturn(true);
 
-        service.finishArchiveUpload(project, true);
+        service.finishArchiveUpload(project, true, ProjectCreationService.FolderAcl.KEPT);
 
         verify(acl, never()).createAcl(any(AProject.class), anyList(), anyBoolean());
         assertEquals(List.of(AuditAction.PROJECT_SAVED), events.stream().map(AuditEvent::action).toList());
         assertEquals("archive", events.getFirst().details().get("source"));
+    }
+
+    @Test
+    void an_archive_in_the_folder_of_a_removed_project_replaces_the_access_it_left() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("jdoe", "secret"));
+        var acl = creatorAcl();
+        var project = uploadedProject();
+        when(acl.hasAcl(project)).thenReturn(true);
+        var leftBehind = new ProjectCreationService.FolderAcl(true,
+                Map.of(new PrincipalSid("user16938"), List.of(AclRole.MANAGER.getCumulativePermission())));
+
+        service.finishArchiveUpload(project, false, leftBehind);
+
+        verify(acl).createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+        // The roles the removed project left are revoked, as a writer of the access list announces what it replaces.
+        assertEquals(List.of(AuditAction.PROJECT_CREATED, AuditAction.ROLE_REVOKED, AuditAction.ROLE_GRANTED),
+                events.stream().map(AuditEvent::action).toList());
+        assertEquals("user16938", events.get(1).subject());
+    }
+
+    @Test
+    void a_role_that_cannot_be_granted_fails_the_creation() {
+        creatorAcl();
+        var acl = aclServiceProvider.getDesignRepoAclService();
+        var project = uploadedProject();
+        when(acl.createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)).thenReturn(false);
+        var replaced = new ProjectCreationService.FolderAcl(true, Map.of());
+
+        var e = assertThrows(ConflictException.class, () -> service.finishArchiveUpload(project, false, replaced));
+
+        assertEquals("openl.error.409.project.create.failed.message", e.getErrorCode());
+    }
+
+    @Test
+    void the_access_of_a_folder_no_branch_holds_is_replaced_with_the_roles_it_holds_revoked() {
+        var repository = folderRepository(new RepositoryProjects(List.of(projectAt("/DESIGN/rules/Other")), true));
+        var leftBehind = Map.<Sid, List<Permission>>of(new PrincipalSid("jdoe"), List.of(BasePermission.READ));
+        when(folderAcl.listPermissions("design", "DESIGN/rules/AclLeak")).thenReturn(leftBehind);
+
+        assertEquals(new ProjectCreationService.FolderAcl(true, leftBehind),
+                service.folderAcl(repository, "DESIGN/rules/AclLeak"));
+    }
+
+    @Test
+    void the_access_of_a_folder_another_branch_holds_stays() {
+        var repository = folderRepository(new RepositoryProjects(List.of(projectAt("/DESIGN/rules/AclLeak")), true));
+
+        assertSame(ProjectCreationService.FolderAcl.KEPT, service.folderAcl(repository, "DESIGN/rules/AclLeak"));
+    }
+
+    @Test
+    void the_access_of_a_folder_holding_a_project_below_it_stays() {
+        var repository = folderRepository(
+                new RepositoryProjects(List.of(projectAt("/DESIGN/rules/AclLeak/Inner")), true));
+
+        assertSame(ProjectCreationService.FolderAcl.KEPT, service.folderAcl(repository, "DESIGN/rules/AclLeak"));
+    }
+
+    @Test
+    void the_access_of_a_project_the_partial_index_knows_stays() {
+        // An archive uploaded over a project while a branch fails to be read: the project is known all the same.
+        var repository = folderRepository(new RepositoryProjects(List.of(projectAt("/DESIGN/rules/AclLeak")), false));
+
+        assertSame(ProjectCreationService.FolderAcl.KEPT, service.folderAcl(repository, "DESIGN/rules/AclLeak"));
+    }
+
+    @Test
+    void a_folder_with_access_entries_is_refused_while_the_repository_is_not_indexed_whole() {
+        var repository = folderRepository(RepositoryProjects.UNKNOWN);
+        when(folderAcl.listPermissions("design", "DESIGN/rules/AclLeak"))
+                .thenReturn(Map.of(new PrincipalSid("jdoe"), List.of(BasePermission.READ)));
+
+        var e = assertThrows(ConflictException.class,
+                () -> service.folderAcl(repository, "DESIGN/rules/AclLeak"));
+        assertEquals("openl.error.409.project.create.indexing.message", e.getErrorCode());
+    }
+
+    @Test
+    void a_folder_without_access_entries_is_written_while_the_repository_is_not_indexed_whole() {
+        var repository = folderRepository(RepositoryProjects.UNKNOWN);
+
+        assertEquals(new ProjectCreationService.FolderAcl(true, Map.of()),
+                service.folderAcl(repository, "DESIGN/rules/AclLeak"));
+    }
+
+    /** The access lists of the design repositories, granting the role of a creator. */
+    private RepositoryAclService creatorAcl() {
+        var acl = mock(RepositoryAclService.class);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+        when(acl.createAcl(any(AProject.class), anyList(), anyBoolean())).thenReturn(true);
+        return acl;
+    }
+
+    /**
+     * A repository whose index lists the given projects across its branches.
+     */
+    private Repository folderRepository(RepositoryProjects projects) {
+        folderAcl = mock(RepositoryAclService.class);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(folderAcl);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.getProjectsInAllBranches("design")).thenReturn(projects);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        service = serviceWithWorkspace(workspace);
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn("design");
+        return repository;
+    }
+
+    private static AProject projectAt(String folder) {
+        var data = new FileData();
+        data.setName(folder);
+        var project = mock(AProject.class);
+        when(project.getFileData()).thenReturn(data);
+        return project;
     }
 
     private static AProject uploadedProject() {
@@ -131,6 +254,42 @@ class ProjectCreationServiceTest {
     void create_from_template_is_denied_without_create_permission() {
         assertThrows(ForbiddenException.class, () -> service.createFromTemplate("design", "Project", null,
                 "predefined", "examples", "Example", "comment", null));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void a_creation_from_files_is_audited_though_the_index_does_not_publish_it() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("jdoe", "secret"));
+        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
+        creatorAcl();
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.getRulesLocation()).thenReturn("DESIGN/rules/");
+        when(designTimeRepository.getProjectsInAllBranches("design"))
+                .thenReturn(new RepositoryProjects(List.of(), true));
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        service = serviceWithWorkspace(workspace);
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
+        var project = mock(RulesProject.class);
+        when(project.getRepository()).thenReturn(repository);
+        when(project.getDesignRepository()).thenReturn(repository);
+        when(project.getBusinessName()).thenReturn("Pricing");
+        List<ProjectFile> files = List.of();
+
+        try (var ignored = mockConstruction(ProjectUploader.class, (uploader, context) ->
+                when(uploader.uploadProject()).thenAnswer(invocation -> {
+                    ((Consumer<RulesProject>) context.arguments().get(13)).accept(project);
+                    throw new ConflictException("project.indexing.incomplete.message");
+                }))) {
+            assertThrows(ConflictException.class, () -> service.createFromFiles(repository, "Pricing", null, files,
+                    "comment", "rules/Models.xlsx", "rules/Algorithms.xlsx", "Models", "Algorithms", Map.of()));
+        }
+
+        // The project and its access are made before the wait for the index, so the log tells of them.
+        assertEquals(List.of(AuditAction.PROJECT_CREATED, AuditAction.ROLE_GRANTED),
+                events.stream().map(AuditEvent::action).toList());
     }
 
     @Test
@@ -239,7 +398,7 @@ class ProjectCreationServiceTest {
         when(project.isOpened()).thenReturn(false);
         var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace);
+                new ProjectAuditor(event -> events.add((AuditEvent) event)), workspace);
         testService.designWorkspaceProject = project;
 
         testService.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
@@ -264,7 +423,7 @@ class ProjectCreationServiceTest {
         var project = mock(RulesProject.class);
         var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace);
+                new ProjectAuditor(event -> events.add((AuditEvent) event)), workspace);
         testService.designWorkspaceProject = project;
 
         testService.applyStatusAfterCreate(repository, "Alpha", ProjectStatus.VIEWING);
@@ -294,7 +453,7 @@ class ProjectCreationServiceTest {
         var project = mock(RulesProject.class);
         var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace);
+                new ProjectAuditor(event -> events.add((AuditEvent) event)), workspace);
         testService.designWorkspaceProject = project;
 
         testService.applyStatusAfterCreate(repository, "Alpha", ProjectStatus.VIEWING);
@@ -477,6 +636,7 @@ class ProjectCreationServiceTest {
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {
         return new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                new ProjectAuditor(event -> events.add((AuditEvent) event)),
                 workspace);
     }
 
@@ -499,10 +659,10 @@ class ProjectCreationServiceTest {
                                    PathFilter zipFilter,
                                    ZipCharsetDetector zipCharsetDetector,
                                    String openlHome,
+                                   ProjectAuditor auditor,
                                    UserWorkspace workspace) {
             super(aclProjectsHelper, aclServiceProvider, tagAssignmentValidator, zipFilter, zipCharsetDetector,
-                    openlHome, new ProjectAuditor(event -> {
-                    }));
+                    openlHome, auditor);
             this.workspace = workspace;
         }
 

@@ -455,7 +455,8 @@ The write flow must:
 2. resolve or create the target branch through secured repository APIs;
 3. write through the branch-scoped mapped and path-checked repository;
 4. enforce per-file `CREATE`, `WRITE` and `DELETE` permissions for archive replacement;
-5. finalize the project ACL and extensible tags from the branch-scoped project returned by the writer;
+5. finalize the project ACL and extensible tags from the branch-scoped project returned by the writer, as
+   [Access of a Removed Project](#access-of-a-removed-project) describes;
 6. request a targeted index refresh and wait for publication;
 7. resolve workspace status from the exact target branch and indexed external name;
 8. return the creation result.
@@ -506,11 +507,40 @@ The deletion flow must:
 Mapped repositories must use the external design-project identity, which pairs the declared name with the folder
 hash, for the post-delete lookup. A display name is not a sufficient index key.
 
-ACL cleanup must use a successfully refreshed snapshot. A scan failure, concurrent branch change or timeout must
-retain the ACL. A later successful refresh may perform deferred cleanup.
+ACL cleanup must use a successfully refreshed snapshot of the whole repository. A scan failure, a branch the index
+failed to read, a concurrent branch change or a timeout must retain the ACL. No later refresh removes it: the creation
+of the next project in the folder decides it.
 
 ACL identity does not include a branch. Entries at the same internal path share ACL behavior across branches.
 Entries at disjoint mapped paths retain distinct ACL identities.
+
+A surviving membership is counted from the unfiltered index (`DesignTimeRepository.getProjectsInAllBranches`):
+memberships the caller cannot read hold the folder too. The listing tells whether the repository is listed whole; a
+partial one proves a folder held, never a folder free.
+
+### Access of a Removed Project
+
+An ACL outlives every project removed without OpenL Studio removing it: a branch deleted on the Git server, a branch
+deleted while OpenL Studio was stopped, a folder deleted on disk. It must not pass to the next project created in the
+folder, whatever its name.
+
+- **Branch deletion** removes the ACL of each project the deleted branch held alone, with the rule of project deletion:
+  once the index publishes the deletion, only when no remaining membership uses the path or a covered descendant, and
+  only from a snapshot of the whole repository. Each removed role is a `roleRevoked` event. The branch is gone by
+  then, so a failure to remove an ACL is logged and fails nothing: the next creation in the folder replaces it.
+- **Creation**, from a template, from files, from an archive or by copy, decides before the write
+  (`ProjectCreationService.folderAcl`), since the write publishes the new membership. `ProjectFolders` reads the
+  folders of the projects of every branch once and tells whether one of them is the folder or a folder below it:
+  - held: the ACL stays, and the creator gets the CONTRIBUTOR role only when the folder has no ACL — an archive
+    uploaded over a project keeps the access of that project, even while a branch fails to be read;
+  - free: the ACL found there is what a removed project left; the creator's CONTRIBUTOR ACL replaces it, and each
+    role it held is a `roleRevoked` event;
+  - unknown, while the repository is still indexed or a branch failed to be read and no known project holds the
+    folder: a folder with access entries is refused with `409` `project.create.indexing.message`, since a branch not
+    read yet may hold it.
+- No refresh removes ACLs on its own. An early snapshot holds the default branch only, a degraded one misses the
+  branches it failed to read, and a changed repository setting makes every project look gone at once: the cleanup
+  would erase ACLs that cannot be restored.
 
 ## Required Outcomes
 
@@ -532,5 +562,6 @@ Entries at disjoint mapped paths retain distinct ACL identities.
 - Deleting one membership must leave the logical project visible while any membership survives.
 - Deleting a project must not delete its branch.
 - Deleting a branch must remain a whole-repository operation.
+- A project created in a folder no branch holds must start with the access of its creator only.
 - Project reads must use published snapshots and must not scan repository branches.
 - Git trees must remain the sole source of project membership.

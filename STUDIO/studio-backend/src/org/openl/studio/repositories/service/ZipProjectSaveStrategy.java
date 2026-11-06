@@ -72,12 +72,12 @@ public class ZipProjectSaveStrategy {
                 .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
                 .orElse(new UserInfo(model.getAuthor()));
         var projectData = new FileData();
-        projectData.setName(designTimeRepository.getRulesLocation() + model.getProjectName());
+        projectData.setName(designPath(model));
         projectData.setComment(StringUtils.trimToEmpty(model.getComment()));
         projectData.setAuthor(author);
         if (repository.supports().mappedFolders()) {
             AdditionalData<FileMappingData> additionalData = new FileMappingData(projectData.getName(),
-                    model.getFullPath());
+                    folderOf(repository, model));
             projectData.addAdditionalData(additionalData);
         }
         var adaptor = new ProjectDescriptorNameAdaptor(model.getProjectName());
@@ -101,6 +101,17 @@ public class ZipProjectSaveStrategy {
                 FileUtils.deleteQuietly(stage);
             }
         }
+    }
+
+    /**
+     * The folder the project of the model is saved to, as its access list is kept.
+     */
+    public String folderOf(Repository repository, CreateUpdateProjectModel model) {
+        return repository.supports().mappedFolders() ? model.getFullPath() : designPath(model);
+    }
+
+    private String designPath(CreateUpdateProjectModel model) {
+        return designTimeRepository.getRulesLocation() + model.getProjectName();
     }
 
     private static FileData save(Repository repository,

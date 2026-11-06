@@ -46,6 +46,7 @@ import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecureBranchRepository;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
@@ -122,6 +123,8 @@ class SecureDesignTimeRepositoryImplTest {
         when(delegate.isLastProjectBranch("design", "Rates", "feature/rates")).thenReturn(false);
         when(delegate.getProjectsHeldOnlyBy("design", "feature/rates")).thenReturn(List.of(denied));
         when(delegate.getBranchProjects("design", "feature/rates")).thenReturn(List.of(denied));
+        var listed = new RepositoryProjects(List.of(denied), true);
+        when(delegate.getProjectsInAllBranches("design")).thenReturn(listed);
         var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
 
         // Deleting a branch removes content the caller may not read, so the guard must see every holder:
@@ -130,6 +133,8 @@ class SecureDesignTimeRepositoryImplTest {
         assertEquals(List.of(denied), secured.getProjectsHeldOnlyBy("design", "feature/rates"));
         // A merge changes what the caller may not read too: the caller counts it without showing it.
         assertEquals(List.of(denied), secured.getBranchProjects("design", "feature/rates"));
+        // An access list kept for a folder is in use while a project the caller may not read lives there.
+        assertSame(listed, secured.getProjectsInAllBranches("design"));
     }
 
     @Test

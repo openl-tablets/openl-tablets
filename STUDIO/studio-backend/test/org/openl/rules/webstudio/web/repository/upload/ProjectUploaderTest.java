@@ -21,8 +21,6 @@ import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclRole;
-import org.openl.security.acl.repository.RepositoryAclService;
 
 class ProjectUploaderTest {
 
@@ -30,12 +28,10 @@ class ProjectUploaderTest {
     void successfulWriteDoesNotResolveTheCreatedProjectWithoutItsBranch() throws Exception {
         var repository = mock(Repository.class);
         var workspace = mock(UserWorkspace.class);
-        var acl = mock(RepositoryAclService.class);
         var rulesProject = mock(RulesProject.class);
         @SuppressWarnings("unchecked")
         var finalizeProject = (Consumer<RulesProject>) mock(Consumer.class);
         var awaitVisibility = mock(Runnable.class);
-        when(acl.createAcl(rulesProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)).thenReturn(true);
 
         try (var creators = mockConstruction(ExcelFilesProjectCreator.class, (creator, context) -> {
             when(creator.createRulesProject()).thenReturn(rulesProject);
@@ -47,7 +43,6 @@ class ProjectUploaderTest {
                     "Project",
                     "",
                     workspace,
-                    acl,
                     "Create Project",
                     mock(PathFilter.class),
                     mock(ZipCharsetDetector.class),

@@ -87,7 +87,8 @@ contain the project when it is opened. Proceed as follows:
 1.  To delete a non-default branch, switch to this branch and click **Delete Branch** on the page of the project, or click the **Delete Branch** icon in its row on the **Projects** page.
 
     The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage
-    branches** list. The project in the branch is deleted. If the non-default branch contains commits not merged to the
+    branches** list. The project in the branch is deleted. A project that no other branch holds loses its roles, as
+    with **Delete**. If the non-default branch contains commits not merged to the
     default branch, a warning message is displayed upon deletion attempt. A branch on which the project is locked by
     another user cannot be deleted while the lock is held: the lock means that user is editing the project there.
 

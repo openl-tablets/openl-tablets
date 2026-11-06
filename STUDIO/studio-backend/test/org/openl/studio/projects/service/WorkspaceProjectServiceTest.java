@@ -114,6 +114,7 @@ import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexState;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryProjects;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -958,20 +959,19 @@ class WorkspaceProjectServiceTest {
         when(projectStateValidator.canDelete(project)).thenReturn(true);
         when(designTimeRepository.refreshBranch("design", "feature/rates"))
                 .thenReturn(CompletableFuture.completedFuture(null));
-        var surviving = mock(BranchedProject.class);
+        // The index lists every branch of the repository, those the caller cannot read too.
         var survivingProject = mock(AProject.class);
-        var survivingEntry = mock(BranchedProject.BranchEntry.class);
-        when(survivingEntry.project()).thenReturn(survivingProject);
-        when(surviving.entries()).thenReturn(Map.of("main", survivingEntry));
-        when(designTimeRepository.getBranchedProject("design", "PricingProject:8f31"))
-                .thenReturn(Optional.of(surviving));
+        when(designTimeRepository.getProjectsInAllBranches("design"))
+                .thenReturn(new RepositoryProjects(List.of(survivingProject), true));
         when(acl.getPath(project)).thenReturn("PricingProject");
-        when(acl.getPath(survivingProject)).thenReturn(survivingAclPath);
+        var survivingData = new FileData();
+        survivingData.setName(survivingAclPath);
+        when(survivingProject.getFileData()).thenReturn(survivingData);
 
         service.delete(project, null);
 
         verify(designTimeRepository).refreshBranch("design", "feature/rates");
-        verify(designTimeRepository).getBranchedProject("design", "PricingProject:8f31");
+        verify(designTimeRepository).getProjectsInAllBranches("design");
         if (keepAcl) {
             verify(acl, never()).deleteAcl("design", "PricingProject");
         } else {
@@ -1010,12 +1010,51 @@ class WorkspaceProjectServiceTest {
         when(projectStateValidator.canDelete(project)).thenReturn(true);
         when(designTimeRepository.refreshBranch("design", "feature/rates"))
                 .thenReturn(CompletableFuture.completedFuture(null));
-        when(designTimeRepository.getBranchedProject("design", "PricingProject")).thenReturn(Optional.empty());
+        when(designTimeRepository.getProjectsInAllBranches("design"))
+                .thenReturn(new RepositoryProjects(List.of(), true));
         when(acl.getPath(project)).thenReturn("PricingProject");
 
         service.delete(project, null);
 
         verify(acl).deleteAcl("design", "PricingProject");
+    }
+
+    @Test
+    void delete_project_keeps_acl_while_the_repository_is_not_indexed_whole() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newDeleteService(
+                acl,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                mock(MultiUserWorkspaceManager.class));
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getBranch()).thenReturn("feature/rates");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(project.getBranch()).thenReturn("feature/rates");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        // A branch the index failed to read may still hold the project.
+        when(designTimeRepository.getProjectsInAllBranches("design")).thenReturn(RepositoryProjects.UNKNOWN);
+        when(acl.getPath(project)).thenReturn("PricingProject");
+
+        service.delete(project, null);
+
+        verify(acl, never()).deleteAcl("design", "PricingProject");
     }
 
     @Test
