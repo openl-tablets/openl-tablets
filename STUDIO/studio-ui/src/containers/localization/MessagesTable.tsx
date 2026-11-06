@@ -6,6 +6,7 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import type { Bundle } from './bundle'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
 import { MessageCell } from './MessageCell'
+import type { ProblemIndex } from './messageProblems'
 import type { MessageDrafts } from './useMessageDrafts'
 
 /** The widths the columns are laid out at; the table scrolls sideways past them. */
@@ -27,6 +28,8 @@ interface MessagesTableProps {
     canWrite: boolean
     onRemoveKey: (key: string) => void
     onAddLanguage: () => void
+    /** The problems of the keys, which each column counts for its language in its head. */
+    problems: ProblemIndex
     /** Opens a key on its own, with its text in every language. */
     onOpenKey: (key: string) => void
     nameOf: (tag: string) => string
@@ -48,6 +51,7 @@ export const MessagesTable = ({
     canWrite,
     onRemoveKey,
     onAddLanguage,
+    problems,
     onOpenKey,
     nameOf,
     styles,
@@ -75,6 +79,13 @@ export const MessagesTable = ({
             title: (
                 <>
                     {nameOf(language.tag)}
+                    {(problems.byLanguage.get(language.tag) ?? 0) > 0 && (
+                        <Tooltip title={t('problem_count', { count: problems.byLanguage.get(language.tag) })}>
+                            <span className={styles.warningCount} data-testid="localization-problem-count">
+                                {problems.byLanguage.get(language.tag)}
+                            </span>
+                        </Tooltip>
+                    )}
                     <span className={styles.columnFile}>{language.file.name}</span>
                 </>
             ),
@@ -120,7 +131,7 @@ export const MessagesTable = ({
                 </Tooltip>
             ),
         }] : []),
-    ], [bundle, canWrite, drafts, nameOf, onAddLanguage, onOpenKey, onRemoveKey, styles, t])
+    ], [bundle, canWrite, drafts, nameOf, onAddLanguage, onOpenKey, onRemoveKey, problems, styles, t])
 
     return (
         <Table<Row>

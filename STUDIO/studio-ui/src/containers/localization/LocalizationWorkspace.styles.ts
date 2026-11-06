@@ -94,6 +94,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     cell: css`
         position: relative;
         min-height: 22px;
+        padding-right: ${token.paddingMD}px;
         cursor: text;
     `,
     /** A cell whose text the reader has changed and not saved yet. */
@@ -102,9 +103,73 @@ export const useStyles = createStyles(({ css, token }) => ({
         min-height: 22px;
         cursor: text;
         margin: -4px -8px;
-        padding: 4px 8px 4px 5px;
+        padding: 4px 24px 4px 5px;
         border-left: 3px solid ${token.colorWarning};
         background: ${token.colorWarningBg};
+    `,
+    /** The mark of a text with problems, at the end of the cell, its problems in its tooltip. */
+    problemMark: css`
+        position: absolute;
+        top: 2px;
+        right: 0;
+        color: ${token.colorWarning};
+    `,
+    errorMark: css`
+        position: absolute;
+        top: 2px;
+        right: 0;
+        color: ${token.colorError};
+    `,
+    problemList: css`
+        margin: ${token.marginXXS}px 0 0;
+        padding-left: ${token.paddingMD}px;
+        font-size: ${token.fontSizeSM}px;
+    `,
+    /** The problems under a text, each in the colour of a warning or an error, so they read apart from the text. */
+    problemLines: css`
+        margin: ${token.marginXXS}px 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: ${token.fontSizeSM}px;
+
+        li {
+            display: flex;
+            align-items: baseline;
+            gap: ${token.marginXXS}px;
+        }
+    `,
+    problemWarning: css`
+        color: ${token.colorWarningText};
+    `,
+    problemError: css`
+        color: ${token.colorErrorText};
+    `,
+    /** How many problems stand behind a key or a language, as the tree of tables counts its errors. */
+    warningCount: css`
+        display: inline-block;
+        min-width: 17px;
+        margin-left: ${token.marginXS}px;
+        padding: 0 ${token.paddingXXS}px;
+        border-radius: ${token.borderRadiusSM}px;
+        background: ${token.colorWarning};
+        color: ${token.colorTextLightSolid};
+        font-size: ${token.fontSizeSM}px;
+        font-weight: normal;
+        line-height: ${token.fontSizeSM + 5}px;
+        text-align: center;
+    `,
+    errorCount: css`
+        display: inline-block;
+        min-width: 17px;
+        margin-left: ${token.marginXS}px;
+        padding: 0 ${token.paddingXXS}px;
+        border-radius: ${token.borderRadiusSM}px;
+        background: ${token.colorError};
+        color: ${token.colorTextLightSolid};
+        font-size: ${token.fontSizeSM}px;
+        font-weight: normal;
+        line-height: ${token.fontSizeSM + 5}px;
+        text-align: center;
     `,
     inherit: css`
         padding: 0;

@@ -5,6 +5,7 @@ import { DeleteOutlined } from '@ant-design/icons'
 import type { Bundle } from './bundle'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
 import { MessageCell } from './MessageCell'
+import { isError, problemsOf } from './messageProblems'
 import type { MessageDrafts } from './useMessageDrafts'
 
 interface KeyPanelProps {
@@ -47,31 +48,44 @@ export const KeyPanel = ({
                     </Button>
                 )}
             </div>
-            {bundle.languages.map(language => (
-                <div
-                    key={language.tag}
-                    data-testid="localization-key-language"
-                    className={language.tag === askedLanguage
-                        ? `${styles.languageRow} ${styles.languageRowAsked}`
-                        : styles.languageRow}
-                >
-                    <div className={styles.languageName}>
-                        {nameOf(language.tag)}
-                        <span className={styles.columnFile}>{language.file.name}</span>
-                    </div>
-                    <MessageCell
+            {bundle.languages.map(language => {
+                // How many problems the language has with the key, counted beside its name as the rail counts them.
+                const problems = problemsOf(bundle, language, messageKey, drafts.textOf)
+                return (
+                    <div
+                        key={language.tag}
+                        data-testid="localization-key-language"
+                        className={language.tag === askedLanguage
+                            ? `${styles.languageRow} ${styles.languageRowAsked}`
+                            : styles.languageRow}
+                    >
+                        <div className={styles.languageName}>
+                            {nameOf(language.tag)}
+                            {problems.length > 0 && (
+                                <span
+                                    className={problems.some(isError) ? styles.errorCount : styles.warningCount}
+                                    data-testid="localization-key-language-problems"
+                                >
+                                    {problems.length}
+                                </span>
+                            )}
+                            <span className={styles.columnFile}>{language.file.name}</span>
+                        </div>
+                        <MessageCell
                         // A cell of another key starts afresh, its draft left behind.
-                        key={messageKey}
-                        bundle={bundle}
-                        canWrite={canWrite}
-                        drafts={drafts}
-                        language={language}
-                        messageKey={messageKey}
-                        nameOf={nameOf}
-                        styles={styles}
-                    />
-                </div>
-            ))}
+                            key={messageKey}
+                            listProblems
+                            bundle={bundle}
+                            canWrite={canWrite}
+                            drafts={drafts}
+                            language={language}
+                            messageKey={messageKey}
+                            nameOf={nameOf}
+                            styles={styles}
+                        />
+                    </div>
+                )
+            })}
         </div>
     )
 }

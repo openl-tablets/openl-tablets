@@ -6,6 +6,7 @@ import { TranslationOutlined } from '@ant-design/icons'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { useSharedStyles } from '../projects/sharedStyles'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
+import type { KeyProblems, ProblemIndex } from './messageProblems'
 import { useElementSize } from './useElementSize'
 
 /** The height of one row of the tree, which the virtual list counts in. */
@@ -24,8 +25,30 @@ interface KeyRailProps {
     /** The key on screen, or null for all of them. */
     selectedKey: string | null
     onSelectKey: (key: string | null) => void
+    /** The problems of the keys, marked on each key. */
+    problems: ProblemIndex
     styles: LocalizationStyles
 }
+
+/** The classes the counts are drawn in, read once rather than for every row. */
+interface Marks {
+    error: string
+    warning: string
+}
+
+const NONE: KeyProblems = { count: 0, error: false }
+
+/** A row of the list: the key, and how many problems it has in the colour of the worst of them. */
+const titleOf = (key: string, problems: KeyProblems, marks: Marks) => (
+    <>
+        {key}
+        {problems.count > 0 && (
+            <span className={problems.error ? marks.error : marks.warning} data-testid="localization-key-problems">
+                {problems.count}
+            </span>
+        )}
+    </>
+)
 
 /**
  * The left rail of the messages: every key in the order it is written, under the root that stands for all of them.
@@ -38,6 +61,7 @@ export const KeyRail = ({
     keys,
     selectedKey,
     onSelectKey,
+    problems,
     styles,
 }: KeyRailProps) => {
     const { t } = useTranslation('localization')
@@ -47,16 +71,21 @@ export const KeyRail = ({
     const treeRef = useRef<React.ComponentRef<typeof Tree>>(null)
     const [expanded, setExpanded] = useState<React.Key[]>([ROOT])
 
+    // Built once per list: the classes are named by their strings, which stay while the theme does.
+    const marks = useMemo(
+        () => ({ error: styles.errorCount, warning: styles.warningCount }),
+        [styles.errorCount, styles.warningCount]
+    )
     const treeData = useMemo<TreeDataNode[]>(() => [{
         key: ROOT,
         title: t('all_messages'),
         icon: <TranslationOutlined />,
         children: (keys ?? []).map(key => ({
             key,
-            title: key,
+            title: titleOf(key, problems.byKey.get(key) ?? NONE, marks),
             isLeaf: true,
         })),
-    }], [keys, t])
+    }], [keys, problems, marks, t])
 
     useEffect(() => {
         if (selectedKey !== null && keys !== null) {

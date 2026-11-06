@@ -27,6 +27,7 @@ import { buildBundle, fileOfTag, languageName } from './bundle'
 import { KeyPanel } from './KeyPanel'
 import { KeyRail } from './KeyRail'
 import { useStyles } from './LocalizationWorkspace.styles'
+import { indexProblems } from './messageProblems'
 import { MessagesTable } from './MessagesTable'
 import { LOCALIZATION_ITEM, switchedRoute, switcherItems } from './moduleSwitcher'
 import { useElementSize } from './useElementSize'
@@ -159,6 +160,10 @@ export const LocalizationWorkspace = () => {
         setCreated([])
     }, [discardDrafts])
     const keys = bundle === null ? null : drafts.keys
+    const problems = useMemo(
+        () => indexProblems(bundle ?? { languages: [], keys: []}, drafts.keys, drafts.textOf),
+        [bundle, drafts.keys, drafts.textOf]
+    )
     const shownKey = selectedKey !== null && keys?.includes(selectedKey) === true ? selectedKey : null
 
     const openKey = useCallback((key: string | null) => {
@@ -312,6 +317,7 @@ export const LocalizationWorkspace = () => {
                 onAddLanguage={() => setAddingLanguage(true)}
                 onOpenKey={openKey}
                 onRemoveKey={removeKey}
+                problems={problems}
                 styles={styles}
             />
         )
@@ -320,7 +326,13 @@ export const LocalizationWorkspace = () => {
     return (
         <div className={shared.workspacePage} data-testid="localization-workspace">
             <div className={shared.workspaceBody}>
-                <KeyRail keys={keys} onSelectKey={openKey} selectedKey={shownKey} styles={styles} />
+                <KeyRail
+                    keys={keys}
+                    onSelectKey={openKey}
+                    problems={problems}
+                    selectedKey={shownKey}
+                    styles={styles}
+                />
                 <div className={styles.body}>
                     <WorkspaceHeader
                         crumbs={crumbs}
