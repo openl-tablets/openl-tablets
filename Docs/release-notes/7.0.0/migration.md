@@ -699,6 +699,12 @@ from Maven.
   - Clear the setting to show these files again. To add the build output folder, such as `target`, keep the defaults
     by referring to them: `repository.ignored-paths = ${repository.default-ignored-paths}, **/target/**`.
 
+* **A folder without `rules.xml` is no longer a project by default.** OpenL Studio used to list a folder of a design
+  repository with folders, such as Git, as a project when its root held an Excel file. Now only a folder with
+  `rules.xml` is a project, unless `project.detect-by-excel-files` is `true`, **Detect projects by Excel files** in the
+  **System** section of the administration. Turn the setting on, or add `rules.xml` to such projects, to keep them
+  listed. A repository that keeps projects as archives, such as a database or AWS S3 repository, is not affected.
+
 * **OpenL Studio starts its MCP server on a free port of the loopback interface.** OpenL Studio serves the server at
   `/mcp` of its own address; the Docker image carries Node.js, and a WAR deployment starts the server when Node.js is
   on the `PATH`. Set `mcp.enabled=false` to keep the server off. A reverse proxy in front of OpenL Studio that forwards
