@@ -291,9 +291,9 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
     -   The names of the rows and columns, such as the rule names of a Rules table or the keys of a Data table, are bold.
         What a Spreadsheet returns is bold, with a line above it and a double line below it.
     -   A heading inside the body, such as a merged step of a Spreadsheet, is centered and filled like a title.
-        A line sets apart the rules that share a merged value of a condition, and the columns of a lookup that share a
-        merged value, from the titles down. In a Data, a Test and a Run table where a row takes several lines, such as
-        a test case defining a collection one element per line, a line sets apart every row.
+        A dotted line sets apart the rules that share a merged value of a condition, and the columns of a lookup that
+        share a merged value, from the titles down. In a Data, a Test and a Run table where a row takes several lines,
+        such as a test case defining a collection one element per line, a dotted line sets apart every row.
     -   A number and a date are aligned to the right, and a line under the last row closes the table.
     -   Code is highlighted as the code editor of the theme highlights it: an expression, such as a formula of a
         Spreadsheet, the code the compiler reads, such as `C1` and `RET1`, the body of a Method table, and the steps of

@@ -660,9 +660,10 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             colorError }),
         faint: roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary }).faint,
         lines: {
-            // Every line in the base text colour, so the parts of a table stand apart at a glance.
+            // Every line in the base text colour, so the parts of a table stand apart at a glance. A group line is
+            // dotted, as the hair line of the Excel style, so a group reads apart from the parts of the table.
             role: { color: colorTextBase, style: 'solid', width: 1 },
-            group: { color: colorTextBase, style: 'solid', width: 1 },
+            group: { color: colorTextBase, style: 'dotted', width: 1 },
             resultBelow: { color: colorTextBase, style: 'double', width: 3 },
         } satisfies RoleLines,
     }), [colorBgContainer, colorBorder, colorError, colorFillTertiary, colorLink, colorLinkHover,
