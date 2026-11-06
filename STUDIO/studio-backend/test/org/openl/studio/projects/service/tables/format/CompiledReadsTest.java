@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -174,15 +176,17 @@ class CompiledReadsTest {
     }
 
     @Test
-    void returnsTheMarkedStepsAndColumnsOfASpreadsheetResultTheCompilerReadNoneOf() {
+    void namesTheMarkedStepsOfASpreadsheetResultTheCompilerReadNoneOf() {
         var roles = Roles.of(tableAt(MARKED_ROW));
 
-        assertEquals(RawTableRole.RESULT, roles.roleAt(MARKED_ROW + 1, 2), "The marked column");
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(MARKED_ROW + 1, 2), "The marked column");
         assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(MARKED_ROW + 1, 3));
         assertEquals(RawTableRole.VALUE, roles.roleAt(MARKED_ROW + 2, 1));
-        assertEquals(RawTableRole.RESULT, roles.roleAt(MARKED_ROW + 3, 1), "The marked step");
-        assertEquals(RawTableRole.RESULT, roles.roleAt(MARKED_ROW + 3, 2));
+        assertEquals(RawTableRole.KEY, roles.roleAt(MARKED_ROW + 3, 1), "The marked step");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(MARKED_ROW + 3, 2), "A SpreadsheetResult has no result");
+        assertTrue(roles.returnedAt(MARKED_ROW + 3, 2), "The marked step under the marked column is bold");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(MARKED_ROW + 3, 3), "A column not marked");
+        assertFalse(roles.returnedAt(MARKED_ROW + 3, 3));
     }
 
     @Test

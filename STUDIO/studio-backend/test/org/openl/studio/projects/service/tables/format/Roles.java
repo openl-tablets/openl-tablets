@@ -29,6 +29,11 @@ record Roles(IOpenLTable table, TableRegions regions) {
         return regionAt(row, column).role();
     }
 
+    /** Whether the table returns a cell of the sheet among others, which keeps its role and is bold. */
+    boolean returnedAt(int row, int column) {
+        return regionAt(row, column).returned();
+    }
+
     /** The type of the value of a cell of the sheet: its own, or the type of its region. */
     @Nullable
     RawTableValueType typeAt(int row, int column) {

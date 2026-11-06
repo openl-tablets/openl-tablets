@@ -34,7 +34,10 @@ public enum RawTableRole {
     @JsonProperty("outputTitle")
     OUTPUT_TITLE,
 
-    /** What names a row or a column of the body, such as a Data ID, a rule name, a step name or a field name. */
+    /**
+     * What names a row or a column of the body, such as a Data ID, a rule name, a field name or the name of a step a
+     * {@code SpreadsheetResult} marks {@code *}.
+     */
     @JsonProperty("key")
     KEY,
 
@@ -50,7 +53,7 @@ public enum RawTableRole {
     @JsonProperty("section")
     SECTION,
 
-    /** What the table returns, such as the {@code RETURN} step or the steps of a Spreadsheet marked {@code *}. */
+    /** What the table returns, such as the {@code RETURN} step of a Spreadsheet returning a single value. */
     @JsonProperty("result")
     RESULT
 }

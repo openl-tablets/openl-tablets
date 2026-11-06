@@ -517,6 +517,28 @@ describe('RawTableGrid', () => {
             expect(cellAt('B4')).toHaveAttribute('data-role', 'value')
         })
 
+        it('draws a cell the table returns among others bold on the fill of its role, with no line', () => {
+            // A SpreadsheetResult marking the last step: its value is returned, the one above is not.
+            const marked = rolesOf({
+                pos: 'B2:C5',
+                regions: [
+                    { role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
+                    { role: 'inputTitle', top: 1, left: 0, bottom: 1, right: 0 },
+                    { role: 'outputTitle', top: 1, left: 1, bottom: 1, right: 1 },
+                    { role: 'value', type: 'string', top: 2, left: 0, bottom: 2, right: 0 },
+                    { role: 'output', type: 'number', top: 2, left: 1, bottom: 2, right: 1 },
+                    { role: 'key', top: 3, left: 0, bottom: 3, right: 0 },
+                    { role: 'output', type: 'number', top: 3, left: 1, bottom: 3, right: 1, returned: true },
+                ],
+            })
+            renderInTheme(<RawTableGrid roles={marked} rows={rule} testId="grid" />, { theme: 'standard', mode: 'dark' })
+
+            expect(cellAt('C5')).toHaveAttribute('data-role', 'output')
+            expect(cellAt('C5')).toHaveStyle({ backgroundColor: colours.outputFill, fontWeight: '600' })
+            expect(cellAt('C4')).not.toHaveStyle({ fontWeight: '600' })
+            expect(cellAt('C4').style.borderBottom).toBe('')
+        })
+
         it('draws the marks of a text in the colours of the theme, and every other font of it plain', () => {
             const marked: RawTableCell[][] = rule.map((row, index) => (index !== 3 ? row : [
                 { cell: 'B5', value: 'sixty five', runs: [

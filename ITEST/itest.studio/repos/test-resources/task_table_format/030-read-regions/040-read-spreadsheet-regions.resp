@@ -119,19 +119,20 @@ Content-Type: application/json
       "right": 2
     },
     {
-      "role": "result",
+      "role": "key",
       "top": 3,
       "left": 0,
       "bottom": 3,
       "right": 0
     },
     {
-      "role": "result",
+      "role": "output",
       "type": "code",
       "top": 3,
       "left": 1,
       "bottom": 3,
-      "right": 1
+      "right": 1,
+      "returned": true
     },
     {
       "role": "output",
@@ -148,19 +149,20 @@ Content-Type: application/json
       "right": 2
     },
     {
-      "role": "result",
+      "role": "key",
       "top": 5,
       "left": 0,
       "bottom": 5,
       "right": 0
     },
     {
-      "role": "result",
+      "role": "output",
       "type": "code",
       "top": 5,
       "left": 1,
       "bottom": 5,
-      "right": 1
+      "right": 1,
+      "returned": true
     },
     {
       "role": "output",

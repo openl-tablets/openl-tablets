@@ -215,6 +215,94 @@ class RegionShiftTest {
     }
 
     @Test
+    void keepsTheCellsATableReturnsAsTheLinesMove() {
+        var marked = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+                region(RawTableRole.KEY, 1, 0, 1, 0),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true),
+                region(RawTableRole.VALUE, 2, 0, 2, 0),
+                region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
+        var shift = RegionShift.of(marked, 3, 2);
+
+        shift.rowsInserted(1, 1);
+        shift.columnsInserted(1, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(3, 0), 4, 3, "Spreadsheet");
+        assertTrue(returnedAt(regions, 2, 2), "The cell returned moved down and right");
+        assertFalse(returnedAt(regions, 3, 2), "A cell not returned");
+    }
+
+    @Test
+    void neverReturnsAStepOrAColumnAppendedAfterTheMarkedOnes() {
+        // A SpreadsheetResult whose last step and last column are marked: the cell under both is returned.
+        var marked = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+                region(RawTableRole.VALUE, 1, 0, 1, 0),
+                region(RawTableRole.OUTPUT, 1, 1, 1, 1),
+                region(RawTableRole.KEY, 2, 0, 2, 0),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 2, 1, true)), RawTableGroups.NONE, List.of(),
+                Map.of());
+        var shift = RegionShift.of(marked, 3, 2);
+
+        shift.rowsInserted(3, 1);
+        shift.columnsInserted(2, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(3, 0), 4, 3, "Spreadsheet");
+        assertTrue(returnedAt(regions, 2, 1), "The marked cell stays returned");
+        assertFalse(returnedAt(regions, 3, 1), "A step appended after the marked one");
+        assertEquals(RawTableRole.OUTPUT, roleAt(regions, 3, 1));
+        assertFalse(returnedAt(regions, 2, 2), "A column appended after the marked one");
+        assertEquals(RawTableRole.OUTPUT, roleAt(regions, 2, 2));
+    }
+
+    @Test
+    void neverReturnsAStepInsertedBetweenTwoMarkedOnes() {
+        // A SpreadsheetResult marking two adjacent steps: their values are one returned region.
+        var marked = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+                region(RawTableRole.KEY, 1, 0, 2, 0),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1, true),
+                region(RawTableRole.VALUE, 3, 0, 3, 0),
+                region(RawTableRole.OUTPUT, 3, 1, 3, 1)), RawTableGroups.NONE, List.of(), Map.of());
+        var shift = RegionShift.of(marked, 4, 2);
+
+        shift.rowsInserted(2, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(2, 0), 5, 2, "Spreadsheet");
+        assertTrue(returnedAt(regions, 1, 1), "The first marked step");
+        assertFalse(returnedAt(regions, 2, 1), "The step inserted between them");
+        assertEquals(RawTableRole.OUTPUT, roleAt(regions, 2, 1), "takes their role alone");
+        assertTrue(returnedAt(regions, 3, 1), "The second marked step");
+    }
+
+    @Test
+    void neverRepeatsAMarkedStepForAStepInsertedAfterIt() {
+        // A SpreadsheetResult: a step marked *, its name a key and its value returned, and a step not marked.
+        var marked = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+                region(RawTableRole.KEY, 1, 0, 1, 0),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true),
+                region(RawTableRole.VALUE, 2, 0, 2, 0),
+                region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
+        var shift = RegionShift.of(marked, 3, 2);
+
+        shift.rowsInserted(2, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(2, 0), 4, 2, "Spreadsheet");
+        assertEquals(RawTableRole.VALUE, roleAt(regions, 2, 0), "The new step takes the roles of the step under it");
+        assertFalse(returnedAt(regions, 2, 1), "The new step is not marked");
+        assertTrue(returnedAt(regions, 1, 1), "The marked step stays marked");
+    }
+
+    private static boolean returnedAt(TableRegions regions, int row, int column) {
+        return regions.regions().stream()
+                .filter(region -> region.holds(row, column))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No region holds " + row + ", " + column))
+                .returned();
+    }
+
+    @Test
     void neverRepeatsASectionOrTheResultForARowInsertedAfterIt() {
         // A TBasic body: a step, a step that returns, and a step.
         var tbasic = new TableRegions(List.of(

@@ -95,6 +95,9 @@ class ExcelTableFormatterTest {
     private static final ThemedColor MUTED = new ThemedColor(1, 500);
     private static final ThemedColor LT2 = new ThemedColor(2, 0);
 
+    /** A SpreadsheetResult marking a step and its column with *. */
+    private static final int QUOTE_ROW = 1;
+
     /** The named styles Excel leaves in a workbook whose sheets were copied from other workbooks. */
     private static final int MANY_STYLES = 20_000;
 
@@ -194,6 +197,33 @@ class ExcelTableFormatterTest {
             assertEquals(HorizontalAlignment.CENTER, section.getAlignment(), "A heading is centred");
             var last = styleAt(workbook, LAST_STEP, ACTION);
             assertLine(BorderStyle.THIN, TEXT, last.getBorderBottom(), last.getBottomBorderXSSFColor());
+        }
+    }
+
+    @Test
+    void drawsWhatASpreadsheetResultMarksBoldWithNoLineAndNoOtherFill() throws IOException {
+        try (var workbook = formatted(ExcelTableFormatterTest::fillMarks)) {
+            var title = styleAt(workbook, QUOTE_ROW + 1, 2);
+            assertEquals("Heading 2", namedStyleAt(workbook, QUOTE_ROW + 1, 2).getName(), "A marked title");
+            assertEquals(new ThemedColor(4, 600), ThemedColor.of(title.getFillForegroundColorColor()));
+            assertEquals(BorderStyle.NONE, title.getBorderBottom(), "No line under a marked title");
+
+            var name = styleAt(workbook, QUOTE_ROW + 3, 1);
+            assertEquals("Heading 4", namedStyleAt(workbook, QUOTE_ROW + 3, 1).getName(), "A marked step is a key");
+            assertTrue(name.getFont().getBold());
+            assertEquals(FillPatternType.NO_FILL, name.getFillPattern());
+            assertEquals(BorderStyle.NONE, name.getBorderTop(), "No line above a marked step");
+            assertEquals(BorderStyle.NONE, name.getBorderBottom(), "No line below a marked step");
+
+            var value = styleAt(workbook, QUOTE_ROW + 3, 2);
+            assertEquals("Output", namedStyleAt(workbook, QUOTE_ROW + 3, 2).getName());
+            assertEquals(new ThemedColor(4, 800), ThemedColor.of(value.getFillForegroundColorColor()),
+                    "The value of a marked step under a marked column keeps the fill of the values");
+            assertTrue(value.getFont().getBold(), "and is bold");
+            assertEquals(FontScheme.MINOR, value.getFont().getScheme());
+            assertEquals(BorderStyle.NONE, value.getBorderTop());
+            assertEquals(BorderStyle.NONE, value.getBorderBottom());
+            assertFalse(styleAt(workbook, QUOTE_ROW + 4, 2).getFont().getBold(), "A step not marked");
         }
     }
 
@@ -679,6 +709,16 @@ class ExcelTableFormatterTest {
         quoted.setQuotePrefixed(true);
         sheet.getRow(4).getCell(2).setCellStyle(quoted);
         sheet.getRow(6).getCell(2).setCellStyle(quoted);
+    }
+
+    /** A SpreadsheetResult marking a step and a column. */
+    private static void fillMarks(Sheet sheet) {
+        row(sheet, QUOTE_ROW, 1, "Spreadsheet SpreadsheetResult Quote(Integer a)");
+        merge(sheet, QUOTE_ROW, QUOTE_ROW, 1, 2);
+        row(sheet, QUOTE_ROW + 1, 1, "Step", "Value*");
+        row(sheet, QUOTE_ROW + 2, 1, "Base", "= a");
+        row(sheet, QUOTE_ROW + 3, 1, "Premium*", "= $Base * 2");
+        row(sheet, QUOTE_ROW + 4, 1, "Tax", "= $Premium / 10");
     }
 
     /** Indents the text of a cell by one level, which nests the step under the one above. */

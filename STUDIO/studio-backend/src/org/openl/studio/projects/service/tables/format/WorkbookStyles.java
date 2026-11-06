@@ -111,27 +111,31 @@ final class WorkbookStyles {
      *
      * @param style  the style of the role of the cell
      * @param edges  the lines at the edges of its region
+     * @param bold   whether the text is bold whatever the style, as in a cell a {@code SpreadsheetResult} marks
      * @param source the cell format the cell has
      * @param quote  what becomes of the apostrophe of Excel the cell format has
      * @return the cell format, as an index of the cell formats of the workbook
      */
-    int format(TableStyle style, Edges edges, int source, Quote quote) {
+    int format(TableStyle style, Edges edges, boolean bold, int source, Quote quote) {
         var asked = last;
-        if (asked != null && asked.style == style && asked.source == source && asked.quote == quote && asked.edges
-                .equals(edges)) {
+        if (asked != null && asked.style == style && asked.bold == bold && asked.source == source
+                && asked.quote == quote && asked.edges.equals(edges)) {
             return asked.format;
         }
         var from = kept.computeIfAbsent(source, this::keptOf);
         if (quote != Quote.KEEP) {
             from = from.withQuoted(quote == Quote.SET);
         }
-        var format = formats.computeIfAbsent(new Format(style, edges, from), this::write);
-        last = new Asked(style, edges, source, quote, format);
+        var format = formats.computeIfAbsent(new Format(style, edges, bold, from), this::write);
+        last = new Asked(style, edges, bold, source, quote, format);
         return format;
     }
 
-    /** A cell format asked for: the style of a role and the lines at its edges over a cell format a cell had. */
-    private record Asked(TableStyle style, Edges edges, int source, Quote quote, int format) {
+    /**
+     * A cell format asked for: the style of a role, the lines at its edges and whether it is bold, over a cell format
+     * a cell had.
+     */
+    private record Asked(TableStyle style, Edges edges, boolean bold, int source, Quote quote, int format) {
     }
 
     /**
@@ -182,7 +186,7 @@ final class WorkbookStyles {
         var from = format.kept();
         var xf = CTXf.Factory.newInstance();
         xf.setNumFmtId(from.numberFormat());
-        xf.setFontId(roleFonts.get(style));
+        xf.setFontId(format.bold() ? boldFontOf(style) : roleFonts.get(style));
         xf.setFillId(roleFills.get(style));
         xf.setBorderId(border(format.edges()));
         xf.setXfId(roleStyles.get(style));
@@ -344,6 +348,11 @@ final class WorkbookStyles {
         return Objects.requireNonNull(WorkbookStyles.class.getResourceAsStream(OFFICE_THEME), OFFICE_THEME);
     }
 
+    /** The font of a role made bold, as a cell a {@code SpreadsheetResult} marks takes it over its role style. */
+    private int boldFontOf(TableStyle style) {
+        return fontOf(style.getLook().toBuilder().bold(true).build());
+    }
+
     /** The font of a look: the heading or the body font of the theme, in the size of the Normal style. */
     private int fontOf(TableStyle.Look look) {
         var scheme = look.major() ? STFontScheme.INT_MAJOR : STFontScheme.INT_MINOR;
@@ -490,8 +499,8 @@ final class WorkbookStyles {
         }
     }
 
-    /** A cell format of a role: its style, the lines at its edges and what is kept from the cell. */
-    private record Format(TableStyle style, Edges edges, Kept kept) {
+    /** A cell format of a role: its style, the lines at its edges, whether it is bold and what is kept from the cell. */
+    private record Format(TableStyle style, Edges edges, boolean bold, Kept kept) {
     }
 
     /**

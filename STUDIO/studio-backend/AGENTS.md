@@ -271,7 +271,10 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
       tables take the titles the compiler found (`ADtColumnsDefinitionTableBoundNode.getTitles`).
     - *Spreadsheet* (`SpreadsheetLayout`): the steps, the columns and the result the compiler read
       (`getStructureBuilder()`); a step name is a `value` (untyped: a name, not a value), one merged over its row a
-      `section`.
+      `section`. The step or the column a single value returns is the `result`, the title of the column staying a
+      title; a `SpreadsheetResult` has no `result`: the name of a step it marks `*` is a `key`, and the cells it
+      returns of the marked steps and columns stay `output`, marked `returned` (`Place.asReturned`,
+      `RawTableRegion.returned`), which the formatter and the Studio look draw bold.
     - *TBasic and ColumnMatch* (`TBasicLayout`, `ColumnMatchLayout`): the ids of the columns read as `AlgorithmBuilder`
       reads them (`TableRegionLayout.idsOf`), the rows the compiled table holds; a TBasic step starting a subroutine
       is a `section` and one that returns the `result`; a ColumnMatch condition with the conditions indented under it

@@ -30,6 +30,8 @@ export interface RawTableRegion {
     left: number
     bottom: number
     right: number
+    /** Whether the table returns the cells among others, such as the cells a SpreadsheetResult marks: they are bold. */
+    returned?: boolean
 }
 
 /** The lines of the body of a table that start a group, in table coordinates. */

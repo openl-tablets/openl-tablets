@@ -1,0 +1,315 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Quote",
+  "pos": "B2:D7",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet SpreadsheetResult Quote(Double amount)",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 29,
+            "style": 1
+          },
+          {
+            "to": 35,
+            "style": 2
+          },
+          {
+            "to": 36,
+            "style": 1
+          },
+          {
+            "to": 42,
+            "style": 1
+          },
+          {
+            "to": 49,
+            "style": 3
+          },
+          {
+            "to": 50,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Step",
+        "style": 4
+      },
+      {
+        "cell": "C3",
+        "value": "Description*",
+        "style": 5
+      },
+      {
+        "cell": "D3",
+        "value": "Value",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Base",
+        "style": 6
+      },
+      {
+        "cell": "C4",
+        "value": "The amount",
+        "style": 7
+      },
+      {
+        "cell": "D4",
+        "value": "= amount",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Premium*",
+        "style": 8
+      },
+      {
+        "cell": "C5",
+        "value": "Twice the amount",
+        "style": 9
+      },
+      {
+        "cell": "D5",
+        "value": "= $Value$Base * 2",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "Tax*",
+        "style": 8
+      },
+      {
+        "cell": "C6",
+        "value": "A tenth of the premium",
+        "style": 9
+      },
+      {
+        "cell": "D6",
+        "value": "= $Value$Premium / 10",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Audit*",
+        "style": 10
+      },
+      {
+        "cell": "C7",
+        "value": "A note",
+        "style": 11
+      },
+      {
+        "cell": "D7",
+        "value": "= \"checked\"",
+        "style": 11
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "code",
+      "top": 2,
+      "left": 2,
+      "bottom": 5,
+      "right": 2
+    },
+    {
+      "role": "key",
+      "top": 3,
+      "left": 0,
+      "bottom": 5,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 3,
+      "left": 1,
+      "bottom": 5,
+      "right": 1,
+      "returned": true
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 29
+    },
+    {
+      "part": "name",
+      "to": 35
+    },
+    {
+      "part": "punctuation",
+      "to": 36
+    },
+    {
+      "part": "parameterType",
+      "to": 42
+    },
+    {
+      "part": "parameterName",
+      "to": 49
+    },
+    {
+      "part": "punctuation",
+      "to": 50
+    }
+  ],
+  "headerHeight": 1
+}

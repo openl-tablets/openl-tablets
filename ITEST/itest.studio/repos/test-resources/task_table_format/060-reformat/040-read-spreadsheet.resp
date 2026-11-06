@@ -94,11 +94,11 @@ Content-Type: application/json
       {
         "cell": "C22",
         "value": "= 10",
-        "style": 7
+        "style": 8
       },
       {
         "cell": "D22",
-        "style": 8
+        "style": 9
       }
     ],
     [
@@ -119,16 +119,16 @@ Content-Type: application/json
       {
         "cell": "B24",
         "value": "Total*",
-        "style": 7
+        "style": 10
       },
       {
         "cell": "C24",
         "value": "= $Base * 2",
-        "style": 7
+        "style": 11
       },
       {
         "cell": "D24",
-        "style": 9
+        "style": 12
       }
     ]
   ],
@@ -194,21 +194,37 @@ Content-Type: application/json
     },
     {
       "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
       "bold": true,
       "border": {
-        "top": {
-          "style": "solid",
-          "width": 1
-        },
         "bottom": {
-          "style": "double",
+          "style": "solid",
           "width": 1
         }
       }
     },
     {
       "background": "#dce6f1",
-      "valign": "center"
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
     },
     {
       "background": "#dce6f1",
@@ -251,19 +267,20 @@ Content-Type: application/json
       "right": 2
     },
     {
-      "role": "result",
+      "role": "key",
       "top": 3,
       "left": 0,
       "bottom": 3,
       "right": 0
     },
     {
-      "role": "result",
+      "role": "output",
       "type": "code",
       "top": 3,
       "left": 1,
       "bottom": 3,
-      "right": 1
+      "right": 1,
+      "returned": true
     },
     {
       "role": "output",
@@ -280,19 +297,20 @@ Content-Type: application/json
       "right": 2
     },
     {
-      "role": "result",
+      "role": "key",
       "top": 5,
       "left": 0,
       "bottom": 5,
       "right": 0
     },
     {
-      "role": "result",
+      "role": "output",
       "type": "code",
       "top": 5,
       "left": 1,
       "bottom": 5,
-      "right": 1
+      "right": 1,
+      "returned": true
     },
     {
       "role": "output",

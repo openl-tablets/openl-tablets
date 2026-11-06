@@ -34776,6 +34776,10 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "returned": {
+            "type": "boolean",
+            "description": "***"
+          },
           "right": {
             "type": "integer",
             "format": "int32",

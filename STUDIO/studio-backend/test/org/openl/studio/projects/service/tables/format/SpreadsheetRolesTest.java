@@ -1,9 +1,11 @@
 package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.model.tables.RawTableRole.INPUT_TITLE;
+import static org.openl.studio.projects.model.tables.RawTableRole.KEY;
 import static org.openl.studio.projects.model.tables.RawTableRole.OUTPUT;
 import static org.openl.studio.projects.model.tables.RawTableRole.OUTPUT_TITLE;
 import static org.openl.studio.projects.model.tables.RawTableRole.PROPERTIES;
@@ -29,8 +31,9 @@ import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
- * Covers the roles of the cells of a Spreadsheet table, above all which cells it returns: the cells the compiler
- * returns are its result.
+ * Covers the roles of the cells of a Spreadsheet table, above all which cells it returns: the step or the column a
+ * Spreadsheet returning a single value returns is its result. A SpreadsheetResult has no result: the names of the steps
+ * it marks are keys, and the cells it returns of the marked steps and columns keep their roles, bold.
  *
  * @author Yury Molchan
  */
@@ -44,11 +47,11 @@ class SpreadsheetRolesTest {
     private static final int RETURNED_COLUMN = 11;
     /** A Spreadsheet returning a single value from its last step, none of its steps named RETURN. */
     private static final int LAST_STEP = 17;
-    /** A SpreadsheetResult returning two adjacent steps and one apart, marked with *. */
+    /** A SpreadsheetResult marking two adjacent steps and one apart with *. */
     private static final int MARKED_STEPS = 23;
-    /** A SpreadsheetResult returning its steps under the one column marked with *. */
+    /** A SpreadsheetResult marking one column with *. */
     private static final int MARKED_COLUMN = 31;
-    /** A SpreadsheetResult returning the step and the column marked with *. */
+    /** A SpreadsheetResult marking a step and a column with *. */
     private static final int MARKED_BOTH = 37;
     /** A SpreadsheetResult with nothing marked * and a step left out of the result with ~. */
     private static final int NOTHING_MARKED = 43;
@@ -89,7 +92,7 @@ class SpreadsheetRolesTest {
         var roles = rolesAt(RETURNED_COLUMN);
 
         assertEquals(OUTPUT_TITLE, roles.roleAt(RETURNED_COLUMN + 1, 2));
-        assertEquals(RESULT, roles.roleAt(RETURNED_COLUMN + 1, 3), "The title of the column returned");
+        assertEquals(OUTPUT_TITLE, roles.roleAt(RETURNED_COLUMN + 1, 3), "The title of the column returned stays a title");
         assertEquals(VALUE, roles.roleAt(RETURNED_COLUMN + 2, 1), "A step name is no part of the column");
         assertEquals(OUTPUT, roles.roleAt(RETURNED_COLUMN + 3, 2));
         assertEquals(RESULT, roles.roleAt(RETURNED_COLUMN + 3, 3));
@@ -106,19 +109,23 @@ class SpreadsheetRolesTest {
     }
 
     @Test
-    void returnsTheStepsMarkedOfASpreadsheetResult() {
+    void namesTheStepsMarkedOfASpreadsheetResultAsKeysAndReturnsTheirCells() {
         var roles = rolesAt(MARKED_STEPS);
 
-        assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_STEPS + 1, 2), "No column is marked");
+        assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_STEPS + 1, 2));
         assertEquals(VALUE, roles.roleAt(MARKED_STEPS + 2, 1));
-        assertEquals(RESULT, roles.roleAt(MARKED_STEPS + 3, 1));
-        assertEquals(RESULT, roles.roleAt(MARKED_STEPS + 4, 2));
-        assertEquals(OUTPUT, roles.roleAt(MARKED_STEPS + 5, 2));
-        assertEquals(RESULT, roles.roleAt(MARKED_STEPS + 6, 2), "A marked step apart from the others");
-        // The two adjacent steps are one region of each column, the step apart another.
-        var results = roles.regions().regions().stream().filter(region -> region.role() == RESULT).toList();
-        assertTrue(results.contains(new RawTableRegion(RESULT, null, 3, 0, 4, 0)), String.valueOf(results));
-        assertTrue(results.contains(new RawTableRegion(RESULT, null, 6, 0, 6, 0)), String.valueOf(results));
+        assertEquals(KEY, roles.roleAt(MARKED_STEPS + 3, 1), "The name of a marked step is bold, a key");
+        assertEquals(KEY, roles.roleAt(MARKED_STEPS + 4, 1));
+        assertEquals(OUTPUT, roles.roleAt(MARKED_STEPS + 4, 2), "A value of a marked step keeps its fill");
+        assertEquals(VALUE, roles.roleAt(MARKED_STEPS + 5, 1));
+        assertEquals(KEY, roles.roleAt(MARKED_STEPS + 6, 1), "A marked step apart from the others");
+        assertEquals(OUTPUT, roles.roleAt(MARKED_STEPS + 6, 2));
+        assertTrue(roles.returnedAt(MARKED_STEPS + 3, 2), "A value of a marked step is bold");
+        assertTrue(roles.returnedAt(MARKED_STEPS + 6, 2));
+        assertFalse(roles.returnedAt(MARKED_STEPS + 5, 2), "A step not marked");
+        assertFalse(roles.returnedAt(MARKED_STEPS + 3, 1), "The name of a marked step is a key, not returned");
+        assertTrue(roles.regions().regions().stream().noneMatch(region -> region.role() == RESULT),
+                "No line of the result");
     }
 
     @Test
@@ -126,22 +133,30 @@ class SpreadsheetRolesTest {
         var roles = rolesAt(MARKED_COLUMN);
 
         assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_COLUMN + 1, 2));
-        assertEquals(RESULT, roles.roleAt(MARKED_COLUMN + 1, 3), "The title of the column marked");
+        assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_COLUMN + 1, 3), "The title of the column marked");
         assertEquals(VALUE, roles.roleAt(MARKED_COLUMN + 2, 1), "No step is marked");
-        assertEquals(OUTPUT, roles.roleAt(MARKED_COLUMN + 2, 2));
-        assertEquals(RESULT, roles.roleAt(MARKED_COLUMN + 2, 3));
-        assertEquals(RESULT, roles.roleAt(MARKED_COLUMN + 3, 3));
+        assertEquals(OUTPUT, roles.roleAt(MARKED_COLUMN + 2, 3));
+        assertEquals(OUTPUT, roles.roleAt(MARKED_COLUMN + 3, 3));
+        assertTrue(roles.returnedAt(MARKED_COLUMN + 2, 3), "Every step under the marked column");
+        assertTrue(roles.returnedAt(MARKED_COLUMN + 3, 3));
+        assertFalse(roles.returnedAt(MARKED_COLUMN + 2, 2), "A column not marked");
+        assertFalse(roles.returnedAt(MARKED_COLUMN + 1, 3), "The title of the column marked");
+        assertTrue(roles.regions().regions().stream().noneMatch(region -> region.role() == RESULT));
     }
 
     @Test
     void returnsTheStepsTimesTheColumnsMarkedOfASpreadsheetResult() {
         var roles = rolesAt(MARKED_BOTH);
 
-        assertEquals(RESULT, roles.roleAt(MARKED_BOTH + 1, 3));
-        assertEquals(RESULT, roles.roleAt(MARKED_BOTH + 3, 1));
-        assertEquals(RESULT, roles.roleAt(MARKED_BOTH + 3, 3), "The marked step under the marked column");
+        assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_BOTH + 1, 3), "The title of the column marked");
+        assertEquals(KEY, roles.roleAt(MARKED_BOTH + 3, 1), "The name of the step marked");
+        assertEquals(OUTPUT, roles.roleAt(MARKED_BOTH + 3, 3), "The marked step under the marked column");
         assertEquals(OUTPUT, roles.roleAt(MARKED_BOTH + 3, 2), "The marked step under another column");
-        assertEquals(OUTPUT, roles.roleAt(MARKED_BOTH + 2, 3), "Another step under the marked column");
+        assertEquals(VALUE, roles.roleAt(MARKED_BOTH + 2, 1), "A step not marked");
+        assertTrue(roles.returnedAt(MARKED_BOTH + 3, 3), "The marked step under the marked column");
+        assertFalse(roles.returnedAt(MARKED_BOTH + 3, 2), "The marked step under another column");
+        assertFalse(roles.returnedAt(MARKED_BOTH + 2, 3), "Another step under the marked column");
+        assertTrue(roles.regions().regions().stream().noneMatch(region -> region.role() == RESULT));
     }
 
     @Test
@@ -152,6 +167,7 @@ class SpreadsheetRolesTest {
         assertEquals(VALUE, roles.roleAt(NOTHING_MARKED + 3, 1), "A step left out with ~ reads as any step");
         assertEquals(OUTPUT, roles.roleAt(NOTHING_MARKED + 4, 2));
         assertTrue(roles.regions().regions().stream().noneMatch(region -> region.role() == RESULT));
+        assertTrue(roles.regions().regions().stream().noneMatch(RawTableRegion::returned), "No cell is told apart");
     }
 
     @Test
