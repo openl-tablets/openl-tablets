@@ -20,7 +20,12 @@ generation.
 - Use modern Java 21 syntax (`var`, `record`, `sealed`, `switch` expressions, record patterns, text blocks) and
   features (Virtual Threads, Sequenced Collections, new String, Collections and IO/NIO methods).
 - Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection,
-  `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
+  `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, `@Synchronized("lock")` for a method whose whole body is
+  `synchronized (lock) { … }`, `@Locked("lock")` for one whose whole body holds a `Lock` field, and
+  `@Locked.Read("lock")`/`@Locked.Write("lock")` for one whose whole body holds the read or the write lock of a
+  `ReadWriteLock` field such as a `ReentrantReadWriteLock`, etc. Lombok must not change the behaviour: name the field
+  the code already locks (a bare `@Synchronized` or `@Locked` locks a hidden field of its own instead), and keep a
+  block that covers only part of a method.
 - When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root
   `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter.
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types).
