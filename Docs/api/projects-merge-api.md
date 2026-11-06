@@ -44,7 +44,7 @@ file.
 - **Conflict Detection**: Automatic detection of merge conflicts with detailed file-level information
 - **Conflict Resolution**: Multiple strategies for resolving conflicts (BASE, OURS, THEIRS, CUSTOM)
 - **Conflict Comparison**: Two versions of a conflicted workbook, or its base version against either of them, are
-  compared through the Compare API
+  compared through the Compare API, and so are all three versions at once, lined up by the base
 - **Line-by-line Merge**: A conflicted text file is merged line by line, as the merge of the branches merges it, so
   that a client resolves each conflict of its lines in place and sends the merged file as a `CUSTOM` resolution
 - **Table-by-table Merge**: A conflicted workbook lists the tables and the sheets both branches changed in ways the
@@ -652,6 +652,21 @@ POST /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/compare?file=MyProject%2Frules
 - `404 Not Found`: No conflict information found, file not in conflict list, or file missing in one of the
   two versions; `fileAvailability` of `GET /merge/conflicts` tells which versions hold the file. A conflict of
   branches with no history in common has no `base` version (`project.merge.conflict.file.side.not.found`)
+
+**Three Versions at Once**: `POST /rest/projects/{projectId}/merge/conflicts/compare-versions?file={path}` starts a
+comparison of the base version with your version and with their version at once, as **All Versions** of the
+comparison window shows them. It takes the `file` as the endpoint above does, answers `202 Accepted` with the
+identifier of the comparison, and is read and released through the Compare API the same way.
+
+- Each version is compared with the base, and the rows and the columns of the three are lined up by the base: before
+  each line of the base stand the lines your version and then their version inserted there. A line both versions
+  inserted at one place with the same values is one line.
+- The tree of `GET /rest/compare/{id}` tells for each sheet and table what each version did to it, and what the two
+  did together. A table is read from `GET /rest/compare/{id}/conflict-tables/{tableId}`: the table as the base, your
+  version and their version hold it, the place of each, the cells each version changed and the cells both versions
+  changed differently.
+- Only Excel files are compared this way: another file answers `400`. A file one of the three versions does not hold
+  answers `404`, as above, and is compared two versions at a time.
 
 ---
 
