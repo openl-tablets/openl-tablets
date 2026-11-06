@@ -26,6 +26,13 @@ generation.
   `ReadWriteLock` field such as a `ReentrantReadWriteLock`, etc. Lombok must not change the behaviour: name the field
   the code already locks (a bare `@Synchronized` or `@Locked` locks a hidden field of its own instead), and keep a
   block that covers only part of a method.
+    - `@Cleanup` replaces a hand-written `try { … } finally { resource.close(); }` that closes a local to the end of
+      its scope, which behaves alike. It never replaces try-with-resources, which stays the default for a new
+      resource: when the body and then `close()` both fail, try-with-resources keeps the exception of the body and
+      `@Cleanup` loses it.
+    - `@SneakyThrows` only lets a checked exception pass unchanged where wrapping it would turn it into a runtime
+      error, such as a lambda of a `java.util.function` interface whose caller handles that exception. It never hides
+      a checked exception from the callers of an API that should declare it; abuse is forbidden.
 - When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root
   `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter.
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types).
