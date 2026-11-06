@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -30,21 +33,22 @@ import org.openl.util.CollectionUtils;
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class OpenLCompileManager {
     public static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
     public static final String ADDITIONAL_WARN_MESSAGES_KEY = "additional-warn-messages";
     public static final String ADDITIONAL_ERROR_MESSAGES_KEY = "additional-error-messages";
 
-    private final OpenL openl;
-
     /**
-     * Construct new instance of manager.
+     * The folder of the project a compilation is of, as a {@link java.nio.file.Path}, absent for a project that has
+     * none on disk.
      *
-     * @param openl {@link OpenL} instance
+     * <p>The modules and the dependencies of a project are compiled with the validation off, so a validator reading
+     * the files of the folder reports them once, for the compilation the project is opened, run or deployed by.
      */
-    OpenLCompileManager(OpenL openl) {
-        this.openl = openl;
-    }
+    public static final String PROJECT_FOLDER_KEY = "project-folder";
+
+    private final OpenL openl;
 
     /**
      * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
