@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { Bundle, BundleLanguage } from './bundle'
+import type { Bundle, BundleLanguage, TextOf } from './bundle'
 import { applyEdits } from './propertiesFile'
 
 /** The edits of one language: a key and its new text, or null where the key is taken out of the language. */
@@ -8,7 +8,7 @@ type LanguageDrafts = ReadonlyMap<string, string | null>
 /** What the reader has written and not saved yet, language by language. */
 export interface MessageDrafts {
     /** The text a language holds for a key with the edits applied, or undefined where it holds none. */
-    textOf: (language: BundleLanguage, key: string) => string | null | undefined
+    textOf: TextOf
     /** Whether the reader has changed the text of a key in a language. */
     changed: (tag: string, key: string) => boolean
     /** Sets the text of a key in a language; null takes the key out of the language. */

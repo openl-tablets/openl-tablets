@@ -1,13 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { cellOf, type Bundle, type BundleLanguage } from './bundle'
+import { cellOf, type Bundle, type BundleLanguage, type TextOf } from './bundle'
 import type { LocalizationStyles } from './LocalizationWorkspace.styles'
-
-/**
- * The text a language holds for a key: a text, null for a key written on a line without a separator, or undefined
- * for a key the language does not write.
- */
-export type TextOf = (language: BundleLanguage, key: string) => string | null | undefined
 
 interface MessageTextProps {
     bundle: Bundle
@@ -31,7 +25,11 @@ export const MessageText = ({ bundle, language, messageKey, textOf, styles, name
             return (
                 <span className={styles.inherited}>
                     {cell.text === '' ? t('empty') : cell.text}
-                    <span className={styles.origin}>{t('inherited_from', { language: nameOf(cell.from) })}</span>
+                    <span className={styles.origin}>
+                        {cell.project === undefined
+                            ? t('inherited_from', { language: nameOf(cell.from) })
+                            : t('inherited_from_project', { language: nameOf(cell.from), project: cell.project.name })}
+                    </span>
                 </span>
             )
         case 'missing':

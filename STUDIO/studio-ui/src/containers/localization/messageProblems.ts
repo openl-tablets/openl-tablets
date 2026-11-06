@@ -1,4 +1,4 @@
-import { cellOf, type Bundle, type BundleLanguage } from './bundle'
+import { cellOf, sharedTextOf, showsDefaultText, type Bundle, type BundleLanguage, type TextOf } from './bundle'
 
 /**
  * What can be wrong with the text of a key in a language.
@@ -10,7 +10,8 @@ import { cellOf, type Bundle, type BundleLanguage } from './bundle'
  * - `untranslated` — the language has no text of its own, nor its parent language, so it shows the default text.
  * - `no_separator` — the line of the key has no equals sign or colon, so the key has no text at all and a rule
  *   asking for it gets the key itself, whatever other languages write.
- * - `no_default` — the default language has no text, so every language without its own returns the key itself.
+ * - `no_default` — no default language has a text, of the project or of a project it depends on, so every
+ *   language without its own returns the key itself.
  */
 export type MessageProblem =
     | 'duplicate'
@@ -92,7 +93,7 @@ export const problemsOf = (
     bundle: Bundle,
     language: BundleLanguage,
     key: string,
-    textOf: (language: BundleLanguage, key: string) => string | null | undefined
+    textOf: TextOf
 ): MessageProblem[] => {
     const problems: MessageProblem[] = []
     const own = textOf(language, key)
@@ -109,18 +110,18 @@ export const problemsOf = (
             problems.push(pattern.error)
         }
         const defaultLanguage = bundle.languages.find(candidate => candidate.tag === '')
-        const defaultText = defaultLanguage === undefined || language === defaultLanguage
-            ? undefined
-            : textOf(defaultLanguage, key) ?? undefined
+        // The default text of a dependency stands in for the one the project lacks.
+        const ownDefault = defaultLanguage === undefined ? undefined : textOf(defaultLanguage, key)
+        const defaultText = language === defaultLanguage ? undefined : ownDefault ?? sharedTextOf(bundle, '', key)?.text
         if (defaultText !== undefined && !sameIndices(pattern.indices, patternOf(defaultText).indices)) {
             problems.push('placeholders')
         }
         return problems
     }
     const cell = cellOf(bundle, language, key, textOf)
-    if (language.tag === '') {
+    if (language.tag === '' && cell.kind === 'missing') {
         problems.push('no_default')
-    } else if (cell.kind === 'inherited' && cell.from === '') {
+    } else if (showsDefaultText(cell)) {
         problems.push('untranslated')
     }
     return problems
@@ -147,7 +148,7 @@ export interface ProblemIndex {
 export const indexProblems = (
     bundle: Bundle,
     keys: readonly string[],
-    textOf: (language: BundleLanguage, key: string) => string | null | undefined
+    textOf: TextOf
 ): ProblemIndex => {
     const byKey = new Map<string, KeyProblems>()
     const byLanguage = new Map<string, number>()

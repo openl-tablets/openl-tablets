@@ -8,7 +8,14 @@ import type { MessageFile } from '../../types/localization'
 import { getProject } from '../../services/repositories'
 import { listModules, type ModuleInfo } from '../../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
-import { BUNDLE_FOLDER, readMessageFiles, saveMessageFiles } from '../../services/localization'
+import {
+    BUNDLE_FOLDER,
+    readDependencyMessages,
+    readMessageFiles,
+    saveMessageFiles,
+    type DependencyMessages,
+} from '../../services/localization'
+import { localizationRoute } from '../../services/projectId'
 import { isUnresolvedProjectLink } from '../../services/projectLink'
 import { errorMessage } from '../../utils/errorMessage'
 import { ProjectStatus } from '../../constants/project'
@@ -23,7 +30,7 @@ import { UnresolvedProjectLink } from '../projects/UnresolvedProjectLink'
 import { ValueText } from '../projects/ValueText'
 import { AddKeyModal } from './AddKeyModal'
 import { AddLanguageModal } from './AddLanguageModal'
-import { buildBundle, fileOfTag, languageName } from './bundle'
+import { buildBundle, fileOfTag, languageName, sharedTextOf } from './bundle'
 import { KeyPanel } from './KeyPanel'
 import { KeyRail } from './KeyRail'
 import { useStyles } from './LocalizationWorkspace.styles'
@@ -73,6 +80,9 @@ export const LocalizationWorkspace = () => {
     const [linkProblem, setLinkProblem] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
     const [files, setFiles] = useState<MessageFile[] | null>(null)
+    // The messages of the projects this one depends on, which give the texts it lacks. Until they are read, and
+    // when they cannot be, the project stands alone.
+    const [dependencies, setDependencies] = useState<DependencyMessages[]>([])
     const [failure, setFailure] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
     const [adding, setAdding] = useState(false)
@@ -157,10 +167,24 @@ export const LocalizationWorkspace = () => {
         () => created.filter(name => !files?.some(file => file.name === name)),
         [created, files]
     )
+    useEffect(() => {
+        if (project === null) {
+            return undefined
+        }
+        let current = true
+        void readDependencyMessages(project).then(read => {
+            if (current) {
+                setDependencies(read)
+            }
+        })
+        return () => {
+            current = false
+        }
+    }, [project])
     const bundle = useMemo(() => (files === null
         ? null
-        : buildBundle([...files, ...pending.map(name => ({ name, text: '', legacy: false }))], nameOf)),
-    [files, pending, nameOf])
+        : buildBundle([...files, ...pending.map(name => ({ name, text: '', legacy: false }))], nameOf, dependencies)),
+    [files, pending, nameOf, dependencies])
     const drafts = useMessageDrafts(bundle)
     const { remove, write, discard: discardDrafts } = drafts
     const dirty = drafts.dirty || pending.length > 0
@@ -170,7 +194,7 @@ export const LocalizationWorkspace = () => {
     }, [discardDrafts])
     const keys = bundle === null ? null : drafts.keys
     const problems = useMemo(
-        () => indexProblems(bundle ?? { languages: [], keys: []}, drafts.keys, drafts.textOf),
+        () => indexProblems(bundle ?? { languages: [], keys: [], shared: []}, drafts.keys, drafts.textOf),
         [bundle, drafts.keys, drafts.textOf]
     )
     // The keys the search and the filter leave, in the rail and in the table alike.
@@ -181,6 +205,8 @@ export const LocalizationWorkspace = () => {
     const shownKey = selectedKey !== null && keys?.includes(selectedKey) === true ? selectedKey : null
     // A key a rule asks for, which the reader followed from the rule, while no file of the project has it.
     const missingKey = selectedKey !== null && keys !== null && !keys.includes(selectedKey) ? selectedKey : null
+    // The project a missing key is written in, when one this project depends on holds its default text.
+    const keyOwner = missingKey === null || bundle === null ? undefined : sharedTextOf(bundle, '', missingKey)?.project
 
     const openKey = useCallback((key: string | null) => {
         setSearch(key === null ? {} : { key })
@@ -313,13 +339,30 @@ export const LocalizationWorkspace = () => {
                 <Empty
                     className={styles.centered}
                     data-testid="localization-key-missing"
-                    description={t('key_missing', { key: missingKey })}
+                    description={keyOwner === undefined
+                        ? t('key_missing', { key: missingKey })
+                        : t('key_in_dependency', { key: missingKey, project: keyOwner.name })}
                 >
-                    {canWrite && (
-                        <Button icon={<PlusOutlined />} onClick={() => setAdding(true)} type="primary">
-                            {t('add_key')}
-                        </Button>
-                    )}
+                    <Space>
+                        {keyOwner !== undefined && (
+                            <Button
+                                data-testid="localization-key-owner"
+                                onClick={() => void navigate(localizationRoute(keyOwner.id, missingKey))}
+                                type="primary"
+                            >
+                                {t('open_in_project', { project: keyOwner.name })}
+                            </Button>
+                        )}
+                        {canWrite && (
+                            <Button
+                                icon={<PlusOutlined />}
+                                onClick={() => setAdding(true)}
+                                type={keyOwner === undefined ? 'primary' : 'default'}
+                            >
+                                {keyOwner === undefined ? t('add_key') : t('override_key')}
+                            </Button>
+                        )}
+                    </Space>
                 </Empty>
             )
         }

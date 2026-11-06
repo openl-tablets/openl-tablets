@@ -1,4 +1,4 @@
-import { cellOf, type Bundle, type BundleLanguage } from './bundle'
+import { cellOf, showsDefaultText, type Bundle, type BundleLanguage, type TextOf } from './bundle'
 import type { ProblemIndex } from './messageProblems'
 
 /** What the reader narrows the keys down to. */
@@ -13,16 +13,12 @@ export interface MessageFilter {
 
 export const NO_FILTER: MessageFilter = { search: '', onlyProblems: false, notTranslatedInto: null }
 
-type TextOf = (language: BundleLanguage, key: string) => string | null | undefined
-
 /**
  * Whether a language shows the default text of a key, having no text of its own or of a parent language. A key
  * the default language lacks too is not untranslated: it has no text to translate.
  */
-const notTranslated = (bundle: Bundle, language: BundleLanguage, key: string, textOf: TextOf) => {
-    const cell = cellOf(bundle, language, key, textOf)
-    return cell.kind === 'inherited' && cell.from === ''
-}
+const notTranslated = (bundle: Bundle, language: BundleLanguage, key: string, textOf: TextOf) =>
+    showsDefaultText(cellOf(bundle, language, key, textOf))
 
 /** Whether a key or one of its texts holds what the reader looks for. */
 const matches = (bundle: Bundle, key: string, wanted: string, textOf: TextOf) =>

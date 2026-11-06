@@ -1,7 +1,9 @@
-import apiCall, { isApiHttpError } from './apiCall'
+import apiCall, { isApiHttpError, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { encodeProjectPath } from './projectId'
+import { getProject } from './repositories'
 import type { FsNode } from '../types/files'
 import type { MessageFile } from '../types/localization'
+import type { Project, ProjectDependency } from '../types/projects'
 
 /** The folder of a project the engine reads the messages from. */
 export const BUNDLE_FOLDER = 'i18n'
@@ -81,4 +83,51 @@ export async function saveMessageFiles(projectId: string, files: Array<{ name: s
         { method: 'POST', body: form },
         { throwError: true }
     )
+}
+
+/** The localization files of a project another one depends on. */
+export interface DependencyMessages {
+    projectId: string
+    projectName: string
+    files: MessageFile[]
+}
+
+/** The files of one dependency and the projects it depends on in turn. */
+interface ReadDependency {
+    messages: DependencyMessages
+    dependencies: ProjectDependency[]
+}
+
+/** Reads one dependency, or answers null when the workspace cannot read it. */
+async function readDependency(projectId: string): Promise<ReadDependency | null> {
+    try {
+        const [project, files] = await Promise.all([
+            getProject(projectId, {}, LOCAL_LOAD_API_OPTIONS),
+            readMessageFiles(projectId),
+        ])
+        return { messages: { projectId, projectName: project.name, files }, dependencies: project.dependencies ?? []}
+    } catch {
+        return null
+    }
+}
+
+/**
+ * Reads the localization files of the projects a project depends on, directly or through others, the nearest
+ * first. A rule reads a key its own project lacks from them at runtime.
+ *
+ * <p>A dependency the workspace does not hold, and one that cannot be read, is left out.
+ */
+export async function readDependencyMessages(project: Project): Promise<DependencyMessages[]> {
+    const seen = new Set<string>([project.id])
+    const read: DependencyMessages[] = []
+    let level = project.dependencies ?? []
+    while (level.length > 0) {
+        const ids = [...new Set(level.flatMap(dependency => (dependency.id === undefined ? [] : [dependency.id])))]
+            .filter(id => !seen.has(id))
+        ids.forEach(id => seen.add(id))
+        const loaded = (await Promise.all(ids.map(readDependency))).filter(found => found !== null)
+        loaded.forEach(found => read.push(found.messages))
+        level = loaded.flatMap(found => found.dependencies)
+    }
+    return read
 }
