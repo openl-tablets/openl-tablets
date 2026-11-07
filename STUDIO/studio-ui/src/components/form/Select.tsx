@@ -23,7 +23,7 @@ interface SelectProps extends Omit<AntdSelectProps, 'filterOption' | 'onSearch'>
     rules?: FormRule[]
     mode?: 'multiple' | 'tags'
     defaultActiveFirstOption?: boolean
-    suffixIcon?: ReactNode
+    suffix?: ReactNode
     required?: boolean
 }
 
@@ -40,7 +40,7 @@ const Select: FC<SelectProps> = ({
     showSearch = false,
     notFoundContent,
     defaultActiveFirstOption = true,
-    suffixIcon,
+    suffix,
     open,
     tokenSeparators,
     required,
@@ -100,7 +100,7 @@ const Select: FC<SelectProps> = ({
                 {...(open !== undefined && { open })}
                 {...(placeholder !== undefined && { placeholder })}
                 {...(style !== undefined && { style })}
-                {...(suffixIcon !== undefined && { suffixIcon })}
+                {...(suffix !== undefined && { suffix })}
                 {...(tokenSeparators !== undefined && { tokenSeparators })}
             />
         </Form.Item>

@@ -64,7 +64,7 @@ export const EditGroupDetails: React.FC = () => {
                 options={groupOptions}
                 showSearch={{ filterOption: false, onSearch: handleSearch }}
                 style={{ width: '100%' }}
-                suffixIcon={null}
+                suffix={null}
                 rules={[
                     { required: true, message: t('groups:name_required') },
                     { max: 65, message: t('groups:group_name_max_length') }

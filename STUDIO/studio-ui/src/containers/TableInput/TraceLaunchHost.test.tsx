@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
 import { getTableInput, getTableInputCase, getTableInputCases } from 'services/tables'
@@ -152,7 +152,7 @@ describe('TraceLaunchHost', () => {
         render(<TraceLaunchHost />)
 
         await open({ kind: 'Test' })
-        await userEvent.click(await screen.findByTitle('2'))
+        await userEvent.click(within(await screen.findByTitle('2')).getByRole('button'))
 
         await waitFor(() => expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 1, size: 25 }))
         await userEvent.click(screen.getByTestId('trace-start'))

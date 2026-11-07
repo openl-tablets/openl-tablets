@@ -123,7 +123,7 @@ export const BranchSelect = ({
             notFoundContent={loading ? <ListLoading /> : undefined}
             options={options}
             style={{ minWidth: 0, width: '100%', ...style }}
-            suffixIcon={loading ? undefined : <BranchesOutlined />}
+            suffix={loading ? undefined : <BranchesOutlined />}
             value={value || undefined}
             onChange={next => {
                 setSearch('')

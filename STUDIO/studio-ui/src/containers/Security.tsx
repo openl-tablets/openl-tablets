@@ -223,7 +223,7 @@ export const Security = () => {
             labelWrap
             form={form}
             initialValues={securitySettings ?? {}}
-            labelAlign="right"
+            labelAlign="end"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
