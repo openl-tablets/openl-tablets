@@ -14,6 +14,7 @@ import { StreamLanguage } from '@codemirror/language'
 import { lintGutter, setDiagnostics, type Diagnostic } from '@codemirror/lint'
 import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { groovy } from '@codemirror/legacy-modes/mode/groovy'
+import { tags } from '@lezer/highlight'
 import { createStyles, useThemeMode } from 'antd-style'
 import { MOCKUP } from './projectsTheme'
 import { useAppTheme } from '../../providers/AppThemeProvider'
@@ -65,7 +66,17 @@ const useStyles = createStyles(({ css, token }) => ({
 const XML: Extension[] = [xml()]
 const JSON_LANGUAGE: Extension[] = [json()]
 const YAML: Extension[] = [yaml()]
-const PROPERTIES: Extension[] = [StreamLanguage.define(properties)]
+// The mode marks a key as a definition of a variable, which One Dark, the dark appearance of the standard theme,
+// writes in the colour of plain text. A key defines a property: every theme colours that, so keys stand out in all.
+// The table of a language answers the names of the legacy modes itself, so the key is given a name of its own.
+const PROPERTIES: Extension[] = [StreamLanguage.define({
+    ...properties,
+    token: (stream, state) => {
+        const style = properties.token(stream, state)
+        return style === 'def' ? 'key' : style
+    },
+    tokenTable: { key: tags.definition(tags.propertyName) },
+})]
 const GROOVY: Extension[] = [StreamLanguage.define(groovy)]
 const PLAIN_TEXT: Extension[] = []
 
