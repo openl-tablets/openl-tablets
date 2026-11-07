@@ -109,7 +109,7 @@ export const UserProfile: React.FC = () => {
             labelWrap
             form={form}
             initialValues={initialValues}
-            labelAlign="right"
+            labelAlign="end"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}

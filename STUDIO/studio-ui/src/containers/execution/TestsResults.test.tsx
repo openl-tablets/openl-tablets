@@ -106,8 +106,10 @@ const manyCases = (count: number) => ({
 const listedCases = () => screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')
 
 /** Turns the pager under the table of the results to the given page. */
-const turnTo = async (page: number) =>
-    userEvent.click(within(screen.getByTestId('test-cases-pagination-tt1')).getByTitle(String(page)))
+const turnTo = async (page: number) => {
+    const item = within(screen.getByTestId('test-cases-pagination-tt1')).getByTitle(String(page))
+    return userEvent.click(within(item).getByRole('button'))
+}
 
 const show = async () => {
     render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
@@ -841,7 +843,8 @@ describe('TestsResults', () => {
             readSummary.mockResolvedValue(manyTables(30, manyCases(45).testCases[0] ?? {}))
             render(<MemoryRouter><TestsResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
             await waitFor(() => expect(listedTables()).toContain('test-results-t0'))
-            await userEvent.click(within(screen.getByTestId('test-cases-pagination-t0')).getByTitle('2'))
+            const item = within(screen.getByTestId('test-cases-pagination-t0')).getByTitle('2')
+            await userEvent.click(within(item).getByRole('button'))
             expect(within(screen.getByTestId('test-results-t0')).getByText('21')).toBeInTheDocument()
 
             scrollTo(27 * 400)

@@ -23,7 +23,7 @@ export const InitialUsers: FC<InitialUsersProps> = ({ userGroups, showDefaultGro
                 name="administrators"
                 open={false}
                 options={[]}
-                suffixIcon={null}
+                suffix={null}
                 tokenSeparators={[',']}
             />
             {showDefaultGroup && (

@@ -8,18 +8,18 @@ import { BranchSelect } from './BranchSelect'
 // object, the way the current AntD Select API takes it. What the dropdown shows for an empty list is AntD's
 // own business, so it is asserted against the real Select in BranchSelect.antd.test.tsx instead.
 vi.mock('antd', () => ({
-    Select: ({ value, onChange, showSearch, onBlur, options, suffixIcon }: {
+    Select: ({ value, onChange, showSearch, onBlur, options, suffix }: {
         value?: string
         onChange?: (value: string) => void
         showSearch?: boolean | { onSearch?: (value: string) => void }
         onBlur?: () => void
         options: { value: string, label: unknown }[]
-        suffixIcon?: unknown
+        suffix?: unknown
     }) => {
         const onSearch = typeof showSearch === 'object' ? showSearch.onSearch : undefined
         return (
             <div>
-                {suffixIcon as never}
+                {suffix as never}
                 <span data-testid="selected">{value ?? ''}</span>
                 <input data-testid="search" onBlur={() => onBlur?.()} onChange={event => onSearch?.(event.target.value)} />
                 {options.map(option => (

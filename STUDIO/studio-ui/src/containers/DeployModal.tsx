@@ -384,7 +384,7 @@ export const DeployModal: React.FC = () => {
                         <Form
                             labelWrap
                             form={form}
-                            labelAlign="right"
+                            labelAlign="end"
                             labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                             name="deploy_form"
                             style={{ minWidth: 0 }}
@@ -401,7 +401,7 @@ export const DeployModal: React.FC = () => {
                                 options={deploymentRepositoriesOptions}
                                 placeholder={t('deploy:repository.placeholder')}
                                 style={{ width: '100%' }}
-                                suffixIcon={<BranchesOutlined />}
+                                suffix={<BranchesOutlined />}
                             />
                             <Select
                                 required
@@ -416,7 +416,7 @@ export const DeployModal: React.FC = () => {
                                 placeholder={t('deploy:deployment_name.placeholder')}
                                 showSearch={{ filterOption: false, onSearch: handleSearchDeploymentName }}
                                 style={{ width: '100%' }}
-                                suffixIcon={null}
+                                suffix={null}
                             />
                             <TextArea
                                 required

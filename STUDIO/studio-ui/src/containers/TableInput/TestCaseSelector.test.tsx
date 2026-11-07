@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { EVERY_CASE, TestCaseSelector, type TestCaseSelectorProps } from 'containers/TableInput/TestCaseSelector'
 import type { TableInputTestCase } from 'types/tables'
@@ -186,7 +186,7 @@ describe('TestCaseSelector', () => {
         renderSelector({ onPageChange, total: 120 })
 
         expect(screen.getByText('testCases.total')).toBeInTheDocument()
-        await userEvent.click(screen.getByTitle('2'))
+        await userEvent.click(within(screen.getByTitle('2')).getByRole('button'))
 
         expect(onPageChange).toHaveBeenCalledWith(2, expect.anything())
     })

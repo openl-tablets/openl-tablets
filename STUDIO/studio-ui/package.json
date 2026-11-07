@@ -52,7 +52,7 @@
     "@uiw/codemirror-theme-xcode": "^4.25.12",
     "@uiw/codemirror-themes": "^4.25.12",
     "@uiw/react-codemirror": "^4.25.12",
-    "antd": "6.6.8",
+    "antd": "6.7.0",
     "antd-style": "^4.1.0",
     "cytoscape": "^3.34.4",
     "cytoscape-dagre": "^4.0.1",

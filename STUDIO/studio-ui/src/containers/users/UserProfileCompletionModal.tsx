@@ -137,7 +137,7 @@ export const UserProfileCompletionModal: React.FC<UserProfileCompletionModalProp
                 <Form
                     form={form}
                     initialValues={initialValues}
-                    labelAlign="right"
+                    labelAlign="end"
                     labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                     layout="horizontal"
                     wrapperCol={{ flex: 1 }}
