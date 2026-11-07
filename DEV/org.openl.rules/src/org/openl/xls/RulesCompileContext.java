@@ -3,6 +3,8 @@ package org.openl.xls;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.rules.validation.DimensionalPropertyValidator;
 import org.openl.rules.validation.GapOverlapValidator;
+import org.openl.rules.validation.LocalizationValidator;
+import org.openl.rules.validation.MessageCallValidator;
 import org.openl.rules.validation.MethodUnreachableStatementValidator;
 import org.openl.rules.validation.UniqueMethodParameterNamesValidator;
 
@@ -28,5 +30,7 @@ public class RulesCompileContext extends DefaultCompileContext {
         addValidator(new DimensionalPropertyValidator());
         addValidator(new UniqueMethodParameterNamesValidator());
         addValidator(MethodUnreachableStatementValidator.getInstance());
+        addValidator(new LocalizationValidator());
+        addValidator(new MessageCallValidator());
     }
 }

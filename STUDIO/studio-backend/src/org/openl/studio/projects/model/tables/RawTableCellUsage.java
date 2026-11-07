@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
  * @param tableId     table the usage refers to, absent when it refers to no table of its own
  * @param module      module that table is read through, absent when no module of the workspace holds it
  * @param projectId   project that module belongs to, absent for the same reasons the module is
+ * @param messageKey  key of the localized message the usage names, absent for a usage of another kind
  * @param kind        what the piece of text stands for
  * @author Vladyslav Pikus
  */
@@ -45,6 +46,11 @@ public record RawTableCellUsage(
                 Identifier of the project the module belongs to, which for a table of a dependency is not \
                 the project being read. Absent for the same reasons the module is.""")
         @Nullable String projectId,
+
+        @Parameter(description = """
+                Key of the localized message the usage names, as a call of msg writes it, so a reader can be sent \
+                to its texts. Absent for a usage of another kind.""")
+        @Nullable String messageKey,
 
         @Parameter(description = "What the covered text stands for")
         RawTableUsageKind kind

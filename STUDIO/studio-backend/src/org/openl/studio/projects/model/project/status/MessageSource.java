@@ -16,8 +16,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ModuleMessageSource.class, name = "module"),
-        @JsonSubTypes.Type(value = TableMessageSource.class, name = "table")
+        @JsonSubTypes.Type(value = TableMessageSource.class, name = "table"),
+        @JsonSubTypes.Type(value = FileMessageSource.class, name = "file")
 })
-@Schema(description = "Location of a compilation message: either a module (workbook) or a specific table inside it.")
-public sealed interface MessageSource permits ModuleMessageSource, TableMessageSource {
+@Schema(description = """
+        Location of a compilation message: a module (workbook), a specific table inside it, or a line of another \
+        file of the project, such as a localization file.""")
+public sealed interface MessageSource permits ModuleMessageSource, TableMessageSource, FileMessageSource {
 }

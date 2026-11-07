@@ -17,6 +17,7 @@ import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.binding.MessageSourceResourceMethod;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.method.ITablePropertiesMethod;
@@ -76,6 +77,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
                     validateMethodArguments(methodCaller, children, bindingContext);
+                    MessageSourceResourceMethod.keepCall(node, methodCaller, children);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, argumentTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);

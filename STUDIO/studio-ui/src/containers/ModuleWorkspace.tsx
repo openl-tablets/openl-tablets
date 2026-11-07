@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, App, Button, Empty, Progress, Skeleton, Tooltip } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable, RawTableView, SummaryTable } from 'types/tables'
+import type { ModuleTable, RawTableCellUsage, RawTableView, SummaryTable } from 'types/tables'
 import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
 import {
@@ -19,7 +19,7 @@ import {
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, NotFoundError, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
-import { moduleRoute } from '../services/projectId'
+import { localizationRoute, moduleRoute } from '../services/projectId'
 import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
@@ -49,6 +49,7 @@ import { useDiscardConfirm } from './modules/useDiscardConfirm'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
+import { switchedRoute, switcherItems } from './localization/moduleSwitcher'
 
 const useStyles = createStyles(({ css, token }) => ({
     body: css`
@@ -616,14 +617,13 @@ export const ModuleWorkspace = () => {
     }, [navigate])
 
     /** The modules of this project, which the name in the header opens one of. */
-    const moduleItems = useMemo(
-        () => modules?.map(declared => ({ key: declared.name, label: declared.name, search: declared.name })) ?? null,
-        [modules]
-    )
+    // The modules of the project, and after them its messages, which they all share.
+    const localizationLabel = t('localization:title')
+    const moduleItems = useMemo(() => switcherItems(modules, localizationLabel), [modules, localizationLabel])
 
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
-            void navigate(moduleRoute(projectId, picked))
+            void navigate(switchedRoute(projectId, picked))
         }
     }, [moduleName, navigate, projectId])
 
@@ -670,7 +670,12 @@ export const ModuleWorkspace = () => {
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
-    const openUsage = useCallback((usage: { tableId?: string, module?: string, projectId?: string }) => {
+    const openUsage = useCallback((usage: RawTableCellUsage) => {
+        // The key of a message leads to its texts in every language, which the project keeps for all its modules.
+        if (usage.messageKey) {
+            void navigate(localizationRoute(projectId, usage.messageKey))
+            return
+        }
         if (!usage.tableId || !usage.module) {
             return
         }

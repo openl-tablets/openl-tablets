@@ -33,6 +33,7 @@ export interface ProjectStatusMessage {
  * {@code MessageSource} (discriminator: {@code type}).
  *  - {@code module}: workbook-level location (no specific table)
  *  - {@code table}: specific table cell, with id/name/module/cell
+ *  - {@code file}: a line of another file of the project, such as a localization file
  */
 export interface ProjectStatusModuleMessageSource {
     type: 'module'
@@ -60,9 +61,23 @@ export interface ProjectStatusTableMessageSource {
     project?: string
 }
 
+export interface ProjectStatusFileMessageSource {
+    type: 'file'
+    /** The path of the file, from the project folder. */
+    path?: string
+    line?: number
+    /** The key of the localization file the message is about; absent for the file as a whole. */
+    key?: string
+    /** The language of the localization file, empty for the default one. */
+    language?: string
+    /** A file message is always of the project being compiled. */
+    projectId?: undefined
+}
+
 export type ProjectStatusMessageSource =
     | ProjectStatusModuleMessageSource
     | ProjectStatusTableMessageSource
+    | ProjectStatusFileMessageSource
 
 /**
  * Compilation message enriched with origin and stack-trace availability.

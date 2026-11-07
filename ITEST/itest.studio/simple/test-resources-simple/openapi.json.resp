@@ -29804,6 +29804,66 @@ Content-Type: application/json
           "strategy"
         ]
       },
+      "FileMessageSource": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***"
+              },
+              "language": {
+                "type": "string",
+                "description": "***"
+              },
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ]
+      },
+      "FileMessageSource_Detailed": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource_Detailed"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***"
+              },
+              "language": {
+                "type": "string",
+                "description": "***"
+              },
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ]
+      },
       "FilePathPairRequest": {
         "type": "object",
         "properties": {
@@ -30596,6 +30656,7 @@ Content-Type: application/json
         "description": "***",
         "discriminator": {
           "mapping": {
+            "file": "#/components/schemas/FileMessageSource",
             "module": "#/components/schemas/ModuleMessageSource",
             "table": "#/components/schemas/TableMessageSource"
           },
@@ -30607,6 +30668,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/TableMessageSource"
+          },
+          {
+            "$ref": "#/components/schemas/FileMessageSource"
           }
         ],
         "properties": {
@@ -30623,6 +30687,7 @@ Content-Type: application/json
         "description": "***",
         "discriminator": {
           "mapping": {
+            "file": "#/components/schemas/FileMessageSource",
             "module": "#/components/schemas/ModuleMessageSource",
             "table": "#/components/schemas/TableMessageSource"
           },
@@ -30634,6 +30699,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/TableMessageSource"
+          },
+          {
+            "$ref": "#/components/schemas/FileMessageSource"
           }
         ],
         "properties": {
@@ -33181,8 +33249,13 @@ Content-Type: application/json
               "data",
               "field",
               "underlined",
+              "message",
               "other"
             ]
+          },
+          "messageKey": {
+            "type": "string",
+            "description": "***"
           },
           "module": {
             "type": "string",

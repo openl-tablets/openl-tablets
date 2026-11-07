@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.PropertiesUtils;
@@ -132,7 +133,12 @@ public class OpenLMessageSource {
         // Cache to hold already generated MessageFormats per message code.
         private final Map<String, MessageFormat> cachedMessageFormats = new ConcurrentHashMap<>();
 
-        public String msg(String code, Object... args) {
+        /** Whether the bundle has a text for the code. */
+        public boolean has(String code) {
+            return properties.get(code) != null;
+        }
+
+        public @Nullable String msg(@Nullable String code, Object... args) {
             if (code == null) {
                 return null;
             }

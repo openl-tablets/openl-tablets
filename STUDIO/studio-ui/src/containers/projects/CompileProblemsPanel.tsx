@@ -12,7 +12,7 @@ import {
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
-import { moduleRoute } from '../../services/projectId'
+import { localizationRoute, moduleRoute, untranslatedRoute } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
@@ -135,6 +135,14 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         if (!where) {
             return
         }
+        // A localization file opens the messages on the key and the language, or, for the file as a whole, on the
+        // keys its language has not translated.
+        if (where.type === 'file') {
+            void navigate(where.key === undefined
+                ? untranslatedRoute(project.id, where.language ?? '')
+                : localizationRoute(project.id, where.key, where.language))
+            return
+        }
         const module = where.type === 'table' ? where.module : where.name
         if (!module) {
             return
@@ -152,6 +160,9 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
             return false
         }
         const where = message.location
+        if (where?.type === 'file') {
+            return true
+        }
         return !!where && !!(where.type === 'table' ? where.module : where.name)
     }, [status.compileState])
 

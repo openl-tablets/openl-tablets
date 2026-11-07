@@ -34,6 +34,11 @@ public final class ProjectExternalDependenciesHelper {
             externalDependencies.add(new Dependency(DependencyType.PROJECT, new IdentifierNode(null, null, name, null)));
         }
         parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
+        // The files the project keeps beside its modules, such as its messages, are read from its folder.
+        var projectFolder = projectDescriptor.getProjectFolder();
+        if (projectFolder != null) {
+            parameters.put(OpenLCompileManager.PROJECT_FOLDER_KEY, projectFolder);
+        }
         return parameters;
     }
 
