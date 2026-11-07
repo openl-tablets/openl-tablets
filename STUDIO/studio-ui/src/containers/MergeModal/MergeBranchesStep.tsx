@@ -384,7 +384,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 labelWrap
                 className={styles.form}
                 form={form}
-                labelAlign="right"
+                labelAlign="end"
                 labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                 name="merge_branches_form"
                 wrapperCol={{ flex: 1, style: { minWidth: 0 } }}

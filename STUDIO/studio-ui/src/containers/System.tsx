@@ -138,7 +138,7 @@ export const System: React.FC = () => {
             labelWrap
             form={form}
             initialValues={systemSettings}
-            labelAlign="right"
+            labelAlign="end"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}

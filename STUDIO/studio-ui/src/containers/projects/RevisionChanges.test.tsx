@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RevisionChanges } from './RevisionChanges'
 import { getRevisionChanges, type ProjectRevision } from '../../services/repositories'
@@ -47,7 +47,7 @@ describe('RevisionChanges', () => {
         expect(rows).toHaveLength(10)
         expect(rows[0]).toHaveTextContent('File01.xlsx')
 
-        await userEvent.click(screen.getByTitle('3'))
+        await userEvent.click(within(screen.getByTitle('3')).getByRole('button'))
 
         await waitFor(() => expect(screen.getAllByTestId('revision-changes-file')).toHaveLength(5))
         expect(screen.getAllByTestId('revision-changes-file')[0]).toHaveTextContent('File21.xlsx')
