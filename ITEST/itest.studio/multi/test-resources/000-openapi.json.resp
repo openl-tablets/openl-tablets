@@ -12362,6 +12362,460 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/localization": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "problems",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "untranslated",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string",
+              "description": "***",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalizationMessagesPage"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Localization (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/localization/actions": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalizationActions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Localization (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/localization/keys": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LocalizationKeyView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Localization (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/localization/problems": {
       "get": {
         "description": "***",
@@ -27733,6 +28187,66 @@ Content-Type: application/json
           "sid"
         ]
       },
+      "AddKey": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LocalizationAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "values": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "***",
+                "minProperties": 1
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "key",
+          "values"
+        ]
+      },
+      "AddLanguage": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LocalizationAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "language": {
+                "type": "string",
+                "description": "***",
+                "pattern": "^(?:[a-z]{2,3}(?:_\\w+)?)?$"
+              },
+              "values": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "language"
+        ]
+      },
       "AdministrationSettings": {
         "type": "object",
         "properties": {
@@ -31885,6 +32399,62 @@ Content-Type: application/json
           "uri"
         ]
       },
+      "LocalizationAction": {
+        "type": "object",
+        "description": "***",
+        "discriminator": {
+          "mapping": {
+            "addKey": "#/components/schemas/AddKey",
+            "addLanguage": "#/components/schemas/AddLanguage",
+            "removeKey": "#/components/schemas/RemoveKey",
+            "removeValue": "#/components/schemas/RemoveValue",
+            "setValue": "#/components/schemas/SetValue"
+          },
+          "propertyName": "operation"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/SetValue"
+          },
+          {
+            "$ref": "#/components/schemas/RemoveValue"
+          },
+          {
+            "$ref": "#/components/schemas/AddKey"
+          },
+          {
+            "$ref": "#/components/schemas/RemoveKey"
+          },
+          {
+            "$ref": "#/components/schemas/AddLanguage"
+          }
+        ],
+        "properties": {
+          "operation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ]
+      },
+      "LocalizationActions": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/LocalizationAction"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "actions"
+        ]
+      },
       "LocalizationFileMessageSource": {
         "type": "object",
         "allOf": [
@@ -31972,6 +32542,145 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "LocalizationKeyView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "LocalizationLanguageView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "legacy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "tag": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "LocalizationMessageView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "***"
+          },
+          "shared": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LocalizationSharedValueView"
+            },
+            "description": "***"
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "***"
+          },
+          "warnings": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/LocalizationWarningView"
+            }
+          }
+        }
+      },
+      "LocalizationMessagesPage": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/LocalizationMessageView"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/LocalizationLanguageView"
+            }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
+        ]
+      },
+      "LocalizationSharedValueView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "project": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
+          },
+          "value": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "LocalizationWarningView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "***"
+          },
+          "spots": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TextSpot"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "LookupAppend": {
         "type": "object",
@@ -34998,8 +35707,13 @@ Content-Type: application/json
               "data",
               "field",
               "underlined",
+              "message",
               "other"
             ]
+          },
+          "messageKey": {
+            "type": "string",
+            "description": "***"
           },
           "module": {
             "type": "string",
@@ -35007,6 +35721,10 @@ Content-Type: application/json
           },
           "projectId": {
             "type": "string",
+            "description": "***"
+          },
+          "soft": {
+            "type": "boolean",
             "description": "***"
           },
           "start": {
@@ -35385,6 +36103,56 @@ Content-Type: application/json
         },
         "required": [
           "projectId"
+        ]
+      },
+      "RemoveKey": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LocalizationAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "key"
+        ]
+      },
+      "RemoveValue": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LocalizationAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "language": {
+                "type": "string",
+                "description": "***",
+                "pattern": "^(?:[a-z]{2,3}(?:_\\w+)?)?$"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "key",
+          "language"
         ]
       },
       "RepositoriesBatchModel": {
@@ -35915,6 +36683,39 @@ Content-Type: application/json
         },
         "required": [
           "role"
+        ]
+      },
+      "SetValue": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LocalizationAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "language": {
+                "type": "string",
+                "description": "***",
+                "pattern": "^(?:[a-z]{2,3}(?:_\\w+)?)?$"
+              },
+              "value": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "key",
+          "language",
+          "value"
         ]
       },
       "SettingsModel": {

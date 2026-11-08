@@ -1,0 +1,40 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "key": "greeting",
+      "values": {
+        "": "Hello, {0}!",
+        "fr": "Bonjour, {0} et {1} !",
+        "zh_TW": "你好，{0}！"
+      },
+      "warnings": [
+        {
+          "language": "",
+          "summary": "Written twice, on lines 1 and 3: the last text wins."
+        },
+        {
+          "language": "fr",
+          "summary": "Placeholders [0, 1] differ from [0] of the default language."
+        }
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1,
+  "languages": [
+    {
+      "tag": ""
+    },
+    {
+      "tag": "fr"
+    },
+    {
+      "tag": "zh_TW"
+    }
+  ]
+}

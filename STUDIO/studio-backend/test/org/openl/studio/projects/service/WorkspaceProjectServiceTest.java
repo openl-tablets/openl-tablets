@@ -70,6 +70,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLFileMessage;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -109,6 +110,7 @@ import org.openl.rules.ui.WorkbookWrites;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
@@ -136,6 +138,7 @@ import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
@@ -149,6 +152,7 @@ import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.localization.LocalizationCache;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
@@ -356,6 +360,87 @@ class WorkspaceProjectServiceTest {
         assertThrows(ForbiddenException.class, () -> service.createBranch(project, model));
     }
 
+    /** The texts a dependency gives lead to it: its id is found by the folder it is opened in, through others too. */
+    @Test
+    void finds_the_ids_of_the_opened_projects_a_project_depends_on() throws ProjectException {
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class)));
+        var dependencyResolver = (ProjectDependencyResolver) ReflectionTestUtils.getField(service,
+                "projectDependencyResolver");
+        var project = mock(RulesProject.class);
+        var base = openedDependency(service, "BASE", "base");
+        var common = openedDependency(service, "COMMON", "common");
+        var closed = mock(RulesProject.class);
+        when(dependencyResolver.getProjectDependencies(project)).thenReturn(List.of(base, closed));
+        when(dependencyResolver.getProjectDependencies(base)).thenReturn(List.of(common, project));
+        when(dependencyResolver.getProjectDependencies(common)).thenReturn(List.of(base));
+
+        var ids = service.dependencyIdsOf(project);
+
+        assertEquals(Map.of(Path.of("base"), "BASE", Path.of("common"), "COMMON"), ids);
+    }
+
+    private static RulesProject openedDependency(WorkspaceProjectService service, String id, String folder) {
+        var dependency = mock(RulesProject.class);
+        when(dependency.isOpened()).thenReturn(true);
+        when(dependency.getProjectId()).thenReturn(new ProjectId(id));
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(Path.of(folder));
+        doReturn(descriptor).when(service).getProjectDescriptor(dependency);
+        return dependency;
+    }
+
+    /** An opened project nobody compiled tells the warnings about its localization files, which need no compiling. */
+    @Test
+    void the_status_of_a_project_nobody_compiled_tells_the_warnings_of_its_localization_files() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        when(project.isOpened()).thenReturn(true);
+        var folder = Files.createDirectories(tempDir.resolve("PricingProject/i18n")).getParent();
+        var model = mock(ProjectModel.class);
+        when(model.getLocalizationCache()).thenReturn(new LocalizationCache());
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(model);
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project), mock(ProjectStateValidator.class), webStudio));
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(folder);
+        doReturn(descriptor).when(service).getProjectDescriptor(project);
+        doReturn(List.of()).when(service).localizationDependenciesOf(descriptor);
+        var warning = new OpenLFileMessage("Message 'a' is written twice.", Path.of("i18n/message.properties"), 2,
+                "a", "");
+        doReturn(List.of(warning)).when(service).checkLocalization(descriptor);
+        var statusMapper = (ProjectStatusMapper) ReflectionTestUtils.getField(service, "projectStatusMapper");
+        var idle = ProjectStatusViewModel.builder().compileState(CompileState.IDLE).build();
+        var checked = ProjectStatusViewModel.builder().compileState(CompileState.IDLE).build();
+        when(statusMapper.map(project)).thenReturn(idle);
+        when(statusMapper.withFileChecks(idle, List.of(warning), folder, true)).thenReturn(checked);
+
+        var result = service.getProject(project, List.of(ProjectInclude.STATUS),
+                new FieldProjectionSupport().parseSelection("compileStatus(compilation(messages(items)))"));
+
+        assertSame(checked, result.compileStatus);
+    }
+
+    /** A project without localization files, or closed, is told as the compilation registry knows it. */
+    @Test
+    void the_status_of_a_project_without_localization_files_is_left_as_it_is() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project)));
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(tempDir.resolve("PricingProject"));
+        doReturn(descriptor).when(service).getProjectDescriptor(project);
+        var statusMapper = (ProjectStatusMapper) ReflectionTestUtils.getField(service, "projectStatusMapper");
+        var idle = ProjectStatusViewModel.builder().compileState(CompileState.IDLE).build();
+        when(statusMapper.mapSummary(project)).thenReturn(idle);
+        var selection = new FieldProjectionSupport().parseSelection("compileStatus(compileState)");
+
+        assertSame(idle, service.getProject(project, List.of(ProjectInclude.STATUS), selection).compileStatus);
+        when(project.isOpened()).thenReturn(true);
+        assertSame(idle, service.getProject(project, List.of(ProjectInclude.STATUS), selection).compileStatus);
+        verify(service, never()).checkLocalization(any());
+        verify(statusMapper, never()).withFileChecks(any(), any(), any(), anyBoolean());
+    }
+
     /** A field the answer leaves out is not built: the compile state alone skips the costly parts. */
     @Test
     void get_project_builds_only_the_fields_the_selection_keeps() throws Exception {
@@ -376,6 +461,7 @@ class WorkspaceProjectServiceTest {
         verify(dependencyResolver, never()).getDependsOnProject(project);
         verify(statusMapper, never()).map(project);
 
+        when(statusMapper.map(project)).thenReturn(summary);
         service.getProject(project, includes,
                 new FieldProjectionSupport().parseSelection("usedBy,compileStatus(compilation(messages(items)))"));
         verify(dependencyResolver).getDependsOnProject(project);

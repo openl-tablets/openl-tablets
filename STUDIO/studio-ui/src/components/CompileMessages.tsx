@@ -15,7 +15,11 @@ const PREVIEW_LINES = 4
 const TRACE_CHARS = 1600
 const TRACE_LINES = 16
 
-const useStyles = createStyles(({ css, token }) => ({
+/**
+ * The look of the compilation messages, which any list of problems shares so they read the same wherever they are
+ * shown.
+ */
+export const useCompileMessageStyles = createStyles(({ css, token }) => ({
     list: css`
         list-style: none;
         margin: 12px 0 0;
@@ -138,7 +142,7 @@ const MessageText = ({
     chars?: number
     lines?: number
 }) => {
-    const { styles } = useStyles()
+    const { styles } = useCompileMessageStyles()
     const { t } = useTranslation('repository')
     const [expanded, setExpanded] = useState(false)
     const shown = useMemo(() => shorten(value, chars, lines), [value, chars, lines])
@@ -172,12 +176,11 @@ const MessageText = ({
 }
 
 /**
- * The rule a message was raised about, with the piece it is about marked the way the old editor marked it.
+ * The text a message was raised about, with the piece it is about marked the way the old editor marked it.
  *
- * <p>The rule is what the cell says, and the cell is on screen already: the message names only where in it the
- * piece begins and ends.
+ * <p>The text is on screen already: the message names only where in it the piece begins and ends.
  */
-const MessageCode = ({
+export const MessageCode = ({
     text,
     start,
     end,
@@ -188,7 +191,7 @@ const MessageCode = ({
     end: number
     testId: string
 }) => {
-    const { styles } = useStyles()
+    const { styles } = useCompileMessageStyles()
     return (
         <span className={styles.code} data-testid={testId}>
             <span>{text.slice(0, start)}</span>
@@ -243,7 +246,7 @@ const MessageStacktrace = ({
     load: () => Promise<string>
     testId: string
 }) => {
-    const { styles } = useStyles()
+    const { styles } = useCompileMessageStyles()
     const { t } = useTranslation('repository')
     const [open, setOpen] = useState(false)
     const [trace, setTrace] = useState<string | null>(null)
@@ -349,7 +352,7 @@ export const CompileMessages = ({
     onStacktrace,
     cellText,
 }: CompileMessagesProps) => {
-    const { styles, cx } = useStyles()
+    const { styles, cx } = useCompileMessageStyles()
     const { t } = useTranslation('repository')
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 

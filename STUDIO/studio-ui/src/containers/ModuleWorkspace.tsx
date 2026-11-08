@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Alert, App, Button, Empty, Progress, Skeleton, Tooltip } from 'antd'
+import { Alert, App, Button, Empty, Skeleton } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable, RawTableView, SummaryTable } from 'types/tables'
+import type { ModuleTable, RawTableCellUsage, RawTableView, SummaryTable } from 'types/tables'
 import type { Project } from '../types/projects'
-import { getProject, setProjectStatus } from '../services/repositories'
+import { getProject } from '../services/repositories'
 import {
-    cancelModuleCompilation,
     getMessageStacktrace,
     getModuleTables,
     getRawTable,
@@ -19,22 +18,18 @@ import {
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, NotFoundError, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
-import { moduleRoute } from '../services/projectId'
+import { localizationRoute, moduleRoute } from '../services/projectId'
 import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useLoadGeneration, useReleaseOnClose } from '../hooks'
 import { useSettingsStore } from '../store'
 import { ProjectStatus } from '../constants/project'
-import { WorkspaceHeader } from '../components/WorkspaceHeader'
 import { originOf, placeOf, rolesOf } from '../components/tableRoles'
-import { CompileDot, getCompileTooltip, isNoteworthyCompileState } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
-import { ValueText } from './projects/ValueText'
-import { BranchSwitcher } from './projects/BranchSwitcher'
-import { CrumbSwitcher } from './projects/CrumbSwitcher'
-import { ProjectSwitcher } from './projects/ProjectSwitcher'
-import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
+import { ClosedProject } from './projects/ClosedProject'
+import { ProjectScreenHeader } from './projects/ProjectScreenHeader'
+import { useOpenProject } from './projects/useOpenProject'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { loadShowOther, saveShowOther } from './modules/tableGrouping'
 import { ModuleActionBar } from './modules/ModuleActionBar'
@@ -44,21 +39,14 @@ import { TableProblems } from './modules/TableProblems'
 import { TableSearchModal } from './modules/TableSearchModal'
 import { TableEditor } from './modules/TableEditor'
 import { TableToolbar } from './modules/TableToolbar'
+import { CompilationWait, waitsForCompilation } from './modules/ModuleCompilationView'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 import { useDiscardConfirm } from './modules/useDiscardConfirm'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
-import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
+import { ProjectScreenPending } from './projects/ProjectScreenPending'
 
 const useStyles = createStyles(({ css, token }) => ({
-    body: css`
-        position: relative;
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-    `,
     /** The table and, beside it, what the table says about itself. */
     withDetails: css`
         display: flex;
@@ -73,10 +61,6 @@ const useStyles = createStyles(({ css, token }) => ({
         min-width: 0;
         min-height: 0;
     `,
-    /** A breadcrumb value (the repository): reads like the links beside it. */
-    crumbValue: css`
-        color: ${token.colorTextSecondary};
-    `,
     /**
      * The table is drawn at the width its own text needs, and the canvas scrolls around it.
      *
@@ -89,20 +73,6 @@ const useStyles = createStyles(({ css, token }) => ({
         overflow: auto;
         padding: 16px;
         background: ${token.colorBgBase};
-    `,
-    centered: css`
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        flex: 1;
-        padding: ${token.paddingXL}px;
-        text-align: center;
-    `,
-    progress: css`
-        width: 320px;
-        max-width: 100%;
     `,
     /** The invitation to read further, under the rows already drawn. */
     more: css`
@@ -178,7 +148,6 @@ export const ModuleWorkspace = () => {
     const [loadError, setLoadError] = useState<string | null>(null)
     // Whether the link leads to no project: shown in place of the module.
     const [linkProblem, setLinkProblem] = useState(false)
-    const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
     const [loaded, setLoaded] = useState<{ at: string, other: boolean, round: number, tables: ModuleTable[] } | null>(
         null)
@@ -208,7 +177,6 @@ export const ModuleWorkspace = () => {
     // Why the table could not be read, and whether the server said it holds no table of the address at all.
     const [tableError, setTableError] = useState<{ message: string, gone: boolean } | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
-    const [cancelling, setCancelling] = useState(false)
     /** Whether the project has compiled through since this module was opened; see the effects below. */
     const [projectCompiled, setProjectCompiled] = useState(false)
     const [editing, setEditing] = useState(false)
@@ -318,28 +286,11 @@ export const ModuleWorkspace = () => {
         load()
     }, [load])
 
-    // The dialog is mounted above the routes and answers back with this project, so leaving takes its question
-    // along.
-    useEffect(() => closeProjectDialog, [projectId])
-
     // A module of a project nobody opened cannot be read: the workspace holds no copy of it to compile. The
     // same question the Projects screen asks is asked here, and the module opens once it is answered.
     const closed = project !== null && project.status === ProjectStatus.Closed
-    const openThisProject = useCallback(() => {
-        if (!project || !projectId) {
-            return
-        }
-        openProjectDialog(
-            { ...project, dependencies: project.dependencies ?? []},
-            openDependencies => {
-                setOpening(true)
-                setProjectStatus(projectId, 'OPENED', { openDependencies })
-                    .then(() => load())
-                    .catch((error: unknown) => setLoadError(errorMessage(error)))
-                    .finally(() => setOpening(false))
-            }
-        )
-    }, [load, project, projectId])
+    const failedToOpen = useCallback((error: unknown) => setLoadError(errorMessage(error)), [])
+    const { opening, open: openThisProject } = useOpenProject(project, load, failedToOpen)
 
     // The project no longer has the module: a sync with another branch took it away, or another session did.
     // Nothing is left to read here, whether the compilation or the read of the tables finds that out, so the
@@ -498,18 +449,6 @@ export const ModuleWorkspace = () => {
         }
     }, [tables, tablesReloading, showOther, selectedId, here, moduleName, navigate, projectId, tableAddress, reloadToken])
 
-    // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
-    // was compiled stays readable; Refresh starts it again.
-    const cancelCompilation = useCallback(() => {
-        if (!projectId) {
-            return
-        }
-        setCancelling(true)
-        cancelModuleCompilation(projectId, moduleName)
-            .catch((error: unknown) => setLoadError(errorMessage(error)))
-            .finally(() => setCancelling(false))
-    }, [moduleName, projectId])
-
     // Refresh compiles the module again and re-reads its tables. What the reader was looking at is kept: the
     // address still names it, and it is drawn again as soon as the tables are back. Whether the project has
     // compiled through is an open question again until the compilation asked for has finished.
@@ -604,29 +543,6 @@ export const ModuleWorkspace = () => {
         void navigate(moduleRoute(projectId, moduleName), { replace: true })
     }, [moduleName, navigate, projectId, reopenRevision])
 
-    // Another module of the same project opens in the same screen, on its own first table.
-    /**
-     * Opens the project the reader picked, on the project's own screen.
-     *
-     * <p>Which of its modules to read is theirs to say, as it was in the Editor: a module chosen for them
-     * would be the wrong one as often as not, and the project screen is where its modules are listed.
-     */
-    const openProject = useCallback((picked: string) => {
-        void navigate(`/projects/${picked}`)
-    }, [navigate])
-
-    /** The modules of this project, which the name in the header opens one of. */
-    const moduleItems = useMemo(
-        () => modules?.map(declared => ({ key: declared.name, label: declared.name, search: declared.name })) ?? null,
-        [modules]
-    )
-
-    const openModule = useCallback((picked: string) => {
-        if (picked !== moduleName) {
-            void navigate(moduleRoute(projectId, picked))
-        }
-    }, [moduleName, navigate, projectId])
-
     // "Show Header" puts away the rows the table's header takes, which the read names — the header line, a
     // properties section, the service rows of a decision table. The table is handed over whole and told how
     // many rows to keep out of sight: a row put away must keep the number it has in the table, or an edit is
@@ -670,7 +586,13 @@ export const ModuleWorkspace = () => {
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
-    const openUsage = useCallback((usage: { tableId?: string, module?: string, projectId?: string }) => {
+    const openUsage = useCallback((usage: RawTableCellUsage) => {
+        // The key of a message leads to its texts in every language, which the project keeps for all its modules: a
+        // key only a project it depends on gives leads to that project.
+        if (usage.messageKey) {
+            void navigate(localizationRoute(usage.projectId ?? projectId, usage.messageKey))
+            return
+        }
         if (!usage.tableId || !usage.module) {
             return
         }
@@ -829,13 +751,7 @@ export const ModuleWorkspace = () => {
     }, [belowRead, moreLoading, namedRows, readRows, selectedId, showMoreRows])
 
     if (linkProblem) {
-        return (
-            <div className={shared.workspacePage}>
-                <div className={styles.centered}>
-                    <UnresolvedProjectLink />
-                </div>
-            </div>
-        )
+        return <ProjectScreenPending linkProblem testId="module-workspace-loading" />
     }
 
     if (loadError) {
@@ -851,115 +767,34 @@ export const ModuleWorkspace = () => {
     }
 
     if (!project) {
-        return (
-            <div className={shared.workspacePage}>
-                <div className={styles.centered} data-testid="module-workspace-loading">
-                    <Skeleton active />
-                </div>
-            </div>
-        )
+        return <ProjectScreenPending linkProblem={false} testId="module-workspace-loading" />
     }
 
     const modulePath = modules?.find(declared => declared.name === moduleName)?.path
 
     const testCount = compilation.tests
-    const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && branch !== null
-
-    const crumbs = (
-        <>
-            <Link to="/projects">{t('home.title')}</Link>
-            <span aria-hidden>/</span>
-            <ValueText className={styles.crumbValue}>
-                {project.repositoryInfo?.name ?? project.repository}
-            </ValueText>
-            <span aria-hidden>/</span>
-            <ProjectSwitcher
-                currentName={project.name}
-                currentProjectId={project.id}
-                disabled={opening}
-                onSelect={openProject}
-                testId="crumb-project"
-            />
-            {hasBranches && (
-                <>
-                    <span aria-hidden>/</span>
-                    <BranchSwitcher
-                        beforeSwitch={confirmDiscard}
-                        currentBranch={branch ?? ''}
-                        currentBranchDefault={project.branchDefault}
-                        currentBranchProtected={project.branchProtected}
-                        data-testid="crumb-branch"
-                        disabled={opening}
-                        onSwitched={() => load()}
-                        projectId={project.id}
-                        tone="secondary"
-                    />
-                </>
-            )}
-        </>
-    )
-
     /** What stands in for the module while it cannot be read: its project closed, or not compiled through. */
     const compilationCanvas = () => {
         if (closed) {
             return (
-                <div className={styles.centered} data-testid="module-project-closed">
-                    <Empty description={t('browser.module.project_closed')}>
-                        <Button loading={opening} onClick={openThisProject} type="primary">
-                            {t('browser.open')}
-                        </Button>
-                    </Empty>
-                </div>
+                <ClosedProject
+                    description={t('browser.module.project_closed')}
+                    onOpen={openThisProject}
+                    opening={opening}
+                    testId="module-project-closed"
+                />
             )
         }
-        if (compilation.failure !== null) {
+        if (waitsForCompilation(compilation)) {
+            // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so.
             return (
-                <div className={styles.centered}>
-                    <Alert
-                        showIcon
-                        data-testid="module-compile-failed"
-                        description={compilation.failure}
-                        title={t('browser.module.compile_failed')}
-                        type="error"
-                    />
-                </div>
-            )
-        }
-        if (compilation.state === 'cancelled' && !compilation.ready) {
-            // The reader asked for the wait to end. What was compiled is kept, and Refresh starts it again.
-            return (
-                <div className={styles.centered} data-testid="module-compile-cancelled">
-                    <Empty description={t('browser.module.compile_cancelled', { module: moduleName })}>
-                        <Button icon={<ReloadOutlined />} onClick={() => refresh()} type="primary">
-                            {t('browser.module.refresh')}
-                        </Button>
-                    </Empty>
-                </div>
-            )
-        }
-        if (!compilation.ready) {
-            // Shown while the compilation works towards this module. The count is what the status channel
-            // reports, so it moves as each module finishes rather than sitting at nothing.
-            return (
-                <div className={styles.centered} data-testid="module-compiling">
-                    <Progress
-                        className={styles.progress}
-                        status="active"
-                        percent={compilation.total === 0
-                            ? 0
-                            : Math.round((compilation.compiled / compilation.total) * 100)}
-                    />
-                    <span>
-                        {t('browser.module.compiling', {
-                            module: moduleName,
-                            compiled: compilation.compiled,
-                            total: compilation.total,
-                        })}
-                    </span>
-                    <Button data-testid="module-compile-cancel" loading={cancelling} onClick={cancelCompilation}>
-                        {t('browser.module.compile_cancel')}
-                    </Button>
-                </div>
+                <CompilationWait
+                    compilation={compilation}
+                    moduleName={moduleName}
+                    onCancelFailed={error => setLoadError(errorMessage(error))}
+                    onRefresh={() => refresh()}
+                    projectId={projectId}
+                />
             )
         }
         return null
@@ -971,7 +806,7 @@ export const ModuleWorkspace = () => {
         // server saying it holds no such table is "not found"; any other failure is told as it is, below.
         if (tableUnlisted && (!tableUnlisted.absent || tableError?.gone === true)) {
             return (
-                <div className={styles.centered}>
+                <div className={shared.workspaceCentered}>
                     {tableUnlisted.absent
                         ? <Empty data-testid="module-table-missing" description={t('browser.module.table_not_found')} />
                         : <Empty data-testid="module-table-unread" description={t('browser.module.table_lookup_failed')} />}
@@ -980,7 +815,7 @@ export const ModuleWorkspace = () => {
         }
         if (tableError !== null) {
             return (
-                <div className={styles.centered}>
+                <div className={shared.workspaceCentered}>
                     <Alert
                         showIcon
                         description={tableError.message}
@@ -993,7 +828,7 @@ export const ModuleWorkspace = () => {
         if (selectedId === null || (tables !== null && tables.length === 0)) {
             // A module compiled to nothing has no table to draw, whatever the address still names.
             return (
-                <div className={styles.centered}>
+                <div className={shared.workspaceCentered}>
                     <Empty data-testid="module-no-table" description={t('browser.module.pick_a_table')} />
                 </div>
             )
@@ -1109,10 +944,21 @@ export const ModuleWorkspace = () => {
                         openFound(found)
                     }}
                 />
-                <div className={styles.body}>
-                    <WorkspaceHeader
-                        crumbs={crumbs}
+                <div className={shared.workspaceMain}>
+                    <ProjectScreenHeader
+                        branch={branch}
+                        compilation={compilation}
+                        compilationDisabled={closed}
+                        confirmDiscard={confirmDiscard}
+                        modules={modules}
+                        onBranchSwitched={() => load()}
+                        onRefresh={() => confirmDiscard(() => refresh())}
+                        opening={opening}
+                        project={project}
+                        selectedKey={moduleName}
+                        switcherDisabled={!closed && !compilation.ready && compilation.state === 'compiling'}
                         testId="module-header"
+                        title={moduleName}
                         actions={(
                             <ModuleActionBar
                                 confirmDiscard={confirmDiscard}
@@ -1130,51 +976,6 @@ export const ModuleWorkspace = () => {
                                 testCount={testCount}
                                 verifyNeeded={compilation.verifyNeeded}
                             />
-                        )}
-                        title={(
-                            <CrumbSwitcher
-                                current={moduleName}
-                                emptyText={t('browser.module.module_no_match')}
-                                items={moduleItems}
-                                loading={modules === null}
-                                onSelect={openModule}
-                                searchPlaceholder={t('browser.module.module_filter')}
-                                selectedKey={moduleName}
-                                testId="module-switcher"
-                                disabled={!closed && !compilation.ready
-                                    && compilation.state === 'compiling'}
-                            />
-                        )}
-                        titleAfter={(
-                            <>
-                                {/* The same mark the project screens carry: nothing at all for a module that
-                                    compiled, and a coloured dot where it raised something. Only a compilation
-                                    under way says more, because how far it has come is worth reading. */}
-                                {isNoteworthyCompileState(compilation.state) && (
-                                    <CompileDot
-                                        showLabel={compilation.state === 'compiling'}
-                                        state={compilation.state}
-                                        testId="module-compile-state"
-                                        tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
-                                        label={compilation.state === 'compiling' && compilation.total > 0
-                                            ? t('browser.module.compile_progress', {
-                                                compiled: compilation.compiled,
-                                                total: compilation.total,
-                                            })
-                                            : undefined}
-                                    />
-                                )}
-                                <Tooltip title={t('browser.module.refresh')}>
-                                    <Button
-                                        aria-label={t('browser.module.refresh')}
-                                        data-testid="module-refresh"
-                                        disabled={closed}
-                                        icon={<ReloadOutlined />}
-                                        onClick={() => confirmDiscard(() => refresh())}
-                                        type="text"
-                                    />
-                                </Tooltip>
-                            </>
                         )}
                     />
                     <div className={styles.withDetails}>

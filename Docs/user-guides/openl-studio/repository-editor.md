@@ -800,6 +800,8 @@ A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, opens i
 
 An Excel workbook or another binary file cannot be viewed here. Its pane offers **Export**, and for a module of the project, **Open in Editor** opens the tables of the module in the editor.
 
+The `i18n` folder holds the localization files of the project, and its pane offers **Open in Editor**, which opens the messages of all languages on the **Localization** screen. **Open in Editor** of a localization file opens them too, as described in [Editing Localization Messages](rules-editor.md#editing-localization-messages).
+
 A localization file of the project, a `message*.properties` file of the `i18n` folder, is checked as the compilation checks it while the project is open. The viewer and the editor underline each place the check warns about and mark its line with a warning icon; point to the place to read the warning. A warning about the whole file, such as keys the language leaves untranslated, is about no line of it: it is shown above the text of the file. The file is checked again when it is read and every time it is saved.
 
 ![The French localization file in the Files tab, the warning about the whole file above its text and the warning about the farewell key pointed at](images/localization-file-problems.png "Warnings in a localization file")

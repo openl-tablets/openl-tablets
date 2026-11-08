@@ -6,11 +6,13 @@ import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +46,7 @@ import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.binding.OpenLMessageSource;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
@@ -145,6 +148,7 @@ import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.localization.ProjectMessages;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
@@ -169,6 +173,7 @@ import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
+import org.openl.studio.projects.service.tables.read.MessageKeys;
 import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
@@ -380,9 +385,39 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (normalizedIncludes.contains(ProjectInclude.STATUS) && selection.selects("compileStatus")) {
             var full = selection.selects("compileStatus", "compilation", "messages", "items")
                     || selection.selects("compileStatus", "compilation", "modules", "compiledModules");
-            builder.compileStatus(full ? projectStatusMapper.map(project) : projectStatusMapper.mapSummary(project));
+            builder.compileStatus(full
+                    ? withLocalizationChecked(project, projectStatusMapper.map(project))
+                    : projectStatusMapper.mapSummary(project));
         }
         return builder.build();
+    }
+
+    /**
+     * The status listing the messages of a project nobody compiled tells what the check of its localization files
+     * finds: the check needs no compilation, so the screen of the messages shows the warnings before the project is
+     * compiled. A project without localization files is checked at no cost.
+     *
+     * <p>The files are checked apart from the messages the session keeps for the screen of the messages, which hold
+     * one project: reading the status of another project leaves them as they are.
+     */
+    private ProjectStatusViewModel withLocalizationChecked(RulesProject project, ProjectStatusViewModel status) {
+        if (status.compilation() != null || !project.isOpened()) {
+            return status;
+        }
+        var descriptor = getProjectDescriptor(project);
+        var folder = descriptor.getProjectFolder();
+        if (!Files.isDirectory(folder.resolve(OpenLMessageSource.FOLDER))) {
+            return status;
+        }
+        return projectStatusMapper.withFileChecks(status, checkLocalization(descriptor), folder, true);
+    }
+
+    /**
+     * The messages of a project as the model keeps them: read once, with those of the projects it depends on, and
+     * read again only when a file changed.
+     */
+    private ProjectMessages localizationMessagesOf(ProjectModel model, ProjectDescriptor descriptor) {
+        return model.getLocalizationCache().messagesOf(descriptor, localizationDependenciesOf(descriptor));
     }
 
     private void addUsedBy(RulesProject project, ProjectViewModel.Builder builder) {
@@ -1112,6 +1147,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // because project could be changed or cleared before (See studio.reset() usages). Also that project can be
         // a dependency of other. That's why we must always clear moduleInfo when closing a project.
         webStudio.getModel().clearModuleInfo();
+        webStudio.getModel().forgetMessages();
         var branch = project.getBranch();
         var supportsBranches = project.isSupportsBranches();
         project.close();
@@ -1990,6 +2026,61 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * The projects of the workspace a project depends on, directly or through others, the nearest first: where a rule
+     * looks for a message the project lacks.
+     *
+     * @param descriptor the descriptor of the project
+     * @return the projects, the project itself left out
+     */
+    public List<ProjectDescriptor> localizationDependenciesOf(ProjectDescriptor descriptor) {
+        var workspace = new WebStudioWorkspaceDependencyManagerFactory(getWebStudio()).resolveWorkspace(descriptor);
+        return ProjectLocalization.dependenciesOf(descriptor, workspace);
+    }
+
+    /**
+     * Where each key of the localized messages with a default text is written: the project itself, a project it depends
+     * on that gives the key while the project writes it in no language, or no file of the workspace, when a library of
+     * the project or another resource gives it.
+     *
+     * @param project the project
+     * @param model   the model of the project, which keeps the messages it read
+     * @return where a key is written, by the key
+     */
+    private Function<String, MessageKeys.Origin> messageOriginsOf(RulesProject project, ProjectModel model) {
+        var messages = localizationMessagesOf(model, getProjectDescriptor(project));
+        var ids = dependencyIdsOf(project);
+        return key -> {
+            if (messages.has(key)) {
+                return new MessageKeys.Origin.Here();
+            }
+            return messages.ownerOf(key)
+                    .<MessageKeys.Origin>map(folder -> new MessageKeys.Origin.Dependency(ids.get(folder)))
+                    .orElseGet(MessageKeys.Origin.External::new);
+        };
+    }
+
+    /**
+     * The ids of the opened projects a project depends on, directly or through others, by the folder each is opened
+     * in, so a text one of them gives leads to it.
+     *
+     * @param project the project
+     * @return the ids by the folder
+     */
+    public Map<Path, String> dependencyIdsOf(RulesProject project) {
+        var ids = new LinkedHashMap<Path, String>();
+        var seen = new HashSet<RulesProject>();
+        var pending = new ArrayDeque<>(projectDependencyResolver.getProjectDependencies(project));
+        while (!pending.isEmpty()) {
+            var next = pending.poll();
+            if (seen.add(next) && next.isOpened()) {
+                ids.put(getProjectDescriptor(next).getProjectFolder(), next.getProjectId().value());
+                pending.addAll(projectDependencyResolver.getProjectDependencies(next));
+            }
+        }
+        return ids;
+    }
+
+    /**
      * The descriptor the engine resolved for the project: its modules are the workbooks the declarations and
      * the wildcards came to, not the declarations themselves.
      */
@@ -2236,6 +2327,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getOpenLTableInModule(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), read.toBuilder()
                 .modules(TableModules.ofWorkspaceAddressed(context.module()))
+                // The keys of msg calls are told with the meta info of the cells only.
+                .messages(read.withMetaInfo()
+                        ? MessageKeys.of(context.module(), () -> messageOriginsOf(project, context.module()))
+                        : MessageKeys.none())
                 .build());
         // Only a screen drawing the cells has anything to do with where they sit, so only the grid is told.
         tableView.layout = TableLayouts.of(context.module(), context.table());

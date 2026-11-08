@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -13,6 +14,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.StringLiteralUsage;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
@@ -357,7 +360,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .colspan(cellModel.getColspan())
                 .rowspan(cellModel.getRowspan())
                 .mergedArea(mergedArea)
-                .metaInfo(read.withMetaInfo() ? metaInfoOf(holder, metaInfoReader, read.modules()) : null);
+                .metaInfo(read.withMetaInfo()
+                        ? metaInfoOf(holder, metaInfoReader, read.modules(), read.messages())
+                        : null);
         if (styled != null) {
             builder.style(styled.styleOf(cellModel))
                     .runs(runsOf(holder, styled.styles))
@@ -405,7 +410,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * engine knows it at.
      */
     private static @Nullable RawTableCellMetaInfo metaInfoOf(ICell cell, MetaInfoReader metaInfoReader,
-            TableModules modules) {
+            TableModules modules, MessageKeys messages) {
         var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
         if (metaInfo == null) {
             return null;
@@ -413,7 +418,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var dataType = metaInfo.getDataType();
         var editor = EDITOR_SELECTOR.selectEditor(cell, metaInfo);
         var reported = RawTableCellMetaInfo.builder()
-                .usages(usagesOf(metaInfo, modules))
+                .usages(usagesOf(cell, metaInfo, modules, messages))
                 .type(dataType == null ? null : dataType.getDisplayName(INamedThing.SHORT))
                 .returnCell(metaInfo.isReturnCell() ? Boolean.TRUE : null)
                 .editor(editor == null ? null : editor.getEditorTypeAndMetadata().editor())
@@ -421,30 +426,98 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         return reported.isEmpty() ? null : reported;
     }
 
-    /** The pieces of the cell's text the compiler resolved, in the order they appear. */
-    private static List<RawTableCellUsage> usagesOf(CellMetaInfo metaInfo, TableModules modules) {
+    /**
+     * The pieces of the cell's text the compiler resolved, in the order they appear.
+     *
+     * <p>A text in quotes is reported only as the key of a message: for sure when a call of {@code msg} gives it as
+     * its key, as a possible one when it only equals a key. A text cell is a possible key as a whole.
+     */
+    private static List<RawTableCellUsage> usagesOf(ICell cell, CellMetaInfo metaInfo, TableModules modules,
+            MessageKeys messages) {
         var usedNodes = metaInfo.getUsedNodes();
         if (usedNodes == null) {
-            return List.of();
+            return textCellKey(cell, metaInfo, messages);
         }
         return usedNodes.stream()
-                .map(node -> {
-                    var where = modules.locationOf(node.getUri());
-                    return RawTableCellUsage.builder()
-                            .start(node.getStart())
-                            .end(node.getEnd())
-                            .description(node.getDescription())
-                            // Named only where a module holds the table. The table the engine built to choose
-                            // between the versions of an overloaded rule sits in no workbook, and is opened
-                            // through the module it is reached from. A word naming no table is told what it
-                            // means and offered no way in.
-                            .tableId(where == null ? null : modules.tableIdOf(node.getUri()))
-                            .module(where == null ? null : where.module())
-                            .projectId(where == null ? null : where.projectId())
-                            .kind(RawTableUsageKind.of(node.getNodeType()))
-                            .build();
-                })
+                .map(node -> node instanceof StringLiteralUsage literal ? keyUsageOf(literal, messages)
+                        : usageOf(node, modules))
+                .filter(Objects::nonNull)
                 .toList();
+    }
+
+    /** The usage of a text in quotes, or {@code null} when it is no key, nor could be one. */
+    private static @Nullable RawTableCellUsage keyUsageOf(StringLiteralUsage literal, MessageKeys messages) {
+        var key = literal.getValue();
+        var text = messages.defaultTextOf(key);
+        if (messages.isCallKey(literal.getSyntaxNode())) {
+            return keyUsage(literal.getStart(), literal.getEnd(), key, text, null, messages);
+        }
+        return text == null ? null : keyUsage(literal.getStart(), literal.getEnd(), key, text, Boolean.TRUE, messages);
+    }
+
+    /** The whole text of a cell holding text, not an expression, when it equals a key of the messages. */
+    private static List<RawTableCellUsage> textCellKey(ICell cell, CellMetaInfo metaInfo, MessageKeys messages) {
+        var type = metaInfo.getDataType();
+        var value = cell.getFormula() == null ? cell.getStringValue() : null;
+        if (type == null || type.getInstanceClass() != String.class || value == null || value.isBlank()) {
+            return List.of();
+        }
+        var key = value.strip();
+        var text = messages.defaultTextOf(key);
+        if (text == null) {
+            return List.of();
+        }
+        var start = value.indexOf(key);
+        return List.of(keyUsage(start, start + key.length(), key, text, Boolean.TRUE, messages));
+    }
+
+    /**
+     * A key of the messages, told with its default text, which leads to the project its texts are written in. A key
+     * no file of the workspace writes, such as one a library of the project gives, is told as such and leads nowhere.
+     *
+     * @param text the default text of the key, {@code null} when it has none
+     * @param soft {@code true} when the text only may be the key, {@code null} when a call of {@code msg} gives it
+     */
+    private static RawTableCellUsage keyUsage(int start, int end, String key, @Nullable String text,
+            @Nullable Boolean soft, MessageKeys messages) {
+        var origin = messages.originOf(key);
+        var external = origin instanceof MessageKeys.Origin.External;
+        var source = external ? " (from an external resource)" : "";
+        String told;
+        if (text == null) {
+            told = key + " is not in the default localization file";
+        } else if (soft == null) {
+            told = key + " = " + text + source;
+        } else {
+            told = "May be the localization key \"" + key + "\": " + text + source;
+        }
+        return RawTableCellUsage.builder()
+                .start(start)
+                .end(end)
+                .description(told)
+                .messageKey(external ? null : key)
+                .projectId(origin instanceof MessageKeys.Origin.Dependency(var projectId) ? projectId : null)
+                .kind(RawTableUsageKind.MESSAGE)
+                .soft(soft)
+                .build();
+    }
+
+    /** A piece the compiler resolved to a rule, a type, a field or anything else but a text in quotes. */
+    private static RawTableCellUsage usageOf(NodeUsage node, TableModules modules) {
+        var where = modules.locationOf(node.getUri());
+        return RawTableCellUsage.builder()
+                .start(node.getStart())
+                .end(node.getEnd())
+                .description(node.getDescription())
+                // Named only where a module holds the table. The table the engine built to choose
+                // between the versions of an overloaded rule sits in no workbook, and is opened
+                // through the module it is reached from. A word naming no table is told what it
+                // means and offered no way in.
+                .tableId(where == null ? null : modules.tableIdOf(node.getUri()))
+                .module(where == null ? null : where.module())
+                .projectId(where == null ? null : where.projectId())
+                .kind(RawTableUsageKind.of(node.getNodeType()))
+                .build();
     }
 
     /** The cell's Excel style, or {@code null} when every attribute is at its default. */

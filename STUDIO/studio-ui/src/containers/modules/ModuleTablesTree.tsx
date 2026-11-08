@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox, Empty, Input, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
 import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
@@ -6,7 +6,7 @@ import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import { COMPILE_COLORS } from '../projects/projectsTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
-import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
+import { ResizableRail } from '../projects/ResizableRail'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
     loadView,
@@ -28,30 +28,9 @@ const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
 const WIDTH = { min: 180, max: 640, fallback: 256 }
 
 const useStyles = createStyles(({ css, token }) => ({
-    /** The rail is dragged by its right edge, which the grip is laid along. */
-    resizable: css`
-        position: relative;
-    `,
-    /** The mode switch and, under it, whatever the mode needs. */
-    top: css`
-        flex: none;
-        padding: 8px 12px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
     /** The search, and under it the grouping with its filter beside it, as the Editor kept them, set apart. */
     control: css`
         margin-top: 8px;
-    `,
-    /**
-     * The tree scrolls inside itself: it draws the rows it shows and no more, so a module of hundreds of tables
-     * scrolls as fast as one of ten. Sideways it scrolls too — a table is recognised by its full name, and a
-     * wrapped or clipped one is neither readable nor comparable to the row above it.
-     */
-    body: css`
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
-        padding: 4px 8px 12px;
     `,
     /**
      * A table switched off by its `active` property is written in the module but takes no part in the rules.
@@ -229,30 +208,12 @@ export const ModuleTablesTree = ({
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()
-    const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', WIDTH)
     const [view, setView] = useState<TableView>(loadView)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
     const [filterOpen, setFilterOpen] = useState(false)
     const [draftOther, setDraftOther] = useState(showOther)
-    // The tree draws the rows that fit and no more, so it has to be told what fits.
-    const bodyRef = useRef<HTMLDivElement>(null)
-    const [body, setBody] = useState({ height: 0, width: 0 })
-
-    useEffect(() => {
-        const measured = bodyRef.current
-        if (!measured) {
-            return
-        }
-        const observer = new ResizeObserver(entries => {
-            const box = entries[0]?.contentRect
-            setBody({ height: Math.floor(box?.height ?? 0), width: Math.floor(box?.width ?? 0) })
-        })
-        observer.observe(measured)
-        return () => observer.disconnect()
-    }, [])
-
     // The rail searches what it shows, by name: the tables of this module are already in the browser, so the
     // search costs no request. Everything wider than a name — a header, the text in the cells, another module —
     // is what the extended search asks the server for.
@@ -267,7 +228,7 @@ export const ModuleTablesTree = ({
     const nodes = useMemo(() => treeOf(shown, view, t, dateFormats), [shown, view, t, dateFormats])
     // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
     // what is on screen leaves the virtual list pushed to the right of an empty rail.
-    const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])
+    const namesWidth = useMemo(() => Math.ceil(widthOf(nodes)), [nodes])
 
     // Only the branch holding the open table stands open; the user opens the rest themselves.
     useEffect(() => {
@@ -296,7 +257,6 @@ export const ModuleTablesTree = ({
         blockNode: true,
         showIcon: true,
         className: shared.railTree,
-        height: body.height,
         itemHeight: ROW_HEIGHT,
         motion: false as const,
     }
@@ -305,7 +265,7 @@ export const ModuleTablesTree = ({
      * What the rail draws: the tables of the module being read — the shape of a list while they are still on
      * their way, and a word when the search matched none of them.
      */
-    const railBody = () => {
+    const railBody = (room: { height: number, width: number }) => {
         if (tables === null) {
             return (
                 <Skeleton active className={styles.state} paragraph={{ rows: 8 }} title={false} />
@@ -325,8 +285,9 @@ export const ModuleTablesTree = ({
                 {...railTree}
                 data-testid="module-tables-tree"
                 expandedKeys={expanded}
+                height={room.height}
                 onExpand={keys => setExpanded(keys as string[])}
-                scrollWidth={rowWidth}
+                scrollWidth={Math.max(namesWidth, room.width)}
                 selectedKeys={selectedTableId ? [selectedTableId] : []}
                 treeData={treeData}
                 onSelect={(_keys, info) => {
@@ -341,61 +302,68 @@ export const ModuleTablesTree = ({
     }
 
     return (
-        <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
-            <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
-            <div className={styles.top}>
-                <Input
-                    allowClear
-                    className={styles.control}
-                    data-testid="module-tables-search"
-                    onChange={event => setSearch(event.target.value)}
-                    placeholder={t('browser.module.search_placeholder')}
-                    size="small"
-                    value={search}
-                    suffix={(
-                        <Tooltip title={t('browser.module.search_extended')}>
-                            <Button
-                                aria-label={t('browser.module.search_extended')}
-                                data-testid="module-tables-search-extended"
-                                icon={<FilterOutlined />}
-                                onClick={() => onExtendedSearch(search)}
-                                size="small"
-                                type="text"
-                            />
-                        </Tooltip>
-                    )}
-                />
-                <Space.Compact block className={cx(shared.compactField, styles.control)}>
-                    <Select
-                        data-testid="module-tables-view"
-                        options={viewOptions}
-                        size="small"
-                        value={view}
-                        onChange={chosen => {
-                            setView(chosen)
-                            saveView(chosen)
-                        }}
-                    />
-                    <Tooltip title={t('browser.module.filter')}>
-                        <Button
-                            aria-label={t('browser.module.filter')}
-                            data-testid="module-tables-filter"
-                            disabled={reloading || tables === null}
-                            icon={<SlidersOutlined />}
+        <>
+            <ResizableRail
+                testId="module-rail"
+                width={WIDTH}
+                widthKey={WIDTH_STORAGE_KEY}
+                top={(
+                    <>
+                        <Input
+                            allowClear
+                            className={styles.control}
+                            data-testid="module-tables-search"
+                            onChange={event => setSearch(event.target.value)}
+                            placeholder={t('browser.module.search_placeholder')}
                             size="small"
-                            onClick={() => {
-                                setDraftOther(showOther)
-                                setFilterOpen(true)
-                            }}
+                            value={search}
+                            suffix={(
+                                <Tooltip title={t('browser.module.search_extended')}>
+                                    <Button
+                                        aria-label={t('browser.module.search_extended')}
+                                        data-testid="module-tables-search-extended"
+                                        icon={<FilterOutlined />}
+                                        onClick={() => onExtendedSearch(search)}
+                                        size="small"
+                                        type="text"
+                                    />
+                                </Tooltip>
+                            )}
                         />
-                    </Tooltip>
-                </Space.Compact>
-            </div>
-            <div ref={bodyRef} className={styles.body}>
-                <Spin data-testid="module-tables-reloading" spinning={reloading}>
-                    {railBody()}
-                </Spin>
-            </div>
+                        <Space.Compact block className={cx(shared.compactField, styles.control)}>
+                            <Select
+                                data-testid="module-tables-view"
+                                options={viewOptions}
+                                size="small"
+                                value={view}
+                                onChange={chosen => {
+                                    setView(chosen)
+                                    saveView(chosen)
+                                }}
+                            />
+                            <Tooltip title={t('browser.module.filter')}>
+                                <Button
+                                    aria-label={t('browser.module.filter')}
+                                    data-testid="module-tables-filter"
+                                    disabled={reloading || tables === null}
+                                    icon={<SlidersOutlined />}
+                                    size="small"
+                                    onClick={() => {
+                                        setDraftOther(showOther)
+                                        setFilterOpen(true)
+                                    }}
+                                />
+                            </Tooltip>
+                        </Space.Compact>
+                    </>
+                )}
+            >
+                {room => (
+                    <Spin data-testid="module-tables-reloading" spinning={reloading}>
+                        {railBody(room)}
+                    </Spin>
+                )}
+            </ResizableRail>
             <Modal
                 cancelText={t('common:btn.cancel')}
                 okText={t('common:btn.apply')}
@@ -419,6 +387,6 @@ export const ModuleTablesTree = ({
                 </Checkbox>
                 <Typography.Paragraph type="secondary">{t('browser.module.show_other_hint')}</Typography.Paragraph>
             </Modal>
-        </aside>
+        </>
     )
 }

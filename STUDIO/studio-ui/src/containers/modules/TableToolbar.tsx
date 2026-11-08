@@ -22,37 +22,11 @@ import type { ConfirmWrite } from './useOverwriteConfirm'
 import { EXERCISING_KINDS } from 'constants/tableKinds'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
 import { versionLabel } from '../../utils/tableVersion'
+import { useActionBandStyles } from './actionBand.styles'
+import { BandAction } from './BandAction'
 import { useDateFormats } from '../../utils/dateFormat'
 
 const useStyles = createStyles(({ css, token }) => ({
-    /** A band over the table, carrying what can be done to the table under it. */
-    bar: css`
-        display: flex;
-        flex: none;
-        /* What exercises the table goes under the actions only where the band leaves no room beside them. */
-        flex-wrap: wrap;
-        align-items: flex-start;
-        gap: ${token.marginXS}px;
-        padding: ${token.paddingXS}px ${token.padding}px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
-    /** Each action reads as the old toolbar read it: the picture, and its name under it. */
-    action: css`
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        height: auto;
-        padding: ${token.paddingXXS}px ${token.paddingXS}px;
-        line-height: 1.2;
-
-        .anticon {
-            font-size: ${token.fontSizeLG}px;
-        }
-    `,
-    label: css`
-        font-size: ${token.fontSizeSM}px;
-    `,
     /** What exercises the table, named beside the actions as the old toolbar named it. */
     tests: css`
         display: flex;
@@ -240,6 +214,7 @@ export const TableToolbar = ({
     const { modal } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
+    const { styles: band } = useActionBandStyles()
     const patterns = useDateFormats()
     const navigate = useNavigate()
     const [tests, setTests] = useState<TableTest[]>([])
@@ -475,22 +450,18 @@ export const TableToolbar = ({
     }
 
     return (
-        <div className={styles.bar} data-testid="table-toolbar">
+        <div className={band.bar} data-testid="table-toolbar">
             {offered.map(action => {
                 const answers = answer(action)
                 return (
                     <Tooltip key={action.key} title={answers ? undefined : t('browser.module.planned')}>
-                        <Button
-                            className={styles.action}
-                            data-testid={`table-${action.key}`}
+                        <BandAction
                             disabled={!answers}
                             icon={action.icon}
+                            label={t(action.labelKey)}
                             onClick={from => answers?.(from)}
-                            size="small"
-                            type="text"
-                        >
-                            <span className={styles.label}>{t(action.labelKey)}</span>
-                        </Button>
+                            testId={`table-${action.key}`}
+                        />
                     </Tooltip>
                 )
             })}

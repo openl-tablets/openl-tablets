@@ -1,0 +1,196 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${TABLE}",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Greet",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Key 'absent' has no default text: a language without a text of its own returns the key.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TABLE}",
+        "name": "Greet",
+        "module": "Main",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "C8",
+        "start": 6,
+        "end": 14
+      }
+    }
+  ],
+  "pos": "B2:C8",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet SpreadsheetResult Greet()",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Steps"
+      },
+      {
+        "cell": "C3",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Shared"
+      },
+      {
+        "cell": "C4",
+        "value": "= msg(\"shared.greeting\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 22,
+              "description": "shared.greeting = Hello from the base",
+              "projectId": "${BASE}",
+              "messageKey": "shared.greeting",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Overridden"
+      },
+      {
+        "cell": "C5",
+        "value": "= msg(\"overridden\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 17,
+              "description": "overridden = The text of the project",
+              "messageKey": "overridden",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "Own"
+      },
+      {
+        "cell": "C6",
+        "value": "= msg(\"own\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 10,
+              "description": "own = Its own text",
+              "messageKey": "own",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Library"
+      },
+      {
+        "cell": "C7",
+        "value": "= msg(\"library.greeting\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 23,
+              "description": "library.greeting = Hello from the library (from an external resource)",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Absent"
+      },
+      {
+        "cell": "C8",
+        "value": "= msg(\"absent\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 13,
+              "description": "absent is not in the default localization file",
+              "messageKey": "absent",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

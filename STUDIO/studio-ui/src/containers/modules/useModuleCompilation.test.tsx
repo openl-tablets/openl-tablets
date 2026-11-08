@@ -20,13 +20,14 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
-const Probe = ({ initial, reloadToken, branch, enabled, module, rebuild }: {
+const Probe = ({ initial, reloadToken, branch, enabled, module, rebuild, compileOnOpen }: {
     initial?: ProjectStatusUpdate | null
     reloadToken?: number
     branch?: string | null
     enabled?: boolean
     module?: string
     rebuild?: boolean
+    compileOnOpen?: boolean
 }) => {
     const { ready, compiled, total, failure, tests } = useModuleCompilation({
         projectId: 'p1',
@@ -36,6 +37,7 @@ const Probe = ({ initial, reloadToken, branch, enabled, module, rebuild }: {
         reloadToken,
         enabled: enabled ?? true,
         rebuild: rebuild ?? true,
+        compileOnOpen,
     })
     return (
         <span data-testid="state">
@@ -163,6 +165,16 @@ describe('useModuleCompilation', () => {
         rerender(<Probe initial={compiling(12, 12, 'Claims')} reloadToken={1} />)
 
         // A refresh builds the module again from the workbook rather than keeping what is compiled.
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
+    })
+
+    it('only follows the compilation of a screen that compiles nothing on open, until the reader refreshes it', () => {
+        captureUpdates()
+        const { rerender } = render(<Probe compileOnOpen={false} reloadToken={0} />)
+        expect(startModuleCompilation).not.toHaveBeenCalled()
+
+        rerender(<Probe compileOnOpen={false} reloadToken={1} />)
+
         expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
     })
 

@@ -13,6 +13,27 @@ export const moduleRoute = (projectId: string, moduleName: string, tableId?: str
         + (tableId && cell ? `&errorCell=${encodeURIComponent(cell)}` : '')
 
 /**
+ * The address of the messages of a project, in every language: the table of all of them, or one key of them, with
+ * the language the reader is sent to.
+ */
+export const localizationRoute = (projectId: string, key?: string | null, language?: string | null): string => {
+    const query = new URLSearchParams()
+    if (key) {
+        query.set('key', key)
+        if (language !== undefined && language !== null) {
+            query.set('lang', language)
+        }
+    }
+    const search = query.toString()
+    const screen = `/projects/${projectId}/localization`
+    return search ? `${screen}?${search}` : screen
+}
+
+/** The address of the messages of a project, filtered to the keys a language has no translation for. */
+export const untranslatedRoute = (projectId: string, language: string): string =>
+    `/projects/${projectId}/localization?untranslated=${encodeURIComponent(language)}`
+
+/**
  * The address of a project's Files tab, opened on one file of it.
  *
  * <p>The path crosses as a query value, so a file in a folder reaches the screen whole rather than as a

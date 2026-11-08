@@ -1,0 +1,11 @@
+POST /rest/projects/{PROJECT}/files/i18n/?createFolders=true&conflictPolicy=OVERWRITE HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="message_it.properties"
+Content-Transfer-Encoding: binary
+Content-Type: text/plain
+
+&message_it.properties
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

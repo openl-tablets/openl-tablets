@@ -1,0 +1,43 @@
+POST /rest/projects/{PROJECT}/localization/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "setValue",
+      "key": "greeting",
+      "language": "it",
+      "value": "Salve, {0} e {1}!"
+    },
+    {
+      "operation": "removeValue",
+      "key": "note",
+      "language": "it"
+    },
+    {
+      "operation": "removeValue",
+      "key": "address",
+      "language": "it"
+    },
+    {
+      "operation": "removeValue",
+      "key": "last",
+      "language": "it"
+    },
+    {
+      "operation": "setValue",
+      "key": "farewell",
+      "language": "it",
+      "value": "Arrivederci"
+    },
+    {
+      "operation": "addKey",
+      "key": "goodbye",
+      "values": {
+        "": "Goodbye",
+        "it": "Addio"
+      }
+    }
+  ]
+}

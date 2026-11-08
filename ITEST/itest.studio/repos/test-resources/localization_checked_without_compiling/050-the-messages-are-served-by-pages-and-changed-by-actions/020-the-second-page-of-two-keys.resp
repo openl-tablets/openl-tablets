@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "key": "farewell",
+      "values": {
+        "": "Bye"
+      }
+    },
+    {
+      "key": "note",
+      "values": {
+        "": "Don''t pay {0}",
+        "zh_TW": "不要付{0}"
+      }
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 2,
+  "numberOfElements": 2,
+  "total": 5,
+  "languages": [
+    {
+      "tag": ""
+    },
+    {
+      "tag": "fr"
+    },
+    {
+      "tag": "zh_TW"
+    }
+  ]
+}

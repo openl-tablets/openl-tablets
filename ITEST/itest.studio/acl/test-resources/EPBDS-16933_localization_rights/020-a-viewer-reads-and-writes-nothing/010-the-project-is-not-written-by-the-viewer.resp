@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${PROJECT}",
+  "capabilities": {
+    "canClose": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canExport": true
+  }
+}

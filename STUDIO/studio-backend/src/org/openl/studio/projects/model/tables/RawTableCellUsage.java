@@ -16,8 +16,12 @@ import org.jspecify.annotations.Nullable;
  * @param description what the compiler says about it, as the Editor shows in a tooltip
  * @param tableId     table the usage refers to, absent when it refers to no table of its own
  * @param module      module that table is read through, absent when no module of the workspace holds it
- * @param projectId   project that module belongs to, absent for the same reasons the module is
+ * @param projectId   project that module belongs to, absent for the same reasons the module is; for a key of the
+ *                    messages, the project the reader is sent to for its texts, when that is not the project read
+ * @param messageKey  key of the localized message the usage names, absent for a usage of another kind and for a key
+ *                    no file of the workspace writes, which has no texts to be sent to
  * @param kind        what the piece of text stands for
+ * @param soft        {@code true} when the piece only may stand for it, absent when the compiler knows it does
  * @author Vladyslav Pikus
  */
 @Builder
@@ -43,10 +47,25 @@ public record RawTableCellUsage(
 
         @Parameter(description = """
                 Identifier of the project the module belongs to, which for a table of a dependency is not \
-                the project being read. Absent for the same reasons the module is.""")
+                the project being read. Absent for the same reasons the module is. For a key of the localized \
+                messages, the project the key is written in: one the project being read depends on, which gives \
+                the key while that project writes it in no language. Absent when the key is to be read in the \
+                project being read.""")
         @Nullable String projectId,
 
+        @Parameter(description = """
+                Key of the localized message the usage names, as a call of msg writes it, so a reader can be sent \
+                to its texts. Absent for a usage of another kind, and for a key no localization file of the \
+                workspace writes, such as one a library of the project gives: its description tells its text.""")
+        @Nullable String messageKey,
+
         @Parameter(description = "What the covered text stands for")
-        RawTableUsageKind kind
+        RawTableUsageKind kind,
+
+        @Parameter(description = """
+                True when the covered text only may stand for what the kind says, as a text that equals the key \
+                of a localized message, which a table may give to a later call of msg. Absent when the compiler \
+                knows what the text stands for.""")
+        @Nullable Boolean soft
 ) {
 }

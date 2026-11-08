@@ -9,6 +9,7 @@ import org.openl.binding.impl.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.NodeUsageFactory;
 import org.openl.binding.impl.SimpleNodeUsage;
+import org.openl.binding.impl.StringLiteralUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -94,6 +95,12 @@ public class MetaInfoReaderUtils {
                     case MethodUsage methodUsage -> currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
                             usage.getEnd() - moduleStart,
                             methodUsage.getMethod()));
+                    // A text in quotes keeps what it is, so a screen can still tell what it stands for.
+                    case StringLiteralUsage literal -> currentCellMethodUsages.add(new StringLiteralUsage(
+                            usage.getStart() - moduleStart,
+                            usage.getEnd() - moduleStart,
+                            literal.getValue(),
+                            literal.getSyntaxNode()));
                     case null, default -> currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
                             usage.getEnd() - moduleStart,
                             usage.getDescription(),

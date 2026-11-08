@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: text/plain
+
+# Italian messages
+# Kept by the translators
+
+# Greets the reader
+greeting = Salve, {0} e {1}!
+! An old style comment
+total = Totale: {0,number,#.##}
+
+# The apostrophe is doubled
+farewell = Arrivederci
+# The end of the file
+goodbye = Addio

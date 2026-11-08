@@ -97,6 +97,7 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.localization.LocalizationCache;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -152,6 +153,9 @@ public class ProjectModel {
     private final StaleTableIds.Compilations tableIdChanges = new StaleTableIds.Compilations();
     /** The warnings about the localization files of the project, and about the calls of {@code msg} of its modules. */
     private final ProjectLocalization localization = new ProjectLocalization();
+    /** The messages of the project the session reads the localization of, kept between its requests. */
+    @Getter
+    private final LocalizationCache localizationCache = new LocalizationCache();
     /** The node the last compilation of each project answers for it with. See {@link #replaceProjectNode}. */
     private final Map<String, XlsModuleSyntaxNode> projectSyntaxNodes = new ConcurrentHashMap<>();
 
@@ -2005,8 +2009,14 @@ public class ProjectModel {
         return Path.of(location.getPath(), FolderHelper.resolveHistoryFolder(project, module)).toString();
     }
 
+    /** Forgets the messages kept for the localization of a project: they are those of an open project only. */
+    public void forgetMessages() {
+        localizationCache.clear();
+    }
+
     public void destroy() {
         clearModuleInfo();
+        forgetMessages();
         // Discard queued notifications and interrupt any in-flight publish: once the model is
         // torn down, a pending status update is stale and safe to drop (see publishStatusChanged).
         statusNotifier.shutdownNow();

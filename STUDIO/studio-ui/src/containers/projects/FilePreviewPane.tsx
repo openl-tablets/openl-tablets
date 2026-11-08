@@ -15,6 +15,7 @@ import {
     MoreOutlined,
     SaveOutlined,
     TableOutlined,
+    TranslationOutlined,
     UploadOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -24,6 +25,7 @@ import {
     isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
+import { isMessageFilePath } from '../../services/localization'
 import { useSharedStyles } from './sharedStyles'
 import { CopyFileModal } from './CopyFileModal'
 import { DeleteFileModal } from './DeleteFileModal'
@@ -86,6 +88,8 @@ interface FilePreviewPaneProps {
     modules?: Record<string, string>
     /** Opens the module the file is, in the editor. */
     onOpenModule?: (moduleName: string) => void
+    /** Opens the messages of the project, for a localization file, on the Localization screen. */
+    onOpenLocalization?: () => void
     /**
      * Whether the project is open: only the files of an open project are checked, as the check reads the copy of the
      * project in the workspace and refuses a closed one. Every caller tells it from the status of the project.
@@ -236,7 +240,7 @@ const messageFileOf = (path: string | null, checkable: boolean) => ({
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule, projectOpened }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule, onOpenLocalization, projectOpened }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -264,6 +268,8 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     const problems = useMessageFileProblems(activeSelection.projectId, messageFile.checked, originalOfSelection)
     // A workbook the project declares as a module is opened in the editor rather than exported to be read.
     const openableModule = activePath && onOpenModule ? modules[activePath] : undefined
+    // A localization file is read with the other languages on the Localization screen, besides as text here.
+    const openableMessages = !!activePath && onOpenLocalization !== undefined && isMessageFilePath(activePath)
     const dirty = content !== original
     const incomingSelection: FileSelection = {
         branch: branch ?? null,
@@ -399,6 +405,17 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                         </>
                     ) : (
                         <>
+                            {openableMessages && (
+                                <Button
+                                    data-testid="file-open-localization"
+                                    icon={<TranslationOutlined />}
+                                    onClick={onOpenLocalization}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    {t('browser.files.open_in_editor')}
+                                </Button>
+                            )}
                             {editable && canWrite && (
                                 <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small">
                                     {t('browser.editor.edit')}

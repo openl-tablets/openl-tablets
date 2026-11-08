@@ -1,0 +1,3 @@
+GET /rest/projects/{BASE}/localization?key=shared.greeting HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

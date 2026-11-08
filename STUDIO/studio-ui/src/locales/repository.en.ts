@@ -296,6 +296,7 @@ i18next.addResourceBundle('en', 'repository', {
             binary: 'Binary',
             binary_hint: 'This file type cannot be previewed here. Download it to view.',
             module_hint: 'This file is a module of the project. Its tables are read in the editor.',
+            localization_hint: 'This folder holds the messages of the project. All their languages are edited together in the editor.',
             open_in_editor: 'Open in Editor',
         },
         select_project_hint: 'Select a project to see its details',

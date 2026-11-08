@@ -22,7 +22,7 @@ import { createStyles } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
 import type { Project, ProjectModule } from '../../types/projects'
 import type { FsNode } from '../../types/files'
-import { moduleRoute } from '../../services/projectId'
+import { localizationRoute, moduleRoute } from '../../services/projectId'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { LiveCompileDot } from './CompileIndicator'
@@ -394,6 +394,7 @@ export const ProjectDetail = ({
                     folders={folders}
                     onChanged={() => onChanged?.()}
                     onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
+                    onOpenLocalization={() => navigate(localizationRoute(project.id))}
                     onRemoveVirtual={() => { removeVirtualFolder(selectedFile); setSelectedFile(null) }}
                     path={selectedFile}
                     projectId={project.id}
@@ -412,6 +413,7 @@ export const ProjectDetail = ({
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
                 onMoved={newPath => { setSelectedFile(newPath); void onChanged?.() }}
+                onOpenLocalization={() => navigate(localizationRoute(project.id))}
                 onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
                 path={selectedFile}
                 projectId={project.id}

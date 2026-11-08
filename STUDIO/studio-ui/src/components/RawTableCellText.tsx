@@ -4,7 +4,7 @@ import type { RawTableCell, RawTableCellUsage, RawTableTextRun } from 'types/tab
 import type { RawTableGridStyles } from './RawTableGrid.styles'
 import { runStyle, type RunPlace } from './rawTableStyle'
 
-/** Where a usage leads, when the screen showing the table can follow it. */
+/** Where a usage leads — a table, or the key of a message — when the screen showing the table can follow it. */
 export type OpenUsage = (usage: RawTableCellUsage) => void
 
 interface RawTableCellTextProps {
@@ -97,14 +97,17 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({
         if (start > read) {
             pieces.push(<React.Fragment key={`text-${read}`}>{slice(read, start)}</React.Fragment>)
         }
-        const leads = Boolean(usage.tableId && usage.module && onOpenUsage)
+        // A piece leads to the table it names, or to the texts of the message whose key it is.
+        const leads = Boolean(((usage.tableId && usage.module) || usage.messageKey) && onOpenUsage)
+        // A piece that only may stand for something keeps its colour and gets a dotted line: it is a guess.
+        const possible = usage.soft === true
         // A piece that leads somewhere is drawn as a link, whatever colour the workbook gives its text.
-        const covered = slice(start, end, leads)
+        const covered = slice(start, end, leads && !possible)
         pieces.push(
             <Tooltip key={`${usage.start}-${index}`} title={usage.description}>
                 {leads ? (
                     <button
-                        className={styles.usageLink}
+                        className={possible ? styles.possibleLink : styles.usageLink}
                         data-testid={`cell-usage-${index}`}
                         onClick={() => onOpenUsage?.(usage)}
                         type="button"

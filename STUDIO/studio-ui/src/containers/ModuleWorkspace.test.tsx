@@ -599,6 +599,19 @@ describe('ModuleWorkspace', () => {
     })
 
     it.each([
+        ['this project, which writes it', { messageKey: 'greeting' }, '/projects/p1/localization?key=greeting'],
+        ['the project it depends on that gives it', { messageKey: 'greeting', projectId: 'p2' }, '/projects/p2/localization?key=greeting'],
+    ])('opens the key of a message a cell names in %s', async (_, usage, route) => {
+        workspace.opened = true
+        handed.usage = usage
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('table-open-usage'))
+
+        expect(navigateMock).toHaveBeenCalledWith(route)
+    })
+
+    it.each([
         ['this project', { module: 'Pricing' }, '/projects/p1/modules/Pricing?table=t-6'],
         ['another project', { module: 'Rates', projectId: 'p2' }, '/projects/p2/modules/Rates?table=t-6'],
     ])('opens a table the search found in another module of %s, on that module', async (_, where, route) => {

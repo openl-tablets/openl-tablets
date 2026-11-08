@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Space } from 'antd'
-import { CopyOutlined, DeleteOutlined, DownloadOutlined, FolderOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined, DownloadOutlined, FolderOutlined, TranslationOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { downloadFolder } from '../../services/files'
+import { BUNDLE_FOLDER } from '../../services/localization'
 import { useSharedStyles } from './sharedStyles'
 import { CopyFileModal } from './CopyFileModal'
 import { DeleteFileModal } from './DeleteFileModal'
@@ -39,6 +40,8 @@ interface FolderActionsPaneProps {
     virtual?: boolean
     /** Drops a virtual folder from the tree (client-side only, no server call). */
     onRemoveVirtual?: () => void
+    /** Opens the messages of the project on the Localization screen, offered for the folder of its messages. */
+    onOpenLocalization?: () => void
 }
 
 /**
@@ -48,12 +51,16 @@ interface FolderActionsPaneProps {
  * A virtual folder exists only in the browser until a file is added inside it, so it offers no server
  * actions — only a hint to add a file and a way to drop the empty folder from the tree.
  */
-export const FolderActionsPane = ({ projectId, folders, path, canWrite, canDelete, onChanged, onDeleted, virtual, onRemoveVirtual }: FolderActionsPaneProps) => {
+export const FolderActionsPane = ({ projectId, folders, path, canWrite, canDelete, onChanged, onDeleted, virtual, onRemoveVirtual, onOpenLocalization }: FolderActionsPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const [copying, setCopying] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    // The folder of the messages is read with all its languages on the Localization screen, as a module is read
+    // in the editor.
+    const messages = !virtual && path === BUNDLE_FOLDER && onOpenLocalization !== undefined
+    const messagesHint = messages ? 'browser.files.localization_hint' : 'browser.files.folder_hint'
 
     return (
         <div className={shared.paneColumn} data-testid="folder-actions">
@@ -95,7 +102,19 @@ export const FolderActionsPane = ({ projectId, folders, path, canWrite, canDelet
             </div>
             <div className={shared.panePlaceholder} data-testid="folder-actions-body">
                 <FolderOutlined />
-                <span>{virtual ? t('browser.files.empty_folder_hint') : t('browser.files.folder_hint')}</span>
+                <span>
+                    {t(virtual ? 'browser.files.empty_folder_hint' : messagesHint)}
+                </span>
+                {messages && (
+                    <Button
+                        data-testid="folder-open-localization"
+                        icon={<TranslationOutlined />}
+                        onClick={onOpenLocalization}
+                        type="primary"
+                    >
+                        {t('browser.files.open_in_editor')}
+                    </Button>
+                )}
             </div>
             <CopyFileModal
                 folder

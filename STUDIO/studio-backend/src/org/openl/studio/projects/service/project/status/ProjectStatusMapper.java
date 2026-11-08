@@ -1,7 +1,10 @@
 package org.openl.studio.projects.service.project.status;
 
+import java.nio.file.Path;
+import java.util.Collection;
 import jakarta.annotation.Nullable;
 
+import org.openl.message.OpenLMessage;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
@@ -62,4 +65,21 @@ public interface ProjectStatusMapper {
      * @return status view carrying the progress of the compilation
      */
     ProjectStatusViewModel mapProgress(RulesProject project, @Nullable ProjectModel model);
+
+    /**
+     * The status of a project nobody compiled, with what the check of its localization files found. The check needs
+     * no compilation, and a compilation tells the same as its first step.
+     *
+     * <p>A status that tells a compilation is returned as it is, and so is one without warnings to add.
+     *
+     * @param status        the status of the project
+     * @param messages      what the check of the localization files found
+     * @param projectFolder the folder of the project, which the files are named relative to
+     * @param items         whether the messages are listed, or only counted as in the list of the projects
+     * @return the status with the messages of the check
+     */
+    ProjectStatusViewModel withFileChecks(ProjectStatusViewModel status,
+                                          Collection<OpenLMessage> messages,
+                                          Path projectFolder,
+                                          boolean items);
 }

@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.project.status;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
@@ -30,6 +32,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.model.project.status.CompileState;
+import org.openl.studio.projects.model.project.status.MessagePositions;
 import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
@@ -209,6 +212,52 @@ class ProjectStatusMapperImplTest {
         assertEquals(CompileState.CANCELLED, status.compileState());
         // What was compiled before it stopped is still reported, so the reader sees how far it got.
         assertEquals(3, status.compilation().messages().total());
+    }
+
+    @Test
+    void aProjectNobodyCompiledTellsTheWarningsOfItsLocalizationFiles() {
+        var idle = mapper.map(project, null);
+        var warning = new OpenLFileMessage("Message 'a' is written twice.", Path.of("i18n/message.properties"), 2,
+                "a", "");
+        var error = new OpenLMessage("The file cannot be read.", Severity.ERROR);
+        var folder = Path.of("project");
+        when(detailedMessageDescriptionMapper.mapFileMessages(any(), any(), any())).thenReturn(List.of());
+
+        var status = mapper.withFileChecks(idle, List.of(warning, error), folder, true);
+
+        // Nothing is compiled: the state stays as it was, and only the messages of the files are told.
+        assertEquals(idle.compileState(), status.compileState());
+        var messages = status.compilation().messages();
+        assertEquals(2, messages.total());
+        assertEquals(1, messages.errors());
+        assertEquals(1, messages.warnings());
+        assertNotNull(messages.items());
+        assertNull(status.compilation().modules());
+        verify(detailedMessageDescriptionMapper).mapFileMessages(List.of(warning, error), folder,
+                MessagePositions.FILE);
+    }
+
+    @Test
+    void theListOfTheProjectsCountsTheWarningsOfTheFilesWithoutListingThem() {
+        var warning = new OpenLFileMessage("Message 'a' is written twice.", Path.of("i18n/message.properties"), 2,
+                "a", "");
+
+        var status = mapper.withFileChecks(mapper.map(project, null), List.of(warning), Path.of("project"), false);
+
+        assertEquals(1, status.compilation().messages().warnings());
+        assertNull(status.compilation().messages().items());
+        verify(detailedMessageDescriptionMapper, never()).mapFileMessages(any(), any(), any());
+    }
+
+    @Test
+    void aCompilationOrFilesWithoutWarningsLeaveTheStatusAsItIs() {
+        var compiled = mapper.map(project, model);
+        var warning = new OpenLFileMessage("Message 'a' is written twice.", Path.of("i18n/message.properties"), 2,
+                "a", "");
+        assertSame(compiled, mapper.withFileChecks(compiled, List.of(warning), Path.of("project"), true));
+
+        var idle = mapper.map(project, null);
+        assertSame(idle, mapper.withFileChecks(idle, List.of(), Path.of("project"), true));
     }
 
     @Test

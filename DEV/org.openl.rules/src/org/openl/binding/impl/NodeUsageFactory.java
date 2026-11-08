@@ -20,7 +20,8 @@ public final class NodeUsageFactory {
             FieldBoundNodeUsageCreator.getInstance(),
             TypeNodeUsageCreator.getInstance(),
             ConstructorNodeCreator.getInstance(),
-            IndexParameterNodeUsageCreator.getInstance());
+            IndexParameterNodeUsageCreator.getInstance(),
+            StringLiteralNodeUsageCreator.getInstance());
 
     private NodeUsageFactory() {
     }
