@@ -557,6 +557,43 @@ export class OpenLClient {
   }
 
   /**
+   * What is wrong in the localization files of a project, which Studio checks without compiling it, each problem
+   * placed in its file by line and column.
+   */
+  async getLocalizationProblems(projectId: string): Promise<Types.DetailedMessageDescription[]> {
+    return (await this.http.get<Types.DetailedMessageDescription[]>(`${projectPath(projectId)}/localization/problems`, {
+      params: { positions: "file" },
+    })).data;
+  }
+
+  /**
+   * A page of the keys of the localization files of an opened project, each with its values by language, the values
+   * the projects it depends on give and the warnings about it, with the languages of the project. A key asked for is
+   * answered alone, whatever the filters.
+   */
+  async getLocalizationMessages(
+    projectId: string,
+    filters: Types.LocalizationFilters,
+  ): Promise<Types.CollectionPage<Types.LocalizationMessage>> {
+    const params = filters.key === undefined
+      ? { search: filters.search || undefined, problems: filters.problems || undefined, untranslated: filters.untranslated }
+      : { key: filters.key };
+    const page = await this.http.get<Types.LocalizationMessagesPage>(`${projectPath(projectId)}/localization`, {
+      // The Studio API takes a true item offset
+      params: { ...params, offset: filters.offset, size: filters.limit },
+    });
+    return toCollectionPage(page.data);
+  }
+
+  /**
+   * Makes the changes of the localization files of an opened project in order, as one write: a change refused
+   * refuses them all, and nothing is written.
+   */
+  async applyLocalizationActions(projectId: string, actions: Types.LocalizationAction[]): Promise<void> {
+    await this.http.post(`${projectPath(projectId)}/localization/actions`, { actions });
+  }
+
+  /**
    * Get post-compilation project status (compile state, diagnostics, pending changes):
    * the `compileStatus` Studio returns with the project for `include=status`.
    * Read-only — does not trigger compilation. Works for all repositories including "local".

@@ -68,7 +68,8 @@ The tools of the MCP server have names that start with `openl_` and fall into th
 -   **Repositories** — listing the design repositories, their branches and features, the revisions of a project, and
     the files a revision changed or that changed between two revisions.
 -   **Projects** — listing, creating, copying, opening, saving, and closing projects, checking how a project compiles,
-    listing its modules and sheets, and restoring a previous version of a module.
+    listing its modules and sheets, restoring a previous version of a module, and checking, reading, and changing the
+    localization messages of a project by key, a page of keys at a time, without loading its localization files whole.
 -   **Branches and merges** — creating and deleting branches, checking whether two branches can be merged, merging
     them, showing merge conflicts, a conflicting text file line by line and a conflicting workbook table by table and
     cell by cell included, and resolving them as the user decides.
@@ -102,6 +103,7 @@ Change rules:
 Add a rule for drivers under 21 to the DriverAgeType table, then run the tests.
 Copy the CalculatePremium table to the Sandbox module as CalculatePremiumDraft.
 Add the discountPercentage field to the Policy datatype.
+Translate into German the messages German does not translate yet.
 ```
 
 Run and test:

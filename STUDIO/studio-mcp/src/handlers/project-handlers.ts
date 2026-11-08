@@ -93,15 +93,107 @@ async function withChangedTables(
   return { ...status, pendingChanges: { ...pendingChanges, files } };
 }
 
+/** A place of a file by line and column, as Studio tells it: lines from 1, columns from 0, the end left out. */
+interface FilePlace {
+  line: number;
+  column: number;
+  endLine: number;
+  endColumn: number;
+}
+
+/** A place of a file as an editor names it, columns from 1: `3:13`, or `3:11-3:20` for more than one character. */
+function filePlaceLabel({ line, column, endLine, endColumn }: FilePlace): string {
+  const start = `${line}:${column + 1}`;
+  return endLine === line && endColumn <= column + 1 ? start : `${start}-${endLine}:${endColumn}`;
+}
+
+/**
+ * The place a message about a localization file names: the file, where in it, and the key, as
+ * `i18n/message_fr.properties 2:5, 2:12 total`; a message about the whole file names the file alone.
+ */
+function localizationPlaceOf(location: Record<string, unknown>): string {
+  const { path, key, places } = location as { path?: string; key?: string; places?: FilePlace[] };
+  return [path, places?.map(filePlaceLabel).join(", "), key].filter(Boolean).join(" ");
+}
+
 /**
  * The place a compile message names: its table by name and id, which the table tools take, with its cell, or else its
- * module; the project first when it is another than the one of the status.
+ * module; the project first when it is another than the one of the status. A message about a localization file names
+ * the file and the key.
  */
 function placeOf(location: Record<string, unknown> | undefined, statusProject: string): string {
+  if (location?.type === "localization") {
+    return localizationPlaceOf(location);
+  }
   const { projectId, project, id, name, cell, module } = (location ?? {}) as Record<string, string | undefined>;
   const table = id === undefined ? "" : `${tableLabel(name ?? id, id)}${cell === undefined ? "" : ` ${cell}`}`;
   const place = table || (module === undefined ? "" : `module ${module}`);
   return project === undefined || projectId === statusProject ? place : `${project}: ${place}`;
+}
+
+/** The name of a language in the header of the table of the keys: its tag, the default file as `default`. */
+const languageHeader = (tag: string): string => (tag === "" ? "default" : tag);
+
+/**
+ * What a key shows in a language: its own value, `""` for an empty one, `(no value)` for a key written without one,
+ * `[Base] value` for the value a project it depends on gives, or nothing when the language falls back.
+ */
+function localizationCell(message: Types.LocalizationMessage, tag: string): string {
+  const own = message.values[tag];
+  if (own === null) {
+    return "(no value)";
+  }
+  if (own !== undefined) {
+    return own === "" ? '""' : own;
+  }
+  const shared = message.shared?.[tag];
+  return shared === undefined ? "" : `[${shared.project}] ${shared.value}`;
+}
+
+/** The columns of the table of the keys: the key, a column per language, and the warnings by language. */
+function localizationColumns(languages: Types.LocalizationLanguage[]): Array<Column<Types.LocalizationMessage>> {
+  return [
+    { header: "key", value: (message) => message.key },
+    ...languages.map(({ tag }) => ({ header: languageHeader(tag), value: (message: Types.LocalizationMessage) => localizationCell(message, tag) })),
+    {
+      header: "warnings",
+      value: (message) => message.warnings?.map(({ language, summary }) => `${languageHeader(language)}: ${summary}`).join("; "),
+    },
+  ];
+}
+
+/** What the cells of the page need explained, and the files a change writes whole in UTF-8. */
+function localizationNotes(languages: Types.LocalizationLanguage[], messages: Types.LocalizationMessage[]): string[] {
+  const falls = messages.some((message) => languages.some(({ tag }) => localizationCell(message, tag) === ""));
+  const legacy = languages.filter((language) => language.legacy).map(({ tag }) => languageHeader(tag));
+  return [
+    ...(falls ? ["An empty cell falls back to the parent language, then to the default one; `[project]` marks the value of a project it depends on."] : []),
+    ...(legacy.length > 0 ? [`Not in UTF-8: ${legacy.join(", ")}; the first change writes such a file whole in UTF-8.`] : []),
+  ];
+}
+
+/** An argument the schema has checked the action takes. */
+function given<T>(value: T | undefined, name: string): T {
+  if (value === undefined) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams, `The action takes '${name}'.`);
+  }
+  return value;
+}
+
+/** A change of the localization files as OpenL Studio takes it. */
+function localizationAction({ action, key, language, value, values }: schemas.LocalizationEdit): Types.LocalizationAction {
+  switch (action) {
+    case "set_value":
+      return { operation: "setValue", key: given(key, "key"), language: given(language, "language"), value: given(value, "value") };
+    case "remove_value":
+      return { operation: "removeValue", key: given(key, "key"), language: given(language, "language") };
+    case "add_key":
+      return { operation: "addKey", key: given(key, "key"), values: given(values, "values") };
+    case "remove_key":
+      return { operation: "removeKey", key: given(key, "key") };
+    case "add_language":
+      return { operation: "addLanguage", language: given(language, "language"), ...(values === undefined ? {} : { values }) };
+  }
 }
 
 /** A compile message on one line: `ERROR RateCalc (T1) B2: Need to close '(' (+2 more)`. */
@@ -354,6 +446,80 @@ export function registerProjectHandlers(): void {
       const changes = await withChangedTables(client, status, args.changes, extra);
       const note = status.refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       return textResult(statusText(changes, answeredMessages(status, args), note));
+    },
+  });
+
+  registerTool({
+    name: "project_localization_problems",
+    title: "Check Project Localization",
+    description:
+      "Check the localization files (i18n/message*.properties) of an opened project without compiling it: a line per problem with the file, its places as line:column from 1, and the key. openl_project_status checks the calls of msg.",
+    schema: schemas.projectLocalizationProblemsSchema,
+    annotations: {
+      readOnlyHint: true,
+      openWorldHint: true,
+      idempotentHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const problems = await client.getLocalizationProblems(args.projectId);
+      if (problems.length === 0) {
+        return textResult("No problems in the localization files.");
+      }
+      return textResult(fitLines({
+        head: [`${formatCount(problems.length, "problem")} in the localization files:`],
+        lines: problems.map((problem) => messageLine(problem, args.projectId)),
+        more: (left) => `… ${formatCount(left, "more problem")}.`,
+      }));
+    },
+  });
+
+  registerTool({
+    name: "project_localization_messages",
+    title: "Read Project Localization",
+    description:
+      "Read the keys of the localization files of an opened project a page at a time: a row per key with its value in each language and its warnings.",
+    schema: schemas.projectLocalizationMessagesSchema,
+    aliases: { query: "search", text: "search" },
+    annotations: {
+      readOnlyHint: true,
+      openWorldHint: true,
+      idempotentHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const page = await client.getLocalizationMessages(args.projectId, args);
+      const languages = (page.metadata?.languages ?? []) as Types.LocalizationLanguage[];
+      if (languages.length === 0) {
+        return textResult("The project has no localization files: add the default one with openl_project_localization_edit add_language ''.");
+      }
+      if (args.key !== undefined && page.items.length === 0) {
+        return textResult(`No language of the project, nor of a project it depends on, has the key '${args.key}'.`);
+      }
+      return textResult(formatStudioPage(page, args.offset, {
+        noun: "keys",
+        columns: localizationColumns(languages),
+        notes: localizationNotes(languages, page.items),
+      }));
+    },
+  });
+
+  registerTool({
+    name: "project_localization_edit",
+    title: "Edit Project Localization",
+    description:
+      "Change the localization files of an opened project by key in one write; comments and other lines stay, new keys go to the end. One refused change refuses all. Example: actions [{action:'add_key', key:'note', values:{'':'A note', de:'Eine Notiz'}}].",
+    schema: schemas.editProjectLocalizationSchema,
+    aliasedLists: ["actions"],
+    aliases: { operation: "action", text: "value", texts: "values" },
+    // The operations as the REST API of Studio names them
+    valueAliases: {
+      setvalue: "set_value", removevalue: "remove_value", addkey: "add_key", removekey: "remove_key", addlanguage: "add_language",
+    },
+    annotations: {
+      openWorldHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      await client.applyLocalizationActions(args.projectId, args.actions.map(localizationAction));
+      return textResult(`${formatCount(args.actions.length, "change")} written to the localization files.`);
     },
   });
 
