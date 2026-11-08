@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,11 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
     }
 
     private boolean includes(JsonGenerator gen, PropertyWriter writer) {
+        // An unwrapped object writes its fields among those of the bean that holds it: each of them is selected by
+        // its own name, so the property that holds them is no field to select.
+        if (writer instanceof BeanPropertyWriter property && property.isUnwrapping()) {
+            return true;
+        }
         var node = resolveNode(gen);
         // No node here, explicit whole selection, or empty group -> the whole object is kept.
         if (node == null || node.isWhole() || !node.hasChildren()) {

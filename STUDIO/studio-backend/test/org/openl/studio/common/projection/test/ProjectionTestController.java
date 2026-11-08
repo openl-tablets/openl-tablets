@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.studio.common.access.Capabilities;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.projection.NoFieldProjection;
 
@@ -37,6 +38,11 @@ public class ProjectionTestController {
     @PostMapping("/create")
     public ProjectTestView create() {
         return project(String.valueOf(created.incrementAndGet()));
+    }
+
+    @GetMapping("/rights")
+    public RightsTestView rights() {
+        return new RightsTestView("1", new RightsTestView.Rights(new Capabilities(true, true), true));
     }
 
     @GetMapping("/list")

@@ -32,7 +32,7 @@ import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexHealth;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.studio.common.model.Capabilities;
+import org.openl.studio.common.access.Capabilities;
 import org.openl.studio.common.utils.AuditFields;
 import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.projects.model.FacetCount;

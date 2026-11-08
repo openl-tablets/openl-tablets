@@ -1,6 +1,6 @@
 package org.openl.studio.projects.service;
 
-import static org.openl.studio.common.model.Capabilities.flag;
+import static org.openl.studio.common.access.Capabilities.flag;
 
 import java.util.function.BooleanSupplier;
 
@@ -14,7 +14,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.studio.common.model.Capabilities;
+import org.openl.studio.common.access.Capabilities;
 import org.openl.studio.projects.model.ProjectCapabilities;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.DeploymentRepositoryService;

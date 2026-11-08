@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -153,6 +154,21 @@ class FieldProjectionResponseBodyAdviceTest {
         assertFalse(body.has("name"));
         assertEquals("login-1", body.get("owner").get("login").asText());
         assertFalse(body.get("owner").has("email"));
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+        "id,rights(canWrite)            | canWrite",
+        "id,rights(canDelete,canSave)   | canDelete,canSave",
+        "id,rights(canSave)             | canSave",
+        "id,rights                      | canWrite,canDelete,canSave",
+    })
+    void selectsTheFieldsAnUnwrappedObjectWritesAmongTheOthers(String fields, String kept) throws Exception {
+        var body = json(get("/projection-test/rights").param("fields", fields));
+
+        assertEquals("1", body.get("id").asText());
+        var rights = body.get("rights");
+        assertEquals(List.of(kept.split(",")), rights.propertyStream().map(Map.Entry::getKey).toList());
     }
 
     @Test
