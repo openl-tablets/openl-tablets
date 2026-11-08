@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.project.status;
 
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,6 +11,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLFileMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
@@ -22,6 +26,7 @@ import org.openl.studio.projects.model.project.status.CompilationMessages;
 import org.openl.studio.projects.model.project.status.CompilationModules;
 import org.openl.studio.projects.model.project.status.CompilationTests;
 import org.openl.studio.projects.model.project.status.CompileState;
+import org.openl.studio.projects.model.project.status.MessagePositions;
 import org.openl.studio.projects.model.project.status.ModifiedBy;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
@@ -122,6 +127,31 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             builder.pendingChanges(pendingChangesResolver.resolve(project));
         }
         return builder.build();
+    }
+
+    @Override
+    public ProjectStatusViewModel withFileChecks(ProjectStatusViewModel status,
+                                                 Collection<OpenLMessage> messages,
+                                                 Path projectFolder,
+                                                 boolean items) {
+        if (status.compilation() != null || messages.isEmpty()) {
+            return status;
+        }
+        var counts = CompilationMessages.builder()
+                .total(messages.size())
+                .errors(countOf(messages, Severity.ERROR))
+                .warnings(countOf(messages, Severity.WARN));
+        if (items) {
+            counts.items(detailedMessageDescriptionMapper.mapFileMessages(messages, projectFolder,
+                    MessagePositions.FILE));
+        }
+        return status.toBuilder()
+                .compilation(CompilationDetails.builder().messages(counts.build()).build())
+                .build();
+    }
+
+    private static int countOf(Collection<OpenLMessage> messages, Severity severity) {
+        return (int) messages.stream().filter(message -> message.getSeverity() == severity).count();
     }
 
     private ModifiedBy mapLastModifiedBy(FileData fileData) {

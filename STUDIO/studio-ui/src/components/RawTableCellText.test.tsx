@@ -147,6 +147,25 @@ describe('RawTableCellText', () => {
         expect(onOpenUsage).not.toHaveBeenCalled()
     })
 
+    it.each([
+        ['follows the key of a message to its texts', 'greeting', 'BUTTON'],
+        ['leaves alone a key an external resource gives, which has no texts to lead to', undefined, 'SPAN'],
+    ])('%s', async (_, messageKey, element) => {
+        const onOpenUsage = vi.fn()
+        const key = metaInfo({
+            usages: [{ start: 7, end: 15, description: 'greeting = Hi', ...(messageKey ? { messageKey } : {}), kind: 'message' }],
+        })
+        render(
+            <RawTableCellText ink={INK} metaInfo={key} onOpenUsage={onOpenUsage} styles={styles} text='= msg("greeting")' />
+        )
+
+        const piece = screen.getByTestId('cell-usage-0')
+        await userEvent.click(piece)
+
+        expect(piece.tagName).toBe(element)
+        expect(onOpenUsage).toHaveBeenCalledTimes(messageKey ? 1 : 0)
+    })
+
     it('stars the cell a decision table returns, as the Editor did', () => {
         render(<RawTableCellText ink={INK} metaInfo={{ returnCell: true }} styles={styles} text="RET1" />)
 

@@ -291,6 +291,25 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
             text-decoration: underline;
         }
     `,
+        /**
+         * A text that may stand for something, such as the key of a message: it keeps the colour of the text, and
+         * only a dotted line under it tells it leads somewhere.
+         */
+        possibleLink: css`
+        padding: 0;
+        border: none;
+        background: none;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        text-decoration: underline dotted;
+        text-underline-offset: 3px;
+
+        &:hover,
+        &:focus-visible {
+            color: ${paper.linkHover};
+        }
+    `,
     }
 })
 

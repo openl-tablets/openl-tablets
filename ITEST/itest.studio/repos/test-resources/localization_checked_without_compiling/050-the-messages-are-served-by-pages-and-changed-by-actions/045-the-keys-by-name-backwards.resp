@@ -1,0 +1,66 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "key": "total",
+      "values": {
+        "": "Total: {0,number,#.##}",
+        "zh_TW": "總計：{0，number，#.##}"
+      },
+      "warnings": [
+        {
+          "language": "zh_TW",
+          "summary": "Full-width '，' instead of ',' in a placeholder. The rule fails when values are passed.",
+          "spots": [
+            {
+              "start": 5,
+              "end": 6
+            },
+            {
+              "start": 12,
+              "end": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "note",
+      "values": {
+        "": "Don''t pay {0}",
+        "zh_TW": "不要付{0}"
+      }
+    },
+    {
+      "key": "greeting",
+      "values": {
+        "": "Hello, {0} and {1}!",
+        "fr": "Bonjour, {0} et {1} !",
+        "zh_TW": "你好，{0}！"
+      },
+      "warnings": [
+        {
+          "language": "zh_TW",
+          "summary": "Placeholders [0] differ from [0, 1] of the default language."
+        }
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 3,
+  "numberOfElements": 3,
+  "total": 5,
+  "languages": [
+    {
+      "tag": ""
+    },
+    {
+      "tag": "fr"
+    },
+    {
+      "tag": "zh_TW"
+    }
+  ]
+}

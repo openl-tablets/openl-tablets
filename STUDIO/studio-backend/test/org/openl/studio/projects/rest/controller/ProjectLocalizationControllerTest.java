@@ -18,11 +18,19 @@ import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.api.Page;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.model.SortOrder;
+import org.openl.studio.projects.model.localization.LocalizationAction;
+import org.openl.studio.projects.model.localization.LocalizationActions;
+import org.openl.studio.projects.model.localization.LocalizationKeyView;
+import org.openl.studio.projects.model.localization.LocalizationMessagesPage;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
 import org.openl.studio.projects.model.project.status.MessagePositions;
 import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.localization.LocalizationQuery;
+import org.openl.studio.projects.service.localization.ProjectLocalizationService;
 
 class ProjectLocalizationControllerTest {
 
@@ -50,6 +58,30 @@ class ProjectLocalizationControllerTest {
     }
 
     @Test
+    void servesTheKeysAndThePagesAndMakesTheChangesThroughTheService() {
+        var project = mock(RulesProject.class);
+        var service = mock(ProjectLocalizationService.class);
+        var keys = List.of(new LocalizationKeyView("greeting"));
+        var query = new LocalizationQuery("hel", true, List.of("fr"), SortOrder.DESC);
+        when(service.keys(project)).thenReturn(keys);
+        var page = Page.of(1, 250);
+        var answered = new LocalizationMessagesPage(List.of(), List.of(), page, 0);
+        when(service.messages(project, query, "greeting", page)).thenReturn(answered);
+        var controller = controller(mock(WorkspaceProjectService.class),
+                mock(DetailedMessageDescriptionMapper.class),
+                service);
+        List<LocalizationAction> actions = List.of(new LocalizationAction.RemoveKey("greeting"));
+
+        assertEquals(keys, controller.getKeys(project));
+        assertEquals(answered,
+                controller.getMessages(project, "hel", true, List.of("fr"), SortOrder.DESC,
+                        "greeting", page));
+        controller.applyActions(project, new LocalizationActions(actions));
+
+        verify(service).apply(project, actions);
+    }
+
+    @Test
     void refusesAProjectNobodyOpenedRatherThanTellingItHasNoProblems() {
         var project = mock(RulesProject.class);
         var workspace = mock(WorkspaceProjectService.class);
@@ -66,6 +98,13 @@ class ProjectLocalizationControllerTest {
     /** The controller checking the files through the services given. */
     private static ProjectLocalizationController controller(WorkspaceProjectService workspace,
                                                             DetailedMessageDescriptionMapper mapper) {
-        return new ProjectLocalizationController(workspace, mapper);
+        return controller(workspace, mapper, mock(ProjectLocalizationService.class));
+    }
+
+    /** The controller checking, reading and changing the files through the services given. */
+    private static ProjectLocalizationController controller(WorkspaceProjectService workspace,
+                                                            DetailedMessageDescriptionMapper mapper,
+                                                            ProjectLocalizationService service) {
+        return new ProjectLocalizationController(workspace, mapper, service);
     }
 }

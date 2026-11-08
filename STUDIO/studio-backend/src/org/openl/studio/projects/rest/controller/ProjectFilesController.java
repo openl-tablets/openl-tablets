@@ -111,11 +111,25 @@ public class ProjectFilesController extends AbstractFilesController {
         var localization = root instanceof ProjectFileRoot projectRoot && writesLocalizationOnly(written)
                 ? projectRoot.getProject()
                 : null;
+        if (localization != null) {
+            forgetMessages(localization, path);
+        }
         var model = localization == null ? null : compiledModelOf(localization);
         if (model == null) {
             getWebStudio().reset();
         } else {
             model.checkLocalizationAgain();
+        }
+    }
+
+    /**
+     * Tells the model of the session that the localization files were written, so the messages it keeps are read
+     * again even where the clock of the file system cannot tell the write.
+     */
+    private void forgetMessages(RulesProject project, String path) {
+        if (project.isOpened()) {
+            var folder = workspaceProjectService.getProjectDescriptor(project).getProjectFolder();
+            getWebStudio().getModel().getLocalizationCache().forget(folder.resolve(relative(path)));
         }
     }
 

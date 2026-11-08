@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.StringLiteralUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -818,6 +819,10 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         if (usedNodes == null) {
             usedNodes = List.of();
         }
+        // A text in quotes refers to nothing by itself: a screen tells what it stands for, so it is left out here.
+        usedNodes = usedNodes.stream()
+                .filter(usage -> !(usage instanceof StringLiteralUsage))
+                .toList();
         assertEquals(size, usedNodes.size());
         return usedNodes;
     }

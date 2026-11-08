@@ -6,7 +6,7 @@ import type { ProjectCompileState, ProjectStatusUpdate } from '../../services/pr
 import { errorHandler } from '../../utils/errorHandling'
 
 /** How far the project has come, and whether the module the editor is opening is among what is done. */
-interface ModuleCompilation {
+export interface ModuleCompilation {
     /** True once this module is compiled, whatever the modules after it are still doing. */
     ready: boolean
     /** Modules compiled so far, and how many there are in all — what the progress reads from. */
@@ -46,6 +46,11 @@ interface ModuleCompilationRequest {
     enabled?: boolean | undefined
     /** Whether the module is to be built from its workbook afresh, dropping what was compiled before. */
     rebuild?: boolean | undefined
+    /**
+     * Whether opening the screen compiles the module. A screen that only follows the compilation, as the messages of
+     * the project do, compiles the module only when the reader refreshes it.
+     */
+    compileOnOpen?: boolean | undefined
 }
 
 const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.modules
@@ -74,6 +79,7 @@ export const useModuleCompilation = ({
     reloadToken = 0,
     enabled = true,
     rebuild = true,
+    compileOnOpen = true,
 }: ModuleCompilationRequest): ModuleCompilation => {
     // The failure stays with the module and the branch it was asked for: an answer that arrives after the reader
     // moved to another module says nothing about the one now open.
@@ -126,7 +132,8 @@ export const useModuleCompilation = ({
         const key = `${moduleName} ${reloadToken}`
         // A module already compiled needs no compiling — unless a refresh asked, which is exactly a request to
         // compile it again.
-        if (!enabled || asked.current.keys.has(key) || (ready && reloadToken === 0)) {
+        const unasked = reloadToken === 0 && (ready || !compileOnOpen)
+        if (!enabled || asked.current.keys.has(key) || unasked) {
             return
         }
         asked.current.keys.add(key)
@@ -136,7 +143,7 @@ export const useModuleCompilation = ({
             errorHandler.logError(refused)
             setFailure({ of: `${checkout} ${moduleName}`, error: refused })
         })
-    }, [projectId, branch, moduleName, reloadToken, ready, enabled, rebuild])
+    }, [projectId, branch, moduleName, reloadToken, ready, enabled, rebuild, compileOnOpen])
 
     counted.current = status?.compilation?.tests?.total ?? counted.current
 

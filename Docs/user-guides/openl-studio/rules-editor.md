@@ -9,6 +9,7 @@ The following topics are included in this chapter:
 -   [Viewing a Module](#viewing-a-module)
 -   [Managing Projects and Modules](#managing-projects-and-modules)
 -   [Defining Project Dependencies](#defining-project-dependencies)
+-   [Editing Localization Messages](#editing-localization-messages)
 -   [Viewing Tables](#viewing-tables)
 -   [Modifying Tables](#modifying-tables)
 -   [Referring to Tables](#referring-to-tables)
@@ -26,6 +27,7 @@ The breadcrumb above the module name shows the project and the branch the module
 
 -   To switch to another project, click the arrow next to the project name, start typing the project name in the **Find a project** field to narrow the list down, and select the project.
 -   To switch to another module of the current project, click the arrow next to the module name, start typing the module name in the **Find a module** field, and select the module.
+-   To open the localization messages of the project, click the arrow next to the module name and select **Localization** below the modules, as described in [Editing Localization Messages](#editing-localization-messages).
 
 ![](images/rules-editor-breadcrumb-navigation.png)
 
@@ -242,6 +244,77 @@ If **Auto-included** is cleared or the single module mode is selected, the root 
 > Dependency projects must be open to make dependency work. When a project with dependencies is opened, OpenL Studio offers to open its dependencies too, as described in [Opening a Project](repository-editor.md#opening-a-project).
 
 For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
+
+### Editing Localization Messages
+
+The **Localization** screen shows the localization messages of a project, the `message*.properties` files of its `i18n` folder, as one table of all languages, and changes them. The `msg` function of the rules reads these messages. For more information on localization, see [OpenL Tablets Reference Guide > Project Localization](../reference-guide/04-working-with-projects/04-project-localization.md#project-localization).
+
+To open the screen, open the project, click the arrow next to the module name in the breadcrumb, and select **Localization** below the modules. To return to a module, select it in the same list. The screen also opens from the following places:
+
+-   **Open in Editor** of a localization file in the **Files** tab of the project, as described in [Editing a Text File](repository-editor.md#editing-a-text-file).
+-   The key of a `msg` call in a table cell, as described in [Checking Localization](#checking-localization).
+-   A warning about a localization file in the compilation problems panel, as described in [Checking Localization](#checking-localization).
+
+The project must be open: for a closed project, the screen offers **Open**, which opens it as the module page does, asking whether to open its dependencies too.
+
+The screen has the header of the module page: the breadcrumb switches to another project or branch, the title switches to a module, and the header offers the actions of the project, such as **Sync**, **Copy**, and **Test**. Switching to another branch with unsaved messages asks to discard them first. Opening the screen compiles nothing: the compilation indicator beside the title follows a compilation started elsewhere, and **Refresh** beside it compiles the project again and reads the localization files anew. Refreshing, synchronizing the project, or opening another revision reads the files anew, and if the messages have unsaved changes, OpenL Studio asks to discard them first.
+
+![The Localization screen with the list of keys on the left and the table of the keys and their texts in the default, French and German languages](images/localization-table.png)
+
+*Localization messages of a project*
+
+The screen contains the following elements:
+
+-   The left pane lists every key of the project in the order the files write them. **All Messages** opens the table of all keys, and a key opens the page of that key. **Search by key** narrows the list down to the keys whose names contain the typed text.
+-   The table shows a row for each key and a column for each language, with the language and its file in the column title. The default language comes first, followed by the other languages by name, each regional language next to its language.
+-   A cell shows the text of the language. A language without its own text shows, in grey, the text it falls back to and where that text comes from, such as **Inherited from Default**: a regional language falls back to its language, and every language falls back to the default one. A text a project dependency defines in the same language comes before the fallback language of the project. A key that no language down to the default one has shows nothing, and a rule that asks for it gets the key itself.
+-   A warning icon marks a text the check of the files warns about. Point to the icon to see the warning, or click the text to see the warnings under it.
+
+A long table is read a page of keys at a time as it is scrolled. To narrow the table down or order it, use the column titles:
+
+-   To find keys, click the magnifier in the **Key** column title, type a part of a key or of a text in any language, and press **Enter**. Select **Only With Problems** to keep the keys with warnings only.
+-   To find the keys a language does not translate, click the filter icon in the title of the language column and select **Not translated**. With several languages filtered, the keys none of them translates remain.
+-   To order the keys by name, click the **Key** column title: the first click orders them ascending, the second one descending, and the third one restores the order of the files.
+
+![The Key column filter opened, with the search field and the Only With Problems check box](images/localization-key-filter.png)
+
+*Searching keys*
+
+A key opens on its own page when it is selected in the left pane or in the **Key** column. The page lists the text of the key in every language, with the warnings under the texts. A page opened from a warning about a language marks the row of that language. The copy icon next to the key copies the key.
+
+![The page of the key farewell with its texts in the default, French and German languages and a warning under the French text](images/localization-key.png)
+
+*Localization messages of a key*
+
+A key that a rule asks for but no localization file of the project has opens a page that says so:
+
+-   If no project has the key, the page offers **Add Key**, which adds the key with its text in the default language.
+-   If a project that the project depends on has the key, the page names that project and offers **Open in** with the name of that project, which opens the key in that project, and **Override Here**, which adds the key to the project so that its own text replaces the text of the dependency.
+
+To change localization messages, proceed as follows:
+
+-   To change a text, click it, or select it with **Tab** and press **Enter**, type the new text, and press **Enter**; **Shift+Enter** starts a new line, and **Esc** cancels the change. To remove the text of a language so that the language takes the inherited text, click the text and click **Use the inherited text** next to it.
+-   To add keys one after another, use the row under the table: type the key, press **Enter** to move to the text of the default language, press **Tab** to move to the texts of the other languages, and press **Enter** to add the key. A language left empty takes the inherited text. The new keys appear at the end of the table, as they are written at the end of the files. **Add Key** above the table adds a key in a dialog.
+-   To add a language, click **Add Language** or the plus icon after the last language column, and select the language and, for a regional language, the country. A project without localization files offers **Create Default Language**, which creates the `message.properties` file.
+-   To remove a key from every language, click the trash icon in its row, or **Remove Key** on its page, and confirm the removal.
+
+Every change is a separate step, kept on every page of the screen until it is saved. **Undo** takes the last step back, and **Redo** repeats it. **Save** writes the changes to the files: only the lines of the changed keys are written, new keys are added at the end of the files, and comments, blank lines, and the other keys remain as they are. A changed line keeps the separator it is written with, such as ` = `, and a new key takes the separator of the file. A file not written in UTF-8 is written in UTF-8 when it is saved, which the screen notes above the table. A change that cannot be written, such as a key that a language already has, cancels all changes of the save, and no file is written. Saved changes stay in the project until the project is saved, as any other change of its files. Saving the project with unsaved messages offers to save the messages first, and leaving the screen with unsaved messages asks for confirmation.
+
+#### Checking Localization
+
+The compilation of the project checks the localization files before its modules, and the calls of `msg` in the rules as each module compiles. When the localization files are saved, they are checked again at once, without compiling the project. A project opened but not compiled yet is checked as well: the compilation problems panel lists the warnings about its localization files before any compilation, and the compilation indicator stays idle. For the list of the checks, see [OpenL Tablets Reference Guide > Checking Localization](../reference-guide/04-working-with-projects/04-project-localization.md#checking-localization).
+
+The warnings appear in the compilation problems panel at the bottom of the Localization screen and of the module page:
+
+-   A warning about a key of a localization file names the file and the key. Selecting it opens the page of the key with the row of its language marked.
+-   A warning that a language leaves keys untranslated opens the table with the **Not translated** filter of that language.
+-   A warning about a `msg` call belongs to the table the call is written in, and is shown on the cell of the call.
+
+In a table, the key of a `msg` call is a link. Point to it to see the default text of the key, or a note that the default localization file does not have the key, and click it to open the page of the key. The page opens in the project when the project has the key in any language, and otherwise in the project dependency that defines the default text of the key. A key that no localization file of the project or of its project dependencies defines, such as a key of a library on the classpath of the project, is not a link: pointing to it shows its default text, marked as coming from an external resource. A text of another cell that equals a key of the default localization file, such as a key a table chooses for a later `msg` call, is underlined with a dotted line as a possible key, and leads to the page of the key as well.
+
+![A spreadsheet whose steps call msg, with the key order.total pointed at and its default text shown](images/localization-message-key-in-cell.png)
+
+*The key of a msg call in a table cell*
 
 ### Viewing Tables
 

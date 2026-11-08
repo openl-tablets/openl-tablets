@@ -63,6 +63,8 @@ In this case, all localization messages are retrieved from **message_fr_FR.prope
 
 **Note:** The **message.properties** file must be encoded using the [UTF-8](https://en.wikipedia.org/wiki/UTF-8) character set.
 
+In OpenL Studio, the localization files of a project are created and changed on the **Localization** screen, as described in [OpenL Studio Guide > Editing Localization Messages](../../openl-studio/rules-editor.md#editing-localization-messages).
+
 ### Using Messages of Dependency Projects
 
 A project also reads the localization files of the projects it depends on. For each file name, the file of the project comes first, followed by the files of the same name in the dependency projects: a key that the file of the project does not have is taken from the dependency projects.
@@ -87,4 +89,4 @@ When OpenL Studio compiles a project, it checks the localization files of the pr
 -   an apostrophe of the language in a text with placeholders, such as `l'étape {0}`, which is dropped when values are passed; apostrophes around a placeholder, as in `l'article "{0}" et l'offre`, also print the placeholder as written instead of its value. Quotes around a brace alone, such as `'{'`, print the brace and are not warned about. A text without placeholders is returned as written, its apostrophes kept
 -   keys that a language does not translate, so the default texts are shown
 
-As each module is compiled, OpenL Studio also checks the calls of the **msg** function whose key is written as text, and warns about a key that has no default text and about a call passing a number of values different from the number of placeholders of the message. A key built at runtime is not checked. The checks only warn: the rules still run. When the localization files change, OpenL Studio checks them again without compiling the project.
+As each module is compiled, OpenL Studio also checks the calls of the **msg** function whose key is written as text, and warns about a key that has no default text and about a call passing a number of values different from the number of placeholders of the message. A key built at runtime is not checked. The checks only warn: the rules still run. When the localization files change, OpenL Studio checks them again without compiling the project, and an opened project that is not compiled yet shows the warnings about its localization files as well.

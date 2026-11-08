@@ -80,7 +80,8 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         text-align: center;
         color: ${token.colorTextTertiary};
 
-        .anticon {
+        /* The large icon of the placeholder, not the icon of a button it offers. */
+        > .anticon {
             font-size: ${token.fontSizeHeading2}px;
             color: ${token.colorTextQuaternary};
         }
@@ -209,6 +210,26 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         flex: 1;
         min-width: 0;
         min-height: 0;
+    `,
+    /** What stands beside the rail of a workspace: its header, what it shows, and the problems under them. */
+    workspaceMain: css`
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    `,
+    /** A word in the middle of a workspace, with what can be done about it under it. */
+    workspaceCentered: css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: ${token.marginSM}px;
+        flex: 1;
+        padding: ${token.paddingXL}px;
+        text-align: center;
     `,
     /**
      * A tree read in a rail: rows one line high, a small indent per step, and a name read in full.

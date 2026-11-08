@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.StringLiteralUsage;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 
@@ -53,7 +54,12 @@ public class CellMetaInfo {
         return (flags & MULTI) > 0;
     }
 
+    /**
+     * Whether the cell refers to something the compiler resolved: a rule, a type, a field. A text in quotes is no
+     * reference: it is told only so a screen can mark a key of a message.
+     */
     public static boolean isCellContainsNodeUsages(CellMetaInfo metaInfo) {
-        return metaInfo != null && CollectionUtils.isNotEmpty(metaInfo.getUsedNodes());
+        return metaInfo != null && CollectionUtils.isNotEmpty(metaInfo.getUsedNodes())
+                && metaInfo.getUsedNodes().stream().anyMatch(usage -> !(usage instanceof StringLiteralUsage));
     }
 }

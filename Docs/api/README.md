@@ -24,7 +24,8 @@ OpenL Studio publishes a REST API under `{context-path}/rest`, and OpenL Rule Se
   conflicts. [Architecture](projects-merge-architecture.md).
 - [Project Local History API](project-local-history-api.md) — read, restore, compare, and clear the unsaved versions of
   a module.
-- [Project Localization API](project-localization-api.md) — check the localization files of a project.
+- [Project Localization API](project-localization-api.md) — read the localization messages of a project by pages
+  of keys, change them in one write, and check the files.
 - [Personal Access Token API](personal-access-token-api.md) — create and revoke the tokens for programs.
   [Architecture](personal-access-token-architecture.md).
 - [Projects Trace API](projects-trace-api.md) — the interactive debugger of a table.
@@ -77,7 +78,9 @@ creates or changes data then changes nothing.
 A field left out may cost nothing. `GET /rest/projects/{projectId}` looks for the projects using this one (`usedBy`),
 reading the descriptor of every other project, only when the selection keeps them. It resolves the messages of the
 status to their tables (`compileStatus.compilation.messages.items`), which waits for a compilation under way, only when
-the selection keeps them or the names of the compiled modules.
+the selection keeps them or the names of the compiled modules. Such a status of an opened project nobody compiled yet
+holds the messages of the check of its localization files, which needs no compilation, while `compileState` stays
+`idle`.
 
 ### Errors
 

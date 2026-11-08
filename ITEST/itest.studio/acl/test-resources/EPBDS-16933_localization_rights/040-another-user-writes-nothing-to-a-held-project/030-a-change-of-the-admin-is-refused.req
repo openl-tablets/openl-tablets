@@ -1,0 +1,15 @@
+POST /rest/projects/{PROJECT}/localization/actions HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "setValue",
+      "key": "greeting",
+      "language": "",
+      "value": "Hello, {0}!"
+    }
+  ]
+}

@@ -11,6 +11,8 @@ interface CrumbSwitcherItem {
     label: ReactNode
     /** The text the search reads, which is not always what the item shows. */
     search: string
+    /** Set on an item of another kind than the ones before it, which a line sets apart from them. */
+    divided?: boolean | undefined
 }
 
 interface CrumbSwitcherProps {
@@ -99,7 +101,10 @@ export const CrumbSwitcher = ({
             popupRender={renderPopup}
             trigger={['click']}
             menu={{
-                items: shown.map(item => ({ key: item.key, label: item.label })),
+                items: shown.flatMap(item => [
+                    ...(item.divided ? [{ type: 'divider' as const, key: `${item.key}-divider` }] : []),
+                    { key: item.key, label: item.label },
+                ]),
                 selectedKeys: [selectedKey],
                 onClick: ({ key }) => onSelect(key),
             }}

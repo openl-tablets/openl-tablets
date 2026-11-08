@@ -19,6 +19,7 @@ import org.openl.studio.projects.service.tables.TableModules;
  * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text that refer
  *                     to something, the type it holds, the editor it asks for
  * @param modules      the modules the table of a usage is looked up in, so a reader can be sent to it
+ * @param messages     the keys of the localized messages the texts of the cells are marked by
  */
 @Builder(toBuilder = true)
 public record RawTableRead(@Nullable Integer startRow,
@@ -26,7 +27,8 @@ public record RawTableRead(@Nullable Integer startRow,
                            boolean cutMerges,
                            boolean withStyles,
                            boolean withMetaInfo,
-                           TableModules modules) {
+                           TableModules modules,
+                           MessageKeys messages) {
 
     /**
      * A read that answers every row with the values alone, until it is told otherwise.
@@ -34,6 +36,6 @@ public record RawTableRead(@Nullable Integer startRow,
      * @return the builder of the read
      */
     public static RawTableReadBuilder builder() {
-        return new RawTableReadBuilder().modules(TableModules.none());
+        return new RawTableReadBuilder().modules(TableModules.none()).messages(MessageKeys.none());
     }
 }

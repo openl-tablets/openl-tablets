@@ -5,7 +5,7 @@ import lombok.Builder;
 
 import org.openl.rules.workspace.ProjectId;
 
-@Builder
+@Builder(toBuilder = true)
 public record ProjectStatusViewModel (
         @Parameter(description = "Project identifier.")
         ProjectId projectId,
@@ -22,7 +22,9 @@ public record ProjectStatusViewModel (
         @Parameter(description = "Information about the user who last modified the project.")
         ModifiedBy lastModifiedBy,
 
-        @Parameter(description = "Compilation details: messages and module progress.")
+        @Parameter(description = """
+                Compilation details: messages and module progress. An opened project nobody compiled yet tells \
+                only the messages of the check of its localization files""")
         CompilationDetails compilation,
 
         @Parameter(description = """

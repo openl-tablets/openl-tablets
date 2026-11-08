@@ -1,0 +1,183 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${TABLE}",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Greet",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "'greeting' has 1 placeholder, but 2 values are passed.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TABLE}",
+        "name": "Greet",
+        "module": "Main",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "C5",
+        "start": 2,
+        "end": 31
+      }
+    },
+    {
+      "id": "###",
+      "summary": "Key 'farewell' has no default text: a language without a text of its own returns the key.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TABLE}",
+        "name": "Greet",
+        "module": "Main",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "C6",
+        "start": 6,
+        "end": 16
+      }
+    }
+  ],
+  "pos": "B2:C7",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet SpreadsheetResult Greet()",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Steps"
+      },
+      {
+        "cell": "C3",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Fits"
+      },
+      {
+        "cell": "C4",
+        "value": "= msg(\"greeting\", \"Ann\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 15,
+              "description": "greeting = Hi, {0}!",
+              "messageKey": "greeting",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "TooMany"
+      },
+      {
+        "cell": "C5",
+        "value": "= msg(\"greeting\", \"Ann\", \"Bob\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 15,
+              "description": "greeting = Hi, {0}!",
+              "messageKey": "greeting",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "Missing"
+      },
+      {
+        "cell": "C6",
+        "value": "= msg(\"farewell\")",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 15,
+              "description": "farewell is not in the default localization file",
+              "messageKey": "farewell",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Total"
+      },
+      {
+        "cell": "C7",
+        "value": "= msg(\"total\", 12.5)",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String",
+              "kind": "other"
+            },
+            {
+              "start": 7,
+              "end": 12,
+              "description": "total = Total: {0,number,#.##}",
+              "messageKey": "total",
+              "kind": "message"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

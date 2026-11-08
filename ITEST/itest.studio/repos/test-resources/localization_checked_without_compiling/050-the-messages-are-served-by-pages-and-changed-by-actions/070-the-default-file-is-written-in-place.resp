@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: text/plain
+
+greeting = Hi, {0} and {1}!
+total = Total: {0,number,#.##}
+farewell = Bye
+note = Don''t pay {0}
+welcome = Welcome

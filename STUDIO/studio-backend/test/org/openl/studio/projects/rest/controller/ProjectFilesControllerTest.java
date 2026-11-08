@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,6 +36,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
@@ -50,6 +52,7 @@ import org.openl.studio.projects.service.files.FileWriteOutcome;
 import org.openl.studio.projects.service.files.ProjectFileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.localization.LocalizationCache;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
@@ -231,6 +234,32 @@ class ProjectFilesControllerTest {
         assertEquals("i18n/message.properties", ProjectFilesController.relative(" //i18n/message.properties/ "));
         assertEquals("", ProjectFilesController.relative("/".repeat(100_000)));
         assertEquals("", ProjectFilesController.relative(null));
+    }
+
+    @Test
+    void makesTheSessionReadTheWrittenLocalizationFilesAgain() throws IOException {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(true);
+        var files = mock(ProjectFilesService.class);
+        when(files.uploadFiles(any(), any(), any(), any())).thenReturn(List.of("i18n/message.properties"));
+        var compilations = mock(CompilationJobRegistry.class);
+        when(compilations.find(any(), any())).thenReturn(Optional.empty());
+        var cache = mock(LocalizationCache.class);
+        var model = mock(ProjectModel.class);
+        when(model.getLocalizationCache()).thenReturn(cache);
+        var studio = mock(WebStudio.class);
+        when(studio.getModel()).thenReturn(model);
+        var workspace = mock(WorkspaceProjectService.class);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(Path.of("projects", "Rating"));
+        when(workspace.getProjectDescriptor(project)).thenReturn(descriptor);
+        var controller = controller(files, project, workspace, studio, compilations);
+        var messages = new MockMultipartFile("file", "message.properties", null, new byte[]{1});
+
+        controller.createResource(project, "/i18n/", List.of(messages), true, ConflictPolicy.OVERWRITE, null);
+
+        // The clock of the file system may not tell the write: the files of the folder are read again all the same.
+        verify(cache).forget(Path.of("projects", "Rating", "i18n"));
     }
 
     @Test

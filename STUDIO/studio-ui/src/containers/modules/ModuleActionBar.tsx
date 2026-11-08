@@ -23,7 +23,13 @@ const PROJECT_LEVEL: Array<keyof ProjectDialogActions> = ['save', 'sync', 'deplo
 
 interface ModuleActionBarProps {
     project: Project
+    /** The module the screen is of, or the one the project is compiled through on a screen of the whole project. */
     moduleName: string
+    /**
+     * Whether the screen is of the module. A screen of the whole project, as its messages, offers what acts on the
+     * project alone: neither the workbook of the module nor a table written into it.
+     */
+    ofModule?: boolean
     /** The workbook the module is written in, so it can be exported. */
     modulePath?: string | undefined
     /** How many tests the module holds, as the status channel reports them. */
@@ -50,6 +56,11 @@ interface ModuleActionBarProps {
     /** Compiles the module the reader has been editing, and reads it back. */
     onVerify?: (() => void) | undefined
     /**
+     * Runs the save of the project after asking whatever has to be asked first, as whether to save what the screen
+     * holds written and not saved: the project would be saved without it.
+     */
+    beforeSave?: ((save: () => void) => void) | undefined
+    /**
      * Runs what reads the workbook afresh after asking whatever has to be asked first.
      *
      * <p>Opening a revision and restoring a local version both replace what the workspace holds, so cells
@@ -65,10 +76,14 @@ interface ModuleActionBarProps {
  * Exporting the module, running its tests, writing a new table and the More menu are answered here; the
  * project's own actions are offered exactly as its own screen offers them. What can be done to the table on
  * screen belongs to the table, and stands in a band above it.
+ *
+ * <p>A screen of the whole project, as its messages, shows the same row without what acts on a module: its
+ * workbook and a table written into it.
  */
 export const ModuleActionBar = ({
     project,
     moduleName,
+    ofModule = true,
     modulePath,
     testCount,
     disabled = false,
@@ -78,6 +93,7 @@ export const ModuleActionBar = ({
     onTableCreated,
     verifyNeeded = false,
     onVerify,
+    beforeSave,
     confirmDiscard,
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
@@ -89,7 +105,7 @@ export const ModuleActionBar = ({
     const { actions, dialogs } = useProjectDialogs(project, { onChanged: () => onProjectChanged?.() })
     // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
     // Files tab uses, restricted to Excel.
-    const canUpdateModule = !!project.capabilities?.canWrite && !!modulePath
+    const canUpdateModule = ofModule && !!project.capabilities?.canWrite && !!modulePath
     // Writing a table into the project is the project's own right, so it is offered by the same capability
     // the Files tab writes by.
     const canWrite = !!project.capabilities?.canWrite
@@ -140,7 +156,7 @@ export const ModuleActionBar = ({
             setLocalChangesOpen(true)
         } else if (key === 'dependencies') {
             window.dispatchEvent(new CustomEvent('openTableGraphModal', {
-                detail: { projectId: project.id, projectName: project.name, module: moduleName },
+                detail: { projectId: project.id, projectName: project.name, module: ofModule ? moduleName : undefined },
             }))
         } else if (key === 'reformat') {
             reformat()
@@ -157,7 +173,7 @@ export const ModuleActionBar = ({
             data-testid={`module-${id}`}
             disabled={disabled}
             icon={ACTION_ICONS[id]}
-            onClick={actions[id]}
+            onClick={id === 'save' && beforeSave !== undefined ? () => beforeSave(actions.save) : actions[id]}
             type={id === 'save' ? 'primary' : 'default'}
         >
             {t(PROJECT_ACTIONS[id].labelKey)}
@@ -193,18 +209,20 @@ export const ModuleActionBar = ({
                     {t('browser.module.update')}
                 </Button>
             )}
-            <Tooltip title={modulePath ? undefined : t('browser.module.export_unavailable')}>
-                <Button
-                    data-testid="module-export"
-                    disabled={disabled || !modulePath}
-                    icon={ACTION_ICONS.export}
-                    onClick={() => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
-                        detail: { projectId: project.id, filePath: modulePath },
-                    }))}
-                >
-                    {t('browser.module.export')}
-                </Button>
-            </Tooltip>
+            {ofModule && (
+                <Tooltip title={modulePath ? undefined : t('browser.module.export_unavailable')}>
+                    <Button
+                        data-testid="module-export"
+                        disabled={disabled || !modulePath}
+                        icon={ACTION_ICONS.export}
+                        onClick={() => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
+                            detail: { projectId: project.id, filePath: modulePath },
+                        }))}
+                    >
+                        {t('browser.module.export')}
+                    </Button>
+                </Tooltip>
+            )}
             <Button
                 data-testid="module-test"
                 disabled={disabled || !testCount}
@@ -216,7 +234,7 @@ export const ModuleActionBar = ({
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
                 )}
             </Button>
-            {canWrite && (
+            {canWrite && ofModule && (
                 <Button
                     data-testid="module-createTable"
                     disabled={disabled}

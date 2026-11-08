@@ -35,6 +35,10 @@ public enum RawTableUsageKind {
     @JsonProperty("underlined")
     OTHER_UNDERLINED,
 
+    @Schema(description = "The key of a localized message")
+    @JsonProperty("message")
+    MESSAGE,
+
     @Schema(description = "Something else the compiler knows")
     @JsonProperty("other")
     OTHER;

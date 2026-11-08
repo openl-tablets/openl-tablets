@@ -103,6 +103,24 @@ describe('ModuleActionBar', () => {
         expect(screen.queryByTestId('module-update')).toBeNull()
     })
 
+    it('lets the screen ask its question before the project is saved, and saves only once it says so', async () => {
+        let saveNow: (() => void) | undefined
+        const beforeSave = vi.fn((save: () => void) => {
+            saveNow = save
+        })
+        render(<ModuleActionBar beforeSave={beforeSave} moduleName="Claims" project={project({ canSave: true })} />)
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        await userEvent.click(screen.getByTestId('module-save'))
+
+        expect(beforeSave).toHaveBeenCalled()
+        expect(screen.queryByTestId('save-project-modal')).toBeNull()
+        await act(async () => saveNow?.())
+        expect(await screen.findByTestId('save-project-modal')).toBeInTheDocument()
+    })
+
     it('copies the project from the editor, through the project\'s own dialog', async () => {
         await bar({ canCopy: true })
 
@@ -184,6 +202,25 @@ describe('ModuleActionBar', () => {
         expect(detail).toMatchObject({ projectId: 'p1', currentModuleName: 'Claims' })
         detail.onSuccess({ id: 'new-1' }, 'Claims')
         expect(onTableCreated).toHaveBeenCalledWith({ id: 'new-1' }, 'Claims')
+    })
+
+    it('offers on a screen of the whole project what acts on the project alone', async () => {
+        render(
+            <ModuleActionBar
+                moduleName="Claims"
+                modulePath="rules/Claims.xlsx"
+                ofModule={false}
+                project={project({ canWrite: true })}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        expect(screen.getByTestId('module-test')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-update')).toBeNull()
+        expect(screen.queryByTestId('module-export')).toBeNull()
+        expect(screen.queryByTestId('module-createTable')).toBeNull()
     })
 
     it('offers no new table to a reader who may not write to the project', async () => {
