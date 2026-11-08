@@ -21,6 +21,8 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.web.EntityVersions;
+import org.openl.studio.projects.model.files.FileNode;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileRoot;
@@ -35,8 +37,8 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
  *
  * <p>Subclasses keep the framework-bound endpoint methods so each mount resolves its own
  * {@link FileRoot} (a project working copy or a repository subtree); the request handling lives here
- * once. A mount with a working copy refreshes its derived state through {@link #postWrite()}, and follows up an
- * upload through {@link #postUpload(FileRoot, Collection)}.
+ * once. A mount with a working copy refreshes its derived state through {@link #postWrite(FileRoot, String)}, and
+ * follows up an upload through {@link #postUpload(FileRoot, Collection)}.
  *
  * @author Yury Molchan
  */
@@ -50,8 +52,13 @@ public abstract class AbstractFilesController {
     /**
      * Refreshes state derived from the mount after a write. The default does nothing; a mount backed
      * by a working copy overrides it.
+     *
+     * @param root    the mount written to
+     * @param path    the path the request wrote: a file, or a folder for an upload, a new folder or a delete
+     * @param written the mount-relative paths of the files written or deleted, or {@code null} when the request does
+     *                not tell them: it failed, or it wrote a folder
      */
-    protected void postWrite() {
+    protected void postWrite(FileRoot root, String path, @Nullable List<String> written) {
         // no-op by default
     }
 
@@ -77,11 +84,11 @@ public abstract class AbstractFilesController {
                                                 boolean createFolders, ConflictPolicy conflictPolicy)
             throws IOException {
         if (isFolderPath(path)) {
-            List<String> uploaded;
+            List<String> uploaded = null;
             try {
                 uploaded = filesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
             } finally {
-                postWrite();
+                postWrite(root, path, uploaded);
             }
             postUpload(root, uploaded);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -105,7 +112,7 @@ public abstract class AbstractFilesController {
         try {
             outcome = filesService.writeResource(root, filePath, content, createFolders, conflictPolicy);
         } finally {
-            postWrite();
+            postWrite(root, path, List.of(filePath));
         }
         // A file left as it is was not uploaded, so nothing of it is followed up.
         postUpload(root, outcome == FileWriteOutcome.KEPT ? List.of() : List.of(filePath));
@@ -121,11 +128,11 @@ public abstract class AbstractFilesController {
         if (!isFolderPath(path)) {
             throw new BadRequestException("file.path.requires.content.message");
         }
-        List<String> uploaded;
+        List<String> uploaded = null;
         try {
             uploaded = filesService.uploadArchive(root, stripSlashes(path), content, createFolders, conflictPolicy);
         } finally {
-            postWrite();
+            postWrite(root, path, uploaded);
         }
         postUpload(root, uploaded);
     }
@@ -204,7 +211,7 @@ public abstract class AbstractFilesController {
             filesService.updateResource(root, stripLeadingSlash(path), file.getInputStream(),
                     EntityVersions.expectedVersion(ifMatch));
         } finally {
-            postWrite();
+            postWrite(root, path, List.of(stripLeadingSlash(path)));
         }
         postUpload(root, List.of(stripLeadingSlash(path)));
     }
@@ -217,7 +224,7 @@ public abstract class AbstractFilesController {
             filesService.updateResource(root, stripLeadingSlash(path), content,
                     EntityVersions.expectedVersion(ifMatch));
         } finally {
-            postWrite();
+            postWrite(root, path, List.of(stripLeadingSlash(path)));
         }
         postUpload(root, List.of(stripLeadingSlash(path)));
     }
@@ -232,7 +239,7 @@ public abstract class AbstractFilesController {
         try {
             filesService.createFolder(root, stripSlashes(path), createFolders);
         } finally {
-            postWrite();
+            postWrite(root, path, null);
         }
     }
 
@@ -240,10 +247,27 @@ public abstract class AbstractFilesController {
      * Deletes a resource (file or folder) at the path.
      */
     protected void handleDelete(FileRoot root, String path, @Nullable String ifMatch) {
+        // The files a folder holds go with it: the mount is told them, as it is told the files an upload writes.
+        var deleted = isFolderPath(path) ? filesIn(root, stripSlashes(path)) : List.of(stripLeadingSlash(path));
         try {
             filesService.deleteResource(root, stripLeadingSlash(path), EntityVersions.expectedVersion(ifMatch));
         } finally {
-            postWrite();
+            postWrite(root, path, deleted);
+        }
+    }
+
+    /** The files of a folder, wherever in it, or {@code null} when they cannot be listed. */
+    private @Nullable List<String> filesIn(FileRoot root, String folder) {
+        try {
+            var query = FileCriteriaQuery.builder().basePath(folder.isEmpty() ? null : folder).build();
+            return filesService.getResources(root, query, true, FileViewMode.FLAT, null)
+                    .stream()
+                    .filter(FileNode.class::isInstance)
+                    .map(FsNode::getPath)
+                    .toList();
+        } catch (RuntimeException e) {
+            // The delete tells what is wrong with the folder; the mount is not told its files.
+            return null;
         }
     }
 

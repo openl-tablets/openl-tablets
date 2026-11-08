@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Tooltip } from 'antd'
+import { Button, Tooltip, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
@@ -200,6 +200,20 @@ const MessageCode = ({
     )
 }
 
+/**
+ * Where in the localization files a message is, as the reader names it: the key and the file, or the file alone for
+ * a message about the whole file. The text of the message does not repeat it.
+ */
+const localizationPlaceOf = (message: ProjectStatusDetailedMessage): string | null => {
+    const where = message.location
+    if (where?.type !== 'localization') {
+        return null
+    }
+    const path = where.path ?? ''
+    const file = path.slice(path.lastIndexOf('/') + 1)
+    return where.key === undefined ? file : `${where.key} · ${file}`
+}
+
 /** The rule a message points at, when the screen holds the cell it is written in. */
 const ruleOf = (
     message: ProjectStatusDetailedMessage,
@@ -353,7 +367,17 @@ export const CompileMessages = ({
             <ul className={styles.list}>
                 {visible.map(message => {
                     const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
-                    const text = <MessageText value={message.summary} />
+                    const place = localizationPlaceOf(message)
+                    const text = (
+                        <>
+                            {place !== null && (
+                                <Typography.Text data-testid={`${testIdPrefix}-${message.id}-place`} type="secondary">
+                                    {`${place}: `}
+                                </Typography.Text>
+                            )}
+                            <MessageText value={message.summary} />
+                        </>
+                    )
                     const cell = message.location?.type === 'table' ? message.location.cell : undefined
                     const rule = ruleOf(message, cellText)
                     return (

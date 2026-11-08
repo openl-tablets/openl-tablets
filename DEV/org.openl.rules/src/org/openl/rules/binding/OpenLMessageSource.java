@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.PropertiesUtils;
@@ -24,7 +25,10 @@ import org.openl.util.StringUtils;
 public class OpenLMessageSource {
 
 
-    private static final String DEFAULT_MSG_SRC = "i18n/message";
+    /** The folder of a project its localization files are in, which the rules read the messages from. */
+    public static final String FOLDER = "i18n";
+
+    private static final String DEFAULT_MSG_SRC = FOLDER + "/message";
 
     private final ClassLoader classLoader;
 
@@ -42,6 +46,17 @@ public class OpenLMessageSource {
     public MessageBundle getMessageBundle(Locale locale) {
         // seems like no cache for target locale yet
         return cacheLocalProperties.computeIfAbsent(locale, this::loadMessageBundle);
+    }
+
+    /**
+     * Drops the messages read so far, so that the next call reads the localization files as they are now.
+     *
+     * <p>A compiled project keeps its messages for as long as it lives. OpenL Studio drops them when the files are
+     * written, rather than compiling the project again.
+     */
+    public void reload() {
+        cacheLocalProperties.clear();
+        cacheProperties.clear();
     }
 
     private MessageBundle loadMessageBundle(Locale locale) {
@@ -132,7 +147,12 @@ public class OpenLMessageSource {
         // Cache to hold already generated MessageFormats per message code.
         private final Map<String, MessageFormat> cachedMessageFormats = new ConcurrentHashMap<>();
 
-        public String msg(String code, Object... args) {
+        /** Whether the bundle has a text for the code. */
+        public boolean has(String code) {
+            return properties.get(code) != null;
+        }
+
+        public @Nullable String msg(@Nullable String code, Object... args) {
             if (code == null) {
                 return null;
             }

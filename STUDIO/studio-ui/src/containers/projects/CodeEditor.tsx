@@ -1,9 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import CodeMirror, { Compartment, lineNumbers, type Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import CodeMirror, {
+    Compartment,
+    lineNumbers,
+    type EditorView,
+    type Extension,
+    type ReactCodeMirrorRef,
+    type Text,
+} from '@uiw/react-codemirror'
 import { xml } from '@codemirror/lang-xml'
 import { json } from '@codemirror/lang-json'
 import { yaml } from '@codemirror/lang-yaml'
 import { StreamLanguage } from '@codemirror/language'
+import { lintGutter, setDiagnostics, type Diagnostic } from '@codemirror/lint'
 import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { groovy } from '@codemirror/legacy-modes/mode/groovy'
 import { createStyles, useThemeMode } from 'antd-style'
@@ -113,6 +121,33 @@ const READ_ONLY_FRAGMENT_SETUP = {
     rectangularSelection: false,
 }
 
+/** A problem of the text an editor marks: where it is, or nowhere for one about the whole text, and what it is. */
+export interface EditorProblem {
+    /** Lines count from 1, columns count the characters of a line from 0; the end is left out. */
+    place?: { line: number, column: number, endLine: number, endColumn: number } | undefined
+    message: string
+    severity: 'error' | 'warning'
+}
+
+/**
+ * The problems as CodeMirror marks them. A place beyond the text is drawn at its end. A problem without a place is about
+ * the whole text, not about a line of it, so it is not drawn.
+ */
+const diagnosticsOf = (problems: readonly EditorProblem[], doc: Text): Diagnostic[] => {
+    const offsetOf = (line: number, column: number) => {
+        const shown = doc.line(Math.min(Math.max(line, 1), doc.lines))
+        return Math.min(shown.from + Math.max(column, 0), shown.to)
+    }
+    return problems.flatMap(({ place, message, severity }) => {
+        if (!place) {
+            return []
+        }
+        const from = offsetOf(place.line, place.column)
+        const to = offsetOf(place.endLine, place.endColumn)
+        return [{ from, to: Math.max(from, to), message, severity }]
+    })
+}
+
 interface CodeEditorProps {
     value: string
     path: string
@@ -123,6 +158,13 @@ interface CodeEditorProps {
     firstLine?: number | undefined
     /** What the editor says while it holds no text. */
     placeholder?: string | undefined
+    /**
+     * The problems of the text, which the editor underlines, tells when pointed at, and marks beside their lines.
+     * They are about the text as it was given: what is written afterwards moves them along with the text.
+     *
+     * A problem without a place is about the whole text. The editor does not draw it: whoever shows the editor tells it.
+     */
+    problems?: readonly EditorProblem[] | undefined
 }
 
 /**
@@ -139,8 +181,11 @@ interface CodeEditorProps {
  *
  * The editor holds a text with the line breaks of Unix, as CodeMirror does: a text written with those of Windows is
  * shown as it reads, and the text {@link CodeEditorProps.onChange} is given has the line breaks of Unix.
+ *
+ * The problems of the text, when it has any, are drawn as CodeMirror draws the problems a linter finds: each underlined,
+ * told when pointed at, and marked beside its line. A problem about the whole text has no line and is not drawn.
  */
-export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeholder }: CodeEditorProps) => {
+export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeholder, problems }: CodeEditorProps) => {
     const { styles, cx } = useStyles()
     const { isDarkMode } = useThemeMode()
     const { themeName } = useAppTheme()
@@ -154,10 +199,33 @@ export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeho
     const editor = useRef<ReactCodeMirrorRef>(null)
     // The first line the numbers are drawn from; they are drawn again only when it moves.
     const numberedFrom = useRef(firstLine)
-    const extensions = useMemo(() => fragment
-        ? [...languageFor(path), numbering.of(firstNumbers)]
-        : languageFor(path),
-    [path, fragment, numbering, firstNumbers])
+    const marked = problems !== undefined
+    const extensions = useMemo(() => {
+        const language = languageFor(path)
+        const withProblems = marked ? [...language, lintGutter()] : language
+        return fragment ? [...withProblems, numbering.of(firstNumbers)] : withProblems
+    }, [path, fragment, numbering, firstNumbers, marked])
+    // The problems are drawn once they, the text they are about and the editor are all there: when the editor is
+    // made, and whenever other problems are given. Afterwards CodeMirror moves them along with what is written.
+    const hasText = shown !== ''
+    const shownProblems = useRef(problems)
+    shownProblems.current = problems
+    // The problems marked last: each are marked once, on the text they were found in. A text cleared and written
+    // anew keeps what CodeMirror moved of them rather than taking the places of the old text.
+    const markedProblems = useRef<readonly EditorProblem[] | undefined>(undefined)
+    const markProblems = useCallback((view: EditorView) => {
+        const given = shownProblems.current
+        if (given !== undefined && given !== markedProblems.current && view.state.doc.length > 0) {
+            markedProblems.current = given
+            view.dispatch(setDiagnostics(view.state, diagnosticsOf(given, view.state.doc)))
+        }
+    }, [])
+    useEffect(() => {
+        const view = editor.current?.view
+        if (view && hasText) {
+            markProblems(view)
+        }
+    }, [problems, hasText, markProblems])
     useEffect(() => {
         const view = editor.current?.view
         if (view && firstLine !== undefined && firstLine !== numberedFrom.current) {
@@ -172,6 +240,7 @@ export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeho
             editable={!readOnly}
             extensions={extensions}
             height="100%"
+            onCreateEditor={markProblems}
             theme={theme}
             // The text is handed over with the line breaks the editor holds it with: a text with other line breaks
             // would differ from what the editor holds and be set anew whenever it is drawn, moving the cursor away.

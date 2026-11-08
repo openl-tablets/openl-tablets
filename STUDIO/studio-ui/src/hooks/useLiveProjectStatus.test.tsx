@@ -2,6 +2,9 @@ import { act, render } from '@testing-library/react'
 import { useRef } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../services/projectStatus'
+import { getProject } from '../services/repositories'
+import webSocketService from '../services/websocket'
+import type { Project } from '../types/projects'
 import { useLiveProjectStatus } from './useLiveProjectStatus'
 
 // Only the channel is stubbed; the freshness rule stays the one the screens use.
@@ -9,6 +12,21 @@ vi.mock('../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../services/projectStatus')>()),
     subscribeProjectStatus: vi.fn(),
 }))
+
+vi.mock('../services/repositories', () => ({ getProject: vi.fn() }))
+
+vi.mock('../services/websocket', () => {
+    const listeners = new Set<() => void>()
+    return {
+        default: {
+            onReconnect: (listener: () => void) => {
+                listeners.add(listener)
+                return () => listeners.delete(listener)
+            },
+            reconnect: () => listeners.forEach(listener => listener()),
+        },
+    }
+})
 
 const status = (compileState: ProjectStatusUpdate['compileState'], message?: string): ProjectStatusUpdate => ({
     projectId: 'p1',
@@ -182,6 +200,19 @@ describe('useLiveProjectStatus', () => {
 
         expect(subscribeProjectStatus).not.toHaveBeenCalled()
         expect(getByTestId('state').textContent).toBe('none')
+    })
+
+    it('reads the status afresh once the channel reconnects, as nothing pushed meanwhile arrives', async () => {
+        vi.mocked(getProject).mockResolvedValue({ compileStatus: status('warnings') } as Project)
+
+        const { getByTestId } = render(<Probe enabled initial={status('compiling')} />)
+        await act(async () => {
+            (webSocketService as unknown as { reconnect: () => void }).reconnect()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        // The compilation ended while the connection was down: it is not shown as running for good.
+        expect(getByTestId('state').textContent).toBe('warnings')
     })
 
     it('unsubscribes on unmount', async () => {

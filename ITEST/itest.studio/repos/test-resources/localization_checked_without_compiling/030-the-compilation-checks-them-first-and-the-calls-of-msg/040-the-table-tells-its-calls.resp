@@ -1,0 +1,39 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "id": "###",
+      "summary": "'greeting' has 1 placeholder, but 2 values are passed.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TABLE}",
+        "name": "Greet",
+        "module": "Main",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "C5",
+        "start": 2,
+        "end": 31
+      }
+    },
+    {
+      "id": "###",
+      "summary": "Key 'farewell' has no default text: a language without a text of its own returns the key.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TABLE}",
+        "name": "Greet",
+        "module": "Main",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "C6",
+        "start": 6,
+        "end": 16
+      }
+    }
+  ]
+}

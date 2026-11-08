@@ -19,8 +19,8 @@ Studio.
 - [Examples](examples/index.md) — Docker Compose, Maven, and Kubernetes examples.
 - [Configuration](configuration/index.md) — where the settings are described, and the security of Rule Services.
 - [Integration Guides](integration-guides/index.md) — Spring, OpenAPI, Apache CXF, and OpenTelemetry in Rule Services.
-- [REST API](api/README.md) — the table, merge, trace, history, and token APIs of OpenL Studio, and the admin API of
-  Rule Services.
+- [REST API](api/README.md) — the table, merge, trace, history, localization, and token APIs of OpenL Studio, and the
+  admin API of Rule Services.
 
 ## Writing Rules Projects
 

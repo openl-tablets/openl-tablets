@@ -6,6 +6,7 @@ import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -32,10 +33,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.openl.rules.binding.OpenLMessageSource;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.validation.LocalizationCheck;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -46,6 +50,8 @@ import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.project.compile.CompilationJob;
+import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 import org.openl.util.StringUtils;
 
@@ -72,15 +78,18 @@ public class ProjectFilesController extends AbstractFilesController {
 
     private final ProjectFileRootFactory fileRootFactory;
     private final WorkspaceProjectService workspaceProjectService;
+    private final CompilationJobRegistry compilationJobRegistry;
 
     public ProjectFilesController(ProjectFilesService filesService,
                                   ProjectFileRootFactory fileRootFactory,
                                   BeanValidationProvider validationProvider,
                                   FileCriteriaQueryValidator queryValidator,
-                                  WorkspaceProjectService workspaceProjectService) {
+                                  WorkspaceProjectService workspaceProjectService,
+                                  CompilationJobRegistry compilationJobRegistry) {
         super(filesService, validationProvider, queryValidator);
         this.fileRootFactory = fileRootFactory;
         this.workspaceProjectService = workspaceProjectService;
+        this.compilationJobRegistry = compilationJobRegistry;
     }
 
     @Lookup
@@ -89,9 +98,60 @@ public class ProjectFilesController extends AbstractFilesController {
         throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
+    /**
+     * Lets the session compile the project again from what it holds now.
+     *
+     * <p>A write of the localization files only is checked again in place instead: a module does not read them when
+     * it is compiled, so the compiled project reads the new texts as they are, and its warnings about them, and about
+     * the calls of {@code msg}, are told again without compiling anything. A write of any other file, of their folder
+     * too, and a write that does not tell its files, is compiled again as any other is.
+     */
     @Override
-    protected void postWrite() {
-        getWebStudio().reset();
+    protected void postWrite(FileRoot root, String path, @Nullable List<String> written) {
+        var localization = root instanceof ProjectFileRoot projectRoot && writesLocalizationOnly(written)
+                ? projectRoot.getProject()
+                : null;
+        var model = localization == null ? null : compiledModelOf(localization);
+        if (model == null) {
+            getWebStudio().reset();
+        } else {
+            model.checkLocalizationAgain();
+        }
+    }
+
+    /** The model the session compiles the project in, or {@code null} when it compiles nothing of it. */
+    private @Nullable ProjectModel compiledModelOf(RulesProject project) {
+        return compilationJobRegistry.find(project.getProjectId(), project.getBranch())
+                .map(CompilationJob::project)
+                .orElse(null);
+    }
+
+    /** Whether every file the write tells is a localization file: none is read by a module when it is compiled. */
+    private static boolean writesLocalizationOnly(@Nullable List<String> written) {
+        return written != null && !written.isEmpty()
+                && written.stream().allMatch(ProjectFilesController::isMessageFile);
+    }
+
+    /** Whether the path is a localization file. */
+    private static boolean isMessageFile(String path) {
+        var relative = relative(path);
+        var prefix = OpenLMessageSource.FOLDER + "/";
+        return relative.startsWith(prefix)
+                && LocalizationCheck.FILE.matcher(relative.substring(prefix.length())).matches();
+    }
+
+    /** The path in the project, without the slashes around it. */
+    static String relative(@Nullable String path) {
+        var trimmed = Objects.requireNonNullElse(StringUtils.trim(path), "");
+        var from = 0;
+        var to = trimmed.length();
+        while (from < to && trimmed.charAt(from) == '/') {
+            from++;
+        }
+        while (to > from && trimmed.charAt(to - 1) == '/') {
+            to--;
+        }
+        return trimmed.substring(from, to);
     }
 
     /**

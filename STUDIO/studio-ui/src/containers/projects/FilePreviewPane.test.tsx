@@ -17,6 +17,12 @@ vi.mock('../../services/files', () => ({
     updateFileContent: vi.fn(),
 }))
 
+const checkMessageFiles = vi.fn()
+vi.mock('../../services/localization', async importOriginal => ({
+    ...(await importOriginal<typeof import('../../services/localization')>()),
+    checkMessageFiles: (...args: unknown[]) => checkMessageFiles(...args),
+}))
+
 vi.mock('react-i18next', () => {
     // One t for every render: a fresh function each call would re-run the effects depending on it.
     const t = (key: string) => key
@@ -125,8 +131,8 @@ vi.mock('antd', async () => {
     const Tag = ({ children }: Record<string, unknown>) => <span>{children as never}</span>
     const Tooltip = ({ children }: Record<string, unknown>) => <>{children as never}</>
     const Alert = ({ title, ...rest }: Record<string, unknown>) => {
-        const { showIcon, type, ...dom } = rest
-        void showIcon; void type
+        const { banner, showIcon, type, ...dom } = rest
+        void banner; void showIcon; void type
         return <div {...dom}>{title as never}</div>
     }
     const notification = { error: vi.fn(), info: vi.fn() }
@@ -147,6 +153,7 @@ vi.mock('./UpdateFileModal', () => ({
 }))
 
 const baseProps = {
+    projectOpened: true,
     folders: ['rules'],
     branch: 'main',
     canDelete: true,
@@ -170,6 +177,57 @@ describe('FilePreviewPane', () => {
             return Promise.resolve('first content')
         })
         vi.mocked(updateFileContent).mockResolvedValue()
+        checkMessageFiles.mockResolvedValue([])
+    })
+
+    it('checks a localization file once it is read, and once more after each save', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="i18n/message.properties" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+        await waitFor(() => expect(checkMessageFiles).toHaveBeenCalledTimes(1))
+
+        // The text of the file opened next is the only one it is checked with: not the text of the file left.
+        rerender(<FilePreviewPane {...baseProps} path="i18n/message_fr.properties" reloadToken={0} />)
+        await waitFor(() => expect(getFileContent).toHaveBeenCalledWith('p1', 'i18n/message_fr.properties'))
+        await waitFor(() => expect(checkMessageFiles).toHaveBeenCalledTimes(2))
+
+        await userEvent.click(screen.getByTestId('file-edit'))
+        await userEvent.type(screen.getByTestId('code-editor'), '!')
+        await userEvent.click(screen.getByTestId('file-save'))
+
+        await waitFor(() => expect(checkMessageFiles).toHaveBeenCalledTimes(3))
+        expect(checkMessageFiles).toHaveBeenCalledWith('p1', 'file')
+    })
+
+    it('tells a problem of the whole localization file over its text, and leaves those of its lines to the editor', async () => {
+        const location = { type: 'localization', path: 'i18n/message_fr.properties', line: 1, language: 'fr' }
+        checkMessageFiles.mockResolvedValue([
+            { id: 1, summary: '2 keys are not translated', severity: 'WARN', location },
+            {
+                id: 2,
+                summary: 'Full-width comma',
+                severity: 'WARN',
+                location: { ...location, line: 2, places: [{ line: 2, column: 4, endLine: 2, endColumn: 5 }]},
+            },
+        ])
+        render(<FilePreviewPane {...baseProps} path="i18n/message_fr.properties" reloadToken={0} />)
+
+        const told = await screen.findByTestId('file-problem')
+        expect(told).toHaveTextContent('2 keys are not translated')
+        expect(screen.getAllByTestId('file-problem')).toHaveLength(1)
+    })
+
+    it('checks no localization file of a closed project', async () => {
+        render(<FilePreviewPane {...baseProps} path="i18n/message.properties" projectOpened={false} reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+
+        expect(checkMessageFiles).not.toHaveBeenCalled()
+    })
+
+    it('checks no file that is no localization file', async () => {
+        render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+
+        expect(checkMessageFiles).not.toHaveBeenCalled()
     })
 
     it('keeps the dirty file open when a file switch is cancelled', async () => {

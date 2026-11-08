@@ -1,0 +1,187 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "compileStatus": {
+    "compileState": "warnings",
+    "compilation": {
+      "messages": {
+        "items": [
+          {
+            "id": "###",
+            "summary": "Written twice, on lines 1 and 3: the last text wins.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message.properties",
+              "line": 3,
+              "key": "greeting",
+              "places": [
+                {
+                  "line": 3,
+                  "column": 0,
+                  "endLine": 3,
+                  "endColumn": 8
+                }
+              ]
+            }
+          },
+          {
+            "id": "###",
+            "summary": "An unmatched single quote causes the remaining text to be treated as a literal, preventing placeholders from being substituted. Use two single quotes ('') to represent an apostrophe.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message.properties",
+              "line": 4,
+              "key": "note",
+              "places": [
+                {
+                  "line": 4,
+                  "column": 10,
+                  "endLine": 4,
+                  "endColumn": 20
+                }
+              ]
+            }
+          },
+          {
+            "id": "###",
+            "summary": "No '=' or ':' on the line, so there is no text and the rule returns the key. Write 'only key =' for an empty text.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message.properties",
+              "line": 5,
+              "key": "only key",
+              "places": [
+                {
+                  "line": 5,
+                  "column": 0,
+                  "endLine": 5,
+                  "endColumn": 8
+                }
+              ]
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Placeholders [0, 1] differ from [0] of the default language.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message_fr.properties",
+              "line": 1,
+              "key": "greeting",
+              "language": "fr",
+              "places": [
+                {
+                  "line": 1,
+                  "column": 0,
+                  "endLine": 1,
+                  "endColumn": 8
+                }
+              ]
+            }
+          },
+          {
+            "id": "###",
+            "summary": "No text in the default language: a language without a text of its own returns the key.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message_fr.properties",
+              "line": 2,
+              "key": "extra",
+              "language": "fr",
+              "places": [
+                {
+                  "line": 2,
+                  "column": 0,
+                  "endLine": 2,
+                  "endColumn": 5
+                }
+              ]
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Full-width '，' instead of ',' in a placeholder. The rule fails when values are passed.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message_zh_TW.properties",
+              "line": 2,
+              "key": "total",
+              "language": "zh_TW",
+              "places": [
+                {
+                  "line": 2,
+                  "column": 13,
+                  "endLine": 2,
+                  "endColumn": 14
+                },
+                {
+                  "line": 2,
+                  "column": 20,
+                  "endLine": 2,
+                  "endColumn": 21
+                }
+              ]
+            }
+          },
+          {
+            "id": "###",
+            "summary": "2 keys are not translated into French: the default texts are shown.",
+            "severity": "WARN",
+            "location": {
+              "type": "localization",
+              "path": "i18n/message_fr.properties",
+              "line": 1,
+              "language": "fr"
+            }
+          },
+          {
+            "id": "###",
+            "summary": "'greeting' has 1 placeholder, but 2 values are passed.",
+            "severity": "WARN",
+            "location": {
+              "type": "table",
+              "id": "${TABLE}",
+              "name": "Greet",
+              "module": "Main",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "C5",
+              "start": 2,
+              "end": 31
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Key 'farewell' has no default text: a language without a text of its own returns the key.",
+            "severity": "WARN",
+            "location": {
+              "type": "table",
+              "id": "${TABLE}",
+              "name": "Greet",
+              "module": "Main",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "C6",
+              "start": 6,
+              "end": 16
+            }
+          }
+        ],
+        "total": 9,
+        "errors": 0,
+        "warnings": 9
+      },
+      "modules": {
+        "total": 2,
+        "compiled": 2
+      }
+    }
+  }
+}

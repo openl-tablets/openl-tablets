@@ -33,6 +33,7 @@ export interface ProjectStatusMessage {
  * {@code MessageSource} (discriminator: {@code type}).
  *  - {@code module}: workbook-level location (no specific table)
  *  - {@code table}: specific table cell, with id/name/module/cell
+ *  - {@code file}: a line of another file of the project, such as a localization file
  */
 export interface ProjectStatusModuleMessageSource {
     type: 'module'
@@ -60,9 +61,52 @@ export interface ProjectStatusTableMessageSource {
     project?: string
 }
 
+/** A piece of a text, from the index of its first character to the index after its last one. */
+export interface TextSpot {
+    start: number
+    end: number
+}
+
+/**
+ * A place of a text file, from a line and a column up to another, the end left out. Lines count from 1, columns
+ * count the characters of a line from 0, whatever line breaks the file is written with.
+ */
+export interface FilePlace {
+    line: number
+    column: number
+    endLine: number
+    endColumn: number
+}
+
+export interface ProjectStatusLocalizationMessageSource {
+    type: 'localization'
+    /** The path of the file, from the project folder. */
+    path?: string
+    line?: number
+    /** The key of the localization file the message is about; absent for the file as a whole. */
+    key?: string
+    /** The language of the localization file, empty for the default one. */
+    language?: string
+    /**
+     * The pieces of the text of the key the message is about, in the order of the text, which a screen marks so the
+     * reader finds them among the rest. Told only when the positions in the text are asked for, and absent when the
+     * message is about no part of the text in particular.
+     */
+    spots?: TextSpot[]
+    /**
+     * Where the message is in the file, for an editor of the file to mark: each piece of the text where it is
+     * written, or the key for a message about the text as a whole. Told only when the positions in the file are asked
+     * for, as the compilation status tells them, and absent for a message about the whole file.
+     */
+    places?: FilePlace[]
+    /** A file message is always of the project being compiled. */
+    projectId?: undefined
+}
+
 export type ProjectStatusMessageSource =
     | ProjectStatusModuleMessageSource
     | ProjectStatusTableMessageSource
+    | ProjectStatusLocalizationMessageSource
 
 /**
  * Compilation message enriched with origin and stack-trace availability.

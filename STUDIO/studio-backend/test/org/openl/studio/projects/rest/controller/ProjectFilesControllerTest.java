@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +21,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.jspecify.annotations.Nullable;
@@ -36,9 +38,11 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileViewMode;
@@ -46,6 +50,8 @@ import org.openl.studio.projects.service.files.FileWriteOutcome;
 import org.openl.studio.projects.service.files.ProjectFileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.project.compile.CompilationJob;
+import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
 class ProjectFilesControllerTest {
@@ -166,6 +172,87 @@ class ProjectFilesControllerTest {
     }
 
     @Test
+    void checksTheLocalizationAgainRatherThanCompilingTheProjectOnAWriteOfItsFiles() throws IOException {
+        var project = mock(RulesProject.class);
+        var files = mock(ProjectFilesService.class);
+        when(files.writeResource(any(), any(), any(), anyBoolean(), any())).thenReturn(FileWriteOutcome.REPLACED);
+        when(files.uploadFiles(any(), any(), any(), any()))
+                .thenAnswer(upload -> List.of(upload.getArgument(1) + "/message.properties"));
+        var model = mock(ProjectModel.class);
+        var job = mock(CompilationJob.class);
+        when(job.project()).thenReturn(model);
+        var compilations = mock(CompilationJobRegistry.class);
+        when(compilations.find(any(), any())).thenReturn(Optional.of(job));
+        var studio = mock(WebStudio.class);
+        var controller = controller(files, project, mock(WorkspaceProjectService.class), studio, compilations);
+        var messages = new MockMultipartFile("file", "message.properties", null, new byte[]{1});
+
+        controller.createResource(project, "/i18n/", List.of(messages), true, ConflictPolicy.OVERWRITE, null);
+        controller.deleteResource(project, "/i18n/message_fr.properties", null, null);
+        controller.createResource(project, "/i18nOld/message.properties", List.of(messages), true,
+                ConflictPolicy.OVERWRITE, null);
+        controller.deleteResource(project, "/i18n/Rules.xlsx", null, null);
+        // The folder goes with the files it holds: only localization files here.
+        when(files.getResources(any(), any(), anyBoolean(), any(), any()))
+                .thenReturn(List.of(FileNode.builder().path("i18n/message.properties").build()));
+        controller.deleteResource(project, "/i18n/", null, null);
+
+        // A module does not read the files when compiled: what was compiled stays, and only the files are read.
+        verify(model, times(3)).checkLocalizationAgain();
+        // Any other file, of their folder too, is compiled again as usual.
+        verify(studio, times(2)).reset();
+    }
+
+    @Test
+    void compilesAgainAnyOtherFileUploadedIntoTheFolderOfTheLocalizationFiles() throws IOException {
+        var project = mock(RulesProject.class);
+        var files = mock(ProjectFilesService.class);
+        // A workbook a wildcard of the descriptor makes a module, uploaded beside the localization files.
+        when(files.uploadFiles(any(), any(), any(), any()))
+                .thenReturn(List.of("i18n/message.properties", "i18n/Texts.xlsx"));
+        var model = mock(ProjectModel.class);
+        var job = mock(CompilationJob.class);
+        when(job.project()).thenReturn(model);
+        var compilations = mock(CompilationJobRegistry.class);
+        when(compilations.find(any(), any())).thenReturn(Optional.of(job));
+        var studio = mock(WebStudio.class);
+        var controller = controller(files, project, mock(WorkspaceProjectService.class), studio, compilations);
+
+        controller.createResource(project, "/i18n/", List.of(new MockMultipartFile("file", "Texts.xlsx", null,
+                new byte[]{1})), true, ConflictPolicy.OVERWRITE, null);
+        controller.createFolder(project, "/i18n/", true, null);
+
+        verify(studio, times(2)).reset();
+        verify(model, never()).checkLocalizationAgain();
+    }
+
+    @Test
+    void takesThePathInTheProjectWithoutTheSlashesAroundIt() {
+        assertEquals("i18n/message.properties", ProjectFilesController.relative(" //i18n/message.properties/ "));
+        assertEquals("", ProjectFilesController.relative("/".repeat(100_000)));
+        assertEquals("", ProjectFilesController.relative(null));
+    }
+
+    @Test
+    void lettingGoOfTheSessionIsAllAWriteOfTheFilesOfAProjectNotCompiledDoes() throws IOException {
+        var project = mock(RulesProject.class);
+        var files = mock(ProjectFilesService.class);
+        var compilations = mock(CompilationJobRegistry.class);
+        when(compilations.find(any(), any())).thenReturn(Optional.empty());
+        when(files.uploadFiles(any(), any(), any(), any())).thenReturn(List.of("i18n/message.properties"));
+        var studio = mock(WebStudio.class);
+        var workspace = mock(WorkspaceProjectService.class);
+        var controller = controller(files, project, workspace, studio, compilations);
+        var messages = new MockMultipartFile("file", "message.properties", null, new byte[]{1});
+
+        controller.createResource(project, "/i18n/", List.of(messages), true, ConflictPolicy.OVERWRITE, null);
+
+        // Nothing compiles it: the session forgets what it read, and a screen asks for a compilation when it needs one.
+        verify(studio).reset();
+        verify(workspace, never()).compileModule(any(), any(), anyBoolean());
+    }
+
+    @Test
     void leavesAnUploadIntoAClosedProjectFormattedBeforeItsCommit() {
         var project = mock(RulesProject.class);
         var workspace = mock(WorkspaceProjectService.class);
@@ -272,12 +359,19 @@ class ProjectFilesControllerTest {
     /** The controller of a session, mounting the files of the project. */
     private static ProjectFilesController controller(ProjectFilesService files, RulesProject project,
                                                      WorkspaceProjectService workspace, WebStudio studio) {
+        return controller(files, project, workspace, studio, mock(CompilationJobRegistry.class));
+    }
+
+    /** The controller of a session compiling what the registry holds, mounting the files of the project. */
+    private static ProjectFilesController controller(ProjectFilesService files, RulesProject project,
+                                                     WorkspaceProjectService workspace, WebStudio studio,
+                                                     CompilationJobRegistry compilations) {
         var root = mock(ProjectFileRoot.class);
         when(root.getProject()).thenReturn(project);
         var roots = mock(ProjectFileRootFactory.class);
         when(roots.of(project)).thenReturn(root);
         return new ProjectFilesController(files, roots, mock(BeanValidationProvider.class),
-                mock(FileCriteriaQueryValidator.class), workspace) {
+                mock(FileCriteriaQueryValidator.class), workspace, compilations) {
             @Override
             public WebStudio getWebStudio() {
                 return studio;

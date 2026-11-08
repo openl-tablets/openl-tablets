@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { isPushFresherThanRead, subscribeProjectStatus, type ProjectStatusUpdate } from '../services/projectStatus'
+import { getProject } from '../services/repositories'
+import webSocketService from '../services/websocket'
 
 /** A status the channel pushed, with the moment it arrived and the channel it came from. */
 interface PushedStatus {
@@ -28,6 +31,9 @@ const sameStatus = (one: ProjectStatusUpdate | null, other: ProjectStatusUpdate 
  * outrank every later answer, and a lost one would leave the project compiling forever. A read that
  * carries no status at all says nothing about it, and leaves a pushed one alone.
  *
+ * Nothing pushed while the connection is down arrives later, so the status is read afresh on every reconnect, as a
+ * push: a compilation that ended meanwhile, or one the restart of the server ended, is not shown as running for good.
+ *
  * A status equal to the one already shown keeps its object, so a re-read that changed nothing costs
  * the callers nothing — their message lists and paging are derived from that object.
  */
@@ -52,9 +58,26 @@ export function useLiveProjectStatus(
                 setPushed({ update, at: Date.now(), projectId, branch })
             }
         })
+        const stopListening = webSocketService.onReconnect(() => {
+            const readAt = Date.now()
+            getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+                .then(read => {
+                    const update = read.compileStatus
+                    if (!cancelled && update) {
+                        // A push that arrived while the read was on its way is the fresher of the two.
+                        setPushed(shownNow => (shownNow !== null && shownNow.at > readAt
+                            ? shownNow
+                            : { update, at: readAt, projectId, branch }))
+                    }
+                })
+                .catch(() => {
+                    // The next push, or the next reconnect, tells the status instead.
+                })
+        })
         return () => {
             cancelled = true
             subscription.unsubscribe()
+            stopListening()
         }
     }, [projectId, branch, enabled])
 

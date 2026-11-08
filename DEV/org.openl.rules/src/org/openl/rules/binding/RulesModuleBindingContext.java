@@ -13,6 +13,7 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.IBindingContext;
@@ -86,7 +87,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new RestoreRuntimeContextMethod());
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
-        internalMethods.add(new MessageSourceResourceMethod());
+        internalMethods.add(new MessageSourceResourceMethod(module));
 
         var tablePropertiesOpenField = new TablePropertiesOpenField();
         internalVariables.put(tablePropertiesOpenField.getName(), tablePropertiesOpenField);
@@ -114,22 +115,22 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         return this.bindedTables.containsKey(key);
     }
 
-    public TableSyntaxNode getTableSyntaxNode(String key) {
+    public @Nullable TableSyntaxNode getTableSyntaxNode(String key) {
         return this.bindedTables.get(key);
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
+    public @Nullable IOpenField findVar(String namespace, String name, boolean strictMatch)
+            throws AmbiguousFieldException {
         var openField = super.findVar(namespace, name, strictMatch);
         if (openField != null) {
             return openField;
         }
         if (strictMatch) {
             return internalVariables.get(name);
-        } else {
-            if (name != null) {
-                return noStrictInternalVariables.get(name.toLowerCase());
-            }
+        }
+        if (name != null) {
+            return noStrictInternalVariables.get(name.toLowerCase());
         }
         return null;
     }
@@ -206,14 +207,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             }
             if (openClass == null) {
                 return moduleRelatedType.convertToModuleTypeAndRegister(getModule());
-            } else {
-                var existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
-                existingModuleRelatedOpenClass.updateWithType(type);
-                return openClass;
             }
-        } else {
-            return super.addType(type);
+            var existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
+            existingModuleRelatedOpenClass.updateWithType(type);
+            return openClass;
         }
+        return super.addType(type);
     }
 
     @Override
@@ -252,9 +251,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             throw new TypesCombinationNotSupportedException(Arrays.stream(openClasses)
                     .filter(e -> !(e instanceof CustomSpreadsheetResultOpenClass))
                     .toList());
-        } else {
-            return getModule().buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
         }
+        return getModule().buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
     }
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
@@ -271,7 +269,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         preBinderMethods.put(openMethodHeader, method);
     }
 
-    public void preBindMethod(OpenMethodHeader openMethodHeader) {
+    public void preBindMethod(@Nullable OpenMethodHeader openMethodHeader) {
         if (openMethodHeader == null) {
             return;
         }
@@ -311,11 +309,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 throw new RecursiveSpreadsheetMethodPreBindingException(
                         CIRCULAR_REFERENCE.formatted(
                                 prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
-            } else {
-                throw new IllegalStateException(
-                        CIRCULAR_REFERENCE.formatted(
-                                prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
             }
+            throw new IllegalStateException(
+                    CIRCULAR_REFERENCE.formatted(
+                            prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
         }
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::startPreBind);
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::preBind);
@@ -342,7 +339,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class DispatchingTablePropertiesOpenField implements IOpenField {
 
         @Override
-        public Object get(Object target, IRuntimeEnv env) {
+        public @Nullable Object get(Object target, IRuntimeEnv env) {
             if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
                 var method = simpleRuntimeEnv.getMethodWrapper()
                         .getTopOpenClassMethod(simpleRuntimeEnv.getTopClass());
@@ -380,7 +377,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public String getContextProperty() {
+        public @Nullable String getContextProperty() {
             return null;
         }
 
@@ -415,7 +412,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
@@ -428,7 +425,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class TablePropertiesOpenField implements IOpenField {
 
         @Override
-        public Object get(Object target, IRuntimeEnv env) {
+        public @Nullable Object get(Object target, IRuntimeEnv env) {
             if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
                 if (simpleRuntimeEnv.getMethodWrapper()
                         .getDelegate() instanceof ExecutableRulesMethod executableRulesMethod) {
@@ -465,7 +462,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public String getContextProperty() {
+        public @Nullable String getContextProperty() {
             return null;
         }
 
@@ -500,7 +497,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
@@ -551,12 +548,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
         @Override
-        public IOpenClass getDeclaringClass() {
+        public @Nullable IOpenClass getDeclaringClass() {
             return null;
         }
 
@@ -605,12 +602,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
         @Override
-        public IOpenClass getDeclaringClass() {
+        public @Nullable IOpenClass getDeclaringClass() {
             return null;
         }
 
@@ -629,7 +626,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         static final String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
 
         @Override
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        public @Nullable Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 env.popContext();
             } else {
@@ -665,12 +662,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
         @Override
-        public IOpenClass getDeclaringClass() {
+        public @Nullable IOpenClass getDeclaringClass() {
             return null;
         }
 
@@ -689,7 +686,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         static final String SET_CONTEXT_METHOD_NAME = "setContext";
 
         @Override
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        public @Nullable Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 var runtimeContext = (IRulesRuntimeContext) params[0];
                 env.pushContext(runtimeContext);
@@ -726,12 +723,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
         @Override
-        public IOpenClass getDeclaringClass() {
+        public @Nullable IOpenClass getDeclaringClass() {
             return null;
         }
 
@@ -752,7 +749,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         static final String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
         @Override
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        public @Nullable Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 try {
                     var runtimeContext = ((IRulesRuntimeContext) env.getContext()).clone();
@@ -794,12 +791,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         @Override
-        public IMemberMetaInfo getInfo() {
+        public @Nullable IMemberMetaInfo getInfo() {
             return null;
         }
 
         @Override
-        public IOpenClass getDeclaringClass() {
+        public @Nullable IOpenClass getDeclaringClass() {
             return null;
         }
 

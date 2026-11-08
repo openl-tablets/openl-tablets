@@ -416,6 +416,7 @@ export const ProjectDetail = ({
                 path={selectedFile}
                 projectId={project.id}
                 projectName={project.name}
+                projectOpened={project.status !== ProjectStatus.Closed}
                 reloadToken={reloadToken}
                 repositoryId={project.repository}
             />
