@@ -5,8 +5,8 @@ The Project Localization API works with the localization messages of a project: 
 Guide, in
 [Checking Localization](../user-guides/reference-guide/04-working-with-projects/04-project-localization.md#checking-localization).
 
-It reads the messages by pages of keys and changes them in one write: the **Localization** screen of OpenL Studio works
-through it.
+It reads the messages by pages of keys and changes them in one write: the **Localization** screen of OpenL Studio and
+the MCP server work through it.
 
 ## Rules for Every Endpoint
 

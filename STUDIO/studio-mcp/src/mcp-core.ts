@@ -52,7 +52,8 @@ table types and functions with \`openl_list_guides\` and \`openl_get_guides\`, n
 3. Find tables with \`openl_list_tables\` by \`name\`, \`kind\` or \`module\`; its \`text\` finds every table a \
 value, key or message is used in, which a file search never does. Read a row of a large table with \
 \`openl_get_table\` \`find\`, not page by page. \`openl_get_table_dependencies\` with \`direction: DEPENDENTS\` \
-finds what uses a table.
+finds what uses a table. Read and change \`i18n/message*.properties\` by key with \
+\`openl_project_localization_messages\` and \`openl_project_localization_edit\`, not by their files.
 4. Edit with \`openl_edit_table\`, several cells in one call with \`actions\`, passing the \`version\` the last read \
 or edit answered. Then check \`compiles\` and \`errors\` in its answer, \`openl_project_status\`, and the tests \
 with \`openl_run_project_tests\`. A compile error in one table makes the tables that use it fail too: fix the first \

@@ -200,6 +200,121 @@ describe("project lists and details", () => {
   });
 });
 
+describe("project localization", () => {
+  it("checks the localization files and names each problem by its file, its places in it and the key", async () => {
+    harness.mockHttp.onGet(`${projectPath}/localization/problems`).reply(200, [
+      {
+        id: 7, summary: "Written twice, on lines 1 and 3: the last text wins.", severity: "WARN",
+        location: { type: "localization", path: "i18n/message.properties", line: 3, key: "greeting", places: [{ line: 3, column: 0, endLine: 3, endColumn: 8 }] },
+      },
+    ]);
+
+    const text = textOf(await executeTool("project_localization_problems", { projectId }, harness.client));
+
+    expect(text.split("\n")).toEqual([
+      "1 problem in the localization files:",
+      "WARN i18n/message.properties 3:1-3:8 greeting: Written twice, on lines 1 and 3: the last text wins.",
+    ]);
+    // The places are those of the file, which an agent edits.
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ positions: "file" });
+  });
+
+  it("says so when the localization files have no problems", async () => {
+    harness.mockHttp.onGet(`${projectPath}/localization/problems`).reply(200, []);
+
+    expect(textOf(await executeTool("project_localization_problems", { projectId }, harness.client)))
+      .toBe("No problems in the localization files.");
+  });
+
+  /** A page of the keys as Studio answers it, with the languages of the project beside the page. */
+  const messagesPage = (content: object[], total: number, languages: object[] = [{ tag: "" }, { tag: "de" }, { tag: "fr", legacy: true }]) =>
+    ({ ...pageOf(content, { pageSize: 2, total }), languages });
+
+  it("reads a page of the keys as a table, a column per language", async () => {
+    harness.mockHttp.onGet(`${projectPath}/localization`).reply(200, messagesPage([
+      { key: "greeting", values: { "": "Hello, {0}!", de: "Hallo, {0}!", fr: "" }, warnings: [{ language: "fr", summary: "Placeholders [] differ from [0]." }] },
+      { key: "note", values: { "": null, de: "Notiz | kurz" }, shared: { fr: { value: "Une note", project: "Base", projectId: "b1" } } },
+    ], 5));
+
+    const text = textOf(await executeTool("project_localization_messages", { projectId, search: " gree", limit: 2, offset: 2 }, harness.client));
+
+    expect(text.split("\n")).toEqual([
+      "5 keys; 3–4 below, the next page at offset=4.",
+      "",
+      "| key | default | de | fr | warnings |",
+      "| --- | --- | --- | --- | --- |",
+      String.raw`| greeting | Hello, {0}! | Hallo, {0}! | "" | fr: Placeholders [] differ from [0]. |`,
+      String.raw`| note | (no value) | Notiz \| kurz | [Base] Une note |  |`,
+      "",
+      "Not in UTF-8: fr; the first change writes such a file whole in UTF-8.",
+    ]);
+    expect(harness.mockHttp.history.get[0].params).toEqual({ search: " gree", offset: 2, size: 2 });
+  });
+
+  it("reads one key alone, whatever the filters, and says when nothing has it", async () => {
+    harness.mockHttp.onGet(`${projectPath}/localization`)
+      .replyOnce(200, messagesPage([{ key: "total", values: { "": "Total" } }], 1))
+      .onGet(`${projectPath}/localization`)
+      .replyOnce(200, messagesPage([], 0));
+
+    const text = textOf(await executeTool("project_localization_messages", { projectId, key: "total", problems: true }, harness.client));
+    const missing = textOf(await executeTool("project_localization_messages", { projectId, key: "nowhere" }, harness.client));
+
+    expect(text).toContain("| total | Total |  |  |  |");
+    expect(text).toContain("An empty cell falls back to the parent language");
+    expect(harness.mockHttp.history.get[0].params).toEqual({ key: "total", offset: 0, size: 50 });
+    expect(missing).toBe("No language of the project, nor of a project it depends on, has the key 'nowhere'.");
+  });
+
+  it("tells how to start the localization of a project without its files", async () => {
+    harness.mockHttp.onGet(`${projectPath}/localization`).reply(200, pageOf([], { total: 0 }));
+
+    expect(textOf(await executeTool("project_localization_messages", { projectId }, harness.client)))
+      .toContain("The project has no localization files");
+  });
+
+  it("sends the changes in one batch, as Studio names them", async () => {
+    harness.mockHttp.onPost(`${projectPath}/localization/actions`).reply(204);
+
+    const text = textOf(await executeTool("project_localization_edit", {
+      projectId,
+      actions: [
+        { action: "set_value", key: "total", language: "de", value: "Summe: {0}" },
+        { action: "remove_value", key: "total", language: "fr" },
+        // The operation as the REST API names it, and the arguments under the names agents carry over
+        { operation: "addKey", key: "note", texts: { "": "A note" } },
+        { action: "remove_key", key: "old" },
+        { action: "add_language", language: "it" },
+        { action: "add_language", language: "es", values: { total: "Total" } },
+      ],
+    }, harness.client));
+
+    expect(text).toBe("6 changes written to the localization files.");
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
+      actions: [
+        { operation: "setValue", key: "total", language: "de", value: "Summe: {0}" },
+        { operation: "removeValue", key: "total", language: "fr" },
+        { operation: "addKey", key: "note", values: { "": "A note" } },
+        { operation: "removeKey", key: "old" },
+        { operation: "addLanguage", language: "it" },
+        { operation: "addLanguage", language: "es", values: { total: "Total" } },
+      ],
+    });
+  });
+
+  it("refuses a change without what its action takes, or with what it does not, before Studio is called", async () => {
+    const refused = (action: object) => executeTool("project_localization_edit", { projectId, actions: [action] }, harness.client);
+
+    await expect(refused({ action: "set_value", key: "total", language: "de" })).rejects.toThrow("'set_value' takes 'value'.");
+    await expect(refused({ action: "remove_key", key: "total", language: "de" })).rejects.toThrow("'remove_key' takes no 'language'.");
+    await expect(refused({ action: "add_key", key: "note", values: {} })).rejects.toThrow("at least one language");
+    await expect(refused({ action: "set_value", key: "total", language: "de-LU", value: "x" })).rejects.toThrow("'de_LU'");
+    // The engine names the file of a locale with the country in upper case: it would never read message_de_lu.
+    await expect(refused({ action: "add_language", language: "de_lu" })).rejects.toThrow("'de_LU'");
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+  });
+});
+
 describe("project status", () => {
   it("starts lazy compilation on idle by default and returns the resulting status", async () => {
     harness.mockHttp
@@ -216,6 +331,38 @@ describe("project status", () => {
     // The default path above starts compilation, so MCP clients must not be
     // told that the tool is unconditionally read-only.
     expect(getAllTools().find((tool) => tool.name === "project_status")?.annotations?.readOnlyHint).toBe(false);
+  });
+
+  it("tells the warnings of the localization files of a project that stays idle, each in its file", async () => {
+    const idle = withStatus({
+      projectId, branch: "main", compileState: "idle",
+      compilation: {
+        messages: {
+          total: 2, errors: 0, warnings: 2,
+          items: [
+            {
+              id: 1, summary: "Written twice, on lines 1 and 3: the last text wins.", severity: "WARN",
+              location: { type: "localization", path: "i18n/message.properties", line: 3, key: "greeting", places: [{ line: 3, column: 0, endLine: 3, endColumn: 8 }] },
+            },
+            {
+              id: 2, summary: "2 keys are not translated into French: the default texts are shown.", severity: "WARN",
+              location: { type: "localization", path: "i18n/message_fr.properties", line: 1, language: "fr" },
+            },
+          ],
+        },
+      },
+    });
+    harness.mockHttp.onGet(projectPath).reply(200, idle);
+    harness.mockHttp.onGet(`${projectPath}/tables`, { params: { offset: 0, size: 1 } }).reply(200, pageOf([], { pageSize: 1, total: 0 }));
+
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
+
+    // Nothing compiles, yet every warning of the files is told: none names a table to be counted in another.
+    expect(text).toBe("Compile state: idle; 0 errors, 2 warnings.\nBranch: main.\n\n"
+      + "Messages, errors first, 2 of 2:\n"
+      + "WARN i18n/message.properties 3:1-3:8 greeting: Written twice, on lines 1 and 3: the last text wins.\n"
+      + "WARN i18n/message_fr.properties: 2 keys are not translated into French: the default texts are shown.\n\n"
+      + "Studio has no compilable module registered for this project; compileState remains idle.");
   });
 
   it("cuts many compile messages to the limit and names the arguments that choose them", async () => {
@@ -400,6 +547,38 @@ describe("project status", () => {
     expect(text).toBe("Compile state: ok; 0 errors, 0 warnings; 0 test tables; 1 of 1 module compiled.\nBranch: main. Revision: r1.\n"
       + "Changed since the last save, 3 files:\n- Rating/rules/Main.xlsx modified: Rates/RateCard changed, Rates/Limits moved\n"
       + "- Rating/rules.xml modified\n- Rating/rules/New.xlsx added");
+  });
+
+  it("names a message about a localization file by the file, its places from 1 and the key", async () => {
+    const fixture: ProjectStatusView = {
+      projectId,
+      compileState: "warnings",
+      compilation: {
+        messages: {
+          items: [
+            {
+              id: 1, summary: "Full-width", severity: "WARN",
+              location: {
+                type: "localization", path: "i18n/message_zh_TW.properties", line: 2, key: "total", language: "zh_TW",
+                places: [{ line: 2, column: 12, endLine: 2, endColumn: 13 }, { line: 2, column: 19, endLine: 2, endColumn: 22 }],
+              },
+            },
+            { id: 2, summary: "Untranslated", severity: "WARN", location: { type: "localization", path: "i18n/message_fr.properties", line: 1 } },
+          ],
+          total: 2, errors: 0, warnings: 2,
+        },
+        modules: { total: 2, compiled: 2 },
+        tests: { total: 0 },
+      },
+    };
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus(fixture));
+
+    const text = textOf(await executeTool("project_status", { projectId, grouped: false }, harness.client));
+
+    expect(text.split("\n").slice(-2)).toEqual([
+      "WARN i18n/message_zh_TW.properties 2:13, 2:20-2:22 total: Full-width",
+      "WARN i18n/message_fr.properties: Untranslated",
+    ]);
   });
 
   it("names the place of a message by its table, without the project the status is of", async () => {

@@ -59,7 +59,7 @@ describe("tool registry", () => {
       .map(({ name }) => name);
     expect(destructive.toSorted()).toEqual([
       "cancel_merge_conflicts", "close_project", "delete_project", "delete_project_branch", "delete_project_file",
-      "delete_table", "deploy_project", "edit_table", "merge_project_branches", "move_project_file",
+      "delete_table", "deploy_project", "edit_table", "merge_project_branches", "move_project_file", "project_localization_edit",
       "resolve_merge_conflicts", "restore_project_local_change", "update_table", "write_project_file",
     ]);
   });

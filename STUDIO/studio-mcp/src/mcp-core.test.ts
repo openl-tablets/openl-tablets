@@ -115,7 +115,7 @@ describe("MCP core — tool-call error channel", () => {
     const { tools } = await client.listTools();
     const size = JSON.stringify(tools).length + (client.getInstructions() ?? "").length;
 
-    expect(size).toBeLessThanOrEqual(75_000);
+    expect(size).toBeLessThanOrEqual(77_900);
   });
 
   it("publishes no annotation of the value MCP takes when it is left out", async () => {

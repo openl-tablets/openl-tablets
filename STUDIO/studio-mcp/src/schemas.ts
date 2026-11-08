@@ -75,6 +75,81 @@ export const getProjectSchema = z.strictObject({
   include: z.array(z.enum(["status", "descriptor", "details"])).optional().describe(`'descriptor' adds rules.xml; 'details' the path, tags, last comment and the projects using it in full. ${STATUS_INCLUDE_NOTE}`),
 });
 
+export const projectLocalizationProblemsSchema = z.strictObject({
+  projectId: projectIdSchema,
+});
+
+/**
+ * Whether a language is written as the engine names the file of its locale: the language in lower case, the country in
+ * upper case, as `de_LU`; an underscore stands only between parts.
+ */
+const namesAFile = (language: string): boolean => {
+  const [tag = "", country = "", ...variant] = language.split("_");
+  const rest = variant.join("_");
+  // As a Java locale is written: the country after the language, and the variant after them both.
+  if (rest !== "") {
+    return language === `${tag}_${country.toUpperCase()}_${rest}`;
+  }
+  return language === (country === "" ? tag : `${tag}_${country.toUpperCase()}`);
+};
+
+/** A language as the name of its file names it: `de`, `de_LU`, and '' for the default file. */
+const localizationLanguageSchema = z.string()
+  .regex(/^(?:[a-z]{2,3}(?:_\w+)?)?$/, { message: "A language is named as its file: 'de', 'de_LU', '' for the default file." })
+  .refine(namesAFile, { message: "A language is named as its file: 'de', 'de_LU', '' for the default file." });
+
+export const projectLocalizationMessagesSchema = z.strictObject({
+  projectId: projectIdSchema,
+  key: z.string().min(1).optional().describe("One key alone, whatever the filters."),
+  search: z.string().optional().describe("Part of a key or of a value, in any case."),
+  problems: z.boolean().optional().describe("Only keys with warnings."),
+  untranslated: localizationLanguageSchema.min(1).optional().describe("Only keys this language shows the default value for."),
+  ...paginationShape,
+});
+
+/** What each change of the localization files takes beside its 'action'. */
+const LOCALIZATION_EDIT_ARGUMENTS = {
+  set_value: ["key", "language", "value"],
+  remove_value: ["key", "language"],
+  add_key: ["key", "values"],
+  remove_key: ["key"],
+  add_language: ["language"],
+} as const;
+
+type LocalizationEditAction = keyof typeof LOCALIZATION_EDIT_ARGUMENTS;
+
+/** One change of the localization files: an action and the arguments it takes. */
+const localizationEditSchema = z.strictObject({
+  action: z.enum(Object.keys(LOCALIZATION_EDIT_ARGUMENTS) as [LocalizationEditAction, ...LocalizationEditAction[]]),
+  key: z.string().min(1).optional(),
+  language: localizationLanguageSchema.optional(),
+  value: z.string().optional(),
+  // The values of a key by language for add_key, of the keys of a language for add_language
+  values: z.record(z.string(), z.string()).optional(),
+}).superRefine((edit, ctx) => {
+  const takes: readonly string[] = LOCALIZATION_EDIT_ARGUMENTS[edit.action];
+  for (const name of takes.filter((argument) => edit[argument as keyof typeof edit] === undefined)) {
+    ctx.addIssue({ code: "custom", path: [name], message: `'${edit.action}' takes '${name}'.` });
+  }
+  const optional = edit.action === "add_language" ? ["values"] : [];
+  for (const name of ["key", "language", "value", "values"].filter((argument) =>
+    !takes.includes(argument) && !optional.includes(argument) && edit[argument as keyof typeof edit] !== undefined)) {
+    ctx.addIssue({ code: "custom", path: [name], message: `'${edit.action}' takes no '${name}'.` });
+  }
+  if (edit.action === "add_key" && Object.keys(edit.values ?? {}).length === 0) {
+    ctx.addIssue({ code: "custom", path: ["values"], message: "A key is added with its value in at least one language." });
+  }
+});
+
+export type LocalizationEdit = z.output<typeof localizationEditSchema>;
+
+export const editProjectLocalizationSchema = z.strictObject({
+  projectId: projectIdSchema,
+  actions: z.array(localizationEditSchema).min(1).describe(
+    "In order: set_value (key, language, value); remove_value (key, language), which falls back; add_key (key, values by language); remove_key (key) from every language; add_language (language, optional values by key). A language is named as its file: 'de', 'de_LU', '' the default.",
+  ),
+});
+
 export const projectStatusSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: z.string().optional().describe(

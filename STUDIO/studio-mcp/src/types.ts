@@ -1021,6 +1021,59 @@ export interface RawTableWrite {
 }
 
 /** Generic paginated response */
+/** A language of the localization files of a project: its file name names it, '' the default file. */
+export interface LocalizationLanguage {
+  tag: string;
+  /** Set when the file is not written in UTF-8: its first change writes it whole in UTF-8. */
+  legacy?: boolean;
+}
+
+/** What the check of the localization files warns about the value of a key in a language. */
+export interface LocalizationWarning {
+  language: string;
+  summary: string;
+}
+
+/** The value a project the project depends on gives a key in a language. */
+export interface LocalizationSharedValue {
+  value: string;
+  project: string;
+  projectId?: string;
+}
+
+/** A key of the localization files with its values in every language that writes it. */
+export interface LocalizationMessage {
+  key: string;
+  /** The values by language; null for a key written without a value. */
+  values: Record<string, string | null>;
+  shared?: Record<string, LocalizationSharedValue>;
+  warnings?: LocalizationWarning[];
+}
+
+/** A page of the keys of the localization files, with the languages of the project. */
+export interface LocalizationMessagesPage extends PageResponse<LocalizationMessage> {
+  /** Absent for a project without localization files. */
+  languages?: LocalizationLanguage[];
+}
+
+/** What the keys of the localization files are narrowed down to, and which page of them is read. */
+export interface LocalizationFilters {
+  key?: string;
+  search?: string;
+  problems?: boolean;
+  untranslated?: string;
+  offset?: number;
+  limit?: number;
+}
+
+/** One change of the localization files, as OpenL Studio takes it. */
+export type LocalizationAction =
+  | { operation: "setValue"; key: string; language: string; value: string }
+  | { operation: "removeValue"; key: string; language: string }
+  | { operation: "addKey"; key: string; values: Record<string, string> }
+  | { operation: "removeKey"; key: string }
+  | { operation: "addLanguage"; language: string; values?: Record<string, string> };
+
 export interface PageResponse<T> {
   content: T[];
   numberOfElements: number;
@@ -1057,7 +1110,7 @@ export interface CollectionPage<T> {
  */
 export type CompileState = "idle" | "compiling" | "ok" | "warnings" | "errors";
 
-/** Source-location discriminator. Backend has `TableMessageSource` and `ModuleMessageSource` variants; intentionally typed loosely to avoid coupling. */
+/** Source-location discriminator. Backend has `TableMessageSource`, `ModuleMessageSource` and `LocalizationFileMessageSource` variants; intentionally typed loosely to avoid coupling. */
 type MessageSource = Record<string, unknown>;
 
 /**
@@ -1093,7 +1146,8 @@ interface CompilationTests {
 interface CompilationDetails {
   /** Left out of a status `openl_project_status` answers while compiling, as the tests: they are not counted yet. */
   messages?: CompilationMessages;
-  modules: CompilationModules;
+  /** Left out of an idle project, which tells only the messages of its localization files. */
+  modules?: CompilationModules;
   tests?: CompilationTests;
 }
 
@@ -1150,7 +1204,10 @@ export interface ProjectStatusView {
   revision?: string;
   compileState: CompileState;
   lastModifiedBy?: ProjectModifiedBy;
-  /** Omitted when no compilation has been registered yet (e.g. `compileState: "idle"`). */
+  /**
+   * Omitted when no compilation has been registered yet (`compileState: "idle"`), unless the localization files of the
+   * opened project have problems: Studio checks them without compiling, and tells their messages alone.
+   */
   compilation?: CompilationDetails;
   /** Omitted when the working copy is clean. */
   pendingChanges?: PendingChanges;
