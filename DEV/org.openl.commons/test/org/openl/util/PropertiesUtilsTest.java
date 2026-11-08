@@ -1,6 +1,7 @@
 package org.openl.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -199,5 +201,66 @@ class PropertiesUtilsTest {
         PropertiesUtils.load(tempFile, result::put);
         assertEquals(props, result);
         Files.delete(tempFile);
+    }
+
+    @Test
+    void readsEveryEntryWithTheLineItStartsOn() throws IOException {
+        var text = """
+                # a comment
+                greeting = Hello
+                greeting = Hi
+                long = first \\
+                    second
+                My some key = Some text
+                only key
+                empty =
+                """;
+
+        var entries = PropertiesUtils.readEntries(new StringReader(text));
+
+        // A key written twice comes twice, and a line without a separator has a key and no value at all.
+        assertEquals(List.of(new PropertiesUtils.Entry("greeting", "Hello", 2),
+                new PropertiesUtils.Entry("greeting", "Hi", 3),
+                new PropertiesUtils.Entry("long", "first second", 4),
+                new PropertiesUtils.Entry("My some key", "Some text", 6),
+                new PropertiesUtils.Entry("only key", null, 7),
+                new PropertiesUtils.Entry("empty", "", 8)), entries);
+    }
+
+    @Test
+    void countsTheLinesOfEveryLineBreak() throws IOException {
+        var entries = PropertiesUtils.readEntries(new StringReader("a=1\r\nb=2\rc=3\n\nd=4"));
+
+        assertEquals(List.of(1, 2, 3, 5), entries.stream().map(PropertiesUtils.Entry::line).toList());
+    }
+
+    @Test
+    void tellsWhereEachPieceOfAKeyAndAValueIsWritten() throws IOException {
+        var text = "greeting = Hello, {0}!\r\n  escaped = a\\=b \\u00e9 c\nlong = first \\\n    second\nonly key\n";
+
+        var entries = PropertiesUtils.readEntries(new StringReader(text), true);
+
+        var greeting = entries.get(0).places();
+        assertEquals(new TextRange(1, 0, 1, 8), greeting.ofKey());
+        // "{0}" of "Hello, {0}!"
+        assertEquals(new TextRange(1, 18, 1, 21), greeting.ofValue(7, 10));
+        var escaped = entries.get(1).places();
+        assertEquals(new TextRange(2, 2, 2, 9), escaped.ofKey());
+        // An escaped character takes the place of all it is written with: "\\=" and "\\u00e9".
+        assertEquals(new TextRange(2, 13, 2, 15), escaped.ofValue(1, 2));
+        assertEquals(new TextRange(2, 17, 2, 23), escaped.ofValue(4, 5));
+        // A value continued on the next line goes on there.
+        assertEquals(new TextRange(3, 7, 4, 10), entries.get(2).places().ofValue(0, 12));
+        // A line without a separator is a key alone.
+        assertEquals(new TextRange(5, 0, 5, 8), entries.get(3).places().ofKey());
+        assertNull(entries.get(3).places().ofValue(0, 1));
+    }
+
+    @Test
+    void readsNoPlacesUnlessAskedFor() throws IOException {
+        var entry = PropertiesUtils.readEntries(new StringReader("a = b\n")).getFirst();
+
+        assertNull(entry.places().ofKey());
+        assertNull(entry.places().ofValue(0, 1));
     }
 }

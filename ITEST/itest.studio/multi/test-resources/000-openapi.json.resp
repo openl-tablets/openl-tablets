@@ -73,6 +73,10 @@ Content-Type: application/json
     },
     {
       "description": "***",
+      "name": "Projects: Localization (BETA)"
+    },
+    {
+      "description": "***",
       "name": "Projects: Merge (BETA)"
     },
     {
@@ -12355,6 +12359,145 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "History"
+        ]
+      }
+    },
+    "/projects/{projectId}/localization/problems": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "positions",
+            "schema": {
+              "type": "string",
+              "default": "file",
+              "description": "***",
+              "enum": [
+                "text",
+                "file"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DetailedMessageDescription_Detailed"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Localization (BETA)"
         ]
       }
     },
@@ -31321,6 +31464,56 @@ Content-Type: application/json
           "sourcePath"
         ]
       },
+      "FilePlace": {
+        "type": "object",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "endColumn": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "endLine": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "line": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "FilePlace_Detailed": {
+        "type": "object",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "endColumn": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "endLine": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "line": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
       "FileSearchQuery": {
         "type": "object",
         "properties": {
@@ -31690,6 +31883,94 @@ Content-Type: application/json
         ],
         "required": [
           "uri"
+        ]
+      },
+      "LocalizationFileMessageSource": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***"
+              },
+              "language": {
+                "type": "string",
+                "description": "***"
+              },
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "***"
+              },
+              "places": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/FilePlace"
+                }
+              },
+              "spots": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/TextSpot"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LocalizationFileMessageSource_Detailed": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource_Detailed"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "***"
+              },
+              "language": {
+                "type": "string",
+                "description": "***"
+              },
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "***"
+              },
+              "places": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/FilePlace_Detailed"
+                }
+              },
+              "spots": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/TextSpot_Detailed"
+                }
+              }
+            }
+          }
         ]
       },
       "LookupAppend": {
@@ -32094,6 +32375,7 @@ Content-Type: application/json
         "description": "***",
         "discriminator": {
           "mapping": {
+            "localization": "#/components/schemas/LocalizationFileMessageSource",
             "module": "#/components/schemas/ModuleMessageSource",
             "table": "#/components/schemas/TableMessageSource"
           },
@@ -32105,6 +32387,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/TableMessageSource"
+          },
+          {
+            "$ref": "#/components/schemas/LocalizationFileMessageSource"
           }
         ],
         "properties": {
@@ -32121,6 +32406,7 @@ Content-Type: application/json
         "description": "***",
         "discriminator": {
           "mapping": {
+            "localization": "#/components/schemas/LocalizationFileMessageSource",
             "module": "#/components/schemas/ModuleMessageSource",
             "table": "#/components/schemas/TableMessageSource"
           },
@@ -32132,6 +32418,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/TableMessageSource"
+          },
+          {
+            "$ref": "#/components/schemas/LocalizationFileMessageSource"
           }
         ],
         "properties": {
@@ -37907,6 +38196,36 @@ Content-Type: application/json
           "pageNumber",
           "pageSize"
         ]
+      },
+      "TextSpot": {
+        "type": "object",
+        "properties": {
+          "end": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "start": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "TextSpot_Detailed": {
+        "type": "object",
+        "properties": {
+          "end": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "start": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
       },
       "TransferLinkRequest": {
         "type": "object",

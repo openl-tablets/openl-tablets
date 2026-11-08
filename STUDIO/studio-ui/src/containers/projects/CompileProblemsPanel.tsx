@@ -9,6 +9,7 @@ import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import {
     type ProjectCompileState,
     type ProjectStatusDetailedMessage,
+    type ProjectStatusMessageSource,
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
@@ -97,6 +98,25 @@ const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMe
  * The panel folds by its header, is dragged taller or lower by its top edge, and keeps both between
  * visits. It only exists while there is something to show — a clean project has no panel at all.
  */
+/**
+ * Where a message leads, from the place it names: its table or module, in the project it is of. Null for a message
+ * about no place to open.
+ */
+const routeOf = (projectId: string, where: ProjectStatusMessageSource | undefined): string | null => {
+    if (!where) {
+        return null
+    }
+    if (where.type === 'localization') {
+        return null
+    }
+    const module = where.type === 'table' ? where.module : where.name
+    if (!module) {
+        return null
+    }
+    const inProject = where.projectId ?? projectId
+    return where.type === 'table' ? moduleRoute(inProject, module, where.id, where.cell) : moduleRoute(inProject, module)
+}
+
 export const CompileProblemsPanel = ({ project, supportsBranches = true, statusReadAt }: {
     project: Project
     supportsBranches?: boolean
@@ -131,18 +151,10 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     // Every message already says where it came from — the project, the module and the table — so opening one
     // costs no request: a project raising a thousand messages still asks the server nothing to be read.
     const open = useCallback((message: ProjectStatusDetailedMessage) => {
-        const where = message.location
-        if (!where) {
-            return
+        const route = routeOf(project.id, message.location)
+        if (route !== null) {
+            void navigate(route)
         }
-        const module = where.type === 'table' ? where.module : where.name
-        if (!module) {
-            return
-        }
-        const inProject = where.projectId ?? project.id
-        void navigate(where.type === 'table'
-            ? moduleRoute(inProject, module, where.id, where.cell)
-            : moduleRoute(inProject, module))
     }, [navigate, project.id])
 
     // A module is compiled for one session at a time, so while that is running the reader is kept where they
@@ -151,9 +163,8 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         if (status.compileState === 'compiling') {
             return false
         }
-        const where = message.location
-        return !!where && !!(where.type === 'table' ? where.module : where.name)
-    }, [status.compileState])
+        return routeOf(project.id, message.location) !== null
+    }, [project.id, status.compileState])
 
     const fold = (next: boolean) => {
         setCollapsed(next)

@@ -85,9 +85,11 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.ui.ProjectLocalization;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.WorkbookWrites;
+import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.web.CellValueSelector;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TableHeaderSelector;
@@ -1971,6 +1973,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 && Objects.equals(open.getProject().getName(), projectDescriptor.getName())
                 ? open.getName()
                 : null;
+    }
+
+    /**
+     * Checks the localization files of an opened project, without compiling it.
+     *
+     * <p>Nothing of the compilation of the session changes: the files are read, together with those of the projects
+     * the project depends on, and checked as the first step of a compilation checks them.
+     *
+     * @param descriptor the descriptor of the project to check
+     * @return the warnings about the files
+     */
+    public List<OpenLMessage> checkLocalization(ProjectDescriptor descriptor) {
+        var workspace = new WebStudioWorkspaceDependencyManagerFactory(getWebStudio()).resolveWorkspace(descriptor);
+        return ProjectLocalization.check(descriptor, workspace).messages();
     }
 
     /**

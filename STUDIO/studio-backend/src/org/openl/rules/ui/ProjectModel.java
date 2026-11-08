@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,7 @@ import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.validation.ValidationUtils;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
@@ -148,6 +150,8 @@ public class ProjectModel {
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
     /** Learns the tables a compilation of a module finds renamed. */
     private final StaleTableIds.Compilations tableIdChanges = new StaleTableIds.Compilations();
+    /** The warnings about the localization files of the project, and about the calls of {@code msg} of its modules. */
+    private final ProjectLocalization localization = new ProjectLocalization();
     /** The node the last compilation of each project answers for it with. See {@link #replaceProjectNode}. */
     private final Map<String, XlsModuleSyntaxNode> projectSyntaxNodes = new ConcurrentHashMap<>();
 
@@ -550,6 +554,9 @@ public class ProjectModel {
      *
      * <p>Only the modules the compilation takes in are counted. A dependency project that is not included
      * automatically counts with the modules the project uses, which are found as the modules using them compile.
+     *
+     * <p>The localization files of the project are checked before any module, and count as the first step of the
+     * compilation when the project has them; their warnings are told from then on.
      */
     public ProjectCompilationStatus getCompilationStatus() {
         var module = this.moduleInfo;
@@ -557,6 +564,7 @@ public class ProjectModel {
         if (module == null) {
             return status.build();
         }
+        localization.addTo(status);
         if (compilesAlone(module)) {
             return compiledAloneStatus(status);
         }
@@ -586,7 +594,7 @@ public class ProjectModel {
         if (compiled != null) {
             status.addMessages(compiled.getAllMessages());
         }
-        return status.setModulesCompiled(1).addModulesCount(1).build();
+        return status.addModulesCompiled(1).addModulesCount(1).build();
     }
 
     /** A project compiled through has every module it took in compiled, and its messages are the project's. */
@@ -643,20 +651,31 @@ public class ProjectModel {
                 && Objects.equals(loader.getProject(), module.getProject());
     }
 
+    /**
+     * What the compilation raised, together with the warnings about the calls of {@code msg}: those are checked apart
+     * from the compilation, and are about the cells the calls are written in.
+     */
     public Collection<OpenLMessage> getModuleMessages() {
-        var moduleCompiledOpenClass = getCompiledOpenClass();
-        if (moduleCompiledOpenClass != null) {
-            return moduleCompiledOpenClass.getAllMessages();
-        }
-        return Collections.emptyList();
+        return withCallMessages(getCompiledOpenClass());
     }
 
+    /** What the compilation of the opened module raised, with the warnings about the calls of {@code msg}. */
     public Collection<OpenLMessage> getOpenedModuleMessages() {
-        var openedCompiledOpenClass = getOpenedModuleCompiledOpenClass();
-        if (openedCompiledOpenClass != null) {
-            return openedCompiledOpenClass.getAllMessages();
+        return withCallMessages(getOpenedModuleCompiledOpenClass());
+    }
+
+    private Collection<OpenLMessage> withCallMessages(@Nullable CompiledOpenClass compiled) {
+        if (compiled == null) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        // The calls of the module and of the modules it depends on, as the compilation tells their messages too.
+        var calls = localization.callMessages(ValidationUtils.modulesOf(compiled.getOpenClassWithErrors()));
+        if (calls.isEmpty()) {
+            return compiled.getAllMessages();
+        }
+        var messages = new ArrayList<>(compiled.getAllMessages());
+        messages.addAll(calls);
+        return messages;
     }
 
     public @Nullable XlsModuleSyntaxNode getXlsModuleNode() {
@@ -1290,6 +1309,7 @@ public class ProjectModel {
 
     private void letGoOfModule() {
         this.moduleInfo = null;
+        localization.clear();
         compiledFiles.set(null);
         projectFilesChanged = false;
 
@@ -1362,7 +1382,9 @@ public class ProjectModel {
             }
         }
         if (!dependencyLoader.isProjectLoader()) {
-            // A single module within the current cycle just finished — re-publish status.
+            // A single module within the current cycle just finished — check its calls of msg, re-publish status.
+            // The loader is told about the module before it holds it, so the module is named here.
+            checkMessageCalls(dependencyLoader, compiledDependency.getCompiledOpenClass());
             publishStatusChanged();
         }
     }
@@ -1433,6 +1455,10 @@ public class ProjectModel {
         // load below returns. Keeping it would report the module as ready from the moment it was asked for.
         openedModuleCompiledOpenClass.set(null);
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
+        // Read before the module is compiled, which on a large project takes minutes: what the files raise is told
+        // while it runs.
+        checkLocalization(moduleInfo.getProject());
+        publishStatusChanged();
         try {
             var thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
                     .loadDependency(AbstractDependencyManager.buildResolvedDependency(moduleInfo))
@@ -1485,9 +1511,7 @@ public class ProjectModel {
         final RegisteredCompilation cycle;
         synchronized (this) {
             var projectDescriptor = getProjectDescriptor();
-            if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
-                prepareWorkspaceDependencyManager(projectDescriptor);
-            }
+            prepareToCompile(projectDescriptor, prepareWorkspaceDependencyManager);
             stopBackgroundCompilation();
             this.compilationInProgress = true;
             this.projectCompilationCompleted.set(null);
@@ -1549,6 +1573,105 @@ public class ProjectModel {
         } catch (CancellationException | CompletionException ended) {
             // What was compiled stays readable; the status is what says how the compilation ended.
         }
+    }
+
+    /**
+     * Readies the compilation of a project: the dependency manager it compiles with, and the check of its localization
+     * files, which runs before any module unless the files of this project were checked already. Called holding the
+     * monitor of the model.
+     */
+    private void prepareToCompile(ProjectDescriptor project, boolean prepareWorkspaceDependencyManager) {
+        if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
+            prepareWorkspaceDependencyManager(project);
+        }
+        if (!localization.isOf(project.getProjectFolder())) {
+            checkLocalization(project);
+        }
+    }
+
+    /**
+     * Checks the localization files of the project again, once they were written, and the calls of {@code msg} of
+     * the modules compiled against them.
+     *
+     * <p>Nothing is compiled again: the rules read the new texts from now on, and the new warnings are published as
+     * a status of the project. A model holding no project has nothing to check.
+     */
+    public void checkLocalizationAgain() {
+        var module = this.moduleInfo;
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (module == null || dependencyManager == null) {
+            return;
+        }
+        checkLocalization(module.getProject());
+        compiledModules(dependencyManager.getDependencyLoaders())
+                .forEach(compiled -> compiled.getMessageSource().reload());
+        Stream.of(compiledOpenClass.get(), openedModuleCompiledOpenClass.get())
+                .map(ValidationUtils::moduleOf)
+                .filter(Objects::nonNull)
+                .forEach(compiled -> compiled.getMessageSource().reload());
+        publishStatusChanged();
+    }
+
+    /** Checks the localization files of the project, then the calls of {@code msg} of what is compiled already. */
+    private void checkLocalization(ProjectDescriptor project) {
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (dependencyManager == null) {
+            return;
+        }
+        var projects = dependencyManager.getDependencyLoaders()
+                .stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .map(IDependencyLoader::getProject)
+                .toList();
+        localization.checkFiles(project, projects);
+        checkMessageCalls(null, null);
+    }
+
+    /**
+     * Checks the calls of {@code msg} of the modules the compilation of the project has compiled so far, each by the
+     * loader that compiles it.
+     *
+     * @param justLoaded   the loader of the module compiled a moment ago, or {@code null}
+     * @param justCompiled what it compiled, which the loader may not hold yet
+     */
+    private void checkMessageCalls(@Nullable IDependencyLoader justLoaded, @Nullable CompiledOpenClass justCompiled) {
+        var module = this.moduleInfo;
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (module == null || dependencyManager == null) {
+            return;
+        }
+        var modules = new LinkedHashMap<IDependencyLoader, XlsModuleOpenClass>();
+        dependencyManager.findLoadersCompiledWith(module.getProject())
+                .stream()
+                .filter(loader -> !loader.isProjectLoader() && loader.getRefToCompiledDependency() != null)
+                .forEach(loader -> putModule(modules,
+                        loader,
+                        loader.getRefToCompiledDependency().getCompiledOpenClass()));
+        if (justLoaded != null) {
+            putModule(modules, justLoaded, justCompiled);
+        }
+        localization.checkCalls(modules, dependencyManager.getDependencyLoaders());
+    }
+
+    /** Puts the module of rules a loader compiled, when it compiled one. */
+    private static void putModule(Map<IDependencyLoader, XlsModuleOpenClass> modules,
+                                  IDependencyLoader loader,
+                                  @Nullable CompiledOpenClass compiled) {
+        var module = ValidationUtils.moduleOf(compiled);
+        if (module != null) {
+            modules.put(loader, module);
+        }
+    }
+
+    /** The modules of rules the loaders have compiled. */
+    private static List<XlsModuleOpenClass> compiledModules(Collection<IDependencyLoader> loaders) {
+        return loaders.stream()
+                .filter(loader -> !loader.isProjectLoader())
+                .map(IDependencyLoader::getRefToCompiledDependency)
+                .filter(Objects::nonNull)
+                .map(compiled -> ValidationUtils.moduleOf(compiled.getCompiledOpenClass()))
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     /**

@@ -1,0 +1,32 @@
+POST /rest/projects/{PROJECT}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Messages",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "Greet",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "Fits",
+        "value": "= msg(\"greeting\", \"Ann\")"
+      },
+      {
+        "name": "TooMany",
+        "value": "= msg(\"greeting\", \"Ann\", \"Bob\")"
+      },
+      {
+        "name": "Missing",
+        "value": "= msg(\"farewell\")"
+      },
+      {
+        "name": "Total",
+        "value": "= msg(\"total\", 12.5)"
+      }
+    ]
+  }
+}

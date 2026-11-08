@@ -29,6 +29,7 @@ import { CopyFileModal } from './CopyFileModal'
 import { DeleteFileModal } from './DeleteFileModal'
 import { MoveFileModal } from './MoveFileModal'
 import { UpdateFileModal } from './UpdateFileModal'
+import { useMessageFileProblems } from './useMessageFileProblems'
 
 // The code editor pulls in CodeMirror; load it only when a text file is actually opened.
 const CodeEditor = lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })))
@@ -85,6 +86,11 @@ interface FilePreviewPaneProps {
     modules?: Record<string, string>
     /** Opens the module the file is, in the editor. */
     onOpenModule?: (moduleName: string) => void
+    /**
+     * Whether the project is open: only the files of an open project are checked, as the check reads the copy of the
+     * project in the workspace and refuses a closed one. Every caller tells it from the status of the project.
+     */
+    projectOpened: boolean
 }
 
 /**
@@ -97,6 +103,8 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
     const { notification } = App.useApp()
     const [content, setContent] = useState('')
     const [original, setOriginal] = useState('')
+    // The file the text read belongs to, as `project|path`: the selection names another while its text is read.
+    const [readFor, setReadFor] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     // What the last fetch brought for which file — read to tell a re-read that changed the file
@@ -117,6 +125,7 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
             lastLoaded.current = null
             setContent('')
             setOriginal('')
+            setReadFor(null)
             setLoading(false)
             setError(null)
             return
@@ -136,6 +145,7 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
                 }
                 setContent(text)
                 setOriginal(text)
+                setReadFor(key)
                 announceOtherWriter(notification, lastLoaded.current, key, text, path, tRef.current)
                 lastLoaded.current = { key, text }
             })
@@ -150,7 +160,10 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
         lastLoaded.current = { key: `${projectId}|${path}`, text }
     }
 
-    return { content, setContent, original, loading, error, setError, markSaved }
+    // The text read of the file the selection names, or null while it is read: until then the text is another file's.
+    const originalOfSelection = readFor === `${projectId}|${path}` ? original : null
+
+    return { content, setContent, original, originalOfSelection, loading, error, setError, markSaved }
 }
 
 /** Says that the file changed under the reader, when the re-read brought back something else. */
@@ -207,12 +220,23 @@ const fileMenuItems = (
 ]
 
 /**
+ * What the pane does with a localization file: its text is marked where the server finds something wrong in it, which
+ * the server checks for a project it holds open.
+ *
+ * @param path       the file on screen
+ * @param checkable  whether the file is read as text of an open project
+ */
+const messageFileOf = (path: string | null, checkable: boolean) => ({
+    checked: checkable ? path : null,
+})
+
+/**
  * The right pane of the Files tab: shows the selected file. Text files open read-only in a
  * syntax-highlighted viewer; the pencil switches to an editable view with save and cancel. Binary files
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule, projectOpened }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -234,8 +258,10 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
 
     const activePath = activeSelection.path
     const editable = !!activePath && isEditableTextFile(activePath)
-    const { content, setContent, original, loading, error, setError, markSaved } =
+    const { content, setContent, original, originalOfSelection, loading, error, setError, markSaved } =
         useFileText(activeSelection, editable, changedFiles, t)
+    const messageFile = messageFileOf(activePath, editable && projectOpened)
+    const problems = useMessageFileProblems(activeSelection.projectId, messageFile.checked, originalOfSelection)
     // A workbook the project declares as a module is opened in the editor rather than exported to be read.
     const openableModule = activePath && onOpenModule ? modules[activePath] : undefined
     const dirty = content !== original
@@ -335,7 +361,13 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         : (
             <div className={styles.body}>
                 <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />}>
-                    <CodeEditor onChange={setContent} path={activePath} readOnly={!editing} value={content} />
+                    <CodeEditor
+                        onChange={setContent}
+                        path={activePath}
+                        problems={problems}
+                        readOnly={!editing}
+                        value={content}
+                    />
                 </Suspense>
             </div>
         )
@@ -395,6 +427,16 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                 </Space>
             </div>
             {error && <Alert showIcon className={styles.error} data-testid="file-preview-error" title={error} type="error" />}
+            {/* A problem of the whole file is told over the text: it is about no line of it. */}
+            {editable && !loading && problems?.filter(problem => !problem.place).map(problem => (
+                <Alert
+                    key={problem.message}
+                    banner
+                    data-testid="file-problem"
+                    title={problem.message}
+                    type={problem.severity}
+                />
+            ))}
             {editable ? textView : (
                 <div className={shared.panePlaceholder} data-testid="file-preview-binary">
                     <span>{t(openableModule ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>

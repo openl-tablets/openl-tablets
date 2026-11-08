@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ThemeProvider } from 'antd-style'
 import { EditorView } from '@uiw/react-codemirror'
+import { forEachDiagnostic } from '@codemirror/lint'
 import { CodeEditor } from './CodeEditor'
 import { renderInTheme } from '../../testing/theme'
 
@@ -121,5 +122,57 @@ describe('CodeEditor', () => {
         const { container } = render(<CodeEditor onChange={onChange} path="rules.xml" readOnly={false} value="<a/>" />)
         const editable = container.querySelector('.cm-content')
         expect(editable).toBeTruthy()
+    })
+
+    it('marks the problems of the text where they are, and none about the whole text on a line', () => {
+        const { container } = render(
+            <CodeEditor
+                readOnly
+                path="i18n/message.properties"
+                value={'#Thu Sep 26 13:40:05 CST 2024\r\ntotal = {0\uff0cnumber}\r\n'}
+                problems={[
+                    { place: { line: 2, column: 10, endLine: 2, endColumn: 11 }, message: 'Full-width', severity: 'warning' },
+                    { message: 'Untranslated', severity: 'warning' },
+                ]}
+            />
+        )
+        const view = EditorView.findFromDOM(container.querySelector('.cm-editor') as HTMLElement)
+        const marked: string[] = []
+        forEachDiagnostic(view!.state, (diagnostic, from, to) => {
+            marked.push(`${diagnostic.message}: ${view!.state.sliceDoc(from, to)}`)
+        })
+
+        // The columns are those of the line whatever line breaks the text came with.
+        // The first line, a comment, is not marked for the problem of the whole text.
+        expect(marked).toEqual(['Full-width: \uff0c'])
+        expect(container.querySelector('.cm-gutter-lint')).toBeTruthy()
+    })
+
+    it('puts no problem of the saved text on a text cleared and written anew', () => {
+        const problems = [
+            { place: { line: 1, column: 8, endLine: 1, endColumn: 9 }, message: 'Full-width', severity: 'warning' as const },
+        ]
+        const { container, rerender } = render(<CodeEditor path="i18n/message.properties" problems={problems} value="total = {0}" />)
+        const view = EditorView.findFromDOM(container.querySelector('.cm-editor') as HTMLElement)!
+        const marked = () => {
+            const found: string[] = []
+            forEachDiagnostic(view.state, diagnostic => found.push(diagnostic.message))
+            return found
+        }
+        expect(marked()).toEqual(['Full-width'])
+
+        // The reader clears the text and writes another one: the places of the saved text are not marked on it.
+        view.dispatch({ changes: { from: 0, to: view.state.doc.length } })
+        rerender(<CodeEditor path="i18n/message.properties" problems={problems} value="" />)
+        view.dispatch({ changes: { from: 0, insert: 'other = text' } })
+        rerender(<CodeEditor path="i18n/message.properties" problems={problems} value="other = text" />)
+
+        expect(marked()).toEqual([])
+    })
+
+    it('has no place for problems in a text that has none to be told', () => {
+        const { container } = render(<CodeEditor path="rules.xml" value="<a/>" />)
+
+        expect(container.querySelector('.cm-gutter-lint')).toBeNull()
     })
 })

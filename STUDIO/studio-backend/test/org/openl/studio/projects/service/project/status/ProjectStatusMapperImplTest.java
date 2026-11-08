@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.dependency.CompiledDependency;
+import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
@@ -136,6 +138,23 @@ class ProjectStatusMapperImplTest {
         verify(detailedMessageDescriptionMapper, never()).mapSorted(any(), any());
         verify(pendingChangesResolver, never()).resolve(any());
         verify(model, never()).getAllTestMethods();
+    }
+
+    @Test
+    void progressListsTheWarningsAboutTheLocalizationFilesCheckedBeforeTheModules() {
+        var fileMessage = new OpenLFileMessage("Message 'a' is written twice.", Path.of("i18n/message.properties"),
+                2, "a", "");
+        var compilationStatus = mock(ProjectCompilationStatus.class);
+        when(compilationStatus.getAllMessage()).thenReturn(List.of(mock(OpenLMessage.class), fileMessage));
+        when(compilationStatus.getModulesCount()).thenReturn(2);
+        when(compilationStatus.getModulesCompiled()).thenReturn(1);
+        when(model.getCompilationStatus()).thenReturn(compilationStatus);
+
+        var status = mapper.mapProgress(project, model);
+
+        // They name a line of a file, not a table, so they are told without reading the model.
+        verify(detailedMessageDescriptionMapper).mapSorted(List.of(fileMessage), model);
+        assertNotNull(status.compilation().messages().items());
     }
 
     @Test

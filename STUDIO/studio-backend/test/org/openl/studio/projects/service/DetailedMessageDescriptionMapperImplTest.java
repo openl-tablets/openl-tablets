@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
@@ -36,12 +38,18 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.SourceRange;
 import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.studio.projects.model.project.status.FilePlace;
+import org.openl.studio.projects.model.project.status.LocalizationFileMessageSource;
+import org.openl.studio.projects.model.project.status.MessagePositions;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
+import org.openl.studio.projects.model.project.status.TextSpot;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.util.TextRange;
 import org.openl.util.text.LocationUtils;
 
 class DetailedMessageDescriptionMapperImplTest {
@@ -323,5 +331,81 @@ class DetailedMessageDescriptionMapperImplTest {
         var location = (ModuleMessageSource) result.getFirst().location();
         assertEquals("Rating", location.name());
         assertNull(location.projectId(), "a message names no project when the session cannot address one");
+    }
+
+    @Test
+    void aLocalizationMessageNamesItsFileFromTheProjectFolderAndThePiecesOfItsTextOrItsPlacesInTheFile() {
+        var folder = Path.of("projects", "Rating").toAbsolutePath();
+        var file = folder.resolve("i18n/message_zh_TW.properties");
+        var uri = file.toUri().toString();
+        var text = "總計{0，number，0.##}";
+        var message = new OpenLFileMessage("Full-width", file, 3, "total", "zh_TW",
+                List.of(new SourceRange(uri, text, 4, 5), new SourceRange(uri, text, 11, 12)),
+                List.of(new TextRange(3, 12, 3, 13), new TextRange(3, 19, 3, 20)));
+
+        var inText = (LocalizationFileMessageSource) mapper
+                .mapFileMessages(List.of(message), folder, MessagePositions.TEXT)
+                .getFirst()
+                .location();
+        var inFile = (LocalizationFileMessageSource) mapper
+                .mapFileMessages(List.of(message), folder, MessagePositions.FILE)
+                .getFirst()
+                .location();
+
+        assertEquals("i18n/message_zh_TW.properties", inText.path());
+        assertEquals(3, inText.line());
+        assertEquals("total", inText.key());
+        assertEquals("zh_TW", inText.language());
+        // One way at a time: the pieces of the text for a screen of the texts, the places of the file for its editor.
+        assertEquals(List.of(new TextSpot(4, 5), new TextSpot(11, 12)), inText.spots());
+        assertNull(inText.places());
+        assertEquals(List.of(new FilePlace(3, 12, 3, 13), new FilePlace(3, 19, 3, 20)), inFile.places());
+        assertNull(inFile.spots());
+    }
+
+    @Test
+    void aMessageAboutAWholeFileNamesNoKeyAndNoPieces() {
+        var folder = Path.of("projects", "Rating").toAbsolutePath();
+        var message = new OpenLFileMessage("Untranslated", folder.resolve("i18n/message_fr.properties"), 1, null,
+                "fr");
+
+        var location = (LocalizationFileMessageSource) mapper.mapFileMessages(List.of(message), folder,
+                        MessagePositions.FILE)
+                .getFirst()
+                .location();
+
+        assertNull(location.key());
+        assertNull(location.spots());
+        assertNull(location.places());
+        assertEquals("fr", location.language());
+    }
+
+    @Test
+    void aFileOutsideTheProjectFolderIsNamedByItsAddress() {
+        var file = Path.of("elsewhere", "i18n", "message.properties").toAbsolutePath();
+        var message = new OpenLFileMessage("Written twice", file, 2, "greeting", "");
+
+        var location = (LocalizationFileMessageSource) mapper
+                .mapFileMessages(List.of(message),
+                        Path.of("projects", "Rating").toAbsolutePath(),
+                        MessagePositions.FILE)
+                .getFirst()
+                .location();
+
+        assertEquals(file.toUri().toString(), location.path());
+    }
+
+    @Test
+    void messagesAboutFilesAreMappedWithoutIndexingTheTables() {
+        var message = new OpenLFileMessage("Written twice", Path.of("i18n", "message.properties"), 2, "greeting", "");
+
+        var result = mapper.mapSorted(List.of(message), model);
+
+        // The compilation status tells the places of the file.
+        var location = assertInstanceOf(LocalizationFileMessageSource.class, result.getFirst().location());
+        assertNull(location.spots());
+        // A running compilation holds the model, so a message that names a file must not read it.
+        verify(model, never()).getAllTableSyntaxNodes();
+        verify(model, never()).getWebStudioWorkspaceDependencyManager();
     }
 }

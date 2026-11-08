@@ -1,25 +1,35 @@
 package org.openl.studio.projects.service;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.util.CellReference;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
+import org.openl.studio.projects.model.project.status.FilePlace;
+import org.openl.studio.projects.model.project.status.LocalizationFileMessageSource;
+import org.openl.studio.projects.model.project.status.MessagePositions;
 import org.openl.studio.projects.model.project.status.MessageSource;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
+import org.openl.studio.projects.model.project.status.TextSpot;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablesByLocation;
 
@@ -28,7 +38,7 @@ import org.openl.studio.projects.service.tables.TablesByLocation;
 public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDescriptionMapper {
 
     private static final Comparator<DetailedMessageDescription> BY_SEVERITY_AND_ID = Comparator
-            .<DetailedMessageDescription, org.openl.message.Severity>comparing(m -> m.source().severity())
+            .<DetailedMessageDescription, Severity>comparing(m -> m.source().severity())
             .thenComparingLong(m -> m.source().id());
 
     @Override
@@ -36,7 +46,22 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         // A big project raises thousands of messages. Resolving each one against the model's tables and
         // modules independently rescanned every table twice per message; instead, index the tables and
         // modules once and look each message up against those indexes.
-        var locator = new MessageLocator(model);
+        var module = model.getModuleInfo();
+        var projectFolder = module == null || module.getProject() == null
+                ? null
+                : module.getProject().getProjectFolder();
+        return mapSorted(messages, new MessageLocator(model, projectFolder, MessagePositions.FILE));
+    }
+
+    @Override
+    public List<DetailedMessageDescription> mapFileMessages(Collection<OpenLMessage> messages,
+                                                            Path projectFolder,
+                                                            MessagePositions positions) {
+        return mapSorted(messages, new MessageLocator(null, projectFolder, positions));
+    }
+
+    private static List<DetailedMessageDescription> mapSorted(Collection<OpenLMessage> messages,
+                                                              MessageLocator locator) {
         return messages.stream()
                 .map(message -> map(message, locator))
                 .sorted(BY_SEVERITY_AND_ID)
@@ -70,14 +95,26 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
      */
     private static final class MessageLocator {
 
-        /** Which table a message was raised in. */
-        private final TablesByLocation tables;
+        /** The compiled project a message about a table is looked up in, none for the messages about files. */
+        private final @Nullable ProjectModel model;
+        /**
+         * Which table a message was raised in. Indexed only when a message is about a table: the messages about
+         * the files of the project need no index, and are mapped while the project is still compiling.
+         */
+        @Getter(value = AccessLevel.PRIVATE, lazy = true)
+        private final TablesByLocation tables = TablesByLocation.of(Objects.requireNonNull(model));
         /** Where a table lives — a message can come from a module of a project this one depends on. */
-        private final TableModules tableModules;
+        @Getter(value = AccessLevel.PRIVATE, lazy = true)
+        private final TableModules tableModules = TableModules.ofWorkspaceAddressed(Objects.requireNonNull(model));
+        /** The folder of the project being compiled, which the path of a file it raised a message about is told in. */
+        private final @Nullable Path projectFolder;
+        /** What the places of a message about a file are counted from. */
+        private final MessagePositions positions;
 
-        MessageLocator(ProjectModel model) {
-            tables = TablesByLocation.of(model);
-            tableModules = TableModules.ofWorkspaceAddressed(model);
+        MessageLocator(@Nullable ProjectModel model, @Nullable Path projectFolder, MessagePositions positions) {
+            this.model = model;
+            this.projectFolder = projectFolder;
+            this.positions = positions;
         }
 
         MessageSource resolve(OpenLMessage message) {
@@ -85,9 +122,12 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             if (sourceLocation == null) {
                 return null;
             }
+            if (message instanceof OpenLFileMessage fileMessage) {
+                return fileSource(fileMessage);
+            }
             var location = new XlsUrlParser(sourceLocation);
-            var where = tableModules.locationOf(sourceLocation);
-            var node = tables.find(location);
+            var where = getTableModules().locationOf(sourceLocation);
+            var node = getTables().find(location);
             if (node != null) {
                 var tableName = new TableSyntaxNodeAdapter(node).getDisplayName();
                 var marked = markedIn(message, node, location);
@@ -109,6 +149,43 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                             .project(where.projectName())
                             .build()
                     : null;
+        }
+
+        /**
+         * The line of a file a message is about, with the key and the language it names, and the piece of the
+         * text of the key it is about, when it is about one.
+         *
+         * <p>The path is told from the project folder, so a screen can open the file of the project; a file
+         * outside the folder, or in an archive, is named by its address alone.
+         */
+        private LocalizationFileMessageSource fileSource(OpenLFileMessage message) {
+            var spots = message.getPieces()
+                    .stream()
+                    .map(piece -> new TextSpot(piece.start(), piece.end()))
+                    .toList();
+            var places = message.getPlaces()
+                    .stream()
+                    .map(place -> new FilePlace(place.line(), place.column(), place.endLine(), place.endColumn()))
+                    .toList();
+            return LocalizationFileMessageSource.builder()
+                    .path(pathOf(message.getFile()))
+                    .line(message.getLine())
+                    .key(message.getKey())
+                    .language(message.getLanguage())
+                    .spots(positions == MessagePositions.TEXT && !spots.isEmpty() ? spots : null)
+                    .places(positions == MessagePositions.FILE && !places.isEmpty() ? places : null)
+                    .build();
+        }
+
+        private String pathOf(Path file) {
+            var absolute = file.toAbsolutePath().normalize();
+            var folder = projectFolder == null ? null : projectFolder.toAbsolutePath().normalize();
+            if (folder == null || !absolute.startsWith(folder)) {
+                return file.toUri().toString();
+            }
+            return folder.relativize(absolute)
+                    .toString()
+                    .replace('\\', '/');
         }
 
         /**

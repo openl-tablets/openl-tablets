@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.message.OpenLFileMessage;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
@@ -41,9 +42,9 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private enum Detail {
 
         /** Everything the project screens show. */
-        FULL(true, true, true, true),
+        FULL(true, true, true, true, true),
         /** What a projects-list row shows: the counts, without the message list or the module names. */
-        SUMMARY(false, false, true, true),
+        SUMMARY(false, false, false, true, true),
         /**
          * What a running compilation can tell about itself: how far it has come.
          *
@@ -51,10 +52,14 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
          * the changes not committed yet are read from disk, and counting the tests walks every method of what
          * is compiled so far — none of it is worth waiting for to say that three modules of twelve are built.
          * What is left out is carried by the full status that follows the compilation.
+         *
+         * <p>The messages about the localization files are listed even so: they are checked before the modules, and
+         * name a line of a file rather than a table, so they are known and told without reading the model.
          */
-        PROGRESS(false, true, false, false);
+        PROGRESS(false, true, true, false, false);
 
         private final boolean messageItems;
+        private final boolean fileMessageItems;
         private final boolean moduleNames;
         private final boolean pendingChanges;
         private final boolean tests;
@@ -166,7 +171,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                                                      ProjectCompilationStatus compilationStatus,
                                                      Detail detail) {
         return CompilationDetails.builder()
-                .messages(mapMessages(projectModel, compilationStatus, detail.messageItems))
+                .messages(mapMessages(projectModel, compilationStatus, detail))
                 .modules(mapModules(projectModel, compilationStatus, detail.moduleNames))
                 .tests(detail.tests ? mapTests(projectModel) : null)
                 .build();
@@ -181,7 +186,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     private CompilationMessages mapMessages(ProjectModel projectModel,
                                             ProjectCompilationStatus compilationStatus,
-                                            boolean includeItems) {
+                                            Detail detail) {
         var allMessages = compilationStatus.getAllMessage();
         var builder = CompilationMessages.builder()
                 .total(allMessages.size())
@@ -189,8 +194,15 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .warnings(compilationStatus.getWarningsCount());
         // The projects list shows only the counts; resolving each message to its table and module is
         // the expensive part, so the list build (mapSummary) skips it and leaves items unset.
-        if (includeItems) {
+        if (detail.messageItems) {
             builder.items(detailedMessageDescriptionMapper.mapSorted(allMessages, projectModel));
+        } else if (detail.fileMessageItems) {
+            var fileMessages = allMessages.stream()
+                    .filter(OpenLFileMessage.class::isInstance)
+                    .toList();
+            if (!fileMessages.isEmpty()) {
+                builder.items(detailedMessageDescriptionMapper.mapSorted(fileMessages, projectModel));
+            }
         }
         return builder.build();
     }

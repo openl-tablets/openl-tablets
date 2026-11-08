@@ -1,0 +1,93 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "###",
+    "summary": "No text in the default language: a language without a text of its own returns the key.",
+    "severity": "WARN",
+    "location": {
+      "type": "localization",
+      "path": "i18n/message_fr.properties",
+      "line": 2,
+      "key": "extra",
+      "language": "fr",
+      "places": [
+        {
+          "line": 2,
+          "column": 0,
+          "endLine": 2,
+          "endColumn": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "###",
+    "summary": "Placeholders [0] differ from [0, 1] of the default language.",
+    "severity": "WARN",
+    "location": {
+      "type": "localization",
+      "path": "i18n/message_zh_TW.properties",
+      "line": 1,
+      "key": "greeting",
+      "language": "zh_TW",
+      "places": [
+        {
+          "line": 1,
+          "column": 0,
+          "endLine": 1,
+          "endColumn": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "###",
+    "summary": "Full-width '，' instead of ',' in a placeholder. The rule fails when values are passed.",
+    "severity": "WARN",
+    "location": {
+      "type": "localization",
+      "path": "i18n/message_zh_TW.properties",
+      "line": 2,
+      "key": "total",
+      "language": "zh_TW",
+      "places": [
+        {
+          "line": 2,
+          "column": 13,
+          "endLine": 2,
+          "endColumn": 14
+        },
+        {
+          "line": 2,
+          "column": 20,
+          "endLine": 2,
+          "endColumn": 21
+        }
+      ]
+    }
+  },
+  {
+    "id": "###",
+    "summary": "3 keys are not translated into French: the default texts are shown.",
+    "severity": "WARN",
+    "location": {
+      "type": "localization",
+      "path": "i18n/message_fr.properties",
+      "line": 1,
+      "language": "fr"
+    }
+  },
+  {
+    "id": "###",
+    "summary": "1 key is not translated into Chinese (Taiwan): the default text is shown.",
+    "severity": "WARN",
+    "location": {
+      "type": "localization",
+      "path": "i18n/message_zh_TW.properties",
+      "line": 1,
+      "language": "zh_TW"
+    }
+  }
+]

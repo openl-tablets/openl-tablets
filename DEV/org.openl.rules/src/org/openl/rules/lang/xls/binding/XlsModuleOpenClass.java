@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.binding.MessageCall;
 import org.openl.rules.binding.OpenLMessageSource;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
@@ -107,6 +109,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private final Set<String> uniqueCombinedSpreadsheetResultClassNames = new HashSet<>();
 
     private final OpenLMessageSource messageSource;
+
+    /** The calls of msg the tables of the module write a key in, checked once the whole compilation is known. */
+    private final Collection<MessageCall> messageCalls = new ConcurrentLinkedQueue<>();
 
     private final boolean appliedChangesToClasspath;
 
@@ -759,5 +764,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public OpenLMessageSource getMessageSource() {
         return messageSource;
+    }
+
+    /**
+     * Keeps a call of msg that a table of the module writes a key in. The call is checked against the messages of
+     * the module a compilation starts from, which a rule called through it reads at runtime.
+     */
+    public void addMessageCall(MessageCall call) {
+        messageCalls.add(call);
+    }
+
+    /** The calls of msg that the tables of the module write a key in, in the order they are bound. */
+    public Collection<MessageCall> getMessageCalls() {
+        return Collections.unmodifiableCollection(messageCalls);
     }
 }

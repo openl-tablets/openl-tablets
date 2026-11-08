@@ -3,7 +3,6 @@ package org.openl.rules.validation;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.openl.dependency.CompiledDependency;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
@@ -13,22 +12,20 @@ import org.openl.validation.ValidationResult;
 
 public abstract class TablesValidator implements IOpenLValidator {
 
-    private void findAllTableSyntaxNodes(Set<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
-        if (openClass instanceof XlsModuleOpenClass class1) {
-            for (CompiledDependency compiledDependency : class1.getDependencies()) {
-                var dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
-                findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
-            }
-            var xlsMetaInfo = class1.getXlsMetaInfo();
+    /** The tables of the module and of every module it depends on, the tables the engine builds left out. */
+    private static Set<TableSyntaxNode> findAllTableSyntaxNodes(IOpenClass openClass) {
+        var tableSyntaxNodes = new HashSet<TableSyntaxNode>();
+        for (var module : ValidationUtils.modulesOf(openClass)) {
+            var xlsMetaInfo = module.getXlsMetaInfo();
             if (xlsMetaInfo != null) {
-                var xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
-                for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
+                for (TableSyntaxNode tableSyntaxNode : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes()) {
                     if (!DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNode)) {
                         tableSyntaxNodes.add(tableSyntaxNode);
                     }
                 }
             }
         }
+        return tableSyntaxNodes;
     }
 
     @Override
@@ -38,9 +35,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
             // Get all table syntax nodes of xls module.
             //
-            var tableSyntaxNodes = new HashSet<TableSyntaxNode>();
-
-            findAllTableSyntaxNodes(tableSyntaxNodes, openClass);
+            var tableSyntaxNodes = findAllTableSyntaxNodes(openClass);
 
             return validateTables(tableSyntaxNodes.toArray(TableSyntaxNode.EMPTY_ARRAY), openClass);
         }

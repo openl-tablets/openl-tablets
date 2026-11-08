@@ -24,6 +24,7 @@ OpenL Studio publishes a REST API under `{context-path}/rest`, and OpenL Rule Se
   conflicts. [Architecture](projects-merge-architecture.md).
 - [Project Local History API](project-local-history-api.md) — read, restore, compare, and clear the unsaved versions of
   a module.
+- [Project Localization API](project-localization-api.md) — check the localization files of a project.
 - [Personal Access Token API](personal-access-token-api.md) — create and revoke the tokens for programs.
   [Architecture](personal-access-token-architecture.md).
 - [Projects Trace API](projects-trace-api.md) — the interactive debugger of a table.

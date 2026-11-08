@@ -12,6 +12,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -42,7 +45,87 @@ public final class PropertiesUtils {
      * @see java.util.Properties
      */
     public static void load(Reader input, BiConsumer<? super String, ? super String> result) throws IOException {
-        new Parser(input, result).parse();
+        new Parser(input, false, (key, value, line, places) -> result.accept(key, value)).parse();
+    }
+
+    /**
+     * One key/value pair of a properties file and the line it starts on.
+     *
+     * @param key    the key, as {@link #load(Reader, BiConsumer)} reads it
+     * @param value  the value, or {@code null} for a line without a separator
+     * @param line   the number of the line the pair starts on, the first line being 1
+     * @param places where the characters of the key and the value are in the text, when they were asked for
+     */
+    public record Entry(String key, @Nullable String value, int line, Places places) {
+
+        public Entry(String key, @Nullable String value, int line) {
+            this(key, value, line, Places.NONE);
+        }
+    }
+
+    /**
+     * Where the characters of the key and of the value of a pair are in the text they were read from.
+     *
+     * <p>An escaped character takes the place of all it is written with, as {@code \=} or {@code \u00e9}, and a
+     * value continued on the next line goes on there. Nothing is known of a pair read without its places.
+     */
+    public static final class Places {
+
+        private static final Places NONE = new Places(new int[0], new int[0]);
+
+        /** Four numbers for each character: its line and column, and the line and column after it. */
+        private final int[] key;
+        private final int[] value;
+
+        private Places(int[] key, int[] value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        /** Where the key is written, or {@code null} when its places were not read. */
+        public @Nullable TextRange ofKey() {
+            return rangeOf(key, 0, key.length / 4);
+        }
+
+        /**
+         * Where a piece of the value is written, or {@code null} when its places were not read.
+         *
+         * @param start the position of the first character of the piece in the value
+         * @param end   the position after its last character
+         */
+        public @Nullable TextRange ofValue(int start, int end) {
+            return rangeOf(value, start, end);
+        }
+
+        private static @Nullable TextRange rangeOf(int[] places, int start, int end) {
+            if (start < 0 || end <= start || end * 4 > places.length) {
+                return null;
+            }
+            var last = (end - 1) * 4;
+            return new TextRange(places[start * 4], places[start * 4 + 1], places[last + 2], places[last + 3]);
+        }
+    }
+
+    /**
+     * Reads every key/value pair of the properties in the order they are written, a key written twice included,
+     * each with the line it starts on.
+     *
+     * @see #load(Reader, BiConsumer)
+     */
+    public static List<Entry> readEntries(Reader input) throws IOException {
+        return readEntries(input, false);
+    }
+
+    /**
+     * Reads every key/value pair of the properties as {@link #readEntries(Reader)} does, and, when asked, where each
+     * character of the keys and the values is written in the text.
+     *
+     * @param places whether to read the places of the characters, which costs four numbers for each of them
+     */
+    public static List<Entry> readEntries(Reader input, boolean places) throws IOException {
+        var entries = new ArrayList<Entry>();
+        new Parser(input, places, (key, value, line, read) -> entries.add(new Entry(key, value, line, read))).parse();
+        return entries;
     }
 
     /**
@@ -133,6 +216,12 @@ public final class PropertiesUtils {
                 .replace("\n", "\\n");
     }
 
+    /** Receives a key/value pair, the line it starts on, and where its characters are written. */
+    @FunctionalInterface
+    private interface EntryConsumer {
+        void accept(String key, @Nullable String value, int line, Places places);
+    }
+
     /**
      * Reads properties char by char and sends every key/value pair to the target function as soon as its line ends.
      */
@@ -140,7 +229,9 @@ public final class PropertiesUtils {
     private static final class Parser {
 
         private final Reader input;
-        private final BiConsumer<? super String, ? super String> result;
+        /** Whether the places of the characters are read. */
+        private final boolean tracked;
+        private final EntryConsumer result;
         private final StringBuilder str = new StringBuilder();
         private @Nullable String key;
         private boolean newLine = true;
@@ -149,6 +240,17 @@ public final class PropertiesUtils {
         private boolean backSlash;
         private boolean ignoreLF;
         private int lastNonWhitespace;
+        /** The line being read, and the one the pair being read starts on. */
+        private int line = 1;
+        private int entryLine = 1;
+        /** The column of the character read next, and where the backslash of an escape being read stands. */
+        private int column;
+        private int escapeLine;
+        private int escapeColumn;
+        /** The places of the characters of the text being read, four numbers each, and those of the key read. */
+        private int[] places = new int[64];
+        private int placed;
+        private int[] keyPlaces = new int[0];
 
         private void parse() throws IOException {
             for (var ch = input.read(); ch != -1; ch = input.read()) {
@@ -164,6 +266,13 @@ public final class PropertiesUtils {
                 // The LF of a \r\n sequence, whose CR has already ended the line
                 return;
             }
+            var at = column;
+            if (isLineBreak(ch)) {
+                line++;
+                column = 0;
+            } else {
+                column++;
+            }
             if (!backSlash && isLineBreak(ch)) {
                 endLine();
             } else if (newLine && (ch == '#' || ch == '!')) {
@@ -171,24 +280,31 @@ public final class PropertiesUtils {
                 newLine = false;
             } else if (!skipLine && !(skipWhitespaces && Character.isWhitespace(ch))) {
                 // Neither a comment, nor a whitespace in the beginning of a line or a value
+                if (newLine) {
+                    entryLine = line;
+                }
                 newLine = false;
                 skipWhitespaces = false;
-                readContent(ch);
+                readContent(ch, at);
             }
         }
 
-        private void readContent(int ch) throws IOException {
+        private void readContent(int ch, int at) throws IOException {
             if (backSlash) {
                 backSlash = false;
                 readEscaped(ch);
             } else if (ch == '\\') {
                 backSlash = true;
+                escapeLine = line;
+                escapeColumn = at;
             } else if (key == null && (ch == ':' || ch == '=')) {
                 // Key separator. It supports both - column and equal signs
+                keyPlaces = takePlaces();
                 key = takeText();
                 skipWhitespaces = true;
             } else {
                 str.append((char) ch);
+                place(line, at);
                 if (!Character.isWhitespace(ch)) {
                     lastNonWhitespace = str.length();
                 }
@@ -201,8 +317,30 @@ public final class PropertiesUtils {
                 skipWhitespaces = true;
             } else {
                 str.append((char) unescape(ch));
+                place(escapeLine, escapeColumn);
                 lastNonWhitespace = str.length();
             }
+        }
+
+        /** Keeps where the character just added begins, and that it ends where the reading stands now. */
+        private void place(int startLine, int startColumn) {
+            if (!tracked) {
+                return;
+            }
+            if (placed + 4 > places.length) {
+                places = Arrays.copyOf(places, places.length * 2);
+            }
+            places[placed++] = startLine;
+            places[placed++] = startColumn;
+            places[placed++] = line;
+            places[placed++] = column;
+        }
+
+        /** The places of the text taken next, its trailing whitespaces left out as they are left out of the text. */
+        private int[] takePlaces() {
+            var taken = tracked ? Arrays.copyOf(places, lastNonWhitespace * 4) : places;
+            placed = 0;
+            return taken;
         }
 
         private int unescape(int ch) throws IOException {
@@ -222,16 +360,19 @@ public final class PropertiesUtils {
             if (input.read(hex) < 4) {
                 throw new EOFException("End of the data is reached unexpectedly");
             }
+            column += 4;
             return Integer.parseInt(String.valueOf(hex), 16);
         }
 
         private void endLine() {
+            var valuePlaces = takePlaces();
             var value = takeText();
             if (key != null) {
-                result.accept(key, value);
+                result.accept(key, value, entryLine, placesOf(keyPlaces, valuePlaces));
                 key = null;
             } else if (!value.isEmpty()) {
-                result.accept(value, null);
+                // A line without a separator is a key alone.
+                result.accept(value, null, entryLine, placesOf(valuePlaces, new int[0]));
             }
             newLine = true;
             skipWhitespaces = true;
@@ -243,6 +384,10 @@ public final class PropertiesUtils {
             lastNonWhitespace = 0;
             str.setLength(0);
             return text;
+        }
+
+        private Places placesOf(int[] key, int[] value) {
+            return tracked ? new Places(key, value) : Places.NONE;
         }
 
         private static boolean isLineBreak(int ch) {

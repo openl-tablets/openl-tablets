@@ -96,6 +96,34 @@ describe('CompileProblemsPanel', () => {
         expect(screen.queryByRole('link')).toBeNull()
     })
 
+    it('names the key and the file a localization problem is in, which its text does not repeat', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([
+                    {
+                        id: 3,
+                        severity: 'WARN',
+                        summary: 'A brace is left open.',
+                        stacktrace: false,
+                        location: { type: 'localization', path: 'i18n/message_fr.properties', line: 2, key: 'greeting', language: 'fr' },
+                    },
+                    {
+                        id: 4,
+                        severity: 'WARN',
+                        summary: '1 key is not translated into French.',
+                        stacktrace: false,
+                        location: { type: 'localization', path: 'i18n/message_fr.properties', line: 1, language: 'fr' },
+                    },
+                ]),
+            }}
+        />)
+
+        expect(screen.getByTestId('compile-message-3-place')).toHaveTextContent('greeting · message_fr.properties:')
+        // A problem of the whole file is named by the file alone.
+        expect(screen.getByTestId('compile-message-4-place')).toHaveTextContent('message_fr.properties:')
+    })
+
     it('shows only the badge of a severity the project has', () => {
         render(<CompileProblemsPanel
             project={{
