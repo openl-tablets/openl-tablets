@@ -1,6 +1,6 @@
 package org.openl.studio.repositories.service;
 
-import static org.openl.studio.common.model.Capabilities.flag;
+import static org.openl.studio.common.access.Capabilities.flag;
 
 import java.util.List;
 

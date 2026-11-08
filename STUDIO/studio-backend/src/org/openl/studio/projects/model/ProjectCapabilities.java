@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
 
-import org.openl.studio.common.model.Capabilities;
+import org.openl.studio.common.access.Capabilities;
 
 /**
  * Capabilities the current user has on a project: the base project {@link Capabilities} plus the project

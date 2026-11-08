@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import org.openl.studio.common.model.Capabilities;
+import org.openl.studio.common.access.Capabilities;
 
 class ProjectCapabilitiesTest {
 
