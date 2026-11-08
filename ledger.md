@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- No PR is open: #2465 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- Everything up to `origin/main` 08c1a014b5 is swept, Java included. A run is: sweep the delta since that SHA, then
+- PR #2488 open (dead-code/studio-ui-react-imports, 1 commit). Maintain it first; record it merged when it is.
+- Everything up to `origin/main` 4c37885662 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
@@ -29,13 +29,13 @@
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2488 `dead-code/studio-ui-react-imports`, head 2bd7b0cfa4 — TS dead imports: 4 unused `import React` in tests.
 
 ## Merged PRs
 
 - #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1), #2348 (-1), #2393 (-3), #2465 (-2)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
-  rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
+  rather than non-reference is accepted, and one straight off the body's 'Deliberately kept' line. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
 
 ## Module coverage
@@ -147,7 +147,7 @@
   access, method handles, invokedynamic args and `ldc` strings; drop annotated members, overrides and names in
   literals, then apply the constant-inlining and Lombok filters above.
 - Chain install and PMD in one detached `setsid nohup` script touching a DONE file; poll the file, never the log's
-  tail. Anchor any `pkill -f 'name[.]py'` — an unanchored pattern kills the calling shell. Never edit the working tree or rebase while Maven runs.
+  tail; the script can die after `[82/82]` without writing DONE — then the reactor compiled. Anchor any `pkill -f 'name[.]py'` — an unanchored pattern kills the calling shell. Never edit the working tree or rebase while Maven runs.
 - A container registration (`web.xml`, `@WebFilter`) does NOT prove a class alive: judge whether its behaviour is
   reachable. A `<listener>` serves only the interfaces the container sorts it into, so a registered-but-unbound one
   never fires — verify from the container jar, never from the spec.
@@ -159,7 +159,6 @@
   run. The verb often sits in a 'Removed ...' HEADING over a plain list, so read those lists or a hit's companions
   are missed. `locales/lookups.test.ts` proves lookup→key; only key→lookup finds a dead key, so the two cannot
   collide. studio-ui has no `t(variable)` call, so every key is a literal or a template.
-- The maintainer approved one removal straight off the body's 'Deliberately kept' line. Deferring is not dropping.
 - Prove non-reference with `grep -rIwF <name>` over tracked files, `grep -raF` for binaries and `unzip -p` for
   workbooks (a `.xls` as latin-1 and UTF-16). Drive it from `git ls-files`, or untracked `studio-ui/dist/` answers
   every query.
@@ -167,7 +166,8 @@
   "new issues" must read ZERO before the PR is done, no auth: `sonarcloud.io/api/issues/search?componentKeys=
   org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
 - Stage every commit by explicit path (`git add -- <files>`) or a `git rm` staged earlier rides into it.
-- Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`, `npx vitest run <area>`. Both need
+- Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters` (new tests keep `import React` under
+  `react-jsx`: the vein pays most deltas), `npx vitest run <area>`. Both need
   `node_modules`, which the reactor build populates — tsc then runs fine beside Maven, vitest does not.
 - i18n keys: parse each `addResourceBundle` literal into dotted paths and judge by the FULL path — the same leaf
   sits at several depths, so a leaf search calls every orphan alive. Then apply the four shapes above.
@@ -293,7 +293,7 @@
 
 ## Run log
 
-- 2026-10-24: delta 104 commits; 1 orphaned openapi key and 1 dead React import, #2393 opened (-3).
 - 2026-10-25: delta empty; #2393 green, unreviewed. Four new veins probed at zero, no build, no commit.
 - 2026-11-01: delta 205 commits (MCP tools, per-user date formats, table types out of tutorials). Error Prone,
   tsc, i18n, bundles, defaults, Docs images and tokens at zero but 1 stale class in Docs: #2465 opened (-2).
+- 2026-11-08: delta 137 commits; every vein zero but tsc's 4 unused `import React` in tests: #2488 opened (-4).
