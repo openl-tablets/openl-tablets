@@ -1,5 +1,4 @@
 import { MemoryRouter } from 'react-router'
-import React from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { deleteBenchmarks, getBenchmarks, readBenchmarks, stopExecution } from 'services/execution'
