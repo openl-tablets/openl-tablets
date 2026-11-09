@@ -1,0 +1,360 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "SmartRate",
+  "pos": "B153:F157",
+  "source": [
+    [
+      {
+        "cell": "B153",
+        "value": "SmartLookup Double SmartRate(String region, String zone, Integer age)",
+        "colspan": 5,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 18,
+            "style": 1
+          },
+          {
+            "to": 28,
+            "style": 2
+          },
+          {
+            "to": 29,
+            "style": 1
+          },
+          {
+            "to": 35,
+            "style": 1
+          },
+          {
+            "to": 42,
+            "style": 3
+          },
+          {
+            "to": 43,
+            "style": 1
+          },
+          {
+            "to": 50,
+            "style": 1
+          },
+          {
+            "to": 55,
+            "style": 3
+          },
+          {
+            "to": 56,
+            "style": 1
+          },
+          {
+            "to": 64,
+            "style": 1
+          },
+          {
+            "to": 68,
+            "style": 3
+          },
+          {
+            "to": 69,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B154",
+        "value": "Region",
+        "style": 4
+      },
+      {
+        "cell": "C154",
+        "value": "R0",
+        "style": 5
+      },
+      {
+        "cell": "D154",
+        "value": "R1",
+        "style": 5
+      },
+      {
+        "cell": "E154",
+        "value": "R2",
+        "style": 5
+      },
+      {
+        "cell": "F154",
+        "value": "R3",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B155",
+        "value": "Zone",
+        "style": 6
+      },
+      {
+        "cell": "C155",
+        "value": 0,
+        "style": 7
+      },
+      {
+        "cell": "D155",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "E155",
+        "value": 2,
+        "style": 7
+      },
+      {
+        "cell": "F155",
+        "value": 3,
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B156",
+        "value": "30",
+        "style": 6
+      },
+      {
+        "cell": "C156",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "D156",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "E156",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "F156",
+        "value": 1,
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B157",
+        "value": "50",
+        "style": 8
+      },
+      {
+        "cell": "C157",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "D157",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "E157",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "F157",
+        "value": 2,
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 4
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 4
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 2,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 1,
+      "bottom": 4,
+      "right": 4
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 18
+    },
+    {
+      "part": "name",
+      "to": 28
+    },
+    {
+      "part": "punctuation",
+      "to": 29
+    },
+    {
+      "part": "parameterType",
+      "to": 35
+    },
+    {
+      "part": "parameterName",
+      "to": 42
+    },
+    {
+      "part": "punctuation",
+      "to": 43
+    },
+    {
+      "part": "parameterType",
+      "to": 50
+    },
+    {
+      "part": "parameterName",
+      "to": 55
+    },
+    {
+      "part": "punctuation",
+      "to": 56
+    },
+    {
+      "part": "parameterType",
+      "to": 64
+    },
+    {
+      "part": "parameterName",
+      "to": 68
+    },
+    {
+      "part": "punctuation",
+      "to": 69
+    }
+  ],
+  "headerHeight": 1
+}

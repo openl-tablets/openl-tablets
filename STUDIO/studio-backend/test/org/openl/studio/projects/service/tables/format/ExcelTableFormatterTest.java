@@ -561,7 +561,7 @@ class ExcelTableFormatterTest {
         when(grid.getGrid()).thenThrow(new IllegalStateException("The sheet cannot be read"));
         var layout = RegionShift.of(new TableRegions(List.of(), RawTableGroups.NONE, List.of(), Map.of()), 1, 1);
 
-        assertNull(assertDoesNotThrow(() -> ExcelTableFormatter.formatOnSave(grid, layout, false)));
+        assertNull(assertDoesNotThrow(() -> ExcelTableFormatter.formatOnSave(grid, layout)));
     }
 
     /** Writes the project, formats every table of it and reads the workbook back. */

@@ -653,10 +653,16 @@ default, every table is formatted when it is saved, created, or copied, with no 
 -   **An edited table** keeps the roles OpenL Tablets compiled it with. A row or a column inserted inside a part of the
     table takes the role of that part, such as a rule inserted between two rules, and a line inserted where two parts
     meet takes the role of the line next to it that holds values, such as a rule inserted under the titles.
--   **A created table** takes the roles the table creation window lays it out in. A table created through the REST
-    API or the MCP server takes the roles its request sends, and when the request sends none, the roles its text tells:
-    the parts its type writes, found where the type writes them.
--   **A copied table** takes the roles of the table it is copied from.
+-   **An edit that changes the roles**, such as a condition column made a return column, a parameter added to the
+    header, or a step of a `SpreadsheetResult` marked `*`, takes the roles the edit gives at the same save. OpenL Studio
+    reads the edited table alone for it, with no compile of the module. A Datatype, a Vocabulary, a Conditions, an
+    Actions or a Returns table takes its new roles at its next save.
+-   **A created table** takes the roles OpenL Tablets will compile it with, whether it is created in the table creation
+    window, through the REST API or through the MCP server: OpenL Studio reads the new table alone against its module.
+    A Datatype or a Vocabulary table, and a table created in a new module, takes the roles the table creation window
+    lays it out in, or else the roles its text tells: the parts its type writes, found where the type writes them.
+-   **A copied table** takes the roles OpenL Tablets will compile the copy with, or else the roles of the table it is
+    copied from.
 -   The header and the properties are formatted as they stand, so a property written by the edit takes the style of
     the properties.
 

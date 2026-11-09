@@ -1,0 +1,323 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "ClaimCode",
+  "pos": "B29:F33",
+  "source": [
+    [
+      {
+        "cell": "B29",
+        "value": "SmartRules String ClaimCode(Claim claim)",
+        "colspan": 5,
+        "style": 0,
+        "runs": [
+          {
+            "to": 10,
+            "style": 1
+          },
+          {
+            "to": 17,
+            "style": 1
+          },
+          {
+            "to": 27,
+            "style": 2
+          },
+          {
+            "to": 28,
+            "style": 1
+          },
+          {
+            "to": 33,
+            "style": 1
+          },
+          {
+            "to": 39,
+            "style": 3
+          },
+          {
+            "to": 40,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B30",
+        "value": "Cause of Loss",
+        "style": 4
+      },
+      {
+        "cell": "C30",
+        "value": "Catastrophe",
+        "style": 4
+      },
+      {
+        "cell": "D30",
+        "value": "First Party",
+        "style": 4
+      },
+      {
+        "cell": "E30",
+        "value": "Estimated Loss Amount",
+        "style": 4
+      },
+      {
+        "cell": "F30",
+        "value": "Rule Code",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B31",
+        "value": "COMPREHENSIVE",
+        "style": 6
+      },
+      {
+        "cell": "C31",
+        "value": true,
+        "style": 6
+      },
+      {
+        "cell": "D31",
+        "value": true,
+        "style": 6
+      },
+      {
+        "cell": "E31",
+        "value": ">0",
+        "style": 6
+      },
+      {
+        "cell": "F31",
+        "value": "COMP1",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B32",
+        "value": "COMPREHENSIVE",
+        "style": 6
+      },
+      {
+        "cell": "C32",
+        "value": false,
+        "style": 6
+      },
+      {
+        "cell": "D32",
+        "value": false,
+        "style": 6
+      },
+      {
+        "cell": "E32",
+        "value": "[0;5000)",
+        "style": 6
+      },
+      {
+        "cell": "F32",
+        "value": "COMP5",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B33",
+        "value": "COLLISION",
+        "style": 8
+      },
+      {
+        "cell": "C33",
+        "style": 8
+      },
+      {
+        "cell": "D33",
+        "value": true,
+        "style": 8
+      },
+      {
+        "cell": "E33",
+        "style": 8
+      },
+      {
+        "cell": "F33",
+        "value": "COLL1",
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 4
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 4,
+      "bottom": 1,
+      "right": 4
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 2,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "boolean",
+      "top": 2,
+      "left": 1,
+      "bottom": 4,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 2,
+      "left": 3,
+      "bottom": 4,
+      "right": 3
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 2,
+      "left": 4,
+      "bottom": 4,
+      "right": 4
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 10
+    },
+    {
+      "part": "type",
+      "to": 17
+    },
+    {
+      "part": "name",
+      "to": 27
+    },
+    {
+      "part": "punctuation",
+      "to": 28
+    },
+    {
+      "part": "parameterType",
+      "to": 33
+    },
+    {
+      "part": "parameterName",
+      "to": 39
+    },
+    {
+      "part": "punctuation",
+      "to": 40
+    }
+  ],
+  "headerHeight": 1
+}

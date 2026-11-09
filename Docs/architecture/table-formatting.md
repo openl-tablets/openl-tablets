@@ -14,7 +14,8 @@ glance: what the table is, what it takes, and what it gives.
   the built-in cell styles. Changing the theme of a workbook in Excel recolours its tables.
 - **Cheap** — formatting a table costs at most one pass over its cells and adds a bounded number of cell formats to
   the workbook. A table edit is formatted with no compile, in the lines it changed when the table was formatted
-  before; only new content, such as an uploaded workbook, is compiled once to be formatted.
+  before; an edit that may change the roles binds the edited table alone. Only new content, such as an uploaded
+  workbook, is compiled once to be formatted.
 
 ## Decisions at a glance
 
@@ -601,6 +602,7 @@ flowchart LR
     N[Table builder: create, copy] --> R[Regions]
     L --> R
     E[Edit: insert or delete lines] -->|shift| R
+    H[Create, copy, edit that may change the roles] -->|bind the table alone| R
     Up[Upload: staged] --> C
     Mg[Merge: staged] --> C
     R --> F[ExcelTableFormatter]
@@ -639,11 +641,20 @@ Formatting a table edit must not compile, so it takes the regions from what is a
   Inserted and deleted rows and columns shift and stretch them, with no compile. A value edit changes no region.
   The lines that start a group move with them: a group whose first rows or columns are deleted starts at the first
   one left of it, so the line above it, or on its left, stays.
-- **A created table** — the builder of the table type emits the regions of what it writes, and the create request
-  carries them. The table creation window knows them: it writes the header, the titles and the rows. A table created
-  without them, such as one created through the API or the MCP server, or in a typed view, is laid out from its text
-  once written, as a table the compiler cannot read is laid out, and formatted in the same save.
-- **A copied table** — the regions of the source table, moved to the copy.
+- **An edit that may change the roles** — the edited table bound alone against the module compiled before, with no
+  compile of the module, of the tables it uses or of those using it (see
+  [Single-Table Bind for Format on Save](single-table-bind.md)). An edit may change the roles when it writes a cell
+  other than a value of a type — the header, the properties, a title, a declaration, the name of a step, the
+  operation of a TBasic step, a formula — or inserts or removes a column, or a line holding more than such values.
+  An edit of values of a type alone binds nothing.
+- **A created table** — the new table bound alone against the module it is written to, as compiled before, so it
+  takes the roles a compile and a **Reformat** give it, however it is created: in the table creation window, through
+  the API or the MCP server, in a typed view. A table that cannot be bound alone — a Datatype, a Vocabulary, a
+  Conditions, an Actions, a Returns or a Constants table, or a table written into a module not compiled yet — takes
+  the regions the builder of its type emits, which the create request carries, or else is laid out from its text once
+  written, as a table the compiler cannot read is laid out. It is formatted in the same save.
+- **A copied table** — the copy bound alone against the module it is written to, as a created table is; a copy that
+  cannot be bound takes the regions of the source table, moved to the copy.
 - **Not known** — the module was written since its last compile, which happens only with **Verify on Edit** off.
   The save is not formatted, and inserted lines keep the format of their neighbours. The next save after **Verify**,
   or **Reformat Excel files**, formats the table.
@@ -660,16 +671,18 @@ starts from, and nothing has written its workbook since:
   lines were inserted or removed, whose edges move.
 - **Restyled cells** — the rows of the cells a style edit changes, such as their indent, are formatted again. A merge
   or unmerge changes no cell format.
-- **Everything else formats the whole table** — the first save after the setting is turned on or after a compile
-  that changed the roles, a workbook written by anything else since, and a header and properties that came to take
-  another number of rows.
+- **Everything else formats the whole table** — an edit that changed the roles, the first save after the setting is
+  turned on or after a compile that changed the roles, a workbook written by anything else since, and a header and
+  properties that came to take another number of rows.
 
 OpenL Studio remembers the tables its last saves formatted, with the timestamp and length of their workbook files as
 those saves left them. A table it forgot, as after a restart, is formatted whole at its next save.
 
-A save can change a role: for example, a header edit can turn a condition column into a return column. The screen
-follows at once, because the Studio look reads the regions of the new compile. The file takes the new look at the
-table's next save.
+A save can change a role: for example, a header edit can turn a condition column into a return column, and a `*`
+written after the name of a step makes it a step a `SpreadsheetResult` returns. The save binds the table alone and
+formats it whole in the roles the edit gives, so the file and the screen, which reads the regions of the new compile,
+take the new look at once. A table whose binder writes into the module — a Datatype, a Vocabulary, a Conditions, an
+Actions, a Returns or a Constants table — is not bound: it takes the new look at its next save.
 
 ### Uploaded Excel files
 

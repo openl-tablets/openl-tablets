@@ -1,0 +1,206 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Run",
+  "name": "GradeRun",
+  "pos": "B197:D199",
+  "source": [
+    [
+      {
+        "cell": "B197",
+        "value": "Run GradeOf GradeRun",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 3,
+            "style": 1
+          },
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 20,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B198",
+        "value": "score",
+        "style": 3
+      },
+      {
+        "cell": "C198",
+        "value": "Score",
+        "style": 4
+      },
+      {
+        "cell": "D198",
+        "value": 1,
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B199",
+        "value": "level",
+        "style": 6
+      },
+      {
+        "cell": "C199",
+        "value": "Level",
+        "style": 7
+      },
+      {
+        "cell": "D199",
+        "value": "high",
+        "style": 8
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 2,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 2,
+      "left": 2,
+      "bottom": 2,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 3
+    },
+    {
+      "part": "type",
+      "to": 11
+    },
+    {
+      "part": "name",
+      "to": 20
+    }
+  ],
+  "headerHeight": 1,
+  "layout": {
+    "transposed": true,
+    "firstDataLine": 2
+  }
+}

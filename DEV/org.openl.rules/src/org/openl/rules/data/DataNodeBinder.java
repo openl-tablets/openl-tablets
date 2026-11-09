@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -155,52 +157,51 @@ public class DataNodeBinder extends AXlsTableBinder {
     @SuppressWarnings("java:S107")
     public void processTable(XlsModuleOpenClass xlsOpenClass,
                              ITable tableToProcess,
-                             ILogicalTable tableBody,
+                             @Nullable ILogicalTable tableBody,
                              String tableName,
                              IOpenClass tableType,
-                             IBindingContext bindingContext,
+                             RulesModuleBindingContext bindingContext,
                              OpenL openl,
                              boolean hasColumnTitleRow) throws OpenLCompilationException {
 
         if (tableBody == null) {
             var message = "There is no body in 'Data' table.";
             throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
-        } else {
-            ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
-            if (horizDataTableBody.getHeight() > 1) {
-                ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
-                ILogicalTable dataWithTitleRows = DataTableBindHelper.getHorizontalDataWithTitle(horizDataTableBody);
+        }
+        ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
+        if (horizDataTableBody.getHeight() > 1) {
+            ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
+            ILogicalTable dataWithTitleRows = DataTableBindHelper.getHorizontalDataWithTitle(horizDataTableBody);
 
-                dataWithTitleRows = LogicalTableHelper
-                        .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
+            dataWithTitleRows = LogicalTableHelper
+                    .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
-                var descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
-                        tableToProcess,
-                        tableType,
-                        openl,
-                        descriptorRows,
-                        dataWithTitleRows,
-                        DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
-                        hasColumnTitleRow,
-                        isConstructorFieldsSupported());
+            var descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
+                    tableToProcess,
+                    tableType,
+                    openl,
+                    descriptorRows,
+                    dataWithTitleRows,
+                    DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
+                    hasColumnTitleRow,
+                    isConstructorFieldsSupported());
 
-                if (tableType instanceof TestMethodOpenClass) {
-                    validateTestTableDescriptors(descriptors, tableToProcess, bindingContext);
-                }
-
-                var dataModel = new OpenlBasedDataTableModel(tableName,
-                        tableType,
-                        openl,
-                        descriptors,
-                        hasColumnTitleRow);
-
-                var ota = new OpenlToolAdaptor(openl, bindingContext, tableToProcess.getTableSyntaxNode());
-
-                xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
-            } else {
-                var message = "Invalid table structure: data table body should contain key and value columns.";
-                throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
+            if (tableType instanceof TestMethodOpenClass) {
+                validateTestTableDescriptors(descriptors, tableToProcess, bindingContext);
             }
+
+            var dataModel = new OpenlBasedDataTableModel(tableName,
+                    tableType,
+                    openl,
+                    descriptors,
+                    hasColumnTitleRow);
+
+            var ota = new OpenlToolAdaptor(openl, bindingContext, tableToProcess.getTableSyntaxNode());
+
+            bindingContext.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
+        } else {
+            var message = "Invalid table structure: data table body should contain key and value columns.";
+            throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
         }
     }
 
@@ -236,7 +237,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                             prop),
                     tableToProcess.getTableSyntaxNode()));
         }
-        if (!resColDefined && XlsNodeTypes.XLS_TEST_METHOD.equals(tableToProcess.getXlsNodeType())) {
+        if (!resColDefined && XlsNodeTypes.XLS_TEST_METHOD == tableToProcess.getXlsNodeType()) {
             bindingContext.addMessage(
                     new OpenLWarnMessage("'%s' column is missing.".formatted(TestMethodHelper.EXPECTED_RESULT_NAME),
                             tableToProcess.getTableSyntaxNode()));
@@ -270,7 +271,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                         tableToProcess.getTableSyntaxNode());
             }
             runtimeContextProps.add(contextProperty);
-        } else if (fields[0].getName().equals(TestMethodHelper.CONTEXT_NAME)) {
+        } else if (TestMethodHelper.CONTEXT_NAME.equals(fields[0].getName())) {
             testRuntimeContextProps.add(fields[1].getName());
         }
     }
@@ -299,7 +300,8 @@ public class DataNodeBinder extends AXlsTableBinder {
     /**
      * Default method. It is called during processing OpenL module. If you call this method, you want to process table
      * with cell title row set to <code>TRUE</code>. calls
-     * {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, IBindingContext, OpenL, boolean)}
+     * {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, RulesModuleBindingContext,
+     * OpenL, boolean)}
      * to populate <code>ITable</code> with data. Also adds to <code>TableSyntaxNode</code> sub table for displaying on
      * business view.
      *
@@ -314,15 +316,15 @@ public class DataNodeBinder extends AXlsTableBinder {
                                TableSyntaxNode tableSyntaxNode,
                                String tableName,
                                IOpenClass tableType,
-                               IBindingContext bindingContext,
+                               RulesModuleBindingContext bindingContext,
                                OpenL openl,
                                boolean useRegistered) throws OpenLCompilationException {
 
         ITable resultTable;
         if (useRegistered) {
-            resultTable = xlsOpenClass.getDataBase().registerTable(tableName, tableSyntaxNode);
+            resultTable = bindingContext.getDataBase().registerTable(tableName, tableSyntaxNode);
         } else {
-            resultTable = xlsOpenClass.getDataBase().registerNewTable(tableName, tableSyntaxNode);
+            resultTable = bindingContext.getDataBase().registerNewTable(tableName, tableSyntaxNode);
         }
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
 

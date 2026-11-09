@@ -19,6 +19,7 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -33,6 +34,7 @@ import org.openl.rules.table.GridTable;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -59,6 +61,7 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.FormattedTables;
 import org.openl.studio.projects.service.tables.format.RegionShift;
+import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.studio.projects.service.tables.read.CellValueReader;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -100,6 +103,20 @@ public abstract class TableWriter<T extends TableView> {
      */
     @Setter
     private @Nullable XlsModuleSyntaxNode module;
+
+    /**
+     * The compiled module that holds the table, or that a new table is written to, which the save binds the table
+     * against to format it in the roles it gives as written. Absent, the save formats an edited table in the roles of
+     * its last compile, and a new table in the regions its builder laid it out in or its text tells.
+     */
+    @Setter
+    private @Nullable XlsModuleOpenClass compiledModule;
+
+    /**
+     * The merges the write removed, by their bounds, which the save tells the layout of unless the write merged them
+     * again: a merge removed and laid again changes nothing.
+     */
+    private final Map<List<Integer>, IGridRegion> removedMerges = new LinkedHashMap<>();
 
     /** The id of the table as the save left it, read while the table was still open for writing. */
     private @Nullable String writtenId;
@@ -225,11 +242,42 @@ public abstract class TableWriter<T extends TableView> {
      *
      * @param written  the table as it stands once written
      * @param position where the table stands, read while it is open for writing
+     * @param shifted  the regions of the layout fitted to the written table, or {@code null} to fit them here
+     * @param bound    the regions of the edited table bound alone, or {@code null} when it was not
      * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
      */
-    private @Nullable TableRegions formatTable(IGridTable written, FormattedTables.@Nullable Position position) {
-        return layout == null ? null : ExcelTableFormatter.formatOnSave(written, layout,
-                FormattedTables.isFormatted(position, layout.start()));
+    private @Nullable TableRegions formatTable(IGridTable written, FormattedTables.@Nullable Position position,
+                                               @Nullable TableRegions shifted, @Nullable TableRegions bound) {
+        return layout == null ? null : ExcelTableFormatter.formatOnSave(written, layout, shifted,
+                FormattedTables.isFormatted(position, layout.start()), bound);
+    }
+
+    /**
+     * The regions of the table in the roles it gives as written, bound alone against its compiled module, as a compile
+     * and a Reformat of it read it.
+     *
+     * <p>A new table is bound whole. An edited one is bound only after an edit that may change the roles, one that
+     * wrote more than values: an edit of the first rows of a tall table binds them alone first, as a probe; one below
+     * them, which they would not show, binds the whole table. A bind that fails leaves the save to the regions the
+     * table had.
+     *
+     * @param written the table as it stands once written
+     * @param shifted the regions of the last compile fitted to the written table, for an edited table
+     * @return the regions, or {@code null} when the save does not format the table, its module is not compiled, the
+     *         edit wrote values alone, or the table cannot be bound alone, such as a Datatype table
+     */
+    private @Nullable TableRegions boundRegionsOf(IGridTable written, @Nullable TableRegions shifted) {
+        if (!formattingOnSave || compiledModule == null) {
+            return null;
+        }
+        if (!isUpdateMode()) {
+            return TableRegionLayout.boundRegionsOf(written, compiledModule, null);
+        }
+        if (layout == null || !layout.structureEdited()) {
+            return null;
+        }
+        var probed = layout.structureEditedFrom(TableRegionLayout.PROBE_ROWS) ? null : shifted;
+        return TableRegionLayout.boundRegionsOf(written, compiledModule, probed);
     }
 
     /**
@@ -384,6 +432,7 @@ public abstract class TableWriter<T extends TableView> {
         } catch (IllegalArgumentException e) {
             throw invalidFormula(formula);
         }
+        cellWritten(at.column(), at.row());
         var metaInfo = getMetaInfoWriter().getMetaInfo(at.row(), at.column());
         if (metaInfo != null) {
             getMetaInfoWriter().setMetaInfo(at.row(), at.column(),
@@ -468,6 +517,7 @@ public abstract class TableWriter<T extends TableView> {
         var cell = ownCell(gridTable, cellKey);
         if (cell != null && cell.getFormula() != null) {
             ((IWritableGrid) gridTable.getGrid()).setCellValue(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), null);
+            cellWritten(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
         }
     }
 
@@ -548,6 +598,35 @@ public abstract class TableWriter<T extends TableView> {
             value = collection.toArray();
         }
         new UndoableSetValueAction(gcol, grow, value, getMetaInfoWriter()).doAction(gridTable);
+        cellWritten(gcol, grow);
+    }
+
+    /**
+     * Tells the layout the save formats the table in that a cell was written, so that a write outside the values of
+     * the table has the save bind it in the roles it gives.
+     *
+     * @param column the column of the cell on the sheet
+     * @param row    the row of the cell on the sheet
+     */
+    protected void cellWritten(int column, int row) {
+        if (layout != null) {
+            var region = originalTable.getRegion();
+            layout.cellWritten(row - region.getTop(), column - region.getLeft());
+        }
+    }
+
+    /**
+     * Tells the layout that the cells of a region of the sheet were merged or unmerged: a merge over a title or a key
+     * may change how the table is read, as a write of it does.
+     *
+     * @param region the region of the sheet
+     */
+    protected void regionWritten(IGridRegion region) {
+        for (var row = region.getTop(); row <= region.getBottom(); row++) {
+            for (var column = region.getLeft(); column <= region.getRight(); column++) {
+                cellWritten(column, row);
+            }
+        }
     }
 
     protected void removeRows(IGridTable gridTable, int nRows, int startRow) {
@@ -595,12 +674,23 @@ public abstract class TableWriter<T extends TableView> {
         requireNoBlankLine();
         // A new table is written into an area that may be wider or taller than what it holds.
         var written = isUpdateMode() ? originalTable : filledPart(originalTable);
+        // The merges the write removed and did not lay again.
+        removedMerges.values().forEach(this::regionWritten);
+        removedMerges.clear();
+        // Fitted once, for the bind and for the formatting.
+        var shifted = isUpdateMode() && layout != null ? ExcelTableFormatter.fittedTo(written, layout) : null;
+        var bound = boundRegionsOf(written, shifted);
+        if (bound != null && !isUpdateMode()) {
+            // A new table takes the roles the compiler gives it, as an edit and a Reformat of it do.
+            layout = RegionShift.of(bound, written.getHeight(), written.getWidth());
+            bound = null;
+        }
         if (layout == null && formattingOnSave && !isUpdateMode()) {
             layout = RegionShift.ofWritten(written);
         }
         // Read while the table is open for writing: the save closes it.
         var position = layout == null ? null : FormattedTables.positionOf(originalTable);
-        var formatted = formatTable(written, position);
+        var formatted = formatTable(written, position, shifted, bound);
         // Read while the table is open for writing too: once saved, the sheet is read as it was compiled.
         writtenId = idAsWritten();
         var grid = (XlsSheetGridModel) getGridTable().getGrid();
@@ -739,7 +829,23 @@ public abstract class TableWriter<T extends TableView> {
      * @param gridTable The grid table whose merged regions are cleared
      */
     protected void clearMergedRegions(IGridTable gridTable) {
-        new RemoveMergedRegionsAction(gridTable.getRegion()).doAction(gridTable);
+        var removal = new RemoveMergedRegionsAction(gridTable.getRegion());
+        removal.doAction(gridTable);
+        mergesRemoved(removal.getRemovedRegions());
+    }
+
+    /**
+     * Tells that merges were removed. The save tells the layout the cells of each of them, unless the write merges
+     * the same cells again.
+     *
+     * @param regions the merged regions removed, on the sheet
+     */
+    protected void mergesRemoved(List<IGridRegion> regions) {
+        regions.forEach(region -> removedMerges.put(boundsOf(region), region));
+    }
+
+    private static List<Integer> boundsOf(IGridRegion region) {
+        return List.of(region.getTop(), region.getLeft(), region.getBottom(), region.getRight());
     }
 
     /**
@@ -754,14 +860,26 @@ public abstract class TableWriter<T extends TableView> {
      */
     protected void applyMergeRegions(IGridTable gridTable, List<IGridRegion> mergeRegions) {
         var tableRegion = gridTable.getRegion();
-        List<IUndoableGridTableAction> mergeActions = mergeRegions.stream()
-                .map(mr -> toAbsolute(mr, tableRegion))
+        var absolute = mergeRegions.stream().map(mr -> toAbsolute(mr, tableRegion)).toList();
+        // A merge the grid holds already, or one the write removed and lays again, changes nothing.
+        var grid = gridTable.getGrid();
+        var added = absolute.stream()
+                .filter(region -> removedMerges.remove(boundsOf(region)) == null && !isMerged(grid, region))
+                .toList();
+        List<IUndoableGridTableAction> mergeActions = absolute.stream()
                 .map(MergeCellsAction::new)
                 .collect(Collectors.toList());
 
         if (!mergeActions.isEmpty()) {
             new UndoableCompositeAction(mergeActions).doAction(gridTable);
         }
+        added.forEach(this::regionWritten);
+    }
+
+    /** Whether the grid merges the cells of a region already, and no others with them. */
+    private static boolean isMerged(IGrid grid, IGridRegion region) {
+        var merged = grid.getRegionStartingAt(region.getLeft(), region.getTop());
+        return merged != null && boundsOf(merged).equals(boundsOf(region));
     }
 
     private IGridRegion toAbsolute(IGridRegion mr, IGridRegion tableRegion) {

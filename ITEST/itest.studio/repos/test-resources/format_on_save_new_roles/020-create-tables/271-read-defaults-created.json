@@ -1,0 +1,138 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Properties",
+  "name": "Defaults",
+  "pos": "B205:C207",
+  "source": [
+    [
+      {
+        "cell": "B205",
+        "value": "Properties Defaults",
+        "colspan": 2,
+        "style": 0,
+        "runs": [
+          {
+            "to": 10,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B206",
+        "value": "scope",
+        "style": 3
+      },
+      {
+        "cell": "C206",
+        "value": "Module",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B207",
+        "value": "lob",
+        "style": 5
+      },
+      {
+        "cell": "C207",
+        "value": [
+          "Auto"
+        ],
+        "style": 6
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 10
+    },
+    {
+      "part": "name",
+      "to": 19
+    }
+  ],
+  "headerHeight": 0
+}

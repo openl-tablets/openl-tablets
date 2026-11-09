@@ -318,9 +318,11 @@ Content-Type: application/json
 - `sheetName` — the sheet for the table. It has 1 to 31 characters and none of `/ \ * ? [ ] :`.
 - `table` — the table. A table of any type of the [Table Endpoints](README.md#table-endpoints) is accepted.
 - `regions` — optional, the roles of the cells of a raw table as the client built it, in the shape of
-  [Roles of the Cells](#roles-of-the-cells) and in the coordinates of `source`. While tables are formatted on save, the
-  table is written in the OpenL table style of these roles; a region outside `source` is left out. A table sent without
-  them, with none inside `source`, or in a typed view, is formatted in the roles its text tells once it is written, as a
+  [Roles of the Cells](#roles-of-the-cells) and in the coordinates of `source`. While tables are formatted on save, a
+  table written into a compiled module is formatted in the roles its module gives it, read from the table alone, as a
+  compile and **Reformat Excel files** give them. The regions serve a table that cannot be read alone — a Datatype or a
+  Vocabulary, or a table of a new module — and a region outside `source` is left out. Such a table sent without them,
+  with none inside `source`, or in a typed view, is formatted in the roles its text tells once it is written, as a
   table the compiler cannot read is laid out.
 
 The answer is `201 Created` with the summary of the new table.

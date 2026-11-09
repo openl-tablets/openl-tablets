@@ -1,0 +1,19 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Properties",
+  "kind": "Properties",
+  "name": "Defaults",
+  "properties": {
+    "scope": "Module",
+    "lob": [
+      "Auto"
+    ]
+  },
+  "signature": "Defaults",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B205:C207"
+}

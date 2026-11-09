@@ -105,6 +105,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     public final Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
+    /** The combined types this thread keeps apart from the modules while it binds a table alone. */
+    private static final ThreadLocal<Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass>>
+            COMBINED_APART = new ThreadLocal<>();
     private final AtomicLong combinedSpreadsheetResultOpenClassesCounter = new AtomicLong(0);
     private final Set<String> uniqueCombinedSpreadsheetResultClassNames = new HashSet<>();
 
@@ -150,8 +153,35 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(xlsMetaInfo.getXlsModuleNode());
     }
 
+    /**
+     * Keeps the {@code SpreadsheetResult} types this thread combines, and no module combined before, apart from the
+     * modules until the returned task runs: a table bound alone against a compiled module leaves the module as it was.
+     *
+     * @return the task that ends keeping them apart
+     */
+    public static Runnable keepCombinedTypesApart() {
+        var previous = COMBINED_APART.get();
+        COMBINED_APART.set(new HashMap<>());
+        return () -> {
+            if (previous == null) {
+                COMBINED_APART.remove();
+            } else {
+                COMBINED_APART.set(previous);
+            }
+        };
+    }
+
+    /**
+     * The type combining several {@code SpreadsheetResult} types: the one the module combined them in, or else a new
+     * one, which the module keeps unless this thread keeps it apart ({@link #keepCombinedTypesApart()}).
+     *
+     * @param customSpreadsheetResultOpenClasses the types to combine
+     * @return the single type when they are one, or the type combining them
+     */
     public CustomSpreadsheetResultOpenClass buildOrGetCombinedSpreadsheetResult(
             CustomSpreadsheetResultOpenClass... customSpreadsheetResultOpenClasses) {
+        var apart = COMBINED_APART.get();
+        var kept = apart != null ? apart : combinedSpreadsheetResultOpenClasses;
         var c = new HashSet<CustomSpreadsheetResultOpenClass>();
         for (CustomSpreadsheetResultOpenClass t : customSpreadsheetResultOpenClasses) {
             if (t instanceof CombinedSpreadsheetResultOpenClass class1) {
@@ -165,14 +195,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         var key = new CustomSpreadsheetResultOpenClassesKey(
                 c.toArray(new CustomSpreadsheetResultOpenClass[0]));
-        var combinedSpreadsheetResultOpenClass = combinedSpreadsheetResultOpenClasses
-                .get(key);
+        var combinedSpreadsheetResultOpenClass = combinedSpreadsheetResultOpenClasses.get(key);
+        if (combinedSpreadsheetResultOpenClass == null) {
+            combinedSpreadsheetResultOpenClass = kept.get(key);
+        }
         if (combinedSpreadsheetResultOpenClass == null) {
             combinedSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(this);
             for (CustomSpreadsheetResultOpenClass t : c) {
                 combinedSpreadsheetResultOpenClass.updateWithType(t);
             }
-            combinedSpreadsheetResultOpenClasses.put(key, combinedSpreadsheetResultOpenClass);
+            kept.put(key, combinedSpreadsheetResultOpenClass);
         }
         return combinedSpreadsheetResultOpenClass;
     }

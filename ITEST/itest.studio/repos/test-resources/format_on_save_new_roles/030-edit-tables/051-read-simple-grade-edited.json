@@ -1,0 +1,285 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "SimpleGrade",
+  "pos": "B137:F140",
+  "source": [
+    [
+      {
+        "cell": "B137",
+        "value": "SimpleRules Result SimpleGrade(Integer score)",
+        "colspan": 5,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 18,
+            "style": 1
+          },
+          {
+            "to": 30,
+            "style": 2
+          },
+          {
+            "to": 31,
+            "style": 1
+          },
+          {
+            "to": 38,
+            "style": 1
+          },
+          {
+            "to": 44,
+            "style": 3
+          },
+          {
+            "to": 45,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B138",
+        "value": "Score",
+        "style": 4
+      },
+      {
+        "cell": "C138",
+        "value": ">= 0",
+        "style": 5
+      },
+      {
+        "cell": "D138",
+        "value": ">= 1",
+        "style": 5
+      },
+      {
+        "cell": "E138",
+        "value": ">= 2",
+        "style": 5
+      },
+      {
+        "cell": "F138",
+        "value": ">= 3",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B139",
+        "value": "Level",
+        "style": 6
+      },
+      {
+        "cell": "C139",
+        "value": "high",
+        "style": 7
+      },
+      {
+        "cell": "D139",
+        "value": "low",
+        "style": 7
+      },
+      {
+        "cell": "E139",
+        "value": "high",
+        "style": 7
+      },
+      {
+        "cell": "F139",
+        "value": "low",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B140",
+        "value": "Grade",
+        "style": 8
+      },
+      {
+        "cell": "C140",
+        "value": "G0",
+        "style": 9
+      },
+      {
+        "cell": "D140",
+        "value": "G1",
+        "style": 9
+      },
+      {
+        "cell": "E140",
+        "value": "G2",
+        "style": 9
+      },
+      {
+        "cell": "F140",
+        "value": "G3",
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 4
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 4
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 2,
+      "left": 1,
+      "bottom": 3,
+      "right": 4
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 18
+    },
+    {
+      "part": "name",
+      "to": 30
+    },
+    {
+      "part": "punctuation",
+      "to": 31
+    },
+    {
+      "part": "parameterType",
+      "to": 38
+    },
+    {
+      "part": "parameterName",
+      "to": 44
+    },
+    {
+      "part": "punctuation",
+      "to": 45
+    }
+  ],
+  "headerHeight": 1
+}

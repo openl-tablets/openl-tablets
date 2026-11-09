@@ -1,0 +1,49 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Constants",
+    "source": [
+      [
+        {
+          "value": "Constants",
+          "colspan": 3
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Double"
+        },
+        {
+          "value": "rate"
+        },
+        {
+          "value": "1.5"
+        }
+      ],
+      [
+        {
+          "value": "String"
+        },
+        {
+          "value": "label"
+        },
+        {
+          "value": "Base"
+        }
+      ]
+    ]
+  }
+}

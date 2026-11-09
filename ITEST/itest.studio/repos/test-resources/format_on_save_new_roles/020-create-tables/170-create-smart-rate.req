@@ -1,0 +1,101 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "SmartRate",
+    "source": [
+      [
+        {
+          "value": "SmartLookup Double SmartRate(String region, String zone, Integer age)",
+          "colspan": 5
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Region"
+        },
+        {
+          "value": "R0"
+        },
+        {
+          "value": "R1"
+        },
+        {
+          "value": "R2"
+        },
+        {
+          "value": "R3"
+        }
+      ],
+      [
+        {
+          "value": "Zone"
+        },
+        {
+          "value": "0"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "2"
+        },
+        {
+          "value": "3"
+        }
+      ],
+      [
+        {
+          "value": "30"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "1"
+        }
+      ],
+      [
+        {
+          "value": "50"
+        },
+        {
+          "value": "2"
+        },
+        {
+          "value": "2"
+        },
+        {
+          "value": "2"
+        },
+        {
+          "value": "2"
+        }
+      ]
+    ]
+  }
+}

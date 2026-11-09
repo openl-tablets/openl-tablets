@@ -1,0 +1,58 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "carsTurned",
+    "source": [
+      [
+        {
+          "value": "Data Car carsTurned",
+          "colspan": 4
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "model"
+        },
+        {
+          "value": "Model"
+        },
+        {
+          "value": "A4"
+        },
+        {
+          "value": "Q7"
+        }
+      ],
+      [
+        {
+          "value": "year"
+        },
+        {
+          "value": "Year"
+        },
+        {
+          "value": "2020"
+        },
+        {
+          "value": "2021"
+        }
+      ]
+    ]
+  }
+}

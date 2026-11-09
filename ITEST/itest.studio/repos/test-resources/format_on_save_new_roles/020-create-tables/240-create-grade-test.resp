@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "GradeTest",
+  "signature": "GradeOf GradeTest",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B192:E195"
+}

@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "ClaimCode",
+  "returnType": "String",
+  "signature": "ClaimCode(Claim claim)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B29:F33"
+}

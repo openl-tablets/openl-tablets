@@ -26,6 +26,12 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
         this.tableNamePrefix = tableNamePrefix;
     }
 
+    /** Writes the definitions of the table into the module as it binds them: not bound alone. */
+    @Override
+    public boolean bindsAlone() {
+        return false;
+    }
+
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
                                     OpenL openl,

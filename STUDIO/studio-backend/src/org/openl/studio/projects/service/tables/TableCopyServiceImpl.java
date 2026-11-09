@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -27,6 +28,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.RegionShift;
+import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.util.BooleanUtils;
 
 /**
@@ -52,7 +54,7 @@ public class TableCopyServiceImpl implements TableCopyService {
 
     @Override
     public String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
-            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables) {
+            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled) {
         var declared = properties == null ? null : stamped(toPropertyMap(properties));
         if (declared != null) {
             requireReadableVersion(source, declared.get(TableVersionService.VERSION_PROPERTY));
@@ -64,11 +66,14 @@ public class TableCopyServiceImpl implements TableCopyService {
         // it, pairing edit()/stopEditing() the way the table writers do.
         original.edit();
         try {
-            // The copy takes the regions of its source, laid out as its last compile read it.
+            // The copy takes the roles its module gives it, bound alone, or else the regions of its source, laid out as
+            // its last compile read it.
             var layout = formatting.onSave() ? RegionShift.ofCompiled(source) : null;
+            var bindAgainst = formatting.onSave() ? compiled : null;
             // The copy is numbered among the tables of the module it is written to, as its next compile numbers it.
             var module = moduleTables.length == 0 ? null : TableIds.moduleOf(moduleTables[0]);
-            var copyId = build(source, original, newName, declared, destGrid, layout, module);
+            var copyId = build(source, original, newName, declared, destGrid, new CopyLook(layout, bindAgainst),
+                    module);
             if (replacesTheSource) {
                 standDown(source);
             }
@@ -182,7 +187,7 @@ public class TableCopyServiceImpl implements TableCopyService {
     }
 
     private static String build(IOpenLTable source, IGridTable original, String newName,
-            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, @Nullable RegionShift layout,
+            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, CopyLook look,
             @Nullable XlsModuleSyntaxNode module) {
         var node = source.getSyntaxNode();
         var type = node.getNodeType();
@@ -193,7 +198,7 @@ public class TableCopyServiceImpl implements TableCopyService {
         ICellStyle headerStyle = null;
         Map<String, Object> newProperties = null;
         ICellStyle propertiesStyle = null;
-        int bodyStartRow = 0;
+        var bodyStartRow = 0;
 
         if (type != XlsNodeTypes.XLS_ENVIRONMENT) {
             header = rename(node.getHeaderLineValue().getValue(), source.getName(), newName,
@@ -215,8 +220,8 @@ public class TableCopyServiceImpl implements TableCopyService {
 
         var body = original.getSubtable(0, bodyStartRow, original.getWidth(), original.getHeight() - bodyStartRow);
         int newPropertyRows = newProperties == null ? 0 : newProperties.size();
-        int width = tableWidth(original.getWidth(), newPropertyRows > 0);
-        int height = (header != null ? TableBuilder.HEADER_HEIGHT : 0) + newPropertyRows + body.getHeight();
+        var width = tableWidth(original.getWidth(), newPropertyRows > 0);
+        var height = (header != null ? TableBuilder.HEADER_HEIGHT : 0) + newPropertyRows + body.getHeight();
 
         try {
             builder.beginTable(width, height);
@@ -229,6 +234,7 @@ public class TableCopyServiceImpl implements TableCopyService {
             builder.writeGridTable(body);
             var copy = new GridTable(builder.getTableRegion(), destGrid);
             builder.endTable();
+            var layout = look.layoutOf(copy);
             if (layout != null) {
                 ExcelTableFormatter.formatOnSave(copy, layout);
             }
@@ -322,7 +328,7 @@ public class TableCopyServiceImpl implements TableCopyService {
         }
         // The name, bounded by a start or a space before it and a space, an opening parenthesis or the end after it.
         var matcher = Pattern.compile("(^|\\s)(" + Pattern.quote(sourceName) + ")(?=\\s|\\(|$)").matcher(header);
-        int start = -1;
+        var start = -1;
         while (matcher.find()) {
             // Keep the last occurrence: a name repeated in the signature must not be mistaken for the declared name.
             start = matcher.start(2);
@@ -331,5 +337,21 @@ public class TableCopyServiceImpl implements TableCopyService {
             throw new BadRequestException("table.copy.name-not-found.message");
         }
         return header.substring(0, start) + copyName + header.substring(start + sourceName.length());
+    }
+
+    /**
+     * How a copy is formatted: in the roles the module it is written to gives it, bound alone, or else in the regions
+     * of its source.
+     *
+     * @param source   the regions of the source, as its last compile read it, or {@code null} for none
+     * @param compiled the compiled module the copy is bound against, or {@code null} to take the regions of the source
+     */
+    private record CopyLook(@Nullable RegionShift source, @Nullable XlsModuleOpenClass compiled) {
+
+        /** The regions the copy is formatted in, or {@code null} when it is not formatted. */
+        @Nullable RegionShift layoutOf(IGridTable copy) {
+            var bound = compiled == null ? null : TableRegionLayout.boundRegionsOf(copy, compiled, null);
+            return bound == null ? source : RegionShift.of(bound, copy.getHeight(), copy.getWidth());
+        }
     }
 }

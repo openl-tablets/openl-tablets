@@ -1,0 +1,25 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Twice",
+    "source": [
+      [
+        {
+          "value": "Method Double Twice(Double a)"
+        }
+      ],
+      [
+        {
+          "value": "return a * 2;"
+        }
+      ]
+    ]
+  }
+}

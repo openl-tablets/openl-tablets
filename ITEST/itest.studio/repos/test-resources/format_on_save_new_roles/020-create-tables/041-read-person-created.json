@@ -1,0 +1,143 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Person",
+  "pos": "B14:C16",
+  "source": [
+    [
+      {
+        "cell": "B14",
+        "value": "Datatype Person",
+        "colspan": 2,
+        "style": 0,
+        "runs": [
+          {
+            "to": 8,
+            "style": 1
+          },
+          {
+            "to": 15,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "String",
+        "style": 3
+      },
+      {
+        "cell": "C15",
+        "value": "name",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "Integer",
+        "style": 5
+      },
+      {
+        "cell": "C16",
+        "value": "age",
+        "style": 6
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 15
+    }
+  ],
+  "headerHeight": 1
+}

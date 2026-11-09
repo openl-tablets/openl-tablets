@@ -2,6 +2,7 @@ package org.openl.rules.table.xls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -172,5 +173,16 @@ class XlsCellTest {
             assertNull(grid.getCell(1, 1).getFormula());
             assertEquals(IGrid.CELL_TYPE_BLANK, grid.getCell(1, 1).getType());
         }
+    }
+
+    @Test
+    void aCellMergedWithNoneIsTheTopLeftCellOfItsRegion() {
+        // B4:C5 is merged.
+        var covered = xsGrid.getCell(2, 4).getTopLeftCellFromRegion();
+        assertEquals(1, covered.getAbsoluteColumn(), "A cell a merge covers");
+        assertEquals(3, covered.getAbsoluteRow(), "A cell a merge covers");
+
+        var alone = xsGrid.getCell(0, 0);
+        assertSame(alone, alone.getTopLeftCellFromRegion(), "A cell merged with none");
     }
 }

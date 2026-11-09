@@ -55,7 +55,7 @@ public class PropertyTableBinder extends DataNodeBinder {
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, identifierNode));
             }
         }
-        var propertyTable = module.getDataBase().registerTable(tableName, tsn);
+        var propertyTable = bindingContext.getDataBase().registerTable(tableName, tsn);
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         var propTableBody = getTableBody(tsn);
 
@@ -193,9 +193,8 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         if (category != null) {
             return category;
-        } else {
-            return ((XlsSheetSourceCodeModule) tsn.getModule()).getSheetName();
         }
+        return ((XlsSheetSourceCodeModule) tsn.getModule()).getSheetName();
     }
 
     private boolean isModuleProperties(String scope) {

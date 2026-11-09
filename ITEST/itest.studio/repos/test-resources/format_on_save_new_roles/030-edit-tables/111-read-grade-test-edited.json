@@ -1,0 +1,287 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "GradeTest",
+  "pos": "B192:E195",
+  "source": [
+    [
+      {
+        "cell": "B192",
+        "value": "Test GradeOf GradeTest",
+        "colspan": 4,
+        "style": 0,
+        "runs": [
+          {
+            "to": 4,
+            "style": 1
+          },
+          {
+            "to": 12,
+            "style": 1
+          },
+          {
+            "to": 22,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B193",
+        "value": "score",
+        "style": 3
+      },
+      {
+        "cell": "C193",
+        "value": "Score",
+        "style": 4
+      },
+      {
+        "cell": "D193",
+        "value": 1,
+        "style": 5
+      },
+      {
+        "cell": "E193",
+        "value": 2,
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B194",
+        "value": "_res_",
+        "style": 6
+      },
+      {
+        "cell": "C194",
+        "value": "Level",
+        "style": 7
+      },
+      {
+        "cell": "D194",
+        "value": "high",
+        "style": 8
+      },
+      {
+        "cell": "E194",
+        "value": "low",
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "B195",
+        "value": "level",
+        "style": 9
+      },
+      {
+        "cell": "C195",
+        "value": "Grade",
+        "style": 10
+      },
+      {
+        "cell": "D195",
+        "value": "G",
+        "style": 11
+      },
+      {
+        "cell": "E195",
+        "value": "G",
+        "style": 11
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center"
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 3
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 2,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 2,
+      "left": 2,
+      "bottom": 2,
+      "right": 3
+    },
+    {
+      "role": "inputTitle",
+      "top": 3,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 3,
+      "left": 2,
+      "bottom": 3,
+      "right": 3
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 4
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 22
+    }
+  ],
+  "headerHeight": 1,
+  "layout": {
+    "transposed": true,
+    "firstDataLine": 2
+  }
+}

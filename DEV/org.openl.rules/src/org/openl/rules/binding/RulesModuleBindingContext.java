@@ -32,6 +32,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -80,6 +81,20 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     private boolean ignoreCustomSpreadsheetResultCompilation;
 
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
+        this(delegate, module, true);
+    }
+
+    /**
+     * A context binding the tables of a module.
+     *
+     * @param delegate          the context this one delegates to
+     * @param module            the module the tables are bound in
+     * @param keepsMessageCalls whether the module keeps the calls of {@code msg} the tables write a key in; a table
+     *                          bound alone against a module compiled before leaves the module as it was
+     */
+    protected RulesModuleBindingContext(IBindingContext delegate,
+                                        XlsModuleOpenClass module,
+                                        boolean keepsMessageCalls) {
         super(delegate, module);
         internalMethods = new ArrayList<>();
         internalMethods.add(new CurrentRuntimeContextMethod());
@@ -87,7 +102,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new RestoreRuntimeContextMethod());
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
-        internalMethods.add(new MessageSourceResourceMethod(module));
+        internalMethods.add(new MessageSourceResourceMethod(module, keepsMessageCalls));
 
         var tablePropertiesOpenField = new TablePropertiesOpenField();
         internalVariables.put(tablePropertiesOpenField.getName(), tablePropertiesOpenField);
@@ -190,6 +205,15 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return extractOpenMethodPrebinder(delegator.getDelegate());
         }
         throw new IllegalStateException("It should not happen.");
+    }
+
+    /**
+     * The database the tables bound in this context are registered in: the database of the module.
+     *
+     * @return the database of the module
+     */
+    public IDataBase getDataBase() {
+        return getModule().getDataBase();
     }
 
     @Override

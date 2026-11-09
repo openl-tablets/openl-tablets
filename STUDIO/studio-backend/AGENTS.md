@@ -324,17 +324,34 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   one history revision. `TableWritersFactory.getTableWriter` arms each update writer
   (`TableWriter.formatOnSave(boolean)`), which takes the layout of the last compile before it writes
   (`RegionShift.ofCompiled`): `null` for a table of the type Other, and for one whose workbook was saved since the
-  compile read it (`TableRegionLayout.compiledRegionsOf`), which is then saved unformatted. The writer tells the layout
-  every line it inserts or removes (`createOrUpdateCell` growing the table, `removeRows`/`removeColumns` measuring how
+  compile read it (`TableRegionLayout.compiledRegionsOf`), which is then saved unformatted. An edit that may change
+  the roles (`RegionShift.structureEdited`: a cell written, merged or unmerged other than a value of a type — a name,
+  such as the name of a step, and code count as no such value — a column, or a line of more than such values and
+  keys, inserted or removed) has the save bind the table alone against the module compiled before
+  (`TableRegionLayout.boundRegionsOf`, `SingleTableBinder` of `org.openl.rules` over a `ReadOnceSheetGrid`); a Data,
+  Test, Run, decision or lookup table taller than `PROBE_ROWS` in its first rows first
+  (`LayoutKind.rolesShownByFirstRows`), unless the edit wrote a title, a declaration or code under them
+  (`RegionShift.structureEditedFrom`); regions of other roles, compared row by row (`TableRegionLayout.sameRoles`),
+  format the table whole (`ExcelTableFormatter.formatOnSave` with the bound regions). A merge laid again as it was, or
+  removed and laid again, counts as no write (`TableWriter.applyMergeRegions`, `mergesRemoved`). A table whose binder
+  writes into the module — Datatype, Vocabulary, Conditions, Actions, Returns, Constants
+  (`AXlsTableBinder.bindsAlone`) — is not bound; the sandbox keeps no call of `msg` in the module, and the types a bind
+  combines stay apart from it (`XlsModuleOpenClass.keepCombinedTypesApart`). The update, append and source edits
+  give the writer the module (`TableWriter.setCompiledModule`, `ProjectModel.compiledModuleOf`); a property write
+  changes no role. See [`single-table-bind.md`](../../Docs/architecture/single-table-bind.md). The writer tells the
+  layout every line it inserts or removes (`createOrUpdateCell` growing the table, `removeRows`/`removeColumns` measuring how
   many lines the table really lost, the insert loops of `RawTableWriter`); `RegionShift.fittedTo` lays the header and
   the properties out again from the grid (`TableRegionLayout.headOf`), so a property row the edit wrote needs no
   tracking, and stretches or trims the regions to the size the table ends with. A property write
-  (`TablePropertiesServiceImpl`) and a copy (`TableCopyServiceImpl`, the source's layout on the copy) take the layout
-  the same way. A created table is formatted in the `regions` its create request carries, which the create dialog's
-  builder emits (`buildTableRegions` in `tableSkeletons.ts`); a table created without them — through the API or the
-  MCP server, or in a typed view — is laid out from its text once written, in the same save
-  (`RegionShift.ofWritten`: `TableIds.nodeOf` reads a node from its header, so `GuessedReads` finds its parts);
-  `TableWritersFactory.getNewTableWriter` arms every new writer for it. A table written into a new module is
+  (`TablePropertiesServiceImpl`) takes the layout the same way. A created table and a copy are bound alone against
+  the module they are written to, as compiled before (`TableCreatorService.createTable` gives the writer the module,
+  `TableWriter.boundRegionsOf`; `TableCopyServiceImpl.copyInto` takes it), so every way of creating a table
+  formats it as a compile and a Reformat do. One that cannot be bound alone — a Datatype or a Vocabulary, or a table
+  of a module not compiled yet — keeps the earlier sources: a copy the source's layout, a created table the `regions`
+  its create request carries, which the create dialog's builder emits (`buildTableRegions` in `tableSkeletons.ts`),
+  or else the regions its text tells once written, in the same save (`RegionShift.ofWritten`: `TableIds.nodeOf` reads
+  a node from its header, so `GuessedReads` finds its parts); `TableWritersFactory.getNewTableWriter` arms every new
+  writer for it. A table written into a new module is
   formatted on its POI sheet, read through `XlsSheetGridModel.of(Sheet)`. A formatting that fails is logged and the
   table saved unformatted.
 - **A formatting pass costs every cell of the table.** Reading a cell's format through XMLBeans creates an object per

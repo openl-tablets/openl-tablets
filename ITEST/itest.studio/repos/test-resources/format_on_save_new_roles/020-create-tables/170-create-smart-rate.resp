@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "SmartRate",
+  "returnType": "Double",
+  "signature": "SmartRate(String region, String zone, Integer age)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B153:F157"
+}

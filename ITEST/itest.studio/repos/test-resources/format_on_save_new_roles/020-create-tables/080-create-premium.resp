@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "Premium",
+  "returnType": "SpreadsheetResult",
+  "signature": "Premium(Double amount)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B35:C39"
+}

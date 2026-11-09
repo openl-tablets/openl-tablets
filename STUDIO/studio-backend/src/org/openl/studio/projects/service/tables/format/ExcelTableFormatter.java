@@ -119,27 +119,51 @@ public final class ExcelTableFormatter {
      * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
      */
     public static @Nullable TableRegions formatOnSave(IGridTable grid, RegionShift layout) {
-        return formatOnSave(grid, layout, false);
+        return formatOnSave(grid, layout, null, false, null);
     }
 
     /**
-     * Formats a table being saved in its layout, fitted to the table as the save leaves it. A formatting that fails is
-     * logged and leaves the table as it is written, so the save goes on.
+     * The regions of a layout fitted to a table being saved. A fitting that fails is logged, so the save goes on.
+     *
+     * @param grid   the table as it stands on its sheet, header included
+     * @param layout the regions of the table, moved along the lines the save inserted and removed
+     * @return the regions fitted to the table, or {@code null} when they cannot be fitted
+     */
+    public static @Nullable TableRegions fittedTo(IGridTable grid, RegionShift layout) {
+        try {
+            return layout.fittedTo(grid);
+        } catch (RuntimeException e) {
+            log.warn("The table at {} is saved unformatted.", grid.getUri(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Formats a table being saved in its layout, fitted to the table as the save leaves it, or in the regions the table
+     * was bound in as it stands, when it was. A formatting that fails is logged and leaves the table as it is written,
+     * so the save goes on.
      *
      * <p>A table formatted before, in the regions the edit started from, needs only the lines the edit touched: the
      * lines it inserted or restyled, and the lines next to where it inserted or removed some. Its header is written
      * in its pieces again, as a value written into it is plain text. A header and properties that came to take
-     * another number of rows have the table formatted whole.
+     * another number of rows, and bound regions of other roles than the layout gives, as an edit of a header can
+     * give, have the table formatted whole.
      *
      * @param grid      the table as it stands on its sheet, header included
      * @param layout    the regions of the table, moved along the lines the save inserted and removed
+     * @param shifted   the layout already fitted to the table, or {@code null} to fit it here
      * @param formatted whether the table stands formatted in the regions the edit started from
+     * @param bound     the regions of the table bound as it stands, or {@code null} when it was not
      * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
      */
-    public static @Nullable TableRegions formatOnSave(IGridTable grid, RegionShift layout, boolean formatted) {
+    public static @Nullable TableRegions formatOnSave(IGridTable grid, RegionShift layout,
+                                                      @Nullable TableRegions shifted, boolean formatted,
+                                                      @Nullable TableRegions bound) {
         try {
-            var regions = layout.fittedTo(grid);
-            var lines = formatted && !layout.bodyMoved()
+            var fitted = shifted != null ? shifted : layout.fittedTo(grid);
+            var regions = bound == null ? fitted : bound;
+            var sameRoles = bound == null || TableRegionLayout.sameRoles(bound, fitted);
+            var lines = formatted && !layout.bodyMoved() && sameRoles
                     ? new Lines(false, layout.touchedRows(), layout.touchedColumns())
                     : Lines.WHOLE;
             var model = (XlsSheetGridModel) grid.getGrid();

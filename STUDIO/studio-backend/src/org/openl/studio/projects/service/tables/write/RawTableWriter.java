@@ -750,10 +750,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     /**
-     * Removes the merged regions intersecting {@code region}.
+     * Removes the merged regions anchored in {@code region}; the save tells the layout the cells of those not merged
+     * again.
      */
     private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
-        run(developerView, new RemoveMergedRegionsAction(region));
+        var removal = new RemoveMergedRegionsAction(region);
+        run(developerView, removal);
+        mergesRemoved(removal.getRemovedRegions());
     }
 
     private IGridTable developerView() {

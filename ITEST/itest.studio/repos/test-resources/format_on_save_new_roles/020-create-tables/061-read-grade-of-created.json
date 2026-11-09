@@ -1,0 +1,255 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "GradeOf",
+  "pos": "B24:C27",
+  "source": [
+    [
+      {
+        "cell": "B24",
+        "value": "SimpleRules String GradeOf(Integer score, String level)",
+        "colspan": 2,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 18,
+            "style": 1
+          },
+          {
+            "to": 26,
+            "style": 2
+          },
+          {
+            "to": 27,
+            "style": 1
+          },
+          {
+            "to": 34,
+            "style": 1
+          },
+          {
+            "to": 40,
+            "style": 3
+          },
+          {
+            "to": 41,
+            "style": 1
+          },
+          {
+            "to": 48,
+            "style": 1
+          },
+          {
+            "to": 54,
+            "style": 3
+          },
+          {
+            "to": 55,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B25",
+        "value": "Score",
+        "style": 4
+      },
+      {
+        "cell": "C25",
+        "value": ">= 0",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B26",
+        "value": "Level",
+        "style": 6
+      },
+      {
+        "cell": "C26",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B27",
+        "value": "Grade",
+        "style": 7
+      },
+      {
+        "cell": "C27",
+        "value": "G",
+        "style": 8
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 3,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 18
+    },
+    {
+      "part": "name",
+      "to": 26
+    },
+    {
+      "part": "punctuation",
+      "to": 27
+    },
+    {
+      "part": "parameterType",
+      "to": 34
+    },
+    {
+      "part": "parameterName",
+      "to": 40
+    },
+    {
+      "part": "punctuation",
+      "to": 41
+    },
+    {
+      "part": "parameterType",
+      "to": 48
+    },
+    {
+      "part": "parameterName",
+      "to": 54
+    },
+    {
+      "part": "punctuation",
+      "to": 55
+    }
+  ],
+  "headerHeight": 1
+}

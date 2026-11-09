@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "TBasic",
+  "kind": "TBasic",
+  "name": "Calc",
+  "returnType": "Integer",
+  "signature": "Calc(Integer n)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B159:D164"
+}

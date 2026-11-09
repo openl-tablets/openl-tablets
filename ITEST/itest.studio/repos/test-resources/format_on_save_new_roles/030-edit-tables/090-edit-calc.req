@@ -1,0 +1,35 @@
+POST /rest/projects/{PROJECT_ID}/tables/{CALC_ID}/actions/batch HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 4,
+        "column": 0,
+        "value": "RETURN"
+      }
+    },
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 4,
+        "column": 1,
+        "value": "x + n"
+      }
+    },
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 4,
+        "column": 2,
+        "value": null
+      }
+    }
+  ]
+}

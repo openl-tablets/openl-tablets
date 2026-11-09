@@ -10,6 +10,7 @@ import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.IntStream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -48,6 +49,13 @@ public final class RegionShift {
     /** The roles of the cells a line holds when it is a line of values, which a line inserted next to it repeats. */
     private static final Set<RawTableRole> VALUES = EnumSet.of(RawTableRole.VALUE, RawTableRole.OUTPUT);
 
+    /**
+     * The roles of the cells a value of a type can be written into with no change of how the compiler reads the table:
+     * the values it takes, gives and returns.
+     */
+    private static final Set<RawTableRole> DATA = EnumSet.of(RawTableRole.VALUE, RawTableRole.OUTPUT,
+            RawTableRole.RESULT);
+
     /** The roles of a line that stands alone, which a line inserted next to it never repeats. */
     private static final Set<RawTableRole> ALONE = EnumSet.of(RawTableRole.SECTION, RawTableRole.RESULT);
 
@@ -61,6 +69,19 @@ public final class RegionShift {
     private TreeSet<Integer> touchedRows = new TreeSet<>();
     /** The columns the edits inserted, and the columns next to where columns were inserted or removed. */
     private TreeSet<Integer> touchedColumns = new TreeSet<>();
+    /**
+     * Whether an edit wrote a cell other than a value of a type, inserted or removed a column, or a line holding more
+     * than such values: an edit after which the compiler may read the table in other roles.
+     */
+    private boolean structureEdited;
+    /**
+     * The lowest row holding a cell other than a value or a key that an edit wrote, or next to which it inserted or
+     * removed rows, as the table stands, or -1 for none: a title, a declaration, code. It moves with the rows inserted
+     * and removed above it.
+     */
+    private int structureEditedRow = -1;
+    /** The region the last cell written stood in: the cells an edit writes are often next to each other. */
+    private @Nullable RawTableRegion lastRegion;
     /** Whether the body moved, as the header and the properties came to take another number of rows. */
     private boolean bodyMoved;
     private int height;
@@ -163,15 +184,122 @@ public final class RegionShift {
     }
 
     /**
+     * Whether an edit may have changed how the compiler reads the table: it wrote, merged or unmerged a cell other than
+     * a value of a type, inserted or removed a column, or inserted or removed a row that holds more than such values,
+     * such as a row of titles or the step a Spreadsheet returns.
+     *
+     * <p>A value of a type is a value the compiler converts, not code and not a name: the name of a step of a
+     * Spreadsheet decides by its marks what the table returns, and the operation of a step of a TBasic table may return
+     * or start a subroutine. An edit of values of a type alone keeps the roles of the last compile.
+     *
+     * @return whether the table may now take other roles than its last compile gave it
+     */
+    public boolean structureEdited() {
+        return structureEdited;
+    }
+
+    /**
+     * Whether an edit wrote a title, a declaration or code, or inserted or removed rows next to one, from the given
+     * row down: a change of such a cell shows only in the rows it stands in. A value of no type, such as the name of a
+     * step, and a key are left out: they change the roles of the kinds whose first rows tell the roles of the rest
+     * only in those first rows.
+     *
+     * @param row a row of the table
+     * @return whether such an edit touched that row or a row under it
+     */
+    public boolean structureEditedFrom(int row) {
+        return structureEditedRow >= row;
+    }
+
+    /**
+     * Tells the shift that a cell was written, or merged with others.
+     *
+     * @param row    the row of the cell, in table coordinates, as the table stands
+     * @param column the column of the cell, in table coordinates, as the table stands
+     */
+    public void cellWritten(int row, int column) {
+        var region = lastRegion != null && lastRegion.holds(row, column) ? lastRegion : regionAt(row, column);
+        lastRegion = region;
+        if (holdsTypedValue(region, row, column)) {
+            return;
+        }
+        structureEdited = true;
+        if (region == null || !DATA.contains(region.role()) && region.role() != RawTableRole.KEY) {
+            structureEditedRow = Math.max(structureEditedRow, row);
+        }
+    }
+
+    /** Moves the lowest structural row along rows inserted, or removed when the count is negative, at a row. */
+    private void editedRowMoved(int at, int count) {
+        if (structureEditedRow >= at) {
+            structureEditedRow = Math.max(at, structureEditedRow + count);
+        }
+    }
+
+    /** Whether a cell holds a value of a type, which a write changes with no change of how the table is read. */
+    private boolean holdsTypedValue(@Nullable RawTableRegion region, int row, int column) {
+        if (region == null || !DATA.contains(region.role())) {
+            return false;
+        }
+        var type = types.isEmpty() ? region.type()
+                : types.getOrDefault(new TableRegions.Cell(row, column), region.type());
+        return type != null && type != RawTableValueType.CODE;
+    }
+
+    /**
+     * Tells that rows were inserted next to or removed from lines: the lowest of them holding more than values of a
+     * type and keys may change the roles.
+     */
+    private void linesEdited(int from, int to) {
+        for (var row = to; row >= from; row--) {
+            if (!holdsValuesAlone(row)) {
+                structureEdited = true;
+                structureEditedRow = Math.max(structureEditedRow, row);
+                return;
+            }
+        }
+    }
+
+    /** The region holding a cell, or {@code null} for a cell no region covers. */
+    private @Nullable RawTableRegion regionAt(int row, int column) {
+        for (var region : regions) {
+            if (region.holds(row, column)) {
+                return region;
+            }
+        }
+        return null;
+    }
+
+    /** Whether each cell of a row of the table holds a value of a type or a key, or the row is past its end. */
+    private boolean holdsValuesAlone(int row) {
+        return row < 0 || row >= height || IntStream.range(0, width).allMatch(column -> {
+            var region = regionAt(row, column);
+            return region != null && region.role() == RawTableRole.KEY || holdsTypedValue(region, row, column);
+        });
+    }
+
+    /**
      * Inserts rows.
      *
      * @param at    the row the first inserted row takes, the rows from it on moving down
      * @param count how many rows are inserted
      */
     public void rowsInserted(int at, int count) {
+        if (count > 0) {
+            // The row the inserted rows push down, or the last row for rows appended at the end.
+            var next = at < height ? at : at - 1;
+            linesEdited(next, next);
+            editedRowMoved(at, count);
+        }
+        insertRows(at, count);
+    }
+
+    /** Inserts rows, or columns while the regions stand turned. */
+    private void insertRows(int at, int count) {
         if (count <= 0) {
             return;
         }
+        lastRegion = null;
         var source = templateOf(at);
         var covered = new boolean[width];
         var moved = new ArrayList<RawTableRegion>(regions.size() + 1);
@@ -207,9 +335,19 @@ public final class RegionShift {
      * @param count how many rows are removed
      */
     public void rowsRemoved(int at, int count) {
+        if (count > 0) {
+            linesEdited(at, at + count - 1);
+            editedRowMoved(at, -count);
+        }
+        removeRows(at, count);
+    }
+
+    /** Removes rows, or columns while the regions stand turned. */
+    private void removeRows(int at, int count) {
         if (count <= 0) {
             return;
         }
+        lastRegion = null;
         var end = at + count;
         var kept = new ArrayList<RawTableRegion>(regions.size());
         for (var region : regions) {
@@ -297,8 +435,9 @@ public final class RegionShift {
      * @param count how many columns are inserted
      */
     public void columnsInserted(int at, int count) {
+        structureEdited = true;
         transpose();
-        rowsInserted(at, count);
+        insertRows(at, count);
         transpose();
     }
 
@@ -309,8 +448,9 @@ public final class RegionShift {
      * @param count how many columns are removed
      */
     public void columnsRemoved(int at, int count) {
+        structureEdited = true;
         transpose();
-        rowsRemoved(at, count);
+        removeRows(at, count);
         transpose();
     }
 
@@ -341,9 +481,11 @@ public final class RegionShift {
         var oldHead = headHeight();
         bodyMoved |= head.height() != oldHead;
         if (head.height() > oldHead) {
-            rowsInserted(oldHead, head.height() - oldHead);
+            editedRowMoved(oldHead, head.height() - oldHead);
+            insertRows(oldHead, head.height() - oldHead);
         } else {
-            rowsRemoved(head.height(), oldHead - head.height());
+            editedRowMoved(head.height(), head.height() - oldHead);
+            removeRows(head.height(), oldHead - head.height());
         }
         fitRows(rows);
         dropLoneGroups();
@@ -384,9 +526,9 @@ public final class RegionShift {
     /** Grows or shrinks the regions at the end of the table to the given number of rows. */
     private void fitRows(int rows) {
         if (rows > height) {
-            rowsInserted(height, rows - height);
+            insertRows(height, rows - height);
         } else if (rows < height) {
-            rowsRemoved(rows, height - rows);
+            removeRows(rows, height - rows);
         }
     }
 
@@ -497,10 +639,11 @@ public final class RegionShift {
 
     /** Swaps the rows and the columns, so a change of the columns is made as a change of the rows. */
     private void transpose() {
-        var turned = new ArrayList<RawTableRegion>(regions.size());
-        regions.forEach(region -> turned.add(region.withBounds(region.left(), region.top(), region.right(),
+        var swapped = new ArrayList<RawTableRegion>(regions.size());
+        regions.forEach(region -> swapped.add(region.withBounds(region.left(), region.top(), region.right(),
                 region.bottom())));
-        regions = turned;
+        regions = swapped;
+        lastRegion = null;
         var rows = groupRows;
         groupRows = groupColumns;
         groupColumns = rows;

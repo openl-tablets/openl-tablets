@@ -1,0 +1,262 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Across",
+  "pos": "B53:E55",
+  "source": [
+    [
+      {
+        "cell": "B53",
+        "value": "Spreadsheet SpreadsheetResult Across(Double amount)",
+        "colspan": 4,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 29,
+            "style": 1
+          },
+          {
+            "to": 36,
+            "style": 2
+          },
+          {
+            "to": 37,
+            "style": 1
+          },
+          {
+            "to": 43,
+            "style": 1
+          },
+          {
+            "to": 50,
+            "style": 3
+          },
+          {
+            "to": 51,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B54",
+        "value": "Step",
+        "style": 4
+      },
+      {
+        "cell": "C54",
+        "value": "Base",
+        "style": 5
+      },
+      {
+        "cell": "D54",
+        "value": "Tax*",
+        "style": 5
+      },
+      {
+        "cell": "E54",
+        "value": "Note",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B55",
+        "value": "Value",
+        "style": 6
+      },
+      {
+        "cell": "C55",
+        "value": "= amount",
+        "style": 7
+      },
+      {
+        "cell": "D55",
+        "value": "= $Base$Value / 10",
+        "style": 8
+      },
+      {
+        "cell": "E55",
+        "value": "= \"ok\"",
+        "style": 7
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 3
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "value",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "code",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "code",
+      "top": 2,
+      "left": 2,
+      "bottom": 2,
+      "right": 2,
+      "returned": true
+    },
+    {
+      "role": "output",
+      "type": "code",
+      "top": 2,
+      "left": 3,
+      "bottom": 2,
+      "right": 3
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 29
+    },
+    {
+      "part": "name",
+      "to": 36
+    },
+    {
+      "part": "punctuation",
+      "to": 37
+    },
+    {
+      "part": "parameterType",
+      "to": 43
+    },
+    {
+      "part": "parameterName",
+      "to": 50
+    },
+    {
+      "part": "punctuation",
+      "to": 51
+    }
+  ],
+  "headerHeight": 1
+}

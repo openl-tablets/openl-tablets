@@ -1,0 +1,362 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "RulesGrade",
+  "pos": "B57:D131",
+  "source": [
+    [
+      {
+        "cell": "B57",
+        "value": "Rules String RulesGrade(Integer score, String level)",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 5,
+            "style": 1
+          },
+          {
+            "to": 12,
+            "style": 1
+          },
+          {
+            "to": 23,
+            "style": 2
+          },
+          {
+            "to": 24,
+            "style": 1
+          },
+          {
+            "to": 31,
+            "style": 1
+          },
+          {
+            "to": 37,
+            "style": 3
+          },
+          {
+            "to": 38,
+            "style": 1
+          },
+          {
+            "to": 45,
+            "style": 1
+          },
+          {
+            "to": 51,
+            "style": 3
+          },
+          {
+            "to": 52,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B58",
+        "value": "C1",
+        "style": 4
+      },
+      {
+        "cell": "C58",
+        "value": "C2",
+        "style": 4
+      },
+      {
+        "cell": "D58",
+        "value": "RET1",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B59",
+        "value": "score >= min",
+        "style": 5
+      },
+      {
+        "cell": "C59",
+        "value": "level == l",
+        "style": 5
+      },
+      {
+        "cell": "D59",
+        "value": "r",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B60",
+        "value": "Integer min",
+        "style": 6
+      },
+      {
+        "cell": "C60",
+        "value": "String l",
+        "style": 6
+      },
+      {
+        "cell": "D60",
+        "value": "String r",
+        "style": 6
+      }
+    ],
+    [
+      {
+        "cell": "B61",
+        "value": "Min",
+        "style": 7
+      },
+      {
+        "cell": "C61",
+        "value": "Level",
+        "style": 7
+      },
+      {
+        "cell": "D61",
+        "value": "Grade",
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "B62",
+        "value": 0,
+        "style": 9
+      },
+      {
+        "cell": "C62",
+        "value": "high",
+        "style": 9
+      },
+      {
+        "cell": "D62",
+        "value": "G0",
+        "style": 10
+      }
+    ],
+    [
+      {
+        "cell": "B63",
+        "value": 1,
+        "style": 9
+      },
+      {
+        "cell": "C63",
+        "value": "low",
+        "style": 9
+      },
+      {
+        "cell": "D63",
+        "value": "G1",
+        "style": 10
+      }
+    ],
+    [
+      {
+        "cell": "B64",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "C64",
+        "value": "high",
+        "style": 9
+      },
+      {
+        "cell": "D64",
+        "value": "G2",
+        "style": 10
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 4,
+      "left": 2,
+      "bottom": 4,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 5,
+      "left": 0,
+      "bottom": 74,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 5,
+      "left": 1,
+      "bottom": 74,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 5,
+      "left": 2,
+      "bottom": 74,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 5
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 23
+    },
+    {
+      "part": "punctuation",
+      "to": 24
+    },
+    {
+      "part": "parameterType",
+      "to": 31
+    },
+    {
+      "part": "parameterName",
+      "to": 37
+    },
+    {
+      "part": "punctuation",
+      "to": 38
+    },
+    {
+      "part": "parameterType",
+      "to": 45
+    },
+    {
+      "part": "parameterName",
+      "to": 51
+    },
+    {
+      "part": "punctuation",
+      "to": 52
+    }
+  ],
+  "totalRows": 75,
+  "headerHeight": 4
+}

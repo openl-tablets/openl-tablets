@@ -134,7 +134,7 @@ Content-Type: application/json
       {
         "cell": "D7",
         "value": "= \"checked\"",
-        "style": 11
+        "style": 12
       }
     ]
   ],
@@ -201,6 +201,18 @@ Content-Type: application/json
     },
     {
       "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "bold": true,
       "border": {
         "bottom": {
           "style": "solid",

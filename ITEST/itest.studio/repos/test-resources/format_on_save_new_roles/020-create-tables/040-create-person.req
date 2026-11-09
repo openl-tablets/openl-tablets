@@ -1,0 +1,40 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Person",
+    "source": [
+      [
+        {
+          "value": "Datatype Person",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "String"
+        },
+        {
+          "value": "name"
+        }
+      ],
+      [
+        {
+          "value": "Integer"
+        },
+        {
+          "value": "age"
+        }
+      ]
+    ]
+  }
+}

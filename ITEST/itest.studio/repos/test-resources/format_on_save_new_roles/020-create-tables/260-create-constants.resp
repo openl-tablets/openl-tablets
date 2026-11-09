@@ -1,0 +1,12 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Constants",
+  "kind": "Constants",
+  "name": "Constants",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B201:D203"
+}

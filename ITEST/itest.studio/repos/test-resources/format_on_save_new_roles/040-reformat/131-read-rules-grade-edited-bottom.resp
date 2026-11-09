@@ -1,0 +1,4 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+&../030-edit-tables/042-read-rules-grade-edited-bottom.json

@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Car",
+  "signature": "Car",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B2:D4"
+}

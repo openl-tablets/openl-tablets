@@ -1,0 +1,44 @@
+POST /rest/projects/{PROJECT_ID}/tables/{RULES_GRADE_ID}/actions/batch HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 1,
+        "column": 1,
+        "value": "RET1"
+      }
+    },
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 2,
+        "column": 1,
+        "value": "l"
+      }
+    },
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 1,
+        "column": 2,
+        "value": "C2"
+      }
+    },
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 2,
+        "column": 2,
+        "value": "level == r"
+      }
+    }
+  ]
+}
