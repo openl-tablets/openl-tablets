@@ -16,6 +16,11 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
+        <!-- Ships inside the OpenL Studio war only, so no other build needs it from a remote repository. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <!-- The root pom skips the install together with the deploy, but a war built outside the reactor still
+             resolves the jar from the local repository. -->
+        <maven.install.skip>false</maven.install.skip>
         <!-- Tests are co-located with sources under src/; sonar.test.inclusions reclassifies them as tests. -->
         <sonar.tests>src</sonar.tests>
         <lombok.delombok.skip>true</lombok.delombok.skip>
