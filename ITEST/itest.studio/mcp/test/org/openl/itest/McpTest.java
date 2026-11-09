@@ -39,6 +39,11 @@ class McpTest {
         }
     }
 
+    @Test
+    void editsAProjectInPlace() throws Exception {
+        studio(false).withProfile("edited-in-place").test();
+    }
+
     private static JettyServer studio(boolean multiUser) {
         var studio = JettyServer.get()
                 .withInitParam("mcp.enabled", "true")

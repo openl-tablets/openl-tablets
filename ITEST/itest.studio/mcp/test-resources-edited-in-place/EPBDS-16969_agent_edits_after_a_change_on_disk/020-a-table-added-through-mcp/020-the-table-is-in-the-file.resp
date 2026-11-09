@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+xl/sharedStrings.xml = *<t>Have a Nice Day</t>*<t>Good Bye</t>*
+*

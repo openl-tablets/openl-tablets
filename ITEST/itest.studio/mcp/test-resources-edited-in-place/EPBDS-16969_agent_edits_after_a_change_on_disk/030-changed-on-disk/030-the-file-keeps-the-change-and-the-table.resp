@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ETag: *
+
+xl/sharedStrings.xml = *<t>Welcome Back</t>*
+xl/worksheets/sheet1.xml = *<c r="C21" s="#" t="inlineStr"><is><t>See You Tomorrow</t></is></c>*
+*
