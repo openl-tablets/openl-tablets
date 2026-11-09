@@ -303,8 +303,9 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   signature, the properties and the code; a lookup lays out each row of its horizontal values as a region of its own
   (`Place.byRows`), so each row is set apart — the result between its own lines, a hair line above a group and on the
   left of a group column from the titles down (`TableStyle.isHeaderPart`), and a line closing the table. The header row
-  is merged into one cell across the table unless another cell of it holds a value or a merge reaches out of it
-  (`TableWrite.mergeSignature`, through the grid model when there is one, so its region pool stays in sync). The
+  is merged into one cell across the table unless another cell of it holds a value, a merge reaches out of it, or a
+  block `GridSplitter` finds ends right above it and starts over one of its cells after the first, which the merged
+  header would join to the table (`TableWrite.mergeSignature`, through the grid model when there is one, so its region pool stays in sync). The
   signature is the only rich text, in its pieces; rich text in any other cell keeps only its marks (`TextMarks`: a piece
   bold in Red, Orange, Green or Light Blue), each rebuilt on the font of the cell's role, and is plain otherwise. A
   table of an `.xls` workbook and a table of the type Other are not formatted.

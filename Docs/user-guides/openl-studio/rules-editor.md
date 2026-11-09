@@ -614,9 +614,11 @@ itself offers, so the tables look the same in Excel and change with the theme of
     lookup that share a merged value from the titles down, and what a table returns has a line above it and a double
     line below it. No other line is vertical, except the fine line that sets apart the columns of a Data, a Test and
     a Run table written the other way round.
--   **Header** — the header is merged into one cell across the table, unless another cell of its row holds a value.
-    The name of the table is bold, the names of the parameters are in the text colour, and the keyword, the types,
-    and the punctuation are lighter.
+-   **Header** — the header is merged into one cell across the table, unless another cell of its row holds a value,
+    or a block of filled cells, such as a note, ends right above the header and starts over one of its cells after
+    the first: merged, the header would join that block to the table, and the table would no longer be found. The
+    name of the table is bold, the names of the parameters are in the text colour, and the keyword, the types, and
+    the punctuation are lighter.
 
 To format every table of the project, above the table, click **More**, select **Reformat Excel files**, and in the
 dialog, click **Reformat**. A tooltip on the menu item says what the action does. With Excel Formatting on, a table

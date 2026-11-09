@@ -334,8 +334,14 @@ text found in it is replaced by the same text in the cell's font.
 
 The signature is the whole first row of a table, so the formatter merges that row into one cell across the table. A
 merge of a part of the row is widened to the whole row. A row holding a value beside the header, or one a merge
-reaches out of, is left as it is, so no value is lost and no other merge is cut. The merge goes through the grid
-model of the sheet when the table is read through one, so the merged regions it keeps stay those of the sheet.
+reaches out of, is left as it is, so no value is lost and no other merge is cut. A row under a block of filled cells
+that ends right above it and starts over one of its cells after the first is left as it is too. A blank cell of a
+merge whose first cell holds a value reads as content, so the merged header would join that block to the table: the
+table recognition (`GridSplitter`) would read both as one block that no longer starts with the header, and the table
+would be lost from its module. The blocks are those the table recognition finds, so a block wider than the cells
+right above the header counts as well. A block that touches the first cell of the header is joined to the table
+already, merged or not. The merge goes through the grid model of the sheet when the table is read through one, so the
+merged regions it keeps stay those of the sheet.
 
 The rows of the properties, and the rows of the code and of the titles of a table written the usual way round, take
 their role in every cell up to the right edge of the table, the empty ones included.

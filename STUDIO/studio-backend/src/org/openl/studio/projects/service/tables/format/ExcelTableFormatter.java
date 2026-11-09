@@ -1,12 +1,14 @@
 package org.openl.studio.projects.service.tables.format;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellType;
@@ -22,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -207,6 +210,10 @@ public final class ExcelTableFormatter {
          * Merges the header into one cell across the table: the header is the whole first row of a table. A row whose
          * other cells hold a value, or that a merged region reaches out of, is left as it is, so no value is lost and
          * no other merge is cut; a merge of a part of the row is replaced by the whole row.
+         *
+         * <p>A row under a block of filled cells that ends right above it and starts over one of its cells after the
+         * first is left as it is too. The merged header would join that block to the table, and OpenL would read both
+         * as one table, which no longer starts with the header.
          */
         private void mergeSignature() {
             var top = table.getTop();
@@ -228,6 +235,9 @@ public final class ExcelTableFormatter {
             }
             if (inRow.size() == 1 && inRow.getFirst().getFirstColumn() == left
                     && inRow.getFirst().getLastColumn() == right) {
+                return;
+            }
+            if (joinsBlockAbove(top, left, right)) {
                 return;
             }
             var whole = new GridRegion(top, left, top, right);
@@ -257,6 +267,43 @@ public final class ExcelTableFormatter {
                 }
             }
             return false;
+        }
+
+        /**
+         * Whether the merged header would join the table to a block of cells above it, as OpenL finds the tables of a
+         * sheet: a block that ends right above the header and starts over one of its cells after the first.
+         *
+         * <p>A block above that already touches the first cell of the header is joined to the table with no merge. The
+         * merge changes nothing for it.
+         */
+        private boolean joinsBlockAbove(int top, int left, int right) {
+            if (top == 0) {
+                return false;
+            }
+            var grid = model != null ? model : XlsSheetGridModel.of(sheet);
+            var above = top - 1;
+            // Such a block has a filled cell in the row above, past the first column: only then is the sheet split.
+            var filledAbove = IntStream.rangeClosed(left + 1, lastColumnOf(grid, above, right))
+                    .anyMatch(column -> GridSplitter.containsCell(grid, column, above));
+            return filledAbove && Arrays.stream(new GridSplitter(grid).split())
+                    .map(IGridTable::getRegion)
+                    .anyMatch(block -> block.getBottom() == above && left < block.getLeft()
+                            && block.getLeft() <= right);
+        }
+
+        /**
+         * The last column a filled cell of a row can stand in: the last cell of the row, the last column of a merged
+         * region reaching into the row, or the given column, whichever is the furthest.
+         */
+        private static int lastColumnOf(XlsSheetGridModel grid, int row, int column) {
+            var last = Math.max(column, grid.getMaxColumnIndex(row));
+            for (var at = 0; at < grid.getNumberOfMergedRegions(); at++) {
+                var merged = grid.getMergedRegion(at);
+                if (merged.getTop() <= row && row <= merged.getBottom()) {
+                    last = Math.max(last, merged.getRight());
+                }
+            }
+            return last;
         }
 
         /** The index of a merged region of the sheet. */
