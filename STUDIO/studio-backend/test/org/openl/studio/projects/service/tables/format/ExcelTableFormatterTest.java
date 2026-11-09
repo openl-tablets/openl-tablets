@@ -288,6 +288,53 @@ class ExcelTableFormatterTest {
     }
 
     @Test
+    void leavesTheHeaderUnmergedUnderAValueItWouldJoinToTheTable() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var table = new GridRegion(1, 0, 4, 2);
+            var regions = lookupRegions(List.of(new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 1, 1, 2, 2)));
+
+            var noted = workbook.createSheet(SHEET);
+            row(noted, 0, 2, "note above the third column");
+            row(noted, 1, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            new ExcelTableFormatter().format(noted, table, regions);
+            assertTrue(noted.getMergedRegions().isEmpty(), "A value above an empty cell of the header");
+
+            var reachingNote = workbook.createSheet("Reaching note");
+            row(reachingNote, 0, 2, "note merged down to the header");
+            merge(reachingNote, 0, 1, 2, 2);
+            row(reachingNote, 2, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            new ExcelTableFormatter().format(reachingNote, new GridRegion(2, 0, 5, 2), regions);
+            assertEquals(List.of(new CellRangeAddress(0, 1, 2, 2)), reachingNote.getMergedRegions(),
+                    "A merged value reaching down above the header");
+
+            var wideNote = workbook.createSheet("Wide note");
+            row(wideNote, 0, 2, "note over the third column", "and beside the table");
+            row(wideNote, 1, 3, "its second line beside the table");
+            row(wideNote, 2, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            new ExcelTableFormatter().format(wideNote, new GridRegion(2, 0, 5, 2), regions);
+            assertTrue(wideNote.getMergedRegions().isEmpty(),
+                    "A block of cells ending above the header, wider than its cells right above it");
+
+            var emptyMerges = workbook.createSheet("Empty merges");
+            row(emptyMerges, 0, 3, "note beside the table");
+            merge(emptyMerges, 0, 0, 3, 4);
+            merge(emptyMerges, 0, 0, 1, 2);
+            row(emptyMerges, 1, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            new ExcelTableFormatter().format(emptyMerges, table, regions);
+            assertEquals(List.of(new CellRangeAddress(0, 0, 3, 4), new CellRangeAddress(0, 0, 1, 2),
+                    new CellRangeAddress(1, 1, 0, 2)), emptyMerges.getMergedRegions(),
+                    "Neither an empty merge above the header nor a value beside it stops the merge");
+
+            var aboveFirst = workbook.createSheet("Above the first cell");
+            row(aboveFirst, 0, 0, "note");
+            row(aboveFirst, 1, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            new ExcelTableFormatter().format(aboveFirst, table, regions);
+            assertEquals(List.of(new CellRangeAddress(1, 1, 0, 2)), aboveFirst.getMergedRegions(),
+                    "A value above the first cell touches the header already");
+        }
+    }
+
+    @Test
     void drawsTheLineOfAGroupColumnFromTheTitlesDown() throws IOException {
         try (var workbook = new XSSFWorkbook()) {
             var sheet = workbook.createSheet(SHEET);

@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ARBD12C9Z6G8VA2Y",
+      "kind": "Datatype",
+      "name": "Person",
+      "pos": "A1:B4"
+    },
+    {
+      "id": "0MZ0EF4Z5BPZZE98",
+      "kind": "Data",
+      "name": "persons",
+      "pos": "A2:C6"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
+

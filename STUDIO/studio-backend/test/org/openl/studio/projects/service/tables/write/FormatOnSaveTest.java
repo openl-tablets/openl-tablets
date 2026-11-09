@@ -122,6 +122,38 @@ class FormatOnSaveTest {
     }
 
     @Test
+    void keepsATableUnderAValueAboveItsHeaderInTheModuleWhenItIsSaved(@TempDir Path project) throws IOException {
+        var noted = TableTestProjects.projectModel(project, SHEET, FormatOnSaveTest::fillNotedSheet);
+
+        save(TableTestProjects.table(noted, "persons"), true,
+                new RawTableSourceAction.Update(new UpdateTarget.Cell(3, 0, "Anna")));
+
+        var persons = TableTestProjects.table(TableTestProjects.projectModel(project), "persons");
+        assertEquals(List.of(Arrays.asList("Data Person persons", null, null), List.of("name", "age", "city"),
+                List.of("Name", "Age", "City"), List.of("Anna", "30", "Paris"), List.of("Bob", "40", "Rome")),
+                TableTestProjects.rawSource(persons), "The table as it was, with the value saved");
+        var saved = project.resolve(SHEET + ".xlsx");
+        assertEquals("Title", styleNameAt(saved, SHEET, 1, 0), "The table is formatted");
+        try (var in = Files.newInputStream(saved); var workbook = new XSSFWorkbook(in)) {
+            assertTrue(workbook.getSheet(SHEET).getMergedRegions().isEmpty(), "The header is left unmerged");
+        }
+    }
+
+    /** A Data table with a note right above the third cell of its header, and the Datatype of its rows. */
+    private static void fillNotedSheet(Sheet sheet) {
+        row(sheet, 0, 2, "note above the third column");
+        row(sheet, 1, 0, "Data Person persons");
+        row(sheet, 2, 0, "name", "age", "city");
+        row(sheet, 3, 0, "Name", "Age", "City");
+        row(sheet, 4, 0, "Ann", "30", "Paris");
+        row(sheet, 5, 0, "Bob", "40", "Rome");
+        row(sheet, 8, 0, "Datatype Person");
+        row(sheet, 9, 0, "String", "name");
+        row(sheet, 10, 0, "Integer", "age");
+        row(sheet, 11, 0, "String", "city");
+    }
+
+    @Test
     void leavesTheTableAsWrittenWhileFormattingOnSaveIsOff() throws IOException {
         save(false, update(FIRST_RULE - HEADER, DAY, "Holiday"));
 
