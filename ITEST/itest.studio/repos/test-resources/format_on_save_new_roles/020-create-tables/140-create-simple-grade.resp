@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "SimpleGrade",
+  "returnType": "String",
+  "signature": "SimpleGrade(Integer score, String level)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B137:F140"
+}

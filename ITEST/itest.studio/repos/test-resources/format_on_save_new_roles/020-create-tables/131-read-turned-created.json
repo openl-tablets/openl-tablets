@@ -1,0 +1,286 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Turned",
+  "pos": "B133:G135",
+  "source": [
+    [
+      {
+        "cell": "B133",
+        "value": "Rules String Turned(Integer score)",
+        "colspan": 6,
+        "style": 0,
+        "runs": [
+          {
+            "to": 5,
+            "style": 1
+          },
+          {
+            "to": 12,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 2
+          },
+          {
+            "to": 20,
+            "style": 1
+          },
+          {
+            "to": 27,
+            "style": 1
+          },
+          {
+            "to": 33,
+            "style": 3
+          },
+          {
+            "to": 34,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B134",
+        "value": "C1",
+        "style": 4
+      },
+      {
+        "cell": "C134",
+        "value": "score >= min",
+        "style": 4
+      },
+      {
+        "cell": "D134",
+        "value": "Integer min",
+        "style": 4
+      },
+      {
+        "cell": "E134",
+        "value": "Min",
+        "style": 5
+      },
+      {
+        "cell": "F134",
+        "value": 1,
+        "style": 6
+      },
+      {
+        "cell": "G134",
+        "value": 2,
+        "style": 6
+      }
+    ],
+    [
+      {
+        "cell": "B135",
+        "value": "RET1",
+        "style": 7
+      },
+      {
+        "cell": "C135",
+        "value": "r",
+        "style": 7
+      },
+      {
+        "cell": "D135",
+        "value": "String r",
+        "style": 7
+      },
+      {
+        "cell": "E135",
+        "value": "Grade",
+        "style": 8
+      },
+      {
+        "cell": "F135",
+        "value": "A",
+        "style": 9
+      },
+      {
+        "cell": "G135",
+        "value": "B",
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 5
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 3,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 4,
+      "bottom": 1,
+      "right": 5
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 3,
+      "bottom": 2,
+      "right": 3
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 2,
+      "left": 4,
+      "bottom": 2,
+      "right": 5
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 5
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 19
+    },
+    {
+      "part": "punctuation",
+      "to": 20
+    },
+    {
+      "part": "parameterType",
+      "to": 27
+    },
+    {
+      "part": "parameterName",
+      "to": 33
+    },
+    {
+      "part": "punctuation",
+      "to": 34
+    }
+  ],
+  "headerHeight": 1
+}

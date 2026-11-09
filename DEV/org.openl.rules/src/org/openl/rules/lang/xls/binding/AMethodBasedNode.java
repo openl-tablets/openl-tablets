@@ -56,13 +56,29 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     @Override
     public void addTo(ModuleOpenClass openClass) {
-        method = createMethodShell();
-        method.setModuleName(module.getModuleName());
-        openClass.addMethod(method);
-        getTableSyntaxNode().setMember(method);
+        var created = newMethod();
+        openClass.addMethod(created);
+        getTableSyntaxNode().setMember(created);
         if (hasAliasName()) {
             openClass.addMethod(getAliasMethod(method));
         }
+    }
+
+    /**
+     * Creates the method of the table and gives it to the table, without adding it to a module.
+     *
+     * <p>A table bound alone, to read what the compiler makes of it, takes its method this way. The module it is bound
+     * against keeps the methods it was compiled with.
+     */
+    public void createMethod() {
+        getTableSyntaxNode().setMember(newMethod());
+    }
+
+    /** Creates the method of the table, which the table does not take yet. */
+    private ExecutableRulesMethod newMethod() {
+        method = createMethodShell();
+        method.setModuleName(module.getModuleName());
+        return method;
     }
 
     /**

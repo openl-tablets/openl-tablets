@@ -1,0 +1,223 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "RulesGrade",
+  "pos": "B57:D131",
+  "source": [
+    [
+      {
+        "cell": "B127",
+        "value": 65,
+        "style": 0
+      },
+      {
+        "cell": "C127",
+        "value": "low",
+        "style": 0
+      },
+      {
+        "cell": "D127",
+        "value": "G65",
+        "style": 1
+      }
+    ],
+    [
+      {
+        "cell": "B128",
+        "value": 66,
+        "style": 0
+      },
+      {
+        "cell": "C128",
+        "value": "high",
+        "style": 0
+      },
+      {
+        "cell": "D128",
+        "value": "G66",
+        "style": 1
+      }
+    ],
+    [
+      {
+        "cell": "B129",
+        "value": 67,
+        "style": 0
+      },
+      {
+        "cell": "C129",
+        "value": "low",
+        "style": 0
+      },
+      {
+        "cell": "D129",
+        "value": "G67",
+        "style": 1
+      }
+    ],
+    [
+      {
+        "cell": "B130",
+        "value": 68,
+        "style": 0
+      },
+      {
+        "cell": "C130",
+        "value": "high",
+        "style": 0
+      },
+      {
+        "cell": "D130",
+        "value": "G68",
+        "style": 1
+      }
+    ],
+    [
+      {
+        "cell": "B131",
+        "value": 69,
+        "style": 2
+      },
+      {
+        "cell": "C131",
+        "value": "low",
+        "style": 2
+      },
+      {
+        "cell": "D131",
+        "value": "G69",
+        "style": 3
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 4,
+      "left": 2,
+      "bottom": 4,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 5,
+      "left": 0,
+      "bottom": 74,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 5,
+      "left": 1,
+      "bottom": 74,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 5,
+      "left": 2,
+      "bottom": 74,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 5
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 23
+    },
+    {
+      "part": "punctuation",
+      "to": 24
+    },
+    {
+      "part": "parameterType",
+      "to": 31
+    },
+    {
+      "part": "parameterName",
+      "to": 37
+    },
+    {
+      "part": "punctuation",
+      "to": 38
+    },
+    {
+      "part": "parameterType",
+      "to": 45
+    },
+    {
+      "part": "parameterName",
+      "to": 51
+    },
+    {
+      "part": "punctuation",
+      "to": 52
+    }
+  ],
+  "totalRows": 75,
+  "headerHeight": 4
+}

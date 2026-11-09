@@ -1,0 +1,171 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Claim",
+  "pos": "B18:C22",
+  "source": [
+    [
+      {
+        "cell": "B18",
+        "value": "Datatype Claim",
+        "colspan": 2,
+        "style": 0,
+        "runs": [
+          {
+            "to": 8,
+            "style": 1
+          },
+          {
+            "to": 14,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B19",
+        "value": "String",
+        "style": 3
+      },
+      {
+        "cell": "C19",
+        "value": "cause",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B20",
+        "value": "Boolean",
+        "style": 5
+      },
+      {
+        "cell": "C20",
+        "value": "catastrophe",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B21",
+        "value": "Boolean",
+        "style": 5
+      },
+      {
+        "cell": "C21",
+        "value": "firstParty",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B22",
+        "value": "Double",
+        "style": 6
+      },
+      {
+        "cell": "C22",
+        "value": "amount",
+        "style": 7
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "top": 1,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 14
+    }
+  ],
+  "headerHeight": 1
+}

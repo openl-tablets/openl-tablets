@@ -1,0 +1,56 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Payment",
+    "source": [
+      [
+        {
+          "value": "Spreadsheet Double Payment(Double amount)",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Step"
+        },
+        {
+          "value": "Value"
+        }
+      ],
+      [
+        {
+          "value": "Doubled"
+        },
+        {
+          "value": "= amount * 2"
+        }
+      ],
+      [
+        {
+          "value": "Total"
+        },
+        {
+          "value": "= $Value$Doubled + 1"
+        }
+      ],
+      [
+        {
+          "value": "Rest"
+        },
+        {
+          "value": "= 1"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Across",
+    "source": [
+      [
+        {
+          "value": "Spreadsheet SpreadsheetResult Across(Double amount)",
+          "colspan": 4
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Step"
+        },
+        {
+          "value": "Base"
+        },
+        {
+          "value": "Tax*"
+        },
+        {
+          "value": "Note"
+        }
+      ],
+      [
+        {
+          "value": "Value"
+        },
+        {
+          "value": "= amount"
+        },
+        {
+          "value": "= $Base$Value / 10"
+        },
+        {
+          "value": "= \"ok\""
+        }
+      ]
+    ]
+  }
+}

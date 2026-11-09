@@ -38,6 +38,37 @@ class RegionShiftTest {
 
     private static final TableRegionLayout.Head HEAD = TableRegionLayout.Head.of(3, 0);
 
+    /**
+     * A decision table of typed values: the header, the titles, and five rules whose conditions take numbers and whose
+     * return gives a text, the second rule returning a formula.
+     */
+    private static final TableRegions TYPED = new TableRegions(List.of(
+            region(RawTableRole.SIGNATURE, 0, 0, 0, 2),
+            region(RawTableRole.INPUT_TITLE, 1, 0, 1, 1),
+            region(RawTableRole.OUTPUT_TITLE, 1, 2, 1, 2),
+            new RawTableRegion(RawTableRole.VALUE, RawTableValueType.NUMBER, 2, 0, 6, 1),
+            new RawTableRegion(RawTableRole.OUTPUT, RawTableValueType.STRING, 2, 2, 6, 2)),
+            RawTableGroups.NONE, List.of(), Map.of(new TableRegions.Cell(3, 2), RawTableValueType.CODE));
+
+    /** A Data table read by its keys: the header, the titles, and five rows of a key and a number. */
+    private static final TableRegions KEYED = new TableRegions(List.of(
+            region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+            region(RawTableRole.OUTPUT_TITLE, 1, 0, 1, 1),
+            region(RawTableRole.KEY, 2, 0, 6, 0),
+            new RawTableRegion(RawTableRole.OUTPUT, RawTableValueType.NUMBER, 2, 1, 6, 1)),
+            RawTableGroups.NONE, List.of(), Map.of());
+
+    /** A Spreadsheet returning a number: the names of its steps, their values, and the step it returns. */
+    private static final TableRegions STEPS = new TableRegions(List.of(
+            region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+            region(RawTableRole.INPUT_TITLE, 1, 0, 1, 0),
+            region(RawTableRole.OUTPUT_TITLE, 1, 1, 1, 1),
+            region(RawTableRole.VALUE, 2, 0, 3, 0),
+            new RawTableRegion(RawTableRole.OUTPUT, RawTableValueType.NUMBER, 2, 1, 3, 1),
+            region(RawTableRole.RESULT, 4, 0, 4, 0),
+            new RawTableRegion(RawTableRole.RESULT, RawTableValueType.NUMBER, 4, 1, 4, 1)),
+            RawTableGroups.NONE, List.of(), Map.of());
+
     @Test
     void stretchesTheRegionsARowIsInsertedInside() {
         var shift = RegionShift.of(RULES, 7, 3);
@@ -317,6 +348,116 @@ class RegionShiftTest {
         var regions = shift.fittedTo(TableRegionLayout.Head.of(2, 0), 5, 2, "TBasic");
         assertEquals(RawTableRole.RESULT, roleAt(regions, 2, 0));
         assertEquals(RawTableRole.VALUE, roleAt(regions, 3, 0), "The new step takes the roles of the step under it");
+    }
+
+    @Test
+    void keepsTheRolesOfAnEditOfValuesOfATypeAlone() {
+        var shift = RegionShift.of(TYPED, 7, 3);
+
+        shift.cellWritten(2, 0);
+        shift.cellWritten(4, 2);
+        shift.rowsInserted(4, 2);
+        shift.rowsInserted(9, 1);
+        shift.rowsRemoved(4, 2);
+
+        assertFalse(shift.structureEdited(), "Values of a type change no role");
+    }
+
+    @Test
+    void tellsAWriteOfATitleOrOfCodeMayChangeTheRoles() {
+        var title = RegionShift.of(TYPED, 7, 3);
+        title.cellWritten(1, 1);
+        assertTrue(title.structureEdited(), "A title");
+
+        var signature = RegionShift.of(TYPED, 7, 3);
+        signature.cellWritten(0, 0);
+        assertTrue(signature.structureEdited(), "The header");
+
+        var formula = RegionShift.of(TYPED, 7, 3);
+        formula.cellWritten(3, 2);
+        assertTrue(formula.structureEdited(), "A value of code, such as the operation of a step of a TBasic table");
+    }
+
+    @Test
+    void tellsAWriteOfTheNameOfAStepMayChangeTheRoles() {
+        var name = RegionShift.of(STEPS, 5, 2);
+        name.cellWritten(3, 0);
+        assertTrue(name.structureEdited(), "A name, which a mark makes a step returned");
+
+        var value = RegionShift.of(STEPS, 5, 2);
+        value.cellWritten(3, 1);
+        assertFalse(value.structureEdited(), "The value of a step");
+    }
+
+    @Test
+    void tellsTheLowestRowAnEditThatMayChangeTheRolesTouched() {
+        var title = RegionShift.of(TYPED, 7, 3);
+        title.cellWritten(1, 2);
+        assertTrue(title.structureEditedFrom(1), "A title written");
+        assertFalse(title.structureEditedFrom(2), "No row under it");
+        title.rowsInserted(0, 3);
+        assertTrue(title.structureEditedFrom(4), "The title moved down with the rows inserted above it");
+        title.rowsRemoved(0, 2);
+        assertTrue(title.structureEditedFrom(2), "And up with the rows removed above it");
+        assertFalse(title.structureEditedFrom(3), "No row under it");
+
+        var name = RegionShift.of(STEPS, 5, 2);
+        name.cellWritten(3, 0);
+        assertTrue(name.structureEdited(), "The name of a step written may change the roles");
+        assertFalse(name.structureEditedFrom(0), "A name is no title: the kinds a probe serves have none in the body");
+
+        var key = RegionShift.of(KEYED, 7, 2);
+        key.cellWritten(5, 0);
+        key.rowsInserted(4, 1);
+        assertTrue(key.structureEdited(), "A key written may change the roles");
+        assertFalse(key.structureEditedFrom(0), "A key names a line: the first rows tell any role it changes");
+        assertFalse(RegionShift.of(KEYED, 7, 2).structureEdited(), "Nothing edited");
+
+        var values = RegionShift.of(KEYED, 7, 2);
+        values.rowsInserted(4, 2);
+        values.rowsRemoved(2, 1);
+        assertFalse(values.structureEdited(), "Lines of keys and values of a type change no role");
+    }
+
+    @Test
+    void tellsTheSameRolesWhateverTheTypesAndTheCutOfTheRegions() {
+        var cut = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 2),
+                region(RawTableRole.INPUT_TITLE, 1, 0, 1, 1),
+                region(RawTableRole.OUTPUT_TITLE, 1, 2, 1, 2),
+                new RawTableRegion(RawTableRole.VALUE, RawTableValueType.STRING, 2, 0, 3, 1),
+                new RawTableRegion(RawTableRole.VALUE, RawTableValueType.NUMBER, 4, 0, 6, 1),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 2, 6, 2)),
+                TYPED.groups(), List.of(), Map.of());
+        assertTrue(TableRegionLayout.sameRoles(TYPED, cut), "Other types and another cut of the same roles");
+
+        var returning = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 2),
+                region(RawTableRole.INPUT_TITLE, 1, 0, 1, 0),
+                region(RawTableRole.OUTPUT_TITLE, 1, 1, 1, 2),
+                new RawTableRegion(RawTableRole.VALUE, RawTableValueType.NUMBER, 2, 0, 6, 0),
+                region(RawTableRole.OUTPUT, 2, 1, 6, 2)),
+                TYPED.groups(), List.of(), Map.of());
+        assertFalse(TableRegionLayout.sameRoles(TYPED, returning), "A condition made a return");
+    }
+
+    @Test
+    void tellsALineOfMoreThanValuesInsertedOrRemovedMayChangeTheRoles() {
+        var removed = RegionShift.of(STEPS, 5, 2);
+        removed.rowsRemoved(4, 1);
+        assertTrue(removed.structureEdited(), "The step returned is removed");
+
+        var inserted = RegionShift.of(TYPED, 7, 3);
+        inserted.rowsInserted(3, 1);
+        assertTrue(inserted.structureEdited(), "A rule inserted above the second one, whose return is code");
+
+        var column = RegionShift.of(TYPED, 7, 3);
+        column.columnsInserted(2, 1);
+        assertTrue(column.structureEdited(), "A column");
+
+        var removedColumn = RegionShift.of(TYPED, 7, 3);
+        removedColumn.columnsRemoved(1, 1);
+        assertTrue(removedColumn.structureEdited(), "A column removed");
     }
 
     private static RawTableRole roleAt(TableRegions regions, int row, int column) {

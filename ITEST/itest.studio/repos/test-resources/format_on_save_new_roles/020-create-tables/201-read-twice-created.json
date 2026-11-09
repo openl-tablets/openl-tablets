@@ -1,0 +1,132 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Method",
+  "name": "Twice",
+  "pos": "B173:B174",
+  "source": [
+    [
+      {
+        "cell": "B173",
+        "value": "Method Double Twice(Double a)",
+        "style": 0,
+        "runs": [
+          {
+            "to": 6,
+            "style": 1
+          },
+          {
+            "to": 13,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 2
+          },
+          {
+            "to": 20,
+            "style": 1
+          },
+          {
+            "to": 26,
+            "style": 1
+          },
+          {
+            "to": 28,
+            "style": 3
+          },
+          {
+            "to": 29,
+            "style": 1
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "B174",
+        "value": "return a * 2;",
+        "style": 4
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 6
+    },
+    {
+      "part": "type",
+      "to": 13
+    },
+    {
+      "part": "name",
+      "to": 19
+    },
+    {
+      "part": "punctuation",
+      "to": 20
+    },
+    {
+      "part": "parameterType",
+      "to": 26
+    },
+    {
+      "part": "parameterName",
+      "to": 28
+    },
+    {
+      "part": "punctuation",
+      "to": 29
+    }
+  ],
+  "headerHeight": 0
+}

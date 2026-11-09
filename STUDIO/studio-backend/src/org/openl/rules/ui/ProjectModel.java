@@ -55,6 +55,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -936,6 +937,45 @@ public class ProjectModel {
                 wholeProjects.stream().flatMap(project -> getModuleSyntaxNodesByProject(project).stream()),
                 usedModules);
         return tablesOf(modules);
+    }
+
+    /**
+     * The compiled module that holds a table: the module open, or a module it depends on.
+     *
+     * <p>A table can be bound alone against it, in the types and methods the module was compiled with.
+     *
+     * @param table the table, as the compile of its module read it
+     * @return the module, or {@code null} while no compile holds the table
+     */
+    public synchronized @Nullable XlsModuleOpenClass compiledModuleOf(TableSyntaxNode table) {
+        return compiledModuleOf(TableIds.moduleOf(table));
+    }
+
+    /**
+     * The compiled module of a module, as its last compile read it: the module open, or a module it depends on.
+     *
+     * <p>A table written into the module can be bound alone against it, before the module is compiled again.
+     *
+     * @param module the module, as its last compile read it
+     * @return the module, or {@code null} while no compile holds it
+     */
+    public synchronized @Nullable XlsModuleOpenClass compiledModuleOf(@Nullable XlsModuleSyntaxNode module) {
+        if (module == null) {
+            return null;
+        }
+        var dependencies = webStudioWorkspaceDependencyManager == null
+                ? Stream.<CompiledOpenClass>empty()
+                : webStudioWorkspaceDependencyManager.findLoadersCompiledWith(getProjectDescriptor())
+                .stream()
+                .map(IDependencyLoader::getRefToCompiledDependency)
+                .filter(Objects::nonNull)
+                .map(CompiledDependency::getCompiledOpenClass);
+        return Stream.concat(Stream.of(openedModuleCompiledOpenClass.get(), compiledOpenClass.get()), dependencies)
+                .map(ValidationUtils::moduleOf)
+                .filter(compiled -> compiled != null && compiled.getXlsMetaInfo() != null
+                        && compiled.getXlsMetaInfo().getXlsModuleNode() == module)
+                .findFirst()
+                .orElse(null);
     }
 
     private static @Nullable XlsModuleSyntaxNode moduleNodeOf(IDependencyLoader loader) {

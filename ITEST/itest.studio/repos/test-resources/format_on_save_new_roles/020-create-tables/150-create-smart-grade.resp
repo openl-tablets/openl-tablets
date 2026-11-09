@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "SmartGrade",
+  "returnType": "String",
+  "signature": "SmartGrade(Integer score, String level)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B142:F145"
+}

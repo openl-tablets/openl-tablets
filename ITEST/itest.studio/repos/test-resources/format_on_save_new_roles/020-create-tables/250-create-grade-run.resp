@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Run",
+  "kind": "Run",
+  "name": "GradeRun",
+  "signature": "GradeOf GradeRun",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B197:D199"
+}

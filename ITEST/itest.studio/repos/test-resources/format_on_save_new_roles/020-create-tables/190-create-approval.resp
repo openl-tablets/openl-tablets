@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Column Match",
+  "kind": "Column Match",
+  "name": "Approval",
+  "returnType": "<MATCH>",
+  "signature": "String Approval(String area, Integer money)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B166:E171"
+}

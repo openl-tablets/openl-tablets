@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleLookup",
+  "kind": "Rules",
+  "name": "SimpleRate",
+  "returnType": "Double",
+  "signature": "SimpleRate(String region, Integer age)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B147:F151"
+}

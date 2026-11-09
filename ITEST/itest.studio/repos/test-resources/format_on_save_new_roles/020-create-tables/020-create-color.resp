@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Vocabulary",
+  "kind": "Datatype",
+  "name": "Color",
+  "signature": "Color <String>",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B6:B8"
+}

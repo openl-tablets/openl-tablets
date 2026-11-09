@@ -1,0 +1,216 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "carsTurned",
+  "pos": "B188:E190",
+  "source": [
+    [
+      {
+        "cell": "B188",
+        "value": "Data Car carsTurned",
+        "colspan": 4,
+        "style": 0,
+        "runs": [
+          {
+            "to": 4,
+            "style": 1
+          },
+          {
+            "to": 8,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B189",
+        "value": "model",
+        "style": 3
+      },
+      {
+        "cell": "C189",
+        "value": "Model",
+        "style": 4
+      },
+      {
+        "cell": "D189",
+        "value": "A4",
+        "style": 5
+      },
+      {
+        "cell": "E189",
+        "value": "Q7",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B190",
+        "value": "year",
+        "style": 6
+      },
+      {
+        "cell": "C190",
+        "value": "Year",
+        "style": 7
+      },
+      {
+        "cell": "D190",
+        "value": 2020,
+        "style": 8
+      },
+      {
+        "cell": "E190",
+        "value": 2021,
+        "style": 8
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 3
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 2,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 2,
+      "bottom": 2,
+      "right": 3
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 4
+    },
+    {
+      "part": "type",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 19
+    }
+  ],
+  "headerHeight": 1
+}

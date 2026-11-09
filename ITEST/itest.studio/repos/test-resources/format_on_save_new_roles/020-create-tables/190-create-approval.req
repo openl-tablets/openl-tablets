@@ -1,0 +1,102 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Approval",
+    "source": [
+      [
+        {
+          "value": "ColumnMatch <MATCH> String Approval(String area, Integer money)",
+          "colspan": 4
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "names"
+        },
+        {
+          "value": "operation"
+        },
+        {
+          "value": "values",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Expenses"
+        },
+        {
+          "value": "Condition"
+        },
+        {
+          "value": "Need Approval Of",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Return Values"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "CAO"
+        },
+        {
+          "value": "Team Lead"
+        }
+      ],
+      [
+        {
+          "value": "area"
+        },
+        {
+          "value": "match"
+        },
+        {
+          "value": "Hardware"
+        },
+        {
+          "value": "Hardware"
+        }
+      ],
+      [
+        {
+          "value": "money"
+        },
+        {
+          "value": "min"
+        },
+        {
+          "value": "100000"
+        },
+        {
+          "value": "5000"
+        }
+      ]
+    ]
+  }
+}

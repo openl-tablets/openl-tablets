@@ -1,0 +1,242 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Premium",
+  "pos": "B35:C39",
+  "source": [
+    [
+      {
+        "cell": "B35",
+        "value": "Spreadsheet SpreadsheetResult Premium(Double amount)",
+        "colspan": 2,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 29,
+            "style": 1
+          },
+          {
+            "to": 37,
+            "style": 2
+          },
+          {
+            "to": 38,
+            "style": 1
+          },
+          {
+            "to": 44,
+            "style": 1
+          },
+          {
+            "to": 51,
+            "style": 3
+          },
+          {
+            "to": 52,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B36",
+        "value": "Step",
+        "style": 4
+      },
+      {
+        "cell": "C36",
+        "value": "Value",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B37",
+        "value": "Doubled",
+        "style": 6
+      },
+      {
+        "cell": "C37",
+        "value": "= amount * 2",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B38",
+        "value": "Total",
+        "style": 6
+      },
+      {
+        "cell": "C38",
+        "value": "= $Value$Doubled + 1",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B39",
+        "value": "Rest",
+        "style": 8
+      },
+      {
+        "cell": "C39",
+        "value": "= 1",
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "top": 2,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "code",
+      "top": 2,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 29
+    },
+    {
+      "part": "name",
+      "to": 37
+    },
+    {
+      "part": "punctuation",
+      "to": 38
+    },
+    {
+      "part": "parameterType",
+      "to": 44
+    },
+    {
+      "part": "parameterName",
+      "to": 51
+    },
+    {
+      "part": "punctuation",
+      "to": 52
+    }
+  ],
+  "headerHeight": 1
+}

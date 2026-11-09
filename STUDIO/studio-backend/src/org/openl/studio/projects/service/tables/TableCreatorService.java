@@ -93,12 +93,16 @@ public class TableCreatorService {
 
         var gridModel = sheetGridModel(projectModel, resolveSheetName(createTableRequest));
         var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
-        // The new table is numbered among the tables of its module, as its next compile numbers it.
-        tableWriter.setModule(projectModel.getXlsModuleNode());
+        // The new table is numbered among the tables of its module, as its next compile numbers it, and is formatted
+        // in the roles the module as compiled gives it.
+        var module = projectModel.getXlsModuleNode();
+        tableWriter.setModule(module);
+        tableWriter.setCompiledModule(projectModel.compiledModuleOf(module));
         if (carriesProperties(table.kind)) {
             tableWriter.stampWith(systemPropertiesService.onCreate());
         }
-        // A table the client built no regions for is formatted in the regions its text tells, see TableWriter.
+        // A table that cannot be bound alone, such as a Datatype, is formatted in the regions the client built it in,
+        // or else in the regions its text tells, see TableWriter.
         var built = builtRegions(createTableRequest, table);
         if (built != null && formatting.onSave()) {
             tableWriter.formatOnSave(built, table.getHeight(), table.getWidth());

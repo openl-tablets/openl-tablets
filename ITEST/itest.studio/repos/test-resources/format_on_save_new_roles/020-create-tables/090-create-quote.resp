@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "Quote",
+  "returnType": "SpreadsheetResult",
+  "signature": "Quote(Double amount)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B41:C45"
+}

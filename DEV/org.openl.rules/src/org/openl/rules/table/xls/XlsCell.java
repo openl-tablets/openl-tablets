@@ -136,10 +136,8 @@ public class XlsCell implements ICell {
 
     @Override
     public ICell getTopLeftCellFromRegion() {
-        // Gets the top left cell in this region
-        var topRow = region.getTop();
-        var col = region.getLeft();
-        return gridModel.getCell(col, topRow);
+        // A cell merged with none is the top left cell of itself, as a cell of a parsed grid is.
+        return region == null ? this : gridModel.getCell(region.getLeft(), region.getTop());
     }
 
     private boolean isCurrentCellATopLeftCellInRegion() {

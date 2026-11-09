@@ -1,0 +1,841 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "RulesGrade",
+    "source": [
+      [
+        {
+          "value": "Rules String RulesGrade(Integer score, String level)",
+          "colspan": 3
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "C1"
+        },
+        {
+          "value": "C2"
+        },
+        {
+          "value": "RET1"
+        }
+      ],
+      [
+        {
+          "value": "score >= min"
+        },
+        {
+          "value": "level == l"
+        },
+        {
+          "value": "r"
+        }
+      ],
+      [
+        {
+          "value": "Integer min"
+        },
+        {
+          "value": "String l"
+        },
+        {
+          "value": "String r"
+        }
+      ],
+      [
+        {
+          "value": "Min"
+        },
+        {
+          "value": "Level"
+        },
+        {
+          "value": "Grade"
+        }
+      ],
+      [
+        {
+          "value": "0"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G0"
+        }
+      ],
+      [
+        {
+          "value": "1"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G1"
+        }
+      ],
+      [
+        {
+          "value": "2"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G2"
+        }
+      ],
+      [
+        {
+          "value": "3"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G3"
+        }
+      ],
+      [
+        {
+          "value": "4"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G4"
+        }
+      ],
+      [
+        {
+          "value": "5"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G5"
+        }
+      ],
+      [
+        {
+          "value": "6"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G6"
+        }
+      ],
+      [
+        {
+          "value": "7"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G7"
+        }
+      ],
+      [
+        {
+          "value": "8"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G8"
+        }
+      ],
+      [
+        {
+          "value": "9"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G9"
+        }
+      ],
+      [
+        {
+          "value": "10"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G10"
+        }
+      ],
+      [
+        {
+          "value": "11"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G11"
+        }
+      ],
+      [
+        {
+          "value": "12"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G12"
+        }
+      ],
+      [
+        {
+          "value": "13"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G13"
+        }
+      ],
+      [
+        {
+          "value": "14"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G14"
+        }
+      ],
+      [
+        {
+          "value": "15"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G15"
+        }
+      ],
+      [
+        {
+          "value": "16"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G16"
+        }
+      ],
+      [
+        {
+          "value": "17"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G17"
+        }
+      ],
+      [
+        {
+          "value": "18"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G18"
+        }
+      ],
+      [
+        {
+          "value": "19"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G19"
+        }
+      ],
+      [
+        {
+          "value": "20"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G20"
+        }
+      ],
+      [
+        {
+          "value": "21"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G21"
+        }
+      ],
+      [
+        {
+          "value": "22"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G22"
+        }
+      ],
+      [
+        {
+          "value": "23"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G23"
+        }
+      ],
+      [
+        {
+          "value": "24"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G24"
+        }
+      ],
+      [
+        {
+          "value": "25"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G25"
+        }
+      ],
+      [
+        {
+          "value": "26"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G26"
+        }
+      ],
+      [
+        {
+          "value": "27"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G27"
+        }
+      ],
+      [
+        {
+          "value": "28"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G28"
+        }
+      ],
+      [
+        {
+          "value": "29"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G29"
+        }
+      ],
+      [
+        {
+          "value": "30"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G30"
+        }
+      ],
+      [
+        {
+          "value": "31"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G31"
+        }
+      ],
+      [
+        {
+          "value": "32"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G32"
+        }
+      ],
+      [
+        {
+          "value": "33"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G33"
+        }
+      ],
+      [
+        {
+          "value": "34"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G34"
+        }
+      ],
+      [
+        {
+          "value": "35"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G35"
+        }
+      ],
+      [
+        {
+          "value": "36"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G36"
+        }
+      ],
+      [
+        {
+          "value": "37"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G37"
+        }
+      ],
+      [
+        {
+          "value": "38"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G38"
+        }
+      ],
+      [
+        {
+          "value": "39"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G39"
+        }
+      ],
+      [
+        {
+          "value": "40"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G40"
+        }
+      ],
+      [
+        {
+          "value": "41"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G41"
+        }
+      ],
+      [
+        {
+          "value": "42"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G42"
+        }
+      ],
+      [
+        {
+          "value": "43"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G43"
+        }
+      ],
+      [
+        {
+          "value": "44"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G44"
+        }
+      ],
+      [
+        {
+          "value": "45"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G45"
+        }
+      ],
+      [
+        {
+          "value": "46"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G46"
+        }
+      ],
+      [
+        {
+          "value": "47"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G47"
+        }
+      ],
+      [
+        {
+          "value": "48"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G48"
+        }
+      ],
+      [
+        {
+          "value": "49"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G49"
+        }
+      ],
+      [
+        {
+          "value": "50"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G50"
+        }
+      ],
+      [
+        {
+          "value": "51"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G51"
+        }
+      ],
+      [
+        {
+          "value": "52"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G52"
+        }
+      ],
+      [
+        {
+          "value": "53"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G53"
+        }
+      ],
+      [
+        {
+          "value": "54"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G54"
+        }
+      ],
+      [
+        {
+          "value": "55"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G55"
+        }
+      ],
+      [
+        {
+          "value": "56"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G56"
+        }
+      ],
+      [
+        {
+          "value": "57"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G57"
+        }
+      ],
+      [
+        {
+          "value": "58"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G58"
+        }
+      ],
+      [
+        {
+          "value": "59"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G59"
+        }
+      ],
+      [
+        {
+          "value": "60"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G60"
+        }
+      ],
+      [
+        {
+          "value": "61"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G61"
+        }
+      ],
+      [
+        {
+          "value": "62"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G62"
+        }
+      ],
+      [
+        {
+          "value": "63"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G63"
+        }
+      ],
+      [
+        {
+          "value": "64"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G64"
+        }
+      ],
+      [
+        {
+          "value": "65"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G65"
+        }
+      ],
+      [
+        {
+          "value": "66"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G66"
+        }
+      ],
+      [
+        {
+          "value": "67"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G67"
+        }
+      ],
+      [
+        {
+          "value": "68"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "G68"
+        }
+      ],
+      [
+        {
+          "value": "69"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "G69"
+        }
+      ]
+    ]
+  }
+}

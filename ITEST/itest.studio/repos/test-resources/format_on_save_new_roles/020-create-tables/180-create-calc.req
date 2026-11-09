@@ -1,0 +1,82 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Calc",
+    "source": [
+      [
+        {
+          "value": "TBasic Integer Calc(Integer n)",
+          "colspan": 3
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Operation"
+        },
+        {
+          "value": "Condition"
+        },
+        {
+          "value": "Action"
+        }
+      ],
+      [
+        {
+          "value": "Operation"
+        },
+        {
+          "value": "Condition"
+        },
+        {
+          "value": "Action"
+        }
+      ],
+      [
+        {
+          "value": "VAR"
+        },
+        {
+          "value": "x"
+        },
+        {
+          "value": "1"
+        }
+      ],
+      [
+        {
+          "value": "SET"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "x += n"
+        }
+      ],
+      [
+        {
+          "value": "RETURN"
+        },
+        {
+          "value": "x"
+        },
+        {
+          "value": null
+        }
+      ]
+    ]
+  }
+}

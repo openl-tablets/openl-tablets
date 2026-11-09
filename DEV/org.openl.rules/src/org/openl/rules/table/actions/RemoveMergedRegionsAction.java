@@ -1,7 +1,9 @@
 package org.openl.rules.table.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.table.GridRegionUtils;
@@ -23,20 +25,25 @@ public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
 
     protected final IGridRegion region;
 
+    /** The merged regions the action removed, empty until it is done. */
+    @Getter
+    private List<IGridRegion> removedRegions = List.of();
+
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-        var removedRegions = new ArrayList<IGridRegion>();
+        var removed = new ArrayList<IGridRegion>();
         var nregions = grid.getNumberOfMergedRegions();
         for (var i = 0; i < nregions; i++) {
             var reg = grid.getMergedRegion(i);
             if (GridRegionUtils.contains(region, reg.getLeft(), reg.getTop())) {
-                removedRegions.add(reg);
+                removed.add(reg);
             }
         }
-        for (IGridRegion regionToRemove : removedRegions) {
+        for (IGridRegion regionToRemove : removed) {
             grid.removeMergedRegion(regionToRemove);
         }
+        removedRegions = List.copyOf(removed);
     }
 
 }

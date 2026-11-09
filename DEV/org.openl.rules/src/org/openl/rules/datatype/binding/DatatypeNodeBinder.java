@@ -42,6 +42,12 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
     public static final int PARENT_TYPE_INDEX = 3;
     public static final int TYPE_INDEX = 1;
 
+    /** Adds the type of the table to the module, and generates its class, as it binds it: not bound alone. */
+    @Override
+    public boolean bindsAlone() {
+        return false;
+    }
+
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
                                     OpenL openl,

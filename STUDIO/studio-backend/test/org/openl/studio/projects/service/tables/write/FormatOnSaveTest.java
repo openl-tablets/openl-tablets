@@ -256,7 +256,7 @@ class FormatOnSaveTest {
                 formattingOn());
         var grid = TableTestProjects.sheetGrid(dir, SHEET);
 
-        copier.copyInto(table(), "Rate2", null, grid, model.getTableSyntaxNodes());
+        copier.copyInto(table(), "Rate2", null, grid, model.getTableSyntaxNodes(), null);
         TableWriter.saveWorkbook(grid);
 
         var copy = TableTestProjects.table(TableTestProjects.projectModel(dir), "Rate2").getGridTable().getRegion();

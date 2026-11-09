@@ -121,6 +121,21 @@ enum LayoutKind {
         };
     }
 
+    /**
+     * Whether the first rows of a table of the kind tell the roles of all its rows: its body repeats one line of values
+     * under its titles, as a Data, a Test, a Run, a decision and a lookup table do. The steps of a Spreadsheet, a
+     * TBasic and a ColumnMatch table take each a role of its own, and what a Spreadsheet returns may stand on its last
+     * row.
+     *
+     * @return whether the first rows of a table of the kind tell its roles
+     */
+    boolean rolesShownByFirstRows() {
+        return switch (this) {
+            case DATA, TEST, RUN, RULES, SIMPLE_RULES, SMART_RULES, SIMPLE_LOOKUP, SMART_LOOKUP -> true;
+            default -> false;
+        };
+    }
+
     /** Whether a Datatype lists the values of a type: as the compiler bound it, or as its header names it. */
     private static boolean isVocabulary(TableSyntaxNode node) {
         if (node.getMetaInfoReader() instanceof AliasDatatypeMetaInfoReader) {

@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Rules",
+  "kind": "Rules",
+  "name": "RulesGrade",
+  "returnType": "String",
+  "signature": "RulesGrade(Integer score, String level)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B57:D131"
+}

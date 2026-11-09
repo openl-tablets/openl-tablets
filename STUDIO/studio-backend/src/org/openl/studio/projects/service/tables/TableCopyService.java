@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -37,8 +38,11 @@ public interface TableCopyService {
      * @param properties   the copy's properties, or {@code null} to keep the source's
      * @param destGrid     the sheet the copy is written to
      * @param moduleTables the tables compiled together with the copy, which a new version is checked against
+     * @param compiled     the compiled module the copy is written to, which the copy is bound alone against to be
+     *                     formatted in the roles it takes there, or {@code null} to format it in the roles of its
+     *                     source
      * @return the identifier the copy is known by once its module is compiled again
      */
     String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
-            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables);
+            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled);
 }

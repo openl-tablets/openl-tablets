@@ -56,6 +56,12 @@ public class MessageSourceResourceMethod implements IOpenMethod {
      */
     private final XlsModuleOpenClass module;
 
+    /**
+     * Whether the module keeps the calls of the method bound in it. A table bound alone against a module compiled
+     * before leaves the module as it was, so its calls are not kept.
+     */
+    private final boolean keepsCalls;
+
     /** The messages of the module the method is bound in, which a hint over a key of a call of it shows. */
     public OpenLMessageSource getMessageSource() {
         return module.getMessageSource();
@@ -81,7 +87,7 @@ public class MessageSourceResourceMethod implements IOpenMethod {
             return;
         }
         var method = calledBy(caller);
-        if (method == null) {
+        if (method == null || !method.keepsCalls) {
             return;
         }
         var values = valuesOf(arguments);

@@ -158,7 +158,7 @@ class TableIdAfterWriteTest {
         // and moves below the copy: the two share what they are, and are told apart by their order.
         var grid = creator.sheetGridModel(model, SHEET);
         var copyId = copier.copyInto(source, "greet", List.of(new TableProperty("version", "0.0.2")), grid,
-                model.getTableSyntaxNodes());
+                model.getTableSyntaxNodes(), null);
         creator.save(grid);
 
         var compiled = TableTestProjects.projectModel(dir);

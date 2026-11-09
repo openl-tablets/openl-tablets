@@ -1,0 +1,284 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "TBasic",
+  "name": "Calc",
+  "pos": "B159:D164",
+  "source": [
+    [
+      {
+        "cell": "B159",
+        "value": "TBasic Integer Calc(Integer n)",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 6,
+            "style": 1
+          },
+          {
+            "to": 14,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 2
+          },
+          {
+            "to": 20,
+            "style": 1
+          },
+          {
+            "to": 27,
+            "style": 1
+          },
+          {
+            "to": 29,
+            "style": 3
+          },
+          {
+            "to": 30,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B160",
+        "value": "Operation",
+        "style": 4
+      },
+      {
+        "cell": "C160",
+        "value": "Condition",
+        "style": 4
+      },
+      {
+        "cell": "D160",
+        "value": "Action",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B161",
+        "value": "Operation",
+        "style": 5
+      },
+      {
+        "cell": "C161",
+        "value": "Condition",
+        "style": 5
+      },
+      {
+        "cell": "D161",
+        "value": "Action",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B162",
+        "value": "VAR",
+        "style": 6
+      },
+      {
+        "cell": "C162",
+        "value": "x",
+        "style": 6
+      },
+      {
+        "cell": "D162",
+        "value": "1",
+        "style": 6
+      }
+    ],
+    [
+      {
+        "cell": "B163",
+        "value": "RETURN",
+        "style": 7
+      },
+      {
+        "cell": "C163",
+        "value": "x + n",
+        "style": 7
+      },
+      {
+        "cell": "D163",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B164",
+        "value": "RETURN",
+        "style": 8
+      },
+      {
+        "cell": "C164",
+        "value": "x",
+        "style": 8
+      },
+      {
+        "cell": "D164",
+        "style": 8
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "double",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "code",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "result",
+      "type": "code",
+      "top": 4,
+      "left": 0,
+      "bottom": 5,
+      "right": 1
+    },
+    {
+      "role": "result",
+      "top": 4,
+      "left": 2,
+      "bottom": 5,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 6
+    },
+    {
+      "part": "type",
+      "to": 14
+    },
+    {
+      "part": "name",
+      "to": 19
+    },
+    {
+      "part": "punctuation",
+      "to": 20
+    },
+    {
+      "part": "parameterType",
+      "to": 27
+    },
+    {
+      "part": "parameterName",
+      "to": 29
+    },
+    {
+      "part": "punctuation",
+      "to": 30
+    }
+  ],
+  "headerHeight": 2
+}

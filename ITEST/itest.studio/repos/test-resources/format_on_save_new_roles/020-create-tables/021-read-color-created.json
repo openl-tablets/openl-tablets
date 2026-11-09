@@ -1,0 +1,109 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Color",
+  "pos": "B6:B8",
+  "source": [
+    [
+      {
+        "cell": "B6",
+        "value": "Datatype Color <String>",
+        "style": 0,
+        "runs": [
+          {
+            "to": 8,
+            "style": 1
+          },
+          {
+            "to": 14,
+            "style": 2
+          },
+          {
+            "to": 23,
+            "style": 1
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Red",
+        "style": 3
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Green",
+        "style": 4
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 14
+    },
+    {
+      "part": "type",
+      "to": 23
+    }
+  ],
+  "headerHeight": 1
+}

@@ -1,0 +1,84 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "SimpleGrade",
+    "source": [
+      [
+        {
+          "value": "SimpleRules String SimpleGrade(Integer score, String level)",
+          "colspan": 5
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Score"
+        },
+        {
+          "value": ">= 0"
+        },
+        {
+          "value": ">= 1"
+        },
+        {
+          "value": ">= 2"
+        },
+        {
+          "value": ">= 3"
+        }
+      ],
+      [
+        {
+          "value": "Level"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "low"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "low"
+        }
+      ],
+      [
+        {
+          "value": "Grade"
+        },
+        {
+          "value": "G0"
+        },
+        {
+          "value": "G1"
+        },
+        {
+          "value": "G2"
+        },
+        {
+          "value": "G3"
+        }
+      ]
+    ]
+  }
+}

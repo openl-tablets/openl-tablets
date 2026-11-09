@@ -1,0 +1,49 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "GradeRun",
+    "source": [
+      [
+        {
+          "value": "Run GradeOf GradeRun",
+          "colspan": 3
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "score"
+        },
+        {
+          "value": "Score"
+        },
+        {
+          "value": "1"
+        }
+      ],
+      [
+        {
+          "value": "level"
+        },
+        {
+          "value": "Level"
+        },
+        {
+          "value": "high"
+        }
+      ]
+    ]
+  }
+}

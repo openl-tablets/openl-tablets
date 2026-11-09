@@ -1,0 +1,357 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "SimpleRate",
+  "pos": "B147:F151",
+  "source": [
+    [
+      {
+        "cell": "B147",
+        "value": "SimpleLookup Double SimpleRate(String region, Integer age)",
+        "colspan": 5,
+        "style": 0,
+        "runs": [
+          {
+            "to": 12,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 1
+          },
+          {
+            "to": 30,
+            "style": 2
+          },
+          {
+            "to": 31,
+            "style": 1
+          },
+          {
+            "to": 37,
+            "style": 1
+          },
+          {
+            "to": 44,
+            "style": 3
+          },
+          {
+            "to": 45,
+            "style": 1
+          },
+          {
+            "to": 53,
+            "style": 1
+          },
+          {
+            "to": 57,
+            "style": 3
+          },
+          {
+            "to": 58,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B148",
+        "value": "Region",
+        "style": 4
+      },
+      {
+        "cell": "C148",
+        "value": "R0",
+        "style": 5
+      },
+      {
+        "cell": "D148",
+        "value": "R1",
+        "style": 5
+      },
+      {
+        "cell": "E148",
+        "value": "R2",
+        "style": 5
+      },
+      {
+        "cell": "F148",
+        "value": "R3",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B149",
+        "value": 18,
+        "style": 6
+      },
+      {
+        "cell": "C149",
+        "value": 0,
+        "style": 7
+      },
+      {
+        "cell": "D149",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "E149",
+        "value": 2,
+        "style": 7
+      },
+      {
+        "cell": "F149",
+        "value": 3,
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B150",
+        "value": 30,
+        "style": 6
+      },
+      {
+        "cell": "C150",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "D150",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "E150",
+        "value": 1,
+        "style": 7
+      },
+      {
+        "cell": "F150",
+        "value": 1,
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B151",
+        "value": 50,
+        "style": 8
+      },
+      {
+        "cell": "C151",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "D151",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "E151",
+        "value": 2,
+        "style": 9
+      },
+      {
+        "cell": "F151",
+        "value": 2,
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 4
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 4
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 1,
+      "bottom": 4,
+      "right": 4
+    },
+    {
+      "role": "outputTitle",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 12
+    },
+    {
+      "part": "type",
+      "to": 19
+    },
+    {
+      "part": "name",
+      "to": 30
+    },
+    {
+      "part": "punctuation",
+      "to": 31
+    },
+    {
+      "part": "parameterType",
+      "to": 37
+    },
+    {
+      "part": "parameterName",
+      "to": 44
+    },
+    {
+      "part": "punctuation",
+      "to": 45
+    },
+    {
+      "part": "parameterType",
+      "to": 53
+    },
+    {
+      "part": "parameterName",
+      "to": 57
+    },
+    {
+      "part": "punctuation",
+      "to": 58
+    }
+  ],
+  "headerHeight": 1
+}

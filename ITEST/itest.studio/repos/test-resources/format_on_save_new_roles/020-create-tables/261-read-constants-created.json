@@ -1,0 +1,166 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Constants",
+  "name": "Constants",
+  "pos": "B201:D203",
+  "source": [
+    [
+      {
+        "cell": "B201",
+        "value": "Constants",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 9,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B202",
+        "value": "Double",
+        "style": 2
+      },
+      {
+        "cell": "C202",
+        "value": "rate",
+        "style": 3
+      },
+      {
+        "cell": "D202",
+        "value": 1.5,
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B203",
+        "value": "String",
+        "style": 5
+      },
+      {
+        "cell": "C203",
+        "value": "label",
+        "style": 6
+      },
+      {
+        "cell": "D203",
+        "value": "Base",
+        "style": 7,
+        "type": "string"
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 2,
+      "bottom": 2,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 9
+    }
+  ],
+  "headerHeight": 1
+}

@@ -1,0 +1,56 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "Claim",
+    "source": [
+      [
+        {
+          "value": "Datatype Claim",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "String"
+        },
+        {
+          "value": "cause"
+        }
+      ],
+      [
+        {
+          "value": "Boolean"
+        },
+        {
+          "value": "catastrophe"
+        }
+      ],
+      [
+        {
+          "value": "Boolean"
+        },
+        {
+          "value": "firstParty"
+        }
+      ],
+      [
+        {
+          "value": "Double"
+        },
+        {
+          "value": "amount"
+        }
+      ]
+    ]
+  }
+}

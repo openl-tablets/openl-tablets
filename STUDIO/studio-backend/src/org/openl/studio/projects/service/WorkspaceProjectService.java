@@ -2748,6 +2748,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
+        writer.setCompiledModule(context.module().compiledModuleOf(context.table().getSyntaxNode()));
         return renamed(context,
                 writing(context, expectedVersion, () -> tableWriterExecutor.executeWrite(writer, tableView)));
     }
@@ -2770,6 +2771,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
+        writer.setCompiledModule(context.module().compiledModuleOf(context.table().getSyntaxNode()));
         return renamed(context,
                 writing(context, expectedVersion, () -> tableWriterExecutor.executeAppend(writer, tableView)));
     }
@@ -2798,6 +2800,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
+        writer.setCompiledModule(context.module().compiledModuleOf(context.table().getSyntaxNode()));
         return renamed(context,
                 writing(context, expectedVersion, () -> tableWriterExecutor.executeSourceAction(writer, actions)));
     }
@@ -3112,7 +3115,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                              String sheetName) {
         var destGrid = tableCreatorService.sheetGridModel(projectModel, sheetName);
         var copyId = tableCopyService.copyInto(source, request.name(), request.properties(), destGrid,
-                projectModel.getTableSyntaxNodes());
+                projectModel.getTableSyntaxNodes(), projectModel.compiledModuleOf(projectModel.getXlsModuleNode()));
         tableCreatorService.save(destGrid);
         return copyId;
     }

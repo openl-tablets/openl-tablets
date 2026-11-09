@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.ICompileContext;
 import org.openl.IOpenBinder;
@@ -131,6 +132,16 @@ public class XlsBinder implements IOpenBinder {
         return BinderFactoryHolder.INSTANCE;
     }
 
+    /**
+     * The binder of the tables of a type.
+     *
+     * @param tableType the type of the tables, as their syntax nodes name it
+     * @return the binder, or {@code null} for a type no binder binds, such as a table of the type Other
+     */
+    static @Nullable AXlsTableBinder binderOf(String tableType) {
+        return BinderFactoryHolder.INSTANCE.get(tableType);
+    }
+
     private final ICompileContext compileContext;
     private final Map<String, OpenL> openls = new HashMap<>();
 
@@ -147,22 +158,22 @@ public class XlsBinder implements IOpenBinder {
     }
 
     @Override
-    public ICastFactory getCastFactory() {
+    public @Nullable ICastFactory getCastFactory() {
         return null;
     }
 
     @Override
-    public INameSpacedMethodFactory getMethodFactory() {
+    public @Nullable INameSpacedMethodFactory getMethodFactory() {
         return null;
     }
 
     @Override
-    public INameSpacedTypeFactory getTypeFactory() {
+    public @Nullable INameSpacedTypeFactory getTypeFactory() {
         return null;
     }
 
     @Override
-    public INameSpacedVarFactory getVarFactory() {
+    public @Nullable INameSpacedVarFactory getVarFactory() {
         return null;
     }
 
@@ -507,15 +518,14 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
-        return XlsNodeTypes.XLS_DT.equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_TBASIC
-                .equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_METHOD
-                .equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_COLUMN_MATCH.equals(tableSyntaxNode
-                .getNodeType()) || XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType());
+        var type = tableSyntaxNode.getNodeType();
+        return type == XlsNodeTypes.XLS_DT || type == XlsNodeTypes.XLS_TBASIC || type == XlsNodeTypes.XLS_METHOD
+                || type == XlsNodeTypes.XLS_COLUMN_MATCH || type == XlsNodeTypes.XLS_SPREADSHEET;
     }
 
     private static String getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
-        if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_DT
-                .equals(tableSyntaxNode.getNodeType())) {
+        var type = tableSyntaxNode.getNodeType();
+        if (type == XlsNodeTypes.XLS_SPREADSHEET || type == XlsNodeTypes.XLS_DT) {
             var headerModule = tableSyntaxNode.getHeader().getHeaderToken().getModule();
             if (headerModule == null) {
                 return null;
@@ -548,8 +558,7 @@ public class XlsBinder implements IOpenBinder {
      */
     private static boolean isSpreadsheetResultReturnType(TableSyntaxNode tableSyntaxNode, String headerPrefix) {
         var x1 = headerPrefix;
-        if (XlsNodeTypes.XLS_SPREADSHEET
-                .equals(tableSyntaxNode.getNodeType()) && (x1.endsWith("[") || x1.endsWith("]"))) {
+        if (XlsNodeTypes.XLS_SPREADSHEET == tableSyntaxNode.getNodeType() && (x1.endsWith("[") || x1.endsWith("]"))) {
             return false;
         }
         while (!x1.isEmpty() && x1.charAt(x1.length() - 1) == ' ' || x1.charAt(x1.length() - 1) == '[' || x1
@@ -580,7 +589,7 @@ public class XlsBinder implements IOpenBinder {
                             sprResTypeName,
                             rulesModuleBindingContext.getModule(),
                             rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
-                            XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()));
+                            XlsNodeTypes.XLS_SPREADSHEET == tableSyntaxNode.getNodeType());
                     rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);
                     t = customSpreadsheetResultOpenClass;
                 }

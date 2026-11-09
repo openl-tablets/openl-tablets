@@ -1,0 +1,371 @@
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Column Match",
+  "name": "Approval",
+  "pos": "B166:E171",
+  "source": [
+    [
+      {
+        "cell": "B166",
+        "value": "ColumnMatch <MATCH> String Approval(String area, Integer money)",
+        "colspan": 4,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 26,
+            "style": 1
+          },
+          {
+            "to": 35,
+            "style": 2
+          },
+          {
+            "to": 36,
+            "style": 1
+          },
+          {
+            "to": 42,
+            "style": 1
+          },
+          {
+            "to": 47,
+            "style": 3
+          },
+          {
+            "to": 48,
+            "style": 1
+          },
+          {
+            "to": 56,
+            "style": 1
+          },
+          {
+            "to": 62,
+            "style": 3
+          },
+          {
+            "to": 63,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B167",
+        "value": "names",
+        "style": 4
+      },
+      {
+        "cell": "C167",
+        "value": "operation",
+        "style": 4
+      },
+      {
+        "cell": "D167",
+        "value": "values",
+        "colspan": 2,
+        "style": 4
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B168",
+        "value": "Expenses",
+        "style": 5
+      },
+      {
+        "cell": "C168",
+        "value": "Condition",
+        "style": 5
+      },
+      {
+        "cell": "D168",
+        "value": "Need Approval Of",
+        "colspan": 2,
+        "style": 5
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B169",
+        "value": "Return Values",
+        "style": 6
+      },
+      {
+        "cell": "C169",
+        "style": 6
+      },
+      {
+        "cell": "D169",
+        "value": "CAO",
+        "style": 7
+      },
+      {
+        "cell": "E169",
+        "value": "Team Lead",
+        "style": 7
+      }
+    ],
+    [
+      {
+        "cell": "B170",
+        "value": "area",
+        "style": 8
+      },
+      {
+        "cell": "C170",
+        "value": "match",
+        "style": 9
+      },
+      {
+        "cell": "D170",
+        "value": "Hardware",
+        "style": 9,
+        "type": "string"
+      },
+      {
+        "cell": "E170",
+        "value": "Hardware",
+        "style": 9,
+        "type": "string"
+      }
+    ],
+    [
+      {
+        "cell": "B171",
+        "value": "money",
+        "style": 10
+      },
+      {
+        "cell": "C171",
+        "value": "min",
+        "style": 11
+      },
+      {
+        "cell": "D171",
+        "value": 100000,
+        "style": 11
+      },
+      {
+        "cell": "E171",
+        "value": 5000,
+        "style": 11
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#eeece1",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 3
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 3
+    },
+    {
+      "role": "outputTitle",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 3,
+      "left": 2,
+      "bottom": 3,
+      "right": 3
+    },
+    {
+      "role": "key",
+      "top": 4,
+      "left": 0,
+      "bottom": 5,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 4,
+      "left": 1,
+      "bottom": 5,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 4,
+      "left": 2,
+      "bottom": 5,
+      "right": 3
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 26
+    },
+    {
+      "part": "name",
+      "to": 35
+    },
+    {
+      "part": "punctuation",
+      "to": 36
+    },
+    {
+      "part": "parameterType",
+      "to": 42
+    },
+    {
+      "part": "parameterName",
+      "to": 47
+    },
+    {
+      "part": "punctuation",
+      "to": 48
+    },
+    {
+      "part": "parameterType",
+      "to": 56
+    },
+    {
+      "part": "parameterName",
+      "to": 62
+    },
+    {
+      "part": "punctuation",
+      "to": 63
+    }
+  ],
+  "headerHeight": 2
+}

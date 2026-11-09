@@ -23,6 +23,12 @@ public class ConstantsTableBinder extends AXlsTableBinder {
 
     private static final byte CONSTANTS_TABLE_NAME_INDEX = 1;
 
+    /** Writes the constants of the table into the module as it binds them: not bound alone. */
+    @Override
+    public boolean bindsAlone() {
+        return false;
+    }
+
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
                                     OpenL openl,

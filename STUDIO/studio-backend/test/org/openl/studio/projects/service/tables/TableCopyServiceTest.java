@@ -60,7 +60,7 @@ class TableCopyServiceTest {
         var sourceView = reader.read(source.table(), RawTableRead.builder().withStyles(true).build());
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
-        var copyId = service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source));
+        var copyId = service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source), null);
         creator.save(destGrid);
 
         var copy = resolve(projectDir, "BankLimitIndexCopy").table();
@@ -76,11 +76,11 @@ class TableCopyServiceTest {
 
         // Everything below the header — properties (kept) and body — is copied verbatim: values, styles and merges.
         assertEquals(sourceView.source.size(), copyView.source.size(), "the copy has the source's rows");
-        for (int row = 1; row < sourceView.source.size(); row++) {
+        for (var row = 1; row < sourceView.source.size(); row++) {
             var sourceRow = sourceView.source.get(row);
             var copyRow = copyView.source.get(row);
             assertEquals(sourceRow.size(), copyRow.size(), "row " + row + " has the source's width");
-            for (int column = 0; column < sourceRow.size(); column++) {
+            for (var column = 0; column < sourceRow.size(); column++) {
                 assertSameCell(sourceRow.get(column), copyRow.get(column), row, column);
             }
         }
@@ -92,7 +92,8 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy",
-                List.of(new TableProperty("state", "AL"), new TableProperty("lob", " ")), destGrid, tables(source));
+                List.of(new TableProperty("state", "AL"), new TableProperty("lob", " ")), destGrid, tables(source),
+                null);
         creator.save(destGrid);
 
         var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), RawTableRead.builder()
@@ -123,7 +124,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy", List.of(new TableProperty("state", "AL")), destGrid,
-                tables(source));
+                tables(source), null);
         creator.save(destGrid);
 
         // The copy is a new table, so it records its own author rather than inheriting the source's.
@@ -150,7 +151,7 @@ class TableCopyServiceTest {
         // version of the source rather than a table standing beside it.
         var destGrid = creator.sheetGridModel(dated.model(), "Copies");
         service.copyInto(dated.table(), "BankLimitIndex",
-                List.of(effectiveDate, new TableProperty("version", "0.0.2")), destGrid, tables(dated));
+                List.of(effectiveDate, new TableProperty("version", "0.0.2")), destGrid, tables(dated), null);
         creator.save(destGrid);
 
         var copy = resolve(projectDir, "BankLimitIndex", "Copies").table().getProperties();
@@ -166,7 +167,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")), destGrid,
-                tables(source));
+                tables(source), null);
         creator.save(destGrid);
 
         // Two active tables of one name do not compile, so the table the new version replaces steps aside.
@@ -186,7 +187,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy", List.of(new TableProperty("createdBy", "someone else")),
-                destGrid, tables(source));
+                destGrid, tables(source), null);
         creator.save(destGrid);
 
         // The author a table reports is the one who made it, whatever the request says.
@@ -198,7 +199,7 @@ class TableCopyServiceTest {
         var source = bankLimitIndex(projectDir);
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")), destGrid,
-                tables(source));
+                tables(source), null);
         creator.save(destGrid);
 
         // The version the source stood for is carried by the table that stepped aside, so it is no longer free —
@@ -210,7 +211,7 @@ class TableCopyServiceTest {
         var moduleTables = tables(active);
 
         var refused = assertThrows(BadRequestException.class,
-                () -> service.copyInto(table, "BankLimitIndex", properties, again, moduleTables));
+                () -> service.copyInto(table, "BankLimitIndex", properties, again, moduleTables, null));
         assertEquals("openl.error.400.table.copy.version.taken.message", refused.getErrorCode());
     }
 
@@ -221,7 +222,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy", List.of(new TableProperty("version", "0.0.2")),
-                destGrid, tables(source));
+                destGrid, tables(source), null);
         creator.save(destGrid);
 
         // A copy under another name is a table of its own, so nothing takes the source's place.
@@ -234,13 +235,13 @@ class TableCopyServiceTest {
         var source = bankLimitIndex(projectDir);
         var dimensional = creator.sheetGridModel(source.model(), "Dimensional");
         service.copyInto(source.table(), "BankLimitIndex", List.of(new TableProperty("state", "AL")), dimensional,
-                tables(source));
+                tables(source), null);
         creator.save(dimensional);
 
         var stateTable = resolve(projectDir, "BankLimitIndex", "Dimensional");
         var versions = creator.sheetGridModel(stateTable.model(), "Versions");
         service.copyInto(stateTable.table(), "BankLimitIndex", List.of(new TableProperty("version", "0.0.2")),
-                versions, tables(stateTable));
+                versions, tables(stateTable), null);
         creator.save(versions);
 
         // The copy declares no state, so the engine dispatches it for other requests: it stands beside the table
@@ -259,7 +260,7 @@ class TableCopyServiceTest {
 
         var destGrid = creator.sheetGridModel(carried.model(), "Legacy");
         service.copyInto(carried.table(), "BankLimitIndexCopy", List.of(new TableProperty("version", "1.0")),
-                destGrid, tables(carried));
+                destGrid, tables(carried), null);
         creator.save(destGrid);
 
         assertEquals("1.0", resolve(projectDir, "BankLimitIndexCopy", "Legacy").table().getProperties().getVersion());
@@ -273,7 +274,7 @@ class TableCopyServiceTest {
 
         service.copyInto(source.table(), "BankLimitIndex",
                 List.of(new TableProperty("version", "0.0.2"), new TableProperty("active", "No")), destGrid,
-                tables(source));
+                tables(source), null);
         creator.save(destGrid);
 
         // 'No' is one of the ways the engine reads false, so the copy is staged rather than taking over, and the
@@ -317,7 +318,7 @@ class TableCopyServiceTest {
         var moduleTables = tables(source);
 
         assertThrows(BadRequestException.class,
-                () -> service.copyInto(table, newName, properties, destGrid, moduleTables));
+                () -> service.copyInto(table, newName, properties, destGrid, moduleTables, null));
     }
 
     @ParameterizedTest
@@ -331,7 +332,7 @@ class TableCopyServiceTest {
         var moduleTables = tables(source);
 
         var refused = assertThrows(BadRequestException.class,
-                () -> service.copyInto(table, "BankLimitIndexCopy", properties, destGrid, moduleTables));
+                () -> service.copyInto(table, "BankLimitIndexCopy", properties, destGrid, moduleTables, null));
         assertEquals("openl.error.400.table.copy.property.invalid.message", refused.getErrorCode());
         assertArrayEquals(new Object[]{name, value}, refused.getArgs());
     }
@@ -351,7 +352,7 @@ class TableCopyServiceTest {
         var moduleTables = tables(retired);
 
         assertThrows(BadRequestException.class,
-                () -> service.copyInto(table, "BankLimitIndex", properties, destGrid, moduleTables));
+                () -> service.copyInto(table, "BankLimitIndex", properties, destGrid, moduleTables, null));
     }
 
     /** Cells match on everything but their address: value, spans, covered flag and style. */
@@ -387,6 +388,25 @@ class TableCopyServiceTest {
     }
 
     /** The fixture's {@code BankLimitIndex}, in a project directory of its own. */
+    @Test
+    void formatsACopyInTheRolesItsModuleGivesWhenTheSourceHasNone(@TempDir Path projectDir) throws Exception {
+        var formatting = mock(TableFormatting.class);
+        when(formatting.onSave()).thenReturn(true);
+        var formatted = new TableCopyServiceImpl(systemPropertiesService, new TableVersionService(), formatting);
+        var source = bankLimitIndex(projectDir);
+        var destGrid = creator.sheetGridModel(source.model(), "Copies");
+        // Saved since its compile, the workbook leaves the source no regions of its last compile to take.
+        creator.save(destGrid);
+
+        formatted.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source),
+                source.model().compiledModuleOf(source.model().getXlsModuleNode()));
+        creator.save(destGrid);
+
+        var copy = resolve(projectDir, "BankLimitIndexCopy").table().getGridTable().getRegion();
+        assertEquals("Title", TableTestProjects.styleNameAt(projectDir.resolve("BankLimits.xlsx"), "Copies",
+                copy.getTop(), copy.getLeft()), "The header of the copy takes the style of the signature");
+    }
+
     private static ResolvedTable bankLimitIndex(Path projectDir) throws Exception {
         Files.copy(FIXTURE, projectDir.resolve("BankLimits.xlsx"));
         return resolve(projectDir, "BankLimitIndex");

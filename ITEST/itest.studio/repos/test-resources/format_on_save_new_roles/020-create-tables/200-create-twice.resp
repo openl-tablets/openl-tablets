@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Method",
+  "kind": "Method",
+  "name": "Twice",
+  "returnType": "Double",
+  "signature": "Twice(Double a)",
+  "file": "***",
+  "sheet": "Rules",
+  "pos": "B173:B174"
+}

@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.OpenL;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
@@ -25,6 +27,7 @@ import org.openl.types.java.JavaOpenClass;
  *
  * @author DLiauchuk
  */
+@RequiredArgsConstructor
 public class PropertiesLoader {
 
     public static final String EXTERNAL_MODULE_PROPERTIES_KEY = "external-module-properties";
@@ -34,12 +37,6 @@ public class PropertiesLoader {
     private final OpenL openl;
     private final RulesModuleBindingContext bindingContext;
     private final XlsModuleOpenClass module;
-
-    public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module) {
-        this.openl = openl;
-        this.bindingContext = cxt;
-        this.module = module;
-    }
 
     /**
      * Load properties from source table as data table.
@@ -52,7 +49,7 @@ public class PropertiesLoader {
         var propertySectionName = PROPERTIES_SECTION_NAME + tableSyntaxNode.getUri();
         var dataNodeBinder = new DataNodeBinder();
 
-        var propertyTable = module.getDataBase().registerTable(propertySectionName, tableSyntaxNode);
+        var propertyTable = bindingContext.getDataBase().registerTable(propertySectionName, tableSyntaxNode);
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = PropertiesHelper.getPropertiesTableSection(tableSyntaxNode.getTable());
 
@@ -107,9 +104,8 @@ public class PropertiesLoader {
 
         if (category != null) {
             return category;
-        } else {
-            return Objects.requireNonNull(tsn.getXlsSheetSourceCodeModule(), "The table has no sheet").getSheetName();
         }
+        return Objects.requireNonNull(tsn.getXlsSheetSourceCodeModule(), "The table has no sheet").getSheetName();
     }
 
     /**

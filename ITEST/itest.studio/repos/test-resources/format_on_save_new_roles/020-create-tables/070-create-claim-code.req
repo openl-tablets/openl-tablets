@@ -1,0 +1,101 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Other",
+    "name": "ClaimCode",
+    "source": [
+      [
+        {
+          "value": "SmartRules String ClaimCode(Claim claim)",
+          "colspan": 5
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Cause of Loss"
+        },
+        {
+          "value": "Catastrophe"
+        },
+        {
+          "value": "First Party"
+        },
+        {
+          "value": "Estimated Loss Amount"
+        },
+        {
+          "value": "Rule Code"
+        }
+      ],
+      [
+        {
+          "value": "COMPREHENSIVE"
+        },
+        {
+          "value": "true"
+        },
+        {
+          "value": "true"
+        },
+        {
+          "value": ">0"
+        },
+        {
+          "value": "COMP1"
+        }
+      ],
+      [
+        {
+          "value": "COMPREHENSIVE"
+        },
+        {
+          "value": "false"
+        },
+        {
+          "value": "false"
+        },
+        {
+          "value": "[0;5000)"
+        },
+        {
+          "value": "COMP5"
+        }
+      ],
+      [
+        {
+          "value": "COLLISION"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "true"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "COLL1"
+        }
+      ]
+    ]
+  }
+}

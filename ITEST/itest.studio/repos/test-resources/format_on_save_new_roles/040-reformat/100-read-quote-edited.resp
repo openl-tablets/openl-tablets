@@ -1,0 +1,4 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+&../030-edit-tables/021-read-quote-edited.json

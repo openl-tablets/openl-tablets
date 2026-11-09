@@ -9,5 +9,5 @@ The raw read of a table with its styles carries what the Studio look draws (`reg
   title with no line under it. No region is the `result`.
 - `Total` returns `Double`: its step `RETURN` is the `result`, bold, with no fill, a line above it and a double line
   below it.
-- Marking the step `Audit` with `*` and saving twice makes its name a bold `key` and its description bold, with no
-  line, as the first marks.
+- Marking the step `Audit` with `*` makes its name a bold `key` and its description bold, with no line, as the
+  first marks, at the save that marks it. A second save leaves it so.

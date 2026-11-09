@@ -1628,7 +1628,7 @@ class WorkspaceProjectServiceTest {
         // The sheet defaults to the copy's name, and the copy is written into the freshly created module.
         verify(tableCreatorService).createEmptyModule(project, descriptor, "NewModule", "rules/NewModule.xlsx",
                 "CopyName");
-        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
+        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any(), any());
         verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).deleteModule(any(), any(), any());
     }
@@ -1682,7 +1682,8 @@ class WorkspaceProjectServiceTest {
         doReturn(destHandle).when(service).openProject(project, "NewModule");
         var destGrid = mock(XlsSheetGridModel.class);
         when(tableCreatorService.sheetGridModel(destModel, "CopyName")).thenReturn(destGrid);
-        when(tableCopyService.copyInto(any(), any(), any(), any(), any())).thenThrow(new RuntimeException("boom"));
+        when(tableCopyService.copyInto(any(), any(), any(), any(), any(), any()))
+                .thenThrow(new RuntimeException("boom"));
         when(project.isLockedByMe()).thenReturn(false, true);
         var request = new CopyTableRequest("NewModule", null, "rules/NewModule.xlsx", "CopyName", null);
 
@@ -2058,7 +2059,7 @@ class WorkspaceProjectServiceTest {
         when(webStudio.getCurrentProject()).thenReturn(currentProject);
         var destGrid = mock(XlsSheetGridModel.class);
         when(tableCreatorService.sheetGridModel(destModel, "Copies")).thenReturn(destGrid);
-        when(tableCopyService.copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any()))
+        when(tableCopyService.copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any(), any()))
                 .thenReturn("copy-id");
         var request = new CopyTableRequest("Existing", "Copies", null, "CopyName", null);
 
@@ -2066,7 +2067,7 @@ class WorkspaceProjectServiceTest {
 
         // The module is already compiled, so the copy's own identifier is known and returned.
         assertEquals("copy-id", copyId);
-        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
+        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any(), any());
         verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
     }

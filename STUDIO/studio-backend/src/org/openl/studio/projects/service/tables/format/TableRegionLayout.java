@@ -1,7 +1,9 @@
 package org.openl.studio.projects.service.tables.format;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -11,15 +13,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.BiFunction;
+import java.util.function.ToIntFunction;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.lang.xls.SingleTableBinder;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -28,6 +35,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.xls.ReadOnceSheetGrid;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.projects.model.tables.RawTableGroups;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableRole;
@@ -60,6 +69,7 @@ import org.openl.util.StringUtils;
  * <p>A layout depends on the compiled table and on its cells, so the layout of a compiled table is kept until the
  * table is compiled again ({@link #regionsOf}). Every page of a large table reuses it.
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TableRegionLayout {
 
@@ -128,6 +138,142 @@ public final class TableRegionLayout {
     static @Nullable TableRegions writtenRegionsOf(IGridTable written) {
         var node = TableIds.nodeOf(written);
         return node == null ? null : of(new TableSyntaxNodeAdapter(node), written);
+    }
+
+    /** How many rows of a table a probe binds: the header, the titles and the first lines of the body. */
+    public static final int PROBE_ROWS = 64;
+
+    /**
+     * The regions of a table written but not saved yet, laid out in the roles the compiler gives it as it stands now.
+     *
+     * <p>Only the table is bound, against the module compiled before (see {@link SingleTableBinder}): an edit of its
+     * header, its titles or its properties takes the roles it gives at once, with no compile of the module. The tables
+     * it uses are read as the module compiled them.
+     *
+     * <p>Given the regions of the last compile, a table taller than a probe is first bound in its first rows alone.
+     * When they take the roles the regions already give them, the regions serve as they are, and the rest of the table
+     * is neither bound nor laid out: an edit that changes no role costs a bind of a few rows, whatever the size of the
+     * table. A bind that fails leaves the table to the regions it had, and formatting never fails a save.
+     *
+     * @param written the table as it stands on its sheet, header included
+     * @param module  the compiled module that holds the table, or that a new table is written to
+     * @param shifted the regions of the last compile, moved along the lines the edit inserted and removed, which a
+     *                probe of the first rows is checked against; {@code null} binds the whole table
+     * @return the regions, {@code shifted} itself when the table keeps their roles, or {@code null} for a table of a
+     *         kind OpenL Studio does not format, one whose header cannot be read, one that cannot be bound alone, such
+     *         as a Datatype table, and one whose bind failed
+     */
+    public static @Nullable TableRegions boundRegionsOf(IGridTable written, XlsModuleOpenClass module,
+                                                        @Nullable TableRegions shifted) {
+        if (!(written.getGrid() instanceof XlsSheetGridModel sheet)) {
+            return null;
+        }
+        try {
+            // One grid for the probe and the whole table: a cell the probe read is not read again.
+            var read = new ReadOnceSheetGrid(sheet.getSheetSource());
+            var whole = TableIds.nodeOf(new GridTable(written.getRegion(), read));
+            if (whole == null) {
+                return null;
+            }
+            if (shifted != null && written.getHeight() > PROBE_ROWS && rolesShownByFirstRows(whole)) {
+                var probe = written.getSubtable(0, 0, written.getWidth(), PROBE_ROWS);
+                var probed = bind(probe, read, module);
+                if (probed != null && sameRoles(probed, clipped(shifted, PROBE_ROWS))) {
+                    return shifted;
+                }
+            }
+            var bound = SingleTableBinder.bind(whole, module);
+            return bound == null ? null : of(new TableSyntaxNodeAdapter(bound), written);
+        } catch (RuntimeException e) {
+            log.warn("The table at {} is formatted in the roles it had before it was written.", written.getUri(), e);
+            return null;
+        }
+    }
+
+    /** Whether the first rows of a table tell the roles of the rest of it, by its kind. */
+    private static boolean rolesShownByFirstRows(TableSyntaxNode node) {
+        var kind = LayoutKind.of(new TableSyntaxNodeAdapter(node));
+        return kind != null && kind.rolesShownByFirstRows();
+    }
+
+    /** Binds a table alone and lays it out, its cells read from the workbook once for the bind. */
+    private static @Nullable TableRegions bind(IGridTable table, ReadOnceSheetGrid read, XlsModuleOpenClass module) {
+        var node = TableIds.nodeOf(new GridTable(table.getRegion(), read));
+        var bound = node == null ? null : SingleTableBinder.bind(node, module);
+        return bound == null ? null : of(new TableSyntaxNodeAdapter(bound), table);
+    }
+
+    /**
+     * Whether two layouts of a table give each of its cells the same role, returned or not, and start the same groups.
+     * The types of the values and how the cells are cut into regions do not count: the look of a cell follows its role.
+     *
+     * @param one   a layout
+     * @param other another layout of the same table
+     * @return whether they give the same roles
+     */
+    static boolean sameRoles(TableRegions one, TableRegions other) {
+        if (one == other) {
+            return true;
+        }
+        if (!one.groups().equals(other.groups())) {
+            return false;
+        }
+        var rows = Math.max(extentOf(one, RawTableRegion::bottom), extentOf(other, RawTableRegion::bottom));
+        var columns = Math.max(extentOf(one, RawTableRegion::right), extentOf(other, RawTableRegion::right));
+        var first = new RowRoles(one, columns);
+        var second = new RowRoles(other, columns);
+        for (var row = 0; row < rows; row++) {
+            if (!Arrays.equals(first.at(row), second.at(row))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** How many rows or columns the regions of a layout reach, by the last of them each region takes. */
+    private static int extentOf(TableRegions layout, ToIntFunction<RawTableRegion> last) {
+        return layout.regions().stream().mapToInt(last).max().orElse(-1) + 1;
+    }
+
+    /** The role of each cell of a row of a layout, read row after row down the table, a cell no region covers 0. */
+    private static final class RowRoles {
+
+        private final List<RawTableRegion> regions;
+        private final List<RawTableRegion> open = new ArrayList<>();
+        private final int[] roles;
+        private int next;
+
+        RowRoles(TableRegions layout, int columns) {
+            regions = layout.regions().stream().sorted(Comparator.comparingInt(RawTableRegion::top)).toList();
+            roles = new int[columns];
+        }
+
+        /** The roles of a row, asked for after the rows above it. */
+        int[] at(int row) {
+            while (next < regions.size() && regions.get(next).top() <= row) {
+                open.add(regions.get(next++));
+            }
+            open.removeIf(region -> region.bottom() < row);
+            Arrays.fill(roles, 0);
+            for (var region : open) {
+                var role = 1 + region.role().ordinal() * 2 + (region.returned() ? 1 : 0);
+                Arrays.fill(roles, region.left(), region.right() + 1, role);
+            }
+            return roles;
+        }
+    }
+
+    /** The regions of the first rows of a table, as a table of those rows alone is laid out. */
+    private static TableRegions clipped(TableRegions regions, int rows) {
+        var kept = regions.regions()
+                .stream()
+                .filter(region -> region.top() < rows)
+                .map(region -> region.bottom() < rows ? region : region.withBounds(region.top(), region.left(),
+                        rows - 1, region.right()))
+                .toList();
+        var groups = new RawTableGroups(regions.groups().rows().stream().filter(row -> row < rows).toList(),
+                regions.groups().columns());
+        return new TableRegions(kept, groups, regions.signature(), Map.of());
     }
 
     /** Whether the workbook of a compiled table was saved since the compilation read it. */

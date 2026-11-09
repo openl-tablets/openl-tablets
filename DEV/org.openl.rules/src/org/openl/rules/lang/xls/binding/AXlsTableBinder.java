@@ -4,6 +4,8 @@
 
 package org.openl.rules.lang.xls.binding;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -24,7 +26,7 @@ public abstract class AXlsTableBinder extends ANodeBinder {
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+    public @Nullable IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         return null;
     }
 
@@ -34,4 +36,14 @@ public abstract class AXlsTableBinder extends ANodeBinder {
                                              OpenL openl,
                                              RulesModuleBindingContext bindingContext,
                                              XlsModuleOpenClass module) throws Exception;
+
+    /**
+     * Whether a table of this binder can be bound alone against a module compiled before, leaving the module as it
+     * was: what the binder defines goes to the binding context, not straight into the module.
+     *
+     * @return {@code false} for a binder that writes into the module as it binds
+     */
+    public boolean bindsAlone() {
+        return true;
+    }
 }
