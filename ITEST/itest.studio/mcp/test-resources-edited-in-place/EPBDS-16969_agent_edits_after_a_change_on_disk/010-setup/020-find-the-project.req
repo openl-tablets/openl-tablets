@@ -1,0 +1,2 @@
+GET /rest/projects?repository={REPOSITORY}&fields=id HTTP/1.1
+

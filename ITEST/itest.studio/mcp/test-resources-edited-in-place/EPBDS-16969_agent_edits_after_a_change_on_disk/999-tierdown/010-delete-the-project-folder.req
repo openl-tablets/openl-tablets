@@ -1,0 +1,2 @@
+DELETE /rest/repos/{REPOSITORY}/files/{FOLDER}/ HTTP/1.1
+
