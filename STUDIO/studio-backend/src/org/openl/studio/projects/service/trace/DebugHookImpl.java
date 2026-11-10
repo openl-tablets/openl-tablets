@@ -73,6 +73,16 @@ final class DebugHookImpl implements DebugHook {
      * this stack there. {@code null} when no overflow is on its way up.
      */
     private @Nullable List<DebugFrame> overflowStack;
+    /**
+     * The frames an error has failed so far, deepest first, whose part of the profile is not recorded yet.
+     *
+     * <p>Recording a frame builds its node of the tree, and the first build loads and initializes the classes
+     * it needs. Near the bottom of an overflowed stack that fails, and a class whose initialization failed
+     * stays broken until the JVM restarts. So failed frames are recorded once the error stops unwinding: at the
+     * root call, at a frame that returns, before the run parks, or at the next call made after code caught the
+     * error.
+     */
+    private final List<DebugFrame> unwound = new ArrayList<>();
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     @Setter(AccessLevel.PACKAGE)
     private boolean profiling;
@@ -146,6 +156,9 @@ final class DebugHookImpl implements DebugHook {
                                                          Object[] params,
                                                          E env,
                                                          Object source) {
+        // Code caught an error and runs on: the calls that failed ran before this call or step, so they join the
+        // tree first.
+        recordUnwound();
         var descriptor = classifier.describeFrame(source);
         if (descriptor != null) {
             return invokeFrame(descriptor, executor, target, params, env, source);
@@ -365,7 +378,9 @@ final class DebugHookImpl implements DebugHook {
         if (profiling && !recorded && parent != null) {
             parent.incrementNotRetained();
         }
+        frame.calledBy(parent, callerRef, recorded);
         stack.push(frame);
+        var failed = false;
         try {
             handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name(),
                     frame.getInvocationIndex());
@@ -382,6 +397,8 @@ final class DebugHookImpl implements DebugHook {
         } catch (DebugTerminationError e) {
             throw e;
         } catch (Throwable ex) {
+            // Set first: where the stack ran out, any call below can overflow again, and the frame must still wait.
+            failed = true;
             frame.failWith(ex);
             frame.setDurationNanos(elapsed(enterNanos, parkedAtEnter));
             breakOnException(depth, ex);
@@ -392,17 +409,38 @@ final class DebugHookImpl implements DebugHook {
             // keeps this whole call in its time (a step's total includes the sub-calls it makes), instead of
             // subtracting the callee's steps as if they were sibling cells computed on the way.
             nestedStepNanos = nestedAtEnter;
-            recordProfile(frame, parent, callerRef, recorded);
+            if (profiling && failed && parent != null) {
+                unwound.add(frame);
+            } else {
+                recordUnwound();
+                recordProfile(frame);
+            }
         }
     }
 
     /**
-     * Records the time and the executed structure of a returned frame while profiling.
+     * Record the frames that failed, deepest first, so each one's node joins its caller's. A frame is recorded
+     * once: one that fails to record is dropped rather than recorded again later.
      */
-    private void recordProfile(DebugFrame frame,
-                               @Nullable DebugFrame parent,
-                               @Nullable String callerRef,
-                               boolean recorded) {
+    private void recordUnwound() {
+        if (unwound.isEmpty()) {
+            return;
+        }
+        var failed = List.copyOf(unwound);
+        unwound.clear();
+        for (var frame : failed) {
+            recordProfile(frame);
+        }
+    }
+
+    /**
+     * Records the time and the executed structure of a returned frame while profiling, under the frame that
+     * called it.
+     */
+    private void recordProfile(DebugFrame frame) {
+        var parent = frame.getCaller();
+        var callerRef = frame.getCallerRef();
+        var recorded = frame.isRecorded();
         // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
         // misleading zero-time entry in either the hotspots or the tree.
         if (profiling && (frame.isCompleted() || frame.getError() != null)) {
@@ -501,6 +539,8 @@ final class DebugHookImpl implements DebugHook {
 
     /** Publish the given stack, park the worker as suspended, then re-arm stepping from the resuming command. */
     private void suspendAndAwait(int depth, List<DebugFrame> shown) {
+        // A run parked at the root on an overflow shows the calls that failed under their callers.
+        recordUnwound();
         published.set(shown);
         listener.onStatusChanged(DebugStatus.SUSPENDED);
         var parkStart = System.nanoTime();

@@ -12,7 +12,9 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.Spreadsheet;
@@ -65,7 +67,7 @@ public final class DebugFrame {
     private final int depth;
     private final List<ExecutedStep> executedSteps = new ArrayList<>();
     /** Executed steps by their live executor, so a later re-read of the same cell can reference them. */
-    @Getter(lombok.AccessLevel.NONE)
+    @Getter(AccessLevel.NONE)
     private final Map<Object, ExecutedStep> executedByExecutor = new IdentityHashMap<>();
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
     /** Rules whose action fired (the returned rule(s)), recorded as they fire — for the returned-rule highlight. */
@@ -73,23 +75,35 @@ public final class DebugFrame {
     /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
     private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
 
+    @Setter(AccessLevel.PACKAGE)
     private @Nullable CurrentLocation location;
+    @Setter(AccessLevel.PACKAGE)
     private @Nullable Object currentStep;
     private @Nullable Object result;
     private @Nullable Throwable error;
     private boolean completed;
     /** Zero-based execution number of this table (its 1st, 2nd, ... invocation in the run), for watch series. */
+    @Setter(AccessLevel.PACKAGE)
     private int invocationIndex;
     /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
+    @Setter(AccessLevel.PACKAGE)
     private long durationNanos;
     /** Sum of the durations of this frame's direct sub-call frames, so its own time is {@code duration - childNanos}. */
     private long childNanos;
     /** Remaining nodes this frame's subtree may still retain, so one big branch cannot starve its siblings. */
+    @Setter(AccessLevel.PACKAGE)
     private long budget;
     /** Direct sub-calls this frame made that ran but were dropped once the tree hit its size limit. */
     private long notRetained;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
+    @Setter(AccessLevel.PACKAGE)
     private @Nullable DispatchInfo dispatch;
+    /** The frame that called this one, or {@code null} for the root call. */
+    private @Nullable DebugFrame caller;
+    /** The step of the caller that made the call, or {@code null}. */
+    private @Nullable String callerRef;
+    /** Whether the executed tree admitted this frame. */
+    private boolean recorded;
 
     public DebugFrame(SourceClassifier.FrameDescriptor descriptor,
                       Object source,
@@ -108,16 +122,11 @@ public final class DebugFrame {
         this.depth = depth;
     }
 
-    void setLocation(@Nullable CurrentLocation location) {
-        this.location = location;
-    }
-
-    void setInvocationIndex(int invocationIndex) {
-        this.invocationIndex = invocationIndex;
-    }
-
-    void setCurrentStep(@Nullable Object currentStep) {
-        this.currentStep = currentStep;
+    /** Remember where this frame was called from, so it can be recorded after it unwound. */
+    void calledBy(@Nullable DebugFrame caller, @Nullable String callerRef, boolean recorded) {
+        this.caller = caller;
+        this.callerRef = callerRef;
+        this.recorded = recorded;
     }
 
     void recordExecutedStep(Object executor, String ref, @Nullable String label, @Nullable Object value,
@@ -228,7 +237,7 @@ public final class DebugFrame {
         if (!covered.add(ref)) {
             return;
         }
-        String label = interruptedStepLabel(ref, intern, detailedTitles);
+        var label = interruptedStepLabel(ref, intern, detailedTitles);
         if (label == null) {
             // A non-spreadsheet frame (a TBasic operation, say) has no resolvable cell name; fall back to the
             // location's own label, marked "= ERROR" in the detailed view so the failed step still reads as
@@ -265,7 +274,7 @@ public final class DebugFrame {
         if (cell == null) {
             return;
         }
-        SpreadsheetCellType type = cell.getSpreadsheetCellType();
+        var type = cell.getSpreadsheetCellType();
         if (type != SpreadsheetCellType.VALUE && type != SpreadsheetCellType.CONSTANT) {
             return;
         }
@@ -281,7 +290,7 @@ public final class DebugFrame {
      * ({@code $Cell = 42}); the value is unique per run, so it is left un-interned.
      */
     private @Nullable String stepLabel(ExecutedStep step, UnaryOperator<String> intern, boolean detailedTitles) {
-        String label = step.label();
+        var label = step.label();
         if (label == null) {
             return null;
         }
@@ -328,9 +337,9 @@ public final class DebugFrame {
         if (rowCol == null) {
             return null;
         }
-        SpreadsheetCell[][] cells = spreadsheet.getCells();
-        int row = rowCol[0];
-        int col = rowCol[1];
+        var cells = spreadsheet.getCells();
+        var row = rowCol[0];
+        var col = rowCol[1];
         if (row >= 0 && row < cells.length && col >= 0 && col < cells[row].length) {
             return cells[row][col];
         }
@@ -342,15 +351,15 @@ public final class DebugFrame {
      * matched or not), then the rule the table returned. Reproduces the legacy detailed-trace breakdown.
      */
     private List<CallNode.Step> decisionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
-        List<CallNode.Step> steps = new ArrayList<>(conditionSteps(decisionTable, intern));
+        var steps = new ArrayList<CallNode.Step>(conditionSteps(decisionTable, intern));
         appendReturnedRules(steps, conditionSubCalls(), intern);
         return steps;
     }
 
     /** One row per evaluated condition, in evaluation order, marked matched or not. */
     private List<CallNode.Step> conditionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
-        List<CallNode.Step> steps = new ArrayList<>();
-        int index = 0;
+        var steps = new ArrayList<CallNode.Step>();
+        var index = 0;
         for (ConditionCheck check : new LinkedHashSet<>(conditionChecks)) {
             String label = TraceTextFormatter.conditionLine(check.conditionName(), ruleNames(decisionTable, check.rules()));
             steps.add(new CallNode.Step(intern.apply("c" + index++), intern.apply(label), 0, List.of(), false,
@@ -366,7 +375,7 @@ public final class DebugFrame {
      */
     private List<CallNode> conditionSubCalls() {
         Set<String> firedRefs = executedSteps.stream().map(ExecutedStep::ref).collect(Collectors.toSet());
-        List<CallNode> conditionCalls = new ArrayList<>();
+        var conditionCalls = new ArrayList<CallNode>();
         executedChildren.forEach((ref, children) -> {
             if (!firedRefs.contains(ref)) {
                 conditionCalls.addAll(children);
@@ -382,11 +391,11 @@ public final class DebugFrame {
      */
     private void appendReturnedRules(List<CallNode.Step> steps, List<CallNode> conditionCalls,
                                      UnaryOperator<String> intern) {
-        Set<String> covered = new HashSet<>();
-        boolean attachedConditionCalls = false;
+        var covered = new HashSet<String>();
+        var attachedConditionCalls = false;
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
-                List<CallNode> children = new ArrayList<>(childrenOf(step.ref()));
+                var children = new ArrayList<CallNode>(childrenOf(step.ref()));
                 if (!attachedConditionCalls) {
                     children.addAll(conditionCalls);
                     attachedConditionCalls = true;
@@ -441,18 +450,9 @@ public final class DebugFrame {
         }
     }
 
-    void setDurationNanos(long durationNanos) {
-        this.durationNanos = durationNanos;
-    }
-
     /** Add a completed direct sub-call's time, so this frame's own time excludes the tables it called. */
     void addChildNanos(long nanos) {
         this.childNanos += nanos;
-    }
-
-    /** Set the number of nodes this frame's subtree may still retain (bounded by its parent and the branch cap). */
-    void setBudget(long budget) {
-        this.budget = budget;
     }
 
     /** Consume one node from this frame's subtree budget as a descendant is retained under it. */
@@ -463,9 +463,5 @@ public final class DebugFrame {
     /** Record that one direct sub-call of this frame ran but was dropped from the tree once it hit its limit. */
     void incrementNotRetained() {
         this.notRetained++;
-    }
-
-    void setDispatch(DispatchInfo dispatch) {
-        this.dispatch = dispatch;
     }
 }

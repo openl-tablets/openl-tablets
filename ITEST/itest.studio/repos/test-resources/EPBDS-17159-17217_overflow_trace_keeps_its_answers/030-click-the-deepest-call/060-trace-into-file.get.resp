@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Disposition: attachment; filename=trace.txt; filename*=UTF-8''trace.txt
+Content-Type: text/plain;charset=utf-8
+
+TRACE: SpreadSheet SpreadsheetResultRecurse Recurse(Integer n) = ERROR
+    at Main&openl=
+	TRACE:
+	    at Main&openl=
+		TRACE: SpreadSheet SpreadsheetResultRecurse Recurse(Integer n) = ERROR
+		    at Main&openl=
+***

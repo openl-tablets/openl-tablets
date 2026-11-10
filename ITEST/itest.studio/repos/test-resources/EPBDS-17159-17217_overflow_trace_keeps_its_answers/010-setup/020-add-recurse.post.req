@@ -1,0 +1,26 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "Recurse",
+    "returnType": "SpreadsheetResult",
+    "args": [
+      {
+        "name": "n",
+        "type": "Integer"
+      }
+    ],
+    "steps": [
+      {
+        "name": "Next",
+        "value": "= Recurse(n + 1)"
+      }
+    ]
+  }
+}

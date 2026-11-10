@@ -22,6 +22,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DebugStatus;
@@ -76,6 +78,39 @@ class TraceDebuggerIntegrationTest {
         FakeTable boom() {
             body.add(env -> {
                 throw new IllegalStateException("boom");
+            });
+            return this;
+        }
+
+        /** A table whose stack runs out here, as the deepest call of an endless recursion does. */
+        FakeTable overflow() {
+            body.add(env -> {
+                throw new StackOverflowError();
+            });
+            return this;
+        }
+
+        /** A call that runs {@code onFailure} once the call has failed, before the failure goes on up. */
+        FakeTable callObserving(FakeTable child, Runnable onFailure) {
+            body.add(env -> {
+                try {
+                    env.getTracer().invoke(child, null, NO_PARAMS, env, child);
+                } catch (RuntimeException | Error e) {
+                    onFailure.run();
+                    throw e;
+                }
+            });
+            return this;
+        }
+
+        /** A call whose stack overflow the table catches, going on with its next steps. */
+        FakeTable callSurvivingOverflow(FakeTable child) {
+            body.add(env -> {
+                try {
+                    env.getTracer().invoke(child, null, NO_PARAMS, env, child);
+                } catch (StackOverflowError ignored) {
+                    // The table goes on, as a rule that catches the error would.
+                }
             });
             return this;
         }
@@ -388,6 +423,81 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
         assertEquals(1, suspensions.get(), "the run parked once, on the stack it showed");
         assertInstanceOf(StackOverflowError.class, debugger.error());
+    }
+
+    @ParameterizedTest(name = "overflow={0}")
+    @ValueSource(booleans = {true, false})
+    void aFailedCallIsRecordedOnceTheErrorReachesTheRoot(boolean overflow) {
+        var debugger = new TraceDebugger(CLASSIFIER);
+        // Recording a call builds its node, which needs stack: nothing is recorded while the error unwinds.
+        var profiledWhileUnwinding = new AtomicInteger(-1);
+        var t2 = overflow ? new FakeTable("T2").overflow() : new FakeTable("T2").boom();
+        var t1 = new FakeTable("T1").callObserving(t2,
+                () -> profiledWhileUnwinding.set(debugger.profileStats().size()));
+        var t0 = new FakeTable("T0").call(t1);
+        debugger.setBreakOnErrors(false);
+
+        debugger.start("failure-record-worker", null, false, true, false, () -> run(debugger, t0));
+
+        assertEquals(DebugStatus.ERROR, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(0, profiledWhileUnwinding.get(), "the failed T2 waits while the error passes T1");
+        var tree = debugger.completedTree();
+        assertNotNull(tree, "the root records the calls that failed, then itself");
+        assertEquals(List.of("T0", "T1", "T2"), chain(tree));
+        assertEquals(3, debugger.profileStats().size());
+    }
+
+    @Test
+    void aRunParkedAtTheRootOnAnOverflowShowsTheCallsThatFailed() {
+        var t2 = new FakeTable("T2").overflow();
+        var t1 = new FakeTable("T1").call(t2);
+        var t0 = new FakeTable("T0").call(t1);
+        var debugger = new TraceDebugger(CLASSIFIER);
+
+        debugger.start("overflow-park-worker", null, false, true, false, () -> run(debugger, t0));
+
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT), "parked at the root on the overflow");
+        var root = debugger.stack().getFirst();
+        assertEquals("T0", root.getName());
+        assertEquals(List.of("T1"), root.getExecutedChildren().values().stream()
+                .flatMap(List::stream)
+                .map(CallNode::name)
+                .toList(), "the call tree under the parked root holds the calls that failed");
+        assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void aCaughtStackOverflowKeepsTheFailedCallBeforeTheCallsAfterIt() {
+        var t1 = new FakeTable("T1").overflow();
+        var t2 = new FakeTable("T2");
+        var t0 = new FakeTable("T0").callSurvivingOverflow(t1).call(t2);
+        var root = new FakeTable("R").call(t0);
+        var debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setBreakOnErrors(false);
+
+        debugger.start("caught-overflow-worker", null, false, true, false, () -> run(debugger, root));
+
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+        var tree = debugger.completedTree();
+        assertNotNull(tree);
+        var t0Node = childrenOf(tree).getFirst();
+        assertEquals("T0", t0Node.name());
+        assertEquals(List.of("T1", "T2"), childrenOf(t0Node).stream().map(CallNode::name).toList(),
+                "the call that overflowed ran first, so it stays first");
+    }
+
+    /** The direct sub-calls of a node, across its steps. */
+    private static List<CallNode> childrenOf(CallNode node) {
+        return node.steps().stream().flatMap(step -> step.children().stream()).toList();
+    }
+
+    /** The names along a chain of single sub-calls, from the given node down. */
+    private static List<String> chain(CallNode node) {
+        var names = new ArrayList<String>();
+        for (var current = node; current != null; current = childrenOf(current).stream().findFirst().orElse(null)) {
+            names.add(current.name());
+        }
+        return names;
     }
 
     /** Uses up stack the way a deep call chain does. */

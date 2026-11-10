@@ -1,0 +1,7 @@
+POST /rest/projects/{PROJECT_ID}/trace?tableId={RECURSE_ID}&stopAtEntry=false&profiling=true&detailedTitles=true&breakOnErrors=false&fullTree=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "n": 1
+}
