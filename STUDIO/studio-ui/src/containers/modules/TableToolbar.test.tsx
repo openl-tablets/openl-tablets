@@ -214,15 +214,23 @@ describe('TableToolbar', () => {
         expect(screen.queryByTestId('table-tests')).toBeNull()
         unmount()
 
-        // A table nothing covers has nothing to test; a test table always runs its own cases.
+        // A table nothing covers has nothing to test.
         const { unmount: unmountUncovered } = await draw({ table: table('Spreadsheet') })
         expect(screen.getByTestId('table-run')).toBeEnabled()
         expect(screen.queryByTestId('table-tests')).toBeNull()
         unmountUncovered()
 
-        await draw({ table: table('Test') })
+        // A test table runs its own cases with Run; Test would do the same and is not offered.
+        const { unmount: unmountTest } = await draw({ table: table('Test') })
         expect(screen.getByTestId('table-run')).toBeEnabled()
-        expect(screen.getByTestId('table-tests')).toBeEnabled()
+        expect(screen.getByTestId('table-trace')).toBeEnabled()
+        expect(screen.getByTestId('table-benchmark')).toBeEnabled()
+        expect(screen.queryByTestId('table-tests')).toBeNull()
+        unmountTest()
+
+        await draw({ table: table('Run') })
+        expect(screen.getByTestId('table-run')).toBeEnabled()
+        expect(screen.queryByTestId('table-tests')).toBeNull()
     })
 
     it('runs the tests written against the table, beside Create Test as the Editor kept them', async () => {

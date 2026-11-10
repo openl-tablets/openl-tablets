@@ -231,7 +231,8 @@ included in this section:
 ##### Running the Tests of a Table
 
 1.  In Rules editor, open the rule table to test and click **Test** in the toolbar above it. The button appears
-    for a table that has test tables. A panel opens under the button; clicking elsewhere on the page closes it.
+    for a rule table that has test tables written against it. A panel opens under the button; clicking elsewhere
+    on the page closes it.
 
     ![Test button in the table toolbar with the panel open](images/test-start-button.png "Running the tests of a table")
 
@@ -249,7 +250,10 @@ included in this section:
     without opening the results window.
 
 To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them ticked, and
-the results open in the results window. Untick the cases to leave out, or clear the box in the header of the list and
+the results open in the results window, each case marked passed or failed against its expected values. A test table
+has no **Test** button, since **Run** already runs its cases: the panel offers **Within Current Module Only**,
+**Failures Only**, **Failures per test** and **Compound Result** as well, and **Test into File** saves the results
+as a workbook. Untick the cases to leave out, or clear the box in the header of the list and
 tick the cases to run; the box in the header stands for every case of the table, on every page of the list, and a
 case unticked stays out while the cases of the other pages stay in.
 Selecting the cases is described in [Starting a Trace](#starting-a-trace), which lists them the same way. To name
