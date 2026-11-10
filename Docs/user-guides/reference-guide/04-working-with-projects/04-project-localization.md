@@ -17,7 +17,13 @@ Examples ordered by descending priority are as follows:
 -   **message_de.properties** – localization bundle for the German language.
 -   **message.properties** – default localization bundle applied to all countries and languages. It has the lowest priority.
 
-Localization bundles files are key-value plain text files where keys and values are separated with = character, for example, `greetings = Hello`.
+Localization bundles files are key-value plain text files where keys and values are separated with the `=` or `:` character, for example, `greetings = Hello`. A key is read as follows:
+
+-   The key is everything before the first `=` or `:` of the line. Spaces inside it are kept, so `My some key=Some other text` and `Say, Hello! = Hello!` define the keys `My some key` and `Say, Hello!`.
+-   An escaped `\=`, `\:`, `\ ` or `\#` belongs to the key, so `a\=b\:c = text` defines the key `a=b:c`.
+-   A line without `=` or `:` defines a key without any text, and the **msg** function returns the key itself. To define an empty text, write `key =`.
+
+OpenL Studio writes a key so that OpenL Tablets reads back the same key, whatever spaces, separators, or `#` it holds.
 
 For more information on supported locales, see [JDK 21 Supported Locales](https://www.oracle.com/java/technologies/javase/jdk21-suported-locales.html).
 
@@ -81,12 +87,15 @@ If no file has the key, the **msg** function returns the key itself.
 
 When OpenL Studio compiles a project, it checks the localization files of the project before its modules and warns about the following issues:
 
--   a key written twice in a file, where the last text wins
--   a key written on a line without a separator, which has no text
--   a key that the default file does not have, so a language without its own text returns the key
--   placeholders of a text that differ from those of the text in the default language
--   a text that breaks the message format, such as an open brace, a placeholder that does not begin with a number, a full-width character in a placeholder, or a single apostrophe that hides placeholders
+-   a key written twice in a file, where the last text wins. A key of a dependency project that the project defines again on purpose is not a duplicate
+-   a key written on a line without a separator, which has no text; the warning suggests `key =` for an empty text
+-   a key that the default file does not have, so a language without its own text returns the key. A default text of a dependency project or of a library counts, and the translations of the key are compared with that text
+-   placeholders of a text that differ from those of the text in the default language. The same placeholders in another order are fine
+-   a text that breaks the message format, such as an open brace, a placeholder that does not begin with a number, a placeholder format that does not fit its type, a full-width character in a placeholder, or a single apostrophe that hides placeholders
+-   a `\u` not followed by four hexadecimal digits, which breaks the whole file
 -   an apostrophe of the language in a text with placeholders, such as `l'étape {0}`, which is dropped when values are passed; apostrophes around a placeholder, as in `l'article "{0}" et l'offre`, also print the placeholder as written instead of its value. Quotes around a brace alone, such as `'{'`, print the brace and are not warned about. A text without placeholders is returned as written, its apostrophes kept
--   keys that a language does not translate, so the default texts are shown
+-   keys that a language does not translate, so the default texts are shown. One warning per language gives the count of such keys. A regional language that inherits the text of its parent language, such as **de_LU** taking the text of **de**, translates the key
 
-As each module is compiled, OpenL Studio also checks the calls of the **msg** function whose key is written as text, and warns about a key that has no default text and about a call passing a number of values different from the number of placeholders of the message. A key built at runtime is not checked. The checks only warn: the rules still run. When the localization files change, OpenL Studio checks them again without compiling the project, and an opened project that is not compiled yet shows the warnings about its localization files as well.
+As each module is compiled, OpenL Studio also checks the calls of the **msg** function whose key is written as text, and warns about a key that has no default text and about a call passing a number of values different from the number of placeholders of the message. A key built at runtime is not checked.
+
+The **msg** function reads the messages of the project a rule is called through, not of the project the rule is written in, so a rule of a dependency project may use a key that only the project using it defines. OpenL Studio therefore checks the calls of the **msg** function of the project and of all its dependency projects against the messages of the compiled project. A dependency project opened on its own warns about such a key, since alone it returns the key itself. The checks only warn: the rules still run. When the localization files change, OpenL Studio checks them again without compiling the project, and an opened project that is not compiled yet shows the warnings about its localization files as well.
