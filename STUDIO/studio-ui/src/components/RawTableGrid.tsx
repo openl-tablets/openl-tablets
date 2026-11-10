@@ -394,11 +394,14 @@ const cellStyle = (style: RawTableCell['style'], border: RawTableCellBorder | un
 /**
  * How a cell of the Studio look lines up across its width: a title and a heading in the middle, a number or a date on
  * the right as Excel lines up a value by its type, and everything else on the left. An indented cell stays on the
- * side of its indent whatever its role, as the formatter writes it: its indent carries the structure of the table.
+ * side of its indent whatever its role: its indent carries the structure of the table.
+ *
+ * A cell the workbook aligns right is indented from the right, so it stays on the right. Any other indented cell
+ * stays on the left.
  */
 const roleAlignOf = (role: CellRole | undefined, style: RawTableCell['style']): React.CSSProperties['textAlign'] => {
     if (style?.indent) {
-        return undefined
+        return style.align === 'right' ? 'right' : undefined
     }
     const name = role?.region.role
     if (name === 'inputTitle' || name === 'outputTitle' || name === 'section') {
