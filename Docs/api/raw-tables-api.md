@@ -404,8 +404,14 @@ the OpenL table style, as [Reformatting the Excel Files](#reformatting-the-excel
 
 - an edit takes the roles of the last compile of the table, moved along the rows and columns the write inserts and
   removes, and its header and properties as they stand;
-- a copy takes the roles of the table it is copied from;
-- a created table takes the `regions` of its request.
+- an edit that writes more than values, such as a title, the header or a key, reads the edited table alone against
+  its compiled module and takes the roles this read gives, as a compile gives them: a condition made a return, a
+  parameter added, or a step of a `SpreadsheetResult` marked `*` takes its new look at the same save. A Datatype, a
+  Vocabulary, a Conditions, an Actions and a Returns table take their new roles at their next save;
+- a created table and a copy are read alone against the compiled module they are written to, and take the roles this
+  read gives. A table that cannot be read alone, such as a Datatype or a Vocabulary table, or a table of a module that
+  has no compile yet, takes the `regions` of its request, or else the roles its text tells; such a copy takes the roles
+  of the table it is copied from.
 
 A table whose module was written to since its last compile, with automatic compilation off, is saved as it is written:
 its roles are not known until the module is compiled. A table of an `.xls` workbook is never formatted.
