@@ -466,13 +466,16 @@ their own:
 |---|---|
 | `signature` | `colorText`; grey pieces `colorTextSecondary` |
 | `properties`, `code` | `colorTextSecondary` |
-| `inputTitle`, `section` | fill `colorFillTertiary`, weight 600, centred (an indented `section` cell on the left) |
+| `inputTitle`, `section` | fill `colorFillTertiary`, weight 600, centred (an indented `section` cell on the side of its indent) |
 | `outputTitle` | fill `colorPrimary` at 12% over `colorBgContainer`, weight 600 |
 | `output` | fill `colorPrimary` at 6% over `colorBgContainer` |
 | `key` | weight 600 |
 | `result` | weight 600 |
 
 A cell that is `returned` keeps the token of its role, fill included, and takes weight 600.
+
+An indented cell stays on the side of its indent, whatever its role: on the right when the workbook aligns it
+right, on the left otherwise.
 
 Every line the look draws — of the roles, of the result and above a group — is `colorTextBase`, so the parts of a
 table stand apart at a glance. The lines sit where the Excel style draws them and keep its kind: a role line is

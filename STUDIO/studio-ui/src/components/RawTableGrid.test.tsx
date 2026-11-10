@@ -560,6 +560,18 @@ describe('RawTableGrid', () => {
             expect(cellAt('B4').style.getPropertyValue('--cell-indent-left')).toBe('2em')
         })
 
+        it('keeps a cell indented from the right on the right, beside its indent', () => {
+            const indented: RawTableCell[][] = rule.map((row, index) => (index !== 3 ? row : [
+                { cell: 'B5', value: 'Hello Bob', style: { indent: 4, align: 'right' } },
+                { cell: 'C5', value: 0.25 },
+            ]))
+            renderInTheme(<RawTableGrid roles={roles} rows={indented} testId="grid" />, { theme: 'standard' })
+
+            expect(cellAt('B5').style.textAlign).toBe('right')
+            expect(cellAt('B5').style.getPropertyValue('--cell-indent-right')).toBe('4em')
+            expect(cellAt('B5').style.getPropertyValue('--cell-indent-left')).toBe('')
+        })
+
         it('lines a title up in the middle and a number on the right', () => {
             drawIn()
 

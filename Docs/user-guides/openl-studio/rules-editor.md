@@ -349,7 +349,8 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
 
 -   **Excel Formatting off**, the default — the table is drawn by what its cells mean, in the colours of the OpenL Studio
     theme, light or dark. The formatting of the Excel file is not drawn, except the indent, which carries the
-    structure of a TBasic and a ColumnMatch table:
+    structure of a TBasic and a ColumnMatch table. An indented cell keeps its text on the side it is indented from,
+    left or right:
     -   The parts of a table are set apart by lines in the colour of the text: a line above and below the header,
         the properties and the code, a line above the titles and a heading inside the body, and above each row of
         the horizontal values of a lookup. The header has its name in bold and its keyword, types, and punctuation
