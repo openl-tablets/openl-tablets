@@ -8,12 +8,15 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.types.Invokable;
 import org.openl.util.FileUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -27,58 +30,54 @@ import org.openl.vm.IRuntimeEnv;
  * returns, then rendered. The tree is capped at a node limit; once reached, further nodes are dropped and the
  * output is flagged truncated, so a huge run cannot exhaust memory.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class TraceExportHook implements DebugHook {
 
     /** One rendered trace line and its sub-lines. */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Node {
         private @Nullable String text;
         private final @Nullable String uri;
         private final List<Node> children = new ArrayList<>();
-
-        private Node(@Nullable String uri) {
-            this.uri = uri;
-        }
+        /** The table of a frame node, {@code null} for a step. */
+        private final @Nullable ExecutableRulesMethod method;
+        private final @Nullable FrameKind kind;
     }
 
     private final SourceClassifier classifier;
     private final boolean smartNumbers;
     private final int maxNodes;
 
-    private final Node root = new Node(null);
+    private final Node root = new Node(null, null, null);
     private final Deque<Node> open = new ArrayDeque<>();
     private final Deque<Object> frameSources = new ArrayDeque<>();
     private int nodeCount;
     private boolean truncated;
 
-    TraceExportHook(SourceClassifier classifier, boolean smartNumbers, int maxNodes) {
-        this.classifier = classifier;
-        this.smartNumbers = smartNumbers;
-        this.maxNodes = maxNodes;
-    }
-
     @Override
     public <T, E extends IRuntimeEnv, R> R bracketInvoke(Invokable<? super T, E> executor, T target,
                                                          Object[] params, E env, Object source) {
-        SourceClassifier.FrameDescriptor descriptor = classifier.describeFrame(source);
+        var descriptor = classifier.describeFrame(source);
         if (descriptor != null) {
             // describeFrame returns a descriptor only for an ExecutableRulesMethod, so the cast is safe.
             return frame(executor, target, params, env, (ExecutableRulesMethod) source, descriptor);
         }
-        CurrentLocation location = classifier.describeSubStep(executor, env, frameSources.peek());
+        var location = classifier.describeSubStep(executor, env, frameSources.peek());
         if (location == null) {
             return executor.invoke(target, params, env);
         }
         return subStep(executor, target, params, env, location);
     }
 
-    // Any failure of the traced rule, a StackOverflowError included, is recorded on its frame and rethrown.
-    @SuppressWarnings("java:S1181")
+    // A frame that fails keeps no text: its line is written with the file, as an error. The line is not built where
+    // the failure surfaced: after a stack overflow no stack is left there, and a class whose initialization fails
+    // there stays unusable until the JVM restarts.
     private <T, E extends IRuntimeEnv, R> R frame(Invokable<? super T, E> executor, T target, Object[] params,
                                                   E env, ExecutableRulesMethod method,
                                                   SourceClassifier.FrameDescriptor descriptor) {
         // Track the frame stack even past the node cap, so a sub-step always classifies against its true
         // enclosing table; the output node is added only while under the cap.
-        Node node = openNode(method.getSourceUrl());
+        var node = openNode(method.getSourceUrl(), method, descriptor.kind());
         frameSources.push(method);
         try {
             R result = executor.invoke(target, params, env);
@@ -86,11 +85,6 @@ final class TraceExportHook implements DebugHook {
                 node.text = TraceTextFormatter.frameLine(method, descriptor.kind(), result, smartNumbers);
             }
             return result;
-        } catch (RuntimeException | Error e) {
-            if (node != null) {
-                node.text = TraceTextFormatter.frameErrorLine(method, descriptor.kind());
-            }
-            throw e;
         } finally {
             frameSources.pop();
             if (node != null) {
@@ -101,7 +95,7 @@ final class TraceExportHook implements DebugHook {
 
     private <T, E extends IRuntimeEnv, R> R subStep(Invokable<? super T, E> executor, T target, Object[] params,
                                                     E env, CurrentLocation location) {
-        Node node = openNode(frameUri());
+        var node = openNode(frameUri(), null, null);
         if (node == null) {
             return executor.invoke(target, params, env);
         }
@@ -128,7 +122,7 @@ final class TraceExportHook implements DebugHook {
 
     @Override
     public void onPut(Object source, String id, Object[] args) {
-        ConditionCheck check = classifier.describeCondition(id, args);
+        var check = classifier.describeCondition(id, args);
         if (check == null) {
             return;
         }
@@ -142,13 +136,14 @@ final class TraceExportHook implements DebugHook {
         return true;
     }
 
-    private @Nullable Node openNode(@Nullable String uri) {
+    private @Nullable Node openNode(@Nullable String uri, @Nullable ExecutableRulesMethod method,
+                                    @Nullable FrameKind kind) {
         if (nodeCount >= maxNodes) {
             truncated = true;
             return null;
         }
         nodeCount++;
-        Node node = new Node(uri);
+        var node = new Node(uri, method, kind);
         parent().children.add(node);
         open.push(node);
         return node;
@@ -161,18 +156,18 @@ final class TraceExportHook implements DebugHook {
             return;
         }
         nodeCount++;
-        Node node = new Node(frameUri());
+        var node = new Node(frameUri(), null, null);
         node.text = text;
         parent().children.add(node);
     }
 
     private Node parent() {
-        Node top = open.peek();
+        var top = open.peek();
         return top != null ? top : root;
     }
 
     private @Nullable String frameUri() {
-        Node top = open.peek();
+        var top = open.peek();
         return top != null ? top.uri : null;
     }
 
@@ -196,7 +191,7 @@ final class TraceExportHook implements DebugHook {
     private void writeNode(Node node, int level, Writer writer) throws IOException {
         indent(writer, level);
         writer.write("TRACE: ");
-        writer.write(node.text != null ? node.text : "");
+        writer.write(lineOf(node));
         writer.write('\n');
         indent(writer, level);
         writer.write("    at ");
@@ -207,8 +202,18 @@ final class TraceExportHook implements DebugHook {
         }
     }
 
+    /** The line of a node. A frame without its text never returned: it failed. */
+    private static String lineOf(Node node) {
+        if (node.text != null) {
+            return node.text;
+        }
+        var method = node.method;
+        var kind = node.kind;
+        return method != null && kind != null ? TraceTextFormatter.frameErrorLine(method, kind) : "";
+    }
+
     private static void indent(Writer writer, int level) throws IOException {
-        for (int i = 0; i < level; i++) {
+        for (var i = 0; i < level; i++) {
             writer.write('\t');
         }
     }

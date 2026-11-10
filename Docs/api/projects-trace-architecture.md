@@ -175,7 +175,7 @@ when `depth <= threshold` (frames are numbered from 1).
 - **Resume** — threshold = 0; run to the next breakpoint or to completion.
 - **Pause** — asynchronous request; suspend at the next safepoint.
 
-Two refinements on top of the threshold:
+Refinements on top of the threshold:
 
 - **Frame exit is a safepoint.** A step that finishes the current frame (Into, Over, or Out) first
   suspends at that frame's **own exit**: the completed frame is still on the stack with its result, so
@@ -251,6 +251,12 @@ would drop:
 - On a rule error the failed branch is kept: calling steps interrupted mid-call, and the cell whose own
   formula threw (even with no sub-call), so the business tree can mark that step `= ERROR` instead of
   ending at the table node alone.
+- A failed call is recorded once its error stops unwinding. Recording a returned frame builds its node, and the
+  first build loads and initializes the classes it needs. Where a stack overflow ran out of stack that fails, and
+  a class whose initialization failed stays unusable until the JVM restarts, so every later trace lost its tree.
+  The frames an error fails therefore wait, deepest first, and join the tree at the next call or step, at a frame
+  that returns, at the root call, or before the run parks. Trace into File follows the same rule: a call that fails keeps no line of its own, and its `= ERROR` line is
+  written with the file.
 - Structure only: no arguments or results are retained. Values are inspectable only on the live stack
   while suspended — to look inside a returned branch, replay: restart the trace with a one-shot
   breakpoint on that node (the UI does this in one click; the input is remembered across restarts).

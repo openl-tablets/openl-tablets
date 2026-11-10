@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "Recurse",
+  "returnType": "SpreadsheetResult",
+  "signature": "Recurse(Integer n)",
+  "file": "${PROJECT_NAME}/rules/Main.xlsx",
+  "sheet": "Rules",
+  "pos": "B2:C4"
+}
