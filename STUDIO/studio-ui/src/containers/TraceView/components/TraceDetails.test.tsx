@@ -345,6 +345,37 @@ describe('TraceDetails', () => {
         expect(screen.queryByText('details.noResult')).toBeNull()
     })
 
+    it('says a clicked row was not reached and shows why the run stopped instead of its values', () => {
+        // The run started for the click overflowed before the row's table: the stop frame is another call,
+        // so its parameters, result and table would describe a row that was not clicked.
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ completed: true, error: true })],
+            selectedFrameIndex: 0,
+            simpleUnreached: true,
+            simpleFocus: { ref: 'R0C0', label: '$Next', ownerUri: 'u0', ownerInstance: 7 },
+            variables: variables({ errors: [{ severity: 'ERROR', summary: 'StackOverflowError' }]}),
+            variablesLoading: false,
+        })
+        render(<TraceDetails />)
+
+        expect(screen.getByTestId('debug-details-not-reached')).toBeInTheDocument()
+        expect(screen.getByText('details.notReached')).toBeInTheDocument()
+        expect(screen.getByText('StackOverflowError')).toBeInTheDocument()
+        expect(screen.queryByText('details.noParameters')).toBeNull()
+        expect(screen.queryByText('age')).toBeNull()
+        expect(screen.queryByTestId('stub-table')).toBeNull()
+        expect(traceService.getStepInputs).not.toHaveBeenCalled()
+    })
+
+    it('says a clicked row was not reached even when the run left no frame to show', () => {
+        useTraceStore.setState({ status: 'completed', frames: [], selectedFrameIndex: null, simpleUnreached: true })
+        render(<TraceDetails />)
+
+        expect(screen.getByText('details.notReached')).toBeInTheDocument()
+        expect(screen.queryByText('details.noSelection')).toBeNull()
+    })
+
     it('shows the error on the focused step the run failed on, from its step-inputs', async () => {
         // The failing step carries its own error in the step-inputs payload, so clicking it explains why it
         // failed — not only the whole table's frame — the way the advanced view shows the error on both.

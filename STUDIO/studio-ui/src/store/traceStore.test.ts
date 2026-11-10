@@ -2,6 +2,7 @@ import { notification } from 'antd'
 import { ApiHttpError } from 'services/apiCall'
 import traceService from 'services/traceService'
 import { buildSimpleOrder, treeFromNodes, useTraceStore } from 'store/traceStore'
+import type { SimpleInspectTarget } from 'store/traceStore'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services/traceService', () => ({
@@ -911,6 +912,30 @@ describe('traceStore simple mode', () => {
         } as any)
     }
 
+    /** The second call of table uA, and a step of it. */
+    const CALL_A1: SimpleInspectTarget = { key: 'uA@1', frameUri: 'uA', frameInstance: 1, stepType: 'out', label: 'uA' }
+    const STEP_A1: SimpleInspectTarget = {
+        key: 'uA#SA@1', frameUri: 'uA', frameInstance: 1, stepType: 'over', label: '$SA',
+        focus: { ref: 'SA', label: '$SA', ownerUri: 'uA', ownerInstance: 1 },
+    }
+
+    /** Click a row after the run paused past uA@0, so the click resumes the run to the row. */
+    const clickAfterA0 = async (target: SimpleInspectTarget) => {
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 'uA@0' })
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockResolvedValue(undefined)
+        useTraceStore.setState({ frames: [{ index: 0, uri: 'uA', instance: 0, completed: true } as any]})
+        await useTraceStore.getState().simpleInspect(target)
+    }
+
+    /** The resumed run overflowed sooner this time: it parked in uA@0, with uA@1 never entered. */
+    const overflowBeforeA1 = () => {
+        getStack.mockResolvedValue(suspended([
+            { index: 0, uri: 'uR', instance: 0, completed: false } as any,
+            { index: 1, uri: 'uA', instance: 0, completed: true, error: true } as any]))
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: [{ severity: 'ERROR', summary: 'StackOverflowError' }]})
+    }
+
     it('inspects a call by restarting and running THROUGH it with an inclusive breakpoint', async () => {
         primeSimpleReady()
         cancelTrace.mockResolvedValue(undefined)
@@ -970,7 +995,32 @@ describe('traceStore simple mode', () => {
         // The run parked on the throwing frame (index 2), but the clicked root (index 0, still on the stack
         // as an ancestor) stays selected — the business view shows the clicked table, not the error frame.
         expect(state.selectedFrameIndex).toBe(0)
+        expect(state.simpleUnreached).toBe(false)
         expect(getVariables).toHaveBeenCalledWith('p1', 0)
+    })
+
+    it('marks a clicked call the run did not reach, keeping the frame it stopped in to explain why', async () => {
+        await clickAfterA0(CALL_A1)
+        overflowBeforeA1()
+
+        await useTraceStore.getState().refreshStack()
+
+        const state = useTraceStore.getState()
+        expect(state.simpleUnreached).toBe(true)
+        expect(state.selectedFrameIndex).toBe(1) // the frame the run stopped in, whose errors say why
+        expect(state.simpleLastInspected).toBeNull() // nothing is paused at the row: the next click restarts
+        expect(getVariables).toHaveBeenCalledWith('p1', 1)
+    })
+
+    it('loads the stop frame for a clicked step whose table the run did not reach', async () => {
+        await clickAfterA0(STEP_A1)
+        overflowBeforeA1()
+
+        await useTraceStore.getState().refreshStack()
+
+        // A reached step needs no frame variables; an unreached one has only the stop frame's errors to show.
+        expect(useTraceStore.getState().simpleUnreached).toBe(true)
+        expect(getVariables).toHaveBeenCalledWith('p1', 1)
     })
 
     it('does nothing when the clicked row is already the one on screen', async () => {
@@ -1077,20 +1127,67 @@ describe('traceStore simple mode', () => {
         expect(useTraceStore.getState().simpleLastInspected).toBeNull() // the next click restarts
     })
 
-    it('clears the focus and selection when a skipped inspect terminates, so the row can be re-clicked', () => {
+    it('marks a clicked step whose run finished before it as not reached, keeping it selected', async () => {
+        await clickAfterA0(STEP_A1)
         getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
-        useTraceStore.setState({ status: 'suspended', sessionId: 'live', simpleLastInspected: 'uR@0',
-            simpleSelectedKey: 'uA#S1@0',
-            simpleFocus: { ref: 'S1', label: '$Value$S1', ownerUri: 'uA', ownerInstance: 0 } })
 
-        // The inspected row was skipped and the run finished; the terminal echo must drop the focus and
-        // selection, else the settled root renders as a focused step (blank Details) and the still-selected
-        // row is a no-op on re-click.
-        useTraceStore.getState().onSocketStatus('completed', undefined, 'live')
+        // A click runs to its row and parks there; a run that finishes instead never reached the row.
+        useTraceStore.getState().onSocketStatus('completed')
 
         const state = useTraceStore.getState()
-        expect(state.simpleFocus).toBeNull()
-        expect(state.simpleSelectedKey).toBeNull()
+        expect(state.simpleUnreached).toBe(true)
+        expect(state.simpleSelectedKey).toBe('uA#SA@1') // the clicked row stays selected
+        expect(state.simpleLastInspected).toBeNull() // nothing is paused, so the next click restarts
+    })
+
+    it('leaves a reached row as it is when the session ends later', async () => {
+        await clickAfterA0(CALL_A1)
+        getStack.mockResolvedValue(suspended([
+            { index: 0, uri: 'uR', instance: 0, completed: false } as any,
+            { index: 1, uri: 'uA', instance: 1, completed: true } as any]))
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
+        await useTraceStore.getState().refreshStack() // the run parked at the row
+
+        // Ten idle minutes later the session is reaped, or a project edit ends it.
+        getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
+        useTraceStore.getState().onSocketStatus('completed')
+        await useTraceStore.getState().refreshStack()
+
+        expect(useTraceStore.getState().simpleUnreached).toBe(false)
+    })
+
+    it('does not take a terminated session for a run that ended before the row', async () => {
+        await clickAfterA0(CALL_A1)
+
+        useTraceStore.getState().onSocketStatus('terminated')
+
+        expect(useTraceStore.getState().simpleUnreached).toBe(false)
+        expect(useTraceStore.getState().simpleSelectedKey).toBeNull()
+    })
+
+    it('tries a row the run did not reach again on a re-click', async () => {
+        primeSimpleReady({ status: 'completed', simpleSelectedKey: 'uA@1', selectedFrameIndex: 0,
+            simpleInspectFrame: { uri: 'uA', instance: 1 }, simpleUnreached: true })
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockResolvedValue(undefined)
+
+        await useTraceStore.getState().simpleInspect(CALL_A1)
+
+        expect(startTrace).toHaveBeenCalled() // the next run may get there
+        expect(resume).toHaveBeenCalled()
+    })
+
+    it('drops the focus and selection of a run that ends with no click under way', () => {
+        getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
+        useTraceStore.setState({ status: 'suspended', sessionId: 'live', simpleSelectedKey: 'uR@0' })
+
+        useTraceStore.getState().onSocketStatus('completed', undefined, 'live')
+
+        expect(useTraceStore.getState().simpleUnreached).toBe(false)
+        expect(useTraceStore.getState().simpleSelectedKey).toBeNull()
     })
 
     it('takes the trace mode from the launch route params, not a view toggle', () => {

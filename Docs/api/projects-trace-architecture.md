@@ -190,7 +190,9 @@ Two refinements on top of the threshold:
 - **A stack overflow breaks at the root call.** Parking needs stack, and a `StackOverflowError` leaves the
   worker none: an attempt to park on the throwing frame overflows again. The hook keeps the stack as it was where the
   overflow surfaced, lets the error unwind to the root call, and parks there once, showing the kept stack.
-  Every frame on it has failed by then, so each carries the `error` flag.
+  Every frame on it has failed by then, so each carries the `error` flag. The depth of the overflow changes from
+  run to run, so a business-view click on one of the deepest calls can re-run to a stack without that call. The
+  view then says the call was not reached and shows the errors of the frame the run stopped in.
 
 The hook evaluates this at every safepoint (a frame enter, a frame exit, or a current-line change):
 

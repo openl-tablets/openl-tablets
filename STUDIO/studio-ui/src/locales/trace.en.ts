@@ -139,6 +139,9 @@ i18next.addResourceBundle('en', 'trace', {
         noSelection: 'Select a step to view its details',
         noParameters: 'No parameters',
         noResult: 'No result',
+        notReached: 'This call was not reached',
+        notReachedHint: 'To show a call, the trace runs the rules again. This time the run stopped before the call, '
+            + 'so its values are not available.',
     },
 
     table: {
