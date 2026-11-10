@@ -175,6 +175,21 @@ describe('BenchmarkResults', () => {
         expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
     })
 
+    it('keeps the failure of a read that the next read has replaced', async () => {
+        progress.current.subscribed = false
+        readAgain.mockRejectedValueOnce(new Error('Division by zero')).mockResolvedValue([])
+        const window = () => (
+            <MemoryRouter><BenchmarkResults onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>
+        )
+        const { rerender } = render(window())
+
+        progress.current.subscribed = true
+        rerender(window())
+
+        expect(await screen.findByText('Division by zero')).toBeInTheDocument()
+        expect(readAgain).toHaveBeenCalledTimes(2)
+    })
+
     it('shows an empty list when completed measurements have been released', async () => {
         progress.current = { status: 'COMPLETED', error: null, arrived: 0, subscribed: true }
         read.mockRejectedValue(Object.assign(new Error('Released'), { status: 404 }))
