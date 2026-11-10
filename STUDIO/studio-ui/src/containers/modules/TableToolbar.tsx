@@ -107,7 +107,7 @@ interface TableAction {
     icon: ReactNode
     /** The event the panel of EPBDS-16560 listens on; only a table that can be run carries one. */
     event?: string
-    /** Offered only for a table that has tests of its own or is covered by some. */
+    /** Offered only for a table covered by tests written against it. */
     needsTests?: boolean
     /** Writes to the module, so it is offered only to a reader who may edit the project. */
     writes?: boolean
@@ -361,11 +361,11 @@ export const TableToolbar = ({
 
     // Runnable is what the server says it is; a table whose read has not answered yet is not offered a run.
     const runnable = EXECUTABLE.has(table.kind) && (runState === 'can-run' || runState === 'can-run-module')
-    // A test table runs its own cases; any other table runs the tests written against it, when there are some.
-    const hasTests = table.kind === 'Test' || tests.length > 0
+    // A table runs the tests written against it, when there are some. A test table is written against another
+    // one and is covered by none: Run executes its own cases, and a second button doing the same is not offered.
     const offered = ACTIONS.filter(action => action.writes
         ? canWrite && (action.suits?.(table) ?? true)
-        : runnable && (!action.needsTests || hasTests))
+        : runnable && (!action.needsTests || tests.length > 0))
 
     // A test is a table of its own, written where its author put it: another module of this project, or a
     // module of a project this one depends on. It is opened there, not beside the table it exercises.
