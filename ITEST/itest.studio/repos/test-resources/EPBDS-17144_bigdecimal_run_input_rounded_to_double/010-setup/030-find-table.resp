@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "myBigDecimal",
+      "returnType": "String",
+      "signature": "myBigDecimal(BigDecimal v)",
+      "file": "${PROJECT_BUSINESS_NAME}/BigDecimalRun.xlsx",
+      "sheet": "Rules",
+      "pos": "B1:C4",
+      "module": "BigDecimalRun",
+      "project": "${PROJECT_BUSINESS_NAME}",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

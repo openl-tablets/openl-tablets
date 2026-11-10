@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "myBigDecimal",
+  "tableId": "***",
+  "executionTimeMs": "##.##",
+  "result": "precise",
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  },
+  "parameters": [
+    {
+      "name": "v",
+      "description": "v",
+      "value": 2.000000000000000005,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "number"
+      }
+    }
+  ]
+}

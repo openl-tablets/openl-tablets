@@ -11,6 +11,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 
@@ -149,7 +150,7 @@ class TableInputParserServiceImplTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"{\"params\":[\"invalid\",\"LOW\",true]}", "[\"invalid\",\"LOW\",true]"})
+    @ValueSource(strings = {"{\"params\":[\"invalid\",\"LOW\",true]}", "[\"invalid\",\"LOW\",[true]]"})
     void positionalInputRejectsSurplusValues(String inputJson) {
         var method = method(new String[]{"amount", "category"}, new Class<?>[]{int.class, String.class});
 
@@ -176,6 +177,54 @@ class TableInputParserServiceImplTest {
 
         assertEquals(7, result.params()[0]);
         assertNull(result.runtimeContext());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2.000000000000000005", "100.0"})
+    void bigDecimalParameterKeepsEveryDigitOfAJsonNumber(String number) {
+        var method = method(new String[]{"v"}, new Class<?>[]{BigDecimal.class});
+
+        var result = parser.parseInput("{\"v\":" + number + "}", method, mapper);
+
+        assertEquals(new BigDecimal(number), result.params()[0]);
+    }
+
+    @Test
+    void bigDecimalElementsOfAnArrayKeepEveryDigit() {
+        var method = method(new String[]{"v"}, new Class<?>[]{BigDecimal[].class});
+
+        var result = parser.parseInput("{\"params\":[[2.000000000000000005,100.0]]}", method, mapper);
+
+        assertArrayEquals(new BigDecimal[]{new BigDecimal("2.000000000000000005"), new BigDecimal("100.0")},
+                (BigDecimal[]) result.params()[0]);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1e2", "2.50", "123456789.0", "-0.0", "2.000000000000000005"})
+    void stringParameterTakesAJsonNumberAsItIsWritten(String number) {
+        var method = method(new String[]{"v"}, new Class<?>[]{String.class});
+
+        var result = parser.parseInput("{\"params\":{\"v\":" + number + "}}", method, mapper);
+
+        assertEquals(number, result.params()[0]);
+    }
+
+    @Test
+    void doubleParameterKeepsTheSignOfAZero() {
+        var method = method(new String[]{"v"}, new Class<?>[]{double.class});
+
+        var result = parser.parseInput("-0.0", method, mapper);
+
+        assertEquals(-0.0, result.params()[0]);
+    }
+
+    @Test
+    void jsonNumberOfAnUntypedParameterStaysADouble() {
+        var method = method(new String[]{"v"}, new Class<?>[]{Object.class});
+
+        var result = parser.parseInput("{\"v\":2.5}", method, mapper);
+
+        assertEquals(2.5, result.params()[0]);
     }
 
     @Test
