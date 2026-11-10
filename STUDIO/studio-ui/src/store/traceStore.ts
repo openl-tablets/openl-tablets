@@ -174,6 +174,12 @@ interface DebugState {
      * stays selected instead of the unrelated frame the suspend landed on. Null for a step inspection.
      */
     simpleInspectFrame: { uri: string; instance: number } | null
+    /**
+     * True when the run started to inspect a business-view row settled without the row's table on the stack.
+     * The run re-executes the rules, and it can stop before the row: a stack overflow comes at a different
+     * depth on each run. The Details panel then says so and shows why the run stopped.
+     */
+    simpleUnreached: boolean
 
     /** Show the decision-table per-condition breakdown in both trees; off shows only the returned rule. */
     showDetailed: boolean
@@ -357,6 +363,7 @@ const initialState = {
     simpleLastInspected: null,
     simpleFocus: null,
     simpleInspectFrame: null,
+    simpleUnreached: false,
     showDetailed: false,
     loading: false,
     error: null,
@@ -376,6 +383,7 @@ const SIMPLE_SNAPSHOT_RESET = {
     simpleLastInspected: null,
     simpleFocus: null,
     simpleInspectFrame: null,
+    simpleUnreached: false,
 }
 
 // A settled run whose frames can still be inspected: paused at a step, or finished (completed/failed) with
@@ -408,6 +416,16 @@ const pausedAtTarget = (
     top?.uri === frameUri && top?.instance === frameInstance && !top?.completed
         && (stepType === 'over' ? top?.location?.ref === focus?.ref : !top?.location)
 
+/**
+ * The table a business-view inspection targets: the clicked call, or the owner of the clicked step. Null with
+ * no inspection under way.
+ */
+const inspectedTable = (
+    inspectFrame: DebugState['simpleInspectFrame'],
+    focus: SimpleStepFocus | null
+): { uri: string; instance: number } | null =>
+    inspectFrame ?? (focus ? { uri: focus.ownerUri, instance: focus.ownerInstance } : null)
+
 /** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
 const TREE_PAGE_SIZE = 100
 
@@ -421,6 +439,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
     // click in that window would start an overlapping inspect that cancels the first one's session.
     let inspecting = false
 
+    // True from a business-view click until the run it starts settles: parked at the row, or ended before it.
+    // Only that settle can tell the row was not reached; a later one (a session reaped, a project edited) cannot.
+    let awaitingRow = false
+
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
@@ -432,15 +454,22 @@ export const useTraceStore = create<DebugState>((set, get) => {
         // error parked the run inside a table it called — keep the clicked table selected (still on the stack
         // as an ancestor) so its own table and inputs show, not the unrelated frame the suspend landed on.
         const inspectFrame = get().simpleInspectFrame
-        if (inspectFrame && !get().advanced && focusIndex !== null) {
-            const index = stack.frames.findLastIndex(
-                frame => frame.uri === inspectFrame.uri && frame.instance === inspectFrame.instance)
-            if (index >= 0) {
-                focusIndex = index
-            }
+        const target = inspectedTable(inspectFrame, get().simpleFocus)
+        const targetIndex = target
+            ? stack.frames.findLastIndex(frame => frame.uri === target.uri && frame.instance === target.instance)
+            : -1
+        if (inspectFrame && !get().advanced && focusIndex !== null && targetIndex >= 0) {
+            focusIndex = targetIndex
         }
+        // The inspected row's table may be missing from the stack the click settles on: the run stopped before
+        // reaching it. The focus then stays on the frame the run stopped in, so the panel can show why it
+        // stopped, and nothing is paused at the row, so the next click starts a fresh run. A run that ended
+        // before the row has already said so, and the stack it ends with cannot reach it either.
+        const missed = awaitingRow && !get().advanced && target !== null && targetIndex < 0
+        awaitingRow = false
         const transient = get().transientBreakpoint
         set({
+            ...(missed ? { simpleUnreached: true, simpleLastInspected: null } : {}),
             status: stack.status,
             // Every stack response names its session; remembering it lets socket events be attributed.
             ...(stack.sessionId ? { sessionId: stack.sessionId } : {}),
@@ -573,6 +602,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
     // 'terminated' echo is ignored so the panel keeps the last table between the cancel and the fresh stack.
     const applyTerminalSocketStatus = (status: DebugStatus, message?: string): void => {
         if (restarting) return
+        // A business-view click runs to its row and parks there. A run that ends instead never reached the row,
+        // so the clicked row stays selected and Details says it was not reached. A session that is terminated
+        // did not run to an end, and one that ends after a click settled says nothing about that row.
+        const unreached = awaitingRow && !get().advanced && status !== 'terminated'
+        awaitingRow = false
         set({
             status,
             frames: [],
@@ -580,12 +614,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
             variables: null,
             variablesLoading: false,
             debugError: status === 'error' && message ? { summary: message } : null,
-            // Nothing is paused any more, so the next click cannot resume from here. Drop the focus and
-            // selection too: otherwise the settled root renders as a focused step (blank Details), and the
-            // still-selected row cannot be re-inspected (a re-click is a no-op on the selected key).
+            // Nothing is paused any more, so the next click cannot resume from here. With no row unreached, drop
+            // the focus and selection too: otherwise the settled root renders as a focused step (blank Details),
+            // and the still-selected row cannot be re-inspected (a re-click is a no-op on the selected key).
             simpleLastInspected: null,
-            simpleFocus: null,
-            simpleSelectedKey: null,
+            ...(unreached ? { simpleUnreached: true } : { simpleFocus: null, simpleSelectedKey: null }),
         })
         if (status === 'error') {
             void get().fetchTerminalError()
@@ -675,13 +708,14 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         selectFrame: async (index) => {
-            const { projectId, status, stackVersion, advanced, simpleFocus } = get()
+            const { projectId, status, stackVersion, advanced, simpleFocus, simpleUnreached } = get()
             if (!projectId) return
             set({ selectedFrameIndex: index })
             // A focused step in the business view shows only its own inputs, result and cell — all from the
             // step-inputs endpoint. The heavy frame-variables payload (every cell value, the grid, the
-            // decision breakdown) is never rendered for a focused step, so don't fetch it.
-            if (!advanced && simpleFocus) {
+            // decision breakdown) is never rendered for a focused step, so don't fetch it. A step the run did
+            // not reach has no inputs: the panel shows the errors of the frame the run stopped in instead.
+            if (!advanced && simpleFocus && !simpleUnreached) {
                 set({ variables: null, variablesLoading: false })
                 return
             }
@@ -921,6 +955,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId || get().simpleLoading) return
             const previousRun = get().simpleRunId
+            awaitingRow = false
             beginRun({ ...SIMPLE_SNAPSHOT_RESET, simpleLoading: true })
             if (previousRun) {
                 // The tree of this window's previous run is no longer shown; the trees of other windows stay.
@@ -973,15 +1008,21 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const { projectId, simpleReady, simpleLoading, loading, status } = get()
             if (!projectId || !simpleReady || simpleLoading || loading || status === 'running' || inspecting) return
             // Clicking the row already settled on screen is a no-op. A failed or abandoned inspect leaves
-            // the highlight without a selected frame — allow the same row to retry.
+            // the highlight without a selected frame — allow the same row to retry. A row the run did not
+            // reach can be tried again too: the next run may get there.
             const clickedKey = selectionKey ?? key
-            if (get().simpleSelectedKey === clickedKey && get().selectedFrameIndex !== null) return
+            if (get().simpleSelectedKey === clickedKey && get().selectedFrameIndex !== null
+                && !get().simpleUnreached) return
             // Single-flight: hold the guard across the whole inspect (its run-to branch neither raises
             // `loading` nor flips status to 'running' until after an awaited round-trip).
             inspecting = true
-            const clearInspectLoading = (): void => set({
-                variablesLoading: false, simpleSelectedKey: null, simpleInspectFrame: null, simpleFocus: null,
-            })
+            const clearInspectLoading = (): void => {
+                awaitingRow = false
+                set({
+                    variablesLoading: false, simpleSelectedKey: null, simpleInspectFrame: null, simpleFocus: null,
+                    simpleUnreached: false,
+                })
+            }
             try {
                 const ranges = numberedOrder()
                 const order = ranges[key] ?? null
@@ -994,7 +1035,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // it until settle looks like a flicker of the error table before the clicked ancestor appears.
                 set({ simpleSelectedKey: clickedKey, simpleLastInspected: order ? key : null, simpleFocus: focus ?? null,
                     simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance },
-                    selectedFrameIndex: null, variables: null, variablesLoading: true })
+                    simpleUnreached: false, selectedFrameIndex: null, variables: null, variablesLoading: true })
                 // Execution can only move forward: a row is still reachable by resuming when it starts after
                 // everything the previous inspection already ran — its own subtree included. Anything else
                 // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
@@ -1014,6 +1055,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // A quiet restart leaves the previous table on the panel, so read the fresh root from the
                 // returned stack rather than the (still previous) displayed frames.
                 const top = (freshStack?.frames ?? get().frames).at(-1)
+                // From here the run goes to the row: the next stack it settles on, or its end, answers the click.
+                awaitingRow = true
                 if (pausedAtTarget(top, frameUri, frameInstance, stepType, focus)) {
                     await (stepType === 'over' ? get().stepOver() : get().stepOut())
                 } else {
@@ -1022,8 +1065,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     await get().runTo(`after:${key}`, label)
                 }
                 // Success either selected a frame (step) or handed off to a running resume that settles via
-                // the socket. Anything else left the loading window with nowhere to land.
-                if (get().selectedFrameIndex === null && get().status !== 'running') {
+                // the socket. Anything else left the loading window with nowhere to land, unless the run
+                // already ended before the row, which Details reports.
+                if (get().selectedFrameIndex === null && get().status !== 'running' && !get().simpleUnreached) {
                     clearInspectLoading()
                 }
             } catch {
@@ -1099,6 +1143,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
             }
         },
 
-        reset: () => set(initialState),
+        reset: () => {
+            awaitingRow = false
+            set(initialState)
+        },
     }
 })

@@ -76,6 +76,7 @@ const TraceDetails: React.FC = () => {
     const focus = useTraceStore(s => (s.advanced ? null : s.simpleFocus))
     const projectId = useTraceStore(s => s.projectId)
     const stackVersion = useTraceStore(s => s.stackVersion)
+    const unreached = useTraceStore(s => !s.advanced && s.simpleUnreached)
 
     // Context is shown alongside the input parameters. Memoized so the parameter tree and its copy button
     // keep a stable prop reference and don't re-render on every unrelated store change.
@@ -131,6 +132,29 @@ const TraceDetails: React.FC = () => {
             cancelled = true
         }
     }, [focus, projectId, ownerIndex, stackVersion])
+
+    // The run started for a business-view click stopped before the clicked row: nothing of the row can be
+    // shown, only why the run stopped — the errors of the frame it stopped in. A run that ended with an error
+    // and no frame left reports it in the window's error banner.
+    if (unreached) {
+        return (
+            <div className={styles.details} data-testid="debug-details-not-reached">
+                <Alert
+                    showIcon
+                    description={t('details.notReachedHint')}
+                    title={t('details.notReached')}
+                    type="warning"
+                />
+                {variablesLoading ? (
+                    <div className={styles.detailsCentered}>
+                        <Spin description={t('loadingDetails')} />
+                    </div>
+                ) : (
+                    <TraceErrors errors={variables?.errors} />
+                )}
+            </div>
+        )
+    }
 
     // A business-view click clears the frame while it re-runs to the target, so the previous (often the
     // throwing child) table is not held on screen. Show a spinner for that window instead of "no selection".
