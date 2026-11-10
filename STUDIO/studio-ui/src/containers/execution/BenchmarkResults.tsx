@@ -82,7 +82,8 @@ export const BenchmarkResults: React.FC<BenchmarkResultsProps> = ({ projectId, t
 
     // The benchmark says when it has ended. The screen also reads once as soon as it is listening, for a
     // measurement that ended before the window was there to hear about it. While it waits, a quiet spell also
-    // prompts a read, because a disconnected socket cannot report that the measurement ended.
+    // prompts a read, because a disconnected socket cannot report that the measurement ended. The server reports
+    // a failure only once, so a failed read counts even after the next read has replaced it.
     useEffect(() => {
         if (benchmarkFailed) {
             return undefined
@@ -96,7 +97,7 @@ export const BenchmarkResults: React.FC<BenchmarkResultsProps> = ({ projectId, t
                 }
             })
             .catch(readError => {
-                if (active && !isStillRunning(readError)) {
+                if (!isStillRunning(readError)) {
                     if (finished && isMissingExecution(readError)) {
                         setMeasurements([])
                     } else if (isOutdatedExecution(readError)) {

@@ -137,7 +137,8 @@ The build writes two pages (`build.rollupOptions.input`):
   the socket drops, just as the screen subscribes or while it reconnects, reaches nobody. An execution that has
   said it ended counts no spell. A confirmed missing result also ends the wait, so the screen stops polling and
   shows that no result is available. For completed benchmarks, a missing saved list shows an empty measurement
-  list; a missing project while a benchmark is pending remains an error.
+  list; a missing project while a benchmark is pending remains an error. The server reports a benchmark failure only
+  once, so the screen shows the failure of a read that was replaced.
   While an execution goes on, its screen offers Stop (`useStopExecution`, `stopExecution` of `services/execution.ts`)
   and, once it is stopped, says so; a stopped benchmark shows the measurements before it, and a test run that stopped by
   itself shows the tables that ran under a note that it stopped. Polling of tests and of a run ends once Stop answers; a
