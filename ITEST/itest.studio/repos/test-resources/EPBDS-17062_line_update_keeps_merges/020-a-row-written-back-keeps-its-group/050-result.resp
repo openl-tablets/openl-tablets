@@ -1,0 +1,42 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Rate",
+  "tableId": "EJBP5FAVY4XWFF7Y",
+  "executionTimeMs": "##.##",
+  "result": 0.7,
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number"
+  },
+  "parameters": [
+    {
+      "name": "duration",
+      "description": "duration",
+      "value": 10,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "integer"
+      }
+    },
+    {
+      "name": "gender",
+      "description": "gender",
+      "value": "Female",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    },
+    {
+      "name": "period",
+      "description": "period",
+      "value": "4 - 4",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    }
+  ]
+}

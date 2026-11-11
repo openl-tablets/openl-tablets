@@ -21,9 +21,11 @@ import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
+import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
@@ -466,18 +468,16 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void updateRow(int position, List<RawCellInput> cells) {
         var developerView = developerView();
         requirePosition(position, 0, GridRegionUtils.height(developerView.getRegion()) - 1);
-        requireRowWidth(cells, GridRegionUtils.width(developerView.getRegion()));
-        // Drop merges anchored in the row so a merge dropped from the new cells does not linger.
-        clearLineMerges(developerView, position, true);
+        requireLineLength(cells, GridRegionUtils.width(developerView.getRegion()), ROW_WIDTH_MESSAGE);
+        prepareUpdate(developerView, List.of(PlacedLine.along(cells, position, true)));
         writeRow(developerView, position, cells, true);
     }
 
     private void updateColumn(int position, List<RawCellInput> cells) {
         var developerView = developerView();
         requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()) - 1);
-        requireColumnHeight(cells, GridRegionUtils.height(developerView.getRegion()));
-        // Drop merges anchored in the column so a merge dropped from the new cells does not linger.
-        clearLineMerges(developerView, position, false);
+        requireLineLength(cells, GridRegionUtils.height(developerView.getRegion()), COLUMN_HEIGHT_MESSAGE);
+        prepareUpdate(developerView, List.of(PlacedLine.along(cells, position, false)));
         writeColumn(developerView, position, cells, true);
     }
 
@@ -554,30 +554,167 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var rangeWidth = requireRectangularRange(cells);
         requireRangeMultiCell(rangeHeight, rangeWidth);
         requireRangeInBounds(row, column, rangeHeight, rangeWidth, height, width);
-        // A written row that becomes entirely blank would split the table, exactly as updateRow guards against.
-        // Enforce it per row of the block.
-        cells.forEach(RawTableWriter::requireSomeContent);
-        // Drop merges anchored in the block so a merge dropped from the new cells does not linger (as updateRow does).
-        clearBlockMerges(developerView, row, column, rangeHeight, rangeWidth);
+        var lines = new ArrayList<PlacedLine>();
+        for (var r = 0; r < rangeHeight; r++) {
+            lines.add(new PlacedLine(cells.get(r), row + r, column, true));
+        }
+        prepareUpdate(developerView, lines);
         writeBlock(developerView, row, column, cells, width, height);
+    }
+
+    /**
+     * The cells of an update laid along a line of the table, from {@code row} and {@code column} to the right when
+     * {@code horizontal}, or else down.
+     */
+    private record PlacedLine(List<RawCellInput> cells, int row, int column, boolean horizontal) {
+
+        /** A whole row of the table at {@code index} when {@code horizontal}, or else a whole column. */
+        static PlacedLine along(List<RawCellInput> cells, int index, boolean horizontal) {
+            return horizontal ? new PlacedLine(cells, index, 0, true) : new PlacedLine(cells, 0, index, false);
+        }
+
+        int rowOf(int index) {
+            return horizontal ? row : row + index;
+        }
+
+        int columnOf(int index) {
+            return horizontal ? column + index : column;
+        }
+    }
+
+    /**
+     * Checks the lines of an update and removes the merged cells that the spans of its cells replace.
+     *
+     * <p>An update of a row, a column or a range keeps the merged cells it holds: a cell written without a span of
+     * its own keeps the merge it starts, as a client writing values back has no span to send. A span a cell names
+     * replaces every merge starting in the area it covers, unless it spans the same cells. Only {@code unmerge}
+     * splits a merged cell.
+     *
+     * <p>Nothing is changed when a span leaves the table, when a cell under a span of the update has a value, or when
+     * a line would be left blank: a line whose only cells are covered, by a span of the update or by a merged cell it
+     * keeps, is not blank.
+     */
+    private void prepareUpdate(IGridTable developerView, List<PlacedLine> lines) {
+        var spans = new ArrayList<IGridRegion>();
+        lines.forEach(line -> collectLineSpans(line, spans));
+        var tableRegion = developerView.getRegion();
+        spans.forEach(span -> requireSpanInTable(span, tableRegion));
+        lines.forEach(line -> requireNoValueUnderSpans(line, spans));
+        var absoluteSpans = spans.stream().map(span -> toAbsolute(span, tableRegion)).toList();
+        var replaced = mergesReplaced(developerView.getGrid(), absoluteSpans);
+        for (var line : lines) {
+            requireLineFilled(developerView, line, absoluteSpans, replaced);
+        }
+        removeMerges(developerView, replaced);
+    }
+
+    private static void requireSpanInTable(IGridRegion span, IGridRegion tableRegion) {
+        if (span.getBottom() >= GridRegionUtils.height(tableRegion)
+                || span.getRight() >= GridRegionUtils.width(tableRegion)) {
+            throw new BadRequestException("table.action.span.out-of-bounds.message",
+                    new Object[]{span.getTop(), span.getLeft(), GridRegionUtils.height(span),
+                            GridRegionUtils.width(span)});
+        }
+    }
+
+    /** The merged cells of the sheet starting in a span, other than one spanning the very cells of the span. */
+    private static List<IGridRegion> mergesReplaced(IGrid grid, List<IGridRegion> spans) {
+        if (spans.isEmpty()) {
+            // Values written back alone name no span, so the merges of the sheet need no look.
+            return List.of();
+        }
+        var replaced = new ArrayList<IGridRegion>();
+        for (int i = 0, n = grid.getNumberOfMergedRegions(); i < n; i++) {
+            var merged = grid.getMergedRegion(i);
+            if (spans.stream().anyMatch(span -> replaces(span, merged))) {
+                replaced.add(merged);
+            }
+        }
+        return replaced;
+    }
+
+    private static boolean replaces(IGridRegion span, IGridRegion merged) {
+        return GridRegionUtils.contains(span, merged.getLeft(), merged.getTop()) && !sameCells(span, merged);
+    }
+
+    /**
+     * Refuses a value for a cell that a span of the same update covers. The merge would hide the value and the save
+     * would blank it, so the cell is sent as covered or empty.
+     *
+     * @param spans the spans the cells of the update name, in table coordinates
+     */
+    private static void requireNoValueUnderSpans(PlacedLine line, List<IGridRegion> spans) {
+        var cells = line.cells();
+        for (var i = 0; i < cells.size(); i++) {
+            var span = isWritten(cells.get(i)) ? spanCovering(spans, line.rowOf(i), line.columnOf(i)) : null;
+            if (span != null) {
+                throw new BadRequestException("table.action.cell.under-span.message",
+                        new Object[]{line.rowOf(i), line.columnOf(i), span.getTop(), span.getLeft()});
+            }
+        }
+    }
+
+    /** The span that covers a cell other than its first one, or {@code null} for none. */
+    private static @Nullable IGridRegion spanCovering(List<IGridRegion> spans, int row, int column) {
+        return spans.stream()
+                .filter(span -> GridRegionUtils.contains(span, column, row)
+                        && (span.getTop() != row || span.getLeft() != column))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /** Whether a cell of an edit writes a value or an Excel formula, as a covered, a blank or a missing one does not. */
+    private static boolean isWritten(@Nullable RawCellInput cell) {
+        return cell != null && !Boolean.TRUE.equals(cell.covered())
+                && hasWritableContent(cell.value(), cell.formula(), null, null);
+    }
+
+    /**
+     * Refuses a line of an update that would be left blank, which would split the table. A cell that writes nothing
+     * fills the line when a span of the update or a merged cell the update keeps covers it.
+     */
+    private static void requireLineFilled(IGridTable developerView, PlacedLine line, List<IGridRegion> spans,
+                                          List<IGridRegion> replaced) {
+        var filled = hasSomeContent(line.cells());
+        for (var i = 0; !filled && i < line.cells().size(); i++) {
+            filled = isHeldByMerge(developerView, line.rowOf(i), line.columnOf(i), spans, replaced);
+        }
+        if (!filled) {
+            throw new BadRequestException("table.action.line.all-empty.message");
+        }
+    }
+
+    /** Whether a span of the update, or a merged cell the update keeps, covers a cell other than its first one. */
+    private static boolean isHeldByMerge(IGridTable developerView, int row, int column, List<IGridRegion> spans,
+                                         List<IGridRegion> replaced) {
+        var tableRegion = developerView.getRegion();
+        var absColumn = tableRegion.getLeft() + column;
+        var absRow = tableRegion.getTop() + row;
+        if (spans.stream().anyMatch(span -> GridRegionUtils.contains(span, absColumn, absRow))) {
+            return true;
+        }
+        var merged = developerView.getGrid().getRegionContaining(absColumn, absRow);
+        return merged != null && (merged.getLeft() != absColumn || merged.getTop() != absRow)
+                && replaced.stream().noneMatch(region -> sameCells(region, merged));
+    }
+
+    /** Removes merged cells from the sheet; the save tells the layout their cells unless the write merges them again. */
+    private void removeMerges(IGridTable developerView, List<IGridRegion> merges) {
+        var grid = (IWritableGrid) developerView.getGrid();
+        merges.forEach(grid::removeMergedRegion);
+        mergesRemoved(merges);
     }
 
     private void writeBlock(IGridTable developerView, int top, int left, List<List<RawCellInput>> cells,
                             int width, int height) {
-        var pass = new CellWritePass(developerView, true, width, height, new ArrayList<>());
+        var pass = new CellWritePass(developerView, true, width, height);
         for (var r = 0; r < cells.size(); r++) {
             var rowCells = cells.get(r);
             for (var c = 0; c < rowCells.size(); c++) {
                 writeCellInput(pass, top + r, left + c, rowCells.get(c));
             }
         }
-        applyMergeRegions(developerView, pass.mergeRegions());
-    }
-
-    private void clearBlockMerges(IGridTable developerView, int top, int left, int rangeHeight, int rangeWidth) {
-        var tableRegion = developerView.getRegion();
-        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop() + top, tableRegion.getLeft() + left,
-                tableRegion.getTop() + top + rangeHeight - 1, tableRegion.getLeft() + left + rangeWidth - 1));
+        finish(pass);
     }
 
     private void mergeCells(int row, int column, int rowspan, int colspan) {
@@ -735,21 +872,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     /**
-     * Removes the merges anchored in a single row or column. The line-sized counterpart of
-     * {@link #clearMergedRegions}: an update re-applies only the merges declared in its new cells, so this drops the
-     * ones that were there before but are absent now (they would otherwise mask the new values).
-     */
-    private void clearLineMerges(IGridTable developerView, int index, boolean horizontal) {
-        var tableRegion = developerView.getRegion();
-        GridRegion lineRegion = horizontal
-                ? new GridRegion(tableRegion.getTop() + index, tableRegion.getLeft(),
-                        tableRegion.getTop() + index, tableRegion.getRight())
-                : new GridRegion(tableRegion.getTop(), tableRegion.getLeft() + index,
-                        tableRegion.getBottom(), tableRegion.getLeft() + index);
-        removeMergedRegionsIn(developerView, lineRegion);
-    }
-
-    /**
      * Removes the merged regions anchored in {@code region}; the save tells the layout the cells of those not merged
      * again.
      */
@@ -787,9 +909,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 : Math.max(GridRegionUtils.width(developerView.getRegion()), fixedIndex + 1);
         int spanHeight = horizontal ? Math.max(GridRegionUtils.height(developerView.getRegion()), fixedIndex + 1)
                 : GridRegionUtils.height(developerView.getRegion());
-        var pass = new CellWritePass(developerView, skipCovered, spanWidth, spanHeight, new ArrayList<>());
+        var pass = new CellWritePass(developerView, skipCovered, spanWidth, spanHeight);
         writeLineCells(pass, cells, fixedIndex, horizontal);
-        applyMergeRegions(developerView, pass.mergeRegions());
+        finish(pass);
     }
 
     /**
@@ -798,11 +920,11 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     private void writeLines(IGridTable developerView, List<List<RawCellInput>> lines, int startIndex,
                             boolean horizontal, int width, int height) {
-        var pass = new CellWritePass(developerView, false, width, height, new ArrayList<>());
+        var pass = new CellWritePass(developerView, false, width, height);
         for (var i = 0; i < lines.size(); i++) {
             writeLineCells(pass, lines.get(i), startIndex + i, horizontal);
         }
-        applyMergeRegions(developerView, pass.mergeRegions());
+        finish(pass);
     }
 
     /**
@@ -811,7 +933,24 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * apply once the pass ends.
      */
     private record CellWritePass(IGridTable developerView, boolean skipCovered, int width, int height,
-                                 List<IGridRegion> mergeRegions) {
+                                 List<IGridRegion> mergeRegions, List<IGridRegion> newMerges) {
+
+        CellWritePass(IGridTable developerView, boolean skipCovered, int width, int height) {
+            this(developerView, skipCovered, width, height, new ArrayList<>(), new ArrayList<>());
+        }
+    }
+
+    /**
+     * Applies the merges of a pass. The cells a merge of an update newly covers are blanked, as a merge action
+     * blanks them, so no hidden value stays under it.
+     */
+    private void finish(CellWritePass pass) {
+        var developerView = pass.developerView();
+        applyMergeRegions(developerView, pass.mergeRegions());
+        for (var merge : pass.newMerges()) {
+            clearCoveredCells(developerView, merge.getTop(), merge.getLeft(), GridRegionUtils.height(merge),
+                    GridRegionUtils.width(merge));
+        }
     }
 
     private void writeLineCells(CellWritePass pass, List<RawCellInput> cells, int fixedIndex, boolean horizontal) {
@@ -824,9 +963,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     /**
      * Writes one input cell at an absolute table position and queues any inline merge. Blank and explicitly-covered
-     * inputs are skipped. When {@code skipCovered} is set (an update), a position masked by an existing merge is
-     * rejected: writing it would leave invisible "orphan" content that later corrupts structural edits, so callers
-     * must mark such positions {@code "covered": true}. Insert/append target fresh cells, so they pass it unset.
+     * inputs are skipped. When {@code skipCovered} is set (an update), a position masked by an existing merge takes
+     * no value: writing it would leave invisible "orphan" content that later corrupts structural edits. An empty cell
+     * there is taken as covered, as it writes nothing; one with a value or a span is refused. Insert/append target
+     * fresh cells, so they pass it unset.
      */
     private void writeCellInput(CellWritePass pass, int row, int col, RawCellInput cell) {
         if (cell == null || Boolean.TRUE.equals(cell.covered())) {
@@ -834,6 +974,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         var developerView = pass.developerView();
         if (pass.skipCovered() && isCoveredByMerge(developerView, row, col)) {
+            if (!hasWritableContent(cell.value(), cell.formula(), cell.colspan(), cell.rowspan())) {
+                return;
+            }
             throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, col});
         }
         requireSpanInBounds(cell, row, col, pass.width(), pass.height());
@@ -842,10 +985,17 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // Validate an inline span (colspan/rowspan) against existing and already queued merges, so an update cannot
         // silently create intersecting regions that the spreadsheet library would reject only while applying them.
         buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col).ifPresent(region -> {
-            requireNoConflictingMerge(developerView, row, col,
-                    cell.rowspan() == null ? 1 : cell.rowspan(),
-                    cell.colspan() == null ? 1 : cell.colspan());
+            var rowspan = GridRegionUtils.height(region);
+            var colspan = GridRegionUtils.width(region);
+            requireNoConflictingMerge(developerView, row, col, rowspan, colspan);
             requireNoConflictingMerge(pass.mergeRegions(), region, row, col);
+            // A span of an update over cells that are not merged so yet hides them, as a merge action does: it is
+            // refused when they hold other values, and blanks them otherwise.
+            if (pass.skipCovered()
+                    && !isMerged(developerView.getGrid(), toAbsolute(region, developerView.getRegion()))) {
+                requireNoMergeDataLoss(developerView, row, col, rowspan, colspan);
+                pass.newMerges().add(region);
+            }
             pass.mergeRegions().add(region);
         });
     }
@@ -950,16 +1100,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 && top <= existing.getBottom() && existing.getTop() <= bottom;
     }
 
-    private static void requireRowWidth(List<RawCellInput> cells, int width) {
-        requireLineLength(cells, width, ROW_WIDTH_MESSAGE);
-        requireSomeContent(cells);
-    }
-
-    private static void requireColumnHeight(List<RawCellInput> cells, int height) {
-        requireLineLength(cells, height, COLUMN_HEIGHT_MESSAGE);
-        requireSomeContent(cells);
-    }
-
     private static void requireLineLength(@Nullable List<?> cells, int limit, String messageKey) {
         if (cells == null) {
             throw new BadRequestException("table.action.cells.required.message");
@@ -994,7 +1134,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                     && !reachedByMerge(merges, view.getRegion(), fixedIndex, horizontal)) {
                 throw new BadRequestException("table.action.line.all-empty.message");
             }
-            collectLineSpans(cells, fixedIndex, horizontal, earlierSpans);
+            collectLineSpans(PlacedLine.along(cells, fixedIndex, horizontal), earlierSpans);
         }
     }
 
@@ -1043,24 +1183,15 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         return true;
     }
 
-    private static void collectLineSpans(List<RawCellInput> cells, int fixedIndex, boolean horizontal,
-                                         List<IGridRegion> spans) {
+    /** Collects the spans the cells of a line name, in table coordinates. A covered cell names no span. */
+    private static void collectLineSpans(PlacedLine line, List<IGridRegion> spans) {
+        var cells = line.cells();
         for (var i = 0; i < cells.size(); i++) {
             var cell = cells.get(i);
             if (cell != null && !Boolean.TRUE.equals(cell.covered())) {
-                var row = horizontal ? fixedIndex : i;
-                var column = horizontal ? i : fixedIndex;
-                buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, column).ifPresent(spans::add);
+                buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), line.rowOf(i), line.columnOf(i))
+                        .ifPresent(spans::add);
             }
-        }
-    }
-
-    private static void requireSomeContent(List<RawCellInput> cells) {
-        // A covered cell is skipped by the writer (its value lives in a merge origin outside this line), so a line of
-        // only covered placeholders writes nothing: an append no-op, or an inserted blank line that splits the table.
-        // Require at least one cell the writer will actually fill — a non-covered cell with a value or a span.
-        if (!hasSomeContent(cells)) {
-            throw new BadRequestException("table.action.line.all-empty.message");
         }
     }
 

@@ -452,7 +452,8 @@ The request applies one edit to the raw source of any table. The `operation` sel
   value included, and one left a single cell is no longer merged.
 - **`update`** — overwrites a cell, a row, a column, or a rectangle. The table is not resized. Target types: `cell`
   (`row`, `column`, `value`, optional `marks`; see [Marking Pieces of a Text](#marking-pieces-of-a-text)), `row` and
-  `column` (`position`, `cells`), and `range` (`row`, `column`, `cells`; more than one cell).
+  `column` (`position`, `cells`), and `range` (`row`, `column`, `cells`; more than one cell). An update keeps the
+  merged cells; see [Updating Merged Cells](#updating-merged-cells).
 - **`merge`** — merges a rectangle and keeps the value of the top-left cell. Target type `cells` with `row`, `column`,
   `rowspan`, and `colspan`.
 - **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
@@ -476,6 +477,9 @@ the table or the request named the table by an id it had before.
 - `openl.error.400.table.action.position.invalid.message` — a position is out of range.
 - `openl.error.400.table.action.row.width.message`, `openl.error.400.table.action.column.height.message` — a new row
   is not as wide as the table, or a new column is not as tall.
+- `openl.error.400.table.action.cell.covered.message` — a value for a position that a merged cell covers.
+- `openl.error.400.table.action.cell.under-span.message` — a value for a position that a span of the same update
+  covers.
 - `openl.error.400.table.action.merge.range.invalid.message` — the range to merge covers one cell or leaves the table.
 - `openl.error.400.table.action.merge.overlap.message` — the range overlaps a merged cell.
 - `openl.error.400.table.action.merge.data-loss.message` — the range holds more than one distinct value.
@@ -496,6 +500,33 @@ the table or the request named the table by an id it had before.
   compute; see [Formulas](#formulas).
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
   of them; a mark without `from`, `to` or `color`, or with an unknown `color`.
+
+### Updating Merged Cells
+
+A merged cell carries meaning: merged down rows, a condition value groups the rules it spans, and merged across
+columns, one value answers for every column it spans. An `update` of a `row`, a `column`, or a `range` therefore keeps
+every merged cell it holds, so a line read and written back as values only, without its spans, changes nothing but its
+values.
+
+- A cell without `colspan` and `rowspan` keeps the merged cell it starts, with the rows or columns it spans outside
+  the line.
+- A position that a kept merged cell covers takes no value. Send it as `{"covered": true}` or empty, as
+  `{"value": null}`, which counts as covered there — a merged cell laid by an earlier edit of the same batch included.
+  A value there is refused with `400` and `openl.error.400.table.action.cell.covered.message`.
+- A cell that sets `colspan` or `rowspan` of 2 or more merges anew: the merged cells starting in the area it spans are
+  replaced by its span. A span that leaves the table is refused with `400` and
+  `openl.error.400.table.action.span.out-of-bounds.message` before anything is changed.
+- A cell under a span of the same update takes no value either: send it as covered or empty. A value there is refused
+  with `400` and `openl.error.400.table.action.cell.under-span.message` before anything is changed.
+- A span over cells that are not merged so yet hides them, as a [`merge`](#editing-the-source) does: it is refused
+  with `400` and `openl.error.400.table.action.merge.data-loss.message` when they hold another value, and the cells it
+  covers are left empty otherwise.
+- A line whose positions are all covered, by a span of the update or by a merged cell it keeps, is not blank.
+- Only `unmerge` splits a merged cell. To write the cells of a merged one separately, send an `unmerge` and then the
+  `update` in one [batch](#applying-several-edits).
+
+A full write of the table, [Replace the Matrix](#replace-the-matrix), is different: the matrix is the whole table, so
+the table keeps only the merged cells its cells name.
 
 ### Appending and Inserting Structural Blocks
 

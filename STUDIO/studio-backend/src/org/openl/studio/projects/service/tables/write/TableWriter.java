@@ -876,13 +876,19 @@ public abstract class TableWriter<T extends TableView> {
         added.forEach(this::regionWritten);
     }
 
-    /** Whether the grid merges the cells of a region already, and no others with them. */
-    private static boolean isMerged(IGrid grid, IGridRegion region) {
+    /** Whether the grid merges the cells of a region of the sheet already, and no others with them. */
+    protected static boolean isMerged(IGrid grid, IGridRegion region) {
         var merged = grid.getRegionStartingAt(region.getLeft(), region.getTop());
-        return merged != null && boundsOf(merged).equals(boundsOf(region));
+        return merged != null && sameCells(merged, region);
     }
 
-    private IGridRegion toAbsolute(IGridRegion mr, IGridRegion tableRegion) {
+    /** Whether two regions hold the same cells. */
+    protected static boolean sameCells(IGridRegion first, IGridRegion second) {
+        return boundsOf(first).equals(boundsOf(second));
+    }
+
+    /** The place on the sheet of a region of the table. */
+    protected static IGridRegion toAbsolute(IGridRegion mr, IGridRegion tableRegion) {
         var top = mr.getTop() + tableRegion.getTop();
         var left = mr.getLeft() + tableRegion.getLeft();
         var bottom = mr.getBottom() + tableRegion.getTop();
