@@ -54,6 +54,12 @@ public class Table implements ITable {
     @Getter
     private Object dataArray;
     private List<DatatypeArrayMultiRowElementContext> dataContextCache;
+    /**
+     * The index of the element of each collection that each line of each record defined, kept outside the execution
+     * mode for the tools that read the table back, such as the Markdown writer: {@code null} for a table without such
+     * collections.
+     */
+    private @Nullable List<Map<String, int[]>> elementIndexes;
 
     private BiMap<Integer, Object> rowIndexMap;
     private BiMap<Integer, String> primaryIndexMap;
@@ -285,6 +291,10 @@ public class Table implements ITable {
             env.popLocalFrame();
             env.popThis();
         }
+        // OpenL Rule Services read no table back
+        if (dataContextCache != null && !bindingContext.isExecutionMode()) {
+            elementIndexes = dataContextCache.stream().map(DatatypeArrayMultiRowElementContext::indexes).toList();
+        }
         // clear cache
         dataContextCache = null;
     }
@@ -445,6 +455,13 @@ public class Table implements ITable {
                 this.dataContextCache = Collections.unmodifiableList(dataContexts);
             }
         }
+    }
+
+    /**
+     * Whether the records of a Data table take several lines, each of its columns reading every line.
+     */
+    boolean isMultiRowData() {
+        return tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DATA && isSupportMultirow();
     }
 
     private boolean isSupportMultirow() {
@@ -838,7 +855,7 @@ public class Table implements ITable {
         return groupColumns(Table::isMultiRowColumn).stream().filter(group -> !group.columns().isEmpty()).toList();
     }
 
-    private static boolean isMultiRowColumn(ColumnDescriptor descriptor) {
+    static boolean isMultiRowColumn(ColumnDescriptor descriptor) {
         if (descriptor.getField() == null || descriptor.isReference() || !descriptor.isSupportMultirows()) {
             return false;
         }
@@ -957,6 +974,27 @@ public class Table implements ITable {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the index of the element of each collection that each line of a record defined.
+     *
+     * @param index the index of the record in the data of the table
+     * @return the indexes of the lines by the path of the collection from the root object, {@code -1} for a line that
+     *         defined no element of it; {@code null} when the table defines no element in several lines or its data
+     *         was not loaded
+     */
+    @Nullable Map<String, int[]> elementIndexesOf(int index) {
+        return elementIndexes == null || elementIndexes.isEmpty() ? null : elementIndexes.get(index);
+    }
+
+    /**
+     * Returns the first row of a record in the rows of the data of the table, its title row first.
+     *
+     * @param index the index of the record in the data of the table
+     */
+    int firstRowOf(int index) {
+        return dataIdxToTableRowNum.get(index);
     }
 
     private DatatypeArrayMultiRowElementContext getCachedContext(int i) {

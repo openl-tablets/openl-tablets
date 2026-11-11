@@ -1,5 +1,6 @@
 package org.openl.rules.data;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -72,6 +73,23 @@ public class DatatypeArrayMultiRowElementContext {
             elements.put(row, element);
         }
         return element.index();
+    }
+
+    /**
+     * Returns the index of the element of each collection that each line of the row defined.
+     *
+     * @return the indexes of the lines by the path of the collection from the root object, {@code -1} for a line that
+     *         defined no element of it
+     */
+    Map<String, int[]> indexes() {
+        var indexes = HashMap.<String, int[]>newHashMap(arrayIndexes.size());
+        arrayIndexes.forEach((array, elements) -> {
+            var lines = new int[elements.keySet().stream().mapToInt(Integer::intValue).max().orElse(-1) + 1];
+            Arrays.fill(lines, -1);
+            elements.forEach((line, element) -> lines[line] = element.index());
+            indexes.put(array, lines);
+        });
+        return indexes;
     }
 
     private static boolean isBeforeFirstElement(Element element) {

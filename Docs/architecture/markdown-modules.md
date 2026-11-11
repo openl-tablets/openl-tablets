@@ -1,6 +1,6 @@
 # Markdown Modules
 
-How OpenL reads and writes rules kept in Markdown files, one table per file, next to Excel workbooks. The
+How OpenL reads, writes and converts rules kept in Markdown files, one table per file, next to Excel workbooks. The
 format an author writes is specified in [Markdown Tables](../ref/markdown-tables.md); this page is how the code
 works.
 
@@ -38,6 +38,8 @@ works.
   back as the same text, anything else stays text.
 - **A save writes only what changed**: a key of the front matter, a row of the body. What a file cannot hold is
   refused with the reason.
+- **The converter lives in the engine**, and OpenL Maven Plugin calls it. A workbook with a table a file cannot hold
+  stays a workbook.
 - **The reader is in the engine core**, with `commonmark` and SnakeYAML as dependencies of `org.openl.rules`.
 
 ## Structure
@@ -177,6 +179,29 @@ by `MarkdownTableWriter.newFile`.
 - a value under a merged range, or a value holding the text `<br>`, which reads as a line break;
 - a merged range in the body of a Data, Test or Run table, whose record is one row.
 
+The converter leaves such a table in its workbook.
+
+## Converting Workbooks
+
+- `MarkdownModuleWriter` writes the tables of a workbook into a module folder:
+    - a file per table, named from the header of the table, compiled or not, with a number when the name is taken;
+    - the Environment tables of a workbook joined in `Environment.md`, the Constants tables in `Constants.md`;
+    - a table written in parts written whole, as the compiler joined it;
+    - a Data, Test or Run table with a record of several rows or a merged cell written a row for each record, with no
+      merged range (`OneLineRecords`): the engine keeps the index of the element each row of a record defined, so
+      each value goes into the columns of its element;
+    - a table of no kind OpenL knows written as text into the `notes.md` documentation of its sheet;
+    - a sheet name a folder cannot hold written with `_` for the characters OpenL Studio refuses.
+- `MarkdownProjectWriter` writes a copy of a project: a module folder at the path of each workbook without its
+  extension, and a `rules.xml` that names the folders. A workbook stays a workbook when a table of it has no Markdown
+  form, when another module includes it, when it includes the workbook of another module, or when its folder would
+  take the place of a folder of the project.
+- [OpenL Maven Plugin](../ref/openl-maven-plugin.md) writes the copy in `openl:compile` when `markdown` is set, and
+  packages and deploys it instead of the sources.
+- `MarkdownCorpusTest` (`-Dopenl.markdown.corpus=true`) converts every functional test project of the engine and
+  compares the messages and the test results of the copy with those of the workbooks;
+  `-Dopenl.markdown.corpus.dir` points it at another folder of projects.
+
 ## Dependencies
 
 - **commonmark** — finds the blocks of a file: the GFM table, the code block, the paragraphs around them.
@@ -200,6 +225,9 @@ by `MarkdownTableWriter.newFile`.
 - **Marks of merged cells in the cells**, `<` for the cell on the left and `^` for the cell above — they move with the
   text but clutter the table; the `merges` key keeps the table clean and readable on GitHub.
 - **Merged ranges on one line**, `merges: [A1:B1, A2:A3]` — every change edits the same line, so two changes conflict.
+- **Records of several rows in a converted file** — a Data, Test or Run record whose collections take a row for each
+  element, its other cells merged over them. It is only compact: two equal elements in a row read as one, a merged
+  array cell is read once for each row, and every element added moves the merged ranges below it.
 - **Properties as keys next to `table`** — the keys of the file and the table properties shared one name space, and a
   typo of a key read as a property.
 - **Types in the file** — a step named with its type, `Count : Integer`, or a value written as a cast,
