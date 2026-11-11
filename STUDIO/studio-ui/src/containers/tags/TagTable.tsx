@@ -27,8 +27,6 @@ import { TagTableNameCell } from './TagTableNameCell'
 import { TagTableTagsCell } from './TagTableTagsCell'
 import { useStyles } from './TagTable.styles'
 import { useSharedStyles } from '../projects/sharedStyles'
-import { FoundTagChips, type DefineTags } from './TagsFoundInProjects'
-import type { FoundTag } from './tagsInProjects'
 import { DeleteOutlined, HolderOutlined } from '@ant-design/icons'
 
 export interface Tag {
@@ -124,18 +122,15 @@ const DragHandle = ({ name, className }: { name: string, className: string }) =>
 interface TagTableProps extends TagActions, TagTypeActions {
     tagTypes: TagType[];
     isLoading: boolean;
-    /** The values projects carry that a tag type does not have, by the id of the tag type. */
-    found: Map<number, FoundTag[]>;
-    defineTags: DefineTags;
 }
 
 /**
- * The tag types with their values, each type in a row. The rows are dragged into the order the tag types are
- * listed in, here and on the Overview tab of a project. No row can be moved while the table is loading.
+ * The configured tag types with their values, each type in a row, and nothing but what is configured. The rows are
+ * dragged into the order the tag types are listed in, here and on the Overview tab of a project. No row can be moved
+ * while the table is loading.
  */
 export const TagTable: FC<TagTableProps> = ({
-    tagTypes, createTag, updateTag, deleteTag, deleteTagType, updateTagType, reorderTagTypes, isLoading, found,
-    defineTags,
+    tagTypes, createTag, updateTag, deleteTag, deleteTagType, updateTagType, reorderTagTypes, isLoading,
 }) => {
     const { t } = useTranslation()
     const { styles } = useStyles()
@@ -215,21 +210,13 @@ export const TagTable: FC<TagTableProps> = ({
             title: t('tags:tags'),
             key: 'tags',
             render: (tagType: TagType) => (
-                <div className={styles.tagsCell}>
-                    <TagTableTagsCell
-                        createTag={createTag}
-                        deleteTag={deleteTag}
-                        tags={tagType.tags || []}
-                        tagTypeId={tagType.id}
-                        updateTag={updateTag}
-                    />
-                    <FoundTagChips
-                        onDefine={defineTags}
-                        styles={styles}
-                        tags={found.get(tagType.id) ?? []}
-                        type={tagType.name}
-                    />
-                </div>
+                <TagTableTagsCell
+                    createTag={createTag}
+                    deleteTag={deleteTag}
+                    tags={tagType.tags || []}
+                    tagTypeId={tagType.id}
+                    updateTag={updateTag}
+                />
             ),
         },
         {

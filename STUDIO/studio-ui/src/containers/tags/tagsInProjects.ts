@@ -9,44 +9,33 @@ export interface FoundTag {
     projects: number
 }
 
-/** A tag type the projects carry that is not configured, with the values they carry for it. */
+/** A tag type the projects carry values of that are not configured, with those values. */
 export interface FoundTagType {
+    /** The name of the tag type: as it is configured, or as the projects spell it when it is not. */
     type: string
+    /** Whether the tag type is configured, so that only its values are missing. */
+    defined: boolean
     values: FoundTag[]
 }
 
-/** What the projects carry beyond the configuration. */
-interface TagsInProjects {
-    /** The values a configured tag type does not have, by the id of the tag type. */
-    values: Map<number, FoundTag[]>
-    /** The tag types that are not configured at all. */
-    types: FoundTagType[]
-}
-
 /**
- * Compares the tags the projects carry with the configured tag types and values.
+ * Compares the tags the projects carry with the configured tag types and values, and answers what the
+ * configuration does not have: a tag type that is not configured with every value the projects carry for it, and
+ * a configured one with the values it lacks.
  *
  * Names match regardless of case, the way the server resolves them, so a value configured under another case is
- * not reported. The values keep the order the projects summary lists them in.
+ * not reported. The tag types and the values keep the order the projects summary lists them in.
  */
-export const tagsInProjects = (tagTypes: TagType[], carried: TagFacetSummary[]): TagsInProjects => {
+export const tagsInProjects = (tagTypes: TagType[], carried: TagFacetSummary[]): FoundTagType[] => {
     const configured = new Map(tagTypes.map(type => [nameKey(type.name), type]))
-    const values = new Map<number, FoundTag[]>()
-    const types: FoundTagType[] = []
-    for (const { type: typeName, values: counts } of carried) {
-        const found = counts.map(count => ({ value: count.name, projects: count.count }))
+    return carried.flatMap(({ type: typeName, values: counts }): FoundTagType[] => {
         const type = configured.get(nameKey(typeName))
-        if (type) {
-            const known = new Set((type.tags ?? []).map(tag => nameKey(tag.name)))
-            const extra = found.filter(tag => !known.has(nameKey(tag.value)))
-            if (extra.length > 0) {
-                values.set(type.id, extra)
-            }
-        } else if (found.length > 0) {
-            types.push({ type: typeName, values: found })
-        }
-    }
-    return { values, types }
+        const known = new Set((type?.tags ?? []).map(tag => nameKey(tag.name)))
+        const values = counts
+            .filter(count => !known.has(nameKey(count.name)))
+            .map(count => ({ value: count.name, projects: count.count }))
+        return values.length > 0 ? [{ type: type?.name ?? typeName, defined: type !== undefined, values }] : []
+    })
 }
 
 /** The address of the projects list showing the projects that carry the tag. */

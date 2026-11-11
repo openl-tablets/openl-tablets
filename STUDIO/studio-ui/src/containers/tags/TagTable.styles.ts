@@ -21,7 +21,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             border-radius: ${token.borderRadiusXS}px;
         }
     `,
-    /** The tags of a type side by side: the configured ones, then the ones found in projects. */
+    /** The values of a tag type found in projects, side by side. */
     tagsCell: css`
         display: flex;
         flex-wrap: wrap;
@@ -82,9 +82,13 @@ export const useStyles = createStyles(({ css, token }) => ({
             grid-template-columns: minmax(0, 1fr);
         }
     `,
+    /** The name of a tag type that has values found in projects. */
     foundType: css`
-        color: ${token.colorWarningText};
         font-weight: ${token.fontWeightStrong};
         overflow-wrap: anywhere;
+    `,
+    /** Marks the name of a tag type that is not configured, as its values are marked. */
+    missingType: css`
+        color: ${token.colorWarningText};
     `,
 }))
