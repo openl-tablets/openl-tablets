@@ -34,6 +34,15 @@ class ModuleNameTest {
         assertNull(module(null, null).getResolvedName());
     }
 
+    // A dot in the name of a module folder is no extension
+    @Test
+    void aFolderIsNamedByItsWholeNameAndAWorkbookWithoutItsExtension() {
+        assertEquals("Rates.v2", module(null, "rules/Rates.v2").getResolvedName());
+        assertEquals("Rates.v2", module(null, "rules/Rates.v2/").getResolvedName());
+        assertEquals("Claims", module(null, "rules/Claims.xlsx").getResolvedName());
+        assertEquals("hello", module(null, "rules/hello.md").getResolvedName());
+    }
+
     // A pattern names no single file, so it must not answer to the name of the files it matches.
     @Test
     void aPatternWithoutADeclaredNameHasNoName() {

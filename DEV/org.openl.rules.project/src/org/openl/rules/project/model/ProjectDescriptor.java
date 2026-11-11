@@ -43,13 +43,17 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.excel.parser.markdown.MarkdownReader;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTool;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.OS;
@@ -523,6 +527,12 @@ public class ProjectDescriptor {
     /**
      * Resolves modules matched by a path pattern.
      *
+     * <p>A matched file is a module, and so is a matched folder that holds a Markdown file of a table, a file whose
+     * front matter has the {@code table} key, in it or in a sub-folder: a module written as a folder of Markdown files.
+     * A folder holding only documentation, such as a {@code README.md} or the pages of a site, is no module. The
+     * Markdown files of a module folder belong to its module and are not matched on their own, nor are its sub-folders;
+     * a workbook in it is matched as anywhere.
+     *
      * <p>Matches are returned in path order so the module order is stable across file systems.
      */
     public List<Module> getAllModulesMatchingPathPattern(Module module, String pathPattern) throws IOException {
@@ -539,59 +549,141 @@ public class ProjectDescriptor {
     public List<Module> getAllModulesMatchingPathPattern(Module module,
                                                          String pathPattern,
                                                          Predicate<Path> ignored) throws IOException {
-        var matchedModules = new ArrayList<Module>();
-
-        var ptrn = pathPattern.trim();
         var rootPath = getProjectFolder();
-
-        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                return ignored.test(dir) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                var relativePath = rootPath.relativize(file).toString().replace("\\", "/");
-                if (FileUtils.pathMatches(ptrn, relativePath) && !ignored.test(file) && isNotTemporaryFile(file)) {
-                    var modulePath = file.toAbsolutePath();
-                    var m = new Module();
-                    m.setProject(ProjectDescriptor.this);
-                    m.setRulesRootPath(relativePath);
-                    m.setName(FileUtils.getBaseName(modulePath.toString()));
-                    m.setMethodFilter(module.getMethodFilter());
-                    if (module.getWebstudioConfiguration() != null) {
-                        var webstudioConfiguration = new WebstudioConfiguration();
-                        webstudioConfiguration
-                                .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
-                        m.setWebstudioConfiguration(webstudioConfiguration);
-                    }
-                    m.setWildcardRulesRootPath(pathPattern);
-                    matchedModules.add(m);
-                }
-                return FileVisitResult.CONTINUE;
-            }
-        });
-
+        var finder = new ModuleFinder(rootPath, pathPattern.trim(), ignored);
+        Files.walkFileTree(rootPath, finder);
+        var matchedModules = new ArrayList<Module>();
+        finder.found.forEach(found -> matchedModules.add(matchedModule(module, pathPattern, found.path(),
+                found.name())));
         matchedModules.sort(Comparator.comparing(Module::getRulesRootPath));
         return matchedModules;
     }
 
-    private boolean isNotTemporaryFile(Path file) throws IOException {
-        if (file.getFileName().toString().startsWith("~$")) {
-            return false;
+    /** A module a path pattern matched, set up as the module declaring the pattern. */
+    private Module matchedModule(Module module, String pathPattern, String relativePath, String name) {
+        var m = new Module();
+        m.setProject(this);
+        m.setRulesRootPath(relativePath);
+        m.setName(name);
+        m.setMethodFilter(module.getMethodFilter());
+        if (module.getWebstudioConfiguration() != null) {
+            var webstudioConfiguration = new WebstudioConfiguration();
+            webstudioConfiguration
+                    .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
+            m.setWebstudioConfiguration(webstudioConfiguration);
         }
-        if (OS.isWindows() && Files.isHidden(file)) {
-            OutputStream os = null;
-            try {
-                os = Files.newOutputStream(file, StandardOpenOption.APPEND);
-            } catch (Exception unused) {
-                return false;
-            } finally {
-                IOUtils.closeQuietly(os);
+        m.setWildcardRulesRootPath(pathPattern);
+        return m;
+    }
+
+    /**
+     * The walk of the project folder that finds the files and the folders a path pattern matches as modules.
+     */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ModuleFinder extends SimpleFileVisitor<Path> {
+
+        private final Path root;
+        private final String pattern;
+        private final Predicate<Path> ignored;
+        /** The modules found: the path of each in the project, and its name. */
+        private final List<Found> found = new ArrayList<>();
+        /** The Markdown module folder the walk is in, or {@code null} outside any. */
+        private @Nullable Path moduleFolder;
+        /** The folders found to hold no Markdown file of a table, so that none of their sub-folders is searched. */
+        private final Set<Path> withoutTables = new HashSet<>();
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (ignored.test(dir)) {
+                return FileVisitResult.SKIP_SUBTREE;
             }
+            var relativePath = relative(dir);
+            if (moduleFolder == null && !relativePath.isEmpty() && FileUtils.pathMatches(pattern, relativePath)
+                    && holdsTable(dir)) {
+                found.add(new Found(relativePath, dir.getFileName().toString()));
+                moduleFolder = dir;
+            }
+            return FileVisitResult.CONTINUE;
         }
-        return true;
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, @Nullable IOException exc) throws IOException {
+            if (dir.equals(moduleFolder)) {
+                moduleFolder = null;
+            }
+            return super.postVisitDirectory(dir, exc);
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            var relativePath = relative(file);
+            // A Markdown file of a module folder belongs to its module
+            var ofModuleFolder = moduleFolder != null && FileTypeHelper.isMarkdownFile(file.toString());
+            if (!ofModuleFolder && FileUtils.pathMatches(pattern, relativePath) && !ignored.test(file)
+                    && isNotTemporaryFile(file)) {
+                found.add(new Found(relativePath, FileUtils.getBaseName(file.toAbsolutePath().toString())));
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        private String relative(Path path) {
+            return root.relativize(path).toString().replace("\\", "/");
+        }
+
+        /**
+         * Whether a folder holds a Markdown file of a table not ignored, in it or in a sub-folder. Only a folder the
+         * pattern matches is searched, and the search stops at the first such file.
+         */
+        private boolean holdsTable(Path folder) throws IOException {
+            for (var parent = folder.getParent(); parent != null && parent.startsWith(root);
+                 parent = parent.getParent()) {
+                if (withoutTables.contains(parent)) {
+                    return false;
+                }
+            }
+            boolean held;
+            try (var files = Files.find(folder, Integer.MAX_VALUE,
+                    (path, attributes) -> attributes.isRegularFile() && FileTypeHelper.isMarkdownFile(path.toString())
+                            && !ignored.test(path))) {
+                held = files.anyMatch(ModuleFinder::isTableFile);
+            }
+            if (!held) {
+                withoutTables.add(folder);
+            }
+            return held;
+        }
+
+        /** Whether a Markdown file holds a table, read from a stream whose caller passes its error on. */
+        @SneakyThrows
+        private static boolean isTableFile(Path file) {
+            return MarkdownReader.holdsTable(file);
+        }
+
+        private static boolean isNotTemporaryFile(Path file) throws IOException {
+            if (file.getFileName().toString().startsWith("~$")) {
+                return false;
+            }
+            if (OS.isWindows() && Files.isHidden(file)) {
+                OutputStream os = null;
+                try {
+                    os = Files.newOutputStream(file, StandardOpenOption.APPEND);
+                } catch (Exception unused) {
+                    return false;
+                } finally {
+                    IOUtils.closeQuietly(os);
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
+     * A module a path pattern matched.
+     *
+     * @param path the path of its file or folder in the project, written with {@code /}
+     * @param name the name of the module
+     */
+    private record Found(String path, String name) {
     }
 
     public static @Nullable ProjectDescriptor read(Path path) {

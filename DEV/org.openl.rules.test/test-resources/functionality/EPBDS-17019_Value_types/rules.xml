@@ -1,0 +1,8 @@
+<project>
+    <name>EPBDS-17019_Value_types</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

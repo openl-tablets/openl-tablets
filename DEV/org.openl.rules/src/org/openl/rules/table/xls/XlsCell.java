@@ -173,11 +173,6 @@ public class XlsCell implements ICell {
     }
 
     @Override
-    public String getUri() {
-        return XlsUtil.xlsCellPresentation(column, row);
-    }
-
-    @Override
     public boolean getNativeBoolean() {
         return true;
     }
@@ -203,11 +198,6 @@ public class XlsCell implements ICell {
             return getIGridCellType(cell.getCachedFormulaResultType());
         }
         return getIGridCellType(type);
-    }
-
-    @Override
-    public boolean hasNativeType() {
-        return true;
     }
 
     /**

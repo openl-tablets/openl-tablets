@@ -19,7 +19,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.TextRun;
-import org.openl.rules.table.xls.XlsUtil;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ParsedCell implements ICell {
@@ -129,21 +128,6 @@ public class ParsedCell implements ICell {
             return IGrid.CELL_TYPE_STRING;
         }
         return IGrid.CELL_TYPE_ERROR;
-    }
-
-    @Override
-    public String getUri() {
-        return XlsUtil.xlsCellPresentation(column, row);
-    }
-
-    @Override
-    public boolean hasNativeType() {
-        return true;
-    }
-
-    @Override
-    public int getNativeType() {
-        return getType();
     }
 
     @Override

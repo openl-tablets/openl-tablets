@@ -35,6 +35,9 @@ class ProjectDescriptorTest {
 
     private static final Path DESCRIPTOR_ZIP = Path.of("test-resources/descriptor.zip");
 
+    /** A Markdown file of a table: its text starts with a front matter that has the table key. */
+    private static final byte[] TABLE = "---\ntable: Datatype Rate\n---\n".getBytes(StandardCharsets.UTF_8);
+
     @Test
     void resolvesWildcardModulesInStablePathOrder(@TempDir Path projectFolder) throws Exception {
         Files.write(projectFolder.resolve("Zeta.xlsx"), new byte[0]);
@@ -63,6 +66,66 @@ class ProjectDescriptorTest {
         var modules = descriptor.getAllModulesMatchingPathPattern(wildcardModule, "*.xlsx");
 
         assertEquals(List.of("Rates.xlsx"), modules.stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
+    void wildcardMatchesAFolderOfMarkdownFilesAsAModuleOfItsOwn(@TempDir Path projectFolder) throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules/Auto-CA"));
+        Files.createDirectories(projectFolder.resolve("rules/Auto-NY/Rates"));
+        Files.createDirectories(projectFolder.resolve("rules/Auto-TX"));
+        Files.write(projectFolder.resolve("rules/Auto-CA/rate.md"), TABLE);
+        // The Markdown file of a folder can lie in a sub-folder of it
+        Files.write(projectFolder.resolve("rules/Auto-NY/Rates/rate.md"), TABLE);
+        // A folder of no Markdown file is no module
+        Files.write(projectFolder.resolve("rules/Auto-TX/rate.xlsx"), new byte[0]);
+        Files.write(projectFolder.resolve("rules/Auto-FL.xlsx"), new byte[0]);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+        var wildcardModule = new Module();
+        wildcardModule.setRulesRootPath("rules/Auto-*");
+
+        var modules = descriptor.getAllModulesMatchingPathPattern(wildcardModule, "rules/Auto-*");
+
+        assertEquals(List.of("rules/Auto-CA", "rules/Auto-FL.xlsx", "rules/Auto-NY"),
+                modules.stream().map(Module::getRulesRootPath).toList());
+        assertEquals(List.of("Auto-CA", "Auto-FL", "Auto-NY"), modules.stream().map(Module::getName).toList());
+        // The files of a module folder belong to it: none is a module of its own
+        assertEquals(List.of("rules/Auto-CA", "rules/Auto-NY"),
+                descriptor.getAllModulesMatchingPathPattern(wildcardModule, "rules/**")
+                        .stream()
+                        .map(Module::getRulesRootPath)
+                        .filter(path -> !path.endsWith(".xlsx"))
+                        .toList());
+    }
+
+    /**
+     * A folder of documentation is no module, and a workbook in a module folder stays a module of its own: a pattern
+     * that matches folders too loses no workbook it matched before.
+     */
+    @Test
+    void wildcardMakesAModuleOfAFolderOfTablesAlone(@TempDir Path projectFolder) throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules/Docs"));
+        Files.createDirectories(projectFolder.resolve("rules/Rating/Factors"));
+        Files.write(projectFolder.resolve("rules/Docs/Rates.xlsx"), new byte[0]);
+        Files.write(projectFolder.resolve("rules/Docs/README.md"), "# Rates".getBytes(StandardCharsets.UTF_8));
+        // A page of a site has a front matter of its own
+        Files.write(projectFolder.resolve("rules/Docs/index.md"),
+                "---\ntitle: Rates\n---\n".getBytes(StandardCharsets.UTF_8));
+        // A byte order mark before the front matter
+        Files.write(projectFolder.resolve("rules/Rating/Factors/age.md"),
+                ("\uFEFF" + new String(TABLE, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8));
+        Files.write(projectFolder.resolve("rules/Rating/Common.xlsx"), new byte[0]);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+        var wildcardModule = new Module();
+        wildcardModule.setRulesRootPath("rules/**");
+
+        var modules = descriptor.getAllModulesMatchingPathPattern(wildcardModule, "rules/**");
+
+        // The pages are matched as files, as before; their folder is no module
+        assertEquals(List.of("rules/Docs/README.md", "rules/Docs/Rates.xlsx", "rules/Docs/index.md", "rules/Rating",
+                        "rules/Rating/Common.xlsx"),
+                modules.stream().map(Module::getRulesRootPath).toList());
     }
 
     @Test

@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
@@ -67,7 +69,16 @@ public class Module {
         if (StringUtils.isNotBlank(name)) {
             return name;
         }
-        return isModuleWithWildcard() ? null : FileUtils.getBaseName(rulesRootPath);
+        if (rulesRootPath == null || isModuleWithWildcard()) {
+            return null;
+        }
+        // A file is named without its extension, a module folder by its whole name: a dot in it is no extension
+        if (FileTypeHelper.isExcelFile(rulesRootPath) || FileTypeHelper.isMarkdownFile(rulesRootPath)) {
+            return FileUtils.getBaseName(rulesRootPath);
+        }
+        return FileUtils.getName(rulesRootPath.endsWith("/")
+                ? rulesRootPath.substring(0, rulesRootPath.length() - 1)
+                : rulesRootPath);
     }
 
     public Path getRulesPath() {
@@ -87,7 +98,8 @@ public class Module {
      *
      * <p>The URI of a table names the file of its module, then the place of the table in the file after {@code ?}.
      * A module owns the tables of its own file only: a module of {@code Main.xls} owns no table of
-     * {@code Main.xlsx}.
+     * {@code Main.xlsx}. A module written as a folder owns the tables of every Markdown file in it; a workbook in the
+     * folder is a module of its own.
      *
      * @param tableUri the URI of the table, or {@code null}
      * @return {@code true} if the table is in the file of this module
@@ -97,9 +109,24 @@ public class Module {
             // Eclipse project
             return false;
         }
-        var file = getRelativeUri();
-        return tableUri.startsWith(file)
-                && (tableUri.length() == file.length() || tableUri.charAt(file.length()) == '?');
+        return ownsTable(getRelativeUri(), tableUri);
+    }
+
+    /**
+     * Whether a module at the given address owns a table, as {@link #containsTable} tells: the tables of its own file,
+     * or those of the Markdown files under its folder.
+     *
+     * @param moduleUri the address of the module, see {@link #getRelativeUri}; one of a folder ends with {@code /}
+     * @param tableUri  the address of the table, or of the file it is in
+     */
+    public static boolean ownsTable(String moduleUri, String tableUri) {
+        if (!tableUri.startsWith(moduleUri)) {
+            return false;
+        }
+        if (moduleUri.endsWith("/")) {
+            return FileTypeHelper.isMarkdownFile(XlsUrlParser.fileUriOf(tableUri));
+        }
+        return tableUri.length() == moduleUri.length() || tableUri.charAt(moduleUri.length()) == '?';
     }
 
     @Override

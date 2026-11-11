@@ -18,6 +18,7 @@ import org.openl.excel.parser.ExtendedValue;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.excel.parser.TableStyles;
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -25,14 +26,13 @@ import org.openl.rules.table.AGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.RegionsPool;
-import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
 
 @Slf4j
@@ -47,6 +47,8 @@ public class ParsedGrid extends AGrid {
     private final SheetDescriptor sheetDescriptor;
     @Getter(AccessLevel.PROTECTED)
     private final boolean use1904Windowing;
+    /** The sheet is read from a Markdown file: text, which keeps no formatting and is written as text. */
+    private final boolean markdown;
     private final List<IGridRegion> regions = new ArrayList<>();
     private final RegionsPool regionsPool = new RegionsPool();
 
@@ -70,6 +72,7 @@ public class ParsedGrid extends AGrid {
         this.uri = sheetSource.getUri();
         this.sheetDescriptor = sheet;
         this.use1904Windowing = use1904Windowing;
+        this.markdown = FileTypeHelper.isMarkdownFile(sheetSource.getWorkbookSource().getUri());
 
         findRegions();
 
@@ -263,18 +266,21 @@ public class ParsedGrid extends AGrid {
             var extendedRegion = new GridRegion(top, left, region.getBottom() + 1, region.getRight() + 1);
 
             if (GridRegionUtils.contains(extendedRegion, column, row)) {
-                try (var excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
-                    styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
-                } catch (Exception e) {
-                    // Fallback to empty style
-                    log.error("Cannot read styles for sheet '{}'", sheetDescriptor.getName(), e);
-                    styles = new EmptyTableStyles(extendedRegion);
-                }
-
+                styles = markdown ? TableStyles.empty(extendedRegion) : readStyles(extendedRegion);
                 break;
             }
         }
         return styles;
+    }
+
+    private TableStyles readStyles(IGridRegion extendedRegion) {
+        try (var excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
+            return excelReader.getTableStyles(sheetDescriptor, extendedRegion);
+        } catch (Exception e) {
+            // Fallback to empty style
+            log.error("Cannot read styles for sheet '{}'", sheetDescriptor.getName(), e);
+            return TableStyles.empty(extendedRegion);
+        }
     }
 
     protected IGridRegion getRegion(int row, int col) {
@@ -306,7 +312,11 @@ public class ParsedGrid extends AGrid {
         return grid;
     }
 
-    private XlsSheetGridModel openForWriting() {
+    private IWritableGrid openForWriting() {
+        if (markdown) {
+            // The file is read as it stands, rather than as parsed: an earlier write may have saved it since
+            return MarkdownGrid.open(sheetSource);
+        }
         sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(false);
         var grid = new XlsSheetGridModel(sheetSource);
         // Prepare workbook for edit (load it to memory before editing starts)
@@ -345,7 +355,7 @@ public class ParsedGrid extends AGrid {
      * <p>The writer is named by its id rather than by the thread itself, so that a write which never said it had
      * finished keeps nothing alive.
      */
-    private record Editing(XlsSheetGridModel grid, long editor) {
+    private record Editing(IWritableGrid grid, long editor) {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -368,36 +378,6 @@ public class ParsedGrid extends AGrid {
         @Override
         public int hashCode() {
             return Objects.hash(row, col);
-        }
-    }
-
-    @RequiredArgsConstructor
-    private static class EmptyTableStyles implements TableStyles {
-        private final IGridRegion extendedRegion;
-
-        @Override
-        public IGridRegion getRegion() {
-            return extendedRegion;
-        }
-
-        @Override
-        public ICellStyle getStyle(int row, int column) {
-            return null;
-        }
-
-        @Override
-        public ICellFont getFont(int row, int column) {
-            return null;
-        }
-
-        @Override
-        public ICellComment getComment(int row, int column) {
-            return null;
-        }
-
-        @Override
-        public String getFormula(int row, int column) {
-            return null;
         }
     }
 

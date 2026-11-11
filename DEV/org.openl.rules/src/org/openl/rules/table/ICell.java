@@ -8,6 +8,7 @@ import org.jspecify.annotations.NonNull;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.TextRun;
+import org.openl.rules.table.xls.XlsUtil;
 
 public interface ICell {
 
@@ -73,21 +74,34 @@ public interface ICell {
      */
     int getType();
 
-    String getUri();
+    /**
+     * Returns the address of the cell in its sheet, such as {@code B3}.
+     */
+    default String getUri() {
+        return XlsUtil.xlsCellPresentation(getAbsoluteColumn(), getAbsoluteRow());
+    }
 
     // used for optimized access
 
     /**
-     * @return true if the cell has ability to provide fast access to the native value(cached) If cell has not such an
-     * ability, the native methods should not be used
+     * Tells whether the cell gives fast access to its native value. The native methods are not used on a cell that
+     * cannot.
+     *
+     * <p>A cell gives the access unless it tells otherwise.
      */
-
-    boolean hasNativeType();
+    default boolean hasNativeType() {
+        return true;
+    }
 
     /**
-     * @return IGrid.CELL_TYPE... constant, in case of CELL_TYPE_FORMULA returns cached value type
+     * Returns the type of the native value, one of the {@code IGrid.CELL_TYPE_*} values. A formula cell returns the
+     * type of its cached value.
+     *
+     * <p>A cell returns its {@link #getType() type} unless it tells otherwise.
      */
-    int getNativeType();
+    default int getNativeType() {
+        return getType();
+    }
 
     double getNativeNumber();
 

@@ -1,0 +1,14 @@
+<project>
+    <name>markdown</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Model"/>
+        </module>
+        <module>
+            <rules-root path="rules/Rating"/>
+        </module>
+        <module>
+            <rules-root path="rules/Tests"/>
+        </module>
+    </modules>
+</project>

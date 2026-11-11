@@ -1,0 +1,7 @@
+POST /EPBDS-17019/EPBDS-17019/premium HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Ann",
+  "age": 22
+}
