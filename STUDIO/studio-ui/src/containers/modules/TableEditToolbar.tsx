@@ -56,7 +56,7 @@ interface TableEditToolbarProps {
     indenting: boolean
     /** Whether pieces of a cell text can be marked: in a table of an `.xlsx` workbook, not of an `.xls` one. */
     marking: boolean
-    /** Where the open cell leaves how to mark the selected piece of its text; empty while it holds none to mark. */
+    /** Where the open cell leaves how to mark the selected piece of its text; empty while none of it is selected. */
     markers: MarkerSlot
     onUndo: () => void
     onRedo: () => void
@@ -93,8 +93,8 @@ const MAX_INDENT = 15
  * the save would write the OpenL table style over it, or the screen would not show it. The indent stays for the tables
  * whose structure it is.
  *
- * <p>The marks act on the text being written in the open cell, on the piece of it the reader selected. Pressing one
- * keeps the focus in the cell, so that piece stays selected.
+ * <p>The marks act on the text being written in the open cell, on the piece of it the reader selected, and are off
+ * until a piece is selected. Pressing one keeps the focus in the cell, so that piece stays selected.
  */
 export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     picked,
@@ -168,7 +168,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
 
     const rule = <span className={styles.rule} />
 
-    /** How the marks are offered: only while a cell holding a text is open. */
+    /** How the marks are offered: only while a piece of the text of the open cell is selected. */
     const marked = { disabled: onMark === null, why: t('browser.module.edit_mark_open_cell'), keepFocus: true }
 
     /**

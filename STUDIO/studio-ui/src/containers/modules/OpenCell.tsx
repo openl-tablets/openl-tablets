@@ -6,7 +6,7 @@ import { markInksOf, markRange } from 'components/textMarks'
 import type { RawTextMark, RawTextMarkColor } from 'types/tables'
 import type { TableCellEditor } from '../../services/modules'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
-import { MarkedTextField, selectionIn, type TextSelection } from './MarkedTextField'
+import { MarkedTextField, pieceSelectedIn, selectionIn, type TextSelection } from './MarkedTextField'
 import { RANGE_PANEL, RangeEditor } from './RangeEditor'
 import { paperToken } from '../../styles/paper'
 import { useStyles } from './TableEditor.styles'
@@ -45,6 +45,32 @@ export const markerSlot = (): MarkerSlot => {
     }
 }
 
+/** Whether an element is a plain text field, which keeps its own selection. */
+const isTextField = (element: Element | null | undefined): element is HTMLInputElement | HTMLTextAreaElement =>
+    element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement
+
+/**
+ * The piece of the text the reader selected in the open cell, or null while none is selected.
+ *
+ * <p>The text is read from the field that shows marks while the cell has one, and from its plain text field
+ * otherwise. A selection outside the cell is none.
+ */
+const selectedPiece = (cell: HTMLElement | null, marked: HTMLElement | null): TextSelection | null => {
+    if (marked !== null) {
+        const at = selectionIn(marked)
+        return at === null || at.from === at.to ? null : at
+    }
+    const typed = document.activeElement
+    if (!isTextField(typed) || cell?.contains(typed) !== true || typed.selectionStart === typed.selectionEnd) {
+        return null
+    }
+    return { from: typed.selectionStart ?? 0, to: typed.selectionEnd ?? 0 }
+}
+
+/** Whether a piece of the text of the open cell is selected, told without working out where it stands in marks. */
+const pieceSelected = (cell: HTMLElement | null, marked: HTMLElement | null): boolean =>
+    marked === null ? selectedPiece(cell, null) !== null : pieceSelectedIn(marked)
+
 interface OpenCellProps {
     /** What the cell held when it was opened, which is where the writing starts from. */
     from: string
@@ -72,10 +98,10 @@ interface OpenCellProps {
     /** Whether the table is drawn on the paper of a workbook, which the field then lies on too. */
     onPaper: boolean
     /**
-     * Told how to mark the text while the cell holds a text that can be marked, and told null once it does not.
+     * Told how to mark the text while a piece of a text that can be marked is selected, and told null once none is.
      *
      * <p>The marks are offered on the band of actions over the table rather than over the cell, where they would
-     * cover the cells around it.
+     * cover the cells around it. Without a selected piece there is nothing for them to act on, so none is offered.
      */
     onMarker: (marker: Marker | null) => void
 }
@@ -102,6 +128,8 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     const [selection, setSelection] = useState<TextSelection | null>(null)
     // The field the marked text is written in, which the selection a mark is laid over is read from.
     const field = useRef<HTMLDivElement | null>(null)
+    // The cell, which tells its own text field from any other.
+    const cell = useRef<HTMLDivElement | null>(null)
     // Set while a mark swaps the field a text is typed in for the one that shows marks, or back: the field it leaves
     // is not the reader leaving the cell.
     const marking = useRef(false)
@@ -146,12 +174,8 @@ export const OpenCell: React.FC<OpenCellProps> = ({
 
     /** Lays a mark over the selected piece of the text, or takes the marks off it. */
     const mark = (color: RawTextMarkColor | null) => {
-        const active = document.activeElement
-        const typed = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement
-            ? { from: active.selectionStart ?? 0, to: active.selectionEnd ?? 0 }
-            : null
-        const at = field.current === null ? typed : selectionIn(field.current)
-        if (at === null || at.from === at.to) {
+        const at = selectedPiece(cell.current, field.current)
+        if (at === null) {
             return
         }
         const next = markRange(marks, at.from, at.to, color)
@@ -166,19 +190,50 @@ export const OpenCell: React.FC<OpenCellProps> = ({
         marking.current = false
     }, [marks])
 
-    // The table is handed one marker for as long as the text can be marked, and it reaches the text as it is now.
-    // A marker handed afresh at every keystroke would draw the whole table again at every keystroke.
+    // The plain field that takes the place of the one that shows marks, once the last of them is taken off, keeps the
+    // piece selected, as the field that shows marks keeps it.
+    useLayoutEffect(() => {
+        if (selection === null || marks.length > 0) {
+            return
+        }
+        const typed = cell.current?.querySelector('input, textarea')
+        if (isTextField(typed)) {
+            typed.setSelectionRange(selection.from, selection.to)
+        }
+    }, [marks, selection])
+
+    // Whether a piece of the text is selected, which a mark needs. A text field tells of a piece selected in it with
+    // a select event; the field that shows marks, and a selection that shrinks to the caret, with a selectionchange.
+    // A browser fires the latter at the document or at the text field, so both are heard on the way down.
+    const [selected, setSelected] = useState(false)
+    useEffect(() => {
+        if (!marked) {
+            return undefined
+        }
+        const read = () => setSelected(pieceSelected(cell.current, field.current))
+        read()
+        document.addEventListener('selectionchange', read, true)
+        document.addEventListener('select', read, true)
+        return () => {
+            document.removeEventListener('selectionchange', read, true)
+            document.removeEventListener('select', read, true)
+            setSelected(false)
+        }
+    }, [marked])
+
+    // The table is handed one marker for as long as a piece of the text is selected, and it reaches the text as it
+    // is now. A marker handed afresh at every keystroke would draw the whole table again at every keystroke.
     const marker = useRef(mark)
     useLayoutEffect(() => {
         marker.current = mark
     })
     useEffect(() => {
-        if (!marked) {
+        if (!marked || !selected) {
             return undefined
         }
         onMarker(color => marker.current(color))
         return () => onMarker(null)
-    }, [marked, onMarker])
+    }, [marked, selected, onMarker])
 
     // A field the reader writes in closes the cell by losing the focus. The bounds of a range are entered in a
     // panel of its own, and going to that panel takes the focus out of the field — so what closes a range cell
@@ -231,6 +286,7 @@ export const OpenCell: React.FC<OpenCellProps> = ({
         // move as a cell is opened is a table the reader loses their place in.
         <Dropdown menu={{ items: switches }} onOpenChange={onSwitching} trigger={['contextMenu']}>
             <div
+                ref={cell}
                 className={styles.open}
                 data-testid="table-cell-switch"
                 // The bounds are entered in the panel, which the field the reader goes to drops.

@@ -502,8 +502,9 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   same way, and `marksOf` reads it back. The marks are written in `MarkedTextField`, a `contentEditable` field that
   reads the text and its marks back from the pieces it shows; a cell holding no marks keeps the plain antd field.
   The marks sit on the table toolbar (`TableEditToolbar`), not over the cell, where they would hide its neighbours.
-  `OpenCell` leaves one stable `Marker` in a `MarkerSlot` while its text can be marked, and the toolbar reads the
-  slot with `useSyncExternalStore`: neither a keystroke nor opening a cell redraws the table for it. The mark
+  `OpenCell` leaves one stable `Marker` in a `MarkerSlot` while a piece of its text that can be marked is selected —
+  it follows `select` and `selectionchange` on the document — and the toolbar reads the slot with
+  `useSyncExternalStore`: neither a keystroke nor opening a cell redraws the table for it. The mark
   buttons press with `preventDefault` on `mousedown`, so the field keeps the focus and the selection, and the swap
   between the two fields is not taken for the reader leaving the cell.
 - **A tree is built as far as it is opened.** Ant Design's `Tree` walks every node of its `treeData` each time
