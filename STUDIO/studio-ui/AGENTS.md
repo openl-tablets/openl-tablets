@@ -450,10 +450,13 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   `<tbody>` of its own that a merged cell or a numbered case never crosses; a block is drawn again only when what
   its rows are drawn from changes, so scrolling draws the blocks coming into sight alone. A column of the grid, the
   margin included, keeps the widest width it has been drawn at (`<colgroup>`), read once a frame for the blocks
-  drawn with other values, so the columns stand still as the rows go by; the widths start anew when the cells are
-  written otherwise — their formulas, the other look, another density, other date formats. The cell the reader is on
-  (`keepInSight`) is scrolled into sight, down and across, as the keys move it out of sight; a cell partly in sight
-  stays where it is, or the second click of a double click would land on its neighbour. Its block is drawn wherever
+  drawn with other values, so the columns stand still as the rows go by. A width is read unrounded
+  (`getBoundingClientRect`) and taken up to the next whole pixel, never `offsetWidth`: rounded down, a column wraps
+  its text, and a cell that wraps opens as a text area instead of its list of values. The widths start anew when the
+  cells are written otherwise — their formulas, the other look, another density, other date formats. The cell the
+  reader is on (`keepInSight`) is scrolled into sight, down and across, as the keys move it out of sight; a cell
+  partly in sight stays where it is, or the second click of a double click would land on its neighbour. Its block is
+  drawn wherever
   the table is scrolled: an open cell keeps its draft while the reader scrolls away. The grid turns the scroll
   anchoring of the element off while it draws as it scrolls, since the virtualizer keeps the place itself. A cell
   a message names below the rows read has the rows down to it read, once the table it names is read, so it can be
