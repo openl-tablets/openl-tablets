@@ -7,10 +7,12 @@ import {
     type EditStep,
     keyOf,
     NO_EDITS,
+    rangeOf,
     redo,
     replay,
     shownStyle,
     undo,
+    valuesIn,
     withStep,
 } from './tableEdits'
 
@@ -449,6 +451,59 @@ describe('tableEdits', () => {
 
             // The header has grown over the new column, so the cell under it is not the reader's to write.
             expect(compile(grouped, group(...steps)).some(edit => edit.operation === 'update')).toBe(false)
+        })
+    })
+
+    describe('merged cells', () => {
+        const merge = (row: number, column: number, rows: number, columns: number): EditStep =>
+            ({ kind: 'merge', at: { row, column }, rows, columns })
+
+        it('merges a block into its first cell, which keeps the one value the block holds', () => {
+            const state = after(write(2, 0, ''), merge(1, 0, 2, 1))
+
+            expect(state.rows[1]?.[0]).toMatchObject({ value: 0, rowspan: 2 })
+            expect(state.rows[2]?.[0]).toEqual({ covered: true })
+        })
+
+        it('clears what the cells it reaches over were read with, then merges, then writes the value kept', () => {
+            // The value stood in the last cell: a merged cell keeps it in its first, as the workbook does.
+            expect(sent(write(1, 0, ''), merge(1, 0, 2, 1))).toEqual([
+                { operation: 'update', target: { type: 'cell', row: 2, column: 0, value: '' } },
+                { operation: 'merge', target: { type: 'cells', row: 1, column: 0, rowspan: 2, colspan: 1 } },
+                { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: 12 } },
+            ])
+        })
+
+        it('reads a block across a merge as reaching over all of it', () => {
+            // Picked from the rule beside the group up to the group: the block grows over the whole group.
+            expect(rangeOf(grouped, { row: 1, column: 2 }, { row: 1, column: 1 }))
+                .toEqual({ row: 1, column: 1, rows: 2, columns: 2 })
+            expect(valuesIn(grouped, { row: 1, column: 1, rows: 2, columns: 2 }))
+                .toEqual(['Young Driver', 'Married', 'Single'])
+        })
+
+        it('takes a merge apart, leaving its value in the first cell and the others blank', () => {
+            const state = group({ kind: 'unmerge', at: { row: 2, column: 1 } })
+
+            expect(state.rows[1]?.[1]).toEqual({ cell: 'C5', value: 'Young Driver' })
+            expect(state.rows[2]?.[1]).toEqual({ value: '' })
+            expect(compile(grouped, state)).toEqual([
+                { operation: 'unmerge', target: { type: 'cells', row: 1, column: 1 } },
+            ])
+        })
+
+        it('sends nothing for a merge made and taken apart again', () => {
+            expect(sent(write(2, 0, ''), merge(1, 0, 2, 1), { kind: 'unmerge', at: { row: 1, column: 0 } }))
+                .toEqual([{ operation: 'update', target: { type: 'cell', row: 2, column: 0, value: '' } }])
+        })
+
+        it('moves a merge along with the rows laid down before it', () => {
+            const steps = [write(2, 0, ''), merge(1, 0, 2, 1), { kind: 'insertRow', at: 1 } as EditStep,
+                write(1, 0, '6'), write(1, 1, 'Early')]
+
+            expect(sent(...steps).filter(edit => edit.operation === 'merge')).toEqual([
+                { operation: 'merge', target: { type: 'cells', row: 2, column: 0, rowspan: 2, colspan: 1 } },
+            ])
         })
     })
 

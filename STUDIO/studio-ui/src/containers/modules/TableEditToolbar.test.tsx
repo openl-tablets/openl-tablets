@@ -12,6 +12,7 @@ vi.mock('react-i18next', () => {
 /** The actions that change the table, after the ones that save it and take steps back or forth. */
 const CHANGING = [
     'insert_row', 'remove_row', 'insert_column', 'remove_column',
+    'merge', 'unmerge',
     'align_left', 'align_center', 'align_right',
     'bold', 'italic', 'underline',
     'fill_colour', 'font_colour',
@@ -30,6 +31,8 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
         onRemoveColumn: vi.fn(),
         onStyle: vi.fn(),
         onPreview: vi.fn(),
+        onMerge: vi.fn(),
+        onUnmerge: vi.fn(),
     }
     render(
         <TableEditToolbar
@@ -43,8 +46,10 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
             cell={{ value: 'Good Morning' }}
             markers={markerSlot()}
             marking={false}
+            mergeBlocked={null}
             picked={{ row: 1, column: 1 }}
             saving={false}
+            unmergeable={false}
             {...acted}
             {...over}
         />
@@ -91,6 +96,23 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-remove_column')).toBeEnabled()
         // Taking the header's own row away does not: the table would start on a line OpenL reads as no header.
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
+    })
+
+    it('merges the cells picked, and says why it cannot', async () => {
+        const acted = draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-merge'))
+        expect(acted.onMerge).toHaveBeenCalledTimes(1)
+        // A single cell is not merged with anything, and says how to pick more of them.
+        expect(screen.getByTestId('table-edit-unmerge')).toBeDisabled()
+    })
+
+    it('withholds merging cells that cannot be merged, and takes a merged cell apart', async () => {
+        const acted = draw({ mergeBlocked: 'The cells hold different values.', unmergeable: true })
+
+        expect(screen.getByTestId('table-edit-merge')).toBeDisabled()
+        await userEvent.click(screen.getByTestId('table-edit-unmerge'))
+        expect(acted.onUnmerge).toHaveBeenCalledTimes(1)
     })
 
     it('offers the look of a cell only where the formatting is kept and seen', () => {

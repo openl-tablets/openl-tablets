@@ -436,6 +436,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-delete-row-icon.png) | Deletes a row and selects the row that takes its place, or the new last row. |
     | ![](images/edit-insert-column-icon.png) | Inserts a column before the selected one.               |
     | ![](images/edit-delete-column-icon.png) | Deletes a column and selects the column that takes its place, or the new last column. |
+    | ![](images/edit-merge-cells-icon.png) | Merges the selected cells into one: select the first cell, then **Shift**+click the last one. A merged cell keeps one value, so cells holding different values are not merged. A Data, Test or Run table of a Markdown module merges no cells: a record is one row. |
+    | ![](images/edit-unmerge-cells-icon.png) | Takes the selected merged cell apart. |
     | ![](images/edit-align-left-icon.png) | Aligns text in currently selected cell with left edge.  |
     | ![](images/edit-align-center-icon.png) | Centers text in currently selected cell.                |
     | ![](images/edit-align-right-icon.png) | Aligns text in currently selected cell with right edge. |
