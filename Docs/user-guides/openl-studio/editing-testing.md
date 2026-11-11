@@ -18,6 +18,7 @@ This section describes table editing and includes the following topics:
 
 -   [Editing a Comma Separated Array of Values](#editing-a-comma-separated-array-of-values)
 -   [Editing Non-Finite Numbers](#editing-non-finite-numbers)
+-   [Editing Numbers of Many Digits](#editing-numbers-of-many-digits)
 -   [Editing Default Table Properties](#editing-default-table-properties)
 -   [Editing Inherited Table Properties](#editing-inherited-table-properties)
 
@@ -36,6 +37,24 @@ OpenL Studio saves these values as text in the workbook. OpenL interprets them a
 rule.
 The table API returns these values as strings. Use the same strings when creating or updating a table through the API.
 Entering one of these values in a cell holding an MS Excel formula replaces the formula, as any value does.
+
+#### Editing Numbers of Many Digits
+
+A workbook cell holds a number as a `double`, which keeps 15 to 17 significant digits. A `BigDecimal` value with more
+digits, such as `0.6666666666666666666666666666666667`, and a `Long` or `BigInteger` value that a `double` rounds,
+such as `9007199254740993`, would lose their last digits there. OpenL Studio saves such a value as text in the
+workbook, with all its digits, and OpenL reads it back as the same number when compiling the rule. A test that
+expects it compares with every digit entered.
+
+A number a `double` holds exactly, such as `0.5` or `100`, is saved as a number.
+
+MS Excel shows a number saved as text with the **Number Stored as Text** mark, and its functions, such as `SUM`, skip
+text: an MS Excel formula over such a cell leaves the number out. Keep the numbers an MS Excel formula reads within
+15 significant digits.
+
+The table API returns such a value as a string, as it is stored. Send a fraction as a string when creating or updating
+a table through the API: a JSON number with a fraction or an exponent is read as a `double` and loses the digits
+beyond its precision. A whole JSON number is read exactly.
 
 #### Editing Default Table Properties
 

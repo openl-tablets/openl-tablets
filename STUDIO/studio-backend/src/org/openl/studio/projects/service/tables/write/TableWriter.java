@@ -64,6 +64,7 @@ import org.openl.studio.projects.service.tables.format.RegionShift;
 import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.studio.projects.service.tables.read.CellValueReader;
+import org.openl.util.NumberUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -554,6 +555,11 @@ public abstract class TableWriter<T extends TableView> {
             } catch (NumberFormatException e) {
                 return a.equals(b);
             }
+        }
+        if (current instanceof String text && value instanceof Number number && !NumberUtils.isHeldByDouble(number)) {
+            // A cell keeps a number a double does not hold as its text, which a read answers as it is: the same
+            // number holds the very text a write would put there, not another text of the same value.
+            return text.equals(PoiExcelHelper.textOf(number));
         }
         var currentItems = itemsOf(current);
         var items = itemsOf(value);

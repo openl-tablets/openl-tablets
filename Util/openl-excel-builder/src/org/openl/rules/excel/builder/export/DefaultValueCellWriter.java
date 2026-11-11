@@ -3,25 +3,24 @@ package org.openl.rules.excel.builder.export;
 import static org.openl.rules.excel.builder.export.AbstractOpenlTableExporter.DEFAULT_STRING_VALUE;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.ParseException;
+import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.util.Date;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.Model;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.StringUtils;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
 public class DefaultValueCellWriter {
-
-
-    protected DefaultValueCellWriter() {
-    }
 
     public static void writeDefaultValueToCell(Model model,
                                                FieldModel field,
@@ -33,7 +32,7 @@ public class DefaultValueCellWriter {
         } else {
             try {
                 setValue(field.getType(), field.getDefaultValue(), valueCell, dateStyle, dateTimeStyle);
-            } catch (ParseException e) {
+            } catch (NumberFormatException e) {
                 log
                         .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
             }
@@ -47,7 +46,7 @@ public class DefaultValueCellWriter {
     public static void writeValueToCell(String type, Object value, Cell valueCell) {
         try {
             setValue(type, value, valueCell, null, null);
-        } catch (ParseException e) {
+        } catch (NumberFormatException e) {
             log.error("Error is occurred on writing the value {} of type {}.", value, type, e);
         }
     }
@@ -58,19 +57,12 @@ public class DefaultValueCellWriter {
                                  Object defaultValue,
                                  Cell valueCell,
                                  CellStyle dateStyle,
-                                 CellStyle dateTimeStyle) throws ParseException {
+                                 CellStyle dateTimeStyle) {
         var valueAsString = defaultValue.toString();
         switch (type) {
             case "Integer",
-                 "BigInteger" -> {
-                var casted = NumberFormat.getInstance().parse(valueAsString);
-                if (casted.longValue() <= Integer.MAX_VALUE) {
-                    valueCell.setCellValue(Integer.parseInt(valueAsString));
-                } else {
-                    valueCell.setCellValue(Long.parseLong(valueAsString));
-                }
-            }
-            case "Long" -> valueCell.setCellValue(Long.parseLong(valueAsString));
+                 "BigInteger",
+                 "Long" -> PoiExcelHelper.setNumber(valueCell, new BigInteger(valueAsString));
             case "Double" -> valueCell.setCellValue(Double.parseDouble(valueAsString));
             case "Float" -> valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
             case "BigDecimal" -> valueCell.setCellValue(valueAsString);
@@ -95,7 +87,7 @@ public class DefaultValueCellWriter {
             // A vocabulary field: the table knows the type by name only, and its default is a word or a number.
             default -> {
                 switch (defaultValue) {
-                    case Number number -> valueCell.setCellValue(number.doubleValue());
+                    case Number number -> PoiExcelHelper.setNumber(valueCell, number);
                     case String text -> valueCell.setCellValue(text);
                     default -> valueCell.setCellValue("");
                 }

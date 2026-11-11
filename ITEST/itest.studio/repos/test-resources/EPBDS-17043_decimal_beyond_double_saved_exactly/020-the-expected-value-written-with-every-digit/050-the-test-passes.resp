@@ -1,0 +1,39 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1,
+  "executionTimeMs": "##.##",
+  "numberOfTests": 1,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "divideTest",
+      "tableId": "${TABLE_ID}",
+      "module": "Rules",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Quotient",
+              "expectedValue": 0.6666666666666666666666666666666667,
+              "actualValue": 0.6666666666666666666666666666666667,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": "***"
+        }
+      ]
+    }
+  ]
+}
+

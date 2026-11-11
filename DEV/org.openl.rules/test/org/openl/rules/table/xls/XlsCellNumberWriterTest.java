@@ -10,6 +10,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -18,6 +20,7 @@ import java.util.GregorianCalendar;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -44,6 +47,21 @@ class XlsCellNumberWriterTest {
     public interface SpecialNumberRules {
 
         Double special(int input);
+    }
+
+    public interface DecimalRules {
+
+        BigDecimal value(int input);
+    }
+
+    public interface BigIntegerRules {
+
+        BigInteger value(int input);
+    }
+
+    public interface LongRules {
+
+        Long value(int input);
     }
 
     @TempDir
@@ -105,6 +123,109 @@ class XlsCellNumberWriterTest {
             assertFalse(cell.getCTCell().isSetT(), "a number is the type a cell has by default");
             // Excel has no negative zero, so -0.0 reads back as 0.
             assertEquals(Double.parseDouble(written), cell.getNumericCellValue(), 0.0);
+        }
+    }
+
+    /**
+     * A number a double cannot hold exactly is saved as a text and compiles back to the number typed. A large or a
+     * small exponent is kept in scientific notation, as short as the number typed.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"0.66666666666666663", "12345678901234567890.5", "-0.10000000000000000001", "1E-400",
+            "1E999999999"})
+    void savesDecimalsBeyondDoubleAsText(String text) throws IOException {
+        var rules = engineOf(saveAsText(BigDecimal.class, text), DecimalRules.class);
+
+        assertEquals(0, new BigDecimal(text).compareTo(rules.value(1)));
+    }
+
+    /**
+     * A whole number a whole number cell would read changed is saved as a text: the double of 1000000000000000100 is
+     * 1000000000000000128.
+     */
+    @Test
+    void savesWholeNumbersDoubleRoundsAsText() throws IOException {
+        var whole = "1000000000000000100";
+
+        assertEquals(new BigInteger(whole), engineOf(saveAsText(BigInteger.class, whole), BigIntegerRules.class)
+                .value(1));
+        assertEquals(Long.valueOf(whole), engineOf(saveAsText(Long.class, whole), LongRules.class).value(1));
+    }
+
+    /**
+     * A long written into a decimal cell, as a whole JSON number of the API is, keeps its digits: a decimal cell
+     * reads the shortest decimal of a double, which for the smallest long is -9223372036854776000.
+     */
+    @Test
+    void savesLongDecimalCellWouldChangeAsText() throws IOException {
+        var path = createRuleWorkbook("SimpleRules BigDecimal value(int input)");
+
+        writeValue(path, Long.MIN_VALUE);
+
+        assertEquals(0, BigDecimal.valueOf(Long.MIN_VALUE).compareTo(engineOf(path, DecimalRules.class).value(1)));
+    }
+
+    /** Types a value into the cell of a rule of the type, saves it, and checks it is saved as the text typed. */
+    private Path saveAsText(Class<?> type, String text) throws IOException {
+        var path = createRuleWorkbook("SimpleRules " + type.getSimpleName() + " value(int input)");
+        var table = mock(IGridTable.class);
+        var grid = mock(IWritableGrid.class);
+        var metaInfoWriter = mock(MetaInfoWriter.class);
+        when(table.getGrid()).thenReturn(grid);
+        when(metaInfoWriter.getMetaInfo(5, 2)).thenReturn(new CellMetaInfo(JavaOpenClass.getOpenClass(type), false));
+        doAnswer(invocation -> {
+            writeValue(path, invocation.getArgument(2, Number.class));
+            return null;
+        }).when(grid).setCellValue(eq(2), eq(5), any());
+
+        new UndoableSetValueAction(2, 5, text, metaInfoWriter).doAction(table);
+
+        try (var workbook = WorkbookFactory.create(path.toFile())) {
+            var cell = workbook.getSheetAt(0).getRow(5).getCell(2);
+            assertEquals(CellType.STRING, cell.getCellType());
+            assertEquals(text, cell.getStringCellValue());
+        }
+        return path;
+    }
+
+    private static <T> T engineOf(Path path, Class<T> rules) {
+        return new RulesEngineFactory<>(path.toString(), rules).newEngineInstance();
+    }
+
+    /** A number a double holds exactly stays a number, whatever type it is written as. */
+    @ParameterizedTest
+    @CsvSource({"0.5, 0.5", "0.6666666666666666, 0.6666666666666666", "1E+300, 1.0E300", "100.00, 100"})
+    void keepsDecimalsDoubleHoldsNumeric(String written, String stored) throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var cell = writeNumber(workbook, new BigDecimal(written));
+
+            assertEquals(CellType.NUMERIC, cell.getCellType());
+            assertEquals(stored, cell.getCTCell().getV());
+        }
+    }
+
+    /** A whole number a double rounds is saved as a text, a smaller one as a number. */
+    @Test
+    void savesWholeNumbersBeyondDoubleAsText() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var beyond = writeNumber(workbook, (1L << 53) + 1);
+            assertEquals(CellType.STRING, beyond.getCellType());
+            assertEquals("9007199254740993", beyond.getStringCellValue());
+
+            var largest = writeNumber(workbook, Long.MAX_VALUE);
+            assertEquals(CellType.STRING, largest.getCellType());
+            assertEquals("9223372036854775807", largest.getStringCellValue());
+
+            var huge = writeNumber(workbook, new BigInteger("123456789012345678901"));
+            assertEquals(CellType.STRING, huge.getCellType());
+            assertEquals("123456789012345678901", huge.getStringCellValue());
+
+            var held = writeNumber(workbook, 1L << 53);
+            assertEquals(CellType.NUMERIC, held.getCellType());
+            assertEquals(0x1p53, held.getNumericCellValue());
+
+            var round = writeNumber(workbook, BigInteger.TEN.pow(20));
+            assertEquals(CellType.NUMERIC, round.getCellType());
         }
     }
 
@@ -187,11 +308,25 @@ class XlsCellNumberWriterTest {
         }
     }
 
+    private static XSSFCell writeNumber(XSSFWorkbook workbook, Number value) {
+        var sheet = workbook.getNumberOfSheets() == 0 ? workbook.createSheet() : workbook.getSheetAt(0);
+        var cell = sheet.createRow(sheet.getPhysicalNumberOfRows()).createCell(0);
+        var writer = new XlsCellNumberWriter(mock(XlsSheetGridModel.class));
+        writer.setCellToWrite(cell);
+        writer.setValueToWrite(value);
+        writer.writeCellValue();
+        return cell;
+    }
+
     private Path createRuleWorkbook() throws IOException {
+        return createRuleWorkbook("SimpleRules Double special(int input)");
+    }
+
+    private Path createRuleWorkbook(String signature) throws IOException {
         var path = tempDir.resolve("special-numbers.xlsx");
         try (var workbook = new XSSFWorkbook()) {
             var sheet = workbook.createSheet("Rules");
-            sheet.createRow(3).createCell(1).setCellValue("SimpleRules Double special(int input)");
+            sheet.createRow(3).createCell(1).setCellValue(signature);
             var header = sheet.createRow(4);
             header.createCell(1).setCellValue("input");
             header.createCell(2).setCellValue("value");

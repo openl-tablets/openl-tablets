@@ -1,0 +1,72 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${TABLE_ID}",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "divideTest",
+  "pos": "B7:D10",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "Test divide divideTest",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "a"
+      },
+      {
+        "cell": "C8",
+        "value": "b"
+      },
+      {
+        "cell": "D8",
+        "value": "_res_"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "A"
+      },
+      {
+        "cell": "C9",
+        "value": "B"
+      },
+      {
+        "cell": "D9",
+        "value": "Quotient"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": 22
+      },
+      {
+        "cell": "C10",
+        "value": 33
+      },
+      {
+        "cell": "D10",
+        "value": "0.6666666666666666666666666666666667"
+      }
+    ]
+  ],
+  "headerHeight": 2,
+  "layout": {
+    "firstDataLine": 3
+  }
+}
+
