@@ -247,7 +247,8 @@ New users start with the appearance of the operating system, the **Standard** th
 To display the OpenL Studio help topics, in OpenL Studio, in the top-right corner, click the user icon and select **Help**.
 
 The **Documentation** section of the help page opens the user guides inside OpenL Studio. They are the guides of the
-running version, so they are available without internet access.
+running version, so they are available without internet access. **Migration Notes** lists the releases from 5.25 up
+to the running one, the latest first: click a release to read what to change when upgrading to it.
 
 ![User guides inside OpenL Studio: the search box and the guides with their pages on the left, the Using Rules Editor page in the middle, and the sections of the page on the right](images/user-guides-viewer.png)
 

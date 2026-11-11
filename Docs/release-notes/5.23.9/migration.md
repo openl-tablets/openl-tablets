@@ -2,13 +2,9 @@
 title: OpenL Tablets 5.23.9 Migration Notes
 ---
 
-### Quick Role-Based Pointers
+## Administrators
 
-* **If you are an Administrator / Platform Owner** → pay special attention to section **1**
-
----
-
-### 1. Repository Configuration Changes
+### Repository Configuration Changes
 
 Repository factory class names have been replaced with short aliases in repository configuration. Update any custom
 repository configurations accordingly:

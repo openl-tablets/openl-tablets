@@ -2,13 +2,9 @@
 title: OpenL Tablets 5.23.1 Migration Notes
 ---
 
-### Quick Role-Based Pointers
+## Administrators
 
-* **If you are an Administrator / Platform Owner** → pay special attention to sections **1, 2**
-
----
-
-### 1. WebStudio Property Changes
+### WebStudio Property Changes
 
 | Old Property                          | New Property                  |
 |:--------------------------------------|:------------------------------|
@@ -20,9 +16,7 @@ A new property is introduced to track initial WebStudio configuration state:
 webstudio.configured = false
 ```
 
----
-
-### 2. Rule Services Property Changes
+### Rule Services Property Changes
 
 | Old Property                                        | Change                                                               |
 |:----------------------------------------------------|:---------------------------------------------------------------------|

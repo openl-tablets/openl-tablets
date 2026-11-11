@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNullElse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -27,6 +28,13 @@ import org.jspecify.annotations.Nullable;
  * pages, then its folders, each in the order of their names, and its own {@code index.md} stands for the folder. A
  * folder holding no page is left out.
  *
+ * <p>Names are ordered as a person reads them: a run of digits compares as a number, so {@code 5.9.0} comes before
+ * {@code 5.10.0}. Numbered names such as {@code 01-introduction} keep the order their prefixes give.
+ *
+ * <p>A folder named by a release, such as {@code 7.0.0}, comes after the other folders, the newest release first. When
+ * it holds one page and no {@code index.md}, it stands as that page and is titled by the release, so the release opens
+ * its page at once.
+ *
  * <p>A page is titled by the {@code title} of its front matter, else by the heading of level 1 to 3 its text starts
  * with, else by its file name. A folder takes the title of its {@code index.md}, else its name. A title made of a name
  * drops a number prefix such as {@code 01-} and capitalizes each word: {@code 05-sso-saml} is titled {@code Sso Saml}.
@@ -41,6 +49,12 @@ record UserGuides(Set<String> files, Entry contents) {
 
     private static final Pattern FRONT_MATTER_TITLE = Pattern.compile("title:\\s*(.*?)\\s*");
     private static final Pattern HEADING = Pattern.compile("#{1,3}\\s+(.+?)\\s*");
+    private static final Pattern DIGITS = Pattern.compile("\\d+");
+    private static final Pattern RELEASE = Pattern.compile("\\d++(?:\\.\\d++)++");
+
+    /** Orders names as a person reads them: a run of digits compares as a number. */
+    static final Comparator<String> NAMES = Comparator.comparing(UserGuides::readingKey)
+            .thenComparing(Comparator.naturalOrder());
 
     /**
      * An entry of the table of contents: a page, or a folder with the entries inside it.
@@ -86,6 +100,12 @@ record UserGuides(Set<String> files, Entry contents) {
         return words.stream().map(UserGuides::capitalized).collect(Collectors.joining(" ")).replace("Openl", "OpenL");
     }
 
+    /** The name with every run of digits widened by zeros, so that the runs compare by their value. */
+    private static String readingKey(String name) {
+        return DIGITS.matcher(name).replaceAll(digits -> "0".repeat(Math.max(0, 20 - digits.group().length()))
+                + digits.group());
+    }
+
     private static @Nullable String firstMatch(List<String> lines, Pattern pattern) {
         return lines.stream()
                 .map(line -> pattern.matcher(line.strip()))
@@ -119,24 +139,45 @@ record UserGuides(Set<String> files, Entry contents) {
 
         /** The entry of a folder, collecting the files it holds. */
         Entry folder(String folder) {
-            var paths = new TreeSet<>(requireNonNullElse(context.getResourcePaths(folder), Set.<String>of()));
+            var paths = new TreeSet<>(NAMES);
+            paths.addAll(requireNonNullElse(context.getResourcePaths(folder), Set.<String>of()));
             var pages = new ArrayList<Entry>();
             var folders = new ArrayList<Entry>();
+            var releases = new ArrayList<Entry>();
             for (var path : paths) {
-                if (path.endsWith("/")) {
-                    folders.add(folder(path));
-                } else {
+                if (!path.endsWith("/")) {
                     files.add(path.substring(root.length() - 1));
                     if (isPage(path)) {
                         pages.add(page(path));
                     }
+                } else if (RELEASE.matcher(nameOf(path)).matches()) {
+                    releases.add(release(folder(path)));
+                } else {
+                    folders.add(folder(path));
                 }
             }
+            folders.addAll(releases.reversed());
             folders.removeIf(entry -> entry.file() == null && entry.children().isEmpty());
             pages.addAll(folders);
             var index = folder + "index.md";
-            var name = folder.substring(folder.lastIndexOf('/', folder.length() - 2) + 1, folder.length() - 1);
+            var name = nameOf(folder);
             return paths.contains(index) ? page(index, name, pages) : new Entry(titleOfName(name), null, null, pages);
+        }
+
+        /** The name of a file or a folder, without the path to it. */
+        private static String nameOf(String path) {
+            var end = path.endsWith("/") ? path.length() - 1 : path.length();
+            return path.substring(path.lastIndexOf('/', end - 1) + 1, end);
+        }
+
+        /** The folder of a release: its single page titled by the release, else the folder as it is. */
+        private static Entry release(Entry folder) {
+            var children = folder.children();
+            if (folder.file() != null || children.size() != 1 || !children.getFirst().children().isEmpty()) {
+                return folder;
+            }
+            var page = children.getFirst();
+            return new Entry(folder.title(), page.file(), page.size(), List.of());
         }
 
         private static boolean isPage(String path) {
@@ -144,8 +185,8 @@ record UserGuides(Set<String> files, Entry contents) {
         }
 
         private Entry page(String path) {
-            var name = path.substring(path.lastIndexOf('/') + 1, path.length() - ".md".length());
-            return page(path, name, List.of());
+            var name = nameOf(path);
+            return page(path, name.substring(0, name.length() - ".md".length()), List.of());
         }
 
         /** The entry of a page, titled by its name when its text gives no title. */

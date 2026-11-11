@@ -2,7 +2,16 @@
 title: OpenL Tablets 5.21.7 Migration Notes
 ---
 
-## Rule Service Configuration Changes
+## Rules Authors
+
+* Remove `Custom1`, `Custom2`, and `Transactional` properties from rules — they are no longer supported.
+* Remove commas from LOB names.
+* Generic types are not supported (for example, `Map<String, String>`).
+* Generated getter/setter methods now follow the JavaBeans v1.01 specification.
+
+## Administrators
+
+### Rule Service Configuration Changes
 
 The `ruleservice.datasource.type` property has been removed. Replace configuration as follows:
 
@@ -11,10 +20,3 @@ The `ruleservice.datasource.type` property has been removed. Replace configurati
 | `ruleservice.datasource.type = local` | `production-repository.factory = org.openl.rules.repository.LocalRepositoryFactory` |
 
 Remove any `ruleservice.useRuleServiceRuntimeContext` references from `rules-deploy.xml`.
-
-## OpenL Rules Changes
-
-* Remove `Custom1`, `Custom2`, and `Transactional` properties from rules — they are no longer supported.
-* Remove commas from LOB names.
-* Generic types are not supported (for example, `Map<String, String>`).
-* Generated getter/setter methods now follow the JavaBeans v1.01 specification.

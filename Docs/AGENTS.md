@@ -25,19 +25,23 @@ Auto-generated from folder structure. Triggered by `nav: "auto"` in `_config.yml
 - **Title**: front matter `title`, else the level 1–3 heading the page starts with (`jekyll-titles-from-headings`),
   else the file name — a folder takes the title of its `index.md`, else its name. A name drops a numeric prefix and
   turns kebab-case into Title Case ("openl" becomes "OpenL")
-- **Order**: alphabetical by `page.path` — numeric prefixes (`01-`, `02-`) control sequence
+- **Order**: alphabetical by `page.path` — numeric prefixes (`01-`, `02-`) control sequence. OpenL Studio compares a
+  run of digits as a number, and lists folders named by a release, such as `7.0.0`, newest first
 - **Depth**: 0 = root link, 1 = bold section header, 2+ = nested items
 - Adding/removing `.md` files auto-updates sidebar on rebuild
 - OpenL Studio builds the same tree for its viewer (`/docs/toc.json`, `UserGuides` in webstudio): keep both in step
 
 ## User Guides Inside OpenL Studio
 
-OpenL Studio ships `user-guides/` (the `STUDIO/studio-docs` jar) and shows it at `/docs`, with `ref/` at `/docs/ref`.
-The tests of that module validate both; run them after every change: `mvn test -pl STUDIO/studio-docs`. The decision
-and the formats are recorded in [`architecture/embedded-user-guides.md`](architecture/embedded-user-guides.md).
+OpenL Studio ships `user-guides/` (the `STUDIO/studio-docs` jar) and shows it at `/docs`, with `ref/` at `/docs/ref`
+and the `migration.md` of every release since 5.25 at `/docs/migration-notes/<version>/migration.md`, which it lists
+under **Migration Notes**, newest first, each release opening its notes. The tests of that module validate all three;
+run them after every change: `mvn test -pl STUDIO/studio-docs`. The decision and the formats are recorded in
+[`architecture/embedded-user-guides.md`](architecture/embedded-user-guides.md).
 
 - **Links stay inside `user-guides/`**, and a page of `ref/` links only the pages beside it — the jar holds nothing
-  else. Link any other page with an absolute address on the site:
+  else. A migration note links no other page of the site, and an image it shows is listed in the `includes` of
+  `STUDIO/studio-docs/pom.xml`. Link any other page with an absolute address on the site:
   `https://openl-tablets.github.io/openl-tablets/<path>`.
 - **External links** — the prefix must be listed in `STUDIO/studio-docs/test-resources/allowed-links.txt`. Write an
   example address (`localhost`, `example.com`) as code, not as a link.
@@ -45,7 +49,7 @@ and the formats are recorded in [`architecture/embedded-user-guides.md`](archite
 - **Images** — every image is shown by some page, and every image a page shows exists.
 - **Headings** — a `#fragment` names a heading of the target page by its GitHub id.
 - **Markdown** — GFM and `> [!Note]` only. Raw HTML is limited to `br`, a sized `img`, and a YouTube `iframe` in a
-  `p`. Code blocks take `bash`, `groovy`, `java`, `json`, `properties`, `xml`, `yaml`, or no language.
+  `p`. Code blocks take `bash`, `groovy`, `java`, `json`, `properties`, `sql`, `xml`, `yaml`, or no language.
 - **Diagrams and tables** — a `mermaid` block draws a diagram, a `csv` block a table, and an `openl` block an OpenL
   table: the first line is the table header as written, the other lines are CSV records, `---` ends the column
   headers, a `<` cell joins the cell on its left and a `^` cell the cell above.

@@ -44,6 +44,21 @@ describe("guidance tools", () => {
     expect(text).toContain("![A table](../ref-guide-images/table.png)");
   });
 
+  it("openl_list_guides takes the 'migration' type for the migration notes", async () => {
+    const text = textOf(await executeTool("list_guides", { type: "migration" }, harness.client));
+
+    expect(text).toMatch(/^2 documents\.\n/);
+    expect(text).toContain(`| ${GUIDE_IDS.migration64} | OpenL Tablets 6.4.0 Migration Notes |`);
+  });
+
+  it("openl_get_guides reads the Rules Authors section of migration notes, under their title", async () => {
+    const text = textOf(await executeTool("get_guides", { ids: [GUIDE_IDS.migration64] }, harness.client));
+
+    expect(text).toContain("**Guide `migration/6.4.0`** (path: docs/migration-notes/6.4.0/migration.md)");
+    expect(text).toContain("# OpenL Tablets 6.4.0 Migration Notes\n\n## Rules Authors\n");
+    expect(text).not.toContain("Administrators");
+  });
+
   it("openl_get_guides fails actionably on unknown ids instead of falling back to the index", async () => {
     await expect(
       executeTool("get_guides", { ids: ["spec/rules.xml", "guide/no-such-doc"] }, harness.client),

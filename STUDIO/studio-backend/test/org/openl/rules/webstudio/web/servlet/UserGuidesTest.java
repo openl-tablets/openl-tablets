@@ -57,13 +57,23 @@ class UserGuidesTest {
             }
         };
 
-        var studio = UserGuides.read(context, "/docs/").contents().children().get(1);
+        var studio = UserGuides.read(context, "/docs/").contents().children().get(2);
 
         assertEquals("OpenL Studio", studio.title());
         assertEquals("openl-studio/index.md", studio.file());
         assertNull(studio.size());
         assertEquals(new UserGuides.Entry("Rules Editor", "openl-studio/rules-editor.md", null, List.of()),
                 studio.children().getFirst());
+    }
+
+    @Test
+    void ordersNamesAsTheyAreRead() {
+        var names = List.of("/docs/release-notes/6.0.0/", "/docs/02-tables.md", "/docs/release-notes/5.10.0/",
+                "/docs/release-notes/5.9.0/", "/docs/01-introduction.md", "/docs/a2/", "/docs/a10/", "/docs/a02/");
+
+        assertEquals(List.of("/docs/01-introduction.md", "/docs/02-tables.md", "/docs/a02/", "/docs/a2/", "/docs/a10/",
+                        "/docs/release-notes/5.9.0/", "/docs/release-notes/5.10.0/", "/docs/release-notes/6.0.0/"),
+                names.stream().sorted(UserGuides.NAMES).toList());
     }
 
     @ParameterizedTest

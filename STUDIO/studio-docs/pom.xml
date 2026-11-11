@@ -61,6 +61,25 @@
                     <exclude>AGENTS.md</exclude>
                 </excludes>
             </resource>
+            <!-- The migration notes of the releases since 5.25, one folder a release, which OpenL Studio lists as
+                 Migration Notes. Its MCP server reads the part of each one for Rules Authors. -->
+            <resource>
+                <targetPath>META-INF/resources/docs/migration-notes</targetPath>
+                <directory>${project.basedir}/../../Docs/release-notes</directory>
+                <includes>
+                    <include>*/migration.md</include>
+                </includes>
+                <!-- The releases before 5.25: 5.5 to 5.9, 5.10 to 5.19, then 5.20 to 5.24 -->
+                <excludes>
+                    <exclude>5.?.*/**</exclude>
+                    <exclude>5.1?.*/**</exclude>
+                    <exclude>5.20.*/**</exclude>
+                    <exclude>5.21.*/**</exclude>
+                    <exclude>5.22.*/**</exclude>
+                    <exclude>5.23.*/**</exclude>
+                    <exclude>5.24.*/**</exclude>
+                </excludes>
+            </resource>
         </resources>
     </build>
 </project>

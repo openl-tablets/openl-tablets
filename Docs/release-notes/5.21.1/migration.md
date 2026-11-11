@@ -2,7 +2,9 @@
 title: OpenL Tablets 5.21.1 Migration Notes
 ---
 
-## Rule Services
+## Developers
+
+### Rule Services
 
 * The deprecated class `org.openl.rules.ruleservice.publish.WebServicesRuleServicePublisher` has been removed. Update
   any custom configurations that reference it.

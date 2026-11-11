@@ -2,7 +2,9 @@
 title: OpenL Tablets 5.26.1 Migration Notes
 ---
 
-### 1. Array Function Rename
+## Rules Authors
+
+### Array Function Rename
 
 The method `add(T[] array, int index, T element)` has been renamed to `addElement(T[] array, int index, T... elements)`.
 

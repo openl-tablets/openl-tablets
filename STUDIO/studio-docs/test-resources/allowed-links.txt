@@ -29,6 +29,7 @@ https://github.com/punkpeye/mcp-remote
 https://kafka.apache.org/documentation/
 https://swagger.io/docs/
 https://tomcat.apache.org/
+https://www.h2database.com/html/
 
 # Standards and references
 https://creativecommons.org/licenses/

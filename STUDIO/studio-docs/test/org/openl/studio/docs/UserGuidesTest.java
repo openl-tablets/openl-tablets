@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 /**
- * Holds the user guides and the specifications the jar ships to what OpenL Studio and the documentation site both
- * draw.
+ * Holds the user guides, the specifications and the migration notes the jar ships to what OpenL Studio and the
+ * documentation site both draw.
  *
  * @author Yury Molchan
  */
@@ -27,8 +27,8 @@ class UserGuidesTest {
     /** Where the guides are written, so a problem names the file to fix. */
     private static final String SOURCES = "Docs/user-guides/";
 
-    /** The folder of the jar that holds the specifications, which are written apart from the guides. */
-    private static final String SPECIFICATIONS = "ref/";
+    /** The folders of the jar written apart from the guides: the specifications and the migration notes. */
+    private static final List<String> APART = List.of("ref/", "migration-notes/");
 
     @Test
     void guidesHaveNoProblems() throws IOException, URISyntaxException {
@@ -42,7 +42,7 @@ class UserGuidesTest {
 
     /** The problem, naming the file of the repository to fix. */
     private static String source(Problem problem) {
-        return (problem.file().startsWith(SPECIFICATIONS) ? "Docs/" : SOURCES) + problem;
+        return (APART.stream().anyMatch(problem.file()::startsWith) ? "Docs/" : SOURCES) + problem;
     }
 
     /** The prefixes an external link may start with, one a line; a blank line and a {@code #} comment are skipped. */

@@ -2,7 +2,16 @@
 title: OpenL Tablets 5.17.0 Migration Notes
 ---
 
-## Configuration Property Changes
+## Rules Authors
+
+### Empty Cell Behavior
+
+Empty cells in Data and Test tables now return `null` instead of empty collections. Review rules and tests that rely on
+empty collections returned from blank cells and update accordingly.
+
+## Administrators
+
+### Configuration Property Changes
 
 The following production repository configuration properties have been renamed or removed:
 
@@ -16,8 +25,3 @@ The following production repository configuration properties have been renamed o
 | `org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory`    | `org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory` |
 | `org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory`  | *(removed)*                                                             |
 | `production-repository.jcr.nodetypes`                                              | *(removed)*                                                             |
-
-## OpenL Rules — Empty Cell Behavior
-
-Empty cells in Data and Test tables now return `null` instead of empty collections. Review rules and tests that rely on
-empty collections returned from blank cells and update accordingly.

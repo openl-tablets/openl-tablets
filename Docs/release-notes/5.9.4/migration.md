@@ -2,7 +2,9 @@
 title: OpenL Tablets 5.9.4 Migration Notes
 ---
 
-## User Workspace Location
+## Administrators
+
+### User Workspace Location
 
 Previous releases used two workspace locations. This release standardizes to a single location:
 

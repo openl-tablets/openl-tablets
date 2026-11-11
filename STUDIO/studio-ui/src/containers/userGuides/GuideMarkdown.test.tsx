@@ -118,6 +118,7 @@ describe('GuideMarkdown', () => {
         ['groovy', 'def total = 1', 'def'],
         ['json', '{"name": 1}', '1'],
         ['properties', 'openl.home = /data', 'openl.home'],
+        ['sql', 'ALTER ROLE studio SET search_path TO public;', 'ALTER'],
         ['xml', '<project name="x"/>', '"x"'],
         ['yaml', 'server:\n  port: 8080', 'server'],
     ])('highlights %s code and keeps its lines', async (language, code, token) => {

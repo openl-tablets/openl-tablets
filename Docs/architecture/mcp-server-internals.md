@@ -121,12 +121,18 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 
 ## Guides
 
-- **Source** — OpenL Studio serves the specifications at `/docs/ref` and the Reference Guide at
-  `/docs/reference-guide`, with its other user guides. Every guide tool reads the table of contents, `/docs/toc.json`,
-  which gives the title and the size of each page, and `openl_get_guides` reads the pages it is asked for. The
-  `index.md` page of a folder stays out.
+- **Source** — OpenL Studio serves the specifications at `/docs/ref`, the Reference Guide at
+  `/docs/reference-guide` and the migration notes of the releases since 5.25 at `/docs/migration-notes`, with its
+  other user guides. Every guide tool reads the table of contents, `/docs/toc.json`, which gives the title and the
+  size of each page, and `openl_get_guides` reads the pages it is asked for. The `index.md` page of a folder stays
+  out.
 - **Ids** — `spec/…` and `guide/…`: the path in the folder without `.md` and number prefixes. Renaming a page
-  changes its id.
+  changes its id. The migration notes of a release are `migration/<version>`, such as `migration/7.0.0`.
+- **Migration notes** — a guide tool gives the `## Rules Authors` section of the notes, up to the next section of its
+  level, under the title `OpenL Tablets <version> Migration Notes`, so an agent migrating a project reads only what
+  concerns its rules. The index reads every listed note to give the size of that section, and leaves out a release
+  whose notes have none, so `openl_get_guides` takes its id for unknown. The index lists the releases oldest first,
+  the order a project is migrated in, while the table of contents shows them newest first.
 - **Paths** — `path` is the address of a document relative to the address of OpenL Studio. Bodies come as Studio
   serves them, so their links and images are relative to that address too.
 

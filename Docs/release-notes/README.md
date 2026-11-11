@@ -73,7 +73,12 @@ Optional `migration.md` should include:
    title: "OpenL Tablets <version> Migration Notes"
    ---
    ```
-2. Role-based pointers for different user groups (Rules Authors, Developers, Administrators)
+2. A `##` section per user group that has something to do — `## Rules Authors`, `## Developers`,
+   `## Administrators` — each holding only what concerns that group, with `###` headings for its items. A change is
+   stated once, in the section of the group it concerns most. The MCP server of OpenL Studio hands the
+   `## Rules Authors` section, word for word up to the next `##` heading, to AI agents that migrate projects, so keep
+   that heading exactly and keep everything a rules author must change under it. OpenL Studio ships the migration
+   notes of the releases since 5.25
 3. Environment and dependency changes that may affect migration or integration (e.g., Java version, library updates)
 4. End-to-end migration steps, including any necessary code changes, configuration updates, and testing recommendations
 5. SQL statements for database migration steps if applicable

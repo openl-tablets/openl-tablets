@@ -41,6 +41,11 @@ It turns `Docs/user-guides` into a jar.
   `META-INF/resources/docs/` of the jar, keeping the folder structure.
 - **Specifications** — the files of `Docs/ref`, except its `AGENTS.md`, are copied to `META-INF/resources/docs/ref/`.
   OpenL Studio shows them as one more guide, and its MCP server hands them to AI agents.
+- **Migration notes** — the `migration.md` of every release of `Docs/release-notes` since 5.25, and the images they
+  show, are copied to `META-INF/resources/docs/migration-notes/`, one folder a release; the earlier releases stay on
+  the documentation site only. OpenL Studio lists them under
+  **Migration Notes**, the newest release first, each release opening its notes, and its MCP server hands the part of
+  each one for Rules Authors to AI agents.
 - **Not deployed** — the module sets `maven.deploy.skip=true`. The root `pom.xml` derives `maven.install.skip`
   from it, so the module sets `maven.install.skip=false` back. The jar still reaches the local repository, and a
   build of the OpenL Studio war alone, outside the reactor, still resolves it.

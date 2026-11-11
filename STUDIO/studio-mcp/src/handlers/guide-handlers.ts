@@ -20,7 +20,7 @@ export function registerGuideHandlers(): void {
     name: "list_guides",
     title: "List Guides",
     description:
-      "List the OpenL reference documents Studio serves for its version: id, title and size in bytes, no bodies (openl_get_guides reads them). An id starting 'spec/' is a specification of a config file or the project layout (rules.xml, rules-deploy.xml, table types, openl-maven-plugin), one starting 'guide/' a chapter of the Reference Guide (table types and properties, functions, data types, BEX).",
+      "List the OpenL reference documents Studio serves for its version: id, title and size in bytes, no bodies (openl_get_guides reads them). An id starting 'spec/' is a specification of a config file or the project layout (rules.xml, rules-deploy.xml, table types, openl-maven-plugin), 'guide/' a chapter of the Reference Guide (table types and properties, functions, data types, BEX), 'migration/' what a release since 5.25 asks of Rules Authors: to migrate a project, read each release after its version up to the target.",
     schema: schemas.listGuidesSchema,
     // The ids of the specifications start with 'spec', which agents take for their type
     valueAliases: { spec: "specification" },
