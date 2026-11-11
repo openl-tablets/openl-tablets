@@ -55,11 +55,12 @@ public class AppServer {
         var server = new Server(0); // Random port
         server.setHandler(webAppContext);
 
-        var backupProperties = System.getProperties();
+        // Prevent memory leak via JDK ClassValue. See GROOVY-7591.
+        // GroovyClassValueLeakTest guards the property, which Groovy 5 dropped and Groovy 6 brought back.
+        // Groovy reads the property once, when the application loads it, so the property is never restored:
+        // removing it would break another module, which starts its server at the same time in a parallel build.
+        System.setProperty("groovy.use.classvalue", "false");
         try {
-            // Prevent memory leak via JDK ClassValue. See GROOVY-7591.
-            // GroovyClassValueLeakTest guards the property, which Groovy 5 dropped and Groovy 6 brought back.
-            System.setProperty("groovy.use.classvalue", "false");
             server.start();
 
             var port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
@@ -82,7 +83,6 @@ public class AppServer {
         } finally {
             server.stop();
             server.destroy();
-            System.setProperties(backupProperties);
             Files.deleteIfExists(warFolder);
         }
     }

@@ -30,7 +30,8 @@ import org.eclipse.aether.util.artifact.JavaScopes;
  * @author Vladyslav Pikus
  * @since 5.24.0
  */
-@Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class VerifyMojo extends BaseOpenLMojo {
 
     /**
