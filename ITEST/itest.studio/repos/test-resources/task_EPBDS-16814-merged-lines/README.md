@@ -14,7 +14,8 @@ banks of two columns merged in one of its rows.
 
 `020-a-refused-write-leaves-the-project-opened`
 
-- `010-a-row-left-empty-is-refused` — a row written blank would split the table, so it is refused.
+- `010-a-row-left-empty-is-refused` — the row `Single`, in no group, written blank would split the table, so it is
+  refused. A row of a group stays filled by the merged cell of the group, and a blank write of it is taken.
 - `020-the-project-is-still-opened` — the refused write took nothing: the project is not marked as being edited.
 
 `030-one-row-inside-a-merged-group`

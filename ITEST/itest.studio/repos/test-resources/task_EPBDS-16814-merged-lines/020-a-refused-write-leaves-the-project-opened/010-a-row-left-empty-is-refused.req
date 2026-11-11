@@ -6,7 +6,7 @@ Content-Type: application/json
   "operation": "update",
   "target": {
     "type": "row",
-    "position": 10,
+    "position": 2,
     "cells": [
       {
         "value": ""

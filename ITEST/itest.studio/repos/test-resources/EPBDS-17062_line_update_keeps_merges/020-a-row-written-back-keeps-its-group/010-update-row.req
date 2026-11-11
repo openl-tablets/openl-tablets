@@ -1,0 +1,25 @@
+POST /rest/projects/{PROJECT_ID}/tables/{TABLE_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "update",
+  "target": {
+    "type": "row",
+    "position": 2,
+    "cells": [
+      {
+        "value": "<=4"
+      },
+      {
+        "value": "Male"
+      },
+      {
+        "value": 0.15
+      },
+      {
+        "value": 0.2
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "EJBP5FAVY4XWFF7Y",
+      "kind": "Rules",
+      "name": "Rate",
+      "pos": "B2:E8"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

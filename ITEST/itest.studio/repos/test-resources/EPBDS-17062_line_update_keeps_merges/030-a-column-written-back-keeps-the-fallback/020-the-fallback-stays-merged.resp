@@ -1,0 +1,135 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "EJBP5FAVY4XWFF7Y",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Rate",
+  "pos": "B2:E8",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "SmartLookup Double Rate (Integer duration, String gender, String period)",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "Duration"
+      },
+      {
+        "cell": "C3",
+        "value": "Gender"
+      },
+      {
+        "cell": "D3",
+        "value": "4 - 4"
+      },
+      {
+        "cell": "E3",
+        "value": "8 - 8"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "<=4",
+        "rowspan": 2
+      },
+      {
+        "cell": "C4",
+        "value": "Male"
+      },
+      {
+        "cell": "D4",
+        "value": 0.11
+      },
+      {
+        "cell": "E4",
+        "value": 0.2
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C5",
+        "value": "Female"
+      },
+      {
+        "cell": "D5",
+        "value": 0.33
+      },
+      {
+        "cell": "E5",
+        "value": 0.4
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": ">4",
+        "rowspan": 2
+      },
+      {
+        "cell": "C6",
+        "value": "Male"
+      },
+      {
+        "cell": "D6",
+        "value": 0.55
+      },
+      {
+        "cell": "E6",
+        "value": 0.6
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C7",
+        "value": "Female"
+      },
+      {
+        "cell": "D7",
+        "value": 0.77
+      },
+      {
+        "cell": "E7",
+        "value": 0.8
+      }
+    ],
+    [
+      {
+        "cell": "B8"
+      },
+      {
+        "cell": "C8"
+      },
+      {
+        "cell": "D8",
+        "value": "= error(\"No rate\")",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

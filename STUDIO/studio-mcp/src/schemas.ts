@@ -447,7 +447,7 @@ const describedEditShape = {
   rowspan: editShape.rowspan.describe("How many rows the merged cell spans."),
   colspan: editShape.colspan.describe("How many columns the merged cell spans."),
   cells: editShape.cells.describe(
-    "Lines of values as openl_get_table rows hold them: rows for a row action and a range, columns for a column action; null for an empty or merge-covered cell.",
+    "Lines of values as openl_get_table rows hold them: rows for a row action and a range, columns for a column action; null for an empty or merge-covered cell. Merged cells stay merged; unmerge splits one.",
   ),
   value: editShape.value.describe("null clears the cell. A text starting with '=' is an OpenL formula."),
   formula: editShape.formula.describe("An Excel formula such as '=B2*C2', without 'value'; an OpenL formula is a 'value' starting with '='."),

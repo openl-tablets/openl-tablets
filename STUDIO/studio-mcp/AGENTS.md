@@ -133,7 +133,12 @@ instead of one per edit keeps the rules the edits share in one description, whic
 Positions are 0-based in the whole table, as `openl_get_table` gives them (row 0 is the header, column 0 the leading
 labels). `cells` is always a list of lines (rows for row actions and a range, columns for column actions), each a
 non-empty list of values as the `rows` of `openl_get_table` hold them: null for an empty cell or a position an
-existing merged cell covers, which stays covered. A value starting with `=` is an OpenL formula, written as text;
+existing merged cell covers, which stays covered. The handler marks a null covered from the table as read, up to the
+first edit that moves or merges cells; after it a null goes as an empty cell, which Studio takes as covered under a
+merged cell, so a `merge` and an update of the cells it covers go in one call. `update_row`, `update_column` and
+`update_range` keep every merged cell of what they overwrite, as Studio keeps it for values sent without their spans:
+a merged condition keeps the rules it groups, and a value merged across columns keeps answering for each of them; only
+`unmerge` splits one (EPBDS-17062). A value starting with `=` is an OpenL formula, written as text;
 `update_cell` writes an Excel `formula`, such as `=B2*C2`, instead of a value, and Studio refuses the two together.
 Writable values use the same round-trip contract as full-table writes:
 string/number/boolean/null scalars or one-dimensional arrays of those scalars. Arrays must be non-empty; `[null]`,

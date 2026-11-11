@@ -393,7 +393,7 @@ class RawTableWriterTest {
     void unmergesThroughAFullUpdateWritingTheValuesSentForTheCoveredCells() throws IOException {
         var project = bankedHeaderProject("unmerge-full");
         var view = new RawTableReader().read(load(project));
-        var header = view.source.get(0).get(0).value();
+        var header = view.source.getFirst().getFirst().value();
         // The header is sent without its span, and its text again for the cells it covered
         view.source.set(0, new ArrayList<>(List.of(cell(header), cell(header), cell(header))));
 
@@ -442,7 +442,7 @@ class RawTableWriterTest {
         // the rows once for each new row, and write row 5 four times.
         var writes = new HashMap<String, Integer>();
         Mockito.mockingDetails(writer.metaInfoWriter).getInvocations().stream()
-                .filter(invocation -> invocation.getMethod().getName().equals("setMetaInfo"))
+                .filter(invocation -> "setMetaInfo".equals(invocation.getMethod().getName()))
                 .filter(invocation -> invocation.<Integer>getArgument(0) >= 5)
                 .forEach(invocation -> writes.merge(invocation.getArgument(0) + ":" + invocation.getArgument(1), 1,
                         Integer::sum));
@@ -768,7 +768,7 @@ class RawTableWriterTest {
         var source = reload(mainProject);
         assertEquals(2, width(source));
         assertEquals(HEADER, value(source, 0, 0));
-        assertEquals(Integer.valueOf(2), source.get(0).getFirst().colspan());
+        assertEquals(Integer.valueOf(2), source.getFirst().getFirst().colspan());
         // the column that previously sat at index 1 is shifted left
         assertEquals("code", value(source, 1, 0));
     }
@@ -1061,16 +1061,50 @@ class RawTableWriterTest {
     }
 
     @Test
-    void updateRangeClearsAStaleMerge() {
-        // merge the two stacked "String" cells, then overwrite that 2x1 block with plain cells
+    void updateRangeKeepsTheMergesItHolds() {
+        // The two stacked "String" cells are one merged cell, written back as values only.
         apply(merge(1, 0, 2, 1));
-        apply(updateRange(1, 0, List.of(row("p"), row("q"))));
+        apply(updateRange(1, 0, List.of(row("long", "code"), List.of(COVERED, input("changed")))));
 
         var source = reload(mainProject);
-        assertNull(source.get(1).getFirst().rowspan(), "stale merge must be cleared on a range update");
-        assertNull(source.get(2).getFirst().covered());
-        assertEquals("p", value(source, 1, 0));
-        assertEquals("q", value(source, 2, 0));
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
+        assertEquals("long", value(source, 1, 0));
+        assertEquals("changed", value(source, 2, 1));
+    }
+
+    @Test
+    void updateRangeTakesALineAKeptMergeCovers() {
+        apply(merge(1, 0, 2, 1));
+        // The second line of the range holds only the position the kept merge covers, so it is not blank.
+        apply(updateRange(1, 0, List.of(row("long"), List.of(COVERED))));
+
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals("long", value(source, 1, 0));
+    }
+
+    @Test
+    void updateRangeRefusesALineLeftBlankByTheSpanReplacingAMerge() {
+        apply(merge(1, 0, 2, 1));
+        // The merge goes, replaced by a span of one row, and nothing holds the second line any longer.
+        var update = updateRange(1, 0, List.of(List.of(new RawCellInput("long", 2, null, null), COVERED),
+                List.of(COVERED, COVERED)));
+
+        var refused = assertThrows(BadRequestException.class, () -> apply(update));
+        assertEquals("openl.error.400.table.action.line.all-empty.message", refused.getErrorCode());
+    }
+
+    @Test
+    void updateRangeReplacesTheMergeUnderASpanItNames() {
+        apply(List.of(merge(1, 0, 2, 1), updateCell(3, 0, "String")));
+        // A span reaching past the range takes the place of the merge it starts on.
+        apply(updateRange(1, 0, List.of(List.of(new RawCellInput("String", null, 3, null), input("code")),
+                List.of(COVERED, input("text")))));
+
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(3), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(3).getFirst().covered());
     }
 
     @Test
@@ -1150,15 +1184,117 @@ class RawTableWriterTest {
     }
 
     @Test
-    void updateRowClearsAStaleMerge() {
-        // merge the two leftmost cells of the header row, then overwrite that row with plain (merge-free) cells
-        apply(merge(0, 0, 1, 2));
-        // keep a recognized keyword in the header cell so the action does not invalidate the table
-        apply(updateRow(0, row("Datatype", "q", "r")));
+    void updateRowKeepsAMergeItStartsDownTheRowsBelow() {
+        // A group: one "String" merged over two rows, as a condition of a decision table spans its rules.
+        apply(merge(1, 0, 2, 1));
+        // The row is written back as values only, the way a client changing one value sends it.
+        apply(updateRow(1, row("String", "code", "changed")));
 
         var source = reload(mainProject);
-        // the merge dropped from the new cells must not linger, and the row holds the new values
-        assertNull(source.getFirst().getFirst().colspan(), "stale merge must be cleared on update");
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan(), "the group keeps its rows");
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
+        assertEquals("changed", value(source, 1, 2));
+        assertEquals("text", value(source, 2, 1));
+    }
+
+    @Test
+    void updateColumnKeepsAMergeItStartsAcrossTheColumnsBeside() {
+        // The header is merged over the table, as one value of a lookup spans the columns it answers for.
+        apply(merge(0, 0, 1, 3));
+        apply(updateColumn(0, row(HEADER, "String", "String", "long")));
+
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(3), source.getFirst().getFirst().colspan(), "the header keeps its columns");
+        assertEquals(Boolean.TRUE, source.getFirst().get(2).covered());
+        assertEquals("long", value(source, 3, 0));
+    }
+
+    @Test
+    void updateRowReplacesAMergeWithTheSpanItNames() {
+        apply(List.of(merge(1, 0, 2, 1), updateCell(3, 0, "String")));
+        apply(updateRow(1, List.of(new RawCellInput("String", null, 3, null), input("code"), input("alpha"))));
+
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(3), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(3).getFirst().covered());
+    }
+
+    @Test
+    void updateRowBlanksTheCellsItsSpanNewlyCovers() {
+        apply(List.of(merge(1, 0, 2, 1), updateCell(3, 0, "String")));
+        // The value the span newly covers equals the merged one, and is not kept hidden under the merge.
+        apply(List.of(updateRow(1, List.of(new RawCellInput("String", null, 3, null), input("code"), input("alpha"))),
+                unmerge(1, 0)));
+
+        var source = reload(mainProject);
+        assertEquals("String", value(source, 1, 0));
+        assertNull(source.get(3).getFirst().value());
+    }
+
+    @Test
+    void updateRowRefusesASpanHidingAnotherValue() {
+        apply(merge(1, 0, 2, 1));
+        // Growing the merge over "int" would hide it, as a merge action refuses to.
+        var update = updateRow(1, List.of(new RawCellInput("String", null, 3, null), input("code"), input("alpha")));
+
+        var refused = assertThrows(BadRequestException.class, () -> apply(update));
+        assertEquals("openl.error.400.table.action.merge.data-loss.message", refused.getErrorCode());
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals("int", value(source, 3, 0));
+    }
+
+    @Test
+    void updateRowRefusesAValueUnderTheSpanItLays() {
+        // The header is laid over the empty cell beside it, which is given a value of its own in the same row.
+        var update = updateRow(0, List.of(new RawCellInput(HEADER, 2, null, null), input("x"), input(null)));
+
+        var refused = assertThrows(BadRequestException.class, () -> apply(update));
+        assertEquals("openl.error.400.table.action.cell.under-span.message", refused.getErrorCode());
+        var source = reload(mainProject);
+        assertNull(source.getFirst().getFirst().colspan());
+        assertNull(value(source, 0, 1));
+    }
+
+    @Test
+    void updateRowTakesAnEmptyCellUnderAMergeAsCovered() {
+        // A merge laid by an earlier edit of the same sequence covers the cell the row sends empty, not as covered.
+        apply(List.of(merge(1, 0, 2, 1), updateRow(2, row(null, "text", "changed"))));
+
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
+        assertEquals("changed", value(source, 2, 2));
+    }
+
+    @Test
+    void updateRowRefusesASpanPastTheTable() {
+        apply(merge(1, 0, 2, 1));
+        var update = updateRow(1, List.of(new RawCellInput("String", null, 50, null), input("code"), input("alpha")));
+
+        var refused = assertThrows(BadRequestException.class, () -> apply(update));
+        assertEquals("openl.error.400.table.action.span.out-of-bounds.message", refused.getErrorCode());
+        assertEquals(Integer.valueOf(2), reload(mainProject).get(1).getFirst().rowspan());
+    }
+
+    @Test
+    void updateRowRefusesAValueForACellAMergeItStartsCovers() {
+        apply(merge(0, 0, 1, 2));
+        // The merge stays, so the cell it covers takes no value of its own.
+        var update = updateRow(0, row("Datatype", "q", "r"));
+
+        assertBadRequest(update);
+        var source = reload(mainProject);
+        assertEquals(Integer.valueOf(2), source.getFirst().getFirst().colspan());
+    }
+
+    @Test
+    void updateRowWritesTheCellsOfAMergeSplitBeforeIt() {
+        apply(merge(0, 0, 1, 2));
+        apply(List.of(unmerge(0, 0), updateRow(0, row("Datatype", "q", "r"))));
+
+        var source = reload(mainProject);
+        assertNull(source.getFirst().getFirst().colspan());
         assertNull(source.getFirst().get(1).covered());
         assertEquals("Datatype", value(source, 0, 0));
         assertEquals("q", value(source, 0, 1));
@@ -1559,6 +1695,12 @@ class RawTableWriterTest {
 
     private static int width(List<List<RawTableCell>> source) {
         return source.getFirst().size();
+    }
+
+    private static final RawCellInput COVERED = new RawCellInput(null, null, null, true);
+
+    private static RawCellInput input(Object value) {
+        return new RawCellInput(value, null, null, null);
     }
 
     private static List<RawCellInput> row(Object... values) {

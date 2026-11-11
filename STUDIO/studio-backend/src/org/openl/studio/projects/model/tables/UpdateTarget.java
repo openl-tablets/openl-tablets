@@ -38,7 +38,8 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @NotEmpty
             @Valid
             @Parameter(description = """
-                    New row cells, left to right. A cell may set colspan/rowspan to merge. \
+                    New row cells, left to right. A merged cell starting in the row stays merged unless a cell \
+                    sets colspan/rowspan over it, which merges anew; unmerge splits a merged cell. \
                     Must not be wider than the table.""")
             List<RawCellInput> cells) implements UpdateTarget {
     }
@@ -54,7 +55,8 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @NotEmpty
             @Valid
             @Parameter(description = """
-                    New column cells, top to bottom. A cell may set colspan/rowspan to merge. \
+                    New column cells, top to bottom. A merged cell starting in the column stays merged unless a \
+                    cell sets colspan/rowspan over it, which merges anew; unmerge splits a merged cell. \
                     Must not be taller than the table.""")
             List<RawCellInput> cells) implements UpdateTarget {
     }
@@ -113,8 +115,9 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             Integer column,
             @NotEmpty
             @Parameter(description = """
-                    Block rows top to bottom, each a list of cells left to right. A cell may set \
-                    colspan/rowspan to merge. Must be rectangular, cover more than one cell, and fit the table.""")
+                    Block rows top to bottom, each a list of cells left to right. A merged cell starting in the \
+                    block stays merged unless a cell sets colspan/rowspan over it, which merges anew; unmerge \
+                    splits a merged cell. Must be rectangular, cover more than one cell, and fit the table.""")
             List<List<@Valid RawCellInput>> cells) implements UpdateTarget {
     }
 
