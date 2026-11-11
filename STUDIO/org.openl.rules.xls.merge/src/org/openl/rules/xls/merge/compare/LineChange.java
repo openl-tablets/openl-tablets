@@ -1,5 +1,7 @@
 package org.openl.rules.xls.merge.compare;
 
+import java.util.List;
+
 /**
  * A row or a column of a compared table, as the two versions of the table hold it.
  *
@@ -18,4 +20,11 @@ public record LineChange(int first, int second, ChangeStatus status) {
      * The line of a version that does not hold the line.
      */
     public static final int NONE = -1;
+
+    /**
+     * Whether both versions hold every one of the lines, each reading the same.
+     */
+    public static boolean allEqual(List<LineChange> lines) {
+        return lines.stream().allMatch(line -> line.status() == ChangeStatus.EQUAL);
+    }
 }

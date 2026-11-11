@@ -195,7 +195,7 @@ To compare module versions, proceed as follows:
 
 1. To view the changes, click the required element.
 
-    The two versions of the element are drawn as one table, with the cells that read differently framed. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions, and the **Show equal elements** check box heads the list of elements instead of standing next to the files.
+    The two versions of the element are drawn as one table, with the cells that read differently framed. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions, and the **Show equal elements**, **Other tables** and **Formatting changes** check boxes head the list of elements instead of standing next to the files.
 
     ![The result of the module version comparison](images/module-version-comparison-result.jpeg)
 
@@ -1090,7 +1090,10 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 2.  To list the cells outside OpenL tables as well, such as notes or formulas beside them, select the **Other tables**
     check box. Without it, such cells are left out of the list of elements, unless both versions of a
     conflict changed them differently.
-3.  Click **Compare.**
+3.  To list the tables that differ in formatting only as well, such as a fill, a border or a font, select the
+    **Formatting changes** check box. Without it, a change of formatting is left out, so only what reads differently
+    is listed.
+4.  Click **Compare.**
 
     The elements of the two files are listed grouped by Excel sheet. Selecting an element displays its two versions drawn as one table. The rows and the columns of the two versions stand against each other, the way the lines of two texts do in a text comparison:
 
@@ -1100,7 +1103,9 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
     -   A cell the two files read differently is framed in orange and carries both values, the one the first file has before the one the second file has in its place. Changed cells next to each other share one frame, so a changed row, a changed column or a table changed throughout is framed as a whole.
     -   Every other cell keeps the colours the workbook gives it.
 
-    A legend on the line above the table tells what each colour and each sign means. A cell differs when its value, its formula, the result of its formula, its comment or its merging differs: a formula kept as it was differs too once a cell it reads changed its result. Merged cells stretched over an added row or column are the same merged cells. A change of formatting alone frames no cell. The table is framed whole with a dashed orange line instead, as a merge frames it, and the line above the table says **Formatting changed**.
+    A legend on the line above the table tells what each colour and each sign means. A cell differs when its value, its formula, the result of its formula, its comment or its merging differs: a formula kept as it was differs too once a cell it reads changed its result. Merged cells stretched over an added row or column are the same merged cells. A change of formatting alone frames no cell.
+
+    A change of formatting is shown only with **Formatting changes** selected. The table is then framed whole with a dashed orange line, as a merge frames it, and the line above the table says **Formatting changed**. Without **Formatting changes**, a table that differs in formatting only is listed as one that reads the same, so only with **Show equal elements**, or as a moved one when it was moved as well, and a table that changed its values too shows them without the frame. When the formatting is all that differs between the two files, the list of elements says **Only the formatting differs**; click **Show** next to it to list these tables.
 
     The tables are found by their headers and their places, the way a merge of two branches finds them, so a table moved to another place of its sheet is still the same table. Such a table says where it was moved from and where to, as **Moved from A16:B20 to E1:F5**, both under its name in the list of elements and on the line above the table. A table only pushed down or up by the rows inserted or deleted above it is not moved and reads the same. A table renamed and moved at once is still the same table when the rest of its header, such as its parameters, stays and it keeps at least half of its values. Cells outside OpenL tables, such as notes or formulas beside them, kept at their place are the same cells changed, whatever they hold. Rows are paired by the values they hold, so a row removed and another one added read as removed and added, and the rows between them as changed only where their values changed. A row of a single value, as a value of a vocabulary is, replaced by another value is that row changed, also when a row is added next to it. A table that changed both its rows and its columns pairs its columns by the values they share first. The workbooks are read as they are and are not compiled, so a module with errors or with dependencies on other modules is compared as well as any other.
 

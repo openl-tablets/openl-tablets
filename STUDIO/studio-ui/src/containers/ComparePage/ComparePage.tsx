@@ -50,7 +50,7 @@ import {
 import { type LoadedChanges, useRevisionChanges } from '../projects/RevisionChanges'
 import type { ProjectFileChange, ProjectFileChangeType } from 'services/projectStatus'
 import { RevisionPicker, type PickedRevision } from './RevisionPicker'
-import { ComparisonTree } from './ComparisonTree'
+import { ComparisonTree, onlyFormattingDiffers } from './ComparisonTree'
 import { isFinished, useComparisonProgress } from './useComparisonProgress'
 import { useStyles } from './ComparePage.styles'
 
@@ -543,7 +543,7 @@ const ViewPicker: React.FC<{
  */
 const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conflicting = false }) => {
     const { t } = useTranslation('compare')
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const [routed] = useSearchParams()
     const params = address ?? routed
     const { versions, textVersions, threeVersions: three } = useMemo(
@@ -579,24 +579,28 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
     const [showEqualElements, setShowEqualElements] = useState(false)
     // The cells outside OpenL tables are listed only when asked for.
     const [showOtherTables, setShowOtherTables] = useState(false)
-    const otherTablesSwitch = (
-        <Tooltip title={t('show_other_tables_hint')}>
-            <Checkbox
-                checked={showOtherTables}
-                data-testid="compare-show-other-tables"
-                onChange={event => setShowOtherTables(event.target.checked)}
-            >
-                {t('show_other_tables')}
+    // A change of formatting alone is noise beside the values that changed, so it is shown only when asked for.
+    const [showFormattingChanges, setShowFormattingChanges] = useState(false)
+    /** A check box that says what the list of elements holds, with a hint of what it brings in. */
+    const listSwitch = (label: string, hint: string, testId: string, checked: boolean, set: (checked: boolean) => void) => (
+        <Tooltip title={hint}>
+            <Checkbox checked={checked} data-testid={testId} onChange={event => set(event.target.checked)}>
+                {label}
             </Checkbox>
         </Tooltip>
     )
+    // The keys stay literal, so the test of the bundles finds a key no bundle defines.
+    const otherTablesSwitch = listSwitch(t('show_other_tables'), t('show_other_tables_hint'),
+        'compare-show-other-tables', showOtherTables, setShowOtherTables)
+    const formattingSwitch = listSwitch(t('show_formatting_changes'), t('show_formatting_changes_hint'),
+        'compare-show-formatting-changes', showFormattingChanges, setShowFormattingChanges)
     const [showEqualRows, setShowEqualRows] = useState(false)
     // Two versions drawn as one table, or read side by side when the reader asks for that.
     const [view, setView] = useState<DiffView>('combined')
     // The width the list of elements was last given, and whether it is shown at all. The list is
     // hidden and brought back by a button of its own rather than by the divider, so the control is
-    // always in sight. A window that heads the list with its three controls starts wider, so that none
-    // of them is shortened before the user has touched the divider.
+    // always in sight. A window that heads the list with its controls starts wider, so that they take
+    // as few lines as they can before the user has touched the divider.
     const [treeWidth, setTreeWidth] = useState<number | string>(versions || three ? '42%' : '30%')
     const [treeHidden, setTreeHidden] = useState(false)
 
@@ -605,6 +609,12 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
     useEffect(() => {
         document.title = comparedFile ? t('file_title', { name: basename(comparedFile) }) : t('title')
     }, [comparedFile, t])
+
+    // Whether the list of elements is empty only because the changes of formatting are left out.
+    const onlyFormatting = useMemo(
+        () => !!comparison && !showFormattingChanges && onlyFormattingDiffers(comparison, showOtherTables),
+        [comparison, showFormattingChanges, showOtherTables]
+    )
 
     const progress = useComparisonProgress(comparisonId)
     // The comparison is on screen from the moment it is started; until it answers, its progress is.
@@ -885,6 +895,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                         {t('show_equal_elements')}
                     </Checkbox>
                     {otherTablesSwitch}
+                    {formattingSwitch}
                     <div>
                         <Button
                             data-testid="compare-start"
@@ -911,9 +922,9 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                             be reachable by the keyboard either. */}
                         {!treeHidden && (
                             <div className={styles.column}>
-                                {/* The controls of the comparison head their own column, on the line the
+                                {/* The controls of the comparison head their own column, beside the line the
                                 two files are named on. */}
-                                <div className={styles.head}>
+                                <div className={cx(styles.head, styles.treeHead)}>
                                     {back}
                                     {/* A window that opens on a comparison of its own has no files to
                                     put this next to, so it is offered here, as the old page offered it. */}
@@ -927,6 +938,8 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                                         </Checkbox>
                                     )}
                                     {comparison && !back && otherTablesSwitch}
+                                    {/* The versions of a conflict are compared by what they read alone. */}
+                                    {comparison && !back && !threeWay && formattingSwitch}
                                     {comparison && (
                                         <Checkbox
                                             checked={showEqualRows}
@@ -956,6 +969,24 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                                             type="info"
                                         />
                                     )}
+                                    {onlyFormatting && (
+                                        <Alert
+                                            showIcon
+                                            data-testid="compare-only-formatting"
+                                            title={t('only_formatting')}
+                                            type="info"
+                                            action={(
+                                                <Button
+                                                    data-testid="compare-only-formatting-show"
+                                                    onClick={() => setShowFormattingChanges(true)}
+                                                    size="small"
+                                                    type="link"
+                                                >
+                                                    {t('only_formatting_show')}
+                                                </Button>
+                                            )}
+                                        />
+                                    )}
                                     {running && (
                                         <div className={styles.center}>
                                             <Spin description={t('comparing')} />
@@ -966,6 +997,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                                             comparison={comparison}
                                             onSelect={setSelectedId}
                                             showEqualElements={showEqualElements}
+                                            showFormattingChanges={showFormattingChanges}
                                             showOtherTables={showOtherTables}
                                         />
                                     )}
@@ -1002,6 +1034,7 @@ const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head, address, conf
                             loading={tableLoading}
                             secondOnLeft={secondOnLeft}
                             showEqualRows={showEqualRows}
+                            showFormattingChanges={showFormattingChanges}
                             table={table}
                             titles={titles}
                             trailing={comparison && viewSwitch}

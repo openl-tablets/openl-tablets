@@ -40,6 +40,8 @@ interface ComparisonPanesProps {
     titles?: { first: string; second: string } | undefined
     /** Whether the second version stands on the left side by side, as your version does against the base. */
     secondOnLeft?: boolean | undefined
+    /** Whether a change of formatting is told and framed, as it is unless told otherwise. */
+    showFormattingChanges?: boolean | undefined
 }
 
 /** The sign a row of the combined view is read by. */
@@ -127,7 +129,8 @@ const kindsOf = (table: ComparisonTable, alignment: Alignment | null): ChangeKin
  * row is led by the sign it is read by.
  *
  * A legend above the table tells what each colour means. A table moved on its sheet says where from and where to. A
- * table whose formatting changed says so and is framed whole with a dashed line, as a merge frames it.
+ * table whose formatting changed says so and is framed whole with a dashed line, as a merge frames it, unless the
+ * changes of formatting are left out.
  */
 export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     table,
@@ -139,9 +142,12 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     trailing,
     titles,
     secondOnLeft = false,
+    showFormattingChanges = true,
 }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
+    // A change of formatting is neither told nor framed while the reader keeps to what reads differently.
+    const restyled = showFormattingChanges && !!table?.formattingChanged
     const alignment = useMemo(() => (table ? alignmentOf(table) : null), [table])
     const rows = useMemo(() => rowsToShow(alignment, showEqualRows), [alignment, showEqualRows])
     const combined = useMemo(() => (view === 'combined' && table ? combine(table, rows) : null), [view, table, rows])
@@ -151,7 +157,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     // What is said about the table stands on a line of its own above the files, so the rows of both files stay
     // level with each other.
     const notes = table && !loading && !error && (
-        <Notes alignment={alignment} combined={view === 'combined'} table={table} />
+        <Notes alignment={alignment} combined={view === 'combined'} restyled={restyled} table={table} />
     )
     const withNotes = (panes: React.ReactNode) => (
         <div className={styles.column}>
@@ -171,7 +177,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
             </>
         )
         const body = insteadOfTable ?? (
-            <Restyled restyled={table!.formattingChanged}>
+            <Restyled restyled={restyled}>
                 <Combined combined={combined!} />
             </Restyled>
         )
@@ -183,7 +189,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
         return insteadOfTable
             ?? (source
                 ? (
-                    <Restyled restyled={table?.formattingChanged}>
+                    <Restyled restyled={restyled}>
                         <Side alignment={alignment} rows={rows} side={side} source={source} />
                     </Restyled>
                 )
@@ -218,24 +224,25 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
  * What is said about a table, on a line above the files.
  *
  * A legend tells what each colour means. A moved table says where from and where to. A table whose formatting
- * changed says so, since its cells are not marked for it.
+ * changed says so when its change of formatting is shown (`restyled`), since its cells are not marked for it.
  */
-const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; combined: boolean }> = ({
+const Notes: React.FC<{ table: ComparisonTable; alignment: Alignment | null; combined: boolean; restyled: boolean }> = ({
     table,
     alignment,
     combined,
+    restyled,
 }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const kinds = table.status === 'equal' || table.status === 'moved' ? [] : kindsOf(table, alignment)
     const moved = table.moved && table.firstRange && table.secondRange
-    if (kinds.length === 0 && !moved && !table.formattingChanged) {
+    if (kinds.length === 0 && !moved && !restyled) {
         return null
     }
     return (
         <Flex wrap align="center" className={styles.notes} data-testid="compare-notes" gap="small">
             {kinds.length > 0 && <Legend combined={combined} kinds={kinds} />}
-            {table.formattingChanged && (
+            {restyled && (
                 <Tag color="warning" data-testid="compare-formatting-changed">{t('formatting_changed')}</Tag>
             )}
             {moved && (
@@ -272,7 +279,7 @@ const useGap = () => {
 }
 
 /** A version of a table, framed whole with a dashed line when its formatting changed, as a merge frames it. */
-const Restyled: React.FC<{ restyled: boolean | undefined; children: React.ReactNode }> = ({ restyled, children }) => {
+const Restyled: React.FC<{ restyled: boolean; children: React.ReactNode }> = ({ restyled, children }) => {
     const { styles } = useCellStyles()
     return <div className={restyled ? styles.restyledWhole : undefined} data-testid="compare-restyled">{children}</div>
 }

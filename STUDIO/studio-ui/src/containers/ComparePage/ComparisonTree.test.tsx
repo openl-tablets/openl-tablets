@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ComparisonTree } from './ComparisonTree'
+import { ComparisonTree, onlyFormattingDiffers } from './ComparisonTree'
 import type { Comparison } from 'types/compare'
 
 vi.mock('react-i18next', () => {
@@ -194,6 +194,119 @@ describe('ComparisonTree', () => {
         )
 
         expect(screen.getByText('no_elements')).toBeInTheDocument()
+    })
+
+    describe('a table that differs in formatting only', () => {
+        const restyled: Comparison = {
+            ...COMPARISON,
+            sheets: [
+                {
+                    id: '0',
+                    name: 'Main',
+                    type: 'sheet',
+                    status: 'changed',
+                    children: [
+                        { id: '0-0', name: 'Rules String Hello', type: 'table', status: 'changed' },
+                        { id: '0-1', name: 'Data Rate rates', type: 'table', status: 'changed', formattingOnly: true },
+                        {
+                            id: '0-2',
+                            name: 'Data Limit limits',
+                            type: 'table',
+                            status: 'changed',
+                            formattingOnly: true,
+                            moved: true,
+                            firstRange: 'A20:B22',
+                            secondRange: 'D20:E22',
+                        },
+                    ],
+                },
+                {
+                    id: '1',
+                    name: 'Styles',
+                    type: 'sheet',
+                    status: 'changed',
+                    children: [{ id: '1-0', name: 'Data Tax taxes', type: 'table', status: 'changed', formattingOnly: true }],
+                },
+            ],
+        }
+        /** The mark an element is listed with, which says what became of it. */
+        const markOf = (name: string) => screen.getByText(new RegExp(name)).querySelector('[title]')?.getAttribute('title')
+
+        it('is listed as a changed one unless told otherwise', () => {
+            render(<ComparisonTree comparison={restyled} onSelect={vi.fn()} showEqualElements={false} />)
+
+            expect(screen.getByText(/Data Rate rates/)).toBeInTheDocument()
+            expect(screen.getByText(/Data Tax taxes/)).toBeInTheDocument()
+        })
+
+        it('is left out with its sheet while the changes of formatting are', () => {
+            render(
+                <ComparisonTree
+                    comparison={restyled}
+                    onSelect={vi.fn()}
+                    showEqualElements={false}
+                    showFormattingChanges={false}
+                />
+            )
+
+            expect(screen.getByText(/Rules String Hello/)).toBeInTheDocument()
+            expect(screen.queryByText(/Data Rate rates/)).toBeNull()
+            // A sheet whose tables differ in formatting only is left out with them.
+            expect(screen.queryByText(/Styles/)).toBeNull()
+            // A table moved as well is still a moved one.
+            expect(screen.getByText(/Data Limit limits/)).toBeInTheDocument()
+            expect(screen.getByText('moved_places A20:B22 D20:E22')).toBeInTheDocument()
+        })
+
+        it('is listed as an equal one, on a sheet that reads the same, when the equal elements are asked for', () => {
+            render(
+                <ComparisonTree
+                    showEqualElements
+                    comparison={restyled}
+                    onSelect={vi.fn()}
+                    showFormattingChanges={false}
+                />
+            )
+
+            expect(markOf('Data Rate rates')).toBe('status_equal')
+            expect(markOf('Data Limit limits')).toBe('status_moved')
+            expect(markOf('Styles')).toBe('status_equal')
+            expect(markOf('Main')).toBe('status_changed')
+        })
+
+        it('is all that differs only when nothing else does', () => {
+            const only: Comparison = { ...restyled, sheets: [restyled.sheets[1]!]}
+
+            expect(onlyFormattingDiffers(only, false)).toBe(true)
+            // Another table reads differently, and one was moved.
+            expect(onlyFormattingDiffers(restyled, false)).toBe(false)
+            // Nothing differs at all.
+            expect(onlyFormattingDiffers({ ...COMPARISON, sheets: [COMPARISON.sheets[1]!]}, false)).toBe(false)
+            // A sheet only one file holds differs, whatever its tables.
+            expect(onlyFormattingDiffers({
+                ...only,
+                sheets: [...only.sheets, { id: '2', name: 'New', type: 'sheet', status: 'added', children: []}],
+            }, false)).toBe(false)
+        })
+
+        it('counts the cells outside OpenL tables only when they are asked for', () => {
+            const sheet = restyled.sheets[1]!
+            const note = { id: '1-1', name: 'Note on taxes', type: 'table', other: true } as const
+            // A restyled note alone: showing the changes of formatting would list nothing without the other tables.
+            const restyledNote: Comparison = {
+                ...restyled,
+                sheets: [{ ...sheet, children: [{ ...note, status: 'changed', formattingOnly: true }]}],
+            }
+            expect(onlyFormattingDiffers(restyledNote, false)).toBe(false)
+            expect(onlyFormattingDiffers(restyledNote, true)).toBe(true)
+            // A note that reads differently is not listed either, so the restyled table is all there is to show.
+            const changedNote: Comparison = {
+                ...restyled,
+                sheets: [{ ...sheet, children: [...sheet.children!, { ...note, status: 'changed' }]}],
+            }
+            expect(onlyFormattingDiffers(changedNote, false)).toBe(true)
+            expect(onlyFormattingDiffers(changedNote, true)).toBe(false)
+        })
     })
 
     it('lists the cells outside OpenL tables only when asked for, unless both versions changed them differently', () => {

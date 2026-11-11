@@ -86,8 +86,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             padding-inline: 0;
         }
 
-        // A control left without the room it asks for is shortened rather than wrapped, so that the
-        // line keeps the height of the line the files are named on.
+        // A control wider than the whole line is shortened rather than broken over two lines.
         .ant-checkbox-wrapper {
             min-width: 0;
 
@@ -97,6 +96,17 @@ export const useStyles = createStyles(({ css, token }) => ({
                 text-overflow: ellipsis;
             }
         }
+    `,
+    // The controls heading the list of elements take another line when the list is too narrow for them all, rather
+    // than each being shortened to a few letters.
+    treeHead: css`
+        // One line of them is as tall as the line the files are named on.
+        box-sizing: border-box;
+        flex-wrap: wrap;
+        row-gap: 0;
+        height: auto;
+        min-height: 38px;
+        padding-block: ${token.paddingXXS}px;
     `,
     // The control that hides the list keeps to the right of the line it heads.
     headAction: css`

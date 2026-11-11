@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -461,21 +462,42 @@ class XlsWorkbookComparatorTest {
         }
     }
 
+    /** Fills a cell with yellow, changing nothing it reads. */
+    private static void fillYellow(Cell cell) {
+        var style = cell.getSheet().getWorkbook().createCellStyle();
+        style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cell.setCellStyle(style);
+    }
+
     @Test
     void formattingChangedAlone_marksNoCell_butTheTable() throws IOException {
         try (var comparison = compare(XlsWorkbookComparatorTest::base, sheet -> {
             base(sheet);
-            var style = sheet.getWorkbook().createCellStyle();
-            style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            sheet.getRow(3).getCell(1).setCellStyle(style);
+            fillYellow(sheet.getRow(3).getCell(1));
         })) {
             var rate = table(comparison, RATE);
             assertEquals(ChangeStatus.CHANGED, rate.status());
             assertTrue(rate.formattingChanged());
             assertTrue(rate.secondChanged().isEmpty());
             assertTrue(rate.rows().stream().allMatch(line -> line.status() == ChangeStatus.EQUAL));
+            assertTrue(rate.formattingOnly());
             assertFalse(table(comparison, MIN_AGE).formattingChanged());
+            assertFalse(table(comparison, MIN_AGE).formattingOnly());
+        }
+    }
+
+    @Test
+    void formattingChangedWithAValue_isNotFormattingOnly() throws IOException {
+        try (var comparison = compare(XlsWorkbookComparatorTest::base, sheet -> {
+            base(sheet);
+            fillYellow(sheet.getRow(3).getCell(1));
+            sheet.getRow(3).getCell(1).setCellValue("changed");
+        })) {
+            var rate = table(comparison, RATE);
+            assertTrue(rate.formattingChanged());
+            assertFalse(rate.secondChanged().isEmpty());
+            assertFalse(rate.formattingOnly());
         }
     }
 

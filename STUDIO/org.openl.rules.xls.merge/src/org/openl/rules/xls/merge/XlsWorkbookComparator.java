@@ -417,8 +417,7 @@ public final class XlsWorkbookComparator {
         var cells = new Cells(first, firstTable, second, secondTable, rows, columns);
         var rowChanges = Cells.lines(rows, cells.changedRows);
         var columnChanges = Cells.lines(columns, cells.changedColumns);
-        var equal = rowChanges.stream().allMatch(line -> line.status() == ChangeStatus.EQUAL)
-                && columnChanges.stream().allMatch(line -> line.status() == ChangeStatus.EQUAL);
+        var equal = LineChange.allEqual(rowChanges) && LineChange.allEqual(columnChanges);
         ChangeStatus status;
         if (!equal || cells.formattingChanged) {
             status = ChangeStatus.CHANGED;
