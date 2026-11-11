@@ -23,6 +23,10 @@ export const useStyles = createStyles(({ css, token }, onPaper: boolean) => {
         margin-left: auto;
         color: ${token.colorTextSecondary};
     `,
+        /** A cell of the block the reader picked with Shift, shaded the way a spreadsheet shades a range. */
+        selected: css`
+        box-shadow: inset 0 0 0 100vmax ${mark.colorPrimaryBg};
+    `,
         /** The cell the reader picked, marked the way a spreadsheet marks it. */
         picked: css`
         outline: 2px solid ${mark.colorPrimary};

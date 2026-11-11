@@ -559,6 +559,13 @@ i18next.addResourceBundle('en', 'repository', {
             edit_remove_row: 'Remove Row',
             edit_insert_column: 'Insert Column Before',
             edit_remove_column: 'Remove Column',
+            edit_merge: 'Merge Cells',
+            edit_unmerge: 'Unmerge Cells',
+            edit_merge_pick: 'Pick the first cell to merge, then Shift+click the last one.',
+            edit_merge_values: 'The cells hold different values, and a merged cell keeps one. Clear the others first.',
+            edit_merge_records: 'A Data, Test or Run table of a Markdown module merges no cells: a record is one row, '
+                + 'each element of a collection in columns of its own, such as drivers[0].name.',
+            edit_unmerge_pick: 'Pick a merged cell to take it apart.',
             edit_align_left: 'Align Left',
             edit_align_center: 'Align Center',
             edit_align_right: 'Align Right',
