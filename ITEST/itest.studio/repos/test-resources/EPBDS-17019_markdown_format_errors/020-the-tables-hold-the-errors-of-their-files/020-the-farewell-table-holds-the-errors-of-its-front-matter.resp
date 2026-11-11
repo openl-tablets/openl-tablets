@@ -1,0 +1,88 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "id": "###",
+      "summary": "'license' is not a key of the front matter: a table property is written under 'properties'",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "${FAREWELL}",
+        "name": "farewell",
+        "module": "Greetings",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "A1",
+        "start": 0,
+        "end": 40,
+        "path": "rules/Greetings/farewell.md",
+        "line": 4,
+        "places": [
+          {
+            "line": 4,
+            "column": 0,
+            "endLine": 4,
+            "endColumn": 19
+          }
+        ]
+      },
+      "stacktrace": true
+    },
+    {
+      "id": "###",
+      "summary": "The description of a table is the text between the front matter and the table, not a property under 'properties'",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "${FAREWELL}",
+        "name": "farewell",
+        "module": "Greetings",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "A1",
+        "start": 0,
+        "end": 40,
+        "path": "rules/Greetings/farewell.md",
+        "line": 6,
+        "places": [
+          {
+            "line": 6,
+            "column": 2,
+            "endLine": 6,
+            "endColumn": 39
+          }
+        ]
+      },
+      "stacktrace": true
+    },
+    {
+      "id": "###",
+      "summary": "The merged range A1:C1 is outside the table",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "${FAREWELL}",
+        "name": "farewell",
+        "module": "Greetings",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "A3",
+        "start": 0,
+        "end": 4,
+        "path": "rules/Greetings/farewell.md",
+        "line": 7,
+        "places": [
+          {
+            "line": 7,
+            "column": 0,
+            "endLine": 7,
+            "endColumn": 7
+          }
+        ]
+      },
+      "stacktrace": true
+    }
+  ]
+}

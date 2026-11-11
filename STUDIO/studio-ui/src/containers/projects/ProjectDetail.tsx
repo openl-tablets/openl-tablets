@@ -20,6 +20,8 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
+import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
+import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import type { Project, ProjectModule } from '../../types/projects'
 import type { FsNode } from '../../types/files'
 import { localizationRoute, moduleRoute } from '../../services/projectId'
@@ -227,8 +229,10 @@ export const ProjectDetail = ({
     const { isUserManagementEnabled } = useContext(SystemContext)
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
-    // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded.
+    // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded, and so does the
+    // line of it a compilation message sent the reader to (?line=…).
     const selectedFile = searchParams.get('file')
+    const selectedLine = Number(searchParams.get('line')) || undefined
     // Folders created in the UI but not yet on the server — shown as empty folders until a file lands
     // inside them, at which point the create-file request persists the whole chain.
     const [virtualFolders, setVirtualFolders] = useState<string[]>([])
@@ -281,6 +285,7 @@ export const ProjectDetail = ({
         } else {
             params.delete('file')
         }
+        params.delete('line')
     }), [updateSearch])
     // A tree that comes back without the selected path no longer holds it — the project was closed and
     // dropped its local file, the file was deleted, a revision without it was opened. The selection is
@@ -318,6 +323,10 @@ export const ProjectDetail = ({
     const canManageAccess = project?.capabilities?.canManage ?? false
     const canShowAccess = !isLocal && isUserManagementEnabled && canManageAccess
     const repositorySupportsBranches = supportsBranches({ features: repoFeatures })
+    // The compilation of the project, whose messages mark where a Markdown file of a module breaks the format.
+    const compiled = !!project && COMPILE_RELEVANT_STATUSES.has(project.status)
+    const compileStatus = useLiveProjectStatus(project?.id ?? '', project?.branch ?? null, compiled,
+        compiled ? project.compileStatus ?? null : null, statusReadAt)
     const repositorySupportsRevisionSearch = supportsRevisionSearch({ features: repoFeatures })
     const hasBranches = repositorySupportsBranches && !!project?.branch && !isLocal
     const tabKeys = [
@@ -408,13 +417,16 @@ export const ProjectDetail = ({
                 canDelete={canWriteFiles}
                 canWrite={canWriteFiles}
                 changedFiles={changedFiles}
+                compileStatus={compileStatus}
                 folders={folders}
+                line={selectedLine}
                 modules={moduleFiles}
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
                 onMoved={newPath => { setSelectedFile(newPath); void onChanged?.() }}
                 onOpenLocalization={() => navigate(localizationRoute(project.id))}
                 onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
+                onOpenTable={(moduleName, tableId) => navigate(moduleRoute(project.id, moduleName, tableId))}
                 path={selectedFile}
                 projectId={project.id}
                 projectName={project.name}

@@ -1,0 +1,55 @@
+POST /rest/projects/{PROJECT}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rating",
+  "sheetName": "Factors",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Rules",
+    "name": "ageFactor",
+    "source": [
+      [
+        {
+          "value": "SmartRules Double ageFactor(Integer age)"
+        },
+        {
+          "value": null
+        }
+      ],
+      [
+        {
+          "value": "age"
+        },
+        {
+          "value": "Output"
+        }
+      ],
+      [
+        {
+          "value": "< 25"
+        },
+        {
+          "value": "1.5"
+        }
+      ],
+      [
+        {
+          "value": "25 - 64"
+        },
+        {
+          "value": "1"
+        }
+      ],
+      [
+        {
+          "value": ">= 65"
+        },
+        {
+          "value": "1.2"
+        }
+      ]
+    ]
+  }
+}

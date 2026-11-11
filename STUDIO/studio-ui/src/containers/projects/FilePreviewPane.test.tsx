@@ -9,6 +9,17 @@ import {
     isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
+import { searchTables } from '../../services/modules'
+import type {
+    ProjectCompileState,
+    ProjectStatusDetailedMessage,
+    ProjectStatusMessageSource,
+    ProjectStatusUpdate,
+} from '../../services/projectStatus'
+
+vi.mock('../../services/modules', () => ({
+    searchTables: vi.fn(),
+}))
 
 vi.mock('../../services/files', () => ({
     downloadFile: vi.fn(),
@@ -57,8 +68,10 @@ vi.mock('./MoveFileModal', () => ({
 }))
 
 vi.mock('./CodeEditor', () => ({
-    CodeEditor: ({ onChange, readOnly, value }: Record<string, unknown>) => (
+    CodeEditor: ({ line, onChange, problems, readOnly, value }: Record<string, unknown>) => (
         <textarea
+            data-line={line as number | undefined}
+            data-problems={problems === undefined ? undefined : JSON.stringify(problems)}
             data-testid="code-editor"
             onChange={event => (onChange as (value: string) => void)(event.target.value)}
             readOnly={readOnly as boolean}
@@ -71,8 +84,17 @@ vi.mock('./CodeEditor', () => ({
 vi.mock('antd', async () => {
     const Button = ({ children, onClick, ...rest }: Record<string, unknown>) => {
         const { danger, disabled, icon, loading, size, type, ...dom } = rest
-        void danger; void icon; void loading; void size; void type
-        return <button disabled={disabled as boolean} onClick={onClick as never} {...dom}>{children as never}</button>
+        void danger; void icon; void loading; void size
+        return (
+            <button
+                data-type={type as string | undefined}
+                disabled={disabled as boolean}
+                onClick={onClick as never}
+                {...dom}
+            >
+                {children as never}
+            </button>
+        )
     }
     const Input = ({ onChange, onPressEnter, value, ...rest }: Record<string, unknown>) => {
         void onPressEnter
@@ -166,6 +188,30 @@ const baseProps = {
     repositoryId: 'repo1',
 }
 
+/** An error of a compilation, at the place given. */
+const error = (id: number, summary: string, location: ProjectStatusMessageSource): ProjectStatusDetailedMessage => ({
+    id,
+    summary,
+    severity: 'ERROR',
+    stacktrace: false,
+    location,
+})
+
+/** The status of a compilation of the modules given, in the state given, which raised the messages given. */
+const compiled = (
+    compileState: ProjectCompileState,
+    compiledModules: string[],
+    items: ProjectStatusDetailedMessage[]
+): ProjectStatusUpdate => ({
+    projectId: 'p1',
+    branch: 'main',
+    compileState,
+    compilation: {
+        messages: { items, total: items.length, errors: items.length, warnings: 0 },
+        modules: { compiledModules, total: 1, compiled: compiledModules.length },
+    },
+})
+
 describe('FilePreviewPane', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -228,6 +274,67 @@ describe('FilePreviewPane', () => {
         await screen.findByDisplayValue('first content')
 
         expect(checkMessageFiles).not.toHaveBeenCalled()
+    })
+
+    it('marks where the compilation of its module found a Markdown file breaking the format', async () => {
+        const place = { line: 4, column: 0, endLine: 4, endColumn: 19 }
+        const cellPlace = { line: 9, column: 0, endLine: 9, endColumn: 34 }
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules/Rating': 'Rating' }}
+                path="rules/Rating/rate.md"
+                compileStatus={compiled('errors', ['Rating'], [
+                    error(1, "'license' is not a key of the front matter",
+                        { type: 'module', name: 'Rating', path: 'rules/Rating/rate.md', line: 4, places: [place]}),
+                    error(2, 'The row has more cells than the first row of the table',
+                        { type: 'table', id: 't1', cell: 'B3', path: 'rules/Rating/rate.md', line: 9,
+                            places: [cellPlace]}),
+                    error(3, 'Another file',
+                        { type: 'module', name: 'Rating', path: 'rules/Rating/other.md', line: 1, places: [place]}),
+                ])}
+            />
+        )
+
+        await waitFor(() => expect(screen.getByTestId('code-editor')).toHaveAttribute('data-problems', JSON.stringify([
+            { message: "'license' is not a key of the front matter", severity: 'error', place },
+            { message: 'The row has more cells than the first row of the table', severity: 'error', place: cellPlace },
+        ])))
+        // Every such problem has its line: none is told over the text.
+        expect(screen.queryByTestId('file-problem')).toBeNull()
+    })
+
+    it.each([
+        ['while the project is not compiled', undefined],
+        ['while its module is compiling', compiled('compiling', ['Rating'], [])],
+        ['when the module compiled is another one', compiled('ok', ['Main'], [])],
+    ])('marks nothing in a Markdown file %s', async (unused, compileStatus) => {
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                compileStatus={compileStatus}
+                modules={{ 'rules/Rating': 'Rating' }}
+                path="rules/Rating/rate.md"
+            />
+        )
+        await screen.findByDisplayValue('first content')
+
+        // The messages of another compilation, or of a running one, are not those of the file
+        expect(screen.getByTestId('code-editor')).not.toHaveAttribute('data-problems')
+    })
+
+    it('neither marks nor checks a Markdown file of no module folder', async () => {
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                compileStatus={compiled('ok', ['Rating'], [])}
+                modules={{ 'rules/Rating': 'Rating' }}
+                path="docs/README.md"
+            />
+        )
+        await screen.findByDisplayValue('first content')
+
+        expect(screen.getByTestId('code-editor')).not.toHaveAttribute('data-problems')
     })
 
     it('keeps the dirty file open when a file switch is cancelled', async () => {
@@ -330,6 +437,19 @@ describe('FilePreviewPane', () => {
         await waitFor(() => expect(getFileContent).toHaveBeenCalledTimes(2))
     })
 
+    it('shows the file at the line it is opened on, and no line for a file still shown while it is left', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} line={3} path="first.txt" reloadToken={0} />)
+
+        expect((await screen.findByDisplayValue('first content')).getAttribute('data-line')).toBe('3')
+
+        await userEvent.click(screen.getByTestId('file-edit'))
+        await userEvent.type(screen.getByTestId('code-editor'), '!')
+        rerender(<FilePreviewPane {...baseProps} line={5} path="second.txt" reloadToken={0} />)
+
+        // The switch waits for the changes to be discarded; the line is the next file's
+        expect(screen.getByTestId('code-editor').getAttribute('data-line')).toBeNull()
+    })
+
     it('shows the empty state when no file is selected', () => {
         render(<FilePreviewPane {...baseProps} path={null} />)
         expect(screen.getByTestId('file-preview-empty')).toBeTruthy()
@@ -366,6 +486,72 @@ describe('FilePreviewPane', () => {
         // Exporting it stays in the toolbar; what the placeholder offers is the editor.
         expect(downloadFile).not.toHaveBeenCalled()
     })
+
+    it('opens in the editor the table a Markdown file of a module folder holds', async () => {
+        vi.mocked(searchTables).mockResolvedValue([
+            {
+                file: 'Project/rules/Rating/Factors/baseRate.md', id: 't1', kind: 'Rules', name: 'baseRate',
+                tableType: 'SmartRules',
+            },
+            {
+                file: 'Project/rules/Rating/Factors/rate.md', id: 't2', kind: 'Rules', name: 'rate',
+                tableType: 'SmartRules',
+            },
+        ])
+        const onOpenTable = vi.fn()
+
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules': 'Main', 'rules/Rating': 'Rating' }}
+                onOpenTable={onOpenTable}
+                path="rules/Rating/Factors/rate.md"
+            />
+        )
+        await screen.findByDisplayValue('first content')
+        // The way into the table is the action of the file, as the way into the messages is for a localization file
+        expect(screen.getByTestId('file-open-table')).toHaveAttribute('data-type', 'primary')
+        await userEvent.click(screen.getByTestId('file-open-table'))
+
+        // The deepest module folder holding the file is its module
+        await waitFor(() => expect(onOpenTable).toHaveBeenCalledWith('Rating', 't2'))
+        expect(searchTables).toHaveBeenCalledWith('p1', { module: 'Rating' })
+    })
+
+    it('tells that a Markdown file of a module folder holds no table to open', async () => {
+        vi.mocked(searchTables).mockResolvedValue([])
+        const onOpenTable = vi.fn()
+
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules/Rating': 'Rating' }}
+                onOpenTable={onOpenTable}
+                path="rules/Rating/Factors/notes.md"
+            />
+        )
+        await userEvent.click(await screen.findByTestId('file-open-table'))
+
+        await waitFor(() => expect(notification.info).toHaveBeenCalledWith({ title: 'browser.files.no_table' }))
+        expect(onOpenTable).not.toHaveBeenCalled()
+    })
+
+    it.each(['docs/README.md', 'rules/RatingNotes/rate.md', 'rules/Rating/Factors/rate.txt'])(
+        'offers no table to open for %s, which no module folder holds as a table',
+        async path => {
+            render(
+                <FilePreviewPane
+                    {...baseProps}
+                    modules={{ 'rules/Rating': 'Rating' }}
+                    onOpenTable={vi.fn()}
+                    path={path}
+                />
+            )
+            await screen.findByDisplayValue('first content')
+
+            expect(screen.queryByTestId('file-open-table')).toBeNull()
+        }
+    )
 
     it('offers the export for a workbook that is no module of the project', async () => {
         vi.mocked(isEditableTextFile).mockReturnValue(false)

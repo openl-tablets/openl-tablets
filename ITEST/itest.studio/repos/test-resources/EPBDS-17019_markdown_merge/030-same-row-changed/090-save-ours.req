@@ -1,0 +1,7 @@
+PATCH /rest/projects/{PROJECT} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "comment": "EPBDS-17019 Write ours of EPBDS-17019-same-row-changed"
+}

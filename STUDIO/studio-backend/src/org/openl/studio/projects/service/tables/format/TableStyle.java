@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableSignaturePart;
 
 /**
  * The OpenL table style: the look of each role of a table, written into a workbook as an Excel built-in cell style.
@@ -144,6 +145,25 @@ enum TableStyle {
 
         /** The double line below the result. */
         static final Line RESULT_BELOW = new Line(BorderStyle.DOUBLE, ROLE.colour());
+    }
+
+    /**
+     * What a piece of the signature looks like, in the heading font of the theme: the name bold, the names of the
+     * parameters in the text colour, and the rest lighter.
+     *
+     * @param bold   whether the piece is bold
+     * @param colour the colour of the piece
+     */
+    record Piece(boolean bold, ThemedColor colour) {
+
+        /** The look of a part of the signature. */
+        static Piece of(RawTableSignaturePart part) {
+            return switch (part) {
+                case NAME -> new Piece(true, Look.TEXT);
+                case PARAMETER_NAME -> new Piece(false, Look.TEXT);
+                case KEYWORD, TYPE, PUNCTUATION, PARAMETER_TYPE -> new Piece(false, Look.MUTED);
+            };
+        }
     }
 
     /**

@@ -1096,6 +1096,18 @@ describe('TableEditor', () => {
         ], 'Claims', undefined))
     })
 
+    it('offers no Excel formula editor in a table of a Markdown file, which holds no Excel formulas', async () => {
+        draw({ plainText: true })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+
+        // An OpenL formula is a text, which the file holds as it is
+        expect(await screen.findByText('browser.module.editor_kind_formula')).toBeInTheDocument()
+        expect(screen.queryByText('browser.module.editor_kind_excelFormula')).not.toBeInTheDocument()
+    })
+
     it('writes an Excel formula without the spaces typed around it', async () => {
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
@@ -1328,6 +1340,16 @@ describe('TableEditor', () => {
         // A TBasic table reads the levels of its steps from the indent, so the indent stays.
         draw({ kind: 'TBasic' })
         expect(await offered()).toEqual(['indent'])
+        cleanup()
+
+        // A Markdown file keeps no formatting: the look of its table is OpenL Studio's own. It keeps the indent of a
+        // TBasic table, its structure, as non-breaking spaces.
+        drawFormatting({ kind: 'TBasic', plainText: true })
+        expect(await offered()).toEqual(['indent'])
+        cleanup()
+
+        drawFormatting({ kind: 'Rules', plainText: true })
+        expect(await offered()).toEqual([])
     })
 
     it('writes several numbers into an array cell, and lets nothing else in', async () => {

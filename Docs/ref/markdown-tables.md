@@ -222,15 +222,31 @@ table: Data Policy policies
 
 - An error points at the cell of the table, at the header of the table when no cell shows it, such as a key of the
   front matter, or at the line of the file when the file holds no table. Each error tells the line of the file as
-  well: only the text of the file shows what breaks the format.
+  well, which OpenL Studio opens it on: only the text of the file shows what breaks the format.
 - Other messages are those of a workbook, word for word.
+
+## Editing in OpenL Studio
+
+| Action | Result in the file |
+|---|---|
+| Change a cell, a row, a column | Only the rows that changed are written; the rest keep their text |
+| Change a property, merge or unmerge cells | Only the keys that changed are written |
+| Merge cells of a Data, Test or Run table | Refused: a record is one row; a workbook merges them as before |
+| Merge a row of a Spreadsheet across the table, or unmerge it | The table is split into parts at the caption, or its parts are joined |
+| Change the description | The text above the table is written where its first block stood; the comments stay |
+| Create a table | A new file named after the table, in the folder of its category |
+| Copy a table | Between workbooks and Markdown modules, both ways: the table and its description, without the comments and the text after it; a Data, Test or Run table gets a row for each record |
+| Remove a table | The file is deleted; the last table of a module stays |
+| Change the look | Refused: a file keeps no formatting; OpenL Studio draws the table in the OpenL table style |
+| Write an Excel formula | Refused: a text starting with `=` is an OpenL formula, written as it is |
+| Save over a file another program changed | Refused, as for a workbook: the file keeps what the other program wrote |
 
 ## Not Kept
 
 | Excel feature | In a Markdown file |
 |---|---|
 | Formula | The value the formula computed |
-| Formatting, colours, comments | None |
+| Formatting, colours, comments | None; the Excel Formatting view lays the OpenL table style over the table |
 | Order of tables on a sheet | The order of the file names |
 | Several tables in one place | One table per file |
 

@@ -149,8 +149,9 @@ folder. So the projects of a design repository on the file system are edited whe
   of the file with the ones it remembers, and tells a workbook read from another file than the compiled one, such as
   one read again from content another program changed keeping the size and the time. `ProjectModel.isChangedOnDisk()`
   asks every workbook compiled for the open project. A workbook added to the modules of the project, one taken away,
-  and a changed `rules.xml` count too:
-  the model remembers the descriptor and the workbooks of the modules it compiled, and `checkProjectFiles()` reads the
+  a Markdown file added to a module folder, and a changed `rules.xml` count too:
+  the model remembers the descriptor, the workbooks of the modules it compiled and the Markdown files of its module
+  folders, and `checkProjectFiles()` reads the
   descriptor again when the repository watcher reports a change, since that costs a read of the folder. The status of
   the project answers it as `changedOnDisk`, and a change the watcher reports publishes the status on the channel of
   the project. The status in short,

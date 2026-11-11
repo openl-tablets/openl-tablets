@@ -22,6 +22,7 @@ import type { ConfirmWrite } from './useOverwriteConfirm'
 import { EXERCISING_KINDS } from 'constants/tableKinds'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
 import { versionLabel } from '../../utils/tableVersion'
+import { isMarkdownPath } from '../../utils/workbooks'
 import { useActionBandStyles } from './actionBand.styles'
 import { BandAction } from './BandAction'
 import { useDateFormats } from '../../utils/dateFormat'
@@ -315,12 +316,14 @@ export const TableToolbar = ({
         },
     }))
 
-    // Asked before it is done, as the old Editor asked: the table goes from the sheet it is written on, and
-    // only saving the project carries that to the Design repository.
+    // Asked before it is done, as the old Editor asked: the table goes from the sheet it is written on, or with its
+    // file from a Markdown module, and only saving the project carries that to the Design repository.
     const remove = () => {
         modal.confirm({
             title: t('browser.module.remove_confirm', { table: versionLabel(table.name, table.dimensions, patterns) }),
-            content: t('browser.module.remove_confirm_body'),
+            content: t(isMarkdownPath(table.file)
+                ? 'browser.module.remove_confirm_markdown_body'
+                : 'browser.module.remove_confirm_body'),
             okButtonProps: { danger: true },
             okText: t('browser.module.remove'),
             onOk: async () => {

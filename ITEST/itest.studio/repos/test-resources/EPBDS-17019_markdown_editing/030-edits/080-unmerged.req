@@ -1,0 +1,12 @@
+POST /rest/projects/{PROJECT}/tables/{AGE_FACTOR}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "unmerge",
+  "target": {
+    "type": "cells",
+    "row": 3,
+    "column": 1
+  }
+}

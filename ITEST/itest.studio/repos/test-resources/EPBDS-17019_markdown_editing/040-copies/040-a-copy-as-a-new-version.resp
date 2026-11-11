@@ -1,0 +1,17 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "ageFactor",
+  "properties": {
+    "version": "0.0.2"
+  },
+  "returnType": "Double",
+  "signature": "ageFactor(Integer age)",
+  "file": "EPBDS-17019-markdown-editing/rules/Rating/ageFactor.md",
+  "sheet": "Rating",
+  "pos": "A1:C6"
+}

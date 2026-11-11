@@ -41,6 +41,18 @@ export interface ProjectStatusModuleMessageSource {
     /** The project the module belongs to, which is not always the one compiled: a dependency is a project too */
     projectId?: string
     project?: string
+    /**
+     * The path in the project of the file the message points to, such as a Markdown file of a module folder that
+     * holds no table. Absent when the message points to no line of a file.
+     */
+    path?: string
+    /** The line of that file, counted from 1. */
+    line?: number
+    /**
+     * Where the message is in that file, for an editor of the file to mark: the text of the line of a Markdown file
+     * that breaks the format.
+     */
+    places?: FilePlace[]
 }
 
 export interface ProjectStatusTableMessageSource {
@@ -56,6 +68,16 @@ export interface ProjectStatusTableMessageSource {
     start?: number
     /** Character of the cell's text after the last one the message is about. */
     end?: number
+    /**
+     * The path in the project of the Markdown file the table is written in, for a message about a place that breaks
+     * the format of the file: only the text of the file tells what is wrong, so a screen sends the reader there rather
+     * than to the cell. Absent for any other message.
+     */
+    path?: string
+    /** The line of that file, counted from 1. */
+    line?: number
+    /** Where the message is in that file, for an editor of the file to mark. */
+    places?: FilePlace[]
     /** The project the table belongs to, which is not always the one compiled: a dependency is a project too */
     projectId?: string
     project?: string

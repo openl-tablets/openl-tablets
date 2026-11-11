@@ -1,0 +1,9 @@
+POST /rest/projects/{PROJECT}/tables/{AGE_FACTOR}/copy HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rating",
+  "sheetName": "Archive",
+  "name": "ageFactor"
+}

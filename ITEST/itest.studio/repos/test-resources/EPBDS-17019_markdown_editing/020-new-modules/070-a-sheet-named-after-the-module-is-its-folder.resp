@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Coverage",
+  "signature": "Coverage",
+  "file": "EPBDS-17019-markdown-editing/rules/Rating-v2/Coverage.md",
+  "sheet": "Rating-v2",
+  "pos": "A1:B2"
+}

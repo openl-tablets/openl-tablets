@@ -143,10 +143,16 @@ describe("table contracts", () => {
     expect(append([[]])).toBe(false);
   });
 
-  it("accepts only an xlsx modulePath", () => {
+  it("accepts an xlsx workbook or a folder of Markdown files as the modulePath", () => {
     const base = { projectId: "p1", module: "Rules", name: "Rate", rows: [["x"]] };
-    expect(createProjectTableSchema.safeParse({ ...base, modulePath: "rules/Rules.xlsx" }).success).toBe(true);
-    expect(createProjectTableSchema.safeParse({ ...base, modulePath: "rules/Rules.xls" }).success).toBe(false);
+    const accepts = (modulePath: string) => createProjectTableSchema.safeParse({ ...base, modulePath }).success;
+    expect(accepts("rules/Rules.xlsx")).toBe(true);
+    expect(accepts("rules/Rating")).toBe(true);
+    expect(accepts("rules/Rating/")).toBe(true);
+    expect(accepts("rules/Rules.xls")).toBe(false);
+    expect(accepts("rules/Rating.v2")).toBe(false);
+    expect(accepts("rules/rate.md")).toBe(false);
+    expect(accepts("///")).toBe(false);
   });
 });
 
@@ -174,6 +180,7 @@ describe("table workflow schemas", () => {
     expect(copyTableSchema.safeParse(valid).success).toBe(true);
     expect(copyTableSchema.safeParse({ ...valid, modulePath: "rules/Copy.xlsx" }).success).toBe(true);
     expect(copyTableSchema.safeParse({ ...valid, modulePath: "rules/Copy.xls" }).success).toBe(false);
+    expect(copyTableSchema.safeParse({ ...valid, modulePath: "rules/Copies" }).success).toBe(true);
     expect(copyTableSchema.safeParse({ ...valid, name: " " }).success).toBe(false);
   });
 });

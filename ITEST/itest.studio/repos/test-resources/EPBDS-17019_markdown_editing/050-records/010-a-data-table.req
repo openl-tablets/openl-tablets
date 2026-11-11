@@ -1,0 +1,47 @@
+POST /rest/projects/{PROJECT}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Model",
+  "sheetName": "Data",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Data",
+    "name": "drivers",
+    "source": [
+      [
+        {
+          "value": "Data Driver drivers"
+        },
+        {
+          "value": null
+        }
+      ],
+      [
+        {
+          "value": "name"
+        },
+        {
+          "value": "age"
+        }
+      ],
+      [
+        {
+          "value": "Anna"
+        },
+        {
+          "value": 30
+        }
+      ],
+      [
+        {
+          "value": "Bob"
+        },
+        {
+          "value": 22
+        }
+      ]
+    ]
+  }
+}

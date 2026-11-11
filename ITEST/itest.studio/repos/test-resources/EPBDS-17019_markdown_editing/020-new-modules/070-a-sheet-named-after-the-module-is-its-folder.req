@@ -1,0 +1,32 @@
+POST /rest/projects/{PROJECT}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rating.v2",
+  "modulePath": "rules/Rating-v2",
+  "sheetName": "Rating.v2",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "Coverage",
+    "source": [
+      [
+        {
+          "value": "Datatype Coverage"
+        },
+        {
+          "value": null
+        }
+      ],
+      [
+        {
+          "value": "String"
+        },
+        {
+          "value": "code"
+        }
+      ]
+    ]
+  }
+}

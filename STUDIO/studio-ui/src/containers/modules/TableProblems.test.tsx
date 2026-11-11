@@ -33,6 +33,14 @@ describe('TableProblems', () => {
         expect(screen.getByTestId('table-problems-partial')).toHaveTextContent('browser.module.partial_table')
     })
 
+    it('sends the reader to the files of the parts of a Markdown table', () => {
+        render(<TableProblems markdown partial messages={[]} />)
+
+        // The parts of a Markdown table are files of their own, changed as text rather than in Excel
+        expect(screen.getByTestId('table-problems-partial'))
+            .toHaveTextContent('browser.module.partial_markdown_table')
+    })
+
     it('counts what the table raised, and lists it by severity', () => {
         const raised = [
             message(1, 'ERROR', 'Identifier is not found'),
@@ -61,6 +69,28 @@ describe('TableProblems', () => {
         expect(onEditCell).toHaveBeenCalledWith('D9')
         // A message that names no cell has none to open.
         expect(screen.queryByTestId('table-message-2-edit')).toBeNull()
+    })
+
+    it('sends the reader to the line of the Markdown file a format error is about, not to its cell', async () => {
+        const onEditCell = vi.fn()
+        const onOpenFile = vi.fn()
+        const raised: ProjectStatusDetailedMessage[] = [{
+            ...message(1, 'ERROR', 'The row has more cells than the first row of the table'),
+            location: { type: 'table', cell: 'B3', start: 0, end: 4, path: 'rules/Main/salute.md', line: 9 },
+        }]
+        render(<TableProblems
+            cellText={() => 'Good Morning'}
+            messages={raised}
+            onEditCell={onEditCell}
+            onOpenFile={onOpenFile}
+        />)
+
+        await userEvent.click(screen.getByTestId('table-message-1-file'))
+
+        expect(onOpenFile).toHaveBeenCalledWith('rules/Main/salute.md', 9)
+        // The cell shows nothing of what breaks the file: neither its text nor the way into it is offered.
+        expect(screen.queryByTestId('table-message-1-edit')).toBeNull()
+        expect(screen.queryByTestId('table-message-1-code')).toBeNull()
     })
 
     it('offers no way in to a reader who may not write the table', () => {

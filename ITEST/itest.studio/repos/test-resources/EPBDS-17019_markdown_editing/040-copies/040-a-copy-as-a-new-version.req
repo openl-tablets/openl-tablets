@@ -1,0 +1,14 @@
+POST /rest/projects/{PROJECT}/tables/{AGE_FACTOR}/copy HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rating",
+  "name": "ageFactor",
+  "properties": [
+    {
+      "name": "version",
+      "value": "0.0.2"
+    }
+  ]
+}

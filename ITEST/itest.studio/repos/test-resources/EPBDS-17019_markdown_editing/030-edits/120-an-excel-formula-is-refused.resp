@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.markdown.layout.message",
+  "message": "The Excel formula '=1+1' cannot be written in a Markdown table, which holds values and OpenL formulas: the table is not written."
+}

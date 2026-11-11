@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -34,6 +35,10 @@ import org.openl.studio.projects.model.ProjectTypeKind;
 import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
+import org.openl.studio.projects.model.files.FileNode;
+import org.openl.studio.projects.service.files.FileCriteriaQuery;
+import org.openl.studio.projects.service.files.FileRoot;
+import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
@@ -43,6 +48,8 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.DomainUtils;
 import org.openl.util.EnumUtils;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -182,13 +189,20 @@ public class ProjectMetadataService {
     }
 
     /**
-     * Worksheets of a module, read from the module's workbook itself.
+     * Worksheets of a module, read from the files of the module itself.
      *
-     * <p>The file is read rather than the compiled module, so the sheets of a module that does not compile are
+     * <p>The files are read rather than the compiled module, so the sheets of a module that does not compile are
      * listed too, and listing them costs no compilation.
+     *
+     * <p>A module written as a folder of Markdown files reads each file as a sheet named after the folder it is in.
+     * Its sheets are those folders, the module folder first.
      */
     public List<String> getSheets(RulesProject project, String modulePath) {
-        var resource = projectFilesService.getResource(projectFileRootFactory.of(project), modulePath, null);
+        var root = projectFileRootFactory.of(project);
+        if (!FileTypeHelper.isExcelFile(modulePath)) {
+            return markdownSheets(root, modulePath);
+        }
+        var resource = projectFilesService.getResource(root, modulePath, null);
         ExcelUtils.configureZipBombDetection();
         try (var content = resource.getContent(); var workbook = WorkbookFactory.create(content)) {
             return IntStream.range(0, workbook.getNumberOfSheets()).mapToObj(workbook::getSheetName).toList();
@@ -196,6 +210,19 @@ public class ProjectMetadataService {
             log.warn("Cannot read the workbook of module '{}'.", modulePath, e);
             throw new BadRequestException("project.module.workbook.message", new Object[]{modulePath});
         }
+    }
+
+    private List<String> markdownSheets(FileRoot root, String modulePath) {
+        // The folder as the files of the project name it: a module path may end with '/' or start with './'
+        var folder = Path.of(modulePath).normalize().toString().replace('\\', '/');
+        var files = FileCriteriaQuery.builder().basePath(folder).extension("md").build();
+        return projectFilesService.getResources(root, files, true, FileViewMode.FLAT, null)
+                .stream()
+                .filter(FileNode.class::isInstance)
+                .sorted(Comparator.comparing(file -> !folder.equals(file.getBasePath())))
+                .map(file -> FileUtils.getName(file.getBasePath()))
+                .distinct()
+                .toList();
     }
 
     /**

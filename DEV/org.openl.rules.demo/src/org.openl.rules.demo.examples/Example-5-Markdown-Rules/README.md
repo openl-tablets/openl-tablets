@@ -52,11 +52,17 @@ policy.
   pattern `%lob%-%state%`, the folders `rules/Auto-CA` and `rules/Auto-NY` are the versions of a module for two
   states. The files inside a module folder are not matched: a table writes its own properties in its front matter.
 
+In OpenL Studio the tables of a Markdown module are shown, run, tested, traced and edited as any others, all but their
+look: a Markdown file keeps no formatting. With **Excel Formatting** on, a table is drawn in the OpenL table style, as
+a table of a workbook formatted on save; the style is never written into the file. A file is also edited as text, on
+the **Files** tab of the project, where **Open in Editor** opens the table of the file in the editor.
+
 ## Format errors
 
 - An error of a Markdown file reads as the error of a workbook: its text tells what is wrong, and its link leads to the
   place.
-- A file whose front matter breaks the format holds no table. The error points at the line of the file.
+- A file whose front matter breaks the format holds no table. The error points at the line of the file, and OpenL
+  Studio opens the file on that line, on the **Files** tab.
 - A table whose body breaks the format is read without the part that breaks it: a merged range over a value, over
   another range or outside the table, any merged range of a Data, Test or Run table, the cells of a row beyond those of the first row, the rows a blank line cuts
   off. So is a table whose front matter holds a key other than `table`, `properties` and `merges`, such as a property

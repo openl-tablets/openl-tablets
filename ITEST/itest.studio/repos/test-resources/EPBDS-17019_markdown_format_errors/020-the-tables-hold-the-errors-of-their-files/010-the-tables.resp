@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "name": "farewell",
+      "errors": 3
+    },
+    {
+      "id": "***",
+      "name": "greeting"
+    },
+    {
+      "id": "***",
+      "name": "salute",
+      "errors": 1
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}

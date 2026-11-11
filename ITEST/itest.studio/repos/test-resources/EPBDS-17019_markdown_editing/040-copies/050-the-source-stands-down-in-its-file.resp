@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: text/markdown
+Content-Disposition: attachment; filename=ageFactor.md; filename*=UTF-8''ageFactor.md
+
+---
+table: SmartRules Double ageFactor(Integer age)
+properties:
+  active: false
+  version: 0.0.1
+---
+
+Factor of the driver age.
+
+| age | Output |
+|---|---|
+| < 25 | 1.5 |
+| 25 - 64 |  |
+| >= 65 | 1.3 |

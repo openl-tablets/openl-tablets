@@ -223,6 +223,45 @@ describe('ModuleActionBar', () => {
         expect(screen.queryByTestId('module-createTable')).toBeNull()
     })
 
+    it('offers a new table but no new workbook for a folder of Markdown files', async () => {
+        render(
+            <ModuleActionBar
+                moduleName="Greetings"
+                modulePath="rules/Greetings"
+                project={project({ canWrite: true })}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        // The table is written as a file of its own
+        expect(screen.getByTestId('module-createTable')).toBeEnabled()
+        expect(screen.queryByTestId('module-update')).toBeNull()
+        // A folder of files is downloaded with the project, not on its own.
+        expect(screen.getByTestId('module-export')).toBeDisabled()
+        // A Markdown file keeps no versions of its own to restore
+        await userEvent.click(screen.getByTestId('module-more'))
+        expect(await screen.findByText('browser.module.dependencies')).toBeInTheDocument()
+        expect(screen.queryByText('browser.module.local_changes')).toBeNull()
+    })
+
+    it('downloads a Markdown module written as a single file', async () => {
+        render(
+            <ModuleActionBar
+                moduleName="Greetings"
+                modulePath="rules/Greetings.md"
+                project={project({ canWrite: true })}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        expect(screen.queryByTestId('module-createTable')).toBeNull()
+        expect(screen.getByTestId('module-export')).toBeEnabled()
+    })
+
     it('offers no new table to a reader who may not write to the project', async () => {
         await bar()
 

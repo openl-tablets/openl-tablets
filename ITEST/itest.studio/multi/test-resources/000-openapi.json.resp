@@ -30379,7 +30379,7 @@ Content-Type: application/json
           "modulePath": {
             "type": "string",
             "description": "***",
-            "pattern": "(?i).+\\.xlsx$"
+            "pattern": "(?i).+\\.xlsx|/*[^./][^.]*"
           },
           "name": {
             "type": "string",
@@ -30477,7 +30477,7 @@ Content-Type: application/json
           "modulePath": {
             "type": "string",
             "description": "***",
-            "pattern": "(?i).+\\.xlsx$"
+            "pattern": "(?i).+\\.xlsx|/*[^./][^.]*"
           },
           "regions": {
             "type": "array",
@@ -33218,9 +33218,25 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "***"
+              },
+              "places": {
+                "type": "array",
+                "description": "Places of the file the message is in, so an editor of the file marks them: the text of the line of a Markdown file that breaks the format. Told only when the positions in the file are asked for, as the compilation status tells them.",
+                "items": {
+                  "$ref": "#/components/schemas/FilePlace"
+                }
               },
               "project": {
                 "type": "string",
@@ -33243,9 +33259,25 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "***"
+              },
+              "places": {
+                "type": "array",
+                "description": "Places of the file the message is in, so an editor of the file marks them: the text of the line of a Markdown file that breaks the format. Told only when the positions in the file are asked for, as the compilation status tells them.",
+                "items": {
+                  "$ref": "#/components/schemas/FilePlace_Detailed"
+                }
               },
               "project": {
                 "type": "string",
@@ -38038,6 +38070,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Line of that file the message points to, counted from 1."
+              },
               "module": {
                 "type": "string",
                 "description": "***"
@@ -38045,6 +38082,17 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "Path in the project of the Markdown file the table is written in, for a message about a place that breaks the format of the file: only the text of the file tells what is wrong, so a screen sends the reader there rather than to the cell. Absent for any other message."
+              },
+              "places": {
+                "type": "array",
+                "description": "Places of that Markdown file the message is in, so an editor of the file marks them: the text of the line that breaks the format. Told only when the positions in the file are asked for, as the compilation status tells them.",
+                "items": {
+                  "$ref": "#/components/schemas/FilePlace"
+                }
               },
               "project": {
                 "type": "string",
@@ -38085,6 +38133,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Line of that file the message points to, counted from 1."
+              },
               "module": {
                 "type": "string",
                 "description": "***"
@@ -38092,6 +38145,17 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "path": {
+                "type": "string",
+                "description": "Path in the project of the Markdown file the table is written in, for a message about a place that breaks the format of the file: only the text of the file tells what is wrong, so a screen sends the reader there rather than to the cell. Absent for any other message."
+              },
+              "places": {
+                "type": "array",
+                "description": "Places of that Markdown file the message is in, so an editor of the file marks them: the text of the line that breaks the format. Told only when the positions in the file are asked for, as the compilation status tells them.",
+                "items": {
+                  "$ref": "#/components/schemas/FilePlace_Detailed"
+                }
               },
               "project": {
                 "type": "string",

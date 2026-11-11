@@ -393,6 +393,7 @@ final class HttpData {
                  "text/event-stream",
                  "text/javascript",
                  "text/html",
+                 "text/markdown",
                  "text/plain",
                  "image/svg+xml" ->
                     Comparators.txt(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));

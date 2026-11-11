@@ -224,7 +224,7 @@ class FormatOnCreateBoundTest {
         when(properties.onCreate()).thenReturn(Map.of());
         var factory = new TableWritersFactory(formatting);
         var creator = new TableCreatorService(factory, new TableWriterExecutor(), mock(ProjectFilesService.class),
-                mock(ProjectFileRootFactory.class), properties, formatting);
+                mock(ProjectFileRootFactory.class), properties, formatting, null);
         var view = view(rows);
         if (bind) {
             creator.createTable(new CreateNewTableRequest("Main", SHEET, null, view, null), model);

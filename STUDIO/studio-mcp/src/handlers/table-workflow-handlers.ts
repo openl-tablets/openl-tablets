@@ -195,7 +195,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Copy Table",
     description:
-      "Copy a table within its project, with its formatting, merges and comments, under a new name into a module, or into a new .xlsx module at modulePath. Example: {\"tableId\":\"AgeFactor\",\"module\":\"Rules\",\"name\":\"AgeFactorNY\",\"properties\":{\"state\":\"NY\"}}. Answers the 'tableId' and 'version' of the copy.",
+      "Copy a table within its project, with its formatting, merges and comments, under a new name into a module, or into a new module at modulePath. Example: {\"tableId\":\"AgeFactor\",\"module\":\"Rules\",\"name\":\"AgeFactorNY\",\"properties\":{\"state\":\"NY\"}}. Answers the 'tableId' and 'version' of the copy.",
     schema: schemas.copyTableSchema,
     aliases: TABLE_ID_ALIAS,
     annotations: {

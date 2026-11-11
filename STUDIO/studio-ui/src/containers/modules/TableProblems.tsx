@@ -83,6 +83,8 @@ interface TableProblemsProps {
     messages: ProjectStatusDetailedMessage[]
     /** Opens the cell a message was raised against; absent for a reader who may not write the table. */
     onEditCell?: ((cell: string) => void) | undefined
+    /** Opens the file a message about a Markdown file that breaks the format points to, on its line. */
+    onOpenFile?: ((path: string, line: number | undefined) => void) | undefined
     /** Reads the stack trace behind a message, when the reader opens it. */
     onStacktrace?: ((message: ProjectStatusDetailedMessage) => Promise<string>) | undefined
     /** The text a cell of this table holds, so a message can show the rule it was raised about. */
@@ -92,6 +94,8 @@ interface TableProblemsProps {
      * whole point of the notice — the reader is otherwise left wondering why nothing can be edited.
      */
     partial?: boolean
+    /** Set on a table of a Markdown file, whose parts are files changed as text rather than in Excel. */
+    markdown?: boolean
 }
 
 /**
@@ -101,7 +105,15 @@ interface TableProblemsProps {
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
  */
-export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, partial = false }: TableProblemsProps) => {
+export const TableProblems = ({
+    messages,
+    onEditCell,
+    onOpenFile,
+    onStacktrace,
+    cellText,
+    partial = false,
+    markdown = false,
+}: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
@@ -154,13 +166,14 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, pa
                         {partial && (
                             <div className={styles.partial} data-testid="table-problems-partial">
                                 <WarningFilled className={styles.warningMark} />
-                                {t('browser.module.partial_table')}
+                                {t(markdown ? 'browser.module.partial_markdown_table' : 'browser.module.partial_table')}
                             </div>
                         )}
                         <CompileMessages
                             cellText={cellText}
                             messages={errors}
                             onEditCell={onEditCell}
+                            onOpenFile={onOpenFile}
                             onStacktrace={onStacktrace}
                             severity="error"
                             testIdPrefix="table-message"
@@ -169,6 +182,7 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, pa
                             cellText={cellText}
                             messages={warnings}
                             onEditCell={onEditCell}
+                            onOpenFile={onOpenFile}
                             onStacktrace={onStacktrace}
                             severity="warning"
                             testIdPrefix="table-message"
