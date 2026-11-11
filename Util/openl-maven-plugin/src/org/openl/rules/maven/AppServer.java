@@ -2,10 +2,9 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
@@ -64,26 +63,44 @@ public class AppServer {
             server.start();
 
             var port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-            try (var client = HttpClient.newBuilder()
-                    .executor(Runnable::run) // To prevent memory leak via the default thread pool
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .connectTimeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
-                    .build()) {
-                var uri = new URI("http://localhost:" + port + "/admin/healthcheck/readiness");
-                var req = HttpRequest.newBuilder()
-                        .uri(uri)
-                        .timeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
-                        .GET()
-                        .build();
-                var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-                if (resp.statusCode() != 200 || !resp.body().equals("READY")) {
-                    throw new IOException("Server startup failure: " + resp);
-                }
-            }
+            var uri = new URI("http://localhost:" + port + "/admin/healthcheck/readiness");
+            checkReadiness(uri, Duration.ofSeconds(60)); // wait a minute, it is usual enough a second
         } finally {
             server.stop();
             server.destroy();
             Files.deleteIfExists(warFolder);
+        }
+    }
+
+    /**
+     * Asks the application whether it is ready to serve requests.
+     *
+     * <p>The request is sent and awaited in the calling thread. An answer that does not come in time fails
+     * the check, even when the application has lost the threads that serve its requests, as it happens after
+     * an {@link OutOfMemoryError}.
+     *
+     * @param uri     - address of the readiness check of the application
+     * @param timeout - how long to wait for the connection, and then for the answer
+     * @throws IOException if the application does not answer in time or is not ready
+     */
+    static void checkReadiness(URI uri, Duration timeout) throws IOException {
+        var connection = (HttpURLConnection) uri.toURL().openConnection();
+        connection.setConnectTimeout((int) timeout.toMillis());
+        connection.setReadTimeout((int) timeout.toMillis());
+        connection.setRequestProperty("Connection", "close"); // No pooled connection outlives the check
+        try {
+            var status = connection.getResponseCode();
+            if (status != HttpURLConnection.HTTP_OK) {
+                throw new IOException("Server startup failure: HTTP status " + status);
+            }
+            try (var body = connection.getInputStream()) {
+                var answer = new String(body.readAllBytes(), StandardCharsets.UTF_8);
+                if (!answer.equals("READY")) {
+                    throw new IOException("Server startup failure: " + answer);
+                }
+            }
+        } finally {
+            connection.disconnect();
         }
     }
 
