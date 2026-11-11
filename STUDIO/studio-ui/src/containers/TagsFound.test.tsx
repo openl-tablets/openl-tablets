@@ -51,7 +51,13 @@ describe('Tags found in projects', () => {
     it('lists the values and the tag types the projects carry but the configuration does not', async () => {
         renderTags()
 
-        expect(await screen.findByTestId('found-tag-BLOB-Banking')).toBeInTheDocument()
+        // A value of a configured tag type is listed below the table, not in the row of its tag type.
+        const blob = await screen.findByTestId('found-type-BLOB')
+        expect(within(blob).getByTestId('found-tag-BLOB-Banking')).toHaveTextContent('Banking2')
+        expect(within(screen.getByTestId('tag-type-drag-BLOB').closest('tr')!).queryByTestId('found-tag-BLOB-Banking'))
+            .toBeNull()
+        // BLOB exists already, so only its value is offered to be added.
+        expect(within(blob).queryByTestId('found-type-add-BLOB')).toBeNull()
         const region = screen.getByTestId('found-type-Region')
         expect(within(region).getByTestId('found-tag-Region-EU')).toHaveTextContent('EU3')
         expect(within(region).getByTestId('found-tag-Region-US')).toBeInTheDocument()

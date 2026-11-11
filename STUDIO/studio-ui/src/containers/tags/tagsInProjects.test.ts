@@ -17,21 +17,26 @@ describe('tagsInProjects', () => {
             [counts('BLOB', { Banking: 2, Benefit: 5 }), counts('Domain', { Policy: 1 }), counts('Region', { EU: 3 })]
         )
 
-        expect(found.values).toEqual(new Map([[1, [{ value: 'Banking', projects: 2 }]]]))
-        expect(found.types).toEqual([{ type: 'Region', values: [{ value: 'EU', projects: 3 }]}])
+        expect(found).toEqual([
+            { type: 'BLOB', defined: true, values: [{ value: 'Banking', projects: 2 }]},
+            { type: 'Region', defined: false, values: [{ value: 'EU', projects: 3 }]},
+        ])
     })
 
     it('matches tag types and values regardless of case', () => {
-        const found = tagsInProjects([tagType(1, 'Region', ['EU'])], [counts('region', { eu: 4 })])
+        expect(tagsInProjects([tagType(1, 'Region', ['EU'])], [counts('region', { eu: 4 })])).toEqual([])
+    })
 
-        expect(found.values.size).toBe(0)
-        expect(found.types).toEqual([])
+    it('names a configured tag type as it is configured, whatever case the projects spell it in', () => {
+        const found = tagsInProjects([tagType(1, 'Region', ['EU'])], [counts('REGION', { Asia: 1 })])
+
+        expect(found).toEqual([{ type: 'Region', defined: true, values: [{ value: 'Asia', projects: 1 }]}])
     })
 
     it('takes a tag type with no values', () => {
         const found = tagsInProjects([{ ...tagType(1, 'LOB', []), tags: undefined as never }], [counts('LOB', { Auto: 1 })])
 
-        expect(found.values.get(1)).toEqual([{ value: 'Auto', projects: 1 }])
+        expect(found).toEqual([{ type: 'LOB', defined: true, values: [{ value: 'Auto', projects: 1 }]}])
     })
 })
 

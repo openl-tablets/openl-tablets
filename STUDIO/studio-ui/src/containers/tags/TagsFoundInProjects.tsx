@@ -47,15 +47,10 @@ const FoundTagChip = ({ type, tag, onDefine, styles }: FoundProps & { type: stri
     )
 }
 
-/** The values of a tag type that the projects carry but the configuration does not have. */
-export const FoundTagChips = ({ type, tags, onDefine, styles }: FoundProps & {
-    type: string
-    tags: FoundTag[]
-}) => tags.map(tag => <FoundTagChip key={tag.value} onDefine={onDefine} styles={styles} tag={tag} type={type} />)
-
 /**
- * The tag types the projects carry that are not configured, each with its values. A tag type is added with all its
- * values at once, or one value at a time from its chip.
+ * The tags the projects carry that are not configured, by tag type: a tag type that is not configured with all its
+ * values, and a configured one with the values it lacks. A value is added from its chip. A tag type that is not
+ * configured is also added with all its values at once; a configured one has nothing to add but its values.
  */
 export const TagTypesFoundInProjects = ({ types, onDefine, styles }: FoundProps & { types: FoundTagType[] }) => {
     const { t } = useTranslation()
@@ -66,19 +61,25 @@ export const TagTypesFoundInProjects = ({ types, onDefine, styles }: FoundProps 
         <section className={styles.foundSection} data-testid="tag-types-found">
             <Typography.Title level={5}>{t('tags:found_types_title')}</Typography.Title>
             <Typography.Paragraph type="secondary">{t('tags:found_types_description')}</Typography.Paragraph>
-            {types.map(({ type, values }) => (
+            {types.map(({ type, defined, values }) => (
                 <div key={type} className={styles.foundRow} data-testid={`found-type-${type}`}>
-                    <span className={styles.foundType}>{type}</span>
-                    <span className={styles.tagsCell}>
-                        <FoundTagChips onDefine={onDefine} styles={styles} tags={values} type={type} />
+                    <span className={defined ? styles.foundType : `${styles.foundType} ${styles.missingType}`}>
+                        {type}
                     </span>
-                    <Button
-                        data-testid={`found-type-add-${type}`}
-                        onClick={() => onDefine(type, values.map(tag => tag.value))}
-                        size="small"
-                    >
-                        {t('tags:found_add_type')}
-                    </Button>
+                    <span className={styles.tagsCell}>
+                        {values.map(tag => (
+                            <FoundTagChip key={tag.value} onDefine={onDefine} styles={styles} tag={tag} type={type} />
+                        ))}
+                    </span>
+                    {!defined && (
+                        <Button
+                            data-testid={`found-type-add-${type}`}
+                            onClick={() => onDefine(type, values.map(tag => tag.value))}
+                            size="small"
+                        >
+                            {t('tags:found_add_type')}
+                        </Button>
+                    )}
                 </div>
             ))}
         </section>

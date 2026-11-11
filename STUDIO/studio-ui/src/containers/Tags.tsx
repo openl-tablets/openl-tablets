@@ -256,10 +256,8 @@ export const Tags: React.FC = () => {
             </p>
             <TagTable
                 createTag={onCreateTag}
-                defineTags={defineFound}
                 deleteTag={onDeleteTag}
                 deleteTagType={onDeleteTagType}
-                found={found.values}
                 isLoading={isLoading}
                 reorderTagTypes={ordered => void onReorderTagTypes(ordered)}
                 tagTypes={tagTypes}
@@ -280,7 +278,7 @@ export const Tags: React.FC = () => {
             <TagTypesFoundInProjects
                 onDefine={defineFound}
                 styles={styles}
-                types={found.types}
+                types={found}
             />
             <Divider />
             <Typography.Title level={4}>
