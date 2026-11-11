@@ -990,7 +990,7 @@ export const listGuidesSchema = z.strictObject({
     .enum(GUIDE_TYPES)
     .optional()
     .describe(
-      "The type its id starts with: 'spec/' or 'guide/'."
+      "The type its id starts with: 'spec/', 'guide/' or 'migration/'."
     ),
   search: z
     .string()

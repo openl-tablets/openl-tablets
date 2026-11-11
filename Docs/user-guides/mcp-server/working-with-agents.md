@@ -64,7 +64,7 @@ the same way as any other project file, and save the project.
 The tools of the MCP server have names that start with `openl_` and fall into the following groups:
 
 -   **Guidance** — learning how to work with OpenL Studio, reading the `AGENTS.md` files of a project, and reading the
-    OpenL Tablets reference guides.
+    OpenL Tablets reference guides and what each release since 5.25 asks of Rules Authors in its migration notes.
 -   **Repositories** — listing the design repositories, their branches and features, the revisions of a project, and
     the files a revision changed or that changed between two revisions.
 -   **Projects** — listing, creating, copying, opening, saving, and closing projects, checking how a project compiles,
@@ -123,6 +123,12 @@ Check whether feature/young-drivers can be merged into master, and merge it.
 Show the conflicting cells of Rates.xlsx. Take their rate of US, and keep everything else as merged.
 Show the conflicting lines of rules.xml. Keep the modules both branches added, yours first.
 Deploy the project to the production repository.
+```
+
+Upgrade a project:
+
+```
+The Auto Insurance project was written for OpenL Tablets 6.4.0. Migrate it to this release.
 ```
 
 Before a change is saved or deployed, ask the agent to show what it changed and to run the tests.

@@ -2,7 +2,9 @@
 title: OpenL Tablets 5.9.3 Migration Notes
 ---
 
-## Tomcat Configuration
+## Administrators
+
+### Tomcat Configuration
 
 1. Update `TOMCAT_HOME/conf/server.xml` by adding `URIEncoding="UTF-8"` to all `<Connector>` elements:
 

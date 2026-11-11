@@ -2,14 +2,9 @@
 title: OpenL Tablets 5.25.2 Migration Notes
 ---
 
-### Quick Role-Based Pointers
+## Rules Authors
 
-* **If you are a Rules Author** → pay special attention to section **1**
-* **If you are a Developer** → pay special attention to section **1**
-
----
-
-### 1. Identifier Matching Change
+### Identifier Matching Change
 
 An additional validation check was introduced to prevent ambiguous identifier resolution when a class contains members
 with similar names but different letter cases — for example, a static `ID` field and a `getId()` method on the same

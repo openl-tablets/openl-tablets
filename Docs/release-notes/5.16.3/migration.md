@@ -2,7 +2,9 @@
 title: OpenL Tablets 5.16.3 Migration Notes
 ---
 
-## Production Repository Configuration Property Changes
+## Administrators
+
+### Production Repository Configuration Property Changes
 
 The following properties have been unified under a single `production-repository.uri` property:
 

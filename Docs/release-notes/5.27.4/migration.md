@@ -2,13 +2,9 @@
 title: OpenL Tablets 5.27.4 Migration Notes
 ---
 
-### Quick Role-Based Pointers
+## Administrators
 
-* **If you are an Administrator** → pay special attention to section **1**
-
----
-
-### 1. OpenTelemetry OTLP Protocol Change
+### OpenTelemetry OTLP Protocol Change
 
 The default OTLP export protocol has changed from `grpc` to `http/protobuf` in line with the OpenTelemetry specification.
 

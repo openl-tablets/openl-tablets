@@ -173,7 +173,7 @@ function fenceAfter(open: string | undefined, line: string, marker: string | und
 }
 
 /** The sections of a Markdown text by its headings, in their order, fenced code left out. */
-function sectionsOf(text: string): Section[] {
+export function sectionsOf(text: string): Section[] {
   const headings: Array<Omit<Section, "end">> = [];
   // The fence a code block opened with, which only a fence of the same character and at least its length closes
   let fence: string | undefined;

@@ -2,14 +2,9 @@
 title: OpenL Tablets 5.23.0 Migration Notes
 ---
 
-### Quick Role-Based Pointers
+## Administrators
 
-* **If you are a Developer** → pay special attention to section **2**
-* **If you are an Administrator / Platform Owner** → pay special attention to sections **1, 2, 3**
-
----
-
-### 1. WebStudio Configuration Changes
+### WebStudio Configuration Changes
 
 #### Property File Consolidation
 
@@ -50,9 +45,7 @@ The default design repository factory is now:
 repository.design.factory = org.openl.rules.repository.git.GitRepository
 ```
 
----
-
-### 2. Rule Services Configuration Changes
+### Rule Services Configuration Changes
 
 #### Property Renames
 
@@ -72,9 +65,7 @@ The following deprecated property files have been removed:
 
 Migrate all settings to `application.properties`.
 
----
-
-### 3. Repository Migration
+### Repository Migration
 
 JCR (Jackrabbit) repository implementation is no longer supported. Migrate all design repositories to Git by updating
 the `repository.design.factory` property.

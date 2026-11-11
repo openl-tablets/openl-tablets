@@ -71,6 +71,13 @@ class UserGuidesServletTest {
                     {"title": "Videocasts", "file": "getting-started/videocasts.md", "size": 51},
                     {"title": "Demo Package Guide", "file": "getting-started/demo-package/index.md", "size": 22}
                   ]},
+                  {"title": "Migration Notes", "children": [
+                    {"title": "6.0.0", "file": "migration-notes/6.0.0/index.md", "size": 8, "children": [
+                      {"title": "Upgrading", "file": "migration-notes/6.0.0/upgrading.md", "size": 12}
+                    ]},
+                    {"title": "5.10.0", "file": "migration-notes/5.10.0/migration.md", "size": 78},
+                    {"title": "5.9.0", "file": "migration-notes/5.9.0/migration.md", "size": 51}
+                  ]},
                   {"title": "OpenL Studio User Guide", "file": "openl-studio/index.md", "size": 27, "children": [
                     {"title": "Using Rules Editor", "file": "openl-studio/rules-editor.md", "size": 37},
                     {"title": "Administration", "children": [

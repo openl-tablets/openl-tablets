@@ -9,6 +9,7 @@ import { clike, java } from '@codemirror/legacy-modes/mode/clike'
 import { groovy } from '@codemirror/legacy-modes/mode/groovy'
 import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
+import { standardSQL } from '@codemirror/legacy-modes/mode/sql'
 import { highlightCode, tagHighlighter, type Highlighter } from '@lezer/highlight'
 import { codeHighlightStyle } from '../styles/codeMirrorThemes'
 import type { ThemeName } from '../styles/themes'
@@ -111,6 +112,7 @@ const LANGUAGES = new Map<string, Language>([
     ['json', jsonLanguage],
     ['openl', StreamLanguage.define(openl)],
     ['properties', StreamLanguage.define(properties)],
+    ['sql', StreamLanguage.define(standardSQL)],
     ['tbasic', StreamLanguage.define(tbasic)],
     ['xml', xmlLanguage],
     ['yaml', yamlLanguage],

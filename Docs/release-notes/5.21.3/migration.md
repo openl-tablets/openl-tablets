@@ -2,7 +2,9 @@
 title: OpenL Tablets 5.21.3 Migration Notes
 ---
 
-## Rule Services — SOAP Fault Message Structure
+## Developers
+
+### Rule Services — SOAP Fault Message Structure
 
 The SOAP fault message structure has been modified. The `<detail>` element now includes `<type>` and `<stackTrace>`
 elements that provide enhanced fault descriptions.

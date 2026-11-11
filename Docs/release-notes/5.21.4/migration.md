@@ -2,7 +2,7 @@
 title: OpenL Tablets 5.21.4 Migration Notes
 ---
 
-## OpenL Rules Changes
+## Rules Authors
 
 Test tables no longer support business dimensional properties. Replace business dimensional property definitions with
 the `_context_` input parameter.

@@ -63,7 +63,7 @@ final class GuideValidator {
 
     /** The code languages the viewer draws or highlights; a block without a language is plain text. */
     static final Set<String> LANGUAGES = Set.of("", "bash", "csv", "groovy", "java", "json", "mermaid", "openl",
-            "properties", "xml", "yaml");
+            "properties", "sql", "xml", "yaml");
 
     /** The HTML tags the viewer keeps: a line break, a sized image, and a video player in a paragraph. */
     static final Set<String> HTML_TAGS = Set.of("br", "iframe", "img", "p");

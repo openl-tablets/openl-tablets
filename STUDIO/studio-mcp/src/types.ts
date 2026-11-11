@@ -60,7 +60,7 @@ export interface StudioSysInfo {
 }
 
 /** The kinds of the documents OpenL Studio serves at `/docs`: the specifications of `docs/ref`, the Reference Guide. */
-export const GUIDE_TYPES = ["specification", "guide"] as const;
+export const GUIDE_TYPES = ["specification", "guide", "migration"] as const;
 
 /** The statuses of a project in Studio. */
 export const PROJECT_STATUSES = ["LOCAL", "DELETED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"] as const;

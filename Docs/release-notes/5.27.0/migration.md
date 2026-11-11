@@ -2,11 +2,13 @@
 title: OpenL Tablets 5.27.0 Migration Notes
 ---
 
-## Database Schema Updates
+## Administrators
+
+### Database Schema Updates
 
 OpenL Tablets 5.27.0 includes updates to the user database schema to support new access control features.
 
-### Pre-Upgrade Backup
+#### Pre-Upgrade Backup
 
 A backup of your database is strongly recommended before upgrading to version 5.27.0. This ensures you can recover your data if any issues occur during the migration process.
 
@@ -18,11 +20,11 @@ mysqldump -u username -p database_name > backup_5.27.0.sql
 pg_dump -U username database_name > backup_5.27.0.sql
 ```
 
-### Migration Impact
+#### Migration Impact
 
 The schema changes are designed to be backward compatible with existing data. The upgrade process will automatically apply necessary schema migrations during startup.
 
-### Post-Upgrade Verification
+#### Post-Upgrade Verification
 
 After upgrading, verify that:
 - All users can log in successfully

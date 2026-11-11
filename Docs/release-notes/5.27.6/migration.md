@@ -2,13 +2,9 @@
 title: OpenL Tablets 5.27.6 Migration Notes
 ---
 
-### Quick Role-Based Pointers
+## Administrators
 
-* **If you are an Administrator** → pay special attention to section **1**
-
----
-
-### 1. PostgreSQL Schema Change
+### PostgreSQL Schema Change
 
 The behavior of OpenL Studio when configured to use PostgreSQL as the user database has changed. Previously, all tables were created in the `public` schema. Starting with 5.27.6, tables are created in the user's own schema.
 
