@@ -4,5 +4,5 @@ Content-Type: application/json
 
 {
   "status": "OPENED",
-  "revision": "1"
+  "revision": "${CREATED_REVISION}"
 }

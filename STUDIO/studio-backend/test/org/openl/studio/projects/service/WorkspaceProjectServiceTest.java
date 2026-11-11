@@ -1335,6 +1335,37 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void update_project_status_rejects_a_revision_the_design_repository_does_not_have() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var userWorkspace = mock(UserWorkspace.class);
+        var webStudio = mock(WebStudio.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace,
+                mock(ProjectStateValidator.class), webStudio);
+        var repository = repository();
+        var head = new FileData();
+        head.setName("PricingProject");
+        head.setVersion("rev-9");
+        when(repository.check("PricingProject")).thenReturn(head);
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+
+        var model = ProjectStatusUpdateModel.builder()
+                .status(ProjectStatus.VIEWING)
+                .revision("DEFAULT")
+                .discardChanges(true)
+                .build();
+        var exception = assertThrows(NotFoundException.class, () -> service.updateProjectStatus(project, model));
+
+        assertEquals("openl.error.404.project.revision.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{"DEFAULT"}, exception.getArgs());
+        verify(webStudio, never()).getModel();
+        verify(project, never()).releaseMyLock();
+        verify(project, never()).openVersion(any());
+    }
+
+    @Test
     void update_project_status_rejects_switching_branch_for_modified_project_without_force() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var service = newService(acl, mock(ProtectedBranchBypassService.class));

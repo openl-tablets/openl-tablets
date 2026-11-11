@@ -654,7 +654,10 @@ class GitRepositoryTest {
     void revisionsOutsideTheReferencesAreRejected() throws IOException {
         var e = assertThrows(IOException.class, () -> repo.createRepositoryBranch("new", "../../config"));
         assertEquals("Invalid revision '../../config'", e.getMessage());
-        assertThrows(IOException.class, () -> repo.checkHistory("rules/project1/file2", "../../config"));
+        // A path outside the references names no revision of the file.
+        assertNull(repo.checkHistory("rules/project1/file2", "../../config"));
+        assertNull(repo.readHistory("rules/project1/file2", "../../config"));
+        assertNull(repo.checkHistory("rules/project1/file2", "a..b"));
 
         assertEquals("Rules_2", repo.checkHistory("rules/project1/file2", "Rules_2").getVersion());
         var head = repo.check("rules/project1/file2").getVersion();

@@ -1348,6 +1348,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var historic = new AProject(project.getDesignRepository(),
                     project.getDesignFolderName(),
                     model.revision());
+            if (historic.getFileData() == null) {
+                throw new NotFoundException("project.revision.message", model.revision());
+            }
             if (workspace.isOpenedOtherProject(historic)) {
                 throw new ConflictException("open.duplicated.project");
             }

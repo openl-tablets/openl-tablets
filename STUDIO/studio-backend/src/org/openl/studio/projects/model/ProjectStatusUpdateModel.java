@@ -27,7 +27,10 @@ public record ProjectStatusUpdateModel(
         @Parameter(description = "Branch name to switch the project to. Applicable only to repositories that support branches.")
         String branch,
 
-        @Parameter(description = "Specific project revision to open. When provided, the project is opened at this historical version.")
+        @Parameter(description = """
+                Specific project revision to open. When provided, the project is opened at this historical version. \
+                In a design repository that keeps revisions, a revision it does not have answers 404 and leaves the \
+                project as it is.""")
         String revision,
 
         @Parameter(description = """
