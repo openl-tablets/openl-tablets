@@ -37,6 +37,14 @@ try {
     assert buildLog.contains("Service 'openl-groovy-0.0.0' has been deployed successfully.") :
             "openl:verify did not deploy openl-groovy"
 
+    // ----- The parallel build (-T) accepts every goal ---------------------------------------------
+    // Maven warns about a plugin with a goal that is not marked as thread-safe. openl:verify is bound to
+    // both OpenL modules, so the warning would name openl-maven-plugin.
+    assert buildLog.contains('Using the MultiThreadedBuilder implementation') :
+            'the build did not run in parallel, so the thread-safe marks were not checked'
+    assert !buildLog.contains('not marked as thread-safe') :
+            'a goal of the build is not marked as thread-safe'
+
     // ----- Logging goes through the Maven slf4j logger --------------------------------------------
     // log4j-to-slf4j must bind log4j-api users (Apache POI) both in the plugin classloader and in the
     // embedded application, so the log4j fallback stub never activates and no log file is created.

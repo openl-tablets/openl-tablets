@@ -62,6 +62,13 @@ Notes:
 - **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy and removed-function calls, drops no-effect plugin params
   in `pom.xml`; a commit per step. `openl:help -Dgoal=migrate -Ddetail` lists steps, `-Dopenl.migrate.migrators` picks.
 
+Every goal except `deploy` is thread-safe, so a parallel build (`mvn -T 1C verify`) runs the goals of independent
+modules at the same time without the Maven warning about plugins not marked as thread-safe. `verify` starts one OpenL
+Rule Services application per module, so the heap of the build grows with the number of threads.
+
+`deploy` is not marked as thread-safe, and a parallel build that runs it prints that warning: two modules that deploy
+the same deployment name at the same time can both be stored, where a sequential build skips the second one.
+
 > [!Note]
 > `generate` creates a Java interface from the project's `<exposed-methods>` filter, for type-safe rule invocation.
 
