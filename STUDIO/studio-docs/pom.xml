@@ -27,6 +27,7 @@
         <dependency>
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.commonmark</groupId>
@@ -35,6 +36,7 @@
         <dependency>
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark-ext-gfm-tables</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.commonmark</groupId>

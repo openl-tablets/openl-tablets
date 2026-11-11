@@ -7,7 +7,9 @@ such a change.
 ## A Workbook Is Never Saved Over a Newer File
 
 A compiled module holds its workbooks in memory, and a save writes the whole workbook from memory. Saving over a file
-changed on disk since the workbook was read would lose that change, so the save is refused instead.
+changed on disk since the workbook was read would lose that change, so the save is refused instead. A Markdown file of
+a module folder is saved the same way, its text written in place of a workbook
+([Markdown Modules](markdown-modules.md)).
 
 - **What the workbook remembers.** `XlsWorkbookSourceCodeModule` remembers the size and the modification time of its
   file as the compilation is about to read it. Its loader reads the workbook from one snapshot of the file: the whole

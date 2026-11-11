@@ -36,16 +36,10 @@ public class XlsUrlParser {
     private final String cell;
 
     public XlsUrlParser(String url) {
-        String file;
         var map = new HashMap<String, String>();
-        var indexQuestionMark = url.indexOf('?');
-        if (indexQuestionMark >= 0) {
-            file = url.substring(0, indexQuestionMark);
-            var query = url.substring(indexQuestionMark + 1);
-
-            parseQuery(query, map);
-        } else {
-            file = url;
+        var file = fileUriOf(url);
+        if (file.length() < url.length()) {
+            parseQuery(url.substring(file.length() + 1), map);
         }
         file = StringTool.decodeURL(file);
         wsName = map.get("sheet");
@@ -72,6 +66,15 @@ public class XlsUrlParser {
             wbPath = f.getParent();
             wbName = f.getName();
         }
+    }
+
+    /**
+     * Returns the address of the file a table or a cell is in: its address without the sheet and the cells, still
+     * encoded as a URI.
+     */
+    public static String fileUriOf(String url) {
+        var query = url.indexOf('?');
+        return query < 0 ? url : url.substring(0, query);
     }
 
     private static void parseQuery(String query, Map<String, String> map) {

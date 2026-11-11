@@ -1,14 +1,12 @@
 package org.openl.rules.lang.xls;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import org.openl.exception.OpenLCompilationException;
@@ -19,10 +17,12 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IModuleInfo;
+import org.openl.util.FileUtils;
 import org.openl.util.text.TextInterval;
 
 public final class XlsHelper {
@@ -90,14 +90,30 @@ public final class XlsHelper {
      * @return {@code true} when the first token names a known table type
      */
     public static boolean isKnownTableHeader(String header) {
+        return typeOf(header) != null;
+    }
+
+    /**
+     * Tells whether a header names a table of records: a Data, a Test or a Run table.
+     *
+     * @param header the full text of the first cell of the table; may be {@code null}
+     */
+    public static boolean isRecordsTableHeader(@Nullable String header) {
+        var type = typeOf(header);
+        return XlsNodeTypes.XLS_DATA.toString().equals(type) || XlsNodeTypes.XLS_TEST_METHOD.toString().equals(type)
+                || XlsNodeTypes.XLS_RUN_METHOD.toString().equals(type);
+    }
+
+    /** The type of table the first token of a header names, or {@code null} for none. */
+    private static @Nullable String typeOf(@Nullable String header) {
         if (header == null) {
-            return false;
+            return null;
         }
         try {
             IdentifierNode token = Tokenizer.firstToken(new StringSourceCodeModule(header, null), TOKEN_DELIMITERS);
-            return TABLE_HEADERS.containsKey(token.getIdentifier());
+            return TABLE_HEADERS.get(token.getIdentifier());
         } catch (OpenLCompilationException e) {
-            return false;
+            return null;
         }
     }
 
@@ -108,31 +124,27 @@ public final class XlsHelper {
         }
 
         var uri = module.getUri();
-
-        try {
-            var url = new URL(uri);
-            var fileName = url.getFile();
-            var index = fileName.lastIndexOf('/');
-
-            fileName = index < 0 ? fileName : fileName.substring(index + 1);
-
-            index = fileName.lastIndexOf('.');
-
-            if (index > 0) {
-                fileName = fileName.substring(0, index);
-            }
-
-            return fileName;
-
-        } catch (MalformedURLException e) {
-            if (VirtualSourceCodeModule.SOURCE_URI.equals(uri)) {
-                return "VirtualModule";
-            } else {
-                final Logger log = LoggerFactory.getLogger(XlsHelper.class);
-                log.error("Failed URI conversation to module name.", e);
-                return "UndefinedXlsType";
-            }
+        if (VirtualSourceCodeModule.SOURCE_URI.equals(uri)) {
+            return "VirtualModule";
         }
+        if (!hasScheme(uri)) {
+            LoggerFactory.getLogger(XlsHelper.class).error("Failed URI conversation to module name: {}", uri);
+            return "UndefinedXlsType";
+        }
+        // The address is read as written: a space or another character a URI escapes may stand in it
+        var file = XlsUrlParser.fileUriOf(uri);
+        // A module written as a folder is named after the folder, by its whole name: a dot in it is no extension
+        return file.endsWith("/")
+                ? FileUtils.getName(file.substring(0, file.length() - 1))
+                : FileUtils.getBaseName(file);
+    }
+
+    /** Whether an address starts with a scheme, such as {@code file:}, as the address of a file of a module does. */
+    private static boolean hasScheme(String uri) {
+        var colon = uri.indexOf(':');
+        return colon > 0 && Character.isLetter(uri.charAt(0)) && uri.substring(0, colon)
+                .chars()
+                .allMatch(c -> Character.isLetterOrDigit(c) || c == '+' || c == '-' || c == '.');
     }
 
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table,
