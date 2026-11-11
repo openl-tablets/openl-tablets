@@ -1940,7 +1940,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                     return historyVisitor.getResult();
                 }
 
-                var commitId = getCommitByVersion(version);
+                var commitId = namesRevision(version) ? getCommitByVersion(version) : null;
                 if (commitId != null) {
                     var commit = walk.parseCommit(commitId);
                     historyVisitor.visit(name, commit, getVersionName(git().getRepository(), tags, commit));
@@ -2572,7 +2572,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
      *                               is not a commit, or a name no reference can carry
      */
     private RevCommit commitOf(RevWalk walk, String revision) throws IOException {
-        if (ObjectId.isId(revision) || Repository.isValidRefName(Constants.R_REFS + revision)) {
+        if (namesRevision(revision)) {
             try {
                 var commitId = getCommitByVersion(revision);
                 if (commitId != null) {
@@ -3547,6 +3547,14 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         try (var walk = new RevWalk(git().getRepository())) {
             return walk.parseCommit(commitId);
         }
+    }
+
+    /**
+     * Whether the value can name a revision: a commit id, or a name a reference can carry. A path leading outside the
+     * references names none.
+     */
+    private static boolean namesRevision(String revision) {
+        return ObjectId.isId(revision) || Repository.isValidRefName(Constants.R_REFS + revision);
     }
 
     /**

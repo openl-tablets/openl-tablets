@@ -175,7 +175,7 @@ export const projectStatusSchema = z.strictObject({
 export const openProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: z.string().optional().describe("Open the project on this branch."),
-  revision: z.string().optional().describe("A Git revision to open, read-only."),
+  revision: z.string().optional().describe("A revision from openl_repository_project_revisions to open, read-only."),
   openDependencies: z.boolean().optional().describe("Also open the projects it depends on."),
 });
 

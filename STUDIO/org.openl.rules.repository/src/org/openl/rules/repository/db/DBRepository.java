@@ -3,6 +3,7 @@ package org.openl.rules.repository.db;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -157,9 +159,8 @@ abstract class DBRepository implements Repository, Closeable {
             insertFile(data, null);
             invokeListener();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -255,19 +256,30 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileData checkHistory(String name, String version) throws IOException {
-        return version == null ? check(name) : getHistoryVersionFileData(name, version);
+    public @Nullable FileData checkHistory(String name, @Nullable String version) throws IOException {
+        if (version == null) {
+            return check(name);
+        }
+        var versionId = versionIdOf(version);
+        return versionId == null ? null : getHistoryVersionFileData(name, versionId);
     }
 
     @Override
-    public FileItem readHistory(String name, String version) throws IOException {
+    public @Nullable FileItem readHistory(String name, @Nullable String version) throws IOException {
+        if (version == null) {
+            return read(name);
+        }
+        var versionId = versionIdOf(version);
+        if (versionId == null) {
+            return null;
+        }
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings().readHistoricFile);
-            statement.setLong(1, Long.parseLong(version));
+            statement.setLong(1, versionId);
             statement.setString(2, name);
             rs = statement.executeQuery();
 
@@ -306,9 +318,8 @@ abstract class DBRepository implements Repository, Closeable {
                 if (rows > 0) {
                     invokeListener();
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             } catch (SQLException e) {
                 throw new IOException(e.getMessage(), e);
             } finally {
@@ -316,19 +327,22 @@ abstract class DBRepository implements Repository, Closeable {
                 SqlDBUtils.safeClose(connection);
             }
         } else {
+            var versionId = versionIdOf(version);
+            if (versionId == null) {
+                return false;
+            }
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings().deleteVersion);
-                statement.setLong(1, Long.parseLong(version));
+                statement.setLong(1, versionId);
                 statement.setString(2, dataName);
                 var rows = statement.executeUpdate();
 
                 if (rows > 0) {
                     invokeListener();
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             } catch (SQLException e) {
                 throw new IOException(e.getMessage(), e);
             } finally {
@@ -339,9 +353,13 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
+    public FileData copyHistory(String srcName, FileData destData, @Nullable String version) throws IOException {
         if (version == null) {
             return copy(srcName, destData);
+        }
+        var versionId = versionIdOf(version);
+        if (versionId == null) {
+            throw versionNotFound(srcName, version);
         }
 
         Connection connection = null;
@@ -354,9 +372,11 @@ abstract class DBRepository implements Repository, Closeable {
             statement.setString(2, username);
             statement.setString(3, destData.getComment());
 
-            statement.setLong(4, Long.parseLong(version));
+            statement.setLong(4, versionId);
             statement.setString(5, srcName);
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0) {
+                throw versionNotFound(srcName, version);
+            }
 
             invokeListener();
             return destData;
@@ -437,14 +457,14 @@ abstract class DBRepository implements Repository, Closeable {
         }
     }
 
-    private FileData getHistoryVersionFileData(String name, String version) throws IOException {
+    private @Nullable FileData getHistoryVersionFileData(String name, long versionId) throws IOException {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings().readHistoricFileMetaInfo);
-            statement.setLong(1, Long.parseLong(version));
+            statement.setLong(1, versionId);
             statement.setString(2, name);
             rs = statement.executeQuery();
 
@@ -463,6 +483,24 @@ abstract class DBRepository implements Repository, Closeable {
             SqlDBUtils.safeClose(rs);
             SqlDBUtils.safeClose(statement);
             SqlDBUtils.safeClose(connection);
+        }
+    }
+
+    private static FileNotFoundException versionNotFound(String name, String version) {
+        return new FileNotFoundException("The version '%s' of the file '%s' is not found.".formatted(version, name));
+    }
+
+    /**
+     * The row id a version stands for. The repository numbers its versions, so a version that is not a number names
+     * no version of it.
+     *
+     * @return the row id, or {@code null} when the version is not a number
+     */
+    private static @Nullable Long versionIdOf(String version) {
+        try {
+            return Long.valueOf(version);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
@@ -654,7 +692,7 @@ abstract class DBRepository implements Repository, Closeable {
     private class DBRepositoryRevisionGetter implements RevisionGetter {
 
         @Override
-        public Object getRevision() {
+        public @Nullable Object getRevision() {
             try {
                 initializeDatabase();
             } catch (Exception e) {
