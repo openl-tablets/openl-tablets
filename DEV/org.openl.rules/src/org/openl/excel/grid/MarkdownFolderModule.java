@@ -145,14 +145,21 @@ public final class MarkdownFolderModule {
     /**
      * Returns the kind of a table written once for the whole module, or nothing for a table of any other kind.
      */
-    private static Optional<ModuleTable> moduleTableOf(TableSyntaxNode table) {
+    static Optional<ModuleTable> moduleTableOf(TableSyntaxNode table) {
         return MODULE_TABLES.stream().filter(moduleTable -> moduleTable.type() == table.getNodeType()).findFirst();
+    }
+
+    /**
+     * Returns whether a table name is the name of a table written once for the whole module.
+     */
+    static boolean isModuleTableName(String name) {
+        return MODULE_TABLES.stream().anyMatch(moduleTable -> moduleTable.name().equals(name));
     }
 
     /**
      * A kind of table written once for the whole module, and the file it is written in.
      */
-    private record ModuleTable(XlsNodeTypes type, String name) {
+    record ModuleTable(XlsNodeTypes type, String name) {
         String file() {
             return name + ".md";
         }

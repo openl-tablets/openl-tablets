@@ -172,6 +172,12 @@ table: Data Policy policies
 | An array of values | Its values in one cell, apart by commas: `speeding, parking` |
 | The expected result of a test | `_res_.drivers[1].name`; a blank cell expects no value there |
 
+- A workbook record of several rows, its collections given row by row and its cells merged over them, is written as
+  one row of the file: each element of a collection the rows define gets columns of its own, the columns of a nested
+  collection after the columns of its element. Each column keeps its title, and the values of an array field the rows
+  give are joined in one cell. A column naming the key of the elements of a collection, `drivers._PK_`, is left out:
+  the index tells the elements apart.
+
 ## Cells
 
 | Written | Read as | Note |
@@ -229,3 +235,8 @@ table: Data Policy policies
 | Several tables in one place | One table per file |
 
 - Never put text before the first `---`: the file becomes documentation and its table is gone, with no message.
+
+## Converting Workbooks
+
+- [OpenL Maven Plugin](openl-maven-plugin.md) packages a project with its workbooks written as Markdown (`markdown`).
+- A table with no Markdown form keeps its workbook, and the build log names the table and the reason.

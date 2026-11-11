@@ -38,6 +38,9 @@ Configuration with all OpenL Maven Plugin Goals
               <excludes></excludes>
               <!-- common part -->
               <sourceDirectory>src/main/openl</sourceDirectory>
+              <!-- compile and package: workbooks packaged as Markdown -->
+              <markdown>false</markdown>
+              <markdownDirectory>target/openl-markdown</markdownDirectory>
           </configuration>
           <executions>
               <execution>
