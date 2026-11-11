@@ -12,6 +12,13 @@ const framed = (colour: string) => `
         inset 0 calc(-1 * var(--frame-bottom, 2px)) 0 0 ${colour};
 `
 
+/** The dashed frame of a table whose formatting changed, drawn round a box as wide as what it holds. */
+const dashed = () => `
+    width: fit-content;
+    outline: 2px dashed ${paperToken().colorWarning};
+    outline-offset: 2px;
+`
+
 /** The marks a comparison lays on the cells of a workbook, in the colours of its paper ({@link paperToken}). */
 export const useCellStyles = createStyles(({ css }) => ({
     // The sign a row of the combined view is read by, in a column of its own before the table.
@@ -74,12 +81,16 @@ export const useCellStyles = createStyles(({ css }) => ({
         outline: 2px solid ${paperToken().colorPrimary};
         outline-offset: -4px;
     `,
-    // A version of a table whose formatting its branch changed: the whole table framed with a dashed line.
+    // A version of a table whose formatting its branch changed, in a box that scrolls the table itself: the box is
+    // framed with a dashed line and keeps to the room it is given.
     restyled: css`
-        width: fit-content;
         max-width: 100%;
-        outline: 2px dashed ${paperToken().colorWarning};
-        outline-offset: 2px;
+        ${dashed()}
+    `,
+    // A table whose formatting changed, in a pane that scrolls it: the frame is as wide as the table, however far the
+    // table runs past the pane, so it is scrolled with the table.
+    restyledWhole: css`
+        ${dashed()}
     `,
     // A row standing for the equal rows left out between the rows shown, as a diff marks the lines it skips.
     gap: css`

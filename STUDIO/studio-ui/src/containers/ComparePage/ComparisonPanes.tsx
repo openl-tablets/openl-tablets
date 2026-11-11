@@ -274,7 +274,7 @@ const useGap = () => {
 /** A version of a table, framed whole with a dashed line when its formatting changed, as a merge frames it. */
 const Restyled: React.FC<{ restyled: boolean | undefined; children: React.ReactNode }> = ({ restyled, children }) => {
     const { styles } = useCellStyles()
-    return <div className={restyled ? styles.restyled : undefined} data-testid="compare-restyled">{children}</div>
+    return <div className={restyled ? styles.restyledWhole : undefined} data-testid="compare-restyled">{children}</div>
 }
 
 /**
