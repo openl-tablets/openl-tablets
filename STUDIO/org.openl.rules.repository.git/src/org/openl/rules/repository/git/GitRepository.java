@@ -210,6 +210,8 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
     private ChangesMonitor monitor;
     private final AtomicReference<Git> git = new AtomicReference<>();
+    /** Shared by every branch of the repository, as they share its commits. */
+    private MergeBases mergeBases = new MergeBases();
 
     private Git git() {
         return git.get();
@@ -1851,13 +1853,13 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                 skip = page.getOffset();
                 maxCount = page.getPageSize();
             }
-            try (var or = repository.newObjectReader()) {
+            try (var or = repository.newObjectReader(); var walk = headersWalk(or)) {
                 var tw = createTreeWalk(or, name);
 
                 var stop = false;
                 while (!stop && processed < maxCount && iterator.hasNext()) {
                     var commit = iterator.next();
-                    var hasChanges = hasChangesInPath(tw, commit, git());
+                    var hasChanges = hasChangesInPath(tw, walk, commit);
                     var listed = techRevs || hasChanges;
                     if (listed) {
                         totalProcessed++;
@@ -2132,12 +2134,12 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
         var repository = git.getRepository();
-        try (var or = repository.newObjectReader()) {
+        try (var or = repository.newObjectReader(); var walk = headersWalk(or)) {
             var tw = createTreeWalk(or, path);
             var commits = new DescendantsFirstCommits(git.log().add(startCommit).call().iterator());
             while (commits.hasNext()) {
                 var commit = commits.next();
-                if (hasChangesInPath(tw, commit, git)) {
+                if (hasChangesInPath(tw, walk, commit)) {
                     return commit;
                 }
             }
@@ -2146,8 +2148,15 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         return null;
     }
 
-    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Git git) throws IOException,
-            GitAPIException {
+    /**
+     * Whether the commit changes the path of the tree walk.
+     *
+     * <p>A merge commit that keeps the path of one of its parents changes it only when the path differs from the commit
+     * the parents parted at, or when a commit since then changed it.
+     *
+     * @param walk the walk to find the commit the parents parted at; it is reset, so it must serve no other walk
+     */
+    private boolean hasChangesInPath(TreeWalk tw, RevWalk walk, RevCommit commit) throws IOException {
         var parents = commit.getParents();
         var parentsNum = parents.length;
 
@@ -2178,9 +2187,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         // Find a common parent for commits that were merged.
         // Then we compare it to each commit that changed the project in question.
         // If there is a difference between commits, then it should be displayed.
-        var mergeBase = mergeBaseOf(git.getRepository(), parents);
-        return mergeBase != null && (differsFromMergeBase(tw, parents, changes, mergeBase)
-                || hasChangesSinceMergeBase(tw, git, parents, changes, mergeBase));
+        var mergeBase = mergeBases.of(walk, commit);
+        return mergeBase != null && (differsFromMergeBase(tw, parents, changes, mergeBase.tree())
+                || hasChangesSinceMergeBase(tw, walk.getObjectReader(), parents, changes, mergeBase.commit()));
     }
 
     /**
@@ -2204,9 +2213,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     private static boolean differsFromMergeBase(TreeWalk tw,
                                                 RevCommit[] parents,
                                                 Set<Integer> changes,
-                                                RevCommit mergeBase) throws IOException {
+                                                ObjectId mergeBaseTree) throws IOException {
         for (int i : changes) {
-            tw.reset(parents[i].getTree(), mergeBase.getTree());
+            tw.reset(parents[i].getTree(), mergeBaseTree);
             if (tw.next() && !tw.idEqual(0, 1)) {
                 return true;
             }
@@ -2220,19 +2229,32 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
      * contains the latest project state, and it differs from its parent.
      */
     private static boolean hasChangesSinceMergeBase(TreeWalk tw,
-                                                    Git git,
+                                                    ObjectReader reader,
                                                     RevCommit[] parents,
                                                     Set<Integer> changes,
-                                                    RevCommit mergeBase) throws IOException, GitAPIException {
+                                                    ObjectId mergeBase) throws IOException {
         for (int i : changes) {
-            Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
-            for (RevCommit prevParentCommit : commits) {
-                if (isChangedComparingToAllParents(tw, prevParentCommit)) {
-                    return true;
+            // A walk of its own reads the range alone: a walk that has read older commits would mark them all.
+            try (var walk = headersWalk(reader)) {
+                walk.markStart(walk.parseCommit(parents[i]));
+                walk.markUninteresting(walk.parseCommit(mergeBase));
+                for (var prevParentCommit = walk.next(); prevParentCommit != null; prevParentCommit = walk.next()) {
+                    if (isChangedComparingToAllParents(tw, prevParentCommit)) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * A walk that reads the parents, the tree and the time of the commits it meets, not their messages.
+     */
+    private static RevWalk headersWalk(ObjectReader reader) {
+        var walk = new RevWalk(reader);
+        walk.setRetainBody(false);
+        return walk;
     }
 
     private static boolean isChangedComparingToAllParents(TreeWalk tw, RevCommit commit) throws IOException {
@@ -2668,12 +2690,23 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
      */
     private static @Nullable RevCommit mergeBaseOf(Repository repository, AnyObjectId... commits) throws IOException {
         try (var walk = new RevWalk(repository)) {
-            walk.setRevFilter(RevFilter.MERGE_BASE);
-            for (var commit : commits) {
-                walk.markStart(walk.parseCommit(commit));
-            }
-            return walk.next();
+            return mergeBaseOf(walk, commits);
         }
+    }
+
+    /**
+     * The commit the given commits parted at, found with the given walk, or {@code null} when their histories have
+     * none in common. Of several such commits, as a criss-cross history has, the first one is taken.
+     *
+     * <p>The walk is reset first, so it must serve no other walk at the time.
+     */
+    static @Nullable RevCommit mergeBaseOf(RevWalk walk, AnyObjectId... commits) throws IOException {
+        walk.reset();
+        walk.setRevFilter(RevFilter.MERGE_BASE);
+        for (var commit : commits) {
+            walk.markStart(walk.parseCommit(commit));
+        }
+        return walk.next();
     }
 
     /**
@@ -3374,6 +3407,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         repo.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
         // repository is same
         repo.monitor = monitor;
+        repo.mergeBases = mergeBases;
         repo.useLFS = useLFS;
         return repo;
     }
