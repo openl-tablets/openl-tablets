@@ -927,7 +927,9 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
         const set = columnSet.current?.children
         const cells = cellsByColumn([...drawnBlocks.current].filter(body => body.isConnected), set?.length ?? 0)
         drawnBlocks.current.clear()
-        const drawnWidths = [...cells].map(([at, cell]) => [at, cell.offsetWidth] as const)
+        // A cell may be a fraction of a pixel wide. Held at that width rounded down, its column wraps the text, and a
+        // cell that wraps opens as text. So the column takes the next whole pixel.
+        const drawnWidths = [...cells].map(([at, cell]) => [at, Math.ceil(cell.getBoundingClientRect().width)] as const)
         drawnWidths.forEach(([at, width]) => {
             const col = set?.[at] as HTMLElement | undefined
             if (col !== undefined && width > (Number.parseFloat(col.style.width) || 0)) {

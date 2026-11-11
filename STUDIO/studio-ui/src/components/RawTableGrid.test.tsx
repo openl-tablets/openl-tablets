@@ -879,20 +879,28 @@ describe('RawTableGrid', () => {
         /** How wide jsdom is told a column of the grid is, the margin included. */
         const COLUMN = 50
 
+        /**
+         * How wide a cell is drawn: wider the further right its column of the grid stands, and a fraction of a pixel
+         * past a whole one, as a browser lays text out.
+         */
+        const drawnWidth = (cell: HTMLElement) => 40.25 + Number(cell.dataset['col'] ?? 0)
+
         beforeEach(() => {
-            // A block is as tall as its rows, a cell as wide as its column of the grid says.
+            // A block is as tall as its rows.
             layOut(HTMLTableSectionElement.prototype, 'offsetHeight', function () {
                 return this.querySelectorAll('tr').length * ROW
             })
+            // A browser rounds the width of an element to the nearest whole pixel there.
             layOut(HTMLTableCellElement.prototype, 'offsetWidth', function () {
-                return 40 + Number(this.dataset['col'] ?? 0)
+                return Math.round(drawnWidth(this))
             })
         })
 
         /**
          * The element the table scrolls in, as tall as the screen shows it. A browser tells it scrolled after the
          * scrolling, never while the table is drawn, so the test tells it when it has scrolled ({@code scrolled}).
-         * A cell lies where its row and its column of the grid put it, under what is scrolled away.
+         * A cell lies where its row and its column of the grid put it, under what is scrolled away, and is as wide as
+         * {@code drawnWidth} says.
          */
         const scroller = (height = VIEW) => {
             const element = document.createElement('div')
@@ -911,7 +919,8 @@ describe('RawTableGrid', () => {
                 const col = Number(this.dataset['col'] ?? 0)
                 const top = row * ROW - at.top
                 const left = col * COLUMN - at.left
-                return () => ({ top, bottom: top + ROW, left, right: left + COLUMN }) as DOMRect
+                const width = drawnWidth(this)
+                return () => ({ top, bottom: top + ROW, left, right: left + COLUMN, width }) as DOMRect
             })
             document.body.append(element)
             onTestFinished(() => element.remove())
@@ -993,7 +1002,7 @@ describe('RawTableGrid', () => {
             expect(number).toHaveTextContent('2')
             expect(number).toHaveAttribute('rowspan', '3')
             // The margin keeps its width as well, so a longer number further down does not move the columns.
-            await waitFor(() => expect(widths()[0]).toBe('40px'))
+            await waitFor(() => expect(widths()[0]).toBe('41px'))
         })
 
         it('scrolls the cell kept in sight into view, down and across, drawn or not', async () => {
@@ -1058,22 +1067,33 @@ describe('RawTableGrid', () => {
             const { element } = scroller()
             render(<RawTableGrid rows={wide(60)} scroller={element} testId="grid" />, { container: element })
 
-            await waitFor(() => expect(widths()[3]).toBe('43px'))
+            await waitFor(() => expect(widths()[3]).toBe('44px'))
             expect(widths()).toHaveLength(COLUMNS)
         })
+
+        // A column held at the width of its cell rounded down wrapped a value of several aliases, which then opened as
+        // text instead of as a list of values. See EPBDS-17140.
+        it('widens a column to the whole pixel past its cell, so a cell a fraction of a pixel wider does not wrap',
+            async () => {
+                const { element } = scroller()
+                render(<RawTableGrid rows={wide(1)} scroller={element} testId="grid" />, { container: element })
+
+                // The cell of the fourth column of the grid is drawn 43.25 pixels wide.
+                await waitFor(() => expect(widths()[3]).toBe('44px'))
+            })
 
         it('starts the widths anew when the cells are written otherwise, as their formulas', async () => {
             const { element } = scroller()
             const { rerender } = render(<RawTableGrid rows={wide(60)} scroller={element} testId="grid" />,
                 { container: element })
-            await waitFor(() => expect(widths()[3]).toBe('43px'))
+            await waitFor(() => expect(widths()[3]).toBe('44px'))
             const before = screen.getByTestId('table-column-widths')
 
             rerender(<RawTableGrid formulas rows={wide(60)} scroller={element} testId="grid" />)
 
             // Other widths, read from the cells as they are written now, not kept from the values before.
             expect(screen.getByTestId('table-column-widths')).not.toBe(before)
-            await waitFor(() => expect(widths()[3]).toBe('43px'))
+            await waitFor(() => expect(widths()[3]).toBe('44px'))
         })
 
         it('draws every row where the element it scrolls in has no layout to measure', () => {
