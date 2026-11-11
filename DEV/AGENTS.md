@@ -136,7 +136,9 @@ within its workbook (`TableBuilder.writeGridTable`) move a cell with `IWritableG
 is; a cell a merge covers stays empty. Reading a value and writing it back stores it differently:
 `24` as `24.0`, a date in a new style of the default date format, a text trimmed and without the fonts of its parts.
 Every moved cell then shows as changed in a diff and in a merge of the workbook. A number written anew is stored as
-Excel stores it, a whole one without a fraction (`PoiExcelHelper.setNumber`, `setDate`).
+Excel stores it, a whole one without a fraction (`PoiExcelHelper.setNumber`, `setDate`). A number a `double` does not
+hold exactly — a `BigDecimal` of more digits, a `Long` or `BigInteger` it rounds, `NaN` and the infinities — is
+stored as a text that reads back as the same number; every writer of a number goes through `setNumber(Cell, Number)`.
 
 **A moved cell takes its references along.** An Excel formula is text, so after the cells move it still names their old
 addresses. Each `GridTool` insert or removal and `TableServiceImpl.moveTable` therefore end with

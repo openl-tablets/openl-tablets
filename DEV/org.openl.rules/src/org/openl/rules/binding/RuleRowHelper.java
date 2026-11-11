@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -47,13 +49,12 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.StringPool;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RuleRowHelper {
-
-    private RuleRowHelper() {
-    }
 
     private static final String COMMENTARY = "//";
     public static final String CONSTRUCTOR = "constructor";
@@ -181,7 +182,7 @@ public final class RuleRowHelper {
                 theValueCell.getStringValue());
     }
 
-    public static boolean isNumeric(final CharSequence cs) {
+    public static boolean isNumeric(@Nullable final CharSequence cs) {
         if (cs == null || cs.isEmpty()) {
             return false;
         }
@@ -268,7 +269,7 @@ public final class RuleRowHelper {
         return false;
     }
 
-    public static Object loadNativeValue(ICell cell, IOpenClass paramType) {
+    public static @Nullable Object loadNativeValue(ICell cell, IOpenClass paramType) {
         Object res = null;
         Class<?> expectedType = paramType.getInstanceClass();
         if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC || isCellNumericStringDate(cell, paramType)) {
@@ -341,8 +342,7 @@ public final class RuleRowHelper {
         if ((int) value == value) {
             return (int) value;
         }
-        // -2^63 is the smallest long, while 2^63 is already beyond the largest one.
-        if (value >= -0x1p63 && value < 0x1p63) {
+        if (NumberUtils.isInLongRange(value)) {
             return (long) value;
         }
         return BigDecimal.valueOf(value).toBigIntegerExact();
@@ -361,7 +361,8 @@ public final class RuleRowHelper {
         return null;
     }
 
-    public static ConstantOpenField findConstantField(IBindingContext bindingContext, String source) {
+    public static @Nullable ConstantOpenField findConstantField(IBindingContext bindingContext,
+                                                                @Nullable String source) {
         if (source == null) {
             return null;
         }
@@ -382,9 +383,8 @@ public final class RuleRowHelper {
         var openCast = bindingContext.getCast(constantOpenField.getType(), expectedType);
         if (openCast != null && openCast.isImplicit()) {
             return openCast.convert(constantOpenField.getValue());
-        } else {
-            throw new ClassCastException("Expected value of type '%s'.".formatted(expectedType.getName()));
         }
+        throw new ClassCastException("Expected value of type '%s'.".formatted(expectedType.getName()));
     }
 
     private static Object loadSingleParam(IOpenClass paramType,
@@ -521,7 +521,7 @@ public final class RuleRowHelper {
         }
     }
 
-    public static boolean isFormula(String value) {
+    public static boolean isFormula(@Nullable String value) {
         if (value != null) {
             return value.trim().startsWith("=");
         }
@@ -601,12 +601,12 @@ public final class RuleRowHelper {
         }
     }
 
-    public static Object loadParam(ILogicalTable dataTable,
-                                   IOpenClass paramType,
-                                   String paramName,
-                                   String ruleName,
-                                   OpenlToolAdaptor openlAdaptor,
-                                   boolean loadSingleParamOnly) {
+    public static @Nullable Object loadParam(ILogicalTable dataTable,
+                                             IOpenClass paramType,
+                                             String paramName,
+                                             String ruleName,
+                                             OpenlToolAdaptor openlAdaptor,
+                                             boolean loadSingleParamOnly) {
 
         if (!loadSingleParamOnly) {
             return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
@@ -639,12 +639,10 @@ public final class RuleRowHelper {
         if (oneCellTable) {
             if (!isFormula(dataTable)) {
                 return loadOneCellArray(dataTable, paramType, arrayType, paramName, ruleName, openlAdaptor);
-            } else {
-                return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
             }
-        } else {
-            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType, arrayType);
+            return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         }
+        return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType, arrayType);
     }
 
     /**
@@ -713,9 +711,8 @@ public final class RuleRowHelper {
         final var width = dataTable.getWidth();
         if (!paramType.isArray() || height == 1 || width == 1) {
             return loadOneDimArray(dataTable, paramName, ruleName, openlAdaptor, aggregateType, paramType);
-        } else {
-            return loadTwoDimArray(dataTable, paramName, ruleName, openlAdaptor, aggregateType, paramType);
         }
+        return loadTwoDimArray(dataTable, paramName, ruleName, openlAdaptor, aggregateType, paramType);
     }
 
     private static Object loadOneDimArray(ILogicalTable dataTable,
@@ -738,15 +735,14 @@ public final class RuleRowHelper {
         }
         if (hasFormulas) {
             return new ArrayHolder(paramType, values.toArray(new Object[0]));
-        } else {
-            var aggregateInfo = aggregateType.getAggregateInfo();
-            var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
-            var index = aggregateInfo.getIndex(aggregateType);
-            for (var i = 0; i < values.size(); i++) {
-                index.setValue(array, i, values.get(i));
-            }
-            return array;
         }
+        var aggregateInfo = aggregateType.getAggregateInfo();
+        var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+        var index = aggregateInfo.getIndex(aggregateType);
+        for (var i = 0; i < values.size(); i++) {
+            index.setValue(array, i, values.get(i));
+        }
+        return array;
     }
 
     /**
@@ -801,9 +797,8 @@ public final class RuleRowHelper {
         }
         if (hasFormulas) {
             return new ArrayHolder(paramType, values.toArray(new Object[0][0]));
-        } else {
-            return makeTwoDimArray(dataTable, aggregateType, paramType, values);
         }
+        return makeTwoDimArray(dataTable, aggregateType, paramType, values);
     }
 
     /**

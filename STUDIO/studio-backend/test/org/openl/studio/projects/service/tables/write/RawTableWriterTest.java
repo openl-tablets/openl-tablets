@@ -11,6 +11,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -416,6 +417,25 @@ class RawTableWriterTest {
         assertFalse(TableWriter.sameValue(new Object[]{1}, List.of(1, 2)));
         assertFalse(TableWriter.sameValue(List.of("a", "b"), List.of("a", "c")));
         assertFalse(TableWriter.sameValue("1", 1));
+    }
+
+    /**
+     * A cell keeps a number a double does not hold as its text: the same number written again is no change. Another
+     * text of the same value, such as one OpenL cannot read, is written over.
+     */
+    @Test
+    void comparesNumberBeyondDoubleWithItsText() {
+        assertTrue(TableWriter.sameValue("9007199254740993", 9007199254740993L));
+        assertTrue(TableWriter.sameValue("0.66666666666666663", new BigDecimal("0.66666666666666663")));
+        assertTrue(TableWriter.sameValue("1E999999999", new BigDecimal("1E+999999999")));
+        assertFalse(TableWriter.sameValue("9007199254740995", 9007199254740993L));
+        assertFalse(TableWriter.sameValue("abc", 9007199254740993L));
+        assertFalse(TableWriter.sameValue("09007199254740993", 9007199254740993L));
+        assertFalse(TableWriter.sameValue("9.007199254740993E+15", 9007199254740993L));
+        assertFalse(TableWriter.sameValue("1E+999999999", new BigDecimal("1E+999999999")));
+        assertFalse(TableWriter.sameValue("9007199254740993", Double.NaN));
+        assertFalse(TableWriter.sameValue("9007199254740993", Double.POSITIVE_INFINITY));
+        assertFalse(TableWriter.sameValue("9007199254740993", Float.NEGATIVE_INFINITY));
     }
 
     @Test

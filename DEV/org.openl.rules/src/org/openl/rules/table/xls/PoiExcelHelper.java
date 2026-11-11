@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -150,8 +151,40 @@ public final class PoiExcelHelper {
     }
 
     /**
-     * Writes a date into a cell as the number of days Excel counts it by, stored as {@link #setNumber} stores a
-     * number: a date of no time of the day is a whole number.
+     * Writes a number into a cell, as {@link #setNumber(Cell, double)} does when a {@code double} holds it exactly.
+     *
+     * <p>A cell keeps a number as a {@code double}. A number it cannot hold so ({@link NumberUtils#isHeldByDouble})
+     * is written as a text, which OpenL reads back as the same number: a {@link java.math.BigDecimal} of more digits,
+     * such as {@code 0.66666666666666663}, a {@link Long} or a {@link java.math.BigInteger} a {@code double} rounds,
+     * {@code NaN} and the infinities. A {@link java.math.BigDecimal} of a large or a small exponent, such as
+     * {@code 1E999999999}, is written in scientific notation, as long as its digits only.
+     *
+     * <p>Excel functions such as {@code SUM} skip a text, so an Excel formula over such a cell leaves the number out.
+     *
+     * @return whether the number was written as a number
+     */
+    public static boolean setNumber(Cell cell, Number number) {
+        if (!NumberUtils.isHeldByDouble(number)) {
+            cell.setCellValue(textOf(number));
+            return false;
+        }
+        setNumber(cell, number.doubleValue());
+        return true;
+    }
+
+    /**
+     * The text {@link #setNumber(Cell, Number)} writes for a number a {@code double} does not hold exactly.
+     *
+     * <p>A {@link BigDecimal} of a large or a small exponent is written in scientific notation without the plus sign
+     * of its exponent, such as {@code 1E999999999}, as OpenL reads no other.
+     */
+    public static String textOf(Number number) {
+        return number instanceof BigDecimal ? number.toString().replace("E+", "E") : number.toString();
+    }
+
+    /**
+     * Writes a date into a cell as the number of days Excel counts it by, stored as
+     * {@link #setNumber(Cell, double)} stores a number: a date of no time of the day is a whole number.
      */
     public static void setDate(Cell cell, Date date) {
         cell.setCellValue(date);

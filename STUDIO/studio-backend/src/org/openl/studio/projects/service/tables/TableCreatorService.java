@@ -467,7 +467,7 @@ public class TableCreatorService {
         switch (value) {
             case null -> cell.setBlank();
             case Boolean booleanValue -> cell.setCellValue(booleanValue);
-            case Number numberValue -> PoiExcelHelper.setNumber(cell, numberValue.doubleValue());
+            case Number numberValue -> PoiExcelHelper.setNumber(cell, numberValue);
             case Collection<?> values -> cell.setCellValue(XlsCellArrayWriter.serialize(values.toArray()));
             case Object[] values -> cell.setCellValue(XlsCellArrayWriter.serialize(values));
             case Date dateValue -> {
