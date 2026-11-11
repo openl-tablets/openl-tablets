@@ -1,0 +1,5 @@
+PUT /rest/admin/tag-config/types/{TAG_TYPE_ID} HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{"name":"${TAG_TYPE_RENAMED}","extensible":true,"nullable":true}

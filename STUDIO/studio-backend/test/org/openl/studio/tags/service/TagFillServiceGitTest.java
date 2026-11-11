@@ -46,6 +46,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.audit.service.TagAuditor;
 import org.openl.studio.projects.service.files.ProjectFileLookupService;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -135,7 +136,7 @@ class TagFillServiceGitTest {
                 mock(UserManagementService.class), designTimeRepository);
         var provider = new TagCatalogProvider(tagTypeService, tagService);
         return new TagFillService(tagTemplateService, provider, new TagAssignmentValidator(provider, tagService),
-                files) {
+                files, mock(TagAuditor.class)) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return workspace;

@@ -141,6 +141,42 @@ public enum AuditAction {
     @JsonProperty("settingsChanged")
     SETTINGS_CHANGED(AuditCategory.SETTINGS),
 
+    @Schema(description = "A tag type was created, with the tags it was created with.")
+    @JsonProperty("tagTypeCreated")
+    TAG_TYPE_CREATED(AuditCategory.TAG),
+
+    @Schema(description = "A tag type was renamed, or made extensible or required, or no longer so.")
+    @JsonProperty("tagTypeUpdated")
+    TAG_TYPE_UPDATED(AuditCategory.TAG),
+
+    @Schema(description = "A tag type was deleted with its tags.")
+    @JsonProperty("tagTypeDeleted")
+    TAG_TYPE_DELETED(AuditCategory.TAG),
+
+    @Schema(description = "The tag types were arranged in another order.")
+    @JsonProperty("tagTypesReordered")
+    TAG_TYPES_REORDERED(AuditCategory.TAG),
+
+    @Schema(description = "A tag was added to a tag type.")
+    @JsonProperty("tagAdded")
+    TAG_ADDED(AuditCategory.TAG),
+
+    @Schema(description = "A tag of a tag type was renamed.")
+    @JsonProperty("tagRenamed")
+    TAG_RENAMED(AuditCategory.TAG),
+
+    @Schema(description = "A tag was deleted from a tag type.")
+    @JsonProperty("tagDeleted")
+    TAG_DELETED(AuditCategory.TAG),
+
+    @Schema(description = "The project name templates the tags are derived by changed.")
+    @JsonProperty("tagTemplatesChanged")
+    TAG_TEMPLATES_CHANGED(AuditCategory.TAG),
+
+    @Schema(description = "Projects got the tags the project name templates derive for them.")
+    @JsonProperty("tagsFilled")
+    TAGS_FILLED(AuditCategory.TAG),
+
     @Schema(description = "OpenL Studio started.")
     @JsonProperty("applicationStarted")
     APPLICATION_STARTED(AuditCategory.APPLICATION),

@@ -21,6 +21,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.audit.service.TagAuditor;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.validator.ModifyRestrictedException;
@@ -55,6 +56,7 @@ public class TagFillService {
     private final TagCatalogProvider tagCatalogProvider;
     private final TagAssignmentValidator tagAssignmentValidator;
     private final ProjectFileRootFactory projectFileRootFactory;
+    private final TagAuditor tagAuditor;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -95,18 +97,29 @@ public class TagFillService {
      * <p>A project that already carries every value the templates derive for it is not reported: there is
      * nothing to fill in it, as in {@link #preview()}.
      *
+     * <p>The projects that got values are announced to the audit log in one event, each with its values.
+     *
      * @param projectNames business names of the projects to fill, empty for all of them
      * @return what filling did to each project it was asked for that a template derives a missing value for
      */
     public List<TagFillResult> fill(@Nullable Collection<String> projectNames) {
         var workspace = getUserWorkspace();
         var results = new ArrayList<TagFillResult>();
+        // The projects themselves, as two of them may have one name.
+        var filled = new LinkedHashMap<RulesProject, Map<String, String>>();
         for (RulesProject project : workspace.getProjects()) {
             if (isRequested(project, projectNames)) {
-                fillProject(project).ifPresent(results::add);
+                fillProject(project).ifPresent(result -> {
+                    results.add(result);
+                    if (result.outcome() == TagFillOutcome.UPDATED) {
+                        filled.put(project, result.tags());
+                    }
+                });
             }
         }
-        if (results.stream().anyMatch(result -> result.outcome() == TagFillOutcome.UPDATED)) {
+        // The projects are written by now, so the fill is announced before anything else can fail.
+        tagAuditor.filled(filled);
+        if (!filled.isEmpty()) {
             workspace.refresh();
         }
         return results;

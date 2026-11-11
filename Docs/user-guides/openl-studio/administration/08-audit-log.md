@@ -3,7 +3,8 @@
 The audit log records who signed in to OpenL Studio and when, whose sign-in was refused, who signed out, who changed
 users, groups, personal access tokens and access rights, which requests were refused for lack of permission, who
 created, saved, deleted and deployed projects and changed the branches of their repositories, who changed the
-system settings, when OpenL Studio started, restarted and stopped, and who read the log itself. OpenL Studio keeps it
+system settings and the tags configuration, when OpenL Studio started, restarted and stopped, and who read the log
+itself. OpenL Studio keeps it
 in its database in every user mode but Single-User, which has no sign-in. Only users with administrator privileges see
 it.
 
@@ -123,6 +124,21 @@ The log records these actions:
   environment of the server sets, such as the values of a Helm chart, changes with a restart: the next start
   records the settings added, changed and removed since the last start by their names only, marked as coming from
   the server environment. No value of the environment is recorded.
+- **Tag type created** — a tag type added on the [Tags](06-tags.md#managing-tags) page, by its name or from the tags
+  found in projects, with whether it is extensible and required and the tags it was created with.
+- **Tag type changed** — a tag type renamed, or **Extensible** or **Required** selected or cleared, with each value
+  before and after.
+- **Tag type deleted** — a tag type deleted, with the tags deleted with it.
+- **Tag types reordered** — the tag types arranged in another order, with the order before and after.
+- **Tag added**, **Tag renamed**, **Tag deleted** — a tag of a tag type, which is the object: the tag added or
+  deleted, or its name before and after. A tag OpenL Studio creates for an extensible tag type, when a filled or a
+  created project brings a value the tag type does not have, is recorded as added too.
+- **Project name templates changed** — the templates saved by **Save Templates**, with the templates added and
+  removed, and, when the templates that stayed changed their priority, with their order before and after.
+- **Tags filled for projects** — the projects **Fill Tags** changed, all in one event, each with the tag values it
+  got. The projects left alone are not part of it. Projects of one name are told apart by their repository and
+  folder, which follow the name. A tag of a project changed on its **Overview** tab is part of the project files and
+  is recorded as **Project saved**.
 - **OpenL Studio started** — a start of OpenL Studio, with its version.
 - **OpenL Studio restarted** — a restart that applied the saved system settings without a stop of the server. It
   ends every browser session, so the users sign in again, and each session it ended is recorded as ended.

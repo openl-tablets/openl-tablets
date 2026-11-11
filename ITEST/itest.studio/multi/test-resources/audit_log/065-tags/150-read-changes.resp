@@ -1,0 +1,165 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagTypeDeleted",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE_RENAMED}",
+      "details": {
+        "tags": [
+          "Europe"
+        ]
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagTemplatesChanged",
+      "outcome": "success",
+      "targetType": "tagTemplates",
+      "details": {
+        "removed": [
+          "%${TAG_TYPE_RENAMED}%-*"
+        ]
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagTemplatesChanged",
+      "outcome": "success",
+      "targetType": "tagTemplates",
+      "details": {
+        "added": [
+          "%${TAG_TYPE_RENAMED}%-*"
+        ]
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagTypeUpdated",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE_RENAMED}",
+      "details": {
+        "changed": {
+          "name": {
+            "from": "${TAG_TYPE}",
+            "to": "${TAG_TYPE_RENAMED}"
+          },
+          "required": {
+            "from": true,
+            "to": false
+          }
+        }
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagDeleted",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE}",
+      "details": {
+        "tag": "US"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagRenamed",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE}",
+      "details": {
+        "changed": {
+          "tag": {
+            "from": "EU",
+            "to": "Europe"
+          }
+        }
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagAdded",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE}",
+      "details": {
+        "tag": "US"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagAdded",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE}",
+      "details": {
+        "tag": "EU"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "tag",
+      "action": "tagTypeCreated",
+      "outcome": "success",
+      "targetType": "tagType",
+      "target": "${TAG_TYPE}",
+      "details": {
+        "extensible": true,
+        "required": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 20,
+  "numberOfElements": 9,
+  "total": "###"
+}

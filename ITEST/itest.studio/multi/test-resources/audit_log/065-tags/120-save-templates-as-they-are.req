@@ -1,0 +1,5 @@
+PUT /rest/admin/tag-config/templates HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+["%${TAG_TYPE_RENAMED}%-*"]

@@ -13,6 +13,14 @@ public interface TagTemplateDao extends Dao<TagTemplate> {
     @Transactional
     List<TagTemplate> getAll();
 
+    /**
+     * The texts of the templates, the one of the highest priority first.
+     *
+     * <p>Only the texts are read, so the templates can be replaced in the same transaction.
+     */
+    @Transactional
+    List<String> getTemplates();
+
     @Transactional
     void deleteAll();
 }

@@ -26,7 +26,8 @@ public enum AuditTargetType {
     @JsonProperty("repository")
     REPOSITORY,
 
-    @Schema(description = "A project, named by its name; the details name its repository.")
+    @Schema(description = "A project, named by its name; the details name its repository. "
+            + "The projects a fill of the tags changed, named one after another.")
     @JsonProperty("project")
     PROJECT,
 
@@ -40,5 +41,13 @@ public enum AuditTargetType {
 
     @Schema(description = "The system settings, named by the properties that changed.")
     @JsonProperty("settings")
-    SETTINGS
+    SETTINGS,
+
+    @Schema(description = "A tag type, named by its name; the tag types reordered, named in their new order.")
+    @JsonProperty("tagType")
+    TAG_TYPE,
+
+    @Schema(description = "The project name templates the tags are derived by; they have no name.")
+    @JsonProperty("tagTemplates")
+    TAG_TEMPLATES
 }

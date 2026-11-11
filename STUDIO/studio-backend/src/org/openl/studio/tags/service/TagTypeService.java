@@ -13,26 +13,55 @@ import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.dao.TagTypeDao;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
+import org.openl.studio.audit.service.TagAuditor;
 import org.openl.studio.tags.model.TagDTO;
 import org.openl.studio.tags.model.TagTypeDTO;
 
+/**
+ * Keeps the tag types of the tags configuration, with their order and their tags.
+ *
+ * <p>Every change is announced to the audit log in the transaction of the change: a tag type created, changed,
+ * deleted or moved, and a tag added to it. A change that leaves every value as it was announces nothing.
+ */
 @RequiredArgsConstructor
 @Service
 public class TagTypeService {
 
     private final TagTypeDao tagTypeDao;
     private final TagDao tagDao;
+    private final TagAuditor tagAuditor;
 
     public List<TagType> getAllTagTypes() {
         return tagTypeDao.getAll();
     }
 
+    /** Creates the tag type, with no tags yet. */
+    @Transactional
     public void save(TagType tagType) {
         tagTypeDao.save(tagType);
+        tagAuditor.typeCreated(tagType, List.of());
     }
 
-    public void update(TagType tagType) {
-        tagTypeDao.update(tagType);
+    /**
+     * Gives a tag type another name, and sets whether it is extensible and whether a project may have no value
+     * of it.
+     *
+     * @param id the ID of the tag type
+     * @return {@code false}, changing nothing, when the ID names no tag type
+     */
+    @Transactional
+    public boolean update(Long id, String name, boolean nullable, boolean extensible) {
+        var type = tagTypeDao.getById(id);
+        if (type == null) {
+            return false;
+        }
+        // The event compares the tag type as it was, so it is announced before the values are set.
+        tagAuditor.typeChanged(type, name, nullable, extensible);
+        type.setName(name);
+        type.setNullable(nullable);
+        type.setExtensible(extensible);
+        tagTypeDao.update(type);
+        return true;
     }
 
     /**
@@ -48,11 +77,14 @@ public class TagTypeService {
         if (!known.containsAll(ids)) {
             return false;
         }
+        var before = namesOf(types);
         // The types are read in this transaction, so the changed ones are written when it commits.
         for (var type : types) {
             var position = ids.indexOf(type.getId());
             type.setDisplayOrder(position < 0 ? null : position);
         }
+        // Listing them again writes the new positions first, so the names come in the order just set.
+        tagAuditor.typesReordered(before, namesOf(tagTypeDao.getAll()));
         return true;
     }
 
@@ -70,28 +102,58 @@ public class TagTypeService {
         tags.forEach((typeName, values) -> {
             var type = tagTypeDao.getByName(typeName);
             if (type == null) {
-                type = new TagType();
-                type.setName(typeName);
-                type.setNullable(true);
-                tagTypeDao.save(type);
-            }
-            for (var value : values) {
-                defineValue(type, value);
+                defineType(typeName, values);
+            } else {
+                defineValues(type, values).forEach(value -> tagAuditor.tagAdded(type.getName(), value));
             }
         });
     }
 
-    private void defineValue(TagType type, String value) {
-        if (tagDao.getByName(type.getId(), value) == null) {
-            var tag = new Tag();
-            tag.setType(type);
-            tag.setName(value);
-            tagDao.save(tag);
-        }
+    /** Creates an optional tag type that is not extensible, with the given values. */
+    private void defineType(String name, List<String> values) {
+        var type = new TagType();
+        type.setName(name);
+        type.setNullable(true);
+        tagTypeDao.save(type);
+        tagAuditor.typeCreated(type, defineValues(type, values));
     }
 
+    /** Adds the values the tag type does not have yet, and answers the ones it added. */
+    private List<String> defineValues(TagType type, List<String> values) {
+        var added = new ArrayList<String>();
+        for (var value : values) {
+            if (tagDao.getByName(type.getId(), value) == null) {
+                var tag = new Tag();
+                tag.setType(type);
+                tag.setName(value);
+                tagDao.save(tag);
+                added.add(value);
+            }
+        }
+        return added;
+    }
+
+    /**
+     * Deletes a tag type with its tags.
+     *
+     * @return {@code false} when the ID names no tag type
+     */
+    @Transactional
     public boolean delete(Long id) {
-        return tagTypeDao.deleteById(id);
+        var type = tagTypeDao.getById(id);
+        if (type == null) {
+            return false;
+        }
+        var tags = tagDao.getNames(id);
+        if (!tagTypeDao.deleteById(id)) {
+            return false;
+        }
+        tagAuditor.typeDeleted(type.getName(), tags);
+        return true;
+    }
+
+    private static List<String> namesOf(List<TagType> types) {
+        return types.stream().map(TagType::getName).toList();
     }
 
     public TagType getById(Long id) {

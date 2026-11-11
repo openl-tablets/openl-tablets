@@ -42,6 +42,10 @@ public enum AuditCategory {
     @JsonProperty("settings")
     SETTINGS,
 
+    @Schema(description = "The tag types, their tags and the project name templates the tags are derived by.")
+    @JsonProperty("tag")
+    TAG,
+
     @Schema(description = "OpenL Studio itself: its starts, restarts and stops.")
     @JsonProperty("application")
     APPLICATION,

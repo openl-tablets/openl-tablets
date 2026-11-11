@@ -48,6 +48,18 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
 
     @Override
     @Transactional
+    public List<String> getNames(Long tagTypeId) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(Tag.class);
+        criteria.select(root.get("name"))
+                .where(builder.equal(root.get("type").get("id"), tagTypeId))
+                .orderBy(builder.asc(builder.upper(root.get("name"))));
+        return getSession().createQuery(criteria).getResultList();
+    }
+
+    @Override
+    @Transactional
     public Tag getByTagTypeAndName(String tagType, String tagName) {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(Tag.class);

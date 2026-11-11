@@ -158,9 +158,14 @@ const inWordsOf = (t: TFunction) => (dictionary: string, code: string) => (
     t(`audit:${dictionary}.${code}`, { defaultValue: code })
 )
 
+/** Whether a value of the details holds values under names, such as the tags of a project by tag type. */
+const isNamedValues = (value: unknown): value is Record<string, unknown> => (
+    typeof value === 'object' && value !== null && !Array.isArray(value)
+)
+
 /**
  * A value of the details in words: a code as its dictionary names it, a flag as yes or no, a list item by item,
- * and anything else as it is written.
+ * values under names name by name, and anything else as it is written.
  */
 const detailText = (t: TFunction, key: string, value: unknown): string => {
     const dictionary = CODED_DETAILS[key]
@@ -173,6 +178,15 @@ const detailText = (t: TFunction, key: string, value: unknown): string => {
     }
     if (Array.isArray(value) && value.every(item => typeof item === 'string')) {
         return value.map(word).join(', ')
+    }
+    if (isNamedValues(value)) {
+        // The names are data, such as a project or a tag type, so no dictionary names the values under them.
+        return Object.entries(value)
+            .map(([name, item]) => {
+                const text = detailText(t, '', item)
+                return isNamedValues(item) ? `${name} (${text})` : `${name}: ${text}`
+            })
+            .join(', ')
     }
     return JSON.stringify(value)
 }
