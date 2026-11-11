@@ -1,9 +1,11 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
@@ -11,14 +13,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.excel.grid.MarkdownModuleWriter;
+import org.openl.excel.parser.markdown.MarkdownGrid;
+import org.openl.rules.data.OneLineRecords;
+import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.GridTable;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -29,11 +37,16 @@ import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.RegionShift;
 import org.openl.studio.projects.service.tables.format.TableRegionLayout;
+import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.util.BooleanUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Copies a table by rebuilding it on the destination sheet with {@link TableBuilder}, the way the table editor writes a
  * new table.
+ *
+ * <p>A destination of Markdown files takes the values and the merged cells of the copy, and a Markdown source gives
+ * them: the formatting stays with workbooks.
  * <p>
  * The body is copied as a live grid, so it keeps its styles, merged cells and comments. The header is written with the
  * source header's style and renamed after the copy; the properties are written with the source properties' style. The
@@ -54,7 +67,7 @@ public class TableCopyServiceImpl implements TableCopyService {
 
     @Override
     public String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
-            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled) {
+            IWritableGrid destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled) {
         var declared = properties == null ? null : stamped(toPropertyMap(properties));
         if (declared != null) {
             requireReadableVersion(source, declared.get(TableVersionService.VERSION_PROPERTY));
@@ -67,15 +80,26 @@ public class TableCopyServiceImpl implements TableCopyService {
         original.edit();
         try {
             // The copy takes the roles its module gives it, bound alone, or else the regions of its source, laid out as
-            // its last compile read it.
-            var layout = formatting.onSave() ? RegionShift.ofCompiled(source) : null;
-            var bindAgainst = formatting.onSave() ? compiled : null;
+            // its last compile read it. A file of text keeps no formatting.
+            var formats = formatting.onSave() && destGrid instanceof XlsSheetGridModel;
+            var layout = formats ? RegionShift.ofCompiled(source) : null;
+            var bindAgainst = formats ? compiled : null;
             // The copy is numbered among the tables of the module it is written to, as its next compile numbers it.
             var module = moduleTables.length == 0 ? null : TableIds.moduleOf(moduleTables[0]);
             var copyId = build(source, original, newName, declared, destGrid, new CopyLook(layout, bindAgainst),
                     module);
             if (replacesTheSource) {
                 standDown(source);
+            }
+            if (replacesTheSource && MarkdownTables.isMarkdown(source)) {
+                // A Markdown file holds one table, so the source stands down in a file of its own. A source file
+                // another program changed is refused before anything is written. The copy is written first: a copy
+                // that cannot be written leaves the file of the source as it was, its table still the active version
+                refuseChangedOutside(source);
+                TableWriter.saveWorkbook(destGrid);
+                TableWriter.saveWorkbook((IWritableGrid) original.getGrid());
+            } else {
+                TableWriter.saveWorkbook(destGrid);
             }
             return copyId;
         } finally {
@@ -92,10 +116,12 @@ public class TableCopyServiceImpl implements TableCopyService {
      *
      * <p>Both must be compiled together, which is taken here as the same workbook. A module may hold more than one
      * workbook, so a copy into an included workbook of the same module is left alone rather than answered wrongly.
-     * The version, on the other hand, has to be free of every version in the module, whichever workbook holds it.
+     * The files of a Markdown module are compiled together, so a copy of a table of the module into it is compiled
+     * with the source. The version, on the other hand, has to be free of every version in the module, whichever
+     * workbook holds it.
      */
     private boolean supersedes(IOpenLTable source, String newName, @Nullable Map<String, Object> declared,
-            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables) {
+            IWritableGrid destGrid, TableSyntaxNode[] moduleTables) {
         if (!newName.equals(source.getName())) {
             return false;
         }
@@ -109,7 +135,7 @@ public class TableCopyServiceImpl implements TableCopyService {
         if (version != null) {
             requireFreeVersion(source, version.toString(), dimensions, moduleTables);
         }
-        if (!source.isVersionable() || declaredInactive(declared) || !sameWorkbook(source, destGrid)
+        if (!source.isVersionable() || declaredInactive(declared) || !compiledTogether(source, destGrid, moduleTables)
                 || !versionService.sameGroup(source.getProperties(), dimensions)) {
             return false;
         }
@@ -140,6 +166,16 @@ public class TableCopyServiceImpl implements TableCopyService {
         var active = declared.get(TableVersionService.ACTIVE_PROPERTY);
         // Read the way the engine reads the cell, which takes 'no', 'off' and 'f' for false as well.
         return active != null && Boolean.FALSE.equals(BooleanUtils.toBooleanObject(active.toString().trim()));
+    }
+
+    private static boolean compiledTogether(IOpenLTable source, IWritableGrid destGrid,
+            TableSyntaxNode[] moduleTables) {
+        if (destGrid instanceof XlsSheetGridModel sheet) {
+            return sameWorkbook(source, sheet);
+        }
+        var uri = source.getUri();
+        return MarkdownTables.isMarkdown(source)
+                && Arrays.stream(moduleTables).anyMatch(table -> uri.equals(table.getUri()));
     }
 
     private static boolean sameWorkbook(IOpenLTable source, XlsSheetGridModel destGrid) {
@@ -186,8 +222,33 @@ public class TableCopyServiceImpl implements TableCopyService {
         editor.keepTableId();
     }
 
+    /** Refuses a source whose file another program changed since it was read, as its save would. */
+    private static void refuseChangedOutside(IOpenLTable source) {
+        var sheet = source.getSyntaxNode().getXlsSheetSourceCodeModule();
+        var workbook = sheet == null ? null : sheet.getWorkbookSource();
+        if (workbook != null && workbook.isChangedOnDisk()) {
+            throw RuntimeExceptionWrapper.wrap(new WorkbookChangedOutsideException(workbook.getSourceFile()));
+        }
+    }
+
+    /**
+     * Returns the records of a Data, a Test or a Run table copied into a Markdown file, which holds a record in one
+     * row, each element of a collection in columns of its own, with no merged cell. The rows above the records are
+     * copied as they are.
+     *
+     * @return the records, or none for another grid or another table
+     */
+    private static Optional<Records> recordsOf(TableSyntaxNode node, IWritableGrid destGrid) {
+        if (!(destGrid instanceof MarkdownGrid)) {
+            return Optional.empty();
+        }
+        return OneLineRecords.of(node)
+                .map(oneLine -> new Records(oneLine.row(),
+                        MarkdownModuleWriter.valuesOf(oneLine, ICell::getObjectValue)));
+    }
+
     private static String build(IOpenLTable source, IGridTable original, String newName,
-            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, CopyLook look,
+            @Nullable Map<String, Object> declared, IWritableGrid destGrid, CopyLook look,
             @Nullable XlsModuleSyntaxNode module) {
         var node = source.getSyntaxNode();
         var type = node.getNodeType();
@@ -220,10 +281,15 @@ public class TableCopyServiceImpl implements TableCopyService {
             }
         }
 
-        var body = original.getSubtable(0, bodyStartRow, original.getWidth(), original.getHeight() - bodyStartRow);
+        var records = recordsOf(node, destGrid);
+        var keptRows = records.map(Records::row).orElse(original.getHeight()) - bodyStartRow;
+        var body = original.getSubtable(0, bodyStartRow, original.getWidth(), keptRows);
+        var recordRows = records.map(written -> written.values().size()).orElse(0);
+        var keptWidth = keptRows > 0 ? original.getWidth() : 0;
+        var bodyWidth = records.map(written -> Math.max(written.width(), keptWidth)).orElse(original.getWidth());
         int newPropertyRows = newProperties == null ? 0 : newProperties.size();
-        var width = tableWidth(original.getWidth(), newPropertyRows > 0);
-        var height = (header != null ? TableBuilder.HEADER_HEIGHT : 0) + newPropertyRows + body.getHeight();
+        var width = tableWidth(bodyWidth, newPropertyRows > 0);
+        var height = (header != null ? TableBuilder.HEADER_HEIGHT : 0) + newPropertyRows + keptRows + recordRows;
 
         try {
             builder.beginTable(width, height);
@@ -233,7 +299,10 @@ public class TableCopyServiceImpl implements TableCopyService {
             if (newPropertyRows > 0) {
                 builder.writeProperties(newProperties, propertiesStyle);
             }
-            builder.writeGridTable(body);
+            if (keptRows > 0) {
+                builder.writeGridTable(body);
+            }
+            records.ifPresent(written -> builder.writeValues(written.values()));
             var copy = new GridTable(builder.getTableRegion(), destGrid);
             builder.endTable();
             var layout = look.layoutOf(copy);
@@ -339,6 +408,19 @@ public class TableCopyServiceImpl implements TableCopyService {
             throw new BadRequestException("table.copy.name-not-found.message");
         }
         return header.substring(0, start) + copyName + header.substring(start + sourceName.length());
+    }
+
+    /**
+     * The records of a Data, a Test or a Run table, a row each, as a Markdown file holds them.
+     *
+     * @param row    the first row of the records in the source, under its header and its properties
+     * @param values the values of the records by row, their field names, references and titles first
+     */
+    private record Records(int row, List<List<@Nullable Object>> values) {
+
+        int width() {
+            return values.stream().mapToInt(List::size).max().orElse(0);
+        }
     }
 
     /**

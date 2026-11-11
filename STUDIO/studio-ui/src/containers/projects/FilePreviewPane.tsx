@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { errorMessage as message } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -26,12 +26,17 @@ import {
     updateFileContent,
 } from '../../services/files'
 import { isMessageFilePath } from '../../services/localization'
+import type { ProjectStatusDetailedMessage, ProjectStatusUpdate } from '../../services/projectStatus'
+import { searchTables } from '../../services/modules'
+import { isMarkdownPath } from '../../utils/workbooks'
 import { useSharedStyles } from './sharedStyles'
+import { basename, trimTrailingSlashes } from './projectPaths'
 import { CopyFileModal } from './CopyFileModal'
 import { DeleteFileModal } from './DeleteFileModal'
 import { MoveFileModal } from './MoveFileModal'
 import { UpdateFileModal } from './UpdateFileModal'
 import { useMessageFileProblems } from './useMessageFileProblems'
+import type { EditorProblem } from './CodeEditor'
 
 // The code editor pulls in CodeMirror; load it only when a text file is actually opened.
 const CodeEditor = lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })))
@@ -70,6 +75,8 @@ interface FilePreviewPaneProps {
     projectName: string
     branch?: string | null
     path: string | null
+    /** The line of the file to show the cursor at, counted from 1: the one a compilation message points to. */
+    line?: number | undefined
     canWrite: boolean
     canDelete: boolean
     onChanged: () => void
@@ -95,6 +102,46 @@ interface FilePreviewPaneProps {
      * project in the workspace and refuses a closed one. Every caller tells it from the status of the project.
      */
     projectOpened: boolean
+    /** Opens a table of a module in the editor: the one a Markdown file of a module folder holds. */
+    onOpenTable?: (moduleName: string, tableId: string) => void
+    /**
+     * The compilation status of the project: its messages tell where a Markdown file of a module folder breaks the
+     * format, once the module of the file is compiled. Absent while the project is not compiled.
+     */
+    compileStatus?: ProjectStatusUpdate | null | undefined
+}
+
+/**
+ * Whether the messages of a compilation are those of a module: the compilation is over, so every message of it is told,
+ * and it compiled the module, the one opened or the whole project.
+ */
+const isCompiled = (status: ProjectStatusUpdate | null | undefined, module: string): boolean =>
+    status !== null && status !== undefined && status.compileState !== 'idle' && status.compileState !== 'compiling'
+    && (status.compilation?.modules?.compiledModules ?? []).includes(module)
+
+/**
+ * Where the compilation found a Markdown file breaking the format, each at the place of the file it is in, whether the
+ * message names a cell of the table or a line of the file.
+ */
+const formatProblemsOf = (messages: readonly ProjectStatusDetailedMessage[], path: string): EditorProblem[] =>
+    messages.flatMap(({ location, summary, severity }) => {
+        if (location === undefined || location.type === 'localization' || location.path !== path) {
+            return []
+        }
+        const told = { message: summary, severity: severity === 'ERROR' ? 'error' as const : 'warning' as const }
+        return (location.places ?? []).map(place => ({ ...told, place }))
+    })
+
+/**
+ * The module whose table a Markdown file holds: the module of the folder the file is in, at any depth.
+ *
+ * <p>A Markdown file of no module folder holds no table: it is documentation.
+ */
+const tableModuleOf = (modules: Record<string, string>, path: string): string | undefined => {
+    const folder = Object.keys(modules)
+        .filter(modulePath => path.startsWith(`${trimTrailingSlashes(modulePath)}/`))
+        .sort((a, b) => b.length - a.length)[0]
+    return folder === undefined ? undefined : modules[folder]
 }
 
 /**
@@ -235,13 +282,100 @@ const messageFileOf = (path: string | null, checkable: boolean) => ({
 })
 
 /**
+ * The module of a Markdown file of a module folder, which holds a table; none for any other file.
+ */
+const markdownTableModuleOf = (modules: Record<string, string>, path: string | null): string | undefined =>
+    path && isMarkdownPath(path) ? tableModuleOf(modules, path) : undefined
+
+/**
+ * Where the text of a file is marked as wrong. A localization file is checked by the server for a project it holds
+ * open. A Markdown file of a module folder holds a table: the compilation of its module tells where the file breaks
+ * the format. Until the module is compiled, nothing is known about it, so nothing is marked.
+ */
+const useFileProblems = (
+    selection: FileSelection,
+    editable: boolean,
+    projectOpened: boolean,
+    originalOfSelection: string | null,
+    modules: Record<string, string>,
+    compileStatus: ProjectStatusUpdate | null | undefined
+): EditorProblem[] | undefined => {
+    const { path } = selection
+    const messageFile = messageFileOf(path, editable && projectOpened)
+    const messageProblems = useMessageFileProblems(selection.projectId, messageFile.checked, originalOfSelection)
+    const formatModule = editable ? markdownTableModuleOf(modules, path) : undefined
+    const formatChecked = formatModule !== undefined && isCompiled(compileStatus, formatModule)
+    const formatProblems = useMemo(
+        () => (formatChecked && path
+            ? formatProblemsOf(compileStatus?.compilation?.messages?.items ?? [], path)
+            : undefined),
+        [path, compileStatus, formatChecked]
+    )
+    return messageProblems ?? formatProblems
+}
+
+/**
+ * What the pane shows for a file it cannot show as text: a workbook the project declares as a module is read in the
+ * editor, any other file is downloaded.
+ */
+const BinaryFilePlaceholder = ({ module, onDownload, onOpenModule }: {
+    module: string | undefined
+    onDownload: () => void
+    onOpenModule: ((module: string) => void) | undefined
+}) => {
+    const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
+    return (
+        <div className={shared.panePlaceholder} data-testid="file-preview-binary">
+            <span>{t(module ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>
+            {module ? (
+                <Button
+                    data-testid="file-open-module"
+                    icon={<TableOutlined />}
+                    onClick={() => onOpenModule?.(module)}
+                    type="primary"
+                >
+                    {t('browser.files.open_in_editor')}
+                </Button>
+            ) : (
+                <Button icon={<DownloadOutlined />} onClick={onDownload}>
+                    {t('browser.files.download')}
+                </Button>
+            )}
+        </div>
+    )
+}
+
+/**
  * The right pane of the Files tab: shows the selected file. Text files open read-only in a
  * syntax-highlighted viewer; the pencil switches to an editable view with save and cancel. Binary files
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule, onOpenLocalization, projectOpened }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({
+    projectId,
+    repositoryId,
+    projectName,
+    branch,
+    path,
+    line,
+    folders,
+    canWrite,
+    canDelete,
+    onChanged,
+    onDeleted,
+    onMoved,
+    reloadToken,
+    changedFiles = null,
+    modules = {},
+    onOpenModule,
+    onOpenLocalization,
+    onOpenTable,
+    projectOpened,
+    compileStatus,
+}: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
+    const { notification } = App.useApp()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const [activeSelection, setActiveSelection] = useState<FileSelection>({
@@ -259,17 +393,20 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     const [moving, setMoving] = useState<'move' | 'rename' | null>(null)
     const [deleting, setDeleting] = useState(false)
     const [editing, setEditing] = useState(false)
+    const [openingTable, setOpeningTable] = useState(false)
 
     const activePath = activeSelection.path
     const editable = !!activePath && isEditableTextFile(activePath)
     const { content, setContent, original, originalOfSelection, loading, error, setError, markSaved } =
         useFileText(activeSelection, editable, changedFiles, t)
-    const messageFile = messageFileOf(activePath, editable && projectOpened)
-    const problems = useMessageFileProblems(activeSelection.projectId, messageFile.checked, originalOfSelection)
+    const problems = useFileProblems(activeSelection, editable, projectOpened, originalOfSelection, modules,
+        compileStatus)
     // A workbook the project declares as a module is opened in the editor rather than exported to be read.
     const openableModule = activePath && onOpenModule ? modules[activePath] : undefined
     // A localization file is read with the other languages on the Localization screen, besides as text here.
     const openableMessages = !!activePath && onOpenLocalization !== undefined && isMessageFilePath(activePath)
+    // A Markdown file of a module folder is a table, which the editor shows as any table of a workbook.
+    const tableModule = onOpenTable ? markdownTableModuleOf(modules, activePath) : undefined
     const dirty = content !== original
     const incomingSelection: FileSelection = {
         branch: branch ?? null,
@@ -317,6 +454,28 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
             setError(message(e))
         } finally {
             setSaving(false)
+        }
+    }
+
+    const openTable = async () => {
+        if (!activePath || !tableModule) {
+            return
+        }
+        setOpeningTable(true)
+        setError(null)
+        try {
+            const tables = await searchTables(activeSelection.projectId, { module: tableModule })
+            // A table is known by the file it is written in, named from the root of the workspace
+            const table = tables.find(candidate => candidate.file?.endsWith(`/${activePath}`))
+            if (table) {
+                onOpenTable?.(tableModule, table.id)
+            } else {
+                notification.info({ title: t('browser.files.no_table', { name: basename(activePath) }) })
+            }
+        } catch (e) {
+            setError(message(e))
+        } finally {
+            setOpeningTable(false)
         }
     }
 
@@ -368,6 +527,8 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
             <div className={styles.body}>
                 <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />}>
                     <CodeEditor
+                        // The line belongs to the file the URL names, not to one still shown while it is left
+                        line={activePath === path ? line : undefined}
                         onChange={setContent}
                         path={activePath}
                         problems={problems}
@@ -416,6 +577,18 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                                     {t('browser.files.open_in_editor')}
                                 </Button>
                             )}
+                            {tableModule && (
+                                <Button
+                                    data-testid="file-open-table"
+                                    icon={<TableOutlined />}
+                                    loading={openingTable}
+                                    onClick={() => void openTable()}
+                                    size="small"
+                                    type="primary"
+                                >
+                                    {t('browser.files.open_in_editor')}
+                                </Button>
+                            )}
                             {editable && canWrite && (
                                 <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small">
                                     {t('browser.editor.edit')}
@@ -455,24 +628,11 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                 />
             ))}
             {editable ? textView : (
-                <div className={shared.panePlaceholder} data-testid="file-preview-binary">
-                    <span>{t(openableModule ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>
-                    {openableModule ? (
-                        // A workbook the project declares as a module is read in the editor, not here.
-                        <Button
-                            data-testid="file-open-module"
-                            icon={<TableOutlined />}
-                            onClick={() => onOpenModule?.(openableModule)}
-                            type="primary"
-                        >
-                            {t('browser.files.open_in_editor')}
-                        </Button>
-                    ) : (
-                        <Button icon={<DownloadOutlined />} onClick={() => downloadFile(activeSelection.projectId, activePath)}>
-                            {t('browser.files.download')}
-                        </Button>
-                    )}
-                </div>
+                <BinaryFilePlaceholder
+                    module={openableModule}
+                    onDownload={() => downloadFile(activeSelection.projectId, activePath)}
+                    onOpenModule={onOpenModule}
+                />
             )}
             <Modal
                 destroyOnHidden

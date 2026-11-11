@@ -181,7 +181,7 @@ public final class TableTestProjects {
      * than the one the existing tables were read from.
      */
     public static XlsSheetGridModel sheetGrid(Path project, String sheetName) {
-        return new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class))
+        return new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class), null)
                 .sheetGridModel(projectModel(project), sheetName);
     }
 

@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.markdown.style.message",
+  "message": "The table comes from the Markdown file 'ageFactor.md', which keeps no formatting but the indent: OpenL Studio draws the look of its table."
+}

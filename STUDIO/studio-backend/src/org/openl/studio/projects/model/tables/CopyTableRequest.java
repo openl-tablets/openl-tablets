@@ -17,8 +17,10 @@ import org.jspecify.annotations.Nullable;
  * and sheet, an optional path for a new module, and the properties the copy should have.
  *
  * @param moduleName name of the module the copy is created in
- * @param sheetName  name of the sheet the copy is created in; defaults to the copy's name
- * @param modulePath project-relative path for a new module; when absent, the module must already exist
+ * @param sheetName  name of the sheet the copy is created in; defaults to the copy's name. In a module of Markdown
+ *                   files the sheet is the folder of the file of the copy, and defaults to the module folder
+ * @param modulePath project-relative path for a new module: an .xlsx workbook, or a folder for a module of
+ *                   Markdown files; when absent, the module must already exist
  * @param name       name of the copied table
  * @param properties the copy's properties; when omitted, the source table's properties are kept
  * @author Vladyslav Pikus
@@ -28,11 +30,13 @@ public record CopyTableRequest(
         @NotBlank
         @NonNull String moduleName,
 
-        @Parameter(description = "Name of the sheet the copy is created in; defaults to the copy's name")
+        @Parameter(description = "Name of the sheet the copy is created in; defaults to the copy's name. In a module "
+                + "of Markdown files the sheet is the folder of the copy's file, and defaults to the module folder")
         @Nullable String sheetName,
 
-        @Parameter(description = "Project-relative path for a new module. When absent, the module must already exist.")
-        @Pattern(regexp = "(?i).+\\.xlsx$")
+        @Parameter(description = "Project-relative path for a new module: an .xlsx workbook, or a folder for a module "
+                + "of Markdown files. When absent, the module must already exist.")
+        @Pattern(regexp = "(?i).+\\.xlsx|/*[^./][^.]*")
         @Nullable String modulePath,
 
         @Parameter(description = "Name of the copied table")

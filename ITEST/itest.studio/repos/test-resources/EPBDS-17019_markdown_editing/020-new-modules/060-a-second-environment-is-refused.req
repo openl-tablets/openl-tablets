@@ -1,0 +1,31 @@
+POST /rest/projects/{PROJECT}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rating",
+  "sheetName": "Other",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Environment",
+    "name": "Environment",
+    "source": [
+      [
+        {
+          "value": "Environment"
+        },
+        {
+          "value": null
+        }
+      ],
+      [
+        {
+          "value": "dependency"
+        },
+        {
+          "value": "Model"
+        }
+      ]
+    ]
+  }
+}

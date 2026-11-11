@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Tooltip, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
+import { EditOutlined, FileTextOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
+import { basename } from '../containers/projects/projectPaths'
 import { COMPILE_COLORS } from '../containers/projects/projectsTheme'
 
 /** How many messages of one severity are listed before the reader asks for more. */
@@ -217,6 +218,24 @@ const localizationPlaceOf = (message: ProjectStatusDetailedMessage): string | nu
     return where.key === undefined ? file : `${where.key} · ${file}`
 }
 
+/** A file a message points to, and the line of it. */
+interface MessageFile {
+    path: string
+    line: number | undefined
+}
+
+/**
+ * The file a message about a Markdown file that breaks the format points to, and the line of it; null for any other
+ * message. A localization file is named in the message itself.
+ */
+const fileOf = (message: ProjectStatusDetailedMessage): MessageFile | null => {
+    const where = message.location
+    if (where === undefined || where.type === 'localization' || where.path === undefined) {
+        return null
+    }
+    return { path: where.path, line: where.line }
+}
+
 /** The rule a message points at, when the screen holds the cell it is written in. */
 const ruleOf = (
     message: ProjectStatusDetailedMessage,
@@ -320,6 +339,13 @@ interface CompileMessagesProps {
      */
     onEditCell?: ((cell: string) => void) | undefined
     /**
+     * Opens the file a message points to on the line it is about.
+     *
+     * <p>Offered beside a message about a Markdown file that breaks the format, in place of the cell: only the text of
+     * the file tells what is wrong, which the table drawn from it does not show. Absent on a screen that opens no file.
+     */
+    onOpenFile?: ((path: string, line: number | undefined) => void) | undefined
+    /**
      * Reads the stack trace behind a message, when the reader opens it.
      *
      * <p>Offered only on a message that carries one, and asked for only once it is opened: a trace runs to
@@ -349,6 +375,7 @@ export const CompileMessages = ({
     onOpen,
     canOpen,
     onEditCell,
+    onOpenFile,
     onStacktrace,
     cellText,
 }: CompileMessagesProps) => {
@@ -381,8 +408,10 @@ export const CompileMessages = ({
                             <MessageText value={message.summary} />
                         </>
                     )
-                    const cell = message.location?.type === 'table' ? message.location.cell : undefined
-                    const rule = ruleOf(message, cellText)
+                    const file = fileOf(message)
+                    // A message about the text of a file is read there: the cell shows nothing of it.
+                    const cell = message.location?.type === 'table' && file === null ? message.location.cell : undefined
+                    const rule = file === null ? ruleOf(message, cellText) : null
                     return (
                         <li
                             key={message.id}
@@ -415,6 +444,23 @@ export const CompileMessages = ({
                                     load={() => onStacktrace(message)}
                                     testId={`${testIdPrefix}-${message.id}-stacktrace`}
                                 />
+                            )}
+                            {onOpenFile !== undefined && file !== null && (
+                                <Tooltip
+                                    title={t('browser.module.open_file_line', {
+                                        file: basename(file.path),
+                                        line: file.line,
+                                    })}
+                                >
+                                    <Button
+                                        className={styles.editCell}
+                                        data-testid={`${testIdPrefix}-${message.id}-file`}
+                                        icon={<FileTextOutlined />}
+                                        onClick={() => onOpenFile(file.path, file.line)}
+                                        size="small"
+                                        type="text"
+                                    />
+                                </Tooltip>
                             )}
                             {onEditCell !== undefined && cell !== undefined && (
                                 <Tooltip title={t('browser.module.edit_this_cell', { cell })}>

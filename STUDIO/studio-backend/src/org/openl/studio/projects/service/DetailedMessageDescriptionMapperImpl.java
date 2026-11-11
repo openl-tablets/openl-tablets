@@ -13,6 +13,7 @@ import org.apache.poi.ss.util.CellReference;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.excel.grid.MarkdownFormatError;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLFileMessage;
 import org.openl.message.OpenLMessage;
@@ -32,6 +33,7 @@ import org.openl.studio.projects.model.project.status.TableMessageSource;
 import org.openl.studio.projects.model.project.status.TextSpot;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablesByLocation;
+import org.openl.util.TextRange;
 
 @Service
 @RequiredArgsConstructor
@@ -90,6 +92,15 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
     }
 
     /**
+     * A file of the project, by its path, the line of the file a message is in, and its places when they are asked
+     * for. Nothing is told of a message about no file.
+     */
+    private record InFile(@Nullable String path, @Nullable Integer line, @Nullable List<FilePlace> places) {
+
+        static final InFile NONE = new InFile(null, null, null);
+    }
+
+    /**
      * Resolves message locations against indexes built once per project, so a project raising thousands of
      * messages does not walk its tables again for each of them.
      */
@@ -128,26 +139,64 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             var location = new XlsUrlParser(sourceLocation);
             var where = getTableModules().locationOf(sourceLocation);
             var node = getTables().find(location);
+            var inFile = formatPlaceOf(message, sourceLocation);
             if (node != null) {
-                var tableName = new TableSyntaxNodeAdapter(node).getDisplayName();
-                var marked = markedIn(message, node, location);
-                return TableMessageSource.builder()
-                        .id(node.getId())
-                        .name(tableName)
-                        .module(where == null ? null : where.module())
-                        .projectId(where == null ? null : where.projectId())
-                        .project(where == null ? null : where.projectName())
-                        .cell(location.getCell())
-                        .start(marked == null ? null : marked.start())
-                        .end(marked == null ? null : marked.end())
-                        .build();
+                return tableSource(message, node, location, where, inFile);
             }
-            return where != null
-                    ? ModuleMessageSource.builder()
-                            .name(where.module())
-                            .projectId(where.projectId())
-                            .project(where.projectName())
-                            .build()
+            if (where == null) {
+                return null;
+            }
+            return ModuleMessageSource.builder()
+                    .name(where.module())
+                    .projectId(where.projectId())
+                    .project(where.projectName())
+                    .path(inFile.path())
+                    .line(inFile.line())
+                    .places(inFile.places())
+                    .build();
+        }
+
+        private TableMessageSource tableSource(OpenLMessage message,
+                                               TableSyntaxNode node,
+                                               XlsUrlParser location,
+                                               TableModules.@Nullable TableLocation where,
+                                               InFile inFile) {
+            var marked = markedIn(message, node, location);
+            return TableMessageSource.builder()
+                    .id(node.getId())
+                    .name(new TableSyntaxNodeAdapter(node).getDisplayName())
+                    .module(where == null ? null : where.module())
+                    .projectId(where == null ? null : where.projectId())
+                    .project(where == null ? null : where.projectName())
+                    .cell(location.getCell())
+                    .start(marked == null ? null : marked.start())
+                    .end(marked == null ? null : marked.end())
+                    .path(inFile.path())
+                    .line(inFile.line())
+                    .places(inFile.places())
+                    .build();
+        }
+
+        /**
+         * The file of a message about a Markdown file that breaks the format, and where the message is in it, whether
+         * it points at a cell of the table or at a line of the file.
+         *
+         * <p>Tells nothing of any other message, and of a file of no module of the project.
+         */
+        private InFile formatPlaceOf(OpenLMessage message, String sourceLocation) {
+            if (!(message instanceof OpenLErrorMessage errorMessage)
+                    || !(errorMessage.getError() instanceof MarkdownFormatError error)) {
+                return InFile.NONE;
+            }
+            var path = getTableModules().fileOf(sourceLocation);
+            var place = error.getPlace();
+            return path == null ? InFile.NONE : new InFile(path, place.line(), placesOf(place));
+        }
+
+        /** The places of a file a message is in, told only when the positions in the file are asked for. */
+        private @Nullable List<FilePlace> placesOf(TextRange place) {
+            return positions == MessagePositions.FILE
+                    ? List.of(new FilePlace(place.line(), place.column(), place.endLine(), place.endColumn()))
                     : null;
         }
 

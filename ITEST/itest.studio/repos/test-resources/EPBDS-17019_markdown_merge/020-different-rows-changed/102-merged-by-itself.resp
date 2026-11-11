@@ -1,0 +1,28 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-17019-different-rows-changed",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "***",
+        "name": "EPBDS-17019-markdown-merge",
+        "path": "EPBDS-17019-markdown-merge",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-17019-markdown-merge/rules/Rating/rate.md",
+            "type": "modified"
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
+}

@@ -298,6 +298,7 @@ i18next.addResourceBundle('en', 'repository', {
             module_hint: 'This file is a module of the project. Its tables are read in the editor.',
             localization_hint: 'This folder holds the messages of the project. All their languages are edited together in the editor.',
             open_in_editor: 'Open in Editor',
+            no_table: 'The file "{{name}}" holds no table to open in the editor.',
         },
         select_project_hint: 'Select a project to see its details',
         locked_by: 'Locked by {{by}} · {{at}}',
@@ -398,6 +399,7 @@ i18next.addResourceBundle('en', 'repository', {
         module: {
             export: 'Export',
             export_unavailable: 'The project does not say which workbook this module is written in',
+            export_folder: 'This module is a folder of files: export the project to download it',
             refresh: 'Refresh',
             verify: 'Verify',
             run: 'Run',
@@ -423,6 +425,8 @@ i18next.addResourceBundle('en', 'repository', {
             overwrite_revision_ok: 'Overwrite',
             remove_confirm: 'Remove table "{{table}}"?',
             remove_confirm_body: 'The table is cleared from the sheet it is written on. '
+                + 'Save the project to carry the change to the Design repository.',
+            remove_confirm_markdown_body: 'The table is deleted with its Markdown file. '
                 + 'Save the project to carry the change to the Design repository.',
             test: 'Test',
             create_test: 'Create Test',
@@ -466,6 +470,8 @@ i18next.addResourceBundle('en', 'repository', {
             test_elsewhere: 'Written in project "{{project}}", which is not open here',
             problems: 'Problems',
             partial_table: 'This table is written as several partial tables, so it cannot be edited here. Open it in Excel to change it.',
+            partial_markdown_table: 'This table is written in parts, a Markdown file for each part, so it cannot be '
+                + 'edited here. Change the parts in their files, on the Files tab.',
             details: 'Table Details',
             details_show: 'Show table details',
             details_hide: 'Hide table details',
@@ -603,6 +609,7 @@ i18next.addResourceBundle('en', 'repository', {
             edit_reloading_message: 'The table is not saved. Reading it again will lose the cells you edited. '
                 + 'Discard them?',
             edit_this_cell: 'Edit cell {{cell}}',
+            open_file_line: 'Open {{file}} at line {{line}}',
             edit_whole_table: 'Show every row of the table before adding a column: a column is added with a value for each row.',
             edit_pick_a_cell: 'Pick a cell first.',
             edit_select_all: 'Select All',

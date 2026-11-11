@@ -123,6 +123,10 @@ A table created in a module is bound alone against the module as compiled before
 layout gives. A copy is bound the same way against the module it is written to (`TableCopyServiceImpl.copyInto`).
 Every way of creating a table thus takes its roles from the compiler, as an edit and a **Reformat** do.
 
+A table of a Markdown module is never bound, whether edited, created or copied into it: its file keeps no formatting,
+so the save formats nothing (`TableWritersFactory`, `TableCopyServiceImpl.copyInto`). See
+[Markdown Modules](markdown-modules.md).
+
 A table that cannot be bound alone keeps the earlier sources: a table whose binder writes into the module (see
 [The engine](#the-engine)), and a table written into a module that has no compile yet, such as a module created with its first table. A created table then takes the
 regions its create request carries, or else the regions its text tells; a copy the regions of its source.

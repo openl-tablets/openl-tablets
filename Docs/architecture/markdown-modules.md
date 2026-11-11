@@ -38,6 +38,8 @@ works.
   back as the same text, anything else stays text.
 - **A save writes only what changed**: a key of the front matter, a row of the body. What a file cannot hold is
   refused with the reason.
+- **OpenL Studio edits a Markdown table with the table editor of a workbook.** The look is drawn, not stored, and a
+  change of the look is refused.
 - **The converter lives in the engine**, and OpenL Maven Plugin calls it. A workbook with a table a file cannot hold
   stays a workbook.
 - **The reader is in the engine core**, with `commonmark` and SnakeYAML as dependencies of `org.openl.rules`.
@@ -135,7 +137,11 @@ fractional number stays text: a `Double` would round a long number a `BigInteger
   shows, such as a key of the front matter, or at the line of the file when the file holds no table.
   The message tells what is wrong and nothing else, as for a workbook: the place is in the address of the error.
 - The error is a `MarkdownFormatError`: it also tells the place of the problem in the file, the text of its line,
-  even when it points at a cell.
+  even when it points at a cell. Its message carries the `path`, `line` and `places` of the file
+  (`DetailedMessageDescriptionMapperImpl`, `TableModules.fileOf`).
+- OpenL Studio opens the file on the Files tab at that line, rather than the cell, which does not show what is
+  wrong; an error of the rules of a table still opens its cell. The Files tab marks the lines of a file from the
+  messages of the last compilation.
 
 ## Writing
 
@@ -179,7 +185,28 @@ by `MarkdownTableWriter.newFile`.
 - a value under a merged range, or a value holding the text `<br>`, which reads as a line break;
 - a merged range in the body of a Data, Test or Run table, whose record is one row.
 
-The converter leaves such a table in its workbook.
+The converter leaves such a table in its workbook. OpenL Studio shows the reason to the author.
+
+## OpenL Studio
+
+- **Table editor** — writes through `MarkdownGrid`, as through the grid of a workbook: values, rows, columns,
+  properties, merged cells and the indent of TBasic and ColumnMatch cells. `MarkdownTables` refuses any other change
+  of style, saying so, and marked pieces of the text of a cell. `MarkdownGrid` refuses an Excel formula
+  (`MarkdownWriteException`): a text starting with `=` is an OpenL formula, so an Excel formula has no text of its own.
+- **Look** — a file keeps none. The Studio look draws the table by the roles of its cells, as any table; in the Excel
+  Formatting view a read with the styles lays the OpenL table style over it (`StyledGrid`). See
+  [Table Formatting](table-formatting.md).
+- **Create, copy, remove** — `MarkdownTableFiles` writes a new table into a file named after the table, in the folder
+  of its category, with a number when the name is taken; a module table into its fixed file. Copy works between
+  workbooks and Markdown modules both ways and takes the table alone; a Data, Test or Run table copied into a file
+  takes a row for each record, as the converter writes it (`OneLineRecords`). A copy that becomes the new version of
+  its source stands the source down in the file of the source. A source file another program changed refuses the
+  copy before anything is written; the copy is written before the source, so a copy that cannot be written leaves the
+  source the active version, and a source that cannot stand down after it takes the new file of the copy back
+  (`MarkdownTableFiles.takeBack`). Remove deletes the file; the last table of a module stays. Files are written through the files of the project, so the project is marked modified.
+- **Ids** — the id of a table depends on the module folder, not on the file: see
+  [Stable Table Ids](table-ids.md).
+- **Files tab** — Open in Editor opens the table of a Markdown file; the text marks the lines that break the format.
 
 ## Converting Workbooks
 

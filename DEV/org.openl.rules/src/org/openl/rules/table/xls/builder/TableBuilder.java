@@ -2,6 +2,7 @@ package org.openl.rules.table.xls.builder;
 
 import java.util.Date;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -352,6 +353,28 @@ public class TableBuilder {
             }
         }
         currentRow += table.getHeight();
+    }
+
+    /**
+     * Writes rows of values under the rows written before, a value to a cell, with no merged cell.
+     *
+     * @param rows the values by row; a {@code null} leaves its cell blank
+     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
+     */
+    public void writeValues(List<? extends List<?>> rows) {
+        if (region == null) {
+            throw new IllegalStateException("beginTable() has to be called");
+        }
+        for (var row = 0; row < rows.size(); row++) {
+            var values = rows.get(row);
+            for (var column = 0; column < values.size(); column++) {
+                var value = values.get(column);
+                if (value != null) {
+                    writeCell(column, currentRow + row, 1, 1, value);
+                }
+            }
+        }
+        currentRow += rows.size();
     }
 
     /** Whether the table is written into the workbook it is read from. A grid of no workbook is never that one. */

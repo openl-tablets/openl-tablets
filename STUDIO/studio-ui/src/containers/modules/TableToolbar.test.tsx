@@ -197,6 +197,17 @@ describe('TableToolbar', () => {
         expect(onRemoved).toHaveBeenCalledTimes(1)
     })
 
+    it('tells that a table of a Markdown module goes with its file, and one of a workbook from its sheet', async () => {
+        const { unmount } = await draw({ canWrite: true, table: table('Rules', { file: 'rules/Rating/premium.md' }) })
+        await userEvent.click(screen.getByTestId('table-remove'))
+        expect(vi.mocked(Modal.confirm).mock.calls.at(-1)?.[0]?.content).toBe('browser.module.remove_confirm_markdown_body')
+        unmount()
+
+        await draw({ canWrite: true, table: table('Rules', { file: 'rules/Main.xlsx' }) })
+        await userEvent.click(screen.getByTestId('table-remove'))
+        expect(vi.mocked(Modal.confirm).mock.calls.at(-1)?.[0]?.content).toBe('browser.module.remove_confirm_body')
+    })
+
     it('leaves the screen where it is when the table could not be removed', async () => {
         vi.mocked(deleteTable).mockResolvedValue(false)
         const onRemoved = vi.fn()

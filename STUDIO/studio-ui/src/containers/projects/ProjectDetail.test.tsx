@@ -48,13 +48,19 @@ vi.mock('antd-style', () => ({
 vi.mock('./CompileIndicator', () => ({
     LiveCompileDot: () => <span data-testid="live-compile-dot" />,
 }))
+// The live compilation status comes over the status channel, which no test opens.
+vi.mock('../../hooks/useLiveProjectStatus', () => ({
+    useLiveProjectStatus: () => null,
+}))
 
 vi.mock('@ant-design/icons', () => ({
     BranchesOutlined: () => null,
     CloudUploadOutlined: () => null,
+    DeleteOutlined: () => null,
     EditOutlined: () => null,
     FileTextOutlined: () => null,
     FolderOpenOutlined: () => null,
+    FolderOutlined: () => null,
     HistoryOutlined: () => null,
     InboxOutlined: () => null,
     MinusCircleOutlined: () => null,
@@ -267,6 +273,7 @@ const renderProjectDetail = (options: DetailOptions = {}) => render(projectDetai
 /** The props the file pane was last rendered with — earlier calls hold the state before a re-render. */
 const latestFilePreviewProps = () => filePreviewMock.mock.lastCall?.[0] as {
     path: string | null
+    line?: number
     modules?: Record<string, string>
     onOpenModule?: (moduleName: string) => void
 }
@@ -545,6 +552,17 @@ describe('ProjectDetail', () => {
         await userEvent.click(screen.getByTestId('file-tree-select'))
         expect(searchParamsMock.get('file')).toBe('rules/new.txt')
         expect(searchParamsMock.get('tab')).toBe('files')
+    })
+
+    it('opens the file on the line the URL names, and forgets the line once another file is chosen', async () => {
+        setParams('tab=files&file=rules.xlsx&line=3')
+        renderProjectDetail()
+
+        expect(latestFilePreviewProps().line).toBe(3)
+
+        await userEvent.click(screen.getByTestId('file-tree-select'))
+        expect(searchParamsMock.get('file')).toBe('rules/new.txt')
+        expect(searchParamsMock.has('line')).toBe(false)
     })
 
     it.each([

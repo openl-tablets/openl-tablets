@@ -1,0 +1,20 @@
+POST /rest/projects/{PROJECT}/merge/conflicts/resolve HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].strategy"
+Content-Type: text/plain
+
+CUSTOM
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].filePath"
+Content-Type: text/plain
+
+EPBDS-17019-markdown-merge/rules/Rating/rate.md
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].file"; filename="rate.md"
+Content-Type: application/octet-stream
+
+&resolved.md
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

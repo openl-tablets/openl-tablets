@@ -218,6 +218,21 @@ public final class MarkdownModuleWriter {
     }
 
     /**
+     * Returns the name of the file of the first table of a module folder not written yet, as {@link #fileOf} names it
+     * in a folder of no file: the name of the table, with a number for a table at the root of the module folder named
+     * as a table set up for the whole module, {@code Environment1.md}. A character a name of OpenL Studio cannot hold,
+     * or a space, is written as {@code _}.
+     *
+     * @param tableName the name of the table
+     * @param atTheRoot whether the file goes into the module folder itself, not into a folder of a sheet
+     */
+    public static String firstFileNameOf(String tableName, boolean atTheRoot) {
+        var name = fileNameOf(tableName);
+        var taken = atTheRoot && MarkdownFolderModule.isModuleTableName(name);
+        return name + (taken ? "1" : "") + EXTENSION;
+    }
+
+    /**
      * Returns whether a sheet names the module folder itself: by the name of the folder, or by none.
      */
     public static boolean namesTheFolder(String folderName, @Nullable String sheetName) {

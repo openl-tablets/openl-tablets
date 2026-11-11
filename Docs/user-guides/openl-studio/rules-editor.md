@@ -545,7 +545,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     Marks are offered for a text, an expression and a text of several lines, in every cell of a table but its
     header. A value written as a number, a date, a value chosen from a list, or an Excel formula keeps no marks.
-    Marks are saved to `.xlsx` files only: a table of an `.xls` file offers no marks.
+    Marks are saved to `.xlsx` files only: a table of an `.xls` file or of a Markdown file offers no marks.
 3.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell. A formula entered here is an OpenL formula, such as
@@ -557,7 +557,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     To enter an MS Excel formula, such as `=B2*C2`, select **Excel Formula Editor** in the same list. The formula is
     saved as an MS Excel formula, and OpenL reads the value MS Excel computes for it. A cell that holds an MS Excel
     formula opens in **Excel Formula Editor**. As in MS Excel, a value typed there without `=` replaces the formula;
-    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor.
+    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor. A
+    Markdown file holds no MS Excel formulas, so a table of a Markdown module does not offer **Excel Formula Editor**.
 
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
 
@@ -839,12 +840,22 @@ To create a table as a copy of the existing table, proceed as follows:
     - **Version** is entered as its three numbers — major, minor and variant — with the version the copied table
       stands for named beside them. It opens on the first version the table's versions leave free, and a version
       one of them already carries is refused.
-5.  Click **Copy** to save your changes.
+5.  Click **Copy** to save your changes. For a module of Markdown files the button reads **Copy as Markdown**, and a
+    new module is created as a folder of Markdown files through the arrow beside **Copy**, as in
+    [Creating Tables](#creating-tables). A table of a workbook and a table of a Markdown module are copied into each
+    other in both directions; a Data, Test or Run table copied into a Markdown file takes a row for each record.
 
 The copy is stamped as created: OpenL Studio records **Created By** and **Created On** on it, as it does for a table
 created from scratch, provided **Update table properties** is selected in the system settings.
 
 The table appears in the module list.
+
+### Removing a Table
+
+To remove a table, select it in the module tree, click **Remove** above it, and confirm. A table of a workbook is
+cleared from its sheet; a table of a module of Markdown files is deleted with its file. A module of Markdown files
+holds at least one table, so its last table is not removed: remove the module instead. Save the project to carry
+the change to the Design repository.
 
 ### Searching for Tables
 
@@ -993,6 +1004,17 @@ To create a table:
 
    A sheet name that the chosen module does not have creates a sheet.
 
+   A module written as a folder of Markdown files takes the table as a file of its own, named after the table, in the
+   folder of its sheet. Its sheets are its folders: the module folder itself, offered first under its name, and the
+   folders in it. Leaving the sheet out, or naming it after the module folder or the module, writes the table at the
+   root of the module folder; any other name creates a folder in it. The format of the file is specified in the
+   **Markdown Tables** reference.
+
+   A new module is a workbook. To create it as a folder of Markdown files, point to the arrow beside **Create** and
+   click **Create as Markdown**. OpenL Studio creates the folder `rules/<module>` or `tests/<module>`, a `.` of the
+   module name written as `-`, and registers it in `rules.xml`. An Environment or a Constants table is written in
+   `Environment.md` or `Constants.md` at the root of the folder, whatever the sheet, and a module holds one of each.
+
    The sheet name cannot contain `/ \ * ? [ ] :`, which Excel does not allow in a worksheet name.
 
    ![Module and Sheet Suggestions](images/create-table-destination.png)
@@ -1054,7 +1076,7 @@ To create a table:
      stays disabled until both are filled. A lookup of one argument has no band, so it needs only a filled row.
    - A lookup's top band and the argument titles beside it belong to the table type and carry no row controls.
 
-7. Click **Create**.
+7. Click **Create**. For a module of Markdown files the button reads **Create as Markdown**.
 
 The table is created in the selected module and opens in the Rules Editor. Its availability to other modules depends
 on project and module dependencies. For more information, see

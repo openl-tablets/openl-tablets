@@ -13,7 +13,7 @@ import {
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
-import { localizationRoute, moduleRoute, untranslatedRoute } from '../../services/projectId'
+import { localizationRoute, moduleRoute, projectFileRoute, untranslatedRoute } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
@@ -91,16 +91,10 @@ const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMe
     (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'WARN')
 
 /**
- * The compilation problems of the project, docked to the bottom of its screen the way the legacy editor
- * listed them: a header that always shows how many errors and warnings there are, above the messages
- * themselves, each marked by the colour stripe of its severity.
- *
- * The panel folds by its header, is dragged taller or lower by its top edge, and keeps both between
- * visits. It only exists while there is something to show — a clean project has no panel at all.
- */
-/**
- * Where a message leads, from the place it names: its table or module, in the project it is of. Null for a message
- * about no place to open.
+ * Where a message leads, from the place it names: the line of the file it points to, the cell of its table, or else
+ * its module, in the project it is of. A message about a Markdown file that breaks the format leads to the line of the
+ * file even when it names a cell: only the text tells what is wrong. A localization message opens the messages of the
+ * project. Null for a message about no place to open.
  */
 const routeOf = (projectId: string, where: ProjectStatusMessageSource | undefined): string | null => {
     if (!where) {
@@ -113,14 +107,24 @@ const routeOf = (projectId: string, where: ProjectStatusMessageSource | undefine
             ? untranslatedRoute(projectId, where.language ?? '')
             : localizationRoute(projectId, where.key, where.language)
     }
-    const module = where.type === 'table' ? where.module : where.name
-    if (!module) {
-        return null
-    }
     const inProject = where.projectId ?? projectId
-    return where.type === 'table' ? moduleRoute(inProject, module, where.id, where.cell) : moduleRoute(inProject, module)
+    if (where.path) {
+        return projectFileRoute(inProject, where.path, where.line)
+    }
+    if (where.type === 'table') {
+        return where.module ? moduleRoute(inProject, where.module, where.id, where.cell) : null
+    }
+    return where.name ? moduleRoute(inProject, where.name) : null
 }
 
+/**
+ * The compilation problems of the project, docked to the bottom of its screen the way the legacy editor
+ * listed them: a header that always shows how many errors and warnings there are, above the messages
+ * themselves, each marked by the colour stripe of its severity.
+ *
+ * The panel folds by its header, is dragged taller or lower by its top edge, and keeps both between
+ * visits. It only exists while there is something to show — a clean project has no panel at all.
+ */
 export const CompileProblemsPanel = ({ project, supportsBranches = true, statusReadAt }: {
     project: Project
     supportsBranches?: boolean
@@ -163,12 +167,9 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
 
     // A module is compiled for one session at a time, so while that is running the reader is kept where they
     // are: opening another module would only queue behind it. The compiling screen offers to stop it.
-    const canOpen = useCallback((message: ProjectStatusDetailedMessage) => {
-        if (status.compileState === 'compiling') {
-            return false
-        }
-        return routeOf(project.id, message.location) !== null
-    }, [project.id, status.compileState])
+    const canOpen = useCallback((message: ProjectStatusDetailedMessage) =>
+        status.compileState !== 'compiling' && routeOf(project.id, message.location) !== null,
+    [status.compileState, project.id])
 
     const fold = (next: boolean) => {
         setCollapsed(next)

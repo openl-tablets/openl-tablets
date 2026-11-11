@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-17019-markdown-merge",
+      "projectPath": "EPBDS-17019-markdown-merge",
+      "files": [
+        "EPBDS-17019-markdown-merge/rules/Rating/rate.md"
+      ]
+    }
+  ],
+  "fileAvailability": {
+    "EPBDS-17019-markdown-merge/rules/Rating/rate.md": {
+      "ours": true,
+      "theirs": true,
+      "base": true,
+      "text": true
+    }
+  },
+  "oursRevision": {
+    "commit": "*",
+    "branch": "master",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "theirsRevision": {
+    "commit": "*",
+    "branch": "EPBDS-17019-same-row-changed",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "baseRevision": {
+    "commit": "*",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "defaultMessage": "*"
+}

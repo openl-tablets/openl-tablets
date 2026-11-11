@@ -64,6 +64,21 @@ class CopyTableRequestValidationTest {
     }
 
     @Test
+    void acceptsAFolderOfANewMarkdownModule() {
+        var request = new CopyTableRequest("Module", null, "rules/Rating/", "Copy", null);
+        assertTrue(validator.validate(request).isEmpty());
+    }
+
+    /** A folder named by slashes alone would be the project folder itself, whose every Markdown file is read. */
+    @Test
+    void rejectsAModulePathOfSlashesAlone() {
+        for (var path : List.of("/", "///", "")) {
+            var request = new CopyTableRequest("Module", null, path, "Copy", null);
+            assertEquals(1, validator.validate(request).size(), path);
+        }
+    }
+
+    @Test
     void cascadesIntoProperties() {
         var request = new CopyTableRequest("Module", null, null, "Copy",
                 List.of(new TableProperty(" ", "value")));

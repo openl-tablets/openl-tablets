@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror, {
     Compartment,
+    EditorView,
     lineNumbers,
-    type EditorView,
     type Extension,
     type ReactCodeMirrorRef,
     type Text,
@@ -105,6 +105,16 @@ const languageFor = (path: string): Extension[] => {
 /** Lines with the line breaks CodeMirror holds them with, which are those of Unix whatever a text is written with. */
 const unixLines = (text: string): string => text.replace(/\r\n?/g, '\n')
 
+/**
+ * Puts the cursor at the start of a line, counted from 1, and scrolls the line to the middle of the view. A number
+ * past the last line goes to the last one.
+ */
+const goToLine = (view: EditorView, number: number) => {
+    const doc = view.state.doc
+    const line = doc.line(Math.min(Math.max(number, 1), doc.lines))
+    view.dispatch({ selection: { anchor: line.from }, effects: EditorView.scrollIntoView(line.from, { y: 'center' }) })
+}
+
 /** Numbers the lines of a part of a file as the whole file numbers them, from the number of its first line. */
 const numbersFrom = (firstLine: number): Extension =>
     lineNumbers({ formatNumber: line => String(line + firstLine - 1) })
@@ -176,6 +186,11 @@ interface CodeEditorProps {
      * A problem without a place is about the whole text. The editor does not draw it: whoever shows the editor tells it.
      */
     problems?: readonly EditorProblem[] | undefined
+    /**
+     * The line to put the cursor at, counted from 1, such as the one a compilation message points to. The editor
+     * goes there when it opens and whenever the line changes, and leaves the cursor to the reader in between.
+     */
+    line?: number | undefined
 }
 
 /**
@@ -195,8 +210,20 @@ interface CodeEditorProps {
  *
  * The problems of the text, when it has any, are drawn as CodeMirror draws the problems a linter finds: each underlined,
  * told when pointed at, and marked beside its line. A problem about the whole text has no line and is not drawn.
+ *
+ * Given a {@link CodeEditorProps.line}, the editor puts the cursor at its start and scrolls it into the middle of the
+ * view, which marks it as the line the cursor is at.
  */
-export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeholder, problems }: CodeEditorProps) => {
+export const CodeEditor = ({
+    value,
+    path,
+    readOnly,
+    onChange,
+    firstLine,
+    placeholder,
+    problems,
+    line,
+}: CodeEditorProps) => {
     const { styles, cx } = useStyles()
     const { isDarkMode } = useThemeMode()
     const { themeName } = useAppTheme()
@@ -244,6 +271,25 @@ export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeho
             numberedFrom.current = firstLine
         }
     }, [firstLine, numbering])
+    // The line the cursor was last sent to: the editor goes to a line once, not each time it is drawn
+    const shownLine = useRef<number | undefined>(undefined)
+    const showLine = useCallback((view: EditorView) => {
+        if (line !== undefined && line !== shownLine.current) {
+            goToLine(view, line)
+            shownLine.current = line
+        }
+    }, [line])
+    useEffect(() => {
+        const view = editor.current?.view
+        if (view) {
+            showLine(view)
+        }
+    }, [showLine])
+    // A new editor draws the problems and goes to the line it is given.
+    const created = useCallback((view: EditorView) => {
+        markProblems(view)
+        showLine(view)
+    }, [markProblems, showLine])
     return (
         <CodeMirror
             ref={editor}
@@ -251,7 +297,7 @@ export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeho
             editable={!readOnly}
             extensions={extensions}
             height="100%"
-            onCreateEditor={markProblems}
+            onCreateEditor={created}
             theme={theme}
             // The text is handed over with the line breaks the editor holds it with: a text with other line breaks
             // would differ from what the editor holds and be set anew whenever it is drawn, moving the cursor away.

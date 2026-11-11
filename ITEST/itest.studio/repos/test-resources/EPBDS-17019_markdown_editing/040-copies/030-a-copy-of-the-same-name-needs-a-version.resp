@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.copy.properties.required.message",
+  "message": "A copy that keeps the table's name must say what makes it another table: give it its own version or its own dimension properties."
+}

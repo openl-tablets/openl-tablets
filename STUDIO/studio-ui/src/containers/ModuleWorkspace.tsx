@@ -18,10 +18,11 @@ import {
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, NotFoundError, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
-import { localizationRoute, moduleRoute } from '../services/projectId'
+import { localizationRoute, moduleRoute, projectFileRoute } from '../services/projectId'
 import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
+import { isMarkdownPath } from '../utils/workbooks'
 import { useLoadGeneration, useReleaseOnClose } from '../hooks'
 import { useSettingsStore } from '../store'
 import { ProjectStatus } from '../constants/project'
@@ -639,6 +640,9 @@ export const ModuleWorkspace = () => {
     const readable = listed || tableUnlisted?.absent === true
     // Only a table the module lists is written: the one it holds without listing is built by the compiler.
     const canWriteListed = listed && !!project?.capabilities?.canWrite
+    // A table of a Markdown file is plain text: its cells are written here, but not its look, which the file does not
+    // keep. Asked of the file the table comes from, not of the module, which may include a file of the other kind.
+    const markdownTable = isMarkdownPath(selected?.file)
     useEffect(() => {
         if (!projectId || selectedId === null || !readable) {
             setTable(null)
@@ -871,14 +875,16 @@ export const ModuleWorkspace = () => {
                 {toolbar}
                 <TableProblems
                     cellText={textAt}
+                    markdown={markdownTable}
                     messages={table.messages ?? []}
                     onEditCell={canWriteTable ? setEditCell : undefined}
+                    onOpenFile={(path, line) => void navigate(projectFileRoute(project.id, path, line))}
                     onStacktrace={readStacktrace}
                     partial={table.partial === true}
                 />
                 <TableEditor
                     ref={editor}
-                    canMark={!modulePath?.toLowerCase().endsWith('.xls')}
+                    canMark={!markdownTable && !modulePath?.toLowerCase().endsWith('.xls')}
                     canvasClassName={styles.canvas}
                     canWrite={canWriteTable}
                     editing={editing}
@@ -895,6 +901,7 @@ export const ModuleWorkspace = () => {
                     onOpenUsage={openUsage}
                     onSaved={tableRewritten}
                     openAt={belowRead ? null : editCell}
+                    plainText={markdownTable}
                     projectId={project.id}
                     roles={roles}
                     rows={table.source}

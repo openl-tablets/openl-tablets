@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.markdown.layout.message",
+  "message": "A Data, Test or Run table holds no merged cells: index each element, such as 'drivers[0].name': the table is not written."
+}

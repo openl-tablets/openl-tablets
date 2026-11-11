@@ -21,3 +21,11 @@ export const isWorkbookPath = (path: string): boolean => {
     const name = path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1).toLowerCase()
     return !name.startsWith('~$') && WORKBOOK_EXTENSIONS.some(extension => name.endsWith(extension))
 }
+
+/**
+ * Whether the file at that path is a Markdown rules module.
+ *
+ * <p>The same rule the server keeps in `org.openl.util.FileTypeHelper`. Such a module is plain text: its tables
+ * are read on the module screen and changed in the file editor.
+ */
+export const isMarkdownPath = (path: string | undefined): boolean => !!path && path.toLowerCase().endsWith('.md')

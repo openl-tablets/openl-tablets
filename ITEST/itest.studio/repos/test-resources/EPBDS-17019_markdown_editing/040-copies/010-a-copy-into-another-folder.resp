@@ -1,0 +1,17 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "ageFactorArchive",
+  "properties": {
+    "description": "Factor of the driver age."
+  },
+  "returnType": "Double",
+  "signature": "ageFactorArchive(Integer age)",
+  "file": "EPBDS-17019-markdown-editing/rules/Rating/Archive/ageFactorArchive.md",
+  "sheet": "Archive",
+  "pos": "A1:C6"
+}

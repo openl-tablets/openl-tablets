@@ -288,7 +288,12 @@ export const listTablePropertyDefinitionsSchema = z.strictObject({
 
 /** Where a table copied or created goes when it is not in a module of the project yet, and its sheet. */
 const newModuleParams = {
-  modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("The project-relative .xlsx path of a new module."),
+  // As the REST API takes it: a workbook, or a folder named with no dot, as a path with a dot names a file
+  modulePath: z
+    .string()
+    .regex(/^(.+\.xlsx|\/*[^./][^.]*)$/i)
+    .optional()
+    .describe("A new module: an .xlsx path or a Markdown folder."),
   sheetName: z.string().optional().describe("The sheet; the table name by default."),
 };
 

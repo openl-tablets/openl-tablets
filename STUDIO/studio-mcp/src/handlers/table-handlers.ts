@@ -252,7 +252,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Create New Table",
     description:
-      `Create a table in a module, or in a new .xlsx module at modulePath, its rows, merges and formulas as openl_get_table answers a table like it. Example: {"module":"Rules","name":"rates","rows":[["Data Rate rates",null],["code","rate"],["Code","Rate"],["A",1.5]],"merges":[[0,0,1,2]]}.`,
+      `Create a table in a module, or in a new module at modulePath, its rows, merges and formulas as openl_get_table answers a table like it. Example: {"module":"Rules","name":"rates","rows":[["Data Rate rates",null],["code","rate"],["Code","Rate"],["A",1.5]],"merges":[[0,0,1,2]]}.`,
     schema: schemas.createProjectTableSchema,
     annotations: {
       destructiveHint: false,

@@ -1,0 +1,17 @@
+POST /rest/projects/{PROJECT}/tables/{AGE_FACTOR}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "style",
+  "target": {
+    "type": "cells",
+    "row": 1,
+    "column": 0,
+    "rowspan": 1,
+    "colspan": 1,
+    "style": {
+      "bold": true
+    }
+  }
+}
