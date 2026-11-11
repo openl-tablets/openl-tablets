@@ -2,8 +2,8 @@
 
 OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who changed
 users, groups, personal access tokens and access rights, whose request was refused for lack of permission, who created,
-saved, deleted and deployed projects and changed the branches of their repositories, who changed the system settings,
-when OpenL Studio started, restarted and stopped, and who read the log.
+saved, deleted and deployed projects and changed the branches of their repositories, who changed the system settings
+and the tags configuration, when OpenL Studio started, restarted and stopped, and who read the log.
 Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes where the
 events come from, how they are kept and how they are read. The user guide describes the page:
 [Reviewing the Audit Log](../user-guides/openl-studio/administration/08-audit-log.md).
@@ -334,6 +334,48 @@ REST API (`SettingsAuditor.eventOf`), and its details list the properties `added
   settings through the REST API makes, compares nothing and keeps the requests waiting for no bcrypt.
 - **A failure is logged without any value** and never fails the start. The snapshot stays as it was, so the next
   start announces the change.
+
+## Tags
+
+`TagAuditor` announces the changes of the tags configuration an administrator makes on the **Tags** page, through
+`/rest/admin/tag-config` (category `tag`). The services that keep the configuration are constructed with it:
+`TagTypeService`, `TagService`, `TagTemplateService` and `TagFillService`.
+
+Where each action is announced, and what it holds:
+
+- `tagTypeCreated` (tagType) — `TagTypeService.save`, and `define` for a tag type found in projects. The details
+  tell whether it is `extensible` and `required`, and name the `tags` it was created with.
+- `tagTypeUpdated` (tagType, by its new name) — `TagTypeService.update`. The detail `changed` holds `name`,
+  `extensible` and `required`, each with its values before and after.
+- `tagTypeDeleted` (tagType) — `TagTypeService.delete`, with the `tags` deleted with it.
+- `tagTypesReordered` (tagType, the names in their new order) — `TagTypeService.reorder`, with the `order` before and
+  after.
+- `tagAdded`, `tagRenamed`, `tagDeleted` (tagType) — `TagService.save`, `rename` and `delete`, and
+  `TagTypeService.define` for a tag found in projects. The details name the `tag`, or its name before and after.
+- `tagTemplatesChanged` (tagTemplates, which has no name) — `TagTemplateService.save`, with the templates `added`
+  and `removed`. When the templates that stayed changed places, which is their priority, the `order` before and
+  after comes too, alone or with the ones added and removed.
+- `tagsFilled` (project, the names of the projects one after another) — `TagFillService.fill`. The detail `projects`
+  holds each project the fill changed with the tag values it got, by tag type. Projects of one name are told apart by
+  their repository and folder, which follow the name: `Rating (design:/rating/Auto)`, or `Rating (local:/Rating)` for
+  a project kept only in the workspace of the user.
+
+What the events tell, and what they leave out:
+
+- **Only a change is announced.** A tag type or a tag saved as it was, the templates saved as they were, an order
+  that moves no tag type and a fill that changes no project announce nothing.
+- **A change and its event are saved together.** The tag types, the tags and the templates live in the database, so
+  their events are announced in the transaction of the change. The values before a change are read there too:
+  `TagTypeService.update` and `TagService.rename` take the id and the new values, never an entity changed outside.
+- **A fill is announced once it is done**, before the workspace is refreshed, so that a refresh that fails leaves
+  no project changed without an event: it writes to the projects, which no transaction covers. A failure to
+  record it is logged and never fails the fill. The projects left alone are not part of the event.
+- **A tag created for an extensible tag type** when a filled or a created project brings a value the tag type does
+  not have (`TagAssignmentValidator`) changes the configuration, so it is a `tagAdded` event of the user who filled
+  or created the project.
+- **Not recorded**: the tags of a project changed on its **Overview** tab or set when the project is created. They
+  are part of the project files: `tags.properties` shows in the history of the project, and its save is
+  `projectSaved`.
 
 ## Starts, Restarts and Stops
 

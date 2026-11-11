@@ -18,6 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.DBTestConfiguration;
+import org.openl.studio.audit.service.TagAuditor;
 import org.openl.studio.tags.model.TagDTO;
 import org.openl.studio.tags.model.TagTypeDTO;
 
@@ -26,7 +27,7 @@ import org.openl.studio.tags.model.TagTypeDTO;
  *
  * @author Yury Molchan
  */
-@SpringJUnitConfig(classes = {DBTestConfiguration.class, TagTypeService.class})
+@SpringJUnitConfig(classes = {DBTestConfiguration.class, TagTypeService.class, TagAuditor.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:tagTypes;DB_CLOSE_DELAY=-1",
         "db.user =",
         "db.password =",

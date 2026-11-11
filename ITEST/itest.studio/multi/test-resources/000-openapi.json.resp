@@ -2050,6 +2050,7 @@ Content-Type: application/json
                   "project",
                   "deployment",
                   "settings",
+                  "tag",
                   "application",
                   "audit"
                 ]
@@ -2099,6 +2100,15 @@ Content-Type: application/json
                   "protectionBypassed",
                   "projectDeployed",
                   "settingsChanged",
+                  "tagTypeCreated",
+                  "tagTypeUpdated",
+                  "tagTypeDeleted",
+                  "tagTypesReordered",
+                  "tagAdded",
+                  "tagRenamed",
+                  "tagDeleted",
+                  "tagTemplatesChanged",
+                  "tagsFilled",
                   "applicationStarted",
                   "applicationRestarted",
                   "applicationStopped",
@@ -28515,6 +28525,15 @@ Content-Type: application/json
               "protectionBypassed",
               "projectDeployed",
               "settingsChanged",
+              "tagTypeCreated",
+              "tagTypeUpdated",
+              "tagTypeDeleted",
+              "tagTypesReordered",
+              "tagAdded",
+              "tagRenamed",
+              "tagDeleted",
+              "tagTemplatesChanged",
+              "tagsFilled",
               "applicationStarted",
               "applicationRestarted",
               "applicationStopped",
@@ -28552,6 +28571,7 @@ Content-Type: application/json
               "project",
               "deployment",
               "settings",
+              "tag",
               "application",
               "audit"
             ]
@@ -28609,7 +28629,9 @@ Content-Type: application/json
               "project",
               "request",
               "deployment",
-              "settings"
+              "settings",
+              "tagType",
+              "tagTemplates"
             ]
           },
           "time": {

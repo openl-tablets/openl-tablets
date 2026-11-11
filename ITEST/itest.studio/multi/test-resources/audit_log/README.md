@@ -15,3 +15,8 @@ each recorded as one change of the settings, with the values before and after. T
 is recorded, and so are the ends of the session of the login form and of the session of Basic authentication the
 restart ended; the next request with Basic authentication starts a session again right after the restart. The start
 of OpenL Studio is recorded once, with its version.
+
+EPBDS-17234: the changes of the tags configuration are recorded too. A tag type created, renamed and made optional,
+and deleted with the tag it still had, a tag added, renamed and deleted, and the project name templates saved and
+cleared are each one event of the `tag` category, with the values before and after. A tag, a tag type and the
+templates saved as they were record nothing.

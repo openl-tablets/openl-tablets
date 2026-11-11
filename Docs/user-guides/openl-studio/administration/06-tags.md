@@ -13,6 +13,8 @@ The page consists of two sections:
 
 Tag types and values are saved automatically. No additional save action is required.
 
+Every change made on this page is recorded in the audit log: who changed a tag type, a tag or the templates, when, and what exactly changed, as described in [Reviewing the Audit Log](08-audit-log.md#reviewing-the-audit-log).
+
 To create project tags, proceed as follows:
 
 1.  To add a tag type, in the input field at the bottom of the tag table, enter the tag type name and press **Enter** or click outside the field.

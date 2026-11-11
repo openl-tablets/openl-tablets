@@ -3,6 +3,7 @@ package org.openl.studio.tags.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,6 +33,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.audit.service.TagAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.service.files.FileRoot;
@@ -54,6 +56,7 @@ class TagFillServiceTest {
     private TagService tagService;
     private UserWorkspace workspace;
     private ProjectFileRootFactory projectFileRootFactory;
+    private TagAuditor tagAuditor;
     private TagFillService service;
 
     @BeforeEach
@@ -63,9 +66,10 @@ class TagFillServiceTest {
         tagService = mock(TagService.class);
         workspace = mock(UserWorkspace.class);
         projectFileRootFactory = mock(ProjectFileRootFactory.class);
+        tagAuditor = mock(TagAuditor.class);
         var provider = new TagCatalogProvider(tagTypeService, tagService);
         service = new TagFillService(tagTemplateService, provider, new TagAssignmentValidator(provider, tagService),
-                projectFileRootFactory) {
+                projectFileRootFactory, tagAuditor) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return workspace;
@@ -295,6 +299,22 @@ class TagFillServiceTest {
         // The template tag is added to what the project carries.
         assertEquals(Map.of("LOB", "Auto", "Domain", "Policy"), writtenTags(project));
         verify(workspace).refresh();
+        verify(tagAuditor).filled(Map.of(project, Map.of("Domain", "Policy")));
+    }
+
+    @Test
+    void fillIsAnnouncedThoughTheWorkspaceCannotBeRefreshed() {
+        var domain = type("Domain", false);
+        configured(List.of(domain), List.of(tag(domain, "Policy")));
+        var project = project("Policy-rules", Map.of());
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
+        workspaceHolds(project);
+        doThrow(new IllegalStateException("The repository is not reachable")).when(workspace).refresh();
+
+        assertThrows(IllegalStateException.class, () -> service.fill(null));
+
+        // The project is written by then, so the fill must be on record.
+        verify(tagAuditor).filled(Map.of(project, Map.of("Domain", "Policy")));
     }
 
     @Test
@@ -423,6 +443,8 @@ class TagFillServiceTest {
         var result = service.fill(null);
 
         assertEquals(List.of(TagFillResult.nothingToAssign("Policy-rules", Map.of("Domain", "Policy"))), result);
+        // A project left alone is no part of what the audit log is told.
+        verify(tagAuditor).filled(Map.of());
         verifyNothingWritten(project);
     }
 

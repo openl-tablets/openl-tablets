@@ -16,6 +16,7 @@ import org.openl.rules.security.standalone.dao.TagTypeDao;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagTemplate;
 import org.openl.rules.security.standalone.persistence.TagType;
+import org.openl.studio.audit.service.TagAuditor;
 import org.openl.util.StringUtils;
 
 @RequiredArgsConstructor
@@ -28,26 +29,32 @@ public class TagTemplateService {
     private final TagTypeDao tagTypeDao;
     private final TagDao tagDao;
     private final TagTemplateDao tagTemplateDao;
+    private final TagAuditor tagAuditor;
 
     public List<String> getTemplates() {
-        return tagTemplateDao.getAll().stream().map(TagTemplate::getTemplate).toList();
+        return tagTemplateDao.getTemplates();
     }
 
+    /**
+     * Replaces the project name templates with the given ones, the first one of the highest priority. A blank
+     * template is left out. The templates that changed are announced to the audit log.
+     */
     @Transactional
     public void save(List<String> templates) {
+        var before = getTemplates();
+        var saved = templates.stream().filter(StringUtils::isNotBlank).toList();
+        if (before.equals(saved)) {
+            return;
+        }
         tagTemplateDao.deleteAll();
 
-        for (var i = 0; i < templates.size(); i++) {
-
-            final var templateString = templates.get(i);
-            if (StringUtils.isBlank(templateString)) {
-                continue;
-            }
+        for (var i = 0; i < saved.size(); i++) {
             final var template = new TagTemplate();
-            template.setTemplate(templateString);
+            template.setTemplate(saved.get(i));
             template.setPriority(i + 1);
             tagTemplateDao.save(template);
         }
+        tagAuditor.templatesChanged(before, saved);
     }
 
     public List<Tag> getTags(String name) {

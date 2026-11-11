@@ -29,6 +29,16 @@ public class TagTemplateDaoImpl extends BaseHibernateDao<TagTemplate> implements
         return getSession().createQuery(criteria).getResultList();
     }
 
+    @Override
+    @Transactional
+    public List<String> getTemplates() {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(TagTemplate.class);
+        criteria.select(root.get("template")).orderBy(builder.asc(root.get("priority")));
+        return getSession().createQuery(criteria).getResultList();
+    }
+
     @Transactional
     @Override
     public void deleteAll() {

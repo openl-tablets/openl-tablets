@@ -32,6 +32,17 @@ export const AUDIT_ACTIONS = {
     ],
     deployment: ['projectDeployed'],
     settings: ['settingsChanged'],
+    tag: [
+        'tagTypeCreated',
+        'tagTypeUpdated',
+        'tagTypeDeleted',
+        'tagTypesReordered',
+        'tagAdded',
+        'tagRenamed',
+        'tagDeleted',
+        'tagTemplatesChanged',
+        'tagsFilled',
+    ],
     application: ['applicationStarted', 'applicationRestarted', 'applicationStopped'],
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const

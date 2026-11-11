@@ -1,0 +1,5 @@
+POST /rest/admin/tag-config/types HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{"name":"${TAG_TYPE}","extensible":true,"nullable":false}

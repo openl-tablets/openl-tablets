@@ -16,6 +16,10 @@ public interface TagDao extends Dao<Tag> {
     @Transactional
     List<Tag> getAll();
 
+    /** The names of the tags of a tag type, in the order they are listed in: by name, whatever its case. */
+    @Transactional
+    List<String> getNames(Long tagTypeId);
+
     @Transactional
     Tag getByTagTypeAndName(String tagType, String tagName);
 

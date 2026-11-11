@@ -521,6 +521,30 @@ describe('AuditLog', () => {
         expect(rows.getByText('claude-code 2.1.0')).toBeInTheDocument()
     })
 
+    it('tells the projects a fill of the tags changed with the values each got', async () => {
+        const filled: audit.AuditEvent = {
+            id: 6,
+            time: '2026-10-19T10:30:00Z',
+            actor: 'admin',
+            authentication: 'form',
+            category: 'tag',
+            action: 'tagsFilled',
+            outcome: 'success',
+            targetType: 'project',
+            target: 'Policy-Auto, Claims',
+            // The tag type is named as a detail that holds codes is, and its value is still read as it is written.
+            details: { projects: { 'Policy-Auto': { Domain: 'Policy', LOB: 'Auto' }, 'Claims': { type: 'git' } } },
+        }
+        mockGetEvents.mockResolvedValue({ content: [filled], pageNumber: 0, pageSize: 50, total: 1 })
+
+        renderAuditLog()
+        await loaded()
+
+        const rows = within(screen.getByRole('table'))
+        expect(rows.getByText('audit:detail_names.projects')).toBeInTheDocument()
+        expect(rows.getByText('Policy-Auto (Domain: Policy, LOB: Auto), Claims (type: git)')).toBeInTheDocument()
+    })
+
     it('filters by the text a column contains, from the first page', async () => {
         renderAuditLog()
         await loaded()

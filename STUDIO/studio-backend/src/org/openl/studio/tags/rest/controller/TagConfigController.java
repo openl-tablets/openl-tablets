@@ -116,18 +116,11 @@ public class TagConfigController {
 
     private ResponseEntity<Void> addOrUpdateTagType(final Long id,
                                                     final String name,
-                                                    final Boolean nullable,
-                                                    final Boolean extensible,
+                                                    final boolean nullable,
+                                                    final boolean extensible,
                                                     final HttpServletRequest request) {
-        final TagType tagType;
-
-        if (id == null) {
-            tagType = new TagType();
-        } else {
-            tagType = tagTypeService.getById(id);
-            if (tagType == null) {
-                throw new NotFoundException("tag-type.message");
-            }
+        if (id != null && tagTypeService.getById(id) == null) {
+            throw new NotFoundException("tag-type.message");
         }
 
         checkTagName(name);
@@ -137,22 +130,19 @@ public class TagConfigController {
             throw new ConflictException("duplicated.tag-type.message", name);
         }
 
-        tagType.setName(name);
-
-        if (nullable != null) {
-            tagType.setNullable(nullable);
-        }
-        if (extensible != null) {
-            tagType.setExtensible(extensible);
-        }
-
         if (id == null) {
+            final var tagType = new TagType();
+            tagType.setName(name);
+            tagType.setNullable(nullable);
+            tagType.setExtensible(extensible);
             tagTypeService.save(tagType);
             return created(request, tagType.getId());
-        } else {
-            tagTypeService.update(tagType);
-            return ResponseEntity.noContent().build();
         }
+        // The tag type may be deleted by another administrator since it was found.
+        if (!tagTypeService.update(id, name, nullable, extensible)) {
+            throw new NotFoundException("tag-type.message");
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "tags.add-tag.summary", description = "tags.add-tag.desc")
@@ -202,15 +192,16 @@ public class TagConfigController {
             throw new ConflictException("duplicated.tag.message", name);
         }
 
-        tag.setName(name);
-
         if (tagId == null) {
+            tag.setName(name);
             tagService.save(tag);
             return created(request, tag.getId());
-        } else {
-            tagService.update(tag);
-            return ResponseEntity.noContent().build();
         }
+        // The tag may be deleted by another administrator since it was found.
+        if (!tagService.rename(tagId, name)) {
+            throw new NotFoundException("tag.message");
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "tags.get-project-tags.summary", description = "tags.get-project-tags.desc")
