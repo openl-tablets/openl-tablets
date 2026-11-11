@@ -54,6 +54,11 @@ i18next.addResourceBundle('en', 'compare', {
     show_other_tables: 'Other tables',
     show_other_tables_hint: 'List the cells outside OpenL tables too, such as notes or formulas beside them. '
         + 'One both sides changed differently is always listed.',
+    show_formatting_changes: 'Formatting changes',
+    show_formatting_changes_hint: 'List the tables that differ in formatting only too, and mark every table whose '
+        + 'formatting changed. Otherwise such a table is listed as an equal one.',
+    only_formatting: 'Only the formatting differs',
+    only_formatting_show: 'Show',
     show_equal_rows: 'Show equal rows',
     rows_hidden_one: '⋯ {{count}} equal row',
     rows_hidden_other: '⋯ {{count}} equal rows',

@@ -47,6 +47,14 @@ public record TableComparison(String name,
     }
 
     /**
+     * Whether the formatting is all that differs: the table holds no cell that reads differently and no line only one
+     * version holds. Such a table may still have been moved.
+     */
+    public boolean formattingOnly() {
+        return formattingChanged && LineChange.allEqual(rows) && LineChange.allEqual(columns);
+    }
+
+    /**
      * A table only one version holds.
      *
      * @param status {@link ChangeStatus#ADDED} for a table of the second version, {@link ChangeStatus#REMOVED} for a

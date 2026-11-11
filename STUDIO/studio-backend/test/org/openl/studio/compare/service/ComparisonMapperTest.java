@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -92,6 +94,29 @@ class ComparisonMapperTest {
             assertTrue(view.identical());
             assertEquals(ComparisonNodeStatus.EQUAL, view.sheets().getFirst().status());
             assertEquals(ComparisonNodeStatus.EQUAL, view.sheets().getFirst().children().getFirst().status());
+        }
+    }
+
+    @Test
+    void marksATableThatDiffersInItsFormattingOnly() throws IOException {
+        var first = workbook("first.xlsx", PERSON_WITH_ADDRESS);
+        var second = restyled(workbook("second.xlsx", PERSON), 1);
+        try (var comparison = XlsWorkbookComparator.compare(first.toFile(), second.toFile())) {
+            var tables = mapper.toView("cmp", comparison).sheets().getFirst().children();
+
+            // The type of the age differs as well: the formatting is not all that does.
+            assertEquals(ComparisonNodeStatus.CHANGED, tables.getFirst().status());
+            assertNull(tables.getFirst().formattingOnly());
+            assertNull(tables.get(1).formattingOnly());
+        }
+        try (var comparison = XlsWorkbookComparator.compare(workbook("third.xlsx", PERSON).toFile(), second.toFile())) {
+            var person = mapper.toView("cmp", comparison).sheets().getFirst().children().getFirst();
+
+            assertEquals(ComparisonNodeStatus.CHANGED, person.status());
+            assertEquals(Boolean.TRUE, person.formattingOnly());
+            var table = mapper.toTable(comparison, "0-0");
+            assertNotNull(table);
+            assertTrue(table.formattingChanged());
         }
     }
 
@@ -285,6 +310,20 @@ class ComparisonMapperTest {
     private WorkbookComparison compare(String[][] first, String[][] second) throws IOException {
         return XlsWorkbookComparator.compare(workbook("first.xlsx", first).toFile(),
                 workbook("second.xlsx", second).toFile());
+    }
+
+    /** Fills the first cell of a row of the sheet "Rules" with yellow, changing nothing the cell reads. */
+    private static Path restyled(Path file, int row) throws IOException {
+        try (var in = Files.newInputStream(file); var workbook = new XSSFWorkbook(in)) {
+            var style = workbook.createCellStyle();
+            style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            workbook.getSheet("Rules").getRow(row).getCell(0).setCellStyle(style);
+            try (var out = Files.newOutputStream(file)) {
+                workbook.write(out);
+            }
+        }
+        return file;
     }
 
     /** Writes the given cells into the sheet "Rules" of a workbook of its own; an empty text leaves the cell out. */

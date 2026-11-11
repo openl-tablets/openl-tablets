@@ -144,8 +144,8 @@ vi.mock('react-i18next', () => {
 vi.mock('antd', async () => ({
     // The theme stays the real one: the tables of a comparison are drawn in the colours of its paper.
     theme: (await vi.importActual<typeof import('antd')>('antd')).theme,
-    Alert: ({ title, description, showIcon, type, ...rest }: any) => (
-        <div data-type={type} role="alert" {...rest}>{title}{description}</div>
+    Alert: ({ title, description, showIcon, type, action, ...rest }: any) => (
+        <div data-type={type} role="alert" {...rest}>{title}{description}{action}</div>
     ),
     Badge: ({ text, status }: any) => <span data-status={status}>{text}</span>,
     Button: ({ children, onClick, disabled, loading, icon, ...rest }: any) => (
@@ -1145,6 +1145,64 @@ describe('ComparePage', () => {
         expect(screen.queryByText('Datatype Address')).toBeNull()
         await userEvent.click(equal)
         expect(screen.getByText('Datatype Address')).toBeInTheDocument()
+    })
+
+    it('leaves out the tables that differ in formatting only, and marks them once they are asked for', async () => {
+        vi.mocked(getComparison).mockResolvedValue({
+            ...COMPARISON,
+            sheets: [{
+                ...COMPARISON.sheets[0]!,
+                children: [
+                    { id: '0-0', name: 'Datatype Person', type: 'table', status: 'changed' },
+                    { id: '0-1', name: 'Datatype Address', type: 'table', status: 'changed', formattingOnly: true },
+                ],
+            }],
+        })
+        vi.mocked(getComparisonTable).mockResolvedValue({ ...TABLE, formattingChanged: true })
+        openPage()
+        await startComparison()
+        push('COMPLETED')
+
+        await userEvent.click(await screen.findByText('Datatype Person'))
+        await screen.findByTestId('compare-combined')
+        expect(screen.queryByText('Datatype Address')).toBeNull()
+        // The table picked changed its formatting as well, which is not told either.
+        expect(screen.queryByTestId('compare-formatting-changed')).toBeNull()
+        // Something else differs, so nothing is said of the formatting.
+        expect(screen.queryByTestId('compare-only-formatting')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('compare-back'))
+        await userEvent.click(screen.getByTestId('compare-show-formatting-changes'))
+        await startComparison()
+        push('COMPLETED')
+
+        await userEvent.click(await screen.findByText('Datatype Person'))
+        expect(screen.getByText('Datatype Address')).toBeInTheDocument()
+        expect(await screen.findByTestId('compare-formatting-changed')).toBeInTheDocument()
+    })
+
+    it('says that only the formatting differs, and shows it when asked to', async () => {
+        vi.mocked(getComparison).mockResolvedValue({
+            ...COMPARISON,
+            sheets: [{
+                ...COMPARISON.sheets[0]!,
+                children: [
+                    { id: '0-0', name: 'Datatype Person', type: 'table', status: 'changed', formattingOnly: true },
+                    { id: '0-1', name: 'Datatype Address', type: 'table', status: 'equal' },
+                ],
+            }],
+        })
+        openPage()
+        await startComparison()
+        push('COMPLETED')
+
+        expect(await screen.findByTestId('compare-only-formatting')).toHaveTextContent('only_formatting')
+        expect(screen.queryByText('Datatype Person')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('compare-only-formatting-show'))
+
+        expect(screen.getByText('Datatype Person')).toBeInTheDocument()
+        expect(screen.queryByTestId('compare-only-formatting')).toBeNull()
     })
 
     it('lists only the elements that differ, and the equal ones when they were asked for', async () => {

@@ -245,6 +245,11 @@ public class ComparisonMapper {
         return table == null ? null : new Located<>(sheet, table);
     }
 
+    /**
+     * The node of a table of two compared files: what became of it, and its place in each file.
+     *
+     * <p>A table that differs in its formatting only is marked so, and stays changed.
+     */
     private static ComparisonNodeView toTableNode(String id, TableComparison table) {
         return ComparisonNodeView.builder()
                 .id(id)
@@ -252,6 +257,7 @@ public class ComparisonMapper {
                 .type(ComparisonNodeType.TABLE)
                 .status(statusOf(table.status()))
                 .moved(table.moved())
+                .formattingOnly(table.formattingOnly() ? Boolean.TRUE : null)
                 .firstRange(rangeOf(table.first()))
                 .secondRange(rangeOf(table.second()))
                 .other(otherOf(table.name()))

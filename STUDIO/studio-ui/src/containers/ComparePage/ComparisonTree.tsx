@@ -9,7 +9,7 @@ import {
     SwapRightOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import type { Comparison, ComparisonNode } from 'types/compare'
+import type { Comparison, ComparisonNode, ComparisonNodeStatus } from 'types/compare'
 import { useStyles } from './ComparePage.styles'
 
 interface ComparisonTreeProps {
@@ -18,15 +18,55 @@ interface ComparisonTreeProps {
     showEqualElements: boolean
     /** Whether the cells outside OpenL tables are listed, such as notes or formulas beside them. */
     showOtherTables?: boolean | undefined
+    /** Whether a table that differs in formatting only is listed as a changed one, as it is unless told otherwise. */
+    showFormattingChanges?: boolean | undefined
     onSelect: (tableId: string | null) => void
 }
 
 /**
- * Whether an element is listed: one that differs, unless the equal ones are asked for; an OpenL table, unless the
- * other tables are asked for. A table both versions of a conflict changed differently is listed whatever it holds.
+ * How a table is listed. A table that differs in formatting only is a changed one while the changes of formatting are
+ * shown. Otherwise it is listed as the table it is without them: a moved one, or an equal one.
  */
+const statusShown = (element: ComparisonNode, showFormattingChanges: boolean): ComparisonNodeStatus => {
+    if (showFormattingChanges || !element.formattingOnly) {
+        return element.status
+    }
+    return element.moved ? 'moved' : 'equal'
+}
+
+/**
+ * A sheet as it is listed, given its tables as they are: one whose tables all read the same once the changes of
+ * formatting are left out reads the same too.
+ */
+const sheetShown = (sheet: ComparisonNode, tables: ComparisonNode[]): ComparisonNode =>
+    (sheet.status === 'changed' && tables.every(table => table.status === 'equal') ? { ...sheet, status: 'equal' } : sheet)
+
+/**
+ * Whether a table may be listed at all: an OpenL table, unless the other tables are asked for. A table both versions
+ * of a conflict changed differently may be listed whatever it holds.
+ */
+const offered = (element: ComparisonNode, showOtherTables: boolean): boolean =>
+    showOtherTables || !element.other || !!element.conflict
+
+/** Whether an element is listed: one that may be, and that differs, unless the equal ones are asked for. */
 const listed = (element: ComparisonNode, showEqualElements: boolean, showOtherTables: boolean): boolean =>
-    (showEqualElements || element.status !== 'equal') && (showOtherTables || !element.other || !!element.conflict)
+    (showEqualElements || element.status !== 'equal') && offered(element, showOtherTables)
+
+/**
+ * Whether the formatting is all that differs among the tables that may be listed. With the changes of formatting left
+ * out, the list of elements is then empty, with nothing said about why.
+ *
+ * The cells outside OpenL tables count only when they are asked for: showing the changes of formatting would not list
+ * them otherwise.
+ */
+export const onlyFormattingDiffers = (comparison: Comparison, showOtherTables: boolean): boolean => {
+    const tables = comparison.sheets
+        .flatMap(sheet => sheet.children ?? [])
+        .filter(table => offered(table, showOtherTables))
+    return comparison.sheets.every(sheet => sheet.status !== 'added' && sheet.status !== 'removed')
+        && tables.some(table => table.formattingOnly)
+        && tables.every(table => statusShown(table, false) === 'equal')
+}
 
 /**
  * What the two compared files hold, grouped by sheet, as a tree the user picks an element from.
@@ -34,11 +74,15 @@ const listed = (element: ComparisonNode, showEqualElements: boolean, showOtherTa
  * A sheet is a heading rather than a choice: it is the tables under it that have two sides to show. The cells outside
  * OpenL tables, such as notes or formulas beside them, are left out unless they are asked for or both versions of a
  * conflict changed them differently.
+ *
+ * A table that differs in formatting only is listed as a changed one while the changes of formatting are shown.
+ * Otherwise it is listed as an equal table, or as a moved one when it was moved as well.
  */
 export const ComparisonTree: React.FC<ComparisonTreeProps> = ({
     comparison,
     showEqualElements,
     showOtherTables = false,
+    showFormattingChanges = true,
     onSelect,
 }) => {
     const { t } = useTranslation('compare')
@@ -88,18 +132,23 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({
     })
 
     const sheets = comparison.sheets
-        .map(sheet => ({
-            key: sheet.id,
-            title: label(sheet),
-            selectable: false,
-            children: (sheet.children ?? [])
-                .filter(element => listed(element, showEqualElements, showOtherTables))
-                .map(element => ({
-                    key: element.id,
-                    title: label(element),
-                    children: element.moved && element.firstRange && element.secondRange ? [moved(element)] : [],
-                })),
-        }))
+        .map(sheet => {
+            // Each table as it is listed, a change of formatting alone left out unless it is asked for.
+            const tables = (sheet.children ?? []).map((element): ComparisonNode => (
+                { ...element, status: statusShown(element, showFormattingChanges) }))
+            return {
+                key: sheet.id,
+                title: label(sheetShown(sheet, tables)),
+                selectable: false,
+                children: tables
+                    .filter(element => listed(element, showEqualElements, showOtherTables))
+                    .map(element => ({
+                        key: element.id,
+                        title: label(element),
+                        children: element.moved && element.firstRange && element.secondRange ? [moved(element)] : [],
+                    })),
+            }
+        })
         .filter(sheet => sheet.children.length > 0)
 
     if (sheets.length === 0) {

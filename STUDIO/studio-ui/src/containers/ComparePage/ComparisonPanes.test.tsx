@@ -195,6 +195,41 @@ describe('ComparisonPanes', () => {
         }
     })
 
+    it('neither tells nor frames a change of formatting that is left out', () => {
+        render(<ComparisonPanes
+            error={null}
+            loading={false}
+            showEqualRows={false}
+            showFormattingChanges={false}
+            table={{ ...TABLE, formattingChanged: true }}
+        />)
+
+        for (const table of screen.getAllByTestId('compare-restyled')) {
+            expect(getComputedStyle(table).outline).toBe('')
+        }
+        expect(screen.queryByTestId('compare-formatting-changed')).toBeNull()
+        // The cells that read differently are still told.
+        expect(screen.getByTestId('compare-legend')).toHaveTextContent('status_changed')
+    })
+
+    it('says nothing of a table whose formatting is all that differs once it is left out', () => {
+        const restyled: ComparisonTable = {
+            ...TABLE,
+            formattingChanged: true,
+            first: { source: TABLE.first!.source },
+            second: { source: TABLE.first!.source },
+        }
+        render(<ComparisonPanes
+            error={null}
+            loading={false}
+            showEqualRows={false}
+            showFormattingChanges={false}
+            table={restyled}
+        />)
+
+        expect(screen.queryByTestId('compare-notes')).toBeNull()
+    })
+
     it('frames no table whose formatting stayed', () => {
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />)
 

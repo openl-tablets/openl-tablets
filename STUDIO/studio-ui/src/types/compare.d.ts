@@ -18,6 +18,11 @@ export interface ComparisonNode {
     status: ComparisonNodeStatus
     /** Whether the second file moved the table to another place on purpose, whatever else changed. */
     moved?: boolean
+    /**
+     * Whether the formatting is all that differs in the table: no cell reads differently and neither file holds a line
+     * the other does not. Such a table is `changed`, and may be moved as well.
+     */
+    formattingOnly?: boolean | null
     /** The place of the table in the first file; absent for a sheet and for a table the first file does not hold. */
     firstRange?: string | null
     /** The place of the table in the second file; absent for a sheet and for a table the second file does not hold. */

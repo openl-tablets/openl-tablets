@@ -1135,7 +1135,8 @@ revision of it. To compare the working copy with a revision, proceed as follows:
     common revision, side by side or as one table: their version first, as the revision your changes would be
     merged into. A cell one side changed is framed in orange and carries its value before and after; a cell both
     sides changed differently is framed in red and carries the value both started from, and under it each value
-    with the name of its version.
+    with the name of its version. The two versions are compared by what they read alone, so **Formatting changes**
+    is not offered for such a file.
 
 ### Exporting a Project or a File
 

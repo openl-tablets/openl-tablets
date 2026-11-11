@@ -616,6 +616,8 @@ export interface ComparisonNodeView {
   status?: ComparisonStatus;
   /** Whether a table stands elsewhere on its sheet; absent for a sheet. */
   moved?: boolean;
+  /** True for a table that differs in its formatting only, which stays `changed`; absent otherwise. */
+  formattingOnly?: boolean;
   /** Where a table stands in the first and the second workbook, in A1 notation. */
   firstRange?: string;
   secondRange?: string;

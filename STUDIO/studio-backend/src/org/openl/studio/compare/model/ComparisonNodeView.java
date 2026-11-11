@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
  * @param type        kind of the element
  * @param status      how the element of the second file relates to the first one
  * @param moved       whether the second file moved the table to another place on purpose
+ * @param formattingOnly whether the formatting is all that differs in the table
  * @param firstRange  the place of the table in the first file
  * @param secondRange the place of the table in the second file
  * @param yours       what your version did to the element, in a comparison of a conflict with its base
@@ -45,6 +46,12 @@ public record ComparisonNodeView(
                 changed. A table only pushed by the rows inserted or deleted above it is not moved. Absent for a \
                 sheet.""")
         @Nullable Boolean moved,
+
+        @Parameter(description = """
+                True for a table that differs in its formatting only: no cell of it reads differently, and neither \
+                file holds a row or a column the other does not. A reader may list it only when asked for, as an \
+                equal table, or as a moved one when `moved` is true. Absent for any other table and for a sheet.""")
+        @Nullable Boolean formattingOnly,
 
         @Parameter(description = """
                 The place of the table in the first file, in A1 notation; absent for a sheet and for a table only \
