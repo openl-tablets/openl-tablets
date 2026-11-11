@@ -25,6 +25,7 @@ import org.springframework.mock.env.MockEnvironment;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 class TestsExecutorServiceImplTest {
@@ -63,7 +64,8 @@ class TestsExecutorServiceImplTest {
         });
 
         var run = new TestsExecutorServiceImpl()
-                .runAll(mock(ProjectTestsExecutionProgressListener.class), model, currentOpenedModule)
+                .runAll(mock(ProjectTestsExecutionProgressListener.class), model, TableModules.none(),
+                        currentOpenedModule)
                 .get();
 
         assertEquals(1, run.tables().size());
@@ -76,7 +78,7 @@ class TestsExecutorServiceImplTest {
         var listener = mock(ProjectTestsExecutionProgressListener.class);
         Thread.currentThread().interrupt();
         try {
-            var run = new TestsExecutorServiceImpl().runAll(listener, model, false).get();
+            var run = new TestsExecutorServiceImpl().runAll(listener, model, TableModules.none(), false).get();
 
             assertEquals(0, run.tables().size());
             verify(listener).onStatusChanged(TestExecutionStatus.INTERRUPTED);
@@ -97,7 +99,7 @@ class TestsExecutorServiceImplTest {
             return null;
         }).when(listener).onTestUnitExecuted(any());
 
-        var run = new TestsExecutorServiceImpl().runAll(listener, model, false).get();
+        var run = new TestsExecutorServiceImpl().runAll(listener, model, TableModules.none(), false).get();
 
         assertEquals(1, run.tables().size());
         verify(listener).onStatusChanged(TestExecutionStatus.INTERRUPTED);
@@ -111,7 +113,9 @@ class TestsExecutorServiceImplTest {
         var table = TableTestProjects.table(model, "CalcTest");
         Thread.currentThread().interrupt();
         try {
-            var run = new TestsExecutorServiceImpl().runSingle(listener, model, table, null, false).get();
+            var run = new TestsExecutorServiceImpl()
+                    .runSingle(listener, model, TableModules.none(), table, null, false)
+                    .get();
 
             assertEquals(1, run.tables().size());
             assertEquals(0, run.tables().getFirst().getNumberOfTestUnits());

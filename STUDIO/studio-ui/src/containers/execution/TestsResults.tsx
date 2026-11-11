@@ -252,13 +252,14 @@ const TestTable = React.memo<{
         <Space orientation="vertical" size="small" style={{ width: '100%' }}>
             <Flex wrap align="baseline" gap="small">
                 {/* The name carries the outcome of the whole table, green when every case passed. A Run table
-                    states no expected values, so nothing there can pass or fail. */}
+                    states no expected values, so nothing there can pass or fail. A test table of a project the
+                    tested one depends on opens in that project. */}
                 <Title level={5} style={{ margin: 0 }}>
                     <TableLink
                         data-testid={`test-table-${table.tableId}`}
                         module={table.module}
                         onOpen={onOpenTable}
-                        projectId={projectId}
+                        projectId={table.projectId ?? projectId}
                         tableId={table.tableId}
                         {...(!table.runTable && { type: table.numberOfFailures > 0 ? 'danger' : 'success' })}
                     >

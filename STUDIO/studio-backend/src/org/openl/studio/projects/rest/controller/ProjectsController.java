@@ -136,6 +136,7 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.TableInputService;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
@@ -915,18 +916,22 @@ public class ProjectsController {
         if (testSuite != null && StringUtils.isNotBlank(testRanges)) {
             TestCaseRanges.requireKnownCases(testSuite, testRanges);
         }
+        // Where the tested tables are written. It is worked out before the previous run is stopped, so a failure
+        // here leaves that run going. The new run keeps it, so a test table of a project this one depends on is
+        // opened there from its results.
+        var modules = TableModules.ofWorkspaceAddressed(projectModel).detached();
         executionTestsResultRegistry.cancelIfAny();
         var projectId = project.getProjectId();
         var user = projectService.getUserWorkspace().getUser();
         CompletableFuture<TestRun> testTask;
-        var mapper = testsSummaryMapper(project);
+        var mapper = testsSummaryMapper(project, modules);
         // A test table that has run is announced the way the screen reads the results, not written in full.
         Function<TestUnitsResults, TestCaseExecutionResult> announcement =
                 testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.lazy());
         if (table == null) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user, projectId, announcement);
             listener.onStatusChanged(TestExecutionStatus.PENDING);
-            testTask = testsExecutorService.runAll(listener, projectModel, currentOpenedModule);
+            testTask = testsExecutorService.runAll(listener, projectModel, modules, currentOpenedModule);
         } else {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
@@ -936,9 +941,11 @@ public class ProjectsController {
             // A test table, and a run table with it, is run as it stands; any other table is run through the
             // test tables that cover it.
             if (testSuite == null && StringUtils.isBlank(testRanges)) {
-                testTask = testsExecutorService.runAllForTable(listener, projectModel, table, currentOpenedModule);
+                testTask = testsExecutorService.runAllForTable(listener, projectModel, modules, table,
+                        currentOpenedModule);
             } else {
-                testTask = testsExecutorService.runSingle(listener, projectModel, table, testRanges, currentOpenedModule);
+                testTask = testsExecutorService.runSingle(listener, projectModel, modules, table, testRanges,
+                        currentOpenedModule);
             }
         }
         executionTestsResultRegistry.setTask(projectId, testTask);
@@ -1013,7 +1020,7 @@ public class ProjectsController {
                 return ResultNotReadyView.accepted();
             }
             var run = completed.get();
-            var mapper = testsSummaryMapper(project);
+            var mapper = testsSummaryMapper(project, run.modules());
             var query = new TestExecutionSummaryQuery(failuresOnly,
                     allFailures ? TestUnitsResults.ALL_FAILURES : failures,
                     compoundResult,
@@ -1067,7 +1074,7 @@ public class ProjectsController {
         var unit = testUnit instanceof RetainedTestUnit retained && held.stream().anyMatch(RetainedTestUnit::isReleased)
                 ? retained.again()
                 : testUnit;
-        var answer = testsSummaryMapper(project)
+        var answer = testsSummaryMapper(project, run.modules())
                 .mapToTestUnitResult(testCase, unit, TestExecutionSummaryQuery.inFull(includeSchema));
         Reference.reachabilityFence(held);
         return ResponseEntity.ok(answer);
@@ -1199,14 +1206,16 @@ public class ProjectsController {
     /**
      * The mapper that reads a test run of the given project.
      *
-     * <p>It is built per request: what it needs — how spreadsheet results are named, and which module holds
-     * each table — belongs to the project as it stands now.
+     * <p>It is built per request: how spreadsheet results are named belongs to the project as it stands now.
+     *
+     * @param modules the modules the tested tables are written in, as the test run found them
      */
-    private TestsExecutionSummaryResponseMapper testsSummaryMapper(RulesProject project) {
+    private TestsExecutionSummaryResponseMapper testsSummaryMapper(RulesProject project, TableModules modules) {
         var objectMapper = objectMapperService.createObjectMapper();
         return new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
                 projectService.getSpreadsheetResultNamingStrategy(),
-                projectService.getTableModules(project));
+                modules,
+                project.getProjectId().value());
     }
 
     /**

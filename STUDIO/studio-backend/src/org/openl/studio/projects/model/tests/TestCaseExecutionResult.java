@@ -15,8 +15,11 @@ public record TestCaseExecutionResult(
         @Parameter(description = "Test table identifier")
         String tableId,
 
-        @Parameter(description = "Module the test table is written in, so a reader can be sent to it. Absent when the project declares no module holding the table.")
+        @Parameter(description = "Module the test table is written in, so a reader can be sent to it. It is a module of the tested project or of a project it depends on. Absent when no such module holds the table.")
         @Nullable String module,
+
+        @Parameter(description = "Identifier of the project the test table is written in, as the Projects API addresses it, when it is a project the tested one depends on. Absent for a test table of the tested project.")
+        @Nullable String projectId,
 
         @Parameter(description = "Description of the test case")
         String description,
