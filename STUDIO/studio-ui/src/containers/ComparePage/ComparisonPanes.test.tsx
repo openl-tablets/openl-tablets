@@ -179,6 +179,22 @@ describe('ComparisonPanes', () => {
         expect(getComputedStyle(screen.getByTestId('compare-restyled')).outline).toContain('dashed')
     })
 
+    it('frames a table wider than its pane whole, so the frame is scrolled with the table', () => {
+        render(<ComparisonPanes
+            error={null}
+            loading={false}
+            showEqualRows={false}
+            table={{ ...TABLE, formattingChanged: true }}
+        />)
+
+        for (const table of screen.getAllByTestId('compare-restyled')) {
+            const style = getComputedStyle(table)
+            // As wide as the table, with nothing holding it to the width of the pane the table runs past.
+            expect(style.width).toBe('fit-content')
+            expect(style.maxWidth).not.toBe('100%')
+        }
+    })
+
     it('frames no table whose formatting stayed', () => {
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />)
 
