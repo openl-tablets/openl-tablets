@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.SneakyThrows;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
@@ -127,6 +128,132 @@ class RulesRemovedFunctionsMigratorTest {
         assertEquals(List.of("Method String day(Date date)", "return toString(date, \"M/d/yy\");"), read(workbook));
         assertEquals(2, compilations.get());
         assertEquals(List.of(), errors(compile(folder)));
+    }
+
+    @Test
+    void rewritesRemovedFunctionsInMarkdownModule(@TempDir Path folder) throws Exception {
+        Files.writeString(folder.resolve("rules.xml"), """
+                <project>
+                    <name>migrate</name>
+                    <modules>
+                        <module>
+                            <name>Main</name>
+                            <rules-root path="rules/Main"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var module = Files.createDirectories(folder.resolve("rules/Main"));
+        var amount = Files.writeString(module.resolve("amount.md"), """
+                ---
+                table: Method Double amount(String text)
+                ---
+
+                Reads an amount.
+
+                ```java
+                return parseFormattedDouble(text);
+                ```
+                """);
+        var calc = Files.writeString(module.resolve("calc.md"), """
+                ---
+                table: Spreadsheet SpreadsheetResult calc(Date date)
+                ---
+
+                | Step | Value                        |
+                |------|------------------------------|
+                | Year | = dateToString(date, "yyyy") |
+                | Text | = dateToString(date)         |
+                """);
+
+        var changed = new RulesRemovedFunctionsMigrator().migrate(folder, context(folder));
+
+        assertEquals(Set.of(amount.toRealPath(), calc.toRealPath()), Set.copyOf(changed));
+        // The code is rewritten where the compiler found it; the text around the table stays as it is
+        assertEquals("""
+                ---
+                table: Method Double amount(String text)
+                ---
+
+                Reads an amount.
+
+                ```java
+                return (Double) toNumber(text);
+                ```
+                """, Files.readString(amount));
+        assertEquals("""
+                ---
+                table: Spreadsheet SpreadsheetResult calc(Date date)
+                ---
+
+                | Step | Value                        |
+                |------|------------------------------|
+                | Year | = toString(date, "yyyy")     |
+                | Text | = toString(date, "M/d/yy")   |
+                """, Files.readString(calc));
+        assertEquals(List.of(), errors(compile(folder)));
+    }
+
+    /** A file changed into one with no table after the compilation is left as it is; the others are rewritten. */
+    @Test
+    void leavesMarkdownFileThatHoldsNoTableAnyMore(@TempDir Path folder) throws Exception {
+        Files.writeString(folder.resolve("rules.xml"), """
+                <project>
+                    <name>migrate</name>
+                    <modules>
+                        <module>
+                            <name>Main</name>
+                            <rules-root path="rules/Main"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var module = Files.createDirectories(folder.resolve("rules/Main"));
+        var amount = Files.writeString(module.resolve("amount.md"), """
+                ---
+                table: Method Double amount(String text)
+                ---
+
+                ```java
+                return parseFormattedDouble(text);
+                ```
+                """);
+        var day = Files.writeString(module.resolve("day.md"), """
+                ---
+                table: Method String day(Date date)
+                ---
+
+                ```java
+                return dateToString(date);
+                ```
+                """);
+        var broken = """
+                ---
+                table: Method String day(Date date)
+                """;
+        var compilations = new AtomicInteger();
+
+        var compilation = new Compilation(() -> {
+            var compiled = compile(folder);
+            if (compilations.incrementAndGet() == 1) {
+                // Changed by hand while the project was compiled: the front matter is not closed any more
+                write(day, broken);
+            }
+            return compiled;
+        });
+
+        var changed = new RulesRemovedFunctionsMigrator().migrate(folder,
+                new MigrationContext(null, compilation, null, Set.of()));
+
+        assertEquals(List.of(amount.toRealPath()), changed);
+        assertTrue(Files.readString(amount).contains("return (Double) toNumber(text);"));
+        assertEquals(broken, Files.readString(day));
+    }
+
+    /** Writes a file from the compiler of a migration, which may throw no checked exception. */
+    @SneakyThrows
+    private static void write(Path file, String text) {
+        Files.writeString(file, text);
     }
 
     @Test

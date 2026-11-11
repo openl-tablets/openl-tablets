@@ -59,8 +59,9 @@ Notes:
   `<dependenciesThreshold>`, and hoist non-OpenL deps, then prunes the converted modules from `<modules>`. Blocked
   projects (per-project config other than `dependenciesThreshold`, `deploymentPackage` and `deploymentName`,
   executions, profiles, …) are left untouched and reported. Pom edits re-serialise the model — review the diff.
-- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy and removed-function calls, drops no-effect plugin params
-  in `pom.xml`; a commit per step. `openl:help -Dgoal=migrate -Ddetail` lists steps, `-Dopenl.migrate.migrators` picks.
+- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy, and removed-function calls in workbooks and Markdown
+  module folders; drops no-effect plugin params in `pom.xml`; a commit per step. `openl:help -Dgoal=migrate -Ddetail`
+  lists steps, `-Dopenl.migrate.migrators` picks.
 
 Every goal except `deploy` is thread-safe, so a parallel build (`mvn -T 1C verify`) runs the goals of independent
 modules at the same time without the Maven warning about plugins not marked as thread-safe. `verify` starts one OpenL
