@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -30,6 +32,7 @@ import org.openl.rules.ui.WebStudio;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TableModules {
 
     /**
@@ -70,14 +73,6 @@ public final class TableModules {
 
     /** The id of the table at a location, as the compilation the modules were located through names it. */
     private final Function<String, @Nullable String> ids;
-
-    private TableModules(List<ModuleLocation> modules,
-                         Function<String, @Nullable TableLocation> generated,
-                         Function<String, @Nullable String> ids) {
-        this.modules = modules;
-        this.generated = generated;
-        this.ids = ids;
-    }
 
     /** Locates the modules that have a workbook to hold tables and a name to be opened by. */
     private static TableModules locate(Stream<Module> modules) {
@@ -213,7 +208,7 @@ public final class TableModules {
         studio.getProjects()
                 .forEach((repositoryId, descriptors) -> descriptors
                         .forEach(descriptor -> repositoryOfProject.putIfAbsent(descriptor.getName(), repositoryId)));
-        Map<String, ProjectAddress> addressOfProject = new HashMap<>();
+        var addressOfProject = new HashMap<String, ProjectAddress>();
         return module -> {
             var descriptor = module.getProject();
             if (descriptor == null) {
@@ -233,6 +228,18 @@ public final class TableModules {
         var project = studio.projectOf(repositoryId, descriptor);
         return project == null ? null
                 : new ProjectAddress(project.getProjectId().value(), descriptor.getName());
+    }
+
+    /**
+     * The same modules, without the compilation they were located through.
+     *
+     * <p>What is kept for later reads stays as it is now, whatever the session compiles after. A table the compiler
+     * built is located nowhere, and no id of a table is told.
+     *
+     * @return the modules, each still addressed by its project
+     */
+    public TableModules detached() {
+        return new TableModules(modules, tableUri -> null, tableUri -> null);
     }
 
     /**

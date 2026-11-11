@@ -457,6 +457,17 @@ describe('TestsResults', () => {
         expect(openTable).toHaveBeenCalledWith('/projects/p1/modules/Auto%20Policy%20Tests?table=tt1')
     })
 
+    it('leads to a test table of a project the tested one depends on, in that project', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{ ...summary.testCases[0], module: 'example2', projectId: 'dependency' }],
+        })
+        await show()
+
+        expect(screen.getByTestId('test-table-tt1'))
+            .toHaveAttribute('href', '/projects/dependency/modules/example2?table=tt1')
+    })
+
     it('writes a table whose module is unknown as its name alone', async () => {
         const { module: _module, ...withoutModule } = summary.testCases[0] as { module?: string }
         readSummary.mockResolvedValue({ ...summary, testCases: [withoutModule]})

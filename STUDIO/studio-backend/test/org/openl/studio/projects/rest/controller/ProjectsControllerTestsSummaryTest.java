@@ -154,12 +154,34 @@ class ProjectsControllerTestsSummaryTest {
 
     /** A test run that has ended with the given tables. */
     private void ended(List<TestUnitsResults> tables) {
-        registry.setTask(projectId, CompletableFuture.completedFuture(new TestRun(tables)));
+        ended(tables, TableModules.none());
+    }
+
+    /** A test run that has ended with the given tables, written in the given modules. */
+    private void ended(List<TestUnitsResults> tables, TableModules modules) {
+        registry.setTask(projectId, CompletableFuture.completedFuture(new TestRun(tables, modules)));
     }
 
     private static void assertNotReady(ResponseEntity<?> answer) {
         assertEquals(HttpStatus.ACCEPTED, answer.getStatusCode());
         assertEquals(ResultNotReadyView.ResultState.NOT_READY, ((ResultNotReadyView) answer.getBody()).status());
+    }
+
+    /**
+     * The summary says where each test table is written as the run found it: a table of a project the tested one
+     * depends on is named with that project.
+     */
+    @Test
+    void getTestsSummary_namesTheProjectOfATestTableOfADependency() throws Exception {
+        var modules = mock(TableModules.class);
+        when(modules.locationOf(TABLE_URI))
+                .thenReturn(new TableModules.TableLocation("example2", "dependency", "NotClickable"));
+        ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(returning("1", 100)))), modules);
+
+        var table = ((TestsExecutionSummary) summary(JSON).getBody()).getContent().iterator().next();
+
+        assertEquals("example2", table.module());
+        assertEquals("dependency", table.projectId());
     }
 
     @Test
@@ -187,7 +209,6 @@ class ProjectsControllerTestsSummaryTest {
         when(vehicle.getName()).thenReturn("VehicleRun");
         when(driver.getNumberOfTests()).thenReturn(1);
         when(vehicle.getNumberOfTests()).thenReturn(2);
-        when(projectService.getTableModules(project)).thenReturn(TableModules.none());
         ended(List.of(driver, vehicle));
 
         var one = (TestsExecutionSummary) summary(JSON, TABLE_ID).getBody();
@@ -504,7 +525,6 @@ class ProjectsControllerTestsSummaryTest {
         when(projectService.openProject(project, null)).thenReturn(handle);
         when(handle.awaitCompiled()).thenReturn(model);
         when(projectService.getUserWorkspace()).thenReturn(workspace);
-        when(projectService.getTableModules(project)).thenReturn(TableModules.none());
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Function<TestUnitsResults, TestCaseExecutionResult>> announcement =
                 ArgumentCaptor.forClass(Function.class);

@@ -703,6 +703,7 @@ class ProjectsControllerTest {
         var controller = controller(projectService, testsExecutorService, mock(ExecutionTestsResultRegistry.class),
                 listeners);
         var project = mock(RulesProject.class);
+        when(project.getProjectId()).thenReturn(ProjectIds.of("design", "Runs"));
         var model = compiledModel(projectService, project);
         var table = mock(IOpenLTable.class);
         var method = mock(TestSuiteMethod.class);
@@ -716,8 +717,8 @@ class ProjectsControllerTest {
 
         controller.runAllTests(project, null, "t1", null);
 
-        verify(testsExecutorService).runSingle(any(), eq(model), eq(table), isNull(), eq(false));
-        verify(testsExecutorService, never()).runAllForTable(any(), any(), any(), anyBoolean());
+        verify(testsExecutorService).runSingle(any(), eq(model), any(), eq(table), isNull(), eq(false));
+        verify(testsExecutorService, never()).runAllForTable(any(), any(), any(), any(), anyBoolean());
     }
 
     @Test
@@ -732,6 +733,23 @@ class ProjectsControllerTest {
         assertThrows(NotFoundException.class, () -> controller.runAllTests(project, "  ", "missing", null));
 
         verify(projectService).openProject(project, null);
+    }
+
+    /** A run whose tables cannot be located fails before the run before it is stopped, which goes on. */
+    @Test
+    void aRunWhoseTablesCannotBeLocatedCancelsNoRun() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var testsResultRegistry = mock(ExecutionTestsResultRegistry.class);
+        var listeners = mock(SocketProjectAllTestsExecutionProgressListenerFactory.class);
+        var controller = controller(projectService, testsResultRegistry, listeners);
+        var project = mock(RulesProject.class);
+        var model = compiledModel(projectService, project);
+        when(model.getWebStudioWorkspaceDependencyManager()).thenThrow(new IllegalStateException("not compiled"));
+
+        assertThrows(IllegalStateException.class, () -> controller.runAllTests(project, null, null, null));
+
+        verify(testsResultRegistry, never()).cancelIfAny();
+        verifyNoInteractions(listeners);
     }
 
     @Test

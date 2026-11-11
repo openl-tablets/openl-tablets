@@ -277,7 +277,8 @@ the table does not have starts nothing: the panel says which case it is.
 
 The results window lists every test table that ran, with the number of cases it holds and, in red, how many of
 them failed. The name of a table is green when every case of it passed and red when one did not, and it opens
-that test table in the editor. Every case is a row of that table: its id, a column for each value it was given,
+that test table in the editor. A test table of a project the tested project depends on opens in that project.
+Every case is a row of that table: its id, a column for each value it was given,
 and a column for each value the test compares. A tick or a cross stands next to the case and next to every
 value that was compared, and a case that failed says how many of its comparisons did not match and shows the
 value that was expected under the value that came out.

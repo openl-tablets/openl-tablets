@@ -1,0 +1,50 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1,
+  "executionTimeMs": "*",
+  "numberOfTests": 1,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "mySpr",
+      "tableId": "${TEST}",
+      "module": "example2",
+      "projectId": "${DEPENDENCY_ID}",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "_res_.$Value$value3",
+              "expectedValue": 41.2515,
+              "actualValue": 41.2515,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "a",
+              "description": "a",
+              "value": "aaa",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

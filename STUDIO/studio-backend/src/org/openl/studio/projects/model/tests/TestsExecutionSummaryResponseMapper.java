@@ -23,6 +23,7 @@ import org.openl.studio.projects.model.ExecutionValueLevels;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tables.TableModules.TableLocation;
 import org.openl.studio.projects.service.tests.RetainedTestUnit;
 
 public class TestsExecutionSummaryResponseMapper {
@@ -38,16 +39,28 @@ public class TestsExecutionSummaryResponseMapper {
 
     private final ObjectMapper objectMapper;
     private final ExecutionValueMapper valueMapper;
-    /** The modules of the project, so every table reported says which one it is read through. */
+    /**
+     * The modules of the tested project and of the projects it depends on, so every table reported says where it is
+     * read.
+     */
     private final TableModules tableModules;
 
+    /** The identifier of the tested project, which a table written in it does not repeat. */
+    private final String projectId;
+
+    /**
+     * @param tableModules the modules the tested tables are written in, each addressed by its project
+     * @param projectId    the identifier of the tested project
+     */
     public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper,
                                                SchemaGenerator schemaGenerator,
                                                SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy,
-                                               TableModules tableModules) {
+                                               TableModules tableModules,
+                                               String projectId) {
         this.objectMapper = objectMapper;
         this.valueMapper = new ExecutionValueMapper(objectMapper, schemaGenerator, sprNamingStrategy);
         this.tableModules = tableModules;
+        this.projectId = projectId;
     }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults,
@@ -80,11 +93,23 @@ public class TestsExecutionSummaryResponseMapper {
                 .numberOfFailures(numberOfFailures);
     }
 
+    /**
+     * Writes the results of a test table.
+     *
+     * <p>A test table of a project the tested one depends on says which project it is written in, so a reader can
+     * be sent to it there. A test table whose project is not known says no module either: a reader would be sent to
+     * the module in the tested project.
+     *
+     * @param testCase the results of the test table
+     * @param query    what the summary is asked for
+     */
     public TestCaseExecutionResult mapToTestCaseResult(TestUnitsResults testCase, TestExecutionSummaryQuery query) {
+        var where = openedAt(testCase);
         var builder = TestCaseExecutionResult.builder()
                 .name(TableSyntaxNodeUtils.getTestName(testCase.getTestSuite().getTestSuiteMethod()))
                 .tableId(testCase.getTestSuite().getTableId())
-                .module(tableModules.moduleOf(testCase.getTestSuite().getUri()))
+                .module(where == null ? null : where.module())
+                .projectId(where == null || projectId.equals(where.projectId()) ? null : where.projectId())
                 .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)
                 .numberOfTests(testCase.getNumberOfTests())
@@ -96,6 +121,12 @@ public class TestsExecutionSummaryResponseMapper {
                 .map(tetUnit -> mapToTestUnitResult(testCase, tetUnit, query))
                 .forEach(builder::testUnit);
         return builder.build();
+    }
+
+    /** Where a test table is opened: the module holding it, in a project known by its identifier. */
+    private @Nullable TableLocation openedAt(TestUnitsResults testCase) {
+        var where = tableModules.locationOf(testCase.getTestSuite().getUri());
+        return where == null || where.projectId() == null ? null : where;
     }
 
     /**

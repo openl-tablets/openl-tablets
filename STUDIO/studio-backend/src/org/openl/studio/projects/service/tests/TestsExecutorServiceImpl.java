@@ -22,6 +22,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.util.Arrays;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -40,6 +41,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     @Async("testSuiteExecutor")
     public CompletableFuture<TestRun> runAll(ProjectTestsExecutionProgressListener listener,
                                              ProjectModel projectModel,
+                                             TableModules modules,
                                              boolean currentOpenedModule) {
         var run = new Compiled(projectModel, currentOpenedModule);
         var testMethods = currentOpenedModule ? projectModel.getOpenedModuleTestMethods() : projectModel.getAllTestMethods();
@@ -47,7 +49,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         runAllTests(listener, executionResult, run, testMethods);
-        return CompletableFuture.completedFuture(new TestRun(executionResult, notRun));
+        return CompletableFuture.completedFuture(new TestRun(executionResult, notRun, modules));
     }
 
     private static List<String> notRunTables(ProjectModel model,
@@ -69,6 +71,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     @Async("testSuiteExecutor")
     public CompletableFuture<TestRun> runAllForTable(ProjectTestsExecutionProgressListener listener,
                                                      ProjectModel projectModel,
+                                                     TableModules modules,
                                                      IOpenLTable table,
                                                      boolean currentOpenedModule) {
         var run = new Compiled(projectModel, currentOpenedModule);
@@ -78,17 +81,18 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         if (method instanceof TestSuiteMethod) {
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(new TestRun(executionResult));
+            return CompletableFuture.completedFuture(new TestRun(executionResult, modules));
         }
         var testMethods = projectModel.getTestMethods(uri, currentOpenedModule);
         runAllTests(listener, executionResult, run, testMethods);
-        return CompletableFuture.completedFuture(new TestRun(executionResult));
+        return CompletableFuture.completedFuture(new TestRun(executionResult, modules));
     }
 
     @Override
     @Async("testSuiteExecutor")
     public CompletableFuture<TestRun> runSingle(ProjectTestsExecutionProgressListener listener,
                                                 ProjectModel projectModel,
+                                                TableModules modules,
                                                 IOpenLTable table,
                                                 String testRanges,
                                                 boolean currentOpenedModule) {
@@ -109,7 +113,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             }
         }
         listener.onStatusChanged(run.stopped() ? TestExecutionStatus.INTERRUPTED : TestExecutionStatus.COMPLETED);
-        return CompletableFuture.completedFuture(new TestRun(executionResult));
+        return CompletableFuture.completedFuture(new TestRun(executionResult, modules));
     }
 
     private void runAllTests(ProjectTestsExecutionProgressListener listener,

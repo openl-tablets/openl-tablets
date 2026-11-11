@@ -97,8 +97,13 @@ export interface TestUnitResult {
 export interface TestTableResult {
     name: string
     tableId: string
-    /** The module the test table is written in; absent when no module of the project holds it. */
+    /**
+     * The module the test table is written in, of the tested project or of a project it depends on; absent when
+     * no such module holds it.
+     */
     module?: string
+    /** The project the test table is written in, when the tested project depends on it; absent for its own. */
+    projectId?: string
     description?: string
     executionTimeMs: number
     numberOfTests: number

@@ -10,12 +10,16 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.projects.model.ExecutionValueLevels;
+import org.openl.studio.projects.service.tables.TableModules;
 
 /**
  * A test run that has ended.
  *
  * <p>It holds the results of every test table it ran, the way {@link RetainedTestUnit} keeps them, and reads their
  * values a level at a time.
+ *
+ * <p>It also keeps where its tables are written, as they were when it started: a test table of a project the tested
+ * one depends on is opened in that project, whatever the session opens after the run.
  */
 @RequiredArgsConstructor
 public final class TestRun {
@@ -29,10 +33,15 @@ public final class TestRun {
     @Accessors(fluent = true)
     private final List<String> notRun;
 
+    /** The modules the tested tables are written in, each addressed by its project. */
+    @Getter
+    @Accessors(fluent = true)
+    private final TableModules modules;
+
     private @Nullable ExecutionValueLevels levels;
 
-    public TestRun(List<TestUnitsResults> tables) {
-        this(tables, List.of());
+    public TestRun(List<TestUnitsResults> tables, TableModules modules) {
+        this(tables, List.of(), modules);
     }
 
     /**

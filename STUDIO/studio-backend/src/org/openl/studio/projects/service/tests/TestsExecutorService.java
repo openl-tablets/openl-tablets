@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.studio.projects.service.tables.TableModules;
 
 /**
  * Runs the tests of a project in the background.
@@ -19,11 +20,13 @@ public interface TestsExecutorService {
      *
      * @param listener execution progress listener
      * @param projectModel project model
+     * @param modules the modules the tested tables are written in, kept with the results of the run
      * @param currentOpenedModule if true, run tests only in the currently opened module; otherwise, run tests in all modules
      * @return a future that will be completed with the test run
      */
     CompletableFuture<TestRun> runAll(ProjectTestsExecutionProgressListener listener,
                                       ProjectModel projectModel,
+                                      TableModules modules,
                                       boolean currentOpenedModule);
 
     /**
@@ -31,6 +34,7 @@ public interface TestsExecutorService {
      *
      * @param listener execution progress listener
      * @param projectModel project model
+     * @param modules the modules the tested tables are written in, kept with the results of the run
      * @param table the test table to run
      * @param testRanges the test ranges to run
      * @param currentOpenedModule if true, run tests only in the currently opened module; otherwise, run tests in all modules
@@ -38,6 +42,7 @@ public interface TestsExecutorService {
      */
     CompletableFuture<TestRun> runSingle(ProjectTestsExecutionProgressListener listener,
                                          ProjectModel projectModel,
+                                         TableModules modules,
                                          IOpenLTable table,
                                          String testRanges,
                                          boolean currentOpenedModule);
@@ -47,12 +52,14 @@ public interface TestsExecutorService {
      *
      * @param listener execution progress listener
      * @param projectModel project model
+     * @param modules the modules the tested tables are written in, kept with the results of the run
      * @param table the table to run tests for
      * @param currentOpenedModule if true, run tests only in the currently opened module; otherwise, run tests in all modules
      * @return a future that will be completed with the test run
      */
     CompletableFuture<TestRun> runAllForTable(ProjectTestsExecutionProgressListener listener,
                                               ProjectModel projectModel,
+                                              TableModules modules,
                                               IOpenLTable table,
                                               boolean currentOpenedModule);
 

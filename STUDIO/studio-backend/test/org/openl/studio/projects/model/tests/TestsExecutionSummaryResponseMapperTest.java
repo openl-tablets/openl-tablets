@@ -63,7 +63,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
         var result = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(true, 5, false, false));
 
         assertEquals(1, result.numberOfTests());
@@ -99,12 +99,13 @@ class TestsExecutionSummaryResponseMapperTest {
         when(test.getExpectedResult()).thenReturn(new Object());
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var assertions = mapper.mapToTestUnitResult(results, testUnit, new TestExecutionSummaryQuery(false, 5, false,
                 false)).testAssertions();
 
-        assertEquals(List.of("Check", "Doubled"), assertions.stream().map(e -> e.description()).toList());
+        assertEquals(List.of("Check", "Doubled"),
+                assertions.stream().map(TestAssertionExecutionResult::description).toList());
         assertEquals("234", assertions.getFirst().expectedValue().toString());
         assertEquals("\"Too big\"", assertions.getFirst().actualValue().toString());
     }
@@ -129,7 +130,7 @@ class TestsExecutionSummaryResponseMapperTest {
                 new ComparedResult("$Total", 10, 10, TestStatus.TR_OK)));
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var assertions = mapper.mapToTestUnitResult(results, testUnit, new TestExecutionSummaryQuery(false, 5, false,
                 false)).testAssertions();
@@ -151,7 +152,7 @@ class TestsExecutionSummaryResponseMapperTest {
         var results = new TestUnitsResults(testSuite);
         results.setTestedRulesHaveErrors(true);
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var table = mapper.mapToTestCaseResult(results, TestExecutionSummaryQuery.lazy());
         var summary = mapper.mapExecutionSummary(List.of(results), List.of(), TestExecutionSummaryQuery.lazy(),
@@ -162,6 +163,51 @@ class TestsExecutionSummaryResponseMapperTest {
         assertTrue(table.testUnits().isEmpty(), "No case has run");
         assertEquals(3, summary.getNumberOfTests());
         assertEquals(3, summary.getNumberOfFailures());
+    }
+
+    /**
+     * A test table of a project the tested one depends on names that project with its module, so it can be opened
+     * there. A test table of the tested project names its module alone.
+     */
+    @Test
+    void namesTheProjectOfATestTableWrittenInADependency() {
+        var dependency = new TestUnitsResults(mockTestSuite());
+        var own = new TestUnitsResults(mockTestSuite());
+        when(own.getTestSuite().getUri()).thenReturn("file://main.xlsx#Sheet1!A1");
+        var modules = mock(TableModules.class);
+        when(modules.locationOf("file://test.xlsx#Sheet1!A1"))
+                .thenReturn(new TableModules.TableLocation("example2", "dependency", "NotClickable"));
+        when(modules.locationOf("file://main.xlsx#Sheet1!A1"))
+                .thenReturn(new TableModules.TableLocation("Main", "p1", "Sample Project"));
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                modules, "p1");
+
+        var ofDependency = mapper.mapToTestCaseResult(dependency, TestExecutionSummaryQuery.lazy());
+        var ofOwn = mapper.mapToTestCaseResult(own, TestExecutionSummaryQuery.lazy());
+
+        assertEquals("example2", ofDependency.module());
+        assertEquals("dependency", ofDependency.projectId());
+        assertEquals("Main", ofOwn.module());
+        assertNull(ofOwn.projectId());
+    }
+
+    /**
+     * A test table whose project cannot be addressed names no module: a link to that module would lead into the
+     * tested project, where no such table is written.
+     */
+    @Test
+    void namesNoModuleOfATestTableWhoseProjectIsUnknown() {
+        var results = new TestUnitsResults(mockTestSuite());
+        var modules = mock(TableModules.class);
+        when(modules.locationOf("file://test.xlsx#Sheet1!A1"))
+                .thenReturn(new TableModules.TableLocation("example2", null, null));
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                modules, "p1");
+
+        var table = mapper.mapToTestCaseResult(results, TestExecutionSummaryQuery.lazy());
+
+        assertNull(table.module());
+        assertNull(table.projectId());
     }
 
     /**
@@ -177,7 +223,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(second.getName()).thenReturn("BetaTest");
         when(first.getFilteredTestUnits(false, 5)).thenReturn(List.of());
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var summary = mapper.mapExecutionSummary(List.of(first, second), List.of(), TestExecutionSummaryQuery.lazy(),
                 Page.of(0, 1));
@@ -207,7 +253,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of());
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var asked = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, false));
         var plain = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, false, false));
@@ -239,7 +285,8 @@ class TestsExecutionSummaryResponseMapperTest {
                 new ParameterWithValueDeclaration("name", "Sara", JavaOpenClass.STRING)});
         var objectMapper = new ObjectMapper();
         var mapper = new TestsExecutionSummaryResponseMapper(objectMapper,
-                new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper), null, TableModules.none());
+                new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper), null, TableModules.none(),
+                "p1");
 
         var plain = mapper.mapToTestUnitResult(results, testUnit, TestExecutionSummaryQuery.inFull(false));
         var described = mapper.mapToTestUnitResult(results, testUnit, TestExecutionSummaryQuery.inFull(true));
@@ -270,7 +317,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(test.getExecutionParams()).thenReturn(new ParameterWithValueDeclaration[]{
                 new ParameterWithValueDeclaration("driver", Map.of("name", "Sara"), type)});
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var lazy = firstParameter(mapper, results, true);
         var full = firstParameter(mapper, results, false);
@@ -302,7 +349,7 @@ class TestsExecutionSummaryResponseMapperTest {
         var released = retained(testUnit, value -> new SoftReference<>(null));
         when(results.getFilteredTestUnits(false, 5)).thenReturn(List.of(released));
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, true))
                 .testUnits().getFirst();
@@ -339,7 +386,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         var released = retained(testUnit, value -> new SoftReference<>(null));
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var assertion = mapper.mapToTestUnitResult(results, released, new TestExecutionSummaryQuery(false, 5, false,
                 true)).testAssertions().getFirst();
@@ -375,7 +422,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         var kept = retained(testUnit, SoftReference::new);
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var lazy = mapper.mapToTestUnitResult(results, kept, new TestExecutionSummaryQuery(false, 5, false, true))
                 .testAssertions();
@@ -418,7 +465,7 @@ class TestsExecutionSummaryResponseMapperTest {
         var kept = retained(testUnit, SoftReference::new);
         when(results.getFilteredTestUnits(false, 5)).thenReturn(List.of(kept));
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
-                TableModules.none());
+                TableModules.none(), "p1");
 
         var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, false))
                 .testUnits().getFirst();

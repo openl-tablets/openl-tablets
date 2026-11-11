@@ -2355,19 +2355,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * The modules of the project, ready to say which of them holds a given table.
-     *
-     * <p>A screen that sends a reader to a table needs the module as well: the editor opens a module, and a
-     * table is read through the one that holds it.
-     *
-     * @param project project
-     * @return the modules to ask about a table
-     */
-    public TableModules getTableModules(RulesProject project) {
-        return TableModules.of(getProjectDescriptor(project));
-    }
-
-    /**
      * Get the modules the project declares.
      *
      * <p>One entry per module, patterns already resolved to the files they matched.
