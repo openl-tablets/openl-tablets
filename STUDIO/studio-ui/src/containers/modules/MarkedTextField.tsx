@@ -85,11 +85,20 @@ const offsetOf = (field: HTMLElement, node: Node, offset: number): number => {
     return readField(holder).value.length
 }
 
-/** Where the selection of a field stands in its text, or null when the selection is not in it. */
-export const selectionIn = (field: HTMLElement): TextSelection | null => {
+/** The selection of the page, or null when it is not wholly in the field. */
+const rangeIn = (field: HTMLElement): Range | null => {
     const selection = window.getSelection()
     const range = selection !== null && selection.rangeCount > 0 ? selection.getRangeAt(0) : null
-    if (range === null || !field.contains(range.startContainer) || !field.contains(range.endContainer)) {
+    return range !== null && field.contains(range.startContainer) && field.contains(range.endContainer) ? range : null
+}
+
+/** Whether a piece of the text of a field is selected, rather than nothing or the caret alone. */
+export const pieceSelectedIn = (field: HTMLElement): boolean => rangeIn(field)?.collapsed === false
+
+/** Where the selection of a field stands in its text, or null when the selection is not in it. */
+export const selectionIn = (field: HTMLElement): TextSelection | null => {
+    const range = rangeIn(field)
+    if (range === null) {
         return null
     }
     const from = offsetOf(field, range.startContainer, range.startOffset)

@@ -529,13 +529,13 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | **Success** | bold, in the success color of the theme | bold, Green       |
     | **Info**    | bold, in the info color of the theme    | bold, Light Blue  |
 
-    ![A word of an expression marked as a warning, with the marks at the end of the toolbar](images/edit-text-marks.png "Marking a piece of a text")
+    ![A selected word of an expression marked as a warning, with the marks at the end of the toolbar](images/edit-text-marks.png "Marking a piece of a text")
 
     *Marking a piece of a text*
 
     **Clear Mark** takes the marks off the selected piece. Text typed inside a marked piece takes its mark. The marks
-    are available only while a cell holding a text is open, and clicking one leaves the cell open with the piece still
-    selected.
+    are available only while a piece of the text of the open cell is selected, and clicking one leaves the cell open
+    with the piece still selected.
 
     A mark changes the text only. It is saved into the Excel file as rich text of the cell, so Excel shows it the
     same way, and the cell keeps its style: no cell style is added to the Excel file. A mark does not change how

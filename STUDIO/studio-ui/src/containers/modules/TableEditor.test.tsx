@@ -1900,7 +1900,9 @@ describe('TableEditor marks', () => {
         const input = screen.getByTestId<HTMLInputElement>('table-cell-input')
         input.setSelectionRange(5, 12)
         // The marks are on the band of actions over the table, and pressing one leaves the cell open.
-        await userEvent.click(screen.getByTestId('table-edit-mark_error'))
+        const error = screen.getByTestId('table-edit-mark_error')
+        await waitFor(() => expect(error).toBeEnabled())
+        await userEvent.click(error)
 
         const field = await screen.findByTestId('table-cell-marked-input')
         expect(field.querySelector('[data-mark="error"]')).toHaveTextContent('Morning')
@@ -1919,10 +1921,18 @@ describe('TableEditor marks', () => {
         await userEvent.dblClick(screen.getByText('Morning'))
         const field = screen.getByTestId('table-cell-marked-input')
         expect(field.querySelector('[data-mark="error"]')).toHaveTextContent('Morning')
+        const clear = screen.getByTestId('table-edit-mark_clear')
+        // The caret alone in the field that shows marks is no piece to mark.
+        selectIn(field, { from: 3, to: 3 })
+        await waitFor(() => expect(clear).toBeDisabled())
         selectIn(field, { from: 0, to: 12 })
-        fireEvent.click(screen.getByTestId('table-edit-mark_clear'))
+        await waitFor(() => expect(clear).toBeEnabled())
+        fireEvent.click(clear)
 
-        const input = await screen.findByTestId('table-cell-input')
+        // The plain field that comes back keeps the piece selected, so the marks stay on for it.
+        const input = await screen.findByTestId<HTMLInputElement>('table-cell-input')
+        expect([input.selectionStart, input.selectionEnd]).toEqual([0, 12])
+        await waitFor(() => expect(clear).toBeEnabled())
         fireEvent.keyDown(input, { key: 'Enter' })
 
         expect(await saved()).toEqual([{
@@ -1958,23 +1968,40 @@ describe('TableEditor marks', () => {
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText('Rules String Greeting(Integer hour)'))
+        const input = screen.getByTestId<HTMLTextAreaElement>('table-cell-input')
+        // A piece of the header selected is still nothing to mark.
+        input.setSelectionRange(0, 5)
+        fireEvent.select(input)
 
-        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
         expect(screen.getByTestId('table-edit-mark_error')).toBeDisabled()
     })
 
-    it('offers the marks while a cell holding a text is open, and takes them back once it closes', async () => {
+    it('offers the marks while a piece of the text of the open cell is selected', async () => {
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.click(screen.getByText('Good Morning'))
-        expect(screen.getByTestId('table-edit-mark_error')).toBeDisabled()
+        const error = screen.getByTestId('table-edit-mark_error')
+        expect(error).toBeDisabled()
 
+        // An open cell with nothing selected in it gives the marks nothing to act on.
         await userEvent.dblClick(screen.getByText('Good Morning'))
-        expect(screen.getByTestId('table-edit-mark_error')).toBeEnabled()
+        const input = screen.getByTestId<HTMLInputElement>('table-cell-input')
+        expect(error).toBeDisabled()
+        expect(screen.getByTestId('table-edit-mark_clear')).toBeDisabled()
+
+        input.setSelectionRange(5, 12)
+        await waitFor(() => expect(error).toBeEnabled())
         expect(screen.getByTestId('table-edit-mark_clear')).toBeEnabled()
 
-        fireEvent.keyDown(screen.getByTestId('table-cell-input'), { key: 'Escape' })
-        await waitFor(() => expect(screen.getByTestId('table-edit-mark_error')).toBeDisabled())
+        // A selection that shrinks to the caret is told by a selectionchange, as a browser tells it.
+        input.setSelectionRange(7, 7)
+        fireEvent(document, new Event('selectionchange'))
+        await waitFor(() => expect(error).toBeDisabled())
+
+        input.setSelectionRange(0, 4)
+        await waitFor(() => expect(error).toBeEnabled())
+        fireEvent.keyDown(input, { key: 'Escape' })
+        await waitFor(() => expect(error).toBeDisabled())
     })
 })
