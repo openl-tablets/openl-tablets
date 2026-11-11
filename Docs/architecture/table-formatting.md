@@ -300,7 +300,9 @@ Alignment:
 - Titles and sections are centred.
 - Values take the **General** alignment, so Excel aligns numbers right and text left by their type.
 - The signature and keys are aligned left.
-- An indented cell is aligned left, whatever its role: Excel shows an indent only in a text aligned left.
+- An indented cell stays on the side of its indent, whatever its role: Excel shows an indent only in a text aligned to
+  a side. A cell indented from the right, being aligned right, stays aligned right; any other indented cell is aligned
+  left.
 - Every cell is centred vertically, so a merged condition value reads against its whole group.
 
 Kept from the cell as it was:

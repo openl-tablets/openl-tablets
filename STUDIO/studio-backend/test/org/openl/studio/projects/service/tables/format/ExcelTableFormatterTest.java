@@ -83,6 +83,7 @@ class ExcelTableFormatterTest {
     /** The factorial of a number, its steps nested by the indent of their operations. */
     private static final int FACTORIAL_ROW = 10;
     private static final int LABEL = 1;
+    private static final int DESCRIPTION = 2;
     private static final int OPERATION = 3;
     private static final int ACTION = 5;
     private static final int FIRST_STEP = FACTORIAL_ROW + 3;
@@ -378,6 +379,9 @@ class ExcelTableFormatterTest {
             var nested = styleAt(workbook, NESTED_STEP, OPERATION);
             assertEquals(1, nested.getIndention(), "The level of the step stays as it is");
             assertEquals(HorizontalAlignment.LEFT, nested.getAlignment(), "An indent shows in a text aligned left");
+            var fromRight = styleAt(workbook, LAST_STEP, DESCRIPTION);
+            assertEquals(1, fromRight.getIndention());
+            assertEquals(HorizontalAlignment.RIGHT, fromRight.getAlignment(), "A text indented from the right stays");
             assertEquals(HorizontalAlignment.GENERAL, styleAt(workbook, FIRST_STEP, OPERATION).getAlignment());
             assertEquals(HorizontalAlignment.CENTER, styleAt(workbook, RATE_ROW + 2, 2).getAlignment(), "A title");
             assertEquals(VerticalAlignment.CENTER, styleAt(workbook, RATE_ROW + 3, 1).getVerticalAlignment());
@@ -736,6 +740,7 @@ class ExcelTableFormatterTest {
         indent(sheet, SUBROUTINE_STEP + 1, OPERATION);
         row(sheet, LAST_STEP, LABEL, null, "the next multiplier", "SET", null, "i += 1");
         indent(sheet, LAST_STEP, OPERATION);
+        indent(sheet, LAST_STEP, DESCRIPTION, HorizontalAlignment.RIGHT);
     }
 
     /**
@@ -770,8 +775,14 @@ class ExcelTableFormatterTest {
 
     /** Indents the text of a cell by one level, which nests the step under the one above. */
     private static void indent(Sheet sheet, int row, int column) {
+        indent(sheet, row, column, HorizontalAlignment.GENERAL);
+    }
+
+    /** Indents the text of a cell by one level from the side it is aligned to. */
+    private static void indent(Sheet sheet, int row, int column, HorizontalAlignment align) {
         var style = sheet.getWorkbook().createCellStyle();
         style.setIndention((short) 1);
+        style.setAlignment(align);
         sheet.getRow(row).getCell(column).setCellStyle(style);
     }
 }

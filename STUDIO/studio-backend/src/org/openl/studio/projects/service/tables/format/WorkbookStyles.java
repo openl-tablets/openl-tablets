@@ -166,18 +166,22 @@ final class WorkbookStyles {
     }
 
     /**
-     * What is kept from a cell format: its number format, indent, text wrapping, text rotation and the apostrophe of
-     * Excel.
+     * What is kept from a cell format: its number format, indent and the side it is indented from, text wrapping,
+     * text rotation and the apostrophe of Excel.
      */
     private Kept keptOf(int source) {
         var xf = styles.getCellXfAt(source < styles.getNumCellStyles() ? source : 0);
         var quoted = xf.getQuotePrefix();
         if (!xf.isSetAlignment()) {
-            return new Kept(xf.getNumFmtId(), 0, false, 0, quoted);
+            return new Kept(xf.getNumFmtId(), 0, false, false, 0, quoted);
         }
         var alignment = xf.getAlignment();
         var rotation = alignment.isSetTextRotation() ? alignment.getTextRotation().longValue() : 0;
-        return new Kept(xf.getNumFmtId(), alignment.getIndent(), alignment.getWrapText(), rotation, quoted);
+        var indent = alignment.getIndent();
+        // Only an indented text keeps its side, so cells aligned right without an indent share one cell format.
+        var fromRight = indent > 0 && alignment.isSetHorizontal()
+                && alignment.getHorizontal() == STHorizontalAlignment.RIGHT;
+        return new Kept(xf.getNumFmtId(), indent, fromRight, alignment.getWrapText(), rotation, quoted);
     }
 
     /** Writes a cell format, or finds it in the workbook. */
@@ -198,8 +202,9 @@ final class WorkbookStyles {
         xf.setApplyBorder(true);
         xf.setApplyAlignment(true);
         var alignment = xf.addNewAlignment();
-        // An indent shows only in a text aligned to the left, as Excel aligns an indented text.
-        var align = from.indent() > 0 ? HorizontalAlignment.LEFT : style.getLook().align();
+        // An indent shows only in a text aligned to a side: an indented cell stays on the side of its indent.
+        var align = from.indent() == 0 ? style.getLook().align()
+                : from.fromRight() ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT;
         if (align != HorizontalAlignment.GENERAL) {
             alignment.setHorizontal(STHorizontalAlignment.Enum.forInt(align.ordinal() + 1));
         }
@@ -488,14 +493,16 @@ final class WorkbookStyles {
      *
      * @param numberFormat the number format
      * @param indent       the indent
+     * @param fromRight    whether the text is indented from the right, being aligned right
      * @param wrap         whether the text wraps
      * @param rotation     the text rotation
      * @param quoted       whether the text follows the apostrophe of Excel, which keeps it a text when it is edited
      */
-    private record Kept(long numberFormat, long indent, boolean wrap, long rotation, boolean quoted) {
+    private record Kept(long numberFormat, long indent, boolean fromRight, boolean wrap, long rotation,
+                        boolean quoted) {
 
         Kept withQuoted(boolean quoted) {
-            return quoted == this.quoted ? this : new Kept(numberFormat, indent, wrap, rotation, quoted);
+            return quoted == this.quoted ? this : new Kept(numberFormat, indent, fromRight, wrap, rotation, quoted);
         }
     }
 

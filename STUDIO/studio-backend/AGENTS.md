@@ -294,8 +294,9 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   `equals`, which `putBorder` asks) and writes the RGB of the theme colour beside it, three bytes the schema refuses:
   the borders are read from their XML, and a border is added with the theme set aside.
 - **`ExcelTableFormatter` writes cells, not styles.** Each cell gets the index of a cell format keyed by its role, the
-  lines at the edges of its region and what is kept from the cell (number format, indent, wrap, rotation, the quote
-  prefix of a text); no `CellStyle` object is made per cell (`CTCell.setS`). An indented cell is aligned left. An OpenL
+  lines at the edges of its region and what is kept from the cell (number format, indent and its side, wrap, rotation,
+  the quote prefix of a text); no `CellStyle` object is made per cell (`CTCell.setS`). An indented cell stays on the
+  side of its indent: aligned right when it was, left otherwise, as the Studio look draws it. An OpenL
   formula gets the quote prefix and a cell holding anything but a text loses it (`Apostrophes.Quote` of
   `org.openl.rules`, the one rule `Apostrophes` applies to every value and Excel formula written). The lines follow
   `roleLinesOf` of `studio-ui`, all in `dk1` (`Line.ROLE`): a line on the top edge of a region, never below the region
