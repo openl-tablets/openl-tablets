@@ -89,6 +89,21 @@ class TableInputServiceImplTest {
         assertEquals("date-time", since.schema().get("format").asText());
     }
 
+    /** An {@code Object} and a {@code Class} parameter start unset: neither has a default that reads as JSON. */
+    @Test
+    void describesObjectAndClassParametersAsUnset() {
+        var method = ruleMethod();
+        when(method.getSignature().getParameterType(0)).thenReturn(JavaOpenClass.OBJECT);
+        when(method.getSignature().getParameterType(1)).thenReturn(JavaOpenClass.CLASS);
+        when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
+        when(projectService.getWebStudio()).thenReturn(webStudio);
+
+        var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
+
+        assertEquals(List.of("Object", "Class"), view.parameters().stream().map(ParameterValue::description).toList());
+        assertTrue(view.parameters().stream().allMatch(parameter -> parameter.value().isNull()));
+    }
+
     /** A test table takes no parameters of its own. Its input is the cases it carries. */
     @Test
     void describesATestTableAsCarryingCases() {

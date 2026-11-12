@@ -171,11 +171,13 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
     /**
      * The value a parameter starts with.
      *
-     * <p>A datatype starts with the defaults its fields declare. A plain value, a list or a type that cannot be
-     * created starts unset, as it did in the legacy input form.
+     * <p>A datatype starts with the defaults its fields declare. A plain value, a list, an {@code Object} or a type
+     * that cannot be created starts unset, as it did in the legacy input form. An {@code Object} has no fields to
+     * fill, and an instance of it cannot be written as JSON.
      */
     private static @Nullable Object defaultValueOf(IOpenClass type) {
-        if (type.isSimple() || type.isArray() || type instanceof DomainOpenClass || type.getInstanceClass() == null) {
+        if (type.isSimple() || type.isArray() || type instanceof DomainOpenClass || type.getInstanceClass() == null
+                || type.getInstanceClass() == Object.class) {
             return null;
         }
         try {
