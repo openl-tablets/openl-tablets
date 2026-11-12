@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SmartLookup",
+      "kind": "Rules",
+      "name": "CorporateRatingNewElement",
+      "returnType": "Integer",
+      "signature": "CorporateRatingNewElement (Double financialRating, String riskOfWorkWithCorporate)",
+      "file": "EPBDS-17247-StyleBroken/StyleBroken.xlsx",
+      "sheet": "Sheet1",
+      "pos": "E11:G16",
+      "errors": 1,
+      "module": "StyleBroken",
+      "project": "EPBDS-17247-StyleBroken",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

@@ -171,6 +171,22 @@ The following tables are not formatted and are drawn as their Excel file draws t
 - a table gathered from several partial tables;
 - a table of a dependency project.
 
+### Tables compiled with errors
+
+A table that compiles with errors takes the roles of what the compiler read, as one without errors does. A decision
+table whose orientation the compiler cannot tell from its headers, such as a lookup whose value fails to parse, is
+read first as it is written, or transposed when it is at least 100 columns wide and wider than tall. When that reading
+fails, the table is read the other way round as well: a lookup always, another decision table only when it is no more
+than 100 lines long the way it was first read. When both readings fail, the compiler keeps the first one, with one
+exception each. A Simple and a Smart table keeps the other reading when it has fewer errors and its failure is no
+worse: it matched the titles, and failed no more unexpectedly. Any other decision table keeps the other reading when
+its headers look written that way.
+
+Each reading starts from an empty table, and the table holds what the reading kept loaded, as far as it got. Its
+roles, the types of its values and the editors of its cells come from the reading its errors come from, never from the
+one dropped. A reading binds its rows only once it has read all of them, so a reading that failed before it got that
+far leaves no rows to lay out, and the table is read from its text, as below.
+
 ### Tables the compiler cannot read
 
 A table the compiler reads none of — its type, its parent type or its tested table is missing, or its body cannot be

@@ -1,0 +1,312 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "CorporateRatingNewElement",
+  "pos": "E11:G16",
+  "source": [
+    [
+      {
+        "cell": "E11",
+        "value": "SmartLookup Integer\n CorporateRatingNewElement (Double financialRating, String riskOfWorkWithCorporate)",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 1
+          },
+          {
+            "to": 46,
+            "style": 2
+          },
+          {
+            "to": 48,
+            "style": 1
+          },
+          {
+            "to": 54,
+            "style": 1
+          },
+          {
+            "to": 70,
+            "style": 3
+          },
+          {
+            "to": 71,
+            "style": 1
+          },
+          {
+            "to": 78,
+            "style": 1
+          },
+          {
+            "to": 102,
+            "style": 3
+          },
+          {
+            "to": 103,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "E12",
+        "value": "financialRating",
+        "style": 4
+      },
+      {
+        "cell": "F12",
+        "value": "LOW",
+        "style": 5
+      },
+      {
+        "cell": "G12",
+        "value": "HIGH",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "E13",
+        "value": 1,
+        "style": 6
+      },
+      {
+        "cell": "F13",
+        "value": 123,
+        "style": 7
+      },
+      {
+        "cell": "G13",
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "E14",
+        "value": 2,
+        "style": 6
+      },
+      {
+        "cell": "F14",
+        "value": 44,
+        "style": 7
+      },
+      {
+        "cell": "G14",
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "E15",
+        "value": 33,
+        "style": 6
+      },
+      {
+        "cell": "F15",
+        "value": 55,
+        "style": 7
+      },
+      {
+        "cell": "G15",
+        "value": 123,
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "E16",
+        "value": 345,
+        "style": 9
+      },
+      {
+        "cell": "F16",
+        "value": 4,
+        "style": 10
+      },
+      {
+        "cell": "G16",
+        "value": 4,
+        "style": 10
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#e8e8e8",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#83cceb",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#c0e6f5",
+      "align": "right",
+      "valign": "center"
+    },
+    {
+      "background": "#c0e6f5",
+      "valign": "center"
+    },
+    {
+      "align": "right",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#c0e6f5",
+      "align": "right",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 2,
+      "left": 0,
+      "bottom": 5,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 1,
+      "bottom": 5,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 19
+    },
+    {
+      "part": "name",
+      "to": 46
+    },
+    {
+      "part": "punctuation",
+      "to": 48
+    },
+    {
+      "part": "parameterType",
+      "to": 54
+    },
+    {
+      "part": "parameterName",
+      "to": 70
+    },
+    {
+      "part": "punctuation",
+      "to": 71
+    },
+    {
+      "part": "parameterType",
+      "to": 78
+    },
+    {
+      "part": "parameterName",
+      "to": 102
+    },
+    {
+      "part": "punctuation",
+      "to": 103
+    }
+  ],
+  "headerHeight": 1
+}

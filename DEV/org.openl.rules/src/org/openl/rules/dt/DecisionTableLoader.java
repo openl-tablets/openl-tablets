@@ -15,6 +15,7 @@ import java.util.Objects;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -205,6 +206,20 @@ public class DecisionTableLoader {
         return Direction.UNKNOWN;
     }
 
+    /**
+     * Loads and binds a decision table in the orientation it is written in.
+     *
+     * <p>A table whose orientation the compiler cannot tell from its headers is read first as it is written, or
+     * transposed when it is at least 100 columns wide and wider than tall. When that reading fails, the table is read
+     * the other way round as well: a lookup always, another table only when it is no more than 100 lines long the way
+     * it was first read. The reading without errors wins. When both have errors, the first one wins, with one
+     * exception each. A Simple and a Smart table takes the other reading when it has fewer errors and its failure is
+     * no worse: it matched the titles, and failed no more unexpectedly. Any other table takes the other reading when
+     * its headers look written that way.
+     *
+     * <p>The table holds the rows, the rules, the layout and the cell meta info of the reading its errors come from,
+     * as far as that reading got, never those of the reading dropped.
+     */
     public void loadAndBind(TableSyntaxNode tableSyntaxNode,
                             DecisionTable decisionTable,
                             OpenL openl,
@@ -225,7 +240,6 @@ public class DecisionTableLoader {
                             firstTransposedThenNormal,
                             bindingContext),
                     bindingContext);
-            final DTInfo dtInfo = decisionTable.getDtInfo();
             if (loadAndBindErrors != null) {
                 // If table have errors, try to compile transposed variant.
                 // Note that compiling transposed table consumes memory twice and for big tables it does not make any
@@ -260,7 +274,6 @@ public class DecisionTableLoader {
                                 bindingContext);
                         return;
                     }
-                    decisionTable.setDtInfo(dtInfo);
                 }
                 applyErrors(tableSyntaxNode,
                         decisionTable,
@@ -563,23 +576,28 @@ public class DecisionTableLoader {
         private final Exception ex;
         private final DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
         private final List<DecisionTable.DeferredChange> deferredChanges;
+        /** What the reading loaded into the table, put back when its errors are kept. */
+        private final DecisionTable.@NonNull Loaded loaded;
 
         private CompilationErrors(List<SyntaxNodeException> bindingSyntaxNodeException,
                                   Collection<OpenLMessage> openLMessages,
                                   DecisionTableMetaInfoReader.MetaInfoHolder metaInfos,
                                   Exception ex,
-                                  List<DecisionTable.DeferredChange> deferredChanges) {
+                                  List<DecisionTable.DeferredChange> deferredChanges,
+                                  DecisionTable.@NonNull Loaded loaded) {
             this.bindingSyntaxNodeException = Objects.requireNonNull(bindingSyntaxNodeException,
                     "bindingSyntaxNodeException cannot be null");
             this.openLMessages = Objects.requireNonNull(openLMessages, "openLMessages cannot be null");
             this.metaInfos = metaInfos;
             this.ex = ex;
             this.deferredChanges = deferredChanges;
+            this.loaded = loaded;
         }
 
         private void apply(TableSyntaxNode tableSyntaxNode,
                            DecisionTable decisionTable,
                            IBindingContext bindingContext) {
+            decisionTable.restore(loaded);
             bindingSyntaxNodeException.forEach(bindingContext::addError);
             openLMessages.forEach(bindingContext::addMessage);
             if (!bindingContext.isExecutionMode()) {
@@ -611,6 +629,8 @@ public class DecisionTableLoader {
         bindingContext.pushErrors();
         bindingContext.pushMessages();
         Exception ex = null;
+        // Each reading starts from a table holding nothing, so what the table holds after it is its own.
+        decisionTable.restore(DecisionTable.Loaded.NONE);
         try {
             supplier.get();
         } catch (Exception e) {
@@ -636,7 +656,8 @@ public class DecisionTableLoader {
                 messages,
                 metaInfos,
                 ex,
-                new ArrayList<>(decisionTable.getDeferredChanges()));
+                new ArrayList<>(decisionTable.getDeferredChanges()),
+                decisionTable.loaded());
 
         decisionTable.getDeferredChanges().clear();
         return compilationErrors;

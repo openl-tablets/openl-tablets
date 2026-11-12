@@ -9,6 +9,9 @@ import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
@@ -183,6 +186,51 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.module = Objects.requireNonNull(module, "module cannot be null");
 
         prepare(getHeader(), openl, bindingContext);
+    }
+
+    /** What the table holds from the reading of it loaded last, see {@link Loaded}. */
+    @NonNull
+    Loaded loaded() {
+        return new Loaded(conditionRows, actionRows, ruleRow, columns, algorithm, dtInfo);
+    }
+
+    /**
+     * Makes the table hold again what a reading of it loaded, see {@link Loaded}.
+     *
+     * <p>A reading that failed before it bound its rows leaves the table as it was created: with no rows.
+     */
+    void restore(@NonNull Loaded loaded) {
+        conditionRows = loaded.getConditionRows();
+        actionRows = loaded.getActionRows();
+        ruleRow = loaded.getRuleRow();
+        columns = loaded.getColumns();
+        algorithm = loaded.getAlgorithm();
+        dtInfo = loaded.getDtInfo();
+    }
+
+    /**
+     * What one reading of a table loads into the table itself: its rows, its rules, the algorithm they are checked
+     * by, and how the table is laid out.
+     *
+     * <p>A table may be read twice: as it is written and transposed. Each reading starts from a table holding nothing,
+     * {@link #NONE}, and loads it as far as it gets before it fails. The reading whose errors are kept puts back what
+     * it loaded, so the table holds its rows, not those of the reading dropped. What a reading adds outside the table,
+     * such as its deferred changes, is kept with its errors.
+     *
+     * <p>A field a reading sets on the table is added here too, unless every reading sets it alike, as the module.
+     */
+    @Value
+    static class Loaded {
+
+        /** What a table holds as it is created, before any reading of it: no rows, no rules and no layout. */
+        static final Loaded NONE = new Loaded(null, null, null, 0, null, null);
+
+        IBaseCondition @Nullable [] conditionRows;
+        IBaseAction @Nullable [] actionRows;
+        @Nullable RuleRow ruleRow;
+        int columns;
+        @Nullable IDecisionTableAlgorithm algorithm;
+        @Nullable DTInfo dtInfo;
     }
 
     @Override

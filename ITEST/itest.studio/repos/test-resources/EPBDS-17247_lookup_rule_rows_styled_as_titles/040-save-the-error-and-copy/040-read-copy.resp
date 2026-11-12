@@ -1,0 +1,341 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "CorporateRatingCopy",
+  "messages": [
+    {
+      "id": "***",
+      "summary": "Cannot parse cell value '3.2'. Expected value of type 'Integer'.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "CorporateRatingCopy",
+        "module": "StyleBroken",
+        "projectId": "***",
+        "project": "EPBDS-17247-StyleBroken",
+        "cell": "D7",
+        "start": 0,
+        "end": 3
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "B2:D7",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "SmartLookup Integer\n CorporateRatingCopy (Double financialRating, String riskOfWorkWithCorporate)",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 19,
+            "style": 1
+          },
+          {
+            "to": 40,
+            "style": 2
+          },
+          {
+            "to": 42,
+            "style": 1
+          },
+          {
+            "to": 48,
+            "style": 1
+          },
+          {
+            "to": 64,
+            "style": 3
+          },
+          {
+            "to": 65,
+            "style": 1
+          },
+          {
+            "to": 72,
+            "style": 1
+          },
+          {
+            "to": 96,
+            "style": 3
+          },
+          {
+            "to": 97,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "financialRating",
+        "style": 4
+      },
+      {
+        "cell": "C3",
+        "value": "LOW",
+        "style": 5
+      },
+      {
+        "cell": "D3",
+        "value": "HIGH",
+        "style": 5
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": 1,
+        "style": 6
+      },
+      {
+        "cell": "C4",
+        "value": 123,
+        "style": 7
+      },
+      {
+        "cell": "D4",
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": 2,
+        "style": 6
+      },
+      {
+        "cell": "C5",
+        "value": 44,
+        "style": 7
+      },
+      {
+        "cell": "D5",
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": 33,
+        "style": 6
+      },
+      {
+        "cell": "C6",
+        "value": 55,
+        "style": 7
+      },
+      {
+        "cell": "D6",
+        "value": 123,
+        "style": 8
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": 345,
+        "style": 9
+      },
+      {
+        "cell": "C7",
+        "value": 4,
+        "style": 10
+      },
+      {
+        "cell": "D7",
+        "value": 3.2,
+        "style": 11
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {},
+    {
+      "background": "#e8e8e8",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#83cceb",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "background": "#c0e6f5",
+      "align": "right",
+      "valign": "center"
+    },
+    {
+      "background": "#c0e6f5",
+      "valign": "center"
+    },
+    {
+      "align": "right",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#c0e6f5",
+      "align": "right",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#c0e6f5",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 2,
+      "left": 0,
+      "bottom": 5,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 1,
+      "bottom": 5,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 19
+    },
+    {
+      "part": "name",
+      "to": 40
+    },
+    {
+      "part": "punctuation",
+      "to": 42
+    },
+    {
+      "part": "parameterType",
+      "to": 48
+    },
+    {
+      "part": "parameterName",
+      "to": 64
+    },
+    {
+      "part": "punctuation",
+      "to": 65
+    },
+    {
+      "part": "parameterType",
+      "to": 72
+    },
+    {
+      "part": "parameterName",
+      "to": 96
+    },
+    {
+      "part": "punctuation",
+      "to": 97
+    }
+  ],
+  "headerHeight": 1
+}
