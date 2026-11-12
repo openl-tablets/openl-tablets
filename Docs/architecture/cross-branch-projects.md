@@ -302,6 +302,13 @@ Snapshot projection must not resolve Git audit versions for every membership. Au
 completed lazy lookup must release retained commit references. Version-cache history reads must use disposable
 project views.
 
+The folders read from one commit of a `GitRepository` find their audit versions together (`FirstCommits`). The first
+lookup walks the history once for every folder read from that commit so far, rather than once per folder: a folder left
+unchanged for thousands of commits would otherwise walk them again for each project. A folder read after that walk
+joins a walk of its own. When the walk fails, each of its folders walks the history alone, so a failure is told for the
+folder it belongs to and the walk is not repeated for every folder. A found revision keeps the commit id, the
+committer and the message, not the commit, whose parents would retain the history walked.
+
 ## Authorization
 
 Authorization must be evaluated per branch entry because ACL identities use `(repositoryId, internalPath)` and mapped
