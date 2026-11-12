@@ -25,9 +25,7 @@ public class ConditionOrActionParameterField implements IOpenField {
         if (target == null) {
             return getType().nullObject();
         }
-        var params = (Object[]) target;
-
-        return params[paramNum];
+        return ((DecisionRowField.Values) target).get(paramNum);
     }
 
     @Override

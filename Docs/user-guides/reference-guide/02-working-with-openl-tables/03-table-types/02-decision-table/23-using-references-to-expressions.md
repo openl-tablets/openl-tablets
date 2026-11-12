@@ -11,4 +11,11 @@ References to expressions can be used in decision tables. They can be referenced
 - `ast` - returns AST (Abstract Syntax Tree) tree for the expression
 - `textValue` - returns a string representing an expression
 
+The value of a parameter is referenced without `$Expr`:
+
+- **$C1.param1** is the value of the **param1** parameter of condition C1 in the current rule. To address a parameter
+  of an action or a return, use **$A1** and **$RET1** respectively.
+- A formula of one parameter can refer to another parameter of its own column. For example, in a return column
+  `RET1` with the parameters **base** and **doubled**, the cell of **doubled** can hold `= $RET1.base * 2`.
+
 Note: If a cell, which is expected to contain an expression or formula, is empty, it will return null.
