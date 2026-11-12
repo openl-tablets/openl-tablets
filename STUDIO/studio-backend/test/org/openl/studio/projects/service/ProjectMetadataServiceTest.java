@@ -122,6 +122,16 @@ class ProjectMetadataServiceTest {
         assertTrue(property(properties, "category").values().isEmpty());
     }
 
+    /** The values of an enum come in the alphabetical order of their names, whatever the order of their codes. */
+    @Test
+    void listsTheValuesOfAnEnumByTheirNames() {
+        var countries = property(service.getProperties(null), "country").values();
+
+        assertEquals(new PropertyValueView("AL", "Albania"), countries.getFirst());
+        assertEquals(countries.stream().map(PropertyValueView::value).sorted(String.CASE_INSENSITIVE_ORDER).toList(),
+                countries.stream().map(PropertyValueView::value).toList());
+    }
+
     @Test
     void namesAndGroupsPropertiesTheWayTableDetailsDoes() {
         var properties = service.getProperties("Rules");
