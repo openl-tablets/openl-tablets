@@ -32,7 +32,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     found: css`
         display: inline-flex;
         align-items: center;
-        height: 22px;
+        min-height: 22px;
         padding-inline: 7px 1px;
         border: 1px dashed ${token.colorWarningBorder};
         border-radius: ${token.borderRadiusSM}px;
@@ -65,10 +65,10 @@ export const useStyles = createStyles(({ css, token }) => ({
     foundSection: css`
         margin-top: 24px;
     `,
-    /** One tag type found in projects: its name, its values, and the action that defines it. */
+    /** One tag type found in projects: its name and its values. */
     foundRow: css`
         display: grid;
-        grid-template-columns: minmax(120px, 240px) minmax(0, 1fr) auto;
+        grid-template-columns: minmax(120px, 240px) minmax(0, 1fr);
         align-items: center;
         gap: 12px;
         padding: 10px 12px;
@@ -86,6 +86,12 @@ export const useStyles = createStyles(({ css, token }) => ({
     foundType: css`
         font-weight: ${token.fontWeightStrong};
         overflow-wrap: anywhere;
+    `,
+    /** Turns a chip found in projects into a tag type: in the size of a name, and as wide as the name. */
+    foundTypeChip: css`
+        justify-self: start;
+        max-width: 100%;
+        font-size: ${token.fontSize}px;
     `,
     /** Marks the name of a tag type that is not configured, as its values are marked. */
     missingType: css`

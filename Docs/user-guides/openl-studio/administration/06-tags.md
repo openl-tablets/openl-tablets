@@ -53,12 +53,12 @@ All created tag types and values are saved automatically. These values are now o
 Projects can carry tags that are not defined here, for instance, when a tag is typed on the **Overview** tab of a project or comes with a project from Git. The tag table shows only what is defined. The tags found in projects are listed under **Tag types found in projects**, below the table, so they can be reviewed in one place:
 
 -   Each row names a tag type and the values the projects carry for it that are not defined, each with a dashed border and the number of projects that carry it.
--   A tag type that is not defined is named in the warning color and is listed with all its values. A defined tag type is listed with the values it does not have.
+-   A tag type that is not defined is shown as a chip in the warning color, like its values, and is listed with all its values. A defined tag type is named in plain text and listed with the values it does not have.
 -   Click a value to open the projects that carry it. The **Projects** list opens filtered by that tag, so a tag added by mistake can be removed from those projects.
 -   Click **+** on a value to add it to its tag type, creating the tag type when it is not defined.
--   Click **Add tag type** to add a tag type that is not defined with all its values. A tag type added this way is optional and not extensible, and it follows the arranged tag types in alphabetical order. A defined tag type has no such button: only its values can be added.
+-   Click **+** on a tag type that is not defined to add it with all its values. A tag type added this way is optional and not extensible, and it follows the arranged tag types in alphabetical order. A defined tag type has no **+**: only its values can be added.
 
-![The tag table showing only the defined tags, and below it the tags found in projects: Banking for the defined BLOB tag type, and the Region tag type that is not defined, with its value EU and the Add tag type button](../images/tags-found-in-projects.png "Tags found in projects")
+![The tag table showing only the defined tags, and below it the tags found in projects: Banking for the defined BLOB tag type, and the Region tag type that is not defined, shown as a chip with a plus, with its value EU](../images/tags-found-in-projects.png "Tags found in projects")
 
 *Tags found in projects*
 

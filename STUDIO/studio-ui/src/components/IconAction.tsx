@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Button, Tooltip } from 'antd'
 
 interface IconActionProps {
+    className?: string
     icon: ReactNode
     onClick: () => void
     size?: 'small'
@@ -15,8 +16,16 @@ interface IconActionProps {
  * <p>The tooltip text is also the accessible name, so what a pointer user reads and what a screen reader announces
  * cannot drift apart.
  */
-export const IconAction = ({ icon, onClick, size, title, 'data-testid': testId }: IconActionProps) => (
+export const IconAction = ({ className, icon, onClick, size, title, 'data-testid': testId }: IconActionProps) => (
     <Tooltip title={title}>
-        <Button aria-label={title} data-testid={testId} icon={icon} onClick={onClick} size={size} type="text" />
+        <Button
+            aria-label={title}
+            data-testid={testId}
+            icon={icon}
+            onClick={onClick}
+            size={size}
+            type="text"
+            {...(className !== undefined && { className })}
+        />
     </Tooltip>
 )
