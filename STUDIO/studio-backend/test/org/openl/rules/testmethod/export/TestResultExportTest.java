@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import static org.openl.rules.testmethod.export.Styles.GREEN_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.GREEN_MAIN;
@@ -253,6 +256,24 @@ class TestResultExportTest {
         }
 
         assertFalse(xlsx.exists());
+    }
+
+    /**
+     * Whether a table has descriptions or a context is asked once a table, not once a case: each answer scans every
+     * case, so an export of many cases would take a time that grows with their number squared.
+     */
+    @Test
+    void asksWhichColumnsATableHasOnceATable() throws Exception {
+        var results = spy(testResults[0]);
+        assertTrue(results.getTestUnits().size() > 1, "the table has several cases");
+
+        try (var export = new TempFileExporter()) {
+            export.createExcelFile(new TestUnitsResults[]{results}, -1);
+        }
+
+        // Once for the header and once for all the rows.
+        verify(results, atMost(2)).hasContext();
+        verify(results, atMost(2)).hasDescription();
     }
 
     @Test
