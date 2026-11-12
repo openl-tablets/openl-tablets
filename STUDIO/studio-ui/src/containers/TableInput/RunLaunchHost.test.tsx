@@ -15,6 +15,7 @@ import { ResultNotReadyError } from 'services/taskResult'
 import { getTableInput, getTableInputCases } from 'services/tables'
 import type { TableInput } from 'types/tables'
 import { saveFile } from 'utils/download'
+import { ExactNumber } from 'utils/exactJson'
 import { RunLaunchHost } from 'containers/TableInput/RunLaunchHost'
 import { currentExecution } from 'services/executionWindow'
 
@@ -390,6 +391,20 @@ describe('RunLaunchHost', () => {
             JSON.stringify({ premium: 100 }, null, 2), 'response.json', 'application/json'
         ))
         expect(workbook).not.toHaveBeenCalled()
+    })
+
+    it('writes a number of the returned value with every digit into the JSON file', async () => {
+        result.mockResolvedValue({ tableName: 'Premium', result: { premium: new ExactNumber('2.000000000000000005') } })
+        inputRead.mockResolvedValue(ruleTable)
+        render(<RunLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('run-resultInJson'))
+        await userEvent.click(screen.getByTestId('run-into-file'))
+
+        await waitFor(() => expect(save).toHaveBeenCalledWith(
+            '{\n  "premium": 2.000000000000000005\n}', 'response.json', 'application/json'
+        ))
     })
 
     it('says why a run that failed saved no file', async () => {

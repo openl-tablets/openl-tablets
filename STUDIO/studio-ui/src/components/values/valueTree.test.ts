@@ -9,6 +9,7 @@ import {
     segmentsOf,
 } from 'components/values/valueTree'
 import type { ValueLevel } from 'types/execution'
+import { ExactNumber } from 'utils/exactJson'
 
 describe('describeSimpleValue', () => {
     it('shows every kind of plain value the way a debugger does', () => {
@@ -20,6 +21,14 @@ describe('describeSimpleValue', () => {
         expect(describeSimpleValue(0.1 + 0.2, () => '0.3')).toEqual({ display: '0.3', kind: 'number' })
         expect(describeSimpleValue(false)).toEqual({ display: 'false', kind: 'boolean' })
         expect(describeSimpleValue(BigInt(7))).toEqual({ display: '7', kind: 'other' })
+    })
+
+    it('shows a number a double does not hold as it is written, whatever the number format', () => {
+        const exact = new ExactNumber('0.6666666666666666666666666666666667')
+
+        expect(isComplexValue(exact)).toBe(false)
+        expect(describeSimpleValue(exact, () => '0.67'))
+            .toEqual({ display: '0.6666666666666666666666666666666667', kind: 'number' })
     })
 
     it('names a value with inner structure by what it holds, and writes what JSON never holds as JavaScript does', () => {

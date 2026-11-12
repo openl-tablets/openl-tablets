@@ -77,6 +77,14 @@ The build writes two pages (`build.rollupOptions.input`):
   `/rest`, the one prefix the REST API is served on), handles JSON/text, surfaces validation errors, and updates
   `useAppStore` flags for 401/403/404/500. A call that needs a raw URL instead — a browser download, a viewer
   source — builds it from `CONFIG.API_ROOT` too, never from a literal.
+- **Numbers**: a JSON answer is read with `parseJson` of `utils/exactJson.ts`, in `apiCall` and in the reads of
+  `services/execution.ts`. A number a `double` does not hold — a `BigDecimal` of many digits, a whole number beyond
+  2^53, a negative zero — arrives as an `ExactNumber` holding its text; every other number stays a `number`, a
+  `BigDecimal` a `double` holds included, and is shown the way a `double` is.
+  `JSON.stringify` writes an `ExactNumber` back as the same number, so the input sent, a saved response and a copied
+  value keep the digits. `components/values` shows it as written, with no smart format. Code that walks a value
+  treats it as a simple value (`isExactNumber`), not as an object. The input schema marks a `BigDecimal` with
+  `format: decimal`; a number field without it is a `double`, and the form says what it will be rounded to.
 - **Sign-in**: a 401 sets `showLogin`, and `App` reloads the page, the context root included. Only the server knows
   the sign-in it is configured for — the login form or an identity provider (SAML, OAuth2) — and it brings the user
   back to the page afterwards. Opening `/login` directly would not: under SSO the server guards `/login` too, and

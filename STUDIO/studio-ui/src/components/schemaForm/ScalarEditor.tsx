@@ -4,13 +4,14 @@ import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
 import type { FieldKind, JsonSchema } from './schema'
 import { datePickerFormat, useDateFormats } from '../../utils/dateFormat'
+import { isExactNumber, numberOf, parseJson, plainDecimal } from '../../utils/exactJson'
 
 /** The text a value is edited as. A value with no text of its own is edited from empty. */
 const asText = (value: unknown): string => {
     if (typeof value === 'string') {
         return value
     }
-    if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint' || isExactNumber(value)) {
         return String(value)
     }
     return ''
@@ -68,7 +69,7 @@ const JsonEditor: React.FC<Omit<ScalarEditorProps, 'kind' | 'schema' | 'labels'>
             return
         }
         try {
-            onChange(JSON.parse(next))
+            onChange(parseJson(next))
             setError(null)
         } catch (parseError) {
             setError(t('input.jsonInvalid', { message: (parseError as Error).message }))
@@ -190,13 +191,14 @@ export const ScalarEditor: React.FC<ScalarEditorProps> = ({ kind, schema, labels
             return (
                 <InputNumber
                     autoFocus
+                    stringMode
                     data-testid={testId}
                     onBlur={onDone}
-                    onChange={next => onChange(next ?? undefined)}
+                    onChange={next => onChange(numberOf(String(next ?? '')))}
                     onPressEnter={onDone}
                     size="small"
                     style={{ minWidth: 160 }}
-                    value={typeof value === 'number' ? value : null}
+                    value={typeof value === 'number' || isExactNumber(value) ? plainDecimal(String(value)) : null}
                     {...(kind === 'integer' && { precision: 0 })}
                 />
             )

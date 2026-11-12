@@ -8,6 +8,7 @@ import {
     resolveSchema,
     withoutNulls,
 } from 'components/schemaForm/schema'
+import { ExactNumber } from 'utils/exactJson'
 
 describe('resolveRef', () => {
     const root = { $defs: { 'Driver~1Info': { type: 'object' } }, definitions: { Car: { type: 'string' } } }
@@ -92,6 +93,14 @@ describe('withoutNulls', () => {
         expect(withoutNulls({ code: 'DE', name: null, ratings: [null, { agency: null, rating: 'A' }]}))
             .toEqual({ code: 'DE', ratings: [null, { rating: 'A' }]})
         expect(withoutNulls(5)).toBe(5)
+    })
+
+    it('passes a number a double does not hold through untouched', () => {
+        const exact = new ExactNumber('2.000000000000000005')
+        expect(withoutNulls(exact)).toBe(exact)
+        const result = withoutNulls({ rate: exact, rates: [exact], name: null }) as { rate: unknown, rates: unknown[] }
+        expect(result.rate).toBe(exact)
+        expect(result.rates[0]).toBe(exact)
     })
 })
 

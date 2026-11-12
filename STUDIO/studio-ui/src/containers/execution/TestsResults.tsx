@@ -41,6 +41,7 @@ import type {
 import type { TraceParameterValue } from 'types/trace'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
+import { isExactNumber } from 'utils/exactJson'
 import { formatSmartNumber } from 'utils/smartNumber'
 import { CompoundResultOption, CountSelect, FailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
@@ -67,7 +68,8 @@ const failureCount = (unit: TestUnitResult): number =>
     (unit.testAssertions ?? []).filter(assertion => assertion.status !== 'TR_OK').length
 
 const showsExactly = ({ actualValue, expectedValue, actualLazy, expectedLazy }: TestAssertionResult): boolean => {
-    if (actualLazy || expectedLazy || isComplexValue(actualValue) || isComplexValue(expectedValue)) {
+    if (actualLazy || expectedLazy || isComplexValue(actualValue) || isComplexValue(expectedValue)
+        || isExactNumber(actualValue) || isExactNumber(expectedValue)) {
         return true
     }
     return typeof actualValue === 'number' && typeof expectedValue === 'number'

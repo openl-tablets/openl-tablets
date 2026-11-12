@@ -8,6 +8,7 @@ import {
 } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
+import { ExactNumber } from 'utils/exactJson'
 import { TestsResults } from 'containers/execution/TestsResults'
 import { ExecutionWindowContext } from 'containers/execution/ExecutionScreen'
 import { useQuietSpells } from 'containers/execution/useExecutionProgress'
@@ -320,6 +321,31 @@ describe('TestsResults', () => {
         const row = screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')[0]
         expect(row).toHaveTextContent('0.08333999999999997')
         expect(row?.textContent?.split('0.08334')).toHaveLength(2)
+    })
+
+    it('shows a failed comparison with a number a double does not hold exactly, every digit of both', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[1],
+                    testAssertions: [{
+                        description: 'num2',
+                        expectedValue: 20.759999999999998,
+                        actualValue: new ExactNumber('20.7599999999999980001'),
+                        status: 'TR_NEQ',
+                    }],
+                }],
+            }],
+        })
+
+        await show()
+
+        const row = screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')[0]
+        expect(row).toHaveTextContent('20.7599999999999980001')
+        expect(row).toHaveTextContent('20.759999999999998')
+        expect(row).not.toHaveTextContent('20.76')
     })
 
     it('shows a failed comparison of a value with inner structure exactly', async () => {

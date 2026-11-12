@@ -2,6 +2,7 @@ import type { Key, ReactNode } from 'react'
 import type { TreeDataNode } from 'antd'
 import type { ValueLevel, ValueLine } from 'types/execution'
 import { type DateFormats, formatLocalDateTime, formats, isLocalDateTime } from 'utils/dateFormat'
+import { isExactNumber } from 'utils/exactJson'
 
 export type SimpleValueKind = 'null' | 'string' | 'number' | 'boolean' | 'date' | 'other'
 
@@ -12,7 +13,8 @@ interface SimpleValueText {
 }
 
 /** Whether a value has inner structure that a viewer expands. An object or an array does. */
-export const isComplexValue = (value: unknown): value is object => value !== null && typeof value === 'object'
+export const isComplexValue = (value: unknown): value is object =>
+    value !== null && typeof value === 'object' && !isExactNumber(value)
 
 /** The one-line summary of a value with inner structure that holds the given number of lines. */
 export const linesSummary = (count: number, elements: boolean): string =>
@@ -49,6 +51,9 @@ export const describeSimpleValue = (
         case 'boolean':
             return { display: String(value), kind: 'boolean' }
         case 'object':
+            if (isExactNumber(value)) {
+                return { display: value.source, kind: 'number' }
+            }
             // A value with inner structure is opened as a tree; on one line it is named by what it holds.
             return value === null
                 ? { display: 'null', kind: 'null' }

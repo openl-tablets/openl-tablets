@@ -14,6 +14,7 @@ i18next.addResourceBundle('en', 'execution', {
         json: 'JSON',
         jsonPlaceholder: 'Input JSON here',
         jsonInvalid: 'Invalid JSON: {{message}}',
+        rounded: 'The rule takes a number of limited precision, so it receives the rounded value {{value}}',
         tooManyValues: 'The table takes {{count}} parameters, and the list gives more values',
         runtimeContext: 'Runtime Context',
         create: 'Create',

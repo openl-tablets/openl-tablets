@@ -5,11 +5,13 @@ import type { TreeDataNode } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { complexValueSummary, describeSimpleValue, isComplexValue } from 'components/values/valueTree'
 import { formatLocalDateTime, useDateFormats } from 'utils/dateFormat'
+import { isExactNumber, type ExactNumber } from 'utils/exactJson'
 import { labelOf, ScalarEditor } from './ScalarEditor'
 import {
     clearedValue,
     createValue,
     fieldKind,
+    isRecord,
     mapValueSchema,
     resolveSchema,
     type FieldKind,
@@ -20,8 +22,10 @@ const { Text } = Typography
 
 const isUnset = (value: unknown): boolean => value === undefined || value === null
 
-const asRecord = (value: unknown): Record<string, unknown> =>
-    value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
+const asRecord = (value: unknown): Record<string, unknown> => (isRecord(value) ? value : {})
+
+const sameValue = (value: unknown, other: unknown): boolean =>
+    value === other || (isExactNumber(value) && isExactNumber(other) && value.source === other.source)
 
 const asList = (value: unknown): unknown[] => (Array.isArray(value) ? value : [])
 
@@ -44,6 +48,9 @@ const withField = (record: Record<string, unknown>, name: string, next: unknown)
     const { [name]: _previous, ...rest } = record
     return next === undefined ? rest : { ...record, [name]: next }
 }
+
+const isRounded = (kind: FieldKind, schema: JsonSchema, value: unknown): value is ExactNumber =>
+    kind === 'number' && schema.format !== 'decimal' && isExactNumber(value)
 
 const isStructure = (kind: FieldKind): boolean => kind === 'object' || kind === 'array' || kind === 'map'
 
@@ -168,7 +175,9 @@ const ValueText: React.FC<{
 }> = ({ value, path, kind: fieldKind, labels }) => {
     const patterns = useDateFormats()
     // A code is text or a number, and its name is listed under its text, the way the choice lists it.
-    const label = typeof value === 'string' || typeof value === 'number' ? labelOf(labels, String(value)) : undefined
+    const label = typeof value === 'string' || typeof value === 'number' || isExactNumber(value)
+        ? labelOf(labels, String(value))
+        : undefined
     if (label !== undefined) {
         return <Text code data-testid={`value-${path}`}>{label}</Text>
     }
@@ -278,7 +287,8 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
         ...(isStructure(kind)
             ? structureActions({ kind, unset, path, value, entries, onChange, create, context, t })
             : valueActions({
-                editing, clearable: !unset && value !== clearsTo, path, onChange, setEditing: context.setEditing, t,
+                editing, clearable: !unset && !sameValue(value, clearsTo), path, onChange,
+                setEditing: context.setEditing, t,
             })),
         ...(onRemove
             ? [<ActionButton key="remove" danger icon={<MinusOutlined />} label={t('input.remove')} onClick={onRemove} testId={`remove-${path}`} />]
@@ -308,6 +318,11 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
                 )
                 : <ValueText kind={kind} labels={labels} path={path} value={value} />}
             {actions}
+            {!editing && isRounded(kind, resolved, value) && (
+                <Text data-testid={`rounded-${path}`} type="warning">
+                    {t('input.rounded', { value: String(Number(value.source)) })}
+                </Text>
+            )}
         </Space>
     )
 }

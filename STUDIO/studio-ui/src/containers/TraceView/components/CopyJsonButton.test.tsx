@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { TraceParameterValue } from 'types/trace'
+import { ExactNumber } from 'utils/exactJson'
 import CopyJsonButton from 'containers/TraceView/components/CopyJsonButton'
 
 vi.mock('react-i18next', () => {
@@ -60,6 +61,15 @@ describe('CopyJsonButton', () => {
         await userEvent.click(screen.getByRole('button'))
         await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
         expect(writeText).toHaveBeenCalledWith(JSON.stringify({ age: 30, state: 'NY' }, null, 2))
+    })
+
+    it('copies a number with every digit', async () => {
+        const data = param({ name: 'out', value: { rate: new ExactNumber('2.000000000000000005') } })
+        render(<CopyJsonButton data={data} tooltipKey="copy.result" />)
+
+        await userEvent.click(screen.getByRole('button'))
+        await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
+        expect(writeText).toHaveBeenCalledWith('{\n  "rate": 2.000000000000000005\n}')
     })
 
     it('disables copy while a parameter still has an unfetched lazy value', () => {
