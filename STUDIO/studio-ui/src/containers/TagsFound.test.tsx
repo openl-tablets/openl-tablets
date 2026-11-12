@@ -57,8 +57,12 @@ describe('Tags found in projects', () => {
         expect(within(screen.getByTestId('tag-type-drag-BLOB').closest('tr')!).queryByTestId('found-tag-BLOB-Banking'))
             .toBeNull()
         // BLOB exists already, so only its value is offered to be added.
-        expect(within(blob).queryByTestId('found-type-add-BLOB')).toBeNull()
+        expect(within(blob).queryByTestId('found-type-name-BLOB')).toBeNull()
         const region = screen.getByTestId('found-type-Region')
+        // Region is not defined, so its name is a chip like its values, with a plus that adds it.
+        const regionType = within(region).getByTestId('found-type-name-Region')
+        expect(regionType).toHaveTextContent('Region')
+        expect(within(regionType).getByTestId('found-type-add-Region')).toHaveAccessibleName('tags:found_add_type')
         expect(within(region).getByTestId('found-tag-Region-EU')).toHaveTextContent('EU3')
         expect(within(region).getByTestId('found-tag-Region-US')).toBeInTheDocument()
     })
