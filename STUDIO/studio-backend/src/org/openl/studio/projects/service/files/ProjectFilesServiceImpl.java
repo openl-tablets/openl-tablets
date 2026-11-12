@@ -182,6 +182,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 descriptorCleaner.unregisterModules(root, found);
             }
             found.delete();
+            root.forgetFiles();
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
             throw failed(e, "file.delete.failed.message");
@@ -234,6 +235,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             String fileName = FilePaths.name(destinationPath);
             copyArtefact(source, targetFolder, fileName);
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
+            root.forgetFiles();
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
             throw failed(e, "file.move.failed.message");

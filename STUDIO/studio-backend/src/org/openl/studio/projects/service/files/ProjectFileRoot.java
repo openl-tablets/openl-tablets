@@ -96,6 +96,20 @@ public class ProjectFileRoot implements FileRoot {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>The project forgets its files, and so does a closed project written through another repository, which takes
+     * its files from the project.
+     */
+    @Override
+    public synchronized void forgetFiles() {
+        project.refresh();
+        if (current != null && current != project) {
+            current.refresh();
+        }
+    }
+
+    /**
      * The current state of the project, as it is read and written, built on first use.
      *
      * <p>An opened project is written to its working copy, and the user names the change when the project
