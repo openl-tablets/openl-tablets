@@ -1,0 +1,3 @@
+ERROR: Column 'C2' has no expression.
+ERROR: Column 'A1' has no expression.
+ERROR: Column 'C2' has no expression.

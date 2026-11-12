@@ -678,7 +678,9 @@ public abstract class FunctionalRow implements IDecisionRow {
                     if (type != NullOpenClass.the) {
                         return new ParameterDeclaration(type, makeParamName(), paramSource);
                     }
-                    var message = "Cannot recognize type of local parameter for expression";
+                    var message = StringUtils.isBlank(methodSource.getCode())
+                            ? "Column '%s' has no expression.".formatted(getName())
+                            : "Cannot recognize type of local parameter for expression";
                     BindHelper.processError(message, methodSource, bindingContext);
 
                 } catch (Exception | LinkageError ex) {
