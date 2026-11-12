@@ -1,11 +1,15 @@
 package org.openl.studio.security.saml;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.security.KeyFactory;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Iterator;
 
@@ -27,6 +31,8 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
  */
 @Slf4j
 public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPartyRegistrationRepository, Iterable<RelyingPartyRegistration> {
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(30);
 
 
     private InMemoryRelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
@@ -49,8 +55,9 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
 
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
             Saml2X509Credential decryption = Saml2X509Credential.decryption(privateKey, localCert);
-            var registrationBuilder = RelyingPartyRegistrations
-                    .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
+            var registrationBuilder = fromMetadata(propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
+                    CONNECT_TIMEOUT,
+                    READ_TIMEOUT)
                     .registrationId("webstudio")
                     .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
                     .entityId(propertyResolver.getProperty("security.saml.entity-id"))
@@ -63,6 +70,31 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
         } catch (Exception e) {
             log.error("", e);
+        }
+    }
+
+    /**
+     * Reads the metadata of the identity provider.
+     *
+     * <p>A location on the web is read with a time limit. Without one, a server that accepts the connection and
+     * never answers would hold the start of the application for ever. It happens when the metadata is served by
+     * the application that is starting.
+     *
+     * @throws IOException when the server does not answer in time or the metadata cannot be read
+     */
+    static RelyingPartyRegistration.Builder fromMetadata(String location,
+                                                         Duration connectTimeout,
+                                                         Duration readTimeout) throws IOException {
+        if (!location.startsWith("http://") && !location.startsWith("https://")) {
+            return RelyingPartyRegistrations.fromMetadataLocation(location);
+        }
+        var connection = URI.create(location).toURL().openConnection();
+        connection.setConnectTimeout((int) connectTimeout.toMillis());
+        connection.setReadTimeout((int) readTimeout.toMillis());
+        try (var metadata = connection.getInputStream()) {
+            return RelyingPartyRegistrations.fromMetadata(metadata);
+        } catch (SocketTimeoutException e) {
+            throw new IOException("The SAML metadata at '%s' did not answer in time.".formatted(location), e);
         }
     }
 

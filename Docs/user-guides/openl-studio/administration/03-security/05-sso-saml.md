@@ -5,7 +5,7 @@ When **SSO: SAML** is selected, configure the connection to the SAML identity pr
 | Field                          | Description                                                                                          |
 |--------------------------------|------------------------------------------------------------------------------------------------------|
 | **Entity ID**                  | A globally unique identifier that represents OpenL Studio as a SAML service provider. This value must be registered with the identity provider.  |
-| **Server Metadata URL**        | URL to the identity provider's SAML metadata document, used to automatically configure the trust relationship between OpenL Studio and the identity provider. |
+| **Server Metadata URL**        | URL to the identity provider's SAML metadata document, used to automatically configure the trust relationship between OpenL Studio and the identity provider. OpenL Studio reads the document when it starts and gives up, with an error in the log, when the server does not answer within 30 seconds. The document cannot be served by OpenL Studio itself, which answers no request before it has started. |
 | **Remote Server Certificate**  | The identity provider's public X.509 certificate, used to verify the signature of SAML responses. Required when the metadata URL is not publicly accessible or does not include the certificate. |
 | **Attribute for Username**     | Name of the SAML attribute that contains the username.                                     |
 | **Attribute for First Name**   | Name of the SAML attribute that contains the user's first name.                            |
