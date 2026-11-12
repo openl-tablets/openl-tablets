@@ -182,6 +182,17 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         }
     }
 
+    /**
+     * Tells whether the annotation is bound to the advice.
+     *
+     * <p>An advice that Spring proxies, for a transaction or another aspect, is an instance of a generated
+     * subclass. The annotation names the class the author wrote, so that class is compared.
+     */
+    static boolean isBoundTo(PrepareStoreLogData prepare, ServiceMethodAdvice serviceMethodAdvice) {
+        return prepare.bindToServiceMethodAdvice()
+                .equals(org.springframework.util.ClassUtils.getUserClass(serviceMethodAdvice));
+    }
+
     @Override
     public void beforeServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
                                           Method interfaceMethod,
@@ -195,7 +206,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     result,
                     lastOccurredException,
                     postProcessAdvice,
-                    e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
+                    e -> e.before() && isBoundTo(e, serviceMethodAdvice));
         }
     }
 
@@ -212,7 +223,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     result,
                     lastOccurredException,
                     postProcessAdvice,
-                    e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
+                    e -> !e.before() && isBoundTo(e, serviceMethodAdvice));
         }
     }
 
