@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.openapi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import io.swagger.v3.oas.models.info.Info;
 import org.junit.jupiter.api.Test;
 
 import org.openl.CompiledOpenClass;
@@ -39,6 +41,24 @@ class ProjectOpenApiServiceTest {
     private final ProjectFilesService files = mock(ProjectFilesService.class);
     private final ProjectOpenApiService service = new ProjectOpenApiService(projects, files,
             mock(ProjectFileRootFactory.class));
+
+    /** A generated specification names the project and a version: OpenAPI requires the info section. */
+    @Test
+    void givesAGeneratedSpecificationItsInfoSection() {
+        var info = ProjectOpenApiService.withInfo(new io.swagger.v3.oas.models.OpenAPI(), "Sample Project").getInfo();
+
+        assertEquals("Sample Project", info.getTitle());
+        assertEquals("1.0.0", info.getVersion());
+    }
+
+    @Test
+    void keepsTheInfoSectionAGeneratorWrote() {
+        var written = new Info().title("Written").version("2.0");
+
+        var document = ProjectOpenApiService.withInfo(new io.swagger.v3.oas.models.OpenAPI().info(written), "Sample");
+
+        assertSame(written, document.getInfo());
+    }
 
     @Test
     void refusesAProjectThatDeclaresNoModules() {

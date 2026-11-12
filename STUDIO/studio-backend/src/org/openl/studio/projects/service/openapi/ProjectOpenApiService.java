@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,8 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 @Service
 @RequiredArgsConstructor
 public class ProjectOpenApiService {
+
+    private static final String GENERATED_VERSION = "1.0.0";
 
     private final WorkspaceProjectService projectService;
     private final ProjectFilesService filesService;
@@ -111,12 +114,25 @@ public class ProjectOpenApiService {
         }
     }
 
+    /**
+     * Gives the document the {@code info} section the OpenAPI specification requires, when it has none.
+     *
+     * <p>The title is the name of the project and the version is {@code 1.0.0}, as OpenL Rule Services publish
+     * for a deployed project.
+     */
+    static io.swagger.v3.oas.models.OpenAPI withInfo(io.swagger.v3.oas.models.OpenAPI document, String title) {
+        if (document.getInfo() == null) {
+            document.setInfo(new Info().title(title).version(GENERATED_VERSION));
+        }
+        return document;
+    }
+
     /** The document itself, written in the shape its file name asks for. */
     private static InputStream generate(ProjectModel model, ProjectDescriptor resolved, OpenAPI.Type type) {
         try {
             var generator = OpenApiGenerator.builder(resolved, model.getRulesInstantiationStrategy(resolved))
                     .generator();
-            var document = generator.generate();
+            var document = withInfo(generator.generate(), resolved.getName());
             var written = type == OpenAPI.Type.JSON
                     ? Json.pretty().writeValueAsString(document)
                     : Yaml.pretty().writeValueAsString(document);

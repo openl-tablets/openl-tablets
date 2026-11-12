@@ -1185,7 +1185,7 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 
     The button is shown while the project can be modified and does not use the **Tables generation** mode.
 
-The file is written to the project right away, without a window to confirm. The message with the file name is displayed, the project is pointed at the file in the **Reconciliation** mode, and the file appears in the **OpenAPI** section. When the file already exists, it is updated according to the current project tables.
+The file is written to the project right away, without a window to confirm. Its `info` section names the project as the title and `1.0.0` as the version. The message with the file name is displayed, the project is pointed at the file in the **Reconciliation** mode, and the file appears in the **OpenAPI** section. When the file already exists, it is updated according to the current project tables.
 
 ![](images/openapi-file-added-to-section.png)
 
