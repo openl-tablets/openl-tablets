@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -376,6 +377,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
     }
 
+    /**
+     * A map or a collection is compared as a whole: its getters, such as {@code isEmpty()}, are not its content.
+     */
+    private static boolean isMapOrCollection(IOpenClass type) {
+        var instanceClass = type.getInstanceClass();
+        return instanceClass != null
+                && (Map.class.isAssignableFrom(instanceClass) || Collection.class.isAssignableFrom(instanceClass));
+    }
+
     private static void addFieldSequence(List<IOpenField> toAdd,
                                          IOpenClass resultType,
                                          ColumnDescriptor columnDescriptor,
@@ -383,7 +393,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                          IOpenClass currentType,
                                          Integer fieldPrecision) {
         if (fieldSequence.length == 0 && columnDescriptor.isReference()) {
-            if (resultType.isSimple() || resultType.isArray()) {
+            if (resultType.isSimple() || resultType.isArray() || isMapOrCollection(resultType)) {
                 toAdd.add(new ThisField(resultType));
             } else {
                 toAdd.addAll(resultType.getFields());
