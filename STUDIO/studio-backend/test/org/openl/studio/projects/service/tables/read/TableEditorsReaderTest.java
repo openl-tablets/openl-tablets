@@ -224,6 +224,31 @@ class TableEditorsReaderTest {
     }
 
     @Test
+    void readsALookupThatDoesNotCompileAsTheDirectionItsErrorsComeFrom(@TempDir Path projectDir) throws Exception {
+        // A lookup holding a return value that is not an Integer: neither direction compiles. It stands in a module
+        // of its own, so the other tests read a module that compiles.
+        var lookup = projectModel(projectDir, "Rules", sheet -> {
+            row(sheet, 1, 1, "SmartLookup Integer Rating(Double financialRating, String risk)");
+            row(sheet, 2, 1, "financialRating", "LOW", "HIGH");
+            row(sheet, 3, 1, "1", "123", "");
+            row(sheet, 4, 1, "345", "4", "3.2");
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, 3));
+        });
+        var read = new TableEditorsReader().read(table(lookup, "Rating"), null, null);
+
+        // The compiler also reads a lookup that fails the other way round before it drops that reading. The
+        // vertical values are the ratings down the first column, and the rules meet under the risks.
+        var rating = areaEditor(read, 2, 0);
+        assertNotNull(rating, "a rating is entered as a number");
+        assertEquals(Boolean.FALSE, rating.intOnly(), "a rating is a Double");
+        var returned = areaEditor(read, 2, 1);
+        assertNotNull(returned, "a returned value is entered as a number");
+        assertEquals(Boolean.TRUE, returned.intOnly(), "the lookup returns an Integer");
+        assertEquals(returned, areaEditor(read, 3, 2), "the value of the wrong type is a returned value too");
+        assertNull(areaEditor(read, 1, 2), "a risk is text, which needs no editor");
+    }
+
+    @Test
     void readsTheColumnsAfterOneThatNamesNoFieldAtAll() {
         var table = table(module, "Policies");
         var region = table.getGridTable().getRegion();

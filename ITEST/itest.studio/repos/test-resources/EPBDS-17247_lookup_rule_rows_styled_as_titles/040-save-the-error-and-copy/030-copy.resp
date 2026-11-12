@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "CorporateRatingCopy",
+  "returnType": "Integer",
+  "signature": "CorporateRatingCopy (Double financialRating, String riskOfWorkWithCorporate)",
+  "file": "EPBDS-17247-StyleBroken/StyleBroken.xlsx",
+  "sheet": "CorporateRatingCopy",
+  "pos": "B2:D7"
+}

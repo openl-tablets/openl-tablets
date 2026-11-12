@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,15 +15,13 @@ import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.binding.IBindingContext;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.TestWorkbooks;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
-import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.IGridTable;
 
 /** Covers where a Conditions, an Actions or a Returns table holds the titles of the definitions it declares. */
@@ -89,14 +86,7 @@ class ADtColumnsDefinitionTableBoundNodeTest {
 
     /** The one table of a sheet the content writes, as the compiler bound it. */
     private ADtColumnsDefinitionTableBoundNode boundNodeOf(Consumer<Sheet> content) throws IOException {
-        var file = dir.resolve("Elements.xlsx");
-        try (var workbook = new XSSFWorkbook(); var out = Files.newOutputStream(file)) {
-            content.accept(workbook.createSheet("Elements"));
-            workbook.write(out);
-        }
-        var compiled = new RulesEngineFactory<>(file.toUri().toURL()).getCompiledOpenClass();
-        var node = ((XlsMetaInfo) compiled.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
-                .getXlsTableSyntaxNodes()[0];
+        var node = TestWorkbooks.compileFirstTable(dir, content);
         return ((DtColumnsDefinitionMetaInfoReader) node.getMetaInfoReader()).getBoundNode();
     }
 

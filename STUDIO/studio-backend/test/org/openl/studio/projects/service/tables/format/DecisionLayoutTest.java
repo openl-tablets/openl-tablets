@@ -80,6 +80,12 @@ class DecisionLayoutTest {
     /** A Conditions table no declaration is read from: its three columns are no parts either way round. */
     private static final int UNDECLARED_ROW = 77;
 
+    /**
+     * A SmartLookup table holding a return value that is not an {@code Integer}. Neither direction compiles: the
+     * table is read as it is written, and read transposed as well before that one is dropped.
+     */
+    private static final int MISTYPED_ROW = 81;
+
     @TempDir
     Path dir;
 
@@ -177,6 +183,20 @@ class DecisionLayoutTest {
     }
 
     @Test
+    void readsALookupWithAValueOfAWrongTypeAsTheDirectionItsErrorsComeFrom() {
+        var roles = Roles.of(tableAt(MISTYPED_ROW));
+
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(MISTYPED_ROW + 1, 1), "A vertical title");
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(MISTYPED_ROW + 1, 2), "A horizontal value");
+        for (var row = MISTYPED_ROW + 2; row <= MISTYPED_ROW + 5; row++) {
+            assertEquals(RawTableRole.VALUE, roles.roleAt(row, 1), "A vertical value, not a title");
+            assertEquals(RawTableValueType.NUMBER, roles.typeAt(row, 1), "A Double rating");
+            assertEquals(RawTableRole.OUTPUT, roles.roleAt(row, 2), "The return grid");
+        }
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(MISTYPED_ROW + 5, 3), "The value of the wrong type");
+    }
+
+    @Test
     void readsADecisionTableThatDidNotCompileByTheKindsOfItsColumns() {
         var roles = Roles.of(tableAt(BROKEN_ROW));
 
@@ -225,8 +245,8 @@ class DecisionLayoutTest {
 
     /**
      * A Rules table written each way round, a SimpleRules, a SmartRules, a SimpleLookup and a SmartLookup table, the
-     * Datatype the SmartRules returns, a Rules table that does not compile, and the tables that declare what decision
-     * tables take.
+     * Datatype the SmartRules returns, a Rules table that does not compile, a SmartLookup holding a value of the wrong
+     * type, and the tables that declare what decision tables take.
      */
     private static void fillSheet(Sheet sheet) {
         TableTestProjects.row(sheet, GREET_ROW, 1, "Rules String " + GREET + " ( String day, Integer hour )");
@@ -294,6 +314,15 @@ class DecisionLayoutTest {
         merge(sheet, BROKEN_ROW, BROKEN_ROW, 1, 2);
         TableTestProjects.row(sheet, BROKEN_ROW + 1, 1, "C1", "RET1");
         TableTestProjects.row(sheet, BROKEN_ROW + 2, 1, "hour < 12", "greeting");
+
+        TableTestProjects.row(sheet, MISTYPED_ROW, 1,
+                "SmartLookup Integer Rating ( Double financialRating, String risk )");
+        merge(sheet, MISTYPED_ROW, MISTYPED_ROW, 1, 3);
+        TableTestProjects.row(sheet, MISTYPED_ROW + 1, 1, "financialRating", "LOW", "HIGH");
+        TableTestProjects.row(sheet, MISTYPED_ROW + 2, 1, "1", "123", null);
+        TableTestProjects.row(sheet, MISTYPED_ROW + 3, 1, "2", "44", null);
+        TableTestProjects.row(sheet, MISTYPED_ROW + 4, 1, "33", "55", "123");
+        TableTestProjects.row(sheet, MISTYPED_ROW + 5, 1, "345", "4", "3.2");
 
         fillDeclarations(sheet);
     }
