@@ -1,0 +1,1 @@
+WARN: The check of uncovered and overlapped cases (validateDT) is skipped: it supports only conditions that compare an input with whole numbers or with a list of values.

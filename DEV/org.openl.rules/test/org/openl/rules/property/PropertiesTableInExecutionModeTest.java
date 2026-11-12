@@ -35,15 +35,13 @@ class PropertiesTableInExecutionModeTest {
 
     private static final String SRC = "test/rules/PropertyTableTest.xls";
 
-    // The decision table validator cannot build a domain for the range condition of hello1 yet.
-    @SuppressWarnings("java:S1134")
     @Test
     void testPropertyTableLoading() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        // FIXME validation issue for Ranges.
-        assertEquals(1,
+        // The range condition of hello1 is one validateDT cannot check: that is a warning, not an error.
+        assertEquals(0,
                 compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());
         IOpenMethod method = compiledOpenClass.getOpenClassWithErrors()
                 .getMethod("hello1", new IOpenClass[]{JavaOpenClass.INT});
@@ -72,15 +70,13 @@ class PropertiesTableInExecutionModeTest {
         }
     }
 
-    // The decision table validator cannot build a domain for the range condition of hello1 yet.
-    @SuppressWarnings("java:S1134")
     @Test
     void testFieldsInOpenClass() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        // FIXME validation issue for Ranges.
-        assertEquals(1,
+        // The range condition of hello1 is one validateDT cannot check: that is a warning, not an error.
+        assertEquals(0,
                 compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());
         Collection<IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
         // properties table with name will be represented as field
