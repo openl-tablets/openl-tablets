@@ -58,6 +58,9 @@ exclude:
   - Gemfile.lock
   - AGENTS.md
   - "*/AGENTS.md"
+  # Markdown modules are an alpha kept off the site until they are announced, see AGENTS.md
+  - ref/markdown-tables.md
+  - architecture/markdown-modules.md
 
 # ── Permalinks ─────────────────────────────────────────────────────────────────
 permalink: /:categories/:title

@@ -798,16 +798,6 @@ A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, opens i
 2.  Change the content.
 3.  Click **Save** to keep the changes in the workspace copy, or **Cancel** to discard them.
 
-A Markdown file of a module written as a folder of Markdown files holds one table of the module. **Open in Editor** opens the module in the editor on that table, to edit it as a table rather than as text.
-
-The compilation of the project checks such a file for what breaks the format of a Markdown table: a front matter that is not closed, a key of the front matter other than `table`, `properties` and `merges`, or a merged range outside the table, for example. The viewer and the editor underline each line where the last compilation found such an error and mark it with an error icon; point to the line to read the error. The marks change when the project is compiled again, after the file is saved. Nothing is marked until the module of the file is compiled, for example while the project is closed. The errors of the rules the table holds, such as a formula that does not compile, are shown on the table in the editor.
-
-An error of the format is fixed in the text of the file, so in the compilation problems panel and in the problems of the table, it opens the file on its line rather than the cell of the table.
-
-![A Markdown file in the Files tab, three lines of its front matter marked as errors and the first one pointed at](images/markdown-file-problems.png "Errors in a Markdown file")
-
-*Errors in a Markdown file*
-
 An Excel workbook or another binary file cannot be viewed here. Its pane offers **Export**, and for a module of the project, **Open in Editor** opens the tables of the module in the editor.
 
 The `i18n` folder holds the localization files of the project, and its pane offers **Open in Editor**, which opens the messages of all languages on the **Localization** screen. **Open in Editor** of a localization file opens them too, as described in [Editing Localization Messages](rules-editor.md#editing-localization-messages).

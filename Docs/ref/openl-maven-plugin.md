@@ -59,9 +59,8 @@ Notes:
   `<dependenciesThreshold>`, and hoist non-OpenL deps, then prunes the converted modules from `<modules>`. Blocked
   projects (per-project config other than `dependenciesThreshold`, `deploymentPackage` and `deploymentName`,
   executions, profiles, …) are left untouched and reported. Pom edits re-serialise the model — review the diff.
-- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy, and removed-function calls in workbooks and Markdown
-  module folders; drops no-effect plugin params in `pom.xml`; a commit per step. `openl:help -Dgoal=migrate -Ddetail`
-  lists steps, `-Dopenl.migrate.migrators` picks.
+- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy and removed-function calls, drops no-effect plugin params
+  in `pom.xml`; a commit per step. `openl:help -Dgoal=migrate -Ddetail` lists steps, `-Dopenl.migrate.migrators` picks.
 
 Every goal except `deploy` is thread-safe, so a parallel build (`mvn -T 1C verify`) runs the goals of independent
 modules at the same time without the Maven warning about plugins not marked as thread-safe. `verify` starts one OpenL
@@ -88,42 +87,6 @@ the same deployment name at the same time can both be stored, where a sequential
 - Not built when a main jar artifact already exists or for `openl-jar` packaging (classes go to the jar root).
 - The `deployment` archive is `<finalName>-deployment.zip`, named `<finalName>` in its `deployment.yaml`; `openl:deploy`
   uploads it instead of the main archive. The deprecated `deploymentName` has no effect and logs a warning.
-
-## Packaging workbooks as Markdown
-
-With `<markdown>true</markdown>` in the plugin configuration (or `-Dopenl.markdown=true`), the project is packaged
-with its workbooks written as Markdown. The setting is off by default.
-
-- `openl:compile` compiles the project as it is, then writes a copy of it into `target/openl-markdown`
-  (`markdownDirectory`): every module read from a workbook becomes a module folder of Markdown files, a table to a
-  file, at the path of the workbook without its extension, and the `rules.xml` of the copy names the folders.
-- The tables of a sheet go into the folder of its name. A character a name of OpenL Studio cannot hold, such as `%`
-  or `;`, is written as `_`, and the name loses a space at either end and a dot at its end.
-- A file is named after its table, whether the table compiles or not: the rule, the type or the data it declares,
-  `rate.md`, and a test with no name of its own after the rule it tests and its kind, `rateTest.md`. A name another
-  table of the folder holds gets a number, `rate1.md`, `rate2.md`, and these files are read after `rate.md` in the
-  order of the sheet.
-- `openl:test` runs the tests of the project as it is; `openl:package` packages the copy instead of the sources, and
-  `openl:verify` deploys it.
-- A workbook holding a table no Markdown file can hold stays a workbook in the copy, and the build log names the
-  table and the reason: a table whose layout has no Markdown form; the parts of a table that could not be joined. The
-  log also gives the size of each workbook and of its folder.
-- A table written in parts (`TablePart`) is written whole, in one file, as the compiler joined it: a Markdown file
-  holds a table of any size.
-- The indent of a cell of a TBasic or a ColumnMatch table, which builds the table, is written as two `&nbsp;` before
-  the text for each level, `&nbsp;&nbsp;SET`.
-- A record of a Data, Test or Run table that takes several rows of a workbook, or has merged cells, is written as one
-  row with no merged range: each element of a collection gets columns of its own, `drivers[0].name`,
-  `drivers[1].name` (see [Records of Data and Test Tables](markdown-tables.md#records-of-data-and-test-tables)).
-- The Environment tables of a workbook are joined in the one `Environment.md` of its module, and so are its Constants
-  tables in `Constants.md`; a Properties table is written as any other table, in the folder of its sheet.
-- The `description` property of a table is written as the text between the front matter and the table, where a
-  Markdown file holds a description; the other properties go into the front matter.
-- A Markdown file keeps no formatting, comments or formulas: a cell keeps the value its formula computed. A table of
-  no kind OpenL knows, such as a note, is kept as text in the `notes.md` file of its sheet.
-- A value is written as its text, and a whole number, a boolean and a date read back as the values of the types the
-  cells of the workbook hold: a `Spreadsheet` step keeps the type its value took from its cell, and its result keeps
-  its fields, with no type named in the file.
 
 ## Pom-less OpenL projects
 
