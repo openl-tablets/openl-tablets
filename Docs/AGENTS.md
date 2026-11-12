@@ -9,6 +9,17 @@ Jekyll 3.10 + Minimal Mistakes 4.28.0 remote theme on GitHub Pages.
 - DO NOT add ToC markup to release notes — `release-notes` layout generates it
 - DO NOT use custom Jekyll plugins — GitHub Pages whitelisted gems only
 
+## Unannounced Features
+
+- **Markdown modules** — rules kept as folders of Markdown files, a table to a file (EPBDS-17019) — are an alpha that is
+  not announced yet. Their specification (`ref/markdown-tables.md`) and architecture (`architecture/markdown-modules.md`)
+  are excluded from the site in `_config.yml`, and no published page mentions them: not the user guides, the
+  reference, the API pages, the architecture notes or the release notes. Keep it so until the feature is announced.
+- OpenL Studio still ships `ref/markdown-tables.md` with the other pages of `ref/`, so its help and the MCP server know
+  the format; it is not listed in `ref/index.md`.
+- To announce the feature, revert the commit that took it off the site: it puts back the pages and the passages the
+  feature commits wrote, then describe what changed since.
+
 ## Key Files
 
 - **`_config.yml`** — site config, layout defaults, `nav: "auto"` for user-guides

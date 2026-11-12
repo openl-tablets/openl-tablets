@@ -83,6 +83,10 @@ git log "$(git describe --tags --abbrev=0 <version>^)"..<version> --no-merges --
   `[maven-release-plugin] prepare …`) do not belong in release notes.
 - Use the remaining messages to enrich item descriptions and to catch user-facing changes missing from Jira. Still
   follow the writing tone — no ticket numbers in the output.
+- Leave out the commits of a ticket that is not flagged "Yes, include ticket in Release Notes": the flag is the
+  decision, as for a feature kept unannounced. Check the ticket with `jira_get_issue` (`customfield_12243`) before you
+  write an item from a commit that names it. Unannounced now: EPBDS-17019, the Markdown modules — see
+  `Docs/AGENTS.md`.
 
 ### 3. Map tickets to sections
 
