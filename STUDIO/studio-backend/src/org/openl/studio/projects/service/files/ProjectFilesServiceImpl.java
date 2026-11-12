@@ -165,7 +165,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     @Override
     public void deleteResource(@NotNull FileRoot root, @NotBlank String path, @Nullable String expectedVersion) {
         root.requireModifiable();
-        validateResourcePath(path);
+        validateExistingPath(path);
         lockIfClosed(root);
         lockIfVersioned(expectedVersion);
         try {
@@ -603,7 +603,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * nothing deletes nothing.
      */
     private List<FileItem> checkedDeletes(AProjectFolder current, String path, Collection<String> written) {
-        validateResourcePath(path);
+        validateExistingPath(path);
         List<AProjectArtefact> removed = switch (findArtefactByPath(current, path)) {
             case null -> List.of();
             case AProjectFolder folder -> filesUnder(folder);
@@ -723,7 +723,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * Validates path, locates a file artefact, and verifies it exists and is not a folder.
      */
     private AProjectResource findFileArtefact(AProjectFolder root, String path) {
-        validateResourcePath(path);
+        validateExistingPath(path);
         var found = findArtefactByPath(root, path);
         if (found == null || found.isFolder()) {
             throw new NotFoundException("file.not.found.message");
@@ -738,7 +738,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * @throws NotFoundException   if nothing exists at the path
      */
     private AProjectArtefact findExistingArtefact(AProjectFolder root, String path) {
-        validateResourcePath(path);
+        validateExistingPath(path);
         var found = findArtefactByPath(root, path);
         if (found == null) {
             throw new NotFoundException("file.not.found.message");
@@ -971,15 +971,35 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * Validates a resource path using {@link NameChecker#validatePath(String)}.
+     * Validates the path of a file or folder to create.
+     *
+     * <p>The refusal says why: the path holds a name reserved by Windows, or a character or a name no file system
+     * of the supported platforms takes.
      *
      * @throws BadRequestException if the path is invalid
      */
-    private void validateResourcePath(String path) {
+    static void validateResourcePath(String path) {
+        validateExistingPath(path);
+        var reserved = NameChecker.findReservedName(path);
+        if (reserved != null) {
+            throw new BadRequestException("file.path.reserved.message", new Object[]{reserved});
+        }
+    }
+
+    /**
+     * Validates the path of a file or folder that is read, moved or deleted.
+     *
+     * <p>A name reserved by Windows is accepted: such a file may already be in the repository, and it must stay
+     * reachable to be renamed or removed.
+     *
+     * @throws BadRequestException if the path holds a forbidden character or name
+     */
+    static void validateExistingPath(String path) {
         try {
-            NameChecker.validatePath(path);
+            NameChecker.validateExistingPath(path);
         } catch (IOException e) {
-            throw new BadRequestException("file.path.invalid.message");
+            throw new BadRequestException("file.path.forbidden.message",
+                    new Object[]{NameChecker.FORBIDDEN_CHARS_STRING});
         }
     }
 

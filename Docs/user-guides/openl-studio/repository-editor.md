@@ -826,6 +826,11 @@ The **More actions** icon **⋮** of a selected file offers the following action
 
 A folder can be copied as well: select the folder and click **Copy** in its pane.
 
+A file or folder name cannot contain the characters `\ / : ; < > ? * % ' [ ] | "`, start with a space, or end with a
+space or a dot. A name that Windows reserves for a device, such as `CON`, `PRN`, `AUX`, `NUL`, `COM1` or `LPT1`, in any
+letter case and with any extension, is refused too. The message of a refused action names the reason. A file that
+already has a reserved name can still be opened, downloaded, renamed, moved and deleted.
+
 The newly created file appears in the tree.
 
 #### Deleting a Folder or a File
