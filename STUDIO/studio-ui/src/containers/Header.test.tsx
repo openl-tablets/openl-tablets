@@ -15,7 +15,7 @@ vi.mock('../services/deployments', () => ({ hasDeploymentRepositories: vi.fn() }
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
 vi.mock('react-router', () => ({
-    Link: ({ children }: { children?: unknown }) => <a href="/">{children as never}</a>,
+    Link: ({ children, to, ...rest }: { children?: unknown, to: string }) => <a href={to} {...rest}>{children as never}</a>,
     useLocation: () => ({ pathname: pathnameRef.current }),
 }))
 
@@ -26,6 +26,7 @@ vi.mock('./Header.styles', () => ({
 vi.mock('./header/UserMenu', () => ({ UserMenu: () => null }))
 vi.mock('./header/ThemeSwitch', () => ({ ThemeSwitch: () => <div data-testid="theme-switch" /> }))
 vi.mock('./header/SettingsMenu', () => ({ SettingsMenu: () => <div data-testid="settings-menu" /> }))
+vi.mock('./header/HeaderSearch', () => ({ HeaderSearch: () => <div data-testid="header-search" /> }))
 vi.mock('../components/Logo', () => ({ default: () => null }))
 vi.mock('../hooks', () => ({ useAppNavigate: () => appNavigateMock, useScript: () => {} }))
 vi.mock('store', () => ({ useNotificationStore: () => ({ notification: notificationRef.current }) }))
@@ -111,6 +112,30 @@ describe('Header', () => {
         pathnameRef.current = '/administration/system'
         rerender(<Header />)
         expect(screen.getByTestId('menu-/projects').getAttribute('data-selected')).toBeNull()
+    })
+
+    it('leads home from the cube as from the name, which a narrow window hides', () => {
+        vi.mocked(hasDeploymentRepositories).mockResolvedValue(false)
+
+        const { container } = render(<Header />)
+
+        const cube = container.querySelector('a.header-logo')
+        expect(cube).toHaveAttribute('href', '/projects')
+        // The name is the link a reader tabs to; the cube beside it is not a second stop.
+        expect(cube).toHaveAttribute('tabindex', '-1')
+        expect(screen.getByRole('link', { name: 'common:openl_studio' })).toHaveAttribute('href', '/projects')
+    })
+
+    it('puts the one search between the name of the application and the tabs', async () => {
+        vi.mocked(hasDeploymentRepositories).mockResolvedValue(true)
+
+        render(<Header />)
+
+        const search = screen.getByTestId('header-search')
+        expect(screen.getByText('common:openl_studio').compareDocumentPosition(search))
+            .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+        expect(search.compareDocumentPosition(await screen.findByTestId('menu-/projects')))
+            .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
 
     it('offers My Settings and the theme switcher beside the avatar', async () => {

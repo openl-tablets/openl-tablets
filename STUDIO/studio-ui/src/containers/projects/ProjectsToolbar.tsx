@@ -1,4 +1,3 @@
-import type { InputRef } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Segmented, Select } from 'antd'
 import {
@@ -7,7 +6,6 @@ import {
     UnorderedListOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import { SearchInput } from '../../components/SearchInput'
 import type { ProjectSort } from './projectListing'
 
 export type ProjectView = 'list' | 'grid'
@@ -19,10 +17,6 @@ const useStyles = createStyles(({ css }) => ({
         align-items: center;
         gap: 8px;
     `,
-    search: css`
-        flex: 1;
-        min-width: 240px;
-    `,
     sort: css`
         width: 180px;
         flex: none;
@@ -30,34 +24,23 @@ const useStyles = createStyles(({ css }) => ({
 }))
 
 interface ProjectsToolbarProps {
-    search: string
-    onSearch: (value: string) => void
     sort: ProjectSort
     onSort: (value: ProjectSort) => void
     view: ProjectView
     onView: (value: ProjectView) => void
-    searchRef?: React.Ref<InputRef>
 }
 
 /**
- * Search and list/grid view controls above the projects list. The cards of the grid have no headers to
- * click, so only that view gets a sort dropdown — the list sorts by its column headers — and its options
- * are exactly those columns.
+ * The list/grid view controls of the projects list, beside its title; the list is searched from the header. The
+ * cards of the grid have no headers to click, so only that view gets a sort dropdown — the list sorts by its
+ * column headers — and its options are exactly those columns.
  */
-export const ProjectsToolbar = ({ search, onSearch, sort, onSort, view, onView, searchRef }: ProjectsToolbarProps) => {
+export const ProjectsToolbar = ({ sort, onSort, view, onView }: ProjectsToolbarProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
 
     return (
         <div className={styles.toolbar}>
-            <SearchInput
-                ref={searchRef}
-                className={styles.search}
-                data-testid="projects-search"
-                onChange={event => onSearch(event.target.value)}
-                placeholder={t('home.search_placeholder')}
-                value={search}
-            />
             {view === 'grid' && (
                 <Select
                     className={styles.sort}

@@ -9,6 +9,7 @@ import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
 import { listingQueryOf } from './projectListing'
+import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 
 vi.mock('../../services/repositories', () => ({ getProjectFiles: vi.fn() }))
 vi.mock('../../services/modules', () => ({ listModules: vi.fn() }))
@@ -63,13 +64,6 @@ vi.mock('@ant-design/icons', () => {
     }
 })
 
-vi.mock('../../components/SearchInput', () => ({
-    SearchInput: ({ onChange, value, ...rest }: Record<string, unknown>) => {
-        const { placeholder, ...dom } = rest
-        void placeholder
-        return <input onChange={onChange as never} value={value as string} {...dom} />
-    },
-}))
 const { groupModalMock } = vi.hoisted(() => ({ groupModalMock: vi.fn() }))
 vi.mock('./GroupProjectsModal', () => ({
     GroupProjectsModal: (props: { tagTypes: string[] }) => {
@@ -589,13 +583,13 @@ describe('ProjectsTree', () => {
         await renderTree()
 
         // A repository answers by its own name: its projects come along, already unfolded.
-        await userEvent.type(screen.getByTestId('projects-tree-search'), 'design')
+        searchFor('design')
         expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
         expect(screen.queryByText('Git Flat')).not.toBeInTheDocument()
 
         // A project answers for itself: only the branch leading to it stays.
-        await userEvent.clear(screen.getByTestId('projects-tree-search'))
-        await userEvent.type(screen.getByTestId('projects-tree-search'), 'beta')
+        searchFor('')
+        searchFor('beta')
         expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
     })
@@ -655,10 +649,28 @@ describe('ProjectsTree', () => {
         expect(screen.getByTestId('tree-status-CLOSED')).toHaveTextContent('folder')
     })
 
+    it('offers itself to the search of the header as a panel, which the main part of a screen goes before', async () => {
+        await renderTree()
+
+        expect(searchScope('projects-tree')).toMatchObject({
+            label: 'common:search.scopes.projects',
+            placeholder: 'home.tree.search_placeholder',
+            secondary: true,
+        })
+    })
+
+    it('follows the text of the screen around it, and then asks for no search of its own', async () => {
+        await renderTree({ search: 'beta' })
+
+        expect(hasSearchScope('projects-tree')).toBe(false)
+        expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
+    })
+
     it('says so when nothing matches the search', async () => {
         await renderTree()
 
-        await userEvent.type(screen.getByTestId('projects-tree-search'), 'nothing here')
+        searchFor('nothing here')
 
         expect(screen.getByTestId('projects-tree-no-match')).toBeInTheDocument()
     })

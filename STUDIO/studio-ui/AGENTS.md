@@ -16,7 +16,8 @@ Use almost the latest versions when possible.
     - The removal: depend on `typescript` 7.1 alone, and drop the `//` note of `package.json` and the comment of
       `eslint.config.js`.
 - **Ant Design** for UI components, **`@ant-design/icons`** for icons
-- **Zustand** for state management (`appStore`, `userStore`, `notificationStore`, `traceStore`)
+- **Zustand** for state management (`appStore`, `userStore`, `notificationStore`, `traceStore`, `settingsStore`,
+  `searchStore`)
 - **React Router** with `createBrowserRouter`, scoped to backend context path
 - **i18next + react-i18next** for internationalization
 - **@stomp/stompjs** for WebSocket notifications (reconnecting singleton)
@@ -278,6 +279,77 @@ The build writes two pages (`build.rollupOptions.input`):
 - **The user menu** (`containers/header/UserMenu`) lists **My Profile**, then **Personal Access Tokens** where
   `isPersonalAccessTokenEnabled`, then **Administration** for an administrator, **Help**, **About** and **Sign Out**.
   The side menu of the administration pages lists **My Profile** and **Personal Access Tokens**, never the settings.
+- **One search, in the header.** OpenL Studio has a single search field, `containers/header/HeaderSearch`, in the
+  header between the name of the application and the tabs, where a reader of a mail client looks for it. Every screen
+  `DefaultLayout` draws is searched from it, with the same keys and the same look; no screen has a search box of its
+  own. The decision and its rules:
+    - **It searches what the screen shows.** A part of the screen hands the field a *scope* through
+      `useSearchScope` (`hooks/useSearchScope.ts`): an id, the name of what is searched, the placeholder, the text
+      and where a change of it goes. The part keeps the text and filters by it, exactly as it did for a field of its
+      own — in its state, or in the `q` of the address where a link must carry the search (the projects, the
+      deployments). The scope leaves the field when the part leaves the screen, or while it passes `null`: a tab
+      that is not shown, a history that cannot be searched.
+    - **The field is drawn as the formula bar of a workbook.** A *name box* says what is searched (**Projects**,
+      **Files**, **Tables**), then comes the text, then the control of the screen; focused, the whole field wears the
+      ring of a picked cell. It takes its shape and colours from the Ant Design token alone, so it follows every
+      theme, appearance and density. On a narrow window the field shrinks before the tabs fold into their overflow,
+      and the name of the application gives way to it.
+    - **The scopes.** Each name is a key of `common:search.scopes`, so the field speaks one vocabulary.
+
+      | Screen | Scope | Searches |
+      |---|---|---|
+      | Projects | `projects` | The list, and the tree beside it, by the same text and the same fields |
+      | Deployments | `deployments` | The deployments of the repository |
+      | A project, **Files** | `files` | The file tree |
+      | A project, **Revisions** | `revisions` | The history, on the server |
+      | A project, its tree of projects | `projects-tree` | The tree; a panel, see below |
+      | A module | `tables` | The tables of the module, by name |
+      | Localization | `messages` | The keys of the rail |
+      | User guides | `guides` | The text of the guides; the results take the place of the contents |
+      | Users, Groups | `users`, `groups` | The table |
+    - **A screen with several things to search** offers them all: the name box turns into a list. The main part of
+      the screen has the field first; a panel beside it registers as `secondary` and takes the field only once the
+      reader picks it, or while the main part has nothing to search (the tree of projects on the **Overview** of a
+      project). Each scope keeps its own text. A panel that shows what the main part shows is no scope of its own:
+      the tree of the projects page is narrowed by the text of the list (`search` of `ProjectsTree`). Both find a
+      project by its name, author, branch and tags (`projectMatches`), and the tree keeps a group whole when its
+      own name holds the text.
+    - **The control of the screen** is one icon at the end of the field (`action` of the scope). It is either
+      pressed, with the text typed so far — **Extended search** of a module, which opens `TableSearchModal` on that
+      text — or opens a list of places to look in — the guide to search. The first place of a list is the widest;
+      any other colours the icon, and the scope names it in the name box, so a narrowed search is told at a glance.
+      What a screen filters by besides the text — the grouping of a tree, the technical revisions — stays on the
+      screen, beside what it filters.
+    - **A screen with nothing to search** searches the projects: the field is never missing and never disabled.
+      Nothing happens until Enter, which opens the projects list with the text (`/projects?q=…`); the field shows
+      the Enter key once there is a text to send. Enter belongs to a scope that asks for it (`onEnter`), so the
+      field knows the fallback by what it does, not by its id.
+    - **Keys.** `/` brings the caret to the field from anywhere outside a text field and a dialog, and the field
+      shows that key while it is empty. A `/` the screen took already (`defaultPrevented`) stays with it: typing on a
+      picked cell of a table opens the cell with that character. Escape clears the text, then leaves the field. Enter acts only on a screen with nothing to
+      search: every scope filters as the reader types, the part debouncing what costs a request.
+    - **What is typed wins while the caret is in the field.** The text of a scope comes back from its screen a
+      render later, and from an address later still, so the field shows its own draft while it has the caret and
+      the text of the screen otherwise — on a blur, on another scope, and when the screen changes the text itself
+      (**Clear search**). A caret that comes back goes on from the text of the screen, not from what was typed
+      before it left. Pressing the control of the screen leaves the caret in the field, so the control is handed
+      the text just typed. A key an input method takes to compose a text — Enter that confirms a word, Escape that
+      cancels it — is left to the input method.
+    - **A search that stays where it is.** The header is out of reach behind a dialog, a dropdown and a popover, and
+      a window without the header has none: the filter of a switcher (`CrumbSwitcher`), of a column, of the table
+      graph, the fields of the extended search and the windows of the trace, the comparison and the execution
+      results keep a field of their own, drawn with `components/SearchInput`. A part shown both ways says which it
+      is: `RevisionsPanel` is searched from the header on the tab of a project (`headerSearch`) and by its own box
+      in the dialog of the module editor.
+    - **Adding a search to a screen** is a call of `useSearchScope` and a name in `common:search.scopes` — never an
+      input. The part that keeps the text registers the scope, not a control drawn beside it: the Files tab is
+      searched through `ProjectDetail`, which holds the filter, so a reader who cannot change the files, and sees no
+      toolbar, still searches them. The store (`store/searchStore.ts`) is imported from its own module, not through `store`, which many
+      tests mock whole. The field takes the texts it draws from the store and calls the handlers of the latest
+      render, so a screen may hand it new functions on every render at no cost.
+    - **Tests** render a screen without the header and drive the search through `src/testing/search.ts`:
+      `searchFor(text)` types, `searchScope(id)` reads what the screen offered, `pressSearchAction()` and
+      `chooseInSearch(value)` work the control, and `searchScopeOf(id)` builds a scope for a test of the field. `HeaderSearch.test.tsx` covers the field itself.
 
 ## Development
 
@@ -376,6 +448,9 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   `/docs` and the lists of third-party libraries served at `/licenses`.
 - Guard screens with `PermissionContext` and `SystemContext` flags.
 - Add translations from day one — no hardcoded user-facing strings.
+- **No search box on a screen.** A screen under the header is searched from the header: hand the field a scope
+  with `useSearchScope` instead of drawing an input. Only a dialog, a dropdown, a popover and a window without the
+  header keep a field of their own (`SearchInput`). See **One search, in the header** under Key Patterns.
 - **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token
   (`createStyles(({ token }) => ...)`), or, for an OpenL hue with no token, `LIST_PAGE_COLORS` from
   `styles/listPageTheme.ts`. Its values are `var(--openl-*)` custom properties that `AppStyles` republishes when the

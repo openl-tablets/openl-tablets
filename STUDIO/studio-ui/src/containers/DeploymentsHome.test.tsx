@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeploymentsHome } from './DeploymentsHome'
 import { getDeployments, getProductionRepositories } from '../services/deployments'
+import { searchFor } from '../testing/search'
 
 const navigate = vi.fn()
 
@@ -82,8 +83,6 @@ vi.mock('antd', () => {
 })
 
 vi.mock('@ant-design/icons', () => ({
-    // The shared search input carries its own icon.
-    SearchOutlined: () => <span>search</span>,
 }))
 
 const repositories = [
@@ -170,7 +169,7 @@ describe('DeploymentsHome', () => {
         vi.mocked(getDeployments).mockImplementation(async () => deployments)
         await userEvent.click(screen.getByText('UAT'))
         await screen.findByText('Benefits')
-        await userEvent.type(screen.getByTestId('deployments-search'), 'nothing-matches')
+        searchFor('nothing-matches')
 
         expect(screen.getByTestId('deployments-no-match')).toBeInTheDocument()
 

@@ -55,7 +55,7 @@ i18next.addResourceBundle('en', 'repository', {
             show_panel: 'Show the panel',
             hide_panel: 'Hide the panel',
             empty: 'No projects to show',
-            search_placeholder: 'Search the tree',
+            search_placeholder: 'Find a project in the tree',
             no_match: 'Nothing matches the search',
             filtered: 'The tree shows only the projects the filters select',
         },

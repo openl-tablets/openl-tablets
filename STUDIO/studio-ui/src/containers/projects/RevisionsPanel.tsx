@@ -7,6 +7,7 @@ import { App, Button, Empty, Skeleton, Space, Switch, Tag, Tooltip, Typography }
 import { CheckCircleFilled, DownOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { SearchInput } from '../../components/SearchInput'
+import { useSearchScope } from '../../hooks/useSearchScope'
 import {
     getProjectRevisions,
     isProjectModifiedConflict,
@@ -216,6 +217,11 @@ interface RevisionsPanelProps {
     /** The branch the history is on, or nothing in a repository without branches. */
     branch?: string | null | undefined
     searchable?: boolean | undefined
+    /**
+     * Whether the history is searched from the search of the header, as a tab of a screen is. A dialog leaves it
+     * out and keeps a search box of its own: the header is out of reach behind it.
+     */
+    headerSearch?: boolean | undefined
     onOpened: () => void
     /**
      * Runs the opening after asking whatever has to be asked first; absent where nothing has to be.
@@ -250,6 +256,7 @@ export const RevisionsPanel = ({
     currentRevision,
     branch,
     searchable = true,
+    headerSearch = false,
     onOpened,
     beforeOpen,
     reloadToken,
@@ -279,7 +286,17 @@ export const RevisionsPanel = ({
         page,
     }), [appliedSearch, searchable, techRevs])
 
-    // Debounce the search box so typing does not fire a request per keystroke.
+    useSearchScope(searchable && headerSearch
+        ? {
+            id: 'revisions',
+            label: t('common:search.scopes.revisions'),
+            onChange: setSearch,
+            placeholder: t('browser.history.search'),
+            value: search,
+        }
+        : null)
+
+    // Debounce the search so typing does not fire a request per keystroke.
     useEffect(() => {
         const id = setTimeout(() => setAppliedSearch(search), 300)
         return () => clearTimeout(id)
@@ -426,14 +443,16 @@ export const RevisionsPanel = ({
         <div className={styles.filters}>
             {searchable && (
                 <>
-                    <SearchInput
-                        className={styles.search}
-                        data-testid={`revisions-search-${projectId}`}
-                        onChange={event => setSearch(event.target.value)}
-                        placeholder={t('browser.history.search')}
-                        size="small"
-                        value={search}
-                    />
+                    {!headerSearch && (
+                        <SearchInput
+                            className={styles.search}
+                            data-testid={`revisions-search-${projectId}`}
+                            onChange={event => setSearch(event.target.value)}
+                            placeholder={t('browser.history.search')}
+                            size="small"
+                            value={search}
+                        />
+                    )}
                     <label className={styles.techToggle}>
                         <Switch checked={techRevs} data-testid="revisions-tech" onChange={setTechRevs} size="small" />
                         {t('browser.history.tech_revs')}

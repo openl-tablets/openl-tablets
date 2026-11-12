@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { KeyRail } from './KeyRail'
+import { searchFor } from '../../testing/search'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -51,10 +52,10 @@ describe('KeyRail', () => {
     it('searches the keys it holds by a piece of their names, in any case', () => {
         render(<Rail keys={['order.total', 'order.tax', 'greeting']} />)
 
-        fireEvent.change(screen.getByTestId('localization-search'), { target: { value: ' ORDER.T ' } })
+        searchFor(' ORDER.T ')
         expect(titles()).toEqual(['all_messages', 'order.total', 'order.tax'])
 
-        fireEvent.change(screen.getByTestId('localization-search'), { target: { value: '' } })
+        searchFor('')
         expect(titles()).toEqual(['all_messages', 'order.total', 'order.tax', 'greeting'])
     })
 })

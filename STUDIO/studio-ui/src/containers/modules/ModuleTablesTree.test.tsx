@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable } from 'types/tables'
 import { ModuleTablesTree } from './ModuleTablesTree'
+import { pressSearchAction, searchFor } from '../../testing/search'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -52,12 +53,12 @@ describe('ModuleTablesTree', () => {
         rail({ onExtendedSearch, selectedTableId: 'two', tables: shown })
         expect(screen.getByText('Premium')).toBeInTheDocument()
 
-        await userEvent.type(screen.getByTestId('module-tables-search'), 'greet')
+        searchFor('greet')
 
         // The tables are already in the browser, so the search costs no request.
         expect(screen.queryByText('Premium')).toBeNull()
 
-        await userEvent.click(screen.getByTestId('module-tables-search-extended'))
+        pressSearchAction()
 
         // Anything wider than a name is the extended search's to ask the server, and it starts from what was typed.
         expect(onExtendedSearch).toHaveBeenCalledWith('greet')
@@ -67,8 +68,8 @@ describe('ModuleTablesTree', () => {
         const onExtendedSearch = vi.fn()
         rail({ onExtendedSearch })
 
-        await userEvent.type(screen.getByTestId('module-tables-search'), ' greet ')
-        await userEvent.click(screen.getByTestId('module-tables-search-extended'))
+        searchFor(' greet ')
+        pressSearchAction()
 
         expect(onExtendedSearch).toHaveBeenCalledWith(' greet ')
     })
@@ -120,7 +121,7 @@ describe('ModuleTablesTree', () => {
     it('says when nothing in the module answers the search', async () => {
         rail()
 
-        await userEvent.type(screen.getByTestId('module-tables-search'), 'nothing here')
+        searchFor('nothing here')
 
         expect(screen.getByTestId('module-tables-empty')).toHaveTextContent('browser.module.no_match')
     })
