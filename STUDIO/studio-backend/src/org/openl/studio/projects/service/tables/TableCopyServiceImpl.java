@@ -203,8 +203,10 @@ public class TableCopyServiceImpl implements TableCopyService {
         if (type != XlsNodeTypes.XLS_ENVIRONMENT) {
             header = rename(node.getHeaderLineValue().getValue(), source.getName(), newName,
                     type == XlsNodeTypes.XLS_OTHER);
-            headerStyle = original.getCell(0, 0).getStyle();
-            bodyStartRow = TableBuilder.HEADER_HEIGHT;
+            var headerCell = original.getCell(0, 0);
+            headerStyle = headerCell.getStyle();
+            // A header merged over several rows is written as one row: none of its rows belongs to the body.
+            bodyStartRow = headerCell.getHeight();
             // Replace the source's properties when the request carries them; keep them (copied with the body) otherwise.
             if (declared != null) {
                 newProperties = declared;
