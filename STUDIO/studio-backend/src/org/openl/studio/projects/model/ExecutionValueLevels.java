@@ -28,6 +28,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetCell;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.range.Range;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 
 /**
@@ -76,13 +77,14 @@ public class ExecutionValueLevels {
      * Whether the object mapper writes a value as one that opens into lines.
      *
      * <p>A spreadsheet result, an array, a collection, a map and a value the object mapper writes as a bean open into
-     * lines. Anything else is written as a plain value, and so is an error.
+     * lines. Anything else is written as a plain value, and so are an error and a range: a range reads as one text,
+     * such as {@code [1..5]}, the way a table cell shows it.
      *
      * @param objectMapper what the value is written with
      * @param value        the value
      */
     public static boolean opensIntoLines(ObjectMapper objectMapper, @Nullable Object value) {
-        if (value == null || value instanceof Throwable) {
+        if (value == null || value instanceof Throwable || value instanceof Range<?>) {
             return false;
         }
         if (value instanceof SpreadsheetResult || value instanceof Collection<?> || value instanceof Map<?, ?>) {
@@ -350,12 +352,23 @@ public class ExecutionValueLevels {
     }
 
     private JsonNode plain(@Nullable Object value) {
+        return plain(objectMapper, value);
+    }
+
+    /**
+     * Writes a value that opens into no lines.
+     *
+     * @param objectMapper what the value is written with
+     * @param value        the value, one {@link #opensIntoLines(ObjectMapper, Object)} answers {@code false} for
+     */
+    public static JsonNode plain(ObjectMapper objectMapper, @Nullable Object value) {
         if (value == null) {
             return NullNode.getInstance();
         }
-        // An error is written the way the case reports it, not as everything the exception holds.
-        return value instanceof Throwable error
-                ? TextNode.valueOf(String.valueOf(error))
+        // An error is written the way the case reports it, not as everything the exception holds, and a range as
+        // the text of its bounds, not as the bean of them.
+        return value instanceof Throwable || value instanceof Range<?>
+                ? TextNode.valueOf(String.valueOf(value))
                 : objectMapper.valueToTree(value);
     }
 
