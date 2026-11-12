@@ -26,7 +26,11 @@ Each event shows the following:
 - **Signed in with** — how the user signed in, or tried to: **Login form**, **Basic authentication**, **Personal
   access token**, **Bearer token**, **OpenID Connect** or **SAML**. So an action a script or an agent did with a token
   tells so. An action that goes on after its request is answered tells it only for a token, OpenID Connect or SAML.
-- **Action** — what was done.
+- **Action** — what was done, in the colour of what it did. A change is marked as the changes in the details are:
+  `+` on green when it created or gave something, `-` on red when it deleted or took something away, and `~` on
+  yellow when it changed something; pointing at a mark names it. An action that changes nothing has no mark: a
+  sign-in, a session started and a start or restart of OpenL Studio are blue, a sign-out, a session ended and a stop
+  are grey, a read of the log is cyan, and a refused request or a bypassed branch protection is magenta.
 - **Outcome** — **Success**, **Failure** when the action failed, such as a sign-in with a wrong password, or
   **Denied** when it was refused for lack of permission.
 - **Object** — what the action was done to.
