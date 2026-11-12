@@ -3,7 +3,7 @@ import { errorMessage } from '../utils/errorMessage'
 import { creatableRepositories } from '../utils/repositoryFeatures'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { App, Alert, Button, Empty, Pagination, Skeleton, Spin, type InputRef } from 'antd'
+import { App, Alert, Button, Empty, Pagination, Skeleton, Spin } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
@@ -46,6 +46,7 @@ import {
 } from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
+import { useSearchScope } from '../hooks/useSearchScope'
 import { COMPILE_COLORS } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { BusyVeil } from './projects/BusyVeil'
@@ -104,7 +105,7 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: 0;
         font-size: ${token.fontSizeSM}px;
     `,
-    /** Keeps the indexing notice off the search box below it, in the header's own rhythm. */
+    /** The indexing notice closes the header of the page, under its title row. */
     indexingBanner: css`
         margin-bottom: ${token.marginSM}px;
     `,
@@ -239,7 +240,6 @@ export const ProjectsHome = () => {
     const [pending, setPending] = useState<Record<string, RowBusyId>>({})
     const [saveTarget, setSaveTarget] = useState<Project | null>(null)
     const [discardCloseTarget, setDiscardCloseTarget] = useState<Project | null>(null)
-    const searchRef = useRef<InputRef>(null)
     // Bumped on every load so a stale response never overwrites a fresher one.
     const loads = useLoadGeneration()
     // When each project's compile status last arrived by push — a load never overwrites a fresher push.
@@ -465,22 +465,14 @@ export const ProjectsHome = () => {
         }
     }, [loading, requestedPage, setParam, totalPages, totalProjects])
 
-    // "/" puts the caret in the search box, unless the user is already typing somewhere.
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
-                return
-            }
-            const target = event.target as HTMLElement | null
-            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
-                return
-            }
-            event.preventDefault()
-            searchRef.current?.focus()
-        }
-        window.addEventListener('keydown', onKeyDown)
-        return () => window.removeEventListener('keydown', onKeyDown)
-    }, [])
+    // The list is searched from the header; the text lives in the address, so a link carries it.
+    useSearchScope({
+        id: 'projects',
+        label: t('common:search.scopes.projects'),
+        onChange: value => setParam('q', value, true),
+        placeholder: t('home.search_placeholder'),
+        value: search,
+    })
 
     const localRepositoryInfo = useMemo<RepositoryInfo>(
         () => ({ features: { branches: false, searchable: false, mappedFolders: false }, name: t('home.local'), type: 'repo-file' }),
@@ -816,6 +808,7 @@ export const ProjectsHome = () => {
                 projects={loading && allProjects.length === 0 ? null : allProjects}
                 reloadToken={reloadToken}
                 repositories={repositories}
+                search={debouncedSearch}
                 filterView={headerActions => renderFilterRail({
                     headerActions,
                     onClearFilters: resetFilters,
@@ -865,8 +858,14 @@ export const ProjectsHome = () => {
                                 </span>
                             </div>
                         </div>
-                        {creatableRepos.length > 0 && (
-                            <div className={shared.headActions}>
+                        <div className={shared.headActions}>
+                            <ProjectsToolbar
+                                onSort={sortBy}
+                                onView={value => setParam('view', value === 'list' ? null : value)}
+                                sort={sort ?? 'name'}
+                                view={view}
+                            />
+                            {creatableRepos.length > 0 && (
                                 <Button
                                     data-testid="projects-new"
                                     icon={<PlusOutlined />}
@@ -875,8 +874,8 @@ export const ProjectsHome = () => {
                                 >
                                     {t('browser.new_project')}
                                 </Button>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                     {showIndexingNote && indexingShown && (
                         <Alert
@@ -888,15 +887,6 @@ export const ProjectsHome = () => {
                             type="info"
                         />
                     )}
-                    <ProjectsToolbar
-                        onSearch={value => setParam('q', value, true)}
-                        onSort={sortBy}
-                        onView={value => setParam('view', value === 'list' ? null : value)}
-                        search={search}
-                        searchRef={searchRef}
-                        sort={sort ?? 'name'}
-                        view={view}
-                    />
                 </div>
                 <div className={cx(shared.content, styles.content)}>
                     <div className={styles.scroll}>{content()}</div>

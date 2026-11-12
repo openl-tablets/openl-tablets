@@ -34,8 +34,8 @@ The **Projects** page lists the projects of the user's workspace and of Design r
 The page consists of the following parts:
 
 -   **Filters** and **Tree** views on the left narrow the list down and group it, as described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree).
--   The search box finds projects by name, author, branch or tag.
--   The **List** and **Grid** buttons next to the search box switch between a table and cards.
+-   The search field of the top bar, named **Projects** on this page, finds projects by name, author, branch or tag. For more information, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
+-   The **List** and **Grid** buttons next to **New Project** switch between a table and cards.
 -   **New Project** creates a project as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
 -   The list shows the projects of all repositories in one alphabetical list. A row shows the project name with its tags, the branch it is on, who modified it and when, and the actions available for it.
 
@@ -147,14 +147,17 @@ While the filters are arranged, each group shows only its title:
 
 #### Browsing the Project Tree
 
-The **Tree** view shows the projects that the **Filters** view selects, the same ones the list shows, as a tree. Its own
-search box narrows the tree by name and leaves the list as it is.
+The **Tree** view shows the projects that the **Filters** view selects, the same ones the list shows, as a tree. The
+search field of the top bar narrows the tree and the list by the same text: a project is found by its name, author,
+branch or tag. The tree also keeps a group whose name holds the text, with all its projects.
 
 -   Selecting a group, such as a repository or a tag value, sets its filters: the list shows the projects of the group,
     and the tree narrows to it until the filters are cleared.
 -   Selecting a project opens it, and expanding a project lists its files.
 -   On a project page, the panel shows the **Tree** view only. The tree applies the filters last used on the Projects
-    list and always shows the project being viewed.
+    list and always shows the project being viewed. To search it, click the name at the start of the search field
+    of the top bar and select **Projects**; on a tab with nothing of its own to search, the field searches the tree
+    already.
 
 To group projects by repository, branch or tag types, click **Group projects** ![](images/group-projects-icon.png) and
 select up to three levels. Tag values used for grouping are taken from the most recent version of a project, so after
@@ -169,7 +172,7 @@ While any filter is picked, the **Filters** and **Tree** views show **Clear filt
 In the **Tree** view, the button also tells that the tree is filtered.
 
 -   **Clear filters** removes the status, repository, branch and tag picks and forgets the group selected in the tree,
-    returning both views to the default-branch view. The search boxes keep their text.
+    returning both views to the default-branch view. The search field keeps its text.
 -   When the filters hide every project, the list offers **Clear all filters**, which clears the search as well.
 
 ![The Tree view narrowed to a picked group, with Clear filters under its title](images/projects-tree-filtered.png "Clearing the filters of the project tree")
@@ -462,10 +465,10 @@ If the user tries to modify an old revision of the project in the editor, the sy
 
 Revisions can also be accessed through the editor by selecting **More \> Revisions** for a project.
 
-The features **Show technical revisions** and **Search history** are available in OpenL Studio when the repository type is Git.<br/>
+The **Show technical revisions** toggle and the search of revisions are available in OpenL Studio when the repository type is Git.<br/>
 The **Show technical revisions** toggle, when on, allows users to see revisions that are not directly related to the current project (for example, changes related to code updates or changes in other projects).<br/>
 A revision that changes only the files the system settings ignore, such as a version bump in the `pom.xml` of the project made by a CI pipeline, is a technical revision too. A revision that changes any other file of the project is not. The project stands on its latest revision that is not technical, so the history always marks it as current. For more information on ignored files, see [Managing System Settings](administration/02-system-settings.md).<br/>
-The **Search history** field helps users quickly locate specific revisions by searching through the comments, modified by, and revision IDs.
+On the **Revisions** tab, the search field of the top bar is named **Revisions** and helps users quickly locate specific revisions by searching through the comments, modified by, and revision IDs. The **Revisions** window of the editor has a search field of its own.
 
 ### Closing a Project
 
@@ -702,7 +705,7 @@ This section describes modifying the physical structure of the project in the **
 -   [Renaming, Moving and Copying a File](#renaming-moving-and-copying-a-file)
 -   [Deleting a Folder or a File](#deleting-a-folder-or-a-file)
 
-The **Files** tab shows the folders and files of the project as a tree, with the size of every file. The search box above the tree filters it by name. Select a file to view it, or a folder to see the actions available for it, in the pane on the right.
+The **Files** tab shows the folders and files of the project as a tree, with the size of every file. The search field of the top bar, named **Files** on this tab, filters the tree by name. Select a file to view it, or a folder to see the actions available for it, in the pane on the right.
 
 ![The Files tab of a project with a text file selected](images/project-files-tab.png "The Files tab of a project")
 
@@ -1065,10 +1068,10 @@ project stays on the revision it is open on. The same works in the editor throug
 To compare two revisions, proceed as follows:
 
 1.  On the **Revisions** tab of the project, click the marker of the first revision on the timeline at the left of
-    the list. The marker turns into a check mark, and the line of the search field asks for one more revision.
+    the list. The marker turns into a check mark, and the line above the list asks for one more revision.
 2.  Click the marker of the second revision. A click on a marked revision lets it go; while two revisions are
     marked, the others cannot be marked until one of the two is let go.
-3.  Click **Compare Revisions** at the end of the line of the search field. **Clear** lets both revisions go.
+3.  Click **Compare Revisions** at the end of the line above the list. **Clear** lets both revisions go.
 
     The comparison window opens with the name of the project and the two revisions side by side, the earlier one
     first, whatever order they were marked in. Each revision shows its comment, its author, its date and its number.
@@ -1196,7 +1199,7 @@ To browse a deployment repository, proceed as follows:
 1.  Click **Deployments** in the top bar.
 2.  In the **Repositories** panel, select the deployment repository to be browsed.
 
-    The deployments of the selected deployment repository are listed on the right. The search box above the list finds a deployment by name.
+    The deployments of the selected deployment repository are listed on the right. The search field of the top bar, named **Deployments** on this page, finds a deployment by name.
 
     ![The Deployments page](images/deployments-page.png "The Deployments page")
 

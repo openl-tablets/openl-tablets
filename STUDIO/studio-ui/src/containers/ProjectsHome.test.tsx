@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
@@ -10,6 +10,7 @@ import { notification } from 'antd'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { openCompareWindow } from './projects/compare'
 import { saveProjectFilters } from './projects/filterStorage'
+import { searchFor, searchScope } from '../testing/search'
 
 const { copyModalMock, navigateMock, treeMock, liveHandlers } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
@@ -529,19 +530,21 @@ describe('ProjectsHome', () => {
     it('filters rows by the search text', async () => {
         await renderHome()
 
-        await userEvent.type(screen.getByTestId('projects-search'), 'alp')
+        searchFor('alp')
         await flushSearch()
 
         expect(screen.getByTestId('project-row-p1')).toBeTruthy()
         expect(screen.queryByTestId('project-row-p2')).toBeNull()
     })
 
-    it('focuses the search box on the / shortcut', async () => {
+    it('hands the search of the list to the header', async () => {
         await renderHome()
 
-        fireEvent.keyDown(window, { key: '/' })
-
-        expect(document.activeElement).toBe(screen.getByTestId('projects-search'))
+        expect(searchScope('projects')).toMatchObject({
+            label: 'common:search.scopes.projects',
+            placeholder: 'home.search_placeholder',
+            value: '',
+        })
     })
 
     it('filters rows by repository from the rail', async () => {
@@ -568,7 +571,7 @@ describe('ProjectsHome', () => {
         await renderHome()
 
         await userEvent.click(screen.getByTestId('filter-status-CLOSED'))
-        await userEvent.type(screen.getByTestId('projects-search'), 'nothing-matches-this')
+        searchFor('nothing-matches-this')
         await flushSearch()
 
         // Zero matches everywhere, but the ticked state must stay so it can be unticked.
@@ -597,7 +600,7 @@ describe('ProjectsHome', () => {
         await userEvent.click(screen.getByTestId('filter-repo-ro'))
         await waitFor(() => expect(screen.queryByTestId('project-row-p1')).toBeNull())
 
-        await userEvent.type(screen.getByTestId('projects-search'), 'p')
+        searchFor('p')
         await flushSearch()
 
         // Filtering and searching are answered from the snapshot: no second read.
@@ -719,7 +722,7 @@ describe('ProjectsHome', () => {
         await renderHome()
         expect(screen.queryByTestId('projects-filter-clear')).toBeNull()
 
-        await userEvent.type(screen.getByTestId('projects-search'), 'a')
+        searchFor('a')
         await flushSearch()
         await userEvent.click(screen.getByTestId('filter-repo-ro'))
         await waitFor(() => expect(screen.queryByTestId('project-row-p1')).toBeNull())
@@ -728,7 +731,7 @@ describe('ProjectsHome', () => {
 
         await screen.findByTestId('project-row-p1')
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
-        expect(screen.getByTestId('projects-search')).toHaveValue('a')
+        expect(searchScope('projects').value).toBe('a')
         expect(screen.queryByTestId('projects-filter-clear')).toBeNull()
     })
 
@@ -747,6 +750,22 @@ describe('ProjectsHome', () => {
 
         expect(navigateMock).toHaveBeenCalledWith('/projects/p2')
         expect(stored).toBe('ro')
+    })
+
+    it('narrows the tree beside the list by the text the list is searched by', async () => {
+        await renderHome()
+
+        try {
+            await userEvent.click(screen.getByText('tree'))
+            expect((treeMock.mock.lastCall![0] as { search: string }).search).toBe('')
+
+            searchFor('alp')
+            await flushSearch()
+
+            expect((treeMock.mock.lastCall![0] as { search: string }).search).toBe('alp')
+        } finally {
+            localStorage.removeItem('openl.projects.rail')
+        }
     })
 
     it('hands the tree beside the list the picks of the Filters view, and clears them from it', async () => {
@@ -773,7 +792,7 @@ describe('ProjectsHome', () => {
     it('offers a reset button that clears all filters when they hide every project', async () => {
         await renderHome()
 
-        await userEvent.type(screen.getByTestId('projects-search'), 'nothing-matches-this')
+        searchFor('nothing-matches-this')
         await flushSearch()
         expect(screen.getByTestId('projects-no-match')).toBeTruthy()
 
@@ -789,7 +808,7 @@ describe('ProjectsHome', () => {
         await renderHome()
 
         // A lingering filter cannot reveal anything when there is nothing to reveal.
-        await userEvent.type(screen.getByTestId('projects-search'), 'anything')
+        searchFor('anything')
         await flushSearch()
 
         expect(screen.getByTestId('projects-empty')).toBeTruthy()
@@ -882,7 +901,7 @@ describe('ProjectsHome', () => {
         })
         await renderHome()
 
-        await userEvent.type(screen.getByPlaceholderText('home.search_placeholder'), 'nothing-matches-this')
+        searchFor('nothing-matches-this')
 
         // The indexing state must not stand in for "your filter hid everything", or the screen reads as a hang.
         expect(await screen.findByTestId('projects-no-match')).toBeTruthy()

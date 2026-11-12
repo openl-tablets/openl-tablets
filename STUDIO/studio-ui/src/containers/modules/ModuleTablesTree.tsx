@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Checkbox, Empty, Input, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
+import { Button, Checkbox, Empty, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
 import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
@@ -19,6 +19,7 @@ import {
 } from './tableGrouping'
 import { versionLabel } from '../../utils/tableVersion'
 import { useDateFormats } from '../../utils/dateFormat'
+import { useSearchScope } from '../../hooks/useSearchScope'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
@@ -28,10 +29,6 @@ const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
 const WIDTH = { min: 180, max: 640, fallback: 256 }
 
 const useStyles = createStyles(({ css, token }) => ({
-    /** The search, and under it the grouping with its filter beside it, as the Editor kept them, set apart. */
-    control: css`
-        margin-top: 8px;
-    `,
     /**
      * A table switched off by its `active` property is written in the module but takes no part in the rules.
      * The Editor drew it faint, and the rail keeps that: the row is read as present but out of play.
@@ -206,7 +203,7 @@ export const ModuleTablesTree = ({
     reloading,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
     const { styles: shared } = useSharedStyles()
     const [view, setView] = useState<TableView>(loadView)
     const [expanded, setExpanded] = useState<string[]>([])
@@ -214,9 +211,21 @@ export const ModuleTablesTree = ({
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
     const [filterOpen, setFilterOpen] = useState(false)
     const [draftOther, setDraftOther] = useState(showOther)
-    // The rail searches what it shows, by name: the tables of this module are already in the browser, so the
-    // search costs no request. Everything wider than a name — a header, the text in the cells, another module —
-    // is what the extended search asks the server for.
+    // The header searches what the rail shows, by name: the tables of this module are already in the browser,
+    // so the search costs no request. Everything wider than a name — a header, the text in the cells, another
+    // module — is what the extended search asks the server for, opened from the same field.
+    useSearchScope({
+        id: 'tables',
+        label: t('common:search.scopes.tables'),
+        onChange: setSearch,
+        placeholder: t('browser.module.search_placeholder'),
+        value: search,
+        action: {
+            icon: <FilterOutlined />,
+            label: t('browser.module.search_extended'),
+            onClick: onExtendedSearch,
+        },
+    })
     // A version is labelled by the dates it is told by, in the formats of the reader.
     const dateFormats = useDateFormats()
     const shown = useMemo(() => {
@@ -308,54 +317,31 @@ export const ModuleTablesTree = ({
                 width={WIDTH}
                 widthKey={WIDTH_STORAGE_KEY}
                 top={(
-                    <>
-                        <Input
-                            allowClear
-                            className={styles.control}
-                            data-testid="module-tables-search"
-                            onChange={event => setSearch(event.target.value)}
-                            placeholder={t('browser.module.search_placeholder')}
+                    <Space.Compact block className={shared.compactField}>
+                        <Select
+                            data-testid="module-tables-view"
+                            options={viewOptions}
                             size="small"
-                            value={search}
-                            suffix={(
-                                <Tooltip title={t('browser.module.search_extended')}>
-                                    <Button
-                                        aria-label={t('browser.module.search_extended')}
-                                        data-testid="module-tables-search-extended"
-                                        icon={<FilterOutlined />}
-                                        onClick={() => onExtendedSearch(search)}
-                                        size="small"
-                                        type="text"
-                                    />
-                                </Tooltip>
-                            )}
+                            value={view}
+                            onChange={chosen => {
+                                setView(chosen)
+                                saveView(chosen)
+                            }}
                         />
-                        <Space.Compact block className={cx(shared.compactField, styles.control)}>
-                            <Select
-                                data-testid="module-tables-view"
-                                options={viewOptions}
+                        <Tooltip title={t('browser.module.filter')}>
+                            <Button
+                                aria-label={t('browser.module.filter')}
+                                data-testid="module-tables-filter"
+                                disabled={reloading || tables === null}
+                                icon={<SlidersOutlined />}
                                 size="small"
-                                value={view}
-                                onChange={chosen => {
-                                    setView(chosen)
-                                    saveView(chosen)
+                                onClick={() => {
+                                    setDraftOther(showOther)
+                                    setFilterOpen(true)
                                 }}
                             />
-                            <Tooltip title={t('browser.module.filter')}>
-                                <Button
-                                    aria-label={t('browser.module.filter')}
-                                    data-testid="module-tables-filter"
-                                    disabled={reloading || tables === null}
-                                    icon={<SlidersOutlined />}
-                                    size="small"
-                                    onClick={() => {
-                                        setDraftOther(showOther)
-                                        setFilterOpen(true)
-                                    }}
-                                />
-                            </Tooltip>
-                        </Space.Compact>
-                    </>
+                        </Tooltip>
+                    </Space.Compact>
                 )}
             >
                 {room => (

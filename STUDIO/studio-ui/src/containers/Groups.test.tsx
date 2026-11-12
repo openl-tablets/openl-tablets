@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GroupsContext } from 'contexts/GroupsContext'
+import { searchFor, searchScope } from '../testing/search'
 
 vi.mock('services', async () => ({
     apiCall: vi.fn(),
@@ -86,13 +87,18 @@ describe('Groups', () => {
         expect(screen.getByText('Viewers')).toBeInTheDocument()
     })
 
-    it('lays out the Default Group info and the search field in equal halves', async () => {
+    it('hands the search of the groups to the header, and keeps no search box of its own', async () => {
         await act(async () => {
             renderGroups()
         })
 
-        expect(screen.getByTestId('default-group-info').closest('.ant-col')).toHaveClass('ant-col-12')
-        expect(screen.getByTestId('groups-search-input').closest('.ant-col')).toHaveClass('ant-col-12')
+        expect(screen.getByTestId('default-group-info')).toBeInTheDocument()
+        expect(searchScope('groups')).toMatchObject({
+            label: 'common:search.scopes.groups',
+            placeholder: 'groups:search_placeholder',
+            value: '',
+        })
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
 
     it('filters groups by name', async () => {
@@ -100,7 +106,7 @@ describe('Groups', () => {
             renderGroups()
         })
 
-        await userEvent.type(screen.getByTestId('groups-search-input'), 'view')
+        searchFor('view')
 
         expect(screen.getByText('Viewers')).toBeInTheDocument()
         expect(screen.queryByText('Administrators')).not.toBeInTheDocument()
@@ -134,10 +140,10 @@ describe('Groups', () => {
             renderGroups()
         })
 
-        await userEvent.type(screen.getByTestId('groups-search-input'), 'nothing-matches')
+        searchFor('nothing-matches')
         expect(screen.queryByText('Viewers')).not.toBeInTheDocument()
 
-        await userEvent.clear(screen.getByTestId('groups-search-input'))
+        searchFor('')
         expect(screen.getByText('Viewers')).toBeInTheDocument()
         expect(screen.getByText('Administrators')).toBeInTheDocument()
     })

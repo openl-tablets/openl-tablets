@@ -102,6 +102,8 @@ interface ProjectsRailBaseProps {
     initialMode?: RailMode
     /** Bumped by the screen when it changed the workspace, so the tree reads it again. */
     reloadToken?: number | undefined
+    /** The text the screen is searched by, which narrows the tree as it does the list beside it. */
+    search?: string | undefined
 }
 
 /**
@@ -132,6 +134,7 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
         filterView,
         initialMode,
         reloadToken,
+        search,
     } = props
     // Forward the projects source as one unit so its controlled/uncontrolled shape survives the hop: a
     // controlled rail always hands the tree its refresh, an uncontrolled one hands it neither.
@@ -238,6 +241,7 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
                         onShowAll={onShowAll}
                         reloadToken={reloadToken}
                         repositories={repositories}
+                        search={search}
                     />
                 )
                 : filterView(foldHandle)}

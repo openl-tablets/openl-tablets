@@ -7,6 +7,7 @@ import type { Project } from '../../types/projects'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { SystemContext } from '../../contexts'
 import { ProjectDetail } from './ProjectDetail'
+import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 
 const {
     branchSwitcherMock,
@@ -113,11 +114,10 @@ vi.mock('./FileTree', () => ({
     ),
 }))
 vi.mock('./FilesToolbar', () => ({
-    FilesToolbar: (props: { onChanged?: () => void, onFilterChange?: (value: string) => void, onCreateFolder?: (path: string) => void }) => {
+    FilesToolbar: (props: { onChanged?: () => void, onCreateFolder?: (path: string) => void }) => {
         filesToolbarMock(props)
         return (
             <div data-testid="files-toolbar">
-                <button data-testid="files-filter" onClick={() => props.onFilterChange?.('xlsx')} type="button">filter</button>
                 <button data-testid="files-changed" onClick={() => props.onChanged?.()} type="button">changed</button>
                 <button data-testid="files-create-folder" onClick={() => props.onCreateFolder?.('drafts/wip')} type="button">new folder</button>
             </div>
@@ -745,12 +745,30 @@ describe('ProjectDetail', () => {
         expect(onChanged).toHaveBeenCalled()
     })
 
-    it('updates the file filter from the toolbar', async () => {
+    it('filters the files from the search of the header while their tab is shown', () => {
         renderProjectDetail()
-        await userEvent.click(screen.getByTestId('files-filter'))
-        expect(filesToolbarMock).toHaveBeenLastCalledWith(expect.objectContaining({
-            filter: 'xlsx',
-        }))
+
+        expect(searchScope('files')).toMatchObject({
+            label: 'common:search.scopes.files',
+            placeholder: 'browser.files.search',
+            value: '',
+        })
+        searchFor('xlsx')
+        expect(searchScope('files').value).toBe('xlsx')
+    })
+
+    it('lets a reader who cannot change the files search them, with no toolbar to add any', () => {
+        renderProjectDetail({ project: { ...PROJECT, capabilities: { canWrite: false } } })
+
+        expect(screen.queryByTestId('files-toolbar')).toBeNull()
+        expect(hasSearchScope('files')).toBe(true)
+    })
+
+    it('offers the files to the search only on their tab', () => {
+        setParams('tab=overview')
+        renderProjectDetail()
+
+        expect(hasSearchScope('files')).toBe(false)
     })
 
     it('loads files when the files tab becomes visible', () => {

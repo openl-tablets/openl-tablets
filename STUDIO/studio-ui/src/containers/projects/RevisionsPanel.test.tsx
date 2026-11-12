@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { RevisionsPanel } from './RevisionsPanel'
 import { getProjectRevisions, openProjectRevision, type ProjectRevision } from '../../services/repositories'
 import { openRevisionsCompareWindow } from './compare'
+import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 
 vi.mock('../../services/repositories', () => ({
     getProjectRevisions: vi.fn(),
@@ -132,6 +133,7 @@ async function renderPanel(props: {
     currentRevision?: string | null
     onOpened?: () => void
     searchable?: boolean
+    headerSearch?: boolean
 } = {}) {
     render(
         <MemoryRouter>
@@ -140,6 +142,7 @@ async function renderPanel(props: {
                 currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
                 onOpened={props.onOpened ?? vi.fn()}
                 projectId="p1"
+                headerSearch={props.headerSearch}
                 searchable={props.searchable}
             />
         </MemoryRouter>
@@ -375,6 +378,40 @@ describe('RevisionsPanel', () => {
         ))
         await waitFor(() => expect(screen.queryByText('Second')).toBeNull())
         expect(screen.getByText('First')).toBeTruthy()
+    })
+
+    it('is searched from the header on the tab of a project, and keeps no search box of its own there', async () => {
+        await renderPanel({ headerSearch: true })
+        await waitFor(() => expect(screen.getByText('Second')).toBeTruthy())
+
+        expect(screen.queryByTestId('revisions-search-p1')).toBeNull()
+        expect(searchScope('revisions')).toMatchObject({
+            label: 'common:search.scopes.revisions',
+            placeholder: 'browser.history.search',
+        })
+        searchFor('First')
+
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith(
+            'p1',
+            expect.objectContaining({ search: 'First' })
+        ))
+        // The technical revisions stay beside the history: only the text moved to the header.
+        expect(screen.getByTestId('revisions-tech')).toBeTruthy()
+    })
+
+    it('keeps its own search box in a dialog, where the header is out of reach', async () => {
+        await renderPanel()
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
+
+        expect(screen.getByTestId('revisions-search-p1')).toBeTruthy()
+        expect(hasSearchScope('revisions')).toBe(false)
+    })
+
+    it('offers the header no search of a history that cannot be searched', async () => {
+        await renderPanel({ headerSearch: true, searchable: false })
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
+
+        expect(hasSearchScope('revisions')).toBe(false)
     })
 
     it('keeps the newest matching revision openable under a search', async () => {

@@ -79,13 +79,18 @@ export const searchProjects = (projects: Project[], query: string): Project[] =>
     if (!needle) {
         return projects
     }
-    return projects.filter(project =>
-        contains(project.name, needle)
-        || contains(project.modifiedBy, needle)
-        || contains(project.branch, needle)
-        || Object.entries(project.tags ?? {})
-            .some(([type, value]) => contains(type, needle) || contains(value, needle)))
+    return projects.filter(project => projectMatches(project, needle))
 }
+
+/**
+ * Whether the search finds the project: the text, in lower case, is in its name, its author, its current branch
+ * or any of its tags. The list and the tree of the projects find a project by the same text.
+ */
+export const projectMatches = (project: Project, needle: string): boolean =>
+    contains(project.name, needle)
+    || contains(project.modifiedBy, needle)
+    || contains(project.branch, needle)
+    || Object.entries(project.tags ?? {}).some(([type, value]) => contains(type, needle) || contains(value, needle))
 
 /** The selected tag values grouped by type — the "wanted" set the filter matches every project against. */
 const wantedTags = (tags: Set<string>): Map<string, Set<string>> => {

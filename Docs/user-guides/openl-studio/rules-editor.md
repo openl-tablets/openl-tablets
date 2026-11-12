@@ -265,7 +265,7 @@ The screen has the header of the module page: the breadcrumb switches to another
 
 The screen contains the following elements:
 
--   The left pane lists every key of the project in the order the files write them. **All Messages** opens the table of all keys, and a key opens the page of that key. **Search by key** narrows the list down to the keys whose names contain the typed text.
+-   The left pane lists every key of the project in the order the files write them. **All Messages** opens the table of all keys, and a key opens the page of that key. The search field of the top bar, named **Messages** on this screen, narrows the list down to the keys whose names contain the typed text.
 -   The table shows a row for each key and a column for each language, with the language and its file in the column title. The default language comes first, followed by the other languages by name, each regional language next to its language.
 -   A cell shows the text of the language. A language without its own text shows, in grey, the text it falls back to and where that text comes from, such as **Inherited from Default**: a regional language falls back to its language, and every language falls back to the default one. A text a project dependency defines in the same language comes before the fallback language of the project. A key that no language down to the default one has shows **Not found: the rule returns the key itself**, and so does a key written on a line without `=` or `:`, which has no text. A text left empty on purpose, such as `key =`, shows **Empty text**, and a rule that asks for it gets the empty text.
 -   The keys that only the project dependencies define have no rows of their own: they are changed in their own project.
@@ -855,11 +855,11 @@ the sheet it is written on. Save the project to carry the change to the Design r
 
 ### Searching for Tables
 
-The search field above the module tree narrows the tree down by table name, and **Extended search** looks for tables by several criteria in the current module, in the current project, or in all compiled projects, dependencies included.
+In Rules Editor, the search field of the top bar is named **Tables**. It narrows the module tree down by table name, and **Extended search**, the button at its end, looks for tables by several criteria in the current module, in the current project, or in all compiled projects, dependencies included. For more information on the search field, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
 
 #### Searching by Table Name
 
-To find a table in the module tree, start typing its name in the **Search tables by name** field above the tree. The tree shows only the tables with the typed text in their names. To get a full list of tables, delete the text in the field.
+To find a table in the module tree, start typing its name in the search field of the top bar. The tree shows only the tables with the typed text in their names. To get a full list of tables, delete the text in the field.
 
 ![](images/simple-search-field.png)
 
@@ -869,7 +869,7 @@ To find a table in the module tree, start typing its name in the **Search tables
 
 Extended search allows specifying criteria to narrow the search through tables. To limit the search, specify the table type, text from the table name, header or cells, and table properties as described further in this section.
 
-1.  To launch an extended search, click **Extended search**, the filter icon at the end of the search field.
+1.  To launch an extended search, click **Extended search**, the filter icon at the end of the search field of the top bar. The search starts from the text typed in the field.
 
     ![](images/advanced-search-initiate.png)
 

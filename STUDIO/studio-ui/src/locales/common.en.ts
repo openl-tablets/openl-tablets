@@ -64,6 +64,21 @@ i18next.addResourceBundle('en', 'common', {
         tags: 'Tags',
         mail: 'Mail',
     },
+    search: {
+        label: 'Search in {{scope}}',
+        pick_scope: 'Searching in {{scope}}. Choose what to search',
+        projects_jump: 'Find a project by name, author, branch or tag',
+        scopes: {
+            projects: 'Projects',
+            deployments: 'Deployments',
+            files: 'Files',
+            revisions: 'Revisions',
+            tables: 'Tables',
+            messages: 'Messages',
+            users: 'Users',
+            groups: 'Groups',
+        },
+    },
     theme: {
         title: 'Theme',
         light: 'Light',

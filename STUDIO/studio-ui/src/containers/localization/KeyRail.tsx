@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input, Skeleton, Tree } from 'antd'
+import { Skeleton, Tree } from 'antd'
 import type { TreeDataNode } from 'antd'
-import { SearchOutlined, TranslationOutlined } from '@ant-design/icons'
+import { TranslationOutlined } from '@ant-design/icons'
 import { ResizableRail } from '../projects/ResizableRail'
 import { useSharedStyles } from '../projects/sharedStyles'
+import { useSearchScope } from '../../hooks/useSearchScope'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
@@ -31,8 +32,8 @@ interface KeyRailProps {
  * in sight and no more, so a bundle of thousands of keys scrolls as fast as one of ten; the key on screen is brought
  * into sight.
  *
- * <p>The search narrows the keys down by a piece of their names, in any case, without asking the server: the rail
- * holds every key. The table of the keys has filters of its own, in its columns.
+ * <p>The search of the header narrows the keys down by a piece of their names, in any case, without asking the
+ * server: the rail holds every key. The table of the keys has filters of its own, in its columns.
  */
 export const KeyRail = ({ keys, selectedKey, onSelectKey }: KeyRailProps) => {
     const { t } = useTranslation('localization')
@@ -40,6 +41,13 @@ export const KeyRail = ({ keys, selectedKey, onSelectKey }: KeyRailProps) => {
     const treeRef = useRef<React.ComponentRef<typeof Tree>>(null)
     const [expanded, setExpanded] = useState<React.Key[]>([ROOT])
     const [search, setSearch] = useState('')
+    useSearchScope({
+        id: 'messages',
+        label: t('common:search.scopes.messages'),
+        onChange: setSearch,
+        placeholder: t('search_keys'),
+        value: search,
+    })
 
     const shown = useMemo(() => {
         const wanted = search.trim().toLowerCase()
@@ -69,17 +77,6 @@ export const KeyRail = ({ keys, selectedKey, onSelectKey }: KeyRailProps) => {
             testId="localization-rail"
             width={WIDTH}
             widthKey={WIDTH_STORAGE_KEY}
-            top={(
-                <Input
-                    allowClear
-                    data-testid="localization-search"
-                    onChange={event => setSearch(event.target.value)}
-                    placeholder={t('search_keys')}
-                    prefix={<SearchOutlined />}
-                    size="small"
-                    value={search}
-                />
-            )}
         >
             {/* The list draws the rows in sight only once it knows its height: before, it would draw every key. */}
             {room => (shown === null || room.height === 0

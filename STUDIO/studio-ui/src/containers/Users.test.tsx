@@ -7,6 +7,7 @@ import { GroupsContext } from 'contexts/GroupsContext'
 import { UserGroupType } from 'constants/users'
 import { formatDateTime } from 'utils/dateFormat'
 import type { MockedFunction } from 'vitest'
+import { hasSearchScope, searchFor, searchScope } from '../testing/search'
 
 vi.mock('services', async () => ({
     apiCall: vi.fn(),
@@ -205,7 +206,7 @@ describe('Users', () => {
             expect(screen.getByText('admin')).toBeInTheDocument()
         })
 
-        await userEvent.type(screen.getByTestId('users-search-input'), 'viewer@test')
+        searchFor('viewer@test')
 
         expect(screen.getByText('viewer')).toBeInTheDocument()
         expect(screen.queryByText('admin')).not.toBeInTheDocument()
@@ -294,7 +295,7 @@ describe('Users', () => {
         })
     })
 
-    it('lays out the Default Group info and the search field in equal halves', async () => {
+    it('hands the search of the users to the header, and keeps no search box of its own', async () => {
         await act(async () => {
             renderUsers()
         })
@@ -302,8 +303,21 @@ describe('Users', () => {
         await waitFor(() => {
             expect(screen.getByTestId('default-group-info')).toBeInTheDocument()
         })
-        expect(screen.getByTestId('default-group-info').closest('.ant-col')).toHaveClass('ant-col-12')
-        expect(screen.getByTestId('users-search-input').closest('.ant-col')).toHaveClass('ant-col-12')
+        expect(searchScope('users')).toMatchObject({
+            label: 'common:search.scopes.users',
+            placeholder: 'users:search_placeholder',
+            value: '',
+        })
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    })
+
+    it('takes the search back from the header once the screen is left', async () => {
+        const { unmount } = renderUsers()
+        await waitFor(() => expect(hasSearchScope('users')).toBe(true))
+
+        unmount()
+
+        expect(hasSearchScope('users')).toBe(false)
     })
 
     it('does not render DefaultGroupInfo when groups management is disabled', async () => {

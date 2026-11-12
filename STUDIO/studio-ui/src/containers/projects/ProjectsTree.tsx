@@ -16,7 +16,7 @@ import { STATUS_META } from '../../constants/projectStatusMeta'
 import { useSharedStyles } from './sharedStyles'
 import { RepoIcon } from './RepoBadge'
 import { BranchMarks } from './BranchMarks'
-import { SearchInput } from '../../components/SearchInput'
+import { useSearchScope } from '../../hooks/useSearchScope'
 import { useAppTheme } from '../../providers/AppThemeProvider'
 import {
     activeLevels,
@@ -112,9 +112,6 @@ const useStyles = createStyles(({ css, token }) => ({
     state: css`
         padding: 12px 16px;
     `,
-    search: css`
-        padding: 0 12px 8px;
-    `,
     /** The title leads back to every project, so it reads as the root of the tree. */
     title: css`
         padding: 0;
@@ -162,6 +159,11 @@ interface ProjectsTreeBaseProps {
     reloadToken?: number | undefined
     /** What the rail hangs on the header row, beside the actions of the tree itself. */
     headerActions?: ReactNode
+    /**
+     * The text the screen around the tree is searched by. A screen that has none leaves it out, and the tree
+     * offers itself to the search of the header.
+     */
+    search?: string | undefined
 }
 
 type ProjectsTreeProps = ProjectsTreeBaseProps & ProjectsSource
@@ -175,9 +177,10 @@ const NO_REPOSITORIES: Repository[] = []
 /**
  * The projects as a tree, grouped by up to three levels the user picks — a repository or a tag type.
  *
- * The tree shows the projects the Filters view selects, the same ones the list shows, without the list's search
- * and paging; its own search narrows them further. While a value is picked, a row under its title offers to clear
- * the filters.
+ * The tree shows the projects the Filters view selects, the same ones the list shows, without the list's paging.
+ * The search of the header narrows it: by the text the list beside it is searched by, or, on a screen whose main
+ * part is no list of projects, as a scope of its own. While a value is picked, a row under its title offers to
+ * clear the filters.
  *
  * The tree reads one lightweight list of projects the first time it is opened and groups it in the
  * browser, so expanding a node costs nothing and the screen around it never waits for the tree.
@@ -196,6 +199,7 @@ export const ProjectsTree = ({
     headerActions,
     projects: providedProjects,
     onRefresh,
+    search: screenSearch,
 }: ProjectsTreeProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
@@ -215,7 +219,19 @@ export const ProjectsTree = ({
         const remembered = filtered ? loadSelectedNode() : null
         return remembered ? [remembered] : []
     })
-    const [search, setSearch] = useState('')
+    const [ownSearch, setOwnSearch] = useState('')
+    const search = screenSearch ?? ownSearch
+    // Beside a screen with a search of its own the tree is a panel: it takes the field once the reader picks it.
+    useSearchScope(screenSearch === undefined
+        ? {
+            id: 'projects-tree',
+            label: t('common:search.scopes.projects'),
+            onChange: setOwnSearch,
+            placeholder: t('home.tree.search_placeholder'),
+            secondary: true,
+            value: ownSearch,
+        }
+        : null)
     const [openedOn, setOpenedOn] = useState<string | null>(null)
     // The files of the projects whose rows have been opened, read once each and kept while the tree stands.
     const [contents, setContents] = useState<Record<string, ProjectContents>>({})
@@ -690,14 +706,6 @@ export const ProjectsTree = ({
                     onClick={onClearFilters}
                 />
             )}
-            <div className={styles.search}>
-                <SearchInput
-                    data-testid="projects-tree-search"
-                    onChange={event => setSearch(event.target.value)}
-                    placeholder={t('home.tree.search_placeholder')}
-                    value={search}
-                />
-            </div>
             <div className={shared.railScroll}>{body()}</div>
             <GroupProjectsModal
                 levels={levels}

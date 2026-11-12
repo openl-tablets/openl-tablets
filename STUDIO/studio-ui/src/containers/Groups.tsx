@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { App, Alert, Button, Col, Input, Table, Row } from 'antd'
-import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons'
+import { App, Alert, Button, Row, Table } from 'antd'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { GroupItem } from '../types/group'
@@ -9,6 +9,7 @@ import { GroupMembers } from './groups/GroupMembers'
 import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
+import { useSearchScope } from '../hooks/useSearchScope'
 
 /** The members of a group, shown under its row once the row is expanded. */
 const renderMembers = (record: GroupItem) => <GroupMembers groupId={record.id} />
@@ -20,6 +21,13 @@ export const Groups: React.FC = () => {
     const { groups, loading, error, reloadGroups } = useGroups()
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
     const [searchText, setSearchText] = useState('')
+    useSearchScope({
+        id: 'groups',
+        label: t('common:search.scopes.groups'),
+        onChange: setSearchText,
+        placeholder: t('groups:search_placeholder'),
+        value: searchText,
+    })
 
     const filteredGroups = useMemo(() => {
         const needle = searchText.trim().toLowerCase()
@@ -94,22 +102,7 @@ export const Groups: React.FC = () => {
 
     return (
         <>
-            <Row align="middle" gutter={16}>
-                <Col span={12}>
-                    <DefaultGroupInfo />
-                </Col>
-                <Col span={12}>
-                    <Input
-                        allowClear
-                        data-testid="groups-search-input"
-                        onChange={(event) => setSearchText(event.target.value)}
-                        placeholder={t('groups:search_placeholder')}
-                        prefix={<SearchOutlined />}
-                        style={{ marginBottom: 16, width: '100%' }}
-                        value={searchText}
-                    />
-                </Col>
-            </Row>
+            <DefaultGroupInfo />
             {error && (
                 <Alert
                     closable

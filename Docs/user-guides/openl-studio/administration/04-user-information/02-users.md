@@ -35,9 +35,9 @@ To view a list of users, proceed as follows:
    The list is sorted by username. To sort the list by another column, click the column header. Clicking the header
    again reverses the sort order.
 
-   To find a user, start typing a username, full name, or email in the search field above the list. The list is
-   filtered as you type. The search is case-insensitive and matches any part of these values. To reset the filter,
-   clear the search field.
+   To find a user, start typing a username, full name, or email in the search field of the top bar, named **Users**
+   on this page. The list is filtered as you type. The search is case-insensitive and matches any part of these
+   values. To reset the filter, clear the search field.
 
    By default, 10 users are displayed per page. To change the number of displayed rows, select **10**, **25**, **50**,
    or **100** in the page size selector next to the pager. The pager displays the currently visible rows and the total
