@@ -1,5 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -231,6 +232,20 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     /**
+     * Reports a condition whose expression is empty. A column that declares no parameter either has reported its
+     * empty expression already.
+     */
+    private static void reportEmptyExpression(ICondition condition,
+                                              IOpenSourceCodeModule source,
+                                              IBindingContext bindingContext) {
+        if (Arrays.stream(condition.getParams()).noneMatch(param -> param.getType() == NullOpenClass.the)) {
+            BindHelper.processError("Column '%s' has no expression.".formatted(condition.getName()),
+                    source,
+                    bindingContext);
+        }
+    }
+
+    /**
      * Since version 4.0.2 the Condition can have an optimized form. In this case the Condition Expression(CE) can have
      * type that is different from boolean. For details consult DTOptimizedAlgorithm class
      * <p>
@@ -281,7 +296,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         var source = methodNode.getSyntaxNode().getModule();
         if (StringUtils.isEmpty(source.getCode())) {
-            BindHelper.processError("Cannot execute empty expression.", source, bindingContext);
+            reportEmptyExpression(condition, source, bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
 
