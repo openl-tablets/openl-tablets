@@ -76,10 +76,6 @@ Content-Type: application/json
         "value": "Colombie-Britannique"
       },
       {
-        "code": "PE",
-        "value": "Île-du-Prince-Édouard"
-      },
-      {
         "code": "MB",
         "value": "Manitoba"
       },
@@ -112,12 +108,16 @@ Content-Type: application/json
         "value": "Terre-Neuve-et-Labrador"
       },
       {
+        "code": "NT",
+        "value": "Territoires du Nord-Ouest"
+      },
+      {
         "code": "YT",
         "value": "Yukon"
       },
       {
-        "code": "NT",
-        "value": "Territoires du Nord-Ouest"
+        "code": "PE",
+        "value": "Île-du-Prince-Édouard"
       }
     ]
   },
@@ -132,12 +132,12 @@ Content-Type: application/json
     "pattern": null,
     "values": [
       {
-        "code": "QC",
-        "value": "Québec"
-      },
-      {
         "code": "HQ",
         "value": "Hors Québec"
+      },
+      {
+        "code": "QC",
+        "value": "Québec"
       }
     ]
   },
@@ -163,72 +163,64 @@ Content-Type: application/json
     "pattern": null,
     "values": [
       {
-        "code": "AE",
-        "value": "United Arab Emirates"
-      },
-      {
         "code": "AL",
         "value": "Albania"
       },
       {
-        "code": "AR",
-        "value": "Argentina"
+        "code": "DZ",
+        "value": "Algeria"
       },
       {
         "code": "AS",
         "value": "American Samoa"
       },
       {
-        "code": "AT",
-        "value": "Austria"
+        "code": "AR",
+        "value": "Argentina"
       },
       {
         "code": "AU",
         "value": "Australia"
       },
       {
-        "code": "BA",
-        "value": "Bosnia And Herzegowina"
-      },
-      {
-        "code": "BB",
-        "value": "Barbados"
-      },
-      {
-        "code": "BE",
-        "value": "Belgium"
-      },
-      {
-        "code": "BG",
-        "value": "Bulgaria"
+        "code": "AT",
+        "value": "Austria"
       },
       {
         "code": "BH",
         "value": "Bahrain"
       },
       {
-        "code": "BO",
-        "value": "Bolivia"
-      },
-      {
-        "code": "BR",
-        "value": "Brazil"
+        "code": "BB",
+        "value": "Barbados"
       },
       {
         "code": "BY",
         "value": "Belarus"
       },
       {
+        "code": "BE",
+        "value": "Belgium"
+      },
+      {
+        "code": "BO",
+        "value": "Bolivia"
+      },
+      {
+        "code": "BA",
+        "value": "Bosnia And Herzegowina"
+      },
+      {
+        "code": "BR",
+        "value": "Brazil"
+      },
+      {
+        "code": "BG",
+        "value": "Bulgaria"
+      },
+      {
         "code": "CA",
         "value": "Canada"
-      },
-      {
-        "code": "CH",
-        "value": "Switzerland"
-      },
-      {
-        "code": "CK",
-        "value": "Cook Islands"
       },
       {
         "code": "CL",
@@ -243,12 +235,16 @@ Content-Type: application/json
         "value": "Colombia"
       },
       {
+        "code": "CK",
+        "value": "Cook Islands"
+      },
+      {
         "code": "CR",
         "value": "Costa Rica"
       },
       {
-        "code": "CS",
-        "value": "Serbia And Montenegro"
+        "code": "HR",
+        "value": "Croatia"
       },
       {
         "code": "CY",
@@ -259,10 +255,6 @@ Content-Type: application/json
         "value": "Czech Republic"
       },
       {
-        "code": "DE",
-        "value": "Germany"
-      },
-      {
         "code": "DK",
         "value": "Denmark"
       },
@@ -271,40 +263,36 @@ Content-Type: application/json
         "value": "Dominican Republic"
       },
       {
-        "code": "DZ",
-        "value": "Algeria"
-      },
-      {
         "code": "EC",
         "value": "Ecuador"
-      },
-      {
-        "code": "EE",
-        "value": "Estonia"
       },
       {
         "code": "EG",
         "value": "Egypt"
       },
       {
-        "code": "ES",
-        "value": "Spain"
+        "code": "SV",
+        "value": "El Salvador"
       },
       {
-        "code": "FI",
-        "value": "Finland"
+        "code": "EE",
+        "value": "Estonia"
       },
       {
         "code": "FJ",
         "value": "Fiji"
       },
       {
+        "code": "FI",
+        "value": "Finland"
+      },
+      {
         "code": "FR",
         "value": "France"
       },
       {
-        "code": "GB",
-        "value": "United Kingdom"
+        "code": "DE",
+        "value": "Germany"
       },
       {
         "code": "GR",
@@ -315,24 +303,32 @@ Content-Type: application/json
         "value": "Guatemala"
       },
       {
-        "code": "HK",
-        "value": "Hong Kong"
-      },
-      {
         "code": "HN",
         "value": "Honduras"
       },
       {
-        "code": "HR",
-        "value": "Croatia"
+        "code": "HK",
+        "value": "Hong Kong"
       },
       {
         "code": "HU",
         "value": "Hungary"
       },
       {
+        "code": "IS",
+        "value": "Iceland"
+      },
+      {
+        "code": "IN",
+        "value": "India"
+      },
+      {
         "code": "ID",
         "value": "Indonesia"
+      },
+      {
+        "code": "IQ",
+        "value": "Iraq"
       },
       {
         "code": "IE",
@@ -343,18 +339,6 @@ Content-Type: application/json
         "value": "Israel"
       },
       {
-        "code": "IN",
-        "value": "India"
-      },
-      {
-        "code": "IQ",
-        "value": "Iraq"
-      },
-      {
-        "code": "IS",
-        "value": "Iceland"
-      },
-      {
         "code": "IT",
         "value": "Italy"
       },
@@ -363,16 +347,20 @@ Content-Type: application/json
         "value": "Jamaica"
       },
       {
-        "code": "JO",
-        "value": "Jordan"
-      },
-      {
         "code": "JP",
         "value": "Japan"
       },
       {
+        "code": "JO",
+        "value": "Jordan"
+      },
+      {
         "code": "KW",
         "value": "Kuwait"
+      },
+      {
+        "code": "LV",
+        "value": "Latvia"
       },
       {
         "code": "LB",
@@ -387,16 +375,12 @@ Content-Type: application/json
         "value": "Luxembourg"
       },
       {
-        "code": "LV",
-        "value": "Latvia"
-      },
-      {
-        "code": "MA",
-        "value": "Morocco"
-      },
-      {
         "code": "MK",
         "value": "Macedonia"
+      },
+      {
+        "code": "MY",
+        "value": "Malaysia"
       },
       {
         "code": "MT",
@@ -407,24 +391,24 @@ Content-Type: application/json
         "value": "Mexico"
       },
       {
-        "code": "MY",
-        "value": "Malaysia"
-      },
-      {
-        "code": "NI",
-        "value": "Nicaragua"
+        "code": "MA",
+        "value": "Morocco"
       },
       {
         "code": "NL",
         "value": "Netherlands"
       },
       {
-        "code": "NO",
-        "value": "Norway"
-      },
-      {
         "code": "NZ",
         "value": "New Zealand"
+      },
+      {
+        "code": "NI",
+        "value": "Nicaragua"
+      },
+      {
+        "code": "NO",
+        "value": "Norway"
       },
       {
         "code": "OM",
@@ -435,12 +419,16 @@ Content-Type: application/json
         "value": "Panama"
       },
       {
-        "code": "PE",
-        "value": "Peru"
-      },
-      {
         "code": "PG",
         "value": "Papua New Guinea"
+      },
+      {
+        "code": "PY",
+        "value": "Paraguay"
+      },
+      {
+        "code": "PE",
+        "value": "Peru"
       },
       {
         "code": "PH",
@@ -451,16 +439,12 @@ Content-Type: application/json
         "value": "Poland"
       },
       {
-        "code": "PR",
-        "value": "Puerto Rico"
-      },
-      {
         "code": "PT",
         "value": "Portugal"
       },
       {
-        "code": "PY",
-        "value": "Paraguay"
+        "code": "PR",
+        "value": "Puerto Rico"
       },
       {
         "code": "QA",
@@ -475,12 +459,40 @@ Content-Type: application/json
         "value": "Russian Federation"
       },
       {
+        "code": "WS",
+        "value": "Samoa"
+      },
+      {
         "code": "SA",
         "value": "Saudi Arabia"
       },
       {
+        "code": "CS",
+        "value": "Serbia And Montenegro"
+      },
+      {
+        "code": "SG",
+        "value": "Singapore"
+      },
+      {
+        "code": "SK",
+        "value": "Slovakia"
+      },
+      {
+        "code": "SI",
+        "value": "Slovenia"
+      },
+      {
         "code": "SB",
         "value": "Solomon Islands"
+      },
+      {
+        "code": "ZA",
+        "value": "South Africa"
+      },
+      {
+        "code": "ES",
+        "value": "Spain"
       },
       {
         "code": "SD",
@@ -491,48 +503,44 @@ Content-Type: application/json
         "value": "Sweden"
       },
       {
-        "code": "SG",
-        "value": "Singapore"
-      },
-      {
-        "code": "SI",
-        "value": "Slovenia"
-      },
-      {
-        "code": "SK",
-        "value": "Slovakia"
-      },
-      {
-        "code": "SV",
-        "value": "El Salvador"
+        "code": "CH",
+        "value": "Switzerland"
       },
       {
         "code": "SY",
         "value": "Syrian Arab Republic"
       },
       {
-        "code": "TH",
-        "value": "Thailand"
+        "code": "TW",
+        "value": "Taiwan"
       },
       {
-        "code": "TN",
-        "value": "Tunisia"
+        "code": "TH",
+        "value": "Thailand"
       },
       {
         "code": "TO",
         "value": "Tonga"
       },
       {
+        "code": "TN",
+        "value": "Tunisia"
+      },
+      {
         "code": "TR",
         "value": "Turkey"
       },
       {
-        "code": "TW",
-        "value": "Taiwan"
-      },
-      {
         "code": "UA",
         "value": "Ukraine"
+      },
+      {
+        "code": "AE",
+        "value": "United Arab Emirates"
+      },
+      {
+        "code": "GB",
+        "value": "United Kingdom"
       },
       {
         "code": "US",
@@ -543,6 +551,10 @@ Content-Type: application/json
         "value": "Uruguay"
       },
       {
+        "code": "VU",
+        "value": "Vanuatu"
+      },
+      {
         "code": "VE",
         "value": "Venezuela"
       },
@@ -551,20 +563,8 @@ Content-Type: application/json
         "value": "Viet Nam"
       },
       {
-        "code": "VU",
-        "value": "Vanuatu"
-      },
-      {
-        "code": "WS",
-        "value": "Samoa"
-      },
-      {
         "code": "YE",
         "value": "Yemen"
-      },
-      {
-        "code": "ZA",
-        "value": "South Africa"
       }
     ]
   },
@@ -930,12 +930,12 @@ Content-Type: application/json
     "pattern": null,
     "values": [
       {
-        "code": "SKIP",
-        "value": "Skip"
-      },
-      {
         "code": "RETURN",
         "value": "Return"
+      },
+      {
+        "code": "SKIP",
+        "value": "Skip"
       }
     ]
   },
@@ -1263,12 +1263,12 @@ Content-Type: application/json
         "value": "Always"
       },
       {
-        "code": "NEVER",
-        "value": "Never"
-      },
-      {
         "code": "ANALYZE",
         "value": "Analyze"
+      },
+      {
+        "code": "NEVER",
+        "value": "Never"
       }
     ]
   },
@@ -1287,16 +1287,16 @@ Content-Type: application/json
         "value": "Americas"
       },
       {
-        "code": "EU",
-        "value": "European Union"
+        "code": "APJ",
+        "value": "Asia Pacific; Japan"
       },
       {
         "code": "EMEA",
         "value": "Europe; Middle East; Africa"
       },
       {
-        "code": "APJ",
-        "value": "Asia Pacific; Japan"
+        "code": "EU",
+        "value": "European Union"
       }
     ]
   },
@@ -1376,12 +1376,12 @@ Content-Type: application/json
         "value": "Connecticut"
       },
       {
-        "code": "DC",
-        "value": "District of Columbia"
-      },
-      {
         "code": "DE",
         "value": "Delaware"
+      },
+      {
+        "code": "DC",
+        "value": "District of Columbia"
       },
       {
         "code": "FL",
@@ -1634,12 +1634,12 @@ Content-Type: application/json
     "pattern": null,
     "values": [
       {
-        "code": "ON",
-        "value": "On"
-      },
-      {
         "code": "OFF",
         "value": "Off"
+      },
+      {
+        "code": "ON",
+        "value": "On"
       }
     ]
   },

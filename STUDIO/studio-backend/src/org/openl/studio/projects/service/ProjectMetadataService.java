@@ -207,6 +207,8 @@ public class ProjectMetadataService {
      *
      * <p>An array of an enum is the same choice offered several times over: a dimension property such as
      * {@code state} holds a comma-separated list of the values its enum names.
+     *
+     * <p>The values of an enum are listed in the alphabetical order of what the author reads, not of their codes.
      */
     private static PropertyDefinitionView describe(TablePropertyDefinition definition) {
         var type = definition.getType() == null ? null : definition.getType().getInstanceClass();
@@ -217,6 +219,7 @@ public class ProjectMetadataService {
             var displayValues = EnumUtils.getValues(element);
             return describe(definition, "enum", multiple, IntStream.range(0, codes.length)
                     .mapToObj(index -> new PropertyValueView(codes[index], displayValues[index]))
+                    .sorted(Comparator.comparing(PropertyValueView::value, String.CASE_INSENSITIVE_ORDER))
                     .toList());
         }
         return describe(definition, element == null ? "text" : scalarType(element), multiple, List.of());
