@@ -73,6 +73,16 @@ public interface FileRoot {
     void awaitIndex();
 
     /**
+     * Forgets the files the mount holds since it read them, so the next read and write find them as the repository
+     * has them. A delete calls it: it goes to the repository alone, and a deleted file would be found still.
+     *
+     * <p>A mount that reads its files anew for each request holds none, which the default stands for.
+     */
+    default void forgetFiles() {
+        // Nothing is held
+    }
+
+    /**
      * Finds files named like the trailing segment of {@code lookupPath} by walking up from the anchor
      * to the repository root, returning the match at each level nearest to the anchor first. The walk
      * goes up only — descendants and sibling branches are not visited — and is not limited to the
