@@ -86,6 +86,24 @@ class TableCopyServiceTest {
         }
     }
 
+    /** A header merged over two rows is copied as a header of one row, so no row of it is taken for the body. */
+    @Test
+    void copyWritesAHeaderMergedOverRowsOnce(@TempDir Path projectDir) throws Exception {
+        Files.copy(FIXTURE.resolveSibling("TwoRowHeader.xlsx"), projectDir.resolve("TwoRowHeader.xlsx"));
+        var source = resolve(projectDir, "Somelogic");
+        var sourceView = reader.read(source.table(), RawTableRead.builder().build());
+
+        var destGrid = creator.sheetGridModel(source.model(), "Copies");
+        service.copyInto(source.table(), "SomelogicCopy", null, destGrid, tables(source), null);
+        creator.save(destGrid);
+
+        var copyView = reader.read(resolve(projectDir, "SomelogicCopy").table(), RawTableRead.builder().build());
+        assertEquals("Spreadsheet SpreadsheetResult SomelogicCopy()", cell(copyView, 0, 0).value());
+        assertEquals(sourceView.source.size() - 1, copyView.source.size(), "the header takes one row");
+        assertEquals(List.of("Step", "Value", "Note"), copyView.source.get(1).stream().map(RawTableCell::value).toList(),
+                "the body follows the header");
+    }
+
     @Test
     void copyWritesTheRequestedPropertiesInPlaceOfTheSource(@TempDir Path projectDir) throws Exception {
         var source = bankLimitIndex(projectDir);
