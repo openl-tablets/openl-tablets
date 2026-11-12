@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -35,6 +38,24 @@ class NameCheckerTest {
                 fail("wrong name passed check: " + s);
             }
         }
+    }
+
+    /** Windows reserves a device name in any letter case and with any extension. */
+    @Test
+    void reservesADeviceNameInAnyCaseAndWithAnyExtension() {
+        for (String name : new String[]{"CON", "con", "Con.xlsx", "lpt1.txt", "NUL.tar.gz"}) {
+            assertTrue(NameChecker.isReservedName(name), name);
+        }
+        for (String name : new String[]{"Console", "icon.xlsx", "COM10", "rules.con"}) {
+            assertFalse(NameChecker.isReservedName(name), name);
+        }
+    }
+
+    @Test
+    void findsTheReservedNameOfAPath() {
+        assertEquals("Con.xlsx", NameChecker.findReservedName("rules/Con.xlsx"));
+        assertEquals("aux", NameChecker.findReservedName("aux\\Main.xlsx"));
+        assertNull(NameChecker.findReservedName("rules/Main.xlsx"));
     }
 
     @Test
