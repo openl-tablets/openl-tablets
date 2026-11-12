@@ -121,18 +121,24 @@ public abstract class ResultExport extends BaseExport {
     protected abstract void writeResultHeader(TestUnitsResults result, Row row, int colNum);
 
     private int writeResults(Sheet sheet, TestUnitsResults result, int rowNum) {
-        var hasExpected = result.hasExpected();
+        // Asked once for the table: each answer scans every case, so asking per row is quadratic.
+        var columns = new Columns(result.hasExpected(), result.hasDescription(), result.hasContext());
         for (ITestUnit testUnit : result.getTestUnits()) {
-            writeResultRow(sheet, rowNum++, result, testUnit, hasExpected);
+            writeResultRow(sheet, rowNum++, result, testUnit, columns);
         }
         return rowNum;
+    }
+
+    /** The optional columns the cases of a table are written with. */
+    private record Columns(boolean expected, boolean description, boolean context) {
     }
 
     private void writeResultRow(Sheet sheet,
                                 int rowNum,
                                 TestUnitsResults result,
                                 ITestUnit testUnit,
-                                boolean hasExpected) {
+                                Columns columns) {
+        var hasExpected = columns.expected();
         TestStatus testStatus = hasExpected ? testUnit.getResultStatus() : TestStatus.TR_OK;
         var ok = testStatus == TestStatus.TR_OK;
 
@@ -162,12 +168,12 @@ public abstract class ResultExport extends BaseExport {
         }
 
         // Description
-        if (result.hasDescription()) {
+        if (columns.description()) {
             createCell(row, colNum++, testUnit.getDescription(), styles.resultOther);
         }
 
         // Context
-        if (result.hasContext()) {
+        if (columns.context()) {
             for (ParameterWithValueDeclaration parameter : testUnit.getContextParams(result)) {
                 createCell(row, colNum++, parameter.getValue(), styles.resultOther);
             }
