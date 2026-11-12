@@ -10,11 +10,15 @@ import org.openl.binding.IBindingContext;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * Class to check properties according to some situations.
@@ -32,7 +36,10 @@ public final class PropertiesChecker {
      * 1) properties can be defined on TABLE level;<br>
      * 2) properties can be defined for current type of table; 3) deprecated properties;
      *
+     * A deprecated property is reported on the cell that names it.
+     *
      * @param propertyNamesToCheck properties names that are physically defined in table.
+     * @param propertiesSection    rows of the table that define the properties, the name in the first column.
      */
     // Kept as an open refactoring task: it needs a design change beyond this cleanup.
     @SuppressWarnings("java:S1135")
@@ -40,9 +47,10 @@ public final class PropertiesChecker {
     public static void checkProperties(IBindingContext bindingContext,
                                        Set<String> propertyNamesToCheck,
                                        TableSyntaxNode tableSyntaxNode,
+                                       ILogicalTable propertiesSection,
                                        InheritanceLevel level) {
         checkForErrors(bindingContext, propertyNamesToCheck, tableSyntaxNode, level);
-        checkForDeprecation(bindingContext, propertyNamesToCheck, tableSyntaxNode);
+        checkForDeprecation(bindingContext, propertyNamesToCheck, tableSyntaxNode, propertiesSection);
     }
 
     /**
@@ -76,7 +84,8 @@ public final class PropertiesChecker {
      */
     private static void checkForDeprecation(IBindingContext bindingContext,
                                             Set<String> propertyNamesToCheck,
-                                            TableSyntaxNode tableSyntaxNode) {
+                                            TableSyntaxNode tableSyntaxNode,
+                                            ILogicalTable propertiesSection) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
                     .getPropertyByName(propertyNameToCheck);
@@ -84,9 +93,25 @@ public final class PropertiesChecker {
                     .getDeprecation()
                     .isEmpty()) {
                 var message = "Property '%s' was deprecated. Please remove it.".formatted(propertyNameToCheck);
-                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message,
+                        propertyNameNode(propertiesSection, propertyNameToCheck, tableSyntaxNode)));
             }
         }
+    }
+
+    /**
+     * Finds the cell that names the property. The table itself stands in for a property the section does not list.
+     */
+    private static ISyntaxNode propertyNameNode(ILogicalTable propertiesSection,
+                                                String propertyName,
+                                                TableSyntaxNode tableSyntaxNode) {
+        for (var row = 0; row < propertiesSection.getHeight(); row++) {
+            if (propertyName.equals(propertiesSection.getCell(0, row).getStringValue())) {
+                var nameCell = propertiesSection.getRow(row).getSource();
+                return new IdentifierNode(null, null, propertyName, new GridCellSourceCodeModule(nameCell));
+            }
+        }
+        return tableSyntaxNode;
     }
 
     /**

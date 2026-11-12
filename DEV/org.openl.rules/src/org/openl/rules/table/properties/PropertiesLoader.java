@@ -69,8 +69,11 @@ public class PropertiesLoader {
             var tableType = tableSyntaxNode.getType();
             Set<String> propertyNamesToCheck = propertiesInstance.getTableProperties().keySet();
 
-            PropertiesChecker
-                    .checkProperties(bindingContext, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
+            PropertiesChecker.checkProperties(bindingContext,
+                    propertyNamesToCheck,
+                    tableSyntaxNode,
+                    propertiesSection,
+                    InheritanceLevel.TABLE);
 
             propertiesInstance.setCurrentTableType(tableType);
 
