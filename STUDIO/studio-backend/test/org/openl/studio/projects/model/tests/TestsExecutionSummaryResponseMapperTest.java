@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.repository.api.Page;
 import org.openl.rules.table.properties.ITableProperties;
@@ -443,6 +444,45 @@ class TestsExecutionSummaryResponseMapperTest {
         assertEquals(150, full.getFirst().expectedValue().get("premium").asInt());
         assertNull(full.getFirst().expectedLazy());
         Reference.reachabilityFence(premium);
+    }
+
+    /**
+     * A summary asked for lazy values writes a compared range as the text of its bounds, not as a reference to open.
+     * A summary asked for the values writes it as the object mapper does.
+     */
+    @Test
+    void writesAComparedRangeAsItsTextWhenLazyValuesAreAsked() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[]{"Range"});
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_NEQ);
+        var actual = new IntRange(6, 10);
+        when(testUnit.getActualResult()).thenReturn(actual);
+        when(testUnit.getComparisonResults())
+                .thenReturn(List.of(new ComparedResult("_res_", new IntRange(1, 5), actual, TestStatus.TR_NEQ)));
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var kept = retained(testUnit, SoftReference::new);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none(), "p1");
+
+        var lazy = mapper.mapToTestUnitResult(results, kept, new TestExecutionSummaryQuery(false, 5, false, true))
+                .testAssertions()
+                .getFirst();
+        var full = mapper.mapToTestUnitResult(results, kept, new TestExecutionSummaryQuery(false, 5, false, false))
+                .testAssertions()
+                .getFirst();
+
+        assertNull(lazy.actualLazy());
+        assertEquals("[6..10]", lazy.actualValue().asText());
+        assertNull(lazy.expectedLazy());
+        assertEquals("[1..5]", lazy.expectedValue().asText());
+        assertEquals(6, full.actualValue().get("min").asInt());
+        Reference.reachabilityFence(actual);
     }
 
     /** Values a case still holds are written as they are, and nothing is referred to. */

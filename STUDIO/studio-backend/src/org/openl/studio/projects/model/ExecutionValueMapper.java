@@ -160,7 +160,12 @@ public class ExecutionValueMapper {
      */
     public ParameterValue writeParameterLazily(ParameterWithValueDeclaration param, @Nullable String description) {
         if (!ExecutionValueLevels.opensIntoLines(objectMapper, param.getValue())) {
-            return writeParameter(param, description, false).toBuilder().lazy(false).build();
+            return ParameterValue.builder()
+                    .name(param.getName())
+                    .value(ExecutionValueLevels.plain(objectMapper, param.getValue()))
+                    .description(description)
+                    .lazy(false)
+                    .build();
         }
         return ParameterValue.builder()
                 .name(param.getName())

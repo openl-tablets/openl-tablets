@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 import org.openl.domain.EnumDomain;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.types.impl.DomainOpenClass;
@@ -60,6 +61,21 @@ class ExecutionValueMapperTest {
         assertEquals(id.toString(), plain.value().asText());
         assertEquals(Boolean.TRUE, structured.lazy());
         assertNull(structured.value(), "the value is read when it is asked for");
+    }
+
+    /** A range is written as the text of its bounds, not referred to as a structure to open. */
+    @Test
+    void writesARangeAsItsText() {
+        var objectMapper = new ObjectMapper();
+        var mapper = new ExecutionValueMapper(objectMapper,
+                new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper), null);
+
+        var range = mapper.writeParameterLazily(new ParameterWithValueDeclaration("limits", new IntRange(1, 5)),
+                "Limits");
+
+        assertEquals(Boolean.FALSE, range.lazy());
+        assertEquals("[1..5]", range.value().asText());
+        assertEquals("Limits", range.description());
     }
 
     /** A vocabulary parameter is described by the values it allows, and an array of one by the values of its elements. */

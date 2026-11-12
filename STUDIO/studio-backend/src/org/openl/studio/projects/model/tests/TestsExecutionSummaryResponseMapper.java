@@ -210,9 +210,14 @@ public class TestsExecutionSummaryResponseMapper {
      *
      * <p>A test that states no expectation reports it as an explicit {@code null}, which tells the reader that the
      * assertion has no expected value rather than that the field is missing.
+     *
+     * <p>A summary asked for lazy values is only read, so a value that opens into no lines is written as it is
+     * shown: a range as the text of its bounds.
      */
-    private JsonNode writeAssertionValue(@Nullable Object value) {
-        return objectMapper.valueToTree(valueMapper.convert(value));
+    private JsonNode writeAssertionValue(@Nullable Object value, TestExecutionSummaryQuery query) {
+        return query.lazyValues()
+                ? ExecutionValueLevels.plain(objectMapper, value)
+                : objectMapper.valueToTree(valueMapper.convert(value));
     }
 
     /**
@@ -267,9 +272,9 @@ public class TestsExecutionSummaryResponseMapper {
         var expectedLazy = referredTo(expectedValue, query);
         return TestAssertionExecutionResult.builder()
                 .status(assertion.getStatus())
-                .actualValue(actualLazy ? null : writeAssertionValue(actualValue))
+                .actualValue(actualLazy ? null : writeAssertionValue(actualValue, query))
                 .actualLazy(actualLazy ? Boolean.TRUE : null)
-                .expectedValue(expectedLazy ? null : writeAssertionValue(expectedValue))
+                .expectedValue(expectedLazy ? null : writeAssertionValue(expectedValue, query))
                 .expectedLazy(expectedLazy ? Boolean.TRUE : null)
                 .description(description)
                 .field(field)

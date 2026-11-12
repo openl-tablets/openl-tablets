@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -202,6 +203,7 @@ class ExecutionValueLevelsTest {
         assertTrue(level.lines().isEmpty());
         assertEquals(id.toString(), level.value().asText());
         assertEquals("Sara", levels.levelOf("Sara", 0, 100).value().asText());
+        assertEquals("[1..5]", levels.levelOf(new IntRange(1, 5), 0, 100).value().asText());
         assertNull(levels.levelOf(new Driver("Sara", 25, List.of()), 0, 100).value(),
                 "a value that opens is not written");
     }
