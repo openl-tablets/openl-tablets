@@ -1,10 +1,15 @@
 package org.openl.rules.validation;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
+import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.domain.IDomain;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -24,6 +29,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.validation.ValidationResult;
 
 /**
@@ -125,8 +131,25 @@ public class GapOverlapValidator extends TablesValidator {
         return domainsMap;
     }
 
+    private static boolean hasCompileErrors(IDecisionTable decisionTable) {
+        return Arrays.stream(decisionTable.getConditionRows())
+                .map(IBaseCondition::getMethod)
+                .anyMatch(method -> !(method instanceof CompositeMethod expression) || hasErrorNode(
+                        expression.getMethodBodyBoundNode()));
+    }
+
+    private static boolean hasErrorNode(@Nullable IBoundNode node) {
+        return node == null || node instanceof ErrorBoundNode
+                || Arrays.stream(node.getChildren()).anyMatch(GapOverlapValidator::hasErrorNode);
+    }
+
+    /**
+     * Tells whether the table asks for the check and its conditions compiled. A table with a compile error has
+     * reported it, and the check cannot run a condition that did not compile.
+     */
     private static boolean isValidatableMethod(ExecutableRulesMethod executableMethod) {
-        return executableMethod.getMethodProperties() != null && ValidateDTEnum.ON
-                .equals(executableMethod.getMethodProperties().getValidateDT());
+        return executableMethod.getMethodProperties() != null && ValidateDTEnum.ON.equals(
+                executableMethod.getMethodProperties().getValidateDT()) && !hasCompileErrors(
+                        (IDecisionTable) executableMethod);
     }
 }
