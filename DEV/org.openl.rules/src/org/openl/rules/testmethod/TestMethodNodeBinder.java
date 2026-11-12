@@ -7,13 +7,16 @@ import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.OpenL;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -78,16 +81,22 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     /**
      * Selects the binding of a tested method: the first binding without errors, or else the first binding with the
-     * fewest errors. The bindings without errors are collected when there are several of them.
+     * fewest errors. The bindings without errors are collected when there are several of them, and so are the
+     * bindings that tie on the fewest errors: none of them is a better guess than another.
      */
     private static class TestedMethodBindingSelection {
         TestedMethodBindingDetails best;
         boolean hasNoErrorBinding;
         List<TestedMethodBindingDetails> noErrorsCases;
+        final List<TestedMethodBindingDetails> fewestErrorsCases = new ArrayList<>();
 
         void add(TestedMethodBindingDetails current) {
             if (!current.errors.isEmpty() && (best == null || best.errors.size() > current.errors.size())) {
                 best = current;
+                fewestErrorsCases.clear();
+                fewestErrorsCases.add(current);
+            } else if (!current.errors.isEmpty() && best.errors.size() == current.errors.size()) {
+                fewestErrorsCases.add(current);
             } else if (current.errors.isEmpty()) {
                 if (!hasNoErrorBinding) {
                     hasNoErrorBinding = true;
@@ -181,7 +190,14 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             best.testMethodBoundNode.setTable(best.dataTable);
             DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, best.testMethodOpenClass);
             best.messages.forEach(bindingContext::addMessage);
-            best.errors.forEach(bindingContext::addError);
+            if (best.errors.isEmpty()) {
+                return best.testMethodBoundNode;
+            }
+            // The methods come in no fixed order, so the errors are reported in the order of the signatures.
+            selection.fewestErrorsCases.stream()
+                    .sorted(Comparator.comparing(
+                            details -> MethodUtil.printSignature(details.testedMethod, INamedThing.REGULAR)))
+                    .forEach(details -> details.errors.forEach(bindingContext::addError));
             return best.testMethodBoundNode;
         }
 
