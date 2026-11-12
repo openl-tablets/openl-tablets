@@ -62,11 +62,13 @@ public class PropertyTableBinder extends DataNodeBinder {
         processTable(module, propertyTable, propTableBody, tableName, propertiesClass, bindingContext, openl, false);
 
         var propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
-        propertiesInstance.setPropertiesSection(tsn.getTable().getRows(1)); // Skip header
+        var propertiesSection = tsn.getTable().getRows(1); // Skip header
+        propertiesInstance.setPropertiesSection(propertiesSection);
         propertiesInstance.setCurrentTableType(tsn.getType());
         PropertiesChecker.checkProperties(bindingContext,
                 propertiesInstance.getAllProperties().keySet(),
                 tsn,
+                propertiesSection,
                 InheritanceLevel.getEnumByValue(propertiesInstance.getPropertyValueAsString(SCOPE_PROPERTY_NAME)));
         tsn.setTableProperties(propertiesInstance);
 
