@@ -224,6 +224,88 @@ const ChangeTag = ({ kind, text, hint, oneLine = false }: {
     </Tooltip>
 )
 
+/**
+ * What an action does: a change of its object, or one of the actions that change nothing — a start of a session or of
+ * OpenL Studio, an end of one, a read of the log, or a guard of access at work.
+ */
+type ActionKind = ChangeKind | 'started' | 'ended' | 'read' | 'guarded'
+
+/** The colour of the tag of each action that changes nothing, apart from the colours of the changes. */
+const ACTION_COLORS: Record<Exclude<ActionKind, ChangeKind>, string> = {
+    started: 'blue',
+    ended: 'default',
+    read: 'cyan',
+    guarded: 'magenta',
+}
+
+/** Whether a kind is a change: of an action, which is marked so, or of a list of names in the details. */
+const isChange = (kind: string): kind is ChangeKind => Object.hasOwn(CHANGE_MARKS, kind)
+
+/**
+ * What each action does. A change is marked as the changes of the details are: it creates or gives its object, deletes
+ * or takes it away, or changes it. The actions are listed by their kind.
+ */
+const ACTION_KINDS: Record<AuditAction, ActionKind> = {
+    userCreated: 'added',
+    groupMemberAdded: 'added',
+    groupCreated: 'added',
+    tokenCreated: 'added',
+    roleGranted: 'added',
+    projectCreated: 'added',
+    projectCopied: 'added',
+    branchCreated: 'added',
+    tagTypeCreated: 'added',
+    tagAdded: 'added',
+    userDeleted: 'removed',
+    groupMemberRemoved: 'removed',
+    groupDeleted: 'removed',
+    tokenDeleted: 'removed',
+    roleRevoked: 'removed',
+    projectDeleted: 'removed',
+    branchDeleted: 'removed',
+    tagTypeDeleted: 'removed',
+    tagDeleted: 'removed',
+    auditLogPurged: 'removed',
+    userUpdated: 'changed',
+    passwordChanged: 'changed',
+    externalGroupsChanged: 'changed',
+    groupUpdated: 'changed',
+    groupPrivilegesChanged: 'changed',
+    roleChanged: 'changed',
+    projectSaved: 'changed',
+    projectUnlocked: 'changed',
+    branchMerged: 'changed',
+    projectDeployed: 'changed',
+    settingsChanged: 'changed',
+    tagTypeUpdated: 'changed',
+    tagTypesReordered: 'changed',
+    tagRenamed: 'changed',
+    tagTemplatesChanged: 'changed',
+    tagsFilled: 'changed',
+    signIn: 'started',
+    sessionStarted: 'started',
+    applicationStarted: 'started',
+    applicationRestarted: 'started',
+    signOut: 'ended',
+    sessionEnded: 'ended',
+    applicationStopped: 'ended',
+    auditLogRead: 'read',
+    accessDenied: 'guarded',
+    protectionBypassed: 'guarded',
+}
+
+/**
+ * The name of an action on a tag of the colour of what it does. A change is marked as the changes of the details are,
+ * and pointing at the mark names the change.
+ */
+const actionTag = (t: TFunction, action: AuditAction) => {
+    const kind = ACTION_KINDS[action]
+    const name = inWordsOf(t)('actions', action)
+    return isChange(kind)
+        ? <ChangeTag oneLine hint={t(`audit:changes.${kind}`)} kind={kind} text={name} />
+        : <Tag color={ACTION_COLORS[kind]}>{name}</Tag>
+}
+
 /** A name a change added, removed or changed, such as a privilege of a group or a setting. */
 interface NameChange {
     name: string
@@ -240,7 +322,7 @@ const isNames = (value: unknown): value is string[] => (
 
 /** Whether a detail lists the names a change added, removed or changed: its key is the kind of the change. */
 const isListedChange = (detail: [string, unknown]): detail is [ChangeKind, string[]] => (
-    Object.hasOwn(CHANGE_MARKS, detail[0]) && isNames(detail[1])
+    isChange(detail[0]) && isNames(detail[1])
 )
 
 /** The names the details list as added, removed or changed, in the order of the names. */
@@ -546,7 +628,7 @@ export const AuditLog: React.FC = () => {
             })),
             filterMode: 'tree',
             filterSearch: true,
-            render: (action: AuditAction) => inWords('actions', action),
+            render: (action: AuditAction) => actionTag(t, action),
         },
         {
             title: t('audit:outcome'),

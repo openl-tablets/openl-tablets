@@ -249,15 +249,17 @@ const renderAuditLog = (enabled = true) => render(
 
 const loaded = () => waitFor(() => expect(screen.queryByTestId('spin')).not.toBeInTheDocument())
 
-/** Expects a tag of the given colour that holds the given text. */
-const expectTag = (text: string, color: string) => expect(screen.getByText(text)).toHaveAttribute('data-color', color)
+/** Expects a tag of the given colour that holds the given text, on the whole screen or in a part of it. */
+const expectTag = (text: string, color: string, scope: Pick<typeof screen, 'getByText'> = screen) => (
+    expect(scope.getByText(text)).toHaveAttribute('data-color', color)
+)
 
 /** Expects the text to name the given change when it is pointed at. */
 const expectHint = (text: string, hint: string) => expect(screen.getByText(text).closest('[data-title]'))
     .toHaveAttribute('data-title', hint)
 
-/** The texts of the tags that mark changes, in the order they are shown. */
-const changeTags = () => screen.getAllByText(/^[+~-] /).map(tag => tag.textContent)
+/** The texts of the tags that mark changes, in the order they are shown, leaving out the marks of the actions. */
+const changeTags = () => screen.getAllByText(/^[+~-] (?!audit:actions\.)/).map(tag => tag.textContent)
 
 /** Types a text into the search of the filter of a column and starts the search. */
 const search = (column: string, text: string) => userEvent.type(
@@ -300,6 +302,46 @@ describe('AuditLog', () => {
         expect(rows.getByText('audit:types.project')).toBeInTheDocument()
         expect(rows.getByText('design:/rules/Sales')).toBeInTheDocument()
         expect(rows.getByText('3')).toBeInTheDocument()
+    })
+
+    it('colours an action as what it does, and marks a change as the changes of the details are', async () => {
+        const event = (id: number, action: audit.AuditAction): audit.AuditEvent => ({
+            id,
+            time: '2026-10-19T10:30:00Z',
+            category: 'user',
+            action,
+            outcome: 'success',
+        })
+        mockGetEvents.mockResolvedValue({
+            content: [
+                event(5, 'userCreated'),
+                event(4, 'roleRevoked'),
+                event(3, 'projectSaved'),
+                event(2, 'signIn'),
+                event(1, 'auditLogRead'),
+                event(0, 'applicationStopped'),
+                event(-1, 'accessDenied'),
+            ],
+            pageNumber: 0,
+            pageSize: 50,
+            total: 7,
+        })
+
+        renderAuditLog()
+        await loaded()
+
+        expectTag('+ audit:actions.userCreated', 'success')
+        expectHint('+ audit:actions.userCreated', 'audit:changes.added')
+        expectTag('- audit:actions.roleRevoked', 'error')
+        expectHint('- audit:actions.roleRevoked', 'audit:changes.removed')
+        expectTag('~ audit:actions.projectSaved', 'warning')
+        expectHint('~ audit:actions.projectSaved', 'audit:changes.changed')
+        const rows = within(screen.getByRole('table'))
+        expectTag('audit:actions.signIn', 'blue', rows)
+        expectTag('audit:actions.applicationStopped', 'default', rows)
+        expectTag('audit:actions.auditLogRead', 'cyan', rows)
+        expectTag('audit:actions.accessDenied', 'magenta', rows)
+        expect(rows.getByText('audit:actions.signIn').closest('[data-title]')).toBeNull()
     })
 
     it('shows each field a change made as a diff: changed from before to after, added or removed', async () => {
