@@ -1,0 +1,1 @@
+ERROR: The 'Collect' keyword is supported only in SmartRules, SimpleRules, SmartLookup and SimpleLookup tables. Use a CRET column in a Rules table.
