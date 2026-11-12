@@ -3664,11 +3664,17 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         return checkoutOldVersion;
     }
 
+    /**
+     * Tells whether the data is saved over a version older than the latest one of the path.
+     *
+     * <p>A branch without a commit, as in a repository just created, has no version to be older than.
+     */
     boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
-        if (baseVersion != null) {
+        var branchId = baseVersion == null ? null : resolveBranchId();
+        if (branchId != null) {
             List<Ref> tags = git().tagList().call();
 
-            var commit = findFirstCommit(git(), resolveBranchId(), path);
+            var commit = findFirstCommit(git(), branchId, path);
             if (commit != null) {
                 String lastVersion = getVersionName(git().getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);

@@ -66,6 +66,22 @@ class LocalGitRepositoryTest {
         assertNull(repo.readHistory("project1", "not-exist"));
     }
 
+    /**
+     * A file that carries the version of the project it is copied from is saved into a repository without a commit:
+     * there is no older version to save it over.
+     */
+    @Test
+    void savesAFileCarryingAVersionIntoARepositoryWithoutCommits() throws IOException {
+        var path = "rules/project1/file1";
+        var data = createFileData(path, "copied");
+        data.setVersion("0123456789abcdef0123456789abcdef01234567");
+
+        var result = repo.save(data, IOUtils.toInputStream("copied"));
+
+        assertEquals(path, result.getName());
+        assertEquals(1, repo.listHistory(path).size());
+    }
+
     @Test
     void testSaveFile() throws IOException {
         var path = "rules/project1/folder/file4";
