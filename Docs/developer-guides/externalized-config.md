@@ -88,6 +88,9 @@ context path of the application, and `{profile}` is an active profile:
 -   `{appName}.properties`
 -   `{appName}-{profile}.properties`
 
+An application deployed at the root context, as in the Docker images, has no application name. It reads
+`application.properties` and `application-{profile}.properties` only; no other properties file of a location is read.
+
 The default locations and names are the values of the properties `openl.config.location` and `openl.config.name`.
 Override them with `openl.config.location` or `spring.config.location`, and `openl.config.name` or
 `spring.config.name`, as a system property or an environment variable. Setting them in an application property file
