@@ -152,6 +152,50 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
     }
 
+    /**
+     * Returns the files of a project in one tree of folders, each file in the folders its path names.
+     *
+     * <p>The tree holds the files the project read and the files written into it since. A folder added since that
+     * holds no file yet is in the tree too.
+     *
+     * <p>The tree is built anew, so the folders of the project are not changed. The order in which the project keeps
+     * its files and the folders added to it does not change the tree.
+     */
+    public static AProjectFolder treeOf(AProject project) {
+        var tree = new AProjectFolder(new HashMap<>(), project.getProject(), project.getRepository(),
+                project.getFolderPath());
+        project.getArtefacts().forEach(tree::addCopyOf);
+        return tree;
+    }
+
+    /** Adds the files of an artefact to the tree, and a folder of its own for a folder that holds none. */
+    private void addCopyOf(AProjectArtefact artefact) {
+        if (!(artefact instanceof AProjectFolder folder)) {
+            addArtefact(artefact);
+            return;
+        }
+        var held = folder.getArtefacts();
+        if (held.isEmpty()) {
+            folderAt(folder.getFolderPath());
+        } else {
+            held.forEach(this::addCopyOf);
+        }
+    }
+
+    /** The folder of the tree at a path, the folders on the way added when they are missing. */
+    private void folderAt(String path) {
+        if (path.length() <= folderPath.length()) {
+            return;
+        }
+        var folder = this;
+        for (var name : path.substring(folderPath.length() + 1).split("/")) {
+            var parent = folder;
+            folder = (AProjectFolder) parent.getArtefactsInternal()
+                    .computeIfAbsent(name, key -> new AProjectFolder(new HashMap<>(), parent.getProject(),
+                            parent.getRepository(), parent.folderPath + "/" + key));
+        }
+    }
+
     public synchronized Collection<AProjectArtefact> getArtefacts() {
         return getArtefactsInternal().values();
     }
