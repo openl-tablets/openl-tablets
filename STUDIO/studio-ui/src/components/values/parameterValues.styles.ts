@@ -114,6 +114,8 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     valueString: css`
         color: ${LIST_PAGE_COLORS.syntaxString};
+        // A text of several lines is shown in its lines, as the cell of a table shows it.
+        white-space: pre-wrap;
     `,
     valueNumber: css`
         color: ${LIST_PAGE_COLORS.syntaxNumber};

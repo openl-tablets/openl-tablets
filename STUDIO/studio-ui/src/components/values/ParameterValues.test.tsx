@@ -157,6 +157,15 @@ describe('ValueCell', () => {
         expect(drawn()).toBe(204)
     })
 
+    it('shows a text of several lines in its lines', () => {
+        render(<Values values={['line1\nline2']} />)
+
+        // The query reads the text with its line break collapsed; the element keeps it.
+        const text = screen.getByText('"line1 line2"')
+        expect(text.textContent).toBe('"line1\nline2"')
+        expect(text).toHaveStyle({ whiteSpace: 'pre-wrap' })
+    })
+
     it('writes a number as JavaScript does unless the screen gives a format for it', () => {
         const { unmount } = render(<Values values={[0.1 + 0.2]} />)
         expect(screen.getByText('0.30000000000000004')).toBeInTheDocument()
