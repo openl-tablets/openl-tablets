@@ -652,7 +652,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             throw new DuplicatedMethodException(message, existedMethod, method);
         }
 
-        var existedMethodSignature = existedMethod.getSignature();
+        // A dispatcher over the versions merged so far does not keep the context parameters; its versions do.
+        var existedMethodSignature = (existedMethod instanceof OpenMethodDispatcher versions
+                ? versions.getCandidates().getFirst()
+                : existedMethod).getSignature();
         var candidateMethodSignature = method.getSignature();
         for (var i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
             if (!Objects.equals(extractContextParameter(existedMethodSignature, i),
