@@ -11,6 +11,7 @@ Advanced data tables are used for storing information of a complex structure, su
     For an array of objects, the [i] syntax can be used to define an array of simple datatypes, and [i]. \<attributeName\> to define an array of custom datatypes.
 
 1.  The third row contains attribute display names.
+    Each column has a display name of its own: a display name merged over several columns is reported as an error.
 2.  Each row starting from the fourth one contains values for specific data rows.
 
 The following diagram displays a datatype table and a corresponding data table with concrete values below it.

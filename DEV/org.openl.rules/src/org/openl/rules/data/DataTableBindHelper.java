@@ -558,6 +558,9 @@ public class DataTableBindHelper {
                                                              throws OpenLCompilationException {
 
         var width = descriptorRows.getWidth();
+        if (hasColumnTitleRow && dataWithTitleRows.getWidth() < width) {
+            throw mergedTitleError(bindingContext, dataWithTitleRows);
+        }
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
         var columnIdentifiers = getColumnIdentifiers(bindingContext, descriptorRows);
@@ -603,6 +606,20 @@ public class DataTableBindHelper {
         propagateSupportMultirows(columnDescriptors, columnIdentifiers.size());
 
         return columnDescriptors;
+    }
+
+    /**
+     * Reports the title that is merged over several columns, on its cell.
+     */
+    private static SyntaxNodeException mergedTitleError(IBindingContext bindingContext,
+                                                        ILogicalTable dataWithTitleRows) {
+        var title = dataWithTitleRows.getSubtable(0, 0, 1, 1).getSource();
+        for (var column = 1; column < dataWithTitleRows.getWidth() && title.getCell(0, 0).getWidth() == 1; column++) {
+            title = dataWithTitleRows.getSubtable(column, 0, 1, 1).getSource();
+        }
+        var message = "The title '%s' is merged over several columns. Each column must have its own title."
+                .formatted(StringUtils.trimToEmpty(title.getCell(0, 0).getStringValue()));
+        return SyntaxNodeExceptionUtils.createError(message, new GridCellSourceCodeModule(title, bindingContext));
     }
 
     private static boolean isConstructorField(IdentifierNode[] fieldAccessorChainTokens,

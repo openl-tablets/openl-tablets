@@ -26,6 +26,7 @@ A test table has the following structure:
 
 1.  The second row provides a separate cell for each input parameter of the rule table followed by the **\_res\_** column, which typically contains the expected test result values.
 2.  The third row contains display values intended for business users.
+    Each column has a display value of its own: a display value merged over several columns is reported as an error.
 3.  Starting with the fourth row, each row is an individual test case.
 
 For more information on how to specify values of input parameters and expected test results of complex constructions, see [Specifying Data for Aggregated Objects](../07-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) and [Ensuring Data Integrity](../07-data-table/05-ensuring-data-integrity.md#ensuring-data-integrity).
