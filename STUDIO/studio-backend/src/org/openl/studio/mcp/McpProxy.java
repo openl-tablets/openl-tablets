@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
+import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
 import jakarta.servlet.http.HttpServletRequest;
@@ -79,11 +80,23 @@ final class McpProxy implements AutoCloseable {
             try {
                 exchange(toServer, response);
             } finally {
-                async.complete();
+                complete(async);
             }
         });
         async.addListener(new StopWhenClientIsGone(exchange));
         exchange.start();
+    }
+
+    /**
+     * Ends the request. A container that aborted the connection, as it does for every open connection when it
+     * stops, has ended the request itself and refuses to end it again; that is no failure.
+     */
+    private static void complete(AsyncContext async) {
+        try {
+            async.complete();
+        } catch (IllegalStateException e) {
+            log.debug("The request has been ended by the container.", e);
+        }
     }
 
     private void exchange(HttpRequest toServer, HttpServletResponse response) {

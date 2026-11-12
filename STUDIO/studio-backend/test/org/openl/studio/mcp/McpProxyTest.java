@@ -13,10 +13,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
+import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 
 import com.sun.net.httpserver.Headers;
@@ -120,6 +123,46 @@ class McpProxyTest {
         var sent = received.poll(10, SECONDS);
         assertEquals("GET", sent.method());
         assertEquals("", sent.body());
+    }
+
+    /**
+     * A container that stops aborts the open connections and ends their requests itself. Ending such a request
+     * again is refused, and the refusal must not leave the thread of the exchange as an uncaught exception.
+     */
+    @Test
+    void endsQuietlyARequestTheContainerHasEnded() throws Exception {
+        serve(exchange -> answer(exchange, "application/json", "{}"));
+        var ended = new CountDownLatch(1);
+        var exchange = new AtomicReference<Thread>();
+        var request = new MockHttpServletRequest("POST", "/studio/mcp") {
+            @Override
+            public AsyncContext startAsync() {
+                return new MockAsyncContext(this, null) {
+                    @Override
+                    public void complete() {
+                        exchange.set(Thread.currentThread());
+                        ended.countDown();
+                        throw new IllegalStateException("s=IDLE rs=BLOCKING os=ABORTED");
+                    }
+                };
+            }
+        };
+        request.setLocalAddr("10.0.0.5");
+        request.setLocalPort(8080);
+        var uncaught = new AtomicReference<Throwable>();
+        var handler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread, error) -> uncaught.set(error));
+        try {
+            proxy.proxy(request, new MockHttpServletResponse(),
+                    URI.create("http://127.0.0.1:" + server.getAddress().getPort()));
+
+            assertTrue(ended.await(10, SECONDS));
+            // The handler runs on the thread that fails, before that thread ends.
+            assertTrue(exchange.get().join(Duration.ofSeconds(10)));
+            assertNull(uncaught.get());
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(handler);
+        }
     }
 
     @Test
