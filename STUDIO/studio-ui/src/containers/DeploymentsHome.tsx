@@ -9,7 +9,7 @@ import type { Repository } from '../types/repositories'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import { useSharedStyles } from './projects/sharedStyles'
 import { RepoBadge } from './projects/RepoBadge'
-import { SearchInput } from '../components/SearchInput'
+import { useSearchScope } from '../hooks/useSearchScope'
 
 type DeploymentsState = Deployment[] | 'error' | 'loading'
 
@@ -17,10 +17,6 @@ const useStyles = createStyles(({ css, token }) => ({
     /** The repository entry of the rail carries the badge across the whole line. */
     repoBadge: css`
         flex: 1;
-    `,
-    /** The search owns the toolbar row: nothing else competes for its width. */
-    search: css`
-        width: 100%;
     `,
     /**
      * The deployment name is the way into the deployment, so the button owns the cell: it carries the
@@ -98,6 +94,15 @@ export const DeploymentsHome = () => {
             return next
         }, { replace: true })
     }, [setParams])
+
+    // The list is searched from the header; the text lives in the address, so a link carries it.
+    useSearchScope({
+        id: 'deployments',
+        label: t('common:search.scopes.deployments'),
+        onChange: value => setParam('q', value),
+        placeholder: t('deployments.search_placeholder'),
+        value: search,
+    })
 
     const loadRepositories = useCallback(() => {
         setRepositoriesError(null)
@@ -286,15 +291,6 @@ export const DeploymentsHome = () => {
                                 {t('deployments.summary', { count: deploymentCount })}
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <SearchInput
-                            className={styles.search}
-                            data-testid="deployments-search"
-                            onChange={event => setParam('q', event.target.value)}
-                            placeholder={t('deployments.search_placeholder')}
-                            value={search}
-                        />
                     </div>
                 </div>
                 <div className={shared.content}>

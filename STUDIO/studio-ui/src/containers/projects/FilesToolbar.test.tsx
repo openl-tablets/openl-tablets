@@ -22,11 +22,6 @@ vi.mock('@ant-design/icons', () => ({
     UploadOutlined: () => null,
 }))
 
-vi.mock('../../components/SearchInput', () => ({
-    SearchInput: ({ onChange, value, ...rest }: Record<string, unknown>) =>
-        <input onChange={onChange as never} value={value as never} {...rest} />,
-}))
-
 vi.mock('../../components/MenuButton', () => {
     interface Menu { items?: Array<{ key?: string, label?: unknown }>, onClick?: (info: { key: string }) => void }
     return {
@@ -55,25 +50,14 @@ vi.mock('./UploadFileModal', () => ({
 }))
 
 const baseProps = {
-    canWrite: true,
-    filter: '',
     folders: ['rules'],
     onChanged: vi.fn(),
     onCreateFolder: vi.fn(),
-    onFilterChange: vi.fn(),
     projectId: 'p1',
 }
 
 describe('FilesToolbar', () => {
     beforeEach(() => vi.clearAllMocks())
-
-    it('filters the tree as the user types', async () => {
-        render(<FilesToolbar {...baseProps} />)
-
-        await userEvent.type(screen.getByTestId('files-search'), 'x')
-
-        expect(baseProps.onFilterChange).toHaveBeenCalledWith('x')
-    })
 
     it.each([
         ['files-new-folder', 'new-folder-modal'],
@@ -85,12 +69,5 @@ describe('FilesToolbar', () => {
         await userEvent.click(screen.getByTestId(entry))
 
         expect(screen.getByTestId(dialog)).toBeInTheDocument()
-    })
-
-    it('offers nothing to add without write access', () => {
-        render(<FilesToolbar {...baseProps} canWrite={false} />)
-
-        expect(screen.queryByTestId('files-add')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('files-new-folder')).not.toBeInTheDocument()
     })
 })

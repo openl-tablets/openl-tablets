@@ -5,6 +5,7 @@ This chapter explains logging into OpenL Studio and briefly introduces the user 
 -   [Signing In to OpenL Studio](#signing-in-to-openl-studio)
 -   [Modifying User Profile](#modifying-user-profile)
 -   [Switching the Theme](#switching-the-theme)
+-   [Searching in OpenL Studio](#searching-in-openl-studio)
 -   [Displaying the OpenL Studio Help](#displaying-the-openl-studio-help)
 -   [Viewing the Version and Licenses](#viewing-the-version-and-licenses)
 -   [Signing Out of OpenL Studio](#signing-out-of-openl-studio)
@@ -242,6 +243,43 @@ The choices are independent: every theme is displayed in either appearance, at e
 
 New users start with the appearance of the operating system, the **Standard** theme, the comfortable density, and **Excel Formatting** off. The choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. An appearance is stored only while the appearance switch is on; with it off, nothing is stored, and OpenL Studio follows the operating system. Using a different browser or computer starts from the defaults again.
 
+### Searching in OpenL Studio
+
+OpenL Studio has one search field. It stands in the top bar, between the name of the application and the **Projects**
+tab, and searches what the open page shows, so every page is searched in the same place and in the same way.
+
+![The top bar on the Files tab of a project: the search field names Files, and its list offers Files and Projects](images/header-search.png "The search field of the top bar")
+
+*The search field of the top bar, on the Files tab of a project*
+
+-   The name at the start of the field tells what is searched. The page is filtered as the text is typed.
+-   When a page has more than one thing to search, the name carries an arrow: click it to choose. Each choice keeps
+    its own text.
+-   A page can add a button at the end of the field: **Extended search** in Rules Editor, and the guide to search in
+    while the user guides are open.
+-   On a page with nothing to search, such as the system settings, the field finds projects: type a text and press
+    Enter to open the **Projects** page with the projects found.
+-   To move to the field from anywhere on the page, press `/`. In a text field, an open window and a selected table
+    cell, `/` is typed as usual. To clear the text, press Esc; press Esc again to leave
+    the field.
+
+The field searches the following:
+
+| Page                                  | Name in the field           | What is searched                                           |
+|---------------------------------------|-----------------------------|------------------------------------------------------------|
+| **Projects**                          | **Projects**                | The list of projects, and the tree while the **Tree** view is open. |
+| **Deployments**                       | **Deployments**             | The deployments of the selected repository.                |
+| A project, **Files** tab              | **Files**                   | The files of the project.                                  |
+| A project, **Revisions** tab          | **Revisions**               | The revisions, in a Git repository.                        |
+| A project, any tab                    | **Projects**                | The tree of projects on the left.                          |
+| Rules Editor                          | **Tables**                  | The tables of the module tree.                             |
+| Localization                          | **Messages**                | The keys of the left pane.                                 |
+| User guides                           | **All Guides**, or a guide  | The text of the guides.                                    |
+| **Users** and **Groups**              | **Users**, **Groups**       | The list.                                                  |
+
+A window opened over the page, such as a dialog or a list to pick a project, a module or a branch from, has a search
+field of its own.
+
 ### Displaying the OpenL Studio Help
 
 To display the OpenL Studio help topics, in OpenL Studio, in the top-right corner, click the user icon and select **Help**.
@@ -250,7 +288,7 @@ The **Documentation** section of the help page opens the user guides inside Open
 running version, so they are available without internet access. **Migration Notes** lists the releases from 5.25 up
 to the running one, the latest first: click a release to read what to change when upgrading to it.
 
-![User guides inside OpenL Studio: the search box and the guides with their pages on the left, the Using Rules Editor page in the middle, and the sections of the page on the right](images/user-guides-viewer.png)
+![User guides inside OpenL Studio: the guides with their pages on the left, the Using Rules Editor page in the middle, and the sections of the page on the right](images/user-guides-viewer.png)
 
 *Reading the user guides inside OpenL Studio*
 
@@ -260,10 +298,11 @@ to the running one, the latest first: click a release to read what to change whe
     browser address then includes the section, so a bookmark opens the page at that section.
 -   A link to another page of the guides opens it in the same view; a link to another site opens in a new browser tab.
 
-To find a topic, type in the **Search the guides** box at the top of the left pane. The pane then lists the sections
-holding every word typed, the best first; the last word also matches a longer word it begins, so the list follows the
-typing. The list under the box narrows the search to a guide or a section the open page belongs to, or widens it back
-to **All Guides**. Click a result to open its page at that section, or clear the box to return to the list of pages.
+To find a topic, type in the search field of the top bar, which is named **All Guides** while the guides are open.
+The left pane then lists the sections holding every word typed, the best first; the last word also matches a longer
+word it begins, so the list follows the typing. The book icon at the end of the field narrows the search to a guide or
+a section the open page belongs to, or widens it back to **All Guides**; the field is named after the guide it
+searches. Click a result to open its page at that section, or clear the field to return to the list of pages.
 
 ![Search for decision table: the sections found, each with the page it belongs to and the matched words highlighted](images/user-guides-search.png)
 
@@ -314,7 +353,7 @@ The following table describes Rules Editor organization:
 
 | Pane                     | Description                                                                                                                                        |
 |--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Left pane                | Displays the module tree providing a list of elements in the currently displayed rule module, with the search field and the view mode above it.  |
+| Left pane                | Displays the module tree providing a list of elements in the currently displayed rule module, with the view mode above it. The search field of the top bar searches the tree.  |
 | Middle pane              | Displays contents of the table selected in the left pane and provides controls for modifying table data, running tests, and checking test results. |
 | Right pane               | Displays **Table Details**, the properties of the currently displayed table.                                                                       |
 | Upper part <br/>of the window | Contains the breadcrumb, the module name, and the module actions as described further in this section.                                        |
@@ -324,7 +363,7 @@ The following table describes the Rules Editor controls of the module:
 | Control                                                                                                                           | Description                                                                                                                                                                                                                                                                                                            |
 |-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ![More options button](images/toolbar-more-options-icon.png)                                                                  | **Create Table** opens the table creation window with an immediately editable table skeleton. The **More** menu offers the following options: <br/>- Revisions: displays project revisions. <br/>- Local Changes: opens a window for reverting module changes. <br/>- Table Dependencies: opens a graph displaying dependencies among tables of the module, including the data model, that is which data type extends which and which data type a field refers to. Every data type is drawn as an entity box listing the fields it declares, a vocabulary as a box listing its values, and the data model of each project is framed as an area of its own, apart from the tables that call each other. <br/>- Compare Excel files: initiates a dialog for comparing Excel files. <br/>- Reformat Excel files: formats every table of every Excel file of the project with the OpenL table style, as described in [Reformatting Excel Files](rules-editor.md#reformatting-excel-files). It is offered to a user who can change the project. |
-| ![](images/toolbar-search-icon.png)                                                                  | Filters the module tree by table name. The filter icon at the end of the field opens the extended search. For more information on performing searches, see [Searching for Tables](rules-editor.md#searching-for-tables).                                                                                                                                                                                                    |
+| ![](images/toolbar-search-icon.png)                                                                  | The search field of the top bar, named **Tables** in Rules Editor, filters the module tree by table name. The filter icon at the end of the field opens the extended search. For more information on performing searches, see [Searching for Tables](rules-editor.md#searching-for-tables).                                                                                                                                                                                                    |
 | ![](images/toolbar-refresh-icon.png)                                                                  | Refreshes OpenL Studio with the latest changes in Excel files.                                                                                                                                                                                                                                              |
 | ![](images/toolbar-create-table-icon.png)                                                                  | Opens the table creation window with an immediately editable table skeleton.                                                                                                                                                                                                                                            |
 | ![](images/toolbar-deploy-project-icon.png)                                                                  | Deploys the project. For more information on project deployment, see [Deploying a Project](repository-editor.md#deploying-a-project).                                                                                                                                                                                                        |

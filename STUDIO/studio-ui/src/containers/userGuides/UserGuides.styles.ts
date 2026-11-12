@@ -21,17 +21,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         border-right: 1px solid ${token.colorSplit};
         background: ${token.colorBgLayout};
     `,
-    /** The search above the table of contents. */
-    search: css`
-        display: flex;
-        flex-direction: column;
-        gap: ${token.paddingXS}px;
-        padding: ${token.paddingSM}px ${token.paddingSM}px ${token.paddingXS}px;
-    `,
-    scope: css`
-        align-self: flex-start;
-        max-width: 100%;
-    `,
     /** Where the table of contents stays while a search shows its results, so the folders opened stay open. */
     railSlot: css`
         display: flex;

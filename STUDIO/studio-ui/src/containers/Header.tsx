@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert, Space } from 'antd'
+import { Avatar, Layout, Menu, MenuProps, Alert, Space } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { useStyles } from './Header.styles'
 import { UserMenu } from './header/UserMenu'
 import { ThemeSwitch } from './header/ThemeSwitch'
 import { SettingsMenu } from './header/SettingsMenu'
+import { HeaderSearch } from './header/HeaderSearch'
 import { Link, useLocation } from 'react-router'
 import Logo from '../components/Logo'
 import { hasDeploymentRepositories } from '../services/deployments'
@@ -87,41 +88,28 @@ export const Header = () => {
     return (
         <>
             <AntHeader className={styles.header}>
-                <Row justify="space-between" style={{ width: '100%' }}>
-                    <Col span={6}>
-                        <Row align="middle">
-                            <Col>
-                                <div className="header-logo">
-                                    <Logo />
-                                </div>
-                            </Col>
-                            <Col>
-                                <div className="header-title">
-                                    <Link to="/projects">{t('common:openl_studio')}</Link>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={10}>
-                        <Menu
-                            items={menuItems}
-                            mode="horizontal"
-                            onClick={({ key }) => appNavigate(key)}
-                            selectedKeys={[activeKeyFromPath]}
-                            style={{
-                                flex: 1,
-                                minWidth: 0,
-                            }}
-                        />
-                    </Col>
-                    <Col>
-                        <Space size="small">
-                            <SettingsMenu />
-                            <ThemeSwitch />
-                            <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
-                        </Space>
-                    </Col>
-                </Row>
+                <div className={styles.brand}>
+                    {/* The cube leads home as the name beside it does, which a narrow window hides. */}
+                    <Link aria-hidden className="header-logo" tabIndex={-1} to="/projects">
+                        <Logo />
+                    </Link>
+                    <div className="header-title">
+                        <Link to="/projects">{t('common:openl_studio')}</Link>
+                    </div>
+                </div>
+                <HeaderSearch />
+                <Menu
+                    className={styles.menu}
+                    items={menuItems}
+                    mode="horizontal"
+                    onClick={({ key }) => appNavigate(key)}
+                    selectedKeys={[activeKeyFromPath]}
+                />
+                <Space size="small">
+                    <SettingsMenu />
+                    <ThemeSwitch />
+                    <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
+                </Space>
                 <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />
             </AntHeader>
             {Notify}

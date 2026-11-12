@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { SearchOutlined } from '@ant-design/icons'
-import { Empty, Input, Select, Spin } from 'antd'
+import { ReadOutlined } from '@ant-design/icons'
+import { Empty, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { GuideEntry } from 'services/userGuides'
 import { errorHandler } from 'utils/errorHandling'
+import { useSearchScope } from '../../hooks/useSearchScope'
 import { GUIDES_ROUTE, routeOfFile, trailTo } from './guidePaths'
 import type { GuideSearchResult } from './guideSearch'
 import { type GuideSearch, startGuideSearch } from './guideSearchClient'
@@ -76,7 +77,8 @@ interface GuidesSearchProps {
 }
 
 /**
- * Searches the text of the guides, all of them or one folder above the page shown.
+ * Searches the text of the guides, all of them or one folder above the page shown, from the search of the
+ * header: the text is typed there, and the book at the end of the field chooses the guide to search in.
  *
  * The search runs in a worker, started with the first search: it reads every page once and indexes it, so a
  * reader who never searches never downloads the guides. While a query is typed, the results take the place of the
@@ -96,6 +98,23 @@ export const GuidesSearch: React.FC<GuidesSearchProps> = ({ contents, current, c
     // A folder left behind by opening a page elsewhere is no scope any more, so the search widens to all guides.
     const shownScope = scopes.some(option => option.value === scope) ? scope : ''
     const query = text.trim()
+    const shownLabel = scopes.find(option => option.value === shownScope)?.label ?? ''
+
+    // The field names the guide it searches in, so a narrowed search is told from a search of all the guides.
+    useSearchScope({
+        id: 'guides',
+        label: shownLabel,
+        onChange: setText,
+        placeholder: t('guides:search_placeholder'),
+        value: text,
+        action: {
+            choice: shownScope,
+            choices: scopes,
+            icon: <ReadOutlined />,
+            label: t('guides:scope'),
+            onChoice: setScope,
+        },
+    })
 
     useEffect(() => () => search.current?.dispose(), [])
 
@@ -125,25 +144,6 @@ export const GuidesSearch: React.FC<GuidesSearchProps> = ({ contents, current, c
 
     return (
         <>
-            <div className={styles.search}>
-                <Input
-                    allowClear
-                    aria-label={t('guides:search')}
-                    onChange={event => setText(event.target.value)}
-                    placeholder={t('guides:search_placeholder')}
-                    prefix={<SearchOutlined />}
-                    value={text}
-                />
-                <Select
-                    aria-label={t('guides:scope')}
-                    className={styles.scope}
-                    onChange={setScope}
-                    options={scopes}
-                    popupMatchSelectWidth={false}
-                    size="small"
-                    value={shownScope}
-                />
-            </div>
             {query !== '' && <SearchResults results={results} />}
             <div className={styles.railSlot} hidden={query !== ''}>
                 {children}

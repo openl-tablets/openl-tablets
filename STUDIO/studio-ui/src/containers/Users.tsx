@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { App, Alert, Badge, Button, Col, Input, Row, Table, Typography, Tooltip, theme } from 'antd'
+import { App, Alert, Badge, Button, Row, Table, Typography, Tooltip, theme } from 'antd'
 import {
     DeleteOutlined,
     EditOutlined,
     ExclamationCircleOutlined,
     ExclamationCircleTwoTone,
-    SearchOutlined,
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { apiCall } from 'services'
@@ -20,6 +19,7 @@ import { formatDateTime, useDateFormats } from '../utils/dateFormat'
 import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
+import { useSearchScope } from '../hooks/useSearchScope'
 
 export const Users: React.FC = () => {
     const { modal } = App.useApp()
@@ -32,6 +32,13 @@ export const Users: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
     const [searchText, setSearchText] = useState('')
+    useSearchScope({
+        id: 'users',
+        label: t('common:search.scopes.users'),
+        onChange: setSearchText,
+        placeholder: t('users:search_placeholder'),
+        value: searchText,
+    })
 
     const filteredUsers = useMemo(() => {
         const needle = searchText.trim().toLowerCase()
@@ -206,24 +213,7 @@ export const Users: React.FC = () => {
 
     return (
         <>
-            <Row align="middle" gutter={16}>
-                {isGroupsManagementEnabled && (
-                    <Col span={12}>
-                        <DefaultGroupInfo />
-                    </Col>
-                )}
-                <Col span={12}>
-                    <Input
-                        allowClear
-                        data-testid="users-search-input"
-                        onChange={(event) => setSearchText(event.target.value)}
-                        placeholder={t('users:search_placeholder')}
-                        prefix={<SearchOutlined />}
-                        style={{ marginBottom: 16, width: '100%' }}
-                        value={searchText}
-                    />
-                </Col>
-            </Row>
+            {isGroupsManagementEnabled && <DefaultGroupInfo />}
             {isGroupsManagementEnabled && groupsError && (
                 <Alert
                     closable

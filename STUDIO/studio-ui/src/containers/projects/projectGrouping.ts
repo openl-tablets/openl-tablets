@@ -1,5 +1,6 @@
 import { readJson, writeJson } from '../../utils/localStore'
 import type { Project } from '../../types/projects'
+import { projectMatches } from './projectListing'
 
 /** Group a level by the repository the project lives in. */
 export const GROUP_BY_REPOSITORY = '[Repository]'
@@ -223,7 +224,7 @@ export const searchTree = (nodes: GroupNode[], query: string): GroupNode[] => {
     }
     const matched: GroupNode[] = []
     for (const node of nodes) {
-        if (node.title.toLowerCase().includes(needle)) {
+        if (node.title.toLowerCase().includes(needle) || (node.project && projectMatches(node.project, needle))) {
             matched.push(node)
             continue
         }

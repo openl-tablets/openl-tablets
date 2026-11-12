@@ -175,6 +175,19 @@ describe('searchTree', () => {
         expect(found[0]?.children[0]?.children.map(node => node.title)).toEqual(['Gamma'])
     })
 
+    it('finds a project as the list does: by its author, its branch and its tags too, with all it holds', () => {
+        const authored = [
+            { ...projects[0], modifiedBy: 'alice', branch: 'feature/rates' } as Project,
+            ...projects.slice(1),
+        ]
+        const byAuthor = buildGroupTree(authored, [GROUP_BY_REPOSITORY], repositoryName)
+
+        expect(searchTree(byAuthor, 'ALICE').flatMap(node => node.children.map(child => child.title))).toEqual(['Alpha'])
+        expect(searchTree(byAuthor, 'rates').flatMap(node => node.children.map(child => child.title))).toEqual(['Alpha'])
+        // A tag the project carries, though no group of the tree is named after it.
+        expect(searchTree(byAuthor, 'auto').flatMap(node => node.children.map(child => child.title))).toEqual(['Alpha'])
+    })
+
     it('answers nothing when nothing matches, and everything without a search', () => {
         expect(searchTree(tree, 'nothing here')).toEqual([])
         expect(searchTree(tree, '   ')).toBe(tree)

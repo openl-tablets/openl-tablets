@@ -13,7 +13,15 @@ export const useStyles = createStyles(({ css, token }) => ({
             height: 48.5px;
         }
 
+        /* The search has the room the tabs leave: on a narrow window the name gives way to it, the cube stays. */
+        @media (max-width: 880px) {
+            .header-title {
+                display: none;
+            }
+        }
+
         .header-logo {
+            display: block;
             line-height: 14px;
             padding-right: 9px;
         }
@@ -31,5 +39,19 @@ export const useStyles = createStyles(({ css, token }) => ({
         ul.ant-menu-overflow {
             border: none;
         }
+    `,
+    brand: css`
+        display: flex;
+        align-items: center;
+        flex: none;
+    `,
+    /**
+     * The tabs take what the search leaves. On a narrow window the search gives way first, and the tabs fold into
+     * their overflow, which keeps its room.
+     */
+    menu: css`
+        /* Room for the Projects and Deployments tabs, 202 px, before the search starts to give way. */
+        flex: 1 1 240px;
+        min-width: 46px;
     `,
 }))

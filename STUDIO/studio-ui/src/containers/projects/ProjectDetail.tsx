@@ -9,6 +9,7 @@ import {
     type ReactNode,
 } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchScope } from '../../hooks/useSearchScope'
 import { useNavigate, useSearchParams } from 'react-router'
 import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
@@ -346,6 +347,17 @@ export const ProjectDetail = ({
         }
     }, [activeTab, onFilesVisible, project])
 
+    // The files are filtered from the search of the header while their tab is shown.
+    useSearchScope(project && activeTab === 'files'
+        ? {
+            id: 'files',
+            label: t('common:search.scopes.files'),
+            onChange: setFileFilter,
+            placeholder: t('browser.files.search'),
+            value: fileFilter,
+        }
+        : null)
+
     const stopResize = useCallback(() => {
         const cleanup = resizeCleanup.current
         resizeCleanup.current = null
@@ -461,6 +473,7 @@ export const ProjectDetail = ({
             children: activeTab === 'history' && (
                 <RevisionsPanel
                     branch={project.branch}
+                    headerSearch
                     currentRevision={project.revision}
                     onOpened={() => onChanged?.()}
                     projectId={project.id}
@@ -475,16 +488,15 @@ export const ProjectDetail = ({
             children: activeTab === 'files' && (
                 <div className={styles.filesLayout}>
                     <div className={styles.filesTree} style={{ width: treeWidth }}>
-                        <FilesToolbar
-                            canWrite={canWriteFiles}
-                            filter={fileFilter}
-                            folders={folders}
-                            onChanged={() => onChanged?.()}
-                            onCreateFolder={addVirtualFolder}
-                            onFilterChange={setFileFilter}
-                            projectId={project.id}
-                            targetFolder={selectedTargetFolder}
-                        />
+                        {canWriteFiles && (
+                            <FilesToolbar
+                                folders={folders}
+                                onChanged={() => onChanged?.()}
+                                onCreateFolder={addVirtualFolder}
+                                projectId={project.id}
+                                targetFolder={selectedTargetFolder}
+                            />
+                        )}
                         <LocalChangesSummary changes={localChanges} />
                         <div className={styles.treeScroll}>
                             <FileTree

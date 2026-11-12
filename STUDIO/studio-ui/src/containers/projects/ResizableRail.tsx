@@ -9,7 +9,7 @@ const useStyles = createStyles(({ css, token }) => ({
     resizable: css`
         position: relative;
     `,
-    /** The search and whatever else narrows the list, set apart from it. */
+    /** Whatever narrows the list, set apart from it. */
     top: css`
         flex: none;
         padding: 8px 12px;
@@ -33,8 +33,8 @@ interface ResizableRailProps {
     /** Where the width the rail was last dragged to is kept, apart from the other rails. */
     widthKey: string
     width: { min: number, max: number, fallback: number }
-    /** What stands over the list: the search, and whatever else narrows it. */
-    top: React.ReactNode
+    /** What stands over the list and narrows it: how it is grouped, what it leaves out. The header searches it. */
+    top?: React.ReactNode
     /** Draws the list in the room the rail has for it: no room before the rail is laid out. */
     children: (room: { height: number, width: number }) => React.ReactNode
 }
@@ -53,7 +53,7 @@ export const ResizableRail = ({ testId, widthKey, width, top, children }: Resiza
     return (
         <aside className={cx(shared.rail, styles.resizable)} data-testid={testId} style={{ width: size }}>
             <ResizeHandle edge="right" onPointerDown={startResize} testId={`${testId}-resizer`} />
-            <div className={styles.top}>{top}</div>
+            {top && <div className={styles.top}>{top}</div>}
             <div ref={ref} className={styles.body}>{children(room)}</div>
         </aside>
     )
