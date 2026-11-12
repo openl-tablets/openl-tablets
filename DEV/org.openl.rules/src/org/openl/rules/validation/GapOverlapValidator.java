@@ -34,6 +34,8 @@ import org.openl.validation.ValidationResult;
 public class GapOverlapValidator extends TablesValidator {
 
     private static final String VALIDATION_FAILED = "Validation failed for node : ";
+    private static final String UNSUPPORTED_CONDITION = "The check of uncovered and overlapped cases (validateDT) is skipped: "
+            + "it supports only conditions that compare an input with whole numbers or with a list of values.";
 
     @Override
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
@@ -74,6 +76,9 @@ public class GapOverlapValidator extends TablesValidator {
         try {
             var domains = gatherDomains(decisionTable);
             dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);
+        } catch (DomainCanNotBeDefined e) {
+            // Not a failure of the table: the check cannot tell which values such a condition covers.
+            messages.add(OpenLMessagesUtils.newWarnMessage(UNSUPPORTED_CONDITION, decisionTable.getSyntaxNode()));
         } catch (Exception t) {
             var errorMessage = "%s%s.Reason : %s".formatted(
                     VALIDATION_FAILED,
