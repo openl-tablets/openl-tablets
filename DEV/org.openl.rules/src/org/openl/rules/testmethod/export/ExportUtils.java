@@ -49,24 +49,32 @@ final class ExportUtils {
         return values.stream().map(value -> value == null ? null : field.get(value, null)).toList();
     }
 
+    /**
+     * Lists the elements of the collections and the arrays of a list as one list.
+     *
+     * <p>An array of arrays gives its innermost elements, the values of the component type the array is
+     * described by.
+     */
     static List<Object> flatten(List<?> list) {
         var result = new ArrayList<Object>();
         for (Object element : list) {
-            if (element == null) {
-                result.add(null);
+            if (element instanceof Collection<?> collection) {
+                result.addAll(collection);
             } else {
-                if (element instanceof Collection<?> collection) {
-                    result.addAll(collection);
-                } else if (!element.getClass().isArray()) {
-                    result.add(element);
-                } else {
-                    for (var i = 0; i < Array.getLength(element); i++) {
-                        result.add(Array.get(element, i));
-                    }
-                }
+                addElements(result, element);
             }
         }
 
         return result;
+    }
+
+    private static void addElements(List<Object> result, Object element) {
+        if (element == null || !element.getClass().isArray()) {
+            result.add(element);
+            return;
+        }
+        for (var i = 0; i < Array.getLength(element); i++) {
+            addElements(result, Array.get(element, i));
+        }
     }
 }
