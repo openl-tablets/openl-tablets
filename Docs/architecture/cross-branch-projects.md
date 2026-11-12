@@ -284,6 +284,14 @@ Publishing a snapshot — both the early default-branch snapshot and the complet
 logical-project projection and send the project-change notification. Each OpenL Studio node must own its index and
 converge independently through repository change monitoring.
 
+The notification only puts the project listing of a user workspace out of date (`UserWorkspaceImpl`): it never waits
+for a listing being built. A listing reads the design projects and their audit versions before it locks itself, the
+version of the branch the user works on a project in among them, so the first read of a version, a walk over the
+history, keeps no other project request waiting. A change counted while
+a listing is built leaves that listing out of date, and a listing built for earlier changes than the one in place is
+dropped; so is a listing for the same changes that no request forced. A refresh of the design repository is counted as
+it starts and again as it ends, even when it fails.
+
 Project-list and project-read requests must never enumerate branches, create branch views or scan Git trees. A
 steady refresh must use one batched status lookup and scan only branches whose relevant state changed.
 

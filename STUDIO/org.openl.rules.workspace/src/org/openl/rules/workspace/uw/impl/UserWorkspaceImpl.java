@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -67,7 +68,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final Set<ProjectKey> listedFolders = new HashSet<>();
     private Map<ProjectId, RulesProject> rulesProjectsById = Map.of();
 
-    private volatile boolean projectsRefreshNeeded = true;
+    /**
+     * Counts the changes that put the listing out of date. A change is counted without waiting for a listing being
+     * built, and the listing built meanwhile stays out of date.
+     */
+    private final AtomicLong refreshRequests = new AtomicLong(1);
+    /** The count of changes the listing was last built for. Written under the monitor of the listing. */
+    private volatile long refreshedRequests;
     private volatile boolean syncNeeded = true;
     private volatile boolean cleanUpOnActivation;
 
@@ -126,9 +133,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
-        if (refreshBefore || projectsRefreshNeeded) {
-            refreshRulesProjects();
-        }
+        refreshIfNeeded(refreshBefore);
 
         RulesProject uwp;
         synchronized (userRulesProjects) {
@@ -170,9 +175,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public List<RulesProject> getProjects(String repositoryId) {
-        if (projectsRefreshNeeded) {
-            refreshRulesProjects();
-        }
+        refreshIfNeeded(false);
         synchronized (userRulesProjects) {
             return userRulesProjects.entrySet()
                     .stream()
@@ -185,9 +188,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Collection<RulesProject> getProjects(boolean refreshBefore) {
-        if (refreshBefore || projectsRefreshNeeded) {
-            refreshRulesProjects();
-        }
+        refreshIfNeeded(refreshBefore);
 
         ArrayList<RulesProject> result;
         synchronized (userRulesProjects) {
@@ -201,9 +202,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Collection<RulesProject> getProjectsByName(String name, boolean refreshBefore) {
-        if (refreshBefore || projectsRefreshNeeded) {
-            refreshRulesProjects();
-        }
+        refreshIfNeeded(refreshBefore);
         synchronized (userRulesProjects) {
             var keys = rulesProjectKeysByName.get(name.toLowerCase(Locale.ROOT));
             if (keys == null || keys.isEmpty()) {
@@ -227,9 +226,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Optional<RulesProject> getProjectById(ProjectId id, boolean refreshBefore) {
-        if (refreshBefore || projectsRefreshNeeded) {
-            refreshRulesProjects();
-        }
+        refreshIfNeeded(refreshBefore);
         synchronized (userRulesProjects) {
             return Optional.ofNullable(rulesProjectsById.get(id));
         }
@@ -237,10 +234,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public boolean hasProject(String repositoryId, String name) {
+        refreshIfNeeded(false);
         synchronized (userRulesProjects) {
-            if (projectsRefreshNeeded) {
-                refreshRulesProjects();
-            }
             return userRulesProjects.containsKey(ProjectKey.byName(repositoryId, name));
         }
     }
@@ -285,7 +280,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         if (anyProjectRenamed) {
             // We need to recreate projects list in user workspace.
-            refreshRulesProjects();
+            refreshRulesProjects(true);
         }
     }
 
@@ -368,11 +363,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
         scheduleProjectsRefresh(false);
     }
 
+    /**
+     * Puts the listing out of date without waiting for a listing being built.
+     *
+     * <p>A refresh of the design repository is counted before it starts and once more when it ends, even when it fails.
+     * The listing is out of date at once, and a listing built while the design repository is refreshed stays so.
+     */
     private void scheduleProjectsRefresh(boolean refreshDesignRepository) {
-        synchronized (userRulesProjects) {
-            projectsRefreshNeeded = true;
-            if (refreshDesignRepository) {
+        refreshRequests.incrementAndGet();
+        if (refreshDesignRepository) {
+            try {
                 designTimeRepository.refresh();
+            } finally {
+                refreshRequests.incrementAndGet();
             }
         }
         for (UserWorkspaceListener listener : listeners) {
@@ -380,26 +383,51 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    private void refreshRulesProjects() {
+    /**
+     * Builds the listing again when it is out of date, or when forced.
+     */
+    private void refreshIfNeeded(boolean forced) {
+        if (forced || refreshedRequests < refreshRequests.get()) {
+            refreshRulesProjects(forced);
+        }
+    }
+
+    /**
+     * Builds the listing again.
+     *
+     * <p>The design projects and their revisions are read before the listing is locked. The first read of a revision
+     * may walk the history of a repository: under the lock, every request for the projects would wait for that walk.
+     *
+     * <p>A refresh leaves the listing as it is when the listing is built for later changes than the refresh read. A
+     * refresh that is not forced leaves it too when the listing is built for the same changes.
+     *
+     * @param forced whether to build the listing even when it is built for the changes the refresh read: a change of
+     *               the workspace copies is not counted
+     */
+    private void refreshRulesProjects(boolean forced) {
         localWorkspace.refresh();
+        var request = refreshRequests.get();
+        // Each project comes with the branches that hold it, resolved in the same pass: asking the design
+        // side for them again would repeat the permission questions the listing has already answered.
+        var designProjects = designTimeRepository.getDesignProjects();
+        // The folders the design side accounts for, per repository. A workspace copy sitting in one of them
+        // belongs to the project that holds it, so it must not be claimed by another project that merely
+        // shares its name. Repositories are kept apart, because two of them may hold the very same folder.
+        var designFolders = designProjects.stream()
+                .map(DesignProject::project)
+                .collect(Collectors.groupingBy(project -> project.getRepository().getId(),
+                        Collectors.mapping(AProject::getRealPath, Collectors.toSet())));
+        readRevisions(designProjects, designFolders);
 
         synchronized (userRulesProjects) {
+            if (isListedFor(request, forced)) {
+                log.debug("The projects are listed for these changes already.");
+                return;
+            }
             // The branches of closed projects are taken from the preferences, which only a branch switch writes.
             // Copying them back from the projects being replaced would undo a switch another request is making
             // on a project it took before this refresh.
             clearRulesProjectsCache();
-
-            // Each project comes with the branches that hold it, resolved in the same pass: asking the design
-            // side for them again would repeat the permission questions the listing has already answered.
-            var designProjects = designTimeRepository.getDesignProjects();
-
-            // The folders the design side accounts for, per repository. A workspace copy sitting in one of them
-            // belongs to the project that holds it, so it must not be claimed by another project that merely
-            // shares its name. Repositories are kept apart, because two of them may hold the very same folder.
-            var designFolders = designProjects.stream()
-                    .map(DesignProject::project)
-                    .collect(Collectors.groupingBy(project -> project.getRepository().getId(),
-                            Collectors.mapping(AProject::getRealPath, Collectors.toSet())));
 
             // The copies are matched and listed from one view. Another request may open or close a copy
             // meanwhile, and a copy missed by the match but met by the listing would be listed twice.
@@ -425,13 +453,66 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             indexById(locations);
 
-            projectsRefreshNeeded = false;
+            refreshedRequests = request;
             cleanUpOnActivation = false;
-
-            if (syncNeeded) {
-                doSyncProjects();
-            }
         }
+        // Outside the lock: a renamed folder lists the projects again, which reads the design projects first.
+        if (syncNeeded) {
+            doSyncProjects();
+        }
+    }
+
+    private boolean isListedFor(long request, boolean forced) {
+        return request < refreshedRequests || !forced && request == refreshedRequests;
+    }
+
+    /**
+     * Reads the revisions the listing shows: of each design project, and of the branch the user works on it in.
+     *
+     * <p>The branch is told by the workspace copies as they are now. The listing tells it again under its lock, so a
+     * copy opened or closed meanwhile only leaves a revision to read there.
+     */
+    private void readRevisions(Collection<DesignProject> designProjects, Map<String, Set<String>> designFolders) {
+        var localProjects = localWorkspace.snapshot();
+        for (var designProject : designProjects) {
+            readRevision(designProject.project());
+            selectedBranchProject(designProject, designFolders, localProjects)
+                    .ifPresent(UserWorkspaceImpl::readRevision);
+        }
+    }
+
+    /**
+     * The project of the branch the user works on the design project in, when the branches tell it.
+     */
+    private Optional<AProject> selectedBranchProject(DesignProject designProject,
+                                                     Map<String, Set<String>> designFolders,
+                                                     LocalProjects localProjects) {
+        var project = designProject.project();
+        var branches = designProject.branches();
+        if (branches == null) {
+            return Optional.empty();
+        }
+        var folders = designFolders.getOrDefault(project.getRepository().getId(), Set.of());
+        var lp = findLocalProject(project, project.getRealPath(), folders, localProjects);
+        return Optional.ofNullable(selectedBranch(project, lp == null ? null : lp.getFileData()))
+                .flatMap(branches::entry)
+                .map(BranchedProject.BranchEntry::project);
+    }
+
+    private static void readRevision(AProject project) {
+        var fileData = project.getFileData();
+        if (fileData != null) {
+            fileData.getVersion();
+        }
+    }
+
+    /**
+     * The branch the user works on the project in: the one of the workspace copy, or else the one last chosen.
+     */
+    private @Nullable String selectedBranch(AProject project, @Nullable FileData local) {
+        return local == null
+                ? branchPreferences.get(project.getRepository().getId(), project.getName()).orElse(null)
+                : local.getBranch();
     }
 
     /**
@@ -462,9 +543,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         var closeProject = false;
 
         if (branchedProject.isPresent()) {
-            var selectedBranch = local == null
-                    ? branchPreferences.get(repoId, name).orElse(null)
-                    : local.getBranch();
+            var selectedBranch = selectedBranch(rp, local);
             if (selectedBranch != null) {
                 var branchEntry = branchedProject.get().entry(selectedBranch);
                 if (branchEntry.isPresent()) {

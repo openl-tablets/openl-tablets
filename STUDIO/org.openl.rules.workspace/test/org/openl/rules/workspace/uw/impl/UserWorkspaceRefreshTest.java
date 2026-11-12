@@ -5,11 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -19,12 +23,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -500,7 +509,9 @@ class UserWorkspaceRefreshTest {
         // Another request opens the copy while the listing runs: a second look at the workspace would meet it.
         var beforeTheCopy = workspaceSnapshot();
         seedOpenedCopy("design", "main", false);
-        when(localWorkspace.snapshot()).thenReturn(beforeTheCopy).thenAnswer(invocation -> workspaceSnapshot());
+        // The listing looks at the workspace twice: to read the revisions before it locks, and to list under the lock
+        when(localWorkspace.snapshot()).thenReturn(beforeTheCopy, beforeTheCopy)
+                .thenAnswer(invocation -> workspaceSnapshot());
         var id = ProjectIds.of("design", DESIGN_PATH);
 
         var listed = userWorkspace.getProjects(true);
@@ -949,5 +960,169 @@ class UserWorkspaceRefreshTest {
             }
         }
         return new LocalProjects(projects);
+    }
+
+    @Test
+    void theRevisionsAreReadWhileOtherRequestsGetTheProjects() throws Exception {
+        mockEmptyDesign();
+        var firstRead = new AtomicBoolean(true);
+        var otherRequest = new CompletableFuture<Integer>();
+        var project = designProject(PROJECT, () -> {
+            if (firstRead.getAndSet(false)) {
+                // The first read may walk a long history: another request gets the projects meanwhile.
+                otherRequest.complete(CompletableFuture.supplyAsync(() -> userWorkspace.getProjects(false).size())
+                        .orTimeout(10, TimeUnit.SECONDS)
+                        .join());
+            }
+        });
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+
+        assertEquals(1, userWorkspace.getProjects(true).size());
+        assertEquals(1, otherRequest.get(), "Another request is not kept waiting by the read of a revision.");
+    }
+
+    @Test
+    void theRevisionOfTheChosenBranchIsReadWhileOtherRequestsGetTheProjects() throws Exception {
+        var main = branchProjectRepository("main");
+        var feature = branchProjectRepository("feature/rates");
+        var mainData = new FileData();
+        mainData.setName(DESIGN_PATH);
+        mainData.setVersion("main-revision");
+        var mainProject = new AProject(main, mainData);
+        var firstRead = new AtomicBoolean(true);
+        var otherRequest = new CompletableFuture<Integer>();
+        var featureData = new FileData() {
+            @Override
+            public String getVersion() {
+                if (firstRead.getAndSet(false)) {
+                    // The branch the user works on is read before the listing is locked
+                    otherRequest.complete(CompletableFuture.supplyAsync(() -> userWorkspace.getProjects(false).size())
+                            .orTimeout(10, TimeUnit.SECONDS)
+                            .join());
+                }
+                return "feature-revision";
+            }
+        };
+        featureData.setName(DESIGN_PATH);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+        ProjectBranchPreferenceStore.open(userDir).put("design", PROJECT, "feature/rates");
+        var recreated = new UserWorkspaceImpl(new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
+                localWorkspace,
+                designTimeRepository,
+                projectsLockEngine);
+        userWorkspace = recreated;
+
+        var project = recreated.getProject("design", PROJECT);
+
+        assertEquals("feature/rates", project.getBranch());
+        assertEquals(1, otherRequest.get(), "Another request is not kept waiting by the read of a revision.");
+    }
+
+    @Test
+    void aChangeDuringTheListingKeepsTheProjectsOutOfDate() throws IOException {
+        mockEmptyDesign();
+        var firstRead = new AtomicBoolean(true);
+        var project = designProject(PROJECT, () -> {
+            if (firstRead.getAndSet(false)) {
+                userWorkspace.refresh();
+            }
+        });
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+
+        userWorkspace.getProjects(true);
+        userWorkspace.getProjects(false);
+
+        verify(designTimeRepository, times(2)).getProjects();
+        userWorkspace.getProjects(false);
+        verify(designTimeRepository, times(2)).getProjects();
+    }
+
+    @Test
+    void aListingOfEarlierChangesLeavesTheLaterOneAsItIs() throws IOException {
+        mockEmptyDesign();
+        var firstRead = new AtomicBoolean(true);
+        var second = designProject(SECOND_PROJECT, () -> {
+        });
+        var first = designProject(PROJECT, () -> {
+            if (firstRead.getAndSet(false)) {
+                // A change, and a request that lists the projects after it, while this listing reads revisions.
+                when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(second));
+                userWorkspace.refresh();
+                assertEquals(List.of(SECOND_PROJECT), names(userWorkspace.getProjects(true)));
+            }
+        });
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(first));
+
+        assertEquals(List.of(SECOND_PROJECT), names(userWorkspace.getProjects(true)),
+                "The listing built for the later change is kept.");
+    }
+
+    @Test
+    void theProjectsAreOutOfDateWhileTheDesignRepositoryIsRefreshed() throws IOException {
+        mockEmptyDesign();
+        userWorkspace.getProjects(true);
+        doAnswer(invocation -> userWorkspace.getProjects(false)).when(designTimeRepository).refresh();
+
+        userWorkspace.refresh();
+        userWorkspace.getProjects(false);
+
+        // Listed again while the design repository is refreshed, and once more after it
+        verify(designTimeRepository, times(3)).getProjects();
+    }
+
+    @Test
+    void aFailedRefreshOfTheDesignRepositoryLeavesTheProjectsOutOfDate() throws IOException {
+        mockEmptyDesign();
+        userWorkspace.getProjects(true);
+        doThrow(new IllegalStateException("The repository is unreachable.")).when(designTimeRepository).refresh();
+
+        assertThrows(IllegalStateException.class, userWorkspace::refresh);
+        userWorkspace.getProjects(false);
+
+        verify(designTimeRepository, times(2)).getProjects();
+    }
+
+    @Test
+    void aRefreshNotForcedLeavesTheProjectsListedForTheSameChanges() throws IOException {
+        mockEmptyDesign();
+        var reads = new AtomicInteger();
+        var project = designProject(PROJECT, () -> {
+            if (reads.incrementAndGet() == 1) {
+                // Another request lists the projects for the same changes while this one reads the revisions
+                userWorkspace.getProjects(false);
+            }
+        });
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+
+        userWorkspace.getProjects(false);
+
+        // Read before each listing is locked, and once by the listing the other request builds
+        assertEquals(3, reads.get(), "Only the other request builds the listing.");
+    }
+
+    /**
+     * A design project whose revision runs the action when it is read.
+     */
+    private AProject designProject(String name, Runnable onRead) {
+        var data = new FileData() {
+            @Override
+            public String getVersion() {
+                onRead.run();
+                return "rev-1";
+            }
+        };
+        data.setName("DESIGN/rules/" + name);
+        return new AProject(designTimeRepository.getRepository("design"), data);
+    }
+
+    private static List<String> names(Collection<RulesProject> projects) {
+        return projects.stream()
+                .map(RulesProject::getName)
+                .toList();
     }
 }
