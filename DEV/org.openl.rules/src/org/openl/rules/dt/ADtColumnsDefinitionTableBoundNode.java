@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -107,6 +108,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
         var i = 0;
         var headerIndexes = getHeaderIndexes(tableBody, tableStructure);
+        if (headerIndexes == null) {
+            return;
+        }
         if (headerIndexes != DEFAULT_HEADER_INDEXES) {
             i = tableBody.getSource().getCell(0, 0).getHeight();
         } else {
@@ -114,6 +118,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             int[] tableStructureT = getTableStructure(tableBodyT);
             if (tableStructureT.length == 4) {
                 var headerIndexesT = getHeaderIndexes(tableBodyT, tableStructureT);
+                if (headerIndexesT == null) {
+                    return;
+                }
                 i = tableBodyT.getSource().getCell(0, 0).getHeight();
                 tableBody = tableBodyT;
                 tableStructure = tableStructureT;
@@ -397,34 +404,47 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(dtColumnsDefinition);
     }
 
-    private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
-        int[] headerIndexes = new int[4];
-        var j = 0;
-        var k = 0;
-        while (j < tableStructure.length) {
-            var d = tableBody.getSource().getCell(tableStructure[j], 0).getStringValue();
-            if ("Title".equalsIgnoreCase(d)) {
-                headerIndexes[TITLE_INDEX] = j;
-                k++;
-            } else if ("Parameter".equalsIgnoreCase(d)) {
-                headerIndexes[PARAMETER_INDEX] = j;
-                k++;
-            } else if ("Expression".equalsIgnoreCase(d)) {
-                headerIndexes[EXPRESSION_INDEX] = j;
-                k++;
-            } else if ("Inputs".equalsIgnoreCase(d)) {
-                headerIndexes[INPUTS_INDEX] = j;
-                k++;
+    /**
+     * Finds the columns of the header: Inputs, Expression, Parameter and Title, in any order.
+     *
+     * <p>A table without a header takes the columns in that order. A header that names three of the four columns
+     * is mistyped: the cell that names none, or names a column a second time, is reported, and nothing is
+     * returned.
+     *
+     * <p>A first line that names fewer columns is a definition, not a header: its expression and title may be
+     * the very words Expression and Title.
+     */
+    private int @Nullable [] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
+        int[] headerIndexes = {-1, -1, -1, -1};
+        var found = 0;
+        var unknown = -1;
+        for (var j = 0; j < tableStructure.length; j++) {
+            var header = tableBody.getSource().getCell(tableStructure[j], 0).getStringValue();
+            var index = header == null ? -1 : HEADERS.indexOf(header.toLowerCase(Locale.ROOT));
+            if (index >= 0 && headerIndexes[index] < 0) {
+                headerIndexes[index] = j;
+                found++;
+            } else if (unknown < 0) {
+                unknown = j;
             }
-            j++;
-
         }
-        if (k == 4) {
+        if (found == 4) {
             return headerIndexes;
         }
-        return DEFAULT_HEADER_INDEXES;
+        if (found < 3) {
+            return DEFAULT_HEADER_INDEXES;
+        }
+        var cell = tableBody.getSource().getSubtable(tableStructure[unknown], 0, 1, 1);
+        var header = Objects.toString(cell.getCell(0, 0).getStringValue(), "");
+        BindHelper.processError("%s header '%s'. Expected: Inputs, Expression, Parameter, Title."
+                .formatted(HEADERS.contains(header.toLowerCase(Locale.ROOT)) ? "Duplicated" : "Unknown", header),
+                new GridCellSourceCodeModule(cell, bindingContext),
+                bindingContext);
+        return null;
     }
 
+    /** The names of the header columns, each at its {@code *_INDEX}. */
+    private static final List<String> HEADERS = List.of("inputs", "expression", "parameter", "title");
     private static final int[] DEFAULT_HEADER_INDEXES = new int[]{0, 1, 2, 3};
     private static final int INPUTS_INDEX = 0;
     private static final int EXPRESSION_INDEX = 1;
