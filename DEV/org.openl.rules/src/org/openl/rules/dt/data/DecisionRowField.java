@@ -1,6 +1,7 @@
 package org.openl.rules.dt.data;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
@@ -32,14 +33,32 @@ public class DecisionRowField implements IOpenField {
     public Object get(Object target, IRuntimeEnv env) {
         var reo = (RuleExecutionObject) target;
         var ruleNum = reo.getRuleNum();
-        Object[] res = new Object[conditionOrAction.getNumberOfParams()];
         var params = env.getLocalFrame();
         if (numberOfTableParameters != env.getLocalFrame().length) {
             params = new Object[numberOfTableParameters];
             System.arraycopy(env.getLocalFrame(), 0, params, 0, numberOfTableParameters);
         }
-        conditionOrAction.loadValues(res, 0, ruleNum, target, params, env);
-        return res;
+        return new Values(conditionOrAction, ruleNum, target, params, env);
+    }
+
+    /**
+     * The parameters of a condition or an action in one rule.
+     *
+     * <p>A parameter is computed when it is read. So a formula of one parameter can refer to another parameter of
+     * its own column, such as {@code $RET1.limit}, without being computed again itself.
+     */
+    @RequiredArgsConstructor
+    static final class Values {
+
+        private final IDecisionRow conditionOrAction;
+        private final int ruleNum;
+        private final Object target;
+        private final Object[] tableParams;
+        private final IRuntimeEnv env;
+
+        Object get(int paramNum) {
+            return conditionOrAction.loadValue(paramNum, ruleNum, target, tableParams, env);
+        }
     }
 
     @Override
