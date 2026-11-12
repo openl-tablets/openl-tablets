@@ -1,5 +1,6 @@
 import type { BenchmarkResult, RunResult, TestsSummary, ValueLevel } from 'types/execution'
 import { ALL_FAILURES, ALL_TESTS_ON_A_PAGE, FAILURES_PER_TEST, TESTS_PAGE_SIZE } from 'constants/tests'
+import { parseJson } from 'utils/exactJson'
 import apiCall, { asArray, readTaskResult } from './apiCall'
 import { isStillRunning } from './taskResult'
 
@@ -10,7 +11,7 @@ const AS_JSON = { headers: { Accept: 'application/json' } }
 
 /** Reads a result as JSON, once the execution that produces it has ended. */
 const readJson = async (url: string): Promise<unknown> =>
-    (await readTaskResult(url, AS_JSON, EXECUTION_API_OPTIONS)).json()
+    parseJson(await (await readTaskResult(url, AS_JSON, EXECUTION_API_OPTIONS)).text())
 
 /** The workbook the run and the test results are saved as. */
 export const XLSX_MEDIA_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

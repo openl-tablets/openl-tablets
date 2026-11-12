@@ -1,10 +1,12 @@
 package org.openl.studio.config;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 import jakarta.xml.bind.annotation.XmlElement;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.CustomDefinition;
 import com.github.victools.jsonschema.generator.FieldScope;
 import com.github.victools.jsonschema.generator.MemberScope;
@@ -13,7 +15,9 @@ import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerationContext;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
+import com.github.victools.jsonschema.generator.SchemaKeyword;
 import com.github.victools.jsonschema.generator.SchemaVersion;
+import com.github.victools.jsonschema.generator.TypeScope;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,6 +41,9 @@ import org.springframework.context.annotation.Scope;
  * <p>
  * Both describe a {@link Locale} as text, the way it is written in JSON and the way the OpenAPI schema of
  * OpenL Rule Services describes it.
+ * <p>
+ * Both describe a {@link BigDecimal} as a number of the format {@code decimal}, which tells an exact decimal from a
+ * {@code double}. No other number has a format.
  */
 @Configuration
 public class ObjectSchemaGeneratorConfiguration {
@@ -104,7 +111,8 @@ public class ObjectSchemaGeneratorConfiguration {
         configBuilder.forTypesInGeneral()
                 .withCustomDefinitionProvider(new JacksonBeanSchemaProvider(objectMapper))
                 .withCustomDefinitionProvider(ObjectSchemaGeneratorConfiguration::localeAsText)
-                .withTypeAttributeOverride(new MapEntriesAttributeOverride());
+                .withTypeAttributeOverride(new MapEntriesAttributeOverride())
+                .withTypeAttributeOverride(ObjectSchemaGeneratorConfiguration::decimalFormat);
         return configBuilder;
     }
 
@@ -118,6 +126,12 @@ public class ObjectSchemaGeneratorConfiguration {
         }
         var parameter = member.getAnnotationConsideringFieldAndGetter(Parameter.class);
         return parameter == null || parameter.description().isEmpty() ? null : parameter.description();
+    }
+
+    private static void decimalFormat(ObjectNode node, TypeScope scope, SchemaGenerationContext context) {
+        if (scope.getType().getErasedType() == BigDecimal.class) {
+            node.put(context.getKeyword(SchemaKeyword.TAG_FORMAT), "decimal");
+        }
     }
 
     /** Describes a locale as the text it is written as, such as {@code en_US}. Other types are left as they are. */

@@ -2,8 +2,9 @@ import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from
 import { Form, Radio, Skeleton, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
-import { primaryType, resolveSchema, type JsonSchema } from 'components/schemaForm/schema'
+import { isRecord, primaryType, resolveSchema, type JsonSchema } from 'components/schemaForm/schema'
 import type { TraceParameterValue } from 'types/trace'
+import { parseJson } from 'utils/exactJson'
 import { RUNTIME_CONTEXT_LABELS } from './runtimeContextLabels'
 
 // The editor the Projects tab opens a file with. It is loaded on first use, as CodeMirror is heavy.
@@ -33,8 +34,7 @@ interface ParametersInputProps {
 
 type InputMode = 'form' | 'json'
 
-const asRecord = (value: unknown): Record<string, unknown> =>
-    value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
+const asRecord = (value: unknown): Record<string, unknown> => (isRecord(value) ? value : {})
 
 /** The structured input the run and trace APIs read. The parameters go by name, the context only when it is set. */
 const toInputJson = (value: Record<string, unknown>): string => {
@@ -156,7 +156,7 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
             return { parsed: {} }
         }
         try {
-            return { parsed: JSON.parse(json) }
+            return { parsed: parseJson(json) }
         } catch (parseError) {
             return { error: t('input.jsonInvalid', { message: (parseError as Error).message }) }
         }

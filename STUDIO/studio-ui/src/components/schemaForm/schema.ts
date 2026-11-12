@@ -1,3 +1,5 @@
+import { isExactNumber } from 'utils/exactJson'
+
 /** The part of a JSON Schema the input form reads. */
 export interface JsonSchema {
     type?: string | string[]
@@ -131,6 +133,9 @@ export const fieldKind = (schema: JsonSchema): FieldKind => {
 export const mapValueSchema = (schema: JsonSchema): JsonSchema =>
     typeof schema.additionalProperties === 'object' ? schema.additionalProperties : {}
 
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+    value !== null && typeof value === 'object' && !Array.isArray(value) && !isExactNumber(value)
+
 /**
  * A value without its `null` leaves.
  *
@@ -142,8 +147,8 @@ export const withoutNulls = (value: unknown): unknown => {
     if (Array.isArray(value)) {
         return value.map(item => (item === null ? null : withoutNulls(item)))
     }
-    if (value !== null && typeof value === 'object') {
-        return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+    if (isRecord(value)) {
+        return Object.fromEntries(Object.entries(value)
             .filter(([, item]) => item !== null && item !== undefined)
             .map(([key, item]) => [key, withoutNulls(item)]))
     }

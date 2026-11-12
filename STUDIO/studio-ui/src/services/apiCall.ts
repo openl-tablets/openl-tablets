@@ -1,6 +1,7 @@
 import { notification } from './popups'
 import CONFIG from './config'
 import { errorMessage } from '../utils/errorMessage'
+import { parseJson } from '../utils/exactJson'
 import { CLIENT_ID, CLIENT_ID_HEADER } from './clientId'
 import { ResultNotReadyError } from './taskResult'
 import { useAppStore } from 'store'
@@ -121,7 +122,7 @@ const readResponse = async (response: Response, opts: ApiCallOptions) => {
         return response.blob()
     }
     if (isJsonResponse(response)) {
-        return response.json()
+        return parseJson(await response.text())
     }
     // For 204 No Content or responses without body
     if (response.status === 204) {

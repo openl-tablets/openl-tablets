@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
 import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 import { keysOf, nameEntry, openNode as open } from 'testing/schemaTree'
+import { ExactNumber } from 'utils/exactJson'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -484,5 +485,105 @@ describe('SchemaForm', () => {
         await userEvent.tab()
 
         await waitFor(() => expect(screen.queryByTestId('input-any')).toBeNull())
+    })
+
+    describe('with a number a double does not hold', () => {
+        const exact = new ExactNumber('2.000000000000000005')
+        const same = new ExactNumber('2.000000000000000005')
+        const money = (schema: object): SchemaFormParameter => ({ name: 'v', schema })
+
+        it('keeps the starting value of a parameter as it is', () => {
+            const parameter = { ...money({ type: 'number', format: 'decimal' }), value: exact }
+
+            expect(initialFormValue([parameter])['v']).toBe(exact)
+            expect(initialFormValue([{ name: 'o', schema: policy.schema, value: { limits: { a: exact } } }])['o'])
+                .toStrictEqual({ limits: { a: exact } })
+        })
+
+        it('writes the digits typed into a decimal field', async () => {
+            const onChange = vi.fn()
+            render(<Harness onChange={onChange} parameters={[money({ type: 'number', format: 'decimal' })]} />)
+
+            await userEvent.click(screen.getByTestId('edit-v'))
+            await userEvent.type(screen.getByTestId('input-v'), '2.000000000000000005{enter}')
+
+            expect(JSON.stringify(onChange.mock.lastCall?.[0])).toBe('{"v":2.000000000000000005}')
+            expect(screen.getByTestId('value-v')).toHaveTextContent(/^2\.000000000000000005$/)
+        })
+
+        it('shows the digits in the editor and keeps them when the editing ends untouched', async () => {
+            const onChange = vi.fn()
+            render(<Harness
+                initial={{ v: exact }}
+                onChange={onChange}
+                parameters={[money({ type: 'number', format: 'decimal' })]}
+            />)
+
+            await userEvent.click(screen.getByTestId('edit-v'))
+            expect(screen.getByTestId('input-v')).toHaveValue('2.000000000000000005')
+            await userEvent.tab()
+            expect(onChange).not.toHaveBeenCalled()
+        })
+
+        it('keeps a long whole number typed into an integer field', async () => {
+            const onChange = vi.fn()
+            render(<Harness onChange={onChange} parameters={[money({ type: 'integer' })]} />)
+
+            await userEvent.click(screen.getByTestId('edit-v'))
+            await userEvent.type(screen.getByTestId('input-v'), '9007199254740993{enter}')
+
+            expect(JSON.stringify(onChange.mock.lastCall?.[0])).toBe('{"v":9007199254740993}')
+        })
+
+        it('says the number is rounded in a double field, and does not in a decimal or an integer one', () => {
+            render(<Harness
+                initial={{ d: exact, big: exact, whole: exact }}
+                parameters={[
+                    { name: 'd', schema: { type: 'number' } },
+                    { name: 'big', schema: { type: 'number', format: 'decimal' } },
+                    { name: 'whole', schema: { type: 'integer' } },
+                ]}
+            />)
+
+            expect(screen.getAllByText('input.rounded')).toHaveLength(1)
+            expect(screen.getByTestId('rounded-d')).toHaveTextContent('input.rounded')
+        })
+
+        it('keeps a number written into a JSON field with every digit', async () => {
+            const onChange = vi.fn()
+            render(<Harness onChange={onChange} parameters={[{ name: 'any' }]} />)
+
+            await userEvent.click(screen.getByTestId('edit-any'))
+            await userEvent.type(screen.getByTestId('input-any'), '{{"a": 2.000000000000000005}')
+
+            expect(JSON.stringify(onChange.mock.lastCall?.[0])).toBe('{"any":{"a":2.000000000000000005}}')
+        })
+
+        it('draws no row of its own for a number that arrives where a map stands', async () => {
+            render(<Harness
+                initial={{ limits: exact }}
+                parameters={[{ name: 'limits', schema: { type: 'object', additionalProperties: { type: 'integer' } } }]}
+            />)
+
+            await open('limits')
+            expect(keysOf('limits')).toEqual([])
+        })
+
+        it('offers no cross for a field that holds the default it declares', async () => {
+            render(<Harness
+                initial={{ pay: { rate: same } }}
+                parameters={[{
+                    name: 'pay',
+                    schema: {
+                        type: 'object',
+                        properties: { rate: { type: 'number', format: 'decimal', default: exact } },
+                    },
+                }]}
+            />)
+
+            await open('pay')
+            expect(screen.getByTestId('edit-pay.rate')).toBeInTheDocument()
+            expect(screen.queryByTestId('clear-pay.rate')).toBeNull()
+        })
     })
 })

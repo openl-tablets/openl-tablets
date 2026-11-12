@@ -287,4 +287,70 @@ describe('ParametersInput', () => {
             JSON.stringify({ params: { limit: 7 } }, null, 2)
         )
     })
+
+    describe('with a number a double does not hold', () => {
+        const DECIMAL = { type: 'number', format: 'decimal' }
+        const decimal = [{ name: 'v', description: 'BigDecimal', lazy: false, schema: DECIMAL }]
+
+        it('writes the digits typed into the form', async () => {
+            const onChange = vi.fn()
+            render(<ParametersInput onChange={onChange} parameters={decimal} />)
+
+            await userEvent.click(screen.getByTestId('edit-v'))
+            await userEvent.type(screen.getByTestId('input-v'), '2.000000000000000005{enter}')
+
+            expect(lastValue(onChange).inputJson).toContain('"v": 2.000000000000000005')
+        })
+
+        it('keeps the digits of the JSON through the form and back', async () => {
+            const onChange = vi.fn()
+            render(<ParametersInput onChange={onChange} parameters={decimal} />)
+            await userEvent.click(screen.getByText('input.json'))
+            const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
+
+            await userEvent.clear(text)
+            await userEvent.type(text, '{{"params": {{"v": 2.000000000000000005}}')
+            await userEvent.click(screen.getByText('input.form'))
+
+            expect(screen.getByTestId('value-v')).toHaveTextContent(/^2\.000000000000000005$/)
+            expect(lastValue(onChange).inputJson).toContain('"v": 2.000000000000000005')
+            await userEvent.click(screen.getByText('input.json'))
+            expect(screen.getByTestId<HTMLTextAreaElement>('json-editor').value).toContain('"v": 2.000000000000000005')
+        })
+
+        it.each(['v', 'source'])('reads a bare number pasted for the only parameter, named %s', async name => {
+            const onChange = vi.fn()
+            const only = [{ name, description: 'BigDecimal', lazy: false, schema: DECIMAL }]
+            render(<ParametersInput onChange={onChange} parameters={only} />)
+            await userEvent.click(screen.getByText('input.json'))
+            const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
+
+            await userEvent.clear(text)
+            await userEvent.type(text, '2.000000000000000005')
+            await userEvent.click(screen.getByText('input.form'))
+
+            expect(screen.getByTestId(`value-${name}`)).toHaveTextContent(/^2\.000000000000000005$/)
+            expect(lastValue(onChange).inputJson).toContain(`"${name}": 2.000000000000000005`)
+        })
+
+        it('names the rounded value the rule receives for a double, and says nothing for a decimal', async () => {
+            const previous = translation.t
+            translation.t = ((key: string, options?: { value?: string }) => `${key} ${options?.value ?? ''}`.trim())
+            try {
+                const double = [{ name: 'v', description: 'Double', lazy: false, schema: { type: 'number' } }]
+                const { unmount } = render(<ParametersInput onChange={vi.fn()} parameters={double} />)
+                await userEvent.click(screen.getByTestId('edit-v'))
+                await userEvent.type(screen.getByTestId('input-v'), '2.000000000000000005{enter}')
+                expect(await screen.findByText('input.rounded 2')).toBeInTheDocument()
+                unmount()
+
+                render(<ParametersInput onChange={vi.fn()} parameters={decimal} />)
+                await userEvent.click(screen.getByTestId('edit-v'))
+                await userEvent.type(screen.getByTestId('input-v'), '2.000000000000000005{enter}')
+                expect(screen.queryByText(/input.rounded/)).toBeNull()
+            } finally {
+                translation.t = previous
+            }
+        })
+    })
 })

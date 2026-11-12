@@ -14,6 +14,7 @@ import {
 } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { jsonResponse } from 'testing/responses'
+import { ExactNumber } from 'utils/exactJson'
 
 vi.mock('services/apiCall', async importOriginal => {
     const actual = await importOriginal<typeof import('services/apiCall')>()
@@ -111,6 +112,13 @@ describe('execution service', () => {
         expect(url).toBe('/projects/p1/run/result?skipEmptyParameters=true&flattenParameters=false')
         expect((init.headers as Record<string, string>)['Accept']).toBe(XLSX_MEDIA_TYPE)
         expect(await saved.text()).toBe('xlsx')
+    })
+
+    it('reads a number of a result a double does not hold with every digit', async () => {
+        const value = new ExactNumber('0.6666666666666666666666666666666667')
+        read.mockResolvedValue(jsonResponse({ tableName: 'Premium', result: value }))
+
+        await expect(getRunResult('p1')).resolves.toStrictEqual({ tableName: 'Premium', result: value })
     })
 
     it('asks for the table a spreadsheet result was calculated by only when a screen shows it', async () => {

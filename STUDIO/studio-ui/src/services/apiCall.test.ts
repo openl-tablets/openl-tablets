@@ -10,6 +10,7 @@ import apiCall, {
 } from 'services/apiCall'
 import { isStillRunning, ResultNotReadyError } from 'services/taskResult'
 import { CLIENT_ID } from 'services/clientId'
+import { ExactNumber } from 'utils/exactJson'
 import { notification } from 'antd'
 import * as storeModule from 'store'
 
@@ -52,7 +53,7 @@ describe('apiCall', () => {
 
     const mockResponse = ({
         status,
-        contentType = 'application/json',
+        contentType = status === 204 ? '' : 'application/json',
         jsonData,
         textData = '',
         blobData = new Blob(['blob']),
@@ -74,7 +75,9 @@ describe('apiCall', () => {
                 }
                 return jsonData
             }),
-            text: vi.fn().mockResolvedValue(textData),
+            text: vi.fn().mockResolvedValue(
+                jsonData === undefined || jsonData instanceof Error ? textData : JSON.stringify(jsonData)
+            ),
             blob: vi.fn().mockResolvedValue(blobData),
         }) as unknown as Response
 
@@ -158,6 +161,14 @@ describe('apiCall', () => {
         expect(isApiHttpError(httpError)).toBe(true)
         expect(isApiHttpError(new Error('plain error'))).toBe(false)
         expect(isApiHttpError({ status: 409, message: 'fake' })).toBe(false)
+    })
+
+    it('reads a number a double does not hold with every digit', async () => {
+        const textData = '{"value":2.000000000000000005,"count":2}'
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 200, textData }))
+
+        await expect(apiCall('/trace/value', undefined, { throwError: true }))
+            .resolves.toStrictEqual({ value: new ExactNumber('2.000000000000000005'), count: 2 })
     })
 
     it('returns the raw response when responseType is response', async () => {

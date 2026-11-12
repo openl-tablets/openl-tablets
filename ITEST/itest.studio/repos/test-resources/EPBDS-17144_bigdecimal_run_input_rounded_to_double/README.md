@@ -9,3 +9,6 @@ both runs answer `precise`.
 
 The answer of the rule is what tells the fix. The framework reads the numbers of a response as `double`, so the
 echoed parameter compares equal with or without its digits.
+
+A `BigDecimal` is described as `{"type": "number", "format": "decimal"}`, which tells it from a `double`. The input
+description of the table (`015-input-schema`) and the parameter of a run result carry the format.
