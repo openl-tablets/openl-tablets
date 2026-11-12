@@ -22,6 +22,10 @@ public class TypeCastBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
+        if (hasErrorBoundNode(children)) {
+            // The type or the value has reported its error; a cast of it has nothing more to say.
+            return new ErrorBoundNode(node);
+        }
 
         var to = children[0].getType();
         var from = children[1].getType();
