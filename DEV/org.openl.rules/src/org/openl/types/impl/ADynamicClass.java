@@ -47,7 +47,7 @@ public abstract class ADynamicClass extends AOpenClass {
         if (fields.containsKey(field.getName())) {
             var existedField = fields.get(field.getName());
             if (existedField != field) {
-                throw new DuplicatedFieldException("", field.getName());
+                throw new DuplicatedFieldException(field.getName());
             } else {
                 return;
             }
