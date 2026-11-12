@@ -150,6 +150,12 @@ class DatesTest {
     }
 
     @Test
+    void test_dateDif_shouldReturnNull_whenUnitNameIsNull() {
+        assertNull(Dates.dateDif(DEF_DATE, DEF_DATE, null));
+        assertNull(Dates.dateDif(null, null, null));
+    }
+
+    @Test
     void test_dateDif_shouldReturnNull_whenOneDateParameterIsNull() {
         assertNull(Dates.dateDif(null, DEF_DATE, "D"));
         assertNull(Dates.dateDif(DEF_DATE, null, "D"));

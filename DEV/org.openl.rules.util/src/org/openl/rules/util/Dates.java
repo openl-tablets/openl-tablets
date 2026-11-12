@@ -277,9 +277,13 @@ public final class Dates {
      * @param startDate start date
      * @param endDate   end date
      * @param unitName  method type
-     * @return difference between two dates
+     * @return difference between two dates, or {@code null} when the unit is {@code null} or a date is {@code null}
+     * @throws IllegalArgumentException when the unit is not {@code null} and not supported, whatever the dates are
      */
     public static Double dateDif(Date startDate, Date endDate, String unitName) {
+        if (unitName == null) {
+            return null;
+        }
         Unit unit = Unit.getUnit(unitName);
         if (unit == null) {
             throw new IllegalArgumentException("Unsupported unit '%s'".formatted(unitName));
