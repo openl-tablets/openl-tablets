@@ -75,14 +75,14 @@ public class ProjectFileRoot implements FileRoot {
     @Override
     public AProjectFolder readFolder(String version) {
         if (StringUtils.isBlank(version)) {
-            return wrap(current());
+            return AProjectFolder.treeOf(current());
         }
         var historical = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
         try {
             if (historical.getFileData() == null) {
                 throw new NotFoundException("file.version.not.found.message");
             }
-            return wrap(historical);
+            return AProjectFolder.treeOf(historical);
         } catch (NotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -268,16 +268,6 @@ public class ProjectFileRoot implements FileRoot {
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }
-    }
-
-    /**
-     * Wraps a project (current or historical) in a detached folder over the same repository and path.
-     */
-    private static AProjectFolder wrap(AProject source) {
-        var folder = new AProjectFolder(new HashMap<>(),
-                source.getProject(), source.getRepository(), source.getFolderPath());
-        source.getArtefacts().forEach(folder::addArtefact);
-        return folder;
     }
 
     /**
