@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import jakarta.validation.Validation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.MapPropertySource;
@@ -29,6 +30,28 @@ class GitRepositorySettingsTest {
         var environment = new StandardEnvironment();
         environment.getPropertySources().addFirst(new MapPropertySource("stored", new HashMap<>(stored)));
         return new InMemoryProperties(environment);
+    }
+
+    /** A user message template is as long as a comment at most: a longer one could only give comments too long. */
+    @Test
+    void refusesAUserMessageTemplateLongerThanAComment() {
+        var settings = new GitRepositorySettings(properties(Map.of()), PREFIX, RepositoryMode.DESIGN);
+        settings.setInvalidCommentMessage("Invalid comment");
+        settings.setDefaultCommentSave("a".repeat(255));
+        settings.setDefaultCommentCreate("a".repeat(256));
+
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var templates = factory.getValidator()
+                    .validate(settings, RepositorySettings.Validation.Design.class)
+                    .stream()
+                    .filter(violation -> violation.getPropertyPath().toString().startsWith("defaultComment"))
+                    .toList();
+
+            assertEquals(1, templates.size());
+            assertEquals("defaultCommentCreate", templates.getFirst().getPropertyPath().toString());
+            assertEquals("The user message template can have at most 255 characters.",
+                    templates.getFirst().getMessage());
+        }
     }
 
     @Test

@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.groups.Default;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.rest.validation.PathConstraint;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.studio.settings.model.constraint.RegexpConstraint;
 import org.openl.util.StringUtils;
@@ -42,6 +44,7 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     public static final String BASE_PATH_SUFFIX = ".base.path";
     private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
     private static final String PATH_SEPARATOR = "/";
+    private static final String TEMPLATE_TOO_LONG = "{openl.constraints.comment-template.too-long.message}";
 
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
     private final String useCustomCommentsKey;
@@ -73,21 +76,25 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
 
     @Parameter(description = "Default message for 'Save project'.")
     @SettingPropertyName(suffix = DEFAULT_COMMENT_SAVE_SUFFIX)
+    @Size(max = CommentValidator.MAX_COMMENT_LENGTH, message = TEMPLATE_TOO_LONG, groups = Validation.Design.class)
     @JsonView(Views.Design.class)
     private String defaultCommentSave;
 
     @Parameter(description = "Default message for 'Create project'.")
     @SettingPropertyName(suffix = DEFAULT_COMMENT_CREATE_SUFFIX)
+    @Size(max = CommentValidator.MAX_COMMENT_LENGTH, message = TEMPLATE_TOO_LONG, groups = Validation.Design.class)
     @JsonView(Views.Design.class)
     private String defaultCommentCreate;
 
     @Parameter(description = "Default message for 'Copy project'.")
     @SettingPropertyName(suffix = DEFAULT_COMMENT_COPIED_FROM_SUFFIX)
+    @Size(max = CommentValidator.MAX_COMMENT_LENGTH, message = TEMPLATE_TOO_LONG, groups = Validation.Design.class)
     @JsonView(Views.Design.class)
     private String defaultCommentCopiedFrom;
 
     @Parameter(description = "Default message when restore from old version.")
     @SettingPropertyName(suffix = DEFAULT_COMMENT_RESTORED_FROM_SUFFIX)
+    @Size(max = CommentValidator.MAX_COMMENT_LENGTH, message = TEMPLATE_TOO_LONG, groups = Validation.Design.class)
     @JsonView(Views.Design.class)
     private String defaultCommentRestoredFrom;
 

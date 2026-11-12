@@ -3,7 +3,7 @@ import type { RepositoryConfig } from '../types/repositories'
 import { commentMoment } from './dateFormat'
 
 /** The server rejects longer comments (`CommentValidator.MAX_COMMENT_LENGTH`). */
-const MAX_COMMENT_LENGTH = 255
+export const MAX_COMMENT_LENGTH = 255
 
 /**
  * Symbols a branch name keeps from the project name. Mirrors the server's `Comments.newBranch`, which

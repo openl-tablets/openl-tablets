@@ -10,6 +10,7 @@ i18next.addResourceBundle('en', 'repository', {
     branch: 'Branch',
     protected_branches: 'Protected branches',
     user_message_templates: 'User message templates',
+    user_message_template_too_long: 'The user message template can have at most {{max}} characters',
     changes_check_interval: 'Changes check interval (sec)',
     connection_timeout: 'Connection timeout (sec)',
     new_branch: 'New branch',

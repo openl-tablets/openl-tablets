@@ -67,6 +67,7 @@ To enable custom commit messages, select the **Customize comments** check box. T
 | **Invalid user message hint** | Error message displayed when the user message does not match the pattern.      |
 
 The following user message templates can be customized for individual operations.
+A template can have at most 255 characters.
 
 For the **Restore from old version** template, the following additional placeholders are available:
 
