@@ -226,6 +226,7 @@ public class SamlSecurityConfig {
         var filter = new Saml2WebSsoAuthenticationFilter(relyingPartyRegistration);
         filter.setAuthenticationManager(authenticationManager);
         filter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        filter.setAuthenticationFailureHandler(new RetryOnceAuthenticationFailureHandler(loginUrl()));
         filter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
         return filter;
     }
