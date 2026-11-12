@@ -188,6 +188,7 @@ public class OAuth2SecurityConfig {
         filter.setAuthenticationManager(authenticationManager);
         filter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
         filter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        filter.setAuthenticationFailureHandler(new RetryOnceAuthenticationFailureHandler(loginUrl()));
         return filter;
     }
 }
