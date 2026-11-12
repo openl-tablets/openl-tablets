@@ -14,20 +14,24 @@ public class DuplicatedFieldException extends OpenlNotCheckedException {
     @Getter
     private final String fieldName;
 
-    public DuplicatedFieldException(String msg, String fieldName) {
-        super(msg);
+    private final String kind;
+
+    public DuplicatedFieldException(String fieldName) {
+        this("Field", fieldName);
+    }
+
+    /**
+     * @param kind      what the name belongs to, such as {@code Field} or {@code Test table}
+     * @param fieldName the name defined twice
+     */
+    public DuplicatedFieldException(String kind, String fieldName) {
+        this.kind = kind;
         this.fieldName = fieldName;
     }
 
     @Override
     public String getMessage() {
-        var sb = new StringBuilder();
-        if (super.getMessage() != null) {
-            sb.append(super.getMessage());
-        }
-
-        sb.append("Field '%s' has already been defined.".formatted(fieldName));
-        return sb.toString();
+        return "%s '%s' has already been defined.".formatted(kind, fieldName);
     }
 
 }

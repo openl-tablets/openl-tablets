@@ -4,4 +4,4 @@ ERROR: There is no body in 'Data' table.
 ERROR: Property 'id' cannot be defined in 'Test' table.
 ERROR: Property 'autoType' cannot be defined in 'Test' table.
 ERROR: Property 'failOnMiss' cannot be defined in 'Test' table.
-ERROR: Field 'DriverPremiumDuplicatedTest' has already been defined.
+ERROR: Test table 'DriverPremiumDuplicatedTest' has already been defined.

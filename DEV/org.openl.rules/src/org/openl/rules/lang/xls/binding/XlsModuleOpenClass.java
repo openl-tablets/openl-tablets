@@ -548,11 +548,23 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     .equals(existedField.getType())) {
                 return;
             }
-            throw new DuplicatedFieldException("", openField.getName());
+            throw new DuplicatedFieldException(kindOf(openField), openField.getName());
         }
         var f = processFieldBeforeAdding(openField);
         fields.put(f.getName(), f);
         addFieldToLowerCaseMap(f);
+    }
+
+    /** What a field is to the author: a Test, Run or Data table is declared as a field named after the table. */
+    private static String kindOf(IOpenField openField) {
+        if (openField instanceof DataOpenField table) {
+            return switch (table.getNodeType()) {
+                case XLS_TEST_METHOD -> "Test table";
+                case XLS_RUN_METHOD -> "Run table";
+                default -> "Data table";
+            };
+        }
+        return "Field";
     }
 
     private static String extractContextParameter(IMethodSignature methodSignature, int index) {
