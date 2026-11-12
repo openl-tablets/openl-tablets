@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.CommitCommand;
@@ -212,6 +213,8 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     private final AtomicReference<Git> git = new AtomicReference<>();
     /** Shared by every branch of the repository, as they share its commits. */
     private MergeBases mergeBases = new MergeBases();
+    /** The folders read last, whose revisions are not asked for yet. */
+    private @Nullable FirstCommits folderCommits;
 
     private Git git() {
         return git.get();
@@ -980,13 +983,28 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         return treeWalk;
     }
 
+    /**
+     * The file or folder of the commit, its revision read on first use. The folders read from the same commit find
+     * their revisions together: a project listing reads the revision of every project it lists.
+     */
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         var fullPath = baseFolder + dirWalk.getPathString();
+        var commits = FileMode.TREE.equals(dirWalk.getFileMode())
+                ? folderCommits(start, fullPath)
+                : new FirstCommits(this, start, fullPath);
         return new LazyFileData(branch,
                 fullPath,
                 this,
-                start,
+                commits,
                 getFileId(dirWalk));
+    }
+
+    @Synchronized
+    private FirstCommits folderCommits(ObjectId start, String path) {
+        if (folderCommits == null || !folderCommits.join(start, path)) {
+            folderCommits = new FirstCommits(this, start, path);
+        }
+        return folderCommits;
     }
 
     private boolean isEmpty() throws IOException {
@@ -2131,21 +2149,127 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     @Nullable RevCommit findFirstCommit(Git git,
                                         ObjectId startCommit,
                                         String path) throws IOException, GitAPIException {
+        return findFirstCommits(git, startCommit, Set.of(path)).get(path);
+    }
+
+    /**
+     * The latest commit, from the given one back, that changes each of the paths, found in one walk over the history.
+     * A commit that changes only ignored files of a folder does not count.
+     *
+     * @return the commits by path; a path that no commit changes is left out
+     */
+    Map<String, RevCommit> findFirstCommits(Git git,
+                                            ObjectId startCommit,
+                                            Collection<String> paths) throws IOException, GitAPIException {
         // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
-        var repository = git.getRepository();
-        try (var or = repository.newObjectReader(); var walk = headersWalk(or)) {
-            var tw = createTreeWalk(or, path);
+        try (var or = git.getRepository().newObjectReader(); var walk = headersWalk(or)) {
+            var changes = new LatestChanges(or, walk, paths);
             var commits = new DescendantsFirstCommits(git.log().add(startCommit).call().iterator());
-            while (commits.hasNext()) {
-                var commit = commits.next();
-                if (hasChangesInPath(tw, walk, commit)) {
-                    return commit;
+            while (changes.isPending() && commits.hasNext()) {
+                changes.weigh(commits.next());
+            }
+            return changes.commitsOf(paths);
+        }
+    }
+
+    /**
+     * The latest changes of several paths, weighed commit by commit from the newest one back.
+     *
+     * <p>A path is known by its spelling in a path filter: without a slash at the end.
+     */
+    private final class LatestChanges {
+        private final RevWalk walk;
+        /** The walk over the changes of each path whose latest change is not found yet. */
+        private final Map<String, TreeWalk> pending = new HashMap<>();
+        private final Map<String, RevCommit> found = new HashMap<>();
+        /** The walk over the pending paths that differ between a commit and its parents. */
+        private final TreeWalk touched;
+        /** The folders that hold a pending path. */
+        private final Set<String> ancestors = new HashSet<>();
+        private boolean filterStale = true;
+
+        /**
+         * @param walk the walk to find the commit the parents of a merge parted at
+         */
+        private LatestChanges(ObjectReader reader, RevWalk walk, Collection<String> paths) {
+            this.walk = walk;
+            for (var path : paths) {
+                var spelled = spelled(path);
+                pending.put(spelled, createTreeWalk(reader, spelled));
+            }
+            touched = new TreeWalk(reader);
+            touched.setRecursive(false);
+        }
+
+        private static String spelled(String path) {
+            return PathFilter.create(path).getPath();
+        }
+
+        private boolean isPending() {
+            return !pending.isEmpty();
+        }
+
+        /**
+         * The latest changes found, by the paths as they were asked for.
+         */
+        private Map<String, RevCommit> commitsOf(Collection<String> paths) {
+            var result = new HashMap<String, RevCommit>();
+            for (var path : paths) {
+                var commit = found.get(spelled(path));
+                if (commit != null) {
+                    result.put(path, commit);
+                }
+            }
+            return result;
+        }
+
+        /**
+         * Takes the commit as the latest change of each pending path it changes.
+         */
+        private void weigh(RevCommit commit) throws IOException {
+            for (var path : touchedBy(commit)) {
+                if (hasChangesInPath(pending.get(path), walk, commit)) {
+                    found.put(path, commit);
+                    pending.remove(path);
+                    filterStale = true;
                 }
             }
         }
 
-        return null;
+        /**
+         * The pending paths whose object differs between the commit and any of its parents. Only they can be changed
+         * by the commit, and comparing the objects is cheap: the trees that are the same are not entered.
+         */
+        private List<String> touchedBy(RevCommit commit) throws IOException {
+            if (filterStale) {
+                updateFilter();
+            }
+            touched.reset(getTreesToCompare(commit));
+            var result = new ArrayList<String>();
+            while (touched.next()) {
+                var path = touched.getPathString();
+                if (pending.containsKey(path)) {
+                    result.add(path);
+                }
+                if (touched.isSubtree() && ancestors.contains(path)) {
+                    touched.enterSubtree();
+                }
+            }
+            return result;
+        }
+
+        private void updateFilter() {
+            touched.setFilter(AndTreeFilter.create(PathFilterGroup.createFromStrings(pending.keySet()),
+                    TreeFilter.ANY_DIFF));
+            ancestors.clear();
+            for (var path : pending.keySet()) {
+                for (var slash = path.indexOf('/'); slash > 0; slash = path.indexOf('/', slash + 1)) {
+                    ancestors.add(path.substring(0, slash));
+                }
+            }
+            filterStale = false;
+        }
     }
 
     /**
