@@ -141,10 +141,11 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     private void addLocation(String location) {
         if (location.contains(APP_NAME_TAG)) {
             if (StringUtils.isBlank(appName)) {
+                // Left as it is, '{appName}' would be read as a pattern that matches a file of any name.
                 ConfigLog.LOG.debug("- No app name: '{}'", location);
-            } else {
-                location = location.replace(APP_NAME_TAG, appName);
+                return;
             }
+            location = location.replace(APP_NAME_TAG, appName);
         }
         if (location.contains(PROFILE_TAG)) {
             if (CollectionUtils.isEmpty(profiles)) {
