@@ -22,6 +22,12 @@ import org.openl.rules.security.UserExternalFlags;
 public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    /** The longest first name and last name the table keeps. */
+    public static final int NAME_LENGTH = 50;
+    /** The longest e-mail address the table keeps. */
+    public static final int EMAIL_LENGTH = 254;
+    /** The longest display name the table keeps. */
+    public static final int DISPLAY_NAME_LENGTH = 64;
     private String loginName;
     private String passwordHash;
     private String firstName;
@@ -34,7 +40,7 @@ public class User implements Serializable {
     /**
      * First name.
      */
-    @Column(name = "firstName", length = 50)
+    @Column(name = "firstName", length = NAME_LENGTH)
     public String getFirstName() {
         return firstName;
     }
@@ -60,12 +66,12 @@ public class User implements Serializable {
     /**
      * Surname.
      */
-    @Column(name = "surname", length = 50)
+    @Column(name = "surname", length = NAME_LENGTH)
     public String getSurname() {
         return surname;
     }
 
-    @Column(name = "email", length = 254)
+    @Column(name = "email", length = EMAIL_LENGTH)
     public String getEmail() {
         return email;
     }
@@ -74,7 +80,7 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    @Column(name = "displayName", length = 64)
+    @Column(name = "displayName", length = DISPLAY_NAME_LENGTH)
     public String getDisplayName() {
         return displayName;
     }
