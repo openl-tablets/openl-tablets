@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -357,6 +358,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             fieldSequence = new IOpenField[nodes.length];
             var arrayField = new ThisField(resultType);
             IOpenField arrayAccessField = createCollectionElementField(arrayField, nodes[0]);
+            if (arrayAccessField == null) {
+                return;
+            }
             currentType = getNextType(arrayAccessField, true);
             fieldSequence[0] = arrayAccessField;
         } else {
@@ -470,8 +474,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     /**
      * Creates the field of a collection element: by the key for a map, and by the index otherwise.
+     *
+     * @return {@code null} when the index is not a number, which the binding of the table has reported
      */
-    private static IOpenField createCollectionElementField(IOpenField arrayField, IdentifierNode node) {
+    private static @Nullable IOpenField createCollectionElementField(IOpenField arrayField, IdentifierNode node) {
         var type = arrayField.getType();
         CollectionType collectionType = getCollectionType(type);
         IOpenField arrayAccessField;
@@ -481,7 +487,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     key,
                     type.getComponentClass());
         } else {
-            var arrayIndex = DataTableBindHelper.getCollectionIndex(node);
+            int arrayIndex;
+            try {
+                arrayIndex = DataTableBindHelper.getCollectionIndex(node);
+            } catch (NumberFormatException e) {
+                return null;
+            }
             arrayAccessField = new CollectionElementField(arrayField,
                     arrayIndex,
                     type.getComponentClass(),
