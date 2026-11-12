@@ -30,8 +30,10 @@ import org.openl.meta.TableMetaInfo;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -772,12 +774,24 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class ModifyRuntimeContextMethod implements IOpenMethod {
         static final String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
+        /**
+         * A text given for a property of another type, such as a state or a date, is read as a value of that type,
+         * the way a cell of a table is.
+         */
+        private static @Nullable Object propertyValue(String propertyName, @Nullable Object value) {
+            var type = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(propertyName);
+            return value instanceof String text && type != null && type != String.class
+                    ? String2DataConvertorFactory.parse(type, text, null)
+                    : value;
+        }
+
         @Override
         public @Nullable Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 try {
                     var runtimeContext = ((IRulesRuntimeContext) env.getContext()).clone();
-                    runtimeContext.setValue((String) params[0], params[1]);
+                    var propertyName = (String) params[0];
+                    runtimeContext.setValue(propertyName, propertyValue(propertyName, params[1]));
                     env.pushContext(runtimeContext);
                 } catch (CloneNotSupportedException ignored) {
                     // a runtime context is Cloneable (see IRuntimeContext), so cloning it does not fail
