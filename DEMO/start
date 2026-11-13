@@ -28,7 +28,7 @@ RELEASES_URL="https://github.com/openl-tablets/openl-tablets/releases/download"
 # JETTY_VERSION, NODE_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml
 # properties. Enforced by `mvn validate -N`.
 JAVA_MAJOR_VERSION="25"
-JETTY_VERSION="12.1.14"
+JETTY_VERSION="12.1.15"
 # Node.js runs the MCP server built into OpenL Studio
 NODE_VERSION="v24.21.0"
 
