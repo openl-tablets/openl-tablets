@@ -401,22 +401,14 @@ export const ProjectWorkspace = () => {
         setTreeFilters(listingQueryOf(new URLSearchParams()))
     }
 
-    // Nothing to show yet: the first read is on its way.
-    if (!project && !error && !linkProblem) {
-        return (
-            <div className={shared.workspacePage}>
-                <div className={styles.centered} data-testid="project-workspace-loading">
-                    <Skeleton active className={styles.skeleton} />
-                </div>
-            </div>
-        )
-    }
-
     return (
         <div className={shared.workspacePage} data-testid="project-workspace">
             <div className={shared.workspaceBody}>
+                {/* The rail stands while the reader steps from one project to another: only the part beside it
+                    waits for the next project, so the tree keeps what is open in it and what it has read. Until
+                    that project is read the tree marks the one the address names. */}
                 <ProjectsRail
-                    currentProjectId={project?.id}
+                    currentProjectId={project?.id ?? projectId}
                     filters={treeFilters}
                     initialMode="tree"
                     onClearFilters={clearTreeFilters}
@@ -463,6 +455,11 @@ export const ProjectWorkspace = () => {
                                 very first read shows the skeleton above instead, having nothing to cover. */}
                             {(loading || pendingId !== null) && <BusyVeil data-testid="project-workspace-overlay" />}
                         </>
+                    ) : !error && !linkProblem ? (
+                        // Nothing to show yet: the read of the project is on its way.
+                        <div className={styles.centered} data-testid="project-workspace-loading">
+                            <Skeleton active className={styles.skeleton} />
+                        </div>
                     ) : (
                         // A failure to read the project, or a link that leads to no project, takes its place; the
                         // tree beside it stays, so the reader can go on to another project.
