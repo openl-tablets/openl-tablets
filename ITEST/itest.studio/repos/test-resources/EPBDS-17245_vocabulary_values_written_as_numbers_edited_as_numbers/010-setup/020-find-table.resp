@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "CorporateRating",
+      "returnType": "Double",
+      "signature": "CorporateRating (Double financialRating, RiskGroup riskOfWorkWithCorporate)",
+      "file": "EPBDS-17245-VocabularFail/rules/VocabularFail.xlsx",
+      "sheet": "Sheet1",
+      "pos": "D7:F15",
+      "errors": 4,
+      "module": "VocabularFail",
+      "project": "EPBDS-17245-VocabularFail",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}
