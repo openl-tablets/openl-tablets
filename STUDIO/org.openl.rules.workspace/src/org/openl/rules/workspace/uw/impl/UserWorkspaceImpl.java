@@ -114,8 +114,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public LocalWorkspace getLocalWorkspace() {
         if (syncNeeded) {
-            // We must ensure that all folders are renamed to correct names before using local workspace.
-            doSyncProjects();
+            // The folders are renamed to the names of their projects before the local workspace is used. A listing
+            // renames them, so the listing is built again unless one has been built since the names changed.
+            refreshIfNeeded(false);
+            if (syncNeeded) {
+                refreshRulesProjects(true);
+            }
         }
         return localWorkspace;
     }
@@ -251,19 +255,26 @@ public class UserWorkspaceImpl implements UserWorkspace {
         syncNeeded = true;
     }
 
-    private void doSyncProjects() {
+    /**
+     * Renames the folder of each opened copy of a repository with mapped folders to the name its project declares.
+     * The caller holds the monitor of the listing.
+     *
+     * <p>The folder is renamed on the file system, so the unsaved changes of the copy stay. The projects listed keep
+     * the folder they were listed with, so the caller lists the projects again when a folder is renamed.
+     *
+     * @return whether a folder is renamed
+     */
+    private boolean renameFoldersToProjectNames() {
         syncNeeded = false;
 
         var anyProjectRenamed = false;
-        for (RulesProject rPr : getProjects(false)) {
+        for (RulesProject rPr : userRulesProjects.values()) {
             var repository = designTimeRepository.getRepository(rPr.getRepository().getId());
             if (repository != null && repository.supports().mappedFolders() && rPr.isOpened() && !rPr.isLocalOnly()
                     && !rPr.isInPlace()) {
                 try {
                     var realProjectName = getActualName(rPr);
                     if (!rPr.getLocalFolderName().equals(realProjectName)) {
-                        // We cannot close and then open a project in workspace, we should rename the folder
-                        // in file system directly. Otherwise we will lose unsaved user changes.
                         var prevPath = rPr.getFolderPath();
                         var index = prevPath.lastIndexOf('/');
                         var newPath = prevPath.substring(0, index + 1) + realProjectName;
@@ -277,11 +288,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
         }
-
-        if (anyProjectRenamed) {
-            // We need to recreate projects list in user workspace.
-            refreshRulesProjects(true);
-        }
+        return anyProjectRenamed;
     }
 
     @Override
@@ -424,42 +431,51 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 log.debug("The projects are listed for these changes already.");
                 return;
             }
-            // The branches of closed projects are taken from the preferences, which only a branch switch writes.
-            // Copying them back from the projects being replaced would undo a switch another request is making
-            // on a project it took before this refresh.
-            clearRulesProjectsCache();
-
-            // The copies are matched and listed from one view. Another request may open or close a copy
-            // meanwhile, and a copy missed by the match but met by the listing would be listed twice.
-            var localProjects = localWorkspace.snapshot();
-
-            var locations = new HashMap<ProjectKey, ProjectKey>();
-            // add new
-            for (DesignProject designProject : designProjects) {
-                addDesignProject(designProject, designFolders, localProjects, locations);
+            listProjects(designProjects, designFolders);
+            // Under the lock: a request never takes a listed copy whose folder is renamed afterwards. The design
+            // side is left as it is by a rename, so the projects are listed again from what was read.
+            if (syncNeeded && renameFoldersToProjectNames()) {
+                localWorkspace.refresh();
+                listProjects(designProjects, designFolders);
             }
-
-            // Workspace projects that have no corresponding project in the main branch of the
-            // design repositories: genuine local projects and opened copies whose repository is
-            // unavailable or removed or whose project was deleted from the main branch.
-            for (AProject lp : localProjects.projects()) {
-                var repoId = lp.getRepository().getId();
-                if (isLeftOver(lp, designFolders.getOrDefault(repoId, Set.of()))) {
-                    var project = resolveUnmatchedProject(repoId, lp);
-                    if (project != null) {
-                        putRulesProject(project, project.getRealPath(), locations);
-                    }
-                }
-            }
-            indexById(locations);
 
             refreshedRequests = request;
             cleanUpOnActivation = false;
         }
-        // Outside the lock: a renamed folder lists the projects again, which reads the design projects first.
-        if (syncNeeded) {
-            doSyncProjects();
+    }
+
+    /**
+     * Lists the design projects read, each with its workspace copy, and the workspace projects no design project
+     * accounts for. The caller holds the monitor of the listing.
+     */
+    private void listProjects(Collection<DesignProject> designProjects, Map<String, Set<String>> designFolders) {
+        // The branches of closed projects are taken from the preferences, which only a branch switch writes.
+        // Copying them back from the projects being replaced would undo a switch another request is making
+        // on a project it took before this refresh.
+        clearRulesProjectsCache();
+
+        // The copies are matched and listed from one view. Another request may open or close a copy
+        // meanwhile, and a copy missed by the match but met by the listing would be listed twice.
+        var localProjects = localWorkspace.snapshot();
+
+        var locations = new HashMap<ProjectKey, ProjectKey>();
+        for (DesignProject designProject : designProjects) {
+            addDesignProject(designProject, designFolders, localProjects, locations);
         }
+
+        // Workspace projects that have no corresponding project in the main branch of the
+        // design repositories: genuine local projects and opened copies whose repository is
+        // unavailable or removed or whose project was deleted from the main branch.
+        for (AProject lp : localProjects.projects()) {
+            var repoId = lp.getRepository().getId();
+            if (isLeftOver(lp, designFolders.getOrDefault(repoId, Set.of()))) {
+                var project = resolveUnmatchedProject(repoId, lp);
+                if (project != null) {
+                    putRulesProject(project, project.getRealPath(), locations);
+                }
+            }
+        }
+        indexById(locations);
     }
 
     private boolean isListedFor(long request, boolean forced) {

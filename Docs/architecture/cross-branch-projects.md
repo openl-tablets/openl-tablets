@@ -290,7 +290,9 @@ version of the branch the user works on a project in among them, so the first re
 history, keeps no other project request waiting. A change counted while
 a listing is built leaves that listing out of date, and a listing built for earlier changes than the one in place is
 dropped; so is a listing for the same changes that no request forced. A refresh of the design repository is counted as
-it starts and again as it ends, even when it fails.
+it starts and again as it ends, even when it fails. The workspace folder of an opened copy in a repository with mapped
+folders follows the name its `rules.xml` gives the project: a listing renames such a folder, and lists the projects
+again, while it holds its lock, so no request takes a copy whose folder is renamed afterwards.
 
 Project-list and project-read requests must never enumerate branches, create branch views or scan Git trees. A
 steady refresh must use one batched status lookup and scan only branches whose relevant state changed.
