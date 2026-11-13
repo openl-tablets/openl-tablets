@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import { loadView, saveView, TABLE_VIEWS, treeOf, widthOf } from './tableGrouping'
+import { tableViewSetting, TABLE_VIEWS, treeOf, widthOf } from './tableGrouping'
 
 /** Reads a label as its key, so a test can name the groups by what they are called. */
 const key = (name: string): string => name
@@ -209,20 +209,20 @@ describe('tableGrouping', () => {
         beforeEach(() => localStorage.clear())
 
         it('opens by Excel sheet while this browser has chosen no view', () => {
-            expect(loadView()).toEqual('excelSheet')
-            expect(TABLE_VIEWS).toContain(loadView())
+            expect(tableViewSetting.read()).toEqual('excelSheet')
+            expect(TABLE_VIEWS).toContain(tableViewSetting.read())
         })
 
         it('keeps what this browser chose', () => {
-            saveView('category')
+            tableViewSetting.write('category')
 
-            expect(loadView()).toEqual('category')
+            expect(tableViewSetting.read()).toEqual('category')
         })
 
         it('opens by Excel sheet when what this browser holds names no view it knows', () => {
             localStorage.setItem('openl.module.tableView', JSON.stringify('whatever was stored'))
 
-            expect(loadView()).toEqual('excelSheet')
+            expect(tableViewSetting.read()).toEqual('excelSheet')
         })
     })
 

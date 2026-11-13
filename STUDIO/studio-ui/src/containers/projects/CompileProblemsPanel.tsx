@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
@@ -12,11 +12,12 @@ import {
     type ProjectStatusMessageSource,
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
-import { readStored, writeStored } from '../../utils/localStore'
+import { booleanText, storedSetting } from '../../utils/localStore'
 import { localizationRoute, moduleRoute, projectFileRoute, untranslatedRoute } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 
 /** How low and how tall the panel may be dragged, and where it opens the first time. */
@@ -24,6 +25,8 @@ const HEIGHT = { min: 120, max: 600, fallback: 240 }
 
 const HEIGHT_STORAGE_KEY = 'openl.project.problems.height'
 const COLLAPSED_STORAGE_KEY = 'openl.project.problems.collapsed'
+
+const problemsCollapsed = storedSetting(COLLAPSED_STORAGE_KEY, false, booleanText)
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The panel docks to the bottom of the project screen, under whatever tab is open. */
@@ -135,7 +138,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     const { t } = useTranslation('repository')
     const navigate = useNavigate()
     const live = COMPILE_RELEVANT_STATUSES.has(project.status)
-    const [collapsed, setCollapsed] = useState(() => readStored(COLLAPSED_STORAGE_KEY) === 'yes')
+    const [collapsed, fold] = useStoredSetting(problemsCollapsed)
     const { size: height, startResize } = useDragSize(HEIGHT_STORAGE_KEY, 'top', HEIGHT)
     const liveStatus = useLiveProjectStatus(
         project.id,
@@ -170,11 +173,6 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     const canOpen = useCallback((message: ProjectStatusDetailedMessage) =>
         status.compileState !== 'compiling' && routeOf(project.id, message.location) !== null,
     [status.compileState, project.id])
-
-    const fold = (next: boolean) => {
-        setCollapsed(next)
-        writeStored(COLLAPSED_STORAGE_KEY, next ? 'yes' : 'no')
-    }
 
     if (errorCount === 0 && warningCount === 0 && errors.length === 0 && warnings.length === 0) {
         return null

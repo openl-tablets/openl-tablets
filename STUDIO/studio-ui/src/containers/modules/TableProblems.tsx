@@ -1,15 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../../services/projectStatus'
-import { readJson, writeJson } from '../../utils/localStore'
+import { booleanText, storedSetting } from '../../utils/localStore'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS } from '../projects/projectsTheme'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 /** Whether the section stands open, kept so a reader who folds it away keeps it folded. */
 const STORAGE_KEY = 'openl.module.tableProblems'
+
+/** Whether the panel is open; open, the default, stores nothing. */
+const openSetting = storedSetting(STORAGE_KEY, true, booleanText)
 /** The height it was last dragged to, kept for the next table the reader opens. */
 const HEIGHT_STORAGE_KEY = 'openl.module.tableProblems.height'
 
@@ -116,18 +120,13 @@ export const TableProblems = ({
 }: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
-    const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
-        typeof value === 'boolean'))
+    const [open, setOpen] = useStoredSetting(openSetting)
     const { size: height, startResize } = useDragSize(HEIGHT_STORAGE_KEY, 'bottom', HEIGHT)
 
     // Filtered once per read: a fresh array on every render would send the "show more" of the list below
     // back to its first page every time the screen redraws — which a compilation makes it do often.
     const errors = useMemo(() => messages.filter(message => message.severity === 'ERROR'), [messages])
     const warnings = useMemo(() => messages.filter(message => message.severity === 'WARN'), [messages])
-
-    useEffect(() => {
-        writeJson(STORAGE_KEY, open)
-    }, [open])
 
     if (messages.length === 0 && !partial) {
         return null
@@ -139,7 +138,7 @@ export const TableProblems = ({
                 aria-expanded={open}
                 className={styles.header}
                 data-testid="table-problems-toggle"
-                onClick={() => setOpen(current => !current)}
+                onClick={() => setOpen(!open)}
                 type="button"
             >
                 <span className={styles.title}>{t('browser.module.problems')}</span>

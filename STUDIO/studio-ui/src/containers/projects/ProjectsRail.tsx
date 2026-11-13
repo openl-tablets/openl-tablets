@@ -1,5 +1,5 @@
-import { readStored, writeStored } from '../../utils/localStore'
-import { useCallback, useRef, useState } from 'react'
+import { booleanText, oneOf, storedSetting } from '../../utils/localStore'
+import { useDragSize } from '../../components/ResizeHandle'
 import { Button, Segmented, Tooltip } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -10,6 +10,7 @@ import type { ListingQuery } from './projectListing'
 import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
 import { ProjectsTree, type ProjectsSource } from './ProjectsTree'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 /** What the rail shows: the facet filters, or the grouped project tree. */
 type RailMode = 'filters' | 'tree'
@@ -23,20 +24,9 @@ const MIN_WIDTH = 200
 const MAX_WIDTH = 720
 const DEFAULT_WIDTH = 256
 
-const loadRailWidth = (): number => {
-    const stored = Number(readStored(WIDTH_STORAGE_KEY))
-    return Number.isFinite(stored) && stored >= MIN_WIDTH && stored <= MAX_WIDTH ? stored : DEFAULT_WIDTH
-}
+const railMode = storedSetting<RailMode>(STORAGE_KEY, 'filters', oneOf(['filters', 'tree']))
 
-const saveRailWidth = (width: number) => writeStored(WIDTH_STORAGE_KEY, String(width))
-
-const loadRailMode = (): RailMode => readStored(STORAGE_KEY) === 'tree' ? 'tree' : 'filters'
-
-const saveRailMode = (mode: RailMode) => writeStored(STORAGE_KEY, mode)
-
-const loadCollapsed = (): boolean => readStored(COLLAPSED_STORAGE_KEY) === 'yes'
-
-const saveCollapsed = (collapsed: boolean) => writeStored(COLLAPSED_STORAGE_KEY, collapsed ? 'yes' : 'no')
+const railCollapsed = storedSetting(COLLAPSED_STORAGE_KEY, false, booleanText)
 
 const useStyles = createStyles(({ css, token }) => ({
     rail: css`
@@ -144,21 +134,14 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const [mode, setMode] = useState<RailMode>(() => initialMode ?? loadRailMode())
-    const [width, setWidth] = useState(loadRailWidth)
-    const [collapsed, setCollapsed] = useState(loadCollapsed)
-    const railRef = useRef<HTMLElement>(null)
-
-
-    const pick = (next: RailMode) => {
-        setMode(next)
-        saveRailMode(next)
-    }
-
-    const fold = (next: boolean) => {
-        setCollapsed(next)
-        saveCollapsed(next)
-    }
+    const [mode, pick] = useStoredSetting(railMode, initialMode)
+    // Dragging the edge sizes the rail; the width it is left at is where it opens next time.
+    const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', {
+        min: MIN_WIDTH,
+        max: MAX_WIDTH,
+        fallback: DEFAULT_WIDTH,
+    })
+    const [collapsed, fold] = useStoredSetting(railCollapsed)
 
     // The handle sits on the header row of whatever the rail shows, beside that panel's own actions.
     const foldHandle = (
@@ -173,23 +156,6 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
             />
         </Tooltip>
     )
-
-    // Dragging the edge sizes the rail; the width it is left at is where it opens next time.
-    const startResize = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-        event.preventDefault()
-        const left = railRef.current?.getBoundingClientRect().left ?? 0
-        const widthAt = (moved: PointerEvent) =>
-            Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(moved.clientX - left)))
-        const resize = (moved: PointerEvent) => setWidth(widthAt(moved))
-        const stop = (moved: PointerEvent) => {
-            resize(moved)
-            window.removeEventListener('pointermove', resize)
-            window.removeEventListener('pointerup', stop)
-            saveRailWidth(widthAt(moved))
-        }
-        window.addEventListener('pointermove', resize)
-        window.addEventListener('pointerup', stop)
-    }, [])
 
     if (collapsed) {
         return (
@@ -209,7 +175,7 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
     }
 
     return (
-        <aside ref={railRef} className={cx(shared.rail, styles.rail)} data-testid="projects-rail" style={{ width }}>
+        <aside className={cx(shared.rail, styles.rail)} data-testid="projects-rail" style={{ width }}>
             {filterView && (
                 <div className={styles.top}>
                     <Segmented

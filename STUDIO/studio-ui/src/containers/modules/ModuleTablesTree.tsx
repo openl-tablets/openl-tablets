@@ -9,17 +9,16 @@ import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizableRail } from '../projects/ResizableRail'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
-    loadView,
-    saveView,
+    tableViewSetting,
     TABLE_VIEWS,
     treeOf,
     widthOf,
     type TableNode,
-    type TableView,
 } from './tableGrouping'
 import { versionLabel } from '../../utils/tableVersion'
 import { useDateFormats } from '../../utils/dateFormat'
 import { useSearchScope } from '../../hooks/useSearchScope'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
@@ -205,7 +204,7 @@ export const ModuleTablesTree = ({
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const { styles: shared } = useSharedStyles()
-    const [view, setView] = useState<TableView>(loadView)
+    const [view, setView] = useStoredSetting(tableViewSetting)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
@@ -323,10 +322,7 @@ export const ModuleTablesTree = ({
                             options={viewOptions}
                             size="small"
                             value={view}
-                            onChange={chosen => {
-                                setView(chosen)
-                                saveView(chosen)
-                            }}
+                            onChange={setView}
                         />
                         <Tooltip title={t('browser.module.filter')}>
                             <Button

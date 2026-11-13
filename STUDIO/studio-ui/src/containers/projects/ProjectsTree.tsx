@@ -1,4 +1,4 @@
-import { readStored, removeStored, writeStored } from '../../utils/localStore'
+import { plainText, storedSetting } from '../../utils/localStore'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Alert, Button, Empty, Skeleton, Tooltip, Tree } from 'antd'
 import { BranchesOutlined, PartitionOutlined, ReloadOutlined, TagOutlined } from '@ant-design/icons'
@@ -27,9 +27,8 @@ import {
     groupKeys,
     pathToNode,
     searchTree,
-    loadGrouping,
+    groupingSetting,
     pathToProject,
-    saveGrouping,
     type GroupNode,
     type GroupingLevels,
     type NodeFilters,
@@ -37,6 +36,7 @@ import {
 import { GroupProjectsModal } from './GroupProjectsModal'
 import { isFiltered, selectProjects, type ListingQuery } from './projectListing'
 import { ClearFiltersRow } from './ClearFiltersRow'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 const SELECTED_STORAGE_KEY = 'openl.projects.tree.selected'
 
@@ -66,10 +66,8 @@ interface ProjectContents {
     error?: string
 }
 
-const loadSelectedNode = (): string | null => readStored(SELECTED_STORAGE_KEY)
-
-const saveSelectedNode = (key: string | null): void =>
-    key === null ? removeStored(SELECTED_STORAGE_KEY) : writeStored(SELECTED_STORAGE_KEY, key)
+// No node picked is the default, kept as no key at all.
+const selectedNode = storedSetting(SELECTED_STORAGE_KEY, '', plainText)
 
 /**
  * The projects the tree shows: those the filters select, as the list shows them, and the project the screen is
@@ -207,7 +205,7 @@ export const ProjectsTree = ({
     const token = useTheme()
     const { themeName } = useAppTheme()
     const { isDarkMode } = useThemeMode()
-    const [levels, setLevels] = useState<GroupingLevels>(loadGrouping)
+    const [levels, setLevels] = useStoredSetting(groupingSetting)
     const [selfProjects, setSelfProjects] = useState<Project[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [grouping, setGrouping] = useState(false)
@@ -216,7 +214,7 @@ export const ProjectsTree = ({
     // The group the user picked last is remembered, so stepping into a project and back shows where
     // they were in the tree. A group is picked by setting its filters, so without them none is.
     const [selected, setSelected] = useState<string[]>(() => {
-        const remembered = filtered ? loadSelectedNode() : null
+        const remembered = filtered ? selectedNode.read() : ''
         return remembered ? [remembered] : []
     })
     const [ownSearch, setOwnSearch] = useState('')
@@ -250,7 +248,7 @@ export const ProjectsTree = ({
     useEffect(() => {
         if (!filtered) {
             setSelected(previous => (previous.length === 0 ? previous : []))
-            saveSelectedNode(null)
+            selectedNode.write('')
         }
     }, [filtered])
 
@@ -569,7 +567,6 @@ export const ProjectsTree = ({
 
     const applyGrouping = (next: GroupingLevels) => {
         setLevels(next)
-        saveGrouping(next)
         setExpanded([])
         setOpenedOn(null)
         setGrouping(false)
@@ -650,7 +647,7 @@ export const ProjectsTree = ({
                         } else {
                             // A group answers what it holds: the list shows exactly its projects, and
                             // the tree remembers where the user was, whichever screen they end up on.
-                            saveSelectedNode(key)
+                            selectedNode.write(key)
                             onOpenGroup(node.filters)
                         }
                     }}
@@ -669,7 +666,7 @@ export const ProjectsTree = ({
                     type="link"
                     onClick={() => {
                         setSelected([])
-                        saveSelectedNode(null)
+                        selectedNode.write('')
                         onShowAll()
                     }}
                 >

@@ -1,5 +1,5 @@
 import type { ModuleTable } from 'types/tables'
-import { readJson, writeJson } from '../../utils/localStore'
+import { booleanText, oneOf, storedSetting } from '../../utils/localStore'
 import type { DateFormats } from '../../utils/dateFormat'
 import { versionLabel } from '../../utils/tableVersion'
 
@@ -16,21 +16,19 @@ const DEFAULT_VIEW: TableView = 'excelSheet'
 
 const STORAGE_KEY = 'openl.module.tableView'
 
-const isView = (value: unknown): value is TableView =>
-    typeof value === 'string' && (TABLE_VIEWS as string[]).includes(value)
-
-/** The view the tree opens on: the one this browser last chose, or `excelSheet` while it has chosen none. */
-export const loadView = (): TableView => readJson(STORAGE_KEY, DEFAULT_VIEW, isView)
-
-export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
+/**
+ * The view the tree opens on: the one this browser last chose, or `excelSheet` while it has chosen none. Choosing
+ * `excelSheet` again stores nothing.
+ */
+export const tableViewSetting = storedSetting(STORAGE_KEY, DEFAULT_VIEW, oneOf(TABLE_VIEWS))
 
 const OTHER_STORAGE_KEY = 'openl.module.otherTables'
 
-/** Whether this browser last chose to list the free-form tables — the ones OpenL does not recognize. */
-export const loadShowOther = (): boolean =>
-    readJson(OTHER_STORAGE_KEY, false, (value): value is boolean => typeof value === 'boolean')
-
-export const saveShowOther = (shown: boolean): void => writeJson(OTHER_STORAGE_KEY, shown)
+/**
+ * Whether this browser last chose to list the free-form tables — the ones OpenL does not recognize. Hiding them,
+ * the default, stores nothing.
+ */
+export const showOtherSetting = storedSetting(OTHER_STORAGE_KEY, false, booleanText)
 
 /** Reads a label of the tree in the user's language. */
 type Translate = (key: string) => string

@@ -423,7 +423,7 @@ describe('TableToolbar', () => {
     })
 
     it('writes the dates that tell the versions apart in the formats of the reader, and tells the whole name on hover', async () => {
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD' } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'YYYY-MM-DD', timeFormat: 'h:mm:ss A' } })
         try {
             vi.mocked(getTableTargets).mockResolvedValue([
                 { id: 'rules-1', name: 'CarPrice', dimensions: { effectiveDate: '2010-01-01T00:00:00.000' } },

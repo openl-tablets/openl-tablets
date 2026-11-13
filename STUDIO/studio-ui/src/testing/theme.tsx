@@ -8,7 +8,7 @@ import { AppThemeProvider } from '../providers/AppThemeProvider'
 import { appTheme } from '../styles/appTheme'
 import { paletteOf, type Palette } from '../styles/listPageTheme'
 import type { ThemeName } from '../styles/themes'
-import { storeCompactMode, storeExcelFormatting, storeThemeMode, storeThemeName } from '../utils/themeMode'
+import { compactModeSetting, excelFormattingSetting, themeModeSetting, themeNameSetting } from '../utils/themeMode'
 
 /** The look a test draws in, as a reader would have picked it. */
 interface Look {
@@ -26,10 +26,10 @@ interface Look {
  */
 export const renderInTheme = (ui: ReactElement,
     { theme = 'standard', mode = 'light', compact = false, excelFormatting = false }: Look = {}) => {
-    storeThemeName(theme)
-    storeThemeMode(mode)
-    storeCompactMode(compact)
-    storeExcelFormatting(excelFormatting)
+    themeNameSetting.write(theme)
+    themeModeSetting.write(mode)
+    compactModeSetting.write(compact)
+    excelFormattingSetting.write(excelFormatting)
     onTestFinished(() => localStorage.clear())
     return render(<AppThemeProvider>{ui}</AppThemeProvider>)
 }

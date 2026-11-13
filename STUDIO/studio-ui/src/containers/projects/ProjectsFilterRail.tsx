@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox } from 'antd'
 import {
@@ -41,17 +41,16 @@ import { RepoBadge } from './RepoBadge'
 import { BranchMarks } from './BranchMarks'
 import {
     BRANCH_GROUP,
-    loadFilterLayout,
+    filterLayoutSetting,
     moveGroup,
     orderGroups,
     REPOSITORY_GROUP,
-    saveFilterLayout,
     STATUS_GROUP,
     tagGroupId,
-    type FilterLayout,
 } from './filterLayout'
 import { isFiltered, LOCAL_REPO_KEY, statusCount, type BranchFacetCount } from './projectListing'
 import { ClearFiltersRow } from './ClearFiltersRow'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 const STATUS_ORDER: ProjectStatus[] = [
     ProjectStatus.Local,
@@ -193,7 +192,7 @@ export const ProjectsFilterRail = ({
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const [layout, setLayout] = useState<FilterLayout>(loadFilterLayout)
+    const [layout, apply] = useStoredSetting(filterLayoutSetting)
     const [arranging, setArranging] = useState(false)
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -223,11 +222,6 @@ export const ProjectsFilterRail = ({
         }
         return { announcements, screenReaderInstructions: { draggable: t('home.filter_group.instructions') } }
     }, [t])
-
-    const apply = useCallback((next: FilterLayout) => {
-        setLayout(next)
-        saveFilterLayout(next)
-    }, [])
 
     const repoCounts = useMemo(() => {
         const counts = new Map<string, number>()

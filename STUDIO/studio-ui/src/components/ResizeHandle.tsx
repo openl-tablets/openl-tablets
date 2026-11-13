@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
-import { readStored, writeStored } from '../utils/localStore'
+import { numberBetween, storedSetting } from '../utils/localStore'
 
 /** The edge of a panel the reader drags. The opposite edge stands still, and the panel grows towards this one. */
 type ResizeEdge = 'top' | 'bottom' | 'left' | 'right'
@@ -28,14 +28,12 @@ const sizeAt = (edge: ResizeEdge, panel: DOMRect, pointer: PointerEvent): number
  * The size a panel was last dragged to, and the drag that changes it.
  *
  * The size is kept in this browser under the given key, so a panel opens where the reader left it rather than
- * at its default every time. A stored size outside the bounds is ignored, which is what happens when the bounds
- * themselves change.
+ * at its default every time; a panel dragged back to its default stores nothing. A stored size outside the bounds
+ * is ignored, which is what happens when the bounds themselves change.
  */
 export const useDragSize = (storageKey: string, edge: ResizeEdge, { min, max, fallback }: DragBounds) => {
-    const [size, setSize] = useState(() => {
-        const stored = Number(readStored(storageKey))
-        return Number.isFinite(stored) && stored >= min && stored <= max ? stored : fallback
-    })
+    const stored = useMemo(() => storedSetting(storageKey, fallback, numberBetween(min, max)), [fallback, max, min, storageKey])
+    const [size, setSize] = useState(stored.read)
 
     // A drag is followed on the window, so it survives the pointer leaving the grip. It must not survive the
     // panel itself: a screen that goes away mid-drag would leave the window listening for good.
@@ -53,7 +51,7 @@ export const useDragSize = (storageKey: string, edge: ResizeEdge, { min, max, fa
         const stop = (moved: PointerEvent) => {
             resize(moved)
             endDrag.current()
-            writeStored(storageKey, String(bounded(moved)))
+            stored.write(bounded(moved))
         }
         endDrag.current = () => {
             window.removeEventListener('pointermove', resize)
@@ -61,7 +59,7 @@ export const useDragSize = (storageKey: string, edge: ResizeEdge, { min, max, fa
         }
         window.addEventListener('pointermove', resize)
         window.addEventListener('pointerup', stop)
-    }, [edge, max, min, storageKey])
+    }, [edge, max, min, stored])
 
     return { size, startResize }
 }

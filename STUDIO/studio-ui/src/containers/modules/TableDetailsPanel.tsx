@@ -14,19 +14,23 @@ import type { ProjectProperty } from 'types/tables'
 import { getTableDetails, type PropertyInheritance, type TableDetails } from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
 import { updateTableProperties } from '../../services/tables'
-import { readJson, writeJson } from '../../utils/localStore'
+import { booleanText, storedSetting } from '../../utils/localStore'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import type { Written } from './TableEditor'
 import type { ConfirmWrite } from './useOverwriteConfirm'
 import { formatLocalDateTime, useDateFormats } from '../../utils/dateFormat'
+import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 /** The name takes a fixed share of the panel, so a value is not squeezed into a column of its own. */
 const LABEL_WIDTH = 130
 
 /** Whether the panel stands open, kept so a reader who folds it away keeps it folded. */
 const STORAGE_KEY = 'openl.module.tableDetails'
+
+/** Whether the panel is open; open, the default, stores nothing. */
+const openSetting = storedSetting(STORAGE_KEY, true, booleanText)
 /** The width it was last dragged to, kept for the next table the reader opens. */
 const WIDTH_STORAGE_KEY = 'openl.module.tableDetails.width'
 
@@ -180,8 +184,7 @@ export const TableDetailsPanel = ({
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const theme = useTheme()
-    const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
-        typeof value === 'boolean'))
+    const [open, setOpen] = useStoredSetting(openSetting)
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'left', WIDTH)
     const [details, setDetails] = useState<TableDetails | null>(null)
     // Which table the details on screen were read for: another table shows nothing until its own are read.
@@ -211,10 +214,6 @@ export const TableDetailsPanel = ({
         content: { fontSize: theme.fontSizeSM },
         title: { fontSize: theme.fontSizeSM, lineHeight: theme.lineHeightSM },
     }), [theme])
-
-    useEffect(() => {
-        writeJson(STORAGE_KEY, open)
-    }, [open])
 
     useEffect(() => {
         if (!open || tableId === null) {
@@ -392,7 +391,7 @@ export const TableDetailsPanel = ({
                 aria-label={t(open ? 'browser.module.details_hide' : 'browser.module.details_show')}
                 data-testid="table-details-toggle"
                 icon={open ? <RightOutlined /> : <LeftOutlined />}
-                onClick={() => setOpen(current => !current)}
+                onClick={() => setOpen(!open)}
                 size="small"
                 type="text"
             />

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { isJsonObject, readJson, writeJson } from 'utils/localStore'
+import { booleanText, oneOf, storedSetting, type SettingCodec, type StoredSetting } from 'utils/localStore'
 import { FAILURES_PER_TEST, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import type { TestsQuery } from 'services/execution'
 
@@ -17,25 +17,36 @@ export interface UserSettings {
     showComplexResult: boolean
     /** The trace shows numbers with their full precision. */
     showRealNumbers: boolean
-    /** Every screen writes dates as the regional settings of the browser do; the two settings below are not used. */
-    useSystemDateFormat: boolean
-    /** The day.js pattern every screen writes a date in, such as `YYYY-MM-DD`, where the system is not followed. */
+    /** The day.js pattern every screen writes a date in, one of {@link DATE_FORMATS}; empty for the browser's own. */
     dateFormat: string
-    /** Every screen writes a time of day on a 24-hour clock, rather than a 12-hour one, where the system is not followed. */
-    hours24: boolean
+    /**
+     * The day.js pattern every screen writes a time of day in, after the date, one of {@link TIME_FORMATS}; empty for
+     * the browser's own.
+     */
+    timeFormat: string
 }
 
-/** The formats a date can be picked in, each by the name a reader knows it under, as day.js patterns. */
+/** The formats a date can be picked in, as day.js patterns, in the order the menu offers them. */
 export const DATE_FORMATS = [
-    { name: 'us_numeric', pattern: 'MM/DD/YYYY' },
-    { name: 'us_text', pattern: 'MMM D, YYYY' },
-    { name: 'uk', pattern: 'DD/MM/YYYY' },
-    { name: 'european', pattern: 'DD.MM.YYYY' },
-    { name: 'iso', pattern: 'YYYY-MM-DD' },
+    'DD/MM/YYYY',
+    'DD.MM.YYYY',
+    'DD-MM-YYYY',
+    'DD MMM YYYY',
+    'YYYY-MM-DD',
+    'YYYY.MM.DD',
+    'YYYY/MM/DD',
+    'MMM D, YYYY',
+    'MM/DD/YYYY',
 ] as const
 
-/** Where **My Settings** are remembered: in this browser only, for every tab and visit. */
-export const USER_SETTINGS_KEY = 'openl.settings'
+/**
+ * The formats a time of day can be picked in, as day.js patterns, in the order the menu offers them: on a 24-hour
+ * clock, such as "13:45:30", and on a 12-hour one, such as "1:45:30 PM".
+ *
+ * Seconds are shown because the things carrying a time here — revisions, deployments, locks, logins — are routinely
+ * made within the same minute, and two of them stripped to the minute read alike.
+ */
+export const TIME_FORMATS = ['HH:mm:ss', 'h:mm:ss A'] as const
 
 /** The settings of a browser where nothing was picked yet. */
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = {
@@ -45,23 +56,32 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = {
     testsFailuresOnly: false,
     showComplexResult: false,
     showRealNumbers: false,
-    useSystemDateFormat: true,
-    dateFormat: 'MMM D, YYYY',
-    hours24: false,
+    dateFormat: '',
+    timeFormat: '',
 }
 
-/** Whether a stored value can stand for the setting: of the same type, and a page size or a format the menu offers. */
-const fits = (key: keyof UserSettings, value: unknown): boolean => {
-    switch (key) {
-        case 'testsPerPage':
-            return TESTS_PAGE_SIZES.includes(value as number)
-        case 'dateFormat':
-            // A format an earlier version kept, or none, writes no date the menu offers.
-            return DATE_FORMATS.some(format => format.pattern === value)
-        default:
-            return typeof value === typeof DEFAULT_USER_SETTINGS[key]
-    }
+/**
+ * Where a setting of **My Settings** is remembered: in this browser only, for every tab and visit, each setting under
+ * a key of its own. A setting at its default is not stored.
+ */
+export const userSettingKey = (key: keyof UserSettings): string => `openl.settings.${key}`
+
+const setting = <K extends keyof UserSettings>(key: K, codec: SettingCodec<UserSettings[K]>) =>
+    storedSetting(userSettingKey(key), DEFAULT_USER_SETTINGS[key], codec)
+
+/** How each setting is kept: as text under a key of its own, and not at all while at its default. */
+const STORED: {readonly [K in keyof UserSettings]: StoredSetting<UserSettings[K]> } = {
+    showHeader: setting('showHeader', booleanText),
+    showFormulas: setting('showFormulas', booleanText),
+    testsPerPage: setting('testsPerPage', oneOf(TESTS_PAGE_SIZES)),
+    testsFailuresOnly: setting('testsFailuresOnly', booleanText),
+    showComplexResult: setting('showComplexResult', booleanText),
+    showRealNumbers: setting('showRealNumbers', booleanText),
+    dateFormat: setting('dateFormat', oneOf<string>(['', ...DATE_FORMATS])),
+    timeFormat: setting('timeFormat', oneOf<string>(['', ...TIME_FORMATS])),
 }
+
+const SETTING_KEYS = Object.keys(STORED) as (keyof UserSettings)[]
 
 /**
  * The remembered settings.
@@ -70,12 +90,9 @@ const fits = (key: keyof UserSettings, value: unknown): boolean => {
  * storage, or when the stored value is not one this version knows.
  */
 export const readUserSettings = (): UserSettings => {
-    const stored = readJson<Record<string, unknown>>(USER_SETTINGS_KEY, {}, isJsonObject)
     const settings = { ...DEFAULT_USER_SETTINGS }
-    for (const key of Object.keys(settings) as (keyof UserSettings)[]) {
-        if (fits(key, stored[key])) {
-            Object.assign(settings, { [key]: stored[key] })
-        }
+    for (const key of SETTING_KEYS) {
+        Object.assign(settings, { [key]: STORED[key].read() })
     }
     return settings
 }
@@ -85,7 +102,8 @@ interface SettingsStore {
     /**
      * Applies one setting at once and remembers it for the next visit.
      *
-     * The other settings are taken as stored, so a change made meanwhile in another tab is kept.
+     * A setting set back to its default is forgotten. The other settings are taken as stored, so a change made
+     * meanwhile in another tab is kept.
      */
     setSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void
 }
@@ -93,15 +111,14 @@ interface SettingsStore {
 export const useSettingsStore = create<SettingsStore>(set => ({
     settings: readUserSettings(),
     setSetting: (key, value) => {
-        const settings = { ...readUserSettings(), [key]: value }
-        writeJson(USER_SETTINGS_KEY, settings)
-        set({ settings })
+        STORED[key].write(value)
+        set({ settings: { ...readUserSettings(), [key]: value } })
     },
 }))
 
 // A setting changed in another tab applies here at once; a cleared storage brings the defaults back.
 globalThis.addEventListener?.('storage', (event: StorageEvent) => {
-    if (event.key === USER_SETTINGS_KEY || event.key === null) {
+    if (event.key === null || Object.values(STORED).some(stored => stored.key === event.key)) {
         useSettingsStore.setState({ settings: readUserSettings() })
     }
 })

@@ -124,7 +124,7 @@ describe('TableDetailsPanel', () => {
         vi.mocked(getProjectProperties).mockResolvedValue([
             property({ name: 'effectiveDate', displayName: 'Effective Date', type: 'date' }),
         ])
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' } })
         try {
             await draw()
 

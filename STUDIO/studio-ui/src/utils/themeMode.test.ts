@@ -3,20 +3,16 @@ import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
     appearanceOf,
+    compactModeSetting,
     DEFAULT_THEME_MODE,
     DEFAULT_THEME_NAME,
-    readCompactMode,
-    readExcelFormatting,
-    readThemeMode,
-    readThemeName,
-    storeCompactMode,
-    storeExcelFormatting,
-    storeThemeMode,
-    storeThemeName,
+    excelFormattingSetting,
     THEME_COMPACT_KEY,
     THEME_EXCEL_FORMATTING_KEY,
     THEME_MODE_KEY,
     THEME_NAME_KEY,
+    themeModeSetting,
+    themeNameSetting,
 } from './themeMode'
 
 describe('themeMode', () => {
@@ -36,94 +32,101 @@ describe('themeMode', () => {
 
     it('follows the system until the user picks an appearance', () => {
         expect(DEFAULT_THEME_MODE).toBe('auto')
-        expect(readThemeMode()).toBe('auto')
+        expect(themeModeSetting.read()).toBe('auto')
     })
 
     it('remembers the picked appearance', () => {
-        storeThemeMode('dark')
+        themeModeSetting.write('dark')
 
         expect(localStorage.getItem(THEME_MODE_KEY)).toBe('dark')
-        expect(readThemeMode()).toBe('dark')
+        expect(themeModeSetting.read()).toBe('dark')
     })
 
     it('stores nothing when the system is followed again', () => {
-        storeThemeMode('dark')
-        storeThemeMode('auto')
+        themeModeSetting.write('dark')
+        themeModeSetting.write('auto')
 
         expect(localStorage.getItem(THEME_MODE_KEY)).toBeNull()
-        expect(readThemeMode()).toBe('auto')
+        expect(themeModeSetting.read()).toBe('auto')
     })
 
     it('falls back to the system when the stored appearance is not one it knows', () => {
         localStorage.setItem(THEME_MODE_KEY, 'sepia')
 
-        expect(readThemeMode()).toBe('auto')
+        expect(themeModeSetting.read()).toBe('auto')
     })
 
     it('lays the application out comfortably until the user asks for compact', () => {
-        expect(readCompactMode()).toBe(false)
+        expect(compactModeSetting.read()).toBe(false)
     })
 
     it('remembers the picked density', () => {
-        storeCompactMode(true)
+        compactModeSetting.write(true)
 
         expect(localStorage.getItem(THEME_COMPACT_KEY)).toBe('true')
-        expect(readCompactMode()).toBe(true)
+        expect(compactModeSetting.read()).toBe(true)
 
-        storeCompactMode(false)
+        compactModeSetting.write(false)
 
-        expect(readCompactMode()).toBe(false)
+        expect(compactModeSetting.read()).toBe(false)
+        // comfortable is the default, kept as no key at all
+        expect(localStorage.getItem(THEME_COMPACT_KEY)).toBeNull()
     })
 
     it('stays comfortable when the stored density is not one it knows', () => {
         localStorage.setItem(THEME_COMPACT_KEY, 'cosy')
 
-        expect(readCompactMode()).toBe(false)
+        expect(compactModeSetting.read()).toBe(false)
     })
 
     it('shows the tables in the table theme until the user asks for their Excel formatting', () => {
-        expect(readExcelFormatting()).toBe(false)
+        expect(excelFormattingSetting.read()).toBe(false)
     })
 
     it('remembers whether the tables are shown in their Excel formatting', () => {
-        storeExcelFormatting(true)
+        excelFormattingSetting.write(true)
 
         expect(localStorage.getItem(THEME_EXCEL_FORMATTING_KEY)).toBe('true')
-        expect(readExcelFormatting()).toBe(true)
+        expect(excelFormattingSetting.read()).toBe(true)
 
-        storeExcelFormatting(false)
+        excelFormattingSetting.write(false)
 
-        expect(readExcelFormatting()).toBe(false)
+        expect(excelFormattingSetting.read()).toBe(false)
+        expect(localStorage.getItem(THEME_EXCEL_FORMATTING_KEY)).toBeNull()
     })
 
     it('keeps the table theme when the stored choice is not one it knows', () => {
         localStorage.setItem(THEME_EXCEL_FORMATTING_KEY, 'yes')
 
-        expect(readExcelFormatting()).toBe(false)
+        expect(excelFormattingSetting.read()).toBe(false)
     })
 
     it('starts in the standard theme until the user picks another', () => {
         expect(DEFAULT_THEME_NAME).toBe('standard')
-        expect(readThemeName()).toBe('standard')
+        expect(themeNameSetting.read()).toBe('standard')
     })
 
     it('remembers the picked theme', () => {
-        storeThemeName('dracula')
+        themeNameSetting.write('dracula')
 
         expect(localStorage.getItem(THEME_NAME_KEY)).toBe('dracula')
-        expect(readThemeName()).toBe('dracula')
+        expect(themeNameSetting.read()).toBe('dracula')
+
+        themeNameSetting.write('standard')
+
+        expect(localStorage.getItem(THEME_NAME_KEY)).toBeNull()
     })
 
     it('falls back to the standard theme when the stored one is no longer offered', () => {
         // Evergreen, offered by an earlier version
         localStorage.setItem(THEME_NAME_KEY, 'evergreen')
 
-        expect(readThemeName()).toBe('standard')
+        expect(themeNameSetting.read()).toBe('standard')
     })
 
     it('falls back to the standard theme when the stored name is one every object answers to', () => {
         localStorage.setItem(THEME_NAME_KEY, 'toString')
 
-        expect(readThemeName()).toBe('standard')
+        expect(themeNameSetting.read()).toBe('standard')
     })
 })

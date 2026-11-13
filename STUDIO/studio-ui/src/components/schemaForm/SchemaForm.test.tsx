@@ -236,7 +236,7 @@ describe('SchemaForm', () => {
     })
 
     it('shows a date in the formats of the reader, and keeps it in ISO 8601', async () => {
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' } })
         try {
             render(<Harness initial={{ policy: { since: '2024-03-15' } }} parameters={[policy]} />)
 

@@ -32,7 +32,7 @@ import { ClosedProject } from './projects/ClosedProject'
 import { ProjectScreenHeader } from './projects/ProjectScreenHeader'
 import { useOpenProject } from './projects/useOpenProject'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
-import { loadShowOther, saveShowOther } from './modules/tableGrouping'
+import { showOtherSetting } from './modules/tableGrouping'
 import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import type { TableEditorHandle, Written } from './modules/TableEditor'
@@ -162,10 +162,10 @@ export const ModuleWorkspace = () => {
     // for them, as the Editor's tree hid its utility tables. Asked for, they are read with the rest: the server
     // lists them only on request. The choice is this browser's, as the tree's view is — when it is the reader's:
     // a screen that turns them on to show a table it was sent to does so for this visit alone.
-    const [showOther, setShowOther] = useState(loadShowOther)
+    const [showOther, setShowOther] = useState(showOtherSetting.read)
     const chooseOther = useCallback((shown: boolean) => {
         setShowOther(shown)
-        saveShowOther(shown)
+        showOtherSetting.write(shown)
     }, [])
     // A screen sent to a free-form table it knows the kind of asks for them before going there, so the module
     // is read once, with the table in the list.

@@ -5,11 +5,10 @@ import {
     DEFAULT_GROUPING,
     GROUP_BY_BRANCH,
     GROUP_BY_REPOSITORY,
+    groupingSetting,
     groupKeys,
-    loadGrouping,
     NO_GROUPING,
     pathToProject,
-    saveGrouping,
     searchTree,
     type GroupingLevels,
 } from './projectGrouping'
@@ -27,7 +26,7 @@ const projects = [
     project('p4', 'Delta', 'flat'),
 ]
 
-describe('loadGrouping', () => {
+describe('groupingSetting', () => {
     beforeEach(() => {
         const store: Record<string, string> = {}
         vi.stubGlobal('localStorage', {
@@ -41,12 +40,12 @@ describe('loadGrouping', () => {
 
     it('defaults a first-time visitor to grouping by repository', () => {
         expect(DEFAULT_GROUPING).toEqual([GROUP_BY_REPOSITORY, '', ''])
-        expect(loadGrouping()).toEqual(DEFAULT_GROUPING)
+        expect(groupingSetting.read()).toEqual(DEFAULT_GROUPING)
     })
 
     it('remembers a None choice instead of falling back to the default', () => {
-        saveGrouping(NO_GROUPING)
-        expect(loadGrouping()).toEqual(NO_GROUPING)
+        groupingSetting.write(NO_GROUPING)
+        expect(groupingSetting.read()).toEqual(NO_GROUPING)
     })
 })
 
