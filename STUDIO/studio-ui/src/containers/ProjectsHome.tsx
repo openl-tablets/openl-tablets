@@ -3,7 +3,7 @@ import { errorMessage } from '../utils/errorMessage'
 import { creatableRepositories } from '../utils/repositoryFeatures'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { App, Alert, Button, Empty, Pagination, Skeleton, Spin } from 'antd'
+import { App, Alert, Button, Empty, Skeleton, Spin } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
@@ -14,7 +14,10 @@ import {
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { moduleRoute, projectFileRoute } from '../services/projectId'
-import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
+import { DEFAULT_PAGE_SIZE } from '../constants/ui'
+import { HeaderActions } from '../components/HeaderActions'
+import { ListFooter } from '../components/ListFooter'
+import { withPage } from '../utils/pageParams'
 import type { Repository, RepositoryInfo } from '../types/repositories'
 import type {
     FacetCount,
@@ -26,7 +29,7 @@ import type {
 import { ProjectsFilterRail } from './projects/ProjectsFilterRail'
 import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
-import { ProjectsToolbar, type ProjectView } from './projects/ProjectsToolbar'
+import { ProjectsViewSwitch, type ProjectView } from './projects/ProjectsViewSwitch'
 import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers } from './projects/ProjectRowActions'
@@ -83,7 +86,6 @@ const useStyles = createStyles(({ css, token }) => ({
         flex-wrap: wrap;
         align-items: center;
         gap: ${token.marginXXS}px ${token.margin - 2}px;
-        font-size: ${token.fontSizeSM}px;
     `,
     compileItem: css`
         display: inline-flex;
@@ -96,18 +98,15 @@ const useStyles = createStyles(({ css, token }) => ({
         font-weight: 600;
         font-variant-numeric: tabular-nums;
     `,
-    compileTotal: css`
-        color: ${token.colorTextTertiary};
-    `,
     /** The indexing note sits in the summary line, so it reads as part of it rather than as a button. */
     indexingToggle: css`
         height: auto;
         padding: 0;
         font-size: ${token.fontSizeSM}px;
     `,
-    /** The indexing notice closes the header of the page, under its title row. */
+    /** The indexing notice opens above the summary line that offers it. */
     indexingBanner: css`
-        margin-bottom: ${token.marginSM}px;
+        margin: ${token.marginXS}px ${token.margin}px;
     `,
     content: css`
         position: relative;
@@ -117,20 +116,13 @@ const useStyles = createStyles(({ css, token }) => ({
         height: 100%;
         overflow: auto;
     `,
-    paginationBar: css`
-        display: flex;
-        justify-content: flex-end;
-        padding: ${token.paddingXS}px ${token.padding}px;
-        border-top: 1px solid ${token.colorBorderSecondary};
-        background: ${token.colorBgContainer};
-    `,
     gridPad: css`
         padding: ${token.padding}px;
     `,
 }))
 
 /**
- * Compile states shown in the header health strip, ordered so what needs attention comes first. Clean
+ * Compile states shown in the summary line under the list, ordered so what needs attention comes first. Clean
  * ({@code ok}) and not-yet-compiled ({@code idle}) projects are omitted — only compilation that needs
  * attention is summarised.
  */
@@ -828,95 +820,68 @@ export const ProjectsHome = () => {
                 })}
             />
             <div className={shared.main}>
-                <div className={shared.header}>
-                    <div className={shared.headTop}>
-                        <div>
-                            <h1 className={shared.pageTitle}>{t('home.title')}</h1>
-                            <div className={shared.subtitle} data-testid="projects-count">
-                                <span className={styles.compileStrip} data-testid="projects-compile-summary">
-                                    {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
-                                        <span key={state} className={styles.compileItem}>
-                                            <span className={shared.stateDot} style={{ background: COMPILE_COLORS[state] }} />
-                                            <span className={styles.compileNum}>{compileTally[state]}</span>
-                                            {t(`browser.compile.${state}`)}
-                                        </span>
-                                    ))}
-                                    <span className={styles.compileTotal}>{t('home.summary_total', { total: totalProjects })}</span>
-                                    {showIndexingNote && (
-                                        <Button
-                                            aria-expanded={indexingShown}
-                                            className={styles.indexingToggle}
-                                            data-testid="projects-indexing-toggle"
-                                            icon={<LoadingOutlined spin />}
-                                            onClick={() => setIndexingShown(shown => !shown)}
-                                            size="small"
-                                            type="link"
-                                        >
-                                            {t('home.indexing_repositories', { count: indexingRepositories.length })}
-                                        </Button>
-                                    )}
-                                </span>
-                            </div>
-                        </div>
-                        <div className={shared.headActions}>
-                            <ProjectsToolbar
-                                onSort={sortBy}
-                                onView={value => setParam('view', value === 'list' ? null : value)}
-                                sort={sort ?? 'name'}
-                                view={view}
-                            />
-                            {creatableRepos.length > 0 && (
-                                <Button
-                                    data-testid="projects-new"
-                                    icon={<PlusOutlined />}
-                                    onClick={() => setCreateOpen(true)}
-                                    type="primary"
-                                >
-                                    {t('browser.new_project')}
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                    {showIndexingNote && indexingShown && (
-                        <Alert
-                            showIcon
-                            className={styles.indexingBanner}
-                            closable={{ onClose: () => setIndexingShown(false) }}
-                            data-testid="projects-indexing-banner"
-                            title={t('home.indexing_banner', { repos: indexingRepositories.join(', ') })}
-                            type="info"
-                        />
-                    )}
-                </div>
                 <div className={cx(shared.content, styles.content)}>
                     <div className={styles.scroll}>{content()}</div>
                     {loading && projects.length > 0 && <BusyVeil data-testid="projects-loading-overlay" />}
                 </div>
-                {totalProjects > pageSize && (
-                    <div className={styles.paginationBar}>
-                        <Pagination
-                            showSizeChanger
-                            current={currentPage}
-                            data-testid="projects-pagination"
-                            pageSize={pageSize}
-                            pageSizeOptions={PAGE_SIZE_OPTIONS}
-                            total={totalProjects}
-                            onChange={(nextPage, nextSize) => {
-                                // Page and size must change in one navigation; two setParams calls would
-                                // both read the same snapshot and the second would drop the first.
-                                setParams(prev => {
-                                    const next = new URLSearchParams(prev)
-                                    const apply = (key: string, value: string | null) =>
-                                        value === null ? next.delete(key) : next.set(key, value)
-                                    apply('page', nextPage === 1 ? null : String(nextPage))
-                                    apply('size', nextSize === DEFAULT_PAGE_SIZE ? null : String(nextSize))
-                                    return next
-                                }, { replace: true })
-                            }}
-                        />
-                    </div>
+                {showIndexingNote && indexingShown && (
+                    <Alert
+                        showIcon
+                        className={styles.indexingBanner}
+                        closable={{ onClose: () => setIndexingShown(false) }}
+                        data-testid="projects-indexing-banner"
+                        title={t('home.indexing_banner', { repos: indexingRepositories.join(', ') })}
+                        type="info"
+                    />
                 )}
+                <ListFooter
+                    current={currentPage}
+                    onChange={(page, size) => setParams(prev => withPage(prev, page, size), { replace: true })}
+                    pageSize={pageSize}
+                    testIdPrefix="projects"
+                    total={totalProjects}
+                    summary={(
+                        <span className={styles.compileStrip} data-testid="projects-compile-summary">
+                            {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
+                                <span key={state} className={styles.compileItem}>
+                                    <span className={shared.stateDot} style={{ background: COMPILE_COLORS[state] }} />
+                                    <span className={styles.compileNum}>{compileTally[state]}</span>
+                                    {t(`browser.compile.${state}`)}
+                                </span>
+                            ))}
+                            <span data-testid="projects-count">
+                                {t('home.summary_total', { total: totalProjects })}
+                            </span>
+                            {showIndexingNote && (
+                                <Button
+                                    aria-expanded={indexingShown}
+                                    className={styles.indexingToggle}
+                                    data-testid="projects-indexing-toggle"
+                                    icon={<LoadingOutlined spin />}
+                                    onClick={() => setIndexingShown(shown => !shown)}
+                                    size="small"
+                                    type="link"
+                                >
+                                    {t('home.indexing_repositories', { count: indexingRepositories.length })}
+                                </Button>
+                            )}
+                        </span>
+                    )}
+                />
             </div>
+            <HeaderActions>
+                {creatableRepos.length > 0 && (
+                    <Button
+                        data-testid="projects-new"
+                        icon={<PlusOutlined />}
+                        onClick={() => setCreateOpen(true)}
+                        type="primary"
+                    >
+                        {t('browser.new_project')}
+                    </Button>
+                )}
+                <ProjectsViewSwitch onView={value => setParam('view', value === 'list' ? null : value)} view={view} />
+            </HeaderActions>
             <NewProjectModal
                 onClose={() => setCreateOpen(false)}
                 onCreated={openCreated}

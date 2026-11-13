@@ -35,9 +35,10 @@ The page consists of the following parts:
 
 -   **Filters** and **Tree** views on the left narrow the list down and group it, as described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree).
 -   The search field of the top bar, named **Projects** on this page, finds projects by name, author, branch or tag. For more information, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
--   The **List** and **Grid** buttons next to **New Project** switch between a table and cards.
--   **New Project** creates a project as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
--   The list shows the projects of all repositories in one alphabetical list. A row shows the project name with its tags, the branch it is on, who modified it and when, and the actions available for it.
+-   **New Project** in the top bar, next to the **Projects** and **Deployments** links, creates a project as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
+-   The **List** / **Grid** switch next to **New Project** shows the projects as a table or as cards. A click anywhere on it shows the other view.
+-   The list shows the projects of all repositories in one alphabetical list. A row shows the project name with its tags, the branch it is on, who modified it and when, and the actions available for it. A click on the **Project**, **Branch** or **Modified** column header sorts the list by that column, and a second click reverses the order. The cards keep the order the table was sorted in.
+-   The bar under the list counts the projects and switches the pages of a long list. When projects have compilation errors or warnings, or are being compiled, it shows how many. While a repository is still being indexed, **Indexing 1 repository** appears there too, and clicking it names the repository.
 
 A click on a project opens its page, described in [Working with the Project Page](#working-with-the-project-page).
 
@@ -1199,7 +1200,7 @@ To browse a deployment repository, proceed as follows:
 1.  Click **Deployments** in the top bar.
 2.  In the **Repositories** panel, select the deployment repository to be browsed.
 
-    The deployments of the selected deployment repository are listed on the right. The search field of the top bar, named **Deployments** on this page, finds a deployment by name.
+    The deployments of the selected deployment repository are listed on the right. The search field of the top bar, named **Deployments** on this page, finds a deployment by name. The bar under the list counts the deployments of the repository that match the search and switches the pages of a long list.
 
     ![The Deployments page](images/deployments-page.png "The Deployments page")
 

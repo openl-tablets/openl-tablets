@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, Pagination, Skeleton, Typography } from 'antd'
+import { Alert, Button, Empty, Skeleton, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../utils/errorMessage'
 import { getDeployments, getProductionRepositories, type Deployment } from '../services/deployments'
 import type { Repository } from '../types/repositories'
-import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
+import { DEFAULT_PAGE_SIZE } from '../constants/ui'
+import { ListFooter } from '../components/ListFooter'
+import { withPage } from '../utils/pageParams'
 import { useSharedStyles } from './projects/sharedStyles'
 import { RepoBadge } from './projects/RepoBadge'
 import { useSearchScope } from '../hooks/useSearchScope'
@@ -47,11 +49,6 @@ const useStyles = createStyles(({ css, token }) => ({
         min-width: 0;
         max-width: 460px;
         font-weight: 600;
-    `,
-    paginationBar: css`
-        display: flex;
-        justify-content: flex-end;
-        padding: 0 16px 16px;
     `,
 }))
 
@@ -148,7 +145,8 @@ export const DeploymentsHome = () => {
     }, [loadDeployments, selectedRepository])
 
     const currentDeploymentsState = selectedRepository ? deploymentsByRepo[selectedRepository.id] : undefined
-    const deployments = Array.isArray(currentDeploymentsState) ? currentDeploymentsState : []
+    const loaded = Array.isArray(currentDeploymentsState)
+    const deployments = loaded ? currentDeploymentsState : []
     const filteredDeployments = useMemo(
         () => deployments.filter(deployment => deploymentMatches(deployment, search.trim())),
         [deployments, search]
@@ -258,8 +256,6 @@ export const DeploymentsHome = () => {
         )
     }
 
-    const deploymentCount = Array.isArray(currentDeploymentsState) ? currentDeploymentsState.length : 0
-
     return (
         <div className={shared.page} data-testid="deployments-home">
             <aside className={shared.rail}>
@@ -283,41 +279,19 @@ export const DeploymentsHome = () => {
                 </div>
             </aside>
             <div className={shared.main}>
-                <div className={shared.header}>
-                    <div className={shared.headTop}>
-                        <div>
-                            <h1 className={shared.pageTitle}>{t('deployments.title')}</h1>
-                            <div className={shared.subtitle} data-testid="deployments-summary">
-                                {t('deployments.summary', { count: deploymentCount })}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className={shared.content}>
-                    {content()}
-                    {filteredDeployments.length > pageSize && (
-                        <div className={styles.paginationBar}>
-                            <Pagination
-                                showSizeChanger
-                                current={currentPage}
-                                data-testid="deployments-pagination"
-                                pageSize={pageSize}
-                                pageSizeOptions={PAGE_SIZE_OPTIONS}
-                                total={filteredDeployments.length}
-                                onChange={(nextPage, nextSize) => {
-                                    setParams(prev => {
-                                        const next = new URLSearchParams(prev)
-                                        const apply = (key: string, value: string | null) =>
-                                            value === null ? next.delete(key) : next.set(key, value)
-                                        apply('page', nextPage === 1 ? null : String(nextPage))
-                                        apply('size', nextSize === DEFAULT_PAGE_SIZE ? null : String(nextSize))
-                                        return next
-                                    }, { replace: true })
-                                }}
-                            />
-                        </div>
+                <div className={shared.content}>{content()}</div>
+                <ListFooter
+                    current={currentPage}
+                    onChange={(page, size) => setParams(prev => withPage(prev, page, size), { replace: true })}
+                    pageSize={pageSize}
+                    testIdPrefix="deployments"
+                    total={filteredDeployments.length}
+                    summary={loaded && (
+                        <span data-testid="deployments-summary">
+                            {t('deployments.summary', { count: filteredDeployments.length })}
+                        </span>
                     )}
-                </div>
+                />
             </div>
         </div>
     )

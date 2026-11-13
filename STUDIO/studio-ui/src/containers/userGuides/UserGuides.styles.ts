@@ -1,14 +1,12 @@
 import { createStyles } from 'antd-style'
 import { paperToken } from '../../styles/paper'
-
-/** The height of the application header the viewer sits under. */
-const HEADER_HEIGHT = 48.5
+import { APP_HEADER_HEIGHT } from '../../constants/ui'
 
 export const useStyles = createStyles(({ css, token }) => ({
     /** The frame of the viewer: the contents rail on the left, the page filling the rest. */
     frame: css`
         display: flex;
-        height: calc(100vh - ${HEADER_HEIGHT}px);
+        height: calc(100vh - ${APP_HEADER_HEIGHT}px);
         overflow: hidden;
         background: ${token.colorBgContainer};
     `,
@@ -112,7 +110,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex: none;
         align-self: flex-start;
         width: 220px;
-        max-height: calc(100vh - ${HEADER_HEIGHT + 2 * token.paddingLG}px);
+        max-height: calc(100vh - ${APP_HEADER_HEIGHT + 2 * token.paddingLG}px);
         overflow-y: auto;
 
         @media (max-width: 1100px) {

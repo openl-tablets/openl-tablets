@@ -9,6 +9,7 @@ import { SettingsMenu } from './header/SettingsMenu'
 import { HeaderSearch } from './header/HeaderSearch'
 import { Link, useLocation } from 'react-router'
 import Logo from '../components/Logo'
+import { HeaderActionsSlot } from '../components/HeaderActions'
 import { hasDeploymentRepositories } from '../services/deployments'
 import { SystemContext } from '../contexts'
 import { useAppNavigate, useScript } from '../hooks'
@@ -105,6 +106,7 @@ export const Header = () => {
                     onClick={({ key }) => appNavigate(key)}
                     selectedKeys={[activeKeyFromPath]}
                 />
+                <HeaderActionsSlot className={styles.actions} />
                 <Space size="small">
                     <SettingsMenu />
                     <ThemeSwitch />

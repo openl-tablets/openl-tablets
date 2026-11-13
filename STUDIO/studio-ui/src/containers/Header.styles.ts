@@ -1,5 +1,6 @@
 import { createStyles } from 'antd-style'
 import { LIST_PAGE_COLORS } from '../styles/listPageTheme'
+import { APP_HEADER_HEIGHT } from '../constants/ui'
 
 export const useStyles = createStyles(({ css, token }) => ({
     header: css`
@@ -9,8 +10,8 @@ export const useStyles = createStyles(({ css, token }) => ({
             display: flex;
             align-items: center;
             padding: 0 15px;
-            line-height: 48.5px;
-            height: 48.5px;
+            line-height: ${APP_HEADER_HEIGHT}px;
+            height: ${APP_HEADER_HEIGHT}px;
         }
 
         /* The search has the room the tabs leave: on a narrow window the name gives way to it, the cube stays. */
@@ -53,5 +54,18 @@ export const useStyles = createStyles(({ css, token }) => ({
         /* Room for the Projects and Deployments tabs, 202 px, before the search starts to give way. */
         flex: 1 1 240px;
         min-width: 46px;
+    `,
+    /** The actions of the screen shown, between the tabs and the settings. */
+    actions: css`
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: ${token.marginXS}px;
+        margin-right: ${token.margin}px;
+        line-height: normal;
+
+        &:empty {
+            display: none;
+        }
     `,
 }))

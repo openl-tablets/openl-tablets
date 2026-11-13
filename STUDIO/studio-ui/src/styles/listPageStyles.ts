@@ -36,18 +36,11 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         letter-spacing: 0.05em;
         text-transform: uppercase;
     `,
-    /** The screen's header band: title, summary and screen-level actions. */
+    /** The band at the top of a screen, above its content. */
     header: css`
         padding: ${token.paddingSM}px ${token.padding}px;
         border-bottom: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
         background: ${LIST_PAGE_COLORS.containerBg};
-    `,
-    headTop: css`
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: ${token.marginSM}px;
-        margin-bottom: ${token.marginSM}px;
     `,
     pageTitle: css`
         margin: 0;
@@ -62,12 +55,6 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         margin-top: ${token.marginXXS}px;
         color: ${LIST_PAGE_COLORS.textTertiary};
         font-size: ${token.fontSizeSM}px;
-    `,
-    headActions: css`
-        display: flex;
-        align-items: center;
-        gap: ${token.marginXS}px;
-        flex: none;
     `,
     content: css`
         flex: 1;
