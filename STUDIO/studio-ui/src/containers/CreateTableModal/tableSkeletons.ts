@@ -822,6 +822,13 @@ export const buildTableSource = (
 const area = (role: RawTableRole, top: number, left: number, bottom: number, right: number): RawTableRegion[] =>
     top <= bottom && left <= right ? [{ role, top, left, bottom, right }] : []
 
+/**
+ * The types of a Datatype or a Constants table: code among the values of the body, which draws none of the lines of
+ * its role, so no line runs under the title of the types alone.
+ */
+const typeArea = (top: number, bottom: number): RawTableRegion[] =>
+    area('code', top, 0, bottom, 0).map(region => ({ ...region, unframed: true }))
+
 /** The columns of a Test table that hold the result it expects: OpenL knows them by their name. */
 const expectsResult = (name: string): boolean => name.startsWith(EXPECTED_RESULT) || name.startsWith('_error_')
 
@@ -894,10 +901,10 @@ export const buildTableRegions = (
     const geometry = geometryOf(forPreset, context)
     switch (geometry) {
         case 'datatype':
-            return [...header, ...area('inputTitle', 1, 0, 1, right), ...area('code', 2, 0, last, 0),
+            return [...header, ...area('inputTitle', 1, 0, 1, right), ...typeArea(2, last),
                 ...area('output', 2, 1, last, 1), ...area('value', 2, 2, last, right)]
         case 'constants':
-            return [...header, ...area('code', 1, 0, last, 0), ...area('output', 1, 1, last, 1),
+            return [...header, ...typeArea(1, last), ...area('output', 1, 1, last, 1),
                 ...area('value', 1, 2, last, right)]
         case 'vocabulary':
             return [...header, ...area('value', 1, 0, last, right)]

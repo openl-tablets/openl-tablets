@@ -176,6 +176,9 @@ const HEADER_PARTS: ReadonlySet<string> = new Set(['signature', 'properties', 'c
  * column from the titles down, and the line of a role closing the table. No other line is drawn: the parts of a table
  * are told apart by their fill.
  *
+ * A region standing among the values of the body, such as the types of a Datatype, draws none of the lines of its
+ * role: a line of the code would run under the title of the types alone.
+ *
  * @param roles  the roles of the cells of the table
  * @param cell   what the cell is
  * @param span   how many rows and columns the cell takes
@@ -187,7 +190,7 @@ export const roleLinesOf = (roles: TableRoles, cell: CellRole, span: { rows: num
     const { region, place } = cell
     const lastRow = place.row + span.rows - 1
     const border: RawTableCellBorder = {}
-    const edges = ROLE_EDGES[region.role]
+    const edges = region.unframed === true ? undefined : ROLE_EDGES[region.role]
     if (edges && place.row === region.top) {
         border.top = lines[edges.top]
     }

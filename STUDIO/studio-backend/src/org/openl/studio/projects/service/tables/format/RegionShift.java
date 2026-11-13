@@ -384,7 +384,7 @@ public final class RegionShift {
             return;
         }
         into.add(rows(region, region.top(), at - 1));
-        into.add(new RawTableRegion(region.role(), region.type(), at, region.left(), at + count - 1, region.right()));
+        into.add(region.unreturnedAt(at, region.left(), at + count - 1, region.right()));
         into.add(rows(region, at + count, region.bottom() + count));
     }
 
@@ -582,7 +582,7 @@ public final class RegionShift {
                 while (end + 1 <= source.right() && !covered[end + 1]) {
                     end++;
                 }
-                into.add(new RawTableRegion(source.role(), source.type(), top, column, bottom, end));
+                into.add(source.unreturnedAt(top, column, bottom, end));
                 for (var at = column; at <= end; at++) {
                     covered[at] = true;
                 }

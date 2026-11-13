@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
  * @param right    the last column, in table coordinates
  * @param returned whether the table returns the cells among others, such as the cells a {@code SpreadsheetResult}
  *                 marks: they keep their role and are bold
+ * @param unframed whether the cells stand among the values of the body, such as the types of a Datatype: they keep
+ *                 their role but draw none of its lines
  * @author Yury Molchan
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,18 +50,32 @@ public record RawTableRegion(
                 Whether the table returns the cells among others, such as the cells of the steps and the columns a \
                 SpreadsheetResult marks with *. They keep their role and are bold. Absent when they are not.""")
         @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-        boolean returned
+        boolean returned,
+
+        @Parameter(description = """
+                Whether the cells stand among the values of the body, such as the types of a Datatype. They keep their \
+                role but draw none of its lines. Absent when they draw them.""")
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        boolean unframed
 ) {
 
-    /** A region of cells the table does not return among others. */
+    /** A region of cells the table does not return among others, drawing the lines of their role. */
     public RawTableRegion(RawTableRole role, @Nullable RawTableValueType type, int top, int left, int bottom,
                           int right) {
-        this(role, type, top, left, bottom, right, false);
+        this(role, type, top, left, bottom, right, false, false);
     }
 
-    /** The same cells moved to other bounds, in table coordinates: their role, type and mark stay. */
+    /** The same cells moved to other bounds, in table coordinates: their role, type and marks stay. */
     public RawTableRegion withBounds(int top, int left, int bottom, int right) {
-        return new RawTableRegion(role, type, top, left, bottom, right, returned);
+        return new RawTableRegion(role, type, top, left, bottom, right, returned, unframed);
+    }
+
+    /**
+     * Other cells of the same role and type, in table coordinates, which the table does not return among others. They
+     * draw the lines of their role as these cells do.
+     */
+    public RawTableRegion unreturnedAt(int top, int left, int bottom, int right) {
+        return new RawTableRegion(role, type, top, left, bottom, right, false, unframed);
     }
 
     /** Whether the region holds a cell, named in table coordinates. */

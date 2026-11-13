@@ -200,7 +200,9 @@ compiler cannot read takes them from its text. How each kind of table maps to th
   column of the table is column 0. They do not overlap and cover the table. A region names its `role` and, when all
   its values have one, their `type`. A cell whose value is of another type names its own `type`. A region of cells
   the table returns among others, such as the cells of the steps and the columns a `SpreadsheetResult` marks `*`, has
-  `"returned": true`: its cells keep their role and are bold.
+  `"returned": true`: its cells keep their role and are bold. A region of cells that stand among the values of the
+  body, such as the types of a Datatype or a Constants table, has `"unframed": true`: its cells keep their role but
+  draw none of its lines.
 - `role` — `signature` (the header), `properties`, `code` (a declaration the compiler reads, such as `C1` or the field
   names of a Data table), `inputTitle` and `outputTitle` (the titles of what the table takes and gives), `key` (what
   names a row or a column, such as a rule name, a Data ID or a step a `SpreadsheetResult` marks `*`), `value` (a

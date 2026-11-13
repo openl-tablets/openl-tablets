@@ -53,7 +53,7 @@ Content-Type: application/json
       {
         "cell": "B4",
         "value": "String",
-        "style": 6
+        "style": 3
       },
       {
         "cell": "C4",
@@ -70,7 +70,7 @@ Content-Type: application/json
       {
         "cell": "B5",
         "value": "Double",
-        "style": 6
+        "style": 3
       },
       {
         "cell": "C5",
@@ -80,7 +80,7 @@ Content-Type: application/json
       {
         "cell": "D5",
         "value": 0.5,
-        "style": 7,
+        "style": 6,
         "type": "number"
       }
     ],
@@ -88,16 +88,16 @@ Content-Type: application/json
       {
         "cell": "B6",
         "value": "Integer",
-        "style": 8
+        "style": 7
       },
       {
         "cell": "C6",
         "value": "age",
-        "style": 9
+        "style": 8
       },
       {
         "cell": "D6",
-        "style": 10
+        "style": 9
       }
     ]
   ],
@@ -123,23 +123,13 @@ Content-Type: application/json
     },
     {
       "color": "#808080",
-      "valign": "center",
-      "border": {
-        "top": {
-          "style": "solid",
-          "width": 1
-        }
-      }
+      "valign": "center"
     },
     {
       "background": "#dce6f1",
       "valign": "center"
     },
     {
-      "valign": "center"
-    },
-    {
-      "color": "#808080",
       "valign": "center"
     },
     {
@@ -189,7 +179,8 @@ Content-Type: application/json
       "top": 1,
       "left": 0,
       "bottom": 4,
-      "right": 0
+      "right": 0,
+      "unframed": true
     },
     {
       "role": "output",

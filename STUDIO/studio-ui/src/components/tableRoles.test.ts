@@ -123,6 +123,27 @@ describe('tableRoles', () => {
         expect(linesAt(lookup, 'B3', 2)).toEqual({ top: LINES.role })
     })
 
+    it('draws no line of the code under the title of the types of a Datatype alone', () => {
+        const roles = rolesOf({
+            pos: 'B2:D5',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 2 },
+                { role: 'inputTitle', top: 1, left: 0, bottom: 1, right: 2 },
+                { role: 'code', top: 2, left: 0, bottom: 3, right: 0, unframed: true },
+                { role: 'output', top: 2, left: 1, bottom: 3, right: 1 },
+                { role: 'value', type: 'string', top: 2, left: 2, bottom: 3, right: 2 },
+            ],
+        })!
+        const linesAt = (address: string) =>
+            roleLinesOf(roles, cellRoleOf(roles, address, undefined)!, { rows: 1, columns: 1 }, LINES)
+
+        expect(linesAt('B4')).toBeUndefined()
+        expect(linesAt('C4')).toBeUndefined()
+        // The last type closes the table as the other fields do.
+        expect(linesAt('B5')).toEqual({ bottom: LINES.role })
+        expect(linesAt('C5')).toEqual({ bottom: LINES.role })
+    })
+
     it('draws the result between its own lines, the double one closing the table', () => {
         const roles = spreadsheet!
 
