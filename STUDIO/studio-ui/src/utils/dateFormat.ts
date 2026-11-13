@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import i18next from 'i18next'
 import { useSettingsStore } from '../store/settingsStore'
+import { cached } from './cached'
 
 dayjs.extend(utc)
 
@@ -28,10 +28,17 @@ const DATE_PART_TOKENS = {
 /**
  * A separator a locale writes between the parts of a date, kept as it is by day.js.
  *
+ * Only a separator holding a letter is put in brackets, which day.js writes as they are: a letter stands for a part
+ * of the date, as the `h`, `min` and `s` of the time of Canadian French would. Punctuation and spaces mean nothing to
+ * day.js, so the pattern of most locales reads plainly, such as `MM/DD/YYYY h:mm:ss A`.
+ *
  * A space of any kind is written as a plain one. A locale may separate the time from its day period by a narrow
  * no-break space, as newer browsers do for English, and a reader types a plain space, which the pattern then reads.
  */
-const literal = (value: string): string => `[${value.replace(/\s/g, ' ')}]`
+const literal = (value: string): string => {
+    const text = value.replace(/\s/g, ' ')
+    return /\p{L}/u.test(text) ? `[${text}]` : text
+}
 
 /** Date picker pattern derived from the user's locale, independent of the value stored in the workbook. */
 export const datePickerFormatForLocale = (locale?: string): string =>
@@ -60,50 +67,45 @@ export const timeFormatForLocale = (locale?: string): string => {
         .join('')
 }
 
-/** The time of day on a 12-hour clock, down to the second, such as "1:45:30 PM". */
-const TIME_12_HOURS = 'h:mm:ss A'
-
-/**
- * The time of day on a 24-hour clock, down to the second, such as "13:45:30".
- *
- * Seconds are shown because the things carrying a time here — revisions, deployments, locks, logins — are routinely
- * made within the same minute, and two of them stripped to the minute read alike.
- */
-const TIME_24_HOURS = 'HH:mm:ss'
-
 /** The patterns of day.js a date alone and a date with its time are written in. */
 export interface DateFormats {
     date: string
     dateTime: string
 }
 
+/** The patterns of a date alone and of a time of day alone, as the regional settings of the browser write them. */
+interface SystemPatterns {
+    date: string
+    time: string
+}
+
 /** The patterns of the regional settings of the browser, once the first date has been written in them. */
-let systemPatterns: DateFormats | undefined
+let system: SystemPatterns | undefined
 
 /**
- * The patterns of the regional settings of the browser.
+ * The patterns of the regional settings of the browser: the formats a reader who picked none writes in.
  *
  * The browser keeps its regional settings while the page is open, so they are read once.
  */
-const systemFormats = (): DateFormats => {
-    if (systemPatterns === undefined) {
-        const date = datePickerFormatForLocale()
-        systemPatterns = { date, dateTime: `${date} ${timeFormatForLocale()}` }
-    }
-    return systemPatterns
+export const systemPatterns = (): SystemPatterns => {
+    system ??= { date: datePickerFormatForLocale(), time: timeFormatForLocale() }
+    return system
 }
 
+/** The patterns of each pair of formats picked, worked out once for every date written in them. */
+const PICKED = new Map<string, DateFormats>()
+
 /**
- * The patterns of the date and time settings of **My Settings**: the ones of the regional settings of the browser
- * while the reader follows the preferences of the system, or else the Date Format they picked and the time on the
- * clock they picked.
+ * The patterns of the Date Format and the Time Format of **My Settings**, each the one of the regional settings of
+ * the browser while it is empty. A date with its time is the date, then the time.
  *
- * Only the regional settings cost to read, and they are read once: a screen writing thousands of dates pays for
- * them once.
+ * They are worked out once for each pair: a screen writing thousands of dates pays for them once.
  */
-const patternsOf = (system: boolean, dateFormat: string, hours24: boolean): DateFormats => (system
-    ? systemFormats()
-    : { date: dateFormat, dateTime: `${dateFormat} ${hours24 ? TIME_24_HOURS : TIME_12_HOURS}` })
+const patternsOf = (dateFormat: string, timeFormat: string): DateFormats =>
+    cached(PICKED, `${dateFormat}\n${timeFormat}`, () => {
+        const date = dateFormat || systemPatterns().date
+        return { date, dateTime: `${date} ${timeFormat || systemPatterns().time}` }
+    })
 
 /**
  * The patterns dates are written in now, for a call that is handed none.
@@ -111,8 +113,8 @@ const patternsOf = (system: boolean, dateFormat: string, hours24: boolean): Date
  * It costs no more than reading the settings, so a function writing a date may call it for every date it writes.
  */
 export const formats = (): DateFormats => {
-    const { useSystemDateFormat, dateFormat, hours24 } = useSettingsStore.getState().settings
-    return patternsOf(useSystemDateFormat, dateFormat, hours24)
+    const { dateFormat, timeFormat } = useSettingsStore.getState().settings
+    return patternsOf(dateFormat, timeFormat)
 }
 
 /**
@@ -137,10 +139,9 @@ export const datePickerFormat = (withTime = false): string => {
  * names them among its dependencies, so it is worked out again in the new formats.
  */
 export const useDateFormats = (): DateFormats => {
-    const system = useSettingsStore(state => state.settings.useSystemDateFormat)
     const dateFormat = useSettingsStore(state => state.settings.dateFormat)
-    const hours24 = useSettingsStore(state => state.settings.hours24)
-    return useMemo(() => patternsOf(system, dateFormat, hours24), [system, dateFormat, hours24])
+    const timeFormat = useSettingsStore(state => state.settings.timeFormat)
+    return patternsOf(dateFormat, timeFormat)
 }
 
 /**

@@ -1,4 +1,4 @@
-import { readJson, writeJson } from '../../utils/localStore'
+import { jsonText, storedSetting } from '../../utils/localStore'
 import type { Project } from '../../types/projects'
 import { projectMatches } from './projectListing'
 
@@ -27,9 +27,8 @@ const STORAGE_KEY = 'openl.projects.grouping'
 const isGroupingLevels = (value: unknown): value is GroupingLevels =>
     Array.isArray(value) && value.length === 3 && value.every(level => typeof level === 'string')
 
-export const loadGrouping = (): GroupingLevels => readJson(STORAGE_KEY, DEFAULT_GROUPING, isGroupingLevels)
-
-export const saveGrouping = (levels: GroupingLevels): void => writeJson(STORAGE_KEY, levels)
+/** The grouping the user picked, or {@link DEFAULT_GROUPING}, which picked again stores nothing. */
+export const groupingSetting = storedSetting(STORAGE_KEY, DEFAULT_GROUPING, jsonText(isGroupingLevels))
 
 /** The levels that are actually used: a level set to nothing ends the grouping. */
 export const activeLevels = (levels: GroupingLevels): string[] => {

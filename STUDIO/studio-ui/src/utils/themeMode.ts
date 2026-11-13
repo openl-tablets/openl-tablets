@@ -1,6 +1,6 @@
 import type { ThemeAppearance, ThemeMode } from 'antd-style'
-import { readStored, removeStored, writeStored } from './localStore'
-import { THEMES, type ThemeName } from '../styles/themes'
+import { booleanText, oneOf, storedSetting } from './localStore'
+import { THEME_ORDER, type ThemeName } from '../styles/themes'
 
 /** Where the picked appearance is remembered between visits. */
 export const THEME_MODE_KEY = 'openl.theme.mode'
@@ -8,28 +8,17 @@ export const THEME_MODE_KEY = 'openl.theme.mode'
 /** The appearance follows the operating system until the user picks light or dark. */
 export const DEFAULT_THEME_MODE: ThemeMode = 'auto'
 
-const THEME_MODES: ReadonlySet<ThemeMode> = new Set(['auto', 'light', 'dark'])
-
-const isThemeMode = (value: string | null): value is ThemeMode => THEME_MODES.has(value as ThemeMode)
-
 /**
- * The remembered appearance.
+ * The picked appearance, remembered between visits.
  *
- * Falls back to {@link DEFAULT_THEME_MODE} when nothing was picked yet, when the browser refuses storage,
- * or when the stored value is not one this version knows.
+ * It follows the system, {@link DEFAULT_THEME_MODE}, when nothing was picked yet, when the browser refuses storage,
+ * or when the stored value is not one this version knows; following the system again stores nothing.
  */
-export const readThemeMode = (): ThemeMode => {
-    const stored = readStored(THEME_MODE_KEY)
-    return isThemeMode(stored) ? stored : DEFAULT_THEME_MODE
-}
-
-/**
- * Remembers the picked appearance for the next visit.
- *
- * Following the system is the default, so `auto` is remembered by storing nothing at all.
- */
-export const storeThemeMode = (mode: ThemeMode): void =>
-    mode === 'auto' ? removeStored(THEME_MODE_KEY) : writeStored(THEME_MODE_KEY, mode)
+export const themeModeSetting = storedSetting<ThemeMode>(
+    THEME_MODE_KEY,
+    DEFAULT_THEME_MODE,
+    oneOf(['auto', 'light', 'dark'])
+)
 
 /**
  * The appearance a mode stands for right now: itself, or the one the operating system asks for under `auto`.
@@ -51,12 +40,10 @@ export const THEME_COMPACT_KEY = 'openl.theme.compact'
  * Whether the compact density was picked.
  *
  * The comfortable density is the default, so anything but a stored `true` — nothing picked yet, a browser
- * that refuses storage, a value this version does not know — leaves the application comfortable.
+ * that refuses storage, a value this version does not know — leaves the application comfortable, and picking it
+ * again stores nothing.
  */
-export const readCompactMode = (): boolean => readStored(THEME_COMPACT_KEY) === 'true'
-
-/** Remembers the picked density for the next visit. */
-export const storeCompactMode = (compact: boolean): void => writeStored(THEME_COMPACT_KEY, String(compact))
+export const compactModeSetting = storedSetting(THEME_COMPACT_KEY, false, booleanText)
 
 /** Where the choice to show the tables in the formatting of their Excel files is remembered between visits. */
 export const THEME_EXCEL_FORMATTING_KEY = 'openl.theme.excelFormatting'
@@ -65,13 +52,10 @@ export const THEME_EXCEL_FORMATTING_KEY = 'openl.theme.excelFormatting'
  * Whether the tables are shown in the formatting of their Excel files (**Excel Formatting** in the theme menu).
  *
  * The tables are drawn in the colours of the theme by default, so anything but a stored `true` — nothing picked
- * yet, a browser that refuses storage, a value this version does not know — draws them so.
+ * yet, a browser that refuses storage, a value this version does not know — draws them so, and going back to them
+ * stores nothing.
  */
-export const readExcelFormatting = (): boolean => readStored(THEME_EXCEL_FORMATTING_KEY) === 'true'
-
-/** Remembers for the next visit whether the tables are shown in the formatting of their Excel files. */
-export const storeExcelFormatting = (excelFormatting: boolean): void =>
-    writeStored(THEME_EXCEL_FORMATTING_KEY, String(excelFormatting))
+export const excelFormattingSetting = storedSetting(THEME_EXCEL_FORMATTING_KEY, false, booleanText)
 
 /** Where the picked theme is remembered between visits. */
 export const THEME_NAME_KEY = 'openl.theme.name'
@@ -79,20 +63,11 @@ export const THEME_NAME_KEY = 'openl.theme.name'
 /** The theme a user who has not picked one is given. */
 export const DEFAULT_THEME_NAME: ThemeName = 'standard'
 
-// `in` would also answer for `toString` and the rest of the prototype, and a stored name such as that
-// resolves to no palette at all, so only a theme of this version's own counts.
-const isThemeName = (value: string | null): value is ThemeName => value !== null && Object.hasOwn(THEMES, value)
-
 /**
- * The remembered theme.
+ * The picked theme, remembered between visits.
  *
  * Falls back to {@link DEFAULT_THEME_NAME} when nothing was picked yet, when the browser refuses storage,
- * or when the stored theme is one this version no longer offers.
+ * or when the stored theme is one this version no longer offers — only a theme of this version's own counts, not
+ * a name every object answers to, such as `toString`. Picking the standard theme again stores nothing.
  */
-export const readThemeName = (): ThemeName => {
-    const stored = readStored(THEME_NAME_KEY)
-    return isThemeName(stored) ? stored : DEFAULT_THEME_NAME
-}
-
-/** Remembers the picked theme for the next visit. */
-export const storeThemeName = (name: ThemeName): void => writeStored(THEME_NAME_KEY, name)
+export const themeNameSetting = storedSetting(THEME_NAME_KEY, DEFAULT_THEME_NAME, oneOf(THEME_ORDER))

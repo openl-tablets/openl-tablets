@@ -1,17 +1,14 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
-import { ThemeProvider, useTheme, type CustomTokenParams, type ThemeAppearance, type ThemeMode } from 'antd-style'
+import { createContext, useCallback, useContext, useEffect, useMemo, type PropsWithChildren } from 'react'
+import { ThemeProvider, useTheme, type CustomTokenParams, type ThemeAppearance } from 'antd-style'
 import { theme as antdTheme, type ThemeConfig } from 'antd'
 import {
     appearanceOf,
-    readCompactMode,
-    readExcelFormatting,
-    readThemeMode,
-    readThemeName,
-    storeCompactMode,
-    storeExcelFormatting,
-    storeThemeMode,
-    storeThemeName,
+    compactModeSetting,
+    excelFormattingSetting,
+    themeModeSetting,
+    themeNameSetting,
 } from '../utils/themeMode'
+import { useStoredSetting } from '../hooks/useStoredSetting'
 import { appTheme } from '../styles/appTheme'
 import { paletteOf } from '../styles/listPageTheme'
 import type { ThemeName } from '../styles/themes'
@@ -91,30 +88,10 @@ const ThemeColorMeta = () => {
  * own.
  */
 export const AppThemeProvider = ({ children }: PropsWithChildren) => {
-    const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
-    const [compact, setCompact] = useState<boolean>(readCompactMode)
-    const [themeName, setThemeName] = useState<ThemeName>(readThemeName)
-    const [excelFormatting, setExcelFormatting] = useState<boolean>(readExcelFormatting)
-
-    const onThemeModeChange = useCallback((mode: ThemeMode) => {
-        storeThemeMode(mode)
-        setThemeMode(mode)
-    }, [])
-
-    const rememberCompact = useCallback((next: boolean) => {
-        storeCompactMode(next)
-        setCompact(next)
-    }, [])
-
-    const rememberThemeName = useCallback((next: ThemeName) => {
-        storeThemeName(next)
-        setThemeName(next)
-    }, [])
-
-    const rememberExcelFormatting = useCallback((next: boolean) => {
-        storeExcelFormatting(next)
-        setExcelFormatting(next)
-    }, [])
+    const [themeMode, onThemeModeChange] = useStoredSetting(themeModeSetting)
+    const [compact, rememberCompact] = useStoredSetting(compactModeSetting)
+    const [themeName, rememberThemeName] = useStoredSetting(themeNameSetting)
+    const [excelFormatting, rememberExcelFormatting] = useStoredSetting(excelFormattingSetting)
 
     const value = useMemo(
         () => ({

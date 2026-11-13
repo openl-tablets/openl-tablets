@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import dayjs from 'dayjs'
-import { Button, Dropdown, Switch, Tooltip, Typography, type MenuProps } from 'antd'
-import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons'
+import { Button, Dropdown, Switch, Typography, type MenuProps } from 'antd'
+import { SettingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZES } from 'constants/tests'
 import { useSettingsStore } from 'store'
-import { DATE_FORMATS, type UserSettings } from 'store/settingsStore'
+import { DATE_FORMATS, TIME_FORMATS, type UserSettings } from 'store/settingsStore'
+import { systemPatterns } from 'utils/dateFormat'
 
 /** The settings turned on and off by a row of their own. */
 type SwitchSetting = {[K in keyof UserSettings]: UserSettings[K] extends boolean ? K : never }[keyof UserSettings]
@@ -16,8 +17,6 @@ const LABELS: Record<SwitchSetting, string> = {
     testsFailuresOnly: 'execution:tests.failuresOnly',
     showComplexResult: 'execution:tests.compoundResult',
     showRealNumbers: 'common:settings.show_numbers_without_formatting',
-    useSystemDateFormat: 'common:settings.use_system_formats',
-    hours24: 'common:settings.hours_24',
 }
 
 const isSwitchSetting = (key: string): key is SwitchSetting => key in LABELS
@@ -28,8 +27,16 @@ const PAGE_SIZE = 'testsPerPage:'
 /** The moment each format is shown on, so a reader sees how a date reads before picking its format. */
 const SAMPLE = '2026-12-31T13:45:30'
 
-/** A date format is keyed by its pattern, apart from the switches and the page sizes. */
-const DATE_FORMAT = 'dateFormat:'
+/** The settings picked among formats; a format is keyed by the setting and its pattern, the system's by none. */
+type FormatSetting = 'dateFormat' | 'timeFormat'
+
+const formatKey = (setting: FormatSetting, pattern: string): string => `${setting}:${pattern}`
+
+/** The setting a key of a format picks, and the pattern it picks, or nothing for a key of another row. */
+const pickedFormat = (key: string): [FormatSetting, string] | undefined => {
+    const [setting, ...pattern] = key.split(':')
+    return setting === 'dateFormat' || setting === 'timeFormat' ? [setting, pattern.join(':')] : undefined
+}
 
 /**
  * Picks **My Settings**: how the tables, the test results and the trace are shown.
@@ -38,9 +45,9 @@ const DATE_FORMAT = 'dateFormat:'
  * setting that is on or off is a row carrying a switch, which shows the choice rather than takes the click: the row
  * itself is the control. **Tests Per Page** opens the page sizes, the one in force marked.
  *
- * The dates follow the regional settings of the browser while **Use System Preferences** is on, as it is at first.
- * Turned off, it shows **Date Format**, which opens the formats, each shown on one moment beside its name, and
- * **24-Hour Time**, which picks the clock.
+ * **Date Format** and **Time Format** each open the formats, every one shown on the same moment. The first is the
+ * format of the regional settings of the browser, marked **System**, which is in force at first; the format in force
+ * is shown beside the name.
  *
  * Picking anything applies it at once and remembers it in this browser, for every tab and the next visit: every
  * screen writing a date is subscribed to the formats (`useDateFormats`) and draws its dates again. Nothing
@@ -65,34 +72,20 @@ export const SettingsMenu = () => {
     // Made at every drawing: a day.js date keeps the language it was made in.
     const sample = (pattern: string): string => dayjs(SAMPLE).format(pattern)
 
-    const dateFormatItem = {
-        children: DATE_FORMATS.map(({ name, pattern }) => ({
-            extra: t(`common:settings.formats.${name}`),
-            key: DATE_FORMAT + pattern,
-            label: sample(pattern),
-        })),
-        key: 'dateFormat',
+    const formatItem = (setting: FormatSetting, label: string, patterns: readonly string[], system: string) => ({
+        children: [
+            { extra: t('common:settings.system_format'), key: formatKey(setting, ''), label: sample(system) },
+            ...patterns.map(pattern => ({ key: formatKey(setting, pattern), label: sample(pattern) })),
+        ],
+        key: setting,
         label: (
             <>
-                {t('common:settings.date_format')}
+                {t(label)}
                 {' '}
-                <Typography.Text type="secondary">{sample(settings.dateFormat)}</Typography.Text>
+                <Typography.Text type="secondary">{sample(settings[setting] || system)}</Typography.Text>
             </>
         ),
-    }
-
-    const systemItem = {
-        ...switchItem('useSystemDateFormat'),
-        label: (
-            <>
-                {t(LABELS.useSystemDateFormat)}
-                {' '}
-                <Tooltip title={t('common:settings.use_system_formats_hint')}>
-                    <InfoCircleOutlined data-testid="settings-useSystemDateFormat-hint" />
-                </Tooltip>
-            </>
-        ),
-    }
+    })
 
     const items: MenuProps['items'] = [
         {
@@ -128,10 +121,10 @@ export const SettingsMenu = () => {
             type: 'group',
         },
         {
-            // The format and the clock are the reader's to pick only while the system is not followed.
-            children: settings.useSystemDateFormat
-                ? [systemItem]
-                : [systemItem, dateFormatItem, switchItem('hours24')],
+            children: [
+                formatItem('dateFormat', 'common:settings.date_format', DATE_FORMATS, systemPatterns().date),
+                formatItem('timeFormat', 'common:settings.time_format', TIME_FORMATS, systemPatterns().time),
+            ],
             key: 'dateTime',
             label: t('common:settings.date_time_settings'),
             type: 'group',
@@ -139,12 +132,13 @@ export const SettingsMenu = () => {
     ]
 
     const onPick = ({ key }: { key: string }): void => {
-        if (isSwitchSetting(key)) {
+        const format = pickedFormat(key)
+        if (format) {
+            setSetting(...format)
+        } else if (isSwitchSetting(key)) {
             setSetting(key, !settings[key])
         } else if (key.startsWith(PAGE_SIZE)) {
             setSetting('testsPerPage', Number(key.slice(PAGE_SIZE.length)))
-        } else if (key.startsWith(DATE_FORMAT)) {
-            setSetting('dateFormat', key.slice(DATE_FORMAT.length))
         }
     }
 
@@ -161,7 +155,8 @@ export const SettingsMenu = () => {
                 selectedKeys: [
                     ...(Object.keys(LABELS) as SwitchSetting[]).filter(key => settings[key]),
                     PAGE_SIZE + settings.testsPerPage,
-                    DATE_FORMAT + settings.dateFormat,
+                    formatKey('dateFormat', settings.dateFormat),
+                    formatKey('timeFormat', settings.timeFormat),
                 ],
             }}
         >

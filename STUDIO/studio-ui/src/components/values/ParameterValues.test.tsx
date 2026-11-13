@@ -194,13 +194,13 @@ describe('ValueCell', () => {
     })
 
     it('writes a date in the formats of the reader, and again as soon as the reader changes them', async () => {
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY', hours24: true } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD.MM.YYYY', timeFormat: 'HH:mm:ss' } })
         try {
             const { container } = render(<Values values={[{ since: '2026-12-31T14:05:09.000' }]} />)
             await openLine(container, '{1 fields}')
             expect(screen.getByText('31.12.2026 14:05:09')).toBeInTheDocument()
 
-            act(() => useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD', hours24: true } }))
+            act(() => useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'YYYY-MM-DD', timeFormat: 'HH:mm:ss' } }))
             expect(screen.getByText('2026-12-31 14:05:09')).toBeInTheDocument()
         } finally {
             act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))

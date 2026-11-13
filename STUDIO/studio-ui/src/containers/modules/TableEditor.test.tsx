@@ -352,7 +352,7 @@ describe('TableEditor', () => {
             editors: [{ editor: 'date' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' } })
         draw({ rows: dated })
         await userEvent.dblClick(screen.getByText('3/7/2024'))
         // shown in the Date Format the reader picked

@@ -18,7 +18,7 @@ describe('project filter storage', () => {
     it('remembers what the list is filtered, sorted and laid out by', () => {
         saveProjectFilters(new URLSearchParams('q=rates&status=EDITING&repo=design&tags=x&sort=updated&dir=desc&view=grid&size=50'))
 
-        const restored = loadProjectFilters()!
+        const restored = loadProjectFilters()
 
         expect(restored.get('q')).toBe('rates')
         expect(restored.get('status')).toBe('EDITING')
@@ -33,24 +33,25 @@ describe('project filter storage', () => {
     it('keeps every value of a repeated filter', () => {
         saveProjectFilters(new URLSearchParams('status=EDITING&status=CLOSED'))
 
-        expect(loadProjectFilters()!.getAll('status')).toEqual(['EDITING', 'CLOSED'])
+        expect(loadProjectFilters().getAll('status')).toEqual(['EDITING', 'CLOSED'])
     })
 
     it('forgets the page, which has moved on by the next visit', () => {
         saveProjectFilters(new URLSearchParams('q=rates&page=7'))
 
-        expect(loadProjectFilters()!.has('page')).toBe(false)
+        expect(loadProjectFilters().has('page')).toBe(false)
     })
 
-    it('remembers cleared filters as cleared', () => {
+    it('forgets cleared filters, which the list opens with anyway', () => {
         saveProjectFilters(new URLSearchParams('q=rates'))
-        saveProjectFilters(new URLSearchParams())
+        saveProjectFilters(new URLSearchParams('page=3'))
 
-        expect(loadProjectFilters()!.toString()).toBe('')
+        expect(loadProjectFilters().toString()).toBe('')
+        expect(memory.has('openl.projects.filters')).toBe(false)
     })
 
     it('has nothing to restore on a first visit', () => {
-        expect(loadProjectFilters()).toBeNull()
+        expect(loadProjectFilters().toString()).toBe('')
     })
 
     it('hands the tree beside a project the picks the list was left with', () => {
@@ -71,12 +72,12 @@ describe('project filter storage', () => {
 
         clearStoredPicks()
 
-        expect(loadProjectFilters()!.toString()).toBe('q=rates&sort=name&view=grid')
+        expect(loadProjectFilters().toString()).toBe('q=rates&sort=name&view=grid')
     })
 
     it('leaves a first visit without a memory when there is nothing to clear', () => {
         clearStoredPicks()
 
-        expect(loadProjectFilters()).toBeNull()
+        expect(memory.size).toBe(0)
     })
 })

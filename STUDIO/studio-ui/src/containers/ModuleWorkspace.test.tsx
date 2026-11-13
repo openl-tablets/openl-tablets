@@ -706,7 +706,7 @@ describe('ModuleWorkspace', () => {
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
         expect(screen.getByTestId('tables-tree')).toHaveTextContent('false')
         expect(screen.getByTestId('tables-tree')).toHaveAttribute('data-reloading', 'false')
-        expect(localStorage.getItem('openl.module.otherTables')).toBe('false')
+        expect(localStorage.getItem('openl.module.otherTables')).toBeNull()
         expect(getModuleTables).toHaveBeenCalledTimes(2)
     })
 
@@ -959,7 +959,7 @@ describe('ModuleWorkspace', () => {
             '/projects/p1/modules/Bank%20Rating?table=t-1', { replace: true }))
         expect(getModuleTables).toHaveBeenCalledTimes(2)
         expect(screen.getByTestId('tables-tree')).toHaveTextContent('false')
-        expect(localStorage.getItem('openl.module.otherTables')).toBe('false')
+        expect(localStorage.getItem('openl.module.otherTables')).toBeNull()
     })
 
     it('asks for the utility tables before opening one the search found, so the module is read once more, not twice', async () => {

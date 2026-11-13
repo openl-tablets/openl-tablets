@@ -165,13 +165,13 @@ To manage personal settings, proceed as follows:
 
 5.  In the **Date & Time** group, choose how dates and times are written:
 
-    -   **Use System Preferences** — on by default: every screen writes dates and times as the regional settings of
-        the web browser do, such as `12/31/2026 1:45:30 PM` in the US.
-    -   **Date Format** — offered while **Use System Preferences** is off: point to it and pick **US (Numeric)**
-        (`12/31/2026`), **US (Text)** (`Dec 31, 2026`), **UK** (`31/12/2026`), **European** (`31.12.2026`) or
-        **ISO 8601** (`2026-12-31`). Each format is shown on the same moment, beside its name.
-    -   **24-Hour Time** — offered while **Use System Preferences** is off: the time of day is written on a 24-hour
-        clock, `13:45:30`, rather than a 12-hour one, `1:45:30 PM`.
+    -   **Date Format** — point to it and pick how a date is written, each format shown on the same moment. The first
+        one, marked **System**, writes it as the regional settings of the web browser do, such as `12/31/2026` in the
+        US, and is in force by default. The others are `31/12/2026`, `31.12.2026`, `31-12-2026`, `31 Dec 2026`,
+        `2026-12-31`, `2026.12.31`, `2026/12/31`, `Dec 31, 2026` and `12/31/2026`.
+    -   **Time Format** — point to it and pick how the time of day is written after the date. The first one, marked
+        **System**, follows the regional settings of the web browser, such as `1:45:30 PM` in the US, and is in force
+        by default. The others are a 24-hour clock, `13:45:30`, and a 12-hour one, `1:45:30 PM`.
 
     A change applies at once to every screen: the lists, the table editor, the table properties, the input of a run,
     the results of a run or a test, the trace and the date pickers, where a date is also typed in the format shown.

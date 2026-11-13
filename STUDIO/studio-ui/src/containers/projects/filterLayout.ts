@@ -1,4 +1,4 @@
-import { isJsonObject, readJson, writeJson } from '../../utils/localStore'
+import { isJsonObject, jsonText, storedSetting } from '../../utils/localStore'
 /** The group of the rail that filters by repository. */
 export const REPOSITORY_GROUP = 'repository'
 /** The group of the rail that filters by the branch a project is open on. */
@@ -26,16 +26,23 @@ const STORAGE_KEY = 'openl.projects.filters.layout'
 const isStringArray = (value: unknown): value is string[] =>
     Array.isArray(value) && value.every(item => typeof item === 'string')
 
-export const loadFilterLayout = (): FilterLayout => {
-    const layout = readJson<Partial<FilterLayout>>(STORAGE_KEY, {}, isJsonObject)
-    return {
-        order: isStringArray(layout.order) ? layout.order : [],
-        hidden: isStringArray(layout.hidden) ? layout.hidden : [],
-        collapsed: isStringArray(layout.collapsed) ? layout.collapsed : [],
-    }
-}
+const asJson = jsonText(isJsonObject)
 
-export const saveFilterLayout = (layout: FilterLayout): void => writeJson(STORAGE_KEY, layout)
+/**
+ * The arrangement of the rail, kept as JSON. A part that is not a list of names is read as empty, and the untouched
+ * arrangement stores nothing.
+ */
+export const filterLayoutSetting = storedSetting<FilterLayout>(STORAGE_KEY, EMPTY_LAYOUT, {
+    parse: text => {
+        const layout: Partial<Record<keyof FilterLayout, unknown>> | undefined = asJson.parse(text)
+        return layout && {
+            order: isStringArray(layout.order) ? layout.order : [],
+            hidden: isStringArray(layout.hidden) ? layout.hidden : [],
+            collapsed: isStringArray(layout.collapsed) ? layout.collapsed : [],
+        }
+    },
+    format: layout => JSON.stringify(layout),
+})
 
 /**
  * The groups in the order the rail shows them: the ones the user arranged first, in their order, then

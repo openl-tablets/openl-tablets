@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ProjectStatusSummary, TagFacetSummary } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
-import { loadFilterLayout } from './filterLayout'
+import { filterLayoutSetting } from './filterLayout'
 import type { BranchFacetCount } from './projectListing'
 import { ProjectsFilterRail } from './ProjectsFilterRail'
 
@@ -140,7 +140,7 @@ describe('ProjectsFilterRail', () => {
         await drag(headTitle('branch', 'home.facet_branch'), 'branch', 2 * HEAD)
 
         expect(order()).toEqual(BRANCH_LAST)
-        expect(loadFilterLayout().order).toEqual(BRANCH_LAST)
+        expect(filterLayoutSetting.read().order).toEqual(BRANCH_LAST)
 
         await drag(headTitle('branch', 'home.facet_branch'), 'branch', -3 * HEAD)
 

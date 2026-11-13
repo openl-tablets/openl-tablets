@@ -169,6 +169,19 @@ The build writes two pages (`build.rollupOptions.input`):
   in the window asks the original editor's router to navigate and leaves the results window open; a refused focus does
   not undo navigation.
 - **State**: Zustand stores in `src/store/`. Use selectors that subscribe to specific slices to avoid re-renders.
+- **A choice kept in the browser** — a setting, a theme, the size of a panel, a folded panel, a view or a grouping —
+  is a `storedSetting(key, default, codec)` of `utils/localStore.ts`, under a key of its own in `localStorage`. It
+  stores a choice only while it differs from the default: writing the default removes the key, so a browser keeps
+  nothing for a reader who changed nothing. A missing key, a refused storage and a text the codec does not read
+  give the default. The codecs keep a value as plain text — `booleanText` (`true`/`false`), `plainText`,
+  `oneOf`, `numberBetween` — and `jsonText` only for a value of several parts (the grouping levels, the
+  arrangement of the filter rail). A module exports the setting itself (`themeNameSetting`, `groupingSetting`,
+  `filterLayoutSetting`), not a pair of functions around it, and a component holds it with
+  `useStoredSetting(setting)` of `hooks/`, which keeps every change at once. Only a component that also changes
+  the value without keeping it pairs `useState(setting.read)` with `setting.write` itself: the drag of a panel's
+  edge, kept once the drag ends, and the free-form tables a screen lists for one visit. What is handed between
+  windows rather than chosen — the launch of an execution, the trace launch counter — is no setting and keeps
+  `readStored`/`writeStored`.
 - **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
   with `AdministrationLayout`.
 - **i18n**: bundles in `src/locales/*.en.ts`, registered as namespaces. Reference keys like `t('common:menu.users')` or
@@ -189,9 +202,10 @@ The build writes two pages (`build.rollupOptions.input`):
   `formatDateTime` for a moment the backend answers in ISO 8601, shown in the time zone of the browser, and
   `formatLocalDateTime` for a date with no time zone — a date property, or a cell the compiler types as a date
   (`RawTableGrid` reads the type from the roles of the read) — which is never shifted and shows its time only when it
-  holds a time of day. They write it as the regional settings of the browser do while **Use System Preferences** of
-  **My Settings** is on, as it is by default, or in the **Date Format**, a day.js pattern, and on the clock of
-  **24-Hour Time** the reader picked. The regional settings of the browser are read once for the page, so a function
+  holds a time of day. They write it in the **Date Format** and the **Time Format** of **My Settings**, `dateFormat`
+  and `timeFormat`, each a day.js pattern the menu offers (`DATE_FORMATS`, `TIME_FORMATS`); a date with its time is
+  the date, then the time. Either one empty, as it is by default, stands for the regional settings of the browser
+  (`systemPatterns()`), which each list offers first, marked **System**. The regional settings of the browser are read once for the page, so a function
   that writes a date costs no `Intl` call: a table of
   thousands of date cells hung the page for seconds when each cell read the regional settings anew. A date picker
   shows its date in `datePickerFormat()` and sends it in ISO 8601.
@@ -208,7 +222,7 @@ The build writes two pages (`build.rollupOptions.input`):
   What the machine is asked for on purpose is what the *reader* supplies rather than reads:
   `Intl.DateTimeFormat().resolvedOptions().timeZone` in `services/repositories.ts`, because the backend wants the
   reader's own zone, and `datePickerFormatForLocale()` and `timeFormatForLocale()` called without a locale by
-  `utils/dateFormat.ts`, which every date and time is written in while **Use System Preferences** is on, because the
+  `utils/dateFormat.ts`, which a date or a time is written in while its format is the **System** one, because the
   reader asked for the regional settings of their browser. Both are deliberate; anything else that follows the machine
   is a defect.
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`
@@ -269,9 +283,10 @@ The build writes two pages (`build.rollupOptions.input`):
   chain as `[appearance, ...theme.algorithm]`, and a nested provider starts that chain again — so **every scoped
   theme merges `densityTheme(compact)` in**, or its area stays comfortable inside a compact application.
 - **Settings live in the browser.** **My Settings** are picked in the header's `SettingsMenu`, beside `ThemeSwitch`, and
-  kept in `localStorage` alone, as one JSON object under `openl.settings` (`useSettingsStore` of
-  `store/settingsStore.ts`). The user profile carries none of them, so they follow the browser, not the user. A stored
-  value this version does not know falls back to the default of that one setting. A change made in one tab reaches every
+  kept in `localStorage` alone, each setting as text under a key of its own, `openl.settings.<name>`
+  (`userSettingKey` and `useSettingsStore` of `store/settingsStore.ts`); a setting at its default is not stored, so
+  picking the default removes its key. The user profile carries none of them, so they follow the browser, not the
+  user. A stored value this version does not know falls back to the default of that one setting. A change made in one tab reaches every
   other tab at once (the `storage` event), and a pick there keeps it. A screen reads a setting with
   `useSettingsStore(state => state.settings.…)`; a new setting is a field of `UserSettings` with its default in
   `DEFAULT_USER_SETTINGS`, and a row of `SettingsMenu`. A screen that starts a test run, or shows its results, starts

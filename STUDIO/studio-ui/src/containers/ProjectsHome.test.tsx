@@ -63,7 +63,7 @@ vi.mock('react-router', async () => {
 
 vi.mock('./projects/filterStorage', () => ({
     // The screen under test starts from a clean slate; restoring is covered by the storage's own tests.
-    loadProjectFilters: vi.fn(() => null),
+    loadProjectFilters: vi.fn(() => new URLSearchParams()),
     saveProjectFilters: vi.fn(),
 }))
 

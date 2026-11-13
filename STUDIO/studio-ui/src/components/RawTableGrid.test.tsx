@@ -211,7 +211,7 @@ describe('RawTableGrid', () => {
                 { role: 'output', type: 'string', top: 2, left: 1, bottom: 3, right: 1 },
             ],
         })
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD', hours24: true } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'YYYY-MM-DD', timeFormat: 'HH:mm:ss' } })
         try {
             render(<RawTableGrid roles={roles} rows={table} testId="grid" />)
 
@@ -240,7 +240,7 @@ describe('RawTableGrid', () => {
                 { role: 'output', type: 'date', top: 1, left: 0, bottom: 1, right: 0 },
             ],
         })
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' } })
         try {
             render(<RawTableGrid roles={roles} rows={table} testId="grid" />)
 
@@ -255,7 +255,7 @@ describe('RawTableGrid', () => {
     })
 
     it('draws a cell as it is stored when nothing says it holds a date', () => {
-        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' } })
         try {
             render(<RawTableGrid rows={[[{ cell: 'A1', value: '2026-10-30T08:02:09.24' }]]} testId="grid" />)
 

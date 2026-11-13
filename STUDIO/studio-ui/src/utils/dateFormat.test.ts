@@ -26,7 +26,8 @@ const withSettings = (settings: Partial<UserSettings>, check: () => void) => {
 
 describe('dateFormat', () => {
     it('writes a date and its time as the regional settings of the browser do, by default', () => {
-        expect(DEFAULT_USER_SETTINGS.useSystemDateFormat).toBe(true)
+        expect(DEFAULT_USER_SETTINGS.dateFormat).toBe('')
+        expect(DEFAULT_USER_SETTINGS.timeFormat).toBe('')
         expect(formatDateTime('2026-07-15T12:00:38')).toBe(dayjs('2026-07-15T12:00:38').format(SYSTEM()))
         expect(formatDate('2026-07-15T12:00:38')).toBe(dayjs('2026-07-15T12:00:38').format(datePickerFormatForLocale()))
     })
@@ -35,7 +36,7 @@ describe('dateFormat', () => {
     // two of them read alike and there is nothing to tell them apart. See EPBDS-16458.
     it('shows the time down to the second, on either clock', () => {
         expect(formatDateTime('2026-07-15T12:00:38Z')).toMatch(/\d:\d{2}:38\b/)
-        withSettings({ useSystemDateFormat: false, hours24: true }, () =>
+        withSettings({ dateFormat: 'MMM D, YYYY', timeFormat: 'HH:mm:ss' }, () =>
             expect(formatDateTime('2026-07-15T12:00:38Z')).toMatch(/\d:\d{2}:38\b/))
     })
 
@@ -51,7 +52,7 @@ describe('dateFormat', () => {
                 expect(formatDateTime(value)).toBe(system)
                 expect(formatLocalDateTime(value)).toBe(system)
             }
-            withSettings({ useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' }, () =>
+            withSettings({ dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' }, () =>
                 expect(formatDate(value)).toBe('15.07.2026'))
             expect(formatDateTime(value)).toBe(system)
             expect(parts).not.toHaveBeenCalled()
@@ -74,16 +75,16 @@ describe('dateFormat', () => {
     })
 
     it('writes every date in the format and on the clock the reader picked', () => {
-        withSettings({ useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY', hours24: true }, () => {
+        withSettings({ dateFormat: 'DD.MM.YYYY', timeFormat: 'HH:mm:ss' }, () => {
             expect(formatDate('2020-07-01T13:30:00')).toBe('01.07.2020')
             expect(formatDateTime('2020-07-01T13:30:00')).toBe('01.07.2020 13:30:00')
         })
-        withSettings({ useSystemDateFormat: false, dateFormat: 'MMM D, YYYY', hours24: false }, () =>
+        withSettings({ dateFormat: 'MMM D, YYYY', timeFormat: 'h:mm:ss A' }, () =>
             expect(formatDateTime('2020-07-01T13:30:00')).toBe('Jul 1, 2020 1:30:00 PM'))
     })
 
     it('formats a date and time written with no time zone without shifting it', () => {
-        withSettings({ useSystemDateFormat: false, dateFormat: 'MMM D, YYYY' }, () => {
+        withSettings({ dateFormat: 'MMM D, YYYY', timeFormat: 'h:mm:ss A' }, () => {
             // the value names an hour on the calendar, so the browser time zone does not move it
             expect(formatLocalDateTime('2020-07-01T10:30:00.000')).toBe('Jul 1, 2020 10:30:00 AM')
             expect(formatLocalDateTime('2020-07-01T23:59:59')).toBe('Jul 1, 2020 11:59:59 PM')
@@ -92,7 +93,7 @@ describe('dateFormat', () => {
     })
 
     it('shows the date alone when a date and time written with no time zone holds no time of day', () => {
-        withSettings({ useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' }, () =>
+        withSettings({ dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' }, () =>
             expect(formatLocalDateTime('2020-01-01T00:00:00.000')).toBe('01.01.2020'))
     })
 
@@ -137,14 +138,35 @@ describe('dateFormat', () => {
     })
 
     it('takes the date part order and separators of a locale', () => {
-        expect(datePickerFormatForLocale('en-US')).toBe('MM[/]DD[/]YYYY')
-        expect(datePickerFormatForLocale('en-GB')).toBe('DD[/]MM[/]YYYY')
-        expect(datePickerFormatForLocale('de-DE')).toBe('DD[.]MM[.]YYYY')
+        expect(datePickerFormatForLocale('en-US')).toBe('MM/DD/YYYY')
+        expect(datePickerFormatForLocale('en-GB')).toBe('DD/MM/YYYY')
+        expect(datePickerFormatForLocale('de-DE')).toBe('DD.MM.YYYY')
     })
 
     it('takes the time of day of a locale, its clock and its day period', () => {
-        expect(timeFormatForLocale('en-US')).toBe('h[:]mm[:]ss[ ]A')
-        expect(timeFormatForLocale('de-DE')).toBe('HH[:]mm[:]ss')
+        expect(timeFormatForLocale('en-US')).toBe('h:mm:ss A')
+        expect(timeFormatForLocale('de-DE')).toBe('HH:mm:ss')
+    })
+
+    it('keeps a separator holding letters as it is, so its letters stand for no part of the date', () => {
+        // Canadian French writes 13:05:09 as "13 h 05 min 09 s".
+        const pattern = timeFormatForLocale('fr-CA')
+        expect(pattern).toBe('HH[ h ]mm[ min ]ss[ s]')
+        expect(dayjs('2006-11-22T13:05:09').format(pattern)).toBe('13 h 05 min 09 s')
+        expect(datePickerFormatForLocale('bg-BG')).toBe('DD.MM.YYYY[ г.]')
+    })
+
+    it('takes the format of the regional settings for whichever of the date and the time was not picked', () => {
+        withSettings({ dateFormat: 'DD.MM.YYYY' }, () => {
+            expect(formatDate('2020-07-01T13:30:00')).toBe('01.07.2020')
+            expect(formatDateTime('2020-07-01T13:30:00'))
+                .toBe(dayjs('2020-07-01T13:30:00').format(`DD.MM.YYYY ${timeFormatForLocale()}`))
+        })
+        withSettings({ timeFormat: 'HH:mm:ss' }, () => {
+            expect(formatDate('2020-07-01T13:30:00')).toBe(dayjs('2020-07-01').format(datePickerFormatForLocale()))
+            expect(formatDateTime('2020-07-01T13:30:00'))
+                .toBe(dayjs('2020-07-01T13:30:00').format(`${datePickerFormatForLocale()} HH:mm:ss`))
+        })
     })
 
     it('writes a space of any kind a locale separates the parts by as a plain one, the space a reader types', () => {
@@ -159,7 +181,7 @@ describe('dateFormat', () => {
             { type: 'dayPeriod', value: 'PM' },
         ])
         try {
-            expect(timeFormatForLocale('en-US')).toBe('h[:]mm[:]ss[ ]A')
+            expect(timeFormatForLocale('en-US')).toBe('h:mm:ss A')
         } finally {
             parts.mockRestore()
         }
@@ -168,7 +190,7 @@ describe('dateFormat', () => {
     it('shows a date in a picker as the dates are written', () => {
         expect(datePickerFormat()).toBe(datePickerFormatForLocale())
         expect(datePickerFormat(true)).toBe(SYSTEM())
-        withSettings({ useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY', hours24: true }, () => {
+        withSettings({ dateFormat: 'DD.MM.YYYY', timeFormat: 'HH:mm:ss' }, () => {
             expect(datePickerFormat()).toBe('DD.MM.YYYY')
             expect(datePickerFormat(true)).toBe('DD.MM.YYYY HH:mm:ss')
         })

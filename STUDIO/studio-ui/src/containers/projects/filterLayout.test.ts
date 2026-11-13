@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     EMPTY_LAYOUT,
-    loadFilterLayout,
+    filterLayoutSetting,
     moveGroup,
     orderGroups,
-    saveFilterLayout,
 } from './filterLayout'
 
 const groups = [{ id: 'repository' }, { id: 'tag:Domain' }, { id: 'status' }]
@@ -59,18 +58,18 @@ describe('the stored arrangement', () => {
     beforeEach(stubStorage)
 
     it('comes back as it was left', () => {
-        saveFilterLayout({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository']})
+        filterLayoutSetting.write({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository']})
 
-        expect(loadFilterLayout()).toEqual({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository']})
+        expect(filterLayoutSetting.read()).toEqual({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository']})
     })
 
     it('is empty when nothing was stored, or what was stored cannot be read', () => {
-        expect(loadFilterLayout()).toEqual(EMPTY_LAYOUT)
+        expect(filterLayoutSetting.read()).toEqual(EMPTY_LAYOUT)
 
         localStorage.setItem('openl.projects.filters.layout', 'not json')
-        expect(loadFilterLayout()).toEqual(EMPTY_LAYOUT)
+        expect(filterLayoutSetting.read()).toEqual(EMPTY_LAYOUT)
 
         localStorage.setItem('openl.projects.filters.layout', JSON.stringify({ order: 'nonsense' }))
-        expect(loadFilterLayout()).toEqual(EMPTY_LAYOUT)
+        expect(filterLayoutSetting.read()).toEqual(EMPTY_LAYOUT)
     })
 })

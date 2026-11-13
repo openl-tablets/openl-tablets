@@ -116,12 +116,13 @@ describe('ProjectsRail', () => {
         // Only the strip with its handle is left; the panel is not in the way.
         expect(screen.getByTestId('projects-rail-collapsed')).toBeInTheDocument()
         expect(screen.queryByTestId('filters')).not.toBeInTheDocument()
-        expect(localStorage.getItem('openl.projects.rail.collapsed')).toBe('yes')
+        expect(localStorage.getItem('openl.projects.rail.collapsed')).toBe('true')
 
         await userEvent.click(screen.getByTestId('projects-rail-expand'))
 
         expect(screen.getByTestId('filters')).toBeInTheDocument()
-        expect(localStorage.getItem('openl.projects.rail.collapsed')).toBe('no')
+        // open is the default, kept as no key at all
+        expect(localStorage.getItem('openl.projects.rail.collapsed')).toBeNull()
     })
 
     it('shows the tree alone when the screen has no filters to offer', () => {
