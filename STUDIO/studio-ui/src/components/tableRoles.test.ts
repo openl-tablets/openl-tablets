@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { RawTableCellBorderSide, RawTableRegion } from 'types/tables'
 import {
-    cellRoleOf, columnLettersOf, onPaper, placeOf, regionAt, roleLinesOf, rolesOf, type RoleLines, tablePlaceOf,
+    cellRoleOf, columnLettersOf, holdsCode, onPaper, placeOf, regionAt, roleLinesOf, rolesOf, type RoleLines,
+    tablePlaceOf,
 } from './tableRoles'
 
 const line = (color: string): RawTableCellBorderSide => ({ color, style: 'solid', width: 1 })
@@ -121,6 +122,28 @@ describe('tableRoles', () => {
         expect(linesAt(whole, 'C4')).toBeUndefined()
         // The title of a condition merged down its rows has its line above it only.
         expect(linesAt(lookup, 'B3', 2)).toEqual({ top: LINES.role })
+    })
+
+    it('draws no line under the title of the types of a Datatype alone, highlighting the types as code', () => {
+        const roles = rolesOf({
+            pos: 'B2:D5',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 2 },
+                { role: 'inputTitle', top: 1, left: 0, bottom: 1, right: 2 },
+                { role: 'fieldType', top: 2, left: 0, bottom: 3, right: 0 },
+                { role: 'output', top: 2, left: 1, bottom: 3, right: 1 },
+                { role: 'value', type: 'string', top: 2, left: 2, bottom: 3, right: 2 },
+            ],
+        })!
+        const linesAt = (address: string) =>
+            roleLinesOf(roles, cellRoleOf(roles, address, undefined)!, { rows: 1, columns: 1 }, LINES)
+
+        expect(linesAt('B4')).toBeUndefined()
+        expect(linesAt('C4')).toBeUndefined()
+        // The last type closes the table as the other fields do.
+        expect(linesAt('B5')).toEqual({ bottom: LINES.role })
+        expect(linesAt('C5')).toEqual({ bottom: LINES.role })
+        expect(holdsCode(cellRoleOf(roles, 'B4', undefined)!)).toBe(true)
     })
 
     it('draws the result between its own lines, the double one closing the table', () => {

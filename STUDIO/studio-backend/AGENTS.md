@@ -253,9 +253,10 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   only for the grid the table was compiled from; otherwise the table is laid out as it stands.
 - **Each kind is read as the compiler reads it.**
     - *Datatype, Vocabulary, Constants* (`DatatypeLayout`): the orientation, the columns and the row of titles of the
-      compiled body (`DatatypeTableBoundNode.getColumnTitlesOrder()`, `hasColumnTitles()`); a type is `code`, the name
-      of a field or a constant `output` (untyped: a name, not a value). A Datatype bound as the type of the values it
-      lists (`AliasDatatypeMetaInfoReader`) is a Vocabulary. A Constants table is read by place, as
+      compiled body (`DatatypeTableBoundNode.getColumnTitlesOrder()`, `hasColumnTitles()`); a type is a `fieldType`
+      (code standing among the values of the body), the name of a field or a constant `output` (untyped: a name, not
+      a value). A Datatype bound as the type of the values it lists (`AliasDatatypeMetaInfoReader`) is a
+      Vocabulary. A Constants table is read by place, as
       `ConstantsTableBoundNode` reads it.
     - *Data, Test, Run* (`DataLayout`): the fields across, as `DataTableBindHelper` reads them — the field names
       (`code`), the row of references when `hasForeignKeysRow` finds one, the titles, then the values. The keys
@@ -284,6 +285,26 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   `builtinId`), the heading or body font of the theme, bold and italic, the text colour (`dk1`, or `dk1` lighter by
   half), the fill, the alignment and the lines of the style. Colours are theme slots (`TableStyle.ThemeSlot`, the
   SpreadsheetML numbering with the first pairs swapped) with a tint (`PoiExcelHelper.ThemedColor`); no RGB is written.
+- **A look of its own is a role of its own.** Cells that must look unlike the rest of their role, in some kind of
+  table, mean something else: they take a new `RawTableRole` with a `TableStyle` of its own. They never take a flag
+  that a layout sets on a `Place` or a `RawTableRegion` for one kind, which turns the regions into drawing hints and
+  makes the look depend on the role and the flag. The types of a Datatype and of a Constants table are `fieldType`,
+  not `code` marked to draw no lines (EPBDS-17250). `returned` is the one flag of a region: a `SpreadsheetResult`
+  marks the cells it returns, whatever their role.
+    - **Share a built-in style when Excel means the same.** A new role takes the built-in style of the role it is
+      nearest to, as `fieldType` takes Calculation with `code` and `section` Heading 3 with `inputTitle`. A shared
+      style adds no named style to the workbook. The cell formats are keyed by what they hold, so a cell of the new
+      role reuses the format of a cell of the other role drawn with the same lines; only such lines no table of the
+      workbook drew yet add a format. The `TableStyle` that takes a built-in style of another names it (`shared`,
+      `definition()`), and `WorkbookStyles.writeRoleStyles` writes the built-in style once, with the look of the
+      defining role, its lines included, whatever the order of the constants. A built-in style no role takes yet is
+      added only when one means the new role: the formatter rewrites it in every workbook it formats, including on
+      cells outside OpenL tables that use it.
+    - **A role is wired on both sides at once**: its wire code in `RawTableRole` and the `RawTableRole` union of
+      `studio-ui` (`types/tables.d.ts`), its lines in `ROLE_EDGES` of `components/tableRoles.ts` (a role with no lines
+      has no entry), its text and fill in `roleClassesOf` of `RawTableGrid.tsx`, `holdsCode` when it is code, the
+      regions `buildTableRegions` sends for a created table, the roles tables of `table-formatting.md` and the
+      `role` list of `raw-tables-api.md`, and the enum in both OpenAPI goldens.
 - **`WorkbookStyles` owns the style in one workbook.** It redefines the nine built-in styles in `cellStyleXfs` and
   `cellStyles` (`customBuiltin`), in place when the workbook names them, and never touches Normal, whose font size every
   role takes. It reads the faces of the theme fonts from the theme part; a workbook without a theme, or with an empty

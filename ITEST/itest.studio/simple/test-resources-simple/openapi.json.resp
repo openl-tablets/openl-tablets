@@ -34307,6 +34307,7 @@ Content-Type: application/json
               "signature",
               "properties",
               "code",
+              "fieldType",
               "inputTitle",
               "outputTitle",
               "key",

@@ -356,8 +356,9 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
     left or right:
     -   The parts of a table are set apart by lines in the colour of the text: a line above and below the header,
         the properties and the code, a line above the titles and a heading inside the body, and above each row of
-        the horizontal values of a lookup. The header has its name in bold and its keyword, types, and punctuation
-        in a fainter colour.
+        the horizontal values of a lookup. The types of a Datatype and of a Constants table stand among the values and
+        have no line of their own. The header has its name in bold and its keyword, types, and punctuation in a
+        fainter colour.
     -   The properties and the code the compiler reads, such as `C1` and `RET1` of a Rules table, are drawn in a fainter
         colour.
     -   The titles of what a table takes, such as the conditions of a decision table, are bold, centered, and filled
@@ -594,7 +595,8 @@ itself offers, so the tables look the same in Excel and change with the theme of
 
     -   **Title** — the header.
     -   **Explanatory Text** — the table properties.
-    -   **Calculation** — the code the compiler reads, such as `C1` and `RET1` of a Rules table.
+    -   **Calculation** — the code the compiler reads, such as `C1` and `RET1` of a Rules table, and the types of a
+        Datatype and of constants, which have no line of their own.
     -   **Heading 3** — the titles of what the table takes, such as the conditions of a decision table, and a heading
         inside the body, such as a subroutine of a TBasic table.
     -   **Heading 2** — the titles of what the table gives, such as what a decision table returns, the fields of a
@@ -615,8 +617,9 @@ itself offers, so the tables look the same in Excel and change with the theme of
     changes the look of the tables. An Excel file without a theme gets the Office theme.
 -   **Lines** — every line is in the text colour of the theme. A line runs above and below the header, the
     properties and the code, above the titles and a heading inside the body, above each row of the horizontal
-    values of a lookup, and a line closes the table; a fine line sets apart the rules that share a merged value of
-    a condition, the rows of a Data, a Test and a Run table where a row takes several lines, and the columns of a
+    values of a lookup, and a line closes the table. The types of a Datatype and of a Constants table stand among
+    the values and have no line of their own. A fine line sets apart the rules that share a merged value of a
+    condition, the rows of a Data, a Test and a Run table where a row takes several lines, and the columns of a
     lookup that share a merged value from the titles down, and what a table returns has a line above it and a double
     line below it. No other line is vertical, except the fine line that sets apart the columns of a Data, a Test and
     a Run table written the other way round.

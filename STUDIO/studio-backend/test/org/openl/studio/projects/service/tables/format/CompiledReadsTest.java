@@ -117,7 +117,7 @@ class CompiledReadsTest {
     void readsTheFieldsOfADatatypeWhoseParentIsNotFoundFromItsText() {
         var roles = Roles.of(tableAt(ORPHAN_ROW));
 
-        assertEquals(RawTableRole.CODE, roles.roleAt(ORPHAN_ROW + 1, 1), "The type");
+        assertEquals(RawTableRole.FIELD_TYPE, roles.roleAt(ORPHAN_ROW + 1, 1), "The type");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(ORPHAN_ROW + 1, 2), "The name");
         assertEquals(RawTableRole.VALUE, roles.roleAt(ORPHAN_ROW + 1, 3), "The default");
         // The header is split into its pieces as the header of every table is.
@@ -138,7 +138,7 @@ class CompiledReadsTest {
         var roles = Roles.of(tableAt(WIDE_ROW));
 
         for (var column = 1; column <= 2; column++) {
-            assertEquals(RawTableRole.CODE, roles.roleAt(WIDE_ROW + 1, column), "column " + column);
+            assertEquals(RawTableRole.FIELD_TYPE, roles.roleAt(WIDE_ROW + 1, column), "column " + column);
             assertEquals(RawTableRole.OUTPUT, roles.roleAt(WIDE_ROW + 2, column), "column " + column);
         }
     }
@@ -148,7 +148,7 @@ class CompiledReadsTest {
         var roles = Roles.of(tableAt(GENDER_ROW));
 
         // No space before the type: the header names a Datatype, and its column holds the type and the name of a field.
-        assertEquals(RawTableRole.CODE, roles.roleAt(GENDER_ROW + 1, 1), "The type");
+        assertEquals(RawTableRole.FIELD_TYPE, roles.roleAt(GENDER_ROW + 1, 1), "The type");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(GENDER_ROW + 2, 1), "The name");
     }
 
@@ -330,7 +330,7 @@ class CompiledReadsTest {
     void readsTheConstantsOfAMissingTypeByTheirPlace() {
         var roles = Roles.of(tableAt(LIMITS_ROW));
 
-        assertEquals(RawTableRole.CODE, roles.roleAt(LIMITS_ROW + 1, 1));
+        assertEquals(RawTableRole.FIELD_TYPE, roles.roleAt(LIMITS_ROW + 1, 1));
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(LIMITS_ROW + 1, 2), "The name of a constant");
         assertEquals(RawTableRole.VALUE, roles.roleAt(LIMITS_ROW + 1, 3));
     }
@@ -341,7 +341,7 @@ class CompiledReadsTest {
 
         assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(TITLED_ROW + 1, 1));
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(TITLED_ROW + 2, 1), "The column titled Name");
-        assertEquals(RawTableRole.CODE, roles.roleAt(TITLED_ROW + 2, 2), "The column titled Type");
+        assertEquals(RawTableRole.FIELD_TYPE, roles.roleAt(TITLED_ROW + 2, 2), "The column titled Type");
         assertEquals(RawTableRole.VALUE, roles.roleAt(TITLED_ROW + 2, 3));
     }
 
@@ -359,7 +359,7 @@ class CompiledReadsTest {
     void readsATransposedDatatypeOfPrimitiveTypesByTheRowOfItsTypes() {
         var roles = Roles.of(tableAt(PRIMITIVES_ROW));
 
-        assertEquals(RawTableRole.CODE, roles.roleAt(PRIMITIVES_ROW + 1, 2), "The type");
+        assertEquals(RawTableRole.FIELD_TYPE, roles.roleAt(PRIMITIVES_ROW + 1, 2), "The type");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(PRIMITIVES_ROW + 2, 2), "The name");
     }
 

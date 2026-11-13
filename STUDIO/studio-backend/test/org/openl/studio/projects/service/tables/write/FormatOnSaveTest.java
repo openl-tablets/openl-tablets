@@ -275,20 +275,26 @@ class FormatOnSaveTest {
                 .name("Person")
                 .source(List.of(
                         List.of(cell("Datatype Person"), RawTableCell.COVERED_CELL),
+                        List.of(cell("Type"), cell("Name")),
                         List.of(cell("String"), cell("name")),
                         List.of(cell("Integer"), cell("age"))))
                 .build();
         var regions = List.of(
                 new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 1),
-                new RawTableRegion(RawTableRole.CODE, null, 1, 0, 2, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1));
+                new RawTableRegion(RawTableRole.INPUT_TITLE, null, 1, 0, 1, 1),
+                new RawTableRegion(RawTableRole.FIELD_TYPE, null, 2, 0, 3, 0),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 3, 1));
 
         creator.createTable(new CreateNewTableRequest("Rules", SHEET, null, view, regions), model);
 
         var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person").getGridTable().getRegion();
-        assertEquals("Title", styleAt(person.getTop(), person.getLeft()));
-        assertEquals("Calculation", styleAt(person.getTop() + 2, person.getLeft()));
-        assertEquals("Output", styleAt(person.getTop() + 1, person.getLeft() + 1));
+        var top = person.getTop();
+        var left = person.getLeft();
+        assertEquals("Title", styleAt(top, left));
+        assertEquals("Calculation", styleAt(top + 2, left), "A type is code");
+        assertEquals("Output", styleAt(top + 2, left + 1));
+        assertEquals(BorderStyle.THIN, lineAbove(top + 1, left), "The line above the titles");
+        assertEquals(BorderStyle.NONE, lineAbove(top + 2, left), "No line under the title of the types alone");
     }
 
     @Test

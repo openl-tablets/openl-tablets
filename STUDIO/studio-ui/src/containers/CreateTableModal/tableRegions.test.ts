@@ -64,7 +64,7 @@ describe('buildTableRegions', () => {
         const { regions } = built('datatype')
 
         expect(roleAt(regions, 1, 0)).toBe('inputTitle')
-        expect(roleAt(regions, 2, 0)).toBe('code')
+        expect(roleAt(regions, 2, 0)).toBe('fieldType')
         expect(roleAt(regions, 2, 1)).toBe('output')
     })
 
@@ -150,7 +150,7 @@ describe('buildTableRegions', () => {
     it('names a setting of an Environment table and a property of a Properties table as keys', () => {
         expect(roleAt(built('environment').regions, 1, 0)).toBe('key')
         expect(roleAt(built('properties').regions, 1, 1)).toBe('value')
-        expect(roleAt(built('constants').regions, 1, 0)).toBe('code')
+        expect(roleAt(built('constants').regions, 1, 0)).toBe('fieldType')
         expect(roleAt(built('constants').regions, 1, 1)).toBe('output')
         expect(roleAt(built('vocabulary').regions, 1, 0)).toBe('value')
     })
