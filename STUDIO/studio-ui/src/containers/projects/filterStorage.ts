@@ -5,11 +5,11 @@ import { FILTER_PARAMS, listingQueryOf, type ListingQuery } from './projectListi
 const STORAGE_KEY = 'openl.projects.filters'
 
 /**
- * The parts of the URL the screen remembers between visits: what the list is filtered and sorted by, and
- * how it is laid out. The page number is deliberately left out — coming back to page 7 of a list that has
- * moved on since helps nobody.
+ * The parts of the URL the screen remembers between visits: what the list is filtered and sorted by, in which
+ * direction, and how it is laid out. The page number is deliberately left out — coming back to page 7 of a list
+ * that has moved on since helps nobody.
  */
-const REMEMBERED = ['q', 'status', 'repo', 'tags', 'branch', 'sort', 'view', 'size']
+const REMEMBERED = ['q', 'status', 'repo', 'tags', 'branch', 'sort', 'dir', 'view', 'size']
 
 /** Stores the filters of the projects screen, so a user finds the list as they left it. */
 export const saveProjectFilters = (params: URLSearchParams): void => {

@@ -16,7 +16,7 @@ describe('project filter storage', () => {
     })
 
     it('remembers what the list is filtered, sorted and laid out by', () => {
-        saveProjectFilters(new URLSearchParams('q=rates&status=EDITING&repo=design&tags=x&sort=name&view=grid&size=50'))
+        saveProjectFilters(new URLSearchParams('q=rates&status=EDITING&repo=design&tags=x&sort=updated&dir=desc&view=grid&size=50'))
 
         const restored = loadProjectFilters()!
 
@@ -24,7 +24,8 @@ describe('project filter storage', () => {
         expect(restored.get('status')).toBe('EDITING')
         expect(restored.get('repo')).toBe('design')
         expect(restored.get('tags')).toBe('x')
-        expect(restored.get('sort')).toBe('name')
+        expect(restored.get('sort')).toBe('updated')
+        expect(restored.get('dir')).toBe('desc')
         expect(restored.get('view')).toBe('grid')
         expect(restored.get('size')).toBe('50')
     })
