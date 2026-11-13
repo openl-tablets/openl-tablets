@@ -85,7 +85,7 @@ vi.mock('antd', () => {
     ) => (
         <ul>
             {nodes.map(node => (
-                <li key={node.key}>
+                <li key={node.key} data-expanded={expanded.includes(node.key)} data-testid={`node-${node.key}`}>
                     {node.isLeaf !== true && (
                         <button data-testid={`caret-${node.key}`} onClick={() => onToggle(node.key)} type="button">
                             caret
@@ -308,6 +308,29 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByTestId('tree-project-p1'))
 
         expect(onOpenProject).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }))
+    })
+
+    it('leaves a picked project folded: only its caret opens it', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const { onOpenProject, rerender } = await renderTree({ currentProjectId: 'p1' })
+
+        await userEvent.click(screen.getByTestId('tree-project-p2'))
+        // The screen moves on to the project picked, and the tree beside it stays.
+        rerender(
+            <ProjectsTree
+                currentProjectId="p2"
+                filters={picks()}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={onOpenProject}
+                onShowAll={vi.fn()}
+                repositories={repositories}
+            />
+        )
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(onOpenProject).toHaveBeenCalledWith(expect.objectContaining({ id: 'p2' }))
+        expect(screen.getByTestId('node-grp/prj:p2')).toHaveAttribute('data-expanded', 'false')
     })
 
     it('reads the files of a project when its row is opened, once', async () => {
