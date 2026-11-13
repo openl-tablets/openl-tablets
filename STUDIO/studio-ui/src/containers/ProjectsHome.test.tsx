@@ -2,6 +2,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
+import { HeaderActionsSlot } from '../components/HeaderActions'
 import { getDesignRepositories, getProjectBranches, getProjects, setProjectStatus, switchProjectBranch } from '../services/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
 import { ProjectStatus } from '../constants/project'
@@ -290,12 +291,13 @@ vi.mock('antd', async () => {
         )
         : null), { confirm: vi.fn() })
     const notification = { error: vi.fn(), info: vi.fn(), success: vi.fn() }
+    const { PaginationStub: Pagination } = await import('testing/paginationStub')
 
     const { withStaticApp } = await import('testing/staticAntdApp')
 
     return withStaticApp({
         Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert,
-        Typography, Modal, notification
+        Typography, Modal, notification, Pagination
     })
 })
 
@@ -338,7 +340,8 @@ const projects = [
 const rowOrder = () => screen.getAllByTestId(/^project-row-/).map(el => el.getAttribute('data-testid'))
 
 async function renderHome() {
-    render(<ProjectsHome />)
+    // The top bar is drawn by the layout; its slot is enough for the actions the screen puts there.
+    render(<><HeaderActionsSlot /><ProjectsHome /></>)
     // The screen restores the saved filters before it asks for anything, so wait for the answer itself
     // rather than for a fixed delay — on a busy machine the fetch lands after it.
     await waitFor(() => expect(screen.queryByText('skeleton')).toBeNull())
@@ -436,6 +439,31 @@ describe('ProjectsHome', () => {
         expect(screen.getByTestId('projects-compile-summary').textContent).toContain('browser.compile.errors')
     })
 
+    it('sums the list up in the bar under it, with no page title above', async () => {
+        await renderHome()
+
+        const footer = screen.getByTestId('projects-footer')
+        expect(within(footer).getByTestId('projects-count')).toHaveTextContent('home.summary_total')
+        expect(within(footer).getByTestId('projects-compile-summary')).toBeTruthy()
+        // Two projects fit one page, so the bar carries the summary alone.
+        expect(within(footer).queryByTestId('projects-pagination')).toBeNull()
+        expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
+    })
+
+    it('pages a long list from the bar that sums it up', async () => {
+        const many: Project[] = Array.from({ length: 30 }, (_, index) => ({
+            ...projects[0]!,
+            id: `p${index}`,
+            name: `Project ${String(index).padStart(2, '0')}`,
+        }))
+        vi.mocked(getProjects).mockResolvedValue(projectsPage(many))
+        await renderHome()
+
+        const footer = screen.getByTestId('projects-footer')
+        expect(within(footer).getByTestId('projects-count')).toHaveTextContent('home.summary_total')
+        expect(within(footer).getByTestId('projects-pagination')).toHaveTextContent('1/2')
+    })
+
     it('re-reads the list when the backend pings that the workspace changed', async () => {
         await renderHome()
         expect(getProjects).toHaveBeenCalledTimes(1)
@@ -517,6 +545,21 @@ describe('ProjectsHome', () => {
         // A second click on the same header flips the direction.
         await userEvent.click(screen.getByTestId('projects-sort-updated'))
         expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
+    })
+
+    it('puts New Project and the view switch in the top bar, and keeps the order of the list in the grid', async () => {
+        await renderHome()
+        const topBar = screen.getByTestId('header-actions')
+
+        expect(within(topBar).getByTestId('projects-new')).toBeTruthy()
+        expect(within(topBar).getByTestId('projects-view')).toBeTruthy()
+
+        await userEvent.click(screen.getByTestId('projects-sort-updated'))
+        await userEvent.click(screen.getByText('grid'))
+
+        const cards = screen.getAllByTestId(/^project-card-/).map(el => el.getAttribute('data-testid'))
+        expect(cards).toEqual(['project-card-p2', 'project-card-p1'])
+        expect(screen.queryByTestId('projects-sort')).toBeNull()
     })
 
     it('navigates to the project workspace when a row is clicked', async () => {

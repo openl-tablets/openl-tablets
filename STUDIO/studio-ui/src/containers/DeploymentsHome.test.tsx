@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeploymentsHome } from './DeploymentsHome'
@@ -41,7 +41,7 @@ vi.mock('./projects/RepoBadge', () => ({
     RepoBadge: ({ name }: { name: string }) => <span>{name}</span>,
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Button = ({ children, icon, onClick, disabled, ...rest }: Record<string, unknown>) => (
         <button disabled={disabled as boolean} onClick={onClick as never} {...rest}>
             {icon as never}
@@ -79,7 +79,8 @@ vi.mock('antd', () => {
             return <span {...rest}>{children as never}</span>
         },
     }
-    return { Alert, Button, Empty, Input, Skeleton, Tooltip, Typography }
+    const { PaginationStub: Pagination } = await import('testing/paginationStub')
+    return { Alert, Button, Empty, Input, Pagination, Skeleton, Tooltip, Typography }
 })
 
 vi.mock('@ant-design/icons', () => ({
@@ -127,10 +128,32 @@ describe('DeploymentsHome', () => {
         expect(navigate).toHaveBeenCalledWith('/deployments/d1')
     })
 
-    it('counts the deployments without mentioning the repositories', async () => {
+    it('counts the deployments in the bar under the list, with no page title above', async () => {
         await renderPage()
 
-        expect(screen.getByTestId('deployments-summary')).toHaveTextContent('deployments.summary:{"count":2}')
+        const footer = screen.getByTestId('deployments-footer')
+        expect(within(footer).getByTestId('deployments-summary')).toHaveTextContent('deployments.summary:{"count":2}')
+        expect(within(footer).queryByTestId('deployments-pagination')).toBeNull()
+        expect(screen.queryByRole('heading', { level: 1 })).toBeNull()
+    })
+
+    it('counts what the search leaves, as the pages beside the count do', async () => {
+        await renderPage()
+
+        searchFor('rat')
+
+        expect(screen.getByTestId('deployments-summary')).toHaveTextContent('deployments.summary:{"count":1}')
+    })
+
+    it('pages a long list from the bar that counts it', async () => {
+        vi.mocked(getDeployments).mockResolvedValue(
+            Array.from({ length: 30 }, (_, index) => ({ id: `d${index}`, name: `Deployment ${index}` }))
+        )
+        await renderPage()
+
+        const footer = screen.getByTestId('deployments-footer')
+        expect(within(footer).getByTestId('deployments-summary')).toHaveTextContent('deployments.summary:{"count":30}')
+        expect(within(footer).getByTestId('deployments-pagination')).toHaveTextContent('1/2')
     })
 
     it('switches repositories and loads deployments for the selected repository', async () => {
@@ -154,6 +177,8 @@ describe('DeploymentsHome', () => {
         await renderPage()
 
         expect(screen.getByTestId('deployments-error')).toBeInTheDocument()
+        // A list that could not be read has no count: zero would read as an empty repository.
+        expect(screen.queryByTestId('deployments-summary')).toBeNull()
 
         await userEvent.click(screen.getByText('deployments.retry'))
 

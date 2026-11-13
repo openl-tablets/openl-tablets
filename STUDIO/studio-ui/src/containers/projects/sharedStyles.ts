@@ -1,6 +1,7 @@
 import { createStyles } from 'antd-style'
 import { captionSize, useListPageStyles } from '../../styles/listPageStyles'
 import { MOCKUP } from './projectsTheme'
+import { APP_HEADER_HEIGHT } from '../../constants/ui'
 
 /**
  * The recurring looks of the Projects tab, as real style hooks rather than snippets pasted into each
@@ -131,10 +132,10 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         text-align: center;
         color: ${token.colorTextTertiary};
     `,
-    /** The frame of a browse screen: a fixed rail on the left, the list filling the rest. */
+    /** The frame of a browse screen: a fixed rail on the left, the list filling the rest down to the window's edge. */
     page: css`
         display: flex;
-        height: calc(100vh - 64px);
+        height: calc(100vh - ${APP_HEADER_HEIGHT}px);
         overflow: hidden;
         background: ${token.colorBgLayout};
     `,

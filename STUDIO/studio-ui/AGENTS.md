@@ -279,6 +279,11 @@ The build writes two pages (`build.rollupOptions.input`):
 - **The user menu** (`containers/header/UserMenu`) lists **My Profile**, then **Personal Access Tokens** where
   `isPersonalAccessTokenEnabled`, then **Administration** for an administrator, **Help**, **About** and **Sign Out**.
   The side menu of the administration pages lists **My Profile** and **Personal Access Tokens**, never the settings.
+- **The actions of a screen sit in the header**, between the tabs and the settings, not in a band of the screen: the
+  **Projects** tab puts **New Project** and the List / Grid switch there. The screen wraps them in `HeaderActions`
+  (`components/HeaderActions.tsx`), which draws them into the `HeaderActionsSlot` of the header through a portal, so
+  they keep the state of the screen and leave the header with it. A test of the screen renders `HeaderActionsSlot`
+  beside it, or the actions are not drawn.
 - **One search, in the header.** OpenL Studio has a single search field, `containers/header/HeaderSearch`, in the
   header between the name of the application and the tabs, where a reader of a mail client looks for it. Every screen
   `DefaultLayout` draws is searched from it, with the same keys and the same look; no screen has a search box of its
