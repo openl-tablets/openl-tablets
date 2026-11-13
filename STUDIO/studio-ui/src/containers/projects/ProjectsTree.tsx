@@ -317,23 +317,21 @@ export const ProjectsTree = ({
         [expanded, nodes, search]
     )
 
-    // The group remembered from an earlier visit is unfolded once the tree knows its shape.
+    // The group remembered from an earlier visit is unfolded once, as soon as the tree knows its shape.
+    // Afterwards the user decides what is open: a row picked later, a project above all, opens only by
+    // its caret.
+    const [restored, setRestored] = useState(false)
     useEffect(() => {
-        const remembered = selected[0]
-        if (!remembered || projects === null) {
+        if (restored || projects === null) {
             return
         }
-        const path = pathToNode(grouped, remembered)
-        if (path) {
-            // Nothing new to unfold keeps the previous array: a fresh identity here would re-render,
-            // re-run this effect and loop the tree into React's update-depth limit.
-            setExpanded(previous => {
-                const next = new Set([...previous, ...path, remembered])
-                return next.size === previous.length ? previous : [...next]
-            })
+        setRestored(true)
+        const remembered = selected[0]
+        const path = remembered ? pathToNode(grouped, remembered) : null
+        if (remembered && path) {
+            setExpanded(previous => [...new Set([...previous, ...path, remembered])])
         }
-        // Only on the first tree the projects build; afterwards the user decides what is open.
-    }, [grouped, projects])
+    }, [grouped, projects, restored, selected])
 
     // The tree opens on the project the screen is showing, once — after that the user decides what is open.
     useEffect(() => {

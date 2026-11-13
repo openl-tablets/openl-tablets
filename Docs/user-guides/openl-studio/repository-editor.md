@@ -154,7 +154,8 @@ branch or tag. The tree also keeps a group whose name holds the text, with all i
 
 -   Selecting a group, such as a repository or a tag value, sets its filters: the list shows the projects of the group,
     and the tree narrows to it until the filters are cleared.
--   Selecting a project opens it, and expanding a project lists its files.
+-   Selecting a project opens it and leaves its row folded. The arrow before the project expands it and lists its
+    files.
 -   On a project page, the panel shows the **Tree** view only. The tree applies the filters last used on the Projects
     list and always shows the project being viewed. To search it, click the name at the start of the search field
     of the top bar and select **Projects**; on a tab with nothing of its own to search, the field searches the tree
