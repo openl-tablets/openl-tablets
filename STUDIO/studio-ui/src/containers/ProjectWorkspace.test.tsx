@@ -125,12 +125,13 @@ vi.mock('../services/files', () => ({
 
 // The rail beside the project has its own tests; here it only shows the picks it is handed, and clears them.
 vi.mock('./projects/ProjectsRail', () => ({
-    ProjectsRail: ({ reloadToken, filters, onClearFilters }: {
+    ProjectsRail: ({ currentProjectId, reloadToken, filters, onClearFilters }: {
+        currentProjectId?: string
         reloadToken?: number
         filters: { repositories: Set<string> }
         onClearFilters: () => void
     }) => (
-        <aside data-reload-token={reloadToken} data-testid="projects-rail">
+        <aside data-current={currentProjectId} data-reload-token={reloadToken} data-testid="projects-rail">
             <span data-testid="rail-picked-repositories">{[...filters.repositories].join(',')}</span>
             <button data-testid="rail-clear-filters" onClick={onClearFilters} type="button" />
         </aside>
@@ -957,5 +958,24 @@ describe('ProjectWorkspace', () => {
 
         expect(screen.queryByTestId('project-workspace-error')).toBeNull()
         expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
+    })
+
+    it('keeps the tree beside the project while the reader moves on to another', async () => {
+        const view = await renderWorkspace()
+        const rail = screen.getByTestId('projects-rail')
+
+        // The reader picks another project in the tree; its read is still on its way.
+        vi.mocked(getProject).mockReturnValue(deferred<never>().promise)
+        routeParams.projectId = 'p2'
+        await act(async () => {
+            view.rerender(<ProjectWorkspace />)
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        // Only the part beside the tree waits: the tree is the same one, so it keeps what is open in it,
+        // and it already marks the project picked.
+        expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
+        expect(screen.getByTestId('projects-rail')).toBe(rail)
+        expect(rail.getAttribute('data-current')).toBe('p2')
     })
 })
