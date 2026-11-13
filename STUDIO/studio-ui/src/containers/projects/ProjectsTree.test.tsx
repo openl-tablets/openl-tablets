@@ -21,7 +21,8 @@ vi.mock('../../services/projectIndex', () => ({
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
-    return { useTranslation: () => ({ t }) }
+    const i18n = { language: 'en', resolvedLanguage: 'en' }
+    return { useTranslation: () => ({ i18n, t }) }
 })
 
 // antd-style hands out new styles and a new token on every render, and so does this mock: only their values follow
@@ -209,8 +210,8 @@ describe('ProjectsTree', () => {
         vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: [], projectIndexHealth: {} })
         vi.mocked(getProjectFiles).mockResolvedValue([
             { path: 'rules', name: 'rules', basePath: '', type: 'folder' },
-            { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file' },
-            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file' },
+            { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file', size: 12_800 },
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file', size: 1536 },
         ])
         vi.mocked(listModules).mockResolvedValue([{ name: 'Main', path: 'rules/Main.xlsx' }])
     })
@@ -368,6 +369,33 @@ describe('ProjectsTree', () => {
 
         await userEvent.click(screen.getByTestId('tree-file-p1-rules.xml'))
         expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules.xml')
+    })
+
+    it('shows the size of each file, as the Files tab does', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveTextContent('rules.xml1.5 kB')
+        expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toHaveTextContent('Main.xlsx13 kB')
+        // A folder has no size of its own.
+        expect(screen.getByTestId('tree-folder-p1-rules')).toHaveTextContent(/^rules$/)
+    })
+
+    it('opens a picked folder on the Files tab, leaving it folded', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const { onOpenFile, onOpenModule } = await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('tree-folder-p1-rules'))
+
+        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules')
+        expect(onOpenModule).not.toHaveBeenCalled()
+        expect(screen.getByTestId('node-folder:p1:rules')).toHaveAttribute('data-expanded', 'false')
     })
 
     it('reads the files of a project that cannot say which of them are modules', async () => {

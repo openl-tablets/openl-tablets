@@ -37,18 +37,24 @@ import { GroupProjectsModal } from './GroupProjectsModal'
 import { isFiltered, selectProjects, type ListingQuery } from './projectListing'
 import { ClearFiltersRow } from './ClearFiltersRow'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
+import { formatFileSize } from '../../utils/fileSize'
 
 const SELECTED_STORAGE_KEY = 'openl.projects.tree.selected'
 
-/** The key of a file row: the project it belongs to, and the path inside it. Neither part holds a colon. */
-const fileKey = (projectId: string, path: string): string => `file:${projectId}:${path}`
+/**
+ * The key of a file or folder row: what it is, the project it belongs to, and the path inside it. The project id
+ * holds no colon.
+ */
+const fileKey = (projectId: string, path: string, isFile: boolean): string =>
+    `${isFile ? 'file' : 'folder'}:${projectId}:${path}`
 
-/** The project and path a file row stands for, or null when the key is not a file's. */
+/** The project and path a file or folder row stands for, or null when the key is not one of theirs. */
 const fileKeyParts = (key: string): { projectId: string, path: string } | null => {
-    if (!key.startsWith('file:')) {
+    const kind = ['file:', 'folder:'].find(prefix => key.startsWith(prefix))
+    if (kind === undefined) {
         return null
     }
-    const rest = key.slice('file:'.length)
+    const rest = key.slice(kind.length)
     const separator = rest.indexOf(':')
     return separator < 0 ? null : { projectId: rest.slice(0, separator), path: rest.slice(separator + 1) }
 }
@@ -61,6 +67,8 @@ const fileKeyParts = (key: string): { projectId: string, path: string } | null =
  */
 interface ProjectContents {
     files: FileNode[]
+    /** The size of a file in bytes, by its path. */
+    sizes: Record<string, number>
     /** The name of the module a file is, by the file's path. */
     modules: Record<string, string>
     error?: string
@@ -96,6 +104,15 @@ const useStyles = createStyles(({ css, token }) => ({
     tree: css`
         width: max-content;
         min-width: 100%;
+
+        /* A row takes the whole width of the tree, so the size of a file can keep to the right. */
+        .ant-tree-node-content-wrapper {
+            flex: auto;
+        }
+
+        .ant-tree-title {
+            flex: 1;
+        }
     `,
     node: css`
         display: inline-flex;
@@ -106,6 +123,27 @@ const useStyles = createStyles(({ css, token }) => ({
     current: css`
         font-weight: 600;
         color: ${token.colorPrimary};
+    `,
+    /** A file or folder row: its name, and the size of a file on the right, as on the Files tab. */
+    file: css`
+        display: flex;
+        align-items: baseline;
+        gap: ${token.marginXS}px;
+        white-space: nowrap;
+    `,
+    fileName: css`
+        flex: 1;
+    `,
+    /**
+     * The tree is as wide as its widest row and may run past the rail, so the size keeps to the right edge of what
+     * the rail shows rather than to the end of the row.
+     */
+    size: css`
+        flex: none;
+        position: sticky;
+        right: ${token.paddingXS}px;
+        color: ${token.colorTextTertiary};
+        font-size: ${token.fontSizeSM}px;
     `,
     state: css`
         padding: 12px 16px;
@@ -143,7 +181,7 @@ interface ProjectsTreeBaseProps {
     onOpenProject: (project: Project) => void
     /** A module of a project was picked: read it in the editor. */
     onOpenModule?: ((project: Project, moduleName: string) => void) | undefined
-    /** A file that is no module was picked: show it on the project's Files tab. */
+    /** A folder, or a file that is no module, was picked: show it on the project's Files tab. */
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A group was picked: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
@@ -199,7 +237,8 @@ export const ProjectsTree = ({
     onRefresh,
     search: screenSearch,
 }: ProjectsTreeProps) => {
-    const { t } = useTranslation('repository')
+    const { i18n, t } = useTranslation('repository')
+    const locale = i18n.resolvedLanguage ?? i18n.language
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const token = useTheme()
@@ -350,7 +389,7 @@ export const ProjectsTree = ({
         // must not rebuild the tree, while switching the theme or the appearance must repaint the titles. The theme
         // is told by its name and appearance: antd-style hands out new styles and a new token on every render.
         () => nodes.map(node => toTreeNode(node)),
-        [contents, currentProjectId, isDarkMode, nodes, repoMeta, t, themeName]
+        [contents, currentProjectId, isDarkMode, locale, nodes, repoMeta, t, themeName]
     )
 
     // Which rows have been read is told to the tree rather than left to it, so a refresh that drops what
@@ -382,7 +421,7 @@ export const ProjectsTree = ({
         }
         const [files, modules] = await Promise.all([
             getProjectFiles(project.id).then(
-                read => read.filter(node => node.type === 'file').map(node => node.path),
+                read => read.filter(node => node.type === 'file'),
                 (e: unknown) => errorMessage(e)
             ),
             listModules(project.id).catch(() => []),
@@ -390,15 +429,17 @@ export const ProjectsTree = ({
         setContents(previous => ({
             ...previous,
             [project.id]: typeof files === 'string'
-                ? { files: [], modules: {}, error: files }
+                ? { files: [], sizes: {}, modules: {}, error: files }
                 : {
-                    files: buildFileNodes(files),
+                    files: buildFileNodes(files.map(file => file.path)),
+                    sizes: Object.fromEntries(files.flatMap(file => (file.size === undefined ? [] : [[file.path, file.size]]))),
                     modules: Object.fromEntries(modules.filter(module => module.path).map(module => [module.path, module.name])),
                 },
         }))
     }
 
-    // A file of a project reads as it does on the Files tab — the same icon, the same name.
+    // A file of a project reads as it does on the Files tab — the same icon, the same name, the same size. A file
+    // and a folder alike open there when picked; only the arrow before a folder unfolds it.
     function fileNodesOf(project: Project, read: ProjectContents, files: FileNode[]): TreeNodeData[] {
         return files.map(file => {
             const { Icon, color } = iconFor(file.name, file.isFile, {
@@ -408,16 +449,18 @@ export const ProjectsTree = ({
                 muted: token.colorTextTertiary,
             })
             return {
-                key: file.isFile ? fileKey(project.id, file.path) : `folder:${project.id}:${file.path}`,
+                key: fileKey(project.id, file.path, file.isFile),
                 isLeaf: file.isFile,
                 icon: <Icon style={{ color }} />,
-                selectable: file.isFile,
                 title: (
                     <span
-                        className={styles.node}
+                        className={styles.file}
                         data-testid={`tree-${file.isFile ? 'file' : 'folder'}-${project.id}-${file.path}`}
                     >
-                        {file.name}
+                        <span className={styles.fileName}>{file.name}</span>
+                        {file.isFile && (
+                            <span className={styles.size}>{formatFileSize(read.sizes[file.path], locale)}</span>
+                        )}
                     </span>
                 ),
                 ...(file.children ? { children: fileNodesOf(project, read, file.children) } : {}),
@@ -535,7 +578,8 @@ export const ProjectsTree = ({
     }
 
     /**
-     * Follows a file to where it is read: a module to the editor, anything else to the project's Files tab.
+     * Follows a file to where it is read: a module to the editor, any other file or a folder to the project's Files
+     * tab.
      */
     const openFile = (projectId: string, path: string) => {
         const project = (projects ?? []).find(candidate => candidate.id === projectId)
@@ -631,6 +675,7 @@ export const ProjectsTree = ({
                     onSelect={(keys, info) => {
                         const key = String(info.node.key)
                         setSelected(keys as string[])
+                        // A file opens where it is read, a folder on the Files tab of its project.
                         const picked = fileKeyParts(key)
                         if (picked) {
                             openFile(picked.projectId, picked.path)

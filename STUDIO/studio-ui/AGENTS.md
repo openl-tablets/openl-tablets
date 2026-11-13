@@ -191,7 +191,7 @@ The build writes two pages (`build.rollupOptions.input`):
 - **Formatting numbers and dates**: a number on a screen is written in the **UI language**, never in the locale of
   the machine the browser runs on; a date follows the **Date & Time** settings, below. Take the language from `useTranslation()` — `const locale =
   i18n.resolvedLanguage ?? i18n.language` — and pass it to `new Intl.NumberFormat(locale, …)` or
-  `new Intl.DateTimeFormat(locale, …)`; see `formatSize` in `containers/projects/FileTree.tsx` and the formatters
+  `new Intl.DateTimeFormat(locale, …)`; see `formatFileSize` in `utils/fileSize.ts` and the formatters
   in `containers/execution/benchmarkMetrics.ts`. Never call `toLocaleString()`, `toLocaleDateString()` or
   `new Intl.*(undefined, …)`: those follow the reader's operating system, so an English screen shows `6,84` and
   `2 284` on a Russian or German machine, and every test that reads such a number passes on CI and fails on that
