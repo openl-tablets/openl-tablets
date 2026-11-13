@@ -1,0 +1,206 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "CorporateRating",
+  "messages": [
+    {
+      "id": "***",
+      "summary": "The value '123' is outside of valid domain 'RiskGroup'. Valid values: [LOW, HIGH, MEDUIUM]",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "CorporateRating",
+        "module": "VocabularFail",
+        "projectId": "***",
+        "project": "EPBDS-17245-VocabularFail",
+        "cell": "E12",
+        "start": 0,
+        "end": 3
+      },
+      "stacktrace": true
+    },
+    {
+      "id": "***",
+      "summary": "The value '-3' is outside of valid domain 'RiskGroup'. Valid values: [LOW, HIGH, MEDUIUM]",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "CorporateRating",
+        "module": "VocabularFail",
+        "projectId": "***",
+        "project": "EPBDS-17245-VocabularFail",
+        "cell": "E13",
+        "start": 0,
+        "end": 2
+      },
+      "stacktrace": true
+    },
+    {
+      "id": "***",
+      "summary": "The value '3' is outside of valid domain 'RiskGroup'. Valid values: [LOW, HIGH, MEDUIUM]",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "CorporateRating",
+        "module": "VocabularFail",
+        "projectId": "***",
+        "project": "EPBDS-17245-VocabularFail",
+        "cell": "E14",
+        "start": 0,
+        "end": 1
+      },
+      "stacktrace": true
+    },
+    {
+      "id": "***",
+      "summary": "The value '4' is outside of valid domain 'RiskGroup'. Valid values: [LOW, HIGH, MEDUIUM]",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "CorporateRating",
+        "module": "VocabularFail",
+        "projectId": "***",
+        "project": "EPBDS-17245-VocabularFail",
+        "cell": "E15",
+        "start": 0,
+        "end": 1
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "D7:F15",
+  "source": [
+    [
+      {
+        "cell": "D7",
+        "value": "SimpleRules Double CorporateRating (Double financialRating, RiskGroup riskOfWorkWithCorporate)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "D8",
+        "value": "financialRating"
+      },
+      {
+        "cell": "E8",
+        "value": "riskOfWorkWithCorporate"
+      },
+      {
+        "cell": "F8",
+        "value": "RET2"
+      }
+    ],
+    [
+      {
+        "cell": "D9",
+        "value": 1
+      },
+      {
+        "cell": "E9",
+        "value": "LOW"
+      },
+      {
+        "cell": "F9"
+      }
+    ],
+    [
+      {
+        "cell": "D10",
+        "value": 2
+      },
+      {
+        "cell": "E10",
+        "value": "LOW"
+      },
+      {
+        "cell": "F10"
+      }
+    ],
+    [
+      {
+        "cell": "D11",
+        "value": 33
+      },
+      {
+        "cell": "E11",
+        "value": "LOW"
+      },
+      {
+        "cell": "F11",
+        "value": 123
+      }
+    ],
+    [
+      {
+        "cell": "D12",
+        "value": 6
+      },
+      {
+        "cell": "E12",
+        "value": "123"
+      },
+      {
+        "cell": "F12",
+        "value": 123
+      }
+    ],
+    [
+      {
+        "cell": "D13",
+        "value": 4
+      },
+      {
+        "cell": "E13",
+        "value": -3
+      },
+      {
+        "cell": "F13",
+        "value": "= min ( financialRating + 1, 4 )"
+      }
+    ],
+    [
+      {
+        "cell": "D14",
+        "value": 7
+      },
+      {
+        "cell": "E14",
+        "value": "3"
+      },
+      {
+        "cell": "F14",
+        "value": "= min ( financialRating + 2, 4 )"
+      }
+    ],
+    [
+      {
+        "cell": "D15",
+        "value": 8
+      },
+      {
+        "cell": "E15",
+        "value": 4
+      },
+      {
+        "cell": "F15",
+        "value": 122
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
