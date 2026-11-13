@@ -32,8 +32,8 @@ To view a list of users, proceed as follows:
    The **Last Login** column displays the time of the last successful sign-in for every user. Users who have never
    signed in are marked as **Never**.
 
-   The list is sorted by username. To sort the list by another column, click the column header. Clicking the header
-   again reverses the sort order.
+   The list is sorted by last login, the most recent sign-in first; users who have never signed in come last. To sort
+   the list by another column, click the column header. Clicking the header again reverses the sort order.
 
    To find a user, start typing a username, full name, or email in the search field of the top bar, named **Users**
    on this page. The list is filtered as you type. The search is case-insensitive and matches any part of these

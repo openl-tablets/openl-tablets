@@ -95,7 +95,6 @@ export const Users: React.FC = () => {
             {
                 title: t('users:users_table.username'),
                 key: 'username',
-                defaultSortOrder: 'ascend',
                 sorter: (a, b) => a.username.localeCompare(b.username),
                 render: ({ username, userGroups, unsafePassword }) => {
                     const userNameComponent = Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)
@@ -158,6 +157,7 @@ export const Users: React.FC = () => {
                 title: t('users:users_table.last_login'),
                 dataIndex: 'lastLoginTime',
                 key: 'lastLoginTime',
+                defaultSortOrder: 'descend',
                 sorter: (a, b) => (a.lastLoginTime ? dayjs(a.lastLoginTime).valueOf() : 0)
                     - (b.lastLoginTime ? dayjs(b.lastLoginTime).valueOf() : 0),
                 render: (lastLoginTime: string | undefined, { online }) => {

@@ -151,7 +151,9 @@ describe('Users', () => {
         expect(screen.getByText('users:users_table.actions')).toBeInTheDocument()
     })
 
-    it('marks the username column as sorted ascending by default', async () => {
+    it('sorts users by the last login time, the most recent first, by default', async () => {
+        // the server lists the user who has never signed in first
+        mockApiCall.mockResolvedValue([...mockUsers].reverse())
         await act(async () => {
             renderUsers()
         })
@@ -159,10 +161,12 @@ describe('Users', () => {
         await waitFor(() => {
             expect(screen.getByText('admin')).toBeInTheDocument()
         })
-        expect(screen.getByText('users:users_table.username').closest('th')).toHaveAttribute('aria-sort', 'ascending')
+        expect(screen.getByText('users:users_table.last_login').closest('th')).toHaveAttribute('aria-sort', 'descending')
+        expect(screen.getByText('users:users_table.username').closest('th')).not.toHaveAttribute('aria-sort')
+        expect(within(screen.getAllByRole('row')[1]!).getByText('admin')).toBeInTheDocument()
     })
 
-    it('sorts users by the last login time on column header click', async () => {
+    it('sorts users by the last login time ascending on column header click', async () => {
         await act(async () => {
             renderUsers()
         })
@@ -171,13 +175,13 @@ describe('Users', () => {
             expect(screen.getByText('viewer')).toBeInTheDocument()
         })
 
-        // viewer has never signed in and sorts as the oldest
+        // the first click clears the default order, the second sorts ascending
         await userEvent.click(screen.getByText('users:users_table.last_login'))
-        expect(within(screen.getAllByRole('row')[1]!).getByText('viewer')).toBeInTheDocument()
+        await userEvent.click(screen.getByText('users:users_table.last_login'))
 
-        // the second click reverses the order, so the most recent sign-in comes first
-        await userEvent.click(screen.getByText('users:users_table.last_login'))
-        expect(within(screen.getAllByRole('row')[1]!).getByText('admin')).toBeInTheDocument()
+        // viewer has never signed in and sorts as the oldest
+        expect(screen.getByText('users:users_table.last_login').closest('th')).toHaveAttribute('aria-sort', 'ascending')
+        expect(within(screen.getAllByRole('row')[1]!).getByText('viewer')).toBeInTheDocument()
     })
 
     it('sorts users by full name on column header click', async () => {
