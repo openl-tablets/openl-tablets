@@ -13,6 +13,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -739,6 +741,64 @@ class UserWorkspaceRefreshTest {
         assertNotNull(registry.get("P1-renamed"), "The record must be renamed together with the folder.");
         assertFalse(Files.exists(userDir.resolve(PROJECT)));
         assertTrue(Files.isDirectory(userDir.resolve("P1-renamed")));
+    }
+
+    @Test
+    void aRequestDuringTheRenameGetsTheProjectOfTheRenamedFolder() throws Exception {
+        mockMappedDesign();
+        seedOpenedCopy("design", null, false);
+        userWorkspace.getProjects(true);
+        // The project is renamed in rules.xml, and another request gets the projects while its folder is renamed.
+        Files.writeString(userDir.resolve(PROJECT).resolve("rules.xml"),
+                "<?xml version=\"1.0\"?><project><name>P1-renamed</name></project>");
+        var otherRequest = new AtomicReference<Collection<RulesProject>>();
+        var other = new Thread(() -> otherRequest.set(userWorkspace.getProjects(false)));
+        var renaming = spy(registry);
+        doAnswer(invocation -> {
+            other.start();
+            awaitBlockedOrDone(other);
+            return invocation.callRealMethod();
+        }).when(renaming).renameProjectFolder(anyString(), anyString());
+        when(localWorkspace.getMetainfoRegistry()).thenReturn(renaming);
+        userWorkspace.syncProjects();
+        userWorkspace.refresh();
+
+        userWorkspace.getProjects(false);
+        other.join(TimeUnit.SECONDS.toMillis(10));
+
+        var projects = new ArrayList<>(otherRequest.get());
+        assertEquals(1, projects.size());
+        assertEquals("P1-renamed", projects.getFirst().getFolderPath(),
+                "A request never takes the copy listed in the folder renamed meanwhile.");
+        assertTrue(Files.isDirectory(userDir.resolve("P1-renamed")));
+    }
+
+    /** Waits until the thread waits for the listing, or is done because it did not wait. */
+    private static void awaitBlockedOrDone(Thread thread) {
+        var deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        var state = thread.getState();
+        while (state != Thread.State.BLOCKED && state != Thread.State.TERMINATED && System.nanoTime() < deadline) {
+            Thread.onSpinWait();
+            state = thread.getState();
+        }
+    }
+
+    @Test
+    void theLocalWorkspaceIsGivenWithTheFoldersRenamed() throws IOException {
+        mockMappedDesign();
+        seedOpenedCopy("design", null, false);
+        userWorkspace.getProjects(true);
+        Files.writeString(userDir.resolve(PROJECT).resolve("rules.xml"),
+                "<?xml version=\"1.0\"?><project><name>P1-renamed</name></project>");
+
+        // No change put the listing out of date: the sync alone renames the folder.
+        userWorkspace.syncProjects();
+        userWorkspace.getLocalWorkspace();
+
+        assertTrue(Files.isDirectory(userDir.resolve("P1-renamed")));
+        assertEquals(List.of("P1-renamed"),
+                userWorkspace.getProjects(false).stream().map(RulesProject::getFolderPath).toList(),
+                "The projects are listed with the renamed folder.");
     }
 
     @Test
