@@ -80,13 +80,7 @@
     },
     {
       "color": "#808080",
-      "valign": "center",
-      "border": {
-        "top": {
-          "style": "solid",
-          "width": 1
-        }
-      }
+      "valign": "center"
     },
     {
       "background": "#dce6f1",
@@ -134,7 +128,7 @@
       "right": 2
     },
     {
-      "role": "code",
+      "role": "fieldType",
       "top": 1,
       "left": 0,
       "bottom": 2,

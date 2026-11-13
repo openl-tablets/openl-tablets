@@ -245,42 +245,57 @@ final class WorkbookStyles {
 
     /**
      * Writes the built-in style of each role, redefined with the theme colours and the theme fonts. A style the
-     * workbook names already is redefined in place, so an edit of it in Excel is replaced.
+     * workbook names already is redefined in place, so an edit of it in Excel is replaced. A built-in style a role
+     * takes from another, as the types of the fields take the one of the code, is written once, with the look of the
+     * role that defines it.
      */
     private void writeRoleStyles() {
-        var named = namedStyles();
         for (var style : TableStyle.values()) {
             var look = style.getLook();
-            var font = fontOf(look);
-            var fill = fill(look.fill());
-            roleFonts.put(style, font);
-            roleFills.put(style, fill);
-            var definition = CTXf.Factory.newInstance();
-            definition.setNumFmtId(0);
-            definition.setFontId(font);
-            definition.setFillId(fill);
-            definition.setBorderId(border(new Edges(look.top(), look.bottom(), null)));
-            definition.setApplyNumberFormat(false);
-            definition.setApplyProtection(false);
-            var alignment = definition.addNewAlignment();
-            if (look.align() != HorizontalAlignment.GENERAL) {
-                alignment.setHorizontal(STHorizontalAlignment.Enum.forInt(look.align().ordinal() + 1));
-            }
-            alignment.setVertical(STVerticalAlignment.CENTER);
-            var entry = builtIn(named, style.getBuiltinId());
-            if (entry != null && entry.getXfId() < styles._getStyleXfsSize()) {
-                styles.getCellStyleXfAt((int) entry.getXfId()).set(definition);
-            } else {
-                entry = entry != null ? entry : named.addNewCellStyle();
-                entry.setName(style.getStyleName());
-                entry.setBuiltinId(style.getBuiltinId());
-                entry.setXfId(styles.putCellStyleXf(definition) - 1L);
-            }
-            // The style is not the one Office defines: Excel keeps the definition when cells are copied elsewhere.
-            entry.setCustomBuiltin(true);
-            roleStyles.put(style, (int) entry.getXfId());
+            roleFonts.put(style, fontOf(look));
+            roleFills.put(style, fill(look.fill()));
+        }
+        var named = namedStyles();
+        var defined = new EnumMap<TableStyle, Integer>(TableStyle.class);
+        for (var style : TableStyle.values()) {
+            roleStyles.put(style, defined.computeIfAbsent(style.definition(), definition -> define(named, definition)));
         }
         named.setCount(named.sizeOfCellStyleArray());
+    }
+
+    /**
+     * Writes the built-in style of a role with its look.
+     *
+     * @param named the named styles of the workbook
+     * @param style the style of the role
+     * @return the built-in style, as an index of the cell styles of the workbook
+     */
+    private int define(CTCellStyles named, TableStyle style) {
+        var look = style.getLook();
+        var definition = CTXf.Factory.newInstance();
+        definition.setNumFmtId(0);
+        definition.setFontId(roleFonts.get(style));
+        definition.setFillId(roleFills.get(style));
+        definition.setBorderId(border(new Edges(look.top(), look.bottom(), null)));
+        definition.setApplyNumberFormat(false);
+        definition.setApplyProtection(false);
+        var alignment = definition.addNewAlignment();
+        if (look.align() != HorizontalAlignment.GENERAL) {
+            alignment.setHorizontal(STHorizontalAlignment.Enum.forInt(look.align().ordinal() + 1));
+        }
+        alignment.setVertical(STVerticalAlignment.CENTER);
+        var entry = builtIn(named, style.getBuiltinId());
+        if (entry != null && entry.getXfId() < styles._getStyleXfsSize()) {
+            styles.getCellStyleXfAt((int) entry.getXfId()).set(definition);
+        } else {
+            entry = entry != null ? entry : named.addNewCellStyle();
+            entry.setName(style.getStyleName());
+            entry.setBuiltinId(style.getBuiltinId());
+            entry.setXfId(styles.putCellStyleXf(definition) - 1L);
+        }
+        // The style is not the one Office defines: Excel keeps the definition when cells are copied elsewhere.
+        entry.setCustomBuiltin(true);
+        return (int) entry.getXfId();
     }
 
     /**

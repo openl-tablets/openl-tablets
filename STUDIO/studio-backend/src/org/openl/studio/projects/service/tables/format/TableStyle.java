@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.format;
 import java.util.Arrays;
 import java.util.Set;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,16 @@ import org.openl.studio.projects.model.tables.RawTableSignaturePart;
  * The OpenL table style: the look of each role of a table, written into a workbook as an Excel built-in cell style.
  *
  * <p>Each role is a built-in style of the Cell Styles gallery of Excel, so a selected cell shows its meaning there. A
- * heading inside the body looks like a title of what the table takes and shares its style. The look holds only what
+ * heading inside the body looks like a title of what the table takes and shares its style. A type of a field is code
+ * and takes the built-in style of the code with a look of its own: the built-in style is defined with the look of the
+ * code. A look differs only in what a role means, never in where a table kind places it. The look holds only what
  * the theme of the workbook offers: its fonts, its fill colours and its text colours. Changing the theme of the
  * workbook in Excel changes the look of its tables.
  *
  * <p>Every role takes the font size of the Normal style of the workbook and is centred vertically. The lines of a
  * region belong to the style of its role: above and below the signature, the properties and the code, above the
- * titles and a section, and the lines of the result above and below it. Every line is drawn in {@code dk1}.
+ * titles and a section, and the lines of the result above and below it. A type has none. Every line is drawn in
+ * {@code dk1}.
  *
  * @author Yury Molchan
  */
@@ -46,6 +50,12 @@ enum TableStyle {
             .colour(Look.MUTED)
             .top(Line.ROLE)
             .bottom(Line.ROLE)),
+    /**
+     * The types of a Datatype and of a Constants table: code, standing among the values of the body. They look like the
+     * code with none of its lines, which would run under the title of the types alone.
+     */
+    FIELD_TYPE(RawTableRole.FIELD_TYPE, CODE, Look.BASE.toBuilder()
+            .colour(Look.MUTED)),
     /** The titles of what a table takes, and the headings inside its body, which look alike. */
     INPUT_TITLE(Set.of(RawTableRole.INPUT_TITLE, RawTableRole.SECTION), "Heading 3", 18, Look.BASE.toBuilder()
             .major(true)
@@ -82,17 +92,34 @@ enum TableStyle {
     /** The look of the role. */
     private final Look look;
 
+    /** The style whose built-in style this one takes, or {@code null} when it defines its own. */
+    @Getter(AccessLevel.NONE)
+    private final @Nullable TableStyle shared;
+
     TableStyle(RawTableRole role, String styleName, int builtinId, Look.LookBuilder look) {
         this(Set.of(role), styleName, builtinId, look);
     }
 
     TableStyle(Set<RawTableRole> roles, String styleName, int builtinId, Look.LookBuilder look) {
-        this(roles, styleName, builtinId, look.build());
+        this(roles, styleName, builtinId, look.build(), null);
+    }
+
+    /** A style taking the built-in style of another, which defines it with its own look. */
+    TableStyle(RawTableRole role, TableStyle shared, Look.LookBuilder look) {
+        this(Set.of(role), shared.styleName, shared.builtinId, look.build(), shared);
     }
 
     /** The style of a role. */
     static TableStyle of(RawTableRole role) {
         return Arrays.stream(values()).filter(style -> style.roles.contains(role)).findFirst().orElseThrow();
+    }
+
+    /**
+     * The style whose look defines the built-in style in a workbook: this style, or the one whose built-in style it
+     * takes.
+     */
+    TableStyle definition() {
+        return shared == null ? this : shared;
     }
 
     /** Whether the style is of a part of the header: the signature, the properties or the code. */

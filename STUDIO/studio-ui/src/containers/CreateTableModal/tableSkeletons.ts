@@ -894,10 +894,10 @@ export const buildTableRegions = (
     const geometry = geometryOf(forPreset, context)
     switch (geometry) {
         case 'datatype':
-            return [...header, ...area('inputTitle', 1, 0, 1, right), ...area('code', 2, 0, last, 0),
+            return [...header, ...area('inputTitle', 1, 0, 1, right), ...area('fieldType', 2, 0, last, 0),
                 ...area('output', 2, 1, last, 1), ...area('value', 2, 2, last, right)]
         case 'constants':
-            return [...header, ...area('code', 1, 0, last, 0), ...area('output', 1, 1, last, 1),
+            return [...header, ...area('fieldType', 1, 0, last, 0), ...area('output', 1, 1, last, 1),
                 ...area('value', 1, 2, last, right)]
         case 'vocabulary':
             return [...header, ...area('value', 1, 0, last, right)]

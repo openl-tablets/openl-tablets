@@ -140,9 +140,10 @@ export const cellRoleOf = (roles: TableRoles, address: string | undefined, own: 
 
 /**
  * Whether a cell holds code, which the Studio look highlights as the code editor does: a declaration the compiler
- * reads, or a value the compiler reads as an expression.
+ * reads, a type of a field or a constant, or a value the compiler reads as an expression.
  */
-export const holdsCode = (cell: CellRole): boolean => cell.region.role === 'code' || cell.type === 'code'
+export const holdsCode = (cell: CellRole): boolean =>
+    cell.region.role === 'code' || cell.region.role === 'fieldType' || cell.type === 'code'
 
 /** The lines the Studio look draws, in the colours of the theme, as the Excel style draws them. */
 export interface RoleLines {
@@ -154,7 +155,10 @@ export interface RoleLines {
     resultBelow: RawTableCellBorderSide
 }
 
-/** The lines a role draws above the first row and below the last row of its region, as its Excel style does. */
+/**
+ * The lines a role draws above the first row and below the last row of its region, as its Excel style does. A type of
+ * a Datatype or a Constants table draws none: it stands among the values of the body.
+ */
 const ROLE_EDGES: Readonly<Record<string, { top: keyof RoleLines, bottom?: keyof RoleLines }>> = {
     signature: { top: 'role', bottom: 'role' },
     properties: { top: 'role', bottom: 'role' },

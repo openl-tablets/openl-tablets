@@ -739,6 +739,30 @@ describe('RawTableGrid', () => {
             expect(cellAt('A3').querySelectorAll('span').length).toBeGreaterThan(0)
         })
 
+        it('draws the types of the fields of a Datatype faint and highlighted, as the code is', async () => {
+            const datatype: RawTableCell[][] = [
+                [{ cell: 'A1', value: 'Datatype Vehicle' }, { covered: true }],
+                [{ cell: 'A2', value: 'C1' }, { cell: 'B2', value: 'model' }],
+                [{ cell: 'A3', value: 'String' }, { cell: 'B3', value: 'year' }],
+            ]
+            renderInTheme(<RawTableGrid
+                rows={datatype}
+                testId="grid"
+                roles={rolesOf({
+                    pos: 'A1:B3',
+                    regions: [{ role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
+                        { role: 'code', top: 1, left: 0, bottom: 1, right: 0 },
+                        { role: 'fieldType', top: 2, left: 0, bottom: 2, right: 0 },
+                        { role: 'output', top: 1, left: 1, bottom: 2, right: 1 }],
+                })}
+            />, { theme: 'standard', mode: 'light' })
+
+            const colour = (address: string) => getComputedStyle(cellAt(address)).color
+            expect(colour('A3')).toBe(colour('A2'))
+            expect(colour('A3')).not.toBe(colour('B3'))
+            await waitFor(() => expect(cellAt('A3').querySelectorAll('span').length).toBeGreaterThan(0))
+        })
+
         it('highlights the operations of a TBasic table', async () => {
             const tbasic: RawTableCell[][] = [
                 [{ cell: 'A1', value: 'TBasic Void Run()' }],

@@ -63,6 +63,7 @@ compiled table.
 | `signature` | Signature | The header cell | `SmartRules Double Premium(Driver driver)` |
 | `properties` | Properties | A table property, name and value | `effectiveDate`, `lob` |
 | `code` | Headers | A technical declaration the compiler reads | `C1`, `RET1`, `age >= min`, `policyNumber`, `>Policies` |
+| `fieldType` | Body | The type of a field or a constant: code among the values | `String`, `Integer[]` in the type column of a Datatype or a Constants table |
 | `inputTitle` | Headers | A title of what the table takes | **Driver Age**, **Step** |
 | `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title, a Data title, a horizontal value of a lookup |
 | `key` | Body | What names a row or a column | a Data ID, a rule name, a step a `SpreadsheetResult` marks `*` |
@@ -86,7 +87,7 @@ Two modifiers add to the look of a role, whatever the role:
 
 ### Roles per table type
 
-The ten roles are shared by all table types, but each type holds its cells in its own structure. This section
+The eleven roles are shared by all table types, but each type holds its cells in its own structure. This section
 says, for each type, which of its cells take which role, and so which Excel cell style and colour. The formatter
 and the Studio look both follow it.
 
@@ -146,9 +147,9 @@ bold. A table marking only columns makes bold the cells of every step it keeps i
 Every type takes `signature`, and `properties` when it has them. A transposed table takes the same roles, turned
 with its lines of data. The table below lists the remaining roles per type.
 
-| Table type | `code` | `inputTitle` | `outputTitle` | `key` | `value` | `output` | `section`, `result` |
+| Table type | `code`, `fieldType` | `inputTitle` | `outputTitle` | `key` | `value` | `output` | `section`, `result` |
 |---|---|---|---|---|---|---|---|
-| Datatype | type column | title row | — | — | defaults, other columns | field names | — |
+| Datatype | the types (`fieldType`) | title row | — | — | defaults, other columns | field names | — |
 | Vocabulary | — | — | — | — | values | — | — |
 | Spreadsheet | — | step column title | column titles | step names a `SpreadsheetResult` marks `*` | step names | cells | merged step rows; the step or the column a single value returns |
 | Rules | `C`/`RET` row, expressions, parameters | condition titles | return and action titles | `RULE` column | condition values | return values | — |
@@ -163,7 +164,7 @@ with its lines of data. The table below lists the remaining roles per type.
 | Conditions | inputs, expression, parameters | titles | — | part names | — | — | — |
 | Actions, Returns | inputs, expression, parameters | — | titles | part names | — | — | — |
 | Environment, Properties | — | — | — | setting names | values | — | — |
-| Constants | type column | — | — | — | values | names | — |
+| Constants | the types (`fieldType`) | — | — | — | values | names | — |
 
 The following tables are not formatted and are drawn as their Excel file draws them:
 
@@ -263,6 +264,7 @@ look of its role: theme colours and theme fonts only. No custom cell style is cr
 | `signature` | Title | 15 | Normal (Office: 18) | `majorFont`, `dk1`; text in pieces (below); lines above and below |
 | `properties` | Explanatory Text | 53 | Normal (Office: 11) | italic, `dk1` lighter 50%; lines above and below |
 | `code` | Calculation | 22 | Normal (Office: 11) | `dk1` lighter 50%; lines above and below |
+| `fieldType` | Calculation | 22 | Normal (Office: 11) | `dk1` lighter 50%; no lines |
 | `inputTitle`, `section` | Heading 3 | 18 | Normal (Office: 11) | `majorFont`, bold, centred; fill `lt2`; line above |
 | `outputTitle` | Heading 2 | 17 | Normal (Office: 13) | `majorFont`, bold, centred; fill `accent1` lighter 60%; line above |
 | `key` | Heading 4 | 19 | Normal (Office: 11) | bold, `dk1` |
@@ -272,7 +274,11 @@ look of its role: theme colours and theme fonts only. No custom cell style is cr
 
 A cell that is `returned` keeps the style of its role: its cell format adds the bold font.
 
-A heading inside the body looks like a title of what the table takes, so the two roles share **Heading 3**.
+A heading inside the body looks like a title of what the table takes, so the two roles share **Heading 3**. A type is
+code standing among the values of the body, so it shares **Calculation** with the code and keeps its look but none of
+its lines: the definition of the style keeps the lines of the code. The types add no style to the workbook. A cell
+format is keyed by what it holds, so a type takes the format of a row of code drawn with the same lines; a workbook
+whose code never drew such a row gains one or two formats for its types.
 
 The formatter owns these nine styles in a workbook it formats. It writes their definitions each time it formats, so
 an edit of them in Excel is replaced, including on cells outside OpenL tables that use them. The **Normal** style is
@@ -293,7 +299,7 @@ Lines:
 Every line is drawn in `dk1`, the text colour of the theme:
 
 - **Role line** — thin. It is drawn above and below the signature, the properties and the code, above the titles
-  and a section, and below the body.
+  and a section, and below the body. A type draws none: its line above would run under the title of the types alone.
 - **Group line** — hair. It is drawn above a group of rows, and on the left of a group of columns from the titles
   down.
 - **Result lines** — thin above the result, double below it.
@@ -484,7 +490,7 @@ their own:
 | Role | Token |
 |---|---|
 | `signature` | `colorText`; grey pieces `colorTextSecondary` |
-| `properties`, `code` | `colorTextSecondary` |
+| `properties`, `code`, `fieldType` | `colorTextSecondary` |
 | `inputTitle`, `section` | fill `colorFillTertiary`, weight 600, centred (an indented `section` cell on the side of its indent) |
 | `outputTitle` | fill `colorPrimary` at 12% over `colorBgContainer`, weight 600 |
 | `output` | fill `colorPrimary` at 6% over `colorBgContainer` |

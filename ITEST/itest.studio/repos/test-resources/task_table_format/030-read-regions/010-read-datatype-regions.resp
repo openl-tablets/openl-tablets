@@ -72,7 +72,7 @@ Content-Type: application/json
       "right": 2
     },
     {
-      "role": "code",
+      "role": "fieldType",
       "top": 1,
       "left": 0,
       "bottom": 3,

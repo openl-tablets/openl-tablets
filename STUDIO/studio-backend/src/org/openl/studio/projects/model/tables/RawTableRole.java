@@ -26,6 +26,13 @@ public enum RawTableRole {
     @JsonProperty("code")
     CODE,
 
+    /**
+     * The type of a field of a Datatype or of a constant: code the compiler reads, standing among the values of the
+     * body rather than in the header.
+     */
+    @JsonProperty("fieldType")
+    FIELD_TYPE,
+
     /** A title of what the table takes, such as the title of a condition. */
     @JsonProperty("inputTitle")
     INPUT_TITLE,

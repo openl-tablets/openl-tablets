@@ -202,11 +202,12 @@ compiler cannot read takes them from its text. How each kind of table maps to th
   the table returns among others, such as the cells of the steps and the columns a `SpreadsheetResult` marks `*`, has
   `"returned": true`: its cells keep their role and are bold.
 - `role` — `signature` (the header), `properties`, `code` (a declaration the compiler reads, such as `C1` or the field
-  names of a Data table), `inputTitle` and `outputTitle` (the titles of what the table takes and gives), `key` (what
-  names a row or a column, such as a rule name, a Data ID or a step a `SpreadsheetResult` marks `*`), `value` (a
-  Spreadsheet step name among them), `output` (a value the table gives, such as a returned value or an expected
-  result), `section` (a heading inside the body), and `result` (what the table returns, such as the `RETURN` step of a
-  Spreadsheet returning one value).
+  names of a Data table), `fieldType` (the type of a field of a Datatype or of a constant: code standing among the
+  values of the body, drawn with no line of its own), `inputTitle` and `outputTitle` (the titles of what the table
+  takes and gives), `key` (what names a row or a column, such as a rule name, a Data ID or a step a
+  `SpreadsheetResult` marks `*`), `value` (a Spreadsheet step name among them), `output` (a value the table gives,
+  such as a returned value or an expected result), `section` (a heading inside the body), and `result` (what the
+  table returns, such as the `RETURN` step of a Spreadsheet returning one value).
 - `type` — `code` (an OpenL expression), `number`, `date`, `boolean`, or `string`, as the compiler reads the value. A
   range takes the type of its bounds, an array the type of its elements.
 - `groups` — the `rows` and the `columns` of the body that start a group, in table coordinates: the rules sharing a

@@ -7,6 +7,7 @@ export type RawTableRole =
     | 'signature'
     | 'properties'
     | 'code'
+    | 'fieldType'
     | 'inputTitle'
     | 'outputTitle'
     | 'key'

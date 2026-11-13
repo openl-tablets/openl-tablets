@@ -66,10 +66,6 @@ Content-Type: application/json
       "color": "#808080",
       "valign": "center",
       "border": {
-        "top": {
-          "style": "solid",
-          "width": 1
-        },
         "bottom": {
           "style": "solid",
           "width": 1
@@ -96,7 +92,7 @@ Content-Type: application/json
       "right": 1
     },
     {
-      "role": "code",
+      "role": "fieldType",
       "top": 1,
       "left": 0,
       "bottom": 1,
