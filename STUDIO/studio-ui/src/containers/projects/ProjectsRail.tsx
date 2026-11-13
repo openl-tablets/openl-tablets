@@ -76,7 +76,7 @@ interface ProjectsRailBaseProps {
     onOpenProject: (project: Project) => void
     /** A module of a project was picked in the tree: read it in the editor. */
     onOpenModule?: ((project: Project, moduleName: string) => void) | undefined
-    /** A file that is no module was picked in the tree: show it on the project's Files tab. */
+    /** A folder, or a file that is no module, was picked in the tree: show it on the project's Files tab. */
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A repository or tag group was picked in the tree: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void

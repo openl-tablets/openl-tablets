@@ -8,6 +8,7 @@ import { iconFor } from './fileIcons'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
 import { FileChangeIcon } from './FileChangeIcon'
 import { useSharedStyles } from './sharedStyles'
+import { formatFileSize } from '../../utils/fileSize'
 
 const useStyles = createStyles(({ css, token }) => ({
     /**
@@ -84,22 +85,6 @@ const buildTreeData = (
     return draw(buildFileNodes(files.map(file => file.path), virtualFolders))
 }
 
-/** Human-readable file size in the current UI locale. */
-const formatSize = (bytes?: number, locale?: string): string | null => {
-    if (bytes === undefined || bytes === null) {
-        return null
-    }
-    const kb = bytes / 1024
-    const fractionDigits = kb >= 10 ? 0 : 1
-    return new Intl.NumberFormat(locale, {
-        style: 'unit',
-        unit: 'kilobyte',
-        unitDisplay: 'short',
-        minimumFractionDigits: fractionDigits,
-        maximumFractionDigits: fractionDigits,
-    }).format(kb)
-}
-
 interface FileTreeProps {
     projectId: string
     files: FsNode[] | 'loading' | 'error' | undefined
@@ -156,7 +141,7 @@ export const FileTree = ({
         const visible = files.filter(node => node.type === 'file' && (!query || node.path.toLowerCase().includes(query)))
         const visibleVirtual = (virtualFolders ?? []).filter(path => !query || path.toLowerCase().includes(query))
         const renderTitle = (name: string, path: string, size: number | undefined) => {
-            const label = formatSize(size, locale)
+            const label = formatFileSize(size, locale)
             const changeType = changes?.get(path)
             return (
                 <span className={styles.node}>
