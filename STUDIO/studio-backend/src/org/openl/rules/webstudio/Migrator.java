@@ -38,6 +38,7 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.rules.webstudio.web.admin.security.NOPUserSettings;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
@@ -56,7 +57,6 @@ public final class Migrator {
 
     private static final String DESIGN_LOCAL_REPOSITORY_PATH = "repository.design.local-repository-path";
 
-    private static final String REPOSITORY_PREFIX = "repository.";
     private static final String COMMENT_TEMPLATE_SUFFIX = ".comment-template";
     private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
@@ -343,11 +343,11 @@ public final class Migrator {
                                                               UnaryOperator<@Nullable String> setting) {
         var changes = new HashMap<String, @Nullable String>();
         var repositories = new LinkedHashSet<String>();
-        designRepositories.forEach(id -> repositories.add(REPOSITORY_PREFIX + id));
+        designRepositories.forEach(id -> repositories.add(RepositorySettingNames.PREFIX + id));
         for (var name : names) {
             if (isRemovedCommentSetting(name)) {
                 changes.put(name, null);
-            } else if (name.startsWith(REPOSITORY_PREFIX)
+            } else if (name.startsWith(RepositorySettingNames.PREFIX)
                     && name.endsWith(RepositorySettings.COMMENT_VALIDATION_PATTERN_SUFFIX)) {
                 repositories.add(name.substring(0,
                         name.length() - RepositorySettings.COMMENT_VALIDATION_PATTERN_SUFFIX.length()));
@@ -361,7 +361,7 @@ public final class Migrator {
     }
 
     private static boolean isRemovedCommentSetting(String name) {
-        return name.startsWith(REPOSITORY_PREFIX)
+        return name.startsWith(RepositorySettingNames.PREFIX)
                 && (name.contains(USER_MESSAGE_INFIX) || name.endsWith(CUSTOM_COMMENTS_SUFFIX));
     }
 
@@ -376,19 +376,20 @@ public final class Migrator {
         LEGACY_DATE_SETTINGS.forEach(name -> props.put(name, null));
     }
 
-    private static void migrateTo640(DynamicPropertySource settings, HashMap<String, String> props) {
+    static void migrateTo640(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
                 // The default comments of that time go with every other comment template in 7.1.0.
-                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX)
+                .filter(propertyName -> propertyName.startsWith(RepositorySettingNames.PREFIX)
                         && (propertyName.endsWith(COMMENT_TEMPLATE_SUFFIX)
                         || propertyName.endsWith(COMMENT_TEMPLATE_OLD_SUFFIX)))
                 .forEach(propertyName -> props.put(propertyName, null));
     }
 
-    private static void migrateTo600(DynamicPropertySource settings, HashMap<String, String> props) {
+    static void migrateTo600(DynamicPropertySource settings, HashMap<String, String> props) {
         // remove `.folder-structure.flat` property
         Arrays.stream(settings.getPropertyNames())
-                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".folder-structure.flat"))
+                .filter(propertyName -> propertyName.startsWith(RepositorySettingNames.PREFIX)
+                        && propertyName.endsWith(".folder-structure.flat"))
                 .forEach(propertyToRemove ->
                     // remove property
                     props.put(propertyToRemove, null));
@@ -399,13 +400,13 @@ public final class Migrator {
 
     private static void migrateLocalRepositoryPath(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
-                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX)
+                .filter(propertyName -> propertyName.startsWith(RepositorySettingNames.PREFIX)
                         && propertyName.endsWith(LOCAL_REPO_PATH_SUFFIX))
                 .forEach(localRepositoryPathProperty -> {
-                    var start = REPOSITORY_PREFIX.length();
+                    var start = RepositorySettingNames.PREFIX.length();
                     var end = localRepositoryPathProperty.length() - LOCAL_REPO_PATH_SUFFIX.length();
                     var repositoryId = localRepositoryPathProperty.substring(start, end);
-                    var uriPropName = REPOSITORY_PREFIX + repositoryId + ".uri";
+                    var uriPropName = RepositorySettingNames.PREFIX + repositoryId + ".uri";
                     var uri = settings.getProperty(uriPropName);
                     if (StringUtils.isEmpty(uri)) {
                         var localRepositoryPathValue = settings.getProperty(localRepositoryPathProperty);
@@ -420,11 +421,12 @@ public final class Migrator {
         migrateProductionRepository(settings, props);
     }
 
-    private static void migrateRepositoryFactories(DynamicPropertySource settings, HashMap<String, String> props) {
+    static void migrateRepositoryFactories(DynamicPropertySource settings, HashMap<String, String> props) {
         var factorySuffix = ".factory";
 
         Arrays.stream(settings.getPropertyNames())
-                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(factorySuffix))
+                .filter(propertyName -> propertyName.startsWith(RepositorySettingNames.PREFIX)
+                        && propertyName.endsWith(factorySuffix))
                 .forEach(factoryKey -> {
                     var factory = settings.getProperty(factoryKey);
                     if (StringUtils.isNotBlank(factory)) {

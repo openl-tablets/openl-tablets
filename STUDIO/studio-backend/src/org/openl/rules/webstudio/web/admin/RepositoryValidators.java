@@ -11,9 +11,9 @@ import javax.security.auth.login.FailedLoginException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.transport.URIish;
 
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.util.StringUtils;
 
 public final class RepositoryValidators {
@@ -173,7 +173,7 @@ public final class RepositoryValidators {
     public static void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
         try {
             var propertiesToValidate = repoConfig.getPropertiesToValidate();
-            var prefix = Comments.REPOSITORY_PREFIX + repoConfig.getConfigName();
+            var prefix = RepositorySettingNames.PREFIX + repoConfig.getConfigName();
             try (var repository = RepositoryInstatiator.newRepository(prefix, propertiesToValidate::getProperty)) {
                 // Validate instantiation
                 repository.validateConnection();

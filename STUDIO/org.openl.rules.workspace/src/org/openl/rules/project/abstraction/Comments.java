@@ -22,8 +22,6 @@ import org.openl.util.StringUtils;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Comments {
 
-    public static final String REPOSITORY_PREFIX = "repository.";
-
     private static final String COPIED_FROM_PREFIX = "Copied from: ";
     private static final String COPIED_FROM_SUFFIX = ".";
     /**

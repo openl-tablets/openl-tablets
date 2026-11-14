@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.util.StringUtils;
 
 public class RepositoryEditor {
@@ -81,7 +81,7 @@ public class RepositoryEditor {
 
     private boolean isValidConfig(String configName) {
         return Objects.nonNull(
-                properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory"));
+                properties.getPropertyResolver().getProperty(RepositorySettingNames.PREFIX + configName + ".factory"));
     }
 
     /**
@@ -150,7 +150,7 @@ public class RepositoryEditor {
         config.commit();
         if (config.isNameChangedIgnoreCase()) {
             var newConfigName = config.getName();
-            properties.setProperty(Comments.REPOSITORY_PREFIX + config.getConfigName() + ".name", newConfigName);
+            properties.setProperty(RepositorySettingNames.PREFIX + config.getConfigName() + ".name", newConfigName);
         }
 
         return config;

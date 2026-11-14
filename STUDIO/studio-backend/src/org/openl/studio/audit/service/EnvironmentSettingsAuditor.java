@@ -27,8 +27,8 @@ import org.springframework.jndi.JndiPropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.spring.env.ApplicationPropertySource;
 import org.openl.spring.env.DefaultPropertySource;
 import org.openl.spring.env.ServletContextPropertySource;
@@ -73,7 +73,7 @@ public class EnvironmentSettingsAuditor {
     private static final List<String> REPOSITORY_LISTS = List.of(AdministrationSettings.DESIGN_REPOSITORY_CONFIGS,
             AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
     /** The settings of a repository are named after it, as the repository of designs is by default. */
-    private static final String DESIGN_REPOSITORY_PREFIX = Comments.REPOSITORY_PREFIX + "design";
+    private static final String DESIGN_REPOSITORY_PREFIX = RepositorySettingNames.PREFIX + "design";
     /** The detail that lists the settings the deployment set since the last start. */
     private static final String ADDED = "added";
     /** The detail that lists the settings the deployment no longer sets. */
@@ -166,7 +166,7 @@ public class EnvironmentSettingsAuditor {
                 .map(property -> property.substring(DESIGN_REPOSITORY_PREFIX.length()))
                 .forEach(suffixes::add);
         repositories().forEach(repository -> suffixes
-                .forEach(suffix -> properties.add(Comments.REPOSITORY_PREFIX + repository + suffix)));
+                .forEach(suffix -> properties.add(RepositorySettingNames.PREFIX + repository + suffix)));
         return properties;
     }
 
