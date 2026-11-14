@@ -887,8 +887,10 @@ upload compiles within its request what an upload without formatting leaves to t
   both ran out of it. POI writes the cell styles of a workbook in a time that grows with the square of their
   number, formatted or not: 0.7 s for 25,000, 2.5 s for 50,000 and 10 s for 100,000. **Reformat Excel files**
   removes the unused ones.
-- **Not formatting's own limit** — POI refuses a record larger than 100 MB, so a 100 × 30,000 table cannot be opened
-  for editing, and a 100 × 25,000 one saves once and then cannot be opened again, with formatting off as well.
+- **Not formatting's own limit** — POI reads a part of a workbook of up to 100 MB into memory by default and refuses
+  a larger one, with formatting off as well. OpenL raises the limit to 1 GB (EPBDS-13490), so the sheet of a
+  100 × 30,000 table can be opened for editing and saved. The part is not kept in a temporary file: a workbook is never
+  closed, so the file would stay on disk.
 
 | Upload | Off | On | Time | CPU | Peak heap |
 |---|---|---|---|---|---|
