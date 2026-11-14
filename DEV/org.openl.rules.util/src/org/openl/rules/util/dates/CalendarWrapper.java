@@ -178,16 +178,24 @@ final class CalendarWrapper {
         }
     }
 
-    int getUncompleteYearLength(CalendarWrapper start) {
-        if (isCompleteLastYear(start)) {
-            return calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
-        }
-        return getPrevYearLength();
+    /**
+     * The length in days of the year that starts the given number of full years after this date: from that
+     * anniversary to the next one. A year holding the 29th of February is 366 days long.
+     *
+     * <p>The 29th of February comes back on the 1st of March of a year without it, as the days of the last year are
+     * counted.
+     *
+     * @param years full years after this date
+     * @return the length of that year in days
+     */
+    int yearLengthAfter(int years) {
+        return anniversaryIn(year + years + 1).daysDiff(anniversaryIn(year + years));
     }
 
-    private int getPrevYearLength() {
-        var prevYearCalendar = getCalendar();
-        prevYearCalendar.set(Calendar.YEAR, year - 1);
-        return prevYearCalendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+    /** This date in the given year, by the rules of the calendar the days are counted with. */
+    private CalendarWrapper anniversaryIn(int anniversaryYear) {
+        var anniversary = getCalendar();
+        anniversary.set(Calendar.YEAR, anniversaryYear);
+        return new CalendarWrapper(anniversary);
     }
 }
