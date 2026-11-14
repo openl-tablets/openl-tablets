@@ -744,7 +744,7 @@ Range Editor also applies to numeric ranges in the horizontal conditions of Smar
 Double click a condition value and click its field to open the same range controls shown below.
 This also works when the condition value is highlighted with a compiler usage tooltip.
 
-If any editor control is used, for example, a check box or the **Done** button, the range format is set to ‘..’.
+If a check box or the type of range is changed and the original format cannot express the new range, the range is written in the ‘..’ format, or with `>`, `>=`, `<` and `<=` for a range with one border. For example, `3+` edited to 4 stays `4+`, and `1-5` edited to 2 and 6 stays `2-6`.
 
 The following example displays the decision table with data represented as a range:
 

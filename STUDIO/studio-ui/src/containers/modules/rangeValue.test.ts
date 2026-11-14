@@ -44,6 +44,27 @@ describe('rangeValue', () => {
             expect(formatRange(bounds)).toBe(expected)
         })
 
+        it.each([
+            ['3+', { from: '4', to: '', fromIncluded: true, toIncluded: true }, '4+'],
+            ['1-5', { from: '2', to: '6', fromIncluded: true, toIncluded: true }, '2-6'],
+            ['1 ... 5', { from: '1', to: '7', fromIncluded: false, toIncluded: false }, '1 ... 7'],
+            ['[1; 5)', { from: '2', to: '5', fromIncluded: true, toIncluded: true }, '[2; 5]'],
+            ['(1 .. 5)', { from: '1', to: '9', fromIncluded: false, toIncluded: false }, '(1 .. 9)'],
+        ])('keeps the way %s was written for %o', (written, bounds, expected) => {
+            expect(formatRange(bounds, written)).toBe(expected)
+        })
+
+        it.each([
+            // The author's way cannot say the new shape, or what is inside it, so the Editor's way is written.
+            ['3+', { from: '4', to: '', fromIncluded: false, toIncluded: true }, '>4'],
+            ['3+', { from: '1', to: '4', fromIncluded: true, toIncluded: true }, '1 .. 4'],
+            ['1-5', { from: '1', to: '5', fromIncluded: false, toIncluded: true }, '(1 .. 5]'],
+            ['1-5', { from: '', to: '5', fromIncluded: true, toIncluded: true }, '<=5'],
+            ['= x', { from: '1', to: '5', fromIncluded: true, toIncluded: true }, '1 .. 5'],
+        ])('writes %s the Editor\'s way when its way no longer fits %o', (written, bounds, expected) => {
+            expect(formatRange(bounds, written)).toBe(expected)
+        })
+
         it('writes back what it read, for every form the Editor wrote', () => {
             ['100 .. 200', '(100 .. 200)', '[100 .. 200)', '>=500', '<14', '100'].forEach(written =>
                 expect(formatRange(parseRange(written))).toBe(written))
