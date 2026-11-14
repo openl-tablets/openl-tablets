@@ -214,8 +214,9 @@ After a way is chosen, the dialog shows the source of the project and the settin
 -   **Repository** — the Design repository that stores the project. Only the repositories where the user may create projects are offered.
 -   **Branch** — the branch of a Git repository, described below. The field is shown for repositories that support branches.
 -   **Path** — the folder of the repository where the project is stored. Leave it empty to store the project in the root of the repository, enter a path such as `folder/subfolder`, or click **Browse folders** **⋮** to select an existing folder. The field is shown for repositories that keep projects in folders.
--   **Comment** — the comment of the commit that creates the project. A standard comment is suggested. The field is
-    hidden for repositories that do not store change comments, such as file repositories.
+-   **Comment** — the comment of the commit that creates the project. A standard comment is suggested and can be
+    edited: **Project Bank Rating is created.**, or **Copied from: Bank Rating.** for a copy. The field is hidden for
+    repositories that do not store change comments, such as file repositories.
 
 After the project is created, its page opens and the project has the **No Changes** status, which means that it is open and can be modified.
 
@@ -527,8 +528,11 @@ To save a project, proceed as follows:
 
 1.  Enter a comment if the field is shown and needed, then click **Save**.
 
-    For repositories that store change comments, a standard comment is suggested. If the repository requires comments
-    of a certain form, a comment that does not match it is refused. File repositories do not store change comments,
+    For repositories that store change comments, a standard comment is suggested and can be edited:
+    **Project Bank Rating is saved.** Saving a project opened on an older revision restores that revision, and the
+    comment names its author and the moment it was saved, in UTC: **Restored from revision of John Smith on
+    06/22/2026 09:02:42 PM.** If the repository requires comments of a certain form, a comment that does not match it
+    is refused. File repositories do not store change comments,
     so the **Comment** field is hidden when saving their projects.
 
 If another user saved the same files in the meantime, their changes are merged with yours where they do not
@@ -916,9 +920,8 @@ To copy the selected project, proceed as follows:
 A copy in the default branch appears in the project list at once; a copy in another branch is listed once that branch
 is picked in the **Branch** filter. The selected branch is its home branch when no other branch contains the project.
 
-The first revision of the copy says which project it was copied from, for example **Copied from: Bank Rating.**, as
-the repository's comment template words it. In the **Revisions** tab and in **More \> Revisions** of the editor, the
-name of that project is a link that opens it.
+The first revision of the copy says which project it was copied from, for example **Copied from: Bank Rating.** In the
+**Revisions** tab and in **More \> Revisions** of the editor, the name of that project is a link that opens it.
 
 ### Removing a Project
 

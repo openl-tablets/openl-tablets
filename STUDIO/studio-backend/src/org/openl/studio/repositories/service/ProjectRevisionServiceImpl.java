@@ -5,7 +5,6 @@ import java.nio.file.InvalidPathException;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -22,10 +21,8 @@ import org.openl.util.StringUtils;
 @Service
 public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
-    @Lookup
-    protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
-        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
-        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
+    HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
+        return new HistoryRepositoryMapper(repository);
     }
 
     @Override

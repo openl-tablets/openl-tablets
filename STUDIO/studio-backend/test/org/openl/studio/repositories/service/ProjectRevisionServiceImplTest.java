@@ -40,7 +40,7 @@ class ProjectRevisionServiceImplTest {
 
     private final ProjectRevisionServiceImpl service = new ProjectRevisionServiceImpl() {
         @Override
-        protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
+        HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
             askedRepository.set(repository);
             return mapper;
         }

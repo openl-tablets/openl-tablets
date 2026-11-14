@@ -28,11 +28,7 @@ public class HistoryRepositoryMapper {
     /** How many characters of a revision identify it on screen. */
     private static final int SHORT_REVISION_LENGTH = 6;
 
-    /** A parsed commit message either splits into exactly this many parts or is not a templated one. */
-    private static final int COMMENT_PARTS = 3;
-
     private final Repository repository;
-    private final Comments commentService;
 
     /**
      * Gets project history log filtered by {@code globalFilter} if present
@@ -76,7 +72,6 @@ public class HistoryRepositoryMapper {
         }
         var modifiedAt = src.getModifiedAt();
         var originalComment = src.getComment();
-        var parts = commentService.getCommentParts(originalComment);
 
         return ProjectRevision.builder()
                 .revisionNo(revision)
@@ -88,7 +83,7 @@ public class HistoryRepositoryMapper {
                 .author(userInfo)
                 .deleted(src.isDeleted())
                 .technicalRevision(src.isTechnicalRevision())
-                .commentParts(parts.size() == COMMENT_PARTS ? parts : null)
+                .commentParts(Comments.getCommentParts(originalComment))
                 .build();
     }
 }

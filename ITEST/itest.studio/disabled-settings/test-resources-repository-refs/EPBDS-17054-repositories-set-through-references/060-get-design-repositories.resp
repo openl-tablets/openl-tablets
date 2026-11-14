@@ -8,32 +8,12 @@ Content-Type: application/json
       "readOnly": true
     },
     "settings": {
-      "useCustomComments": {
-        "value": true,
-        "readOnly": true
-      },
       "commentValidationPattern": {
         "value": "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}",
         "readOnly": true
       },
       "invalidCommentMessage": {
         "value": "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description",
-        "readOnly": true
-      },
-      "defaultCommentSave": {
-        "value": "EPBDS-",
-        "readOnly": true
-      },
-      "defaultCommentCreate": {
-        "value": "Project {project-name} is created.",
-        "readOnly": true
-      },
-      "defaultCommentCopiedFrom": {
-        "value": "Copied from: {project-name}.",
-        "readOnly": true
-      },
-      "defaultCommentRestoredFrom": {
-        "value": "Restored from revision of {author} on {datetime:MM/dd/yyyy hh:mm:ss a}.",
         "readOnly": true
       },
       "basePath": "DESIGN/rules/",
@@ -93,32 +73,12 @@ Content-Type: application/json
       "readOnly": true
     },
     "settings": {
-      "useCustomComments": {
-        "value": true,
-        "readOnly": true
-      },
       "commentValidationPattern": {
         "value": "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}",
         "readOnly": true
       },
       "invalidCommentMessage": {
         "value": "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description",
-        "readOnly": true
-      },
-      "defaultCommentSave": {
-        "value": "EPBDS-",
-        "readOnly": true
-      },
-      "defaultCommentCreate": {
-        "value": "Project {project-name} is created.",
-        "readOnly": true
-      },
-      "defaultCommentCopiedFrom": {
-        "value": "Copied from: {project-name}.",
-        "readOnly": true
-      },
-      "defaultCommentRestoredFrom": {
-        "value": "Restored from revision of {author} on {datetime:MM/dd/yyyy hh:mm:ss a}.",
         "readOnly": true
       },
       "basePath": "DESIGN/rules/",

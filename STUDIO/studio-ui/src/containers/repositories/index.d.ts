@@ -5,13 +5,8 @@ import { Field, InputTextField } from '../../global'
 interface DefaultSettings {
     basePath?: string
     commentValidationPattern?: string
-    defaultCommentCopiedFrom?: string
-    defaultCommentCreate?: string
-    defaultCommentRestoredFrom?: string
-    defaultCommentSave?: string
     invalidCommentMessage: string
     mainBranchOnly?: boolean
-    useCustomComments?: boolean
 }
 
 interface AWSS3Region {

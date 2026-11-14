@@ -1,10 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import jakarta.validation.Validation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.MapPropertySource;
@@ -24,6 +26,7 @@ class GitRepositorySettingsTest {
     private static final String CONNECTION_TIMEOUT = PREFIX + ".connection-timeout";
     private static final String FAILED_AUTHENTICATION_SECONDS = PREFIX + ".failed-authentication-seconds";
     private static final String MAX_AUTHENTICATION_ATTEMPTS = PREFIX + ".max-authentication-attempts";
+    private static final String COMMENT_PATTERN = PREFIX + RepositorySettings.COMMENT_VALIDATION_PATTERN_SUFFIX;
 
     private static InMemoryProperties properties(Map<String, Object> stored) {
         var environment = new StandardEnvironment();
@@ -50,5 +53,32 @@ class GitRepositorySettingsTest {
         assertNull(target.getConfig().get(CONNECTION_TIMEOUT));
         assertNull(target.getConfig().get(FAILED_AUTHENTICATION_SECONDS));
         assertNull(target.getConfig().get(MAX_AUTHENTICATION_ATTEMPTS));
+    }
+
+    @Test
+    void keepsTheCommentPatternWithoutTheSpacesAroundIt() {
+        var target = properties(Map.of(COMMENT_PATTERN, " EPBDS-\\d+ .* "));
+        var settings = new GitRepositorySettings(target, PREFIX, RepositoryMode.DESIGN);
+
+        assertEquals("EPBDS-\\d+ .*", settings.getCommentValidationPattern());
+
+        settings.setCommentValidationPattern(" [A-Z]+-\\d+ .*\n");
+        settings.store(target);
+
+        assertEquals("[A-Z]+-\\d+ .*", target.getConfig().get(COMMENT_PATTERN));
+    }
+
+    @Test
+    void refusesACommentPatternThatIsInvalidWithoutTheSpacesAroundIt() {
+        var settings = new GitRepositorySettings(properties(Map.of()), PREFIX, RepositoryMode.DESIGN);
+        // Valid as typed, the escaped space at the end leaves a dangling backslash once the spaces are dropped.
+        settings.setCommentValidationPattern("EPBDS-\\d+\\ ");
+
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var violations = factory.getValidator().validateProperty(settings, "commentValidationPattern",
+                    RepositorySettings.Validation.Design.class);
+
+            assertFalse(violations.isEmpty());
+        }
     }
 }

@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 import { describe, expect, it } from 'vitest'
 import {
-    applyTemplate,
     suggestBranchName,
     suggestComment,
+    suggestRestoreComment,
     validateBranchName,
     validateComment,
 } from './repositoryConfig'
@@ -11,37 +11,23 @@ import type { RepositoryConfig } from '../types/repositories'
 
 const config = (overrides: Partial<RepositoryConfig> = {}): RepositoryConfig => ({
     newBranch: { pattern: '{project-name}/{username}/{current-date}' },
-    comment: { templates: { copy: 'Copied from: {project-name}.' } },
+    comment: {},
     ...overrides,
 })
 
-describe('applyTemplate', () => {
-    it('writes the moment of a restored revision in ISO 8601, or in the pattern the template gives', () => {
-        const values = { revision: 'abc', datetime: '2020-06-22T21:02:42.517Z' }
-
-        expect(applyTemplate('{revision} on {datetime}', values)).toBe('abc on 2020-06-22T21:02:42Z')
-        expect(applyTemplate('{revision} on {datetime:yyyy-MM-dd} at {datetime:HH:mm}', values))
-            .toBe('abc on 2020-06-22 at 21:02')
-        expect(applyTemplate('{revision} on {datetime:yyyy-MM-dd}', { revision: 'abc' })).toBe('abc on ')
-    })
-
+describe('suggestBranchName', () => {
     it('fills the project, user and date placeholders', () => {
         const today = dayjs().format('YYYYMMDD')
 
-        expect(applyTemplate('{project-name}/{username}/{current-date}', { projectName: 'Alpha', username: 'jdoe' }))
-            .toBe(`Alpha/jdoe/${today}`)
+        expect(suggestBranchName(config(), { projectName: 'Alpha', username: 'jdoe' })).toBe(`Alpha/jdoe/${today}`)
     })
 
     it('drops a placeholder that has no value', () => {
-        expect(applyTemplate('{project-name}/{username}', { projectName: 'Alpha' })).toBe('Alpha/')
+        const pattern = config({ newBranch: { pattern: '{project-name}/{username}' } })
+
+        expect(suggestBranchName(pattern, { projectName: 'Alpha' })).toBe('Alpha/')
     })
 
-    it('returns an empty string when the repository configures no template', () => {
-        expect(applyTemplate(undefined, { projectName: 'Alpha' })).toBe('')
-    })
-})
-
-describe('suggestBranchName', () => {
     it('keeps only the symbols a branch name accepts from the project name', () => {
         const today = dayjs().format('YYYYMMDD')
 
@@ -55,12 +41,23 @@ describe('suggestBranchName', () => {
 })
 
 describe('suggestComment', () => {
-    it('builds the comment from the repository template', () => {
-        expect(suggestComment(config(), 'copy', 'Alpha')).toBe('Copied from: Alpha.')
+    it('names the project of every action that commits, as the server does', () => {
+        expect(suggestComment('save', 'Bank Rating')).toBe('Project Bank Rating is saved.')
+        expect(suggestComment('create', 'Bank Rating')).toBe('Project Bank Rating is created.')
+        expect(suggestComment('copy', 'Bank Rating')).toBe('Copied from: Bank Rating.')
     })
 
-    it('suggests nothing when the repository configures no copy template', () => {
-        expect(suggestComment(config({ comment: { templates: {} } }), 'copy', 'Alpha')).toBe('')
+    it('writes a missing project as an empty text', () => {
+        expect(suggestComment('save', undefined)).toBe('Project  is saved.')
+    })
+})
+
+describe('suggestRestoreComment', () => {
+    it('names the author and the moment of the restored revision in UTC', () => {
+        expect(suggestRestoreComment(' John ', '2020-06-23T00:02:42.517+03:00'))
+            .toBe('Restored from revision of John on 06/22/2020 09:02:42 PM.')
+        expect(suggestRestoreComment(undefined, undefined)).toBe('Restored from revision of  on .')
+        expect(suggestRestoreComment('John', 'not-a-date')).toBe('Restored from revision of John on .')
     })
 })
 
@@ -104,7 +101,7 @@ describe('validateBranchName', () => {
 
 describe('validateComment', () => {
     const restricted = config({
-        comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket', templates: {} },
+        comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket' },
     })
 
     it('rejects a comment the configured expression forbids', () => {
@@ -119,12 +116,12 @@ describe('validateComment', () => {
         expect(validateComment('x'.repeat(256), config(), 'Too long', 'Invalid')).toBe('Too long')
     })
 
-    it('accepts everything when the repository does not customize comments', () => {
+    it('accepts everything when the repository sets no pattern', () => {
         expect(validateComment('anything', config(), 'Too long', 'Invalid')).toBeNull()
     })
 
     it('accepts everything when the configured expression cannot be compiled', () => {
-        const broken = config({ comment: { userMessagePattern: '([', templates: {} } })
+        const broken = config({ comment: { userMessagePattern: '([' } })
 
         expect(validateComment('anything', broken, 'Too long', 'Invalid')).toBeNull()
     })

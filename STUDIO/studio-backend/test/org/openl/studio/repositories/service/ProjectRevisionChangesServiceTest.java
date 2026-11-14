@@ -20,10 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.springframework.beans.factory.ObjectProvider;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -31,7 +28,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -56,16 +52,7 @@ class ProjectRevisionChangesServiceTest {
     private static final String FOLDER = "DESIGN/rules/Rates";
 
     private final DesignTimeRepository designTimeRepository = mock(DesignTimeRepository.class);
-    private final HistoryRepositoryMapper history = new HistoryRepositoryMapper(mock(Repository.class), comments());
-    @SuppressWarnings("unchecked")
-    private final ObjectProvider<HistoryRepositoryMapper> historyMappers = mock(ObjectProvider.class);
-    private final ProjectRevisionChangesService service =
-            new ProjectRevisionChangesService(designTimeRepository, historyMappers);
-
-    @BeforeEach
-    void tellRevisionsAsTheHistoryDoes() {
-        when(historyMappers.getObject(ArgumentMatchers.<Object>any())).thenReturn(history);
-    }
+    private final ProjectRevisionChangesService service = new ProjectRevisionChangesService(designTimeRepository);
 
     @Test
     void aProjectThatWasNeverPublishedHasNoRevision() {
@@ -433,12 +420,6 @@ class ProjectRevisionChangesServiceTest {
         data.setVersion(revision);
         data.setComment("Comment of " + revision);
         return data;
-    }
-
-    private static Comments comments() {
-        var comments = mock(Comments.class);
-        when(comments.getCommentParts(ArgumentMatchers.any())).thenReturn(List.of());
-        return comments;
     }
 
     private static BranchRepository branchRepository() {

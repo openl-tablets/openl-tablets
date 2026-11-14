@@ -5,13 +5,8 @@ Content-Type: application/json
 {
   "name": "Design1",
   "settings": {
-    "useCustomComments": true,
     "commentValidationPattern": "",
     "invalidCommentMessage": "",
-    "defaultCommentSave": "",
-    "defaultCommentCreate": "",
-    "defaultCommentCopiedFrom": "",
-    "defaultCommentRestoredFrom": "",
     "basePath": "",
     "login": "",
     "password": "",

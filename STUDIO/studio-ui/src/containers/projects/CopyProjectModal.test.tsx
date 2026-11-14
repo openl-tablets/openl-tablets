@@ -167,13 +167,13 @@ describe('CopyProjectModal', () => {
         vi.mocked(switchProjectBranch).mockResolvedValue()
         vi.mocked(getRepositoryConfig).mockResolvedValue({
             newBranch: { pattern: '{project-name}/{username}', namePattern: '[A-Za-z0-9/-]+' },
-            comment: { templates: { copy: 'Copied from: {project-name}.' } },
+            comment: {},
         })
         vi.mocked(getDesignRepositoryBranches).mockResolvedValue(['master', 'feature/rates'])
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             branch: 'master',
             newBranch: { namePattern: '[A-Za-z0-9/-]+' },
-            comment: { templates: { copy: 'Copied from: {project-name}.' } },
+            comment: {},
         })
         vi.mocked(getProjectRevisions).mockResolvedValue({
             content: [
@@ -190,7 +190,7 @@ describe('CopyProjectModal', () => {
     it('rejects a branch name the repository pattern forbids, without calling the API', async () => {
         vi.mocked(getRepositoryConfig).mockResolvedValue({
             newBranch: { pattern: '{project-name}', namePattern: 'release/.+', invalidNameHint: 'Use release/<name>' },
-            comment: { templates: {} },
+            comment: {},
         })
         await renderModal()
         await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('copy-project-branch').value).toBe('Alpha'))
@@ -210,7 +210,6 @@ describe('CopyProjectModal', () => {
             comment: {
                 userMessagePattern: 'EPBDS-\\d+.*',
                 invalidUserMessageHint: 'Start with a ticket',
-                templates: { copy: 'Copied from: {project-name}.' },
             },
         })
         await renderModal()
@@ -335,7 +334,7 @@ describe('CopyProjectModal', () => {
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             branch: 'master',
             newBranch: { namePattern: 'release/.+' },
-            comment: { templates: { copy: 'Copied from: {project-name}.' } },
+            comment: {},
         })
         await renderModal()
         await asNewProject()
@@ -436,7 +435,7 @@ describe('CopyProjectModal', () => {
     })
 
     it('rejects an empty branch name without calling the API', async () => {
-        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: {} })
         await renderModal()
 
         await userEvent.click(screen.getByTestId('copy-project-submit'))

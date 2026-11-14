@@ -349,9 +349,9 @@ export const NewProjectModal = ({
 
     useEffect(() => {
         if (open && repositorySupportsComments && !commentTouched) {
-            setComment(suggestComment(config, mode === 'copy' ? 'copy' : 'create', commentSubject))
+            setComment(suggestComment(mode === 'copy' ? 'copy' : 'create', commentSubject))
         }
-    }, [commentSubject, commentTouched, config, mode, open, repositorySupportsComments])
+    }, [commentSubject, commentTouched, mode, open, repositorySupportsComments])
 
     useEffect(() => {
         setBranch('')

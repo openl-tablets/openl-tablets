@@ -68,12 +68,10 @@ class WebStudioTest {
                 .withInitParam("security.administrators", "admin")
                 .withInitParam("db.url", "jdbc:h2:mem:studio-refs;DB_CLOSE_DELAY=-1")
                 // shared defaults of the comments and the new branches
-                .withInitParam("repo-default.design.comment-template.use-custom-comments", "true")
                 .withInitParam("repo-default.design.comment-template.comment-validation-pattern",
                         "\\p{Upper}{2,}(?:-\\d+)+:?\\s+[^\\s](?s).{4,}")
                 .withInitParam("repo-default.design.comment-template.invalid-comment-message",
                         "Invalid comment: Comment must be started with ticket number, like: EPBDS-1234 Description")
-                .withInitParam("repo-default.design.comment-template.user-message.default.save", "EPBDS-")
                 .withInitParam("repo-default.design.new-branch.pattern", "EPBDS-")
                 // a block of Git settings the design repositories refer to
                 .withInitParam("design.repo-git.$ref", "repo-git")

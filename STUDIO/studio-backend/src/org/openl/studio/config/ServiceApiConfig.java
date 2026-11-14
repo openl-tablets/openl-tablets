@@ -1,16 +1,10 @@
 package org.openl.studio.config;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.core.env.PropertyResolver;
 
-import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -21,7 +15,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
-import org.openl.studio.repositories.service.HistoryRepositoryMapper;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.studio.session.ClientSessionScope;
 
@@ -29,22 +22,7 @@ import org.openl.studio.session.ClientSessionScope;
  * REST services configuration
  */
 @Configuration
-@RequiredArgsConstructor
 public class ServiceApiConfig {
-
-    private final PropertyResolver propertyResolver;
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public HistoryRepositoryMapper historyRepositoryMapper(Repository repository) {
-        return new HistoryRepositoryMapper(repository, commentService(repository.getId()));
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public Comments commentService(String repoId) {
-        return new Comments(propertyResolver, repoId);
-    }
 
     @Bean
     @ClientSessionScope(proxyMode = ScopedProxyMode.NO)
