@@ -205,13 +205,16 @@ final class DebugHookImpl implements DebugHook {
         // A referenced cell computed on the way runs as a nested step of the same frame and is recorded on its
         // own; subtract that nested time so this step's own time does not count the referenced cell twice.
         var wall = elapsed(stepEnter, parkedAtStepEnter);
-        top.recordExecutedStep(executor, ref, location.label(), result,
-                Math.max(0, wall - (nestedStepNanos - nestedAtStepEnter)));
-        // A fired decision-table rule: remember which rule(s) fired, so the returned rule and its result stay
-        // highlightable after this step's current-line marker is restored below.
+        var label = location.label();
+        // A fired decision-table rule is named by the rule(s) that gave the result, known only once they ran, and
+        // remembered so the returned rule and its result stay highlightable after this step's current-line marker
+        // is restored below.
         if (executor instanceof ActionInvoker invoker) {
-            top.recordFiredRules(invoker.getRules());
+            var executed = classifier.describeSubStep(executor, env, top.getSource());
+            label = executed == null ? label : executed.label();
+            top.recordFiredRules(invoker.getResultRules());
         }
+        top.recordExecutedStep(executor, ref, label, result, Math.max(0, wall - (nestedStepNanos - nestedAtStepEnter)));
         if (!watches.get().isEmpty()) {
             captureWatch(top, location, ref, result);
         }
