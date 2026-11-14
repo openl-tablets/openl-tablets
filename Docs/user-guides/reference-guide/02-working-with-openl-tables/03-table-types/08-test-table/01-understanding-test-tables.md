@@ -57,4 +57,6 @@ The **\_error\_** column of the test table can be used for a test algorithm wher
 
 *An example of a test table with an expected error column*
 
+When the **error** function is called with an object, the test table checks the fields of that object, such as **\_error\_.errors[0].theCode**. A step of a spreadsheet result is checked by its name, such as **\_error\_.$Code** or **\_error\_.errors[0].$Code**. A field or step that the object does not have is empty.
+
 If OpenL Tablets projects are accessed and modified through OpenL Studio, UI provides convenient utilities for running tests and viewing test results. For more information on using OpenL Studio, see [OpenL Studio Guide](../../../../openl-studio/index.md).

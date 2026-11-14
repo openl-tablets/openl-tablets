@@ -9,6 +9,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.ADynamicClass;
@@ -88,6 +89,8 @@ public class UserErrorOpenClass extends ADynamicClass {
                 return o;
             } else if (ThisField.THIS.equals(getName())) {
                 return target;
+            } else if (target instanceof SpreadsheetResult result) {
+                return result.getFieldValue(getName());
             } else {
                 var targetClass = target.getClass();
                 try {
