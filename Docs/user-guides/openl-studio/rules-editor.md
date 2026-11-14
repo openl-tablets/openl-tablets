@@ -885,7 +885,7 @@ Extended search allows specifying criteria to narrow the search through tables. 
 
 1.  In the **Table Type** field, select one or more table types to search in. Leave the field empty to search in all table types. The utility tables, of the type **Other**, are found only when that type is selected.
 2.  In the **Name contains**, **Header contains** and **Text in cells** fields, enter the words or phrases to search for. The text is searched for exactly as entered, spaces at its beginning and end included, and an empty field is not a criterion. A field takes up to 1,000 characters. If the search as a whole is still too long for the server, for example because of a long property value, a message asks to shorten it.
-3.  In **Table Properties**, click **Add a property**, select the required table property and enter its value.
+3.  In **Table Properties**, click **Add a property**, select the required table property and enter its value. A table must match every property added. A property that takes several values, such as **Tags**, takes them separated by commas and matches a table that declares at least one of them.
 4.  In the similar way, add as many table properties as required.
 5.  To remove a property, click the trash icon to the right of the property.
 
