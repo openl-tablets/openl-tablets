@@ -487,8 +487,9 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   palette itself — see `projectsTheme(palette)`.
   A memoised piece of JSX that uses `styles` or the token is rebuilt when the theme or the appearance changes:
   its dependencies name `themeName` from `useAppTheme()` and `isDarkMode` from `useThemeMode()`, or it keeps the
-  colours of the theme it was first drawn in (`treeData` in `ProjectsTree`). They do not name `styles` or the token
-  themselves — antd-style hands out new ones on every render, which would rebuild it every time.
+  colours of the theme it was first drawn in (`look`, which `treeData` in `ProjectsTree` depends on). They do not
+  name `styles` or the token themselves — antd-style hands out new ones on every render, which would rebuild it
+  every time.
   Ant Design's **static** `notification`/`message`/`Modal.confirm` calls render outside React and stay light on a
   dark page, so ESLint forbids them. A component or a hook takes `notification` and `modal` from
   `App.useApp()` — the instances of the application's `<AntApp>`, which sits inside the theme provider. Only a
@@ -552,7 +553,16 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - **A long list is virtualised.** A tree or table that can hold hundreds of rows is given a height and drawn a
   screenful at a time (Ant Design's `Tree` takes `height`, `itemHeight` and `scrollWidth`); and a table is laid
   out at the width its values need rather than squeezed into the screen, which otherwise wraps every value into
-  a tower of lines and multiplies the pixels the browser has to paint. A table of a workbook that scrolls on a
+  a tower of lines and multiplies the pixels the browser has to paint. A tree in a rail is given the room of the
+  rail inside its padding (`useElementSize` of `hooks/`), and scrolls sideways as far as the widest row in sight
+  reaches, reckoned from the text of the rows (`railRowWidth` of `containers/projects`) rather than
+  measured in the page, so a long name is still read in full. `ProjectsTree` lists every file of an unfolded project:
+  a project of 3000 files searched open drew 3332 rows and blocked the page for 2.8 seconds, against 19 rows and
+  0.26 seconds a screenful at a time. It builds the rows of the files of a project once for each read of them and
+  keeps them while the files the search finds, the changes, the theme, the density and the language stay, so
+  reading or opening another project, or typing on a search that finds the same files, leaves them as they are.
+  The size of a file keeps to the right edge of the rail as a `sticky` column, which a virtual list leaves working:
+  it scrolls sideways within its own box. A table of a workbook that scrolls on a
   screen of its own — the table of the module editor — is handed the element it scrolls in (`scroller` of
   `RawTableGrid`) and draws the rows in sight through `@tanstack/react-virtual`: a test table of 221 columns hung
   the page for 9 to 15 seconds drawn 2000 rows at once. The rows are drawn in blocks of about 2000 cells, each a

@@ -11,6 +11,7 @@ import type { FsNode } from '../../types/files'
 import type { Repository } from '../../types/repositories'
 import { listingQueryOf } from './projectListing'
 import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
+import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 
 vi.mock('../../services/repositories', () => ({ getProject: vi.fn(), getProjectFiles: vi.fn() }))
 vi.mock('../../services/modules', () => ({ listModules: vi.fn() }))
@@ -29,11 +30,23 @@ vi.mock('react-i18next', () => {
 
 // antd-style hands out new styles and a new token on every render, and so does this mock: only their values follow
 // the appearance. Every tree the Tree is handed is kept, to tell a tree rebuilt from one kept.
-const { appearance, drawnTrees, treeScrollTo } = vi.hoisted(() => ({
-    appearance: { current: 'light' },
+const { appearance, drawnTrees, room, treeScrollTo, treeSizes } = vi.hoisted(() => ({
+    appearance: { current: 'light', compact: false },
+    // The room the rail gives the tree: jsdom lays nothing out, so none until a test lays it out.
+    room: { height: 0, width: 0 },
     drawnTrees: [] as unknown[],
+    // The height the tree was drawn in and how far it scrolls sideways, each time it was drawn.
+    treeSizes: [] as Array<{ height: unknown, scrollWidth: unknown }>,
     // What the tree was asked to bring into sight.
     treeScrollTo: vi.fn(),
+}))
+
+vi.mock('../../hooks/useElementSize', () => ({ useElementSize: () => ({ ref: vi.fn(), size: { ...room } }) }))
+
+// The density follows the appearance mock, so a test can switch it.
+vi.mock('../../providers/AppThemeProvider', async importOriginal => ({
+    ...await importOriginal<typeof import('../../providers/AppThemeProvider')>(),
+    useAppTheme: () => ({ compact: appearance.compact, themeName: 'standard' }),
 }))
 
 vi.mock('antd-style', () => {
@@ -123,8 +136,12 @@ vi.mock('antd', () => {
         if (ref && typeof ref === 'object') {
             (ref as { current: unknown }).current = { scrollTo: treeScrollTo }
         }
-        const { blockNode, className, loadedKeys, motion, selectedKeys, showIcon, expandAction, ...dom } = rest
-        void blockNode; void className; void motion; void showIcon; void expandAction
+        const {
+            blockNode, className, loadedKeys, motion, selectedKeys, showIcon, expandAction, height, itemHeight,
+            scrollWidth, ...dom
+        } = rest
+        void blockNode; void className; void motion; void showIcon; void expandAction; void itemHeight
+        treeSizes.push({ height, scrollWidth })
         const expanded = (expandedKeys as string[]) ?? []
         const loaded = (loadedKeys as string[]) ?? []
         const select = (key: string) =>
@@ -219,6 +236,10 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     return { onOpenProject, onOpenGroup, onShowAll, onClearFilters, onOpenModule, onOpenFile, rerender: result.rerender }
 }
 
+/** The rows a project holds in the tree drawn last. */
+const rowsOf = (projectKey: string) =>
+    (drawnTrees.at(-1) as Array<{ key: string, children?: unknown[] }>).find(node => node.key === projectKey)?.children
+
 /** The grouping is remembered in the browser; each test starts from its own, empty memory. */
 const stubStorage = () => {
     const store: Record<string, string> = {}
@@ -235,7 +256,10 @@ describe('ProjectsTree', () => {
         vi.clearAllMocks()
         stubStorage()
         appearance.current = 'light'
+        appearance.compact = false
         drawnTrees.length = 0
+        treeSizes.length = 0
+        Object.assign(room, { height: 0, width: 0 })
         vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: [], projectIndexHealth: {} })
         vi.mocked(getProjectFiles).mockResolvedValue([
             { path: 'rules', name: 'rules', basePath: '', type: 'folder' },
@@ -1144,6 +1168,113 @@ describe('ProjectsTree', () => {
         )
 
         expect(drawnTrees.at(-1)).toBe(built)
+    })
+
+    it('draws every row until the rail is laid out, as there is no height to fit them in', async () => {
+        await renderTree()
+
+        expect(treeSizes.at(-1)).toEqual({ height: undefined, scrollWidth: undefined })
+    })
+
+    it('draws a screenful once laid out, scrolling sideways as far as the widest row in sight', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const longName = 'a-file-whose-name-runs-far-past-the-edge-of-the-rail.txt'
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: longName, name: longName, basePath: '', type: 'file', size: 10 },
+        ])
+        Object.assign(room, { height: 300, width: 200 })
+        await renderTree()
+
+        // The room of the rail, and at least as wide as it.
+        expect(treeSizes.at(-1)).toEqual({ height: 300, scrollWidth: 200 })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(treeSizes.at(-1)?.scrollWidth).toBeGreaterThanOrEqual(RAIL_INDENT + railRowWidth(longName))
+
+        // A folded row is out of sight: the tree scrolls no further than the rows it shows.
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        expect(treeSizes.at(-1)).toEqual({ height: 300, scrollWidth: 200 })
+    })
+
+    it('builds the rows of the files of a project once for each read, and again in another theme or density', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const shown = {
+            currentProjectId: 'p1',
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onShowAll: vi.fn(),
+            repositories,
+        }
+        const { rerender } = await renderTree({ ...shown, reloadToken: 1 })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        const built = rowsOf('grp/prj:p1')
+        expect(built).toHaveLength(2)
+
+        // Another project read rebuilds the tree, not the rows of this one.
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(rowsOf('grp/prj:p2')).toHaveLength(2)
+        expect(rowsOf('grp/prj:p1')).toBe(built)
+
+        appearance.current = 'dark'
+        rerender(<ProjectsTree {...shown} reloadToken={1} />)
+        const dark = rowsOf('grp/prj:p1')
+        expect(dark).not.toBe(built)
+
+        appearance.compact = true
+        rerender(<ProjectsTree {...shown} reloadToken={1} />)
+        const repainted = rowsOf('grp/prj:p1')
+        expect(repainted).not.toBe(dark)
+
+        // The files read again are rows built anew.
+        rerender(<ProjectsTree {...shown} reloadToken={2} />)
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(rowsOf('grp/prj:p1')).not.toBe(repainted)
+    })
+
+    it('rebuilds the file rows of the current project when its changes or empty folders change', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const shown = {
+            currentProjectId: 'p1',
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onShowAll: vi.fn(),
+            repositories,
+        }
+        const added = new Map([['rules.xml', 'added' as const]])
+        const { rerender } = await renderTree({ ...shown, currentFileChanges: new Map([['rules.xml', 'modified' as const]]) })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'modified')
+
+        // Nothing is read again: the screen tells what changed, and the rows follow it.
+        rerender(<ProjectsTree {...shown} currentFileChanges={added} />)
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'added')
+
+        rerender(<ProjectsTree {...shown} currentFileChanges={added} currentFolders={['drafts']} />)
+        expect(screen.getByTestId('tree-folder-p1-drafts')).toBeInTheDocument()
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the file rows while a search typed on finds the same files', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        searchFor('rul')
+        const found = rowsOf('grp/prj:p1')
+        searchFor('rule')
+        expect(rowsOf('grp/prj:p1')).toBe(found)
+        // Another text that finds other files shows them.
+        searchFor('main')
+        expect(rowsOf('grp/prj:p1')).not.toBe(found)
     })
 
     it('draws a project by the state it is in', async () => {

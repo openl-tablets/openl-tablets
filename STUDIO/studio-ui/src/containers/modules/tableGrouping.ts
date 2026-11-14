@@ -2,6 +2,7 @@ import type { ModuleTable } from 'types/tables'
 import { booleanText, oneOf, storedSetting } from '../../utils/localStore'
 import type { DateFormats } from '../../utils/dateFormat'
 import { versionLabel } from '../../utils/tableVersion'
+import { RAIL_INDENT, railRowWidth } from '../projects/railRowWidth'
 
 /**
  * How the tree gathers the tables, named as the Editor has always named its views.
@@ -141,22 +142,14 @@ export interface TableNode {
     children: TableNode[]
 }
 
-/** What one step of the hierarchy costs in width, matching the tree's own indent. */
-const INDENT = 12
-/** The switcher, the icon and the padding a row carries before its name. */
-const ROW_CHROME = 56
-/** What one character of a name takes, at the tree's font size. */
-const CHARACTER = 7.2
-
 /**
  * How wide the widest row of the tree is, so a virtualised tree can still be scrolled sideways.
  *
- * The width is reckoned from the names rather than measured in the page: the tree scrolls only as far as the
- * longest name reaches, and a reckoning a few pixels over is a few pixels of empty room, not a clipped name.
+ * The tree scrolls only as far as the longest name reaches, open or not.
  */
 export const widthOf = (nodes: TableNode[], depth = 0): number => nodes.reduce((widest, node) => Math.max(
     widest,
-    ROW_CHROME + depth * INDENT + node.title.length * CHARACTER,
+    depth * RAIL_INDENT + railRowWidth(node.title),
     widthOf(node.children, depth + 1)
 ), 0)
 
