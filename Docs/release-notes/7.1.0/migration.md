@@ -22,6 +22,11 @@ engine change how an existing project compiles or runs, as listed for the rules 
   calendar year before the end date and gave `2.0`. A start on February 29 has its anniversary on March 1 of a year
   without that day. Update the expected values of the tests that check such a fraction.
 
+* **A field of a missing result element is empty in a test.** A test that checks a field of an element the result does
+  not have, such as `_res_.items[1].amount` when the rule returns one item or none, reads that field as empty. Before,
+  a field of a primitive type, such as `int` or `double`, read as `0`, so an empty expected cell failed the test case.
+  Now an expected `0` there fails it: leave the cell empty.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and

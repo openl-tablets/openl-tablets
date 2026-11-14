@@ -15,6 +15,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.data.FieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
@@ -203,7 +204,7 @@ public class BaseTestUnit implements ITestUnit {
         if (result != null) {
             try {
                 var env = new SimpleVM().getRuntimeEnv();
-                fieldValue = field.get(result, env);
+                fieldValue = field instanceof FieldChain chain ? chain.getOrNull(result, env) : field.get(result, env);
             } catch (Exception ex) {
                 fieldValue = ex;
             }
