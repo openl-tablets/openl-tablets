@@ -16,6 +16,12 @@ engine change how an existing project compiles or runs, as listed for the rules 
   without a message. Use the collection type itself for the field or the parameter, and keep a Vocabulary for the
   values of its elements, such as `Datatype Color <String>` with a `Color[]` field.
 
+* **`dateDif` with the `YF` unit divides the days of the last year by the length of that year.** The days after the
+  last full year are divided by the days from that anniversary to the next one, 366 when they hold February 29:
+  `dateDif(toDate("2022-07-19"), toDate("2024-07-18"), "YF")` is `1.9973`. Before, it divided by the length of the
+  calendar year before the end date and gave `2.0`. A start on February 29 has its anniversary on March 1 of a year
+  without that day. Update the expected values of the tests that check such a fraction.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
