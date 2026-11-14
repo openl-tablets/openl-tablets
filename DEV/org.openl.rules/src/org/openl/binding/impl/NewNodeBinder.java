@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +48,7 @@ public class NewNodeBinder extends ANodeBinder {
         for (var i = 0; i < childNodes.length; i++) {
             childNodes[i] = node.getChild(i + 1);
         }
-        if (isNamedArguments(childNodes)) {
+        if (ConstructorSugarSupport.isNamedArguments(childNodes)) {
             // Not assignments to the variables of the caller, even when they have the names of the fields
             return ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, type, typeNode);
         }
@@ -103,14 +102,5 @@ public class NewNodeBinder extends ANodeBinder {
                 bindingContext.popMessages();
             }
         }
-    }
-
-    /**
-     * Checks whether every argument names a field of the new object, as in {@code new Customer(name = "Ann")}.
-     *
-     * <p>A call without arguments has no named arguments.
-     */
-    private static boolean isNamedArguments(ISyntaxNode[] arguments) {
-        return arguments.length > 0 && Arrays.stream(arguments).allMatch(a -> "op.assign".equals(a.getType()));
     }
 }

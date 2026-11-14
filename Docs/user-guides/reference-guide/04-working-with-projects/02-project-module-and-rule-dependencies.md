@@ -72,6 +72,16 @@ Dependencies can also be used to call a specific rule from another project that 
 
 This syntax is applicable when there is a dependency on a project and the **Auto-included** option is disabled. It allows accessing a specific rule of a different project while all the other tables remain invisible.
 
+A data type of such a project is used the same way. A value of it is created with or without `new`, with the values of its fields in order or by their names:
+
+```
+new `Project`.MyDatatype(10.5, "name")
+`Project`.MyDatatype(10.5, "name")
+`Project`.MyDatatype(amount = 10.5, name = "name")
+```
+
+A rule of the project with the same name as the data type is called instead of creating the value.
+
 ### Dependencies Configuration
 
 This section describes dependencies configuration.

@@ -1,10 +1,13 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -22,6 +25,35 @@ public class ConstructorSugarSupport {
 
     private ConstructorSugarSupport() {
         // Utility class
+    }
+
+    /**
+     * Checks whether every argument names a field of the new object, as in {@code new Customer(name = "Ann")}.
+     *
+     * <p>A call without arguments has no named arguments.
+     */
+    public static boolean isNamedArguments(ISyntaxNode[] arguments) {
+        return arguments.length > 0 && Arrays.stream(arguments).allMatch(a -> "op.assign".equals(a.getType()));
+    }
+
+    /**
+     * Calls the constructor of the type that takes the given arguments in their order, as {@code Customer("Ann")}.
+     *
+     * @return the call, or {@code null} when the type has no such constructor
+     */
+    public static @Nullable IBoundNode makePositionalConstructor(ISyntaxNode node,
+                                                                 IBoundNode[] arguments,
+                                                                 IBindingContext bindingContext,
+                                                                 IOpenClass type) {
+        if (Date.class.getName().equals(type.getName())) {
+            return null;
+        }
+        var methodCaller = MethodSearch.findConstructor(ANodeBinder.getTypes(arguments), bindingContext, type);
+        if (methodCaller == null) {
+            return null;
+        }
+        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+        return new ConstructorParamsNode(new MethodBoundNode(node, methodCaller, arguments));
     }
 
     public static IBoundNode makeSugarConstructor(ISyntaxNode node,
@@ -77,14 +109,13 @@ public class ConstructorSugarSupport {
                             params,
                             namedParams,
                             bindingContext);
-                } else if (isAllParamsNoAssign && !Date.class.getName().equals(type.getName())) {
-                    var children = params.toArray(IBoundNode.EMPTY);
-                    var types = ANodeBinder.getTypes(children);
-                    var methodCaller = MethodSearch.findConstructor(types, bindingContext, type);
-                    if (methodCaller != null) {
-                        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-                        return new ConstructorParamsNode(
-                                new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)));
+                } else if (isAllParamsNoAssign) {
+                    var constructor = makePositionalConstructor(node,
+                            params.toArray(IBoundNode.EMPTY),
+                            bindingContext,
+                            type);
+                    if (constructor != null) {
+                        return constructor;
                     }
                 }
             } finally {

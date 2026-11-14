@@ -1,0 +1,15 @@
+<project>
+    <name>Main</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Model</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
