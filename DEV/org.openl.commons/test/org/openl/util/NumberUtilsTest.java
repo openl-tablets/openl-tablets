@@ -108,4 +108,14 @@ class NumberUtilsTest {
         assertTrue(NumberUtils.isHeldByDouble(1.1f));
         assertTrue(NumberUtils.isHeldByDouble((short) 7));
     }
+
+    @Test
+    void isExactWholeOnlyForWholeNumbersBelowTwoToTheFiftyThird() {
+        assertTrue(NumberUtils.isExactWhole(5100800601d));
+        assertTrue(NumberUtils.isExactWhole(-0x1p53 + 1));
+        assertFalse(NumberUtils.isExactWhole(0x1p53));
+        assertFalse(NumberUtils.isExactWhole(1.5));
+        assertFalse(NumberUtils.isExactWhole(Double.NaN));
+        assertFalse(NumberUtils.isExactWhole(Double.POSITIVE_INFINITY));
+    }
 }
