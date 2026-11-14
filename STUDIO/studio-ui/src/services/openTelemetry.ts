@@ -121,5 +121,5 @@ export const startOpenTelemetry = (settings: TelemetrySettings): void => {
     trace.setGlobalTracerProvider(tracerProvider)
     const relay = new RegExp(escapeRegExp(`${TELEMETRY_RELAY}/v1/`))
     new FetchInstrumentation({ ignoreUrls: [relay], sanitizeUrl: redactedUrl })
-        .setTracerProvider(tracerProvider)
+        .enable({ tracerProvider })
 }
