@@ -1,7 +1,8 @@
 package org.openl.rules.testmethod.result;
 
-import java.math.BigDecimal;
 import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
@@ -12,16 +13,17 @@ class ObjectComparator extends GenericComparator<Object> {
 
     static final TestResultComparator INSTANCE = new ObjectComparator();
 
-    private BigDecimal delta;
+    private final @Nullable Tolerance tolerance;
 
     /**
      * Use {@link #INSTANCE} instead.
      */
     private ObjectComparator() {
+        this(null);
     }
 
-    ObjectComparator(BigDecimal delta) {
-        this.delta = delta;
+    ObjectComparator(@Nullable Tolerance tolerance) {
+        this.tolerance = tolerance;
     }
 
     @Override
@@ -36,7 +38,7 @@ class ObjectComparator extends GenericComparator<Object> {
                 // a text that cannot be converted to the actual type is compared as it is
             }
         }
-        TestResultComparator comparator = TestResultComparatorFactory.getComparator(expectedValue.getClass(), delta);
+        var comparator = TestResultComparatorFactory.getComparator(expectedValue.getClass(), tolerance);
         if (comparator.getClass() != this.getClass()) {
             return comparator.isEqual(expectedValue, actualValue);
         }

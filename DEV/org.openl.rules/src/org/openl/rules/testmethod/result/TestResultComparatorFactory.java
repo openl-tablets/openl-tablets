@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
 
@@ -13,15 +15,15 @@ public class TestResultComparatorFactory {
     private TestResultComparatorFactory() {
     }
 
-    public static TestResultComparator getComparator(Class<?> clazz, BigDecimal delta) {
+    public static TestResultComparator getComparator(@Nullable Class<?> clazz, @Nullable Tolerance tolerance) {
         if (clazz == null) {
             return GenericComparator.INSTANCE;
         } else if (clazz.isArray()) {
-            return new ArrayComparator(clazz.getComponentType(), delta);
+            return new ArrayComparator(clazz.getComponentType(), tolerance);
         } else if (String.class == clazz) {
             return StringComparator.INSTANCE;
         } else if (NumberUtils.isNumberType(clazz)) {
-            return getNumberComparator(clazz, delta);
+            return getNumberComparator(clazz, tolerance);
         } else if (ClassUtils.isAssignable(clazz, Comparable.class)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
             return ComparableComparator.INSTANCE;
@@ -30,24 +32,18 @@ public class TestResultComparatorFactory {
         } else if (ClassUtils.isAssignable(clazz, Map.class)) {
             return MapComparator.INSTANCE;
         } else if (Object.class == clazz || Serializable.class == clazz) {
-            if (delta == null) {
-                return ObjectComparator.INSTANCE;
-            } else {
-                return new ObjectComparator(delta);
-            }
+            return tolerance == null ? ObjectComparator.INSTANCE : new ObjectComparator(tolerance);
         }
         return GenericComparator.INSTANCE;
     }
 
-    private static TestResultComparator getNumberComparator(Class<?> clazz, BigDecimal delta) {
-        if (delta == null) {
-            if (NumberUtils.isNonFloatPointType(clazz)) {
-                // let's use Comparable comparator
-                return ComparableComparator.INSTANCE;
-            }
-            return NumberComparator.INSTANCE;
-        } else {
-            return new NumberComparator(delta);
-        }
+    private static TestResultComparator getNumberComparator(Class<?> clazz, @Nullable Tolerance tolerance) {
+        return switch (tolerance) {
+            // let's use Comparable comparator
+            case null -> NumberUtils.isNonFloatPointType(clazz) ? ComparableComparator.INSTANCE
+                    : NumberComparator.INSTANCE;
+            case Tolerance.Delta(BigDecimal value) -> new NumberComparator(value);
+            case Tolerance.Figures figures -> new FiguresComparator(figures);
+        };
     }
 }

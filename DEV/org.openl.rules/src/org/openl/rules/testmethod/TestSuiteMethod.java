@@ -1,18 +1,22 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.BindingDependencies;
@@ -24,10 +28,12 @@ import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.data.ITable;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.testmethod.result.Tolerance;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -45,7 +51,6 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod {
 
-    private static final String PRECISION_PARAM = "precision";
     private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s-\\s");
     @Getter
     @Setter
@@ -57,6 +62,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private DynamicObject[] testObjects;
     private final IDataBase db;
     private ITableModel dataModel;
+    /**
+     * The tolerances of the figures the expected values are written with, by test case and by column.
+     */
+    private List<Map<Integer, Tolerance>> writtenTolerances = List.of();
     private TestSuiteMethod originalTestSuiteMethod;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
@@ -76,6 +85,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         this.runMethod = target.isRunMethod();
         this.testObjects = target.getTestObjects();
         this.dataModel = target.getDataModel();
+        this.writtenTolerances = target.writtenTolerances;
         this.originalTestSuiteMethod = target.originalTestSuiteMethod != null ? target.originalTestSuiteMethod : target;
     }
 
@@ -87,15 +97,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         var testCaseObjects = getTestObjects();
         TestDescription[] testDescriptions = new TestDescription[testCaseObjects.length];
         indexes = HashMap.newHashMap(testDescriptions.length);
-        Map<String, Object> properties = getProperties();
-        Integer precision = null;
-        if (properties != null && properties.containsKey(PRECISION_PARAM)) {
-            precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
-        }
         var methodUnderTest = getTestedMethod();
         var fieldsToTest = new ArrayList<IOpenField>();
         var errorFieldsToTest = new ArrayList<IOpenField>();
-        createFieldsToTest(fieldsToTest, errorFieldsToTest, methodUnderTest, getDataModel(), precision);
+        createFieldsToTest(fieldsToTest, errorFieldsToTest, methodUnderTest, getDataModel(), getTablePrecision());
 
         for (var i = 0; i < testDescriptions.length; i++) {
             testDescriptions[i] = new TestDescription(methodUnderTest,
@@ -105,6 +110,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     getDataModel(),
                     db);
             testDescriptions[i].setIndex(i);
+            if (!writtenTolerances.isEmpty()) {
+                testDescriptions[i].setWrittenTolerances(writtenTolerances.get(i));
+            }
             indexes.put(testDescriptions[i].getId(), i);
         }
         return testDescriptions;
@@ -297,18 +305,82 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return dataModel;
     }
 
-    private void initializeTestData() {
+    private synchronized void initializeTestData() {
         if (dataModel == null) {
             testObjects = (DynamicObject[]) getBoundNode().getField().getData();
-            dataModel = getBoundNode().getTable().getDataModel();
+            var table = getBoundNode().getTable();
+            writtenTolerances = readWrittenTolerances(table, testObjects.length, getTablePrecision());
+            // the data model is set last: it marks the test data as read
+            dataModel = table.getDataModel();
         }
+    }
+
+    private @Nullable Tolerance getTablePrecision() {
+        var properties = getMethodProperties();
+        var precision = properties == null ? null : properties.getPrecision();
+        return precision == null ? null : Tolerance.of(precision);
+    }
+
+    /**
+     * Reads the figures the expected values are written with, in the columns whose precision takes them.
+     *
+     * @return the tolerances of the written figures by test case and by column, or an empty list when no column takes
+     *         them
+     */
+    private static List<Map<Integer, Tolerance>> readWrittenTolerances(ITable table,
+                                                                      int testCases,
+                                                                      @Nullable Tolerance tablePrecision) {
+        var dataModel = table.getDataModel();
+        var columns = IntStream.range(0, dataModel.getColumnCount())
+                .filter(colNum -> takesWrittenFigures(dataModel.getDescriptor(colNum), tablePrecision))
+                .toArray();
+        if (columns.length == 0) {
+            return List.of();
+        }
+        var columnIndexes = Arrays.stream(columns)
+                .map(colNum -> dataModel.getDescriptor(colNum).getColumnIdx())
+                .toArray();
+        // one formatter for the table: it caches the number formats it reads
+        var formatter = new DataFormatter(Locale.US);
+        var result = new ArrayList<Map<Integer, Tolerance>>(testCases);
+        for (var i = 0; i < testCases; i++) {
+            // a test case of several rows has its expected values in its first row
+            result.add(readRowTolerances(table, table.firstRowOf(i), columns, columnIndexes, formatter));
+        }
+        return result;
+    }
+
+    private static Map<Integer, Tolerance> readRowTolerances(ITable table,
+                                                             int row,
+                                                             int[] columns,
+                                                             int[] columnIndexes,
+                                                             DataFormatter formatter) {
+        var tolerances = new HashMap<Integer, Tolerance>();
+        for (var i = 0; i < columns.length; i++) {
+            var cell = table.getData().getSubtable(columnIndexes[i], row, 1, 1).getSource().getCell(0, 0);
+            var scale = WrittenFigures.scaleOf(cell, formatter);
+            if (scale != null) {
+                tolerances.put(columns[i], new Tolerance.ExpectedFigures(scale));
+            }
+        }
+        return tolerances;
+    }
+
+    private static boolean takesWrittenFigures(@Nullable ColumnDescriptor descriptor,
+                                               @Nullable Tolerance tablePrecision) {
+        if (descriptor == null) {
+            return false;
+        }
+        var nodes = descriptor.getFieldChainTokens();
+        return nodes.length > 0 && nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)
+                && DataTableBindHelper.getColumnPrecision(nodes, tablePrecision) instanceof Tolerance.ExpectedFigures;
     }
 
     private static void createFieldsToTest(List<IOpenField> fieldsToTest,
                                            List<IOpenField> errorFieldsToTest,
                                            IOpenMethod testedMethod,
                                            ITableModel dataModel,
-                                           Integer testTablePrecision) {
+                                           @Nullable Tolerance testTablePrecision) {
         for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
             var columnDescriptor = dataModel.getDescriptor(colNum);
             if (columnDescriptor != null) {
@@ -319,13 +391,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             testedMethod.getType(),
                             columnDescriptor,
                             nodes,
-                            testTablePrecision);
+                            DataTableBindHelper.getColumnPrecision(nodes, testTablePrecision),
+                            colNum);
                 } else if (firstNode.startsWith(TestMethodHelper.EXPECTED_ERROR)) {
                     addFieldsToTest(errorFieldsToTest,
                             new UserErrorOpenClass(),
                             columnDescriptor,
                             nodes,
-                            testTablePrecision);
+                            DataTableBindHelper.getColumnPrecision(nodes, testTablePrecision),
+                            colNum);
                 }
                 // skip empty, non-'_res_' and non-'_error_' columns
             }
@@ -339,12 +413,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                         IOpenClass resultType,
                                         ColumnDescriptor columnDescriptor,
                                         IdentifierNode[] nodes,
-                                        Integer testTablePrecision) {
-        var fieldPrecision = testTablePrecision;
-        if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN,
-                nodes[nodes.length - 1].getIdentifier())) {
-            // set the precision of the field
-            fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
+                                        @Nullable Tolerance fieldPrecision,
+                                        int column) {
+        if (DataTableBindHelper.hasPrecision(nodes)) {
             nodes = ArrayUtils.remove(nodes, nodes.length - 1);
         }
 
@@ -377,7 +448,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             currentType = getNextType(fieldSequence[i], isCollection);
         }
         if (i == 0 || i == fieldSequence.length) {
-            addFieldSequence(toAdd, resultType, columnDescriptor, fieldSequence, currentType, fieldPrecision);
+            addFieldSequence(toAdd, resultType, columnDescriptor, fieldSequence, currentType, fieldPrecision, column);
         }
     }
 
@@ -395,7 +466,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                          ColumnDescriptor columnDescriptor,
                                          IOpenField[] fieldSequence,
                                          IOpenClass currentType,
-                                         Integer fieldPrecision) {
+                                         @Nullable Tolerance fieldPrecision,
+                                         int column) {
         if (fieldSequence.length == 0 && columnDescriptor.isReference()) {
             if (resultType.isSimple() || resultType.isArray() || isMapOrCollection(resultType)) {
                 toAdd.add(new ThisField(resultType));
@@ -407,7 +479,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 fieldSequence = new IOpenField[]{new ThisField(resultType)};
             }
             if (fieldPrecision != null) {
-                toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
+                toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision, column));
             } else {
                 addFieldChain(toAdd, currentType, fieldSequence);
             }

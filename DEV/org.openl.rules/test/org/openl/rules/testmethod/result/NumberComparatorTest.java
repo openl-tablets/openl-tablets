@@ -54,23 +54,23 @@ class NumberComparatorTest {
 
     @Test
     void bigDecimalWithinPrecision() {
-        var five = TestResultComparatorFactory.getComparator(BigDecimal.class, new BigDecimal("0.00001"));
+        var five = TestResultComparatorFactory.getComparator(BigDecimal.class, delta(new BigDecimal("0.00001")));
         assertTrue(five.isEqual(new BigDecimal("0.00001"), BigDecimal.ZERO));
         assertFalse(five.isEqual(new BigDecimal("0.000011"), BigDecimal.ZERO));
 
-        var ten = TestResultComparatorFactory.getComparator(BigDecimal.class, new BigDecimal("1E-10"));
+        var ten = TestResultComparatorFactory.getComparator(BigDecimal.class, delta(new BigDecimal("1E-10")));
         assertTrue(ten.isEqual(new BigDecimal("0.6666666667"), TWO_THIRDS));
         assertFalse(ten.isEqual(new BigDecimal("0.666666667"), TWO_THIRDS));
 
         // From 1 on, the difference must be smaller than the delta
-        var hundreds = TestResultComparatorFactory.getComparator(BigDecimal.class, new BigDecimal("100"));
+        var hundreds = TestResultComparatorFactory.getComparator(BigDecimal.class, delta(new BigDecimal("100")));
         assertTrue(hundreds.isEqual(new BigDecimal("31400"), new BigDecimal("31415.93")));
         assertFalse(hundreds.isEqual(new BigDecimal("31300"), new BigDecimal("31400")));
     }
 
     @Test
     void bigIntegerWithinPrecision() {
-        var whole = TestResultComparatorFactory.getComparator(BigInteger.class, BigDecimal.ONE);
+        var whole = TestResultComparatorFactory.getComparator(BigInteger.class, delta(BigDecimal.ONE));
 
         assertFalse(whole.isEqual(new BigInteger("123456789012345678901"), new BigInteger("123456789012345678999")));
         assertTrue(whole.isEqual(new BigInteger("123456789012345678901"), new BigInteger("123456789012345678901")));
@@ -80,26 +80,27 @@ class NumberComparatorTest {
     void precisionBeyondDouble() {
         // The precision -309 allows 1E+309, which a Double holds only as Infinity
         var huge = BigDecimal.ONE.scaleByPowerOfTen(309);
-        assertTrue(TestResultComparatorFactory.getComparator(BigDecimal.class, huge)
+        assertTrue(TestResultComparatorFactory.getComparator(BigDecimal.class, delta(huge))
                 .isEqual(new BigDecimal("9E+308"), BigDecimal.ZERO));
-        assertFalse(TestResultComparatorFactory.getComparator(BigDecimal.class, huge)
+        assertFalse(TestResultComparatorFactory.getComparator(BigDecimal.class, delta(huge))
                 .isEqual(new BigDecimal("1E+309"), BigDecimal.ZERO));
-        assertTrue(TestResultComparatorFactory.getComparator(Double.class, huge).isEqual(Double.MAX_VALUE, 0.0));
+        assertTrue(TestResultComparatorFactory.getComparator(Double.class, delta(huge)).isEqual(Double.MAX_VALUE, 0.0));
 
         // The precision 324 allows 1E-324, which a Double holds only as 0
         var tiny = BigDecimal.ONE.scaleByPowerOfTen(-324);
-        assertTrue(TestResultComparatorFactory.getComparator(BigDecimal.class, tiny)
+        assertTrue(TestResultComparatorFactory.getComparator(BigDecimal.class, delta(tiny))
                 .isEqual(new BigDecimal("1E-324"), BigDecimal.ZERO));
-        assertFalse(TestResultComparatorFactory.getComparator(BigDecimal.class, tiny)
+        assertFalse(TestResultComparatorFactory.getComparator(BigDecimal.class, delta(tiny))
                 .isEqual(new BigDecimal("2E-324"), BigDecimal.ZERO));
     }
 
     @Test
     void floatingPointWithinPrecision() {
         // A double difference is computed in binary: 0.4 - 0.3 is 0.10000000000000003
-        assertFalse(TestResultComparatorFactory.getComparator(Double.class, new BigDecimal("0.1")).isEqual(0.4, 0.3));
+        assertFalse(TestResultComparatorFactory.getComparator(Double.class, delta(new BigDecimal("0.1")))
+                .isEqual(0.4, 0.3));
         // The precision 5 allows the double nearest to 0.00001, not 9.999999999999999E-6
-        assertTrue(TestResultComparatorFactory.getComparator(Double.class, new BigDecimal("0.00001"))
+        assertTrue(TestResultComparatorFactory.getComparator(Double.class, delta(new BigDecimal("0.00001")))
                 .isEqual(0.00001, 0.0));
     }
 
@@ -119,5 +120,9 @@ class NumberComparatorTest {
         assertFalse(comparator.isEqual(new AtomicInteger(2), BigDecimal.TWO));
         assertFalse(comparator.isEqual(BigDecimal.ONE, null));
         assertTrue(comparator.isEqual(null, null));
+    }
+
+    private static Tolerance delta(BigDecimal value) {
+        return new Tolerance.Delta(value);
     }
 }

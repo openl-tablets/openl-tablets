@@ -1,34 +1,30 @@
 package org.openl.rules.data;
 
-import java.math.BigDecimal;
+import lombok.Getter;
 
+import org.openl.rules.testmethod.result.Tolerance;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
+/**
+ * A field of a test result that is compared within the precision of its column or of its test table.
+ */
+@Getter
 public class PrecisionFieldChain extends FieldChain {
-    private final Integer precision;
-
-    public PrecisionFieldChain(IOpenClass type, IOpenField[] fields, Integer precision) {
-        super(type, fields);
-        this.precision = precision;
-    }
 
     /**
-     * Returns the difference that the precision allows: 10 raised to the power of the negated precision, exactly, so
-     * precision 5 gives {@code 0.00001} and precision -2 gives {@code 100}.
-     *
-     * @return the delta, or {@code null} when the field has no precision
+     * How far the returned value may be from the expected one.
      */
-    public BigDecimal getDelta() {
-        if (precision != null) {
-            return BigDecimal.ONE.scaleByPowerOfTen(-precision);
-        }
+    private final Tolerance tolerance;
 
-        return null;
+    /**
+     * The number of the column of the test table that holds the expected value.
+     */
+    private final int column;
+
+    public PrecisionFieldChain(IOpenClass type, IOpenField[] fields, Tolerance tolerance, int column) {
+        super(type, fields);
+        this.tolerance = tolerance;
+        this.column = column;
     }
-
-    public boolean hasDelta() {
-        return precision != null;
-    }
-
 }

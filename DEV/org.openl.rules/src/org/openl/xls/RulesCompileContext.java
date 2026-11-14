@@ -20,7 +20,7 @@ public class RulesCompileContext extends DefaultCompileContext {
         addValidator(new org.openl.rules.validation.RegexpPropertyValidator("id", "regexp:([a-zA-Z_][a-zA-Z0-9_]*)"));
         addValidator(new org.openl.rules.validation.RegexpPropertyValidator("datatypePackage", "regexp:([a-zA-Z_]{1}[a-zA-Z0-9_]*(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)"));
         addValidator(new org.openl.rules.validation.RegexpPropertyValidator("spreadsheetResultPackage", "regexp:([a-zA-Z_]{1}[a-zA-Z0-9_]*(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)"));
-        addValidator(new org.openl.rules.validation.RegexpPropertyValidator("precision", "regexp:(-?[0-9]+)"));
+        addValidator(new org.openl.rules.validation.RegexpPropertyValidator("precision", "regexp:(-?[0-9]+|([1-9][0-9]*)?sf)"));
         // <<< END INSERT >>>
 
         // implicit validators

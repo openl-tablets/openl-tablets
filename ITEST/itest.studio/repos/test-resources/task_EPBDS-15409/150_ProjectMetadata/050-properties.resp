@@ -1234,7 +1234,7 @@ Content-Type: application/json
     "multiple": false,
     "dimensional": false,
     "defaultValue": null,
-    "pattern": "(-?[0-9]+)",
+    "pattern": "(-?[0-9]+|([1-9][0-9]*)?sf)",
     "values": []
   },
   {

@@ -522,7 +522,7 @@ public final class DefaultPropertyDefinitions {
         definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.DTEmptyResultProcessingEnum.class));
 
         definitions[35] = new TablePropertyDefinition();
-        definitions[35].setConstraints(new Constraints("regexp:(-?[0-9]+)"));
+        definitions[35].setConstraints(new Constraints("regexp:(-?[0-9]+|([1-9][0-9]*)?sf)"));
         definitions[35].setDescription("Precision of comparing the returned results with the expected ones");
         definitions[35].setDimensional(false);
         definitions[35].setDisplayName("Precision");
