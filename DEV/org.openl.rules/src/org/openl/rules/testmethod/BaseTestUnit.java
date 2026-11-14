@@ -4,7 +4,6 @@ import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
 import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
 import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +15,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
@@ -176,13 +174,9 @@ public class BaseTestUnit implements ITestUnit {
     }
 
     private boolean isFieldEqual(IOpenField field, Object expectedFieldValue, Object actualFieldValue) {
-        // Get delta for field if setted
-        BigDecimal columnDelta = null;
-        if (field instanceof PrecisionFieldChain chain && chain.hasDelta()) {
-            columnDelta = chain.getDelta();
-        }
+        var tolerance = test.getTolerance(field);
         Class<?> clazz = field.getType().getInstanceClass();
-        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);
+        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, tolerance);
 
         final var equal = comparator.isEqual(expectedFieldValue, actualFieldValue);
 

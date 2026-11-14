@@ -333,7 +333,8 @@ it, as the saved workbook does: a rule that computes `1.1 ** 3` returns `1.33100
 when its actual and expected numbers would read the same once rounded, and so is a failed comparison of a value with
 inner structure, whose fields are read later. A number with more digits than a `double` holds, such as a
 `BigDecimal` of 34 digits, is never rounded: the window shows every digit of it. Without a precision a test accepts
-a difference of one floating-point step, so a value two steps away fails; see
+a difference of one floating-point step, so a value two steps away fails unless the test sets a precision such as
+`sf`, which rounds the returned value at the last figure of the expected value; see
 [Using the Precision Property in Testing](../reference-guide/02-working-with-openl-tables/04-table-properties/07-dev-properties.md#using-the-precision-property-in-testing).
 
 A table lists its cases 20 to a page, and the pager under it reaches the rest. To read every case at once, save

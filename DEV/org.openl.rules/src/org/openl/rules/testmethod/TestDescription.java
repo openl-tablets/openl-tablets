@@ -2,10 +2,12 @@ package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -14,7 +16,9 @@ import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
+import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.data.RowIdField;
+import org.openl.rules.testmethod.result.Tolerance;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -39,6 +43,11 @@ public class TestDescription {
     private List<IOpenField> fields = new ArrayList<>();
     @Getter
     private List<IOpenField> errorFields = new ArrayList<>();
+    /**
+     * The tolerances of the figures the expected values are written with, by the column of the test table.
+     */
+    @Setter
+    private Map<Integer, Tolerance> writtenTolerances = Map.of();
 
     public TestDescription(IOpenMethod testedMethod,
                            DynamicObject testObject,
@@ -120,6 +129,17 @@ public class TestDescription {
 
     private Object getArgumentValue(String paramName) {
         return testObject.getFieldValue(paramName);
+    }
+
+    /**
+     * Returns how far the returned value of a field may be from the expected one in this test case. A precision that
+     * takes the significant figures of the expected value rounds at the last figure written in its cell.
+     */
+    @Nullable
+    Tolerance getTolerance(IOpenField field) {
+        return field instanceof PrecisionFieldChain chain
+                ? writtenTolerances.getOrDefault(chain.getColumn(), chain.getTolerance())
+                : null;
     }
 
     public boolean hasDescription() {
