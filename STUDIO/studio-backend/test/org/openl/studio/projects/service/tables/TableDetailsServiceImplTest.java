@@ -65,6 +65,14 @@ class TableDetailsServiceImplTest {
             sheet.addMergedRegion(new CellRangeAddress(8, 9, 1, 1));
             row(sheet, 10, "", "Hello");
 
+            row(sheet, 12, "Constants Limits");
+            row(sheet, 13, "Integer", "maxAge", "65");
+
+            row(sheet, 15, "Test Hello");
+            row(sheet, 16, "_res_");
+            row(sheet, 17, "Result");
+            row(sheet, 18, "Hello");
+
             try (OutputStream out = Files.newOutputStream(projectDir.resolve("Rules.xlsx"))) {
                 workbook.write(out);
             }
@@ -87,6 +95,16 @@ class TableDetailsServiceImplTest {
         assertEquals(List.of("description"), names(details.groups().getFirst().properties()));
         assertEquals(List.of("effectiveDate", "lob"), names(details.groups().get(1).properties()));
         assertEquals(List.of("buildPhase"), names(details.groups().getLast().properties()));
+    }
+
+    @Test
+    void namesATableWithoutAMethodByItsHeader() {
+        assertEquals("Limits", service.read(table(XlsNodeTypes.XLS_CONSTANTS)).name());
+    }
+
+    @Test
+    void namesAnUnnamedTestTableByItsHeaderNotByItsGeneratedMethodName() {
+        assertEquals("Hello", service.read(table(XlsNodeTypes.XLS_TEST_METHOD)).name());
     }
 
     @Test

@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.util.Objects;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
@@ -68,7 +69,9 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
                 return name;
             }
         }
-        return getName();
+        // A table is named by its header, as the tree names it; a node without a header keeps the name of its member
+        var gridTable = tsn.getGridTable();
+        return gridTable == null || gridTable.getCell(0, 0) == null ? getName() : TableSyntaxNodeUtils.getTableName(tsn);
     }
 
     @Override

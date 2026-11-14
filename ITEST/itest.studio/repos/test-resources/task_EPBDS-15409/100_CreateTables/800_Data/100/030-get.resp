@@ -14,6 +14,7 @@ Content-Type: application/json
       "location": {
         "type": "table",
         "id": "D7FGBDAK4R98YQH7",
+        "name": "states",
         "module": "Main",
         "projectId": "MNNBJ3QJ702ZN",
         "project": "EPBDS-15409",
@@ -30,6 +31,7 @@ Content-Type: application/json
       "location": {
         "type": "table",
         "id": "D7FGBDAK4R98YQH7",
+        "name": "states",
         "module": "Main",
         "projectId": "MNNBJ3QJ702ZN",
         "project": "EPBDS-15409",
