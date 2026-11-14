@@ -71,10 +71,13 @@ compiled table.
 | `section` | Body | A heading inside the body | a merged Spreadsheet row, a TBasic `SUB` |
 | `result` | Body | What the table returns | the `RETURN` step of a Spreadsheet returning one value, of a TBasic table |
 
-Two modifiers add to the look of a role, whatever the role:
+Three modifiers add to the look of a role, whatever the role:
 
 - **`returned`** — a cell a table returns among others: the cells of the steps and the columns a `SpreadsheetResult`
   marks `*`. It keeps its role, fill included, and is bold, with no line.
+
+- **`unframed`** — a cell that stands among the values of the body: the types of a Datatype and of a Constants table,
+  which are `code`. It keeps its role but draws none of its lines, so no line runs under the title of the types alone.
 
 - **`group`** — a line above the first line of a group. A group is the rules that share a merged condition
   value, or the conditions of a ColumnMatch table indented under one name. Merged decision tables are hard to read
@@ -293,7 +296,8 @@ Lines:
 Every line is drawn in `dk1`, the text colour of the theme:
 
 - **Role line** — thin. It is drawn above and below the signature, the properties and the code, above the titles
-  and a section, and below the body.
+  and a section, and below the body. The types of a Datatype and of a Constants table are code among the values of
+  the body, so they draw no line of their role.
 - **Group line** — hair. It is drawn above a group of rows, and on the left of a group of columns from the titles
   down.
 - **Result lines** — thin above the result, double below it.
@@ -307,6 +311,10 @@ as the titles of a transposed table, has one line above it. The cell's own forma
 the body, the line above a group and the lines of a `result` region. A `result` region of several rows has its two lines
 once, at its top and bottom; **Total** keeps its lines in its definition, so a single row a user marks with it in Excel
 looks the same.
+
+The code a Datatype or a Constants table keeps in its type column stands among the values, not in the header. Its
+region is `unframed`: it keeps its look but draws no line of its role. Framed, its line above would run under the
+title of the types alone, and on a transposed table the line below would cross the fields under the types row alone.
 
 There are no vertical lines. Headers and body are told apart by fill, so a transposed table needs no rotated
 lines.
@@ -593,8 +601,10 @@ The example shows the first three rows of a window. A run with no `style` takes 
 
 - **`regions`** — the roles of the whole table, in table coordinates. They partition the table and cover it
   whatever window of rows is read, so a page of rows needs no layout of its own. A region carries `"returned": true`
-  when the table returns its cells among others; any other carries no `returned`. A region carries `type` when all
-  its values have the same type. A cell whose type differs from its region's carries its own `type`.
+  when the table returns its cells among others; any other carries no `returned`. A region carries
+  `"unframed": true` when its cells stand among the values of the body and draw none of the lines of their role, as
+  the types of a Datatype; any other carries no `unframed`. A region carries `type` when all its values have the same
+  type. A cell whose type differs from its region's carries its own `type`.
 - **`groups`** — the `rows` and the `columns` of the body that start a group; a list without lines is left out, and so
   is `groups` of a table without groups.
 - **`signature`** — the pieces of the header text as offsets, for the Studio look. The Excel look takes the

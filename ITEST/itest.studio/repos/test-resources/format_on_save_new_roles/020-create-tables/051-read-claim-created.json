@@ -42,7 +42,7 @@
       {
         "cell": "B20",
         "value": "Boolean",
-        "style": 5
+        "style": 3
       },
       {
         "cell": "C20",
@@ -54,7 +54,7 @@
       {
         "cell": "B21",
         "value": "Boolean",
-        "style": 5
+        "style": 3
       },
       {
         "cell": "C21",
@@ -66,12 +66,12 @@
       {
         "cell": "B22",
         "value": "Double",
-        "style": 6
+        "style": 5
       },
       {
         "cell": "C22",
         "value": "amount",
-        "style": 7
+        "style": 6
       }
     ]
   ],
@@ -97,20 +97,10 @@
     },
     {
       "color": "#808080",
-      "valign": "center",
-      "border": {
-        "top": {
-          "style": "solid",
-          "width": 1
-        }
-      }
-    },
-    {
-      "background": "#dce6f1",
       "valign": "center"
     },
     {
-      "color": "#808080",
+      "background": "#dce6f1",
       "valign": "center"
     },
     {
@@ -147,7 +137,8 @@
       "top": 1,
       "left": 0,
       "bottom": 4,
-      "right": 0
+      "right": 0,
+      "unframed": true
     },
     {
       "role": "output",

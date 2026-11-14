@@ -494,6 +494,9 @@ final class WorkbookStyles {
          * closing the table. No line is drawn on the left: a cell starting a group of columns takes
          * {@link #grouped(TableStyle)}.
          *
+         * <p>A region standing among the values of the body, such as the types of a Datatype, draws none of the lines
+         * of its role, only the line above a group and the line closing the table.
+         *
          * @param style  the style of the role of the region
          * @param region the region
          * @param row    the row of the cell, in table coordinates
@@ -518,7 +521,7 @@ final class WorkbookStyles {
 
         /** The line above a cell of a region: the line of its role on its first row, or the line above a group. */
         private static @Nullable Line topOf(TableStyle style, RawTableRegion region, int row, Set<Integer> groups) {
-            var above = row == region.top() ? style.getLook().top() : null;
+            var above = row == region.top() && !region.unframed() ? style.getLook().top() : null;
             return above == null && groups.contains(row) ? Line.GROUP : above;
         }
 
@@ -527,7 +530,7 @@ final class WorkbookStyles {
          * the table.
          */
         private static @Nullable Line bottomOf(TableStyle style, RawTableRegion region, int row, int bottom) {
-            var below = row == region.bottom() ? style.getLook().bottom() : null;
+            var below = row == region.bottom() && !region.unframed() ? style.getLook().bottom() : null;
             return below == null && row == bottom ? Line.ROLE : below;
         }
     }

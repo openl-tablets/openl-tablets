@@ -35881,6 +35881,10 @@ Content-Type: application/json
               "boolean",
               "string"
             ]
+          },
+          "unframed": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },

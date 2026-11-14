@@ -12,9 +12,11 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  *                 a part of one region spanning the rows
  * @param returned whether the table returns the place among other cells, which keeps its role and is bold, as the
  *                 cells a {@code SpreadsheetResult} marks
+ * @param unframed whether the place stands among the values of the body, which keeps its role but draws none of its
+ *                 lines, as the types of a Datatype
  * @author Yury Molchan
  */
-record Place(RawTableRole role, Typing typing, boolean byRow, boolean returned) {
+record Place(RawTableRole role, Typing typing, boolean byRow, boolean returned, boolean unframed) {
 
     /** How the value of a place is typed. */
     enum Typing {
@@ -34,7 +36,7 @@ record Place(RawTableRole role, Typing typing, boolean byRow, boolean returned) 
      * @return the place
      */
     static Place of(RawTableRole role) {
-        return new Place(role, typingOf(role), false, false);
+        return new Place(role, typingOf(role), false, false, false);
     }
 
     /**
@@ -44,27 +46,35 @@ record Place(RawTableRole role, Typing typing, boolean byRow, boolean returned) 
      * @return the place
      */
     static Place code(RawTableRole role) {
-        return new Place(role, Typing.CODE, false, false);
+        return new Place(role, Typing.CODE, false, false, false);
     }
 
     /** This place taking another role, its value typed as before unless the role holds no value. */
     Place as(RawTableRole other) {
-        return new Place(other, typingOf(other) == Typing.NONE ? Typing.NONE : typing, byRow, returned);
+        return new Place(other, typingOf(other) == Typing.NONE ? Typing.NONE : typing, byRow, returned, unframed);
     }
 
     /** This place holding no value to type, such as the name of a step a Spreadsheet returns. */
     Place untyped() {
-        return new Place(role, Typing.NONE, byRow, returned);
+        return new Place(role, Typing.NONE, byRow, returned, unframed);
     }
 
     /** This place with each of its rows a region of its own, such as a row of the horizontal values of a lookup. */
     Place byRows() {
-        return new Place(role, typing, true, returned);
+        return new Place(role, typing, true, returned, unframed);
     }
 
     /** This place returned among other cells: bold, keeping its role, as a cell a {@code SpreadsheetResult} marks. */
     Place asReturned() {
-        return new Place(role, typing, byRow, true);
+        return new Place(role, typing, byRow, true, unframed);
+    }
+
+    /**
+     * This place among the values of the body, drawing none of the lines of its role, as the types of a Datatype: a
+     * line of the role would cross the body under one column alone.
+     */
+    Place asUnframed() {
+        return new Place(role, typing, byRow, returned, true);
     }
 
     private static Typing typingOf(RawTableRole role) {

@@ -66,6 +66,8 @@ describe('buildTableRegions', () => {
         expect(roleAt(regions, 1, 0)).toBe('inputTitle')
         expect(roleAt(regions, 2, 0)).toBe('code')
         expect(roleAt(regions, 2, 1)).toBe('output')
+        // The types stand among the values: no line of the code runs under the title of the types alone.
+        expect(regions.filter(region => region.role === 'code').map(region => region.unframed)).toEqual([true])
     })
 
     it('lays out the conditions and what a SmartRules table returns', () => {
@@ -152,6 +154,7 @@ describe('buildTableRegions', () => {
         expect(roleAt(built('properties').regions, 1, 1)).toBe('value')
         expect(roleAt(built('constants').regions, 1, 0)).toBe('code')
         expect(roleAt(built('constants').regions, 1, 1)).toBe('output')
+        expect(built('constants').regions.find(region => region.role === 'code')?.unframed).toBe(true)
         expect(roleAt(built('vocabulary').regions, 1, 0)).toBe('value')
     })
 })

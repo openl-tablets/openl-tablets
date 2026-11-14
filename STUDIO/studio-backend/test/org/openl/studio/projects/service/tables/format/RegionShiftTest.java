@@ -250,7 +250,7 @@ class RegionShiftTest {
         var marked = new TableRegions(List.of(
                 region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
                 region(RawTableRole.KEY, 1, 0, 1, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true, false),
                 region(RawTableRole.VALUE, 2, 0, 2, 0),
                 region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
         var shift = RegionShift.of(marked, 3, 2);
@@ -271,7 +271,7 @@ class RegionShiftTest {
                 region(RawTableRole.VALUE, 1, 0, 1, 0),
                 region(RawTableRole.OUTPUT, 1, 1, 1, 1),
                 region(RawTableRole.KEY, 2, 0, 2, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 2, 1, true)), RawTableGroups.NONE, List.of(),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 2, 1, true, false)), RawTableGroups.NONE, List.of(),
                 Map.of());
         var shift = RegionShift.of(marked, 3, 2);
 
@@ -292,7 +292,7 @@ class RegionShiftTest {
         var marked = new TableRegions(List.of(
                 region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
                 region(RawTableRole.KEY, 1, 0, 2, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1, true, false),
                 region(RawTableRole.VALUE, 3, 0, 3, 0),
                 region(RawTableRole.OUTPUT, 3, 1, 3, 1)), RawTableGroups.NONE, List.of(), Map.of());
         var shift = RegionShift.of(marked, 4, 2);
@@ -312,7 +312,7 @@ class RegionShiftTest {
         var marked = new TableRegions(List.of(
                 region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
                 region(RawTableRole.KEY, 1, 0, 1, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true, false),
                 region(RawTableRole.VALUE, 2, 0, 2, 0),
                 region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
         var shift = RegionShift.of(marked, 3, 2);

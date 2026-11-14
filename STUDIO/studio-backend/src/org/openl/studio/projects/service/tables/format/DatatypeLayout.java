@@ -2,6 +2,9 @@ package org.openl.studio.projects.service.tables.format;
 
 import java.util.Set;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
@@ -13,7 +16,9 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  *
  * <p>The header and the properties take the roles every kind gives them, see {@link TableRegionLayout}. The rows below
  * them take the role of their column: a type is code the compiler reads, a name is what the table gives, a field or a
- * constant, and every other cell is a value. A Datatype that names its columns titles them on that row.
+ * constant, and every other cell is a value. A Datatype that names its columns titles them on that row. The types
+ * stand among the values, so they draw none of the lines that frame the code of a header: no line runs under the
+ * title of the types alone.
  *
  * <p>The columns are the ones the compiler read. A Datatype names them on a row of titles, or keeps the type, the name
  * and the default value of a field in its first three columns when it names none. A Constants table is read by place
@@ -28,14 +33,12 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  * field. A Constants table the compiler read none of keeps them in the same columns. Whether such a table is written
  * transposed is told by its titles and its types, see {@link GuessedReads#typesTurned}.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class DatatypeLayout {
 
     /** The columns a Constants table, and a Datatype naming no columns, keep the type and the name in. */
     private static final int TYPE_COLUMN = 0;
     private static final int NAME_COLUMN = 1;
-
-    private DatatypeLayout() {
-    }
 
     /**
      * The places of the body of a Datatype: its fields, read the way the compiler read them. A transposed table keeps
@@ -121,7 +124,8 @@ final class DatatypeLayout {
                           Set<Integer> nameColumns) implements TableRegionLayout.PlaceRoles {
 
         private static final Place TITLES = Place.of(RawTableRole.INPUT_TITLE);
-        private static final Place TYPE = Place.of(RawTableRole.CODE);
+        /** A type: code among the values of the body, so no line of its role crosses the body under its column. */
+        private static final Place TYPE = Place.of(RawTableRole.CODE).asUnframed();
         /** A name: what the table gives, a name rather than a value to type. */
         private static final Place NAME = Place.of(RawTableRole.OUTPUT).untyped();
         private static final Place VALUES = Place.of(RawTableRole.VALUE);

@@ -85,13 +85,7 @@
     },
     {
       "color": "#808080",
-      "valign": "center",
-      "border": {
-        "top": {
-          "style": "solid",
-          "width": 1
-        }
-      }
+      "valign": "center"
     },
     {
       "background": "#dce6f1",
@@ -143,7 +137,8 @@
       "top": 1,
       "left": 0,
       "bottom": 2,
-      "right": 0
+      "right": 0,
+      "unframed": true
     },
     {
       "role": "output",

@@ -32,6 +32,11 @@ export interface RawTableRegion {
     right: number
     /** Whether the table returns the cells among others, such as the cells a SpreadsheetResult marks: they are bold. */
     returned?: boolean
+    /**
+     * Whether the cells stand among the values of the body, such as the types of a Datatype: they keep their role but
+     * draw none of its lines.
+     */
+    unframed?: boolean
 }
 
 /** The lines of the body of a table that start a group, in table coordinates. */

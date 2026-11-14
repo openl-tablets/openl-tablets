@@ -202,6 +202,52 @@ class ExcelTableFormatterTest {
     }
 
     @Test
+    void drawsNoLineUnderTheTitleOfTheTypesOfADatatypeAlone() throws IOException {
+        try (var workbook = formatted(sheet -> {
+            row(sheet, 0, 0, "Datatype Vehicle");
+            row(sheet, 1, 0, "Type", "Name", "Default");
+            row(sheet, 2, 0, "String", "model", "Sedan");
+            row(sheet, 3, 0, "Integer", "year", "2020");
+        })) {
+            assertEquals("Calculation", namedStyleAt(workbook, 2, 0).getName(), "A type is code");
+            for (var column = 0; column <= 2; column++) {
+                var title = styleAt(workbook, 1, column);
+                assertLine(BorderStyle.THIN, TEXT, title.getBorderTop(), title.getTopBorderXSSFColor());
+                assertEquals(BorderStyle.NONE, title.getBorderBottom(), "No line below the titles");
+                assertEquals(BorderStyle.NONE, styleAt(workbook, 2, column).getBorderTop(), "Nor above the fields");
+                var last = styleAt(workbook, 3, column);
+                assertLine(BorderStyle.THIN, TEXT, last.getBorderBottom(), last.getBottomBorderXSSFColor());
+            }
+            assertEquals(BorderStyle.NONE, styleAt(workbook, 2, 0).getBorderBottom(), "No line between the types");
+        }
+    }
+
+    @Test
+    void drawsNoLineUnderTheTypesOfATransposedDatatypeOrAboveTheTypesOfConstants() throws IOException {
+        try (var workbook = formatted(sheet -> {
+            row(sheet, 0, 0, "Datatype Vehicle");
+            row(sheet, 1, 0, "Type", "String", "Integer");
+            row(sheet, 2, 0, "Name", "model", "year");
+            row(sheet, 4, 0, "Constants");
+            row(sheet, 5, 0, "Integer", "MAX_AGE", "99");
+            row(sheet, 6, 0, "String", "REGION", "North");
+        })) {
+            assertEquals("Calculation", namedStyleAt(workbook, 1, 1).getName(), "A type is code");
+            for (var column = 1; column <= 2; column++) {
+                assertEquals(BorderStyle.NONE, styleAt(workbook, 1, column).getBorderBottom(),
+                        "No line under the types");
+                assertEquals(BorderStyle.NONE, styleAt(workbook, 2, column).getBorderTop(), "Nor above the names");
+            }
+            assertEquals("Calculation", namedStyleAt(workbook, 5, 0).getName(), "A type of a constant is code");
+            assertEquals(BorderStyle.NONE, styleAt(workbook, 5, 0).getBorderTop(), "The header draws the line above");
+            var header = styleAt(workbook, 4, 0);
+            assertLine(BorderStyle.THIN, TEXT, header.getBorderBottom(), header.getBottomBorderXSSFColor());
+            var last = styleAt(workbook, 6, 0);
+            assertLine(BorderStyle.THIN, TEXT, last.getBorderBottom(), last.getBottomBorderXSSFColor());
+        }
+    }
+
+    @Test
     void drawsWhatASpreadsheetResultMarksBoldWithNoLineAndNoOtherFill() throws IOException {
         try (var workbook = formatted(ExcelTableFormatterTest::fillMarks)) {
             var title = styleAt(workbook, QUOTE_ROW + 1, 2);
