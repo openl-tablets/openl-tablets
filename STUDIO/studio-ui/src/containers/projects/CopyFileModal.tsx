@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { App, Input, Modal } from 'antd'
+import { App, Input, Modal, Typography } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import { copyFile } from '../../services/files'
+import { isValidFileName } from '../../utils/fileName'
 import { FieldRow } from '../../components/FieldRow'
 import { ProjectFolderInput } from './ProjectFolderInput'
 import { basename, joinProjectPath, normalizeProjectPath, parentFolder } from './projectPaths'
@@ -56,9 +57,10 @@ export const CopyFileModal = ({
     }, [open, path])
 
     const destination = joinProjectPath(target, name)
+    const invalidName = name !== '' && !isValidFileName(name)
 
     const submit = async () => {
-        if (busy) {
+        if (busy || invalidName) {
             return
         }
         if (!normalizeProjectPath(name) || destination === path) {
@@ -81,7 +83,7 @@ export const CopyFileModal = ({
         <Modal
             destroyOnHidden
             confirmLoading={busy}
-            okButtonProps={{ 'data-testid': 'file-copy-submit', disabled: !normalizeProjectPath(name) }}
+            okButtonProps={{ 'data-testid': 'file-copy-submit', disabled: !normalizeProjectPath(name) || invalidName }}
             onCancel={onClose}
             onOk={submit}
             open={open}
@@ -92,8 +94,14 @@ export const CopyFileModal = ({
                     data-testid="file-copy-name"
                     onChange={event => setName(event.target.value)}
                     onPressEnter={submit}
+                    status={invalidName ? 'error' : ''}
                     value={name}
                 />
+                {invalidName && (
+                    <Typography.Text data-testid="file-copy-name-error" type="danger">
+                        {t('browser.files.name_invalid')}
+                    </Typography.Text>
+                )}
             </FieldRow>
             <FieldRow required label={t('browser.files.path')} labelWidth={LABEL_WIDTH}>
                 <ProjectFolderInput
