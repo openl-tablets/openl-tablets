@@ -19,6 +19,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.TextRun;
+import org.openl.util.NumberUtils;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ParsedCell implements ICell {
@@ -84,6 +85,9 @@ public class ParsedCell implements ICell {
             return null;
         } else  if (cellValue instanceof Date date) {
             return ISO8601DateFormater.format(date);
+        } else if (cellValue instanceof Double number && NumberUtils.isExactWhole(number)) {
+            // A whole number too large for an int is written as the cell shows it: 5100800601, not 5.100800601E9.
+            return Long.toString(number.longValue());
         } else {
             return cellValue.toString();
         }

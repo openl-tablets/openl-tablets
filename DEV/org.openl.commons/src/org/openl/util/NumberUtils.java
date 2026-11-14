@@ -114,6 +114,17 @@ public final class NumberUtils {
     }
 
     /**
+     * Whether a {@code double} is a whole number that a {@code long} holds with every digit the {@code double}
+     * shows: below 2<sup>53</sup> in magnitude, where each whole number is held exactly.
+     *
+     * @param value the number
+     * @return whether it converts to the same whole {@code long}
+     */
+    public static boolean isExactWhole(double value) {
+        return value == Math.rint(value) && Math.abs(value) < 0x1p53;
+    }
+
+    /**
      * The number a text holds when a {@code double} does not hold it exactly, as a cell keeps such a number.
      *
      * <p>The text is a number in plain or scientific notation, such as {@code 0.6666666666666666666666666666666667} or
