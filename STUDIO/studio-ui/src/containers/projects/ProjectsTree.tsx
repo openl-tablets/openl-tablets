@@ -42,6 +42,8 @@ import { GroupProjectsModal } from './GroupProjectsModal'
 import { isFiltered, selectProjects, type ListingQuery } from './projectListing'
 import { ClearFiltersRow } from './ClearFiltersRow'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
+import { useElementSize } from '../../hooks/useElementSize'
+import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 import { formatFileSize } from '../../utils/fileSize'
 import { joinClasses } from '../../utils/joinClasses'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
@@ -92,8 +94,21 @@ interface ProjectContents {
 // No node picked is the default, kept as no key at all.
 const selectedNode = storedSetting(SELECTED_STORAGE_KEY, '', plainText)
 
+/** The rows of the files of a project, kept with what they were built from: another of any makes them stale. */
+interface FileRows {
+    found: string[] | undefined
+    folders: string[]
+    changes: ReadonlyMap<string, ProjectFileChangeType> | undefined
+    look: object
+    rows: TreeNodeData[]
+}
+
 /** The space between the rows and the sides of the panel. */
 const BODY_SIDE_PADDING = 8
+/** What the size of a file takes beside its name besides its text: the gap before it and its padding. */
+const SIZE_CHROME = 24
+/** What the Default badge and the shield of a branch group take beside its name. */
+const BRANCH_MARKS_WIDTH = 96
 
 /**
  * Reads the files of a project, the modules among them and, for a project being edited, its changes.
@@ -170,9 +185,22 @@ const findFiles = (
     return found
 }
 
+/** Whether two lists of paths hold the same paths in the same order; no list is the same as no list only. */
+const samePaths = (left: string[] | undefined, right: string[] | undefined): boolean =>
+    left === right || (right !== undefined && left?.length === right.length
+        && left.every((path, index) => path === right[index]))
+
 /** The ids of the projects among the nodes, at any depth. */
 const projectIdsOf = (nodes: GroupNode[]): string[] =>
     nodes.flatMap(node => (node.project ? [node.project.id] : projectIdsOf(node.children)))
+
+/** How wide the widest row in sight is: the rows of the tree, and the rows under those that are open. */
+const widestRow = (nodes: TreeNodeData[], open: ReadonlySet<string>, depth = 0): number =>
+    nodes.reduce((widest, node) => Math.max(
+        widest,
+        depth * RAIL_INDENT + node.rowWidth,
+        node.children && open.has(node.key) ? widestRow(node.children, open, depth + 1) : 0
+    ), 0)
 
 /** The folders above a path, outermost first: `a/b/c.txt` lies in `a` and `a/b`. */
 const foldersAbove = (path: string): string[] => {
@@ -257,6 +285,9 @@ const useStyles = createStyles(({ css, token }) => ({
      * name, and a wrapped or clipped one is neither readable nor comparable to the row above it.
      */
     body: css`
+        box-sizing: border-box;
+        /* The room of the rail, which the tree is drawn a screenful at a time in. */
+        height: 100%;
         padding: 4px ${BODY_SIDE_PADDING}px 12px;
         overflow-x: auto;
 
@@ -341,6 +372,9 @@ const useStyles = createStyles(({ css, token }) => ({
      * The tree is as wide as its widest row and may run past the rail, so the size keeps to the right edge of what
      * the rail shows rather than to the end of the row. A long name then runs under it, so the size wears the
      * colour of its row: the rail, and the tint of a row pointed at or picked over it.
+     *
+     * A tree drawn a screenful at a time scrolls sideways within its own box and cuts its rows at the edge of it, the
+     * padding of the size included: the size stands where it does in a tree drawn whole.
      */
     size: css`
         flex: none;
@@ -480,7 +514,10 @@ export const ProjectsTree = ({
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const token = useTheme()
-    const { themeName } = useAppTheme()
+    // The room the rail has for the tree, inside its padding: a tree of thousands of files draws the rows that fit and
+    // no more.
+    const { ref: bodyRef, size: room } = useElementSize<HTMLDivElement>()
+    const { compact, themeName } = useAppTheme()
     const { isDarkMode } = useThemeMode()
     const [levels, setLevels] = useStoredSetting(groupingSetting)
     const [selfProjects, setSelfProjects] = useState<Project[] | null>(null)
@@ -775,14 +812,26 @@ export const ProjectsTree = ({
         }
     }, [currentProjectId, nodes, openedOn, projects])
 
+    // What the rows are drawn in: the theme, told by its name, appearance and density — antd-style hands out new styles
+    // and a new token on every render — and the language the sizes are written in.
+    const look = useMemo(
+        () => ({ compact, isDarkMode, locale, t, themeName }),
+        [compact, isDarkMode, locale, t, themeName]
+    )
+    // The rows of the files of each project, built once for each read of its files and kept while what they show
+    // stays: opening another project, or reading it, leaves the thousands of rows of this one as they are.
+    const fileRows = useRef(new WeakMap<ProjectContents, FileRows>())
+
     const treeData = useMemo(
         // Depends on what shapes a node and on the theme it is drawn in, not on which nodes are open — expanding
-        // must not rebuild the tree, while switching the theme or the appearance must repaint the titles. The theme
-        // is told by its name and appearance: antd-style hands out new styles and a new token on every render.
+        // must not rebuild the tree, while switching the theme or the appearance must repaint the titles.
         () => nodes.map(node => toTreeNode(node)),
-        [changesOf, contents, currentProjectId, foldersOf, foundFiles, isDarkMode, keptWhole, locale, nodes, repoMeta, t,
-            themeName]
+        [changesOf, contents, currentProjectId, foldersOf, foundFiles, keptWhole, look, nodes, repoMeta]
     )
+    // How far the tree scrolls sideways: as far as the widest row in sight reaches, and never less than the rail is
+    // wide — a narrower width leaves the rows pushed to the right of an empty rail.
+    const widest = useMemo(() => Math.ceil(widestRow(treeData, new Set(openKeys))), [openKeys, treeData])
+    const scrollWidth = Math.max(widest, room.width)
 
     // Which rows have been read is told to the tree rather than left to it, so a refresh that drops what
     // was read has the rows read again instead of standing open and empty.
@@ -814,6 +863,7 @@ export const ProjectsTree = ({
             })
             const mark = changeOf(file, marks)
             const deleted = mark === 'deleted'
+            const size = file.isFile && !deleted ? formatFileSize(read.sizes[file.path], locale) : null
             const title = (
                 <span
                     className={styles.file}
@@ -823,13 +873,12 @@ export const ProjectsTree = ({
                     <span className={joinClasses(styles.fileName, mark && mark !== 'folder' && styles[mark])}>
                         {file.name}
                     </span>
-                    {file.isFile && !deleted && (
-                        <span className={styles.size}>{formatFileSize(read.sizes[file.path], locale)}</span>
-                    )}
+                    {size !== null && <span className={styles.size}>{size}</span>}
                 </span>
             )
             return {
                 key: fileKey(project.id, file.path, file.isFile),
+                rowWidth: size === null ? railRowWidth(file.name) : railRowWidth(file.name + size, SIZE_CHROME),
                 // An empty folder, added in the browser, has nothing to unfold. Given an arrow, the tree would ask to
                 // read it as long as it stands open, and the arrow would flicker between that and a spinner.
                 isLeaf: file.isFile || file.children?.length === 0,
@@ -857,6 +906,7 @@ export const ProjectsTree = ({
         if (read.error) {
             return [{
                 key: `error:${project.id}`,
+                rowWidth: railRowWidth(read.error),
                 isLeaf: true,
                 selectable: false,
                 icon: null,
@@ -868,13 +918,21 @@ export const ProjectsTree = ({
         const found = keptWhole.has(project.id) ? undefined : foundFiles.get(project.id)
         const folders = foldersOf(project.id)
         const changes = changesOf(project.id)
+        const known = fileRows.current.get(read)
+        // A search typed on that finds the same files keeps the rows: the files found are compared, not their list.
+        if (known !== undefined && samePaths(known.found, found) && known.folders === folders
+            && known.changes === changes && known.look === look) {
+            return known.rows
+        }
         const there = new Set(read.paths)
         const deleted = [...changes ?? []]
             .flatMap(([path, change]) => (change === 'deleted' && !there.has(path) ? [path] : []))
         const files = found
             ? buildFileNodes(found.filter(path => !folders.includes(path)), found.filter(path => folders.includes(path)))
             : buildFileNodes([...read.paths, ...deleted], folders)
-        return fileNodesOf(project, read, files, marksOf(read.paths, folders, changes))
+        const rows = fileNodesOf(project, read, files, marksOf(read.paths, folders, changes))
+        fileRows.current.set(read, { found, folders, changes, look, rows })
+        return rows
     }
 
     // A repository carries its own icon — a branch, a database, a disk — as it does everywhere else, a
@@ -908,9 +966,8 @@ export const ProjectsTree = ({
 
     // A branch group reads as its plain name in the tree's own style, with the same Default and protected
     // marks it wears on a project row; every other group is just its name.
-    function groupTitle(node: GroupNode): ReactNode {
-        if (node.groupedBy === GROUP_BY_BRANCH) {
-            const marks = branchMarksOf(node)
+    function groupTitle(node: GroupNode, marks: { isDefault: boolean, isProtected: boolean } | null): ReactNode {
+        if (marks) {
             return (
                 <>
                     {node.title}
@@ -935,6 +992,7 @@ export const ProjectsTree = ({
             const held = contentsOf(project)
             return {
                 key: node.key,
+                rowWidth: railRowWidth(project.name),
                 // The row opens into the files of the project, read when it is first opened. A project
                 // that turned out to hold none has nothing to open into.
                 isLeaf: held?.length === 0,
@@ -958,11 +1016,13 @@ export const ProjectsTree = ({
                 ),
             }
         }
+        const marks = node.groupedBy === GROUP_BY_BRANCH ? branchMarksOf(node) : null
         return {
             key: node.key,
+            rowWidth: railRowWidth(node.title, marks?.isDefault || marks?.isProtected ? BRANCH_MARKS_WIDTH : 0),
             icon: groupIcon(node),
             title: (
-                <span className={styles.node} data-testid={`tree-group-${node.key}`}>{groupTitle(node)}</span>
+                <span className={styles.node} data-testid={`tree-group-${node.key}`}>{groupTitle(node, marks)}</span>
             ),
             children: node.children.map(child => toTreeNode(child)),
         }
@@ -1049,7 +1109,7 @@ export const ProjectsTree = ({
             )
         }
         return (
-            <div className={styles.body}>
+            <div ref={bodyRef} className={styles.body}>
                 <Tree
                     ref={treeRef}
                     blockNode
@@ -1058,7 +1118,11 @@ export const ProjectsTree = ({
                     data-testid="projects-tree"
                     expandedKeys={openKeys}
                     loadedKeys={loadedKeys}
-                    // A branch opens at once: the height the rows slide down with is painted by the page.
+                    // A screenful of rows at a time, once the rail is laid out: a tree drawn whole — in a test, or for
+                    // the moment before the rail is measured — has no height to fit. A branch opens at once: the
+                    // height the rows slide down with is painted by the page.
+                    {...(room.height > 0 ? { height: room.height, scrollWidth } : {})}
+                    itemHeight={token.controlHeightSM}
                     motion={false}
                     onExpand={keys => setExpanded(keys as string[])}
                     selectedKeys={selected}
@@ -1155,6 +1219,8 @@ export const ProjectsTree = ({
 
 interface TreeNodeData {
     key: string
+    /** How wide the row is, its indent left out: a virtualised tree is told how far it scrolls sideways. */
+    rowWidth: number
     title: ReactNode
     icon: ReactNode
     isLeaf?: boolean
