@@ -1,5 +1,7 @@
 package org.openl.rules.util.dates;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -178,16 +180,15 @@ final class CalendarWrapper {
         }
     }
 
-    int getUncompleteYearLength(CalendarWrapper start) {
-        if (isCompleteLastYear(start)) {
-            return calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
-        }
-        return getPrevYearLength();
-    }
-
-    private int getPrevYearLength() {
-        var prevYearCalendar = getCalendar();
-        prevYearCalendar.set(Calendar.YEAR, year - 1);
-        return prevYearCalendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+    /**
+     * The length in days of the year that starts the given number of full years after this date: from that
+     * anniversary to the next one. A year holding the 29th of February is 366 days long.
+     *
+     * @param years full years after this date
+     * @return the length of that year in days
+     */
+    int yearLengthAfter(int years) {
+        var anniversary = LocalDate.of(year, month, day).plusYears(years);
+        return (int) ChronoUnit.DAYS.between(anniversary, anniversary.plusYears(1));
     }
 }

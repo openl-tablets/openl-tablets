@@ -243,6 +243,18 @@ class DatesTest {
         assertEquals(Double.valueOf(2.8356164383561646), Dates.dateDif(start, getDate(27, 1, 2015), "YF"));
     }
 
+    /** The days of the last, incomplete year are a fraction of that year from anniversary to anniversary. */
+    @Test
+    void test_dateDif_yearFractionAcrossTheTwentyNinthOfFebruary() {
+        final Date start = getDate(19, 7, 2022);
+
+        assertEquals(Double.valueOf(2), Dates.dateDif(start, getDate(19, 7, 2024), "YF"));
+        assertEquals(Double.valueOf(1 + 365d / 366), Dates.dateDif(start, getDate(18, 7, 2024), "YF"));
+        assertEquals(Double.valueOf(364d / 365), Dates.dateDif(start, getDate(18, 7, 2023), "YF"));
+        assertEquals(Double.valueOf(365d / 366), Dates.dateDif(getDate(1, 3, 2023), getDate(29, 2, 2024), "YF"));
+        assertEquals(Double.valueOf(-1 - 365d / 366), Dates.dateDif(getDate(18, 7, 2024), start, "YF"));
+    }
+
     @Test
     void test_dateDif_shouldReturnNegativeFractionalResult() {
         final Date start = getDate(28, 3, 2012);
