@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -964,6 +965,7 @@ public class OpenApiProjectValidator {
                 .getInstanceClass() ? openMethod.getType() : JavaOpenClass.getOpenClass(method.getReturnType());
         try {
             context.setTypeValidationInProgress(true);
+            context.setResponseValidation(true);
             try {
                 validateType(context,
                         actualMediaType.getSchema(),
@@ -982,6 +984,7 @@ public class OpenApiProjectValidator {
             }
         } finally {
             context.setTypeValidationInProgress(false);
+            context.setResponseValidation(false);
         }
     }
 
@@ -1625,6 +1628,9 @@ public class OpenApiProjectValidator {
             if (resolvedActualSchema != null) {
                 var resolvedExpectedSchema = context.getExpectedOpenAPIResolver()
                         .resolve(expectedSchema, Schema::get$ref);
+                // A response of a child of the declared type answers with the fields it declares, and more
+                var childOfDeclared = context.isResponseValidation()
+                        && extendsExpected(context, resolvedActualSchema, expectedSchema);
                 if (validateArrayType(context,
                         resolvedActualSchema,
                         resolvedExpectedSchema,
@@ -1636,12 +1642,14 @@ public class OpenApiProjectValidator {
                 validateSimpleType(openClass, resolvedActualSchema, resolvedExpectedSchema);
 
                 context.setType(openClass);
-                var properties = resolveProperties(context,
-                        resolvedActualSchema,
-                        resolvedExpectedSchema,
-                        openClass,
-                        validatedBySchemasRef,
-                        validatedByFieldType);
+                var properties = childOfDeclared
+                        ? declaredProperties(context, resolvedActualSchema, resolvedExpectedSchema)
+                        : resolveProperties(context,
+                                resolvedActualSchema,
+                                resolvedExpectedSchema,
+                                openClass,
+                                validatedBySchemasRef,
+                                validatedByFieldType);
                 validateProperties(context,
                         actualSchema,
                         expectedSchema,
@@ -2012,6 +2020,66 @@ public class OpenApiProjectValidator {
         } catch (JsonProcessingException ignore) {
             return null;
         }
+    }
+
+    /**
+     * Checks whether the actual schema extends the schema the expected one refers to, directly or through other
+     * parents. Then the type is a child of the declared one.
+     *
+     * <p>A declared schema that restricts additional properties accepts no child, as the child adds its own.
+     */
+    private boolean extendsExpected(Context context, Schema<?> resolvedActualSchema, @Nullable Schema<?> expectedSchema) {
+        var expectedRef = expectedSchema == null ? null : expectedSchema.get$ref();
+        if (expectedRef == null || isClosed(context, expectedSchema)) {
+            return false;
+        }
+        var expectedName = RefUtils.computeDefinitionName(expectedRef);
+        for (var ancestor = parentOf(resolvedActualSchema); ancestor != null && ancestor.get$ref() != null;
+             ancestor = parentOf(context.getActualOpenAPIResolver().resolve(ancestor, Schema::get$ref))) {
+            if (expectedName.equals(RefUtils.computeDefinitionName(ancestor.get$ref()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The properties of the declared schema (left) and the same properties of the child that answers for it (right),
+     * whichever of its parents declares them. The other properties of the child are left out, as the declared schema
+     * permits them.
+     */
+    @SuppressWarnings("rawtypes")
+    private Pair<Map<String, Schema>, Map<String, Schema>> declaredProperties(Context context,
+                                                                         Schema<?> resolvedActualSchema,
+                                                                         Schema<?> resolvedExpectedSchema) {
+        var declared = context.getExpectedOpenAPIResolver().resolveAllProperties(resolvedExpectedSchema);
+        var actual = new HashMap<>(context.getActualOpenAPIResolver().resolveAllProperties(resolvedActualSchema));
+        actual.keySet().retainAll(declared.keySet());
+        return Pair.of(declared, actual);
+    }
+
+    /**
+     * Whether the declared schema restricts the properties it does not list, so a child may not add its own: it sets
+     * {@code additionalProperties} to {@code false} or to a schema, or extends a schema that does.
+     */
+    private boolean isClosed(Context context, Schema<?> expectedSchema) {
+        var resolved = context.getExpectedOpenAPIResolver().resolve(expectedSchema, Schema::get$ref);
+        if (resolved == null) {
+            return false;
+        }
+        var additionalProperties = resolved.getAdditionalProperties();
+        if (additionalProperties != null && !Boolean.TRUE.equals(additionalProperties)) {
+            return true;
+        }
+        return resolved instanceof ComposedSchema composedSchema && composedSchema.getAllOf() != null
+                && composedSchema.getAllOf().stream().anyMatch(member -> isClosed(context, member));
+    }
+
+    /** The parent the schema extends, or {@code null} when it extends none. */
+    private @Nullable Schema<?> parentOf(@Nullable Schema<?> schema) {
+        return schema instanceof ComposedSchema composedSchema && isParentPresented(composedSchema)
+                ? extractParentSchema(composedSchema)
+                : null;
     }
 
     private boolean isParentPresented(ComposedSchema expectedComposedSchema) {

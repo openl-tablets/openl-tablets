@@ -1,0 +1,3 @@
+ERROR: OpenAPI Reconciliation: Unexpected field 'job' is found in type 'Employee'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'team' is found in type 'Manager'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'job' is found in type 'Manager'.

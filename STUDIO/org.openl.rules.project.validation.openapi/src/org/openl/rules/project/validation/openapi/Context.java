@@ -119,4 +119,11 @@ class Context {
     @Getter
     @Setter
     private boolean typeValidationInProgress;
+
+    /**
+     * Whether the response is validated. A response type may extend the declared one.
+     */
+    @Getter
+    @Setter
+    private boolean responseValidation;
 }
