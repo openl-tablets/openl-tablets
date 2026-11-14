@@ -73,3 +73,10 @@ engine change how an existing project compiles or runs, as listed for the rules 
 * **A request that sends no comment gets the suggested one.** Saving, creating, copying or restoring a project
   through the REST API without a comment commits the comment of the table above, as before with the default
   templates.
+
+* **The report of a Test table without a name of its own is named after the table it tests.** The `test` goal of
+  `openl-maven-plugin` writes the reports of `Test SayHello` in module `Main` as `TEST-OpenL.Main.SayHelloTest`, then
+  `TEST-OpenL.Main.SayHelloTest-2` and so on, instead of `TEST-OpenL.Main.SayHello$Test$0`. A Test table with a name
+  of its own keeps that name, unless a table of the same module reported before it already took the name: a Test
+  table named `SayHelloTest` next to `Test SayHello` can be reported as `TEST-OpenL.Main.SayHelloTest-2`. Update the
+  CI jobs that pick the reports in `target/openl-test-reports` by their names.

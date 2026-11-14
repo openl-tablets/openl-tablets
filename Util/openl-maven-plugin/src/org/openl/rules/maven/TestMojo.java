@@ -101,6 +101,8 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "junit4")
     private ReportFormat[] reportsFormat;
 
+    private final ReportNames reportNames = new ReportNames();
+
     /**
      * Thread count to run test cases. The values are as follows:
      * <ul>
@@ -444,8 +446,9 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private void writeReport(TestUnitsResults result) throws IOException, XMLStreamException {
+        var suiteName = reportNames.of(result.getTestSuite().getTestSuiteMethod());
         for (ReportFormat reporter : reportsFormat) {
-            reporter.write(reportsDirectory, result);
+            reporter.write(reportsDirectory, suiteName, result);
         }
     }
 
