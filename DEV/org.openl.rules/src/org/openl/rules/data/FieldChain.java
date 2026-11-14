@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -11,6 +13,9 @@ import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public class FieldChain extends AOpenField {
+
+    /** Stands for a value that is missing because a link of the chain has none. */
+    private static final Object MISSING = new Object();
 
     private final IOpenField[] fields;
 
@@ -63,19 +68,29 @@ public class FieldChain extends AOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        var value = walk(target, env);
+        return value == MISSING ? getType().nullObject() : value;
+    }
 
-        Object result = null;
+    /**
+     * The value at the end of the chain, or {@code null} when a link of the chain has no value, even for a field of a
+     * primitive type. A test tells this way a missing value from a zero, such as a field of an element of an empty
+     * array.
+     */
+    public @Nullable Object getOrNull(Object target, IRuntimeEnv env) {
+        var value = walk(target, env);
+        return value == MISSING ? null : value;
+    }
 
+    /** The value at the end of the chain, or {@link #MISSING} when a link of the chain has no value. */
+    private @Nullable Object walk(@Nullable Object target, IRuntimeEnv env) {
         for (IOpenField field : fields) {
             if (target == null) {
-                result = getType().nullObject();
-                break;
+                return MISSING;
             }
-            result = field.get(target, env);
-            target = result;
+            target = field.get(target, env);
         }
-
-        return result;
+        return target;
     }
 
     @Override
