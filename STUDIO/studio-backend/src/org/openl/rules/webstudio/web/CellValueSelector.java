@@ -1,17 +1,45 @@
 package org.openl.rules.webstudio.web;
 
 import java.lang.reflect.Array;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.function.Predicate;
 
-import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.StringUtils;
 
-@RequiredArgsConstructor
+/**
+ * Selects the tables that have a cell holding the searched text.
+ *
+ * <p>A cell matches when its value contains the text, ignoring the case. A date cell also matches when the text is a
+ * date of the same day, written as a date is written in a table, such as {@code 3/12/2014} or {@code 2014-03-12}.
+ */
 public class CellValueSelector implements Predicate<TableSyntaxNode> {
 
     private final String value;
+    private final @Nullable LocalDate day;
+
+    public CellValueSelector(String value) {
+        this.value = value;
+        this.day = dayOf(value);
+    }
+
+    private static @Nullable LocalDate dayOf(String text) {
+        try {
+            var date = String2DataConvertorFactory.parse(Date.class, text.strip(), null);
+            return date == null ? null : dayOf(date);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static LocalDate dayOf(Date date) {
+        return LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
 
     @Override
     public boolean test(TableSyntaxNode node) {
@@ -47,9 +75,11 @@ public class CellValueSelector implements Predicate<TableSyntaxNode> {
             return false;
         }
 
-        String strCellValue = String.valueOf(cellValue);
+        if (day != null && cellValue instanceof Date cellDate && day.equals(dayOf(cellDate))) {
+            return true;
+        }
 
-        return StringUtils.containsIgnoreCase(strCellValue, value);
+        return StringUtils.containsIgnoreCase(String.valueOf(cellValue), value);
     }
 
 }
