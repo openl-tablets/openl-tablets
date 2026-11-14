@@ -18,7 +18,8 @@ const NUMBER = String.raw`[+-]?\d+(?:\.\d+)?`
 
 /** The ways OpenL writes two bounds between brackets, and the ways it writes them without. */
 const BRACKETED = new RegExp(String.raw`^([[(])\s*(${NUMBER})\s*(?:\.{2,3}|…|;|-)\s*(${NUMBER})\s*([\])])$`)
-const SEPARATED = new RegExp(String.raw`^(${NUMBER})\s*(\.{2,3}|…|;|-)\s*(${NUMBER})$`)
+/** The separator is taken with the spaces around it, so a range can be written back the way it was. */
+const SEPARATED = new RegExp(String.raw`^(${NUMBER})(\s*(?:\.{2,3}|…|;|-)\s*)(${NUMBER})$`)
 const AT_LEAST = new RegExp(String.raw`^(>=?)\s*(${NUMBER})$`)
 const AT_MOST = new RegExp(String.raw`^(<=?)\s*(${NUMBER})$`)
 const AND_MORE = new RegExp(String.raw`^(${NUMBER})\s*\+$`)
@@ -47,7 +48,7 @@ export const parseRange = (text: string): RangeBounds => {
     }
     const separated = SEPARATED.exec(written)
     if (separated) {
-        const included = !OPEN_SEPARATORS.has(separated[2] ?? '')
+        const included = !OPEN_SEPARATORS.has((separated[2] ?? '').trim())
         return { from: separated[1] ?? '', to: separated[3] ?? '', fromIncluded: included, toIncluded: included }
     }
     const atLeast = AT_LEAST.exec(written)
@@ -90,8 +91,40 @@ export const shapeOf = (bounds: RangeBounds): RangeShape => {
  * either side — `IntRange` and `DoubleRange` say so in as many words — and a bound stands against its sign with
  * nothing between them. Brackets are written only where they say something: bounds that are both inside the
  * range need none.
+ *
+ * <p>When the cell held a range already, the new bounds keep the way the author wrote it — `3+`, `1-5`,
+ * `[1; 5)` — as long as that way can still say them. A range whose shape changed is written the Editor's way.
  */
-export const formatRange = (bounds: RangeBounds): string => {
+export const formatRange = (bounds: RangeBounds, writtenAs = ''): string => writtenLike(bounds, writtenAs.trim())
+    ?? canonical(bounds)
+
+/** The bounds written the way the author wrote the range, or null when that way cannot say them. */
+const writtenLike = (bounds: RangeBounds, written: string): string | null => {
+    const lower = bounds.from.trim()
+    const upper = bounds.to.trim()
+    const shape = shapeOf(bounds)
+    if (shape === 'at-least' && bounds.fromIncluded && lower !== '' && AND_MORE.test(written)) {
+        return `${lower}+`
+    }
+    if (shape !== 'between') {
+        return null
+    }
+    const separated = SEPARATED.exec(written)
+    if (separated && bounds.fromIncluded === bounds.toIncluded
+        && bounds.fromIncluded !== OPEN_SEPARATORS.has((separated[2] ?? '').trim())) {
+        return `${lower}${separated[2]}${upper}`
+    }
+    const bracketed = BRACKETED.exec(written)
+    if (bracketed) {
+        const inside = written.slice(1, -1).trim()
+        const separator = SEPARATED.exec(inside)?.[2] ?? ' .. '
+        const between = `${lower}${separator}${upper}`
+        return `${bounds.fromIncluded ? '[' : '('}${between}${bounds.toIncluded ? ']' : ')'}`
+    }
+    return null
+}
+
+const canonical = (bounds: RangeBounds): string => {
     const lower = bounds.from.trim()
     const upper = bounds.to.trim()
     switch (shapeOf(bounds)) {

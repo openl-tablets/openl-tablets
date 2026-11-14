@@ -100,7 +100,7 @@ export const RangeEditor: React.FC<RangeEditorProps> = ({ value, intOnly, onWrit
 
     const numeric = numberOnly(intOnly)
     const problem = rangeProblem(bounds)
-    const written = formatRange(bounds)
+    const written = formatRange(bounds, value)
 
     /** A bound the reader enters. The exact shape has one number standing for both bounds, so it writes both. */
     const enter = (side: 'from' | 'to', entered: string) => setBounds(current => (shape === 'exact'
