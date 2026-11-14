@@ -11,14 +11,14 @@ vi.mock('../services/repositories', () => ({
 describe('useRepositoryConfig', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: { save: 'by project' } } })
-        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: { templates: { create: 'by repository' } } })
+        vi.mocked(getRepositoryConfig).mockResolvedValue({ branch: 'by project', comment: {} })
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ branch: 'by repository', comment: {} })
     })
 
     it('asks through the project, so a user granted the project alone still gets the settings', async () => {
         const { result } = renderHook(() => useRepositoryConfig({ projectId: 'p1' }))
 
-        await waitFor(() => expect(result.current?.comment.templates.save).toBe('by project'))
+        await waitFor(() => expect(result.current?.branch).toBe('by project'))
         expect(getRepositoryConfig).toHaveBeenCalledWith('p1')
         expect(getDesignRepositoryConfig).not.toHaveBeenCalled()
     })
@@ -26,7 +26,7 @@ describe('useRepositoryConfig', () => {
     it('asks the repository when there is no project yet', async () => {
         const { result } = renderHook(() => useRepositoryConfig({ repositoryId: 'design' }))
 
-        await waitFor(() => expect(result.current?.comment.templates.create).toBe('by repository'))
+        await waitFor(() => expect(result.current?.branch).toBe('by repository'))
         expect(getDesignRepositoryConfig).toHaveBeenCalledWith('design')
     })
 

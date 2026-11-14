@@ -22,8 +22,8 @@ export interface RepositoryFeatures {
 }
 
 /**
- * Settings of the repository a project is stored in, as the project forms need them: how a branch name and
- * a commit comment are suggested, and the expressions they must match.
+ * Settings of the repository a project is stored in, as the project forms need them: how a branch name is
+ * suggested, and the expressions a branch name and a commit comment must match.
  */
 export interface RepositoryConfig {
     /** Configured branch preselected by project-creation forms; also the repository's default branch. */
@@ -39,16 +39,9 @@ export interface RepositoryConfig {
         invalidNameHint?: string | undefined
     } | undefined
     comment: {
-        /** Expression a comment must match; absent when the repository does not customize comments. */
+        /** Expression a comment must match; absent when any comment is accepted. */
         userMessagePattern?: string | undefined
         invalidUserMessageHint?: string | undefined
-        /** Templates the suggested comments are built from. */
-        templates: {
-            save?: string | undefined
-            create?: string | undefined
-            copy?: string | undefined
-            restoreFrom?: string | undefined
-        }
     }
 }
 

@@ -1,14 +1,13 @@
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import type { RepositoryConfig } from '../types/repositories'
-import { commentMoment } from './dateFormat'
+
+dayjs.extend(utc)
 
 /** The server rejects longer comments (`CommentValidator.MAX_COMMENT_LENGTH`). */
 const MAX_COMMENT_LENGTH = 255
 
-/**
- * Symbols a branch name keeps from the project name. Mirrors the server's `Comments.newBranch`, which
- * strips everything else before filling the pattern.
- */
+/** Symbols a branch name keeps from the project name: letters, digits, `-` and `$`; the rest is stripped. */
 const BRANCH_NAME_RESTRICTED = /[^\p{L}\p{Nd}\-$]/gu
 
 /** Characters forbidden by Git refs and by the server's `NewBranchValidator`. */
@@ -16,24 +15,13 @@ const BRANCH_NAME_RESTRICTED = /[^\p{L}\p{Nd}\-$]/gu
 // class carries no duplicate characters while matching exactly the same set of characters.
 const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0008\u000E-\u001F\u007F\s\\~^:?*[\]{}"<>|]/u
 
-/** `{datetime}` of a template, or `{datetime:<pattern>}` naming the pattern the moment is written in. */
-const DATETIME = /\{datetime(?::([^}]*))?\}/g
-
 interface TemplateValues {
     projectName?: string | undefined
     username?: string | undefined
-    revision?: string | undefined
-    author?: string | undefined
-    /** The moment of the restored revision, as the server answers it; the template says how it is written. */
-    datetime?: string | undefined
 }
 
-/**
- * Fills a repository template — `{project-name}`, `{username}`, `{current-date}`, and, for a restored
- * revision, `{revision}`, `{author}` and `{datetime}`, or `{datetime:<pattern>}` — the way the server does when it
- * generates the value itself.
- */
-export const applyTemplate = (template: string | undefined, values: TemplateValues): string => {
+/** Fills a repository template — `{project-name}`, `{username}` and `{current-date}`. */
+const applyTemplate = (template: string | undefined, values: TemplateValues): string => {
     if (!template) {
         return ''
     }
@@ -41,9 +29,6 @@ export const applyTemplate = (template: string | undefined, values: TemplateValu
         .replaceAll('{project-name}', values.projectName ?? '')
         .replaceAll('{username}', values.username ?? '')
         .replaceAll('{current-date}', dayjs().format('YYYYMMDD'))
-        .replaceAll('{revision}', values.revision ?? '')
-        .replaceAll('{author}', values.author ?? '')
-        .replaceAll(DATETIME, (_, pattern?: string) => commentMoment(values.datetime, pattern))
 }
 
 /** The branch name the repository suggests for a new branch of this project. */
@@ -56,17 +41,38 @@ export const suggestBranchName = (
 })
 
 /**
- * The comment the repository suggests for an action that commits. An action the repository configures no
- * template for starts from an empty comment.
+ * The comment suggested for an action that commits a project: `Project Bank Rating is saved.`, `Project Bank
+ * Rating is created.` or `Copied from: Bank Rating.`, naming the copied project.
+ *
+ * The server writes the same comments (`Comments`) when a request carries none, so a commit reads alike whether its
+ * comment was typed or not. A comment is text stored in the repository and read by anyone, so it is not translated.
  */
-export const suggestComment = (
-    config: RepositoryConfig | undefined,
-    action: keyof NonNullable<RepositoryConfig['comment']>['templates'],
-    values: TemplateValues | string | undefined
-): string => applyTemplate(
-    config?.comment?.templates?.[action],
-    typeof values === 'string' || values === undefined ? { projectName: values } : values
-)
+export const suggestComment = (action: 'save' | 'create' | 'copy', projectName = ''): string => {
+    switch (action) {
+        case 'save':
+            return `Project ${projectName} is saved.`
+        case 'create':
+            return `Project ${projectName} is created.`
+        case 'copy':
+            return `Copied from: ${projectName}.`
+    }
+}
+
+/**
+ * The moment of a restored revision as its comment names it, the way the server writes it: `06/22/2020 09:02:42 PM`,
+ * in UTC and in English, whatever the reader. Empty for a missing or unreadable value.
+ */
+const commentMoment = (value: string | undefined): string => {
+    const date = dayjs(value)
+    return value && date.isValid() ? date.utc().locale('en').format('MM/DD/YYYY hh:mm:ss A') : ''
+}
+
+/**
+ * The comment suggested for saving a project opened on an older revision, which restores that revision: it names the
+ * author and the moment of the revision, `Restored from revision of John on 06/22/2020 09:02:42 PM.`
+ */
+export const suggestRestoreComment = (author: string | undefined, modifiedAt: string | undefined): string =>
+    `Restored from revision of ${author?.trim() ?? ''} on ${commentMoment(modifiedAt)}.`
 
 /**
  * Checks a branch name against the Git naming rules and the expression the repository configures, so an

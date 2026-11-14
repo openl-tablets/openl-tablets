@@ -12,7 +12,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
@@ -69,7 +68,6 @@ public class ProjectRevisionChangesService {
             .comparing(ProjectRevisionChanges.ChangedFile::path, ConflictGroup.FILE_ORDER);
 
     private final DesignTimeRepository designTimeRepository;
-    private final ObjectProvider<HistoryRepositoryMapper> historyMappers;
 
     /**
      * The files of the project the revision changed, or the files the working copy changed since the base.
@@ -333,7 +331,7 @@ public class ProjectRevisionChangesService {
                                           @Nullable FileData common,
                                           List<ProjectRevisionChanges.ChangedFile> files,
                                           List<String> conflicts) {
-        var history = historyMappers.getObject(repository);
+        var history = new HistoryRepositoryMapper(repository);
         return new ProjectRevisionChanges(from == null ? null : history.revisionOf(from),
                 to == null ? null : history.revisionOf(to),
                 common == null ? null : history.revisionOf(common),

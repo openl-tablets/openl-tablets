@@ -41,10 +41,8 @@ import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
-@TestPropertySource(properties = {"repository.design-rating.comment-template.use-custom-comments = false",
-        "repository.design-pattern.new-branch.regex = release/.+",
+@TestPropertySource(properties = {"repository.design-pattern.new-branch.regex = release/.+",
         "repository.design-pattern.new-branch.regex-error = Use release/<name>",
-        "repository.design-rating2.comment-template.use-custom-comments = true",
         "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
         "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
 class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorTest {

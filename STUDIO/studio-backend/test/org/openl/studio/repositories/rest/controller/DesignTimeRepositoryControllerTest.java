@@ -28,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
@@ -75,7 +74,6 @@ class DesignTimeRepositoryControllerTest {
     private ProjectCreationTargetResolver projectCreationTargetResolver;
     private RepositoryConfigService repositoryConfigService;
     private ProjectIdConverter projectIdConverter;
-    private Comments comments;
     private DesignTimeRepositoryController controller;
 
     @BeforeEach
@@ -86,7 +84,6 @@ class DesignTimeRepositoryControllerTest {
         zipProjectSaveStrategy = mock(ZipProjectSaveStrategy.class);
         repositoryConfigService = mock(RepositoryConfigService.class);
         projectIdConverter = mock(ProjectIdConverter.class);
-        comments = mock(Comments.class);
         aclProjectsHelper = mock(AclProjectsHelper.class);
         bypassService = mock(ProtectedBranchBypassService.class);
         projectCreationService = mock(ProjectCreationService.class);
@@ -114,13 +111,7 @@ class DesignTimeRepositoryControllerTest {
                 projectCreationTargetResolver,
                 repositoryConfigService,
                 projectIdConverter,
-                new ProjectAuditor(event -> events.add((AuditEvent) event))) {
-            // The comment service is a @Lookup bean, absent outside a Spring context.
-            @Override
-            protected Comments getCommentsService(String repoName) {
-                return comments;
-            }
-        };
+                new ProjectAuditor(event -> events.add((AuditEvent) event)));
 
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "password"));
     }
@@ -132,8 +123,8 @@ class DesignTimeRepositoryControllerTest {
 
     @Test
     void configOfTheRepositoryIsReadForTheCreateForms() {
-        var config = new RepositoryConfigModel(null, new RepositoryConfigModel.Comment(null, null,
-                new RepositoryConfigModel.Templates(null, "Project {project-name} is created.", null, null)));
+        var config = new RepositoryConfigModel(null,
+                new RepositoryConfigModel.Comment("EPBDS-\\d+.*", "Start the comment with a ticket"));
         when(repositoryConfigService.getConfig(REPOSITORY_ID)).thenReturn(config);
 
         assertEquals(config, controller.getConfig(repository));
@@ -204,14 +195,13 @@ class DesignTimeRepositoryControllerTest {
         // The request addresses its source by an id, which is no name to put in a commit comment.
         var source = sourceProject("Source");
         when(source.getBusinessName()).thenReturn("Source Rules");
-        when(comments.copiedFrom("Source Rules")).thenReturn("Copied from: Source Rules.");
         when(projectCreationService.copyProject(repository, "Copy", null, source, "Copied from: Source Rules.", null))
                 .thenReturn(created("Copy"));
 
         controller.createProjectFromProject(repository, "Copy",
                 new CreateFromProjectModel(sourceId("Source"), null, null, null));
 
-        verify(comments).copiedFrom("Source Rules");
+        verify(projectCreationService).copyProject(repository, "Copy", null, source, "Copied from: Source Rules.", null);
     }
 
     @Test

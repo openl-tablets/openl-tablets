@@ -1063,13 +1063,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (comment != null) {
             return comment;
         }
-        var comments = new Comments(environment, project.getRepository().getId());
         if (project.isOpenedOtherVersion()) {
             var fileData = project.getFileData();
             var authorName = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
-            return comments.restoredFrom(fileData.getVersion(), authorName, fileData.getModifiedAt());
+            return Comments.restoredFrom(authorName, fileData.getModifiedAt());
         }
-        return comments.saveProject(project.getBusinessName());
+        return Comments.saveProject(project.getBusinessName());
     }
 
     private void requireGranted(AProjectArtefact project, Permission permission) {

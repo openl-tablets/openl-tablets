@@ -6,17 +6,24 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.util.StringUtils;
 
 public final class CommentValidator {
 
     /** The most characters of a comment a repository keeps: a database repository stores it in a column of 255. */
     public static final int MAX_COMMENT_LENGTH = 255;
-    private final Pattern pattern;
-    private final String invalidMessage;
+    private final @Nullable Pattern pattern;
+    private final @Nullable String invalidMessage;
 
-    private CommentValidator(String regex, String invalidMessage) {
-        this.pattern = StringUtils.isBlank(regex) ? null : Pattern.compile(regex);
+    /**
+     * @param regex          the pattern a comment must match; the spaces around it are ignored, as the screens of
+     *                       OpenL Studio ignore them, and a blank one accepts any comment
+     * @param invalidMessage the message telling why a comment does not match
+     */
+    CommentValidator(@Nullable String regex, @Nullable String invalidMessage) {
+        var trimmed = StringUtils.trimToNull(regex);
+        this.pattern = trimmed == null ? null : Pattern.compile(trimmed);
         this.invalidMessage = invalidMessage;
     }
 
@@ -40,13 +47,14 @@ public final class CommentValidator {
         }
     }
 
+    /**
+     * The validator of the comments of a repository. A repository without a validation pattern accepts any comment
+     * up to the maximum length.
+     */
     public static CommentValidator forRepo(String repoId) {
-        var customComments = Boolean.parseBoolean(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.use-custom-comments"));
-        if (customComments) {
-            return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.comment-validation-pattern"),
-                    Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
-        }
-        return new CommentValidator(null, null);
+        var prefix = Comments.REPOSITORY_PREFIX + repoId;
+        return new CommentValidator(Props.text(prefix + RepositorySettings.COMMENT_VALIDATION_PATTERN_SUFFIX),
+                Props.text(prefix + RepositorySettings.INVALID_COMMENT_MESSAGE_SUFFIX));
     }
 
 }
