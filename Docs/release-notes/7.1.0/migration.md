@@ -27,9 +27,12 @@ engine change how an existing project compiles or runs, as listed for the rules 
   a field of a primitive type, such as `int` or `double`, read as `0`, so an empty expected cell failed the test case.
   Now an expected `0` there fails it: leave the cell empty.
 
-* **A test reads the steps of a spreadsheet result in an expected error.** When a rule calls `error` with a
-  spreadsheet result, `_error_.$Code` or `_error_.errors[0].$Code` holds the value of that step. Before, a step read as
-  empty, so an expected value there failed the test case and an empty one passed it. Write the value the step holds.
+* **A test checks the fields and the steps an expected error really has.** When a rule calls `error` with a
+  spreadsheet result, `_error_.$Code` or `_error_.errors[0].$Code` holds the value of that step. A field or a step that
+  the error does not have fails the test case with a message such as
+  `Field 'BlaBla' is not found in the error of type 'String[]'.` Before, both read as empty, so an expected value there
+  failed the test case and an empty one passed it. Write the value the step holds, and remove the checks of the fields
+  the error does not have.
 
 ## Administrators
 

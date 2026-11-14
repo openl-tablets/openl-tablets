@@ -1,14 +1,17 @@
 package org.openl.rules.testmethod;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -90,26 +93,57 @@ public class UserErrorOpenClass extends ADynamicClass {
             } else if (ThisField.THIS.equals(getName())) {
                 return target;
             } else if (target instanceof SpreadsheetResult result) {
+                if (!result.hasField(getName())) {
+                    throw notFound(target);
+                }
                 return result.getFieldValue(getName());
             } else {
-                var targetClass = target.getClass();
-                try {
-                    var field = targetClass.getField(getName());
-                    if (Modifier.isPublic(field.getModifiers())) {
-                        return field.get(target);
-                    }
-                } catch (NoSuchFieldException | IllegalAccessException ignored) {
-                    // there is no public field to read, so the getter is tried
-                }
-                var name = ClassUtils.capitalize(getName()); // According to JavaBeans v1.01
-                try {
-                    var getter = targetClass.getMethod("get" + name);
-                    return getter.invoke(target);
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-                    // the value cannot be read through a getter either, so there is none
-                }
+                return readProperty(target);
+            }
+        }
+
+        /**
+         * Reads the value of a public field or of an accessor of the target: a JavaBeans getter, {@code getX} or
+         * {@code isX}, or the accessor of a record component.
+         *
+         * @throws OpenLRuntimeException if the target has none of them
+         */
+        private @Nullable Object readProperty(Object target) {
+            var targetClass = target.getClass();
+            try {
+                return targetClass.getField(getName()).get(target);
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                // there is no public field to read, so an accessor is tried
+            }
+            var accessor = accessorOf(targetClass);
+            if (accessor == null) {
+                throw notFound(target);
+            }
+            try {
+                return accessor.invoke(target);
+            } catch (IllegalAccessException | InvocationTargetException ignored) {
+                // the accessor exists but cannot give a value, so there is none
                 return null;
             }
+        }
+
+        /** The accessor of the field in the given class, or {@code null} when it has none. */
+        private @Nullable Method accessorOf(Class<?> targetClass) {
+            var capitalized = ClassUtils.capitalize(getName()); // According to JavaBeans v1.01
+            var names = targetClass.isRecord() ? List.of(getName()) : List.of("get" + capitalized, "is" + capitalized);
+            for (var name : names) {
+                try {
+                    return targetClass.getMethod(name);
+                } catch (NoSuchMethodException ignored) {
+                    // the next form of the accessor is tried
+                }
+            }
+            return null;
+        }
+
+        private OpenLRuntimeException notFound(Object target) {
+            return new OpenLRuntimeException("Field '%s' is not found in the error of type '%s'."
+                    .formatted(getName(), target.getClass().getSimpleName()));
         }
 
         @Override
