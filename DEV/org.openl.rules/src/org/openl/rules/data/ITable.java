@@ -64,6 +64,13 @@ public interface ITable {
 
     IGridTable getRowTable(int row);
 
+    /**
+     * Returns the first row of a record in the rows of {@link #getData()}, its title row first.
+     *
+     * @param index the index of the record in the data of the table
+     */
+    int firstRowOf(int index);
+
     int getSize();
 
     TableSyntaxNode getTableSyntaxNode();
