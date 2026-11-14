@@ -127,7 +127,7 @@ The project actions of the editor are the ones described for the **Projects** pa
 -   To synchronize the project with another branch, click **Sync** and see [Working with Project Branches](project-branches.md#working-with-branches).
 -   To deploy the project, click **Deploy** and see [Deploying a Project](repository-editor.md#deploying-a-project).
 
-The content of a project is replaced by the content of a ZIP archive by creating a project from the archive, as described in [Creating a Project from ZIP Archive](repository-editor.md#creating-a-project-from-zip-archive), or file by file on the **Files** tab, as described in [Modifying Project Contents](repository-editor.md#modifying-project-contents).
+The content of a project is replaced by the content of a ZIP archive by creating a project from the archive, as described in [Creating a Project from ZIP Archive](repository-editor.md#creating-a-project-from-zip-archive), or file by file from the project tree, as described in [Modifying Project Contents](repository-editor.md#modifying-project-contents).
 
 #### Exporting, Updating, and Editing a Module
 
@@ -251,7 +251,7 @@ The **Localization** screen shows the localization messages of a project, the `m
 
 To open the screen, open the project, click the arrow next to the module name in the breadcrumb, and select **Localization** below the modules. To return to a module, select it in the same list. The screen also opens from the following places:
 
--   **Open in Editor** of a localization file in the **Files** tab of the project, as described in [Editing a Text File](repository-editor.md#editing-a-text-file).
+-   **Open in Editor** of a localization file selected in the projects tree, as described in [Editing a Text File](repository-editor.md#editing-a-text-file).
 -   The key of a `msg` call in a table cell, as described in [Checking Localization](#checking-localization).
 -   A warning about a localization file in the compilation problems panel, as described in [Checking Localization](#checking-localization).
 
@@ -417,7 +417,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     -   Above the table, click **Edit**.
     -   Double click the cell to edit.
 
-    Alternatively, the file can be edited in Excel. Clicking the **Export** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or on the **Files** tab of the project.
+    Alternatively, the file can be edited in Excel. Clicking the **Export** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or by selecting the file in the project tree on the left of the project page.
 
     The following table is switched to the edit mode:
 
@@ -680,7 +680,7 @@ files**.
 
 An `.xlsx` file uploaded into a project is formatted as well, while the setting is selected:
 
--   a module updated with **Update**, and a file uploaded or updated on the **Files** tab;
+-   a module updated with **Update**, and a file uploaded or updated on the page of the project;
 -   a project updated from a ZIP archive or from files;
 -   a ZIP archive that replaces a project in Design repository;
 -   a workbook of the project a merge of branches combines from both branches, as described in
@@ -1256,11 +1256,11 @@ select **Tables generation**, and choose the OpenAPI file. Regeneration overwrit
 
 #### Updating the OpenAPI File
 
-When the project is generated from the OpenAPI file and reconciliation is done, the system automatically validates the generated OpenL Tablets rules and data types. If the file is updated in the **Files** tab, as described in [Updating a File](repository-editor.md#updating-a-file), and the name is not changed, reconciliation is completed immediately.
+When the project is generated from the OpenAPI file and reconciliation is done, the system automatically validates the generated OpenL Tablets rules and data types. If the file is selected in the project tree and updated with **Update** in its pane, as described in [Updating a File](repository-editor.md#updating-a-file), and the name is not changed, reconciliation is completed immediately.
 
 To reconcile a project using an OpenAPI file with a different name, proceed as follows:
 
-1.  Ensure that the OpenAPI file is uploaded to the project via the **Files** tab, or pick it from the computer with the upload icon in the next step.
+1.  Ensure that the OpenAPI file is uploaded to the project, as described in [Uploading a File](repository-editor.md#uploading-a-file), or pick it from the computer with the upload icon in the next step.
 2.  Open the **Overview** tab of the project page and click **Edit**.
 3.  In the **File** field of the **OpenAPI** section, select the OpenAPI file, select **Reconciliation,** and click **Save**.
 

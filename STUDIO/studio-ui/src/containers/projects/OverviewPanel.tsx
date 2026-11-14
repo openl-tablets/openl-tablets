@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { Project, ProjectDependency, ProjectModule } from '../../types/projects'
-import { getFileContent, rootFileExists, uploadFile, writeRootFile } from '../../services/files'
+import { getFileContent, uploadFile, writeRootFile } from '../../services/files'
 import {
     EMPTY_RULES_DESCRIPTOR,
     parseRulesDescriptor,
@@ -769,6 +769,9 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const { notification } = App.useApp()
     const [rules, setRules] = useState<RulesDescriptor>(EMPTY_RULES_DESCRIPTOR)
     const [fileExists, setFileExists] = useState(false)
+    // The paths of the files of the project, read with the descriptor: they say whether rules.xml is there, and the
+    // OpenAPI section picks a specification from them.
+    const [files, setFiles] = useState<string[]>([])
     const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
     const [editing, setEditing] = useState(false)
     const [draft, setDraft] = useState<RulesDescriptor>(EMPTY_RULES_DESCRIPTOR)
@@ -812,7 +815,21 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
         // so the base can never move under a save.
         setRefreshing(sameProject)
         const savesAtRead = saves.current
-        rootFileExists(project.id, 'rules.xml')
+        getProjectFiles(project.id)
+            .then(nodes => {
+                // The files are kept even when rules.xml cannot be read: the OpenAPI section still finds a
+                // specification among them. Only a failed listing clears them.
+                const paths = nodes.filter(node => node.type === 'file').map(node => node.path)
+                if (!cancelled) {
+                    setFiles(paths)
+                }
+                return paths.includes('rules.xml')
+            }, (e: unknown) => {
+                if (!cancelled) {
+                    setFiles([])
+                }
+                throw e
+            })
             .then(async exists => {
                 const xml = exists ? await getFileContent(project.id, 'rules.xml') : ''
                 if (cancelled) {
@@ -898,7 +915,7 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     // Refused only where the edit makes the names one, as the server refuses them: names saved so stay editable.
     const editor: DescriptorEditor = { editing, shown, namesClash: makesOneModule(rules.openapi, shown.openapi), editDraft }
     return {
-        state, refreshing, editing, saving, fileExists, projectNames, declaredModules, editor,
+        state, refreshing, editing, saving, fileExists, files, projectNames, declaredModules, editor,
         startEditing, cancelEditing: endEditing, saveEditing,
         staged: stagedUpload, stageUpload: (file: File) => setStagedUpload(file),
     }
@@ -1284,43 +1301,27 @@ const DEFAULT_OPENAPI_FILES = ['openapi.yaml', 'openapi.yml', 'openapi.json']
  * A specification picked from the file system reaches the project with the save that keeps it, not with
  * the picking.
  */
-const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritten, reloadToken }: {
+const OpenApiSection = ({ editor, projectId, files: projectFiles, staged, onPicked, canWrite, onWritten }: {
     editor: DescriptorEditor
     projectId: string
+    /**
+     * The paths of the files of the project, read with the descriptor whenever the project reloads: writing the
+     * specification adds the very file the section looks for, and rules.xml, read again by then, need not name it.
+     */
+    files: string[]
     staged: File | null
     onPicked: (file: File) => void
     canWrite: boolean
     onWritten: () => void
-    /** Bumped when the project reloads, so the files a specification is looked for among are read again. */
-    reloadToken: number | undefined
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { editing, shown, editDraft } = editor
-    const [files, setFiles] = useState<string[]>([])
+    // What a specification can be picked from, and what says whether a project declaring nothing still has one the
+    // engine reads.
+    const files = useMemo(() => projectFiles.filter(isOpenApiFile), [projectFiles])
     const openApi = useOpenApiActions(projectId, onWritten)
-
-    // Read whether or not the reader is editing: they are what a file can be picked from, and they are also
-    // what says whether a project declaring nothing still has a specification the engine reads. Read again
-    // whenever the project reloads: writing the specification adds the very file the section looks for,
-    // and rules.xml, read again by then, need not name it.
-    useEffect(() => {
-        let cancelled = false
-        getProjectFiles(projectId)
-            .then(nodes => {
-                if (!cancelled) {
-                    setFiles(nodes.filter(node => node.type === 'file' && isOpenApiFile(node.path)).map(node => node.path))
-                }
-            })
-            .catch(() => {
-                // A read a later one has overtaken says nothing about the files any more, failed or not.
-                if (!cancelled) {
-                    setFiles([])
-                }
-            })
-        return () => { cancelled = true }
-    }, [editing, projectId, reloadToken])
 
     // What the engine reads: the block the descriptor declares, or the file it falls back to without one.
     const byDefault = shown.openapi ? undefined : DEFAULT_OPENAPI_FILES.find(name => files.includes(name))
@@ -1686,10 +1687,10 @@ export const OverviewPanel = ({
                 <OpenApiSection
                     canWrite={canWrite}
                     editor={descriptor.editor}
+                    files={descriptor.files}
                     onPicked={descriptor.stageUpload}
                     onWritten={() => onChanged?.()}
                     projectId={project.id}
-                    reloadToken={reloadToken}
                     staged={descriptor.staged}
                 />
             </div>

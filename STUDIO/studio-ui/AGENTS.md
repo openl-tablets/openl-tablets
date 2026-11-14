@@ -183,7 +183,14 @@ The build writes two pages (`build.rollupOptions.input`):
   windows rather than chosen — the launch of an execution, the trace launch counter — is no setting and keeps
   `readStored`/`writeStored`.
 - **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
-  with `AdministrationLayout`.
+  with `AdministrationLayout`. A project (`projects/:projectId`) is a child route of the Projects list: `ProjectsHome`
+  stays mounted and shows the project in place of the list, so its rail — the Filters and Tree views, the tree and
+  what it read — stays while the reader moves between the list and the projects. While a project is shown the list
+  reads its parameters from the filters it saved, and a change of them leads back to the list; a link back to the list
+  that names no parameters finds it as it was left, as a first visit does. Each project gets a
+  page of its own (the outlet is keyed by the project), so nothing read for one project shows under another. The page
+  tells the tree what it shows, and that it read its project again, through the outlet context
+  (`useReportProjectRail`).
 - **i18n**: bundles in `src/locales/*.en.ts`, registered as namespaces. Reference keys like `t('common:menu.users')` or
   `t('system:tabs.repositories')`. A key that no bundle defines renders as the key itself, and component tests mock `t`
   so they cannot notice — `src/locales/lookups.test.ts` resolves every literal `t('…')` and `i18nKey` in the sources
@@ -310,7 +317,7 @@ The build writes two pages (`build.rollupOptions.input`):
       deployments). The scope leaves the field when the part leaves the screen, or while it passes `null`: a tab
       that is not shown, a history that cannot be searched.
     - **The field is drawn as the formula bar of a workbook.** A *name box* says what is searched (**Projects**,
-      **Files**, **Tables**), then comes the text, then the control of the screen; focused, the whole field wears the
+      **Revisions**, **Tables**), then comes the text, then the control of the screen; focused, the whole field wears the
       ring of a picked cell. It takes its shape and colours from the Ant Design token alone, so it follows every
       theme, appearance and density. On a narrow window the field shrinks before the tabs fold into their overflow,
       and the name of the application gives way to it.
@@ -320,9 +327,8 @@ The build writes two pages (`build.rollupOptions.input`):
       |---|---|---|
       | Projects | `projects` | The list, and the tree beside it, by the same text and the same fields |
       | Deployments | `deployments` | The deployments of the repository |
-      | A project, **Files** | `files` | The file tree |
       | A project, **Revisions** | `revisions` | The history, on the server |
-      | A project, its tree of projects | `projects-tree` | The tree; a panel, see below |
+      | A project, its tree of projects | `projects-tree` | The tree, and the files of the projects unfolded in it; a panel, see below |
       | A module | `tables` | The tables of the module, by name |
       | Localization | `messages` | The keys of the rail |
       | User guides | `guides` | The text of the guides; the results take the place of the contents |
@@ -362,9 +368,8 @@ The build writes two pages (`build.rollupOptions.input`):
       is: `RevisionsPanel` is searched from the header on the tab of a project (`headerSearch`) and by its own box
       in the dialog of the module editor.
     - **Adding a search to a screen** is a call of `useSearchScope` and a name in `common:search.scopes` — never an
-      input. The part that keeps the text registers the scope, not a control drawn beside it: the Files tab is
-      searched through `ProjectDetail`, which holds the filter, so a reader who cannot change the files, and sees no
-      toolbar, still searches them. The store (`store/searchStore.ts`) is imported from its own module, not through `store`, which many
+      input. The part that keeps the text registers the scope, not a control drawn beside it: the history of a
+      project is searched through `RevisionsPanel`, which holds the text and reads the history by it. The store (`store/searchStore.ts`) is imported from its own module, not through `store`, which many
       tests mock whole. The field takes the texts it draws from the store and calls the handlers of the latest
       render, so a screen may hand it new functions on every render at no cost.
     - **Tests** render a screen without the header and drive the search through `src/testing/search.ts`:

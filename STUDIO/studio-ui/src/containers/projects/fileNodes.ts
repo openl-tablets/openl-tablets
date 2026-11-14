@@ -1,5 +1,5 @@
-// The shape of a project's files as a tree, built from the flat paths the server lists them by. Both the
-// Files tab and the projects rail draw it, each with its own icons and titles, so only the shape lives here.
+// The shape of a project's files as a tree, built from the flat paths the server lists them by. The projects rail
+// draws it with its own icons and titles, so only the shape lives here.
 
 /** A file or a folder of a project, with the folders it holds when it is one. */
 export interface FileNode {

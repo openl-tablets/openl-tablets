@@ -84,6 +84,7 @@ The following table describes the actions of the project page in their display o
 | **Open**          | Opens the project. For versioned repositories, its menu offers **Open Revision**. See [Opening a Project](#opening-a-project). | The project is closed. |
 | **Open Revision** | Opens an earlier revision of the project. See [Opening a Project](#opening-a-project).                             | The repository stores project revisions; the project is open, or from the **Open** menu while it is closed. |
 | **Close**         | Closes the project. See [Closing a Project](#closing-a-project).                                                   | The project is open.                                                                           |
+| **Add**           | Adds a folder or a file to the folder shown, beside the file shown, or at the root of the project while a tab is shown. See [Modifying Project Contents](#modifying-project-contents). | The project is open and not locked by another user. |
 | **Sync**          | Merges the project with another branch. See [Working with Project Branches](project-branches.md#working-with-branches). | The repository supports branches and the project has no unsaved changes.                       |
 | **Copy**          | Copies the project into a new project or a new branch. See [Copying a Project](#copying-a-project).                | The user can create projects or branch this one.                                               |
 | **Delete Branch** | Deletes the branch the project is on. See [Working with Project Branches](project-branches.md#working-with-branches). | The branch is not the default one and is not protected.                                        |
@@ -102,11 +103,13 @@ The tabs below the title row show the following:
     which retain only the current project state. See [Opening a Project](#opening-a-project),
     [Viewing the Changes of a Revision](#viewing-the-changes-of-a-revision) and
     [Comparing Two Revisions](#comparing-two-revisions).
--   **Files** shows the files and folders of the project. See [Modifying Project Contents](#modifying-project-contents).
 -   **Deploy Configuration** shows the `rules-deploy.xml` settings and the deployments of the project. See [Deploying a Project](#deploying-a-project).
 -   **Management** assigns roles on the project. See [Managing Project Access](#managing-project-access).
 
-The panel on the left of the page shows the project **Tree** view described in [Browsing the Project Tree](#browsing-the-project-tree). The **Reload the tree** and **Hide the panel** icons in its header refresh the tree and fold the panel away.
+A file or a folder of the project selected in the tree on the left is shown in place of the content of a tab, and
+none of the tabs is selected. Selecting a tab leaves the file. See [Modifying Project Contents](#modifying-project-contents).
+
+The panel on the left of the page is the panel of the **Projects** page, with its **Filters** and **Tree** views described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree). It stays as it is while the user moves between the list and the projects: what is expanded in the tree, and what the tree has read, are kept. The **Reload the tree** and **Hide the panel** icons in its header refresh the tree and fold the panel away.
 
 ### Filtering and Grouping the Project Tree
 
@@ -150,18 +153,26 @@ While the filters are arranged, each group shows only its title:
 
 The **Tree** view shows the projects that the **Filters** view selects, the same ones the list shows, as a tree. The
 search field of the top bar narrows the tree and the list by the same text: a project is found by its name, author,
-branch or tag. The tree also keeps a group whose name holds the text, with all its projects.
+branch or tag. The tree also keeps a group whose name holds the text, with all its projects, and finds the files of
+the projects expanded in it by their path, opening the folders that hold them.
 
 -   Selecting a group, such as a repository or a tag value, sets its filters: the list shows the projects of the group,
-    and the tree narrows to it until the filters are cleared.
+    and the tree stays as it is. A pick made in the **Filters** view narrows both.
 -   Selecting a project opens it and leaves its row folded. The arrow before the project expands it and lists its
-    folders and files, with the size of every file, as the **Files** tab does.
--   Selecting a file opens it: a module in Rules Editor, any other file on the **Files** tab of its project. Selecting
-    a folder opens it on the **Files** tab and leaves it folded; the arrow before it expands it.
--   On a project page, the panel shows the **Tree** view only. The tree applies the filters last used on the Projects
-    list and always shows the project being viewed. To search it, click the name at the start of the search field
-    of the top bar and select **Projects**; on a tab with nothing of its own to search, the field searches the tree
-    already.
+    folders and files, with the size of every file.
+-   Selecting a file opens it: a module in Rules Editor, any other file on the page of its project. Selecting a folder
+    shows it on the page of its project and leaves it folded; the arrow before it expands it.
+-   A link to a file or a folder of a project opens the tree on it: the project and the folders leading to it unfold,
+    and the row is selected.
+-   In a project being edited, a file added or modified and not saved yet has a dot on its icon and its name in green
+    or orange, beside the Projects list and on a project page alike. A deleted file stays in the tree until the
+    project is saved, struck through with a red dot, and opens nothing; so does a folder whose files are all deleted.
+    A folder whose files are all added is marked as added, and any other folder holding a changed file has an orange
+    dot. Pointing at a marked row tells what changed.
+-   On a project page, the panel keeps both views. The tree applies the filters last used on the Projects list and
+    always shows the project being viewed; picking a filter or a group there shows the list again. To search the tree,
+    click the name at the start of the search field of the top bar and select **Projects**; on a tab with nothing of
+    its own to search, the field searches the tree already.
 
 To group projects by repository, branch or tag types, click **Group projects** ![](images/group-projects-icon.png) and
 select up to three levels. Tag values used for grouping are taken from the most recent version of a project, so after
@@ -173,13 +184,13 @@ definition for a project, see [Managing Tags](administration/06-tags.md#managing
 #### Clearing Filters
 
 While any filter is picked, the **Filters** and **Tree** views show **Clear filters** at their top, under the title.
-In the **Tree** view, the button also tells that the tree is filtered.
+In the **Tree** view, the button also tells that the list is filtered.
 
 -   **Clear filters** removes the status, repository, branch and tag picks and forgets the group selected in the tree,
     returning both views to the default-branch view. The search field keeps its text.
 -   When the filters hide every project, the list offers **Clear all filters**, which clears the search as well.
 
-![The Tree view narrowed to a picked group, with Clear filters under its title](images/projects-tree-filtered.png "Clearing the filters of the project tree")
+![The Tree view narrowed to the projects the Filters view picks, with Clear filters under its title](images/projects-tree-filtered.png "Clearing the filters of the project tree")
 
 ### Creating Projects in Design Repository
 
@@ -699,7 +710,7 @@ Keep in mind:
 
 ### Modifying Project Contents
 
-This section describes modifying the physical structure of the project in the **Files** tab and includes the following topics:
+This section describes modifying the physical structure of the project and includes the following topics:
 
 -   [Creating a Folder](#creating-a-folder)
 -   [Creating a Text File](#creating-a-text-file)
@@ -709,15 +720,22 @@ This section describes modifying the physical structure of the project in the **
 -   [Renaming, Moving and Copying a File](#renaming-moving-and-copying-a-file)
 -   [Deleting a Folder or a File](#deleting-a-folder-or-a-file)
 
-The **Files** tab shows the folders and files of the project as a tree, with the size of every file. The search field of the top bar, named **Files** on this tab, filters the tree by name. Select a file to view it, or a folder to see the actions available for it, in the pane on the right.
+The files of a project are reached from the tree on the left, as described in
+[Browsing the Project Tree](#browsing-the-project-tree): expand the project, and select a file to view it or a folder
+to see the actions available for it. The file or the folder is shown in place of the content of a tab.
 
-![The Files tab of a project with a text file selected](images/project-files-tab.png "The Files tab of a project")
+![The page of a project showing a text file selected in the tree](images/project-file-in-tree.png "A file of a project")
 
-*The Files tab of a project*
+*A file of a project*
 
-A project can be modified only while it is open and not locked by another user. The **Add** menu and the actions for files and folders are not shown otherwise.
+A project can be modified only while it is open and not locked by another user. The **Add** menu and the actions for
+files and folders are not shown otherwise. **Add** in the pane of a folder adds to that folder. **Add** among the
+actions of the project adds to the folder shown, beside the file shown, or at the root of the project while a tab is
+shown.
 
-Every change is made in the workspace copy of the project. The project status changes to **In Editing**, the added, modified and deleted files are marked in the tree, and **Local changes** above the tree lists them. Save the project to store the changes in Design repository, as described in [Saving a Project](#saving-a-project).
+Every change is made in the workspace copy of the project. The project status changes to **In Editing**, and the
+added, modified and deleted files are marked in the tree. Save the project to store the changes in Design repository, as
+described in [Saving a Project](#saving-a-project); the **Save** window lists them.
 
 An uploaded Excel workbook or ZIP archive is checked for completeness before it is stored. A file that did not
 arrive in full — an upload interrupted halfway, or content damaged on its way — is rejected with an error, so a
@@ -732,25 +750,28 @@ While **Format tables on save** is selected in [System Settings](administration/
 
 To create a new folder in the project structure, proceed as follows:
 
-1.  In the tree, select the parent folder in which the new folder must be created.
-1.  Click **Add** and select **New folder**.
-2.  In the **New folder** window, enter the path of the folder in the **Path** field and click **OK**.
+1.  In the tree, select the parent folder in which the new folder must be created, and click **Add** in its pane.
+    To create a folder at the root of the project, select a tab of the project and click **Add** among its actions.
+2.  Select **New folder**.
+3.  In the **New folder** window, enter the path of the folder in the **Path** field and click **OK**.
 
-    The path starts with the folder selected in the tree. To create a root level folder, enter the folder name only. To select an existing folder as the beginning of the path, click **Browse folders** **⋮**.
+    The path starts with the folder selected in the tree. To select an existing folder as the beginning of the path, click **Browse folders** **⋮**.
 
 ![The New folder window](images/new-folder-dialog.png "Creating a folder")
 
 *Creating a folder*
 
-A new folder is not stored on its own: it stays empty in the tree until a file is added to it, and only then appears in Design repository. **Remove empty folder** in the folder pane removes a folder that has no files yet.
+The new folder is shown at once, so that its first file is added from its pane. A new folder is not stored on its own: it stays empty in the tree until a file is added to it, and only then appears in Design repository. **Remove empty folder** in the folder pane removes a folder that has no files yet.
 
 #### Creating a Text File
 
 To create an empty text file, for instance, a `rules-deploy.xml` or a properties file, proceed as follows:
 
-1.  Click **Add** and select **New text file**.
-2.  In the **New text file** window, enter the file name in the **Name** field. To place the file in a folder, enter or select the folder in the **Path** field.
-3.  Click **OK**.
+1.  Select the folder of the file in the tree, and click **Add** in its pane or among the actions of the project. For
+    a file at the root of the project, select a tab of the project and click **Add** among its actions.
+2.  Select **New text file**.
+3.  In the **New text file** window, enter the file name in the **Name** field. The **Path** field starts with the folder; enter or select another folder to place the file there.
+4.  Click **OK**.
 
 The file is created empty and can be filled in as described in [Editing a Text File](#editing-a-text-file).
 
@@ -762,13 +783,15 @@ The file is created empty and can be filled in as described in [Editing a Text F
 
 To upload files to a project folder, proceed as follows:
 
-1.  In the tree, select the folder where the files should be uploaded.
+1.  In the tree, select the folder where the files should be uploaded, and click **Add** in its pane or among the
+    actions of the project. To upload files to the root of the project, select a tab of the project and click **Add**
+    among its actions.
 
     The **Path** field of the window starts with the selected folder.
 
-1.  Click **Add** and select **Upload**.
+1.  Select **Upload**.
 
-    ![The Add menu of the Files tab](images/files-add-menu.png "The Add menu")
+    ![The Add menu of a folder](images/files-add-menu.png "The Add menu")
 
     *The Add menu*
 
@@ -799,7 +822,7 @@ The file keeps its path and name.
 
 #### Editing a Text File
 
-A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, opens in a viewer on the right. To edit it, proceed as follows:
+A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, selected in the tree opens in a viewer on the page of the project. To edit it, proceed as follows:
 
 1.  Select the file and click **Edit**.
 2.  Change the content.
@@ -811,7 +834,7 @@ The `i18n` folder holds the localization files of the project, and its pane offe
 
 A localization file of the project, a `message*.properties` file of the `i18n` folder, is checked as the compilation checks it while the project is open. The viewer and the editor underline each place the check warns about and mark its line with a warning icon; point to the place to read the warning. A warning about the whole file, such as keys the language leaves untranslated, is about no line of it: it is shown above the text of the file. The file is checked again when it is read and every time it is saved.
 
-![The French localization file in the Files tab, the warning about the whole file above its text and the warning about the farewell key pointed at](images/localization-file-problems.png "Warnings in a localization file")
+![The French localization file selected in the tree, the warning about the whole file above its text and the warning about the farewell key pointed at](images/localization-file-problems.png "Warnings in a localization file")
 
 *Warnings in a localization file*
 
@@ -1165,9 +1188,8 @@ The default project version for export is the one that a user has currently open
 
 To export a file or a folder of the project as it is now, proceed as follows:
 
-1.  Open the project and click the **Files** tab.
-2.  In the tree, select the file or the folder to be exported.
-3.  Click **Export** in the pane on the right.
+1.  In the tree, expand the project and select the file or the folder to be exported.
+2.  Click **Export** in its pane.
 
 A file is downloaded as it is, and a folder as a ZIP archive.
 

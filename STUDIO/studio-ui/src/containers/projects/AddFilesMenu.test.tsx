@@ -1,19 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { FilesToolbar } from './FilesToolbar'
+import { AddFilesMenu } from './AddFilesMenu'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
 })
-
-vi.mock('antd-style', () => ({
-    createStyles: () => () => ({
-        styles: new Proxy({}, { get: () => '' }),
-        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
-    }),
-}))
 
 vi.mock('@ant-design/icons', () => ({
     FileAddOutlined: () => null,
@@ -38,7 +31,7 @@ vi.mock('../../components/MenuButton', () => {
     }
 })
 
-// Each dialog is stubbed by the marker it renders when open; the toolbar only decides which one opens.
+// Each dialog is stubbed by the marker it renders when open; the menu only decides which one opens.
 vi.mock('./NewFolderModal', () => ({
     NewFolderModal: ({ open }: { open: boolean }) => open ? <div data-testid="new-folder-modal" /> : null,
 }))
@@ -54,9 +47,10 @@ const baseProps = {
     onChanged: vi.fn(),
     onCreateFolder: vi.fn(),
     projectId: 'p1',
+    targetFolder: 'rules',
 }
 
-describe('FilesToolbar', () => {
+describe('AddFilesMenu', () => {
     beforeEach(() => vi.clearAllMocks())
 
     it.each([
@@ -64,7 +58,7 @@ describe('FilesToolbar', () => {
         ['files-new-text-file', 'new-file-modal'],
         ['files-upload', 'upload-file-modal'],
     ])('opens the %s dialog from the Add menu', async (entry, dialog) => {
-        render(<FilesToolbar {...baseProps} />)
+        render(<AddFilesMenu {...baseProps} />)
 
         await userEvent.click(screen.getByTestId(entry))
 

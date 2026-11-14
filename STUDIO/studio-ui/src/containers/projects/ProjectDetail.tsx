@@ -3,17 +3,13 @@ import {
     useContext,
     useEffect,
     useMemo,
-    useRef,
     useState,
-    type MouseEvent as ReactMouseEvent,
     type ReactNode,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchScope } from '../../hooks/useSearchScope'
 import { useNavigate, useSearchParams } from 'react-router'
 import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
-    FileTextOutlined,
     HistoryOutlined,
     ProfileOutlined,
     RocketOutlined,
@@ -32,9 +28,9 @@ import { LiveCompileDot } from './CompileIndicator'
 import { WorkspaceHeader } from '../../components/WorkspaceHeader'
 import { ProjectActionBar, type ProjectActionHandlers } from './ProjectActionBar'
 import type { BusyId } from './projectActions'
-import { FileTree } from './FileTree'
-import { FilesToolbar } from './FilesToolbar'
+import { AddFilesDialogs, type AddFilesKind } from './AddFilesMenu'
 import { projectFolders } from './ProjectFolderInput'
+import { parentFolder } from './projectPaths'
 import { FilePreviewPane } from './FilePreviewPane'
 import { FolderActionsPane } from './FolderActionsPane'
 import { RevisionsPanel } from './RevisionsPanel'
@@ -43,14 +39,8 @@ import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
 import { ValueText } from './ValueText'
 import { BranchSwitcher } from './BranchSwitcher'
-import { LocalChangesSummary } from './LocalChangesSummary'
-import { buildFileChangeMap, normalizeProjectFileChanges } from './fileChanges'
-import type { ProjectFileChange } from '../../services/projectStatus'
 import { SystemContext } from '../../contexts'
 import { supportsBranches, supportsRevisionSearch } from '../../utils/repositoryFeatures'
-
-/** One empty list for every project without pending changes, so the memos below it hold. */
-const NO_FILE_CHANGES: ProjectFileChange[] = []
 
 const useStyles = createStyles(({ css, token }) => ({
     root: css`
@@ -70,18 +60,20 @@ const useStyles = createStyles(({ css, token }) => ({
     crumbValue: css`
         color: ${token.colorTextSecondary};
     `,
+    /** The row of the tabs, whether their content or a file is shown under it. */
+    tabsNav: css`
+        .ant-tabs-nav {
+            flex: none;
+            padding: 0 16px;
+            margin: 0;
+        }
+    `,
     tabs: css`
         flex: 1;
         min-width: 0;
         min-height: 0;
         display: flex;
         flex-direction: column;
-
-        .ant-tabs-nav {
-            flex: none;
-            padding: 0 16px;
-            margin: 0;
-        }
 
         /* Bound the tabs body to the available height as a flex column. Target only the body
            wrappers here, never the panes: each pane is itself an '.ant-tabs-content', and a rule on
@@ -96,8 +88,8 @@ const useStyles = createStyles(({ css, token }) => ({
             min-height: 0;
         }
 
-        /* The active pane fills the body and owns its scroll. The Files pane fills it exactly (its
-           tree and editor scroll internally); taller panes (e.g. Deploy Configuration) scroll here. */
+        /* The active pane fills the body and owns its scroll: taller panes (e.g. Deploy Configuration)
+           scroll here. */
         .ant-tabs-content-active {
             display: flex;
             flex-direction: column;
@@ -107,53 +99,22 @@ const useStyles = createStyles(({ css, token }) => ({
             overflow: auto;
         }
     `,
-    filesLayout: css`
-        display: flex;
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
-    `,
-    filesTree: css`
-        display: flex;
-        flex-direction: column;
+    /** The tabs above a file or a folder: only their row is shown, none of them picked. */
+    tabsRow: css`
         flex: none;
+    `,
+    /** A file or a folder picked in the projects tree, in place of the content of a tab. */
+    filePane: css`
+        display: flex;
+        flex: 1;
+        min-width: 0;
         min-height: 0;
         overflow: hidden;
-        /* The divider belongs to the tree column, so every border inside it ends exactly on the line. */
-        border-right: 1px solid ${token.colorBorderSecondary};
-
-        /* Toolbar + local-changes summary stay pinned; only the tree scroll wrapper (last child) grows. */
-        > *:not(:last-child) {
-            flex: none;
-        }
-    `,
-    treeScroll: css`
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
     `,
     filePlaceholder: css`
         flex: 1;
         min-width: 0;
         padding: 16px;
-    `,
-    resizer: css`
-        /* A grab strip laid over the divider: it takes no width, so the two panes stay flush with it. */
-        position: relative;
-        flex: none;
-        width: 0;
-
-        &::after {
-            content: '';
-            position: absolute;
-            inset: 0 -4px;
-            cursor: col-resize;
-            transition: background 0.15s ease;
-        }
-
-        &:hover::after {
-            background: ${token.colorPrimaryBorder};
-        }
     `,
 }))
 
@@ -167,8 +128,15 @@ interface ProjectDetailProps {
     /** What the project is busy with, or null: the action bar spins on it and blocks everything else. */
     pendingId: BusyId | null
     handlers: ProjectActionHandlers
+    /** The files of the project, read once a file or a folder of it is shown, or files are added to it. */
     files: FsNode[] | 'loading' | 'error' | undefined
-    reducedMotion?: boolean
+    /**
+     * Folders added in the browser and not on the server yet: a folder stays empty, and so is not saved, until a
+     * file is created inside it.
+     */
+    virtualFolders: string[]
+    onCreateFolder: (path: string) => void
+    onRemoveVirtualFolder: (path: string) => void
     /** Bumped whenever the project reloads, so cached tabs (history, file content) refetch and reset. */
     reloadToken?: number
     /** The files the reload behind the current token is known to cover; null means anything. */
@@ -179,17 +147,13 @@ interface ProjectDetailProps {
      * Called after an edit (tags, file save) that may change the project, to refresh the list. The promise
      * it returns tells the caller when the refreshed project is on screen.
      */
-    onChanged?: () => void | Promise<unknown>
+    onChanged?: (() => void | Promise<unknown>) | undefined
     /** Whether a branch switch — request and reload — is running, so the project can be marked busy. */
     onBranchSwitching?: ((busy: boolean) => void) | undefined
-    /** Called when the Files tab becomes visible, so the file tree can be loaded lazily. */
-    onFilesVisible?: () => void
+    /** Called when the files of the project are needed: a file or a folder is shown, or files are added. */
+    onFilesNeeded?: (() => void) | undefined
 }
 
-/**
- * A single project's workspace: identity header, capability-driven action bar, and the Overview,
- * Revisions, Files, Branches, Deploy Configuration and Access tabs. Table editing is not hosted here yet.
- */
 /**
  * The name of the module each workbook of the project is, indexed by the file it is written in.
  *
@@ -208,6 +172,11 @@ const moduleNamesByFile = (modules: ProjectModule[] | undefined): Record<string,
     return named
 }
 
+/**
+ * A single project's workspace: identity header, capability-driven action bar, and the Overview, Revisions,
+ * Deploy Configuration and Management tabs. A file or a folder picked in the projects tree (`?file=`) is shown
+ * in place of the content of a tab, with its actions.
+ */
 export const ProjectDetail = ({
     project,
     statusReadAt,
@@ -217,15 +186,17 @@ export const ProjectDetail = ({
     pendingId,
     handlers,
     files,
-    reducedMotion,
+    virtualFolders,
+    onCreateFolder,
+    onRemoveVirtualFolder,
     reloadToken = 0,
     changedFiles = null,
     headerPrefix,
     onChanged,
     onBranchSwitching,
-    onFilesVisible,
+    onFilesNeeded,
 }: ProjectDetailProps) => {
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
     const { isUserManagementEnabled } = useContext(SystemContext)
     const navigate = useNavigate()
@@ -234,23 +205,6 @@ export const ProjectDetail = ({
     // line of it a compilation message sent the reader to (?line=…).
     const selectedFile = searchParams.get('file')
     const selectedLine = Number(searchParams.get('line')) || undefined
-    // Folders created in the UI but not yet on the server — shown as empty folders until a file lands
-    // inside them, at which point the create-file request persists the whole chain.
-    const [virtualFolders, setVirtualFolders] = useState<string[]>([])
-    const addVirtualFolder = useCallback((path: string) => {
-        setVirtualFolders(prev => (prev.includes(path) ? prev : [...prev, path]))
-    }, [])
-    const removeVirtualFolder = useCallback((path: string) => {
-        setVirtualFolders(prev => prev.filter(folder => folder !== path && !folder.startsWith(`${path}/`)))
-    }, [])
-    // Once a file exists under a virtual folder it is real; drop it from the client-side list.
-    useEffect(() => {
-        if (Array.isArray(files)) {
-            setVirtualFolders(prev => prev.filter(
-                folder => !files.some(node => node.path === folder || node.path.startsWith(`${folder}/`))
-            ))
-        }
-    }, [files])
     // A folder selection shows folder actions; a file selection shows its content. A virtual folder has
     // no backend node yet, but it is still a folder selection — never fetch its (missing) content.
     const selectedNode = useMemo(
@@ -261,11 +215,15 @@ export const ProjectDetail = ({
     // (creating "reports/2026" makes "reports" a folder too), so ancestors never render as a file preview.
     const selectedIsVirtualFolder = !!selectedFile
         && virtualFolders.some(folder => folder === selectedFile || folder.startsWith(`${selectedFile}/`))
-    // A workbook the project declares as a module opens in the editor, so the Files tab offers that
+    // A workbook the project declares as a module opens in the editor, so the file pane offers that
     // rather than an export of a file nothing on this screen can show.
     const moduleFiles = useMemo(() => moduleNamesByFile(project?.descriptor?.modules), [project?.descriptor?.modules])
     const selectedIsFolder = selectedNode?.type === 'folder' || selectedIsVirtualFolder
-    const selectedTargetFolder = selectedIsFolder ? selectedNode?.path ?? selectedFile ?? '' : selectedNode?.basePath ?? ''
+    // The Add menu of the action bar adds where the reader is: into the folder shown, beside the file shown, and at
+    // the root of the project while a tab is shown.
+    const addTarget = !selectedFile || selectedIsFolder
+        ? selectedFile ?? ''
+        : parentFolder(selectedFile)
     // Whether the tree is loaded well enough to tell a file from a folder. Until it is, a selection is of
     // an unknown kind — an extension-less folder name (say "__MACOSX") would otherwise be read as a text
     // file and its content fetched, which fails. A virtual folder is known without the tree.
@@ -279,10 +237,11 @@ export const ProjectDetail = ({
             return next
         }, { replace: true })
     }, [setSearchParams])
+    // A file or a folder is shown in place of the content of a tab, so picking one leaves the tab.
     const setSelectedFile = useCallback((path: string | null) => updateSearch(params => {
         if (path) {
             params.set('file', path)
-            params.set('tab', 'files')
+            params.delete('tab')
         } else {
             params.delete('file')
         }
@@ -304,19 +263,14 @@ export const ProjectDetail = ({
             setSelectedFile(null)
         }
     }, [files])
-    const [fileFilter, setFileFilter] = useState('')
-    const [treeWidth, setTreeWidth] = useState(288)
-    const resizeCleanup = useRef<(() => void) | null>(null)
-    const pendingFileChanges = project?.compileStatus?.pendingChanges?.files ?? NO_FILE_CHANGES
-    const localChanges = useMemo(
-        () => normalizeProjectFileChanges(pendingFileChanges, project?.path, project?.name),
-        [pendingFileChanges, project?.name, project?.path]
-    )
     const folders = useMemo(() => projectFolders(Array.isArray(files) ? files : undefined), [files])
-    const fileChangeByPath = useMemo(
-        () => buildFileChangeMap(pendingFileChanges, project?.path, project?.name),
-        [pendingFileChanges, project?.name, project?.path]
-    )
+    // The dialog of the Add menu of the action bar.
+    const [adding, setAdding] = useState<AddFilesKind | null>(null)
+    // An empty folder added from a dialog is shown at once: it is where its first file is added from.
+    const createFolder = useCallback((path: string) => {
+        onCreateFolder(path)
+        setSelectedFile(path)
+    }, [onCreateFolder, setSelectedFile])
 
     const canViewHistory = project?.capabilities?.canViewHistory ?? false
     // A local project has no committed history, branches or shared access, so those tabs are hidden.
@@ -332,59 +286,20 @@ export const ProjectDetail = ({
     const hasBranches = repositorySupportsBranches && !!project?.branch && !isLocal
     const tabKeys = [
         'overview',
-        'files',
         ...(canViewHistory ? ['history'] : []),
         'publish',
         ...(canShowAccess ? ['access'] : []),
     ]
-    // The active tab is URL-driven too, so a shared ?file link lands on the Files tab.
-    const requestedTab = searchParams.get('tab') ?? (selectedFile ? 'files' : 'overview')
+    // The active tab is URL-driven too. A shared ?file link shows the file, with no tab picked.
+    const requestedTab = searchParams.get('tab') ?? 'overview'
     const activeTab = tabKeys.includes(requestedTab) ? requestedTab : 'overview'
 
+    // A file or a folder is told apart, and the folders offered as destinations, by the files of the project.
     useEffect(() => {
-        if (project && activeTab === 'files') {
-            onFilesVisible?.()
+        if (project && selectedFile) {
+            onFilesNeeded?.()
         }
-    }, [activeTab, onFilesVisible, project])
-
-    // The files are filtered from the search of the header while their tab is shown.
-    useSearchScope(project && activeTab === 'files'
-        ? {
-            id: 'files',
-            label: t('common:search.scopes.files'),
-            onChange: setFileFilter,
-            placeholder: t('browser.files.search'),
-            value: fileFilter,
-        }
-        : null)
-
-    const stopResize = useCallback(() => {
-        const cleanup = resizeCleanup.current
-        resizeCleanup.current = null
-        cleanup?.()
-    }, [])
-
-    useEffect(() => stopResize, [stopResize])
-
-    // Drag the divider between the file tree and the preview to resize the tree column.
-    const startResize = (event: ReactMouseEvent) => {
-        event.preventDefault()
-        stopResize()
-        const startX = event.clientX
-        const startWidth = treeWidth
-        const onMove = (moveEvent: MouseEvent) => {
-            setTreeWidth(Math.min(560, Math.max(200, startWidth + moveEvent.clientX - startX)))
-        }
-        const onUp = () => {
-            stopResize()
-        }
-        resizeCleanup.current = () => {
-            document.removeEventListener('mousemove', onMove)
-            document.removeEventListener('mouseup', onUp)
-        }
-        document.addEventListener('mousemove', onMove)
-        document.addEventListener('mouseup', onUp)
-    }
+    }, [onFilesNeeded, project, selectedFile])
 
     if (!project) {
         return (
@@ -397,27 +312,31 @@ export const ProjectDetail = ({
     const muted = project.status === ProjectStatus.Deleted
     const canWriteFiles = project.capabilities?.canWrite ?? false
 
-    // What the right side of the Files tab shows for the selection: a placeholder while the freshly
+    // What the page shows for a file or a folder picked in the tree: a placeholder while the freshly
     // selected path is still being classified, the folder actions for a folder, the preview for a file.
-    const filePane = () => {
-        if (selectedFile && !selectionClassified) {
+    const filePane = (path: string) => {
+        if (files === 'error' && !selectedIsVirtualFolder) {
+            return <Empty className={styles.empty} data-testid="file-pane-error" description={t('browser.files_error')} />
+        }
+        if (!selectionClassified) {
             return (
                 <div className={styles.filePlaceholder} data-testid="file-pane-loading">
                     <Skeleton active paragraph={{ rows: 6 }} title={false} />
                 </div>
             )
         }
-        if (selectedIsFolder && selectedFile) {
+        if (selectedIsFolder) {
             return (
                 <FolderActionsPane
                     canDelete={canWriteFiles}
                     canWrite={canWriteFiles}
                     folders={folders}
                     onChanged={() => onChanged?.()}
+                    onCreateFolder={createFolder}
                     onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
                     onOpenLocalization={() => navigate(localizationRoute(project.id))}
-                    onRemoveVirtual={() => { removeVirtualFolder(selectedFile); setSelectedFile(null) }}
-                    path={selectedFile}
+                    onRemoveVirtual={() => { onRemoveVirtualFolder(path); setSelectedFile(null) }}
+                    path={path}
                     projectId={project.id}
                     virtual={selectedIsVirtualFolder}
                 />
@@ -439,7 +358,7 @@ export const ProjectDetail = ({
                 onOpenLocalization={() => navigate(localizationRoute(project.id))}
                 onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
                 onOpenTable={(moduleName, tableId) => navigate(moduleRoute(project.id, moduleName, tableId))}
-                path={selectedFile}
+                path={path}
                 projectId={project.id}
                 projectName={project.name}
                 projectOpened={project.status !== ProjectStatus.Closed}
@@ -483,40 +402,6 @@ export const ProjectDetail = ({
             ),
         }] : []),
         {
-            key: 'files',
-            label: <><FileTextOutlined /> {t('browser.tab_files')}</>,
-            children: activeTab === 'files' && (
-                <div className={styles.filesLayout}>
-                    <div className={styles.filesTree} style={{ width: treeWidth }}>
-                        {canWriteFiles && (
-                            <FilesToolbar
-                                folders={folders}
-                                onChanged={() => onChanged?.()}
-                                onCreateFolder={addVirtualFolder}
-                                projectId={project.id}
-                                targetFolder={selectedTargetFolder}
-                            />
-                        )}
-                        <LocalChangesSummary changes={localChanges} />
-                        <div className={styles.treeScroll}>
-                            <FileTree
-                                changes={fileChangeByPath}
-                                files={files}
-                                filter={fileFilter}
-                                onSelectFile={setSelectedFile}
-                                projectId={project.id}
-                                reducedMotion={reducedMotion ?? false}
-                                selectedPath={selectedFile}
-                                virtualFolders={virtualFolders}
-                            />
-                        </div>
-                    </div>
-                    <div aria-hidden className={styles.resizer} data-testid="file-tree-resizer" onMouseDown={startResize} />
-                    {filePane()}
-                </div>
-            ),
-        },
-        {
             key: 'publish',
             label: <><RocketOutlined /> {t('browser.tab_publish')}</>,
             children: (
@@ -542,22 +427,30 @@ export const ProjectDetail = ({
         }] : []),
     ]
 
+    // A tab takes the place of the file or the folder shown, so the link the reader copies from it carries no file.
     const onTabChange = (key: string) => updateSearch(params => {
         params.set('tab', key)
-        // The selected file belongs to the Files tab; leaving it drops the selection, so the link the
-        // user copies from another tab carries no file and coming back opens the tree unselected.
-        if (key !== 'files') {
-            params.delete('file')
-        }
+        params.delete('file')
+        params.delete('line')
     })
 
     return (
         <div className={styles.root} data-testid="project-detail">
             <WorkspaceHeader
-                actions={<ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />}
                 muted={muted}
                 title={project.name}
                 titleBefore={<StatusMark status={project.status} testId={`status-${project.id}`} />}
+                actions={(
+                    <ProjectActionBar
+                        handlers={handlers}
+                        pendingId={pendingId}
+                        project={project}
+                        onAddFiles={kind => {
+                            onFilesNeeded?.()
+                            setAdding(kind)
+                        }}
+                    />
+                )}
                 crumbs={(
                     <>
                         {headerPrefix}
@@ -590,7 +483,36 @@ export const ProjectDetail = ({
                     />
                 )}
             />
-            <Tabs activeKey={activeTab} className={styles.tabs} data-testid="project-tabs" items={items} onChange={onTabChange} />
+            {selectedFile ? (
+                <>
+                    {/* The tabs stay, none of them picked: any of them leads back from the file. */}
+                    <Tabs
+                        activeKey=""
+                        className={cx(styles.tabsNav, styles.tabsRow)}
+                        data-testid="project-tabs"
+                        items={items.map(({ key, label }) => ({ key, label }))}
+                        onChange={onTabChange}
+                    />
+                    <div className={styles.filePane} data-testid="project-file-pane">{filePane(selectedFile)}</div>
+                </>
+            ) : (
+                <Tabs
+                    activeKey={activeTab}
+                    className={cx(styles.tabsNav, styles.tabs)}
+                    data-testid="project-tabs"
+                    items={items}
+                    onChange={onTabChange}
+                />
+            )}
+            <AddFilesDialogs
+                folders={folders}
+                kind={adding}
+                onChanged={() => onChanged?.()}
+                onClose={() => setAdding(null)}
+                onCreateFolder={createFolder}
+                projectId={project.id}
+                targetFolder={addTarget}
+            />
         </div>
     )
 }

@@ -26,11 +26,13 @@ describe('normalizeProjectFileChanges', () => {
 })
 
 describe('buildFileChangeMap', () => {
-    it('answers a change by its full path and by its path in the project', () => {
-        const changes = buildFileChangeMap([{ path: 'projects/Alpha/rules.xlsx/', type: 'added' }], 'projects', 'Alpha')
+    it('names each change once, by its path in the project', () => {
+        // A deleted file is listed in the tree from these names: one under the repository path would list it twice.
+        const changes = buildFileChangeMap([
+            { path: 'projects/Alpha/i18n/message_fr.properties/', type: 'deleted' },
+            { path: 'Alpha/i18n/message_fr.properties', type: 'deleted' },
+        ], 'projects', 'Alpha')
 
-        expect(changes.get('projects/Alpha/rules.xlsx')).toBe('added')
-        expect(changes.get('rules.xlsx')).toBe('added')
-        expect(changes.size).toBe(2)
+        expect([...changes]).toEqual([['i18n/message_fr.properties', 'deleted']])
     })
 })

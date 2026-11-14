@@ -9,6 +9,7 @@ import {
     groupKeys,
     NO_GROUPING,
     pathToProject,
+    projectRowOf,
     searchTree,
     type GroupingLevels,
 } from './projectGrouping'
@@ -154,8 +155,27 @@ describe('pathToProject', () => {
     })
 })
 
+describe('projectRowOf', () => {
+    it('finds the row of a project and the groups holding it', () => {
+        const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY], repositoryName)
+
+        const row = projectRowOf(tree, 'p1')
+
+        expect(row?.path).toEqual([tree[0]?.key])
+        expect(row?.key).toBe(tree[0]?.children.find(node => node.project?.id === 'p1')?.key)
+        expect(projectRowOf(tree, 'nope')).toBeNull()
+    })
+})
+
 describe('searchTree', () => {
     const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY, 'Domain'], repositoryName)
+
+    it('keeps a project something inside it matches, such as one of its files', () => {
+        const found = searchTree(tree, 'main.xlsx', project => project.id === 'p1')
+
+        expect(found.map(node => node.title)).toEqual(['Design'])
+        expect(found[0]?.children[0]?.children.map(node => node.project?.id)).toEqual(['p1'])
+    })
 
     it('keeps a group that matches by its own name whole, with everything under it', () => {
         const found = searchTree(tree, 'design')

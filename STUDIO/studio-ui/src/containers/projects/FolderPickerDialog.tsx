@@ -18,7 +18,7 @@ interface FolderPickerDialogProps {
 }
 
 /**
- * The dialog behind every folder picker: the folder tree styled like the Files tab, with a loading and an
+ * The dialog behind every folder picker: the folder tree styled like the projects tree, with a loading and an
  * empty state. Where the folders come from — a repository read level by level or a project already loaded —
  * is the caller's business.
  */
@@ -80,7 +80,7 @@ export const FolderPickerDialog = ({
 }
 
 /**
- * A folder row of the picker tree, drawn the way the Files tab draws its folders.
+ * A folder row of the picker tree, drawn the way the projects tree draws its folders.
  *
  * The builder keeps its identity between renders, so callers can safely depend on it from an effect.
  */

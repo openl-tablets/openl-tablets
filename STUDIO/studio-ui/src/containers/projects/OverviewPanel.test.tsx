@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getProjectFiles } from '../../services/repositories'
 import { OverviewPanel } from './OverviewPanel'
 import { ProjectStatus } from '../../constants/project'
-import { getFileContent, rootFileExists, uploadFile, writeRootFile } from '../../services/files'
+import { getFileContent, uploadFile, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
 import type { Project } from '../../types/projects'
 
@@ -27,7 +27,6 @@ vi.mock('../../services/projectStatus', () => ({
 // The declared text of the overview is read from (and written to) rules.xml; each test sets the file.
 vi.mock('../../services/files', () => ({
     getFileContent: vi.fn(),
-    rootFileExists: vi.fn().mockResolvedValue(true),
     uploadFile: vi.fn().mockResolvedValue(undefined),
     writeRootFile: vi.fn().mockResolvedValue(undefined),
 }))
@@ -46,8 +45,10 @@ const fileInput = (): HTMLInputElement => {
 const openApiFile = () => new File(['{}'], 'spec.json', { type: 'application/json' })
 
 vi.mock('../../services/repositories', () => ({
+    // The Overview reads the files once: they say whether rules.xml is there, and offer the specifications.
     getProjectFiles: vi.fn().mockResolvedValue([
         { type: 'file', path: 'api/openapi.json' },
+        { type: 'file', path: 'rules.xml' },
         { type: 'file', path: 'rules/Main.xlsx' },
     ]),
     getTagTypes: vi.fn().mockResolvedValue([]),
@@ -182,6 +183,24 @@ describe('OverviewPanel', () => {
         expect(screen.queryByTestId('dependency-branch-dep-1-protected')).toBeNull()
         expect(screen.getByTestId('dependency-branch-used-1-protected')).toBeInTheDocument()
         expect(screen.queryByTestId('dependency-branch-used-1-default')).toBeNull()
+    })
+
+    it('reads the files of the project once, for the descriptor and the specifications alike', async () => {
+        setRulesXml('<project><name>P</name></project>')
+
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+        expect(getProjectFiles).toHaveBeenCalledWith(base.id)
+        expect(getFileContent).toHaveBeenCalledWith(base.id, 'rules.xml')
+    })
+
+    it('reads no rules.xml the files of the project do not hold', async () => {
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([{ type: 'file', path: 'Main.xlsx' }] as never)
+
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        expect(getFileContent).not.toHaveBeenCalledWith(base.id, 'rules.xml')
     })
 
     it('reads the descriptor text from rules.xml and the modules from the project', async () => {
@@ -617,6 +636,7 @@ describe('OverviewPanel', () => {
         // so the model drops the block on save — and the project would read as having no specification.
         vi.mocked(getProjectFiles).mockResolvedValueOnce([
             { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules.xml' },
             { type: 'file', path: 'rules/Main.xlsx' },
         ] as never)
         setRulesXml(`
@@ -644,9 +664,25 @@ describe('OverviewPanel', () => {
         expect(screen.queryByTestId('openapi-none')).toBeNull()
     })
 
+    it('still finds the specification of the project when its rules.xml cannot be read', async () => {
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules.xml' },
+        ] as never)
+        vi.mocked(getFileContent).mockRejectedValueOnce(new Error('unreadable'))
+
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        expect(await screen.findByTestId('openapi-by-default')).toBeInTheDocument()
+        expect(screen.queryByTestId('openapi-none')).toBeNull()
+    })
+
     it('finds the specification a write added once the project is read again', async () => {
         // The project holds no specification when the overview opens.
-        vi.mocked(getProjectFiles).mockResolvedValueOnce([{ type: 'file', path: 'rules/Main.xlsx' }] as never)
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { type: 'file', path: 'rules.xml' },
+            { type: 'file', path: 'rules/Main.xlsx' },
+        ] as never)
         setRulesXml('<project><name>P</name></project>')
         const project = { ...base, capabilities: { canWrite: true } }
         const result = await renderPanel(project)
@@ -656,6 +692,7 @@ describe('OverviewPanel', () => {
         // project; the section looks for the file again rather than keeping the answer it read on opening.
         vi.mocked(getProjectFiles).mockResolvedValueOnce([
             { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules.xml' },
             { type: 'file', path: 'rules/Main.xlsx' },
         ] as never)
         await act(async () => {
@@ -832,7 +869,7 @@ describe('OverviewPanel', () => {
         await user.click(screen.getByTestId('overview-edit'))
         await user.type(screen.getByTestId('edit-description'), 'Rates')
 
-        vi.mocked(rootFileExists).mockRejectedValueOnce(new Error('offline'))
+        vi.mocked(getProjectFiles).mockRejectedValueOnce(new Error('offline'))
         await act(async () => {
             result.rerender(panel(project, { reloadToken: 1 }))
             await Promise.resolve()

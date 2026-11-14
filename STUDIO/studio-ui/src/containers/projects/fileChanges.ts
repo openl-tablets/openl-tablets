@@ -46,21 +46,13 @@ export const normalizeProjectFileChanges = (
     return result
 }
 
+/**
+ * The change of each file, by its path in the project. A file is named once, by the first change of it: the tree
+ * lists a deleted file from here, so a second name would list it twice.
+ */
 export const buildFileChangeMap = (
     changes: readonly ProjectFileChange[],
     projectPath?: string | null,
     projectName?: string | null
-): Map<string, ProjectFileChangeType> => {
-    const result = new Map<string, ProjectFileChangeType>()
-    for (const change of changes) {
-        const fullPath = normalizePath(change.path)
-        const relativePath = toProjectRelativePath(change.path, projectPath, projectName)
-        if (fullPath) {
-            result.set(fullPath, change.type)
-        }
-        if (relativePath) {
-            result.set(relativePath, change.type)
-        }
-    }
-    return result
-}
+): Map<string, ProjectFileChangeType> =>
+    new Map(normalizeProjectFileChanges(changes, projectPath, projectName).map(change => [change.path, change.type]))

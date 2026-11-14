@@ -71,7 +71,6 @@ i18next.addResourceBundle('en', 'common', {
         scopes: {
             projects: 'Projects',
             deployments: 'Deployments',
-            files: 'Files',
             revisions: 'Revisions',
             tables: 'Tables',
             messages: 'Messages',

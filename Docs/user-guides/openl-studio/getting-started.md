@@ -248,9 +248,9 @@ New users start with the appearance of the operating system, the **Standard** th
 OpenL Studio has one search field. It stands in the top bar, between the name of the application and the **Projects**
 tab, and searches what the open page shows, so every page is searched in the same place and in the same way.
 
-![The top bar on the Files tab of a project: the search field names Files, and its list offers Files and Projects](images/header-search.png "The search field of the top bar")
+![The top bar on the Revisions tab of a project: the search field names Revisions, and its list offers Revisions and Projects](images/header-search.png "The search field of the top bar")
 
-*The search field of the top bar, on the Files tab of a project*
+*The search field of the top bar, on the Revisions tab of a project*
 
 -   The name at the start of the field tells what is searched. The page is filtered as the text is typed.
 -   When a page has more than one thing to search, the name carries an arrow: click it to choose. Each choice keeps
@@ -269,9 +269,8 @@ The field searches the following:
 |---------------------------------------|-----------------------------|------------------------------------------------------------|
 | **Projects**                          | **Projects**                | The list of projects, and the tree while the **Tree** view is open. |
 | **Deployments**                       | **Deployments**             | The deployments of the selected repository.                |
-| A project, **Files** tab              | **Files**                   | The files of the project.                                  |
 | A project, **Revisions** tab          | **Revisions**               | The revisions, in a Git repository.                        |
-| A project, any tab                    | **Projects**                | The tree of projects on the left.                          |
+| A project, any tab                    | **Projects**                | The tree of projects on the left, and the files of the projects expanded in it. |
 | Rules Editor                          | **Tables**                  | The tables of the module tree.                             |
 | Localization                          | **Messages**                | The keys of the left pane.                                 |
 | User guides                           | **All Guides**, or a guide  | The text of the guides.                                    |
@@ -436,7 +435,7 @@ The following table describes the organization of the **Projects** page:
 | Left panel          | Shows the **Filters** view, which narrows the list down by repository, branch, tag and status, and the **Tree** view, which shows the projects stored in Design repository and user's workspace as a tree.                                                                                                                                                                                      |
 | Project list        | Lists the projects as a table or as cards and offers the actions available for each project, such as copying, opening, closing and deleting a project. **New Project** in the top bar creates a project.                                                                                                                                                                                               |
 | Bar under the list  | Counts the projects, shows how many have compilation errors or warnings, and switches the pages of a long list.                                                                                                                                                                                                                                                                                  |
-| Project page        | Opens when a user selects a project. Its **Overview**, **Files**, **Deploy Configuration** and **Management** tabs show the configuration, the files and folders, the deployment settings and the access roles of the project. The **Revisions** tab shows history when the repository stores project revisions. Unlike Rules Editor, the project page displays physical project contents in terms of files and folders. |
+| Project page        | Opens when a user selects a project. Its **Overview**, **Deploy Configuration** and **Management** tabs show the configuration, the deployment settings and the access roles of the project, and a file or a folder selected in the tree is shown in place of a tab. The **Revisions** tab shows history when the repository stores project revisions. Unlike Rules Editor, the project page displays physical project contents in terms of files and folders. |
 
 A user opens Rules Editor from a project page by selecting a module of an open project, for example, in the **Overview** tab.
 

@@ -11,6 +11,7 @@ import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
 import { ProjectsTree, type ProjectsSource } from './ProjectsTree'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
+import type { ProjectFileChangeType } from '../../services/projectStatus'
 
 /** What the rail shows: the facet filters, or the grouped project tree. */
 type RailMode = 'filters' | 'tree'
@@ -73,23 +74,29 @@ interface ProjectsRailBaseProps {
     /** The design repositories, when the screen has read them; the tree manages without. */
     repositories?: Repository[] | undefined
     currentProjectId?: string | undefined
+    /** The files of the current project changed and not saved yet, by path, which the tree marks. */
+    currentFileChanges?: ReadonlyMap<string, ProjectFileChangeType> | undefined
+    /** Empty folders added to the current project in the browser, which the tree lists until a file lands in them. */
+    currentFolders?: string[] | undefined
+    /** The file or folder of the current project the screen shows, which the tree opens on. */
+    currentFile?: string | undefined
     onOpenProject: (project: Project) => void
     /** A module of a project was picked in the tree: read it in the editor. */
     onOpenModule?: ((project: Project, moduleName: string) => void) | undefined
-    /** A folder, or a file that is no module, was picked in the tree: show it on the project's Files tab. */
+    /** A folder, or a file that is no module, was picked in the tree: show it on the page of its project. */
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A repository or tag group was picked in the tree: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
     /** The title of the tree was picked: show the list without filters. */
     onShowAll: () => void
-    /** The picks of the Filters view, which the tree follows. */
+    /** The picks the list is filtered by, which the tree follows. */
     filters: ListingQuery
+    /** The picks the tree narrows to, when a group picked in it filtered the list only. */
+    narrowBy?: ListingQuery | undefined
     /** The picks were cleared from the tree. */
     onClearFilters: () => void
     /** The Filters view, rendered when the rail is in its filter mode, with the rail's own actions. */
     filterView?: (headerActions: React.ReactNode) => React.ReactNode
-    /** Which mode the rail starts in; the rail remembers what the user picks afterwards. */
-    initialMode?: RailMode
     /** Bumped by the screen when it changed the workspace, so the tree reads it again. */
     reloadToken?: number | undefined
     /** The text the screen is searched by, which narrows the tree as it does the list beside it. */
@@ -114,27 +121,30 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
     const {
         repositories,
         currentProjectId,
+        currentFileChanges,
+        currentFolders,
+        currentFile,
         onOpenProject,
         onOpenModule,
         onOpenFile,
         onOpenGroup,
         onShowAll,
         filters,
+        narrowBy,
         onClearFilters,
         filterView,
-        initialMode,
         reloadToken,
         search,
     } = props
     // Forward the projects source as one unit so its controlled/uncontrolled shape survives the hop: a
     // controlled rail always hands the tree its refresh, an uncontrolled one hands it neither.
     const treeSource: ProjectsSource = props.projects !== undefined
-        ? { projects: props.projects, onRefresh: props.onRefresh }
+        ? { projects: props.projects, onRefresh: props.onRefresh, error: props.error }
         : {}
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const [mode, pick] = useStoredSetting(railMode, initialMode)
+    const [mode, pick] = useStoredSetting(railMode)
     // Dragging the edge sizes the rail; the width it is left at is where it opens next time.
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', {
         min: MIN_WIDTH,
@@ -196,9 +206,13 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
                 ? (
                     <ProjectsTree
                         {...treeSource}
+                        currentFile={currentFile}
+                        currentFileChanges={currentFileChanges}
+                        currentFolders={currentFolders}
                         currentProjectId={currentProjectId}
                         filters={filters}
                         headerActions={foldHandle}
+                        narrowBy={narrowBy}
                         onClearFilters={onClearFilters}
                         onOpenFile={onOpenFile}
                         onOpenGroup={onOpenGroup}

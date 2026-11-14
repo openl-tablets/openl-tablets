@@ -48,12 +48,24 @@ vi.mock('antd', async () => {
 vi.mock('./CopyFileModal', () => ({
     CopyFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="copy-file-modal" /> : null,
 }))
+// The Add menu has its own tests; here it shows the folder it adds to.
+vi.mock('./AddFilesMenu', () => ({
+    AddFilesMenu: ({ targetFolder }: { targetFolder: string }) => <div data-folder={targetFolder} data-testid="files-add" />,
+}))
 vi.mock('./DeleteFileModal', () => ({
     DeleteFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="delete-file-modal" /> : null,
 }))
 
 const baseProps = {
-    folders: ['rules'], projectId: 'p1', path: 'rules', canWrite: true, canDelete: true, onChanged: vi.fn(), onDeleted: vi.fn() }
+    folders: ['rules'],
+    projectId: 'p1',
+    path: 'rules',
+    canWrite: true,
+    canDelete: true,
+    onChanged: vi.fn(),
+    onCreateFolder: vi.fn(),
+    onDeleted: vi.fn(),
+}
 
 describe('FolderActionsPane', () => {
     beforeEach(() => {
@@ -78,8 +90,14 @@ describe('FolderActionsPane', () => {
         expect(screen.getByTestId('delete-file-modal')).toBeInTheDocument()
     })
 
-    it('hides copy and delete without permission but keeps download', () => {
+    it('adds folders and files to the folder it shows', () => {
+        render(<FolderActionsPane {...baseProps} />)
+        expect(screen.getByTestId('files-add').getAttribute('data-folder')).toBe('rules')
+    })
+
+    it('hides adding, copy and delete without permission but keeps download', () => {
         render(<FolderActionsPane {...baseProps} canDelete={false} canWrite={false} />)
+        expect(screen.queryByTestId('files-add')).toBeNull()
         expect(screen.queryByTestId('folder-copy')).toBeNull()
         expect(screen.queryByTestId('folder-delete')).toBeNull()
         expect(screen.getByTestId('folder-download')).toBeTruthy()
@@ -95,6 +113,8 @@ describe('FolderActionsPane', () => {
         expect(screen.queryByTestId('folder-copy')).toBeNull()
         expect(screen.queryByTestId('folder-delete')).toBeNull()
         expect(screen.getByText('browser.files.empty_folder_hint')).toBeTruthy()
+        // Adding a file is what saves it.
+        expect(screen.getByTestId('files-add').getAttribute('data-folder')).toBe('drafts/wip')
 
         await userEvent.click(screen.getByTestId('folder-remove-virtual'))
         expect(onRemoveVirtual).toHaveBeenCalled()

@@ -165,22 +165,30 @@ const projectNode = (project: Project, keyPrefix: string): GroupNode => ({
     children: [],
 })
 
-/** The keys of every group node holding the project, so the tree can open on it. */
-export const pathToProject = (nodes: GroupNode[], projectId: string, trail: string[] = []): string[] | null => {
+/** The row of a project — its key, and the keys of the groups holding it — wherever the grouping puts it. */
+export const projectRowOf = (
+    nodes: GroupNode[],
+    projectId: string,
+    path: string[] = []
+): { path: string[], key: string } | null => {
     for (const node of nodes) {
-        if (node.project) {
-            if (node.project.id === projectId) {
-                return trail
-            }
-            continue
-        }
-        const found = pathToProject(node.children, projectId, [...trail, node.key])
+        const found = node.project
+            ? projectRowAt(node, projectId, path)
+            : projectRowOf(node.children, projectId, [...path, node.key])
         if (found) {
             return found
         }
     }
     return null
 }
+
+/** The row of a project node when it is the project looked for. */
+const projectRowAt = (node: GroupNode, projectId: string, path: string[]): { path: string[], key: string } | null =>
+    (node.project?.id === projectId ? { path, key: node.key } : null)
+
+/** The keys of every group node holding the project, so the tree can open on it. */
+export const pathToProject = (nodes: GroupNode[], projectId: string): string[] | null =>
+    projectRowOf(nodes, projectId)?.path ?? null
 
 /** The keys of the groups above a node, so a node picked earlier can be shown again. */
 export const pathToNode = (nodes: GroupNode[], key: string, trail: string[] = []): string[] | null => {
@@ -215,19 +223,26 @@ export const findNode = (nodes: GroupNode[], key: string): GroupNode | undefined
  *
  * A node whose own name matches is kept whole, with everything under it: a repository or a tag value
  * answers the search with the projects it holds. Any other node is kept only for what matched inside it.
+ *
+ * A project matches by its own fields, or when `holdsMatch` says something inside it does, such as one of its files.
  */
-export const searchTree = (nodes: GroupNode[], query: string): GroupNode[] => {
+export const searchTree = (
+    nodes: GroupNode[],
+    query: string,
+    holdsMatch: (project: Project) => boolean = () => false
+): GroupNode[] => {
     const needle = query.trim().toLowerCase()
     if (!needle) {
         return nodes
     }
     const matched: GroupNode[] = []
     for (const node of nodes) {
-        if (node.title.toLowerCase().includes(needle) || (node.project && projectMatches(node.project, needle))) {
+        if (node.title.toLowerCase().includes(needle)
+            || (node.project && (projectMatches(node.project, needle) || holdsMatch(node.project)))) {
             matched.push(node)
             continue
         }
-        const children = searchTree(node.children, needle)
+        const children = searchTree(node.children, needle, holdsMatch)
         if (children.length > 0) {
             matched.push({ ...node, children })
         }

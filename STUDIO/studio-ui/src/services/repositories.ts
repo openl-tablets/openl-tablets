@@ -156,7 +156,7 @@ export async function getProjectFiles(projectId: string, recursive = true, versi
     const response = await apiCall(
         `/projects/${encodeURIComponent(projectId)}/files/?${params.toString()}`,
         undefined,
-        // The Files tab shows its own error state; a failure here must not take over the whole screen.
+        // The file pane shows its own error state; a failure here must not take over the whole screen.
         { throwError: true, suppressErrorPages: true }
     )
     return asArray(response)

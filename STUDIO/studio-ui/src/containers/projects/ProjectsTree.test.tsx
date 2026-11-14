@@ -3,20 +3,22 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsTree } from './ProjectsTree'
 import { getProjectIndex } from '../../services/projectIndex'
-import { getProjectFiles } from '../../services/repositories'
+import { getProject, getProjectFiles } from '../../services/repositories'
 import { listModules } from '../../services/modules'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
+import type { FsNode } from '../../types/files'
 import type { Repository } from '../../types/repositories'
 import { listingQueryOf } from './projectListing'
 import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 
-vi.mock('../../services/repositories', () => ({ getProjectFiles: vi.fn() }))
+vi.mock('../../services/repositories', () => ({ getProject: vi.fn(), getProjectFiles: vi.fn() }))
 vi.mock('../../services/modules', () => ({ listModules: vi.fn() }))
 
-vi.mock('../../services/projectIndex', () => ({
+vi.mock('../../services/projectIndex', async importOriginal => ({
     getProjectIndex: vi.fn(),
     invalidateProjectIndex: vi.fn(),
+    projectSignature: (await importOriginal<typeof import('../../services/projectIndex')>()).projectSignature,
 }))
 
 vi.mock('react-i18next', () => {
@@ -27,13 +29,21 @@ vi.mock('react-i18next', () => {
 
 // antd-style hands out new styles and a new token on every render, and so does this mock: only their values follow
 // the appearance. Every tree the Tree is handed is kept, to tell a tree rebuilt from one kept.
-const { appearance, drawnTrees } = vi.hoisted(() => ({
+const { appearance, drawnTrees, treeScrollTo } = vi.hoisted(() => ({
     appearance: { current: 'light' },
     drawnTrees: [] as unknown[],
+    // What the tree was asked to bring into sight.
+    treeScrollTo: vi.fn(),
 }))
 
 vi.mock('antd-style', () => {
-    const cx = (...args: unknown[]) => args.filter(Boolean).join(' ')
+    // antd-style's cx reads every argument as a style object, and a null one throws: so does this one.
+    const cx = (...args: unknown[]) => {
+        if (args.includes(null)) {
+            throw new TypeError("right-hand side of 'in' should be an object, got null")
+        }
+        return args.filter(Boolean).join(' ')
+    }
     return {
         createStyles: () => () => ({ styles: new Proxy({}, { get: (_target, name) => String(name) }), cx }),
         useTheme: () => new Proxy({}, { get: () => (appearance.current === 'dark' ? '#020202' : '#010101') }),
@@ -77,35 +87,44 @@ vi.mock('./GroupProjectsModal', () => ({
 // The caret and the node are separate controls here, as they are in the real tree: picking a node does
 // not unfold it.
 vi.mock('antd', () => {
-    interface Node { key: string, title: unknown, icon?: unknown, isLeaf?: boolean, children?: Node[] }
+    interface Node { key: string, title: unknown, icon?: unknown, isLeaf?: boolean, selectable?: boolean, children?: Node[] }
     const renderNodes = (
         nodes: Node[],
         expanded: string[],
         onSelect: (key: string) => void,
-        onToggle: (key: string) => void
+        onToggle: (key: string) => void,
+        selected: string[] = []
     ) => (
         <ul>
             {nodes.map(node => (
-                <li key={node.key} data-expanded={expanded.includes(node.key)} data-testid={`node-${node.key}`}>
+                <li
+                    key={node.key}
+                    data-expanded={expanded.includes(node.key)}
+                    data-selected={selected.includes(node.key)}
+                    data-testid={`node-${node.key}`}
+                >
                     {node.isLeaf !== true && (
                         <button data-testid={`caret-${node.key}`} onClick={() => onToggle(node.key)} type="button">
                             caret
                         </button>
                     )}
-                    <button onClick={() => onSelect(node.key)} type="button">
+                    <button disabled={node.selectable === false} onClick={() => onSelect(node.key)} type="button">
                         {node.icon as never}
                         {node.title as never}
                     </button>
                     {expanded.includes(node.key) && node.children
-                        && renderNodes(node.children, expanded, onSelect, onToggle)}
+                        && renderNodes(node.children, expanded, onSelect, onToggle, selected)}
                 </li>
             ))}
         </ul>
     )
-    const Tree = ({ treeData, expandedKeys, onSelect, onExpand, loadData, ...rest }: Record<string, unknown>) => {
+    const Tree = ({ treeData, expandedKeys, onSelect, onExpand, loadData, ref, ...rest }: Record<string, unknown>) => {
         drawnTrees.push(treeData)
+        if (ref && typeof ref === 'object') {
+            (ref as { current: unknown }).current = { scrollTo: treeScrollTo }
+        }
         const { blockNode, className, loadedKeys, motion, selectedKeys, showIcon, expandAction, ...dom } = rest
-        void blockNode; void className; void motion; void selectedKeys; void showIcon; void expandAction
+        void blockNode; void className; void motion; void showIcon; void expandAction
         const expanded = (expandedKeys as string[]) ?? []
         const loaded = (loadedKeys as string[]) ?? []
         const select = (key: string) =>
@@ -118,14 +137,17 @@ vi.mock('antd', () => {
             const next = expanded.includes(key) ? expanded.filter(item => item !== key) : [...expanded, key]
             ;(onExpand as (keys: unknown) => void)(next)
         }
-        return <div {...dom}>{renderNodes(treeData as Node[], expanded, select, toggle)}</div>
+        return <div {...dom}>{renderNodes(treeData as Node[], expanded, select, toggle, (selectedKeys as string[]) ?? [])}</div>
     }
     const Button = ({ icon, onClick, ...rest }: Record<string, unknown>) => {
         const { size, type, ...dom } = rest
         void size; void type
         return <button onClick={onClick as never} {...dom}>{icon as never}</button>
     }
-    const Tooltip = ({ children }: Record<string, unknown>) => <>{children as never}</>
+    // A hint is kept where a test can read it, without adding text to the row.
+    const Tooltip = ({ children, title }: Record<string, unknown>) => (
+        typeof title === 'string' ? <span data-tooltip={title}>{children as never}</span> : <>{children as never}</>
+    )
     const Empty = ({ description, ...rest }: Record<string, unknown>) => {
         const { image, ...dom } = rest
         void image
@@ -159,6 +181,13 @@ const projects = [
     { id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Editing, tags: { Domain: 'Policy' } },
     { id: 'p2', name: 'Beta', repository: 'flat', status: ProjectStatus.Closed, tags: { lob: 'Auto' } },
 ] as unknown as Project[]
+
+/** A read of the files of a project that the test answers itself, to see what the tree shows meanwhile. */
+const deferredFiles = () => {
+    let resolve!: (files: FsNode[]) => void
+    const promise = new Promise<FsNode[]>(done => { resolve = done })
+    return { promise, resolve }
+}
 
 /** The picks of the Filters view, written the way the list carries them in its address. */
 const picks = (query = '') => listingQueryOf(new URLSearchParams(query))
@@ -214,6 +243,7 @@ describe('ProjectsTree', () => {
             { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file', size: 1536 },
         ])
         vi.mocked(listModules).mockResolvedValue([{ name: 'Main', path: 'rules/Main.xlsx' }])
+        vi.mocked(getProject).mockResolvedValue({ id: 'p1', name: 'Alpha', compileStatus: { pendingChanges: { files: []} } } as never)
     })
 
     it('reads the projects once and groups them by repository by default', async () => {
@@ -334,6 +364,76 @@ describe('ProjectsTree', () => {
         expect(screen.getByTestId('node-grp/prj:p2')).toHaveAttribute('data-expanded', 'false')
     })
 
+    it('opens on the file a link names, unfolding what leads to it, and picks it', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        await renderTree({ currentProjectId: 'p1', currentFile: 'rules/Main.xlsx' })
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await act(async () => { await new Promise(resolve => requestAnimationFrame(() => resolve(undefined))) })
+
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+        expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toBeInTheDocument()
+        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'true')
+        expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
+    })
+
+    it('reads the files again when a refresh drops their first read, and still opens on the file', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const first = deferredFiles()
+        vi.mocked(getProjectFiles).mockReturnValueOnce(first.promise)
+        await renderTree({
+            currentFile: 'rules/Main.xlsx',
+            currentProjectId: 'p1',
+            onRefresh: vi.fn(),
+            projects,
+        })
+
+        // The reader refreshes the tree while the files the link needs are on their way.
+        await userEvent.click(screen.getByTestId('projects-tree-refresh'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await act(async () => first.resolve([]))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProjectFiles).toHaveBeenCalledTimes(2)
+        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'true')
+    })
+
+    it('opens on the file once, leaving what the reader folds afterwards folded', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree({ currentProjectId: 'p1', currentFile: 'rules/Main.xlsx' })
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+
+        expect(screen.queryByTestId('tree-file-p1-rules/Main.xlsx')).not.toBeInTheDocument()
+    })
+
+    it('picks no file once the screen shows none, and opens on the file again when it is shown again', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const shown = {
+            currentProjectId: 'p1',
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onShowAll: vi.fn(),
+            repositories,
+        }
+        const { rerender } = await renderTree({ currentProjectId: 'p1', currentFile: 'rules/Main.xlsx' })
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'true')
+
+        // A tab of the project takes the place of the file, and the reader folds the folder of the file.
+        rerender(<ProjectsTree {...shown} />)
+        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'false')
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+        expect(screen.queryByTestId('tree-file-p1-rules/Main.xlsx')).not.toBeInTheDocument()
+
+        // A link to the same file opens the tree on it again.
+        rerender(<ProjectsTree {...shown} currentFile="rules/Main.xlsx" />)
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'true')
+    })
+
     it('reads the files of a project when its row is opened, once', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         await renderTree()
@@ -356,7 +456,7 @@ describe('ProjectsTree', () => {
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
     })
 
-    it('opens a file that is a module in the editor, and any other file on the Files tab', async () => {
+    it('opens a file that is a module in the editor, and any other file on the page of its project', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         const { onOpenModule, onOpenFile } = await renderTree()
 
@@ -371,7 +471,7 @@ describe('ProjectsTree', () => {
         expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules.xml')
     })
 
-    it('shows the size of each file, as the Files tab does', async () => {
+    it('shows the size of each file', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         await renderTree()
 
@@ -385,7 +485,7 @@ describe('ProjectsTree', () => {
         expect(screen.getByTestId('tree-folder-p1-rules')).toHaveTextContent(/^rules$/)
     })
 
-    it('opens a picked folder on the Files tab, leaving it folded', async () => {
+    it('opens a picked folder on the page of its project, leaving it folded', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         const { onOpenFile, onOpenModule } = await renderTree()
 
@@ -396,6 +496,351 @@ describe('ProjectsTree', () => {
         expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules')
         expect(onOpenModule).not.toHaveBeenCalled()
         expect(screen.getByTestId('node-folder:p1:rules')).toHaveAttribute('data-expanded', 'false')
+    })
+
+    it('marks the files of the current project changed and not saved yet, and the folders holding them', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const changes = new Map([['rules/Main.xlsx', 'modified' as const], ['rules.xml', 'added' as const]])
+        await renderTree({ currentProjectId: 'p1', currentFileChanges: changes })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+
+        const main = screen.getByTestId('tree-file-p1-rules/Main.xlsx')
+        expect(main).toHaveAttribute('data-change', 'modified')
+        expect(main.parentElement).toHaveAttribute('data-tooltip', 'browser.files.change_hint.modified')
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'added')
+        expect(screen.getByTestId('tree-folder-p1-rules')).toHaveAttribute('data-change', 'folder')
+    })
+
+    it('keeps the files deleted from the current project as rows that open nothing', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const changes = new Map([['rules/Old.xlsx', 'deleted' as const], ['old/Gone.txt', 'deleted' as const]])
+        const { onOpenFile } = await renderTree({ currentProjectId: 'p1', currentFileChanges: changes })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+        await userEvent.click(screen.getByTestId('caret-folder:p1:old'))
+
+        const old = screen.getByTestId('tree-file-p1-rules/Old.xlsx')
+        expect(old).toHaveAttribute('data-change', 'deleted')
+        expect(old.parentElement).toHaveAttribute('data-tooltip', 'browser.files.change_hint.deleted')
+        // No size: the file is no longer there.
+        expect(old).toHaveTextContent(/^Old\.xlsx$/)
+        await userEvent.click(old)
+        expect(onOpenFile).not.toHaveBeenCalled()
+        // A folder left with nothing but deleted files is deleted too; one keeping a file only holds a change.
+        expect(screen.getByTestId('tree-folder-p1-old')).toHaveAttribute('data-change', 'deleted')
+        expect(screen.getByTestId('tree-folder-p1-rules')).toHaveAttribute('data-change', 'folder')
+    })
+
+    it('marks a folder holding only added files as added, and one that also holds older files as changed', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file' },
+            { path: 'rules/New.xlsx', name: 'New.xlsx', basePath: 'rules', type: 'file' },
+            { path: 'docs/a.txt', name: 'a.txt', basePath: 'docs', type: 'file' },
+            { path: 'docs/b.txt', name: 'b.txt', basePath: 'docs', type: 'file' },
+        ])
+        const changes = new Map([
+            ['rules/New.xlsx', 'added' as const],
+            ['docs/a.txt', 'added' as const],
+            ['docs/b.txt', 'added' as const],
+        ])
+        await renderTree({ currentProjectId: 'p1', currentFileChanges: changes })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        const docs = screen.getByTestId('tree-folder-p1-docs')
+        expect(docs).toHaveAttribute('data-change', 'added')
+        expect(docs.parentElement).toHaveAttribute('data-tooltip', 'browser.files.change_hint.added')
+        expect(screen.getByTestId('tree-folder-p1-rules')).toHaveAttribute('data-change', 'folder')
+    })
+
+    it('marks a folder a file was renamed in as changed, not as a new folder', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'docs/b.md', name: 'b.md', basePath: 'docs', type: 'file' },
+        ])
+        // A file renamed is deleted under its old name and added under the new one.
+        const changes = new Map([
+            ['docs/a.md', 'deleted' as const],
+            ['docs/b.md', 'added' as const],
+        ])
+        await renderTree({ currentProjectId: 'p1', currentFileChanges: changes })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(screen.getByTestId('tree-folder-p1-docs')).toHaveAttribute('data-change', 'folder')
+    })
+
+    it('takes the changes of the project the screen shows from the screen, not reading them again', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const changes = new Map([['rules.xml', 'modified' as const]])
+        const { rerender } = await renderTree({ currentProjectId: 'p1', currentFileChanges: changes, reloadToken: 1 })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        // The screen read its project again: the tree reads the files again, the changes come with the report.
+        rerender(
+            <ProjectsTree
+                currentFileChanges={new Map([['rules.xml', 'added' as const]])}
+                currentProjectId="p1"
+                filters={picks()}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onShowAll={vi.fn()}
+                reloadToken={2}
+                repositories={repositories}
+            />
+        )
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProjectFiles).toHaveBeenCalledTimes(2)
+        expect(getProject).not.toHaveBeenCalled()
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'added')
+    })
+
+    it('marks the changes of a project being edited beside the list too, read with its files', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProject).mockResolvedValue({
+            id: 'p1',
+            name: 'Alpha',
+            path: 'Alpha',
+            compileStatus: { pendingChanges: { files: [
+                { path: 'Alpha/rules.xml', type: 'modified' },
+                { path: 'Alpha/old.txt', type: 'deleted' },
+            ]} },
+        } as never)
+        await renderTree({ projects, onRefresh: vi.fn() })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status']}, expect.anything())
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'modified')
+        expect(screen.getByTestId('tree-file-p1-old.txt')).toHaveAttribute('data-change', 'deleted')
+    })
+
+    it('reads no changes of a project that is not being edited', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProject).not.toHaveBeenCalled()
+    })
+
+    it('reads the files of a project again once its state changed, as when it is saved', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const { rerender } = await renderTree({ projects, onRefresh: vi.fn() })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+
+        const saved = projects.map(project => (project.id === 'p1' ? { ...project, status: ProjectStatus.Opened } : project))
+        rerender(
+            <ProjectsTree
+                filters={picks()}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onRefresh={vi.fn()}
+                onShowAll={vi.fn()}
+                projects={saved}
+                repositories={repositories}
+            />
+        )
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        // Read again where it stands: the open row keeps its files and is told what is there now.
+        expect(getProjectFiles).toHaveBeenCalledTimes(2)
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
+    })
+
+    it('reads the files of a project again once it is on another branch, its state unchanged', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const onBranch = (branch: string) => projects.map(project => ({ ...project, branch }))
+        const shown = {
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onRefresh: vi.fn(),
+            onShowAll: vi.fn(),
+            repositories,
+        }
+        const { rerender } = await renderTree({ ...shown, projects: onBranch('main') })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+
+        rerender(<ProjectsTree {...shown} projects={onBranch('feature')} />)
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProjectFiles).toHaveBeenCalledTimes(2)
+    })
+
+    it('keeps the files read after a refresh over a read begun before it', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const shown = {
+            currentProjectId: 'p1',
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onRefresh: vi.fn(),
+            onShowAll: vi.fn(),
+            projects,
+            repositories,
+        }
+        const { rerender } = await renderTree({ ...shown, reloadToken: 1 })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        // A read again begins, and the reader refreshes the tree while it is on its way.
+        const older = deferredFiles()
+        vi.mocked(getProjectFiles).mockReturnValueOnce(older.promise)
+        rerender(<ProjectsTree {...shown} reloadToken={2} />)
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('projects-tree-refresh'))
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([{ path: 'fresh.txt', name: 'fresh.txt', basePath: '', type: 'file' }])
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(screen.getByTestId('tree-file-p1-fresh.txt')).toBeInTheDocument()
+
+        await act(async () => older.resolve([{ path: 'stale.txt', name: 'stale.txt', basePath: '', type: 'file' }]))
+
+        expect(screen.getByTestId('tree-file-p1-fresh.txt')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-file-p1-stale.txt')).toBeNull()
+    })
+
+    it('marks no file of a project the screen does not show', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const changes = new Map([['rules.xml', 'added' as const]])
+        await renderTree({ currentProjectId: 'p2', currentFileChanges: changes })
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).not.toHaveAttribute('data-change')
+    })
+
+    it('lists the empty folders added to the current project until a file lands in them', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree({ currentProjectId: 'p1', currentFolders: ['drafts/wip']})
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(screen.getByTestId('tree-folder-p1-drafts')).toBeInTheDocument()
+        // The empty folder has nothing to unfold, so it takes no arrow; the folder holding it does.
+        expect(screen.getByTestId('caret-folder:p1:drafts')).toBeInTheDocument()
+        expect(screen.queryByTestId('caret-folder:p1:drafts/wip')).not.toBeInTheDocument()
+    })
+
+    it('reads the files of the current project again once the screen reloads it', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const { rerender } = await renderTree({ currentProjectId: 'p1', reloadToken: 1 })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+        const reread = deferredFiles()
+        vi.mocked(getProjectFiles).mockReturnValueOnce(reread.promise)
+
+        rerender(
+            <ProjectsTree
+                currentProjectId="p1"
+                filters={picks()}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onShowAll={vi.fn()}
+                reloadToken={2}
+                repositories={repositories}
+            />
+        )
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        // The open row keeps what it shows while the files are read again, so it neither empties nor jumps...
+        expect(getProjectFiles).toHaveBeenCalledTimes(2)
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
+
+        // ...and lists what is there now once they arrive.
+        await act(async () => reread.resolve([
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file' },
+            { path: 'notes.txt', name: 'notes.txt', basePath: '', type: 'file' },
+        ]))
+        expect(screen.getByTestId('tree-file-p1-notes.txt')).toBeInTheDocument()
+    })
+
+    it('reads the files of the current project again when the screen reloads it during a read', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const first = deferredFiles()
+        vi.mocked(getProjectFiles).mockReturnValueOnce(first.promise)
+        const { rerender } = await renderTree({ currentProjectId: 'p1', reloadToken: 1 })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+
+        // The screen changes the project while its files are on their way: what arrives was read before the change.
+        rerender(
+            <ProjectsTree
+                currentProjectId="p1"
+                filters={picks()}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onShowAll={vi.fn()}
+                reloadToken={2}
+                repositories={repositories}
+            />
+        )
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file' },
+            { path: 'notes.txt', name: 'notes.txt', basePath: '', type: 'file' },
+        ])
+        await act(async () => first.resolve([{ path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file' }]))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProjectFiles).toHaveBeenCalledTimes(2)
+        expect(screen.getByTestId('tree-file-p1-notes.txt')).toBeInTheDocument()
+    })
+
+    it('finds the files of an unfolded project by the search, opening the folders on the way', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+
+        searchFor('main.x')
+
+        // The project stays for its file, folded rows open, and only what matched is listed.
+        expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-project-p2')).not.toBeInTheDocument()
+        expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-file-p1-rules.xml')).not.toBeInTheDocument()
+    })
+
+    it('lists every file of a project found by its own name, those whose name holds the text too', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'alpha-notes.txt', name: 'alpha-notes.txt', basePath: '', type: 'file' },
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file' },
+        ])
+        await renderTree()
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        searchFor('alpha')
+
+        expect(screen.getByTestId('tree-file-p1-alpha-notes.txt')).toBeInTheDocument()
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
     })
 
     it('reads the files of a project that cannot say which of them are modules', async () => {
@@ -544,6 +989,16 @@ describe('ProjectsTree', () => {
         // The reader is on that project: it stays in the tree, which leads on to the rest.
         expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
         expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
+    })
+
+    it('narrows to its own picks when a group picked in it filtered the list only', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree({ projects, onRefresh: vi.fn(), filters: picks('repo=flat'), narrowBy: picks() })
+
+        // The list shows the group; the tree stays whole, and still offers to clear what filters the list.
+        expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+        expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
+        expect(screen.getByTestId('projects-tree-clear-filters')).toBeInTheDocument()
     })
 
     it('keeps to the default branches until a branch is picked', async () => {
@@ -732,6 +1187,13 @@ describe('ProjectsTree', () => {
         await renderTree()
 
         expect(screen.getByTestId('projects-tree-error')).toHaveTextContent('nope')
+    })
+
+    it('says why the screen supplying the projects could not read them', async () => {
+        await renderTree({ projects: [], onRefresh: vi.fn(), error: 'down' })
+
+        expect(screen.getByTestId('projects-tree-error')).toHaveTextContent('down')
+        expect(screen.queryByTestId('projects-tree-empty')).toBeNull()
     })
 
 

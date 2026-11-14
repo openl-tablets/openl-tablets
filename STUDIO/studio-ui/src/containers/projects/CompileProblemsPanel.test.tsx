@@ -259,8 +259,8 @@ describe('CompileProblemsPanel', () => {
 
         fireEvent.click(screen.getByTestId('compile-message-7'))
 
-        // A file that holds no table is fixed in the Files tab, on the line the problem points to.
-        expect(navigate).toHaveBeenCalledWith('/projects/p9?tab=files&file=rules%2FRates%2FFolder%2Funread.md&line=3')
+        // A file that holds no table is fixed on the page of the project, on the line the problem points to.
+        expect(navigate).toHaveBeenCalledWith('/projects/p9?file=rules%2FRates%2FFolder%2Funread.md&line=3')
     })
 
     it('opens the line of the Markdown file a format error of a cell is about', () => {
@@ -288,7 +288,7 @@ describe('CompileProblemsPanel', () => {
         fireEvent.click(screen.getByTestId('compile-message-7'))
 
         // Only the text of the file tells why the row is wrong: the cell of the table drawn from it does not.
-        expect(navigate).toHaveBeenCalledWith('/projects/p9?tab=files&file=rules%2FMain%2Fsalute.md&line=9')
+        expect(navigate).toHaveBeenCalledWith('/projects/p9?file=rules%2FMain%2Fsalute.md&line=9')
     })
 
     it('keeps the reader where they are while a module is being compiled', () => {
