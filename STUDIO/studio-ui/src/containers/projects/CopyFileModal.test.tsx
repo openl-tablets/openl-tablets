@@ -24,9 +24,14 @@ vi.mock('antd', async () => {
         void onPressEnter
         return <input data-testid={rest['data-testid'] as string} onChange={onChange as never} value={value as string} />
     }
+    const Typography = {
+        Text: ({ children, ...rest }: Record<string, unknown>) => (
+            <span data-testid={rest['data-testid'] as string}>{children as never}</span>
+        ),
+    }
     const notification = { error: vi.fn() }
     const { withStaticApp } = await import('testing/staticAntdApp')
-    return withStaticApp({ Input, Modal, notification })
+    return withStaticApp({ Input, Modal, Typography, notification })
 })
 
 vi.mock('./ProjectFolderInput', () => ({
@@ -99,6 +104,18 @@ describe('CopyFileModal', () => {
         expect(copyFile).not.toHaveBeenCalled()
         expect(props.onClose).toHaveBeenCalled()
     })
+
+    it.each(['bad:name?.xlsx', ' Rates.xlsx', 'Rates.', 'a[1].xlsx'])(
+        'shows under the field why %j cannot be a name, and copies nothing', async name => {
+            render(<CopyFileModal {...props} />)
+
+            fireEvent.change(screen.getByTestId('file-copy-name'), { target: { value: name } })
+
+            expect(await screen.findByTestId('file-copy-name-error')).toHaveTextContent('browser.files.name_invalid')
+            expect(screen.getByTestId('file-copy-submit')).toBeDisabled()
+            await userEvent.click(screen.getByText('ok'))
+            expect(copyFile).not.toHaveBeenCalled()
+        })
 
     it('names the dialog after what is being copied', () => {
         render(<CopyFileModal {...props} folder />)

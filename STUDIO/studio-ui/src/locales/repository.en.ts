@@ -266,6 +266,7 @@ i18next.addResourceBundle('en', 'repository', {
             copy_title: 'Copy file',
             copy_folder_title: 'Copy folder',
             copy_failed: 'Failed to copy',
+            name_invalid: 'A file or folder name cannot contain the characters \\, /, :, ;, <, >, ?, *, %, \', [, ], |, ", start with a space, or end with a space or a dot.',
             move: 'Move',
             move_title: 'Move file',
             move_failed: 'Failed to move',
