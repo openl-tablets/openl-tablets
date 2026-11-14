@@ -12,12 +12,12 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.env.PropertyResolver;
 
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.util.IOUtils;
 
 /**
@@ -91,7 +91,7 @@ public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
                 throw refusal;
             }
             try {
-                repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName,
+                repository = RepositoryInstatiator.newRepository(RepositorySettingNames.PREFIX + configName,
                         propertyResolver::getProperty);
             } catch (RuntimeException e) {
                 refusals.put(configName, new Refusal(System.currentTimeMillis(), configName, e));
@@ -153,7 +153,7 @@ public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
 
     @Override
     public String getBasePath(String configName) {
-        var key = Comments.REPOSITORY_PREFIX + configName + RepositorySettings.BASE_PATH_SUFFIX;
+        var key = RepositorySettingNames.PREFIX + configName + RepositorySettings.BASE_PATH_SUFFIX;
         var basePath = propertyResolver.getProperty(key);
         if (basePath == null) {
             basePath = propertyResolver.getProperty(defaultBasePathConfig);

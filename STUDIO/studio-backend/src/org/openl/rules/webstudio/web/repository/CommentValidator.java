@@ -4,9 +4,9 @@ import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.util.StringUtils;
 
 public final class CommentValidator {
@@ -52,7 +52,7 @@ public final class CommentValidator {
      * up to the maximum length.
      */
     public static CommentValidator forRepo(String repoId) {
-        var prefix = Comments.REPOSITORY_PREFIX + repoId;
+        var prefix = RepositorySettingNames.PREFIX + repoId;
         return new CommentValidator(Props.text(prefix + RepositorySettings.COMMENT_VALIDATION_PATTERN_SUFFIX),
                 Props.text(prefix + RepositorySettings.INVALID_COMMENT_MESSAGE_SUFFIX));
     }

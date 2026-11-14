@@ -33,7 +33,6 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
@@ -44,6 +43,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.ProjectKey;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.StaleProjectIds;
 import org.openl.rules.workspace.dtr.BranchedProject;
@@ -137,7 +137,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     private String getBasePath() {
-        var repoPrefix = Comments.REPOSITORY_PREFIX + "design";
+        var repoPrefix = RepositorySettingNames.PREFIX + "design";
         var basePath = propertyResolver.getProperty(repoPrefix + ".base.path");
         if (basePath == null) {
             basePath = propertyResolver.getProperty("repo-default.design.base.path");
@@ -151,7 +151,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     protected Repository createRepo(String configName, String baseFolder) {
         Repository repo = null;
         try {
-            var repoPrefix = Comments.REPOSITORY_PREFIX + configName;
+            var repoPrefix = RepositorySettingNames.PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
 
             if (repo.supports().folders()) {
@@ -209,7 +209,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     } else if ("getId".equals(methodName) && returnType == String.class) {
                         return configName;
                     }
-                    var repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
+                    var repoName = propertyResolver.getProperty(RepositorySettingNames.PREFIX + configName + ".name");
                     if ("getName".equals(methodName) && returnType == String.class) {
                         return repoName;
                     }

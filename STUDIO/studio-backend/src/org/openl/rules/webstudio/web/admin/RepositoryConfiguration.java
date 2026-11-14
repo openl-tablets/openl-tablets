@@ -25,10 +25,10 @@ import org.springframework.core.env.PropertyResolver;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.config.ReadOnlyPropertiesHolder;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.util.StringUtils;
 
@@ -85,7 +85,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     public RepositoryConfiguration(String configName, PropertiesHolder properties) {
         this.configName = configName.toLowerCase();
         this.properties = properties;
-        nameWithPrefix = Comments.REPOSITORY_PREFIX + configName.toLowerCase();
+        nameWithPrefix = RepositorySettingNames.PREFIX + configName.toLowerCase();
         repositoryFactoryKey = nameWithPrefix + REPOSITORY_FACTORY_SUFFIX;
         repositoryRefKey = nameWithPrefix + ".$ref";
         repositoryNameKey = nameWithPrefix + REPOSITORY_NAME_SUFFIX;
@@ -131,7 +131,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
      * same as a fully read configuration reports it.
      */
     public static String getType(String configName, PropertyResolver propertyResolver) {
-        var factoryKey = Comments.REPOSITORY_PREFIX + configName.toLowerCase() + REPOSITORY_FACTORY_SUFFIX;
+        var factoryKey = RepositorySettingNames.PREFIX + configName.toLowerCase() + REPOSITORY_FACTORY_SUFFIX;
         return supportedType(RepositoryInstatiator.getRefID(propertyResolver.getProperty(factoryKey))).factoryId;
     }
 
@@ -337,7 +337,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
             configNames.forEach(rc -> configurations.forEach(configuration -> {
                 var repoValue = configuration.getPropertiesToValidate()
-                        .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
+                        .getProperty(RepositorySettingNames.PREFIX + rc + "." + paramNameSuffix);
                 updateMaxIndex(max, repoValue, defValue);
             }));
             var index = max.get();
@@ -368,6 +368,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
     @Override
     public String getConfigPropertyKey(String configSuffix) {
-        return Comments.REPOSITORY_PREFIX + configName + configSuffix;
+        return RepositorySettingNames.PREFIX + configName + configSuffix;
     }
 }

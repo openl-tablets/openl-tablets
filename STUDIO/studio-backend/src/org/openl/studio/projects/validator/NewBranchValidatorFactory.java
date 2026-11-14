@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.workspace.RepositorySettingNames;
 
 /**
  * Factory for {@link NewBranchValidator}.
@@ -24,7 +24,7 @@ public class NewBranchValidatorFactory implements Function<BranchRepository, New
 
     @Override
     public NewBranchValidator apply(BranchRepository branchRepository) {
-        var keyPrefix = Comments.REPOSITORY_PREFIX + branchRepository.getId();
+        var keyPrefix = RepositorySettingNames.PREFIX + branchRepository.getId();
         var customRegex = environment.getProperty(keyPrefix + ".new-branch.regex");
         var customRegexError = environment.getProperty(keyPrefix + ".new-branch.regex-error");
         return new NewBranchValidator(branchRepository, customRegex, customRegexError);
