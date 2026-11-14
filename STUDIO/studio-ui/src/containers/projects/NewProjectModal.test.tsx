@@ -234,7 +234,7 @@ describe('NewProjectModal', () => {
         vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 })
         vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
         vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
-        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: {} })
         vi.mocked(getDesignRepositoryBranches).mockResolvedValue(['main', 'feature/rates'])
     })
 
@@ -243,7 +243,7 @@ describe('NewProjectModal', () => {
         async method => {
             vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
                 branch: 'main',
-                comment: { templates: {} },
+                comment: {},
             })
             renderWizard({ repositories: branchingRepositories })
 
@@ -282,17 +282,14 @@ describe('NewProjectModal', () => {
         expect(screen.getByTestId('pick-file')).toBeTruthy()
     })
 
-    it('suggests the create comment the target repository configures, following the typed name', async () => {
-        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
-            comment: { templates: { create: 'Project {project-name} was created' } },
-        })
+    it('suggests the create comment, following the typed name', async () => {
         renderWizard()
 
         await toConfig()
         await userEvent.type(screen.getByTestId('new-project-name'), 'Alpha')
 
         await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('new-project-comment').value)
-            .toBe('Project Alpha was created'))
+            .toBe('Project Alpha is created.'))
     })
 
     it('creates in a file repository without a comment field or comment', async () => {
@@ -314,7 +311,7 @@ describe('NewProjectModal', () => {
 
     it('refuses a comment the target repository pattern forbids', async () => {
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
-            comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket', templates: {} },
+            comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket' },
         })
         renderWizard()
 
@@ -542,7 +539,7 @@ describe('NewProjectModal', () => {
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             branch: 'main',
             newBranch: { pattern: '[A-Za-z0-9/_-]+', invalidNameHint: 'Invalid branch' },
-            comment: { templates: {} },
+            comment: {},
         })
         const onCreated = vi.fn()
         renderWizard({ repositories: branchingRepositories, onCreated })
@@ -574,7 +571,7 @@ describe('NewProjectModal', () => {
             repositoryId === 'design' ? designBranches : Promise.resolve(['prod-only']))
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             branch: 'main',
-            comment: { templates: {} },
+            comment: {},
         })
         const repositoriesWithProd = [
             ...branchingRepositories,
@@ -622,7 +619,7 @@ describe('NewProjectModal', () => {
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             branch: 'main',
             newBranch: { namePattern: 'release/.+' },
-            comment: { templates: {} },
+            comment: {},
         })
         vi.mocked(getDesignRepositoryBranches).mockRejectedValue(new Error('unavailable'))
         renderWizard({ repositories: branchingRepositories })
@@ -641,7 +638,7 @@ describe('NewProjectModal', () => {
     it('shows invalid Git branch names as field errors before submission', async () => {
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             branch: 'main',
-            comment: { templates: {} },
+            comment: {},
         })
         renderWizard({ repositories: branchingRepositories })
 
@@ -705,7 +702,8 @@ describe('NewProjectModal', () => {
         await userEvent.clear(screen.getByTestId('new-project-name'))
         await userEvent.type(screen.getByTestId('new-project-name'), 'Copied')
         await userEvent.type(screen.getByTestId('new-project-path'), 'team/rules')
-        await userEvent.type(screen.getByTestId('new-project-comment'), 'copy comment')
+        // The comment names the source project, as the copy dialog suggests it.
+        expect(screen.getByTestId<HTMLTextAreaElement>('new-project-comment').value).toBe('Copied from: Source.')
         await userEvent.click(screen.getByTestId('new-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledTimes(1))
@@ -713,7 +711,7 @@ describe('NewProjectModal', () => {
             'source',
             'design',
             'Copied',
-            { comment: 'copy comment', path: 'team/rules' }
+            { comment: 'Copied from: Source.', path: 'team/rules' }
         )
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
         // A copy is confirmed the way the copy dialog confirms one.

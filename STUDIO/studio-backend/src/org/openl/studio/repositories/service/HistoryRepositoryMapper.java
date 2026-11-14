@@ -32,7 +32,6 @@ public class HistoryRepositoryMapper {
     private static final int COMMENT_PARTS = 3;
 
     private final Repository repository;
-    private final Comments commentService;
 
     /**
      * Gets project history log filtered by {@code globalFilter} if present
@@ -76,7 +75,7 @@ public class HistoryRepositoryMapper {
         }
         var modifiedAt = src.getModifiedAt();
         var originalComment = src.getComment();
-        var parts = commentService.getCommentParts(originalComment);
+        var parts = Comments.getCommentParts(originalComment);
 
         return ProjectRevision.builder()
                 .revisionNo(revision)

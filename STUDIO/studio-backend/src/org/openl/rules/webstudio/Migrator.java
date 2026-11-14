@@ -14,8 +14,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
@@ -26,7 +26,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -62,12 +61,12 @@ public final class Migrator {
     private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
     private static final String LEGACY_SINGLE_USERNAME = "DEFAULT";
-    private static final String RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
+    private static final String USER_MESSAGE_INFIX = ".comment-template.user-message.";
+    private static final String CUSTOM_COMMENTS_SUFFIX = ".comment-template.use-custom-comments";
+    private static final String COMMENT_PATTERN_SUFFIX = ".comment-template.comment-validation-pattern";
     /** The date and time settings removed in 7.0.0. */
     private static final List<String> LEGACY_DATE_SETTINGS =
             List.of("data.format.date", "data.format.time", "data.format.datetime");
-    /** The pattern the date and time settings wrote the {@code {datetime}} of a comment in before 7.0.0. */
-    static final String LEGACY_DATETIME_PATTERN = "MM/dd/yyyy hh:mm:ss a";
 
     /**
      * Brings the settings of the previous installation to what the running version expects.
@@ -98,7 +97,10 @@ public final class Migrator {
             migrateTo640(settings, props);
         }
         if (stringFromVersion.compareTo("7.0.0") < 0) {
-            migrateTo700(settings, props);
+            migrateTo700(props);
+        }
+        if (stringFromVersion.compareTo("7.1.0") < 0) {
+            migrateTo710(settings, props);
         }
         // A single-user installation upgraded from before EPBDS-16213 keeps its workspace under the former
         // default user name; move it to the resolved name first, so the conversion below records the moved
@@ -313,76 +315,53 @@ public final class Migrator {
     }
 
     /**
-     * Keeps the comments of a restored revision as the installation wrote them before 7.0.0.
-     *
-     * <p>The Date Format and Time Format settings are removed, and a bare {@code {datetime}} now writes the moment in
-     * ISO 8601. The pattern the settings gave moves into the restore comment template of every design repository, as
-     * {@code {datetime:<pattern>}}: the templates the installation saved, and, where it set a pattern of its own, the
-     * default template of the repositories that kept it.
+     * Removes the comment templates and the Customize comments flag of the design repositories: since 7.1.0 OpenL
+     * Studio suggests the same comments to every repository, and validates a comment whenever a pattern is set.
      */
-    private static void migrateTo700(DynamicPropertySource settings, HashMap<String, String> props) {
-        var pattern = legacyDateTimePattern(Props.text("data.format.date"), Props.text("data.format.time"),
-                Props.text("data.format.datetime"));
-        var templates = new HashMap<String, String>();
-        Arrays.stream(settings.getPropertyNames())
-                .filter(name -> name.startsWith(REPOSITORY_PREFIX) && name.endsWith(RESTORED_FROM_SUFFIX))
-                .forEach(name -> templates.put(name, settings.getProperty(name)));
-        var defaultTemplate = Props.text("repo-default.design" + RESTORED_FROM_SUFFIX);
-        if (pattern != null && defaultTemplate != null) {
-            Arrays.stream(StringUtils.split(Objects.requireNonNullElse(
-                            Props.text(AdministrationSettings.DESIGN_REPOSITORY_CONFIGS), ""), ','))
-                    .map(String::trim)
-                    .filter(StringUtils::isNotEmpty)
-                    .forEach(id -> templates.putIfAbsent(REPOSITORY_PREFIX + id + RESTORED_FROM_SUFFIX, defaultTemplate));
-        }
-        props.putAll(withDatePattern(templates, Objects.requireNonNullElse(pattern, LEGACY_DATETIME_PATTERN)));
-        LEGACY_DATE_SETTINGS.forEach(name -> props.put(name, null));
+    private static void migrateTo710(DynamicPropertySource settings, HashMap<String, String> props) {
+        props.putAll(commentSettingsTo710(settings.getPropertyNames(), Props::text));
     }
 
     /**
-     * The pattern the date and time settings of an installation wrote a date and time in, as a comment writes it, or
-     * {@code null} where it set none of them and wrote it in {@link #LEGACY_DATETIME_PATTERN}.
+     * The changes of the stored comment settings of the repositories: the templates and the flag are removed.
      *
-     * <p>The settings took a pattern of {@code SimpleDateFormat}, and a comment takes one of {@code DateTimeFormatter}
-     * of fewer letters ({@link Comments#isWritten}). A run of the day period letter is one letter there; a pattern of
-     * other letters is not carried over, and the comment keeps {@link #LEGACY_DATETIME_PATTERN}.
+     * <p>A pattern stored for a repository that did not customize comments was not applied, so it is emptied: the
+     * repository keeps accepting any comment.
+     *
+     * @param names   the names of the stored settings
+     * @param setting the value of a setting, as the installation reads it
+     * @return the new value of each changed setting, {@code null} for a removed one
      */
-    static @Nullable String legacyDateTimePattern(@Nullable String date, @Nullable String time,
-                                                  @Nullable String dateTime) {
-        String pattern;
-        if (StringUtils.isNotBlank(dateTime) && !dateTime.contains("${")) {
-            pattern = dateTime.trim();
-        } else if (StringUtils.isBlank(date) && StringUtils.isBlank(time)) {
-            return null;
-        } else {
-            pattern = Objects.requireNonNullElse(StringUtils.trimToNull(date), "MM/dd/yyyy") + " "
-                    + Objects.requireNonNullElse(StringUtils.trimToNull(time), "hh:mm:ss a");
-        }
-        var written = pattern.replaceAll("a+", "a");
-        if (!Comments.isWritten(written)) {
-            log.warn("""
-                    The date and time pattern '{}' is not carried over to the restore comments, which write '{}'\
-                     instead.""", pattern, LEGACY_DATETIME_PATTERN);
-            return null;
-        }
-        return written;
-    }
-
-    /**
-     * The restore comment templates that change when their {@code {datetime}} takes the given pattern: a bare one, and
-     * one naming the pattern of the settings before 7.0.0.
-     */
-    static Map<String, String> withDatePattern(Map<String, String> templates, String pattern) {
-        var named = "{datetime:" + pattern + "}";
-        var changed = new HashMap<String, String>();
-        templates.forEach((name, template) -> {
-            var patched = template.replace("{datetime}", named)
-                    .replace("{datetime:" + LEGACY_DATETIME_PATTERN + "}", named);
-            if (!patched.equals(template)) {
-                changed.put(name, patched);
+    static Map<String, @Nullable String> commentSettingsTo710(String[] names,
+                                                              Function<String, @Nullable String> setting) {
+        var changes = new HashMap<String, @Nullable String>();
+        for (var name : names) {
+            if (isRemovedCommentSetting(name)) {
+                changes.put(name, null);
+            } else if (isUnappliedCommentPattern(name, setting)) {
+                changes.put(name, "");
             }
-        });
-        return changed;
+        }
+        return changes;
+    }
+
+    private static boolean isRemovedCommentSetting(String name) {
+        return name.startsWith(REPOSITORY_PREFIX)
+                && (name.contains(USER_MESSAGE_INFIX) || name.endsWith(CUSTOM_COMMENTS_SUFFIX));
+    }
+
+    private static boolean isUnappliedCommentPattern(String name, Function<String, @Nullable String> setting) {
+        if (!name.startsWith(REPOSITORY_PREFIX) || !name.endsWith(COMMENT_PATTERN_SUFFIX)
+                || StringUtils.isBlank(setting.apply(name))) {
+            return false;
+        }
+        var repository = name.substring(0, name.length() - COMMENT_PATTERN_SUFFIX.length());
+        return !Boolean.parseBoolean(StringUtils.trim(setting.apply(repository + CUSTOM_COMMENTS_SUFFIX)));
+    }
+
+    /** Removes the date and time settings: each user picks the formats dates and times are shown in since 7.0.0. */
+    private static void migrateTo700(HashMap<String, String> props) {
+        LEGACY_DATE_SETTINGS.forEach(name -> props.put(name, null));
     }
 
     private static void migrateTo640(DynamicPropertySource settings, HashMap<String, String> props) {

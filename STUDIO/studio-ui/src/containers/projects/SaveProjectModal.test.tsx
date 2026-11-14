@@ -116,7 +116,7 @@ describe('SaveProjectModal', () => {
         vi.clearAllMocks()
         vi.mocked(saveProject).mockResolvedValue()
         vi.mocked(getProjectBranches).mockResolvedValue([])
-        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: {} })
         // Default: the status tells no changes, so the dialog lists no files
         vi.mocked(getProject).mockResolvedValue(project)
         // Default: identity configured
@@ -147,10 +147,11 @@ describe('SaveProjectModal', () => {
         await waitFor(() => expect(onClose).toHaveBeenCalled())
     })
 
-    it('commits without generating a default comment when the repository suggests none', async () => {
+    it('commits without a comment when the user clears the suggested one', async () => {
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
         const comment = screen.getByTestId<HTMLTextAreaElement>('save-project-comment')
+        await userEvent.clear(comment)
         expect(comment.value).toBe('')
         await userEvent.click(screen.getByTestId('save-project-submit'))
 
@@ -171,20 +172,14 @@ describe('SaveProjectModal', () => {
         await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', undefined))
     })
 
-    it('starts from the comment the repository suggests for a save', async () => {
-        vi.mocked(getRepositoryConfig).mockResolvedValue({
-            comment: { templates: { save: 'Project {project-name} was modified' } },
-        })
+    it('starts from the suggested comment of a save', async () => {
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
         await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('save-project-comment').value)
-            .toBe('Project Alpha was modified'))
+            .toBe('Project Alpha is saved.'))
     })
 
-    it('starts from the restore template when the project is opened on an older revision', async () => {
-        vi.mocked(getRepositoryConfig).mockResolvedValue({
-            comment: { templates: { restoreFrom: 'Restored from {revision} by {author} at {datetime}' } },
-        })
+    it('starts from the restore comment when the project is opened on an older revision', async () => {
         const viewing = {
             ...project as object,
             status: 'VIEWING_VERSION',
@@ -196,12 +191,12 @@ describe('SaveProjectModal', () => {
 
         // The comment is stored text, so its moment is written in UTC, as the server writes it.
         await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('save-project-comment').value)
-            .toBe('Restored from abc123 by john at 2020-06-22T21:02:42Z'))
+            .toBe('Restored from revision of john on 06/22/2020 09:02:42 PM.'))
     })
 
     it('refuses a comment the repository pattern forbids', async () => {
         vi.mocked(getRepositoryConfig).mockResolvedValue({
-            comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket', templates: {} },
+            comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket' },
         })
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
@@ -277,7 +272,7 @@ describe('SaveProjectModal', () => {
 
         await userEvent.click(screen.getByTestId('save-project-submit'))
 
-        await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', undefined))
+        await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', 'Project Alpha is saved.'))
         expect(screen.queryByTestId('save-project-changes')).not.toBeInTheDocument()
     })
 

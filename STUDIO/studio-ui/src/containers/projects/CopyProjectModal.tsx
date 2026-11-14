@@ -129,7 +129,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         }
     }, [newProjectMode, open, targetBranchTouched, targetConfig, targetSupportsBranches])
 
-    // The repository suggests the branch name and the comment; both stay editable, and a suggestion that
+    // The branch name the repository suggests and the suggested comment both stay editable, and a suggestion that
     // arrives after the user has typed never replaces what they wrote.
     useEffect(() => {
         if (!open || !project || touched) {
@@ -137,9 +137,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         }
         setBranch(suggestBranchName(sourceConfig, { projectName: project.name, username }))
         if (!newProjectMode || targetSupportsComments) {
-            setComment(suggestComment(writeConfig, 'copy', project.name))
+            setComment(suggestComment('copy', project.name))
         }
-    }, [newProjectMode, open, project, sourceConfig, targetSupportsComments, touched, username, writeConfig])
+    }, [newProjectMode, open, project, sourceConfig, targetSupportsComments, touched, username])
 
     // The revisions to copy from are only listed once the user asks for an older one.
     const { revisions, options: revisionOptions } = useProjectRevisions(project, open && fromOldRevision)

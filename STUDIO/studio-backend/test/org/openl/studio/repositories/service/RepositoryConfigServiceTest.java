@@ -80,25 +80,8 @@ class RepositoryConfigServiceTest {
     }
 
     @Test
-    void commentTemplatesAreExposedForEveryActionThatCommits() {
+    void commentExpressionIsExposedWhenThePatternIsSet() {
         environment.setProperty("repository.design.factory", "repo-git");
-        environment.setProperty("repository.design.comment-template.user-message.default.save", "Project {project-name} is saved.");
-        environment.setProperty("repository.design.comment-template.user-message.default.create", "Project {project-name} is created.");
-        environment.setProperty("repository.design.comment-template.user-message.default.copied-from", "Copied from: {project-name}.");
-        environment.setProperty("repository.design.comment-template.user-message.default.restored-from", "Restored from revision of {author} on {datetime}.");
-
-        var templates = service.getConfig("design").comment().templates();
-
-        assertEquals("Project {project-name} is saved.", templates.save());
-        assertEquals("Project {project-name} is created.", templates.create());
-        assertEquals("Copied from: {project-name}.", templates.copy());
-        assertEquals("Restored from revision of {author} on {datetime}.", templates.restoreFrom());
-    }
-
-    @Test
-    void commentExpressionIsExposedOnlyWhileCommentsAreCustomized() {
-        environment.setProperty("repository.design.factory", "repo-git");
-        environment.setProperty("repository.design.comment-template.use-custom-comments", "true");
         environment.setProperty("repository.design.comment-template.comment-validation-pattern", "EPBDS-\\d+.*");
         environment.setProperty("repository.design.comment-template.invalid-comment-message", "Start the comment with a ticket");
 
@@ -109,9 +92,9 @@ class RepositoryConfigServiceTest {
     }
 
     @Test
-    void commentExpressionIsHiddenWhenCommentsAreNotCustomized() {
+    void commentExpressionIsHiddenWhenThePatternIsBlank() {
         environment.setProperty("repository.design.factory", "repo-git");
-        environment.setProperty("repository.design.comment-template.comment-validation-pattern", "EPBDS-\\d+.*");
+        environment.setProperty("repository.design.comment-template.comment-validation-pattern", "  ");
         environment.setProperty("repository.design.comment-template.invalid-comment-message", "Start the comment with a ticket");
 
         var comment = service.getConfig("design").comment();

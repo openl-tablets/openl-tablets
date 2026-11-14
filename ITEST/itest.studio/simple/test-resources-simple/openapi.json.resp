@@ -27791,9 +27791,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "templates": {
-            "$ref": "#/components/schemas/Templates"
-          },
           "userMessagePattern": {
             "type": "string",
             "description": "***"
@@ -34851,31 +34848,11 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "defaultCommentCopiedFrom": {
-            "type": "string",
-            "description": "***"
-          },
-          "defaultCommentCreate": {
-            "type": "string",
-            "description": "***"
-          },
-          "defaultCommentRestoredFrom": {
-            "type": "string",
-            "description": "***"
-          },
-          "defaultCommentSave": {
-            "type": "string",
-            "description": "***"
-          },
           "invalidCommentMessage": {
             "type": "string",
             "description": "***"
           },
           "mainBranchOnly": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "useCustomComments": {
             "type": "boolean",
             "description": "***"
           }
@@ -37179,27 +37156,6 @@ Content-Type: application/json
             "items": {
               "type": "string"
             }
-          }
-        }
-      },
-      "Templates": {
-        "type": "object",
-        "properties": {
-          "copy": {
-            "type": "string",
-            "description": "***"
-          },
-          "create": {
-            "type": "string",
-            "description": "***"
-          },
-          "restoreFrom": {
-            "type": "string",
-            "description": "***"
-          },
-          "save": {
-            "type": "string",
-            "description": "***"
           }
         }
       },

@@ -40,13 +40,14 @@ public final class CommentValidator {
         }
     }
 
+    /**
+     * The validator of the comments of a repository. A repository without a validation pattern accepts any comment
+     * up to the maximum length.
+     */
     public static CommentValidator forRepo(String repoId) {
-        var customComments = Boolean.parseBoolean(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.use-custom-comments"));
-        if (customComments) {
-            return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.comment-validation-pattern"),
-                    Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
-        }
-        return new CommentValidator(null, null);
+        var prefix = Comments.REPOSITORY_PREFIX + repoId + ".comment-template.";
+        return new CommentValidator(Props.text(prefix + "comment-validation-pattern"),
+                Props.text(prefix + "invalid-comment-message"));
     }
 
 }

@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -130,12 +129,6 @@ public class DesignTimeRepositoryController {
         this.repositoryConfigService = repositoryConfigService;
         this.projectIdConverter = projectIdConverter;
         this.auditor = auditor;
-    }
-
-    @Lookup("commentService")
-    protected Comments getCommentsService(String repoName) {
-        // Spring overrides this method to return the repository-scoped bean; the stub itself never runs.
-        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     @GetMapping
@@ -325,7 +318,7 @@ public class DesignTimeRepositoryController {
         String comment = null;
         if (repository.supports().comments()) {
             comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
-                    : getCommentsService(repository.getId()).copiedFrom(source.getBusinessName());
+                    : Comments.copiedFrom(source.getBusinessName());
         }
         var model = validatedCreateModel(repository, projectName, request.path(), comment, request.branch());
         allowedToPushRequestedBranch(repository, request.branch(), false);
@@ -366,7 +359,7 @@ public class DesignTimeRepositoryController {
             return null;
         }
         return StringUtils.isNotBlank(comment) ? comment
-                : getCommentsService(repository.getId()).createProject(projectName);
+                : Comments.createProject(projectName);
     }
 
     private Lock getLock(Repository repository, CreateUpdateProjectModel model) {

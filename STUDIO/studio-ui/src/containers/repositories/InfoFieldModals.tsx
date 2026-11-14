@@ -78,71 +78,13 @@ export const MewBranchRegexErrorModal = (
 )
 
 export const UserMessagePatternModal = (
-    <InfoFieldModal text={(<p>A regular expression that is used to validate user message.</p>)} />
+    <InfoFieldModal text={(<p>A regular expression that is used to validate user message. Leave it empty to accept any message.</p>)} />
 )
 
 export const InvalidUserMessageHintModal = (
     <InfoFieldModal
         text={(
             <p>This message is shown to user if user message is not matched to message validation pattern.</p>
-        )}
-    />
-)
-
-export const MessageSaveProjectModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message for 'Save project' action.</p>
-                <ul>
-                    <li>&#123;project-name&#125; is replaced by current project in the message.</li>
-                </ul>
-            </>
-        )}
-    />
-)
-
-export const MessageCreateProjectModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message for 'Create project' action.</p>
-                <ul>
-                    <li>&#123;project-name&#125; is replaced by current project in the message.</li>
-                </ul>
-            </>
-        )}
-    />
-)
-
-export const MessageCopyProjectModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message for 'Copy project' action.</p>
-                <ul>
-                    <li>&#123;project-name&#125; is replaced by current project in the message.</li>
-                </ul>
-            </>
-        )}
-    />
-)
-
-export const MessageRestoreFromOldVersionModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message when a project is restored from old version.</p>
-                <ul>
-                    <li>&#123;revision&#125; is replaced by old revision number.</li>
-                    <li>&#123;author&#125; is replaced by the author of old project version.</li>
-                    <li>
-                        &#123;datetime&#125; is replaced by the moment the old project version was saved, in UTC:
-                        2026-10-29T18:20:19Z. &#123;datetime:yyyy-MM-dd HH:mm&#125; writes it in the pattern after
-                        the colon instead, also in UTC.
-                    </li>
-                </ul>
-            </>
         )}
     />
 )

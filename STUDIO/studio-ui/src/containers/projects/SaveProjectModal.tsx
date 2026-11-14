@@ -8,7 +8,7 @@ import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
 import { getProject, saveProject } from '../../services/repositories'
 import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
 import { errorHandler } from '../../utils/errorHandling'
-import { suggestComment } from '../../utils/repositoryConfig'
+import { suggestComment, suggestRestoreComment } from '../../utils/repositoryConfig'
 import { ChangedFileList, ChangesHeader } from './ChangedFileList'
 import { CommentField, useCommentError } from './CommentField'
 import { openMergeDialog } from './branchDialogs'
@@ -102,25 +102,21 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     const commentError = useCommentError(comment, config)
     const pending = usePendingSave(open, project?.id)
 
-    // A fresh dialog starts from the repository's suggestion again.
+    // A fresh dialog starts from the suggested comment again.
     useEffect(() => {
         setCommentTouched(false)
     }, [open, project])
 
-    // The repository suggests the comment; it stays editable. Saving a project opened on an older revision
-    // restores that revision, and the repository has its own template for it.
+    // The comment is suggested and stays editable. Saving a project opened on an older revision restores that
+    // revision, which the suggested comment names.
     useEffect(() => {
         if (!open || !repositorySupportsComments || commentTouched) {
             return
         }
         setComment(project?.status === ProjectStatus.ViewingVersion
-            ? suggestComment(config, 'restoreFrom', {
-                revision: project.revision,
-                author: project.modifiedBy,
-                datetime: project.modifiedAt,
-            })
-            : suggestComment(config, 'save', project?.name))
-    }, [commentTouched, config, open, project, repositorySupportsComments])
+            ? suggestRestoreComment(project.modifiedBy, project.modifiedAt)
+            : suggestComment('save', project?.name))
+    }, [commentTouched, open, project, repositorySupportsComments])
 
     const openConflictResolution = async (target: Project) => {
         notification.warning({ title: t('browser.save_conflict') })

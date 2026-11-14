@@ -32,32 +32,17 @@ import org.openl.util.StringUtils;
 })
 public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
 
-    private static final String USE_CUSTOM_COMMENTS_SUFFIX = ".comment-template.use-custom-comments";
     private static final String COMMENT_VALIDATION_PATTERN_SUFFIX = ".comment-template.comment-validation-pattern";
     private static final String INVALID_COMMENT_MESSAGE_SUFFIX = ".comment-template.invalid-comment-message";
-    private static final String DEFAULT_COMMENT_SAVE_SUFFIX = ".comment-template.user-message.default.save";
-    private static final String DEFAULT_COMMENT_CREATE_SUFFIX = ".comment-template.user-message.default.create";
-    private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
-    private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
     public static final String BASE_PATH_SUFFIX = ".base.path";
     private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
     private static final String PATH_SEPARATOR = "/";
 
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
-    private final String useCustomCommentsKey;
     private final String commentValidationPatternKey;
     private final String invalidCommentMessageKey;
-    private final String defaultCommentSaveKey;
-    private final String defaultCommentCreateKey;
-    private final String defaultCommentCopiedFromKey;
-    private final String defaultCommentRestoredFromKey;
     private final String basePathKey;
     private final String deployFromMainBranchKey;
-
-    @Parameter(description = "Customize comments")
-    @SettingPropertyName(suffix = USE_CUSTOM_COMMENTS_SUFFIX)
-    @JsonView(Views.Design.class)
-    private boolean useCustomComments;
 
     @Parameter(description = "A regular expression that is used to validate user message.")
     @SettingPropertyName(suffix = COMMENT_VALIDATION_PATTERN_SUFFIX)
@@ -70,26 +55,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     @SettingPropertyName(suffix = INVALID_COMMENT_MESSAGE_SUFFIX)
     @JsonView(Views.Design.class)
     private String invalidCommentMessage;
-
-    @Parameter(description = "Default message for 'Save project'.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_SAVE_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentSave;
-
-    @Parameter(description = "Default message for 'Create project'.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_CREATE_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentCreate;
-
-    @Parameter(description = "Default message for 'Copy project'.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_COPIED_FROM_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentCopiedFrom;
-
-    @Parameter(description = "Default message when restore from old version.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_RESTORED_FROM_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentRestoredFrom;
 
     @Parameter(description = "Path")
     @PathConstraint(allowTrailingSlash = true)
@@ -111,13 +76,8 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     RepositorySettings(PropertiesHolder propertyResolver, String configPrefix, RepositoryMode repositoryMode) {
         this.configPrefix = configPrefix;
         this.repositoryMode = repositoryMode;
-        useCustomCommentsKey = configPrefix + USE_CUSTOM_COMMENTS_SUFFIX;
         commentValidationPatternKey = configPrefix + COMMENT_VALIDATION_PATTERN_SUFFIX;
         invalidCommentMessageKey = configPrefix + INVALID_COMMENT_MESSAGE_SUFFIX;
-        defaultCommentSaveKey = configPrefix + DEFAULT_COMMENT_SAVE_SUFFIX;
-        defaultCommentCreateKey = configPrefix + DEFAULT_COMMENT_CREATE_SUFFIX;
-        defaultCommentCopiedFromKey = configPrefix + DEFAULT_COMMENT_COPIED_FROM_SUFFIX;
-        defaultCommentRestoredFromKey = configPrefix + DEFAULT_COMMENT_RESTORED_FROM_SUFFIX;
         basePathKey = configPrefix + BASE_PATH_SUFFIX;
         deployFromMainBranchKey = configPrefix + DEPLOY_FROM_MAIN_BRANCH_SUFFIX;
 
@@ -140,46 +100,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         this.invalidCommentMessage = invalidCommentMessage;
     }
 
-    public String getDefaultCommentSave() {
-        return defaultCommentSave;
-    }
-
-    public void setDefaultCommentSave(String defaultCommentSave) {
-        this.defaultCommentSave = defaultCommentSave;
-    }
-
-    public boolean isUseCustomComments() {
-        return useCustomComments;
-    }
-
-    public void setUseCustomComments(boolean useCustomComments) {
-        this.useCustomComments = useCustomComments;
-    }
-
-    public String getDefaultCommentCreate() {
-        return defaultCommentCreate;
-    }
-
-    public void setDefaultCommentCreate(String defaultCommentCreate) {
-        this.defaultCommentCreate = defaultCommentCreate;
-    }
-
-    public String getDefaultCommentCopiedFrom() {
-        return defaultCommentCopiedFrom;
-    }
-
-    public void setDefaultCommentCopiedFrom(String defaultCommentCopiedFrom) {
-        this.defaultCommentCopiedFrom = defaultCommentCopiedFrom;
-    }
-
-    public String getDefaultCommentRestoredFrom() {
-        return defaultCommentRestoredFrom;
-    }
-
-    public void setDefaultCommentRestoredFrom(String defaultCommentRestoredFrom) {
-        this.defaultCommentRestoredFrom = defaultCommentRestoredFrom;
-    }
-
     public boolean isMainBranchOnly() {
         return mainBranchOnly;
     }
@@ -198,13 +118,8 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     }
 
     private void load(PropertiesHolder properties) {
-        useCustomComments = Boolean.parseBoolean(properties.getProperty(useCustomCommentsKey));
         commentValidationPattern = properties.getProperty(commentValidationPatternKey);
         invalidCommentMessage = properties.getProperty(invalidCommentMessageKey);
-        defaultCommentSave = properties.getProperty(defaultCommentSaveKey);
-        defaultCommentCreate = properties.getProperty(defaultCommentCreateKey);
-        defaultCommentCopiedFrom = properties.getProperty(defaultCommentCopiedFromKey);
-        defaultCommentRestoredFrom = properties.getProperty(defaultCommentRestoredFromKey);
 
         mainBranchOnly = MAIN_BRANCH.equals(properties.getProperty(deployFromMainBranchKey));
 
@@ -218,26 +133,15 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
 
     protected void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(basePathKey, basePath);
-        propertiesHolder.setProperty(useCustomCommentsKey, useCustomComments);
         propertiesHolder.setProperty(commentValidationPatternKey, commentValidationPattern);
         propertiesHolder.setProperty(invalidCommentMessageKey, invalidCommentMessage);
-
-        propertiesHolder.setProperty(defaultCommentSaveKey, defaultCommentSave);
-        propertiesHolder.setProperty(defaultCommentCreateKey, defaultCommentCreate);
-        propertiesHolder.setProperty(defaultCommentCopiedFromKey, defaultCommentCopiedFrom);
-        propertiesHolder.setProperty(defaultCommentRestoredFromKey, defaultCommentRestoredFrom);
 
         propertiesHolder.setProperty(deployFromMainBranchKey, mainBranchOnly ? MAIN_BRANCH : null);
     }
 
     protected void revert(PropertiesHolder properties) {
-        properties.revertProperties(useCustomCommentsKey,
-                commentValidationPatternKey,
+        properties.revertProperties(commentValidationPatternKey,
                 invalidCommentMessageKey,
-                defaultCommentSaveKey,
-                defaultCommentCreateKey,
-                defaultCommentCopiedFromKey,
-                defaultCommentRestoredFromKey,
                 basePathKey,
                 deployFromMainBranchKey);
         load(properties);

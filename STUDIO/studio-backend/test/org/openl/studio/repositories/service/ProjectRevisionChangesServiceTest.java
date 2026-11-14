@@ -31,7 +31,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -56,7 +55,7 @@ class ProjectRevisionChangesServiceTest {
     private static final String FOLDER = "DESIGN/rules/Rates";
 
     private final DesignTimeRepository designTimeRepository = mock(DesignTimeRepository.class);
-    private final HistoryRepositoryMapper history = new HistoryRepositoryMapper(mock(Repository.class), comments());
+    private final HistoryRepositoryMapper history = new HistoryRepositoryMapper(mock(Repository.class));
     @SuppressWarnings("unchecked")
     private final ObjectProvider<HistoryRepositoryMapper> historyMappers = mock(ObjectProvider.class);
     private final ProjectRevisionChangesService service =
@@ -433,12 +432,6 @@ class ProjectRevisionChangesServiceTest {
         data.setVersion(revision);
         data.setComment("Comment of " + revision);
         return data;
-    }
-
-    private static Comments comments() {
-        var comments = mock(Comments.class);
-        when(comments.getCommentParts(ArgumentMatchers.any())).thenReturn(List.of());
-        return comments;
     }
 
     private static BranchRepository branchRepository() {

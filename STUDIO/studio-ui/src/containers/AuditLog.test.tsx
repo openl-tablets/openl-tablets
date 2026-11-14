@@ -428,7 +428,7 @@ describe('AuditLog', () => {
                         'mail.password': { secret: true },
                         'mail.username': { to: 'bot' },
                         'project.history.count': { from: '100' },
-                        'repository.design.comment-template.use-custom-comments': { to: 'true' },
+                        'repository.design.comment-template.comment-validation-pattern': { to: 'EPBDS-.+' },
                     },
                 },
             }
@@ -447,7 +447,7 @@ describe('AuditLog', () => {
                 '~ audit:detail_names.mail.password: audit:secret_changed',
                 '+ audit:detail_names.mail.username: bot',
                 '- audit:detail_names.project.history.count: 100',
-                '+ audit:detail_names.repository.design.comment-template.use-custom-comments: true',
+                '+ audit:detail_names.repository.design.comment-template.comment-validation-pattern: EPBDS-.+',
             ])
             expectTag('~ audit:detail_names.mail.password: audit:secret_changed', 'warning')
             expectHint('~ mail.password', 'audit:changes.changed: mail.password')
@@ -456,7 +456,7 @@ describe('AuditLog', () => {
             expect(screen.getByText('~ audit:detail_names.mail.password: audit:secret_changed'))
                 .toHaveStyle({ overflowWrap: 'anywhere' })
             expectHint('+ repository.design.comment-templ…',
-                'audit:changes.added: repository.design.comment-template.use-custom-comments')
+                'audit:changes.added: repository.design.comment-template.comment-validation-pattern')
             expect(screen.queryByText('mail.password, mail.url, mail.username, project.history.count'))
                 .not.toBeInTheDocument()
         })

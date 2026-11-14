@@ -36,9 +36,11 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLTransientConnectionException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -97,6 +99,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.CompositeGrid;
@@ -687,8 +690,31 @@ class WorkspaceProjectServiceTest {
 
         service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build());
 
-        verify(fileData).setComment("Save PricingProject");
+        verify(fileData).setComment("Project PricingProject is saved.");
         verify(webStudio).saveProject(project);
+    }
+
+    @Test
+    void update_project_status_names_the_restored_revision_when_an_old_version_is_saved_without_comment()
+            throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), null, projectStateValidator, webStudio);
+        var project = mock(RulesProject.class);
+        var fileData = mock(FileData.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(project.isModified()).thenReturn(true);
+        when(project.isOpenedOtherVersion()).thenReturn(true);
+        when(project.getFileData()).thenReturn(fileData);
+        when(fileData.getAuthor()).thenReturn(new UserInfo("jdoe", null, "John Doe"));
+        when(fileData.getModifiedAt()).thenReturn(Date.from(Instant.parse("2020-06-22T21:02:42Z")));
+        when(projectStateValidator.canSave(project)).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+
+        service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build());
+
+        verify(fileData).setComment("Restored from revision of John Doe on 06/22/2020 09:02:42 PM.");
     }
 
     @Test
@@ -3700,17 +3726,12 @@ class WorkspaceProjectServiceTest {
 
     private static Environment environment() {
         var environment = mock(Environment.class);
-        when(environment.getProperty("repository.design.comment-template.user-message.default.save"))
-                .thenReturn("Save {project-name}");
-        when(environment.getProperty("repository.design.comment-template.user-message.default.restored-from"))
-                .thenReturn("Restore revision {revision} by {author} at {datetime}");
         Props.setEnvironment(environment);
         return environment;
     }
 
     private static Environment commentValidationEnvironment() {
         var environment = mock(Environment.class);
-        when(environment.getProperty("repository.design.comment-template.use-custom-comments")).thenReturn("true");
         when(environment.getProperty("repository.design.comment-template.comment-validation-pattern"))
                 .thenReturn("MATCH-.+");
         when(environment.getProperty("repository.design.comment-template.invalid-comment-message"))

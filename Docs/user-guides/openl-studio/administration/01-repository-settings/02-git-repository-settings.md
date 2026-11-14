@@ -56,34 +56,23 @@ configure this behavior:
 
 ##### Customizing Git Commit Comments
 
-For **Design Repositories**, a **Comments** section allows configuring default comments and comment validation.
-Git repositories store the resulting comment directly as the Git commit message.
+For **Design Repositories**, a **Comments** section allows configuring comment validation. Git repositories store the
+comment directly as the Git commit message.
 
-To enable custom commit messages, select the **Customize comments** check box. The following fields become available:
+| Field                         | Description                                                                                         |
+|-------------------------------|-----------------------------------------------------------------------------------------------------|
+| **User message pattern**      | Regular expression a commit comment must match. Leave it empty, the default, to accept any comment. |
+| **Invalid user message hint** | Error message displayed when the comment does not match the pattern.                                |
 
-| Field                         | Description                                                                    |
-|-------------------------------|--------------------------------------------------------------------------------|
-| **User message pattern**      | Optional regular expression for validating user-entered commit messages.       |
-| **Invalid user message hint** | Error message displayed when the user message does not match the pattern.      |
+The comment OpenL Studio suggests for each operation is the same for all repositories and is not configured. The user
+can edit it before committing, and it is checked against the **User message pattern**. When a request of the REST API
+carries no comment, OpenL Studio writes the same comment.
 
-The following user message templates can be customized for individual operations.
+| Operation                                    | Suggested comment                                                 |
+|----------------------------------------------|-------------------------------------------------------------------|
+| Saving a project                             | `Project Bank Rating is saved.`                                   |
+| Creating a project                           | `Project Bank Rating is created.`                                 |
+| Copying a project                            | `Copied from: Bank Rating.`                                       |
+| Saving a project opened on an older revision | `Restored from revision of John Smith on 06/22/2026 09:02:42 PM.` |
 
-For the **Restore from old version** template, the following additional placeholders are available:
-
--   **{revision}** is replaced by the old revision number.
--   **{author}** is replaced by the author of the old project version.
--   **{datetime}** is replaced by the moment the old project version was saved, in UTC, written as
-    `2026-10-29T18:20:19Z`. To write it another way, give a pattern after a colon: `{datetime:yyyy-MM-dd HH:mm}` gives
-    `2026-10-29 18:20`, in UTC as well. The pattern takes these letters of Java's `DateTimeFormatter`: `yyyy` or `yy`
-    the year, `M` to `MMMM` the month, `d` or `dd` the day, `H` or `HH` the hour of the day, `h` or `hh` the hour with
-    `a` the day period, `m` or `mm` the minutes, `s` or `ss` the seconds, `S` to `SSS` their fraction, `E` to `EEEE` the
-    day of the week, and text in single quotes, where two quotes stand for one. Months and days are named in English.
-    A pattern with any other letter gives the moment written as `{datetime}` does. The default template writes it as
-    `{datetime:MM/dd/yyyy hh:mm:ss a}`.
-
-| Template                     | Operation                                       |
-|------------------------------|-------------------------------------------------|
-| **Save project**             | Committing changes to an existing project.      |
-| **Create project**           | Creating a new project.                         |
-| **Copy project**             | Copying a project.                              |
-| **Restore from old version** | Restoring a project to a previous revision.     |
+The comment of a restored revision names the author of that revision and the moment it was saved, in UTC.

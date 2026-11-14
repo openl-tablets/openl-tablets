@@ -448,18 +448,13 @@ is configured in `application.properties`. See
 
 Applies to Git design repositories. See [Customizing Git Commit Comments][git-comments].
 
-| Field                     | Property suffix                                        |
-|---------------------------|--------------------------------------------------------|
-| Customize comments        | `.comment-template.use-custom-comments`                |
-| User message pattern      | `.comment-template.comment-validation-pattern`         |
-| Invalid user message hint | `.comment-template.invalid-comment-message`            |
-| Save project              | `.comment-template.user-message.default.save`          |
-| Create project            | `.comment-template.user-message.default.create`        |
-| Copy project              | `.comment-template.user-message.default.copied-from`   |
-| Restore from old version  | `.comment-template.user-message.default.restored-from` |
+| Field                     | Property suffix                                |
+|---------------------------|------------------------------------------------|
+| User message pattern      | `.comment-template.comment-validation-pattern` |
+| Invalid user message hint | `.comment-template.invalid-comment-message`    |
 
-A Git repository stores the resulting comment directly as the commit message; there is no separate message template to
-configure.
+A Git repository stores the comment directly as the commit message. The comments OpenL Studio suggests are not
+configured.
 
 ### Email Server
 

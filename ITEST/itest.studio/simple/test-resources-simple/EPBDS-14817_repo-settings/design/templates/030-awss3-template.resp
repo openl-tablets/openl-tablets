@@ -4,13 +4,8 @@ Content-Type: application/json
 {
   "name": "Design1",
   "settings": {
-    "useCustomComments": false,
     "commentValidationPattern": "",
     "invalidCommentMessage": "Invalid comment: Comment doesn't match validation pattern",
-    "defaultCommentSave": "Project {project-name} is saved.",
-    "defaultCommentCreate": "Project {project-name} is created.",
-    "defaultCommentCopiedFrom": "Copied from: {project-name}.",
-    "defaultCommentRestoredFrom": "Restored from revision of {author} on {datetime:MM/dd/yyyy hh:mm:ss a}.",
     "basePath": "DESIGN/rules/",
     "serviceEndpoint": "",
     "bucketName": "",

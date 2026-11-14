@@ -13,9 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.core.env.PropertyResolver;
 
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
@@ -34,11 +32,7 @@ class HistoryRepositoryMapperTest {
         var history = List.of(fileData);
         when(repository.listHistory(anyString())).thenReturn(history);
 
-        PropertyResolver propertyResolver = mock(PropertyResolver.class);
-
-        var comments = new Comments(propertyResolver, "id");
-
-        var historyRepositoryMapper = new HistoryRepositoryMapper(repository, comments);
+        var historyRepositoryMapper = new HistoryRepositoryMapper(repository);
 
         var revisionHistory = historyRepositoryMapper.getProjectHistory("name",
                 "filter",
@@ -59,11 +53,7 @@ class HistoryRepositoryMapperTest {
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
         when(repository.listHistory(anyString())).thenReturn(List.of(fileData));
 
-        PropertyResolver propertyResolver = mock(PropertyResolver.class);
-
-        var comments = new Comments(propertyResolver, "id");
-
-        var historyRepositoryMapper = new HistoryRepositoryMapper(repository, comments);
+        var historyRepositoryMapper = new HistoryRepositoryMapper(repository);
 
         var revisionHistory = historyRepositoryMapper.getProjectHistory("name",
                 "filter",
@@ -75,4 +65,17 @@ class HistoryRepositoryMapperTest {
         assertEquals(ZoneId.systemDefault(), createdAt.getZone());
     }
 
+    @Test
+    void splitsTheCommentOfACopyAroundTheSourceProject() {
+        var copy = new FileData();
+        copy.setVersion("2");
+        copy.setComment("Copied from: Bank Rating.");
+        var other = new FileData();
+        other.setVersion("1");
+        other.setComment("Project Bank Rating is saved.");
+        var mapper = new HistoryRepositoryMapper(mock(Repository.class));
+
+        assertEquals(List.of("Copied from: ", "Bank Rating", "."), mapper.revisionOf(copy).commentParts());
+        assertNull(mapper.revisionOf(other).commentParts());
+    }
 }

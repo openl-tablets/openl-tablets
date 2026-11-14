@@ -6,7 +6,6 @@ Content-Type: application/merge-patch+json
   "name": "H2 Design",
   "settings": {
     "uri": "jdbc:h2:mem:design-repo;DB_CLOSE_DELAY=-1",
-    "useCustomComments": true,
     "commentValidationPattern": "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}",
     "invalidCommentMessage": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'"
   },
