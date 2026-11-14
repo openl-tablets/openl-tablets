@@ -5,7 +5,16 @@ title: "OpenL Tablets 7.1.0 Migration Notes"
 Upgrading to OpenL Tablets 7.1.0 requires no database changes and no Java version change. The comments OpenL Studio
 suggests when a project is saved, created, copied or restored are no longer configured per design repository, and the
 **Customize comments** check box is gone: a comment is validated whenever the repository sets a pattern. This affects
-the administrators who configured comments and the clients of the repository settings API.
+the administrators who configured comments and the clients of the repository settings API. Several fixes of the rules
+engine change how an existing project compiles or runs, as listed for the rules authors.
+
+## Rules Authors
+
+* **A Vocabulary cannot be built on a collection.** A Vocabulary whose base type is a collection or a map, such as
+  `Datatype MyType <List>`, `<Map>` or `<java.util.HashSet>`, stops the project with
+  `Alias data type cannot be a collection: List.`, as an array base type already does. Before, such a table compiled
+  without a message. Use the collection type itself for the field or the parameter, and keep a Vocabulary for the
+  values of its elements, such as `Datatype Color <String>` with a `Color[]` field.
 
 ## Administrators
 
