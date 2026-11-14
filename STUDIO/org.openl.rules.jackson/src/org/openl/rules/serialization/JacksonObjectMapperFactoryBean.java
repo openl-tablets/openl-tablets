@@ -156,7 +156,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 .addSerializer(Double.class, new PlainDoubleSerializer(Double.class))
                 .addSerializer(Double.TYPE, new PlainDoubleSerializer(Double.TYPE))
                 .addSerializer(Float.class, new PlainFloatSerializer())
-                .addSerializer(Float.TYPE, new PlainFloatSerializer()));
+                .addSerializer(Float.TYPE, new PlainFloatSerializer())
+                .addDeserializer(Comparable.class, new ComparableDeserializer()));
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
         var secondaryIntrospector = new JakartaXmlBindAnnotationIntrospector(
