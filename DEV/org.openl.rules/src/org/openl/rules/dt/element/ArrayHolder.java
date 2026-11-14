@@ -1,6 +1,12 @@
 package org.openl.rules.dt.element;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+import org.jspecify.annotations.Nullable;
+
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.util.ArrayElements;
@@ -10,11 +16,22 @@ public class ArrayHolder {
     private final Object[] values1;
     private final Object[][] values2;
     private final IOpenClass componentType;
+    /** The collection, such as a List, the values are collected into, or {@code null} for an array. */
+    private final @Nullable IOpenClass aggregateType;
 
     public ArrayHolder(IOpenClass componentType, Object[] values) {
+        this(componentType, values, null);
+    }
+
+    /**
+     * Holds the values of a parameter of the given aggregate type, an array or a collection, of which some are
+     * formulas.
+     */
+    public ArrayHolder(IOpenClass componentType, Object[] values, @Nullable IOpenClass aggregateType) {
         this.values1 = values;
         this.values2 = null;
         this.componentType = componentType;
+        this.aggregateType = aggregateType;
     }
 
     public ArrayHolder(IOpenClass componentType, Object[][] values) {
@@ -24,6 +41,7 @@ public class ArrayHolder {
         this.values1 = null;
         this.values2 = values;
         this.componentType = componentType;
+        this.aggregateType = null;
     }
 
     public boolean is2DimArray() {
@@ -49,7 +67,16 @@ public class ArrayHolder {
             }
             return res;
         }
-        return invokeValues(values1, componentType, target, dtParams, env);
+        var array = invokeValues(values1, componentType, target, dtParams, env);
+        if (aggregateType == null || aggregateType.isArray()) {
+            return array;
+        }
+        // A collection, such as a List, gets the values the way a parameter of that type is loaded without formulas.
+        var values = new ArrayList<>();
+        for (var i = 0; i < Array.getLength(array); i++) {
+            values.add(Array.get(array, i));
+        }
+        return RuleRowHelper.makeAggregate(aggregateType, componentType, values);
     }
 
     /**
