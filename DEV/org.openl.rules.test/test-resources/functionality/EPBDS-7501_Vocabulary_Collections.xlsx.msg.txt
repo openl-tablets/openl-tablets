@@ -1,0 +1,3 @@
+ERROR: Alias data type cannot be a collection: Map.
+ERROR: Alias data type cannot be a collection: List.
+ERROR: Alias data type cannot be a collection: java.util.HashSet.

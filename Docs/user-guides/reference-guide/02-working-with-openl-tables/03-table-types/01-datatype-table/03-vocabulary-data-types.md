@@ -23,7 +23,7 @@ The base type specified in the angle brackets can be any non-array scalar type a
 - Range types, such as **IntRange**, **DoubleRange**, **DateRange**
 - User-defined vocabulary or datatype names from the same or imported module
 
-Array types are not allowed as the base type. For example, `Datatype MyType <String[]>` is rejected with an error.
+Arrays and collections are not allowed as the base type. For example, `Datatype MyType <String[]>`, `Datatype MyType <List>` and `Datatype MyType <Map>` are rejected with an error.
 
 ###### Example
 

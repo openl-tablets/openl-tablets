@@ -6,6 +6,9 @@ package org.openl.rules.datatype.binding;
 
 import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
@@ -177,6 +180,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             String message = "Alias data type cannot be array: %s.".formatted(type);
             throw SyntaxNodeExceptionUtils.createError(message, null, aliasTypeNode);
         }
+        if (baseOpenClass instanceof JavaOpenClass && isCollection(baseOpenClass.getInstanceClass())) {
+            String message = "Alias data type cannot be a collection: %s.".formatted(type);
+            throw SyntaxNodeExceptionUtils.createError(message, null, aliasTypeNode);
+        }
 
         // Create appropriate domain object.
         //
@@ -214,5 +221,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
     private static void putSubTableForBusinessView(TableSyntaxNode tsn) {
         tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
+    }
+
+    private static boolean isCollection(Class<?> type) {
+        return Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type);
     }
 }
