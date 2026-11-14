@@ -115,7 +115,7 @@ final class TraceExportHook implements DebugHook {
         }
         if (executor instanceof ActionInvoker invoker) {
             // The location label truncates a large rule list for the UI; the export prints the full list.
-            return TraceTextFormatter.returnedRuleLine(resolveRuleNames(invoker.getRules()));
+            return TraceTextFormatter.returnedRuleLine(resolveRuleNames(invoker.getResultRules()));
         }
         return location.label() != null ? location.label() : "";
     }

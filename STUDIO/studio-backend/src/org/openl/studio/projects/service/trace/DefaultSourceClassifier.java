@@ -60,9 +60,12 @@ public final class DefaultSourceClassifier implements SourceClassifier {
         };
     }
 
-    /** Labels a fired decision-table rule by its name (as the legacy trace did), e.g. {@code R10}. */
+    /**
+     * Labels a fired decision-table rule by its name (as the legacy trace did), e.g. {@code R10}: every rule that
+     * matched while the rules run, and the rule that gave the result once they have.
+     */
     private static CurrentLocation dtRuleLocation(ActionInvoker invoker, @Nullable Object frameSource) {
-        var rules = invoker.getRules();
+        var rules = invoker.getResultRules();
         if (frameSource instanceof IDecisionTable decisionTable) {
             List<String> ruleNames = Arrays.stream(rules)
                     .mapToObj(decisionTable::getRuleName)

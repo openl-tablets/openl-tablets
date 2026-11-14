@@ -36,6 +36,8 @@ public class ActionInvoker implements Invokable {
     private final IIntIterator rulesIntIterator;
     private final IBaseAction[] actions;
     private final boolean returnEmptyResult;
+    /** The rule whose return action gave the result, or -1 while none did. */
+    private int returnedRule = -1;
 
     private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
         var returnValuesLength = Array.getLength(returnValues);
@@ -220,6 +222,9 @@ public class ActionInvoker implements Invokable {
             if (action.isReturnAction()) {
                 actionResult = action.executeAction(rule, target, params, env);
                 if (isValidResult(actionResult)) {
+                    if (returnedRule < 0) {
+                        returnedRule = rule;
+                    }
                     break;
                 }
             } else {
@@ -244,6 +249,17 @@ public class ActionInvoker implements Invokable {
                 f[i] = true;
             }
         }
+    }
+
+    /**
+     * The rules that gave the result of the table.
+     *
+     * <p>A table that returns the value of one rule answers that rule only: the first one whose condition holds
+     * and whose return value is valid. Any other table, such as one that collects the values of all its rules,
+     * answers every rule whose conditions hold.
+     */
+    public int[] getResultRules() {
+        return returnedRule < 0 ? getRules() : new int[]{returnedRule};
     }
 
     public int[] getRules() {
