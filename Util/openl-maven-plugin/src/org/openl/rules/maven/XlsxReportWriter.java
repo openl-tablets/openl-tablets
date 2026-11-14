@@ -14,13 +14,8 @@ import org.openl.rules.testmethod.export.TestResultExport;
 class XlsxReportWriter {
     private final File dir;
 
-    public void write(TestUnitsResults result) throws IOException {
-        var testSuite = result.getTestSuite();
-        var testName = testSuite.getTestSuiteMethod().getName();
-        var moduleName = testSuite.getTestSuiteMethod().getModuleName();
-
-        var suitName = "OpenL." + moduleName + "." + testName;
-        var filename = "TEST-" + suitName + ".xlsx";
+    public void write(String suiteName, TestUnitsResults result) throws IOException {
+        var filename = "TEST-" + suiteName + ".xlsx";
 
         if (!dir.mkdirs() && !dir.exists()) {
             throw new IOException("Cannot create folder '%s'.".formatted(dir.getAbsolutePath()));

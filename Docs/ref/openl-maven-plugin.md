@@ -72,6 +72,13 @@ the same deployment name at the same time can both be stored, where a sequential
 > [!Note]
 > `generate` creates a Java interface from the project's `<exposed-methods>` filter, for type-safe rule invocation.
 
+## Test reports
+
+The `test` goal writes one report of each format in `reportsFormat` (`junit4`, `xlsx`) for every Test table, into
+`target/openl-test-reports`, named `TEST-OpenL.<module>.<test>`. A Test table with a name of its own is reported
+under that name. A Test table without one, such as `Test SayHello`, is reported under the name of the table it tests
+followed by `Test`: `SayHelloTest`, then `SayHelloTest-2` and so on when the module has several.
+
 ## Supplementary artifacts
 
 `openl:package` attaches supplementary artifacts next to the main archive:

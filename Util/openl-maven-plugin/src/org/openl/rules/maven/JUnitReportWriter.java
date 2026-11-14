@@ -81,13 +81,8 @@ class JUnitReportWriter {
         xml.writeCharacters(text);
     }
 
-    void write(TestUnitsResults result) throws IOException, XMLStreamException {
-        var testSuite = result.getTestSuite();
-        var testName = testSuite.getTestSuiteMethod().getName();
-        var moduleName = testSuite.getTestSuiteMethod().getModuleName();
-
-        var suitName = "OpenL." + moduleName + "." + testName;
-        var filename = "TEST-" + suitName + ".xml";
+    void write(String suiteName, TestUnitsResults result) throws IOException, XMLStreamException {
+        var filename = "TEST-" + suiteName + ".xml";
 
         var tests = result.getNumberOfTestUnits();
         var failures = result.getNumberOfAssertionFailures();
@@ -101,7 +96,7 @@ class JUnitReportWriter {
         try (Writer writer = Files.newBufferedWriter(file.toPath())) {
             xml = factory.createXMLStreamWriter(writer);
             try {
-                writeTestsuite(suitName, tests, failures, errors, executionTime, testUnits);
+                writeTestsuite(suiteName, tests, failures, errors, executionTime, testUnits);
             } finally {
                 xml.flush();
                 xml.close();

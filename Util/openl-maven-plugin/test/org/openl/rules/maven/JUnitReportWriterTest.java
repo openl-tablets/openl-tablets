@@ -29,12 +29,10 @@ class JUnitReportWriterTest {
     @Test
     void stampsTheSuiteWithTheLocalDateTimeInSeconds() throws Exception {
         var result = mock(TestUnitsResults.class, RETURNS_DEEP_STUBS);
-        when(result.getTestSuite().getTestSuiteMethod().getName()).thenReturn("PremiumTest");
-        when(result.getTestSuite().getTestSuiteMethod().getModuleName()).thenReturn("Main");
         when(result.getTestUnits()).thenReturn(List.of());
 
         var before = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        new JUnitReportWriter(dir.toFile()).write(result);
+        new JUnitReportWriter(dir.toFile()).write("OpenL.Main.PremiumTest", result);
         var after = LocalDateTime.now();
 
         var report = Files.readString(dir.resolve("TEST-OpenL.Main.PremiumTest.xml"));
