@@ -1,5 +1,5 @@
-// The icon a file of a project wears, the same one wherever its name is drawn — the Files tab and the
-// projects rail both read it from here, so a workbook is never green on one screen and grey on another.
+// The icon a file of a project wears, the same one wherever its name is drawn — the projects rail and the folder
+// pickers both read it from here, so a workbook is never green on one screen and grey on another.
 
 import { FileExcelOutlined, FileOutlined, FileTextOutlined, FolderOpenOutlined, FolderOutlined } from '@ant-design/icons'
 import { isWorkbookPath } from '../../utils/workbooks'

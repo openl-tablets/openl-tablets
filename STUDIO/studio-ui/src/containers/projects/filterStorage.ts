@@ -1,5 +1,4 @@
 import { plainText, storedSetting } from '../../utils/localStore'
-import { FILTER_PARAMS, listingQueryOf, type ListingQuery } from './projectListing'
 
 /** Where the browser keeps the last state of the projects screen. */
 const STORAGE_KEY = 'openl.projects.filters'
@@ -24,20 +23,7 @@ export const saveProjectFilters = (params: URLSearchParams): void => {
 /**
  * The filters of the last visit; none when the list was left as it opens at first, or never visited.
  *
- * They are only meant for a plain visit to the screen: a link that carries its own parameters describes
- * what its sender wanted to show and must win.
+ * They are meant for a plain visit to the screen, and for the list while a project is shown in its place: a link
+ * that carries its own parameters describes what its sender wanted to show and must win.
  */
 export const loadProjectFilters = (): URLSearchParams => new URLSearchParams(filters.read())
-
-/** The picks of the Filters view the list was last left with — what the tree beside a project follows. */
-export const loadStoredPicks = (): ListingQuery => listingQueryOf(loadProjectFilters())
-
-/**
- * Forgets the picks of the Filters view, so the list comes back in its default view. Its search, sort and layout
- * are kept.
- */
-export const clearStoredPicks = (): void => {
-    const stored = loadProjectFilters()
-    FILTER_PARAMS.forEach(key => stored.delete(key))
-    saveProjectFilters(stored)
-}

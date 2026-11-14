@@ -12,10 +12,14 @@ import {
     unlockProject,
 } from '../services/repositories'
 import { ApiHttpError, ForbiddenError, NotFoundError } from '../services'
+import type { ProjectRailState } from './projects/projectRail'
 import { notification } from 'antd'
 
-const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
+const { copyModalMock, navigateMock, overviewMock, railReporter, routeParams, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
+    overviewMock: vi.fn(),
+    // Where the page tells the tree of the Projects screen what it shows.
+    railReporter: { report: vi.fn(), reloaded: vi.fn() },
     navigateMock: vi.fn(),
     routeParams: { projectId: 'p1' },
     searchParamsMock: new URLSearchParams(),
@@ -42,6 +46,7 @@ vi.mock('../hooks', async () => ({
 
 vi.mock('react-router', () => ({
     useNavigate: () => navigateMock,
+    useOutletContext: () => railReporter,
     useParams: () => routeParams,
     useSearchParams: () => [searchParamsMock, setSearchParamsMock],
     Link: ({ children, to }: { children?: unknown, to?: string }) => <a href={to}>{children as never}</a>,
@@ -92,7 +97,11 @@ vi.mock('./projects/TagsModal', () => ({ TagsModal: () => null }))
 vi.mock('./projects/BranchSelector', () => ({ BranchSelector: () => null }))
 
 
-vi.mock('./projects/FilesToolbar', () => ({ FilesToolbar: () => null }))
+vi.mock('./projects/AddFilesMenu', () => ({
+    AddFilesDialogs: () => null,
+    AddFilesMenu: () => null,
+    addFilesMenuItems: () => [],
+}))
 
 vi.mock('./projects/RevisionsPanel', () => ({ RevisionsPanel: () => null }))
 
@@ -107,8 +116,14 @@ vi.mock('./projects/DeployConfigPanel', () => ({ DeployConfigPanel: () => null }
 
 
 // The tab panels load their own data (status, branches, deployments, ACL); stub them so the workspace
-// test stays focused on the header, action bar and Files tab.
-vi.mock('./projects/OverviewPanel', () => ({ OverviewPanel: () => null }))
+// test stays focused on the header, the action bar and the file pane.
+vi.mock('./projects/OverviewPanel', () => ({
+    // Records the project each render shows: the tab reads data of its own for it.
+    OverviewPanel: ({ project: shown }: { project: { id: string } }) => {
+        overviewMock(shown.id)
+        return null
+    },
+}))
 vi.mock('./projects/PublishPanel', () => ({ PublishPanel: () => null }))
 vi.mock('./projects/AccessPanel', () => ({ AccessPanel: () => null }))
 
@@ -123,20 +138,6 @@ vi.mock('../services/files', () => ({
     downloadFile: vi.fn(),
 }))
 
-// The rail beside the project has its own tests; here it only shows the picks it is handed, and clears them.
-vi.mock('./projects/ProjectsRail', () => ({
-    ProjectsRail: ({ currentProjectId, reloadToken, filters, onClearFilters }: {
-        currentProjectId?: string
-        reloadToken?: number
-        filters: { repositories: Set<string> }
-        onClearFilters: () => void
-    }) => (
-        <aside data-current={currentProjectId} data-reload-token={reloadToken} data-testid="projects-rail">
-            <span data-testid="rail-picked-repositories">{[...filters.repositories].join(',')}</span>
-            <button data-testid="rail-clear-filters" onClick={onClearFilters} type="button" />
-        </aside>
-    ),
-}))
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -311,6 +312,9 @@ async function renderWorkspace() {
     return view
 }
 
+/** What the page last told the tree beside it. */
+const lastRail = () => railReporter.report.mock.lastCall?.[0] as ProjectRailState
+
 /** The action rendered as the single primary (blue) button, if any. */
 const primaryActionId = () => screen.getByTestId('project-actions')
     .querySelector('[data-primary="true"]')
@@ -347,23 +351,6 @@ describe('ProjectWorkspace', () => {
         expect(screen.getByText('home.title').closest('a')?.getAttribute('href')).toBe('/projects')
     })
 
-    it('filters the tree by the picks the list was left with, and clears them for the list too', async () => {
-        localStorage.setItem('openl.projects.filters', 'q=rates&repo=design&sort=name')
-        try {
-            await renderWorkspace()
-
-            expect(screen.getByTestId('rail-picked-repositories')).toHaveTextContent('design')
-
-            await userEvent.click(screen.getByTestId('rail-clear-filters'))
-
-            expect(screen.getByTestId('rail-picked-repositories')).toBeEmptyDOMElement()
-            // The search and the sort of the list stay as they were.
-            expect(localStorage.getItem('openl.projects.filters')).toBe('q=rates&sort=name')
-        } finally {
-            localStorage.removeItem('openl.projects.filters')
-        }
-    })
-
     it('re-reads the project when the backend pings that it changed elsewhere', async () => {
         await renderWorkspace()
         expect(getProject).toHaveBeenCalledTimes(1)
@@ -379,7 +366,7 @@ describe('ProjectWorkspace', () => {
         // The refresh changed the page, so the user learns why it moved under them.
         expect(notification.info).toHaveBeenCalledWith({ title: 'browser.live_project_synced' })
         // The real change resets the tabs and the tree beside them.
-        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('2')
+        expect(railReporter.reloaded).toHaveBeenCalledTimes(1)
     })
 
     it('stays quiet when a ping merely echoes what the page already shows', async () => {
@@ -394,7 +381,7 @@ describe('ProjectWorkspace', () => {
         expect(notification.info).not.toHaveBeenCalled()
         // Nothing changed, so nothing is applied: no tab reset, no re-fetch cascade — the user's
         // own action already reloaded the page once.
-        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('1')
+        expect(railReporter.reloaded).toHaveBeenCalledTimes(0)
     })
 
     it('takes the compile status of a ping that changed nothing else', async () => {
@@ -429,7 +416,7 @@ describe('ProjectWorkspace', () => {
 
         expect(screen.getByTestId('compile-state').textContent).toBe('errors')
         // The page itself did not change, so the tabs and the tree beside them are left alone.
-        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('1')
+        expect(railReporter.reloaded).toHaveBeenCalledTimes(0)
     })
 
     it('names the repository from the project when the repository list is unreadable', async () => {
@@ -469,7 +456,7 @@ describe('ProjectWorkspace', () => {
 
         routeParams.projectId = 'p2'
         await act(async () => {
-            view.rerender(<ProjectWorkspace />)
+            view.rerender(<ProjectWorkspace key={routeParams.projectId} />)
         })
 
         await act(async () => {
@@ -485,6 +472,29 @@ describe('ProjectWorkspace', () => {
 
         expect(screen.queryByText('Alpha')).toBeNull()
         expect(screen.getAllByText('Beta').length).toBeGreaterThan(0)
+    })
+
+    it('shows no tab of the project the reader leaves, and tells the tree of no re-read for the next one', async () => {
+        const view = await renderWorkspace()
+        expect(overviewMock).toHaveBeenLastCalledWith('p1')
+        const next = deferred<ReturnType<typeof project>>()
+        vi.mocked(getProject).mockReturnValue(next.promise as never)
+        overviewMock.mockClear()
+
+        routeParams.projectId = 'p2'
+        await act(async () => {
+            view.rerender(<ProjectWorkspace key={routeParams.projectId} />)
+        })
+        // The tabs of the project left would read their data for it once more.
+        expect(overviewMock).not.toHaveBeenCalled()
+
+        await act(async () => {
+            next.resolve(project({ id: 'p2', name: 'Beta' }))
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+        expect(overviewMock).toHaveBeenLastCalledWith('p2')
+        // The first read of a project is no read again: the tree reads its files itself, once.
+        expect(railReporter.reloaded).toHaveBeenCalledTimes(0)
     })
 
     it('holds the live pings while its own action runs, and applies the answer that action brings', async () => {
@@ -516,7 +526,7 @@ describe('ProjectWorkspace', () => {
         })
 
         // The action's own answer reached the page — the tabs and the tree beside them followed it.
-        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('2')
+        expect(railReporter.reloaded).toHaveBeenCalledTimes(1)
         // And with the action finished, the pings flow again.
         expect(liveHandlers.holdWhile).toBe(false)
     })
@@ -690,7 +700,7 @@ describe('ProjectWorkspace', () => {
 
             routeParams.projectId = 'p2'
             await act(async () => {
-                view.rerender(<ProjectWorkspace />)
+                view.rerender(<ProjectWorkspace key={routeParams.projectId} />)
                 await new Promise(resolve => setTimeout(resolve, 50))
             })
 
@@ -875,27 +885,40 @@ describe('ProjectWorkspace', () => {
         expect(await screen.findByTestId('export-modal')).toBeInTheDocument()
     })
 
-    it('does not load project files before the Files tab is active', async () => {
+    it('does not load project files before a file or a folder of it is shown', async () => {
         await renderWorkspace()
 
-        expect(screen.queryByTestId('files-p1')).toBeNull()
         expect(getProjectFiles).not.toHaveBeenCalled()
     })
 
-    it('loads the project files into the Files tab', async () => {
-        searchParamsMock.set('tab', 'files')
+    it('reads the files of the project to show a folder of it', async () => {
+        searchParamsMock.set('file', 'rules')
         vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'rules', name: 'rules', basePath: '', type: 'folder' },
             { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file' },
         ] as never)
         await renderWorkspace()
 
-        await screen.findByTestId('files-p1')
-        expect(screen.getByText('Main.xlsx')).toBeTruthy()
+        expect(await screen.findByTestId('folder-actions')).toBeTruthy()
         expect(getProjectFiles).toHaveBeenCalledWith('p1')
     })
 
+    it('hands the tree the files of the project changed and not saved yet', async () => {
+        vi.mocked(getProject).mockResolvedValue(project({
+            status: 'EDITING',
+            compileStatus: {
+                projectId: 'p1',
+                compileState: 'ok',
+                pendingChanges: { total: 1, files: [{ path: 'rules/Main.xlsx', type: 'modified' }]},
+            },
+        }) as never)
+        await renderWorkspace()
+
+        expect([...lastRail().currentFileChanges ?? []]).toEqual([['rules/Main.xlsx', 'modified']])
+    })
+
     it('shows an error state and does not loop when file loading fails', async () => {
-        searchParamsMock.set('tab', 'files')
+        searchParamsMock.set('file', 'rules')
         vi.mocked(getProjectFiles).mockRejectedValue(new Error('boom'))
         await renderWorkspace()
 
@@ -904,12 +927,12 @@ describe('ProjectWorkspace', () => {
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
     })
 
-    it('shows an error state when the project fails to load, keeping the tree beside it', async () => {
+    it('shows an error state when the project fails to load, still naming it to the tree beside it', async () => {
         vi.mocked(getProject).mockRejectedValue(new Error('boom'))
         await renderWorkspace()
 
         expect(screen.getByTestId('project-workspace-error')).toHaveTextContent('browser.project_load_error')
-        expect(screen.getByTestId('projects-rail')).toBeTruthy()
+        expect(lastRail().currentProjectId).toBe('p1')
     })
 
     it('shows the not-found state for a project the reader may not see', async () => {
@@ -922,7 +945,6 @@ describe('ProjectWorkspace', () => {
 
     it('shows the project the address names, and never moves the address', async () => {
         routeParams.projectId = 'Alpha'
-        searchParamsMock.set('tab', 'files')
         render(<ProjectWorkspace />)
 
         // The server names the project by its id; the address is left as the link gave it.
@@ -952,7 +974,7 @@ describe('ProjectWorkspace', () => {
         vi.mocked(getProject).mockReturnValue(deferred<never>().promise)
         routeParams.projectId = 'p2'
         await act(async () => {
-            view.rerender(<ProjectWorkspace />)
+            view.rerender(<ProjectWorkspace key={routeParams.projectId} />)
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 
@@ -960,22 +982,24 @@ describe('ProjectWorkspace', () => {
         expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
     })
 
-    it('keeps the tree beside the project while the reader moves on to another', async () => {
+    it('names the project picked to the tree beside it before its read lands, and nothing once it goes', async () => {
         const view = await renderWorkspace()
-        const rail = screen.getByTestId('projects-rail')
 
         // The reader picks another project in the tree; its read is still on its way.
         vi.mocked(getProject).mockReturnValue(deferred<never>().promise)
         routeParams.projectId = 'p2'
         await act(async () => {
-            view.rerender(<ProjectWorkspace />)
+            view.rerender(<ProjectWorkspace key={routeParams.projectId} />)
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 
-        // Only the part beside the tree waits: the tree is the same one, so it keeps what is open in it,
-        // and it already marks the project picked.
+        // Only the page waits; the tree beside it already marks the project picked, and keeps the changes it read
+        // itself until the page knows the project's own.
         expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
-        expect(screen.getByTestId('projects-rail')).toBe(rail)
-        expect(rail.getAttribute('data-current')).toBe('p2')
+        expect(lastRail()).toMatchObject({ address: 'p2', currentProjectId: 'p2' })
+        expect(lastRail().currentFileChanges).toBeUndefined()
+
+        view.unmount()
+        expect(lastRail()).toEqual({})
     })
 })

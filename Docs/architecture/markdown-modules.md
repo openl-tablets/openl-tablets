@@ -139,8 +139,8 @@ fractional number stays text: a `Double` would round a long number a `BigInteger
 - The error is a `MarkdownFormatError`: it also tells the place of the problem in the file, the text of its line,
   even when it points at a cell. Its message carries the `path`, `line` and `places` of the file
   (`DetailedMessageDescriptionMapperImpl`, `TableModules.fileOf`).
-- OpenL Studio opens the file on the Files tab at that line, rather than the cell, which does not show what is
-  wrong; an error of the rules of a table still opens its cell. The Files tab marks the lines of a file from the
+- OpenL Studio opens the file on the page of the project at that line, rather than the cell, which does not show what
+  is wrong; an error of the rules of a table still opens its cell. The file pane marks the lines of a file from the
   messages of the last compilation.
 
 ## Writing
@@ -206,7 +206,8 @@ The converter leaves such a table in its workbook. OpenL Studio shows the reason
   (`MarkdownTableFiles.takeBack`). Remove deletes the file; the last table of a module stays. Files are written through the files of the project, so the project is marked modified.
 - **Ids** — the id of a table depends on the module folder, not on the file: see
   [Stable Table Ids](table-ids.md).
-- **Files tab** — Open in Editor opens the table of a Markdown file; the text marks the lines that break the format.
+- **A file of the project** — Open in Editor opens the table of a Markdown file; the text marks the lines that break
+  the format.
 
 ## Converting Workbooks
 

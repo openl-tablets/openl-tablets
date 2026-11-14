@@ -5,6 +5,7 @@ import { CopyOutlined, DeleteOutlined, DownloadOutlined, FolderOutlined, Transla
 import { createStyles } from 'antd-style'
 import { downloadFolder } from '../../services/files'
 import { BUNDLE_FOLDER } from '../../services/localization'
+import { AddFilesMenu } from './AddFilesMenu'
 import { useSharedStyles } from './sharedStyles'
 import { CopyFileModal } from './CopyFileModal'
 import { DeleteFileModal } from './DeleteFileModal'
@@ -42,16 +43,31 @@ interface FolderActionsPaneProps {
     onRemoveVirtual?: () => void
     /** Opens the messages of the project on the Localization screen, offered for the folder of its messages. */
     onOpenLocalization?: () => void
+    /** Adds an empty folder, kept in the browser until a file is created inside it. */
+    onCreateFolder: (path: string) => void
 }
 
 /**
- * The right pane of the Files tab when a folder is selected. A folder has no content to show, so it
- * offers folder-level actions instead: download the folder as a zip archive, copy it, or delete it.
+ * What a project page shows for a folder picked in the projects tree. A folder has no content to show, so it
+ * offers folder-level actions instead: add a folder or a file to it, download it as a zip archive, copy it, or
+ * delete it.
  *
- * A virtual folder exists only in the browser until a file is added inside it, so it offers no server
- * actions — only a hint to add a file and a way to drop the empty folder from the tree.
+ * A virtual folder exists only in the browser until a file is added inside it, so it offers no other server
+ * actions: adding a file, or dropping the empty folder from the tree.
  */
-export const FolderActionsPane = ({ projectId, folders, path, canWrite, canDelete, onChanged, onDeleted, virtual, onRemoveVirtual, onOpenLocalization }: FolderActionsPaneProps) => {
+export const FolderActionsPane = ({
+    projectId,
+    folders,
+    path,
+    canWrite,
+    canDelete,
+    onChanged,
+    onDeleted,
+    virtual,
+    onRemoveVirtual,
+    onOpenLocalization,
+    onCreateFolder,
+}: FolderActionsPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -67,6 +83,16 @@ export const FolderActionsPane = ({ projectId, folders, path, canWrite, canDelet
             <div className={shared.paneHeader}>
                 <span className={cx(shared.valueText, shared.ellipsis, styles.path)}><FolderOutlined />{path}</span>
                 <Space className={styles.actions}>
+                    {/* Adding a file is also how an empty folder, kept in the browser, becomes a real one. */}
+                    {canWrite && (
+                        <AddFilesMenu
+                            folders={folders}
+                            onChanged={onChanged}
+                            onCreateFolder={onCreateFolder}
+                            projectId={projectId}
+                            targetFolder={path}
+                        />
+                    )}
                     {virtual ? (
                         <Button danger data-testid="folder-remove-virtual" icon={<DeleteOutlined />} onClick={onRemoveVirtual} size="small">
                             {t('browser.files.remove_empty_folder')}

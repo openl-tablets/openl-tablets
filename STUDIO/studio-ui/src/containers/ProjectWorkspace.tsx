@@ -16,7 +16,6 @@ import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '
 import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import { useSharedStyles } from './projects/sharedStyles'
 import type { Project } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { BusyVeil } from './projects/BusyVeil'
@@ -32,15 +31,24 @@ import { openCompareWindow } from './projects/compare'
 import type { ProjectActionHandlers } from './projects/ProjectActionBar'
 import type { BusyId } from './projects/projectActions'
 import { DiscardChangesModal } from './DiscardChangesModal'
-import { ProjectsRail } from './projects/ProjectsRail'
 import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
-import { groupQuery } from './projects/projectGrouping'
-import { clearStoredPicks, loadStoredPicks } from './projects/filterStorage'
-import { listingQueryOf } from './projects/projectListing'
-import { moduleRoute, projectFileRoute } from '../services/projectId'
+import { useReportProjectRail } from './projects/projectRail'
+import { buildFileChangeMap } from './projects/fileChanges'
+import type { ProjectFileChange } from '../services/projectStatus'
+
+/** One empty list for every project without pending changes, so the memo below it holds. */
+const NO_FILE_CHANGES: ProjectFileChange[] = []
 
 
 const useStyles = createStyles(({ css, token }) => ({
+    /** The page beside the rail of the Projects screen: the project, and the dialogs over it. */
+    page: css`
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        background: ${token.colorBgContainer};
+    `,
     crumb: css`
         display: inline-flex;
         align-items: center;
@@ -84,11 +92,44 @@ const useStyles = createStyles(({ css, token }) => ({
  * header, actions and content tabs; the content canvas is where table editing will live when the
  * Editor's features move here.
  */
+/**
+ * What the page shows in place of a project it has not got: why the project could not be read, that the link leads
+ * to no project, or a skeleton while the project is read. The tree beside it stays, so the reader can go on to another
+ * project.
+ */
+const ProjectAbsent = ({ error, linkProblem, styles }: {
+    error: string | null
+    linkProblem: boolean
+    styles: ReturnType<typeof useStyles>['styles']
+}) => {
+    const { t } = useTranslation('repository')
+    if (error) {
+        return (
+            <div className={styles.centered}>
+                <Alert
+                    showIcon
+                    data-testid="project-workspace-error"
+                    description={error}
+                    title={t('browser.project_load_error')}
+                    type="error"
+                />
+            </div>
+        )
+    }
+    if (linkProblem) {
+        return <div className={styles.centered}><UnresolvedProjectLink /></div>
+    }
+    return (
+        <div className={styles.centered} data-testid="project-workspace-loading">
+            <Skeleton active className={styles.skeleton} />
+        </div>
+    )
+}
+
 export const ProjectWorkspace = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
-    const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId } = useParams()
     const [project, setProject] = useState<Project | null>(null)
@@ -110,21 +151,33 @@ export const ProjectWorkspace = () => {
     const [reloadToken, setReloadToken] = useState(0)
     // What the reload behind the current token knows it touched; null means anything may have changed.
     const [changedFiles, setChangedFiles] = useState<string[] | null>(null)
-    // The tree beside the project follows the filters the Projects list was last left with.
-    const [treeFilters, setTreeFilters] = useState(loadStoredPicks)
     // Bumped on every project-detail load so stale navigation responses cannot overwrite the current page.
     const loads = useLoadGeneration()
     // Its own counter, so a stale files response never overwrites a fresh one.
     const fileLoads = useLoadGeneration()
     // When the page last read its project — the staleness policy behind the pings counts from here.
     const loadedAt = useRef(0)
-
-    const reducedMotion = useMemo(
-        () => typeof window !== 'undefined'
-            && !!window.matchMedia
-            && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-        []
-    )
+    // Folders added in the browser and not on the server yet. A folder stays empty, so it is not saved, until a
+    // file is created inside it; until then both the tree and the folder pane show it.
+    const [virtualFolders, setVirtualFolders] = useState<string[]>([])
+    const addVirtualFolder = useCallback((path: string) => {
+        setVirtualFolders(previous => (previous.includes(path) ? previous : [...previous, path]))
+    }, [])
+    const removeVirtualFolder = useCallback((path: string) => {
+        setVirtualFolders(previous => previous.filter(folder => folder !== path && !folder.startsWith(`${path}/`)))
+    }, [])
+    // Once a file exists under an empty folder it is real: it leaves the list. The list stays the same one when no
+    // folder left it, so the tree it is handed to is not drawn again for nothing.
+    useEffect(() => {
+        if (Array.isArray(files)) {
+            setVirtualFolders(previous => {
+                const empty = previous.filter(
+                    folder => !files.some(node => node.path === folder || node.path.startsWith(`${folder}/`))
+                )
+                return empty.length === previous.length ? previous : empty
+            })
+        }
+    }, [files])
 
     // The whole workspace is driven by the single-project detail response, which carries the dependency
     // graph and the rules.xml-derived fields. A missing project (404) shows the not-found state.
@@ -199,15 +252,9 @@ export const ProjectWorkspace = () => {
         return null
     }, [loads, projectId])
 
-    // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
-    // project's own repositoryInfo. So the list is read once, when the dialog first opens, and never at
-    // all for the user who does not copy (for one granted a single project it reads as empty anyway).
-    // Drop the previous project immediately on navigation so its content never flashes under the new id,
-    // nor does the failure to read it.
+    // The Projects screen mounts a page for each project it shows, so a page reads its project once on mount and
+    // never shows another one: what it read for a project the reader has left goes with it.
     useEffect(() => {
-        setProject(null)
-        setLinkProblem(false)
-        setError(null)
         void load()
     }, [load])
 
@@ -255,8 +302,8 @@ export const ProjectWorkspace = () => {
         repoType = repoInfo?.type ?? (local ? 'repo-file' : undefined)
     }
 
-    // Fetch the project's files only when the Files tab becomes visible. A failed fetch shows an error state,
-    // retried on the next project reload.
+    // Fetch the project's files only when they are needed: a file or a folder is shown, or files are added. A failed
+    // fetch shows an error state, retried on the next project reload.
     const loadFiles = useCallback(() => {
         if (!project || files !== undefined) {
             return
@@ -333,9 +380,8 @@ export const ProjectWorkspace = () => {
     }, [project, runAction])
 
     // The dialog is mounted above the routes and answers back with this project, so moving on takes its
-    // question along. The page stays mounted when the route swaps one project for another, so the question
-    // is withdrawn on the id as well as on the way out.
-    useEffect(() => closeProjectDialog, [projectId])
+    // question along.
+    useEffect(() => closeProjectDialog, [])
 
     // Saving, copying, syncing and deploying are the project's own; the module editor offers the same ones.
     const { actions: projectActions, dialogs: projectDialogs } = useProjectDialogs(project, {
@@ -395,89 +441,64 @@ export const ProjectWorkspace = () => {
         }
     }, [busyWhile, closeProject, load, navigate, project, runAction])
 
-    // Clearing the picks beside a project clears them for the list too, so it comes back in its default view.
-    const clearTreeFilters = () => {
-        clearStoredPicks()
-        setTreeFilters(listingQueryOf(new URLSearchParams()))
-    }
+    // The files of the project changed and not saved yet, which the tree beside it marks.
+    const pendingFileChanges = project?.compileStatus?.pendingChanges?.files ?? NO_FILE_CHANGES
+    const fileChanges = useMemo(
+        () => buildFileChangeMap(pendingFileChanges, project?.path, project?.name),
+        [pendingFileChanges, project?.name, project?.path]
+    )
+
+    // The tree beside the page belongs to the Projects screen, which keeps it while the reader steps from the list to a
+    // project and from one project to another. Until the project is read, the tree marks the one the address names.
+    useReportProjectRail({
+        address: projectId,
+        // Until the project is read its changes are not known: the tree keeps the ones it read with the files, rather
+        // than marks of the project before or none at all.
+        currentFileChanges: project ? fileChanges : undefined,
+        currentFolders: virtualFolders,
+        currentProjectId: project?.id ?? projectId,
+    }, reloadToken)
 
     return (
-        <div className={shared.workspacePage} data-testid="project-workspace">
-            <div className={shared.workspaceBody}>
-                {/* The rail stands while the reader steps from one project to another: only the part beside it
-                    waits for the next project, so the tree keeps what is open in it and what it has read. Until
-                    that project is read the tree marks the one the address names. */}
-                <ProjectsRail
-                    currentProjectId={project?.id ?? projectId}
-                    filters={treeFilters}
-                    initialMode="tree"
-                    onClearFilters={clearTreeFilters}
-                    // A group leads back to the list, showing exactly the projects it holds.
-                    onOpenFile={(other, path) => navigate(projectFileRoute(other.id, path))}
-                    onOpenGroup={filters => navigate(`/projects?${groupQuery(filters)}`)}
-                    onOpenModule={(other, moduleName) => navigate(moduleRoute(other.id, moduleName))}
-                    onOpenProject={other => navigate(`/projects/${other.id}`)}
-                    onShowAll={() => navigate('/projects')}
-                    reloadToken={reloadToken}
-                />
-                <div className={styles.body}>
-                    {project && !error ? (
-                        <>
-                            <ProjectDetail
-                                changedFiles={changedFiles}
-                                files={files}
-                                handlers={handlers}
-                                onBranchSwitching={busy => setPendingId(busy ? 'switchBranch' : null)}
-                                onChanged={() => load()}
-                                onFilesVisible={loadFiles}
-                                pendingId={pendingId}
-                                project={project}
-                                reducedMotion={reducedMotion}
-                                reloadToken={reloadToken}
-                                repoFeatures={repoInfo?.features}
-                                repoLabel={repoLabel}
-                                repoType={repoType}
-                                statusReadAt={statusReadAt}
-                                headerPrefix={(
-                                    <span className={styles.crumb}>
-                                        <Link to="/projects">{t('home.title')}</Link>
-                                        <span aria-hidden>/</span>
-                                    </span>
-                                )}
-                            />
-                            <CompileProblemsPanel
-                                project={project}
-                                statusReadAt={statusReadAt}
-                                supportsBranches={supportsBranches({ features: repoInfo?.features })}
-                            />
-                            {/* Once the project is on screen, every wait for it is shown over what it replaces —
+        <div className={styles.page} data-testid="project-workspace">
+            <div className={styles.body}>
+                {project && !error ? (
+                    <>
+                        <ProjectDetail
+                            changedFiles={changedFiles}
+                            files={files}
+                            handlers={handlers}
+                            onBranchSwitching={busy => setPendingId(busy ? 'switchBranch' : null)}
+                            onChanged={() => load()}
+                            onCreateFolder={addVirtualFolder}
+                            onFilesNeeded={loadFiles}
+                            onRemoveVirtualFolder={removeVirtualFolder}
+                            pendingId={pendingId}
+                            project={project}
+                            reloadToken={reloadToken}
+                            repoFeatures={repoInfo?.features}
+                            repoLabel={repoLabel}
+                            repoType={repoType}
+                            statusReadAt={statusReadAt}
+                            virtualFolders={virtualFolders}
+                            headerPrefix={(
+                                <span className={styles.crumb}>
+                                    <Link to="/projects">{t('home.title')}</Link>
+                                    <span aria-hidden>/</span>
+                                </span>
+                            )}
+                        />
+                        <CompileProblemsPanel
+                            project={project}
+                            statusReadAt={statusReadAt}
+                            supportsBranches={supportsBranches({ features: repoInfo?.features })}
+                        />
+                        {/* Once the project is on screen, every wait for it is shown over what it replaces —
                                 the action's own request, and the read that brings back what the action did. The
                                 very first read shows the skeleton above instead, having nothing to cover. */}
-                            {(loading || pendingId !== null) && <BusyVeil data-testid="project-workspace-overlay" />}
-                        </>
-                    ) : !error && !linkProblem ? (
-                        // Nothing to show yet: the read of the project is on its way.
-                        <div className={styles.centered} data-testid="project-workspace-loading">
-                            <Skeleton active className={styles.skeleton} />
-                        </div>
-                    ) : (
-                        // A failure to read the project, or a link that leads to no project, takes its place; the
-                        // tree beside it stays, so the reader can go on to another project.
-                        <div className={styles.centered}>
-                            {error ? (
-                                <Alert
-                                    showIcon
-                                    data-testid="project-workspace-error"
-                                    description={error}
-                                    title={t('browser.project_load_error')}
-                                    type="error"
-                                />
-                            ) : linkProblem && (
-                                <UnresolvedProjectLink />
-                            )}
-                        </div>
-                    )}
-                </div>
+                        {(loading || pendingId !== null) && <BusyVeil data-testid="project-workspace-overlay" />}
+                    </>
+                ) : <ProjectAbsent error={error} linkProblem={linkProblem} styles={styles} />}
             </div>
             {/* Each dialog hands the project back busy: its own spinner covers the request, and the busy
                 state covers the read that follows, which is the slower half of the two. */}

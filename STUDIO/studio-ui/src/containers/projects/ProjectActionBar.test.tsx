@@ -19,6 +19,25 @@ vi.mock('../../components/SplitButton', () => ({
         <button data-testid={rest['data-testid'] as string}>{children as never}</button>,
 }))
 
+// The Add menu opens its entries in a dropdown; here they are plain buttons beside it.
+vi.mock('../../components/MenuButton', () => {
+    interface Menu { items?: Array<{ key?: string }>, onClick?: (info: { key: string }) => void }
+    return {
+        MenuButton: ({ children, menu, ...rest }: Record<string, unknown>) => (
+            <span>
+                <button data-testid={rest['data-testid'] as string}>{children as never}</button>
+                {(menu as Menu).items?.filter(item => item.key).map(item => (
+                    <button
+                        key={item.key}
+                        data-testid={`add-${item.key}`}
+                        onClick={() => (menu as Menu).onClick?.({ key: item.key! })}
+                    />
+                ))}
+            </span>
+        ),
+    }
+})
+
 vi.mock('antd', () => {
     const Button = ({ children, type, ...rest }: Record<string, unknown>) => (
         <button
@@ -74,6 +93,42 @@ describe('fitActionCount', () => {
 })
 
 describe('ProjectActionBar', () => {
+    it('adds files at the root of a project the reader may write to, after the open and close actions', () => {
+        const onAddFiles = vi.fn()
+        render(<ProjectActionBar
+            handlers={noHandlers}
+            onAddFiles={onAddFiles}
+            pendingId={null}
+            project={project({ canClose: true, canWrite: true, canExport: true })}
+        />)
+
+        const bar = screen.getByTestId('project-actions')
+        const order = [...bar.querySelectorAll(':scope > * [data-testid], :scope > [data-testid]')]
+            .map(node => node.getAttribute('data-testid'))
+        expect(order.indexOf('addFiles-p1')).toBeGreaterThan(order.indexOf('close-p1'))
+        expect(order.indexOf('addFiles-p1')).toBeLessThan(order.indexOf('export-p1'))
+
+        screen.getByTestId('add-upload').click()
+        expect(onAddFiles).toHaveBeenCalledWith('upload')
+    })
+
+    it('offers no Add menu to a reader who may not write, nor without a way to add', () => {
+        const { rerender } = render(<ProjectActionBar
+            handlers={noHandlers}
+            onAddFiles={vi.fn()}
+            pendingId={null}
+            project={project({ canClose: true })}
+        />)
+        expect(screen.queryByTestId('addFiles-p1')).toBeNull()
+
+        rerender(<ProjectActionBar
+            handlers={noHandlers}
+            pendingId={null}
+            project={project({ canClose: true, canWrite: true })}
+        />)
+        expect(screen.queryByTestId('addFiles-p1')).toBeNull()
+    })
+
     it('shows every available action when the width is unknown (jsdom)', () => {
         render(<ProjectActionBar
             handlers={noHandlers}

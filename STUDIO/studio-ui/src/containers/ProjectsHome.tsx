@@ -1,7 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
 import { errorMessage } from '../utils/errorMessage'
 import { creatableRepositories } from '../utils/repositoryFeatures'
-import { useNavigate, useSearchParams } from 'react-router'
+import {
+    NavigationType,
+    Outlet,
+    useMatch,
+    useNavigate,
+    useNavigationType,
+    useSearchParams,
+    type NavigateOptions,
+} from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { App, Alert, Button, Empty, Skeleton, Spin } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
@@ -39,6 +47,7 @@ import {
     countFacets,
     FILTER_PARAMS,
     listingQueryOf,
+    type ListingQuery,
     listingScope,
     refineProjects,
     searchProjects,
@@ -61,6 +70,7 @@ import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialog
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
+import type { ProjectRail, ProjectRailState } from './projects/projectRail'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import {
@@ -195,20 +205,55 @@ export const ProjectsHome = () => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const navigate = useNavigate()
-    const [params, setParams] = useSearchParams()
-
-    // A plain visit to the screen restores the filters of the last one; a link with its own parameters
-    // describes what its sender wanted to show, so it is left alone. Nothing is fetched until this is
-    // settled, so the screen asks for the restored filters instead of the default ones and then again.
+    const [urlParams, setUrlParams] = useSearchParams()
+    // The project the address names, shown beside the rail in place of the list. The screen stays while the reader
+    // steps from the list to a project and between projects, so the rail keeps its view, its tree and what it read.
+    const shownProjectId = useMatch('/projects/:projectId')?.params.projectId
+    const projectShown = shownProjectId !== undefined
+    // What the project shown tells the tree beside it. A report about the project the reader came from is stale: until
+    // the page of the new one reports, the tree marks the project the address names, with the changes it read itself.
+    const [projectRail, setProjectRail] = useState<ProjectRailState>({})
+    const shownRail = projectRail.address === shownProjectId ? projectRail : {}
+    // Bumped whenever the page of the project shown read it again, so the tree beside it reads its files again too.
+    const [reloadToken, setReloadToken] = useState(0)
+    // A plain visit to the list restores the filters of the last one: the first visit to the screen, and every way back
+    // from a project by a link that names no parameters, as the crumb of a project and the tab of the header do. A
+    // link with its own parameters describes what its sender wanted to show, and the list the reader emptied stays
+    // empty, so both are left alone. Nothing is fetched until the first visit is settled.
     const [restoring, setRestoring] = useState(true)
-    useEffect(() => {
-        const saved = [...params.keys()].length > 0 ? null : loadProjectFilters()
-        if (saved && [...saved.keys()].length > 0) {
-            setParams(saved, { replace: true })
+    const navigationType = useNavigationType()
+    const plainVisit = !projectShown && urlParams.size === 0
+        && (restoring || navigationType !== NavigationType.Replace)
+    // While a project is shown the address is the project's own: the list goes on with the parameters it was left
+    // with, and changing them leads back to the list. A plain visit shows them at once, while the address takes them.
+    const heldParams = useMemo(
+        () => (projectShown || plainVisit ? loadProjectFilters() : null),
+        [plainVisit, projectShown]
+    )
+    const params = heldParams ?? urlParams
+    const setParams = useCallback((
+        update: URLSearchParams | ((previous: URLSearchParams) => URLSearchParams),
+        options?: NavigateOptions
+    ) => {
+        if (heldParams === null) {
+            setUrlParams(update, options)
+            return
         }
-        setRestoring(false)
-        // Restoring happens once, on the first visit to the screen.
-    }, [])
+        const next = typeof update === 'function' ? update(new URLSearchParams(heldParams)) : update
+        if (!projectShown) {
+            setUrlParams(next, options)
+            return
+        }
+        saveProjectFilters(next)
+        void navigate(next.size > 0 ? `/projects?${next.toString()}` : '/projects')
+    }, [heldParams, navigate, projectShown, setUrlParams])
+    useEffect(() => {
+        if (!projectShown && heldParams !== null && heldParams.size > 0) {
+            setUrlParams(heldParams, { replace: true })
+        } else {
+            setRestoring(false)
+        }
+    }, [heldParams, projectShown, setUrlParams])
 
     // Persisted after the typing settles: the search box writes to the URL on every keystroke.
     useEffect(() => {
@@ -219,8 +264,6 @@ export const ProjectsHome = () => {
     const [allProjects, setAllProjects] = useState<Project[]>([])
     const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>([])
     const [projectIndexHealth, setProjectIndexHealth] = useState<Record<string, ProjectIndexHealth>>({})
-    // Bumped whenever the screen changed the workspace, so the tree beside it reads it again too.
-    const [reloadToken, setReloadToken] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [createOpen, setCreateOpen] = useState(false)
@@ -249,10 +292,14 @@ export const ProjectsHome = () => {
 
     // The picks are read from their own parameters alone, so typing in the search box keeps the same picks — and
     // the tree beside the list, which follows them, keeps its shape.
-    const pickedParams = new URLSearchParams()
-    FILTER_PARAMS.forEach(key => params.getAll(key).forEach(value => pickedParams.append(key, value)))
-    const picked = pickedParams.toString()
+    const picked = picksOf(params)
     const query = useMemo(() => listingQueryOf(new URLSearchParams(picked)), [picked])
+    // A group picked in the tree filters the list and leaves the tree as it was: the tree keeps the picks it had before
+    // the group until the picks change otherwise — in the Filters view, or by clearing them. The picks of every group
+    // since are kept: the address changes a render after the pick, and the render between them must still find the
+    // picks of the group before, or the tree would narrow to them for that render and draw all its rows anew.
+    const [groupPicks, setGroupPicks] = useState<Record<string, ListingQuery>>({})
+    const treeNarrowBy = groupPicks[picked] ?? query
     const { statuses, repositories: repos, tags, branches } = query
     const repositoryName = useCallback(
         (id: string) => repositories.find(repo => repo.id === id)?.name ?? id,
@@ -335,6 +382,8 @@ export const ProjectsHome = () => {
     }, [setParams])
 
     const toggleInParam = useCallback((key: string, current: Set<string>, value: string) => {
+        // A pick of the Filters view narrows the tree again.
+        setGroupPicks({})
         const next = new Set(current)
         if (next.has(value)) {
             next.delete(value)
@@ -347,6 +396,7 @@ export const ProjectsHome = () => {
     // The branch facet writes repeated params instead of a comma-joined value, since a branch name may hold
     // a comma; every other facet toggles through toggleInParam.
     const toggleBranch = useCallback((value: string) => {
+        setGroupPicks({})
         setParams(prev => {
             const next = new URLSearchParams(prev)
             const chosen = new Set(prev.getAll('branch'))
@@ -371,7 +421,6 @@ export const ProjectsHome = () => {
         }
         if (refresh) {
             invalidateProjectIndex()
-            setReloadToken(token => token + 1)
         }
         return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjectIndex()])
             .then(([repos_, index]): Project[] | null => {
@@ -403,6 +452,17 @@ export const ProjectsHome = () => {
             })
     }, [loads])
 
+    // What the page of a project reports through: what it shows, and that it read its project again. A read again has
+    // the tree read the files of the project again, and the list read the projects quietly: an action of the page, as
+    // a close or a branch switch, changes the project the list holds, and the ping it causes never reaches this tab.
+    const rail = useMemo<ProjectRail>(() => ({
+        report: setProjectRail,
+        reloaded: () => {
+            setReloadToken(token => token + 1)
+            void load(true, { silent: true })
+        },
+    }), [load])
+
     useEffect(() => {
         if (restoring) {
             return
@@ -423,11 +483,12 @@ export const ProjectsHome = () => {
     // told only when the refresh actually changed the list: a ping echoing their own action lands on
     // an already-fresh snapshot and stays quiet.
     // A ping landing while a row action runs waits for it: the refresh would otherwise supersede the
-    // read the action is waiting for and unlock the row over the state before it.
+    // read the action is waiting for and unlock the row over the state before it. A project shown in place of the list
+    // tells of its own changes, and the list it hides tells of none.
     useWorkspaceChanges(() => {
         const before = listSignature(allProjects)
         void load(true, { silent: true }).then(loaded => {
-            if (loaded !== null && listSignature(loaded) !== before) {
+            if (!projectShown && loaded !== null && listSignature(loaded) !== before) {
                 notification.info({ title: t('home.live_synced') })
             }
         })
@@ -452,19 +513,22 @@ export const ProjectsHome = () => {
     }, [])
 
     useEffect(() => {
-        if (!loading && totalProjects > 0 && requestedPage > totalPages) {
+        if (!projectShown && !loading && totalProjects > 0 && requestedPage > totalPages) {
             setParam('page', totalPages === 1 ? null : String(totalPages))
         }
-    }, [loading, requestedPage, setParam, totalPages, totalProjects])
+    }, [loading, projectShown, requestedPage, setParam, totalPages, totalProjects])
 
-    // The list is searched from the header; the text lives in the address, so a link carries it.
-    useSearchScope({
-        id: 'projects',
-        label: t('common:search.scopes.projects'),
-        onChange: value => setParam('q', value, true),
-        placeholder: t('home.search_placeholder'),
-        value: search,
-    })
+    // The list is searched from the header; the text lives in the address, so a link carries it. A project shown in
+    // its place has searches of its own, and the tree beside it offers itself.
+    useSearchScope(projectShown
+        ? null
+        : {
+            id: 'projects',
+            label: t('common:search.scopes.projects'),
+            onChange: value => setParam('q', value, true),
+            placeholder: t('home.search_placeholder'),
+            value: search,
+        })
 
     const localRepositoryInfo = useMemo<RepositoryInfo>(
         () => ({ features: { branches: false, searchable: false, mappedFolders: false }, name: t('home.local'), type: 'repo-file' }),
@@ -505,8 +569,8 @@ export const ProjectsHome = () => {
         [leaveTo]
     )
 
-    // A file picked in the tree is followed to where it is read: a module to the editor, anything else
-    // to the Files tab of the project it belongs to.
+    // A file picked in the tree is followed to where it is read: a module to the editor, any other file or a
+    // folder to the page of the project it belongs to.
     const openModule = useCallback(
         (project: Project, moduleName: string) => leaveTo(moduleRoute(project.id, moduleName)),
         [leaveTo]
@@ -526,15 +590,14 @@ export const ProjectsHome = () => {
     // A group picked in the tree is the same thing as ticking its facets: the list shows its projects, and the
     // tree, which follows the facets, narrows to the group.
     const openGroup = useCallback((filters: NodeFilters) => {
-        setParams(prev => {
-            const next = new URLSearchParams(prev)
-            next.delete('page')
-            setListParam(next, 'repo', filters.repositories)
-            setRepeatedListParam(next, 'branch', filters.branches)
-            setListParam(next, 'tags', filters.tags)
-            return next
-        }, { replace: true })
-    }, [setParams])
+        const next = new URLSearchParams(params)
+        next.delete('page')
+        setListParam(next, 'repo', filters.repositories)
+        setRepeatedListParam(next, 'branch', filters.branches)
+        setListParam(next, 'tags', filters.tags)
+        setGroupPicks(previous => ({ ...previous, [picksOf(next)]: treeNarrowBy }))
+        setParams(next, { replace: true })
+    }, [params, setParams, treeNarrowBy])
 
     /** What one project is busy with; `null` frees it. A project untouched keeps the snapshot as it was. */
     const setBusy = useCallback((projectId: string, actionId: RowBusyId | null) => {
@@ -695,10 +758,16 @@ export const ProjectsHome = () => {
     }, [setParams])
 
     // Clearing the picks brings both views of the rail back to the default view; the search keeps its text.
-    const resetFilters = useCallback(() => deleteParams(...FILTER_PARAMS, 'page'), [deleteParams])
+    const resetFilters = useCallback(() => {
+        setGroupPicks({})
+        deleteParams(...FILTER_PARAMS, 'page')
+    }, [deleteParams])
 
     // The no-match state clears the search too, not just the facets.
-    const clearAll = useCallback(() => deleteParams('q', ...FILTER_PARAMS, 'page'), [deleteParams])
+    const clearAll = useCallback(() => {
+        setGroupPicks({})
+        deleteParams('q', ...FILTER_PARAMS, 'page')
+    }, [deleteParams])
 
     const content = () => {
         if (loading && projects.length === 0 && !error) {
@@ -767,7 +836,7 @@ export const ProjectsHome = () => {
         )
     }
 
-    if (error) {
+    if (error && !projectShown) {
         return (
             <Alert
                 showIcon
@@ -787,7 +856,15 @@ export const ProjectsHome = () => {
     return (
         <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail
+                // A link to a file of the project shown opens the tree on it.
+                currentFile={projectShown ? urlParams.get('file') ?? undefined : undefined}
+                currentFileChanges={shownRail.currentFileChanges}
+                currentFolders={shownRail.currentFolders}
+                currentProjectId={shownRail.currentProjectId ?? shownProjectId}
+                // Beside a project, the rail is where a failed read of the projects shows.
+                error={error}
                 filters={query}
+                narrowBy={treeNarrowBy}
                 onClearFilters={resetFilters}
                 onOpenFile={openFile}
                 onOpenGroup={openGroup}
@@ -800,7 +877,7 @@ export const ProjectsHome = () => {
                 projects={loading && allProjects.length === 0 ? null : allProjects}
                 reloadToken={reloadToken}
                 repositories={repositories}
-                search={debouncedSearch}
+                search={projectShown ? undefined : debouncedSearch}
                 filterView={headerActions => renderFilterRail({
                     headerActions,
                     onClearFilters: resetFilters,
@@ -819,69 +896,74 @@ export const ProjectsHome = () => {
                     tags,
                 })}
             />
-            <div className={shared.main}>
-                <div className={cx(shared.content, styles.content)}>
-                    <div className={styles.scroll}>{content()}</div>
-                    {loading && projects.length > 0 && <BusyVeil data-testid="projects-loading-overlay" />}
-                </div>
-                {showIndexingNote && indexingShown && (
-                    <Alert
-                        showIcon
-                        className={styles.indexingBanner}
-                        closable={{ onClose: () => setIndexingShown(false) }}
-                        data-testid="projects-indexing-banner"
-                        title={t('home.indexing_banner', { repos: indexingRepositories.join(', ') })}
-                        type="info"
-                    />
-                )}
-                <ListFooter
-                    current={currentPage}
-                    onChange={(page, size) => setParams(prev => withPage(prev, page, size), { replace: true })}
-                    pageSize={pageSize}
-                    testIdPrefix="projects"
-                    total={totalProjects}
-                    summary={(
-                        <span className={styles.compileStrip} data-testid="projects-compile-summary">
-                            {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
-                                <span key={state} className={styles.compileItem}>
-                                    <span className={shared.stateDot} style={{ background: COMPILE_COLORS[state] }} />
-                                    <span className={styles.compileNum}>{compileTally[state]}</span>
-                                    {t(`browser.compile.${state}`)}
-                                </span>
-                            ))}
-                            <span data-testid="projects-count">
-                                {t('home.summary_total', { total: totalProjects })}
-                            </span>
-                            {showIndexingNote && (
-                                <Button
-                                    aria-expanded={indexingShown}
-                                    className={styles.indexingToggle}
-                                    data-testid="projects-indexing-toggle"
-                                    icon={<LoadingOutlined spin />}
-                                    onClick={() => setIndexingShown(shown => !shown)}
-                                    size="small"
-                                    type="link"
-                                >
-                                    {t('home.indexing_repositories', { count: indexingRepositories.length })}
-                                </Button>
-                            )}
-                        </span>
+            {/* A page for each project: what it read for one project never shows under another. */}
+            {projectShown ? <Fragment key={shownProjectId}><Outlet context={rail} /></Fragment> : (
+                <div className={shared.main}>
+                    <div className={cx(shared.content, styles.content)}>
+                        <div className={styles.scroll}>{content()}</div>
+                        {loading && projects.length > 0 && <BusyVeil data-testid="projects-loading-overlay" />}
+                    </div>
+                    {showIndexingNote && indexingShown && (
+                        <Alert
+                            showIcon
+                            className={styles.indexingBanner}
+                            closable={{ onClose: () => setIndexingShown(false) }}
+                            data-testid="projects-indexing-banner"
+                            title={t('home.indexing_banner', { repos: indexingRepositories.join(', ') })}
+                            type="info"
+                        />
                     )}
-                />
-            </div>
-            <HeaderActions>
-                {creatableRepos.length > 0 && (
-                    <Button
-                        data-testid="projects-new"
-                        icon={<PlusOutlined />}
-                        onClick={() => setCreateOpen(true)}
-                        type="primary"
-                    >
-                        {t('browser.new_project')}
-                    </Button>
-                )}
-                <ProjectsViewSwitch onView={value => setParam('view', value === 'list' ? null : value)} view={view} />
-            </HeaderActions>
+                    <ListFooter
+                        current={currentPage}
+                        onChange={(page, size) => setParams(prev => withPage(prev, page, size), { replace: true })}
+                        pageSize={pageSize}
+                        testIdPrefix="projects"
+                        total={totalProjects}
+                        summary={(
+                            <span className={styles.compileStrip} data-testid="projects-compile-summary">
+                                {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
+                                    <span key={state} className={styles.compileItem}>
+                                        <span className={shared.stateDot} style={{ background: COMPILE_COLORS[state] }} />
+                                        <span className={styles.compileNum}>{compileTally[state]}</span>
+                                        {t(`browser.compile.${state}`)}
+                                    </span>
+                                ))}
+                                <span data-testid="projects-count">
+                                    {t('home.summary_total', { total: totalProjects })}
+                                </span>
+                                {showIndexingNote && (
+                                    <Button
+                                        aria-expanded={indexingShown}
+                                        className={styles.indexingToggle}
+                                        data-testid="projects-indexing-toggle"
+                                        icon={<LoadingOutlined spin />}
+                                        onClick={() => setIndexingShown(shown => !shown)}
+                                        size="small"
+                                        type="link"
+                                    >
+                                        {t('home.indexing_repositories', { count: indexingRepositories.length })}
+                                    </Button>
+                                )}
+                            </span>
+                        )}
+                    />
+                </div>
+            )}
+            {!projectShown && (
+                <HeaderActions>
+                    {creatableRepos.length > 0 && (
+                        <Button
+                            data-testid="projects-new"
+                            icon={<PlusOutlined />}
+                            onClick={() => setCreateOpen(true)}
+                            type="primary"
+                        >
+                            {t('browser.new_project')}
+                        </Button>
+                    )}
+                    <ProjectsViewSwitch onView={value => setParam('view', value === 'list' ? null : value)} view={view} />
+                </HeaderActions>
+            )}
             <NewProjectModal
                 onClose={() => setCreateOpen(false)}
                 onCreated={openCreated}
@@ -930,6 +1012,13 @@ export const ProjectsHome = () => {
             />
         </div>
     )
+}
+
+/** The picks among the parameters of the list: its filters alone, without the search, the sort or the page. */
+const picksOf = (params: URLSearchParams): string => {
+    const picks = new URLSearchParams()
+    FILTER_PARAMS.forEach(key => params.getAll(key).forEach(value => picks.append(key, value)))
+    return picks.toString()
 }
 
 /** Writes one of the list's multi-value parameters, or drops it when the group does not use it. */

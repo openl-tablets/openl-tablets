@@ -21,6 +21,24 @@ vi.mock('../../services/modules', () => ({
     searchTables: vi.fn(),
 }))
 
+/** What the pane asks the router to hold back, and the answer a test gives it. */
+type Leaving = { currentLocation: { pathname: string, search: string }, nextLocation: { pathname: string, search: string } }
+const { blocker } = vi.hoisted(() => ({
+    blocker: {
+        state: 'unblocked',
+        holdsBack: undefined as ((leaving: Leaving) => boolean) | undefined,
+        proceed: vi.fn(),
+        reset: vi.fn(),
+    },
+}))
+
+vi.mock('react-router', () => ({
+    useBlocker: (holdsBack: (leaving: Leaving) => boolean) => {
+        blocker.holdsBack = holdsBack
+        return blocker
+    },
+}))
+
 vi.mock('../../services/files', () => ({
     downloadFile: vi.fn(),
     getFileContent: vi.fn(),
@@ -356,6 +374,43 @@ describe('FilePreviewPane', () => {
         expect(screen.queryByText('browser.files.discard_changes_title')).toBeNull()
         expect(screen.getByText('first.txt')).toBeTruthy()
         expect(screen.getByDisplayValue('modified content')).toBeTruthy()
+    })
+
+    it('asks before a tab or another screen takes the place of a file with unsaved changes', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+        const at = { pathname: '/projects/p1', search: '?file=first.txt' }
+        const to = (pathname: string, search: string) => ({ currentLocation: at, nextLocation: { pathname, search } })
+        expect(blocker.holdsBack!(to('/projects/p1', '?tab=overview'))).toBe(false)
+
+        await userEvent.click(screen.getByTestId('file-edit'))
+        await userEvent.clear(screen.getByTestId('code-editor'))
+        await userEvent.type(screen.getByTestId('code-editor'), 'modified content')
+
+        // Another file, a folder, a tab, another screen and another project leave the draft; a line of it does not.
+        expect(blocker.holdsBack!(to('/projects/p1', '?tab=overview'))).toBe(true)
+        expect(blocker.holdsBack!(to('/projects/p2', '?file=first.txt'))).toBe(true)
+        expect(blocker.holdsBack!(to('/projects/p1', '?file=second.txt'))).toBe(true)
+        expect(blocker.holdsBack!(to('/projects/p1', '?file=rules'))).toBe(true)
+        expect(blocker.holdsBack!(to('/projects/p1', '?file=first.txt&line=3'))).toBe(false)
+
+        blocker.state = 'blocked'
+        try {
+            rerender(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
+            expect(screen.getByText('browser.files.discard_changes_title')).toBeTruthy()
+
+            await userEvent.click(screen.getByTestId('file-discard-cancel'))
+            expect(blocker.reset).toHaveBeenCalled()
+            expect(screen.getByDisplayValue('modified content')).toBeTruthy()
+
+            // The router still holds the way out: letting the draft go takes it, so the place it leads to is not asked
+            // about again.
+            await userEvent.click(await screen.findByTestId('file-discard-confirm'))
+            expect(blocker.proceed).toHaveBeenCalled()
+            expect(blocker.holdsBack!(to('/projects/p1', '?file=rules'))).toBe(false)
+        } finally {
+            blocker.state = 'unblocked'
+        }
     })
 
     it('loads the selected file after dirty changes are discarded', async () => {

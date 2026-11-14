@@ -152,8 +152,9 @@ flowchart LR
   repository one; the project page re-reads itself (`useLiveProjectChanges`), and drops the snapshot so
   the tree beside it follows. The id-free workspace ping backs the id-keyed one up: it cannot miss a
   change of the workspace.
-- The open file of the Files tab re-fetches with the page reload (`reloadToken`); an editor holding
-  unsaved changes parks the refresh instead of overwriting them (`FilePreviewPane`).
+- The open file of the project page re-fetches with the page reload (`reloadToken`), and so do the files of the
+  project in the tree beside it; an editor holding unsaved changes parks the refresh instead of overwriting them
+  (`FilePreviewPane`).
 - Bursts coalesce again on the client (`useCoalescedChanges`, 500 ms), merging the named files.
 - A ping this tab caused itself is dropped at the door: the screen already reloaded when the action
   finished — without this every own action would refresh the screen twice, immediately. The origins

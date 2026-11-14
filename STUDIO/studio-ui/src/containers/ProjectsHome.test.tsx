@@ -5,16 +5,22 @@ import { ProjectsHome } from './ProjectsHome'
 import { HeaderActionsSlot } from '../components/HeaderActions'
 import { getDesignRepositories, getProjectBranches, getProjects, setProjectStatus, switchProjectBranch } from '../services/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
+import type { ProjectRail } from './projects/projectRail'
 import { ProjectStatus } from '../constants/project'
 import { getProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
 import { notification } from 'antd'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { openCompareWindow } from './projects/compare'
-import { saveProjectFilters } from './projects/filterStorage'
-import { searchFor, searchScope } from '../testing/search'
+import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
+import { hasSearchScope, searchFor, searchScope } from '../testing/search'
 
-const { copyModalMock, navigateMock, treeMock, liveHandlers } = vi.hoisted(() => ({
+const { address, copyModalMock, navigateMock, treeMock, liveHandlers, shown } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
+    // The project the address names, if any, and what the screen hands the page of the project it shows.
+    shown: { projectId: undefined as string | undefined, rail: null as ProjectRail | null },
+    // Whether the address changes a render after it is set, as the router changes it, rather than with it; and how
+    // the reader came to it: the first page is loaded, a link is followed, the screen replaces its own parameters.
+    address: { deferred: false, navigationType: 'POP' },
     navigateMock: vi.fn(),
     treeMock: vi.fn(),
     // The pings, the focus revalidation and the status stream captured from the screen, to fire by hand.
@@ -49,12 +55,28 @@ vi.mock('../services/projectStatus', async importOriginal => ({
 vi.mock('react-router', async () => {
     const { useState } = await import('react')
     return {
+        Outlet: ({ context }: { context: ProjectRail }) => {
+            shown.rail = context
+            return <div data-testid="project-outlet" />
+        },
+        NavigationType: { Pop: 'POP', Push: 'PUSH', Replace: 'REPLACE' },
+        useMatch: () => (shown.projectId ? { params: { projectId: shown.projectId } } : null),
         useNavigate: () => navigateMock,
-        // URL params modeled as plain state: functional updates work, options are ignored.
+        useNavigationType: () => address.navigationType,
+        // URL params modeled as plain state: functional updates work, and a replace is told apart from a link.
         useSearchParams: () => {
             const [params, setParams] = useState(new URLSearchParams())
-            const set = (next: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams)) => {
-                setParams(prev => (typeof next === 'function' ? next(prev) : next))
+            const set = (
+                next: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
+                options?: { replace?: boolean }
+            ) => {
+                address.navigationType = options?.replace ? 'REPLACE' : 'PUSH'
+                const apply = () => setParams(prev => (typeof next === 'function' ? next(prev) : next))
+                if (address.deferred) {
+                    setTimeout(apply, 0)
+                } else {
+                    apply()
+                }
             }
             return [params, set] as const
         },
@@ -341,10 +363,11 @@ const rowOrder = () => screen.getAllByTestId(/^project-row-/).map(el => el.getAt
 
 async function renderHome() {
     // The top bar is drawn by the layout; its slot is enough for the actions the screen puts there.
-    render(<><HeaderActionsSlot /><ProjectsHome /></>)
+    const view = render(<><HeaderActionsSlot /><ProjectsHome /></>)
     // The screen restores the saved filters before it asks for anything, so wait for the answer itself
     // rather than for a fixed delay — on a busy machine the fetch lands after it.
     await waitFor(() => expect(screen.queryByText('skeleton')).toBeNull())
+    return view
 }
 
 async function flushSearch() {
@@ -401,6 +424,8 @@ function mockProjectSearch(source: Project[] = projects) {
 describe('ProjectsHome', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        shown.projectId = undefined
+        address.navigationType = 'POP'
         // The snapshot of the workspace is shared by the screens, so each test starts without one.
         invalidateProjectIndex()
         vi.mocked(getDesignRepositories).mockResolvedValue(repositories)
@@ -830,6 +855,197 @@ describe('ProjectsHome', () => {
         } finally {
             localStorage.removeItem('openl.projects.rail')
         }
+    })
+
+    it('filters the list by a group picked in the tree, leaving the tree as it was until the Filters view picks', async () => {
+        await renderHome()
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+
+        try {
+            await userEvent.click(screen.getByText('tree'))
+            const before = treeMock.mock.lastCall![0] as {
+                onOpenGroup: (filters: { repositories: string[], branches: string[], tags: string[] }) => void
+            }
+
+            await act(async () => before.onOpenGroup({ repositories: ['rw'], branches: [], tags: []}))
+
+            const grouped = treeMock.mock.lastCall![0] as {
+                filters: { repositories: Set<string> }
+                narrowBy: { repositories: Set<string> }
+                onOpenGroup: (filters: { repositories: string[], branches: string[], tags: string[] }) => void
+            }
+            expect([...grouped.filters.repositories]).toEqual(['rw'])
+            expect([...grouped.narrowBy.repositories]).toEqual(['ro'])
+
+            // A second group still leaves the tree with the picks it had before the first — in every render on the way,
+            // or the tree would narrow for one render and draw its rows anew.
+            address.deferred = true
+            const rendersBefore = treeMock.mock.calls.length
+            // The pick renders first, the address the router changes after it.
+            await act(async () => grouped.onOpenGroup({ repositories: ['ro', 'rw'], branches: [], tags: []}))
+            await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+            address.deferred = false
+            const narrowings = treeMock.mock.calls.slice(rendersBefore)
+                .map(([props]) => [...(props as { narrowBy: { repositories: Set<string> } }).narrowBy.repositories].join())
+            expect(new Set(narrowings)).toEqual(new Set(['ro']))
+
+            // A pick of the Filters view narrows the tree again.
+            await userEvent.click(screen.getByText('filters'))
+            await userEvent.click(screen.getByTestId('filter-repo-ro'))
+            await userEvent.click(screen.getByText('tree'))
+            const picked = treeMock.mock.lastCall![0] as { filters: { repositories: Set<string> }, narrowBy: { repositories: Set<string> } }
+            expect([...picked.narrowBy.repositories]).toEqual([...picked.filters.repositories])
+        } finally {
+            address.deferred = false
+            localStorage.removeItem('openl.projects.rail')
+        }
+    })
+
+    describe('with a project shown in place of the list', () => {
+        it('shows the project beside the rail, with no list, actions or search of the list', async () => {
+            shown.projectId = 'p1'
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+
+                expect(screen.getByTestId('project-outlet')).toBeInTheDocument()
+                expect(screen.getByTestId('projects-rail')).toBeInTheDocument()
+                expect(screen.queryByTestId('projects-count')).toBeNull()
+                expect(screen.queryByTestId('projects-new')).toBeNull()
+                expect(hasSearchScope('projects')).toBe(false)
+                // The tree marks the project the address names, and offers a search of its own.
+                const props = treeMock.mock.lastCall![0] as { currentProjectId?: string, search?: string }
+                expect(props.currentProjectId).toBe('p1')
+                expect(props.search).toBeUndefined()
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
+
+        it('hands the tree what the page of the project reports', async () => {
+            shown.projectId = 'p1'
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+                const { report, reloaded } = shown.rail!
+                const tokenBefore = (treeMock.mock.lastCall![0] as { reloadToken: number }).reloadToken
+
+                await act(async () => report({ address: 'p1', currentProjectId: 'p1', currentFolders: ['drafts']}))
+                expect(getProjects).toHaveBeenCalledTimes(1)
+                await act(async () => reloaded())
+                // An action of the page changed the project the list holds, which reads the projects again quietly.
+                await waitFor(() => expect(getProjects).toHaveBeenCalledTimes(2))
+                expect(screen.queryByText('skeleton')).toBeNull()
+
+                // The folders the page added, and its read again, which has the tree read the files again too.
+                const props = treeMock.mock.lastCall![0] as { currentFolders?: string[], reloadToken: number }
+                expect(props.currentFolders).toEqual(['drafts'])
+                expect(props.reloadToken).toBe(tokenBefore + 1)
+
+                // A report about the project the reader came from is stale: the tree marks the one the address names.
+                const changes = new Map([['rules.xml', 'modified' as const]])
+                await act(async () => report({ address: 'p0', currentProjectId: 'p0', currentFileChanges: changes }))
+                const stale = treeMock.mock.lastCall![0] as { currentProjectId?: string, currentFileChanges?: unknown }
+                expect(stale.currentProjectId).toBe('p1')
+                expect(stale.currentFileChanges).toBeUndefined()
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
+
+        it('follows the filters the list was left with, and leads back to the list with a group picked', async () => {
+            shown.projectId = 'p1'
+            vi.mocked(loadProjectFilters).mockReturnValue(new URLSearchParams('q=rates&repo=ro'))
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+                const props = treeMock.mock.lastCall![0] as {
+                    filters: { repositories: Set<string> }
+                    onOpenGroup: (filters: { repositories: string[], branches: string[], tags: string[] }) => void
+                }
+                expect([...props.filters.repositories]).toEqual(['ro'])
+
+                await act(async () => props.onOpenGroup({ repositories: ['rw'], branches: [], tags: []}))
+
+                expect(saveProjectFilters).toHaveBeenCalledWith(new URLSearchParams('q=rates&repo=rw'))
+                expect(navigateMock).toHaveBeenCalledWith('/projects?q=rates&repo=rw')
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+                vi.mocked(loadProjectFilters).mockImplementation(() => new URLSearchParams())
+            }
+        })
+
+        it('comes back to the list it was left with by a link that names none of its parameters', async () => {
+            shown.projectId = 'p1'
+            vi.mocked(loadProjectFilters).mockReturnValue(new URLSearchParams('repo=ro'))
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                const view = await renderHome()
+
+                // The crumb of the project, as the tab of the header, leads to the list with no parameters.
+                shown.projectId = undefined
+                address.navigationType = 'PUSH'
+                view.rerender(<><HeaderActionsSlot /><ProjectsHome /></>)
+                await screen.findByTestId('project-row-p2')
+
+                expect(screen.queryByTestId('project-row-p1')).toBeNull()
+                const props = treeMock.mock.lastCall![0] as {
+                    filters: { repositories: Set<string> }
+                    onClearFilters: () => void
+                }
+                expect([...props.filters.repositories]).toEqual(['ro'])
+                await flushSearch()
+                expect(vi.mocked(saveProjectFilters).mock.lastCall![0].toString()).toBe('repo=ro')
+
+                // The list the reader empties stays empty: it is no visit of the list.
+                await act(async () => props.onClearFilters())
+                await screen.findByTestId('project-row-p1')
+                await flushSearch()
+                expect(vi.mocked(saveProjectFilters).mock.lastCall![0].toString()).toBe('')
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+                vi.mocked(loadProjectFilters).mockImplementation(() => new URLSearchParams())
+            }
+        })
+
+        it('tells nothing of the list it hides, and leaves the files of the project to its page', async () => {
+            shown.projectId = 'p1'
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+                const tokenBefore = (treeMock.mock.lastCall![0] as { reloadToken: number }).reloadToken
+                // The workspace moved on elsewhere — another session created a project.
+                mockProjectSearch([...projects, { ...projects[1]!, id: 'p3', name: 'Gamma', repository: 'design' }] as Project[])
+
+                await act(async () => {
+                    liveHandlers.workspaceChange?.()
+                    await new Promise(resolve => setTimeout(resolve, 0))
+                })
+
+                await waitFor(() => {
+                    const props = treeMock.mock.lastCall![0] as { projects: Project[] }
+                    expect(props.projects.map(project => project.id)).toContain('p3')
+                })
+                expect(notification.info).not.toHaveBeenCalled()
+                expect((treeMock.mock.lastCall![0] as { reloadToken: number }).reloadToken).toBe(tokenBefore)
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
+
+        it('has the rail tell that the projects could not be read', async () => {
+            shown.projectId = 'p1'
+            vi.mocked(getProjects).mockRejectedValue(new Error('boom'))
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+
+                expect(screen.queryByTestId('projects-home-error')).toBeNull()
+                await waitFor(() => expect((treeMock.mock.lastCall![0] as { error?: string | null }).error).toBe('boom'))
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
     })
 
     it('offers a reset button that clears all filters when they hide every project', async () => {

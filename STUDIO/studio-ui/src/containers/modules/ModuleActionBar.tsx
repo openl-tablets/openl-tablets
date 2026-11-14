@@ -105,7 +105,7 @@ export const ModuleActionBar = ({
     // offered here exactly as the project's own screen offers them, by the same capabilities.
     const { actions, dialogs } = useProjectDialogs(project, { onChanged: () => onProjectChanged?.() })
     // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
-    // Files tab uses, restricted to Excel. A Markdown module is changed as text in the file editor: no workbook
+    // Add menu of a project uses, restricted to Excel. A Markdown module is changed as text in the file editor: no workbook
     // replaces it.
     const canUpdateModule = ofModule && !!project.capabilities?.canWrite && !!modulePath && isWorkbookPath(modulePath)
     // A module of a single Markdown file holds its one table and takes no other. A folder of Markdown files takes a
@@ -117,7 +117,7 @@ export const ModuleActionBar = ({
     // The local changes are the versions a workbook is saved in: a Markdown file keeps none, so its module offers none
     const keepsLocalChanges = !modulePath || isWorkbookPath(modulePath)
     // Writing a table into the project is the project's own right, so it is offered by the same capability
-    // the Files tab writes by.
+    // the files of a project are written by.
     const canWrite = !!project.capabilities?.canWrite
     // Writing the first table into a project opened on an older revision saves it over the newer one.
     const confirmWrite = useOverwriteConfirm(project)

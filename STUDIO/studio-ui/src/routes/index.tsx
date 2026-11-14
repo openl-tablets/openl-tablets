@@ -70,8 +70,19 @@ const router = createBrowserRouter([
                 ),
             },
             {
+                // The list and a project share one screen: its rail stays while the reader steps between them.
                 path: 'projects',
                 element: <ProjectsThemeProvider><ProjectsHome /></ProjectsThemeProvider>,
+                children: [
+                    {
+                        path: ':projectId',
+                        element: (
+                            <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                                <ProjectWorkspace />
+                            </React.Suspense>
+                        ),
+                    },
+                ],
             },
             {
                 path: 'deployments',
@@ -80,16 +91,6 @@ const router = createBrowserRouter([
             {
                 path: 'deployments/:deploymentId',
                 element: <ProjectsThemeProvider><DeploymentWorkspace /></ProjectsThemeProvider>,
-            },
-            {
-                path: 'projects/:projectId',
-                element: (
-                    <ProjectsThemeProvider>
-                        <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
-                            <ProjectWorkspace />
-                        </React.Suspense>
-                    </ProjectsThemeProvider>
-                ),
             },
             {
                 // A module of the project, opened for reading. It is part of the project, not a place of its own.

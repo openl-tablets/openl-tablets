@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { errorMessage as message } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
+import { useBlocker } from 'react-router'
 import type { TFunction } from 'i18next'
 import { App, Alert, Button, Dropdown, Modal, Skeleton, Space, Tag, type MenuProps } from 'antd'
 import {
@@ -347,7 +348,7 @@ const BinaryFilePlaceholder = ({ module, onDownload, onOpenModule }: {
 }
 
 /**
- * The right pane of the Files tab: shows the selected file. Text files open read-only in a
+ * What a project page shows for a file picked in the projects tree. Text files open read-only in a
  * syntax-highlighted viewer; the pencil switches to an editable view with save and cancel. Binary files
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
@@ -433,6 +434,20 @@ export const FilePreviewPane = ({
         // object itself is new each time and would run this effect — and set state from it — for ever.
     }, [activeSelection, branch, dirty, path, projectId, projectName, reloadToken, repositoryId])
 
+    // A draft not saved lives in this pane alone, which goes when the page shows anything else: another file, a folder,
+    // a tab, another screen or project. The reader is asked first, and before closing the page.
+    const leaving = useBlocker(({ currentLocation, nextLocation }) => dirty
+        && (currentLocation.pathname !== nextLocation.pathname
+            || new URLSearchParams(currentLocation.search).get('file') !== new URLSearchParams(nextLocation.search).get('file')))
+    useEffect(() => {
+        if (!dirty) {
+            return undefined
+        }
+        const ask = (event: BeforeUnloadEvent) => event.preventDefault()
+        window.addEventListener('beforeunload', ask)
+        return () => window.removeEventListener('beforeunload', ask)
+    }, [dirty])
+
     // A newly accepted file — or a project reload (save/close) — returns the pane to read-only view.
     useEffect(() => {
         setEditing(false)
@@ -487,9 +502,16 @@ export const FilePreviewPane = ({
 
     const keepCurrentFile = () => {
         setPendingSelection(null)
+        leaving.reset?.()
     }
 
     const discardCurrentFile = () => {
+        if (leaving.state === 'blocked') {
+            // The draft is let go before the way out is taken, so the file or folder it leads to is not asked about again.
+            setContent(original)
+            leaving.proceed()
+            return
+        }
         if (pendingSelection) {
             setPendingSelection(null)
             setActiveSelection(pendingSelection)
@@ -641,7 +663,7 @@ export const FilePreviewPane = ({
                 okText={t('browser.files.discard_changes')}
                 onCancel={keepCurrentFile}
                 onOk={discardCurrentFile}
-                open={pendingSelection !== null}
+                open={pendingSelection !== null || leaving.state === 'blocked'}
                 title={t('browser.files.discard_changes_title')}
             >
                 {t('browser.files.discard_changes_desc')}

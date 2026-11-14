@@ -55,7 +55,7 @@ flowchart LR
   | `getMergeScope`, `merge` | The changes leave the ignored files out |
   | A `FULL` save of a folder that holds ignored files | Passed on to a repository that keeps the ignored files itself (`IgnoringRepository`: Git and the file system); for another one, such as Azure Blob, saved as `DIFF`, with the deletion of every other file it is not given |
 
-  Everything that reads projects through a repository inherits it: the project list, the Files tab, search,
+  Everything that reads projects through a repository inherits it: the project list, the files of a project, search,
   compare, the ZIP export and the deployment. A copy of a project in the workspace is built from what the
   repository gives, so it holds no ignored file, and its save keeps the ignored files of the repository. The
   workspace takes the same setting (`LocalWorkspaceManagerImpl`), so a file put into a copy by hand, such as the

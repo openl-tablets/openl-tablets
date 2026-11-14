@@ -1,12 +1,14 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Dropdown, Popconfirm, Space } from 'antd'
-import { DownOutlined, MoreOutlined } from '@ant-design/icons'
+import { Button, Dropdown, Popconfirm, Space, type DropdownProps } from 'antd'
+import { DownOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { SplitButton } from '../../components/SplitButton'
 import type { Project } from '../../types/projects'
 import { isActionAvailable, PROJECT_ACTIONS, type ActionId, type BusyId } from './projectActions'
 import { ACTION_ICONS } from './projectActionIcons'
+import { MenuButton } from '../../components/MenuButton'
+import { addFilesMenuItems, type AddFilesKind } from './AddFilesMenu'
 
 /** Gap between buttons, in px — kept in sync with the `bar` style so the fit maths matches the layout. */
 const GAP = 8
@@ -51,12 +53,15 @@ const useStyles = createStyles(({ css }) => ({
 }))
 
 
+/** A button of the bar: an action of the project, or the Add menu, which adds files to the project. */
+type BarActionId = ActionId | 'addFiles'
+
 /**
  * Every action in display order. Opening leads, then what changes the project, then the read-only
  * operations. Opening an earlier revision is not a button of its own: it hangs off Open while the project
  * can still be opened, and replaces it once it is already open.
  */
-const ORDER: ActionId[] = ['save', 'open', 'close', 'sync', 'copy', 'deleteBranch', 'delete', 'deploy',
+const ORDER: BarActionId[] = ['save', 'open', 'close', 'addFiles', 'sync', 'copy', 'deleteBranch', 'delete', 'deploy',
     'compare', 'export', 'unlock']
 
 /**
@@ -67,13 +72,26 @@ const PRIMARY_LADDER: ActionId[] = ['save', 'open', 'close']
 
 export type ProjectActionHandlers = Record<ActionId, () => void>
 
-interface ActionDesc {
-    id: ActionId
+interface ActionBase {
+    id: BarActionId
     testId: string
     label: string
-    run: () => void
+    icon: ReactNode
+    danger?: boolean
     confirm?: string
 }
+
+/** A button that runs an action of the project. */
+interface RunAction extends ActionBase {
+    run: () => void
+}
+
+/** A button whose only job is to open a menu: its entries, and what picking one does. */
+interface MenuAction extends ActionBase {
+    menu: NonNullable<DropdownProps['menu']>
+}
+
+type ActionDesc = RunAction | MenuAction
 
 interface ProjectActionBarProps {
     project: Project
@@ -83,6 +101,11 @@ interface ProjectActionBarProps {
      */
     pendingId: BusyId | null
     handlers: ProjectActionHandlers
+    /**
+     * Adds a folder or a file where the reader is: into the folder shown, beside the file shown, or at the root of the
+     * project. The Add menu is offered only with it.
+     */
+    onAddFiles?: ((kind: AddFilesKind) => void) | undefined
 }
 
 /**
@@ -118,17 +141,26 @@ export const fitActionCount = (widths: number[], moreWidth: number, available: n
  * The bar never wraps. When the actions do not all fit beside the title, the trailing ones collapse into
  * an overflow menu behind a three-dots button, leaving at least the primary action in view.
  */
-export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectActionBarProps) => {
+export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: ProjectActionBarProps) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
 
     const { actions, revision, primaryId } = useMemo(() => {
         const isAvailable = (id: ActionId) => isActionAvailable(project, id)
-        const buildDesc = (id: ActionId): ActionDesc => ({
+        const addFiles = (add: (kind: AddFilesKind) => void): MenuAction => ({
+            id: 'addFiles',
+            testId: `addFiles-${project.id}`,
+            label: t('browser.files.add'),
+            icon: <PlusOutlined />,
+            menu: { items: addFilesMenuItems(t), onClick: ({ key }) => add(key as AddFilesKind) },
+        })
+        const buildDesc = (id: ActionId): RunAction => ({
             id,
             testId: `${id}-${project.id}`,
             label: t(PROJECT_ACTIONS[id].labelKey),
+            icon: ACTION_ICONS[id],
             run: handlers[id],
+            ...(PROJECT_ACTIONS[id].danger ? { danger: true } : {}),
             // Only unlock confirms inline via Popconfirm; delete delegates to the global delete modal.
             ...(id === 'unlock' ? { confirm: t(`browser.${id}_confirm`) } : {}),
         })
@@ -137,7 +169,11 @@ export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectAction
         // slot itself once the project is already open.
         const openSlot = (['open', 'openRevision'] as const).find(isAvailable) ?? null
         return {
-            actions: ORDER.flatMap(id => {
+            actions: ORDER.flatMap((id): ActionDesc[] => {
+                if (id === 'addFiles') {
+                    // Writing files is what the Add menu needs, the same right the files of a folder are added with.
+                    return onAddFiles && project.capabilities?.canWrite ? [addFiles(onAddFiles)] : []
+                }
                 if (id === 'open') {
                     return openSlot ? [buildDesc(openSlot)] : []
                 }
@@ -146,7 +182,7 @@ export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectAction
             revision: isAvailable('openRevision') ? buildDesc('openRevision') : null,
             primaryId: PRIMARY_LADDER.find(isAvailable) ?? null,
         }
-    }, [project, t, handlers])
+    }, [project, t, handlers, onAddFiles])
 
     const busy = pendingId !== null
 
@@ -192,13 +228,16 @@ export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectAction
     const buttonProps = (action: ActionDesc) => ({
         'data-testid': action.testId,
         disabled: busy && pendingId !== action.id,
-        icon: ACTION_ICONS[action.id],
+        icon: action.icon,
         loading: pendingId === action.id,
-        ...(PROJECT_ACTIONS[action.id].danger ? { danger: true } : {}),
+        ...(action.danger ? { danger: true } : {}),
         ...(action.id === primaryId ? { type: 'primary' as const } : {}),
     })
 
     const renderAction = (action: ActionDesc) => {
+        if ('menu' in action) {
+            return <MenuButton key={action.id} {...buttonProps(action)} menu={action.menu}>{action.label}</MenuButton>
+        }
         // Open carries opening an earlier revision as its menu item while the project is still closed.
         if (action.id === 'open' && revision) {
             return (
@@ -233,15 +272,18 @@ export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectAction
     // A plain, id-free copy of an action, sized like the real one, so measuring never clashes with the
     // live buttons' test ids.
     const renderMeasure = (action: ActionDesc) => {
+        if ('menu' in action) {
+            return <Button key={action.id} icon={action.icon}>{action.label}<DownOutlined /></Button>
+        }
         if (action.id === 'open' && revision) {
             return (
                 <Space.Compact key={action.id}>
-                    <Button icon={ACTION_ICONS[action.id]}>{action.label}</Button>
+                    <Button icon={action.icon}>{action.label}</Button>
                     <Button icon={<DownOutlined />} />
                 </Space.Compact>
             )
         }
-        return <Button key={action.id} icon={ACTION_ICONS[action.id]}>{action.label}</Button>
+        return <Button key={action.id} icon={action.icon}>{action.label}</Button>
     }
 
     const shown = Math.min(visibleCount, actions.length)

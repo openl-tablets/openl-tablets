@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
@@ -7,27 +7,26 @@ import type { Project } from '../../types/projects'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { SystemContext } from '../../contexts'
 import { ProjectDetail } from './ProjectDetail'
-import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
+import { hasSearchScope } from '../../testing/search'
 
 const {
+    addFilesDialogsMock,
     branchSwitcherMock,
     filePreviewMock,
-    filesToolbarMock,
-    localChangesSummaryMock,
     revisionsPanelMock,
     searchParamsMock,
     setSearchParamsMock,
 } = vi.hoisted(() => ({
+    addFilesDialogsMock: vi.fn(),
     branchSwitcherMock: vi.fn(),
     filePreviewMock: vi.fn(),
-    filesToolbarMock: vi.fn(),
-    localChangesSummaryMock: vi.fn(),
     revisionsPanelMock: vi.fn(),
-    searchParamsMock: new URLSearchParams('tab=files'),
+    searchParamsMock: new URLSearchParams('tab=overview'),
     setSearchParamsMock: vi.fn(),
 }))
 
 vi.mock('react-router', () => ({
+    useBlocker: () => ({ state: 'unblocked' }),
     useNavigate: () => navigateMock,
     useSearchParams: () => [searchParamsMock, setSearchParamsMock],
 }))
@@ -80,7 +79,7 @@ interface Item {
 vi.mock('antd', () => {
     const Empty = ({ description, ...rest }: Record<string, unknown>) => <div {...rest}>{description as never}</div>
     const Tabs = ({ activeKey, items, onChange }: { activeKey?: string, items?: Item[], onChange?: (key: string) => void }) => (
-        <div data-active-key={activeKey}>
+        <div data-active-key={activeKey} data-testid="tabs">
             {items?.map(item => (
                 <div key={item.key}>
                     <button data-testid={`tab-${item.key}`} onClick={() => onChange?.(item.key)} type="button">
@@ -101,25 +100,21 @@ vi.mock('antd', () => {
 vi.mock('./StatusIndicator', () => ({
     StatusMark: ({ status }: { status: string }) => <span data-testid="status-mark">{status}</span>,
 }))
-vi.mock('./ProjectActionBar', () => ({ ProjectActionBar: () => null }))
-vi.mock('./FileTree', () => ({
-    FileTree: ({ onSelectFile }: { onSelectFile: (path: string | null) => void }) => (
-        <div data-testid="file-tree">
-            <button data-testid="file-tree-clear" onClick={() => onSelectFile(null)} type="button">clear</button>
-            <button data-testid="file-tree-select" onClick={() => onSelectFile('rules/new.txt')} type="button">select</button>
-            <button data-testid="file-tree-select-virtual" onClick={() => onSelectFile('drafts/wip')} type="button">
-                select virtual
-            </button>
-        </div>
+// The bar has its own tests; here it only offers the Add menu it is handed.
+vi.mock('./ProjectActionBar', () => ({
+    ProjectActionBar: ({ onAddFiles }: { onAddFiles?: (kind: string) => void }) => (
+        <button data-testid="bar-add-upload" onClick={() => onAddFiles?.('upload')} type="button">add</button>
     ),
 }))
-vi.mock('./FilesToolbar', () => ({
-    FilesToolbar: (props: { onChanged?: () => void, onCreateFolder?: (path: string) => void }) => {
-        filesToolbarMock(props)
+// The dialogs of the Add menu have their own tests; here they show which one is open, and create a folder.
+vi.mock('./AddFilesMenu', () => ({
+    AddFilesDialogs: (props: { kind: string | null, onCreateFolder: (path: string) => void, targetFolder: string }) => {
+        addFilesDialogsMock(props)
         return (
-            <div data-testid="files-toolbar">
-                <button data-testid="files-changed" onClick={() => props.onChanged?.()} type="button">changed</button>
-                <button data-testid="files-create-folder" onClick={() => props.onCreateFolder?.('drafts/wip')} type="button">new folder</button>
+            <div data-kind={props.kind ?? ''} data-testid="add-files-dialogs">
+                <button data-testid="dialog-create-folder" onClick={() => props.onCreateFolder('drafts/wip')} type="button">
+                    create
+                </button>
             </div>
         )
     },
@@ -147,18 +142,23 @@ vi.mock('./FilePreviewPane', () => ({
     },
 }))
 vi.mock('./FolderActionsPane', () => ({
-    FolderActionsPane: ({ onChanged, onDeleted }: { onChanged?: () => void, onDeleted?: () => void }) => (
-        <div data-testid="folder-actions">
-            <button data-testid="folder-changed" onClick={() => onChanged?.()} type="button">changed</button>
-            <button data-testid="folder-deleted" onClick={() => onDeleted?.()} type="button">deleted</button>
+    FolderActionsPane: (props: {
+        onChanged?: () => void
+        onCreateFolder: (path: string) => void
+        onDeleted?: () => void
+        onRemoveVirtual?: () => void
+        path: string
+        virtual?: boolean
+    }) => (
+        <div data-path={props.path} data-testid="folder-actions" data-virtual={String(!!props.virtual)}>
+            <button data-testid="folder-changed" onClick={() => props.onChanged?.()} type="button">changed</button>
+            <button data-testid="folder-deleted" onClick={() => props.onDeleted?.()} type="button">deleted</button>
+            <button data-testid="folder-add-folder" onClick={() => props.onCreateFolder(`${props.path}/sub`)} type="button">
+                add folder
+            </button>
+            <button data-testid="folder-remove-virtual" onClick={() => props.onRemoveVirtual?.()} type="button">remove</button>
         </div>
     ),
-}))
-vi.mock('./LocalChangesSummary', () => ({
-    LocalChangesSummary: (props: unknown) => {
-        localChangesSummaryMock(props)
-        return <div data-testid="local-changes-summary" />
-    },
 }))
 vi.mock('./RevisionsPanel', () => ({
     RevisionsPanel: (props: { onOpened?: () => void }) => {
@@ -238,6 +238,11 @@ interface DetailOptions {
     repoFeatures?: RepositoryFeatures | undefined
     userManagementEnabled?: boolean
     onBranchSwitching?: (busy: boolean) => void
+    onChanged?: () => void
+    onFilesNeeded?: () => void
+    virtualFolders?: string[]
+    onCreateFolder?: (path: string) => void
+    onRemoveVirtualFolder?: (path: string) => void
 }
 
 const projectDetailElement = ({
@@ -246,6 +251,11 @@ const projectDetailElement = ({
     repoFeatures = BRANCH_REPOSITORY_FEATURES,
     userManagementEnabled = false,
     onBranchSwitching,
+    onChanged,
+    onFilesNeeded,
+    virtualFolders = [],
+    onCreateFolder = vi.fn(),
+    onRemoveVirtualFolder = vi.fn(),
 }: DetailOptions = {}) => (
     <SystemContext.Provider
         value={{
@@ -260,10 +270,15 @@ const projectDetailElement = ({
             files={files}
             handlers={{} as never}
             onBranchSwitching={onBranchSwitching}
+            onChanged={onChanged}
+            onCreateFolder={onCreateFolder}
+            onFilesNeeded={onFilesNeeded}
+            onRemoveVirtualFolder={onRemoveVirtualFolder}
             pendingId={null}
             project={project}
             repoFeatures={repoFeatures}
             repoLabel="Design"
+            virtualFolders={virtualFolders}
         />
     </SystemContext.Provider>
 )
@@ -280,10 +295,9 @@ const latestFilePreviewProps = () => filePreviewMock.mock.lastCall?.[0] as {
 
 describe('ProjectDetail', () => {
     beforeEach(() => {
-        setParams('tab=files')
+        setParams('tab=overview')
+        addFilesDialogsMock.mockClear()
         filePreviewMock.mockClear()
-        filesToolbarMock.mockClear()
-        localChangesSummaryMock.mockClear()
         revisionsPanelMock.mockClear()
         setSearchParamsMock.mockReset()
         setSearchParamsMock.mockImplementation((
@@ -299,23 +313,130 @@ describe('ProjectDetail', () => {
         })
     })
 
-    it('removes resize listeners when unmounted mid-drag', () => {
-        const addListener = vi.spyOn(document, 'addEventListener')
-        const removeListener = vi.spyOn(document, 'removeEventListener')
+    it('offers no Files tab: the files are reached from the projects tree', () => {
+        renderProjectDetail()
 
-        const { unmount } = renderProjectDetail()
+        expect(screen.queryByTestId('tab-files')).toBeNull()
+        expect(screen.getByTestId('tab-overview')).toBeTruthy()
+    })
 
-        fireEvent.mouseDown(screen.getByTestId('file-tree-resizer'), { clientX: 300 })
-        const moveListener = addListener.mock.calls.find(([type]) => type === 'mousemove')?.[1]
-        const upListener = addListener.mock.calls.find(([type]) => type === 'mouseup')?.[1]
+    it('shows a file in place of the content of a tab, the tabs standing with none picked', () => {
+        setParams('file=rules.xlsx')
 
-        expect(moveListener).toBeTypeOf('function')
-        expect(upListener).toBeTypeOf('function')
+        renderProjectDetail()
 
-        unmount()
+        expect(screen.getByTestId('project-file-pane')).toBeTruthy()
+        expect(screen.getByTestId('file-preview')).toBeTruthy()
+        expect(screen.getByTestId('tabs').getAttribute('data-active-key')).toBe('')
+        expect(screen.getByTestId('tab-overview')).toBeTruthy()
+        expect(screen.queryByTestId('overview-panel')).toBeNull()
+    })
 
-        expect(removeListener).toHaveBeenCalledWith('mousemove', moveListener)
-        expect(removeListener).toHaveBeenCalledWith('mouseup', upListener)
+    it('shows a file the URL names over the tab it also names', () => {
+        setParams('tab=publish&file=rules.xlsx')
+
+        renderProjectDetail()
+
+        expect(screen.getByTestId('file-preview')).toBeTruthy()
+        expect(screen.queryByTestId('publish-panel')).toBeNull()
+    })
+
+    it('leaves the file for the tab picked, and the line of the file with it', async () => {
+        setParams('file=rules.xlsx&line=3')
+        renderProjectDetail()
+
+        await userEvent.click(screen.getByTestId('tab-publish'))
+
+        expect(searchParamsMock.get('tab')).toBe('publish')
+        expect(searchParamsMock.has('file')).toBe(false)
+        expect(searchParamsMock.has('line')).toBe(false)
+    })
+
+    it('reads the files of the project once a file or a folder is shown, and not for a tab', () => {
+        const onFilesNeeded = vi.fn()
+        const { rerender } = renderProjectDetail({ onFilesNeeded })
+        expect(onFilesNeeded).not.toHaveBeenCalled()
+
+        setParams('file=rules')
+        rerender(projectDetailElement({ onFilesNeeded }))
+
+        expect(onFilesNeeded).toHaveBeenCalled()
+    })
+
+    it('says so when the files of the project cannot be read', () => {
+        setParams('file=rules.xlsx')
+
+        renderProjectDetail({ files: 'error' })
+
+        expect(screen.getByTestId('file-pane-error')).toHaveTextContent('browser.files_error')
+        expect(screen.queryByTestId('file-preview')).toBeNull()
+    })
+
+    it('offers the files to no search of the header, whatever is shown', () => {
+        setParams('file=rules.xlsx')
+
+        renderProjectDetail()
+
+        expect(hasSearchScope('files')).toBe(false)
+    })
+
+    it.each([
+        ['into the folder shown', 'file=rules', 'rules'],
+        ['beside the file shown', 'file=rules/Nested.xlsx', 'rules'],
+        ['at the root beside a file at the root', 'file=rules.xlsx', ''],
+    ])('adds files from the Add menu of the action bar %s', async (_where, params, folder) => {
+        setParams(params)
+        renderProjectDetail()
+
+        await userEvent.click(screen.getByTestId('bar-add-upload'))
+
+        expect(addFilesDialogsMock).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'upload', targetFolder: folder }))
+    })
+
+    it('adds files at the root of the project from the Add menu of the action bar while a tab is shown', async () => {
+        const onFilesNeeded = vi.fn()
+        renderProjectDetail({ onFilesNeeded })
+        expect(screen.getByTestId('add-files-dialogs').getAttribute('data-kind')).toBe('')
+
+        await userEvent.click(screen.getByTestId('bar-add-upload'))
+
+        expect(screen.getByTestId('add-files-dialogs').getAttribute('data-kind')).toBe('upload')
+        expect(addFilesDialogsMock).toHaveBeenLastCalledWith(expect.objectContaining({ targetFolder: '' }))
+        // The dialogs offer the folders of the project as paths.
+        expect(onFilesNeeded).toHaveBeenCalled()
+    })
+
+    it('shows an empty folder as soon as it is added, to add its first file from', async () => {
+        const onCreateFolder = vi.fn()
+        renderProjectDetail({ onCreateFolder })
+
+        await userEvent.click(screen.getByTestId('dialog-create-folder'))
+
+        expect(onCreateFolder).toHaveBeenCalledWith('drafts/wip')
+        expect(searchParamsMock.get('file')).toBe('drafts/wip')
+        expect(searchParamsMock.has('tab')).toBe(false)
+    })
+
+    it('adds a folder inside the folder shown, and shows the new one', async () => {
+        const onCreateFolder = vi.fn()
+        setParams('file=rules')
+        renderProjectDetail({ onCreateFolder })
+
+        await userEvent.click(screen.getByTestId('folder-add-folder'))
+
+        expect(onCreateFolder).toHaveBeenCalledWith('rules/sub')
+        expect(searchParamsMock.get('file')).toBe('rules/sub')
+    })
+
+    it('drops an empty folder the reader removes, and the file shown with it', async () => {
+        const onRemoveVirtualFolder = vi.fn()
+        setParams('file=drafts/wip')
+        renderProjectDetail({ virtualFolders: ['drafts/wip'], onRemoveVirtualFolder })
+
+        await userEvent.click(screen.getByTestId('folder-remove-virtual'))
+
+        expect(onRemoveVirtualFolder).toHaveBeenCalledWith('drafts/wip')
+        expect(searchParamsMock.has('file')).toBe(false)
     })
 
     it('hides the Management tab content when user management is disabled', () => {
@@ -355,20 +476,10 @@ describe('ProjectDetail', () => {
         expect(screen.queryByTestId('access-panel')).toBeNull()
     })
 
-    it('uses the selected folder as the file action target', () => {
-        setParams('tab=files&file=rules')
-
-        renderProjectDetail()
-
-        expect(filesToolbarMock).toHaveBeenCalledWith(expect.objectContaining({
-            targetFolder: 'rules',
-        }))
-    })
-
-    it('waits for the tree before it treats an extension-less selection as a file', () => {
-        // A folder like "__MACOSX" is read as a file until the tree says otherwise: previewing it would
-        // fetch a folder's content and fail. While the tree loads, neither pane is shown.
-        setParams('tab=files&file=__MACOSX')
+    it('waits for the files before it treats an extension-less selection as a file', () => {
+        // A folder like "__MACOSX" is read as a file until the files say otherwise: previewing it would
+        // fetch a folder's content and fail. While the files load, neither pane is shown.
+        setParams('file=__MACOSX')
 
         renderProjectDetail({ files: 'loading' })
 
@@ -377,8 +488,8 @@ describe('ProjectDetail', () => {
         expect(screen.queryByTestId('folder-actions')).toBeNull()
     })
 
-    it('shows folder actions once the tree reveals the selection is a folder', () => {
-        setParams('tab=files&file=rules')
+    it('shows folder actions once the files reveal the selection is a folder', () => {
+        setParams('file=rules')
 
         renderProjectDetail({ files: FILES })
 
@@ -387,45 +498,7 @@ describe('ProjectDetail', () => {
         expect(screen.queryByTestId('file-pane-loading')).toBeNull()
     })
 
-    it('uses the selected file parent folder as the file action target', () => {
-        setParams('tab=files&file=rules/Nested.xlsx')
-
-        renderProjectDetail()
-
-        expect(filesToolbarMock).toHaveBeenCalledWith(expect.objectContaining({
-            targetFolder: 'rules',
-        }))
-    })
-
-    it('normalizes pending file changes for the Files tab', () => {
-        renderProjectDetail({
-            project: {
-                ...PROJECT,
-                path: 'folder/Alpha',
-                compileStatus: {
-                    projectId: PROJECT.id,
-                    compileState: 'ok',
-                    pendingChanges: {
-                        total: 2,
-                        files: [
-                            { path: 'folder/Alpha/rules.xlsx', type: 'modified' },
-                            { path: 'folder/Alpha/old.xlsx', type: 'deleted' },
-                        ],
-                    },
-                },
-            },
-        })
-
-        expect(localChangesSummaryMock).toHaveBeenCalledWith({
-            changes: [
-                { path: 'rules.xlsx', type: 'modified' },
-                { path: 'old.xlsx', type: 'deleted' },
-            ],
-        })
-    })
-
     it('does not mount the History tab content while another tab is active', () => {
-        setParams('tab=overview')
         renderProjectDetail({
             project: {
                 ...PROJECT,
@@ -484,19 +557,11 @@ describe('ProjectDetail', () => {
         expect(screen.getByTestId('publish-panel')).toBeTruthy()
     })
 
-    it('offers no branches tab: branches are handled from the header and the Overview tab', () => {
-        setParams('tab=branches')
+    it.each(['branches', 'files'])('falls back to the overview for the tab %s, which it does not offer', tab => {
+        setParams(`tab=${tab}`)
         renderProjectDetail()
-        expect(screen.queryByTestId('tab-branches')).toBeNull()
-        // An unknown tab falls back to the overview one.
+        expect(screen.queryByTestId(`tab-${tab}`)).toBeNull()
         expect(screen.getByTestId('overview-panel')).toBeTruthy()
-    })
-
-    it('updates the active tab through the tab control', async () => {
-        setParams('tab=overview')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('tab-publish'))
-        expect(setSearchParamsMock).toHaveBeenCalled()
     })
 
     it('falls back to overview when the requested tab is unavailable', () => {
@@ -517,59 +582,25 @@ describe('ProjectDetail', () => {
         expect(screen.getByTestId('access-panel')).toBeTruthy()
     })
 
-    it('clears the selected file from the URL', async () => {
-        setParams('tab=files&file=rules.xlsx')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('file-tree-clear'))
-        expect(setSearchParamsMock).toHaveBeenCalled()
-    })
-
-    it('stops resizing on mouse up', () => {
-        const removeListener = vi.spyOn(document, 'removeEventListener')
-        renderProjectDetail()
-        fireEvent.mouseDown(screen.getByTestId('file-tree-resizer'), { clientX: 300 })
-        fireEvent.mouseUp(document)
-        expect(removeListener).toHaveBeenCalledWith('mousemove', expect.any(Function))
-        expect(removeListener).toHaveBeenCalledWith('mouseup', expect.any(Function))
-    })
-
     it('shows an empty state when no project is selected', () => {
         renderProjectDetail({ project: null })
         expect(screen.getByTestId('project-detail-empty')).toBeTruthy()
     })
 
-    it('updates the file tree width while dragging the resizer', () => {
-        renderProjectDetail()
-        fireEvent.mouseDown(screen.getByTestId('file-tree-resizer'), { clientX: 300 })
-        fireEvent.mouseMove(document, { clientX: 350 })
-        fireEvent.mouseUp(document)
-        expect(screen.getByTestId('file-tree-resizer')).toBeTruthy()
-    })
-
-    it('writes the selected file into the URL', async () => {
-        setParams('tab=files')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('file-tree-select'))
-        expect(searchParamsMock.get('file')).toBe('rules/new.txt')
-        expect(searchParamsMock.get('tab')).toBe('files')
-    })
-
-    it('opens the file on the line the URL names, and forgets the line once another file is chosen', async () => {
-        setParams('tab=files&file=rules.xlsx&line=3')
+    it('opens the file on the line the URL names, and forgets the line once the file moves', async () => {
+        setParams('file=rules.xlsx&line=3')
         renderProjectDetail()
 
         expect(latestFilePreviewProps().line).toBe(3)
 
-        await userEvent.click(screen.getByTestId('file-tree-select'))
-        expect(searchParamsMock.get('file')).toBe('rules/new.txt')
+        await userEvent.click(screen.getByTestId('preview-moved'))
+        expect(searchParamsMock.get('file')).toBe('rules/Moved.xlsx')
         expect(searchParamsMock.has('line')).toBe(false)
     })
 
     it.each([
-        ['removes the file parameter when the selection is cleared', 'tab=files&file=rules.xlsx', 'file-tree-clear'],
-        ['clears the file selection after a folder is deleted', 'tab=files&file=rules', 'folder-deleted'],
-        ['clears the file selection after a file is deleted from the preview', 'tab=files&file=rules.xlsx',
-            'preview-deleted'],
+        ['clears the file selection after a folder is deleted', 'file=rules', 'folder-deleted'],
+        ['clears the file selection after a file is deleted from the preview', 'file=rules.xlsx', 'preview-deleted'],
     ])('%s', async (_behaviour, params, trigger) => {
         setParams(params)
         renderProjectDetail()
@@ -578,27 +609,25 @@ describe('ProjectDetail', () => {
     })
 
     it('shows folder actions when a folder is selected', () => {
-        setParams('tab=files&file=rules')
+        setParams('file=rules')
         renderProjectDetail()
-        expect(screen.getByTestId('folder-actions')).toBeTruthy()
+        expect(screen.getByTestId('folder-actions').getAttribute('data-path')).toBe('rules')
         expect(screen.queryByTestId('file-preview')).toBeNull()
     })
 
-    it('shows folder actions (not the content pane) for a selected virtual folder', async () => {
+    it('shows folder actions (not the content pane) for an empty folder added in the browser', () => {
         // 'drafts/wip' has no backend node yet, so a selection of it would look like a file (content
         // pane). A folder created in the UI shows folder actions instead, so nothing is fetched for a
         // folder that does not exist server-side (which would 404).
-        setParams('tab=files')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('file-tree-select-virtual'))
+        setParams('file=drafts/wip')
+        renderProjectDetail({ virtualFolders: ['drafts/wip']})
 
-        await userEvent.click(screen.getByTestId('files-create-folder'))
-        expect(screen.getByTestId('folder-actions')).toBeTruthy()
+        expect(screen.getByTestId('folder-actions').getAttribute('data-virtual')).toBe('true')
         expect(screen.queryByTestId('file-preview')).toBeNull()
     })
 
-    it('hands the pane the module each workbook is, and opens the one it is asked for', async () => {
-        setParams('tab=files&file=rules/Nested.xlsx')
+    it('hands the pane the module each workbook is, and opens the one it is asked for', () => {
+        setParams('file=rules/Nested.xlsx')
         renderProjectDetail({
             files: FILES,
             project: {
@@ -621,21 +650,21 @@ describe('ProjectDetail', () => {
         expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Nested')
     })
 
-    it('drops a selection the loaded tree does not hold', () => {
+    it('drops a selection the loaded files do not hold, and shows the tabs again', () => {
         // The URL outlived the file: the project was closed and dropped its local copy. Previewing the
         // path would only fetch a 404 and paint an error over an empty editor.
-        setParams('tab=files&file=rules/local.txt')
+        setParams('file=rules/local.txt')
 
-        renderProjectDetail({ files: FILES })
+        const { rerender } = renderProjectDetail({ files: FILES })
+        rerender(projectDetailElement({ files: FILES }))
 
         expect(searchParamsMock.has('file')).toBe(false)
-        expect(searchParamsMock.get('tab')).toBe('files')
-        // The pane ends up unselected, so it stops asking the server for the file that is gone.
-        expect(latestFilePreviewProps().path).toBeNull()
+        expect(screen.getByTestId('overview-panel')).toBeTruthy()
+        expect(screen.queryByTestId('file-preview')).toBeNull()
     })
 
-    it('drops the selection when a reloaded tree no longer holds the file', () => {
-        setParams('tab=files&file=rules/Nested.xlsx')
+    it('drops the selection when reloaded files no longer hold the file', () => {
+        setParams('file=rules/Nested.xlsx')
         const { rerender } = renderProjectDetail({ files: FILES })
 
         rerender(projectDetailElement({ files: FILES.filter(node => node.path !== 'rules/Nested.xlsx') }))
@@ -643,26 +672,26 @@ describe('ProjectDetail', () => {
         expect(searchParamsMock.has('file')).toBe(false)
     })
 
-    it('keeps a selection the loaded tree holds', () => {
-        setParams('tab=files&file=rules/Nested.xlsx')
+    it('keeps a selection the loaded files hold', () => {
+        setParams('file=rules/Nested.xlsx')
 
         renderProjectDetail({ files: FILES })
 
         expect(setSearchParamsMock).not.toHaveBeenCalled()
     })
 
-    it('keeps the selection while the tree is not loaded', () => {
-        setParams('tab=files&file=rules/local.txt')
+    it('keeps the selection while the files are not loaded', () => {
+        setParams('file=rules/local.txt')
 
         renderProjectDetail({ files: 'loading' })
 
         expect(searchParamsMock.get('file')).toBe('rules/local.txt')
     })
 
-    it('keeps the path a file was just moved to, which the tree on screen cannot hold yet', async () => {
-        // The move reloads the project; until its tree arrives the file is still listed under the old
+    it('keeps the path a file was just moved to, which the files on screen cannot hold yet', async () => {
+        // The move reloads the project; until its files arrive the file is still listed under the old
         // path, and the selection must survive that window.
-        setParams('tab=files&file=rules/Nested.xlsx')
+        setParams('file=rules/Nested.xlsx')
         const { rerender } = renderProjectDetail({ files: FILES })
 
         await userEvent.click(screen.getByTestId('preview-moved'))
@@ -670,20 +699,18 @@ describe('ProjectDetail', () => {
 
         expect(searchParamsMock.get('file')).toBe('rules/Moved.xlsx')
 
-        // The reload behind the move brings a tree that holds the new path, and it stays selected.
+        // The reload behind the move brings files that hold the new path, and it stays selected.
         const moved: FsNode = { basePath: 'rules', name: 'Moved.xlsx', path: 'rules/Moved.xlsx', type: 'file' }
         rerender(projectDetailElement({ files: [...FILES, moved]}))
 
         expect(searchParamsMock.get('file')).toBe('rules/Moved.xlsx')
     })
 
-    it('keeps a virtual folder selection when the tree reloads without it', async () => {
-        setParams('tab=files')
-        const { rerender } = renderProjectDetail()
-        await userEvent.click(screen.getByTestId('file-tree-select-virtual'))
-        await userEvent.click(screen.getByTestId('files-create-folder'))
+    it('keeps an empty folder selection when the files reload without it', () => {
+        setParams('file=drafts/wip')
+        const { rerender } = renderProjectDetail({ virtualFolders: ['drafts/wip']})
 
-        rerender(projectDetailElement({ files: FILES.slice() }))
+        rerender(projectDetailElement({ files: FILES.slice(), virtualFolders: ['drafts/wip']}))
 
         expect(searchParamsMock.get('file')).toBe('drafts/wip')
         expect(screen.getByTestId('folder-actions')).toBeTruthy()
@@ -691,192 +718,46 @@ describe('ProjectDetail', () => {
 
     it('refreshes the project after folder actions change', async () => {
         const onChanged = vi.fn()
-        setParams('tab=files&file=rules')
-        render(
-            <SystemContext.Provider
-                value={{
-                    isExternalAuthSystem: false,
-                    isGroupsManagementEnabled: true,
-                    isPersonalAccessTokenEnabled: false,
-                    isAuditLogEnabled: false,
-                    isUserManagementEnabled: false,
-                }}
-            >
-                <ProjectDetail
-                    files={FILES}
-                    handlers={{} as never}
-                    onChanged={onChanged}
-                    pendingId={null}
-                    project={PROJECT}
-                    repoFeatures={BRANCH_REPOSITORY_FEATURES}
-                    repoLabel="Design"
-                />
-            </SystemContext.Provider>
-        )
+        setParams('file=rules')
+        renderProjectDetail({ onChanged })
         await userEvent.click(screen.getByTestId('folder-changed'))
         expect(onChanged).toHaveBeenCalled()
     })
 
     it('refreshes the project after a file preview change', async () => {
         const onChanged = vi.fn()
-        setParams('tab=files&file=rules.xlsx')
-        render(
-            <SystemContext.Provider
-                value={{
-                    isExternalAuthSystem: false,
-                    isGroupsManagementEnabled: true,
-                    isPersonalAccessTokenEnabled: false,
-                    isAuditLogEnabled: false,
-                    isUserManagementEnabled: false,
-                }}
-            >
-                <ProjectDetail
-                    files={FILES}
-                    handlers={{} as never}
-                    onChanged={onChanged}
-                    pendingId={null}
-                    project={PROJECT}
-                    repoFeatures={BRANCH_REPOSITORY_FEATURES}
-                    repoLabel="Design"
-                />
-            </SystemContext.Provider>
-        )
+        setParams('file=rules.xlsx')
+        renderProjectDetail({ onChanged })
         await userEvent.click(screen.getByTestId('preview-changed'))
         expect(onChanged).toHaveBeenCalled()
-    })
-
-    it('filters the files from the search of the header while their tab is shown', () => {
-        renderProjectDetail()
-
-        expect(searchScope('files')).toMatchObject({
-            label: 'common:search.scopes.files',
-            placeholder: 'browser.files.search',
-            value: '',
-        })
-        searchFor('xlsx')
-        expect(searchScope('files').value).toBe('xlsx')
-    })
-
-    it('lets a reader who cannot change the files search them, with no toolbar to add any', () => {
-        renderProjectDetail({ project: { ...PROJECT, capabilities: { canWrite: false } } })
-
-        expect(screen.queryByTestId('files-toolbar')).toBeNull()
-        expect(hasSearchScope('files')).toBe(true)
-    })
-
-    it('offers the files to the search only on their tab', () => {
-        setParams('tab=overview')
-        renderProjectDetail()
-
-        expect(hasSearchScope('files')).toBe(false)
-    })
-
-    it('loads files when the files tab becomes visible', () => {
-        const onFilesVisible = vi.fn()
-        setParams('tab=files')
-        render(
-            <SystemContext.Provider
-                value={{
-                    isExternalAuthSystem: false,
-                    isGroupsManagementEnabled: true,
-                    isPersonalAccessTokenEnabled: false,
-                    isAuditLogEnabled: false,
-                    isUserManagementEnabled: false,
-                }}
-            >
-                <ProjectDetail
-                    files={FILES}
-                    handlers={{} as never}
-                    onFilesVisible={onFilesVisible}
-                    pendingId={null}
-                    project={PROJECT}
-                    repoFeatures={BRANCH_REPOSITORY_FEATURES}
-                    repoLabel="Design"
-                />
-            </SystemContext.Provider>
-        )
-        expect(onFilesVisible).toHaveBeenCalled()
     })
 
     it('refreshes the project when a revision is opened from history', async () => {
         const onChanged = vi.fn()
         setParams('tab=history')
-        render(
-            <SystemContext.Provider
-                value={{
-                    isExternalAuthSystem: false,
-                    isGroupsManagementEnabled: true,
-                    isPersonalAccessTokenEnabled: false,
-                    isAuditLogEnabled: false,
-                    isUserManagementEnabled: false,
-                }}
-            >
-                <ProjectDetail
-                    files={FILES}
-                    handlers={{} as never}
-                    onChanged={onChanged}
-                    pendingId={null}
-                    repoFeatures={BRANCH_REPOSITORY_FEATURES}
-                    repoLabel="Design"
-                    project={{
-                        ...PROJECT,
-                        capabilities: { ...PROJECT.capabilities, canViewHistory: true },
-                    }}
-                />
-            </SystemContext.Provider>
-        )
+        renderProjectDetail({
+            onChanged,
+            project: { ...PROJECT, capabilities: { ...PROJECT.capabilities, canViewHistory: true } },
+        })
         await userEvent.click(screen.getByTestId('history-opened'))
         expect(onChanged).toHaveBeenCalled()
     })
 
-    it('refreshes the project from the branches and publish panels', async () => {
+    it('refreshes the project from the publish panel', async () => {
         const onChanged = vi.fn()
-        setParams('tab=branches')
-        render(
-            <SystemContext.Provider
-                value={{
-                    isExternalAuthSystem: false,
-                    isGroupsManagementEnabled: true,
-                    isPersonalAccessTokenEnabled: false,
-                    isAuditLogEnabled: false,
-                    isUserManagementEnabled: false,
-                }}
-            >
-                <ProjectDetail
-                    files={FILES}
-                    handlers={{} as never}
-                    onChanged={onChanged}
-                    pendingId={null}
-                    project={PROJECT}
-                    repoFeatures={BRANCH_REPOSITORY_FEATURES}
-                    repoLabel="Design"
-                />
-            </SystemContext.Provider>
-        )
+        setParams('tab=publish')
+        renderProjectDetail({ onChanged })
         await userEvent.click(screen.getByTestId('publish-changed'))
         expect(onChanged).toHaveBeenCalledTimes(1)
     })
 
     it('updates the tab query parameter when switching tabs', async () => {
-        setParams('tab=overview')
         renderProjectDetail()
         await userEvent.click(screen.getByTestId('tab-publish'))
         expect(searchParamsMock.get('tab')).toBe('publish')
     })
 
-    it('drops the file selection when another tab is opened', async () => {
-        // The selection belongs to the Files tab: a link copied from the Overview tab carries no file.
-        setParams('tab=files&file=rules/Nested.xlsx')
-        renderProjectDetail()
-
-        await userEvent.click(screen.getByTestId('tab-overview'))
-
-        expect(searchParamsMock.get('tab')).toBe('overview')
-        expect(searchParamsMock.has('file')).toBe(false)
-    })
-
     it('renders the branch switcher without an eager branch list', () => {
-        setParams('tab=overview')
         renderProjectDetail({
             project: { ...PROJECT, branchDefault: true },
         })
@@ -890,7 +771,6 @@ describe('ProjectDetail', () => {
     })
 
     it('reports the breadcrumb branch switch, so the page can mark the project busy', () => {
-        setParams('tab=overview')
         const onBranchSwitching = vi.fn()
         renderProjectDetail({ onBranchSwitching })
 
@@ -901,7 +781,6 @@ describe('ProjectDetail', () => {
     })
 
     it('shows no breadcrumb branch for a repository without branches', () => {
-        setParams('tab=overview')
         renderProjectDetail({ repoFeatures: { branches: false, searchable: false, mappedFolders: false } })
 
         expect(screen.queryByTestId('crumb-branch-switcher')).toBeNull()
