@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.util.Objects;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
@@ -68,7 +69,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
                 return name;
             }
         }
-        return getName();
+        return TableSyntaxNodeUtils.getTableName(tsn);
     }
 
     @Override
