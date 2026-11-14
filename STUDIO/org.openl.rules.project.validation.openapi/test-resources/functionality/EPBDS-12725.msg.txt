@@ -1,0 +1,1 @@
+ERROR: OpenAPI Reconciliation: Unexpected field 'job' is found in type 'Employee'.
