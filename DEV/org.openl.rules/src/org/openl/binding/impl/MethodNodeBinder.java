@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -16,6 +17,7 @@ import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
+import org.openl.dependency.DependencyOpenClass;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.MessageSourceResourceMethod;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -255,22 +257,84 @@ public class MethodNodeBinder extends ANodeBinder {
 
         var methodName = ((IdentifierNode) lastNode).getIdentifier();
 
-        var children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        var paramTypes = getTypes(children);
-
         var type = target.getType();
-        var methodCaller = ModuleSpecificOpenMethod.findMethodCaller(type, methodName, paramTypes, bindingContext);
-        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-
-        if (methodCaller != null) {
-            errorNode = validateMethod(node, bindingContext, target, methodCaller);
-            if (errorNode != null) {
-                return errorNode;
+        var argumentNodes = new ISyntaxNode[childrenCount - 1];
+        for (var i = 0; i < argumentNodes.length; i++) {
+            argumentNodes[i] = node.getChild(i);
+        }
+        // `Dependency`.Type(field = value, ...) builds the type of the dependency, as Type(...) does in the module.
+        // The named arguments are the fields of the type, so they are bound for it when no rule of the dependency
+        // takes them: a matching rule comes first, as it does in the module.
+        if (ConstructorSugarSupport.isNamedArguments(argumentNodes)) {
+            var constructedType = dependencyType(type, methodName, bindingContext);
+            if (constructedType != null) {
+                var ruleCall = matchingRuleCall(node, bindingContext, target, methodName);
+                return ruleCall != null ? ruleCall
+                        : ConstructorSugarSupport
+                                .makeSugarConstructor(node, argumentNodes, bindingContext, constructedType, lastNode);
             }
-            return new MethodBoundNode(node, target, methodCaller, children);
         }
 
-        throw new MethodNotFoundException(type, methodName, paramTypes);
+        var children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+        var paramTypes = getTypes(children);
+        var methodCaller = ModuleSpecificOpenMethod.findMethodCaller(type, methodName, paramTypes, bindingContext);
+        if (methodCaller == null) {
+            // `Dependency`.Type(value, ...) without a rule of that name builds the type from the bound arguments
+            var constructedType = dependencyType(type, methodName, bindingContext);
+            var constructor = constructedType == null ? null
+                    : ConstructorSugarSupport.makePositionalConstructor(node, children, bindingContext, constructedType);
+            if (constructor != null) {
+                return constructor;
+            }
+        }
+        if (methodCaller == null) {
+            throw new MethodNotFoundException(type, methodName, paramTypes);
+        }
+        return ruleCall(node, bindingContext, target, methodCaller, children);
+    }
+
+    /**
+     * The call of the rule of the target that takes the arguments as the caller binds them, or {@code null} when no
+     * rule takes them. Nothing is reported for arguments that no rule takes.
+     */
+    private @Nullable IBoundNode matchingRuleCall(ISyntaxNode node,
+                                                  IBindingContext bindingContext,
+                                                  IBoundNode target,
+                                                  String methodName) {
+        var type = target.getType();
+        if (!type.methods(methodName).iterator().hasNext()) {
+            return null;
+        }
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
+        var children = bindChildren(node, bindingContext, 0, node.getNumberOfChildren() - 1);
+        var errors = bindingContext.popErrors();
+        var messages = bindingContext.popMessages();
+        var methodCaller = errors.isEmpty()
+                ? ModuleSpecificOpenMethod.findMethodCaller(type, methodName, getTypes(children), bindingContext)
+                : null;
+        if (methodCaller == null) {
+            return null;
+        }
+        bindingContext.addMessages(messages);
+        return ruleCall(node, bindingContext, target, methodCaller, children);
+    }
+
+    private IBoundNode ruleCall(ISyntaxNode node,
+                                IBindingContext bindingContext,
+                                IBoundNode target,
+                                IMethodCaller methodCaller,
+                                IBoundNode[] children) {
+        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+        var errorNode = validateMethod(node, bindingContext, target, methodCaller);
+        return errorNode == null ? new MethodBoundNode(node, target, methodCaller, children) : errorNode;
+    }
+
+    /** The type of the given name declared in the dependency, or {@code null} when the target is no dependency. */
+    private static @Nullable IOpenClass dependencyType(IOpenClass target, String name, IBindingContext bindingContext) {
+        return target instanceof DependencyOpenClass dependency
+                ? bindingContext.findType(dependency.getName() + "." + name)
+                : null;
     }
 
     private IBoundNode validateMethod(ISyntaxNode node,
