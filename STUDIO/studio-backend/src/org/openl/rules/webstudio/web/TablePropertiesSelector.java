@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -21,7 +20,10 @@ public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
     private final Map<String, Object> properties;
 
     /**
-     * Check if table properties consists all the values for properties from defined properties.
+     * Checks that the table declares every searched property with a matching value.
+     *
+     * <p>A text value matches when the table value contains it, ignoring the case. A date matches the same day. A list
+     * of values, such as several tags, matches when the table declares at least one of them.
      */
     @Override
     public boolean test(TableSyntaxNode node) {
@@ -56,11 +58,9 @@ public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
             } else if (value instanceof Comparable comparable) {
                 result = comparable.compareTo(searchValue) == 0;
 
-            } else if (value.getClass().isArray()) {
-                List<Object> valueArray = Arrays.asList((Object[]) value);
-                List<Object> searchValueArray = Arrays.asList((Object[]) searchValue);
-
-                result = valueArray.containsAll(searchValueArray);
+            } else if (value instanceof Object[] values) {
+                var declared = Arrays.asList(values);
+                result = Arrays.stream((Object[]) searchValue).anyMatch(declared::contains);
             }
         }
 
