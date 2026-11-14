@@ -27,6 +27,10 @@ engine change how an existing project compiles or runs, as listed for the rules 
   a field of a primitive type, such as `int` or `double`, read as `0`, so an empty expected cell failed the test case.
   Now an expected `0` there fails it: leave the cell empty.
 
+* **A test reads the steps of a spreadsheet result in an expected error.** When a rule calls `error` with a
+  spreadsheet result, `_error_.$Code` or `_error_.errors[0].$Code` holds the value of that step. Before, a step read as
+  empty, so an expected value there failed the test case and an empty one passed it. Write the value the step holds.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
