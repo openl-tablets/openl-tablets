@@ -117,7 +117,8 @@ public final class RuleRowHelper {
         return arrayValues;
     }
 
-    private static Object makeAggregate(IOpenClass aggregateType, IOpenClass paramType, List<Object> values) {
+    /** Collects the values into the given aggregate type: an array or a collection of the parameter type. */
+    public static Object makeAggregate(IOpenClass aggregateType, IOpenClass paramType, List<Object> values) {
         var valuesArraySize = values.size();
         var aggregateInfo = aggregateType.getAggregateInfo();
         var arrayValues = aggregateInfo.makeIndexedAggregate(paramType, valuesArraySize);
@@ -734,7 +735,7 @@ public final class RuleRowHelper {
             }
         }
         if (hasFormulas) {
-            return new ArrayHolder(paramType, values.toArray(new Object[0]));
+            return new ArrayHolder(paramType, values.toArray(new Object[0]), aggregateType);
         }
         var aggregateInfo = aggregateType.getAggregateInfo();
         var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
