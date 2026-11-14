@@ -4,6 +4,8 @@ Rules inside decision tables are processed one by one in the order they are plac
 
 Blank parameter value cell of the condition is interpreted as a true condition and this condition is ignored for a particular rule row or column. If the condition column has several parameters, the condition with all its parameter cells blank is interpreted as a true condition.
 
+When every rule still in question leaves the condition blank, the expression of the condition is not calculated, so the rules it calls are not run. When some of these rules have a value in the condition, the expression can be calculated once for the whole table, even for a rule whose cell is blank.
+
 **Note:** As OpenL Tablets returns the first true condition, it is a good practice to list all possible non-blank parameters and their combinations in case of multiple conditioning first, and then list the blank parameters.
 
 Blank parameter value cell of the return/action column is ignored, the system does not calculate the return/action expression of the current rule and starts processing the next rule. If the return/action column has several parameters, all parameters cells need to be blank to ignore the rule.

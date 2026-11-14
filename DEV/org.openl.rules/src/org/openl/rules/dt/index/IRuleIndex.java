@@ -12,4 +12,10 @@ public interface IRuleIndex {
 
     int[] collectRules();
 
+    /**
+     * Checks whether every rule of the index leaves the condition blank. Then every rule matches whatever the value
+     * is, so the condition needs no value.
+     */
+    boolean isBlank();
+
 }

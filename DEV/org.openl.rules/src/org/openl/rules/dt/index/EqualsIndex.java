@@ -39,6 +39,11 @@ public class EqualsIndex extends ARuleIndex {
         return valueNodes.values();
     }
 
+    @Override
+    public boolean isBlank() {
+        return valueNodes.isEmpty();
+    }
+
     public static class Builder {
         private Map<Object, DecisionTableRuleNodeBuilder> map;
         private Map<Object, DecisionTableRuleNode> nodeMap;

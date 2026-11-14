@@ -26,10 +26,11 @@ public abstract class ARuleIndex implements IRuleIndex {
 
     @Override
     public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
-        if (staticDecision != null) {
+        if (Boolean.TRUE.equals(staticDecision)) {
             throw new UnsupportedOperationException("Static decision is not supported for EqualsIndex");
         }
-        if (value == null) {
+        // false leaves only the rules with an empty cell
+        if (value == null || staticDecision != null) {
             return emptyOrFormulaNodes;
         }
 

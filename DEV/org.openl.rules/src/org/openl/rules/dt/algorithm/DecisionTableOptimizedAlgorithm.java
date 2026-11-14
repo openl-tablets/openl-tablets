@@ -532,7 +532,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             while (conditionNumber < evaluators.length) {
                 var condition = evaluators[conditionNumber].getCondition();
                 Boolean staticResult = null;
-                if (condition.isOptimizedExpression()) {
+                if (index.isBlank()) {
+                    // every rule left leaves the cell blank, so the expression is not evaluated
+                    staticResult = Boolean.FALSE;
+                } else if (condition.isOptimizedExpression()) {
                     staticResult = condition.evaluateStaticDecision(params, env);
                 }
                 index = env.getTracer().wrap(this, index, condition);
