@@ -79,6 +79,11 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
     protected abstract int[] computeRules();
 
     @Override
+    public boolean isBlank() {
+        return emptyRules.length == rulesTotalSize;
+    }
+
+    @Override
     public Iterable<DecisionTableRuleNode> nodes() {
         return List.of(nextNode);
     }
