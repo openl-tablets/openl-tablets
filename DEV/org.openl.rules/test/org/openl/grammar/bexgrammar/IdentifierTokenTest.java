@@ -95,4 +95,17 @@ class IdentifierTokenTest {
         assertEquals(BExGrammarConstants.RANGE_VARIABLE, token.kind);
         assertEquals(text, token.image);
     }
+
+    /** A cast applies to a range of cells written right after it, as it does to a single cell. */
+    @Test
+    void castsRangeVariable() {
+        var code = new Parser().parseAsMethodBody(new StringSourceCodeModule("(String[]) $B:$Alcohol", null));
+        assertEquals(0, code.getErrors().length);
+        var cast = code.getTopNode();
+        while (cast.getNumberOfChildren() == 1) {
+            cast = cast.getChild(0);
+        }
+        assertEquals("type.cast", cast.getType());
+        assertEquals("range.variable", cast.getChild(1).getType());
+    }
 }
