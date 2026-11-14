@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -804,6 +805,16 @@ public final class RulesUtils {
 
     public static boolean contains(Object[] ary1, Object[] ary2) {
         return ArrayTool.containsAll(ary1, ary2);
+    }
+
+    /** Checks that the list or the set holds the value. An empty or absent collection holds nothing. */
+    public static boolean contains(@Nullable Collection<?> collection, @Nullable Object elem) {
+        return collection != null && collection.contains(elem);
+    }
+
+    /** Checks that the list or the set holds every value of the array, as {@link #contains(Object[], Object[])}. */
+    public static boolean contains(@Nullable Collection<?> collection, Object @Nullable [] elems) {
+        return collection != null && elems != null && collection.containsAll(Arrays.asList(elems));
     }
 
     public static boolean contains(boolean[] array, boolean elem) {

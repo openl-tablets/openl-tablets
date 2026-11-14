@@ -1243,6 +1243,20 @@ class RulesUtilsTest {
     }
 
     @Test
+    void containsAValueOrAllValuesOfAnArrayInACollection() {
+        var letters = List.of("aaa", "bbb", "ccc");
+
+        assertTrue(RulesUtils.contains(letters, "ccc"));
+        assertFalse(RulesUtils.contains(letters, "ddd"));
+        assertFalse(RulesUtils.contains((List<?>) null, "ccc"));
+        assertTrue(RulesUtils.contains(letters, new String[]{"aaa", "bbb"}));
+        assertTrue(RulesUtils.contains(letters, new String[0]));
+        assertFalse(RulesUtils.contains(letters, new String[]{"aaa", "ddd"}));
+        assertFalse(RulesUtils.contains(letters, (Object[]) null));
+        assertFalse(RulesUtils.contains((List<?>) null, new String[]{"aaa"}));
+    }
+
+    @Test
     void testContainsIntegerTypeInIntegerArr() {
         int searchFor = 5;
         int searchForFailed = 666;
