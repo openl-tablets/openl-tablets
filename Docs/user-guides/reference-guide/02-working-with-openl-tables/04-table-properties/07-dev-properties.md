@@ -25,7 +25,7 @@ The **Dev** group properties are listed in the following table:
 | Fail On Miss            | failOnMiss                     | Boolean | Decision Table         | Module, Category, Table                | Rule behavior in case no rules were matched: <br/>- If the property is set to TRUE, an error occurs <br/>along with the corresponding explanation. <br/><br/>- If the property is set to FALSE, <br/>the table output is set to NULL.                                                                                             |
 | Scope                   | scope                          | String  | Properties             | Module, Category                       | Scope for the Properties table.                                                                                                                                                                                                                                                                      |
 | Datatype Package        | datatypePackage                | String  | DataType               | Module, Table                          | Name of the Java package for generating <br/>the data type.                                                                                                                                                                                                                                               |
-| Precision               | precision                      | Integer | Test Table             | Module, Category, Table                | Precision of comparing the returned results <br/>with the expected ones while launching test tables.                                                                                                                                                                                                      |
+| Precision               | precision                      | String  | Test Table             | Module, Category, Table                | Precision of comparing the returned results <br/>with the expected ones while launching test tables: <br/>a whole number of decimal places, such as `5`, <br/>or of significant figures, such as `4sf`, <br/>or `sf` for the figures of the expected value.                                               |
 | Auto Type Discovery     | autoType                       | Boolean | Properties <br/>Spreadsheet | Module, Category, Table                | Auto detection of data type for a value <br/>of the **Spreadsheet** cell with formula. <br/>The default value is `true`. <br/>If the value is `true`, the type can be left undefined.                                                                                                                               |
 | Concurrent Execution    | parallel                       | Boolean | Decision Table, <br/>Spreadsheet | Module, Category, Table                | Controls whether to parallel the execution of a rule <br/>when the rule is called for an array instead of a <br/>single value as input parameter. <br/>Default is `false`.                                                                                                                                          |
 | Calculate All Cells     | calculateAllCells              | Boolean | Spreadsheet            | Module, Category, Table                | Applies to a spreadsheet that returns a particular type. <br/>If `true`, all cells of the spreadsheet are calculated. <br/>This is the default value. <br/>If `false`, only the cells required for the result <br/>are calculated.                                                                                        |
@@ -80,7 +80,38 @@ Arithmetic computes with the decimals the numbers show, so `1.73 * 12` returns `
 exactly. The power operator and the math functions compute in binary, though. For example, `1.1 ** 2` returns
 `1.2100000000000002`, which differs from `1.21` by one unit in the last place (ULP) and passes without a precision.
 However, `1.1 ** 3` returns `1.3310000000000004`, which differs from `1.331` by two ULPs and fails without a
-precision. Set precision to 5 for the second expected result to accept this difference.
+precision. Set precision to 5 or to `4sf` for the second expected result to accept this difference.
+
+A precision written as *N*`sf`, such as `4sf`, counts significant figures instead of decimal places. The returned
+value and the expected value are both rounded half up at the *N*-th significant figure of the expected value, and they
+must be equal. With `4sf`, `99.00` matches `98.995` and `99.0049`, but not `99.005`, which rounds to `99.01`. The
+rounding follows the size of the number, so one such precision suits both `1.331` and `1.331E-6`, while a decimal
+precision that suits `1.331` accepts almost any value near `1.331E-6`. With `2sf`, `11` matches `10.648` and `11000`
+matches `10648`.
+
+The precision `sf` without a number takes the significant figures the expected value is written with, so each
+expected value sets its own rounding:
+
+| Expected value | Figures | Returned value | Result    |
+|----------------|---------|----------------|-----------|
+| `10.00`        | 4       | `10.004`       | Passed    |
+| `10.000`       | 5       | `10.004`       | Failed    |
+| `0.0001`       | 1       | `0.00006`      | Passed    |
+| `0.0001`       | 1       | `0.00004`      | Failed    |
+| `99.00`        | 4       | `99.005`       | Failed    |
+
+- A cell holding text is read as it is typed, and a cell holding a number as its number format shows it: `10`
+  formatted with `0.00` reads `10.00`. What the format adds around the number, such as a currency, a unit or the
+  parentheses of a negative number, is skipped: `$#,##0.00` shows `$10.00`, which reads `10.00`, and `"CO2: "0.00`
+  shows `CO2: 10.00`, which reads `10.00` too. Grouping commas are skipped, a percent is a hundredth, and an exponent
+  keeps the figures of its mantissa: `1.00E+03` has three figures.
+- A number cell in the General format, which shows no more figures than the number has, and a cell that holds more
+  than one number, such as an array, are read as the number they hold: every digit of a whole number counts, and a
+  fraction has the digits of its shortest form.
+- The numbers are compared as decimals, with all the digits they show, so a `BigDecimal` or `BigInteger` value keeps
+  all its digits. With *N*`sf`, only zero matches an expected zero.
+- A half rounds away from zero: `-99.005` rounds to `-99.01`.
+- NaN matches NaN, and an infinity matches the same infinity only.
 
 Consider the following examples. A simple rule FinRatioWeight has two tests, FinRatioWeightTest1 and FinRatioWeightTest2:
 
@@ -106,6 +137,8 @@ OpenL Tablets allows specifying precision for a particular column which contains
   _res_ (N)
   _res_.$<ColumnName>$<RowName> (N)
   _res_.<attribute name> (N)
+  _res_ (Nsf)
+  _res_ (sf)
 ```
 
 An example of the table using shortcut definition is as follows.
@@ -122,4 +155,5 @@ Precision property shortcut definition is required when results of the whole tes
 
 Precision defined for the column has higher priority than precision defined at the table level.
 
-Precision can be zero or a negative value, Integer numbers only.
+Precision can be zero or a negative value, Integer numbers only. A precision in significant figures is `sf`, or a
+positive whole number followed by `sf` without a space.

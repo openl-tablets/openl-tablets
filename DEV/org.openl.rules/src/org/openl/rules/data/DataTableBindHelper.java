@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -32,6 +33,7 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.rules.testmethod.UserErrorOpenClass;
+import org.openl.rules.testmethod.result.Tolerance;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -83,9 +85,10 @@ public class DataTableBindHelper {
     static final Pattern THIS_LIST_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*\\d+\\s*\\]\\s*(\\:[^\\:]+|)$");
     static final Pattern THIS_MAP_ACCESS_PATTERN = Pattern
             .compile("\\s*\\[\\s*(\\\".*\\\"|\\d+)\\s*\\]\\s*+(\\:\\s*[^\\:\\s]+|)\\s*$");
-    public static final Pattern PRECISION_PATTERN = Pattern.compile("^\\(\\-?\\d+\\)$");
+    private static final Pattern PRECISION_PATTERN = Pattern.compile("^\\((?:" + Tolerance.PRECISION_REGEX + ")\\)$");
     public static final Pattern SPREADSHEETRESULT_FIELD_PATTERN = Pattern.compile("^\\$.+$");
-    private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?\\d+\\))$");
+    private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern
+            .compile("^(.*\\S)\\s*(\\((?:" + Tolerance.PRECISION_REGEX + ")\\))$");
     private static final Pattern QUOTED = Pattern.compile("\\\".*\\\"");
 
     /**
@@ -1330,16 +1333,25 @@ public class DataTableBindHelper {
         }
     }
 
-    public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
-        try {
-            var fieldName = fieldNameNode.getIdentifier();
-            var txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
+    /**
+     * Tells whether a column name ends with a precision, such as {@code (5)} in {@code _res_ (5)}.
+     */
+    public static boolean hasPrecision(IdentifierNode[] tokens) {
+        return tokens.length > 1 && isPrecisionNode(tokens[tokens.length - 1]);
+    }
 
-            return Integer.parseInt(txtIndex);
-        } catch (Exception e) {
-            log.debug("Ignored error: ", e);
-            return null;
+    /**
+     * Returns the precision of a column: the one its name ends with, such as {@code (5)} or {@code (sf)}, or else the
+     * precision of the table.
+     *
+     * @return the tolerance, or {@code null} when there is none or the number is beyond the Integer range
+     */
+    public static @Nullable Tolerance getColumnPrecision(IdentifierNode[] tokens, @Nullable Tolerance tablePrecision) {
+        if (!hasPrecision(tokens)) {
+            return tablePrecision;
         }
+        var precision = tokens[tokens.length - 1].getIdentifier();
+        return Tolerance.of(precision.substring(1, precision.length() - 1));
     }
 
     public static int getCollectionIndex(IdentifierNode fieldNameNode) {

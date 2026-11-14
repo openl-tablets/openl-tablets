@@ -88,7 +88,7 @@ class NumberComparator implements TestResultComparator {
     /**
      * Returns the number with all its digits, or {@code null} for a value that is not a finite number.
      */
-    private static @Nullable BigDecimal toDecimal(Object value) {
+    static @Nullable BigDecimal toDecimal(Object value) {
         return switch (value) {
             case BigDecimal decimal -> decimal;
             case BigInteger integer -> new BigDecimal(integer);

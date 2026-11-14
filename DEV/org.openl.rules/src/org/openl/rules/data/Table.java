@@ -993,7 +993,8 @@ public class Table implements ITable {
      *
      * @param index the index of the record in the data of the table
      */
-    int firstRowOf(int index) {
+    @Override
+    public int firstRowOf(int index) {
         return dataIdxToTableRowNum.get(index);
     }
 
