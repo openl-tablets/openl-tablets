@@ -8,8 +8,8 @@ Content-Type: application/json
     "type": "file",
     "basePath": "EPBDS-15494",
     "extension": "xml",
-    "size": 160,
+    "size": 130,
     "lastModified": "*",
-    "content": "<project>\n    <name>EPBDS-15494</name>\n    <modules>\n        <module>\n            <rules-root path=\"rules/*.xlsx\"/>\n        </module>\n    </modules>\n</project>\n"
+    "content": "<project>\n\t<name>EPBDS-15494</name>\n\t<modules>\n\t\t<module>\n\t\t\t<rules-root path=\"rules/*.xlsx\"/>\n\t\t</module>\n\t</modules>\n</project>\n"
   }
 ]
