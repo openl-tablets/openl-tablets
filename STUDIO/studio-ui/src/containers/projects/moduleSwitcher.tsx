@@ -1,4 +1,3 @@
-import React from 'react'
 import { TranslationOutlined } from '@ant-design/icons'
 import type { ModuleInfo } from '../../services/modules'
 import { localizationRoute, moduleRoute } from '../../services/projectId'

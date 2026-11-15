@@ -1,4 +1,3 @@
-import React from 'react'
 import { Flex, Typography } from 'antd'
 import { fileOfTag } from './bundle'
 

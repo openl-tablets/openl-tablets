@@ -1,4 +1,3 @@
-import React from 'react'
 import { Alert, Skeleton } from 'antd'
 import { useSharedStyles } from './sharedStyles'
 import { UnresolvedProjectLink } from './UnresolvedProjectLink'

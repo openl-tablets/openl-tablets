@@ -1,4 +1,3 @@
-import React from 'react'
 import { Descriptions, theme, Typography } from 'antd'
 import type { BundleLanguage, KeyRow } from './bundle'
 import { LanguageTitle } from './LanguageTitle'

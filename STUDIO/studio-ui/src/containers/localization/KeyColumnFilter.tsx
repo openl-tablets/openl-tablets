@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Checkbox, Flex, Input, theme } from 'antd'
 import type { FilterDropdownProps, FilterValue } from 'antd/es/table/interface'

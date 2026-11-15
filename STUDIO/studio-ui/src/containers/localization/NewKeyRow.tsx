@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Input, Table, Tooltip } from 'antd'
 import type { InputRef } from 'antd'
