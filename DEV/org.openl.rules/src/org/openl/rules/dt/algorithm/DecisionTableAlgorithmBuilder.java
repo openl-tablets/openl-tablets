@@ -12,6 +12,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.TypeBoundNode;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -336,20 +337,30 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             }
             return conditionEvaluator;
         } else {
-            var valueType = TypedConditionValue.findType(condition, methodType);
-            IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm
-                    .makeEvaluator(condition, valueType == null ? methodType : valueType, bindingContext);
-            condition.setEvaluator(makeOptimizedConditionMethodEvaluator(condition, signature));
-            if (valueType != null) {
-                condition.setEvaluator(new TypedConditionValue(condition.getEvaluator(),
-                        valueType,
-                        condition.getName(),
-                        table.getName(),
-                        openl.getBinder().getCastFactory()));
-            }
-            condition.setConditionEvaluator(dtcev);
-            return dtcev;
+            return prepareIndexedCondition(condition, methodType, bindingContext);
         }
+    }
+
+    /**
+     * Prepares a condition that compares the value of its expression with the values of its column.
+     *
+     * <p>A value of an expression wider than the column, such as {@code map.get("key")}, is brought to the column type
+     * when the rules run.
+     */
+    private IConditionEvaluator prepareIndexedCondition(ICondition condition,
+                                                        IOpenClass methodType,
+                                                        IBindingContext bindingContext) {
+        var valueType = ConditionValueCast.findType(condition, methodType);
+        IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm
+                .makeEvaluator(condition, valueType == null ? methodType : valueType, bindingContext);
+        condition.setEvaluator(makeOptimizedConditionMethodEvaluator(condition, signature));
+        if (valueType != null) {
+            var cast = makeValueCast(condition, valueType);
+            var expression = condition.getEvaluator();
+            condition.setEvaluator((target, params, env) -> cast.convert(expression.invoke(target, params, env)));
+        }
+        condition.setConditionEvaluator(dtcev);
+        return dtcev;
     }
 
     private IConditionEvaluator prepareConditionDependentOnOtherColumns(ICondition condition,
@@ -375,13 +386,25 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                         bindingContext);
                 return DefaultConditionEvaluator.INSTANCE;
             } else {
-                var openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
-                if (openCast.isImplicit()) {
-                    condition.setComparisonCast(openCast);
+                var valueType = ConditionValueCast.findType(condition, methodType);
+                if (valueType != null) {
+                    condition.setComparisonCast(makeValueCast(condition, valueType));
+                } else {
+                    var openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
+                    if (openCast.isImplicit()) {
+                        condition.setComparisonCast(openCast);
+                    }
                 }
             }
         }
         return DefaultConditionEvaluator.INSTANCE;
+    }
+
+    private IOpenCast makeValueCast(ICondition condition, IOpenClass valueType) {
+        return new ConditionValueCast(valueType,
+                condition.getName(),
+                table.getName(),
+                openl.getBinder().getCastFactory());
     }
 
     private static boolean isBooleanType(IOpenClass methodType) {

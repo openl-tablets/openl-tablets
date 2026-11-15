@@ -45,8 +45,9 @@ engine change how an existing project compiles or runs, as listed for the rules 
   that OpenL converts to the column type when passing it to a rule, such as `1` for a `Double` column, still matches.
   Before, the text `"true"` matched no value of a `Boolean` column, so the rule fell through to the next rows, a text
   in a column of numbers failed with a `NullPointerException`, and a column of several values in a cell, such as
-  `String[]`, matched no value at all. Put values of the column type into the map or the list, or declare the column
-  of the type the values have.
+  `String[]`, matched no value at all. A condition that also reads another column, such as `map.get(key)`, matched
+  every row for the value `true` and no row for any other value. Put values of the column type into the map or the
+  list, or declare the column of the type the values have.
 
 ## Administrators
 

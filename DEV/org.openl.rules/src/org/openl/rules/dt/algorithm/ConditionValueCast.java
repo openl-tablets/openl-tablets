@@ -1,12 +1,15 @@
 package org.openl.rules.dt.algorithm;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.element.ConditionHelper;
@@ -16,14 +19,12 @@ import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.StringRange;
 import org.openl.types.IOpenClass;
-import org.openl.types.Invokable;
 import org.openl.types.NullParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
-import org.openl.vm.IRuntimeEnv;
 
 /**
- * Gives the value a condition is asked about in the type of the values of its column.
+ * Brings the value a condition is asked about to the type of the values of its column.
  *
  * <p>It serves a condition whose expression has a wider type than its column, such as {@code map.get("key")} or
  * {@code list[0]} of type {@code Object} asked about a column of {@code Boolean} values. The type of such a value is
@@ -37,15 +38,33 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author Yury Molchan
  */
-@RequiredArgsConstructor
-final class TypedConditionValue implements Invokable {
+final class ConditionValueCast implements IOpenCast {
 
-    private final @NonNull Invokable expression;
     private final @NonNull IOpenClass type;
+    private final @NonNull Class<?> typeClass;
     private final @NonNull String conditionName;
     private final @NonNull String tableName;
     private final @NonNull ICastFactory castFactory;
-    private volatile @Nullable KnownCast knownCast;
+    private final AtomicReference<@Nullable KnownCast> knownCast = new AtomicReference<>();
+
+    /**
+     * Creates the cast to a type that {@link #findType} returned.
+     *
+     * @param type          type of the values of the column
+     * @param conditionName name of the condition, for the message of a value of another type
+     * @param tableName     name of the table, for the message of a value of another type
+     * @param castFactory   casts that convert a value of another type
+     */
+    ConditionValueCast(@NonNull IOpenClass type,
+                       @NonNull String conditionName,
+                       @NonNull String tableName,
+                       @NonNull ICastFactory castFactory) {
+        this.type = type;
+        this.typeClass = Objects.requireNonNull(type.getInstanceClass(), "type has no Java class");
+        this.conditionName = conditionName;
+        this.tableName = tableName;
+        this.castFactory = castFactory;
+    }
 
     /**
      * Returns the type a condition with one parameter brings the value it is asked about to.
@@ -84,18 +103,15 @@ final class TypedConditionValue implements Invokable {
     }
 
     @Override
-    public @Nullable Object invoke(@Nullable Object target,
-                                   @Nullable Object @NonNull [] params,
-                                   @NonNull IRuntimeEnv env) {
-        Object value = expression.invoke(target, params, env);
-        if (value == null || type.getInstanceClass().isInstance(value)) {
+    public @Nullable Object convert(@Nullable Object value) {
+        if (value == null || typeClass.isInstance(value)) {
             return value;
         }
         var valueClass = value.getClass();
-        var known = knownCast;
+        var known = knownCast.get();
         if (known == null || known.from() != valueClass) {
             known = new KnownCast(valueClass, findCast(value));
-            knownCast = known;
+            knownCast.set(known);
         }
         return known.cast().convert(value);
     }
@@ -112,6 +128,16 @@ final class TypedConditionValue implements Invokable {
                             value.getClass().getSimpleName()));
         }
         return cast;
+    }
+
+    @Override
+    public int getDistance() {
+        return CastFactory.JAVA_DOWN_CAST_DISTANCE;
+    }
+
+    @Override
+    public boolean isImplicit() {
+        return true;
     }
 
     /**
