@@ -4,13 +4,16 @@
 package org.openl.rules.dt.validator;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -28,6 +31,7 @@ import org.openl.rules.dt.type.domains.JavaEnumDomainAdaptor;
 import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
 
@@ -42,6 +46,8 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     @Getter
     private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
+    /** The list of numbers the input of each condition takes, empty when it takes any number. */
+    private final Map<IBaseCondition, Optional<EnumDomainAdaptor>> listsOfNumbers = new HashMap<>();
 
     public DecisionTableValidatedObject(IDecisionTable decisionTable, Map<String, IDomainAdaptor> domainMap) {
         this.decisionTable = decisionTable;
@@ -77,13 +83,10 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     @Override
     public IntExp makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
-        var domain = getDomains().get(parameterName);
-        if (domain == null) {
-            if (paramType.getDomain() != null) {
-                domain = makeDomainAdaptor(paramType.getDomain());
-            } else if (boolean.class == paramType.getInstanceClass() || Boolean.class == paramType.getInstanceClass()) {
-                return constrainer.addIntBoolVar(parameterName);
-            }
+        var domain = domainAdaptorOf(parameterName, paramType);
+        if (domain == null && paramType.getDomain() == null
+                && (boolean.class == paramType.getInstanceClass() || Boolean.class == paramType.getInstanceClass())) {
+            return constrainer.addIntBoolVar(parameterName);
         }
 
         if (domain != null) {
@@ -148,7 +151,8 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         var result = value;
         if (value instanceof IntRange intr) {
-            return new CtrIntRange(intr.getMin(), intr.getMax());
+            var numbers = listOfNumbersOf(condition, dtan);
+            return numbers == null ? new CtrIntRange(intr.getMin(), intr.getMax()) : indexesWithin(numbers, intr);
         }
 
         // at first search domains in those that were defined by user.
@@ -173,6 +177,49 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             }
         }
         return result;
+    }
+
+    /**
+     * The numbers of a list the input of the condition takes, such as the values of an alias datatype of whole numbers,
+     * or {@code null} when the input takes any number. The input is then checked by the indexes of the numbers.
+     *
+     * <p>Only a condition that tests the input itself, not an expression of it such as {@code x + 1}, is checked by
+     * the indexes.
+     */
+    private @Nullable EnumDomainAdaptor listOfNumbersOf(IBaseCondition condition, DecisionTableAnalyzer dtan) {
+        return listsOfNumbers.computeIfAbsent(condition, c -> {
+            var inputs = dtan.referencedSignatureParams(c);
+            var adaptor = inputs.length == 1 && c.getEvaluator() instanceof ParameterMethodCaller
+                    ? domainAdaptorOf(inputs[0].getName(), inputs[0].getType())
+                    : null;
+            return Optional.ofNullable(
+                    adaptor instanceof EnumDomainAdaptor numbers && numbers.isNumeric() ? numbers : null);
+        }).orElse(null);
+    }
+
+    /** The domain of a parameter: the one defined for its name, or the one of its type. */
+    private @Nullable IDomainAdaptor domainAdaptorOf(String name, IOpenClass type) {
+        var adaptor = getDomains().get(name);
+        return adaptor == null && type.getDomain() != null ? makeDomainAdaptor(type.getDomain()) : adaptor;
+    }
+
+    /**
+     * The indexes of the numbers of the list within the range. The numbers are in ascending order, so their indexes are
+     * consecutive. A range holding none of them covers an index past the list, which no input takes.
+     */
+    private static CtrIntRange indexesWithin(EnumDomainAdaptor numbers, IntRange range) {
+        var min = BigDecimal.valueOf(range.getMin());
+        var max = BigDecimal.valueOf(range.getMax());
+        var first = -1;
+        var last = -1;
+        for (var i = 0; i < numbers.size(); i++) {
+            var number = EnumDomainAdaptor.decimalOf(numbers.getValue(i));
+            if (number.compareTo(min) >= 0 && number.compareTo(max) <= 0) {
+                first = first < 0 ? i : first;
+                last = i;
+            }
+        }
+        return first < 0 ? new CtrIntRange(numbers.size(), numbers.size()) : new CtrIntRange(first, last);
     }
 
     @Override

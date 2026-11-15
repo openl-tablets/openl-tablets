@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ErrorBoundNode;
+import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.ie.constrainer.SearchLimitExceeded;
 import org.openl.message.OpenLMessage;
@@ -18,6 +19,7 @@ import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
+import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.type.domains.IntRangeDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
@@ -32,6 +34,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.validation.ValidationResult;
 
 /**
@@ -83,6 +86,10 @@ public class GapOverlapValidator extends TablesValidator {
                                                    IOpenClass openClass,
                                                    IDecisionTable decisionTable) {
         DecisionTableValidationResult dtValidResult = null;
+        if (testsExpressionOfNumbers(decisionTable)) {
+            messages.add(OpenLMessagesUtils.newWarnMessage(UNSUPPORTED_CONDITION, decisionTable.getSyntaxNode()));
+            return null;
+        }
         try {
             var domains = gatherDomains(decisionTable);
             dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);
@@ -147,6 +154,20 @@ public class GapOverlapValidator extends TablesValidator {
         return domain instanceof IntRangeDomainAdaptor && other instanceof IntRangeDomainAdaptor
                 ? domain.merge(other)
                 : other;
+    }
+
+    /**
+     * Whether a condition of the table tests an expression of an input that takes a list of numbers, such as
+     * {@code x + 1} for an alias datatype of numbers. The check takes such an input by the indexes of its numbers,
+     * which an expression cannot compute with, so the table is not checked.
+     */
+    private static boolean testsExpressionOfNumbers(IDecisionTable decisionTable) {
+        var analyzer = new DecisionTableAnalyzer(decisionTable);
+        return Arrays.stream(decisionTable.getConditionRows())
+                .filter(condition -> !(condition.getEvaluator() instanceof ParameterMethodCaller))
+                .flatMap(condition -> Arrays.stream(analyzer.referencedSignatureParams(condition)))
+                .anyMatch(input -> input.getType().getDomain() instanceof EnumDomain<?> list
+                        && new EnumDomainAdaptor(list).isNumeric());
     }
 
     private static boolean hasCompileErrors(IDecisionTable decisionTable) {
