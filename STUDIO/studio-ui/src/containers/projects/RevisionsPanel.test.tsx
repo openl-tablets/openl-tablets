@@ -168,16 +168,38 @@ describe('RevisionsPanel', () => {
         expect(screen.getByText('Second')).toBeTruthy()
     })
 
-    it('shows the comment of a copy as text, linking nowhere', async () => {
+    it('links the project a copy was made from by the id the server names, and only that part of the comment', async () => {
         vi.mocked(getProjectRevisions).mockResolvedValue(page([
-            { ...REVS[0]!, fullComment: 'Copied from: Bank Rating #2.' },
+            {
+                ...REVS[0]!,
+                fullComment: 'Copied from: Bank Rating #2.',
+                commentParts: ['Copied from: ', 'Bank Rating #2', '.'],
+                sourceProjectId: 'ABC123',
+            },
             REVS[1]!,
         ]))
         await renderPanel()
 
         const comment = screen.getByTestId(`revision-comment-${REVS[0]!.revisionNo}`)
         expect(comment).toHaveTextContent('Copied from: Bank Rating #2.')
-        // A project is addressed by its id only, which a comment does not carry.
+        expect(within(comment).getByRole('link', { name: 'Bank Rating #2' })).toHaveAttribute('href', '/projects/ABC123')
+        // A comment no copy wrote links nowhere.
+        expect(within(screen.getByTestId(`revision-comment-${REVS[1]!.revisionNo}`)).queryByRole('link')).toBeNull()
+    })
+
+    it('shows the comment of a copy as text when no project the reader sees is its source', async () => {
+        vi.mocked(getProjectRevisions).mockResolvedValue(page([
+            {
+                ...REVS[0]!,
+                fullComment: 'Copied from: Bank Rating #2.',
+                commentParts: ['Copied from: ', 'Bank Rating #2', '.'],
+            },
+            REVS[1]!,
+        ]))
+        await renderPanel()
+
+        const comment = screen.getByTestId(`revision-comment-${REVS[0]!.revisionNo}`)
+        expect(comment).toHaveTextContent('Copied from: Bank Rating #2.')
         expect(within(comment).queryByRole('link')).toBeNull()
     })
 

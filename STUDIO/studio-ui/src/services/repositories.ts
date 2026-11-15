@@ -460,6 +460,10 @@ export interface ProjectRevision {
     author?: RevisionAuthor
     deleted: boolean
     technicalRevision: boolean
+    /** A comment written by a copy, as the text before the source project name, the name and the text after it. */
+    commentParts?: string[]
+    /** Id of the project the comment names as the source of a copy; absent when no project the user sees is it. */
+    sourceProjectId?: string
 }
 
 export interface RevisionPage {

@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.rest.model.UserInfoModel;
 
@@ -15,7 +16,7 @@ import org.openl.rules.rest.model.UserInfoModel;
  * <p>The two differ only in what the revision is measured against — the same commit is a technical revision
  * for a file it did not touch and a real one for the project around it.
  */
-@Builder
+@Builder(toBuilder = true)
 public record ProjectRevision(
         @Parameter(description = "Revision number", required = true)
         String revisionNo,
@@ -40,5 +41,8 @@ public record ProjectRevision(
         boolean technicalRevision,
 
         @Parameter(description = "Comment parts. Always has 3 parts if present.")
-        List<String> commentParts) {
+        List<String> commentParts,
+
+        @Parameter(description = "Id of the project the comment names as the source of a copy, the second of the comment parts; absent when no project the user sees carries that name, or several repositories hold one")
+        @Nullable String sourceProjectId) {
 }

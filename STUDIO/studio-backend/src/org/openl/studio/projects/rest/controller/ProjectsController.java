@@ -373,7 +373,8 @@ public class ProjectsController {
                                                     @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String search,
                                                     @Parameter(description = "repo.param.techRevs.desc") @RequestParam(value = "techRevs", required = false, defaultValue = "false") boolean techRevs,
                                                     @PaginationDefault Pageable page) throws IOException {
-        return projectRevisionService.getProjectRevision(project, branch, search, techRevs, page);
+        return projectService.withCopySources(project,
+                projectRevisionService.getProjectRevision(project, branch, search, techRevs, page));
     }
 
     @GetMapping("/{projectId}/branches")

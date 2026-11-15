@@ -186,6 +186,7 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
@@ -2090,6 +2091,42 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
         return ids;
+    }
+
+    /**
+     * The history of a project with the id of the source project of each revision that a copy wrote.
+     *
+     * <p>A copy names its source by name, in its comment {@code Copied from: <name>.}; the id is that of the project
+     * of that name the user sees, so the Revisions tab can link it.
+     */
+    public PageResponse<ProjectRevision> withCopySources(RulesProject project, PageResponse<ProjectRevision> history) {
+        var content = history.getContent();
+        if (content == null || content.stream().allMatch(revision -> revision.commentParts() == null)) {
+            return history;
+        }
+        var linked = content.stream()
+                .map(revision -> revision.commentParts() == null ? revision : revision.toBuilder()
+                        .sourceProjectId(idOfCopySource(project, revision.commentParts().get(1)))
+                        .build())
+                .toList();
+        return new PageResponse<>(linked, history.getPageNumber(), history.getPageSize(), history.getTotal());
+    }
+
+    /**
+     * The id of the project of the given name that a copy names as its source.
+     *
+     * <p>The project of that name in the repository of the copy is taken, or else the only project of that name the
+     * user sees in another repository.
+     *
+     * <p>A name no project the user sees carries, or one that several projects in the chosen repositories carry,
+     * names no project, so {@code null} is returned.
+     */
+    private @Nullable String idOfCopySource(RulesProject copy, String name) {
+        var named = getUserWorkspace().getProjectsByName(name, false);
+        var repository = copy.getRepository().getId();
+        var near = named.stream().filter(project -> repository.equals(project.getRepository().getId())).toList();
+        var candidates = near.isEmpty() ? List.copyOf(named) : near;
+        return candidates.size() == 1 ? candidates.getFirst().getProjectId().value() : null;
     }
 
     /**

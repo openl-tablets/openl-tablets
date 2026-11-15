@@ -17,7 +17,7 @@ import {
 } from '../../services/repositories'
 import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
-import { GitCommitMessage } from './GitCommitMessage'
+import { GitCommitMessage, type MessageLink } from './GitCommitMessage'
 import { authorName, shortRevision } from './revisions'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { RevisionChanges } from './RevisionChanges'
@@ -236,6 +236,20 @@ interface RevisionsPanelProps {
 
 /** How many revisions are compared with each other. */
 const COMPARED_REVISIONS = 2
+
+/**
+ * The project a revision was copied from, as a link to it.
+ *
+ * The server splits a comment written by a copy into the text before the project name, the name and the text after
+ * it, and names the project of that name the reader sees; any other comment, or a name no such project carries,
+ * links nowhere.
+ */
+const sourceLinkOf = ({ commentParts, sourceProjectId }: ProjectRevision): MessageLink | undefined => {
+    const [before = '', name, after = ''] = commentParts ?? []
+    return commentParts?.length === 3 && name && sourceProjectId
+        ? { before, text: name, after, to: `/projects/${encodeURIComponent(sourceProjectId)}` }
+        : undefined
+}
 
 /**
  * A project's revision history as a timeline, backed by the project history API. Supports a text search, a
@@ -532,6 +546,7 @@ export const RevisionsPanel = ({
                                                         <GitCommitMessage
                                                             strong
                                                             className={styles.msg}
+                                                            link={sourceLinkOf(revision)}
                                                             message={revision.fullComment}
                                                             testId={`revision-comment-${revision.revisionNo}`}
                                                         />

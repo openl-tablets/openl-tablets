@@ -34532,6 +34532,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "sourceProjectId": {
+            "type": "string",
+            "description": "***"
+          },
           "technicalRevision": {
             "type": "boolean",
             "description": "***"
