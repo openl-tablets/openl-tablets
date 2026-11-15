@@ -18,6 +18,12 @@ import java.util.function.Supplier;
 public final class Constrainer {
 
     /**
+     * The steps of one search: a parameter that takes many values, such as a range of millions of whole numbers, would
+     * keep the search, and the compilation that runs it, going for hours.
+     */
+    static final long MAX_STEPS = 1_000_000;
+
+    /**
      * A state to backtrack to: the goal to try instead, the goals left to execute, and the size of the undo stack.
      */
     private record ChoicePoint(Goal alternative, Deque<Goal> goals, int undoSize) {
@@ -28,6 +34,21 @@ public final class Constrainer {
     private final SequencedSet<IntVar> propagationQueue = new LinkedHashSet<>();
     private final Deque<ChoicePoint> choicePoints = new ArrayDeque<>();
     private Deque<Goal> goals = new ArrayDeque<>();
+
+    /** How many steps one search may take before it stops with {@link SearchLimitExceeded}. */
+    private final long maxSteps;
+
+    /** The steps the current search has taken. */
+    private long steps;
+
+    /** Creates the owner of a problem whose searches stop after a million steps each. */
+    public Constrainer() {
+        this(MAX_STEPS);
+    }
+
+    Constrainer(long maxSteps) {
+        this.maxSteps = maxSteps;
+    }
 
     /**
      * Creates a variable with the values from {@code min} to {@code max}.
@@ -77,21 +98,41 @@ public final class Constrainer {
      * <p>
      * Afterwards, all the changes are undone, including the expressions the constraint is made of, so they no longer
      * take part in the search.
+     * <p>
+     * A search that takes more steps than the limit stops, its changes undone too.
      *
      * @param constraint makes the goal that imposes the constraint
      * @return {@code true} if the values are found
+     * @throws SearchLimitExceeded if the search takes more steps than the limit
      */
     boolean solve(Supplier<Goal> constraint, IntExp[] vars, Goal onSolution) {
         var start = undos.size();
         goals = new ArrayDeque<>(List.of(constraint.get(), generate(vars), onSolution));
         choicePoints.clear();
         allowUndos();
+        steps = 0;
         var found = true;
-        while (found && !goals.isEmpty()) {
-            found = executeNextGoal();
+        try {
+            while (found && !goals.isEmpty()) {
+                step();
+                found = executeNextGoal();
+            }
+        } finally {
+            propagationQueue.clear();
+            undo(start);
         }
-        undo(start);
         return found;
+    }
+
+    /**
+     * Counts a step of the search: a goal executed or a change of a variable propagated.
+     *
+     * @throws SearchLimitExceeded if the search takes more steps than the limit
+     */
+    private void step() {
+        if (++steps > maxSteps) {
+            throw new SearchLimitExceeded(maxSteps);
+        }
     }
 
     /**
@@ -153,6 +194,7 @@ public final class Constrainer {
 
     private void propagate() throws Failure {
         while (!propagationQueue.isEmpty()) {
+            step();
             propagationQueue.removeFirst().propagate();
         }
     }
