@@ -14,7 +14,7 @@ const STORAGE_KEY = 'openl.module.tableProblems'
 
 /** Whether the panel is open; open, the default, stores nothing. */
 const openSetting = storedSetting(STORAGE_KEY, true, booleanText)
-/** The height it was last dragged to, kept for the next table the reader opens. */
+/** The height the messages may take at most, as last dragged to, kept for the next table the reader opens. */
 const HEIGHT_STORAGE_KEY = 'openl.module.tableProblems.height'
 
 const HEIGHT = { min: 80, max: 600, fallback: 220 }
@@ -75,7 +75,10 @@ const useStyles = createStyles(({ css, token }) => ({
     resizable: css`
         position: relative;
     `,
-    /** The messages scroll inside the section, so a table with many of them keeps the table in view. */
+    /**
+     * The messages take the room they need, up to the height the section was dragged to, and scroll inside it, so a
+     * table with few of them is not pushed down under the problems panel at the foot of the screen (EPBDS-17076).
+     */
     body: css`
         overflow: auto;
         padding: 0 ${token.padding}px ${token.paddingSM}px;
@@ -161,7 +164,7 @@ export const TableProblems = ({
                 // The grip is dragged against the box it sizes: measured against the whole section, every drag
                 // would size the messages to the pointer plus the header above them.
                 <div className={styles.resizable}>
-                    <div className={styles.body} data-testid="table-problems-body" style={{ height }}>
+                    <div className={styles.body} data-testid="table-problems-body" style={{ maxHeight: height }}>
                         {partial && (
                             <div className={styles.partial} data-testid="table-problems-partial">
                                 <WarningFilled className={styles.warningMark} />
