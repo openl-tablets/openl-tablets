@@ -91,6 +91,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * Reading the outcome of a test run: every test table as it is announced, the summary once the run has ended, and
@@ -619,7 +620,10 @@ class ProjectsControllerTestsSummaryTest {
         when(unit.getActualParam()).thenReturn(new ParameterWithValueDeclaration("actual", value));
         when(unit.getComparisonResults()).thenReturn(List.of());
         when(unit.getContextParams(any())).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var testedMethod = mock(IOpenMethod.class);
+        when(testedMethod.getType()).thenReturn(JavaOpenClass.OBJECT);
         when(test.getId()).thenReturn(id);
+        when(test.getTestedMethod()).thenReturn(testedMethod);
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         return unit;
     }

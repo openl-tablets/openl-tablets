@@ -190,4 +190,12 @@ public abstract class ResultExport extends BaseExport {
 
     protected abstract void writeResult(Row row, int colNum, TestUnitsResults result, ITestUnit testUnit);
 
+    /** The value a case returned, of the type the tested table returns, so that a datatype is written by fields. */
+    static ParameterWithValueDeclaration actualOf(ITestUnit testUnit) {
+        var actual = testUnit.getActualParam();
+        return new ParameterWithValueDeclaration(actual.getName(),
+                actual.getValue(),
+                testUnit.getTest().getTestedMethod().getType());
+    }
+
 }

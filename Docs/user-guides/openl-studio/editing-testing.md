@@ -423,6 +423,10 @@ table offers **Test into File** in the same place, and saves the results of its 
 keeps **Run into File**, and none of the test options: its cases are run, not tested, and the workbook holds what
 every run returned.
 
+On the **Result** sheet, a value of a datatype takes one cell, which lists its fields, such as
+`FinancialData{ totalAssets=0.0001 capital=0 }`. Each field is written as on the **Parameters** sheet, so a
+number keeps its plain notation: `0.0001`, not `1.0E-4`.
+
 For a test whose input list comes from a Data table, **Test into File** writes the list reference on the
 **Result** sheet when the Data table has a primary key. Without a primary key, it writes the list values there.
 When the list contains records referenced by their own primary keys, it writes those keys in order.
