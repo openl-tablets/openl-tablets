@@ -1,6 +1,7 @@
 package org.openl.studio.repositories.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -18,6 +19,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
@@ -99,5 +101,23 @@ class DeploymentRepositoryServiceImplTest {
 
         // Reading a repository's configuration is not free, so the ones behind the answer are left alone.
         verify(deploymentManager, never()).getDeployRepository("second");
+    }
+
+    /** The deploy dialog asks for a comment only where the repository keeps one (EPBDS-14808). */
+    @Test
+    void lists_what_each_repository_supports_and_nothing_for_one_that_cannot_be_reached() {
+        var local = mock(Repository.class);
+        when(local.supports()).thenReturn(new FeaturesBuilder(local).setComments(false).build());
+        var settings = mock(RepositorySettings.class);
+        var broken = config("broken", null);
+        var file = config("file", local);
+        when(broken.getSettings()).thenReturn(settings);
+        when(file.getSettings()).thenReturn(settings);
+        repositories(file, broken);
+
+        var listed = service.getRepositoryList();
+
+        assertFalse(listed.get(0).features().comments());
+        assertNull(listed.get(1).features());
     }
 }

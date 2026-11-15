@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 
 @Service
@@ -64,7 +66,21 @@ public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryServ
                         // A repository that takes projects from the main branch only says so, so the deploy
                         // dialog can refuse before the deploy does. Any other repository stays silent.
                         .mainBranchOnly(repo.getSettings().isMainBranchOnly() ? true : null)
+                        .features(featuresOf(repo))
                         .build())
                 .toList();
+    }
+
+    /**
+     * What a deployment repository supports, such as keeping the comment of a deployment, so the deploy dialog asks
+     * only for what the repository keeps. A repository that cannot be reached is listed without them.
+     */
+    private @Nullable RepositoryFeatures featuresOf(RepositoryConfiguration repo) {
+        try {
+            return new RepositoryFeatures(deploymentManager.getDeployRepository(repo.getConfigName()).supports());
+        } catch (Exception e) {
+            log.warn("Cannot read the features of repository '{}'.", repo.getId(), e);
+            return null;
+        }
     }
 }
