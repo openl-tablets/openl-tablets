@@ -41,8 +41,13 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
-        var value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, params, env));
-        return new ContainsInArraySelector(condition, value);
+        var value = condition.getEvaluator().invoke(target, params, env);
+        // an empty value matches no rule, as in the index, rather than the value a cast makes of it
+        return new ContainsInArraySelector(condition,
+                value == null ? null : conditionCasts.castToConditionType(value),
+                target,
+                params,
+                env);
     }
 
     @Override
