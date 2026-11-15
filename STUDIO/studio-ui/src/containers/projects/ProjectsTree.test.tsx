@@ -1334,4 +1334,17 @@ describe('ProjectsTree', () => {
         // Every tag key found on the projects, deduplicated and sorted — the same set the filters count.
         expect(groupModalMock).toHaveBeenCalledWith(expect.objectContaining({ tagTypes: ['Domain', 'lob']}))
     })
+
+    it('offers no tag that only a project the tree hides carries', async () => {
+        const git = { id: 'design', name: 'Design', features: { branches: true, searchable: true, mappedFolders: false } }
+        const branched = [
+            { id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Closed, branch: 'main', inDefaultBranch: true, repositoryInfo: git, tags: { Domain: 'Policy' } },
+            { id: 'p3', name: 'Gamma', repository: 'design', status: ProjectStatus.Closed, branch: 'feature/x', repositoryInfo: git, tags: { Hidden: '123' } },
+        ] as unknown as Project[]
+
+        await renderTree({ projects: branched, onRefresh: vi.fn() })
+
+        // Gamma is left in a branch the tree does not show, so its tag would group nothing (EPBDS-16952).
+        expect(groupModalMock).toHaveBeenLastCalledWith(expect.objectContaining({ tagTypes: ['Domain']}))
+    })
 })
