@@ -134,6 +134,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.exception.PreconditionFailedException;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.BranchScope;
@@ -184,6 +185,7 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.types.IOpenMethod;
 
 class WorkspaceProjectServiceTest {
@@ -483,6 +485,49 @@ class WorkspaceProjectServiceTest {
                 workspaceFor(project), mock(ProjectStateValidator.class), mock(WebStudio.class));
 
         assertNull(service.findProjectDescriptor(project));
+    }
+
+    /**
+     * A revision a copy wrote names its source project by the id of the project of that name the user sees: the one
+     * of the repository of the copy, or else the only one elsewhere (EPBDS-17171).
+     */
+    @Test
+    void the_history_names_the_id_of_the_project_a_copy_was_made_from() throws Exception {
+        var copy = project(repository(), "Copy", "Copy");
+        var near = project(repository(), "Source", "Source");
+        when(near.getProjectId()).thenReturn(ProjectId.of("NEAR"));
+        var otherRepository = mock(Repository.class);
+        when(otherRepository.getId()).thenReturn("other");
+        var far = project(otherRepository, "Source", "Source");
+        when(far.getProjectId()).thenReturn(ProjectId.of("FAR"));
+        var lonely = project(otherRepository, "Lonely", "Lonely");
+        when(lonely.getProjectId()).thenReturn(ProjectId.of("LONELY"));
+        var twin = project(otherRepository, "Twin", "Twin");
+        var workspace = workspaceFor(copy);
+        when(workspace.getProjectsByName("Source", false)).thenReturn(List.of(near, far));
+        when(workspace.getProjectsByName("Lonely", false)).thenReturn(List.of(lonely));
+        when(workspace.getProjectsByName("Twin", false)).thenReturn(List.of(twin, twin));
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class), workspace);
+        var history = new PageResponse<>(List.of(copied("Source"), copied("Lonely"), copied("Twin"), copied("Gone"),
+                ProjectRevision.builder().revisionNo("5").fullComment("Saved").build()), 0, 10);
+
+        var sources = service.withCopySources(copy, history)
+                .getContent()
+                .stream()
+                .map(ProjectRevision::sourceProjectId)
+                .toList();
+
+        assertEquals(Arrays.asList("NEAR", "LONELY", null, null, null), sources);
+        var plain = new PageResponse<>(List.of(ProjectRevision.builder().revisionNo("1").build()), 0, 10);
+        assertSame(plain, service.withCopySources(copy, plain));
+    }
+
+    private static ProjectRevision copied(String source) {
+        return ProjectRevision.builder()
+                .revisionNo(source)
+                .fullComment("Copied from: " + source + ".")
+                .commentParts(List.of("Copied from: ", source, "."))
+                .build();
     }
 
     /** A field the answer leaves out is not built: the compile state alone skips the costly parts. */

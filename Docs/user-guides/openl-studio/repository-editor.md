@@ -923,7 +923,10 @@ A copy in the default branch appears in the project list at once; a copy in anot
 is picked in the **Branch** filter. The selected branch is its home branch when no other branch contains the project.
 
 The first revision of the copy says which project it was copied from, for example **Copied from: Bank Rating.** In the
-**Revisions** tab and in **More \> Revisions** of the editor, the name of that project is a link that opens it.
+**Revisions** tab and in **More \> Revisions** of the editor, the name of that project is a link that opens it. The link
+leads to the project of that name in the repository of the copy, or else to the only project of that name the user sees
+in another repository. When no such project is found, for example after the source project was deleted, the name is
+plain text.
 
 ### Removing a Project
 
