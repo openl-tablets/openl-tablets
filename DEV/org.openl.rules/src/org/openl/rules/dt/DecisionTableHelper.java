@@ -3800,7 +3800,38 @@ public final class DecisionTableHelper {
             }
             i = i + originalTable.getSource().getCell(i, 0).getWidth();
         }
-        return null;
+        return begin > 0 ? findTitlesColumn(originalTable, begin, firstColumnHeight) : null;
+    }
+
+    /**
+     * Takes the first column of the horizontal conditions as the column of their titles, written without a slash.
+     *
+     * <p>Such a column has every title cell filled and every rule cell empty, and the horizontal conditions follow
+     * it.
+     *
+     * @return the first column of the horizontal conditions after the titles, or {@code null} when the column holds
+     * values of the horizontal conditions
+     */
+    private static Pair<Integer, WithVerticalTitles> findTitlesColumn(ILogicalTable originalTable,
+                                                                      int column,
+                                                                      int firstColumnHeight) {
+        var source = originalTable.getSource();
+        var next = column + source.getCell(column, 0).getWidth();
+        if (next >= source.getWidth()) {
+            return null;
+        }
+        var h = 0;
+        while (h < source.getHeight()) {
+            var cell = source.getCell(column, h);
+            var title = h < firstColumnHeight;
+            var blank = StringUtils.isBlank(cell.getStringValue());
+            if (title == blank) {
+                // a blank title or a filled rule cell: the column holds values of the horizontal conditions
+                return null;
+            }
+            h = h + cell.getHeight();
+        }
+        return Pair.of(next, WithVerticalTitles.EMPTY_COLUMN);
     }
 
     private static Pair<Integer, WithVerticalTitles> getVerticalTitles(ILogicalTable originalTable,
