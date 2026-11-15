@@ -28,8 +28,13 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        var value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
-        return new EqualsSelector(condition, value, target, dtparams, env);
+        var value = condition.getEvaluator().invoke(target, dtparams, env);
+        // an empty value matches no rule, as in the index, rather than the value a cast makes of it
+        return new EqualsSelector(condition,
+                value == null ? null : conditionCasts.castToConditionType(value),
+                target,
+                dtparams,
+                env);
     }
 
     @Override

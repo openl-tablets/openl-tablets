@@ -167,8 +167,13 @@ public class Condition extends FunctionalRow implements ICondition {
 
     /**
      * Tells whether the value equals the value of the cell or, for a cell of several values, one of them.
+     *
+     * <p>An empty value matches no cell.
      */
     private static boolean matches(@Nullable Object value, @Nullable Object cell) {
+        if (value == null) {
+            return false;
+        }
         return cell != null && cell.getClass().isArray() ? ArrayTool.contains(cell, value)
                 : Objects.equals(value, cell);
     }

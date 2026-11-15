@@ -49,6 +49,9 @@ class ConditionValueTypeTest {
         assertEquals("one", rules.byKeyAmount(map(1.0)));
         assertEquals("A or B", rules.byKeyCodes(map("B")));
         assertEquals("other", rules.byKeyCodes(map("C")));
+        assertEquals("no", rules.byPrimitiveFormula(map(false)));
+        assertEquals("yes", rules.byPrimitiveFormula(map(true)));
+        assertEquals("A or empty", rules.byKeyEmptyCode(map("A")));
     }
 
     @Test
@@ -61,6 +64,8 @@ class ConditionValueTypeTest {
         assertEquals("other", rules.byFormula(map(null)));
         assertEquals("other", rules.byInput(null));
         assertEquals("other", rules.byKey(map(null)));
+        assertEquals("other", rules.byPrimitiveFormula(map(null)));
+        assertEquals("other", rules.byKeyEmptyCode(map(null)));
     }
 
     @Test
@@ -126,5 +131,9 @@ class ConditionValueTypeTest {
         String byKeyAmount(Map<String, Object> map);
 
         String byKeyCodes(Map<String, Object> map);
+
+        String byPrimitiveFormula(Map<String, Object> map);
+
+        String byKeyEmptyCode(Map<String, Object> map);
     }
 }
