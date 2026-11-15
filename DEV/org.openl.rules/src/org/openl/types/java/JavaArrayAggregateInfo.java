@@ -43,7 +43,8 @@ public class JavaArrayAggregateInfo extends AAggregateInfo {
             return null;
         }
 
-        return new ArrayIndex(JavaOpenClass.getOpenClass(aggregateType.getInstanceClass().getComponentType()));
+        // the element of an array of an alias datatype is of the alias, so a value written into it is checked
+        return new ArrayIndex(getComponentType(aggregateType));
     }
 
     @Override
