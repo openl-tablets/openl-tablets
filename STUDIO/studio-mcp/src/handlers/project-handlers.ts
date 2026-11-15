@@ -7,7 +7,7 @@ import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { isWorkbook, namesOfSet } from "../utils.js";
-import { fitLines, formatStudioPage, formatWholeList, type Column } from "../markdown-list.js";
+import { fitLines, formatListOf, formatStudioPage, type Column } from "../markdown-list.js";
 import { formatCount, tableLabel } from "../text.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
@@ -675,7 +675,7 @@ export function registerProjectHandlers(): void {
     title: "List Project Modules",
     description:
       "List the modules of a project with their rules paths or patterns, and the modules a pattern matches. A tool that takes a module takes the name answered.",
-    schema: schemas.projectOnlySchema,
+    schema: schemas.listProjectModulesSchema,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -683,7 +683,7 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const modules = await client.listProjectModules(args.projectId);
-      return textResult(formatWholeList(modules, {
+      return textResult(formatListOf(modules, args.limit, args.offset, {
         noun: "modules",
         columns: [
           { header: "module", value: (module) => module.name },
@@ -698,7 +698,7 @@ export function registerProjectHandlers(): void {
     title: "List Module Worksheets",
     description:
       "List the worksheets of a module, the destination sheets of a table created or copied.",
-    schema: schemas.projectModuleSchema,
+    schema: schemas.listModuleSheetsSchema,
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
@@ -706,7 +706,10 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const sheets = await client.listModuleSheets(args.projectId, args.module);
-      return textResult(formatWholeList(sheets, { noun: "sheets", columns: [{ header: "sheet", value: (sheet) => sheet }] }));
+      return textResult(formatListOf(sheets, args.limit, args.offset, {
+        noun: "sheets",
+        columns: [{ header: "sheet", value: (sheet) => sheet }],
+      }));
     },
   });
 }

@@ -43,6 +43,22 @@ describe("local change handlers", () => {
       + "| Main | m1_current |  | yes |\n| Lookups | l2_current |  | yes |\n| Lookups | l1 | 2026-08-27T09:00:00Z |  |");
   });
 
+  it("reads the page of versions the first line names (EPBDS-17067)", async () => {
+    harness.mockHttp.onGet("/projects/p1/modules").reply(200, [{ name: "Main" }, { name: "Lookups" }]);
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Main" } })
+      .reply(200, [{ id: "m1_current", current: true }]);
+    harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Lookups" } })
+      .reply(200, [{ id: "l2_current", current: true }, { id: "l1" }]);
+
+    const first = textOf(await executeTool("list_project_local_changes", { projectId: "p1", limit: 2 }, harness.client));
+    const next = textOf(await executeTool("list_project_local_changes", {
+      projectId: "p1", limit: 2, offset: 2, }, harness.client));
+
+    expect(first.split("\n")[0]).toBe("3 versions; 1–2 below, the next page at offset=2.");
+    expect(next).toBe("3 versions; 3–3 below.\n\n| module | historyId | kept at | current |\n| --- | --- | --- | --- |\n"
+      + "| Lookups | l1 |  |  |");
+  });
+
   it("names the tables a restore to a version would change, comparing it with the current one", async () => {
     harness.mockHttp.onGet("/projects/p1/local-history", { params: { module: "Lookups" } })
       .reply(200, [{ id: "l3_current", current: true }, { id: "l2" }, { id: "l1" }]);

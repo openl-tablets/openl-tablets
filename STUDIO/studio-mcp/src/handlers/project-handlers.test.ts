@@ -198,6 +198,22 @@ describe("project lists and details", () => {
       + "| Rates | rules/Rates.xlsx |");
     expect(textOf(sheetResult)).toBe("2 sheets.\n\n| sheet |\n| --- |\n| Rates |\n| Tests |");
   });
+
+  it("reads the page of modules and of worksheets the first line names (EPBDS-17067)", async () => {
+    const modules = Array.from({ length: 5 }, (_, index) => ({ name: `M${index + 1}`, path: `rules/M${index + 1}.xlsx` }));
+    harness.mockHttp.onGet("/projects/p1/modules").reply(200, modules);
+    harness.mockHttp.onGet("/projects/p1/modules/M1/sheets").reply(200, ["S1", "S2", "S3"]);
+
+    const first = textOf(await executeTool("list_project_modules", { projectId: "p1", limit: 2 }, harness.client));
+    const next = textOf(await executeTool("list_project_modules", { projectId: "p1", limit: 2, offset: 2 }, harness.client));
+    const sheets = textOf(await executeTool("list_module_sheets", {
+      projectId: "p1", module: "M1", limit: 1, offset: 2, }, harness.client));
+
+    expect(first.split("\n")[0]).toBe("5 modules; 1–2 below, the next page at offset=2.");
+    expect(next).toBe("5 modules; 3–4 below, the next page at offset=4.\n\n| module | path |\n| --- | --- |\n"
+      + "| M3 | rules/M3.xlsx |\n| M4 | rules/M4.xlsx |");
+    expect(sheets).toBe("3 sheets; 3–3 below.\n\n| sheet |\n| --- |\n| S3 |");
+  });
 });
 
 describe("project localization", () => {

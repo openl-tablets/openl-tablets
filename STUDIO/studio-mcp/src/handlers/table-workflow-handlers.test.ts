@@ -289,6 +289,18 @@ describe("table workflow handlers", () => {
       + "| active | boolean |  |  | true |  |");
   });
 
+  it("reads the page of properties the first line names (EPBDS-17067)", async () => {
+    const properties = [{ name: "state", type: "enum" }, { name: "lob", type: "string" }, { name: "active", type: "boolean" }];
+    harness.mockHttp.onGet("/projects/p1/properties").reply(200, properties);
+
+    const text = textOf(await executeTool("list_table_property_definitions", {
+      projectId: "p1", limit: 1, offset: 1, }, harness.client));
+
+    expect(text.split("\n")[0]).toBe("3 properties; 2–2 below, the next page at offset=2.");
+    expect(text).toContain("| lob | string |");
+    expect(text).not.toContain("| state |");
+  });
+
   it("copies a table server-side with the exact current request shape", async () => {
     harness.mockHttp.onPost("/projects/p1/tables/source%231/copy").reply(201, {
       id: "copy-1", name: "CopiedRate", tableType: "SimpleRules", file: "rules/Copies.xlsx", pos: "A1:C5",

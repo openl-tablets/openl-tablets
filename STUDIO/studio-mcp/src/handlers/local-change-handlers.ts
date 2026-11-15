@@ -5,7 +5,7 @@
 
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
-import { formatWholeList, markdownTable } from "../markdown-list.js";
+import { formatListOf, markdownTable } from "../markdown-list.js";
 import { formatCount } from "../text.js";
 import { registerTool, formatResult, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
 import { changedTables, changedTablesIfCompared } from "./comparison.js";
@@ -35,7 +35,7 @@ export function registerLocalChangeHandlers(): void {
         .flat();
 
       // Each entry is named by the historyId openl_restore_project_local_change takes
-      return textResult(formatWholeList(versions, {
+      return textResult(formatListOf(versions, args.limit, args.offset, {
         noun: "versions",
         columns: [
           ...(module === undefined ? [{ header: "module", value: (change: typeof versions[number]) => change.module }] : []),
