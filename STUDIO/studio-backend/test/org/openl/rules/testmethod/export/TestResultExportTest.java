@@ -16,6 +16,8 @@ import static org.openl.rules.testmethod.export.Styles.RED_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.RED_MAIN;
 import static org.openl.rules.testmethod.export.Styles.convertRGB;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -180,6 +182,28 @@ class TestResultExportTest {
                 assertRowText(sheet.getRow(++rowNum), "ID", "Status", "Hour", "Result");
                 assertRowText(sheet.getRow(++rowNum), "1", "Passed", "1", "Good Morning");
             }
+        }
+    }
+
+    /**
+     * Run into File writes the fields of a datatype result as the parameters are written: 0.0001, not 1.0E-4
+     * (EPBDS-11394).
+     */
+    @Test
+    void writesTheNumbersOfADatatypeResultInPlainNotation() throws Exception {
+        var results = runRunTable("test-resources/test/export/datatype-numbers", "TinyRun");
+        var output = new ByteArrayOutputStream();
+        new RulesResultExport().export(output, Integer.MAX_VALUE, results);
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(output.toByteArray()))) {
+            var sheet = workbook.getSheetAt(0);
+            var rowNum = BaseExport.FIRST_ROW;
+            assertRowText(sheet.getRow(rowNum), "ID", "Status", "money", "Result");
+            assertRowText(sheet.getRow(++rowNum),
+                    "1",
+                    "Passed",
+                    "0.0001",
+                    "Money{ amount=0.0001 rate=10000000 parts=[0.0001, 2] }");
         }
     }
 
@@ -497,17 +521,17 @@ class TestResultExportTest {
                 assertRowColors(row, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
-                assertRowText(row, "1", "Passed", "MyObjectD{ field1=2.0 field2=null }", "2");
+                assertRowText(row, "1", "Passed", "MyObjectD{ field1=2 field2=null }", "2");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
                 assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
-                assertRowText(row, "2", "Passed", "MyObjectD{ field1=4.0 field2=null }", "4");
+                assertRowText(row, "2", "Passed", "MyObjectD{ field1=4 field2=null }", "4");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
                 assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
-                assertRowText(row, "3", "Passed", "MyObjectD{ field1=5.0 field2=null }", "5");
+                assertRowText(row, "3", "Passed", "MyObjectD{ field1=5 field2=null }", "5");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
                 assertComments(row, 3, (String) null);
             }

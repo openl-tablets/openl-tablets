@@ -51,7 +51,7 @@ public class TestResultExport extends ResultExport {
     @Override
     protected void writeResult(Row row, int colNum, TestUnitsResults result, ITestUnit testUnit) {
         if (result.isRunmethod()) {
-            createCell(row, colNum, testUnit.getActualParam(), styles.resultOther);
+            createCell(row, colNum, actualOf(testUnit), styles.resultOther);
             return;
         }
         for (ComparedResult parameter : testUnit.getResultParams()) {

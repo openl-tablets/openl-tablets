@@ -60,7 +60,7 @@ abstract class BaseExport {
                 style = styles.getDateStyle(row.getSheet().getWorkbook(), style);
                 cell.setCellValue(date);
             } else {
-                String cellValue = FormattersManager.format(simpleValue);
+                String cellValue = textOf(value, simpleValue);
                 var maxTextLength = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
                 if (cellValue != null && cellValue.length() > maxTextLength) {
                     var truncated = "\r\n... TRUNCATED ...";
@@ -73,6 +73,17 @@ abstract class BaseExport {
         cell.setCellStyle(style);
 
         return cell;
+    }
+
+    /**
+     * The text of a cell. A parameter of a datatype is written field by field, the numbers in their plain notation,
+     * as the cells of the parameters are written. A parameter written by its key is written as the key.
+     */
+    private static String textOf(Object value, Object simpleValue) {
+        if (value instanceof ParameterWithValueDeclaration parameter) {
+            return DatatypeText.format(simpleValue, parameter.getType());
+        }
+        return FormattersManager.format(simpleValue);
     }
 
     protected Object getSimpleValue(Object value) {
