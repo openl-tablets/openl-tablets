@@ -1,4 +1,3 @@
-import React from 'react'
 import { Button } from 'antd'
 import { SplitButton } from 'components/SplitButton'
 import type { Destination, ModuleFormat } from './shared'

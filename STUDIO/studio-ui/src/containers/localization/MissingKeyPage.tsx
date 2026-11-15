@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Empty, Space } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
