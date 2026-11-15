@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -99,6 +100,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     @Getter
     @Setter
     private boolean ignoreCompilation;
+
+    /**
+     * Whether the type holds only the cells of versions of the table that an active version replaces: such a
+     * version never runs, so the cells of an active version take their place, and their cells are added to no other
+     * type.
+     */
+    @Setter(AccessLevel.PACKAGE)
+    private boolean replacedVersion;
 
     @Getter
     private ILogicalTable logicalTable;
@@ -371,6 +380,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             return;
         }
         var customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+        var otherReplaced = customSpreadsheetResultOpenClass.replacedVersion;
+        if (otherReplaced && !replacedVersion) {
+            // a version an active one replaces never runs: its cells change the type of no call
+            return;
+        }
+        if (replacedVersion && !otherReplaced) {
+            // the cells of an active version take the place of those of the versions it replaces
+            forgetCells();
+        }
+        replacedVersion = otherReplaced;
         if (customSpreadsheetResultOpenClass.getModule() != getModule()) {
             customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass.convertToModuleType(getModule(), false);
         }
@@ -384,6 +403,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 customSpreadsheetResultOpenClass.simpleRefByColumn);
 
         eventsOnUpdateWithType.forEach(e -> e.accept(this));
+    }
+
+    /** Removes the rows, the columns and the fields of the type, so that it holds the cells of no table. */
+    private void forgetCells() {
+        rowNames = EMPTY_STRING_ARRAY;
+        columnNames = EMPTY_STRING_ARRAY;
+        rowNamesForResultModel = EMPTY_STRING_ARRAY;
+        columnNamesForResultModel = EMPTY_STRING_ARRAY;
+        descriptions = EMPTY_DESCRIPTIONS_ARRAY;
+        fieldsCoordinates = Map.of();
+        simpleRefByRow = true;
+        simpleRefByColumn = true;
+        fieldMap().clear();
+        forgetLowerCaseFieldMaps();
     }
 
     private final Collection<Consumer<CustomSpreadsheetResultOpenClass>> eventsOnUpdateWithType = new ArrayList<>();

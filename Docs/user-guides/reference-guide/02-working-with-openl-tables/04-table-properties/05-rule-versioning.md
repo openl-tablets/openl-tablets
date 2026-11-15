@@ -350,6 +350,8 @@ A version is three numbers separated by dots, such as `1.0.2`: the major, minor 
 
 All rule versions must have the same identity, that is, exactly the same signature and dimensional properties values. Table types also must be the same.
 
+An inactive version is never called while an active version exists, so the steps of an inactive Spreadsheet version do not change the types of the result its calls read: a step that returns a `String` in the active version stays a `String` even if the inactive version returns a number in it.
+
 An example of an inactive rule version is as follows.
 
 ![An inactive rule version](../../ref-guide-images/inactiveRuleVersion.png)
