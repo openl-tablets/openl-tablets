@@ -107,9 +107,11 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
         // Define default settings for the new repository
         var defaultSettingsPrefix = REPOSITORY_DEFAULT_PREFIX + repoMode.getId();
-        properties.setProperty(nameWithPrefix + ".comment-template.$ref", defaultSettingsPrefix + ".comment-template");
         properties.setProperty(nameWithPrefix + ".base.path.$ref", defaultSettingsPrefix + ".base.path");
         if (repoMode == RepositoryMode.DESIGN) {
+            // Only a design repository takes comments and branches: written for a deployment repository, they would
+            // refer to defaults that do not exist and show as settings nobody chose.
+            properties.setProperty(nameWithPrefix + ".comment-template.$ref", defaultSettingsPrefix + ".comment-template");
             properties.setProperty(nameWithPrefix + ".new-branch.$ref", defaultSettingsPrefix + ".new-branch");
         }
 

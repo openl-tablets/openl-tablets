@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,8 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 import org.openl.config.InMemoryProperties;
+import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.RefPropertySource;
 
 /**
@@ -53,6 +56,26 @@ class RepositoryConfigurationStoreTest {
         configuration.commit();
 
         assertEquals("repo-jdbc", properties.getConfig().get("repository.design-flat.$ref"));
+    }
+
+    /** A deployment repository takes no comments, so a new one refers to no settings of comments (EPBDS-17030). */
+    @Test
+    void refersANewDeploymentRepositoryToNoSettingsOfComments() {
+        Props.setEnvironment(new StandardEnvironment());
+        try {
+            new RepositoryConfiguration("production2", properties, RepositoryType.DB.factoryId, List.of(),
+                    RepositoryMode.PRODUCTION);
+            new RepositoryConfiguration("design2", properties, RepositoryType.DB.factoryId, List.of(),
+                    RepositoryMode.DESIGN);
+        } finally {
+            Props.setEnvironment(null);
+        }
+
+        var config = properties.getConfig();
+        assertEquals("repo-default.production.base.path", config.get("repository.production2.base.path.$ref"));
+        assertFalse(config.containsKey("repository.production2.comment-template.$ref"));
+        assertFalse(config.containsKey("repository.production2.new-branch.$ref"));
+        assertEquals("repo-default.design.comment-template", config.get("repository.design2.comment-template.$ref"));
     }
 
     @Test
