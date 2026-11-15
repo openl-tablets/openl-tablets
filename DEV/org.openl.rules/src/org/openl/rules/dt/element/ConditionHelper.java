@@ -51,8 +51,8 @@ public final class ConditionHelper {
      * @param inputType              type of the value the condition is asked about
      * @return the type the two are compared in
      */
-    static @NonNull IOpenClass comparedType(@NonNull IOpenClass conditionParameterType,
-                                            @NonNull IOpenClass inputType) {
+    public static @NonNull IOpenClass comparedType(@NonNull IOpenClass conditionParameterType,
+                                                   @NonNull IOpenClass inputType) {
         if (OpenClassUtils.getRootComponentClass(conditionParameterType) instanceof DomainOpenClass
                 && !(OpenClassUtils.getRootComponentClass(inputType) instanceof DomainOpenClass)) {
             // An array of an alias stands for an array of the Java type of the alias.

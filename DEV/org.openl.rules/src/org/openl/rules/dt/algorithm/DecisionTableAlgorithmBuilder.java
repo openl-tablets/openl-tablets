@@ -336,9 +336,17 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             }
             return conditionEvaluator;
         } else {
+            var valueType = TypedConditionValue.findType(condition, methodType);
             IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm
-                    .makeEvaluator(condition, methodType, bindingContext);
+                    .makeEvaluator(condition, valueType == null ? methodType : valueType, bindingContext);
             condition.setEvaluator(makeOptimizedConditionMethodEvaluator(condition, signature));
+            if (valueType != null) {
+                condition.setEvaluator(new TypedConditionValue(condition.getEvaluator(),
+                        valueType,
+                        condition.getName(),
+                        table.getName(),
+                        openl.getBinder().getCastFactory()));
+            }
             condition.setConditionEvaluator(dtcev);
             return dtcev;
         }

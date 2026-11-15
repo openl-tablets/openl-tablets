@@ -39,6 +39,15 @@ engine change how an existing project compiles or runs, as listed for the rules 
   although the engine orders versions by three numbers and cannot order the others. Write the version as three numbers
   separated by dots, such as `1.2.0`.
 
+* **A condition checks the type of a value its expression gives as `Object`.** When the expression of a condition has
+  a wider type than its column, such as `map.get("key")` or `list[0]`, a value of another type stops the call with
+  `Condition 'C1' of table 'byFlag' expects a value of type 'Boolean', but got 'true' of type 'String'.` A number
+  that OpenL converts to the column type when passing it to a rule, such as `1` for a `Double` column, still matches.
+  Before, the text `"true"` matched no value of a `Boolean` column, so the rule fell through to the next rows, a text
+  in a column of numbers failed with a `NullPointerException`, and a column of several values in a cell, such as
+  `String[]`, matched no value at all. Put values of the column type into the map or the list, or declare the column
+  of the type the values have.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
