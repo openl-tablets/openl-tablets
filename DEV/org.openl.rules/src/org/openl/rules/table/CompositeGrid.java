@@ -188,7 +188,11 @@ public class CompositeGrid extends AGrid {
      * the current grid.
      */
     private void addMovedMergedRegion(List<IGridRegion> mergedRegionsList, IGridRegion mergedRegion, int j) {
-        var tableRegion = gridTables[j].getRegion();
+        // the region of the table on its sheet, where the merged regions are: a transposed table states its region
+        // with the rows and the columns swapped, as transform() reads it
+        var tableRegion = gridTables[j].isNormalOrientation()
+                ? gridTables[j].getRegion()
+                : gridTables[j].transpose().getRegion();
 
         // check if merged region on the sheet belongs to table
         // region

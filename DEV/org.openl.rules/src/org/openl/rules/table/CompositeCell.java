@@ -66,35 +66,28 @@ public class CompositeCell implements ICell {
         return delegate.getTextRuns();
     }
 
+    /**
+     * The height of the cell in this grid. A merged region of this grid is laid out as this grid shows it already;
+     * a cell of the sheet of a transposed table is as high as it is wide on its sheet.
+     */
     @Override
     public int getHeight() {
-        if (!gridTable.isNormalOrientation()) {
-            return getCellWidth();
+        if (region != null) {
+            return GridRegionUtils.height(region);
         }
-        return getCellHeight();
+        return gridTable.isNormalOrientation() ? delegate.getHeight() : delegate.getWidth();
     }
 
-    private int getCellHeight() {
-        if (region == null) {
-            return delegate.getHeight();
-        }
-        return region.getBottom() - region.getTop() + 1;
-    }
-
-
+    /**
+     * The width of the cell in this grid. A merged region of this grid is laid out as this grid shows it already;
+     * a cell of the sheet of a transposed table is as wide as it is high on its sheet.
+     */
     @Override
     public int getWidth() {
-        if (!gridTable.isNormalOrientation()) {
-            return getCellHeight();
+        if (region != null) {
+            return GridRegionUtils.width(region);
         }
-        return getCellWidth();
-    }
-
-    private int getCellWidth() {
-        if (region == null) {
-            return delegate.getWidth();
-        }
-        return region.getRight() - region.getLeft() + 1;
+        return gridTable.isNormalOrientation() ? delegate.getWidth() : delegate.getHeight();
     }
 
     @Override
