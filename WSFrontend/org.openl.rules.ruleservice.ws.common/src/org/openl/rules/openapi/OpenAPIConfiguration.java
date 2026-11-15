@@ -1,15 +1,20 @@
 package org.openl.rules.openapi;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -21,11 +26,14 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.PrimitiveType;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.jaxrs2.ResolvedParameter;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 
 /**
  * Customization of the OpenAPI schema generation with the converters of common types.
@@ -171,6 +179,54 @@ public final class OpenAPIConfiguration {
                 id = operationId + "_" + c;
             }
             return id;
+        }
+
+        /**
+         * Reads a part of a multipart request, a parameter annotated with {@link Multipart}, as a property of the
+         * request body named after the part, the way a {@link FormParam} is read. A part is required unless the
+         * annotation says otherwise.
+         */
+        @Override
+        protected ResolvedParameter getParameters(Type type,
+                                                  List<Annotation> annotations,
+                                                  Operation operation,
+                                                  Consumes classConsumes,
+                                                  Consumes methodConsumes,
+                                                  JsonView jsonViewAnnotation) {
+            var part = annotations.stream()
+                    .filter(Multipart.class::isInstance)
+                    .map(Multipart.class::cast)
+                    .findFirst()
+                    .orElse(null);
+            if (part == null) {
+                return super.getParameters(type, annotations, operation, classConsumes, methodConsumes,
+                        jsonViewAnnotation);
+            }
+            if (part.value().isBlank()) {
+                // a part without a name gives no field to name: it is left out, so the named parts make up the body
+                return new ResolvedParameter();
+            }
+            var asFormField = annotations.stream().map(a -> a == part ? formParam(part.value()) : a).toList();
+            var resolved = super.getParameters(type, asFormField, operation, classConsumes, methodConsumes,
+                    jsonViewAnnotation);
+            if (part.required()) {
+                resolved.formParameters.forEach(parameter -> parameter.setRequired(true));
+            }
+            return resolved;
+        }
+
+        private static FormParam formParam(String name) {
+            return new FormParam() {
+                @Override
+                public String value() {
+                    return name;
+                }
+
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return FormParam.class;
+                }
+            };
         }
     }
 
