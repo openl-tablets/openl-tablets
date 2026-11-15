@@ -9,12 +9,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
@@ -42,7 +44,12 @@ class FieldDescriptor {
      */
     static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values, Boolean skipEmptyParameters) {
         var coveredFields = new HashSet<String>();
-        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields, "");
+        return nonEmptyFieldsForFlatten(type,
+                ExportUtils.flatten(values),
+                skipEmptyParameters,
+                coveredFields,
+                "",
+                Set.of());
     }
 
     // Null marks a simple value that takes one column; an empty list is a type without fields to export.
@@ -51,7 +58,8 @@ class FieldDescriptor {
                                                                   List<?> values,
                                                                   Boolean skipEmptyParameters,
                                                                   Set<String> coveredFields,
-                                                                  String path) {
+                                                                  String path,
+                                                                  Set<IOpenClass> outerTypes) {
         type = OpenClassUtils.getRootComponentClass(type);
 
         if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
@@ -59,12 +67,14 @@ class FieldDescriptor {
         }
 
         var result = new ArrayList<FieldDescriptor>();
+        var typesAbove = new HashSet<>(outerTypes);
+        typesAbove.add(type);
 
         for (IOpenField field : type.getFields()) {
             if (field.getType().equals(CLASS)) {
                 continue;
             }
-            var fieldDescriptor = describeField(field, values, skipEmptyParameters, coveredFields, path);
+            var fieldDescriptor = describeField(field, values, skipEmptyParameters, coveredFields, path, typesAbove);
             if (fieldDescriptor != null) {
                 result.add(fieldDescriptor);
             }
@@ -79,37 +89,55 @@ class FieldDescriptor {
      * Describes a field by its first value that is not covered yet. An empty value is skipped when empty parameters
      * are skipped.
      *
+     * <p>A field holding no value whose type is the type of an object above it takes one column: its fields would
+     * lead to the same type again, without end.
+     *
      * @return {@code null} when no value of the field is described
      */
-    private static FieldDescriptor describeField(IOpenField field,
+    private static @Nullable FieldDescriptor describeField(IOpenField field,
                                                  List<?> values,
                                                  Boolean skipEmptyParameters,
                                                  Set<String> coveredFields,
-                                                 String path) {
-        var fieldType = field.getType();
+                                                 String path,
+                                                 Set<IOpenClass> typesAbove) {
         var childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
         String newPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
 
         for (Object value : values) {
             Object fieldValue = value == null ? null : field.get(value, null);
-            var fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
-            if (coveredFields.contains(fieldName)) {
-                continue;
-            }
-            coveredFields.add(fieldName);
-            if (!Boolean.TRUE.equals(skipEmptyParameters) || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
-                if (fieldValue instanceof Collection<?> collection) {
-                    fieldType = CastToWiderType.defineCollectionWiderType(collection);
-                }
-                var children = nonEmptyFieldsForFlatten(fieldType,
-                        childFieldValues,
-                        skipEmptyParameters,
-                        coveredFields,
-                        newPath);
-                return new FieldDescriptor(field, children);
+            var uncovered = coveredFields.add(newPath + (fieldValue != null ? fieldValue.toString() : "null"));
+            if (uncovered && (!Boolean.TRUE.equals(skipEmptyParameters)
+                    || SKIP_EMPTY_PARAMETER_FILTER.test(field.getType(), fieldValue))) {
+                var fieldType = fieldValue instanceof Collection<?> collection
+                        ? CastToWiderType.defineCollectionWiderType(collection)
+                        : field.getType();
+                return new FieldDescriptor(field,
+                        childrenOf(fieldType, childFieldValues, skipEmptyParameters, coveredFields, newPath, typesAbove));
             }
         }
         return null;
+    }
+
+    /**
+     * The fields under a field of the given type, or {@code null} when its type is the type of an object above it and
+     * it holds no value.
+     */
+    @SuppressWarnings("java:S1168")
+    private static @Nullable List<FieldDescriptor> childrenOf(IOpenClass fieldType,
+                                                    List<?> childFieldValues,
+                                                    Boolean skipEmptyParameters,
+                                                    Set<String> coveredFields,
+                                                    String path,
+                                                    Set<IOpenClass> typesAbove) {
+        var repeatsATypeAbove = typesAbove.contains(OpenClassUtils.getRootComponentClass(fieldType))
+                && childFieldValues.stream().allMatch(Objects::isNull);
+        return repeatsATypeAbove ? null
+                : nonEmptyFieldsForFlatten(fieldType,
+                        childFieldValues,
+                        skipEmptyParameters,
+                        coveredFields,
+                        path,
+                        typesAbove);
     }
 
     public boolean isArray() {

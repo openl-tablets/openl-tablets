@@ -74,6 +74,28 @@ class FieldDescriptorTest {
         assertNull(children.get(1).getChildren());
     }
 
+    /**
+     * A type leading to itself is described down to the values it holds: an empty field of it takes one column
+     * (EPBDS-14619).
+     */
+    @Test
+    void anEmptyFieldOfATypeAboveTakesOneColumn() {
+        var linkType = JavaOpenClass.getOpenClass(Link.class);
+
+        var empty = FieldDescriptor.nonEmptyFields(linkType, asList((Object) null), false);
+        assertEquals(2, empty.size());
+        assertNull(fieldOf(empty, "next").getChildren());
+
+        var chain = FieldDescriptor.nonEmptyFields(linkType, List.of(new Link("a", new Link("b", null))), false);
+        var next = fieldOf(chain, "next");
+        assertNotNull(next.getChildren());
+        assertNull(fieldOf(next.getChildren(), "next").getChildren());
+    }
+
+    private static FieldDescriptor fieldOf(List<FieldDescriptor> descriptors, String name) {
+        return descriptors.stream().filter(d -> name.equals(d.getField().getName())).findFirst().orElseThrow();
+    }
+
     @Test
     void nestedFieldsOfSameType() {
         var descriptors = FieldDescriptor.nonEmptyFields(cType, List.of(C1), true);
