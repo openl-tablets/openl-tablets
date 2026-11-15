@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
@@ -44,6 +45,7 @@ final class TypedConditionValue implements Invokable {
     private final @NonNull String conditionName;
     private final @NonNull String tableName;
     private final @NonNull ICastFactory castFactory;
+    private volatile @Nullable KnownCast knownCast;
 
     /**
      * Returns the type a condition with one parameter brings the value it is asked about to.
@@ -89,6 +91,16 @@ final class TypedConditionValue implements Invokable {
         if (value == null || type.getInstanceClass().isInstance(value)) {
             return value;
         }
+        var valueClass = value.getClass();
+        var known = knownCast;
+        if (known == null || known.from() != valueClass) {
+            known = new KnownCast(valueClass, findCast(value));
+            knownCast = known;
+        }
+        return known.cast().convert(value);
+    }
+
+    private @NonNull IOpenCast findCast(@NonNull Object value) {
         var cast = castFactory.getCast(JavaOpenClass.getOpenClass(value.getClass()), type);
         if (cast == null || !cast.isImplicit()) {
             throw new OpenLRuntimeException(
@@ -99,6 +111,13 @@ final class TypedConditionValue implements Invokable {
                             ArrayUtils.toString(value),
                             value.getClass().getSimpleName()));
         }
-        return cast.convert(value);
+        return cast;
+    }
+
+    /**
+     * The cast of the values of one type, kept since a condition is asked about values of the same type call after
+     * call.
+     */
+    private record KnownCast(@NonNull Class<?> from, @NonNull IOpenCast cast) {
     }
 }

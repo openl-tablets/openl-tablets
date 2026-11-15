@@ -59,7 +59,12 @@ class ConditionValueTypeTest {
 
     @Test
     void valueIsConvertedByAnImplicitCast() {
+        // The same type twice, another type, a type without a cast, then the previous type again.
         assertEquals("one", rules.byDouble(map(1)));
+        assertEquals("one", rules.byDouble(map(1)));
+        assertEquals("one", rules.byDouble(map(1L)));
+        assertFails("Condition 'C1' of table 'byDouble' expects a value of type 'Double', but got 'true' of type"
+                + " 'Boolean'.", () -> rules.byDouble(map(true)));
         assertEquals("one", rules.byDouble(map(1L)));
     }
 
