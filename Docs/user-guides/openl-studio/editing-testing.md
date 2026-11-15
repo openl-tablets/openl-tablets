@@ -440,8 +440,10 @@ account:
 -   **Skip Empty Parameters** — leaves the input values that are empty out of the workbook. A value is empty when
     a field holds no value (`null`) or a list has no elements. A field of a primitive type, such as `int` or
     `boolean`, is never empty, so `0` and `false` stay. The option starts cleared: the workbook then names every
-    field of the input and leaves the cell of a field that holds no value blank. Select it to keep only the values
-    that were entered.
+    field of the input and leaves the cell of a field that holds no value blank. A field that holds no value and
+    whose type is the type of an object above it, such as a link to the next item of a chain, takes one column:
+    its fields would lead to the same type again without end. Select the option to keep only the values that were
+    entered.
 -   **Flat Parameter Layout** — writes every field of an input on a row of its own. Clear it for a compact table
     of the inputs.
 -   **Result in JSON Format** — writes the returned value on its own as JSON, instead of the workbook of the run.
