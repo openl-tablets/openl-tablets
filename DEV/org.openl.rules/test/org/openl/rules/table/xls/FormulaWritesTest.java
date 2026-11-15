@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 
@@ -14,6 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -220,6 +224,56 @@ class FormulaWritesTest {
             assertEquals(CellType.NUMERIC, copy.getCell(left + 2).getCellType());
             assertEquals(7, copy.getCell(left + 2).getNumericCellValue());
         }
+    }
+
+    /**
+     * A1:C1 and B4:C4 share the formula {@code TRUE()}, kept in its master cell A1. Removing the first row, as moving a
+     * table does, leaves the formula to the cells of the fourth row.
+     */
+    @Test
+    void keepsASharedFormulaForTheCellsLeftWhenItsMasterIsRemoved() throws IOException {
+        try (var workbook = sharedFormulaWorkbook()) {
+            var grid = grid(workbook);
+
+            for (var column = 0; column < 3; column++) {
+                grid.clearCell(column, 0);
+            }
+
+            try (var saved = reload(workbook)) {
+                var row = saved.getSheetAt(0).getRow(3);
+                assertEquals("TRUE()", row.getCell(1).getCellFormula());
+                assertEquals("TRUE()", row.getCell(2).getCellFormula());
+                assertTrue(row.getCell(1).getCTCell().getF().isSetRef(), "B4 is the master of the formula now");
+            }
+        }
+    }
+
+    private static XSSFWorkbook sharedFormulaWorkbook() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet();
+            sheet.createRow(1).createCell(0).setCellValue("between");
+            for (var cell : new int[][]{{0, 0}, {0, 1}, {0, 2}, {3, 1}, {3, 2}}) {
+                var row = sheet.getRow(cell[0]) == null ? sheet.createRow(cell[0]) : sheet.getRow(cell[0]);
+                var ct = row.createCell(cell[1]).getCTCell();
+                ct.setT(STCellType.B);
+                ct.setV("1");
+                var formula = ct.addNewF();
+                formula.setT(STCellFormulaType.SHARED);
+                formula.setSi(0);
+                if (cell[0] == 0 && cell[1] == 0) {
+                    formula.setRef("A1:C4");
+                    formula.setStringValue("TRUE()");
+                }
+            }
+            // a workbook registers its shared formulas when it is read
+            return reload(workbook);
+        }
+    }
+
+    private static XSSFWorkbook reload(XSSFWorkbook workbook) throws IOException {
+        var bytes = new ByteArrayOutputStream();
+        workbook.write(bytes);
+        return new XSSFWorkbook(new ByteArrayInputStream(bytes.toByteArray()));
     }
 
     private static XlsSheetGridModel grid(Workbook workbook) {
