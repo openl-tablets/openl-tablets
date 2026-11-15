@@ -247,12 +247,13 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             )
         }
         case 'boolean':
-            // Ticked or not, as the Editor asked it — a cell holding one of two values is not worth a list.
+            // Ticked or not, as the Editor asked it — a cell holding one of two values is not worth a list. The
+            // class of a field is not given to it: a box as wide as the cell, filled white, is no field to write
+            // in, and would lie beside the tick over the colour of the cell (EPBDS-17251).
             return (
                 <Checkbox
                     autoFocus
                     checked={ticked(value)}
-                    className={className ?? ''}
                     data-testid="table-cell-input"
                     onBlur={() => onCommit()}
                     onChange={event => onChange(String(event.target.checked))}
