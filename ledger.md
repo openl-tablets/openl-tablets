@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- #2542 open (studio-ui React imports, -12). Maintain it first; it merges on green.
+- No PR is open: #2542 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
 - Everything up to `origin/main` 91ffa3cdc9 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
@@ -29,11 +29,11 @@
 
 ## Open PR
 
-- #2542 `dead-code/delta-1115`: head 1ca4804180; one commit, tsc-unused `import React` in 12 production files.
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1), #2348 (-1), #2393 (-3), #2465 (-2), #2488 (-4)
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1), #2348 (-1), #2393 (-3), #2465 (-2), #2488 (-4), #2542 (-12)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
   rather than non-reference is accepted, and one straight off the body's 'Deliberately kept' line. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
@@ -297,4 +297,4 @@
 - 2026-11-01: delta 205 commits (MCP tools, per-user date formats, table types out of tutorials). Error Prone,
   tsc, i18n, bundles, defaults, Docs images and tokens at zero but 1 stale class in Docs: #2465 opened (-2).
 - 2026-11-08: delta 137 commits; every vein zero but tsc's 4 unused `import React` in tests: #2488 opened (-4), merged.
-- 2026-11-15: delta 118 commits; every vein zero but tsc's 12 unused `import React` (production): #2542 (-12).
+- 2026-11-15: delta 118 commits; every vein zero but tsc's 12 unused `import React` (production): #2542 (-12), merged.
