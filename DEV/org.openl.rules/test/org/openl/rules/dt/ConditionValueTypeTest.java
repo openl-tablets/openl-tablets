@@ -52,6 +52,8 @@ class ConditionValueTypeTest {
         assertEquals("no", rules.byPrimitiveFormula(map(false)));
         assertEquals("yes", rules.byPrimitiveFormula(map(true)));
         assertEquals("A or empty", rules.byKeyEmptyCode(map("A")));
+        assertEquals("zero or one", rules.byNumbers(map(0)));
+        assertEquals("other", rules.byNumbers(map(5)));
     }
 
     @Test
@@ -66,6 +68,7 @@ class ConditionValueTypeTest {
         assertEquals("other", rules.byKey(map(null)));
         assertEquals("other", rules.byPrimitiveFormula(map(null)));
         assertEquals("other", rules.byKeyEmptyCode(map(null)));
+        assertEquals("other", rules.byNumbers(map(null)));
     }
 
     @Test
@@ -135,5 +138,7 @@ class ConditionValueTypeTest {
         String byPrimitiveFormula(Map<String, Object> map);
 
         String byKeyEmptyCode(Map<String, Object> map);
+
+        String byNumbers(Map<String, Object> map);
     }
 }
