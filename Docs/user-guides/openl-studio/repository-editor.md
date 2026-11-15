@@ -175,7 +175,9 @@ the projects expanded in it by their path, opening the folders that hold them.
     its own to search, the field searches the tree already.
 
 To group projects by repository, branch or tag types, click **Group projects** ![](images/group-projects-icon.png) and
-select up to three levels. Tag values used for grouping are taken from the most recent version of a project, so after
+select up to three levels. The levels offer the tag types of the projects the tree shows: a tag type that only a
+project of a branch the tree does not show carries is not offered. Tag values used for grouping are taken from the
+most recent version of a project, so after
 changing the tags of an opened project, save the project for the tree to show the change. For more information on tag
 definition for a project, see [Managing Tags](administration/06-tags.md#managing-tags).
 

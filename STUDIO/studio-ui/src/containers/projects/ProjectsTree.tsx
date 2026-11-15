@@ -664,11 +664,12 @@ export const ProjectsTree = ({
         [repoMeta]
     )
 
-    // The grouping levels offer every tag the projects actually carry — the same tags the filter rail
-    // counts — not only the types an administrator configured in the database.
+    // The grouping levels offer every tag the projects the tree shows actually carry, not only the types an
+    // administrator configured in the database. A tag only a project the tree hides carries, such as one left in
+    // a branch that is not shown, would group nothing.
     const tagTypes = useMemo(() => {
         const bySpelling = new Map<string, string>()
-        for (const project of projects ?? []) {
+        for (const project of visible) {
             for (const [type, value] of Object.entries(project.tags ?? {})) {
                 if (type && value && !bySpelling.has(type.toLowerCase())) {
                     bySpelling.set(type.toLowerCase(), type)
@@ -676,7 +677,7 @@ export const ProjectsTree = ({
             }
         }
         return [...bySpelling.values()].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }))
-    }, [projects])
+    }, [visible])
 
     const grouped = useMemo(
         () => buildGroupTree(visible, activeLevels(levels), repositoryName),
