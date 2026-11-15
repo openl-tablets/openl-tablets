@@ -1,30 +1,38 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import lombok.Getter;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.TableMetaInfo;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
@@ -152,6 +160,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
             CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
+                type.setReplacedVersion(isReplacedVersion());
                 var bindingContextType = bindingContext.addType(type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
@@ -165,6 +174,113 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
             }
         }
         return spreadsheet;
+    }
+
+    /**
+     * Whether this table is a version that an active version replaces: it is not active, and another Spreadsheet of the
+     * module has the same name, the same types of parameters and the same dimension properties and is active. Such a
+     * version is never called.
+     */
+    private boolean isReplacedVersion() {
+        var node = getTableSyntaxNode();
+        var properties = node.getTableProperties();
+        if (properties == null || !Boolean.FALSE.equals(properties.getActive())) {
+            return false;
+        }
+        var signature = signatureOf(node);
+        return signature != null && Arrays.stream(getModule().getXlsMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes())
+                .filter(other -> other != node && XlsNodeTypes.XLS_SPREADSHEET == other.getNodeType())
+                .filter(other -> other.getTableProperties() == null
+                        || !Boolean.FALSE.equals(other.getTableProperties().getActive()))
+                .anyMatch(other -> signature.equals(signatureOf(other))
+                        && sameDimensions(properties, other.getTableProperties()));
+    }
+
+    /**
+     * The name and the types of the parameters the header of a table declares, or {@code null} when unreadable. A type
+     * is named as OpenL resolves it, so {@code String} and {@code java.lang.String} are the same type.
+     */
+    private @Nullable String signatureOf(TableSyntaxNode node) {
+        var header = node.getHeaderLineValue();
+        var text = header == null ? "" : header.getValue().strip();
+        var open = text.indexOf('(');
+        if (open < 0 || !text.endsWith(")")) {
+            return null;
+        }
+        var beforeParameters = text.substring(0, open).strip();
+        var name = beforeParameters.substring(lastWhitespace(beforeParameters) + 1);
+        var types = parametersOf(text.substring(open + 1, text.length() - 1)).stream()
+                .map(String::strip)
+                .filter(parameter -> !parameter.isEmpty())
+                .map(parameter -> resolvedType(typeOf(parameter)))
+                .toList();
+        return name + types;
+    }
+
+    /** The Java name of a written type, such as {@code java.lang.String[]} for {@code String []}, or the text itself. */
+    private String resolvedType(String written) {
+        var base = StringUtils.deleteWhitespace(written);
+        var dimensions = 0;
+        while (base.endsWith("[]")) {
+            base = base.substring(0, base.length() - 2);
+            dimensions++;
+        }
+        IOpenClass type;
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
+        try {
+            type = bindingContext.findType(base);
+        } catch (AmbiguousTypeException e) {
+            type = null;
+        } finally {
+            bindingContext.popErrors();
+            bindingContext.popMessages();
+        }
+        return (type == null ? base : type.getJavaName()) + "[]".repeat(dimensions);
+    }
+
+    /** The parameters of a header, split at the commas outside the angle brackets of a generic type. */
+    private static List<String> parametersOf(String text) {
+        var parameters = new ArrayList<String>();
+        var depth = 0;
+        var start = 0;
+        for (var i = 0; i < text.length(); i++) {
+            var c = text.charAt(i);
+            if (c == '<') {
+                depth++;
+            } else if (c == '>') {
+                depth--;
+            } else if (c == ',' && depth == 0) {
+                parameters.add(text.substring(start, i));
+                start = i + 1;
+            }
+        }
+        parameters.add(text.substring(start));
+        return parameters;
+    }
+
+    /**
+     * The type of a parameter written as {@code Type name}, without the context it takes its value from, such as
+     * {@code : context.currentDate}, or the text as it is when it has no name.
+     */
+    private static String typeOf(String parameter) {
+        var colon = parameter.indexOf(':');
+        var declaration = (colon < 0 ? parameter : parameter.substring(0, colon)).strip();
+        var end = lastWhitespace(declaration);
+        return end < 0 ? declaration : declaration.substring(0, end).strip();
+    }
+
+    private static int lastWhitespace(String text) {
+        var i = text.length() - 1;
+        while (i >= 0 && !Character.isWhitespace(text.charAt(i))) {
+            i--;
+        }
+        return i;
+    }
+
+    private static boolean sameDimensions(ITableProperties properties, @Nullable ITableProperties other) {
+        return DimensionPropertiesMethodKey.compareMethodDimensionProperties(properties.getAllDimensionalProperties(),
+                other == null ? Map.of() : other.getAllDimensionalProperties());
     }
 
     public void validateRowsColumnsForResultModel(Spreadsheet spreadsheet) {

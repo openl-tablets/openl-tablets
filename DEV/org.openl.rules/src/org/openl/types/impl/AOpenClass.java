@@ -258,6 +258,11 @@ public abstract class AOpenClass implements IOpenClass {
         return null;
     }
 
+    /** Forgets the fields by lower-cased name, so that they are collected again after fields are removed. */
+    protected void forgetLowerCaseFieldMaps() {
+        lowerCaseFieldMaps.set(null);
+    }
+
     private LowerCaseFieldMaps lowerCaseFieldMaps() {
         var maps = lowerCaseFieldMaps.get();
         if (maps == null) {
