@@ -93,7 +93,7 @@ public class Action extends FunctionalRow implements IAction {
     public @Nullable Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
 
         if (target instanceof IDynamicObject object) {
-            target = new RuleExecutionObject(ruleExecutionType, object, ruleN);
+            target = new RuleExecutionObject(ruleExecutionType, object, ruleN, poolOf(env));
         }
 
         if (isSingleReturnParam) {

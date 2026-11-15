@@ -17,5 +17,8 @@ The value of a parameter is referenced without `$Expr`:
   of an action or a return, use **$A1** and **$RET1** respectively.
 - A formula of one parameter can refer to another parameter of its own column. For example, in a return column
   `RET1` with the parameters **base** and **doubled**, the cell of **doubled** can hold `= $RET1.base * 2`.
+- A formula of a condition parameter is computed once in a call of the table: **$C1.param1** read in a return or
+  an action gives the value computed to match the rule, without running the formula again. A formula of an action
+  or a return parameter is computed each time it is read.
 
 Note: If a cell, which is expected to contain an expression or formula, is empty, it will return null.

@@ -2,7 +2,9 @@ package org.openl.rules.dt.data;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.dt.DecisionTableRuntimePool;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DelegatedDynamicObject;
@@ -22,8 +24,16 @@ public class RuleExecutionObject extends DelegatedDynamicObject {
     @Getter(AccessLevel.PACKAGE)
     private final int ruleNum; // the index of the current rule that is being executed
 
-    public RuleExecutionObject(IOpenClass rulesType, IDynamicObject target, int ruleNum) {
+    /** What the call of the table has computed already, or {@code null} outside a call. */
+    @Getter
+    private final @Nullable DecisionTableRuntimePool pool;
+
+    public RuleExecutionObject(IOpenClass rulesType,
+                               IDynamicObject target,
+                               int ruleNum,
+                               @Nullable DecisionTableRuntimePool pool) {
         super(rulesType, target);
         this.ruleNum = ruleNum;
+        this.pool = pool;
     }
 }
