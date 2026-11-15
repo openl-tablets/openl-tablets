@@ -83,9 +83,15 @@ export const useStyles = createStyles(({ css, token }, onPaper: boolean) => {
         outline: none;
         cursor: text;
     `,
-        /** The open cell, which the field fills. */
+        /**
+     * The open cell, which the field fills. It stands on the line of the strut that gives every cell the height of a
+     * line of text: as a block of its own it would go under it, and the row would grow by a line while the cell is
+     * open (EPBDS-17251).
+     */
         open: css`
+        display: inline-block;
         width: 100%;
+        vertical-align: top;
     `,
         /** While the table is being edited, a cell reads as something that can be picked. */
         editable: css`
