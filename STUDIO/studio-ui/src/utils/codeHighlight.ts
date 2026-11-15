@@ -10,7 +10,7 @@ import { groovy } from '@codemirror/legacy-modes/mode/groovy'
 import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { standardSQL } from '@codemirror/legacy-modes/mode/sql'
-import { highlightCode, tagHighlighter, type Highlighter } from '@lezer/highlight'
+import { highlightCode, tagHighlighter, tags, type Highlighter } from '@lezer/highlight'
 import { codeHighlightStyle } from '../styles/codeMirrorThemes'
 import type { ThemeName } from '../styles/themes'
 import { cached } from './cached'
@@ -101,17 +101,84 @@ const openl = withKeywords(openlGrammar, 'openl', OPENL_PHRASES)
 /** The grammar of a TBasic table: an OpenL expression, and the operations of the table. */
 const tbasic = withKeywords(openlGrammar, 'tbasic', OPENL_PHRASES, TBASIC_OPERATIONS)
 
+/** A name that starts with a capital and holds a small letter, as the name of a class does. */
+const TYPE_NAME = /^[A-Z][\w$]*[a-z]/
+
+/**
+ * What a name is, read from the text around it: a part of the path of an import or a package, a type, a method
+ * called, a member of an object, or a variable.
+ */
+const nameStyle = (stream: StringStream): string => {
+    const name = stream.current()
+    if (/^\s*(?:import|package)\b/.test(stream.string)) {
+        return TYPE_NAME.test(name) ? 'type' : 'namespace'
+    }
+    const member = /\.\s*$/.test(stream.string.slice(0, stream.start))
+    if (/^\s*\(/.test(stream.string.slice(stream.pos))) {
+        return 'call'
+    }
+    if (member) {
+        return 'property'
+    }
+    return TYPE_NAME.test(name) ? 'type' : 'variable'
+}
+
+/**
+ * A grammar of Java or Groovy that tells the names apart, as IDEs colour them. The legacy modes read every name as a
+ * variable, or as a property after a dot, which a theme colouring both, as One Dark does in red, paints the whole
+ * code with.
+ */
+const withNames = (grammar: StreamParser<unknown>): StreamParser<unknown> => ({
+    ...grammar,
+    token: (stream, state) => {
+        const style = grammar.token(stream, state)
+        return style === 'variable' || style === 'property' ? nameStyle(stream) : style
+    },
+    tokenTable: {
+        ...grammar.tokenTable,
+        namespace: tags.namespace,
+        call: tags.function(tags.variableName),
+    },
+})
+
+/**
+ * The grammar of a .properties file: a key is the name of a property, and a value a string. The mode marks a key as a
+ * definition of a variable, which One Dark, the dark appearance of the standard theme, writes in the colour of plain
+ * text, and a value as a quote, which most themes leave plain. The table of a language answers the names of the
+ * legacy modes itself, so the key is given a name of its own.
+ */
+const propertiesGrammar: StreamParser<unknown> = {
+    ...properties,
+    token: (stream, state) => {
+        const style = properties.token(stream, state)
+        switch (style) {
+            case 'def':
+                return 'key'
+            case 'quote':
+                return 'string'
+            default:
+                return style
+        }
+    },
+    tokenTable: { key: tags.definition(tags.propertyName) },
+}
+
+/** The languages of the code files the code editor opens, which the guides highlight their samples with too. */
+export const groovyLanguage = StreamLanguage.define(withNames(groovy))
+export const javaLanguage = StreamLanguage.define(withNames(java))
+export const propertiesLanguage = StreamLanguage.define(propertiesGrammar)
+
 /**
  * The grammars of the languages the guides use, the ones the code editor highlights with, and of the code of OpenL
  * tables: `openl` for an expression, `tbasic` for the steps of a TBasic table.
  */
 const LANGUAGES = new Map<string, Language>([
     ['bash', StreamLanguage.define(shell)],
-    ['groovy', StreamLanguage.define(groovy)],
-    ['java', StreamLanguage.define(java)],
+    ['groovy', groovyLanguage],
+    ['java', javaLanguage],
     ['json', jsonLanguage],
     ['openl', StreamLanguage.define(openl)],
-    ['properties', StreamLanguage.define(properties)],
+    ['properties', propertiesLanguage],
     ['sql', StreamLanguage.define(standardSQL)],
     ['tbasic', StreamLanguage.define(tbasic)],
     ['xml', xmlLanguage],

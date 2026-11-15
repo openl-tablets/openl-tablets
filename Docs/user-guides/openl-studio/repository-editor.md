@@ -834,6 +834,11 @@ A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, selecte
 2.  Change the content.
 3.  Click **Save** to keep the changes in the workspace copy, or **Cancel** to discard them.
 
+The viewer and the editor colour the syntax of an XML, JSON, YAML, `.properties`, Groovy and Java file in the colours
+of the theme; any other text file is shown plain. In Groovy and Java, a type, a method call and the path of an import
+each take a colour of their own, apart from a variable. In a `.properties` file, a key is coloured as the name of a
+property and its value as a string.
+
 An Excel workbook or another binary file cannot be viewed here. Its pane offers **Export**, and for a module of the project, **Open in Editor** opens the tables of the module in the editor.
 
 The `i18n` folder holds the localization files of the project, and its pane offers **Open in Editor**, which opens the messages of all languages on the **Localization** screen. **Open in Editor** of a localization file opens them too, as described in [Editing Localization Messages](rules-editor.md#editing-localization-messages).

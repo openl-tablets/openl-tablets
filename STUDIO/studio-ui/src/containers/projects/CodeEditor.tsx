@@ -10,15 +10,12 @@ import CodeMirror, {
 import { xml } from '@codemirror/lang-xml'
 import { json } from '@codemirror/lang-json'
 import { yaml } from '@codemirror/lang-yaml'
-import { StreamLanguage } from '@codemirror/language'
 import { lintGutter, setDiagnostics, type Diagnostic } from '@codemirror/lint'
-import { properties } from '@codemirror/legacy-modes/mode/properties'
-import { groovy } from '@codemirror/legacy-modes/mode/groovy'
-import { tags } from '@lezer/highlight'
 import { createStyles, useThemeMode } from 'antd-style'
 import { MOCKUP } from './projectsTheme'
 import { useAppTheme } from '../../providers/AppThemeProvider'
 import { editorTheme } from '../../styles/codeMirrorThemes'
+import { groovyLanguage, javaLanguage, propertiesLanguage } from '../../utils/codeHighlight'
 
 const useStyles = createStyles(({ css, token }) => ({
     editor: css`
@@ -66,18 +63,9 @@ const useStyles = createStyles(({ css, token }) => ({
 const XML: Extension[] = [xml()]
 const JSON_LANGUAGE: Extension[] = [json()]
 const YAML: Extension[] = [yaml()]
-// The mode marks a key as a definition of a variable, which One Dark, the dark appearance of the standard theme,
-// writes in the colour of plain text. A key defines a property: every theme colours that, so keys stand out in all.
-// The table of a language answers the names of the legacy modes itself, so the key is given a name of its own.
-const PROPERTIES: Extension[] = [StreamLanguage.define({
-    ...properties,
-    token: (stream, state) => {
-        const style = properties.token(stream, state)
-        return style === 'def' ? 'key' : style
-    },
-    tokenTable: { key: tags.definition(tags.propertyName) },
-})]
-const GROOVY: Extension[] = [StreamLanguage.define(groovy)]
+const PROPERTIES: Extension[] = [propertiesLanguage]
+const GROOVY: Extension[] = [groovyLanguage]
+const JAVA: Extension[] = [javaLanguage]
 const PLAIN_TEXT: Extension[] = []
 
 /** CodeMirror language extensions for a file, chosen from its extension. Unknown types render as plain text. */
@@ -97,6 +85,8 @@ const languageFor = (path: string): Extension[] => {
             return PROPERTIES
         case 'groovy':
             return GROOVY
+        case 'java':
+            return JAVA
         default:
             return PLAIN_TEXT
     }
@@ -195,7 +185,7 @@ interface CodeEditorProps {
 
 /**
  * Syntax-highlighted view of a project text file, backed by CodeMirror. Highlighting is chosen from the
- * file extension (XML, JSON, YAML, .properties, Groovy); other types show as plain monospace text. When
+ * file extension (XML, JSON, YAML, .properties, Groovy, Java); other types show as plain monospace text. When
  * {@link CodeEditorProps.readOnly} is set the content is shown for viewing only. The editor is drawn in the
  * theme in force and its appearance, light or dark, and follows both when the user switches: the standard
  * theme lays CodeMirror's own light theme or One Dark on the surface of the page, every other theme is the

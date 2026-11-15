@@ -38,6 +38,27 @@ describe('highlight', () => {
         expect(styleOf(pieces, 'b')).toEqual({ color: '#B9D2FF', borderBottom: '1px dotted #fc6d24' })
     })
 
+    it.each(['groovy', 'java'])('tells the names of %s apart, as IDEs colour them (EPBDS-17010)', language => {
+        const code = 'import java.util.List\nList<String> names = load(source)\nnames.size()'
+        const pieces = highlight(code, language, 'standard', true)
+        const variable = styleOf(pieces, 'source')
+
+        expect(variable).toBeDefined()
+        expect(styleOf(pieces, 'java')).not.toEqual(variable)
+        expect(styleOf(pieces, 'List')).not.toEqual(variable)
+        expect(styleOf(pieces, 'load')).not.toEqual(variable)
+        expect(styleOf(pieces, 'size')).not.toEqual(variable)
+    })
+
+    it.each(THEME_ORDER)('draws the key and the value of a property apart in the theme %s (EPBDS-17010)', name => {
+        [false, true].forEach(isDarkMode => {
+            const pieces = highlight('total=text', 'properties', name, isDarkMode)
+
+            expect(styleOf(pieces, 'total')).toBeDefined()
+            expect(hex(styleOf(pieces, 'text')?.color)).toBe(variantOf(name, isDarkMode).syntax.string)
+        })
+    })
+
     it('leaves the text between the tokens unstyled', () => {
         const pieces = highlight('a: 1', 'yaml', 'nord', true)
 

@@ -30,6 +30,14 @@ describe('CodeEditor', () => {
         expect(render(<CodeEditor path="rules/Script.groovy" value="println 1" />).container.querySelector('.cm-editor')).toBeTruthy()
     })
 
+    it('highlights a Java file, which a plain text file is not (EPBDS-17010)', () => {
+        const keywordsOf = (path: string) => [...render(<CodeEditor path={path} value="public class A {}" />)
+            .container.querySelectorAll('.cm-line span')].filter(span => span.textContent === 'public')
+
+        expect(keywordsOf('src/A.java')).toHaveLength(1)
+        expect(keywordsOf('src/A.txt')).toHaveLength(0)
+    })
+
     it('is drawn light by default and dark when the appearance is dark', () => {
         expect(render(<CodeEditor path="a.xml" value="" />).container.querySelector('.cm-theme-light')).toBeTruthy()
         const dark = render(
