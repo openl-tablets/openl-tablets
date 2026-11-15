@@ -1,6 +1,11 @@
 package org.openl.studio.projects.service.tables.write;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.IntStream;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -46,6 +51,9 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
     protected void updateBusinessBody(SimpleRulesView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         writeConditionHeaders(tableBody, tableView);
+        if (isUpdateMode()) {
+            unmergeSplitValues(tableBody, tableView);
+        }
         var row = 1;
         var colMax = 0;
         for (var rule : tableView.rules) {
@@ -70,6 +78,38 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
                 removeRows(tableBody, height - row, row);
             }
         }
+    }
+
+    /**
+     * Unmerges a value merged over several rules when the written rules give them different values, so that each rule
+     * keeps its own. A value merged over rules that keep one value stays merged.
+     */
+    private void unmergeSplitValues(IGridTable tableBody, SimpleRulesView tableView) {
+        var grid = tableBody.getGrid();
+        var table = tableBody.getRegion();
+        var height = GridRegionUtils.height(table);
+        for (var col = 0; col < tableView.headers.size(); col++) {
+            var title = tableView.headers.get(col).title;
+            var row = 1;
+            while (row < height) {
+                var merged = grid.getRegionContaining(table.getLeft() + col, table.getTop() + row);
+                var rows = merged == null ? 1 : GridRegionUtils.height(merged);
+                if (rows > 1 && !sameValue(tableView.rules, title, row - 1, rows)) {
+                    removeMergedRegions(tableBody, merged);
+                }
+                row += rows;
+            }
+        }
+    }
+
+    /** Whether the rules from the first one on give the column one value, a missing rule giving none. */
+    private static boolean sameValue(List<? extends Map<String, Object>> rules, String title, int first, int count) {
+        var value = valueOf(rules, title, first);
+        return IntStream.range(first + 1, first + count).allMatch(i -> Objects.equals(valueOf(rules, title, i), value));
+    }
+
+    private static @Nullable Object valueOf(List<? extends Map<String, Object>> rules, String title, int index) {
+        return index < rules.size() ? rules.get(index).get(title) : null;
     }
 
     private void writeConditionHeaders(IGridTable tableBody, SimpleRulesView tableView) {

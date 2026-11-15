@@ -838,7 +838,12 @@ public abstract class TableWriter<T extends TableView> {
      * @param gridTable The grid table whose merged regions are cleared
      */
     protected void clearMergedRegions(IGridTable gridTable) {
-        var removal = new RemoveMergedRegionsAction(gridTable.getRegion());
+        removeMergedRegions(gridTable, gridTable.getRegion());
+    }
+
+    /** Removes the merges inside the region of the table and tells the save so. */
+    protected void removeMergedRegions(IGridTable gridTable, IGridRegion region) {
+        var removal = new RemoveMergedRegionsAction(region);
         removal.doAction(gridTable);
         mergesRemoved(removal.getRemovedRegions());
     }

@@ -42,14 +42,19 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
         var cellValueReader = new CellValueReader(metaInfoReader);
         var tableBody = tsn.getTableBody();
 
-        var headers = getConditionHeaders(tableBody.getRow(0));
+        var titles = tableBody.getRow(0);
+        var headers = getConditionHeaders(titles);
         builder.headers(headers);
         var list = new ArrayList<LinkedHashMap<String, Object>>();
-        var height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
+        // A rule is a row of the sheet: a value merged over several rows, such as a condition the rules below share,
+        // belongs to each of them.
+        var source = tableBody.getSource();
+        var height = OpenLTableUtils.getHeightWithoutEmptyRows(source);
         var width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
-        // start from 1 because 0 is header
-        for (var row = 1; row < height; row++) {
+        for (var row = titles.getSource().getHeight(); row < height; row++) {
             var rule = new LinkedHashMap<String, Object>();
+            // a column titled over several cells of the sheet holds its value in the first of them
+            var cell = 0;
             for (var col = 0; col < width; col++) {
                 String ruleName = null;
                 if (col < headers.size()) {
@@ -58,7 +63,8 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
                 if (ruleName == null) {
                     ruleName = ARuleHeaderView.UNKNOWN_HEADER_NAME + col;
                 }
-                rule.put(ruleName, cellValueReader.apply(tableBody.getCell(col, row)));
+                rule.put(ruleName, cellValueReader.apply(source.getCell(cell, row)));
+                cell += tableBody.getColumnWidth(col);
             }
             list.add(rule);
         }
