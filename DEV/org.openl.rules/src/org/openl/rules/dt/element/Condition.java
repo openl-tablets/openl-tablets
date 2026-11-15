@@ -29,7 +29,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
-import org.openl.rules.dt.DecisionTableRuntimePool;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.helpers.CharRange;
@@ -130,7 +129,7 @@ public class Condition extends FunctionalRow implements ICondition {
     @Override
     public DecisionValue calculateCondition(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
         if (target instanceof IDynamicObject object) {
-            target = new RuleExecutionObject(ruleExecutionType, object, ruleN);
+            target = new RuleExecutionObject(ruleExecutionType, object, ruleN, poolOf(env));
         }
 
         if (isEmpty(ruleN)) {
@@ -144,7 +143,7 @@ public class Condition extends FunctionalRow implements ICondition {
              * IMPORTANT NOTE: Performance optimization when condition parameter is not used in the expression. No need
              * to execute expression per each ruleNumber cause the result will be always the same.
              */
-            var runtimePool = (DecisionTableRuntimePool) env.getLocalFrame()[0];
+            var runtimePool = Objects.requireNonNull(poolOf(env));
             var decisionValue = (DecisionValue) runtimePool.getConditionExecutionResult(getName());
             if (decisionValue == null) {
                 decisionValue = makeDecision(ruleN, target, dtParams, env);

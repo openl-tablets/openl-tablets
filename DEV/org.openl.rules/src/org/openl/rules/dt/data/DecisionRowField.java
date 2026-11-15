@@ -46,6 +46,9 @@ public class DecisionRowField implements IOpenField {
      *
      * <p>A parameter is computed when it is read. So a formula of one parameter can refer to another parameter of
      * its own column, such as {@code $RET1.limit}, without being computed again itself.
+     *
+     * <p>A formula of a condition is computed once in a call of the table: a parameter the condition computed already
+     * to match the rule is read as it was computed. A formula of an action is computed each time it is read.
      */
     @RequiredArgsConstructor
     static final class Values {

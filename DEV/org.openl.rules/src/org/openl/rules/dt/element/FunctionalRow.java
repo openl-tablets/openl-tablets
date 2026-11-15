@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -22,8 +24,10 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableRuntimePool;
 import org.openl.rules.dt.Expr;
 import org.openl.rules.dt.IDecisionTableConstants;
+import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
@@ -770,13 +774,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     public void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
 
         for (var i = 0; i < dest.length - offset; i++) {
-            var value = storage[i].getValue(ruleN);
-            if (value instanceof IOpenMethod openMethod) {
-                value = openMethod.invoke(target, tableParams, env);
-            } else if (value instanceof ArrayHolder holder) {
-                value = holder.invoke(target, tableParams, env);
-            }
-            dest[i + offset] = value;
+            dest[i + offset] = loadValue(i, ruleN, target, tableParams, env);
         }
 
     }
@@ -784,12 +782,28 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public Object loadValue(int row, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
         var value = storage[row].getValue(ruleN);
-        if (value instanceof IOpenMethod openMethod) {
-            value = openMethod.invoke(target, tableParams, env);
-        } else if (value instanceof ArrayHolder holder) {
-            value = holder.invoke(target, tableParams, env);
+        if (!(value instanceof IOpenMethod) && !(value instanceof ArrayHolder)) {
+            return value;
         }
-        return value;
+        // a formula of a condition is computed once in a call of the table: a return value reading the parameter, as
+        // $C1.param does, takes the value the condition computed to match the rule. A formula of an action is computed
+        // each time it is read, so an action can be run again from the return value.
+        var pool = isCondition() && target instanceof RuleExecutionObject rule ? rule.getPool() : null;
+        return pool == null
+                ? compute(value, target, tableParams, env)
+                : pool.formulaValue(this, row, ruleN, () -> compute(value, target, tableParams, env));
+    }
+
+    private static @Nullable Object compute(Object formula, Object target, Object[] tableParams, IRuntimeEnv env) {
+        return formula instanceof IOpenMethod openMethod
+                ? openMethod.invoke(target, tableParams, env)
+                : ((ArrayHolder) formula).invoke(target, tableParams, env);
+    }
+
+    /** The pool of the call of the table the given environment runs, or {@code null} outside a call. */
+    static @Nullable DecisionTableRuntimePool poolOf(IRuntimeEnv env) {
+        var frame = env.getLocalFrame();
+        return frame != null && frame.length > 0 && frame[0] instanceof DecisionTableRuntimePool pool ? pool : null;
     }
 
     @Override
