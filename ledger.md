@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- No PR is open: #2488 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- Everything up to `origin/main` 4c37885662 is swept, Java included. A run is: sweep the delta since that SHA, then
+- #2542 open (studio-ui React imports, -12). Maintain it first; it merges on green.
+- Everything up to `origin/main` 91ffa3cdc9 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
@@ -29,7 +29,7 @@
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2542 `dead-code/delta-1115`: head 1ca4804180; one commit, tsc-unused `import React` in 12 production files.
 
 ## Merged PRs
 
@@ -166,7 +166,7 @@
   "new issues" must read ZERO before the PR is done, no auth: `sonarcloud.io/api/issues/search?componentKeys=
   org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
 - Stage every commit by explicit path (`git add -- <files>`) or a `git rm` staged earlier rides into it.
-- Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters` (new tests keep `import React` under
+- Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters` (new files, tests and production, keep `import React` under
   `react-jsx`: the vein pays most deltas), `npx vitest run <area>`. Both need
   `node_modules`, which the reactor build populates — tsc then runs fine beside Maven, vitest does not.
 - i18n keys: parse each `addResourceBundle` literal into dotted paths and judge by the FULL path — the same leaf
@@ -288,12 +288,13 @@
 - Flake fixes a human could make: pin `apache/kafka-native:latest` in itest.kafka.smoke or move to `apache/kafka:4.3.1`; fix
   ORA-12516 in IT (studio-acl); raise the CI vitest `testTimeout` above 20_000; raise the WebSocket idle timeout for
   `WebSocketChangeOriginTest`.
+- Demo Example-5-Markdown-Rules/README.md still names the removed **Files** tab: a rewrite.
 - KafkaMessageHeader.Type.PRODUCER_RECORD is documented as usable but StoreLogDataMapper acts only on
   CONSUMER_RECORD; the mapper or the guide is wrong. The constant is API and stays.
 
 ## Run log
 
-- 2026-10-25: delta empty; #2393 green, unreviewed. Four new veins probed at zero, no build, no commit.
 - 2026-11-01: delta 205 commits (MCP tools, per-user date formats, table types out of tutorials). Error Prone,
   tsc, i18n, bundles, defaults, Docs images and tokens at zero but 1 stale class in Docs: #2465 opened (-2).
 - 2026-11-08: delta 137 commits; every vein zero but tsc's 4 unused `import React` in tests: #2488 opened (-4), merged.
+- 2026-11-15: delta 118 commits; every vein zero but tsc's 12 unused `import React` (production): #2542 (-12).
