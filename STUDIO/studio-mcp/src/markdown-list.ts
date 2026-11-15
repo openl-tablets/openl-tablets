@@ -97,11 +97,6 @@ export function formatListOf<T>(items: T[], limit: number, offset: number, page:
   return formatList({ ...page, items: items.slice(offset, offset + limit), offset, total: items.length });
 }
 
-/** A list answered whole, cut to the response limit by whole rows. */
-export function formatWholeList<T>(items: T[], page: ListOf<T>): string {
-  return formatListOf(items, items.length, 0, page);
-}
-
 /** A page of a list OpenL Studio pages itself, from `offset`: Studio takes a true item offset. */
 export function formatStudioPage<T>(page: Types.CollectionPage<T>, offset: number, list: ListOf<T>): string {
   return formatList({

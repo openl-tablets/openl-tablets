@@ -272,18 +272,26 @@ export const projectOnlySchema = z.strictObject({
   projectId: projectIdSchema,
 });
 
+/** The modules of a project, a page at a time: a project may match hundreds of workbooks with one pattern. */
+export const listProjectModulesSchema = z.strictObject({
+  projectId: projectIdSchema,
+  ...paginationShape,
+});
+
 /**
- * A tool that names one module of a project: its sheets, its local history. Studio can default an omitted module to
- * the first descriptor entry, but such a tool works on a specific module, so the module is required.
+ * The worksheets of one module of a project, a page at a time. Studio can default an omitted module to the first
+ * descriptor entry, but the tool works on a specific module, so the module is required.
  */
-export const projectModuleSchema = z.strictObject({
+export const listModuleSheetsSchema = z.strictObject({
   projectId: projectIdSchema,
   module: nonBlankString.describe("As openl_list_project_modules names it."),
+  ...paginationShape,
 });
 
 export const listTablePropertyDefinitionsSchema = z.strictObject({
   projectId: projectIdSchema,
   tableType: z.enum(TABLE_KINDS).optional().describe("Omit for the properties of a Properties table."),
+  ...paginationShape,
 });
 
 /** Where a table copied or created goes when it is not in a module of the project yet, and its sheet. */
@@ -777,6 +785,7 @@ export const listProjectLocalChangesSchema = z.strictObject({
   projectId: projectIdSchema,
   module: nonBlankString.optional().describe("As openl_list_project_modules names it; omit for every module."),
   historyId: nonBlankString.optional().describe("A version of the module: answer instead the tables a restore to it would change."),
+  ...paginationShape,
 }).refine((args) => args.historyId === undefined || args.module !== undefined, {
   error: "historyId is a version of the history of one module: name the module.",
   path: ["historyId"],

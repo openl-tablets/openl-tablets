@@ -8,7 +8,7 @@ import * as schemas from "../schemas.js";
 
 import { isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, textResult, type ToolResponse, TABLE_ID_ALIAS } from "./common.js";
-import { cellText, fitLines, formatWholeList } from "../markdown-list.js";
+import { cellText, fitLines, formatListOf } from "../markdown-list.js";
 import { formatCount, tableLabel } from "../text.js";
 import { waitForResult } from "./wait.js";
 import { finishTableEdit } from "./table-edit.js";
@@ -174,7 +174,7 @@ export function registerTableWorkflowHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const properties = await client.listTablePropertyDefinitions(args.projectId, args.tableType);
-      return textResult(formatWholeList(properties, {
+      return textResult(formatListOf(properties, args.limit, args.offset, {
         noun: "properties", one: "property",
         columns: [
           { header: "name", value: (property) => property.name },
