@@ -15,6 +15,7 @@ public class RulesCompileContext extends DefaultCompileContext {
     public RulesCompileContext() {
         // <<< INSERT >>>
         addValidator(new org.openl.rules.validation.UniquePropertyValueValidator("name"));
+        addValidator(new org.openl.rules.validation.RegexpPropertyValidator("version", "regexp:([0-9]{1,9})\\.([0-9]{1,9})\\.([0-9]{1,9})"));
         addValidator(new org.openl.rules.validation.ActivePropertyValidator());
         addValidator(new org.openl.rules.validation.UniquePropertyValueValidator("id"));
         addValidator(new org.openl.rules.validation.RegexpPropertyValidator("id", "regexp:([a-zA-Z_][a-zA-Z0-9_]*)"));

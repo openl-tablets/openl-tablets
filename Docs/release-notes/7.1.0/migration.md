@@ -34,6 +34,11 @@ engine change how an existing project compiles or runs, as listed for the rules 
   failed the test case and an empty one passed it. Write the value the step holds, and remove the checks of the fields
   the error does not have.
 
+* **A table version that is not three numbers gets a warning.** A `version` property such as `1.2`, `1.2.3.4` or
+  `abc` compiles with `Incorrect value '1.2' for property 'Version'`. Before, any text was taken without a message,
+  although the engine orders versions by three numbers and cannot order the others. Write the version as three numbers
+  separated by dots, such as `1.2.0`.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and

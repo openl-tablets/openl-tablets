@@ -261,27 +261,9 @@ public class ProjectMetadataService {
                 multiple,
                 definition.isDimensional(),
                 definition.getDefaultValue(),
-                pattern(definition),
+                // the expression the compiler validates the property with, so a dialog refuses what the module would
+                RegexpValueConstraint.regexpOf(definition.getConstraints()),
                 values);
-    }
-
-    /**
-     * The regular expression a value of the property must match, or {@code null} when it states none.
-     *
-     * <p>It is the same expression the compiler validates the property with, so a dialog refusing a value refuses
-     * exactly what the module would refuse.
-     */
-    private static @Nullable String pattern(TablePropertyDefinition definition) {
-        var constraints = definition.getConstraints();
-        if (constraints == null) {
-            return null;
-        }
-        return constraints.getAll()
-                .stream()
-                .filter(RegexpValueConstraint.class::isInstance)
-                .map(constraint -> ((RegexpValueConstraint) constraint).getRegexp())
-                .findFirst()
-                .orElse(null);
     }
 
     /** What a value that is not one of a list looks like. */

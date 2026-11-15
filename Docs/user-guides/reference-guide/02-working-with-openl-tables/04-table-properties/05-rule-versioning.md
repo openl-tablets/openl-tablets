@@ -346,6 +346,8 @@ Every time the rule is run, OpenL Tablets consequentially checks the input field
 
 Rule versioning allows storing the previous versions of the same rule table in the same rules file. The active rule versioning mechanism is based on two properties, **version** and **active**. The **version** property must be different for each table, and only one of them can have **true** as a value for the **active** property.
 
+A version is three numbers separated by dots, such as `1.0.2`: the major, minor and variant numbers versions are ordered by. A table whose version has another form, such as `1.2` or `1.2.3.4`, compiles with the warning `Incorrect value '1.2' for property 'Version'`.
+
 All rule versions must have the same identity, that is, exactly the same signature and dimensional properties values. Table types also must be the same.
 
 An example of an inactive rule version is as follows.

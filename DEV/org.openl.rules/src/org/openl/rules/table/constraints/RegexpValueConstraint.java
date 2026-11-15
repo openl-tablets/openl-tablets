@@ -3,6 +3,7 @@ package org.openl.rules.table.constraints;
 import java.util.regex.Pattern;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Constraint for string values. Checks that the string value matches specified regular expression pattern.
@@ -17,6 +18,24 @@ public class RegexpValueConstraint extends AbstractConstraint {
     public RegexpValueConstraint(String value) {
         super(value);
         regexp = getRegexPattern(value);
+    }
+
+    /**
+     * The regular expression that the constraints of a table property state.
+     *
+     * @param constraints the constraints of the property, or {@code null} for none
+     * @return the expression of the first regexp constraint, or {@code null} when there is none
+     */
+    public static @Nullable String regexpOf(@Nullable Constraints constraints) {
+        if (constraints == null) {
+            return null;
+        }
+        return constraints.getAll()
+                .stream()
+                .filter(RegexpValueConstraint.class::isInstance)
+                .map(constraint -> ((RegexpValueConstraint) constraint).getRegexp())
+                .findFirst()
+                .orElse(null);
     }
 
     public static String getRegexPattern(String value) {
