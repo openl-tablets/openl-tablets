@@ -204,6 +204,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (cell != null) {
             cell.removeCellComment();
             cell.removeHyperlink();
+            // the master cell of a shared formula hands the formula to the next cell of its group, which removing the
+            // cell alone does not do: the other cells of the group would refer to a formula no cell holds any more
+            if (cell.getCellType() == CellType.FORMULA) {
+                cell.setBlank();
+            }
             sheet.getRow(row).removeCell(cell);
         }
     }
