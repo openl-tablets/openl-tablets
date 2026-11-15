@@ -63,6 +63,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayTool;
 import org.openl.util.ClassUtils;
 import org.openl.util.MessageUtils;
 import org.openl.util.text.TextInfo;
@@ -158,10 +159,18 @@ public class Condition extends FunctionalRow implements ICondition {
         var result = getMethod().invoke(target, params, env);
         if (comparisonCast != null) {
             result = comparisonCast.convert(result);
-            return Objects.equals(result, params[params.length - 1]) ? DecisionValue.TRUE_VALUE
+            return matches(result, params[params.length - 1]) ? DecisionValue.TRUE_VALUE
                     : DecisionValue.FALSE_VALUE;
         }
         return Boolean.TRUE.equals(result) ? DecisionValue.TRUE_VALUE : DecisionValue.FALSE_VALUE;
+    }
+
+    /**
+     * Tells whether the value equals the value of the cell or, for a cell of several values, one of them.
+     */
+    private static boolean matches(@Nullable Object value, @Nullable Object cell) {
+        return cell != null && cell.getClass().isArray() ? ArrayTool.contains(cell, value)
+                : Objects.equals(value, cell);
     }
 
     public static IOpenField getLocalField(IOpenField f) {

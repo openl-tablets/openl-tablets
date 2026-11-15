@@ -4,7 +4,7 @@ Rules inside decision tables are processed one by one in the order they are plac
 
 Blank parameter value cell of the condition is interpreted as a true condition and this condition is ignored for a particular rule row or column. If the condition column has several parameters, the condition with all its parameter cells blank is interpreted as a true condition.
 
-A condition whose expression does not return a Boolean value holds when the value of the expression equals the value of its cell or, for a cell of several values, one of them. The expression can have a wider type than the column, such as `map.get("key")` or `list[0]`, which are of type `Object`. The type of its value is then checked when the rules run:
+A condition whose expression does not return a Boolean value holds when the value of the expression equals the value of its cell or, for a cell of several values, one of them. The expression can have a wider type than the column, such as `map.get("key")`, `list[0]` or `map.get(key)` with the key taken from another column, which are of type `Object`. The type of its value is then checked when the rules run:
 
 - a value of the column type is compared as it is;
 - a value that OpenL Tablets converts to the column type when passing it to a rule is converted, so `1` equals the value `1.0` of a `Double` column;

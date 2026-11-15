@@ -44,6 +44,11 @@ class ConditionValueTypeTest {
         assertEquals("no", rules.byFormula(map(false)));
         assertEquals("yes", rules.byInput(true));
         assertEquals("no", rules.byInput(false));
+        assertEquals("yes", rules.byKey(map(true)));
+        assertEquals("no", rules.byKey(map(false)));
+        assertEquals("one", rules.byKeyAmount(map(1.0)));
+        assertEquals("A or B", rules.byKeyCodes(map("B")));
+        assertEquals("other", rules.byKeyCodes(map("C")));
     }
 
     @Test
@@ -55,6 +60,7 @@ class ConditionValueTypeTest {
         assertEquals("other", rules.byElement(Arrays.asList((Object) null)));
         assertEquals("other", rules.byFormula(map(null)));
         assertEquals("other", rules.byInput(null));
+        assertEquals("other", rules.byKey(map(null)));
     }
 
     @Test
@@ -66,6 +72,7 @@ class ConditionValueTypeTest {
         assertFails("Condition 'C1' of table 'byDouble' expects a value of type 'Double', but got 'true' of type"
                 + " 'Boolean'.", () -> rules.byDouble(map(true)));
         assertEquals("one", rules.byDouble(map(1L)));
+        assertEquals("one", rules.byKeyAmount(map(1)));
     }
 
     @Test
@@ -84,6 +91,8 @@ class ConditionValueTypeTest {
                 + " 'String'.", () -> rules.byFormula(map("true")));
         assertFails("Condition 'C1' of table 'byInput' expects a value of type 'Boolean', but got 'true' of type"
                 + " 'String'.", () -> rules.byInput("true"));
+        assertFails("Condition 'C1' of table 'byKey' expects a value of type 'Boolean', but got 'true' of type"
+                + " 'String'.", () -> rules.byKey(map("true")));
         assertFails("Condition 'C1' of table 'byDouble' expects a value of type 'Double', but got '{1,2}' of type"
                 + " 'int[]'.", () -> rules.byDouble(map(new int[] {1, 2})));
     }
@@ -111,5 +120,11 @@ class ConditionValueTypeTest {
         String byElement(List<Object> list);
 
         String byInput(Object flag);
+
+        String byKey(Map<String, Object> map);
+
+        String byKeyAmount(Map<String, Object> map);
+
+        String byKeyCodes(Map<String, Object> map);
     }
 }
