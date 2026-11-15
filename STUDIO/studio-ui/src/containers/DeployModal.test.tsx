@@ -225,6 +225,38 @@ describe('DeployModal', () => {
         )
     })
 
+    it('asks no comment for a repository that keeps none, and deploys without one', async () => {
+        mockApiCall.mockReset()
+        mockApiCall
+            .mockResolvedValueOnce([
+                {
+                    id: 'local',
+                    name: 'Local',
+                    features: { branches: false, searchable: false, mappedFolders: false, comments: false },
+                },
+            ])
+            .mockResolvedValueOnce([{ id: 'dep-1', name: 'Deploy1' }])
+            .mockResolvedValueOnce(undefined)
+        renderDeployModal()
+        await openModal(defaultDetail)
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/production-repos'))
+        expect(screen.getByLabelText('deploy:comment.label')).toBeInTheDocument()
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'local')
+        await screen.findByRole('option', { name: 'Deploy1' })
+
+        // EPBDS-14808: a Local repository keeps no comment, so the dialog does not ask for one.
+        expect(screen.queryByLabelText('deploy:comment.label')).not.toBeInTheDocument()
+        await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
+        await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(
+            '/deployments/dep-1',
+            expect.objectContaining({ method: 'POST', body: JSON.stringify({ projectId: 'proj-1' }) }),
+            { throwError: true, suppressErrorPages: true }
+        ))
+    })
+
     it('notifies listeners after a successful deploy', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
         const deployed = vi.fn()

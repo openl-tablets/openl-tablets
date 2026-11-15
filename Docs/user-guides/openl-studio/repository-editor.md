@@ -973,7 +973,8 @@ To deploy a project, proceed as follows:
 
 2.  In the **Repository** dropdown, select the target deployment repository. Only the repositories the user may deploy to are offered.
 3.  In the **Deployment Name** field, select an existing deployment from the list or type a new name to create one.
-4.  In the **Comment** field, enter a comment describing the deployment.
+4.  In the **Comment** field, enter a comment describing the deployment. A repository that keeps no comments, such as
+    a **Local** one, does not offer the field.
 5.  Click **Deploy**.
 
 A deployment name follows the rules of a project name: it cannot contain the characters `\ / : ; < > ? * % ' [ ] | "`, start with a space, end with a space or a dot, or be a reserved word such as `CON`. If the name is not accepted, the reason is displayed under **Deployment Name**, and nothing is deployed.

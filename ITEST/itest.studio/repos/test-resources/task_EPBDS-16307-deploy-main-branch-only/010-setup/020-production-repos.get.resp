@@ -9,6 +9,12 @@ Content-Type: application/json
     "type": "repo-jdbc",
     "capabilities": {
       "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false,
+      "comments": true
     }
   },
   {
@@ -18,6 +24,12 @@ Content-Type: application/json
     "type": "repo-jdbc",
     "capabilities": {
       "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false,
+      "comments": true
     }
   },
   {
@@ -27,6 +39,12 @@ Content-Type: application/json
     "type": "repo-file",
     "capabilities": {
       "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false,
+      "comments": false
     }
   },
   {
@@ -36,6 +54,12 @@ Content-Type: application/json
     "type": "repo-git",
     "capabilities": {
       "canManage": true
+    },
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": false,
+      "comments": true
     }
   },
   {
@@ -45,6 +69,12 @@ Content-Type: application/json
     "type": "repo-jdbc",
     "capabilities": {
       "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false,
+      "comments": true
     },
     "mainBranchOnly": true
   }

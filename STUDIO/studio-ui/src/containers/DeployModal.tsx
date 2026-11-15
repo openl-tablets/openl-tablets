@@ -6,6 +6,7 @@ import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
 import { Select, TextArea } from 'components/form'
 import { apiCall, fieldErrorsOf, ForbiddenError, isApiHttpError } from 'services'
 import { errorHandler } from 'utils/errorHandling'
+import { supportsComments } from 'utils/repositoryFeatures'
 import { Repository } from 'types/repositories'
 import { WIDTH_OF_FORM_LABEL_MODAL } from 'constants/ui'
 
@@ -62,6 +63,9 @@ export const DeployModal: React.FC = () => {
     const [deploymentNames, setDeploymentNames] = useState<Array<{ id: string, name: string }>>([])
     const [isNewDeployment, setIsNewDeployment] = useState<boolean>(false)
     const [isDeploying, setIsDeploying] = useState<boolean>(false)
+    // A repository that keeps no comment, such as a Local one, is not asked for one.
+    const keepsComments = supportsComments(
+        deploymentRepositories.find(repository => repository.id === selectedRepository))
 
     const fetchDeploymentRepositories = async () => {
         const response: Repository[] = await apiCall('/production-repos')
@@ -418,12 +422,14 @@ export const DeployModal: React.FC = () => {
                                 style={{ width: '100%' }}
                                 suffix={null}
                             />
-                            <TextArea
-                                required
-                                label={t('deploy:comment.label')}
-                                name="comment"
-                                placeholder={t('deploy:comment.placeholder')}
-                            />
+                            {keepsComments && (
+                                <TextArea
+                                    required
+                                    label={t('deploy:comment.label')}
+                                    name="comment"
+                                    placeholder={t('deploy:comment.placeholder')}
+                                />
+                            )}
                         </Form>
                     </Space>
                 </Spin>

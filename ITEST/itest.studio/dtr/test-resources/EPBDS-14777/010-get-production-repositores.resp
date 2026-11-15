@@ -9,6 +9,12 @@ Content-Type: application/json
     "type": "repo-jdbc",
     "capabilities": {
       "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false,
+      "comments": true
     }
   }
 ]
