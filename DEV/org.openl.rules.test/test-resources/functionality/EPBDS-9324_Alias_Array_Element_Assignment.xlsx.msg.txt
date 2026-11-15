@@ -1,0 +1,1 @@
+ERROR: Object 'foo' is outside of valid domain 'Color'. Valid values: [Green, Red]
