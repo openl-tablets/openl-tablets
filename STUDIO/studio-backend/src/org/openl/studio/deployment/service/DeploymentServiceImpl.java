@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
@@ -21,7 +22,9 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositoryType;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
@@ -29,6 +32,7 @@ import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.audit.service.ProjectAuditor;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.deployment.model.DeploymentId;
@@ -50,6 +54,8 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectVersionCacheManager projectVersionCacheManager;
     private final ProjectAuditor auditor;
+    private final UserManagementService userManagementService;
+    private final PropertyResolver propertyResolver;
 
     @Override
     public List<Deployment> getDeployments(DeploymentCriteriaQuery query) {
@@ -179,8 +185,23 @@ public class DeploymentServiceImpl implements DeploymentService {
         if (!aclProjectsHelper.hasPermission(request, BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");
         }
+        // Only a Git repository records the email and the display name of who deploys, in its commits.
+        if (RepositoryType.GIT.factoryId.equals(RepositoryConfiguration.getType(deploymentId.repository(),
+                propertyResolver))) {
+            requireCommitAuthor(request.currentUser().getUserName());
+        }
         deploymentManager.deploy(request);
         auditor.deployed(deploymentId.repository(), deploymentId.name(), project, comment);
+    }
+
+    /**
+     * Refuses a user whose email or display name is not set.
+     */
+    private void requireCommitAuthor(String username) {
+        var user = userManagementService.getUser(username);
+        if (user == null || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getDisplayName())) {
+            throw new BadRequestException("commit-info.required.message");
+        }
     }
 
     /**

@@ -46,9 +46,8 @@ taken for a reader who may not write would turn a legitimate writer away with a 
 never editing at all.
 
 It is Spring AOP through an advisor rather than an aspect: `ProjectLockPostProcessor` publishes a
-`DefaultPointcutAdvisor` over the annotation, the same shape `CommitInfoPostProcessor` beside it already uses,
-and the application carries no AspectJ. It proxies the target class rather than its interfaces, because the
-service is injected by class.
+`DefaultPointcutAdvisor` over the annotation, and the application carries no AspectJ. It proxies the target class
+rather than its interfaces, because the service is injected by class.
 
 A method marked `@LockForEditing` has to name the project it is about; one that names none is a mistake and says
 so, rather than running as an unguarded write.

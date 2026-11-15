@@ -87,6 +87,34 @@ security.allow-project-create-delete = false # Hides create/delete buttons
 | **Lock / Unlock Projects**                          | Removed                      | Project locking functionality was deprecated                                                    |
 | **Deploy Configuration (Create/Edit/Delete/Erase)** | System action                | Available to users with Viewer access to Design repo and Edit access to Deploy repo             |
 
+### User Email and Display Name
+
+* A deploy asks for the email address and the display name of the user: up to 7.0.x a deploy to a deployment
+  repository of any type, since 7.1.0 only a deploy to a Git deployment repository, which records them in its commits.
+  OpenL Tablets 5.x keeps neither, so every user upgraded from 5.x, administrators included, has both empty and is
+  refused such a deploy until they are filled.
+    * Before 7.0.0 the **Deploy** dialog shows only **Deploy Failed — Failed to deploy configuration. Please try
+      again.** The REST API answers `400` with `Email and display name must be configured before this operation.`
+    * This refusal is about the profile, not about access rights: the groups and roles migrated from 5.x keep their
+      right to deploy. A deploy refused for missing access answers `403` instead, and the **Deploy** dialog says
+      **You do not have permission to deploy to the selected repository.** For the access that may change on
+      upgrade, such as the implicit READ access of `security.default-group`, see **Access Control & Permissions**.
+* Fill the email address and the display name of every user who deploys to a Git deployment repository, or, up to
+  7.0.x, to a deployment repository of any type:
+    * a user enters **Email** and **Display Name** in **My Profile**; since 6.4.0, OpenL Studio asks for them right
+      after sign-in;
+    * an administrator enters them for a user in **Administration > Users**;
+    * with SAML or OAuth2, OpenL Studio takes them from the identity provider at every sign-in. Name the attributes
+      the identity provider sends, in **Administration > Security** (**Attribute for Email**, **Attribute for Display
+      Name**) or in the properties:
+
+```properties
+security.saml.attribute.email = urn:oid:0.9.2342.19200300.100.1.3
+security.saml.attribute.display-name = urn:oid:2.16.840.1.113730.3.1.241
+security.oauth2.attribute.email = email
+security.oauth2.attribute.display-name = name
+```
+
 ### Administration, Deployment & Removed Features
 
 * The following components and protocols are no longer supported:

@@ -1,10 +1,12 @@
 package org.openl.studio.deployment.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,10 +16,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -26,17 +33,22 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.security.User;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositoryType;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
+import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.service.ProjectAuditor;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -52,6 +64,8 @@ class DeploymentServiceImplTest {
     private DeploymentManager deploymentManager;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DeploymentServiceImpl service;
+
+    private final List<AuditEvent> events = new ArrayList<>();
 
     private RepositoryConfiguration broken;
     private RepositoryConfiguration valid;
@@ -71,7 +85,9 @@ class DeploymentServiceImplTest {
                 mock(AclProjectsHelper.class),
                 projectVersionCacheManager,
                 new ProjectAuditor(event -> {
-                }));
+                }),
+                mock(UserManagementService.class),
+                new MockEnvironment());
 
         broken = config("broken");
         when(deploymentManager.getDeployRepository("broken"))
@@ -154,34 +170,9 @@ class DeploymentServiceImplTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void a_deployment_is_recorded_in_the_audit_log() throws Exception {
-        var stateValidator = mock(ProjectStateValidator.class);
-        var aclProjectsHelper = mock(AclProjectsHelper.class);
-        var workspaceProvider = (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class);
-        var workspace = mock(UserWorkspace.class);
-        when(workspaceProvider.getObject()).thenReturn(workspace);
-        var events = new ArrayList<AuditEvent>();
-        var deploying = new DeploymentServiceImpl(mock(ProjectDependencyResolver.class),
-                deploymentRepositoryService,
-                deploymentManager,
-                workspaceProvider,
-                stateValidator,
-                aclProjectsHelper,
-                projectVersionCacheManager,
-                new ProjectAuditor(event -> events.add((AuditEvent) event)));
-        var project = mock(RulesProject.class);
-        var design = mock(Repository.class);
-        when(design.getId()).thenReturn("design");
-        when(design.supports()).thenReturn(new FeaturesBuilder(design).build());
-        when(project.getRepository()).thenReturn(design);
-        when(project.getDesignRepository()).thenReturn(design);
-        when(project.getBusinessName()).thenReturn("Pricing");
-        when(stateValidator.canDeploy(project)).thenReturn(true);
-        when(aclProjectsHelper.hasCreateDeploymentPermission("production")).thenReturn(true);
-        when(aclProjectsHelper.hasPermission(any(DeploymentRequest.class), eq(BasePermission.WRITE))).thenReturn(true);
-
-        deploying.deploy(new DeploymentId("production", "Pricing Rules"), project, "Release 7");
+        deployingService(RepositoryType.DB, mock(UserManagementService.class))
+                .deploy(new DeploymentId("production", "Pricing Rules"), deployableProject(), "Release 7");
 
         verify(deploymentManager).deploy(any(DeploymentRequest.class));
         var event = events.getFirst();
@@ -189,5 +180,97 @@ class DeploymentServiceImplTest {
         assertEquals("Pricing Rules", event.target());
         assertEquals(Map.of("repository", "production", "project", "Pricing", "projectRepository", "design",
                 "comment", "Release 7"), event.details());
+    }
+
+    /**
+     * EPBDS-17258: only a Git repository asks for the email and the display name, which its commits record.
+     */
+    @ParameterizedTest
+    @MethodSource
+    void a_user_deploys_when_the_repository_needs_no_more_than_the_profile_holds(RepositoryType type,
+                                                                                 UserManagementService users)
+            throws Exception {
+        deployingService(type, users)
+                .deploy(new DeploymentId("production", "Pricing Rules"), deployableProject(), "Release 7");
+
+        verify(deploymentManager).deploy(any(DeploymentRequest.class));
+    }
+
+    static Stream<Arguments> a_user_deploys_when_the_repository_needs_no_more_than_the_profile_holds() {
+        return Stream.of(Arguments.of(RepositoryType.DB, usersWith(null, null)),
+                Arguments.of(RepositoryType.AWS_S3, usersWith("", " ")),
+                Arguments.of(RepositoryType.GIT, usersWith("jdoe@example.com", "John Doe")));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void a_git_repository_refuses_a_user_without_email_or_display_name(UserManagementService users)
+            throws Exception {
+        var deploying = deployingService(RepositoryType.GIT, users);
+        var project = deployableProject();
+        var deploymentId = new DeploymentId("production", "Pricing Rules");
+
+        var refusal = assertThrows(BadRequestException.class, () -> deploying.deploy(deploymentId, project, "R"));
+
+        assertEquals("openl.error.400.commit-info.required.message", refusal.getErrorCode());
+        verify(deploymentManager, never()).deploy(any(DeploymentRequest.class));
+    }
+
+    static Stream<UserManagementService> a_git_repository_refuses_a_user_without_email_or_display_name() {
+        return Stream.of(usersWith("", " "),
+                usersWith("jdoe@example.com", null),
+                usersWith(null, "John Doe"),
+                mock(UserManagementService.class));
+    }
+
+    /** The user {@code jdoe} with the given email and display name. */
+    private static UserManagementService usersWith(String email, String displayName) {
+        var user = mock(User.class);
+        when(user.getEmail()).thenReturn(email);
+        when(user.getDisplayName()).thenReturn(displayName);
+        var users = mock(UserManagementService.class);
+        when(users.getUser("jdoe")).thenReturn(user);
+        return users;
+    }
+
+    /**
+     * A service that lets {@code jdoe} deploy every project to {@code production}, a repository of the given type,
+     * recording the audit events into {@link #events}.
+     */
+    @SuppressWarnings("unchecked")
+    private DeploymentServiceImpl deployingService(RepositoryType type, UserManagementService users) {
+        var stateValidator = mock(ProjectStateValidator.class);
+        when(stateValidator.canDeploy(any(RulesProject.class))).thenReturn(true);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        when(aclProjectsHelper.hasCreateDeploymentPermission("production")).thenReturn(true);
+        when(aclProjectsHelper.hasPermission(any(DeploymentRequest.class), eq(BasePermission.WRITE))).thenReturn(true);
+        var user = mock(WorkspaceUser.class);
+        when(user.getUserName()).thenReturn("jdoe");
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getUser()).thenReturn(user);
+        var workspaceProvider = (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class);
+        when(workspaceProvider.getObject()).thenReturn(workspace);
+        return new DeploymentServiceImpl(mock(ProjectDependencyResolver.class),
+                deploymentRepositoryService,
+                deploymentManager,
+                workspaceProvider,
+                stateValidator,
+                aclProjectsHelper,
+                projectVersionCacheManager,
+                new ProjectAuditor(event -> events.add((AuditEvent) event)),
+                users,
+                new MockEnvironment().withProperty("repository.production.factory", type.getFactoryId()));
+    }
+
+    /** The project {@code Pricing} of the design repository {@code design}. */
+    private static RulesProject deployableProject() {
+        var project = mock(RulesProject.class);
+        var design = mock(Repository.class);
+        when(design.getId()).thenReturn("design");
+        when(design.supports()).thenReturn(new FeaturesBuilder(design).build());
+        when(project.getRepository()).thenReturn(design);
+        when(project.getDesignRepository()).thenReturn(design);
+        when(project.getBusinessName()).thenReturn("Pricing");
+        return project;
     }
 }

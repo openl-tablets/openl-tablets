@@ -5,14 +5,15 @@ import { App as AntApp, notification } from 'antd'
 import { DeployModal } from 'containers/DeployModal'
 import * as services from 'services'
 import type { MockedFunction } from 'vitest'
+const mockRunWithCommitInfo = vi.hoisted(() => vi.fn(async (action: () => void | Promise<void>) => {
+    await action()
+}))
 vi.mock('hooks', async (importOriginal) => {
     const actual = await importOriginal<typeof import('hooks')>()
     return {
         ...actual,
         useCommitInfoGuard: () => ({
-            runWithCommitInfo: async (action: () => void | Promise<void>) => {
-                await action()
-            },
+            runWithCommitInfo: mockRunWithCommitInfo,
             commitInfoModal: null,
         }),
     }
@@ -255,6 +256,35 @@ describe('DeployModal', () => {
             expect.objectContaining({ method: 'POST', body: JSON.stringify({ projectId: 'proj-1' }) }),
             { throwError: true, suppressErrorPages: true }
         ))
+    })
+
+    it.each([
+        ['asks a Git repository for a complete profile before deploying', 'repo-git', true],
+        // EPBDS-17258: a database repository records the user name alone, so a profile without an email or a
+        // display name deploys to it. The deploy still runs one at a time.
+        ['deploys to a database repository without asking for a complete profile', 'repo-jdbc', false],
+    ])('%s', async (_name, type, requiresCommitInfo) => {
+        mockApiCall.mockReset()
+        mockApiCall
+            .mockResolvedValueOnce([{ id: 'repo-1', name: 'Production', type }])
+            .mockResolvedValueOnce([{ id: 'dep-1', name: 'Deploy1' }])
+            .mockResolvedValueOnce(undefined)
+        renderDeployModal()
+        await openModal(defaultDetail)
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/production-repos'))
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+        await screen.findByRole('option', { name: 'Deploy1' })
+        await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
+        await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Release')
+
+        await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(
+            '/deployments/dep-1',
+            expect.objectContaining({ method: 'POST' }),
+            { throwError: true, suppressErrorPages: true }
+        ))
+        expect(mockRunWithCommitInfo).toHaveBeenCalledExactlyOnceWith(expect.any(Function), requiresCommitInfo)
     })
 
     it('notifies listeners after a successful deploy', async () => {
