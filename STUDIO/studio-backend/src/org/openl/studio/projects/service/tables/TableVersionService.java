@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
@@ -45,12 +47,14 @@ public class TableVersionService {
     static final String INITIAL_VERSION = "0.0.1";
 
     /**
-     * Major, minor and variant: the form the engine orders versions by.
+     * Major, minor and variant: the form the engine orders versions by, as the definition of the {@code version}
+     * property states it.
      *
      * <p>Each number is bounded, because a version is ordered by the numbers it is read as: one longer than this
      * cannot be read as a number at all, and the next version after it could not be counted.
      */
-    static final Pattern VERSION_FORMAT = Pattern.compile("(\\d{1,9})\\.(\\d{1,9})\\.(\\d{1,9})");
+    static final Pattern VERSION_FORMAT = Pattern.compile(Objects.requireNonNull(RegexpValueConstraint.regexpOf(
+            TablePropertyDefinitionUtils.getPropertyByName(VERSION_PROPERTY).getConstraints())));
 
     /** The version the table stands for: the one it declares, or the initial one while it declares none. */
     public String currentVersion(IOpenLTable table) {

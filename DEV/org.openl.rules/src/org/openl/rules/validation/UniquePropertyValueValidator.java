@@ -10,17 +10,10 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
-import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
@@ -48,14 +41,10 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
         for (Map.Entry<Object, Set<ExecutableRulesMethod>> entry : values.entrySet()) {
             if (entry.getValue().size() > 1) {
-                TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
-                Severity errorSeverity = null;
-                if (property != null) {
-                    errorSeverity = property.getErrorSeverity();
-                }
+                var errorSeverity = ValidationUtils.severityOf(propertyName, Severity.WARN);
                 var value = entry.getKey();
                 for (ExecutableRulesMethod method : entry.getValue()) {
-                    var message = getMessage(
+                    var message = ValidationUtils.messageOf(
                             "Found non-unique value '%s' for table property '%s'.".formatted(value, propertyName),
                             errorSeverity,
                             method.getSyntaxNode());
@@ -94,24 +83,6 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 values.put(value, setOfExecutableRulesMethods);
             }
         }
-    }
-
-    private OpenLMessage getMessage(String message, Severity severity, TableSyntaxNode syntaxNode) {
-        if (Severity.WARN.equals(severity)) {
-            if (syntaxNode != null) {
-                return new OpenLWarnMessage(message, syntaxNode);
-            } else {
-                return OpenLMessagesUtils.newWarnMessage(message);
-            }
-        } else if (Severity.ERROR.equals(severity)) {
-            SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
-            // error should be put inside tsn
-            //
-            return new OpenLErrorMessage(sne);
-        }
-        // return warning in default case, e.g. severity == null
-        //
-        return new OpenLWarnMessage(message, syntaxNode);
     }
 
     private Collection<ExecutableRulesMethod> selectActiveMethods(List<IOpenMethod> methods) {

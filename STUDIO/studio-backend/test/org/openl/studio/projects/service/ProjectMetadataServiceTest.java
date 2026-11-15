@@ -191,8 +191,8 @@ class ProjectMetadataServiceTest {
         // The pattern the compiler validates the property with, so a dialog refuses what the module would refuse.
         assertEquals("([a-zA-Z_][a-zA-Z0-9_]*)", property(properties, "id").pattern());
         assertNull(property(properties, "category").pattern());
-        // The version states no pattern the compiler recognises, so its shape is the copy dialog's editor to keep.
-        assertNull(version.pattern());
+        // The version is three numbers, as the compiler checks it.
+        assertEquals("([0-9]{1,9})\\.([0-9]{1,9})\\.([0-9]{1,9})", version.pattern());
 
         assertEquals("true", property(properties, "active").defaultValue());
         assertNull(version.defaultValue());

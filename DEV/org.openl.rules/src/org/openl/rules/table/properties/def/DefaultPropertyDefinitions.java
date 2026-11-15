@@ -349,10 +349,11 @@ public final class DefaultPropertyDefinitions {
         definitions[21].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsStatesEnum[].class));
 
         definitions[22] = new TablePropertyDefinition();
-        definitions[22].setConstraints(new Constraints("NN.NN[.NN]"));
+        definitions[22].setConstraints(new Constraints("regexp:([0-9]{1,9})\\.([0-9]{1,9})\\.([0-9]{1,9})"));
         definitions[22].setDescription("Defines a version of this table. The “version” should be different for each table with the same signature and business dimensional properties values");
         definitions[22].setDimensional(false);
         definitions[22].setDisplayName(VERSION);
+        definitions[22].setErrorSeverity(Severity.WARN);
         definitions[22].setGroup(VERSION);
         definitions[22].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.TABLE});
         definitions[22].setName("version");

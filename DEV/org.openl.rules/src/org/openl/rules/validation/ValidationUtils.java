@@ -11,10 +11,15 @@ import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
+import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -38,6 +43,33 @@ public final class ValidationUtils {
 
     public static ValidationResult validationSuccess() {
         return new ValidationResult(ValidationStatus.SUCCESS);
+    }
+
+    /**
+     * The severity of a value that breaks the constraint of a table property.
+     *
+     * @param propertyName the name of the property
+     * @param otherwise    the severity used when the property declares none
+     * @return the severity the property declares, or the given one
+     */
+    static Severity severityOf(String propertyName, Severity otherwise) {
+        var property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
+        var severity = property == null ? null : property.getErrorSeverity();
+        return severity == null ? otherwise : severity;
+    }
+
+    /**
+     * A message about a table: an error for the {@code ERROR} severity, and a warning for any other one.
+     *
+     * @param message the text of the message
+     * @param severity the severity of the message
+     * @param node the table the message is about, or {@code null} for none
+     */
+    static OpenLMessage messageOf(String message, Severity severity, @Nullable TableSyntaxNode node) {
+        if (severity == Severity.ERROR) {
+            return new OpenLErrorMessage(SyntaxNodeExceptionUtils.createError(message, node));
+        }
+        return node == null ? OpenLMessagesUtils.newWarnMessage(message) : new OpenLWarnMessage(message, node);
     }
 
     /**

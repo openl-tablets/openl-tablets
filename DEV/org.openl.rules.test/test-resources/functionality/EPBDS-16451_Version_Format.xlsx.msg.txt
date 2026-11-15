@@ -1,0 +1,3 @@
+WARN: Incorrect value '1.2' for property 'Version'
+WARN: Incorrect value '1.2.3.4' for property 'Version'
+WARN: Incorrect value 'abc' for property 'Version'
