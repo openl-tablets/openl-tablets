@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -583,9 +585,7 @@ public class Table implements ITable {
                 var prevRes = ColumnDescriptor.PREV_RES_EMPTY;
                 var width = valuesTable.getSource().getWidth();
                 for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
-                    ILogicalTable cellTable = LogicalTableHelper.make1ColumnTable(
-                            LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
-                                    .getSubtable(0, 0, width, 1));
+                    var cellTable = lineOf(valuesTable.getSource(), i, width);
                     var res = descriptor.parseCellValue(cellTable, openlAdapter);
                     if (!descriptor.isSameValue(res, prevRes)) {
                         rowValues[rowNum - startRow][colNum] = res;
@@ -686,20 +686,88 @@ public class Table implements ITable {
         Object[][] rowValues = null;
         for (var colNum = 0; colNum < descriptors.size(); colNum++) {
             var descriptor = descriptors.get(colNum);
-            ILogicalTable valuesTable = LogicalTableHelper
-                    .make1ColumnTable(logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height));
+            // the lines of the value as the grid has them: the logical table would take a cell merged over the lines
+            // for one line
+            var values = logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height).getSource();
             if (rowValues == null) {
-                rowValues = new Object[valuesTable.getSource().getHeight()][descriptors.size()];
+                rowValues = new Object[values.getHeight()][descriptors.size()];
             }
-            var width = valuesTable.getSource().getWidth();
-            for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
-                ILogicalTable cellTable = LogicalTableHelper.make1ColumnTable(
-                        LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
-                                .getSubtable(0, 0, width, 1));
-                rowValues[i][colNum] = descriptor.parseCellValue(cellTable, openlAdapter);
+            for (var i = 0; i < values.getHeight(); i++) {
+                rowValues[i][colNum] = lineValue(descriptor, values, i, openlAdapter);
             }
         }
         return rowValues;
+    }
+
+    /**
+     * The value of one line of the values of a column. A cell of an array merged over several lines gives its value on
+     * the line it starts on only, so the other lines take the values of their other cells.
+     *
+     * @return {@code null} when every cell of an array continues a merged cell
+     */
+    private static @Nullable Object lineValue(ColumnDescriptor descriptor,
+                                              IGridTable values,
+                                              int line,
+                                              OpenlToolAdaptor openlAdapter) {
+        var lineTable = LogicalTableHelper.logicalTable(values.getSubtable(0, line, values.getWidth(), 1));
+        var continued = descriptor.isValuesAnArray() ? continuedCells(values, lineTable, line) : new int[0];
+        if (continued.length > 0 && continued.length == lineTable.getWidth()) {
+            return null;
+        }
+        var value = descriptor.parseCellValue(LogicalTableHelper.make1ColumnTable(lineTable), openlAdapter);
+        return continued.length == 0 ? value : withoutElements(value, continued);
+    }
+
+    /**
+     * The indexes of the cells of a line that belong to a merged cell the line above has too.
+     */
+    private static int[] continuedCells(IGridTable values, ILogicalTable lineTable, int line) {
+        var continued = IntStream.builder();
+        var column = 0;
+        for (var cell = 0; line > 0 && cell < lineTable.getWidth(); cell++) {
+            if (isSameMergedCell(values.getCell(column, line), values.getCell(column, line - 1))) {
+                continued.add(cell);
+            }
+            column += lineTable.getColumnWidth(cell);
+        }
+        return continued.build().toArray();
+    }
+
+    /** The array or the list without the elements at the given ascending indexes. */
+    private static @Nullable Object withoutElements(@Nullable Object array, int[] removed) {
+        if (array instanceof List<?> list) {
+            return IntStream.range(0, list.size())
+                    .filter(index -> Arrays.binarySearch(removed, index) < 0)
+                    .mapToObj(list::get)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        if (array == null || !array.getClass().isArray()) {
+            return array;
+        }
+        var kept = IntStream.range(0, Array.getLength(array))
+                .filter(index -> Arrays.binarySearch(removed, index) < 0)
+                .toArray();
+        var result = Array.newInstance(array.getClass().getComponentType(), kept.length);
+        for (var i = 0; i < kept.length; i++) {
+            System.arraycopy(array, kept[i], result, i, 1);
+        }
+        return result;
+    }
+
+    private static boolean isSameMergedCell(ICell cell, ICell other) {
+        var region = cell.getRegion();
+        var otherRegion = other.getRegion();
+        return region != null && otherRegion != null
+                && region.getTop() == otherRegion.getTop()
+                && region.getLeft() == otherRegion.getLeft();
+    }
+
+    /**
+     * The cells of one line of the values of a column, as one value. A value merged over several lines is read in each
+     * of them.
+     */
+    private static ILogicalTable lineOf(IGridTable values, int line, int width) {
+        return LogicalTableHelper.make1ColumnTable(LogicalTableHelper.logicalTable(values.getSubtable(0, line, width, 1)));
     }
 
     /**

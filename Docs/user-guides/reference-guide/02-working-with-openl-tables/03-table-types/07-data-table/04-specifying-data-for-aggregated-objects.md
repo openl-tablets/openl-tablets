@@ -63,6 +63,10 @@ The following rules and limitations apply:
 
     Even if these following lines are filled with values, no equality verification is performed.
 
+-   A cell of an array column merged over several lines of the same object gives one value, on the line the cell starts.
+
+    For example, the two cells of the `messages` array, each merged over the two lines of an object, give that object two messages, as the same cells unmerged with the second line left blank do.
+
 -   Primary key columns must be put right before the corresponding object data.
 
     In particular, all primary keys cannot be defined in the very beginning of the table.
