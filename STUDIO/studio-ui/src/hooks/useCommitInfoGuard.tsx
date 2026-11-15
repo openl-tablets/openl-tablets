@@ -46,15 +46,18 @@ export const useCommitInfoGuard = () => {
      * Runs the action once the commit identity is known, and refuses to start a second one while the
      * first is still running: checking the identity is a round trip of its own, and the action behind it
      * writes to the repository, so a second click would commit twice.
+     *
+     * An action that records no commit author, such as a deploy to a repository other than Git, passes
+     * `requiresCommitInfo = false`: it runs without the identity, still one at a time.
      */
-    const runWithCommitInfo = useCallback(async (action: RepositoryAction) => {
+    const runWithCommitInfo = useCallback(async (action: RepositoryAction, requiresCommitInfo = true) => {
         if (runningRef.current) {
             return
         }
         runningRef.current = true
         setBusy(true)
         try {
-            await runGuarded(action)
+            await (requiresCommitInfo ? runGuarded(action) : action())
         } finally {
             runningRef.current = false
             setBusy(false)

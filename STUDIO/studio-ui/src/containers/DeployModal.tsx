@@ -8,6 +8,7 @@ import { apiCall, fieldErrorsOf, ForbiddenError, isApiHttpError } from 'services
 import { errorHandler } from 'utils/errorHandling'
 import { supportsComments } from 'utils/repositoryFeatures'
 import { Repository } from 'types/repositories'
+import { RepositoryType } from 'containers/repositories/constants'
 import { WIDTH_OF_FORM_LABEL_MODAL } from 'constants/ui'
 
 interface DeployModalDetail {
@@ -63,9 +64,9 @@ export const DeployModal: React.FC = () => {
     const [deploymentNames, setDeploymentNames] = useState<Array<{ id: string, name: string }>>([])
     const [isNewDeployment, setIsNewDeployment] = useState<boolean>(false)
     const [isDeploying, setIsDeploying] = useState<boolean>(false)
+    const selected = deploymentRepositories.find(repository => repository.id === selectedRepository)
     // A repository that keeps no comment, such as a Local one, is not asked for one.
-    const keepsComments = supportsComments(
-        deploymentRepositories.find(repository => repository.id === selectedRepository))
+    const keepsComments = supportsComments(selected)
 
     const fetchDeploymentRepositories = async () => {
         const response: Repository[] = await apiCall('/production-repos')
@@ -282,7 +283,8 @@ export const DeployModal: React.FC = () => {
     const handleDeploy = async () => {
         try {
             const values = await form.validateFields()
-            await runWithCommitInfo(() => doDeploy(values))
+            // Only a Git repository records the email and the display name of who deploys, in its commits.
+            await runWithCommitInfo(() => doDeploy(values), selected?.type === RepositoryType.GIT)
         } catch (error) {
             // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
             if (isValidationError(error)) {
@@ -340,10 +342,7 @@ export const DeployModal: React.FC = () => {
 
     // A repository that takes the main branch only refuses a project that sits anywhere else. The dialog
     // says so on the repository itself instead of letting the deploy fail.
-    const mainBranchOnlyBlocked = useMemo(() => {
-        const repository = deploymentRepositories.find(repo => repo.id === selectedRepository)
-        return !!repository?.mainBranchOnly && !!detail?.branch && detail.branchDefault === false
-    }, [deploymentRepositories, detail, selectedRepository])
+    const mainBranchOnlyBlocked = !!selected?.mainBranchOnly && !!detail?.branch && detail.branchDefault === false
 
 
     return (

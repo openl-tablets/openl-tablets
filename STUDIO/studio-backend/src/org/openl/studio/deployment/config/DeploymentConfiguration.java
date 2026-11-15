@@ -3,9 +3,11 @@ package org.openl.studio.deployment.config;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -26,7 +28,9 @@ public class DeploymentConfiguration {
                                                ProjectStateValidator projectStateValidator,
                                                AclProjectsHelper aclProjectsHelper,
                                                ProjectVersionCacheManager projectVersionCacheManager,
-                                               ProjectAuditor auditor) {
+                                               ProjectAuditor auditor,
+                                               UserManagementService userManagementService,
+                                               Environment environment) {
         return new DeploymentServiceImpl(projectDependencyResolver,
                 deploymentRepositoryService,
                 deploymentManager,
@@ -34,7 +38,9 @@ public class DeploymentConfiguration {
                 projectStateValidator,
                 aclProjectsHelper,
                 projectVersionCacheManager,
-                auditor);
+                auditor,
+                userManagementService,
+                environment);
     }
 
 }

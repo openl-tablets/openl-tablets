@@ -1281,5 +1281,9 @@ for the following actions:
 -   merge a project
 -   delete a project
 -   delete a branch
--   deploy a project
+-   deploy a project to a Git deployment repository
 -   synchronize a project
+
+A deployment repository of another type, such as a database or AWS S3, records only the user name of who deploys.
+OpenL Studio does not check the email address and the display name for such a deploy, which matters for a deploy
+through the REST API or the MCP server.

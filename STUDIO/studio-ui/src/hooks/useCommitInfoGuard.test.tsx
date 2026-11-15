@@ -46,7 +46,9 @@ vi.mock('../containers/users/UserProfileCompletionModal', () => ({
     ) : null,
 }))
 
-const Harness = ({ onRun }: { onRun: (run: (action: () => void | Promise<void>) => Promise<void>) => void }) => {
+type Run = (action: () => void | Promise<void>, requiresCommitInfo?: boolean) => Promise<void>
+
+const Harness = ({ onRun }: { onRun: (run: Run) => void }) => {
     const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
     onRun(runWithCommitInfo)
     return <>{commitInfoModal}</>
@@ -74,7 +76,7 @@ describe('useCommitInfoGuard', () => {
             email: 'jane@example.com',
         }
         const action = vi.fn()
-        let run!: (action: () => void | Promise<void>) => Promise<void>
+        let run!: Run
 
         render(<Harness onRun={value => { run = value }} />)
 
@@ -88,7 +90,7 @@ describe('useCommitInfoGuard', () => {
 
     it('opens the modal and resumes the pending action after save', async () => {
         const action = vi.fn()
-        let run!: (action: () => void | Promise<void>) => Promise<void>
+        let run!: Run
 
         render(<Harness onRun={value => { run = value }} />)
 
@@ -110,7 +112,7 @@ describe('useCommitInfoGuard', () => {
         const action = vi.fn()
             .mockRejectedValueOnce(new Error('repository failure'))
             .mockResolvedValueOnce(undefined)
-        let run!: (action: () => void | Promise<void>) => Promise<void>
+        let run!: Run
 
         render(<Harness onRun={value => { run = value }} />)
 
@@ -132,7 +134,7 @@ describe('useCommitInfoGuard', () => {
 
     it('drops the pending action when the modal is cancelled', async () => {
         const action = vi.fn()
-        let run!: (action: () => void | Promise<void>) => Promise<void>
+        let run!: Run
 
         render(<Harness onRun={value => { run = value }} />)
 
@@ -144,5 +146,42 @@ describe('useCommitInfoGuard', () => {
 
         expect(action).not.toHaveBeenCalled()
         expect(screen.queryByTestId('commit-info-modal')).toBeNull()
+    })
+
+    it('runs an action that records no commit author without asking for the profile', async () => {
+        const action = vi.fn()
+        let run!: Run
+
+        render(<Harness onRun={value => { run = value }} />)
+
+        await act(async () => {
+            await run(action, false)
+        })
+
+        expect(action).toHaveBeenCalledTimes(1)
+        expect(apiCallMock).not.toHaveBeenCalled()
+        expect(screen.queryByTestId('commit-info-modal')).toBeNull()
+    })
+
+    it('refuses a second action while the first runs, also when neither records a commit author', async () => {
+        let finish!: () => void
+        const action = vi.fn(() => new Promise<void>(resolve => { finish = resolve }))
+        let run!: Run
+
+        render(<Harness onRun={value => { run = value }} />)
+
+        let first!: Promise<void>
+        act(() => {
+            first = run(action, false)
+        })
+        await act(async () => {
+            await run(action, false)
+        })
+        await act(async () => {
+            finish()
+            await first
+        })
+
+        expect(action).toHaveBeenCalledTimes(1)
     })
 })
