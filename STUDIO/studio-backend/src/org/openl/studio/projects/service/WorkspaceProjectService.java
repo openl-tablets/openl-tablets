@@ -410,7 +410,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (status.compilation() != null || !project.isOpened()) {
             return status;
         }
-        var descriptor = getProjectDescriptor(project);
+        // a folder the session resolves no project in, such as one whose rules.xml was deleted, has nothing to check
+        var descriptor = findProjectDescriptor(project);
+        if (descriptor == null) {
+            return status;
+        }
         var folder = descriptor.getProjectFolder();
         if (!Files.isDirectory(folder.resolve(OpenLMessageSource.FOLDER))) {
             return status;
@@ -2093,6 +2097,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * the wildcards came to, not the declarations themselves.
      */
     public ProjectDescriptor getProjectDescriptor(RulesProject project) {
+        var projectDescriptor = findProjectDescriptor(project);
+        if (projectDescriptor == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
+        return projectDescriptor;
+    }
+
+    /**
+     * The descriptor the engine resolved for the project, as {@link #getProjectDescriptor} gives it, or {@code null}
+     * when the session resolves no project in its folder, such as a folder whose {@code rules.xml} was deleted.
+     */
+    @Nullable ProjectDescriptor findProjectDescriptor(RulesProject project) {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
@@ -2107,6 +2123,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var folder = repoRoot.resolve(project.getFolderPath());
             try {
                 var pd = ProjectResolver.getInstance().resolve(folder);
+                if (pd == null) {
+                    return null;
+                }
                 projectName = pd.getName();
             } catch (ProjectResolvingException e) {
                 // If project descriptor cannot be resolved, then we cannot open project and get model.
@@ -2116,11 +2135,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
 
-        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), projectName);
-        if (projectDescriptor == null) {
-            throw new NotFoundException("project.identifier.message");
-        }
-        return projectDescriptor;
+        return webstudio.getProjectByName(project.getRepository().getId(), projectName);
     }
 
     /**

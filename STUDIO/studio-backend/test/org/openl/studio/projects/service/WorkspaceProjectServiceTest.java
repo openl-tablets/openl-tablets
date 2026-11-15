@@ -411,7 +411,7 @@ class WorkspaceProjectServiceTest {
                 workspaceFor(project), mock(ProjectStateValidator.class), webStudio));
         var descriptor = new ProjectDescriptor();
         descriptor.setProjectFolder(folder);
-        doReturn(descriptor).when(service).getProjectDescriptor(project);
+        doReturn(descriptor).when(service).findProjectDescriptor(project);
         doReturn(List.of()).when(service).localizationDependenciesOf(descriptor);
         var warning = new OpenLFileMessage("Message 'a' is written twice.", Path.of("i18n/message.properties"), 2,
                 "a", "");
@@ -436,7 +436,7 @@ class WorkspaceProjectServiceTest {
                 workspaceFor(project)));
         var descriptor = new ProjectDescriptor();
         descriptor.setProjectFolder(tempDir.resolve("PricingProject"));
-        doReturn(descriptor).when(service).getProjectDescriptor(project);
+        doReturn(descriptor).when(service).findProjectDescriptor(project);
         var statusMapper = (ProjectStatusMapper) ReflectionTestUtils.getField(service, "projectStatusMapper");
         var idle = ProjectStatusViewModel.builder().compileState(CompileState.IDLE).build();
         when(statusMapper.mapSummary(project)).thenReturn(idle);
@@ -447,6 +447,42 @@ class WorkspaceProjectServiceTest {
         assertSame(idle, service.getProject(project, List.of(ProjectInclude.STATUS), selection).compileStatus);
         verify(service, never()).checkLocalization(any());
         verify(statusMapper, never()).withFileChecks(any(), any(), any(), anyBoolean());
+    }
+
+    /**
+     * An opened project the session resolves no project in, such as a folder whose rules.xml was deleted, is still
+     * told: there are no localization files to check (EPBDS-17252).
+     */
+    @Test
+    void the_status_of_a_project_without_a_descriptor_is_left_as_it_is() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        when(project.isOpened()).thenReturn(true);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project), mock(ProjectStateValidator.class), webStudio));
+        var statusMapper = (ProjectStatusMapper) ReflectionTestUtils.getField(service, "projectStatusMapper");
+        var idle = ProjectStatusViewModel.builder().compileState(CompileState.IDLE).build();
+        when(statusMapper.map(project)).thenReturn(idle);
+
+        var result = service.getProject(project, List.of(ProjectInclude.STATUS),
+                new FieldProjectionSupport().parseSelection("compileStatus(compilation(messages(items)))"));
+
+        assertSame(idle, result.compileStatus);
+        verify(service, never()).checkLocalization(any());
+        assertThrows(NotFoundException.class, () -> service.getProjectDescriptor(project));
+    }
+
+    /** A local project whose folder holds neither rules.xml nor a workbook resolves no descriptor (EPBDS-17252). */
+    @Test
+    void a_local_project_whose_folder_holds_no_project_has_no_descriptor() throws Exception {
+        Files.createDirectories(tempDir.resolve("EmptyProject"));
+        var project = project(repository(), "EmptyProject", "EmptyProject");
+        when(project.isOpened()).thenReturn(true);
+        when(project.isLocalOnly()).thenReturn(true);
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project), mock(ProjectStateValidator.class), mock(WebStudio.class));
+
+        assertNull(service.findProjectDescriptor(project));
     }
 
     /** A field the answer leaves out is not built: the compile state alone skips the costly parts. */
