@@ -3,10 +3,12 @@ package org.openl.ie.constrainer;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -86,6 +88,38 @@ class ConstrainerTest {
     void skipsTheRemovedValues() {
         assertArrayEquals(new int[]{3}, solve(() -> x.eq(1).or(x.eq(2)).or(x.eq(0)).equalTo(0), x));
         assertArrayEquals(new int[]{4}, solve(() -> both(x.eq(2).or(x.eq(3)).equalTo(0), x.ge(2).equalTo(1)), x));
+    }
+
+    @Test
+    void stopsASearchThatTakesMoreStepsThanTheLimit() {
+        var limited = new Constrainer(100);
+        var age = limited.addIntVar(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, "age");
+        // <1, 1-4, 5-10 and a rule for any other age: the rules left after the overlappings found are tried at every
+        // age up to the largest whole number
+        IntBoolExp[][] rules = {{age.le(0)}, {age.ge(1).and(age.le(4))}, {age.ge(5).and(age.le(10))},
+                {limited.constant(true)}};
+        var checker = new DTChecker(limited, rules, List.of(age), true);
+
+        assertThrows(SearchLimitExceeded.class, checker::checkOverlappings);
+
+        assertEquals(Integer.MIN_VALUE + 1, age.min());
+        assertEquals(Integer.MAX_VALUE - 1, age.max());
+    }
+
+    @Test
+    void stopsAPropagationThatTakesMoreStepsThanTheLimit() {
+        var limited = new Constrainer(1000);
+        var a = limited.addIntVar(-1_000_000_000, 1_000_000_000, "a");
+        var b = limited.addIntVar(-1_000_000_000, 1_000_000_000, "b");
+        // a > b and b > a narrow each other by one value at a time, within the first goal of the search
+        Supplier<Goal> contradiction = () -> a.gt(b).and(b.gt(a)).equalTo(1);
+
+        assertThrows(SearchLimitExceeded.class, () -> limited.solve(contradiction, new IntExp[]{a, b}, () -> null));
+
+        assertEquals(-1_000_000_000, a.min());
+        assertEquals(1_000_000_000, b.max());
+        // the constrainer takes a new search after the stopped one
+        assertTrue(limited.solve(() -> a.eq(1).equalTo(1), new IntExp[]{a}, () -> null));
     }
 
     @Test

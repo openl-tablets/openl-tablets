@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.domain.IDomain;
+import org.openl.ie.constrainer.SearchLimitExceeded;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.IBaseCondition;
@@ -18,6 +19,7 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
+import org.openl.rules.dt.type.domains.IntRangeDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
@@ -42,6 +44,8 @@ public class GapOverlapValidator extends TablesValidator {
     private static final String VALIDATION_FAILED = "Validation failed for node : ";
     private static final String UNSUPPORTED_CONDITION = "The check of uncovered and overlapped cases (validateDT) is skipped: "
             + "it supports only conditions that compare an input with whole numbers or with a list of values.";
+    private static final String TOO_MANY_VALUES = "The check of uncovered and overlapped cases (validateDT) is skipped: "
+            + "the inputs of the table take too many values to check them all.";
 
     @Override
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
@@ -85,6 +89,9 @@ public class GapOverlapValidator extends TablesValidator {
         } catch (DomainCanNotBeDefined e) {
             // Not a failure of the table: the check cannot tell which values such a condition covers.
             messages.add(OpenLMessagesUtils.newWarnMessage(UNSUPPORTED_CONDITION, decisionTable.getSyntaxNode()));
+        } catch (SearchLimitExceeded e) {
+            // Not a failure of the table either: the check would keep the compilation going for hours.
+            messages.add(OpenLMessagesUtils.newWarnMessage(TOO_MANY_VALUES, decisionTable.getSyntaxNode()));
         } catch (Exception t) {
             var errorMessage = "%s%s.Reason : %s".formatted(
                     VALIDATION_FAILED,
@@ -106,7 +113,8 @@ public class GapOverlapValidator extends TablesValidator {
                 if (domain == null) {
                     domain = condition.getConditionEvaluator().getRuleParameterDomain(condition);
                     IDomainAdaptor adaptor = DomainAdaptorFactory.getAdaptor(domain);
-                    domainsMap.put(iParameterDeclaration.getName(), adaptor);
+                    // the ranges of every condition on the input tell its values apart
+                    domainsMap.merge(iParameterDeclaration.getName(), adaptor, GapOverlapValidator::union);
                 }
             }
 
@@ -129,6 +137,16 @@ public class GapOverlapValidator extends TablesValidator {
 
         }
         return domainsMap;
+    }
+
+    /**
+     * The values of an input that two conditions test: the whole numbers from the lowest bound of both to the highest.
+     * Other domains are not combined, the one of the later condition is taken.
+     */
+    private static IDomainAdaptor union(IDomainAdaptor domain, IDomainAdaptor other) {
+        return domain instanceof IntRangeDomainAdaptor && other instanceof IntRangeDomainAdaptor
+                ? domain.merge(other)
+                : other;
     }
 
     private static boolean hasCompileErrors(IDecisionTable decisionTable) {

@@ -3,6 +3,7 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.function.Function;
 
 import lombok.AccessLevel;
@@ -58,41 +59,75 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         return new RangeSelector(condition, value, target, dtparams, rangeAdaptor, env);
     }
 
+    /**
+     * The values of the input the ranges tell apart: from the lowest bound of the ranges to the highest.
+     *
+     * <p>A range open at one end, such as {@code <25} or {@code 71+}, takes one value past the finite bounds on that
+     * side: every value beyond them falls into the same ranges. So the domain stays as small as the bounds the table
+     * writes, instead of taking every whole number down to {@link Integer#MIN_VALUE} or up to
+     * {@link Integer#MAX_VALUE}.
+     */
     @Override
     protected IDomain<?> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
-        var min = Long.MAX_VALUE;
-        var max = Long.MIN_VALUE;
-
+        var bounds = new Bounds();
         var nRules = condition.getNumberOfRules();
         for (var ruleN = 0; ruleN < nRules; ruleN++) {
-            if (condition.isEmpty(ruleN)) {
-                continue;
+            if (!condition.isEmpty(ruleN)) {
+                addRange(bounds, condition, ruleN);
             }
-
-            Comparable<?> vFrom;
-            Comparable<?> vTo;
-            if (nparams == 2) {
-                vFrom = rangeFrom(condition.getParamValue(0, ruleN));
-                vTo = rangeTo(condition.getParamValue(1, ruleN));
-            } else {
-                var range = condition.getParamValue(0, ruleN);
-                vFrom = rangeFrom(range);
-                vTo = rangeTo(range);
-            }
-
-            if (!(vFrom instanceof Long)) {
-                throw new DomainCanNotBeDefined("Domain cannot be converted to Long", null);
-            }
-
-            min = Math.min(min, (Long) vFrom);
-            max = Math.max(max, (Long) vTo - 1);
         }
-        min = min < Integer.MIN_VALUE ? Integer.MIN_VALUE : min;
-        min = min >= Integer.MAX_VALUE ? (Integer.MAX_VALUE - 1) : min;
-        max = max < Integer.MIN_VALUE ? Integer.MIN_VALUE : max;
-        max = max >= Integer.MAX_VALUE ? (Integer.MAX_VALUE - 1) : max;
+        return bounds.domain();
+    }
 
-        return new IntRangeDomain((int) min, (int) max);
+    private void addRange(Bounds bounds, IBaseCondition condition, int ruleN) throws DomainCanNotBeDefined {
+        Comparable<?> vFrom;
+        Comparable<?> vTo;
+        if (nparams == 2) {
+            vFrom = rangeFrom(condition.getParamValue(0, ruleN));
+            vTo = rangeTo(condition.getParamValue(1, ruleN));
+        } else {
+            var range = condition.getParamValue(0, ruleN);
+            vFrom = rangeFrom(range);
+            vTo = rangeTo(range);
+        }
+        if (!(vFrom instanceof Long from) || !(vTo instanceof Long until)) {
+            throw new DomainCanNotBeDefined("Domain cannot be converted to Long", null);
+        }
+        bounds.add(from, until - 1);
+    }
+
+    /** The finite bounds of the ranges of a condition, and whether a range is open below or above them. */
+    private static final class Bounds {
+        private final LongSummaryStatistics finite = new LongSummaryStatistics();
+        private boolean openBelow;
+        private boolean openAbove;
+
+        void add(long from, long to) {
+            if (from <= Integer.MIN_VALUE) {
+                openBelow = true;
+            } else {
+                finite.accept(from);
+            }
+            if (to >= Integer.MAX_VALUE - 1) {
+                openAbove = true;
+            } else {
+                finite.accept(to);
+            }
+        }
+
+        IntRangeDomain domain() {
+            if (finite.getCount() == 0) {
+                // no finite bound: every value falls into the same ranges
+                return new IntRangeDomain(0, 0);
+            }
+            var lowest = openBelow ? finite.getMin() - 1 : finite.getMin();
+            var highest = openAbove ? finite.getMax() + 1 : finite.getMax();
+            return new IntRangeDomain(toInt(lowest), toInt(highest));
+        }
+
+        private static int toInt(long value) {
+            return (int) Math.clamp(value, Integer.MIN_VALUE + 1L, Integer.MAX_VALUE - 1L);
+        }
     }
 
     private Comparable<?> rangeFrom(Object value) {

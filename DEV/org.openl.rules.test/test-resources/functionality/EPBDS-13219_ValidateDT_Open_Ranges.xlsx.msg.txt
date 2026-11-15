@@ -1,0 +1,2 @@
+ERROR: Rule #0 completely blocks rule #1. For example: age = 18
+ERROR: Rule #0 completely blocks rule #1. For example: x = 23

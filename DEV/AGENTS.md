@@ -190,8 +190,13 @@ A change of the format updates the specification, the JavaDoc of `MarkdownTableP
 
 `ValidationAlgorithm` compiles the condition formulas of a decision table with parameters of the types `IntExp`,
 `IntBoolExp` and `IntBoolVar`, and `DTChecker` searches the results for gaps and overlaps. Only `Constrainer`,
-these expression types, `DTChecker` and its results `Uncovered` and `Overlapping` are public; the rest of the
-package is package-private.
+these expression types, `DTChecker`, its results `Uncovered` and `Overlapping` and `SearchLimitExceeded` are public;
+the rest of the package is package-private.
+
+**Rules**: a search never runs without end. Each `Constrainer.solve` stops after a million steps with
+`SearchLimitExceeded`, which `GapOverlapValidator` reports as a warning that the check is skipped. The domain of a
+range condition (`ARangeIndexEvaluator.indexedDomain`) takes one value past the finite bounds of an open range such as
+`<25`, never every whole number: an `Integer` domain of ±2^31 is what made a table hang its compilation (EPBDS-13219).
 
 **Rules**: OpenL binds the operators of the formulas to the public methods of these types by name — `add`, `eq`, `lt`,
 `le`, `gt`, `ge`, `and`, `or` — so no Java code calls most of them. Never rename or remove them. `CastFactory` refuses
