@@ -54,6 +54,7 @@ import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableView;
@@ -354,6 +355,22 @@ public abstract class TableWriter<T extends TableView> {
 
     protected abstract void updateBusinessBody(T tableView);
 
+    /**
+     * The value a property of a table view is written to its cell as.
+     *
+     * <p>A view lists a property of several values, such as {@code lob}, as a list. The list is written the way the
+     * cell keeps such a property: its values in one text, separated by commas, so a table written back as it was
+     * read keeps its properties. A comma inside a value is written as {@code \,}, so the value is read back whole.
+     * Any other value is written as it is.
+     */
+    private static @Nullable Object propertyValue(@Nullable Object value) {
+        if (value instanceof Collection<?> values) {
+            var text = XlsCellArrayWriter.serialize(values.toArray());
+            return text.isEmpty() ? null : text;
+        }
+        return value;
+    }
+
     protected void updateTableProperties(Map<String, Object> properties) {
         var originalRegion = originalTable.getRegion();
         var originalGrid = originalTable.getGrid();
@@ -377,7 +394,7 @@ public abstract class TableWriter<T extends TableView> {
                         1);
                 allTable.doAction(originalTable);
             }
-            var propValue = entry.getValue();
+            var propValue = propertyValue(entry.getValue());
             var action = GridTool.insertProp(originalRegion, originalGrid, propName, propValue, getMetaInfoWriter());
             if (action != null) {
                 action.doAction(originalTable);
