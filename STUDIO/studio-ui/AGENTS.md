@@ -590,7 +590,12 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   drew 51 000 cells for 20 cases and took the browser down, the editor beside it included. `ListTable` given
   `columnsInSight` draws the columns in sight through a horizontal virtualizer, each as wide as its header measures,
   with the room of the others before and after them; the results of a test run list their cases so
-  (`TestsResults`), and a test table is drawn again only once the results read with a new choice are there. The test
+  (`TestsResults`), and a test table is drawn again only once the results read with a new choice are there.
+  `ListTable` given `transposed` lays every column out as a line under its name, the rows across under the first
+  column, and `columnsInSight` then draws the lines in sight through a vertical virtualizer inside the box of its
+  `maxHeight`, which takes the focus so the keyboard scrolls it. The results of a test table written transposed (`transposed` of the results) are laid out so, a case
+  to a column, and **Transpose** turns a table the other way round; the tables turned are kept by the screen, not by
+  `ScreenMemory`, so they stay turned while the results are read again. The test
   tables of a page are drawn as the window scrolls to them (`useWindowVirtualizer`, each measured as it is drawn),
   since a page can hold every test table of a project. An element laid out once stays so for `useLaidOut`: hidden
   for a while, it does not have the list drawn whole while nobody sees it. A part drawn only while in sight loses its

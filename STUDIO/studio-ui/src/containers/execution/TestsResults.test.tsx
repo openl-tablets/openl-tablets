@@ -234,6 +234,84 @@ describe('TestsResults', () => {
         expect(table).toHaveTextContent('150')
     })
 
+    // A test table written with its cases across the columns shows its results the same way. See EPBDS-16960.
+    describe('laid out the way the table is written', () => {
+        /** The names of the lines of the table of the results, top to bottom, and the cases heading them. */
+        const linesOf = () => [...screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr th')]
+            .map(name => name.textContent)
+        const headOf = () => [...screen.getByTestId('test-results-tt1').querySelectorAll('thead th')]
+            .map(cell => cell.textContent)
+
+        it('shows a case to a column for a table written transposed', async () => {
+            readSummary.mockResolvedValue({
+                ...summary,
+                testCases: [{ ...summary.testCases[0], transposed: true }],
+            })
+            await show()
+
+            expect(headOf()).toEqual(['tests.id', '1', '2(1)'])
+            expect(linesOf()).toEqual(['Driver', 'Premium'])
+            const premium = screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')[1]!
+            expect(premium).toHaveTextContent('100')
+            expect(premium).toHaveTextContent('150tests.expected200')
+        })
+
+        it('turns the results the other way round with one click and back with another', async () => {
+            await show()
+            const transpose = screen.getByTestId('test-transpose-tt1')
+            expect(transpose).toHaveAttribute('aria-pressed', 'false')
+            expect(listedCases()).toHaveLength(2)
+
+            await userEvent.click(transpose)
+
+            expect(transpose).toHaveAttribute('aria-pressed', 'true')
+            expect(headOf()).toEqual(['tests.id', '1', '2(1)'])
+            expect(linesOf()).toEqual(['Driver', 'Premium'])
+
+            await userEvent.click(transpose)
+
+            expect(transpose).toHaveAttribute('aria-pressed', 'false')
+            expect(listedCases()).toHaveLength(2)
+            expect(linesOf()).toEqual([])
+        })
+
+        it('turns a table written transposed back to a case to a row', async () => {
+            readSummary.mockResolvedValue({
+                ...summary,
+                testCases: [{ ...summary.testCases[0], transposed: true }],
+            })
+            await show()
+
+            await userEvent.click(screen.getByTestId('test-transpose-tt1'))
+
+            expect(listedCases()).toHaveLength(2)
+            expect(headOf()).toEqual(['tests.id', 'Driver', 'Premium'])
+        })
+
+        it('keeps a table turned while the results are read again', async () => {
+            await show()
+            await userEvent.click(screen.getByTestId('test-transpose-tt1'))
+
+            await userEvent.click(screen.getByText('tests.failuresOnly'))
+
+            await waitFor(() => expect(readSummary).toHaveBeenLastCalledWith('p1', expect.objectContaining({
+                failuresOnly: true,
+            })))
+            expect(screen.getByTestId('test-transpose-tt1')).toHaveAttribute('aria-pressed', 'true')
+            expect(linesOf()).toEqual(['Driver', 'Premium'])
+        })
+
+        it('offers no turn for a table that lists no cases', async () => {
+            readSummary.mockResolvedValue({
+                ...summary,
+                testCases: [{ ...summary.testCases[0], testUnits: []}],
+            })
+            await show()
+
+            expect(screen.queryByTestId('test-transpose-tt1')).not.toBeInTheDocument()
+        })
+    })
+
     it('reads the look of the values as often however many tables it lists', async () => {
         const readLook = vi.spyOn(look, 'useStyles')
         const readsFor = async (tables: number) => {

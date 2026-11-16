@@ -38,6 +38,9 @@ public record TestCaseExecutionResult(
         @Parameter(description = "`true` when the table is a Run table, which states no expected values and so has nothing to pass or fail; absent for a test table")
         @Nullable Boolean runTable,
 
+        @Parameter(description = "`true` when the test table is written transposed, its cases across the columns and its fields down the rows; absent for a table written the usual way round")
+        @Nullable Boolean transposed,
+
         @Parameter(description = "List of test unit execution results")
         @Singular("testUnit")
         List<TestUnitExecutionResult> testUnits

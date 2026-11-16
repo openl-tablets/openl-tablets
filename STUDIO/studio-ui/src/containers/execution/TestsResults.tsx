@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Empty, Flex, Pagination, Result, Space, Tag, Typography } from 'antd'
-import { CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons'
+import { Alert, Button, Empty, Flex, Pagination, Result, Space, Tag, Tooltip, Typography } from 'antd'
+import { CheckOutlined, CloseOutlined, DownloadOutlined, SwapOutlined } from '@ant-design/icons'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { useLaidOut } from 'hooks/useLaidOut'
 import { ScreenMemory, useRemembered } from 'hooks/useRemembered'
@@ -218,12 +218,16 @@ type ReadCaseLines = (tableId: string, caseId: string, value: TestCaseValue) => 
 /** How many cases of one test table are listed at a time. */
 const CASES_PER_PAGE = 20
 
+/** How tall the results of a table laid out with its cases in columns grow before they scroll inside. */
+const TRANSPOSED_HEIGHT = '70vh'
+
 /**
- * The results of the test units of one test table, a case to a row.
+ * The results of the test units of one test table, laid out the way the table is written: a case to a row, or a
+ * case to a column where the table is written transposed. The reader turns the results the other way round and back.
  *
  * A table lists its cases a page at a time, and the pager under it reaches the rest. A test table can hold
  * thousands of cases, and drawn at once, their rows are more than the browser can hold. It can compare thousands of
- * values in a case as well, so only the columns in sight are drawn, the others as the reader scrolls across.
+ * values in a case as well, so only the values in sight are drawn, the others as the reader scrolls to them.
  *
  * A table is drawn again only when what it shows changes: a choice of the reader is drawn once the results read
  * with it are there, not the moment it is made.
@@ -236,13 +240,18 @@ const TestTable = React.memo<{
     /** The look of the values, read once by the window for every table it lists. */
     valueStyles: ValueStyles
     onOpenTable: (href: string) => boolean | void
-}>(function TestTable({ table, projectId, compoundResult, readLines, valueStyles, onOpenTable }) {
+    /** The reader turned the results of the table the other way round from how the table is written. */
+    turned: boolean
+    /** Turns the results of the table the other way round, or back. */
+    onTurn: (tableId: string) => void
+}>(function TestTable({ table, projectId, compoundResult, readLines, valueStyles, onOpenTable, turned, onTurn }) {
     const { t } = useTranslation('execution')
     // The page the reader turned to stays turned while the table is scrolled out of sight and back.
     const [page, setPage] = useRemembered(`${table.tableId}:cases-page`, () => 1)
     // The same columns for every page of the cases: the list keeps what it measured of them while the pages turn.
     const columns = useMemo(() => columnsOf(table, compoundResult, t, readLines, valueStyles),
         [compoundResult, readLines, t, table, valueStyles])
+    const casesInColumns = (table.transposed ?? false) !== turned
 
     // A test table holds test cases; a Run table holds runs, because it states no expected values.
     const kind = table.runTable ? 'runs' : 'cases'
@@ -271,6 +280,20 @@ const TestTable = React.memo<{
                 <Tag>{cases}</Tag>
                 {table.numberOfFailures > 0 && <Tag color="error">{table.numberOfFailures}</Tag>}
                 {table.description && <Text type="secondary">{table.description}</Text>}
+                {units.length > 0 && (
+                    <Tooltip title={casesInColumns ? t('tests.casesInRows') : t('tests.casesInColumns')}>
+                        <Button
+                            aria-pressed={turned}
+                            data-testid={`test-transpose-${table.tableId}`}
+                            icon={<SwapOutlined />}
+                            onClick={() => onTurn(table.tableId)}
+                            size="small"
+                            type={turned ? 'primary' : 'default'}
+                        >
+                            {t('tests.transpose')}
+                        </Button>
+                    </Tooltip>
+                )}
             </Flex>
             {/* A table the screen is set to leave out keeps its name and its counts, and nothing more. The columns
                 come from every case listed, so they stay the same from page to page. */}
@@ -280,8 +303,10 @@ const TestTable = React.memo<{
                         columnsInSight
                         columns={columns}
                         data-testid={`test-results-${table.tableId}`}
+                        maxHeight={casesInColumns ? TRANSPOSED_HEIGHT : undefined}
                         rowKey={unit => unit.id}
                         rows={units.slice((page - 1) * CASES_PER_PAGE, page * CASES_PER_PAGE)}
+                        transposed={casesInColumns}
                     />
                 </NumberFormatContext.Provider>
             )}
@@ -309,8 +334,10 @@ const TABLES_AHEAD = 2
 
 type TestTableProps = React.ComponentProps<typeof TestTable>
 
-interface TestTablesProps extends Omit<TestTableProps, 'table'> {
+interface TestTablesProps extends Omit<TestTableProps, 'table' | 'turned'> {
     tables: TestTableResult[]
+    /** The tables whose results the reader turned the other way round from how the table is written. */
+    turned: ReadonlySet<string>
     /**
      * What the cases of a table are listed with, which the key of the table carries: a table set to list other cases
      * lists them from its first page again.
@@ -325,7 +352,7 @@ interface TestTablesProps extends Omit<TestTableProps, 'table'> {
  * a table keeps the room it takes, measured as it is drawn. Where the window has no layout to measure, every table
  * is drawn.
  */
-const TestTables: React.FC<TestTablesProps> = ({ tables, listedWith, ...shown }) => {
+const TestTables: React.FC<TestTablesProps> = ({ tables, listedWith, turned, ...shown }) => {
     const { styles } = useScreenStyles()
     const list = useRef<HTMLDivElement>(null)
     const laidOut = useLaidOut(document.documentElement, 'height')
@@ -345,7 +372,9 @@ const TestTables: React.FC<TestTablesProps> = ({ tables, listedWith, ...shown })
     })
 
     if (!laidOut) {
-        return tables.map(table => <TestTable key={keyOf(table)} table={table} {...shown} />)
+        return tables.map(table => (
+            <TestTable key={keyOf(table)} table={table} turned={turned.has(table.tableId)} {...shown} />
+        ))
     }
     return (
         <div ref={list} className={styles.scrolledList} style={{ height: virtualizer.getTotalSize() }}>
@@ -359,7 +388,7 @@ const TestTables: React.FC<TestTablesProps> = ({ tables, listedWith, ...shown })
                         data-index={item.index}
                         style={{ transform: `translateY(${item.start - margin}px)` }}
                     >
-                        <TestTable table={table} {...shown} />
+                        <TestTable table={table} turned={turned.has(table.tableId)} {...shown} />
                     </div>
                 )
             })}
@@ -387,10 +416,11 @@ interface TestsResultsProps {
 /**
  * The results of a test run: every test table that ran, with the cases it holds.
  *
- * The window opens while the tests are still running and shows them as soon as they are there. Each case is a
- * row of what it was given, what the rule returned and, where they differ, what was expected. The screen
- * decides what it shows - only the failures, how many of them, the whole returned value, how many tables to a
- * page - and the whole run can be saved as a workbook.
+ * The window opens while the tests are still running and shows them as soon as they are there. Each case lists what
+ * it was given, what the rule returned and, where they differ, what was expected: a case to a row, or to a column for
+ * a table written transposed. The screen decides what it shows - only the failures, how many of them, the whole
+ * returned value, how many tables to a page, which tables are turned the other way round - and the whole run can be
+ * saved as a workbook.
  */
 export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, options, onClose }) => {
     const { t } = useTranslation('execution')
@@ -404,6 +434,15 @@ export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, 
     // What the results on screen were read with. The columns follow it rather than what was just asked for, so a
     // column added while the results are read again does not stand empty over the results before.
     const [shownQuery, setShownQuery] = useState(query)
+    // The tables the reader turned the other way round. They stay turned while the results are read again.
+    const [turned, setTurned] = useState<ReadonlySet<string>>(() => new Set())
+    const turn = useCallback((turnedId: string) => setTurned(current => {
+        const next = new Set(current)
+        if (!next.delete(turnedId)) {
+            next.add(turnedId)
+        }
+        return next
+    }), [])
     const readLines = useCallback<ReadCaseLines>(
         (tableId, caseId, value) => (path, offset) => getTestCaseLines(projectId, tableId, caseId, value, path, offset),
         [projectId]
@@ -548,9 +587,11 @@ export const TestsResults: React.FC<TestsResultsProps> = ({ projectId, tableId, 
                                 compoundResult={shownQuery.compoundResult}
                                 listedWith={`${shownQuery.failuresOnly} ${shownQuery.failures}`}
                                 onOpenTable={openTable}
+                                onTurn={turn}
                                 projectId={projectId}
                                 readLines={readLines}
                                 tables={tables}
+                                turned={turned}
                                 valueStyles={valueStyles}
                             />
                         </ScreenMemory.Provider>

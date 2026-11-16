@@ -37269,6 +37269,10 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/TestUnitExecutionResult"
             }
+          },
+          "transposed": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },

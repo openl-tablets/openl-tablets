@@ -110,6 +110,8 @@ export interface TestTableResult {
     numberOfFailures: number
     /** The table is a Run table, which states no expected values, so its cases neither pass nor fail. */
     runTable?: boolean
+    /** The table is written transposed: its cases go across the columns and its fields down the rows. */
+    transposed?: boolean
     testUnits?: TestUnitResult[]
 }
 

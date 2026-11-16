@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 
 /** How a table is laid out, whichever way round it is written. */
@@ -138,8 +140,24 @@ class TableLayoutsTest {
     }
 
     @Test
+    void tellsATestTableWrittenTransposed() {
+        assertFalse(TableLayouts.isTransposed(suite("downTheRowsTest")));
+        assertTrue(TableLayouts.isTransposed(suite("acrossTheColumnsTest")));
+        assertTrue(TableLayouts.isTransposed(suite("oneCaseTest")));
+    }
+
+    @Test
+    void takesATestTableTheCompilerCouldNotBuildAsWrittenTheUsualWayRound() {
+        assertFalse(TableLayouts.isTransposed(mock(TestSuiteMethod.class)));
+    }
+
+    @Test
     void saysNothingAboutATableNobodyAsksThisAbout() {
         assertNull(TableLayouts.of(model, table("greeting")));
+    }
+
+    private TestSuiteMethod suite(String name) {
+        return (TestSuiteMethod) model.getMethod(table(name).getUri());
     }
 
     private IOpenLTable table(String name) {

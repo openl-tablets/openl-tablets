@@ -22,13 +22,17 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.data.ITable;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.repository.api.Page;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -209,6 +213,27 @@ class TestsExecutionSummaryResponseMapperTest {
 
         assertNull(table.module());
         assertNull(table.projectId());
+    }
+
+    /** A test table written transposed says so; one written the usual way round says nothing. */
+    @Test
+    void saysATestTableIsWrittenTransposed() {
+        var usual = new TestUnitsResults(mockTestSuite());
+        var transposed = new TestUnitsResults(mockTestSuite());
+        var node = mock(TestMethodBoundNode.class);
+        var data = mock(ITable.class);
+        var header = mock(IGridTable.class);
+        when(transposed.getTestSuite().getTestSuiteMethod().getBoundNode()).thenReturn(node);
+        when(node.getTable()).thenReturn(data);
+        when(data.getData()).thenReturn(mock(ILogicalTable.class));
+        when(data.getHeaderTable()).thenReturn(header);
+        when(header.isNormalOrientation()).thenReturn(false);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none(), "p1");
+
+        assertNull(mapper.mapToTestCaseResult(usual, TestExecutionSummaryQuery.lazy()).transposed());
+        var ofTransposed = mapper.mapToTestCaseResult(transposed, TestExecutionSummaryQuery.lazy());
+        assertEquals(Boolean.TRUE, ofTransposed.transposed());
     }
 
     /**
