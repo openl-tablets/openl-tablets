@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import org.springframework.context.ApplicationEventPublisher;
 
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -27,6 +28,9 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
+ *
+ * <p>The deployments and the deletions are made one at a time, each with the services it deploys again: a deployment
+ * deployed twice at the same time ends as one of the versions sent, and its services keep answering meanwhile.
  *
  * @author Vladyslav Pikus
  */
@@ -41,12 +45,16 @@ public class RulesDeployerRestController {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    /** Makes the changes of the deployments one at a time. */
+    private final Object deployments = new Object();
+
     /**
      * Deploys target zip input stream
      */
     @POST
     @Consumes("application/zip")
     @Produces("text/plain;charset=UTF-8")
+    @Synchronized("deployments")
     public Response deploy(@Context HttpServletRequest request) throws IOException {
         try {
             rulesDeployerService.deploy(request.getInputStream(), true);
@@ -64,6 +72,7 @@ public class RulesDeployerRestController {
     @Path("/{deployPath:.+}")
     @Consumes("application/zip")
     @Produces("text/plain;charset=UTF-8")
+    @Synchronized("deployments")
     public Response deploy(@PathParam("deployPath") final String deployPath,
                            @Context HttpServletRequest request) throws IOException {
         try {
@@ -106,6 +115,7 @@ public class RulesDeployerRestController {
      */
     @DELETE
     @Path("/{deploymentName}")
+    @Synchronized("deployments")
     public Response delete(@PathParam("deploymentName") final String deploymentName) throws IOException {
         var services = serviceManager.getServicesByDeployment(deploymentName);
         if (services.isEmpty()) {

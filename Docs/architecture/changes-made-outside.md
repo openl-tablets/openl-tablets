@@ -56,6 +56,11 @@ changed on disk since the workbook was read would lose that change, so the save 
   as well, so a file written through the files API, a project saved into a repository on the file system and a file
   of the workspace are never half written either. A copy keeps the time its source was modified. A read-only file is
   not replaced. The hidden files of the writes are not listed as files of a project.
+- **One change at a time.** `FileSystemRepository` makes the changes made through it one after the other, and a
+  listing or a read waits for a change under way. A folder saved whole, such as a deployment OpenL Rule Services
+  takes twice at the same time, ends as one of the versions saved and is never read half saved. A save of a whole
+  folder leaves the hidden file of a write under way alone, as it is no file of the folder. A change made by another
+  program, or by another repository on the same folder, is not waited for.
 
 ## A Write Names the Version It Is Based On
 
