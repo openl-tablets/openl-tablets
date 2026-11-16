@@ -204,7 +204,9 @@ any cast from an `IntExp`, so that an operator does not bind to an `Object` over
 
 ## Rule Utility Libraries (`org.openl.rules.util`)
 
-**Registration**: every new class must be added to `org.openl.conf.LibrariesRegistry` via `DEFAULT.addJavalib(YourClass.class)` in its `static` initializer. Forgetting this leaves the methods invisible to rules.
+**Registration**: every new class of rules functions must be added to `org.openl.conf.LibrariesRegistry` via `DEFAULT.addJavalib(YourClass.class)` in its `static` initializer. Forgetting this leaves the methods invisible to rules. A helper class that holds no rules function, such as `LikePattern`, stays unregistered, since every public static method of a registered class becomes a function.
+
+**Arguments written as text**: an argument that makes every call fail, such as an invalid pattern of `like`, is checked when the rules compile if the call writes it as text. `MethodNodeBinder` runs the check of the function, like `org.openl.rules.binding.LikePatternCheck`, which reports a compilation error on the argument.
 
 **Reference example**: a new public function gets an example with a test in the matching `7-Functions` workbook of
 `DEV/org.openl.rules.demo/src/org.openl.rules.demo.examples/Example-4-Reference-Guide`, which shows every public,
