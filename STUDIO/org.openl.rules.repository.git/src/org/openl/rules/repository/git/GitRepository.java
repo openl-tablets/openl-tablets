@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -151,6 +152,11 @@ import org.openl.util.StringUtils;
 
 @Slf4j
 public class GitRepository implements BranchRepository, IgnoringRepository, Closeable {
+    /** The HTTP status of a refused account, 401 or 403, as a word of its own. */
+    private static final Pattern REFUSED_STATUS = Pattern.compile("(?:^|[\\s:])40[13](?:\\s|$)");
+    /** A URL in a message, whose port or path may hold a number read as a status otherwise. */
+    private static final Pattern URL = Pattern.compile("\\S+://\\S*");
+
     /**
      * Keeps the paths where the first two trees of a walk differ. A folder they hold alike is not entered, however
      * much the other trees changed in it.
@@ -1748,12 +1754,39 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                 push.setCredentialsProvider(credentials);
             }
 
-            Iterable<PushResult> results = push.call();
+            Iterable<PushResult> results;
+            try {
+                results = push.call();
+            } catch (TransportException e) {
+                if (isRefused(e)) {
+                    log.debug("The push was refused.", e);
+                    throw new IOException("The Git server refused the changes. " + refusedMessage(login));
+                }
+                throw e;
+            }
             successAuthentication(GitActionType.PUSH);
             validatePushResults(results);
         } finally {
             remoteRepoLock.unlock();
         }
+    }
+
+    /**
+     * Whether the Git server refused a write for the account it was made with: the account may read the repository,
+     * but not write to it, or its password is wrong.
+     */
+    static boolean isRefused(Exception e) {
+        var message = Objects.requireNonNullElse(e.getMessage(), "").toLowerCase(Locale.ROOT);
+        return message.contains("not authorized") || message.contains("not permitted")
+                || message.contains("authentication is required")
+                || REFUSED_STATUS.matcher(URL.matcher(message).replaceAll(" ")).find();
+    }
+
+    /** Why the Git server refuses a write for the account set for the repository, of the given login if any. */
+    static String refusedMessage(@Nullable String login) {
+        var account = StringUtils.isBlank(login) ? "the account set for the repository" : "the user '%s'".formatted(login);
+        return "It does not let %s write to the repository: check the password and the access of the user."
+                .formatted(account);
     }
 
     private void validatePushResults(Iterable<PushResult> results) throws IOException {

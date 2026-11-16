@@ -52,6 +52,9 @@ To add a repository, proceed as follows:
 
 8.  When finished, click **Apply Changes** to save the settings.
 
+    When the Git server refuses a change, such as a project created or saved by a user who may not write to the
+    repository, the message tells the reason the server gave.
+
 To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
 
 When an environment variable or a Java system property sets the list of the repositories of a tab, such as
