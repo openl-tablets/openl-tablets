@@ -2270,6 +2270,25 @@ class WorkspaceProjectServiceTest {
         verify(tablePropertiesService).read(table);
     }
 
+    /** A table a copy cannot be made of is refused before a new module is made for the copy. */
+    @Test
+    void a_datatype_is_refused_before_a_new_module_is_made_for_its_copy() throws Exception {
+        var creator = mock(TableCreatorService.class);
+        var copier = mock(TableCopyService.class);
+        var service = spy(newCopyService(mock(RepositoryAclService.class), mock(WebStudio.class), creator, copier,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = mock(RulesProject.class);
+        var source = mock(IOpenLTable.class);
+        when(source.getType()).thenReturn(XlsNodeTypes.XLS_DATATYPE.toString());
+        stubResolvedSource(service, project, source);
+        var request = new CopyTableRequest("NewModule", null, "rules/New.xlsx", "PersonCopy", null);
+
+        var refused = assertThrows(BadRequestException.class, () -> service.copyTable(project, "src-id", request));
+
+        assertEquals("openl.error.400.table.copy.kind.not-copyable.message", refused.getErrorCode());
+        verifyNoInteractions(creator, copier);
+    }
+
     @Test
     void copy_table_into_an_existing_module_writes_the_copy_and_returns_its_identifier() throws Exception {
         var acl = mock(RepositoryAclService.class);
@@ -2753,6 +2772,10 @@ class WorkspaceProjectServiceTest {
         when(model.getTableSyntaxNodes()).thenReturn(new TableSyntaxNode[0]);
         when(source.getId()).thenReturn("src-id");
         when(source.getUri()).thenReturn("src-uri");
+        if (source.getType() == null) {
+            // A source of no kind of its own is a decision table, which can be copied.
+            when(source.getType()).thenReturn(XlsNodeTypes.XLS_DT.toString());
+        }
         var moduleInfo = mock(Module.class);
         when(model.getModuleInfo()).thenReturn(moduleInfo);
         when(moduleInfo.containsTable("src-uri")).thenReturn(true);
