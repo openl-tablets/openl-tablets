@@ -420,6 +420,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
 
         IOpenField[] fieldSequence;
+        var boundFields = boundFields(columnDescriptor, nodes);
         var resIsCollection = isCollectionType(nodes[0].getIdentifier());
         var startIndex = 0;
         var currentType = resultType;
@@ -428,7 +429,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             startIndex = 1;
             fieldSequence = new IOpenField[nodes.length];
             var arrayField = new ThisField(resultType);
-            IOpenField arrayAccessField = createCollectionElementField(arrayField, nodes[0]);
+            IOpenField arrayAccessField = createCollectionElementField(arrayField, nodes[0], boundFields[0]);
             if (arrayAccessField == null) {
                 return;
             }
@@ -441,7 +442,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         for (i = startIndex; i < fieldSequence.length; i++) {
             var identifier = nodes[i + 1 - startIndex].getIdentifier();
             var isCollection = isCollectionType(identifier);
-            fieldSequence[i] = findField(currentType, nodes[i + 1 - startIndex], isCollection);
+            fieldSequence[i] = findField(currentType,
+                    nodes[i + 1 - startIndex],
+                    isCollection,
+                    boundFields[i + 1 - startIndex]);
             if (fieldSequence[i] == null) {
                 break;
             }
@@ -450,6 +454,30 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         if (i == 0 || i == fieldSequence.length) {
             addFieldSequence(toAdd, resultType, columnDescriptor, fieldSequence, currentType, fieldPrecision, column);
         }
+    }
+
+    /**
+     * Returns the fields the binding of the column resolved for the names of its path, one for each name, or none when
+     * they do not match the names.
+     */
+    private static @Nullable IOpenField[] boundFields(ColumnDescriptor columnDescriptor, IdentifierNode[] nodes) {
+        var fields = columnDescriptor.getPathFields();
+        return fields.length == nodes.length ? fields : new IOpenField[nodes.length];
+    }
+
+    /**
+     * Returns the types of the elements an access such as {@code _res_[0][1]} reaches, the outermost first, as the
+     * binding of the column resolved them, like the type declared in {@code myList[0]: Item} or the type a table
+     * collects. A type is {@code null} where the binding resolved none.
+     */
+    private static @Nullable IOpenClass[] boundElementTypes(@Nullable IOpenField bound, int count) {
+        var types = new IOpenClass[count];
+        var field = bound;
+        for (var i = count - 1; i >= 0 && field instanceof CollectionElementField element; i--) {
+            types[i] = element.getType();
+            field = element.getField();
+        }
+        return types;
     }
 
     /**
@@ -513,7 +541,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
      * Finds a field of the type, or an element of a collection field of it. A field that is not found is searched in
      * the spreadsheet result type when the field name looks like a spreadsheet cell reference.
      */
-    private static IOpenField findField(IOpenClass currentType, IdentifierNode node, boolean isCollection) {
+    private static IOpenField findField(IOpenClass currentType,
+                                        IdentifierNode node,
+                                        boolean isCollection,
+                                        @Nullable IOpenField bound) {
         var identifier = node.getIdentifier();
         if (isCollection) {
             var arrayField = currentType
@@ -526,7 +557,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         .getField(DataTableBindHelper.getCollectionName(node));
             }
             if (arrayField != null) {
-                return createCollectionElementField(arrayField, node);
+                return createCollectionElementField(arrayField, node, bound);
             }
             return null;
         } else {
@@ -546,41 +577,52 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     /**
      * Creates the field of a collection element: by the key for a map, and by the index otherwise. Each further index
-     * addresses an element of that element, like {@code _res_[0][1]}.
+     * addresses an element of that element, like {@code _res_[0][1]}. Each element is of the type the binding of the
+     * column resolved for it, like the type declared in {@code myList[0]: Item} or the type the tested table collects,
+     * and of the component type of its collection otherwise.
      *
+     * @param bound the field the binding of the column resolved for the same name, if any
      * @return {@code null} when an index is not a number or an element is not a collection, which the binding of the
      * table has reported
      */
-    private static @Nullable IOpenField createCollectionElementField(IOpenField arrayField, IdentifierNode node) {
+    private static @Nullable IOpenField createCollectionElementField(IOpenField arrayField,
+                                                                     IdentifierNode node,
+                                                                     @Nullable IOpenField bound) {
         var type = arrayField.getType();
-        CollectionType collectionType = getCollectionType(type);
-        IOpenField arrayAccessField;
-        if (collectionType == CollectionType.MAP) {
-            Object key = DataTableBindHelper.getCollectionKey(node);
-            arrayAccessField = new CollectionElementField(arrayField,
-                    key,
-                    type.getComponentClass());
-        } else {
-            int[] indexes;
-            try {
-                indexes = DataTableBindHelper.getCollectionIndexes(node);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-            arrayAccessField = new CollectionElementField(arrayField, indexes[0], type.getComponentClass(), collectionType);
-            for (var i = 1; i < indexes.length && arrayAccessField != null; i++) {
-                arrayAccessField = createIndexedElementField(arrayAccessField, indexes[i]);
-            }
+        if (getCollectionType(type) == CollectionType.MAP) {
+            // the key as the binding converted it to the key type of the tested table, such as a Long it collects by
+            var key = bound instanceof CollectionElementField element && element.getMapKey() != null
+                    ? element.getMapKey()
+                    : DataTableBindHelper.getCollectionKey(node);
+            return new CollectionElementField(arrayField, key, componentOf(type, boundElementTypes(bound, 1)[0]));
+        }
+        int[] indexes;
+        try {
+            indexes = DataTableBindHelper.getCollectionIndexes(node);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        var elementTypes = boundElementTypes(bound, indexes.length);
+        @Nullable IOpenField arrayAccessField = arrayField;
+        for (var i = 0; i < indexes.length && arrayAccessField != null; i++) {
+            arrayAccessField = createIndexedElementField(arrayAccessField, indexes[i], elementTypes[i]);
         }
         return arrayAccessField;
     }
 
-    private static @Nullable IOpenField createIndexedElementField(IOpenField collection, int index) {
+    private static @Nullable IOpenField createIndexedElementField(IOpenField collection,
+                                                                  int index,
+                                                                  @Nullable IOpenClass boundType) {
         var type = collection.getType();
-        var elementType = type.getComponentClass();
+        var elementType = componentOf(type, boundType);
         return elementType == null
                 ? null
                 : new CollectionElementField(collection, index, elementType, getCollectionType(type));
+    }
+
+    /** The type the binding resolved for the elements of a collection, or its component type when none is resolved. */
+    private static IOpenClass componentOf(IOpenClass collectionType, @Nullable IOpenClass boundType) {
+        return boundType != null ? boundType : collectionType.getComponentClass();
     }
 
     /**

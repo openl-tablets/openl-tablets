@@ -16,6 +16,8 @@ If a datatype table field is a list or a map, use the following syntax:
 -   for lists, \<attribute name\>[i]:\<element datatype\>
 -   for maps, \<attribute name\>[“key”]:\<element datatype\>
 
+The element datatype also gives access to the fields of the element, for example, `items[0]: Item.name`. Test tables accept the same syntax for the expected result, for example, `_res_.items[1]: Item.name` checks the field `name` of the second element of the returned list. When the tested table collects its result, as `SmartRules Collect as Item List` does, the elements of the result are of the collected datatype, so `_res_[0].name` needs no datatype after the index.
+
 An example of the data table with a list of values used for zip codes is as follows:
 
 ![Data table using a list field defined in the datatype table](../../../ref-guide-images/dataTableUsingListFieldDefined.png)
