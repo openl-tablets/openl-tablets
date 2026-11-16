@@ -97,8 +97,7 @@ public final class TableTestProjects {
      * Write a single-sheet workbook the caller lays out itself, and compile the module it makes.
      *
      * <p>For a test that needs several tables on one sheet, or merges of its own, where the {@code String[][]}
-     * grid above lays out one table starting at B2. Only this module is compiled: the whole-project compile
-     * runs in the background and would replace what the model holds part-way through the test.
+     * grid above lays out one table starting at B2.
      */
     public static ProjectModel projectModel(Path dir, String sheetName, Consumer<Sheet> content) throws IOException {
         Files.createDirectories(dir);
@@ -108,15 +107,7 @@ public final class TableTestProjects {
                 workbook.write(out);
             }
         }
-        try {
-            var module = ProjectResolver.getInstance().resolve(dir).getModules().getFirst();
-            module.getWebstudioConfiguration().setCompileThisModuleOnly(true);
-            var projectModel = new ProjectModel(mock(WebStudio.class), null);
-            projectModel.setModuleInfo(module);
-            return projectModel;
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to resolve project at " + dir, e);
-        }
+        return projectModel(dir);
     }
 
     /** The table of the module with the given name. */
@@ -157,12 +148,18 @@ public final class TableTestProjects {
         }
     }
 
-    /** Resolve and compile the single-module project at {@code dir}. */
+    /**
+     * Resolve and compile the single-module project at {@code dir}.
+     *
+     * <p>Only this module is compiled. The whole-project compile would run in the background and replace what the
+     * model holds part-way through the test.
+     */
     public static ProjectModel projectModel(Path dir) {
         try {
-            var modules = ProjectResolver.getInstance().resolve(dir).getModules();
+            var module = ProjectResolver.getInstance().resolve(dir).getModules().getFirst();
+            module.getWebstudioConfiguration().setCompileThisModuleOnly(true);
             var projectModel = new ProjectModel(mock(WebStudio.class), null);
-            projectModel.setModuleInfo(modules.getFirst());
+            projectModel.setModuleInfo(module);
             return projectModel;
         } catch (Exception e) {
             throw new IllegalStateException("Failed to resolve project at " + dir, e);
