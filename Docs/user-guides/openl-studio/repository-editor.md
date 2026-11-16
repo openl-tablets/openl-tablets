@@ -923,11 +923,15 @@ To copy the selected project, proceed as follows:
     *The Copy project window offering a new branch*
 
 2.  Select **Create a New Project** to copy the project instead of branching it.
-3.  Enter the new project name and select the target repository.
+3.  Enter the new project name and select the target repository. The window starts on the repository of the project
+    when a project can be created there, or else on the first repository offered.
 4.  For a branch-capable target repository, select an existing branch or enter a new branch name in **Branch**.
 5.  If necessary, specify the target path and modify the commit comment, when the target repository supports comments.
 6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
 7.  Click **Copy**.
+
+    When the copy is not made, the window stays open with the message and with every field as it was filled in, so
+    **Copy** can be clicked again.
 
 A copy in the default branch appears in the project list at once; a copy in another branch is listed once that branch
 is picked in the **Branch** filter. The selected branch is its home branch when no other branch contains the project.

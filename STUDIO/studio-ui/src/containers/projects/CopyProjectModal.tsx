@@ -52,7 +52,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const username = useUserStore(state => state.userProfile?.username)
     const [asNewProject, setAsNewProject] = useState(false)
     const [branch, setBranch] = useState('')
-    const [targetRepositoryId, setTargetRepositoryId] = useState('')
+    const [pickedTargetRepositoryId, setPickedTargetRepositoryId] = useState('')
     const [targetBranch, setTargetBranch] = useState('')
     const [targetBranchTouched, setTargetBranchTouched] = useState(false)
     const [name, setName] = useState('')
@@ -76,7 +76,12 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const canCopyProject = !!project?.capabilities?.canCopy && repositories.length > 0
     // Without the right to create a project the dialog can only branch, and the other way round.
     const newProjectMode = canCopyProject && (asNewProject || !canBranch)
-    const targetRepository = repositories.find(repo => repo.id === targetRepositoryId)
+    // The repository the user picked, else the project's own one, else the first. A picked or own repository that
+    // is gone from the list gives way to the next of them.
+    const targetRepository = repositories.find(repo => repo.id === pickedTargetRepositoryId)
+        ?? repositories.find(repo => repo.id === project?.repository)
+        ?? repositories[0]
+    const targetRepositoryId = targetRepository?.id ?? ''
     const targetSupportsBranches = supportsBranches(targetRepository)
     const targetSupportsComments = supportsComments(targetRepository)
     const targetConfig = useRepositoryConfig(
@@ -99,15 +104,15 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         : validateBranchName(targetBranch, targetConfig, t('browser.create.branch_required'),
             t('browser.create.branch_invalid'))
 
+    // The form starts afresh each time the dialog opens, and only then. The page may read the repositories again
+    // while the dialog is open, and what was filled in stays.
     useEffect(() => {
         if (!open || !project) {
             return
         }
         setTouched(false)
         setAsNewProject(false)
-        setTargetRepositoryId(repositories.some(repo => repo.id === project.repository)
-            ? project.repository
-            : repositories[0]?.id ?? '')
+        setPickedTargetRepositoryId('')
         setTargetBranch('')
         setTargetBranchTouched(false)
         setName('')
@@ -116,7 +121,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         setChosen(undefined)
         setError(null)
         setDiscardBranch(null)
-    }, [open, project, repositories])
+    }, [open, project])
 
     useEffect(() => {
         setTargetBranch('')
@@ -146,7 +151,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const revision = chosen ?? revisions?.[0]?.revisionNo
 
     // A path inside the repository only applies to non-flat (mapped-folder) repositories.
-    const targetSupportsFolders = supportsMappedFolders(repositories.find(repo => repo.id === targetRepositoryId))
+    const targetSupportsFolders = supportsMappedFolders(targetRepository)
 
     const submit = async () => {
         if (!project) {
@@ -277,7 +282,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             <FieldRow required label={t('browser.copy_dialog.target_repository')} labelWidth={LABEL_WIDTH}>
                 <Select
                     data-testid="copy-project-repository"
-                    onChange={value => setTargetRepositoryId(value)}
+                    onChange={value => setPickedTargetRepositoryId(value)}
                     options={repositories.map(repo => ({ value: repo.id, label: repo.name }))}
                     style={{ width: '100%' }}
                     value={targetRepositoryId}
