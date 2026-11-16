@@ -1,9 +1,11 @@
 package org.openl.studio.repositories.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -12,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -423,7 +426,8 @@ public class ProjectCreationService {
                     }, () -> awaitProjectVisibility(repository)).uploadProject();
             return created.getFileData();
         } catch (ProjectException e) {
-            throw new ConflictException("project.create.failed.message");
+            log.error("Failed to create project '{}' in repository '{}'.", projectName, repositoryId, e);
+            throw failed("project.create.failed.message", "project.create.reason.message", repository, e);
         }
     }
 
@@ -583,8 +587,34 @@ public class ProjectCreationService {
         } catch (ProjectException e) {
             // The answer carries a code only, so without this the failure leaves no trace anywhere.
             log.error("Failed to copy project '{}' into repository '{}'.", newName, targetRepositoryId, e);
-            throw new ConflictException("project.copy.failed.message");
+            throw failed("project.copy.failed.message", "project.copy.reason.message", targetRepository, e);
         }
+    }
+
+    /**
+     * The answer to a creation or a copy that failed. A failure to read or write the files of the project tells its
+     * own reason, such as a Git server refusing a push or an empty ZIP archive, and names the target repository; any
+     * other failure gets the general message.
+     */
+    static ConflictException failed(String general,
+                                            String withReason,
+                                            Repository repository,
+                                            ProjectException e) {
+        if (ExceptionUtils.indexOfType(e, IOException.class) < 0) {
+            return new ConflictException(general);
+        }
+        var cause = ExceptionUtils.getRootCause(e);
+        // a Git server refusing a push is reported by the Git repository in a message of its own over the transport
+        // error, so the reason is the message of the first file failure
+        var reason = ExceptionUtils.getThrowableList(e).stream()
+                .filter(IOException.class::isInstance)
+                .map(Throwable::getMessage)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(Objects.requireNonNullElse(cause.getMessage(), cause.getClass().getSimpleName()));
+        return new ConflictException(withReason,
+                Objects.requireNonNullElse(repository.getName(), repository.getId()),
+                reason);
     }
 
     /**
