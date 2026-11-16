@@ -1796,14 +1796,15 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             Collection<RemoteRefUpdate> remoteUpdates = result.getRemoteUpdates();
             for (RemoteRefUpdate remoteUpdate : remoteUpdates) {
                 var status = remoteUpdate.getStatus();
+                if (isChangedMeanwhile(status, remoteUpdate.getMessage())) {
+                    throw new IOException("""
+                            The branch was changed on the Git server meanwhile, so the changes were not sent. \
+                            Try again: the changes of the server are taken first.""");
+                }
                 switch (status) {
                     case OK, UP_TO_DATE, NON_EXISTING -> { /* Successful operation. Continue. */ }
-                    case REJECTED_NONFASTFORWARD -> throw new IOException(
-                            "Remote ref update was rejected, as it would cause non fast-forward update.");
                     case REJECTED_NODELETE -> throw new IOException(
                             "Remote ref update was rejected, because remote side does not support/allow deleting refs.");
-                    case REJECTED_REMOTE_CHANGED -> throw new IOException(
-                            "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
                     case REJECTED_OTHER_REASON -> {
                         var message = remoteUpdate.getMessage();
                         if ("pre-receive hook declined".equals(message)) {
@@ -1820,6 +1821,21 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                 }
             }
         }
+    }
+
+    /**
+     * Whether a push was refused because the branch on the Git server moved after it was fetched, such as when
+     * another OpenL Studio pushed to it first. A Git server tells it either by the status of the update or, when the
+     * branch moves while the push is taken, by the reason it gives. A branch the server cannot lock for another
+     * reason, such as a denied permission, is not one.
+     */
+    static boolean isChangedMeanwhile(RemoteRefUpdate.Status status, @Nullable String message) {
+        return switch (status) {
+            case REJECTED_NONFASTFORWARD, REJECTED_REMOTE_CHANGED -> true;
+            case REJECTED_OTHER_REASON -> message != null && (message.contains("incorrect old value")
+                    || message.contains("but expected") || message.contains("reference already exists"));
+            default -> false;
+        };
     }
 
     private <T> T iterate(String path, WalkCommand<T> command) throws IOException {
