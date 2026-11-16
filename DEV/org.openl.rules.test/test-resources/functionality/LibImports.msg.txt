@@ -1,1 +1,4 @@
 ERROR: Cannot load type 'org.openl.rules.beans.D' because of absent type 'org.openl.rules.beans.A'.
+ERROR: Cannot load type 'org.openl.rules.beans.C' because of absent type 'org.openl.rules.beans.A'.
+ERROR: Cannot load type 'org.openl.rules.beans.C' because of absent type 'org.openl.rules.beans.A'.
+ERROR: Cannot load type 'org.openl.rules.beans.C' because of absent type 'org.openl.rules.beans.A'.
