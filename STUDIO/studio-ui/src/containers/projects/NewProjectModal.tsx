@@ -244,7 +244,7 @@ export const NewProjectModal = ({
     }), [t])
     const [step, setStep] = useState<'method' | 'config'>('method')
     const [mode, setMode] = useState<CreateMode>('template')
-    const [repoId, setRepoId] = useState('')
+    const [pickedRepoId, setPickedRepoId] = useState('')
     const [branch, setBranch] = useState('')
     const [branchTouched, setBranchTouched] = useState(false)
     const [copySource, setCopySource] = useState<string | null>(null)
@@ -276,7 +276,12 @@ export const NewProjectModal = ({
 
     const creatableRepos = useMemo(() => creatableRepositories(repositories), [repositories])
     const repoOptions = creatableRepos
-    const repository = useMemo(() => creatableRepos.find(repo => repo.id === repoId) ?? null, [creatableRepos, repoId])
+    // The repository the user picked, or the first one while none is picked or the picked one is gone from the list.
+    const repository = useMemo(
+        () => creatableRepos.find(repo => repo.id === pickedRepoId) ?? creatableRepos[0] ?? null,
+        [creatableRepos, pickedRepoId]
+    )
+    const repoId = repository?.id ?? ''
     const repositorySupportsFolders = supportsMappedFolders(repository)
     const repositorySupportsBranches = supportsBranches(repository)
     const repositorySupportsComments = supportsComments(repository)
@@ -285,12 +290,6 @@ export const NewProjectModal = ({
         () => projectSources.filter(project => project.capabilities?.canCopy),
         [projectSources]
     )
-
-    useEffect(() => {
-        if (open) {
-            setRepoId(creatableRepos[0]?.id ?? '')
-        }
-    }, [creatableRepos, open])
 
     useEffect(() => {
         if (open && mode === 'template' && !templatesLoaded.current) {
@@ -461,6 +460,7 @@ export const NewProjectModal = ({
         setStep('method')
         setMode('template')
         resetFields()
+        setPickedRepoId('')
         setCopyProjects(null)
         templatesLoaded.current = false
         onClose()
@@ -605,7 +605,7 @@ export const NewProjectModal = ({
     const repoSelectInput = (
         <Select
             data-testid="new-project-repo"
-            onChange={value => setRepoId(value ?? '')}
+            onChange={value => setPickedRepoId(value ?? '')}
             options={repoOptions.map(repo => ({ value: repo.id, label: repo.name }))}
             style={{ width: '100%' }}
             value={repoId || undefined}
