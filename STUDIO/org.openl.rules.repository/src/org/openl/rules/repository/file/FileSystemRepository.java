@@ -22,9 +22,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 import lombok.Getter;
+import lombok.Locked;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -54,6 +57,10 @@ import org.openl.util.FileUtils;
  * a link gets around the patterns. A save of a whole folder keeps the ignored files it holds, and the changes of an
  * ignored folder are not watched.
  *
+ * <p>The changes made through one repository are made one at a time, and a reading waits for a change under way:
+ * a folder saved whole is seen as it was or as it is saved, never half saved. A change made by another program is not
+ * waited for.
+ *
  * @author Yury Molchan
  */
 @Slf4j
@@ -76,6 +83,8 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     private IgnoredPaths ignoredPaths = IgnoredPaths.of(null);
     /** The root as the file system resolves it, kept while the root stays the same. */
     private @Nullable ResolvedRoot resolvedRoot;
+    /** Makes the changes one at a time, and the readings wait for a change under way. */
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public void setUri(String path) {
         this.root = Path.of(path);
@@ -117,6 +126,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     }
 
     @Override
+    @Locked.Read("lock")
     public List<FileData> list(String path) throws IOException {
         var directory = resolveInRoot(path);
         var list = new ArrayList<FileData>();
@@ -161,6 +171,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     }
 
     @Override
+    @Locked.Read("lock")
     public @Nullable FileData check(String name) throws IOException {
         var file = resolveInRoot(name);
         if (Files.exists(file) && !isIgnored(file)) {
@@ -170,6 +181,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     }
 
     @Override
+    @Locked.Read("lock")
     public @Nullable FileItem read(String name) throws IOException {
         var file = resolveInRoot(name);
         if (Files.exists(file) && !isIgnored(file)) {
@@ -279,6 +291,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
         return saved;
     }
 
+    @Locked.Write("lock")
     private FileData write(FileData data, InputStream stream) throws IOException {
         var file = resolveInRoot(data.getName());
         refuseIgnored(file);
@@ -306,6 +319,13 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
      */
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        var result = writeAll(fileItems);
+        invokeListener();
+        return result;
+    }
+
+    @Locked.Write("lock")
+    private List<FileData> writeAll(List<FileItem> fileItems) throws IOException {
         var result = new ArrayList<FileData>();
         for (FileItem fileItem : fileItems) {
             var file = resolveInRoot(fileItem.getData().getName());
@@ -313,12 +333,20 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
                 result.add(writeTo(file, fileItem.getData(), fileItem.getStream()));
             }
         }
-        invokeListener();
         return result;
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
+        var deleted = remove(data);
+        if (deleted) {
+            invokeListener();
+        }
+        return deleted;
+    }
+
+    @Locked.Write("lock")
+    private boolean remove(FileData data) throws IOException {
         var file = resolveInRoot(data.getName());
         if (isIgnored(file)) {
             return false;
@@ -333,20 +361,24 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
         }
 
         deleteEmptyParentFolders(file);
-
-        invokeListener();
         return true;
     }
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
+        var deleted = removeAll(data);
+        if (deleted) {
+            invokeListener();
+        }
+        return deleted;
+    }
+
+    @Locked.Write("lock")
+    private boolean removeAll(List<FileData> data) {
         var deleted = false;
         for (var fd : data) {
             var f = resolveInRoot(fd.getName());
             deleted |= !isIgnored(f) && deleteQuietly(f);
-        }
-        if (deleted) {
-            invokeListener();
         }
         return deleted;
     }
@@ -391,6 +423,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
         }
     }
 
+    @Locked.Write("lock")
     private FileData copy(String srcName, FileData destData) throws IOException {
         var srcFile = resolveInRoot(srcName);
         if (isIgnored(srcFile)) {
@@ -534,6 +567,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     }
 
     @Override
+    @Locked.Read("lock")
     public List<FileData> listFolders(String path) {
         var files = new ArrayList<FileData>();
         var directory = resolveInRoot(path);
@@ -583,6 +617,15 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
     public @Nullable FileData save(FileData folderData,
                                    Iterable<FileItem> files,
                                    ChangesetType changesetType) throws IOException {
+        var saved = writeFolder(folderData, files, changesetType);
+        invokeListener();
+        return saved;
+    }
+
+    @Locked.Write("lock")
+    private @Nullable FileData writeFolder(FileData folderData,
+                                           Iterable<FileItem> files,
+                                           ChangesetType changesetType) throws IOException {
         var folder = resolveInRoot(folderData.getName());
         refuseIgnored(folder);
         // Add new files and update existing ones
@@ -598,9 +641,7 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
         if (changesetType == ChangesetType.FULL) {
             removeAbsentFiles(folder, savedFiles);
         }
-        var saved = Files.exists(folder) ? getFileData(folder) : null;
-        invokeListener();
-        return saved;
+        return Files.exists(folder) ? getFileData(folder) : null;
     }
 
     /** Writes a file a change gives content, and deletes one it gives none. */
@@ -630,7 +671,8 @@ public class FileSystemRepository implements Repository, IgnoringRepository, Clo
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (!toSave.contains(file) && isListed(file)) {
+                // The temporary file of a write under way is not a file of the folder.
+                if (!toSave.contains(file) && isListed(file) && !FileReplacement.isTemporary(file)) {
                     deleteAbsentFile(file);
                 }
                 return FileVisitResult.CONTINUE;

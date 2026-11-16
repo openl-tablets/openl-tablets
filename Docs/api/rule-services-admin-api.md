@@ -76,5 +76,14 @@ body is a ZIP archive of a deployment ([Deployment Project ZIP Structure](../use
 - **`DELETE /admin/deploy/{deploymentName}`** — deletes the deployment; `200`, or `404` when there is nothing to
   delete.
 
+The deployments and the deletions are made one at a time, each with the services it starts again, so a request
+waits for the one under way, and the services of a deployment being deployed again stay deployed: a request to them
+waits for the redeployment under way.
+
+- **Repository with folders**, such as the file system, Git or Azure Blob Storage — a deployment sent twice at the
+  same time ends as one of the archives sent.
+- **Database or AWS S3 repository** — an archive replaces the projects it holds and keeps the other projects of the
+  deployment, so two archives with different projects end with the projects of both.
+
 The same operations are available from Java; see
 [Programmatic Deployment](../user-guides/rule-services/appendices/programmatic-deployment.md).

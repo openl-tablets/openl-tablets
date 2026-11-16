@@ -68,7 +68,6 @@ class RunFileRepoRestRulesDeploymentTest {
     // The pause keeps services invoked while deployments replace them; there is no event to wait for.
     @SuppressWarnings("java:S2925")
     @Test
-    @Disabled("Check EPBDS-10940 issue")
     void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");
 
