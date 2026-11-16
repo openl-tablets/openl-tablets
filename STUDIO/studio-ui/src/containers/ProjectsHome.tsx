@@ -580,12 +580,13 @@ export const ProjectsHome = () => {
         [leaveTo]
     )
 
-    // After a create, land on the new project's page, addressed by the id the create answered.
+    // After a create, land on the new project's page, addressed by the id the create answered. The list stays mounted
+    // beneath the page and feeds the tree beside it, so it reads the projects again for the new one to be there.
     const openCreated = useCallback((id: string) => {
         setCreateOpen(false)
-        invalidateProjectIndex()
+        void load(true, { silent: true })
         leaveTo(`/projects/${id}`)
-    }, [leaveTo])
+    }, [leaveTo, load])
 
     // A group picked in the tree is the same thing as ticking its facets: the list shows its projects, and the
     // tree, which follows the facets, narrows to the group.
