@@ -2404,7 +2404,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Get a table's name, kind and its own properties, without reading the body.
      * <p>
-     * The copy dialog prefills the copy's name and properties from this, so a table of any size is read cheaply.
+     * The copy dialog prefills the copy's name and properties from this, so a table of any size is read cheaply. A table
+     * whose header is its keyword alone, such as a Conditions table without a name, is reported with an empty name.
      *
      * @param project project
      * @param tableId table id
@@ -2414,7 +2415,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getOpenLTable(project, tableId);
         var table = context.table();
         var summary = summaryTableReader.read(table);
-        return new TablePropertiesView(summary.name, summary.kind, tablePropertiesService.read(table),
+        // A header of its keyword alone names no table: the dialog then asks for a name instead of offering the keyword.
+        // The header of a table of the type Other is its name, whatever its first word.
+        var node = table.getSyntaxNode();
+        var header = node.getHeader();
+        var named = node.getNodeType() == XlsNodeTypes.XLS_OTHER
+                || !header.getSourceString().strip().equals(header.getHeaderToken().getIdentifier());
+        return new TablePropertiesView(named ? summary.name : "", summary.kind, tablePropertiesService.read(table),
                 tableVersionService.describe(table, context.module().getTableSyntaxNodes()));
     }
 

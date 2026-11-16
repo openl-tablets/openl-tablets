@@ -186,6 +186,7 @@ import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.model.ProjectRevision;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenMethod;
 
 class WorkspaceProjectServiceTest {
@@ -2291,6 +2292,7 @@ class WorkspaceProjectServiceTest {
         when(tablePropertiesService.read(table)).thenReturn(properties);
         when(table.isVersionable()).thenReturn(true);
         when(table.getName()).thenReturn("MyTable");
+        stubHeader(table, "Rules String MyTable(String state)", "Rules");
 
         var view = service.getTableProperties(project, "src-id");
 
@@ -2320,6 +2322,56 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.400.table.copy.kind.not-copyable.message", refused.getErrorCode());
         verifyNoInteractions(creator, copier);
+    }
+
+    /** A Conditions table headed by its keyword alone names no table, so the copy dialog asks for a name. */
+    @Test
+    void a_table_headed_by_its_keyword_alone_is_reported_without_a_name() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var service = spy(newCopyService(mock(RepositoryAclService.class), mock(WebStudio.class),
+                mock(TableCreatorService.class), mock(TableCopyService.class), summaryTableReader,
+                mock(TablePropertiesService.class)));
+        var project = mock(RulesProject.class);
+        var table = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, table);
+        when(summaryTableReader.read(table))
+                .thenReturn(SummaryTableView.builder().name("Conditions").kind(TableKind.CONDITIONS).build());
+        stubHeader(table, " Conditions ", "Conditions");
+
+        var view = service.getTableProperties(project, "src-id");
+
+        assertEquals("", view.name());
+        assertEquals(TableKind.CONDITIONS, view.kind());
+    }
+
+    /** A free-form table of one word keeps that word as its name: it is no keyword. */
+    @Test
+    void a_free_form_table_of_one_word_keeps_its_name() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var service = spy(newCopyService(mock(RepositoryAclService.class), mock(WebStudio.class),
+                mock(TableCreatorService.class), mock(TableCopyService.class), summaryTableReader,
+                mock(TablePropertiesService.class)));
+        var project = mock(RulesProject.class);
+        var table = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, table);
+        when(summaryTableReader.read(table))
+                .thenReturn(SummaryTableView.builder().name("Notes").kind(TableKind.OTHER).build());
+        stubHeader(table, "Notes", "Notes");
+        when(table.getSyntaxNode().getNodeType()).thenReturn(XlsNodeTypes.XLS_OTHER);
+
+        assertEquals("Notes", service.getTableProperties(project, "src-id").name());
+    }
+
+    /** The header of the table as written, and the keyword it opens with. */
+    private static void stubHeader(IOpenLTable table, String header, String keyword) {
+        var node = mock(TableSyntaxNode.class);
+        var headerNode = mock(HeaderSyntaxNode.class);
+        var token = mock(IdentifierNode.class);
+        when(table.getSyntaxNode()).thenReturn(node);
+        when(node.getHeader()).thenReturn(headerNode);
+        when(headerNode.getSourceString()).thenReturn(header);
+        when(headerNode.getHeaderToken()).thenReturn(token);
+        when(token.getIdentifier()).thenReturn(keyword);
     }
 
     @Test

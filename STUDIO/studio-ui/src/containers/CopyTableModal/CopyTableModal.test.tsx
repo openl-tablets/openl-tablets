@@ -306,6 +306,18 @@ describe('CopyTableModal', () => {
             .toEqual([{ name: 'expirationDate', value: '2010-06-30T23:59' }])
     })
 
+    it('asks for a name when the header of the table names none', async () => {
+        mockGetInfo.mockResolvedValue({ name: '', kind: 'Conditions', properties: []})
+        render(<CopyTableModal />)
+        await openModal()
+
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+        // The dialog is titled by the kind, and the name is left for the author to give.
+        expect(screen.getByRole('dialog')).toHaveTextContent('project:copy_table_modal.title:Conditions')
+        expect(screen.getByTestId('copy-table-name')).toHaveValue('')
+        expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy' })).toBeDisabled()
+    })
+
     it('reads the properties and copies the table on the server by its id', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
