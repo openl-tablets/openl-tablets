@@ -210,7 +210,7 @@
         <!-- protocols -->
         <gson.version>2.15.0</gson.version>
 
-        <bouncycastle.version>1.86.2</bouncycastle.version>
+        <bouncycastle.version>1.87</bouncycastle.version>
         <groovy.version>6.0.0</groovy.version>
         <poi.version>6.0.0</poi.version>
         <velocity.version>2.4.1</velocity.version>
