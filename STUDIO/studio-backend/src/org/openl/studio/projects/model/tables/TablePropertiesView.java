@@ -11,14 +11,14 @@ import org.jspecify.annotations.Nullable;
  * The copy dialog uses this to prefill the copy's name and properties. It carries none of the table's rows, so a
  * table of any size is read cheaply.
  *
- * @param name       name of the table
+ * @param name       name of the table, empty when its header is its keyword alone
  * @param kind       kind of the table object
  * @param properties properties defined on the table
  * @param versions   versions of the table, absent for a kind of table that carries none
  * @author Vladyslav Pikus
  */
 public record TablePropertiesView(
-        @Parameter(description = "Name of the table")
+        @Parameter(description = "Name of the table, empty when its header is its keyword alone")
         String name,
 
         @Parameter(description = "Kind of the table object")

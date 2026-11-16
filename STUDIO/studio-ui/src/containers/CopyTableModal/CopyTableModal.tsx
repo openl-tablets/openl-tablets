@@ -313,7 +313,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
             title={(
                 <Space>
                     <CopyOutlined />
-                    {t('project:copy_table_modal.title', { table: sourceInfo?.name ?? '' })}
+                    {t('project:copy_table_modal.title', { table: sourceInfo?.name || sourceInfo?.kind || '' })}
                 </Space>
             )}
         >
