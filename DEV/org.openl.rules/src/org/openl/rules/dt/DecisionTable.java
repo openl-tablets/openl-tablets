@@ -30,6 +30,7 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -155,15 +156,30 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      * Returns logical table that contains rule column. The column will contain all return, action and condition cells
      * for rule specified by index.
      *
+     * <p>The column has the rows of the whole table. A value merged over several rules, such as a horizontal value of a
+     * lookup merged over its columns, stays the cell of its own row, and the cells of the rule under it stay cells of
+     * their own.
+     *
      * @param ruleIndex Index of rule.
      * @return ILogicalTable that contains rule column.
      */
     @Override
     public ILogicalTable getRuleTable(int ruleIndex) {
         var dt = actionRows[0].getDecisionTable();
-        var starColumn = dt.getWidth() - columns;
-
-        return dt.getColumn(starColumn + ruleIndex);
+        var column = dt.getWidth() - columns + ruleIndex;
+        var gridColumn = 0;
+        for (var i = 0; i < column; i++) {
+            gridColumn += dt.getColumnWidth(i);
+        }
+        var rowOffsets = new int[dt.getHeight() + 1];
+        for (var i = 0; i < dt.getHeight(); i++) {
+            rowOffsets[i + 1] = rowOffsets[i] + dt.getRowHeight(i);
+        }
+        var width = dt.getColumnWidth(column);
+        var source = dt.getSource();
+        return new LogicalTable(source.getSubtable(gridColumn, 0, width, source.getHeight()),
+                new int[]{0, width},
+                rowOffsets);
     }
 
     @Override
