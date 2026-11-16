@@ -207,6 +207,10 @@ const openAlso = (open: string[], keys: string[]): string[] => {
     return added.length === 0 ? open : [...open, ...new Set(added)]
 }
 
+/** Whether the tree lists a file or folder: it lists every one, or only those a search found and the folders holding them. */
+const listsPath = (found: string[] | undefined, path: string): boolean =>
+    found === undefined || found.some(candidate => candidate === path || candidate.startsWith(`${path}/`))
+
 /** The folders above a path, outermost first: `a/b/c.txt` lies in `a` and `a/b`. */
 const foldersAbove = (path: string): string[] => {
     const segments = path.split('/')
@@ -549,6 +553,8 @@ export const ProjectsTree = ({
             value: ownSearch,
         }
         : null)
+    // What the tree last opened on, as the project and the file in it, if any: it opens again once the screen shows
+    // something else, or the grouping is changed.
     const [openedOn, setOpenedOn] = useState<string | null>(null)
     // The files of the projects whose rows have been opened, read once each and kept while the tree stands.
     const [contents, setContents] = useState<Record<string, ProjectContents>>({})
@@ -708,6 +714,11 @@ export const ProjectsTree = ({
     // The projects the search keeps whole, found by their own fields or under a group found by its name: they list all
     // their files. Any other one is kept for the files it found alone.
     const keptWhole = useMemo(() => new Set(projectIdsOf(searchTree(grouped, search))), [grouped, search])
+    // The files a search shows in a project; none for a project whose every file it shows.
+    const foundIn = useCallback(
+        (projectId: string) => (keptWhole.has(projectId) ? undefined : foundFiles.get(projectId)),
+        [foundFiles, keptWhole]
+    )
     // A search shows what it found straight away, the folders of the files it found included; without one the
     // user decides what is open. What the reader opens themselves is added to it either way — the files of a
     // project are read only when it is unfolded, and a search that pinned the list would leave a found project
@@ -770,66 +781,54 @@ export const ProjectsTree = ({
         }
     }, [contents, currentFileChanges, currentProjectId, readBack])
 
-    // The tree opens on the file the screen shows, once each time it is shown: the project is unfolded, which has its
-    // files read, then the folders leading to the file, and the file is picked and brought into sight. After that the
-    // user decides what is open. A screen that no longer shows a file has no file picked in the tree either.
+    // The tree opens on what the screen shows — a project, or a file or folder of it — once each time that changes;
+    // after that the user decides what is open. The groups holding the project are unfolded. For a file, so are the
+    // project, which has its files read, and the folders leading to the file, which is picked. The row is then brought
+    // into sight. A screen that no longer shows a file has no file picked in the tree either.
     const treeRef = useRef<GetRef<typeof Tree>>(null)
     // The row to bring into sight: the file or the project the screen shows.
     const [inSight, setInSight] = useState<string | null>(null)
-    const openedOnFile = useRef<string | null>(null)
     useEffect(() => {
-        if (!currentProjectId || !currentFile) {
-            openedOnFile.current = null
+        if (!currentFile) {
             setSelected(previous => (previous.some(key => fileKeyParts(key)) ? [] : previous))
+        }
+        const target = currentProjectId ? `${currentProjectId}:${currentFile ?? ''}` : null
+        if (target === openedOn) {
             return
         }
-        const target = `${currentProjectId}:${currentFile}`
-        const row = projectRowOf(nodes, currentProjectId)
-        if (target === openedOnFile.current || !row) {
+        // What the tree opened on is no longer what the screen shows, even while the tree cannot show the new one yet.
+        setOpenedOn(null)
+        const row = currentProjectId ? projectRowOf(nodes, currentProjectId) : null
+        if (!currentProjectId || !row) {
+            return
+        }
+        if (!currentFile) {
+            setOpenedOn(target)
+            setExpanded(previous => openAlso(previous, row.path))
+            setInSight(row.key)
             return
         }
         const read = contents[currentProjectId]
-        const { path: groups, key: projectKey } = row
         if (!read) {
             // The file is found once the files of the project are read.
-            setExpanded(previous => openAlso(previous, [...groups, projectKey]))
+            setExpanded(previous => openAlso(previous, [...row.path, row.key]))
             const project = projects?.find(candidate => candidate.id === currentProjectId)
             if (project) {
                 void loadContents(project)
             }
             return
         }
-        openedOnFile.current = target
+        if (!listsPath(foundIn(currentProjectId), currentFile)) {
+            // The search hides the file: the tree opens on it once the search shows it.
+            return
+        }
+        setOpenedOn(target)
         const folders = foldersAbove(currentFile).map(folder => fileKey(currentProjectId, folder, false))
-        setExpanded(previous => openAlso(previous, [...groups, projectKey, ...folders]))
+        setExpanded(previous => openAlso(previous, [...row.path, row.key, ...folders]))
         const fileRow = fileKey(currentProjectId, currentFile, read.paths.includes(currentFile))
         setSelected([fileRow])
         setInSight(fileRow)
-    }, [contents, currentFile, currentProjectId, loadContents, nodes, projects])
-
-    // The tree opens on the project the screen is showing, once each time it is shown — after that the user decides
-    // what is open. The groups holding it are unfolded and its row is brought into sight, unless the screen shows a
-    // file of it, which the tree opens on instead.
-    useEffect(() => {
-        if (!currentProjectId) {
-            if (openedOn !== null) {
-                setOpenedOn(null)
-            }
-            return
-        }
-        if (projects === null || openedOn === currentProjectId) {
-            return
-        }
-        setOpenedOn(currentProjectId)
-        const row = projectRowOf(nodes, currentProjectId)
-        if (!row) {
-            return
-        }
-        setExpanded(previous => openAlso(previous, row.path))
-        if (!currentFile) {
-            setInSight(row.key)
-        }
-    }, [currentFile, currentProjectId, nodes, openedOn, projects])
+    }, [contents, currentFile, currentProjectId, foundIn, loadContents, nodes, openedOn, projects])
 
     // A row is brought into sight once the tree is laid out — a tree just shown is measured first — and the rows of the
     // groups and folders unfolded to reach it are drawn.
@@ -858,7 +857,7 @@ export const ProjectsTree = ({
         // Depends on what shapes a node and on the theme it is drawn in, not on which nodes are open — expanding
         // must not rebuild the tree, while switching the theme or the appearance must repaint the titles.
         () => nodes.map(node => toTreeNode(node)),
-        [changesOf, contents, currentProjectId, foldersOf, foundFiles, keptWhole, look, nodes, repoMeta]
+        [changesOf, contents, currentProjectId, foldersOf, foundIn, look, nodes, repoMeta]
     )
     // How far the tree scrolls sideways: as far as the widest row in sight reaches, and never less than the rail is
     // wide — a narrower width leaves the rows pushed to the right of an empty rail.
@@ -947,7 +946,7 @@ export const ProjectsTree = ({
         }
         // A search shows the files it found in a project, and every file of a project found by its own name. The files
         // deleted and not saved yet are listed beside the ones that are there.
-        const found = keptWhole.has(project.id) ? undefined : foundFiles.get(project.id)
+        const found = foundIn(project.id)
         const folders = foldersOf(project.id)
         const changes = changesOf(project.id)
         const known = fileRows.current.get(read)
