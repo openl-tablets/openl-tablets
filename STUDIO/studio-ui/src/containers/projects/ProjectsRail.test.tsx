@@ -69,8 +69,9 @@ const repositories = [{ id: 'design', name: 'Design' }] as unknown as Repository
 
 const picked = listingQueryOf(new URLSearchParams('repo=design'))
 
-const renderRail = (onClearFilters = vi.fn()) => render(
+const rail = (onClearFilters = vi.fn(), currentProjectId?: string) => (
     <ProjectsRail
+        currentProjectId={currentProjectId}
         filters={picked}
         filterView={headerActions => <div data-testid="filters">{headerActions}</div>}
         onClearFilters={onClearFilters}
@@ -80,6 +81,8 @@ const renderRail = (onClearFilters = vi.fn()) => render(
         repositories={repositories}
     />
 )
+
+const renderRail = (onClearFilters = vi.fn(), currentProjectId?: string) => render(rail(onClearFilters, currentProjectId))
 
 describe('ProjectsRail', () => {
     beforeEach(() => {
@@ -106,6 +109,30 @@ describe('ProjectsRail', () => {
         await userEvent.click(screen.getByText('home.tree.mode_tree'))
 
         expect(treeMock).toHaveBeenLastCalledWith(expect.objectContaining({ filters: picked, onClearFilters }))
+    })
+
+    it('switches to the tree when a project is opened, and again for each project opened next', async () => {
+        const { rerender } = renderRail()
+        expect(screen.getByTestId('filters')).toBeInTheDocument()
+
+        rerender(rail(vi.fn(), 'p1'))
+        expect(screen.getByTestId('tree')).toBeInTheDocument()
+        expect(localStorage.getItem('openl.projects.rail')).toBe('tree')
+
+        // The reader goes back to the filters while the project is shown: they stay.
+        await userEvent.click(screen.getByText('home.tree.mode_filters'))
+        rerender(rail(vi.fn(), 'p1'))
+        expect(screen.getByTestId('filters')).toBeInTheDocument()
+
+        rerender(rail(vi.fn(), 'p2'))
+        expect(screen.getByTestId('tree')).toBeInTheDocument()
+    })
+
+    it('opens on the tree when a link names a project', () => {
+        renderRail(vi.fn(), 'p1')
+
+        expect(screen.getByTestId('tree')).toBeInTheDocument()
+        expect(screen.queryByTestId('filters')).not.toBeInTheDocument()
     })
 
     it('is put away and brought back by the handle of the panel itself', async () => {

@@ -236,6 +236,9 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     return { onOpenProject, onOpenGroup, onShowAll, onClearFilters, onOpenModule, onOpenFile, rerender: result.rerender }
 }
 
+/** Lets the frame the tree waits for to draw what it unfolded pass. */
+const nextFrame = () => act(async () => { await new Promise(resolve => requestAnimationFrame(() => resolve(undefined))) })
+
 /** The rows a project holds in the tree drawn last. */
 const rowsOf = (projectKey: string) =>
     (drawnTrees.at(-1) as Array<{ key: string, children?: unknown[] }>).find(node => node.key === projectKey)?.children
@@ -390,9 +393,10 @@ describe('ProjectsTree', () => {
 
     it('opens on the file a link names, unfolding what leads to it, and picks it', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        Object.assign(room, { height: 300, width: 200 })
         await renderTree({ currentProjectId: 'p1', currentFile: 'rules/Main.xlsx' })
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        await act(async () => { await new Promise(resolve => requestAnimationFrame(() => resolve(undefined))) })
+        await nextFrame()
 
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
         expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toBeInTheDocument()
@@ -1092,6 +1096,44 @@ describe('ProjectsTree', () => {
 
         expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
+    })
+
+    it('brings the project the screen shows into sight once the tree is laid out, and not its row with a file shown', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        const shown = {
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onRefresh: vi.fn(),
+            onShowAll: vi.fn(),
+            projects,
+            repositories,
+        }
+        const { rerender } = await renderTree({ ...shown, currentProjectId: 'p2' })
+        await nextFrame()
+        // Not laid out yet: there is nothing to scroll.
+        expect(treeScrollTo).not.toHaveBeenCalled()
+
+        Object.assign(room, { height: 300, width: 200 })
+        rerender(<ProjectsTree {...shown} currentProjectId="p2" />)
+        await nextFrame()
+        expect(treeScrollTo).toHaveBeenCalledTimes(1)
+        expect(treeScrollTo).toHaveBeenCalledWith({ key: expect.stringMatching(/\/prj:p2$/), align: 'auto' })
+
+        // Back on the list and into the same project again: the tree shows it again.
+        rerender(<ProjectsTree {...shown} />)
+        rerender(<ProjectsTree {...shown} currentProjectId="p2" />)
+        await nextFrame()
+        expect(treeScrollTo).toHaveBeenCalledTimes(2)
+
+        // A link to a file of a project brings the file into sight, not the row of the project.
+        treeScrollTo.mockClear()
+        rerender(<ProjectsTree {...shown} currentFile="rules/Main.xlsx" currentProjectId="p1" />)
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await nextFrame()
+        expect(treeScrollTo).toHaveBeenCalledTimes(1)
+        expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
     })
 
     it('marks a repository group with the icon of its kind, and a tag group with a tag', async () => {

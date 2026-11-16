@@ -109,7 +109,7 @@ The tabs below the title row show the following:
 A file or a folder of the project selected in the tree on the left is shown in place of the content of a tab, and
 none of the tabs is selected. Selecting a tab leaves the file. See [Modifying Project Contents](#modifying-project-contents).
 
-The panel on the left of the page is the panel of the **Projects** page, with its **Filters** and **Tree** views described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree). It stays as it is while the user moves between the list and the projects: what is expanded in the tree, and what the tree has read, are kept. The **Reload the tree** and **Hide the panel** icons in its header refresh the tree and fold the panel away.
+The panel on the left of the page is the panel of the **Projects** page, with its **Filters** and **Tree** views described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree). It stays as it is while the user moves between the list and the projects: what is expanded in the tree, and what the tree has read, are kept. Opening a project — from the list, the tree or a link — switches the panel to the **Tree** view, unfolds the groups holding the project and scrolls the tree to its row; the user may switch back to **Filters** until the next project is opened. The **Reload the tree** and **Hide the panel** icons in its header refresh the tree and fold the panel away.
 
 ### Filtering and Grouping the Project Tree
 
@@ -170,7 +170,8 @@ the projects expanded in it by their path, opening the folders that hold them.
     A folder whose files are all added is marked as added, and any other folder holding a changed file has an orange
     dot. Pointing at a marked row tells what changed.
 -   On a project page, the panel keeps both views. The tree applies the filters last used on the Projects list and
-    always shows the project being viewed; picking a filter or a group there shows the list again. To search the tree,
+    always shows the project being viewed, even when those filters leave it out; picking a filter or a group there
+    shows the list again. To search the tree,
     click the name at the start of the search field of the top bar and select **Projects**; on a tab with nothing of
     its own to search, the field searches the tree already.
 
