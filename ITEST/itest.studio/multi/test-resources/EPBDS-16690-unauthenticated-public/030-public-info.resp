@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "openl.build.number": "***",
+  "openl.site": "***",
+  "openl.start.milli": "###",
+  "openl.version": "###.###.###***",
+  "openl.build.date": "***",
+  "openl.start.time": "***",
+  "openl.start.hash": "***"
+}
