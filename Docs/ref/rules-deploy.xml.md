@@ -60,6 +60,7 @@
             <string>jackson.jsonTypeInfoId</string>
             <string>NAME</string>
         </entry>
+        <!-- DISABLED: no type property; OpenAPI results list a datatype with its children through anyOf -->
         <entry>
             <string>jackson.defaultTypingMode</string>
             <string>DISABLED</string>

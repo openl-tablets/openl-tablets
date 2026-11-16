@@ -39,7 +39,15 @@ Content-Type: application/json
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Benefit"
+                  "anyOf" : [ {
+                    "$ref" : "#/components/schemas/Benefit"
+                  }, {
+                    "$ref" : "#/components/schemas/SubBenefit"
+                  }, {
+                    "$ref" : "#/components/schemas/SubSubBenefit"
+                  }, {
+                    "$ref" : "#/components/schemas/SubSubSubBenefit"
+                  } ]
                 }
               }
             },
@@ -235,7 +243,15 @@ Content-Type: application/json
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Benefit"
+                  "anyOf" : [ {
+                    "$ref" : "#/components/schemas/Benefit"
+                  }, {
+                    "$ref" : "#/components/schemas/SubBenefit"
+                  }, {
+                    "$ref" : "#/components/schemas/SubSubBenefit"
+                  }, {
+                    "$ref" : "#/components/schemas/SubSubSubBenefit"
+                  } ]
                 }
               }
             },
@@ -574,13 +590,31 @@ Content-Type: application/json
         "type" : "object",
         "properties" : {
           "benefit" : {
-            "$ref" : "#/components/schemas/Benefit"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/Benefit"
+            }, {
+              "$ref" : "#/components/schemas/SubBenefit"
+            }, {
+              "$ref" : "#/components/schemas/SubSubBenefit"
+            }, {
+              "$ref" : "#/components/schemas/SubSubSubBenefit"
+            } ]
           },
           "subBenefit" : {
-            "$ref" : "#/components/schemas/SubBenefit"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/SubBenefit"
+            }, {
+              "$ref" : "#/components/schemas/SubSubBenefit"
+            }, {
+              "$ref" : "#/components/schemas/SubSubSubBenefit"
+            } ]
           },
           "subSubBenefit" : {
-            "$ref" : "#/components/schemas/SubSubBenefit"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/SubSubBenefit"
+            }, {
+              "$ref" : "#/components/schemas/SubSubSubBenefit"
+            } ]
           }
         }
       }

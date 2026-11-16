@@ -1200,6 +1200,8 @@ The file is written to the project right away, without a window to confirm. Its 
 
 Note that successful generation of the OpenAPI file requires that the project has no compilation errors and tables contain data for the OpenAPI methods.
 
+The file describes the datatypes as OpenL Rule Services does, as described in [Datatypes with Children](../rule-services/appendices/openapi-support.md#datatypes-with-children). Reconciliation compares a list of a datatype and its children through `anyOf` as the datatype itself, so a file that refers to the datatype alone is reconciled with the same result.
+
 #### Adding OpenAPI for Reconciliation to an Existing Project
 
 If a project is not generated from the OpenAPI file, but it is required to add the OpenAPI file and generate modules from it, proceed as follows:

@@ -29,7 +29,13 @@ Content-Type: application/json
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Animal"
+                  "anyOf" : [ {
+                    "$ref" : "#/components/schemas/Animal"
+                  }, {
+                    "$ref" : "#/components/schemas/Cat"
+                  }, {
+                    "$ref" : "#/components/schemas/Dog"
+                  } ]
                 }
               }
             },
@@ -206,7 +212,13 @@ Content-Type: application/json
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Animal"
+                "anyOf" : [ {
+                  "$ref" : "#/components/schemas/Animal"
+                }, {
+                  "$ref" : "#/components/schemas/Cat"
+                }, {
+                  "$ref" : "#/components/schemas/Dog"
+                } ]
               }
             }
           }
@@ -216,7 +228,13 @@ Content-Type: application/json
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Animal"
+                  "anyOf" : [ {
+                    "$ref" : "#/components/schemas/Animal"
+                  }, {
+                    "$ref" : "#/components/schemas/Cat"
+                  }, {
+                    "$ref" : "#/components/schemas/Dog"
+                  } ]
                 }
               }
             },

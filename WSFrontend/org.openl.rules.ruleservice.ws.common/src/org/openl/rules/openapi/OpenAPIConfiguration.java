@@ -118,9 +118,13 @@ public final class OpenAPIConfiguration {
 
         try {
             // Configure converters in the needed order
-            singleton.addConverter(getConverters(objectMapper));
+            var modelResolver = new ObjectMapperSupportModelResolver(objectMapper);
+            singleton.addConverter(getConverters(modelResolver));
 
             var result = new OperationIdReader(openAPI).read(clazz);
+            SubtypeReferences.toSubtypes(result,
+                    modelResolver.getSubtypeNames(),
+                    modelResolver.getNamesReadAsDeclared());
 
             // Order alphabetically
             if (result.getComponents() != null) {
@@ -231,10 +235,14 @@ public final class OpenAPIConfiguration {
     }
 
     public static ModelConverter getConverters(ObjectMapper objectMapper) {
+        return getConverters(new ObjectMapperSupportModelResolver(objectMapper));
+    }
+
+    private static ModelConverter getConverters(ObjectMapperSupportModelResolver modelResolver) {
         var hackedConverters = new ArrayList<ModelConverter>();
         hackedConverters.add(OpenApiSupportConverter.INSTANCE);
         hackedConverters.add(BinarySchemaConverter.INSTANCE);
-        hackedConverters.add(new ObjectMapperSupportModelResolver(objectMapper));
+        hackedConverters.add(modelResolver);
         return new InheritanceFixConverter(hackedConverters);
     }
 

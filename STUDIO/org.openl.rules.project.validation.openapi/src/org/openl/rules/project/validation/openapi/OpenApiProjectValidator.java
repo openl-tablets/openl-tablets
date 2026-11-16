@@ -70,6 +70,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.openapi.OpenAPIConfiguration;
+import org.openl.rules.openapi.SubtypeReferences;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -171,6 +172,8 @@ public class OpenApiProjectValidator {
         if (expectedOpenAPI == null) {
             return validatedCompiledOpenClass;
         }
+        // A type is validated by its declared schema, whatever subtypes a value of it may be
+        SubtypeReferences.toDeclaredTypes(expectedOpenAPI);
         context.setExpectedOpenAPI(expectedOpenAPI);
         context.setExpectedOpenAPIResolver(new OpenAPIResolver(context, expectedOpenAPI));
         context.setValidatedCompiledOpenClass(validatedCompiledOpenClass);
@@ -238,6 +241,7 @@ public class OpenApiProjectValidator {
                 return validatedCompiledOpenClass;
             }
             var actualOpenAPI = OpenAPIConfiguration.generateOpenAPI(enhancedServiceClass, objectMapper);
+            SubtypeReferences.toDeclaredTypes(actualOpenAPI);
             context.setActualOpenAPI(actualOpenAPI);
             context.setActualOpenAPIResolver(new OpenAPIResolver(context, actualOpenAPI));
             validateOpenAPI(context);

@@ -80,7 +80,8 @@ The following keywords are responsible for the inheritance and polymorphism in t
 | Keyword      | Description                                                                                                                |
 |--------------|----------------------------------------------------------------------------------------------------------------------------|
 | AllOf        | Used for model extending. The principle is the same as for nesting classes in Java.                                        |
-| OneOf, AnyOf | Reserved for future use. If a schema with these features is used, the corresponding schema is replaced by the Object type. |
+| AnyOf        | A list of a schema followed by schemas extending it is the first schema, as OpenL Rule Services describes a datatype that has children. Any other list is replaced by the Object type. |
+| OneOf        | Reserved for future use. If a schema with this feature is used, the corresponding schema is replaced by the Object type.   |
 
 An example of a schema with included nesting is as follows:
 

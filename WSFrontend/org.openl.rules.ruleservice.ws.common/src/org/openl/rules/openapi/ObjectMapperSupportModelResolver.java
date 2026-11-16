@@ -11,9 +11,12 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -28,6 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
@@ -59,6 +63,9 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     // Concurrent: the converters of a build are global, so another thread may resolve a schema with this resolver
     private final Map<JavaType, Map<String, BeanPropertyDefinition>> deserializedProperties = new ConcurrentHashMap<>();
     private final Map<JavaType, BeanDescription> serializedTypes = new ConcurrentHashMap<>();
+    private final Map<SchemaKey, String> schemaNames = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<Class<?>>> subtypes = new ConcurrentHashMap<>();
+    private final Set<Class<?>> readAsDeclared = ConcurrentHashMap.newKeySet();
 
     public ObjectMapperSupportModelResolver(ObjectMapper mapper) {
         super(mapper);
@@ -399,10 +406,87 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         }
 
         var name = resolveSchemaName(annotatedType);
-        if (name != null && context.getDefinedModels().containsKey(name)) {
-            return context.getDefinedModels().get(name);
+        var schema = name != null && context.getDefinedModels().containsKey(name)
+                ? context.getDefinedModels().get(name)
+                : super.resolve(annotatedType, context, next);
+        rememberSchemaName(annotatedType, schema);
+        return schema;
+    }
+
+    /**
+     * Returns the names of the schemas of the direct subtypes, by the name of the schema of their type. A type
+     * resolved for several JSON views has a schema for each view, and lists the subtypes of the same view. Only the
+     * types and subtypes this resolver has resolved a schema with a name for are listed.
+     */
+    Map<String, List<String>> getSubtypeNames() {
+        var subtypeNames = new HashMap<String, List<String>>();
+        schemaNames.forEach((key, name) -> {
+            var names = subtypes.getOrDefault(key.type(), List.of())
+                    .stream()
+                    .map(subtype -> schemaNames.get(new SchemaKey(subtype, key.view())))
+                    .filter(Objects::nonNull)
+                    .toList();
+            if (!names.isEmpty()) {
+                subtypeNames.put(name, names);
+            }
+        });
+        return subtypeNames;
+    }
+
+    /**
+     * Returns the names of the schemas of the types with subtypes whose values are read as the declared type: no
+     * type info tells the subtype of a value read.
+     */
+    Set<String> getNamesReadAsDeclared() {
+        return schemaNames.entrySet()
+                .stream()
+                .filter(entry -> readAsDeclared.contains(entry.getKey().type()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toSet());
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void rememberSchemaName(AnnotatedType annotatedType, @Nullable Schema schema) {
+        if (schema == null || StringUtils.isBlank(schema.getName())) {
+            return;
         }
-        return super.resolve(annotatedType, context, next);
+        var type = annotatedType.getType() instanceof JavaType javaType
+                ? javaType
+                : _mapper.constructType(annotatedType.getType());
+        if (type.isContainerType() || ReflectionUtils.isSystemType(type)) {
+            return;
+        }
+        var rawClass = type.getRawClass();
+        var view = annotatedType.getJsonViewAnnotation();
+        var key = new SchemaKey(rawClass, view == null ? List.of() : List.of(view.value()));
+        schemaNames.putIfAbsent(key, schema.getName());
+        subtypes.computeIfAbsent(rawClass, c -> readSubtypes(type));
+    }
+
+    /**
+     * Reads the direct subtypes Jackson knows of a type. A type with subtypes and no type info is remembered as read
+     * without its subtypes.
+     */
+    private List<Class<?>> readSubtypes(JavaType type) {
+        var rawClass = type.getRawClass();
+        var classInfo = _mapper.getSerializationConfig().introspectClassAnnotations(type).getClassInfo();
+        var namedTypes = _intr().findSubtypes(classInfo);
+        if (namedTypes == null) {
+            return List.of();
+        }
+        var types = namedTypes.stream()
+                .<Class<?>>map(NamedType::getType)
+                .filter(subtype -> subtype != rawClass && rawClass.isAssignableFrom(subtype))
+                .toList();
+        var typeInfo = classInfo.getAnnotation(JsonTypeInfo.class);
+        if (!types.isEmpty() && (typeInfo == null || typeInfo.use() == JsonTypeInfo.Id.NONE)) {
+            readAsDeclared.add(rawClass);
+        }
+        return types;
+    }
+
+    /** A schema of a type resolved for a JSON view, none when no view is given. */
+    private record SchemaKey(Class<?> type, List<Class<?>> view) {
     }
 
     /**

@@ -32,7 +32,9 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.util.InlineModelResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
@@ -41,6 +43,7 @@ import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.openapi.OpenAPIRefResolver;
+import org.openl.rules.openapi.SubtypeReferences;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -67,11 +70,31 @@ public class OpenLOpenAPIUtils {
         return openAPIRefResolver.resolve(ref);
     }
 
-    public static ParseOptions getParseOptions() {
+    /**
+     * Reads an OpenAPI file with its inline schemas moved into named ones.
+     *
+     * <p>A reference to a type and its subtypes reads as the reference to the type: the type of a field or of a
+     * parameter is its declared type, not one schema per place that lists the subtypes.
+     *
+     * <p>A file whose inline schemas cannot be moved is read as it is, as the parser reads it.
+     *
+     * @return the OpenAPI, or {@code null} if the file cannot be read
+     */
+    public static @Nullable OpenAPI read(String location) {
         var options = new ParseOptions();
         options.setResolve(true);
-        options.setFlatten(true);
-        return options;
+        var openAPI = new OpenAPIV3Parser().read(location, null, options);
+        if (openAPI != null) {
+            SubtypeReferences.toDeclaredTypes(openAPI);
+            try {
+                new InlineModelResolver(options.isFlattenComposedSchemas(),
+                        options.isCamelCaseFlattenNaming(),
+                        options.isSkipMatches()).flatten(openAPI);
+            } catch (RuntimeException e) {
+                log.warn("Failed to move the inline schemas of '{}' into named ones.", location, e);
+            }
+        }
+        return openAPI;
     }
 
     public static Set<String> getUnusedSchemaRefs(OpenAPI openAPI, Iterable<String> usedRefs) {
