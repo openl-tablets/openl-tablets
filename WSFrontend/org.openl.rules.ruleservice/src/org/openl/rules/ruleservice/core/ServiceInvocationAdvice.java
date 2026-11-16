@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -341,11 +343,45 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
+    /**
+     * Runs the before interceptors of the method in their order and returns the exception that one of them throws.
+     * Returns {@code null} when all of them pass.
+     *
+     * <p>The interceptors after the failed one are not run. The listeners learn the exception of the failed
+     * interceptor as its outcome.
+     */
+    private @Nullable Exception beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
         for (var interceptor : beforeInterceptors.getOrDefault(interfaceMethod, List.of())) {
             invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
-            interceptor.before(interfaceMethod, serviceTarget, args);
+            try {
+                interceptor.before(interfaceMethod, serviceTarget, args);
+            } catch (Exception e) {
+                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, e);
+                return e;
+            }
             invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
+        }
+        return null;
+    }
+
+    /**
+     * Lets each listener learn of a step of the call.
+     *
+     * <p>While the call fails, a listener that throws a runtime exception does not change the outcome of the call: the
+     * exception is logged, and the next listeners are still called. While the call passes, the exception fails it.
+     */
+    private void notifyListeners(@Nullable Exception callFailure,
+                                 Consumer<ServiceInvocationAdviceListener> notification) {
+        if (callFailure == null) {
+            serviceMethodAdviceListeners.forEach(notification);
+            return;
+        }
+        for (var listener : serviceMethodAdviceListeners) {
+            try {
+                notification.accept(listener);
+            } catch (RuntimeException e) {
+                log.error("A listener failed on a failed service call.", e);
+            }
         }
     }
 
@@ -359,6 +395,15 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         throw new OpenLRuntimeException("Service method advice is not found.");
     }
 
+    /**
+     * Runs the after interceptors of the method in their order and returns the result they give.
+     *
+     * <p>Each interceptor gets the result or the exception that the previous step leaves. An interceptor that
+     * handles an exception passes its result on, and one that fails to handle it passes its own exception on.
+     *
+     * <p>An exception that {@code afterReturning} throws ends the call at once. The listeners learn the outcome of
+     * every interceptor that runs, its exception included.
+     */
     private @Nullable Object afterInvocation(Method interfaceMethod,
                                    @Nullable Object result,
                                    @Nullable Exception t,
@@ -367,7 +412,12 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, List.of())) {
             invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
             if (t == null) {
-                ret = interceptor.afterReturning(interfaceMethod, ret, args);
+                try {
+                    ret = interceptor.afterReturning(interfaceMethod, ret, args);
+                } catch (Exception e) {
+                    invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, e);
+                    throw e;
+                }
             } else {
                 try {
                     ret = interceptor.afterThrowing(interfaceMethod, t, args);
@@ -389,9 +439,12 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                                            Object[] args,
                                                            @Nullable Object ret,
                                                            @Nullable Exception ex) {
-        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, new Inst(interfaceMethod));
+        if (serviceMethodAdviceListeners.isEmpty()) {
+            return;
         }
+        var inst = new Inst(interfaceMethod);
+        notifyListeners(ex,
+                listener -> listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, inst));
     }
 
     private void invokeBeforeServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
@@ -399,9 +452,12 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                                             Object[] args,
                                                             @Nullable Object ret,
                                                             @Nullable Exception ex) {
-        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, new Inst(interfaceMethod));
+        if (serviceMethodAdviceListeners.isEmpty()) {
+            return;
         }
+        var inst = new Inst(interfaceMethod);
+        notifyListeners(ex,
+                listener -> listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, inst));
     }
 
     @Override
@@ -416,65 +472,121 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     /**
      * Invokes the service method with its interceptors, under the class loader and the logging of the service.
+     *
+     * <p>When a before interceptor fails, the method is not invoked and the after interceptors are not run. The
+     * listeners still learn of the call, with the exception of the interceptor as its outcome, and the exception is
+     * thrown.
      */
     private @Nullable Object invokeInServiceContext(Method calledMethod,
                                           @Nullable Method beanMethod,
                                           Object[] args) throws Throwable {
-        Object result = null;
         var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             LoggingHandler.setup(this);
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            beforeInvocation(calledMethod, args);
-            ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(calledMethod);
-            Exception ex = null;
-            if (serviceMethodAroundAdvice != null) {
-                invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                        calledMethod,
-                        args,
-                        null,
-                        null);
-                try {
-                    if (beanMethod != null) {
-                        args = processArguments(calledMethod, beanMethod, args);
-                    }
-                    result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
-                } catch (Exception e) {
-                    ex = e;
-                } finally {
-                    invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                            calledMethod,
-                            args,
-                            result,
-                            ex);
-                }
-            } else {
-                invokeBeforeMethodInvocationOnListeners(calledMethod, args);
-                try {
-                    if (beanMethod != null) {
-                        args = processArguments(calledMethod, beanMethod, args);
-                        result = beanMethod.invoke(serviceTarget, args);
-                    } else {
-                        result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
-                    }
-                } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                    ex = unwrapInvocationException(e);
-                } catch (Exception e) {
-                    ex = e;
-                } finally {
-                    invokeAfterMethodInvocationOnListeners(calledMethod, args, result, ex);
-                }
+            var aroundAdvice = aroundInterceptors.get(calledMethod);
+            var rejection = beforeInvocation(calledMethod, args);
+            if (rejection != null) {
+                notifyRejected(aroundAdvice, calledMethod, beanMethod, args, rejection);
+                throw rejection;
             }
-            result = afterInvocation(calledMethod, result, ex, args);
+            var outcome = aroundAdvice != null
+                    ? invokeAround(aroundAdvice, calledMethod, beanMethod, args)
+                    : invokeMethod(calledMethod, beanMethod, args);
+            var result = afterInvocation(calledMethod, outcome.result, outcome.error, outcome.args);
             // repack result if arrays inside it doesn't have the returnType as interfaceMethod
             if (calledMethod.getReturnType().isArray()) {
                 result = ArrayUtils.repackArray(result, calledMethod.getReturnType());
             }
+            return result;
         } finally {
             LoggingHandler.remove();
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return result;
+    }
+
+    /**
+     * Lets the listeners of the service method, or of its around interceptor, learn of a call that a before
+     * interceptor rejected. Neither is invoked: the listeners get the rejection, before and after.
+     *
+     * <p>The listeners get the arguments of the call before. After, they get them without the external parameters,
+     * as on an invoked call, but not converted: the method never gets them, and the conversion may fail on the
+     * input the interceptor rejected.
+     */
+    private void notifyRejected(@Nullable ServiceMethodAroundAdvice<?> aroundAdvice,
+                                Method calledMethod,
+                                @Nullable Method beanMethod,
+                                Object[] args,
+                                Exception rejection) {
+        if (serviceMethodAdviceListeners.isEmpty()) {
+            return;
+        }
+        if (aroundAdvice != null) {
+            invokeBeforeServiceMethodAdviceOnListeners(aroundAdvice, calledMethod, args, null, rejection);
+            var methodArgs = argumentsOfRejectedCall(calledMethod, beanMethod, args);
+            invokeAfterServiceMethodAdviceOnListeners(aroundAdvice, calledMethod, methodArgs, null, rejection);
+        } else {
+            invokeBeforeMethodInvocationOnListeners(calledMethod, args, rejection);
+            var methodArgs = argumentsOfRejectedCall(calledMethod, beanMethod, args);
+            invokeAfterMethodInvocationOnListeners(calledMethod, methodArgs, null, rejection);
+        }
+    }
+
+    private static Object[] argumentsOfRejectedCall(Method calledMethod, @Nullable Method beanMethod, Object[] args) {
+        return beanMethod == null ? args : methodArguments(calledMethod, beanMethod, args, (parameter, arg) -> arg);
+    }
+
+    /**
+     * The result or the exception of an invoked service method, with the arguments it was invoked with.
+     *
+     * <p>A class, not a record: the arguments are an array, and an outcome is never compared.
+     */
+    @RequiredArgsConstructor
+    private static final class Outcome {
+        private final @Nullable Object result;
+        private final @Nullable Exception error;
+        private final Object[] args;
+    }
+
+    private Outcome invokeAround(ServiceMethodAroundAdvice<?> aroundAdvice,
+                                 Method calledMethod,
+                                 @Nullable Method beanMethod,
+                                 Object[] args) throws Throwable {
+        invokeBeforeServiceMethodAdviceOnListeners(aroundAdvice, calledMethod, args, null, null);
+        Object result = null;
+        Exception ex = null;
+        try {
+            if (beanMethod != null) {
+                args = processArguments(calledMethod, beanMethod, args);
+            }
+            result = aroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            invokeAfterServiceMethodAdviceOnListeners(aroundAdvice, calledMethod, args, result, ex);
+        }
+        return new Outcome(result, ex, args);
+    }
+
+    private Outcome invokeMethod(Method calledMethod, @Nullable Method beanMethod, Object[] args) {
+        invokeBeforeMethodInvocationOnListeners(calledMethod, args, null);
+        Object result = null;
+        Exception ex = null;
+        try {
+            if (beanMethod != null) {
+                args = processArguments(calledMethod, beanMethod, args);
+                result = beanMethod.invoke(serviceTarget, args);
+            } else {
+                result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
+            }
+        } catch (InvocationTargetException | UndeclaredThrowableException e) {
+            ex = unwrapInvocationException(e);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            invokeAfterMethodInvocationOnListeners(calledMethod, args, result, ex);
+        }
+        return new Outcome(result, ex, args);
     }
 
     /**
@@ -519,16 +631,25 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private Object[] processArguments(Method interfaceMethod, Method beanMethod, Object[] args) {
-        Object[] newArgs = new Object[beanMethod.getParameterCount()];
+        return methodArguments(interfaceMethod, beanMethod, args, (parameter, arg) -> parameter
+                .isAnnotationPresent(BeanToSpreadsheetResultConvert.class)
+                        ? SpreadsheetResult.convertBeansToSpreadsheetResults(arg, mapClassToSprOpenClass)
+                        : arg);
+    }
+
+    /**
+     * Returns the arguments of the call without its external parameters, each as the given function turns it.
+     */
+    private static Object[] methodArguments(Method interfaceMethod,
+                                            Method beanMethod,
+                                            Object[] args,
+                                            BiFunction<Parameter, @Nullable Object, @Nullable Object> argument) {
+        var newArgs = new Object[beanMethod.getParameterCount()];
         var i = 0;
         var j = 0;
         for (Parameter parameter : interfaceMethod.getParameters()) {
             if (!parameter.isAnnotationPresent(ExternalParam.class)) {
-                if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
-                    newArgs[j++] = SpreadsheetResult.convertBeansToSpreadsheetResults(args[i], mapClassToSprOpenClass);
-                } else {
-                    newArgs[j++] = args[i];
-                }
+                newArgs[j++] = argument.apply(parameter, args[i]);
             }
             i++;
         }
@@ -539,15 +660,21 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                                         Object[] args,
                                                         @Nullable Object result,
                                                         @Nullable Exception ex) {
-        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            listener.afterMethodInvocation(interfaceMethod, args, result, ex, new Inst(interfaceMethod));
+        if (serviceMethodAdviceListeners.isEmpty()) {
+            return;
         }
+        var inst = new Inst(interfaceMethod);
+        notifyListeners(ex, listener -> listener.afterMethodInvocation(interfaceMethod, args, result, ex, inst));
     }
 
-    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
-        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            listener.beforeMethodInvocation(interfaceMethod, args, null, null, new Inst(interfaceMethod));
+    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod,
+                                                         Object[] args,
+                                                         @Nullable Exception ex) {
+        if (serviceMethodAdviceListeners.isEmpty()) {
+            return;
         }
+        var inst = new Inst(interfaceMethod);
+        notifyListeners(ex, listener -> listener.beforeMethodInvocation(interfaceMethod, args, null, ex, inst));
     }
 
     @Override

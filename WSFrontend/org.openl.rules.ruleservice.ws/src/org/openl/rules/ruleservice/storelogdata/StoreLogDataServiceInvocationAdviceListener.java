@@ -58,12 +58,34 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         log.error(msg, e);
                     }
                     if (storeLogDataAdvice != null) {
-                        storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
+                        prepare(storeLogDataAdvice, storeLogData, args, result, lastOccurredException);
                     }
                 }
             }
         } finally {
             destroyFunctions.forEach(Runnable::run);
+        }
+    }
+
+    /**
+     * Lets the advice put its values into the record.
+     *
+     * <p>While the call fails, an advice that throws a runtime exception is logged, and the next advices still run.
+     * While the call passes, the exception fails the call.
+     */
+    private static void prepare(StoreLogDataAdvice advice,
+                                StoreLogData storeLogData,
+                                Object[] args,
+                                @Nullable Object result,
+                                @Nullable Exception callFailure) {
+        if (callFailure == null) {
+            advice.prepare(storeLogData.getCustomValues(), args, result, null);
+            return;
+        }
+        try {
+            advice.prepare(storeLogData.getCustomValues(), args, result, callFailure);
+        } catch (RuntimeException e) {
+            log.error("A store log data advice failed on a failed service call.", e);
         }
     }
 

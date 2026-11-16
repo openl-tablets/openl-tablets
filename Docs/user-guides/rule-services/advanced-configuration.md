@@ -138,6 +138,12 @@ To use the “before” interceptor, proceed as follows:
 Result doSomething(RequestModel requestModel);
 ```
 
+When a “before” interceptor throws an exception, the call stops there:
+
+-   the next “before” interceptors, the service method and the “after” interceptors are not invoked;
+-   the client receives the exception of the interceptor;
+-   the data collecting advices of `@PrepareStoreLogData` still run and get this exception, as described in [Collecting Data from Requests and Their Responds and Populating Custom Values](#collecting-data-from-requests-and-their-responds-and-populating-custom-values).
+
 -   `@org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor`
 
 This annotation is used to define “around” interceptors. A class for the “around” interceptor must implement the `org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice` interface. “Around” interceptors are used to add around logic for service method invocation. An example is when arguments of the case service method must be converted to another type before using them in service rules, and the results also require additional processing before return.
@@ -241,6 +247,41 @@ The advice class uses the same class loader that is used to compile the OpenL Ta
 **Note:** Java byte code does not have argument names in interfaces, so they are named as 'arg0', 'arg1', and so on. To request more meaningful names for parameters, use the @ org.openl.rules.ruleservice.core.annotations.Name annotation together with @ServiceExtraMethod.
 
 Use the org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware and org.openl.rules.ruleservice.core.interceptors.IOpenClassAware interfaces if a reference to the compiled IOpenClass or IOpenMember object is required in an interceptor implementation class.
+
+##### Order of Interceptors
+
+The interceptors of a method run in the following order, and each step is wrapped by the data collecting advices bound to it, as described in [Collecting Data from Requests and Their Responds and Populating Custom Values](#collecting-data-from-requests-and-their-responds-and-populating-custom-values):
+
+1.  The “before” interceptors, in the order they are declared.
+2.  The “around” interceptor, or the service method when the method has no “around” interceptor.
+3.  The “after” interceptors, in the order they are declared. Each of them gets the result or the exception of the step before it. An exception that `afterReturning` throws ends the call.
+
+The solid arrows show a call that passes. The dotted arrows show a call that a “before” interceptor rejects.
+
+```mermaid
+flowchart TD
+    call(["Service method call"]) --> b1
+    subgraph before ["Each “before” interceptor"]
+        b1["Advices bound to the interceptor with before = true"] --> b2["before()"]
+        b2 --> b3["Advices bound to the interceptor with before = false"]
+    end
+    b3 --> t1
+    subgraph target ["The “around” interceptor, or the service method"]
+        t1["Advices bound to the “around” interceptor, or not bound when there is none, with before = true"]
+        t1 --> t2["around(), or the rule"]
+        t2 --> t3["Advices bound to the “around” interceptor, or not bound when there is none, with before = false"]
+    end
+    t3 --> a1
+    subgraph after ["Each “after” interceptor"]
+        a1["Advices bound to the interceptor with before = true"] --> a2["afterReturning() or afterThrowing()"]
+        a2 --> a3["Advices bound to the interceptor with before = false"]
+    end
+    a3 --> response(["Result or error of the call"])
+    b2 -. "throws" .-> b3
+    b3 -. "skips the next “before” interceptors" .-> t1
+    t1 -. "skips around() and the rule" .-> t3
+    t3 -. "skips the “after” interceptors" .-> rejected(["Error of the “before” interceptor"])
+```
 
 #### Method Return Type Customization through Annotations
 
@@ -403,6 +444,14 @@ Populating custom values in the StoreLogData object and collecting data for serv
 | value                   | Mandatory reference to the StoreLogDataAdvice interface implementation. <br/>The implementation class defines which data is collected.                                                                                                                                                                                                             |
 | bindToServiceMethodAdvice | Optional reference to an implementation of the ServiceMethodAdvice interface. <br/>It defines that the implementation of the theStoreLogDataAdvice interface must be invoked <br/>before or after the corresponding ServiceMethodAdvice implementation. <br/>It is used when required data for collecting is not more available after result transformation. |
 | before                  | Optional attribute specifying the order of the called data collecting advice. <br/>If the bindToServiceMethodAdvice attribute is present, before determines the advice execution relative to the defined interceptor, <br/>otherwise relative to the base method. <br/>The default value is false, that is, execution happens after method or interceptor.   |
+
+[Order of Interceptors](#order-of-interceptors) shows where each advice runs. A data collecting advice runs whether the method or the interceptor it is bound to succeeds or fails. An advice that runs after it gets either the result or the exception. If a “before” interceptor fails, the advices still run:
+
+-   the advices bound to the failed interceptor run before and after it, and the latter get its exception;
+-   the advices bound to the base method run as well, or the advices bound to the “around” interceptor when the method has one, though neither is invoked, and they get the exception of the “before” interceptor both before and after;
+-   the advices bound to the “before” interceptors after the failed one and to the “after” interceptors do not run, as these interceptors are not invoked.
+
+When an advice itself fails on a failed call, whether a “before” interceptor rejects it, the rule throws an exception or another interceptor fails, the client still receives the error of the call: the failure of the advice is logged with `A store log data advice failed on a failed service call.`, and the next advices still run, the ones bound to the same step included. On a call that passes, an advice that fails fails the call.
 
 Implement a single method in the StoreLogDataAdvice interface for collecting data to be used along with the `@Value` annotation in entities or directly from StoreLogData.getCustomValues().
 

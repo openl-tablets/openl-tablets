@@ -1,6 +1,8 @@
 package org.openl.itest.serviceclass;
 
+import org.openl.itest.db.HelloEntity10;
 import org.openl.itest.db.HelloEntity9;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
@@ -36,5 +38,12 @@ public interface Simple4ServiceAnnotationTemplate {
     @StoreLogDataToDB(value = HelloEntity9.class, sync = true)
     @PrepareStoreLogData(PrepareStoreLogDataValues9.class)
     String Hello3(IRulesRuntimeContext runtimeContext, Integer hour);
+
+    // The before interceptor rejects the call: the log record still carries what the advices collect.
+    @StoreLogDataToDB(value = HelloEntity10.class, sync = true)
+    @PrepareStoreLogData(value = PrepareStoreLogDataValues9.class, before = true)
+    @PrepareStoreLogData(CollectErrorAfter.class)
+    @ServiceCallBeforeInterceptor(RejectingBeforeInterceptor.class)
+    SpreadsheetResult test(IRulesRuntimeContext runtimeContext, Integer hour);
 
 }

@@ -30,4 +30,5 @@ public final class DBFields {
     public static final String INT_VALUE_TO_STRING = "intValueToString";
     public static final String HEADER1 = "header1";
     public static final String HEADER2 = "header2";
+    public static final String ERROR_MESSAGE = "errorMessage";
 }
