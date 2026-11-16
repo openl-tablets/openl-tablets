@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -123,10 +124,14 @@ public abstract class TableWriter<T extends TableView> {
     /** The id of the table as the save left it, read while the table was still open for writing. */
     private @Nullable String writtenId;
 
+    /** The rows holding the properties of the table, moved along the rows the write inserts and removes. */
+    private PropertyRows propertyRows;
+
     protected TableWriter(IOpenLTable table) {
         this.table = table;
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
         this.otherTables = new OtherTables(originalTable);
+        this.propertyRows = propertyRowsOf(table, originalTable);
     }
 
     protected TableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
@@ -134,6 +139,7 @@ public abstract class TableWriter<T extends TableView> {
         this.metaInfoWriter = metaInfoWriter;
         this.table = null;
         this.otherTables = new OtherTables(originalTable);
+        this.propertyRows = PropertyRows.NONE;
     }
 
     public void write(T tableView) {
@@ -215,6 +221,9 @@ public abstract class TableWriter<T extends TableView> {
      * @param count how many lines were inserted
      */
     protected void linesInserted(boolean rows, int at, int count) {
+        if (rows) {
+            propertyRows = propertyRows.rowsInserted(at, count);
+        }
         if (layout != null) {
             if (rows) {
                 layout.rowsInserted(at, count);
@@ -656,18 +665,102 @@ public abstract class TableWriter<T extends TableView> {
         var startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
         var height = GridRegionUtils.height(originalTable.getRegion());
         new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter()).doAction(gridTable);
+        // A merged line takes the lines merged with it along: the table says how many went.
+        var removed = height - GridRegionUtils.height(originalTable.getRegion());
+        propertyRows = propertyRows.rowsRemoved(startRow0, removed);
         if (layout != null) {
-            // A merged line takes the lines merged with it along: the table says how many went.
-            layout.rowsRemoved(startRow0, height - GridRegionUtils.height(originalTable.getRegion()));
+            layout.rowsRemoved(startRow0, removed);
         }
     }
 
     protected void removeColumns(IGridTable gridTable, int nCols, int startCol) {
         var startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
         var width = GridRegionUtils.width(originalTable.getRegion());
-        new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter()).doAction(gridTable);
+        var properties = propertyRows().keptAt(startCol0);
+        new UndoableRemoveColumnsAction(nCols, startCol0, properties.from(), properties.count(), getMetaInfoWriter())
+                .doAction(gridTable);
         if (layout != null) {
             layout.columnsRemoved(startCol0, width - GridRegionUtils.width(originalTable.getRegion()));
+        }
+    }
+
+    /**
+     * The rows of the table holding its properties, counted from the first row of the table, and the columns their
+     * names and values are written in. A column inserted or removed among these columns leaves the cells of these rows
+     * where they are, so every property keeps its name and its value; none for a table without properties.
+     *
+     * <p>The rows follow the rows the write inserted and removed so far.
+     */
+    protected PropertyRows propertyRows() {
+        return propertyRows;
+    }
+
+    /** The rows holding the properties of a compiled table, as the table stands before it is written. */
+    private static PropertyRows propertyRowsOf(IOpenLTable table, IGridTable originalTable) {
+        var properties = table.getProperties();
+        var section = properties == null ? null : properties.getPropertiesSection();
+        var source = section == null ? null : section.getSource();
+        if (source == null) {
+            return PropertyRows.NONE;
+        }
+        var region = source.getRegion();
+        var tableRegion = originalTable.getRegion();
+        return new PropertyRows(region.getTop() - tableRegion.getTop(),
+                GridRegionUtils.height(region),
+                filledRight(source) - tableRegion.getLeft() + 1);
+    }
+
+    /** The last column of the sheet a text of a block starts in, a merged cell counted by the column it starts in. */
+    private static int filledRight(IGridTable block) {
+        var right = block.getRegion().getLeft();
+        for (var row = 0; row < block.getHeight(); row++) {
+            for (var column = 0; column < block.getWidth(); column++) {
+                var cell = block.getCell(column, row);
+                if (StringUtils.isNotBlank(cell.getStringValue())) {
+                    right = Math.max(right, cell.getAbsoluteRegion().getLeft());
+                }
+            }
+        }
+        return right;
+    }
+
+    /**
+     * The rows holding the properties of a table and the columns their names and values are written in.
+     *
+     * @param from  the first row, counted from the first row of the table
+     * @param count how many rows; 0 for a table without properties
+     * @param width how many columns, counted from the first column of the table
+     */
+    protected record PropertyRows(int from, int count, int width) {
+        static final PropertyRows NONE = new PropertyRows(0, 0, 0);
+
+        /**
+         * The rows a column inserted or removed at the given column of the table leaves where they are: the
+         * properties when the column is among the ones they are written in, none otherwise, where the properties
+         * move with the table and a merged value of them grows or shrinks.
+         */
+        PropertyRows keptAt(int column) {
+            return column < width ? this : NONE;
+        }
+
+        /**
+         * The rows once rows are inserted at the given row of the table: rows inserted above the properties move
+         * them down, and rows inserted among them join them, as their merged cells grow over the new rows.
+         */
+        PropertyRows rowsInserted(int at, int inserted) {
+            if (count == 0 || at >= from + count) {
+                return this;
+            }
+            return at <= from ? new PropertyRows(from + inserted, count, width)
+                    : new PropertyRows(from, count + inserted, width);
+        }
+
+        /** The rows once rows are removed from the given row of the table; none when every property row is gone. */
+        PropertyRows rowsRemoved(int at, int removed) {
+            var end = at + removed;
+            var above = Math.max(0, Math.min(end, from) - at);
+            var among = Math.max(0, Math.min(end, from + count) - Math.max(at, from));
+            return count == among ? NONE : new PropertyRows(from - above, count - among, width);
         }
     }
 
