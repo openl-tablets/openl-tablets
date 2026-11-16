@@ -14,8 +14,9 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine.noPerf>-Xms8m -Xmx256m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.noPerf>
-        <surefire.argLine.perf>-Xms8m -Xmx160m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
+        <!-- Metaspace: 110 MB for the classes of the 123 deployed services, 20 more once their methods have run -->
+        <surefire.argLine.noPerf>-Xms8m -Xmx256m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms8m -Xmx160m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
     </properties>
 
     <dependencies>
