@@ -41,7 +41,8 @@ public abstract class ANodeBinder implements INodeBinder {
     public static IBoundNode bindTargetNode(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
 
         if (targetNode instanceof ErrorBoundNode) {
-            return new ErrorBoundNode(node);
+            // the error keeps the target, so what it bound keeps its hints and links
+            return new ErrorBoundNode(node, targetNode);
         }
 
         INodeBinder binder = NodeBinders.get(node.getType());
@@ -189,6 +190,19 @@ public abstract class ANodeBinder implements INodeBinder {
     protected static IBoundNode makeErrorNode(String message, ISyntaxNode node, IBindingContext bindingContext) {
         BindHelper.processError(message, node, bindingContext);
         return new ErrorBoundNode(node);
+    }
+
+    /**
+     * Reports the error at the given syntax node and returns an error node keeping the nodes that were bound, such as
+     * the field an index operation is applied to, so the editor still shows their hints and links.
+     */
+    protected static IBoundNode makeErrorNode(String message,
+                                              ISyntaxNode node,
+                                              ISyntaxNode errorAt,
+                                              IBindingContext bindingContext,
+                                              IBoundNode... bound) {
+        BindHelper.processError(message, errorAt, bindingContext);
+        return new ErrorBoundNode(node, bound);
     }
 
     private static IBoundNode makeErrorNode(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {

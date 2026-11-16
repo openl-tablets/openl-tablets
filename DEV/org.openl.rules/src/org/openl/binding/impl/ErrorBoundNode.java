@@ -1,5 +1,6 @@
 package org.openl.binding.impl;
 
+import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.vm.IRuntimeEnv;
 
@@ -12,6 +13,13 @@ public class ErrorBoundNode extends ABoundNode {
 
     public ErrorBoundNode(ISyntaxNode node) {
         super(node);
+    }
+
+    /**
+     * An error node keeping the nodes of the expression that were bound, so their hints and links stay available.
+     */
+    public ErrorBoundNode(ISyntaxNode node, IBoundNode... bound) {
+        super(node, bound);
     }
 
     @Override
