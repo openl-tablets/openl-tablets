@@ -357,4 +357,9 @@ public class SecureRepository implements Repository, RepositoryDelegate {
         repository.validateConnection();
     }
 
+    @Override
+    public void validateWriteAccess() throws IOException {
+        repository.validateWriteAccess();
+    }
+
 }

@@ -259,6 +259,11 @@ public class PathCheckedRepository implements BranchRepository {
     }
 
     @Override
+    public void validateWriteAccess() throws IOException {
+        delegate.validateWriteAccess();
+    }
+
+    @Override
     public boolean isMergedInto(String from, String to) throws IOException {
         return ((BranchRepository) delegate).isMergedInto(from, to);
     }

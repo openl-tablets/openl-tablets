@@ -235,6 +235,17 @@ public interface Repository extends AutoCloseable {
     }
 
     /**
+     * Checks that the repository can be reached and written to with its settings, as OpenL Studio writes to every
+     * repository it is set up with. A repository that is only read is checked by {@link #validateConnection()}.
+     * Checks the connection alone by default.
+     *
+     * @throws IOException if the connection cannot be established or the repository may not be written to
+     */
+    default void validateWriteAccess() throws IOException {
+        validateConnection();
+    }
+
+    /**
      * Checks the path against path traversal vulnerability.
      *
      * @param path the path to validate

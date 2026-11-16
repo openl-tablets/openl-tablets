@@ -752,6 +752,11 @@ public final class MappedRepository implements BranchRepository, Closeable, Fold
         delegate.validateConnection();
     }
 
+    @Override
+    public void validateWriteAccess() throws IOException {
+        delegate.validateWriteAccess();
+    }
+
     /**
      * Generate project index by scanning the repository.
      * The index is maintained only in memory and regenerated when needed.

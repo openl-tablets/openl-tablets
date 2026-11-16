@@ -175,8 +175,9 @@ public final class RepositoryValidators {
             var propertiesToValidate = repoConfig.getPropertiesToValidate();
             var prefix = RepositorySettingNames.PREFIX + repoConfig.getConfigName();
             try (var repository = RepositoryInstatiator.newRepository(prefix, propertiesToValidate::getProperty)) {
-                // Validate instantiation
-                repository.validateConnection();
+                // OpenL Studio writes to every repository it is set up with: a Git server must let the account write,
+                // not only read, or a wrong password of a public repository goes unnoticed until the first save
+                repository.validateWriteAccess();
             }
         } catch (Exception e) {
             throw new RepositoryValidationException(
