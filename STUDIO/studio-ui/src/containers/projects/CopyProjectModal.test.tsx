@@ -149,9 +149,9 @@ const mappedRepositories = [
 
 const renderModal = async (overrides: Partial<ComponentProps<typeof CopyProjectModal>> = {}) => {
     const props = { open: true, onClose: vi.fn(), onCopied: vi.fn(), project, repositories, ...overrides }
-    render(<CopyProjectModal {...props} />)
+    const { rerender } = render(<CopyProjectModal {...props} />)
     await waitFor(() => expect(getRepositoryConfig).toHaveBeenCalled())
-    return props
+    return { ...props, rerender }
 }
 
 const asNewProject = async () => {
@@ -404,6 +404,47 @@ describe('CopyProjectModal', () => {
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
             'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', path: 'folder' }
         ))
+    })
+
+    it('keeps the form and the error when the repositories are read again after a failed copy', async () => {
+        vi.mocked(copyProject).mockRejectedValueOnce(new Error('The Git server refused the changes.'))
+        const { rerender, ...props } = await renderModal()
+        await asNewProject()
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        fireEvent.change(screen.getByTestId('copy-project-repository'), { target: { value: 'prod' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+        await waitFor(() => expect(screen.getByTestId('copy-project-error'))
+            .toHaveTextContent('The Git server refused the changes.'))
+
+        // The page reads the repositories again, handing the dialog a new list of the same repositories.
+        rerender(<CopyProjectModal {...props} repositories={repositories.map(repo => ({ ...repo }))} />)
+
+        expect(screen.getByTestId('copy-project-error')).toHaveTextContent('The Git server refused the changes.')
+        expect(screen.getByTestId<HTMLInputElement>('copy-project-name').value).toBe('Beta')
+        expect(screen.getByTestId<HTMLSelectElement>('copy-project-repository').value).toBe('prod')
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+        await waitFor(() => expect(copyProject).toHaveBeenCalledTimes(2))
+        expect(vi.mocked(copyProject).mock.calls.map(([, repositoryId]) => repositoryId)).toEqual(['prod', 'prod'])
+    })
+
+    it('opens on the repository of the project again, and leaves a repository that is gone', async () => {
+        const { rerender, ...props } = await renderModal()
+        await asNewProject()
+        fireEvent.change(screen.getByTestId('copy-project-repository'), { target: { value: 'prod' } })
+
+        // A picked repository that is no longer in the list gives way to the repository of the project.
+        rerender(<CopyProjectModal {...props} repositories={repositories.filter(repo => repo.id !== 'prod')} />)
+        expect(screen.getByTestId<HTMLSelectElement>('copy-project-repository').value).toBe('design')
+
+        // Reopened, the dialog starts afresh, whatever was picked before.
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        rerender(<CopyProjectModal {...props} />)
+        fireEvent.change(screen.getByTestId('copy-project-repository'), { target: { value: 'prod' } })
+        rerender(<CopyProjectModal {...props} open={false} />)
+        rerender(<CopyProjectModal {...props} />)
+        await asNewProject()
+        expect(screen.getByTestId<HTMLInputElement>('copy-project-name').value).toBe('')
+        expect(screen.getByTestId<HTMLSelectElement>('copy-project-repository').value).toBe('design')
     })
 
     it('hides the target path for flat repositories', async () => {
