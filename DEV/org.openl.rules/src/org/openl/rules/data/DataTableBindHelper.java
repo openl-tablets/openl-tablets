@@ -75,9 +75,11 @@ public class DataTableBindHelper {
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
     private static final String LINK_DELIMETERS = ".";
 
-    // patter for field like addressArry[0]
+    // pattern for a field like addressArray[0], or matrix[0][1] for an element of a nested array; the quantifiers are
+    // possessive, as the neighbouring parts take disjoint characters, so a match never backtracks
     public static final Pattern COLLECTION_ACCESS_BY_INDEX_PATTERN = Pattern
-            .compile("\\s*[^\\:\\s\\[\\]]+\\s*\\[\\s*\\d+\\s*\\]\\s*+(\\:\\s*[^\\:\\s]+|)\\s*$");
+            .compile("\\s*+[^:\\s\\[\\]]++\\s*+(?:\\[\\s*+\\d++\\s*+\\]\\s*+)++(:\\s*+[^:\\s]++|)\\s*+$");
+    private static final Pattern INDEX_PATTERN = Pattern.compile("\\[\\s*(\\d+)\\s*\\]");
     public static final Pattern COLLECTION_ACCESS_BY_KEY_PATTERN = Pattern
             .compile("\\s*[^\\:\\s\\[\\]]+\\s*\\[\\s*(\\\".*\\\"|\\d+)\\s*\\]\\s*+(\\:\\s*[^\\:\\s]+|)\\s*$");
 
@@ -928,13 +930,13 @@ public class DataTableBindHelper {
             IOpenClass collectionElementType = null;
             if (StringUtils.matches(THIS_ARRAY_ACCESS_PATTERN, identifier) && type.isArray()) {
                 collectionElementType = type.getComponentClass();
-                collectionElementField = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
+                collectionElementField = new ThisCollectionElementField(getCollectionIndexes(fieldNameNode)[0],
                         collectionElementType,
                         CollectionType.ARRAY);
             } else if (StringUtils.matches(THIS_LIST_ACCESS_PATTERN, identifier) && ClassUtils
                     .isAssignable(type.getInstanceClass(), List.class)) {
                 collectionElementType = getTypeForCollection(fieldNameNode, null, bindingContext);
-                collectionElementField = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
+                collectionElementField = new ThisCollectionElementField(getCollectionIndexes(fieldNameNode)[0],
                         collectionElementType,
                         CollectionType.LIST);
             } else if (StringUtils.matches(THIS_MAP_ACCESS_PATTERN, identifier) && ClassUtils
@@ -1201,17 +1203,19 @@ public class DataTableBindHelper {
         }
 
         /**
-         * Creates the field of an array or a list element.
+         * Creates the field of an array or a list element. Each further index addresses an element of that element:
+         * {@code a[0][1]} is the element 1 of the element 0 of {@code a}.
          *
-         * @return {@code null} when the index cannot be parsed, which is reported to the binding context
+         * @return {@code null} when an index cannot be parsed or an element is not a collection, which is reported to
+         * the binding context
          */
-        private static IOpenField createIndexedElementField(IBindingContext bindingContext,
-                                                            IdentifierNode currentFieldNameNode,
-                                                            IOpenClass loadedFieldType,
-                                                            IOpenField field) {
-            int index;
+        private static @Nullable IOpenField createIndexedElementField(IBindingContext bindingContext,
+                                                                      IdentifierNode currentFieldNameNode,
+                                                                      IOpenClass loadedFieldType,
+                                                                      IOpenField field) {
+            int[] indexes;
             try {
-                index = getCollectionIndex(currentFieldNameNode);
+                indexes = getCollectionIndexes(currentFieldNameNode);
             } catch (Exception e) {
                 log.debug(ERROR_OCCURRED, e);
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
@@ -1219,20 +1223,62 @@ public class DataTableBindHelper {
                 bindingContext.addError(error);
                 return null;
             }
-            IOpenField collectionAccessField;
-            var fieldType = field.getType();
-            if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
-                IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                        loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
-                        bindingContext);
-                collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
-            } else {
-                collectionAccessField = new CollectionElementField(field,
-                        index,
-                        getArrayElementType(fieldType),
-                        CollectionType.ARRAY);
+            @Nullable IOpenField collectionAccessField = field;
+            for (var i = 0; i < indexes.length && collectionAccessField != null; i++) {
+                collectionAccessField = createElementField(bindingContext,
+                        currentFieldNameNode,
+                        loadedFieldType,
+                        collectionAccessField,
+                        indexes[i],
+                        i,
+                        i == indexes.length - 1);
             }
             return collectionAccessField;
+        }
+
+        /**
+         * Creates the field of an element of an array or a list at the given depth of an access, 0 for the outermost
+         * collection.
+         *
+         * <p>The element type declared after a colon, like {@code items[0][1]: Item}, is the type of the last element
+         * only, also for an array that is an element of a list and so of no known type. An element of an outer list is
+         * of the type the tested table collects, or of any type.
+         *
+         * @return {@code null} when the collection field is not of a collection type, which is reported to the binding
+         * context
+         */
+        private static @Nullable IOpenField createElementField(IBindingContext bindingContext,
+                                                               IdentifierNode currentFieldNameNode,
+                                                               IOpenClass loadedFieldType,
+                                                               IOpenField collection,
+                                                               int index,
+                                                               int depth,
+                                                               boolean last) {
+            var type = collection.getType();
+            var testMethodType = loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null;
+            if (ClassUtils.isAssignable(type.getInstanceClass(), List.class)) {
+                IOpenClass elementType;
+                if (last) {
+                    elementType = getTypeForCollection(currentFieldNameNode, testMethodType, bindingContext);
+                } else if (depth == 0) {
+                    elementType = getCollectedType(testMethodType, bindingContext);
+                } else {
+                    elementType = JavaOpenClass.OBJECT;
+                }
+                return new CollectionElementField(collection, index, elementType, CollectionType.LIST);
+            }
+            if (!type.isArray() && !(type instanceof UserErrorOpenClass) && Object.class != type.getInstanceClass()) {
+                var message = "Expected a collection type for field '%s', but found type '%s'."
+                        .formatted(collection.getName(), type);
+                bindingContext.addError(SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode));
+                return null;
+            }
+            // an element of an outer list is an array of any type: the type declared for its last element names it
+            var elementType = last && !type.isArray() && Object.class == type.getInstanceClass()
+                    && currentFieldNameNode.getIdentifier().indexOf(':') >= 0
+                            ? getTypeForCollection(currentFieldNameNode, testMethodType, bindingContext)
+                            : getArrayElementType(type);
+            return new CollectionElementField(collection, index, elementType, CollectionType.ARRAY);
         }
 
         private static IOpenClass getTypeForCollection(IdentifierNode identifierNode,
@@ -1362,10 +1408,22 @@ public class DataTableBindHelper {
         return Tolerance.of(precision.substring(1, precision.length() - 1));
     }
 
-    public static int getCollectionIndex(IdentifierNode fieldNameNode) {
+    /**
+     * Returns the indexes of an element access, such as {@code 0} and {@code 1} for {@code a[0][1]}, the outermost
+     * collection first.
+     *
+     * @throws NumberFormatException when the access has no numeric index
+     */
+    public static int[] getCollectionIndexes(IdentifierNode fieldNameNode) {
         var fieldName = fieldNameNode.getIdentifier();
-        var txtIndex = fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']')).trim();
-        return Integer.parseInt(txtIndex);
+        var indexes = INDEX_PATTERN.matcher(fieldName)
+                .results()
+                .mapToInt(index -> Integer.parseInt(index.group(1)))
+                .toArray();
+        if (indexes.length == 0) {
+            throw new NumberFormatException("No index in '%s'".formatted(fieldName));
+        }
+        return indexes;
     }
 
     public static String getCollectionName(IdentifierNode fieldNameNode) {

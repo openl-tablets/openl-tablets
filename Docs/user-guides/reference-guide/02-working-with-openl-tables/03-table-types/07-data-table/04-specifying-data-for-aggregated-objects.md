@@ -38,6 +38,8 @@ The first policy, **Policy1**, contains two vehicles: **Honda Odyssey** and **Fo
 
 **Note:** The approach is valid for simple cases with an array of simple data type values, and for complex cases with a nested array of an array, for example, `policy.vehicles[0].coverages[2].limit`.
 
+An element of a multidimensional array takes one index per dimension, for example, `grid.cells[0][1]` for the second element of the first row of `Integer[][] cells`. Test tables accept the same syntax for parameters and results, for example, `param[1][0]` and `_res_[0][0]`.
+
 **The second option** is to leave the format as is, omitting the [] syntax in column definition
 `<attribute name of aggregated object>.<attribute name of object>, `and define elements of an array in several rows, or in several columns in case of a transposed table.
 

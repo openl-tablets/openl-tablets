@@ -545,9 +545,11 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     /**
-     * Creates the field of a collection element: by the key for a map, and by the index otherwise.
+     * Creates the field of a collection element: by the key for a map, and by the index otherwise. Each further index
+     * addresses an element of that element, like {@code _res_[0][1]}.
      *
-     * @return {@code null} when the index is not a number, which the binding of the table has reported
+     * @return {@code null} when an index is not a number or an element is not a collection, which the binding of the
+     * table has reported
      */
     private static @Nullable IOpenField createCollectionElementField(IOpenField arrayField, IdentifierNode node) {
         var type = arrayField.getType();
@@ -559,18 +561,26 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     key,
                     type.getComponentClass());
         } else {
-            int arrayIndex;
+            int[] indexes;
             try {
-                arrayIndex = DataTableBindHelper.getCollectionIndex(node);
+                indexes = DataTableBindHelper.getCollectionIndexes(node);
             } catch (NumberFormatException e) {
                 return null;
             }
-            arrayAccessField = new CollectionElementField(arrayField,
-                    arrayIndex,
-                    type.getComponentClass(),
-                    collectionType);
+            arrayAccessField = new CollectionElementField(arrayField, indexes[0], type.getComponentClass(), collectionType);
+            for (var i = 1; i < indexes.length && arrayAccessField != null; i++) {
+                arrayAccessField = createIndexedElementField(arrayAccessField, indexes[i]);
+            }
         }
         return arrayAccessField;
+    }
+
+    private static @Nullable IOpenField createIndexedElementField(IOpenField collection, int index) {
+        var type = collection.getType();
+        var elementType = type.getComponentClass();
+        return elementType == null
+                ? null
+                : new CollectionElementField(collection, index, elementType, getCollectionType(type));
     }
 
     /**

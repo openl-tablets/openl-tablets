@@ -33,6 +33,11 @@ class DataTableBindHelperTest {
                 arguments("a[0  ]", true),
                 arguments("a[  0]", true),
                 arguments("a  [0]", true),
+                arguments("a[0][1]", true),
+                arguments("a[0] [ 1 ]", true),
+                arguments("a[0][1]:b", true),
+                arguments("a[0][b]", false),
+                arguments("a[0][\"b\"]", false),
 
                 arguments("a[\"b\"]", false),
                 arguments("a[  \"b\"]", false),
