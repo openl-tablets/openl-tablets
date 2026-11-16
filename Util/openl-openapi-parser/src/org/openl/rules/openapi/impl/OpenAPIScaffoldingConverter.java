@@ -36,8 +36,6 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.parser.OpenAPIV3Parser;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.rules.calc.SpreadsheetResult;
@@ -69,8 +67,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     @Override
     public ProjectModel extractProjectModel(String pathTo) {
-        ParseOptions options = OpenLOpenAPIUtils.getParseOptions();
-        var openAPI = new OpenAPIV3Parser().read(pathTo, null, options);
+        var openAPI = OpenLOpenAPIUtils.read(pathTo);
         if (openAPI == null) {
             throw new IllegalStateException("Error creating the project, uploaded file has invalid structure.");
         }

@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,6 +93,30 @@ class DataTypeConverterTest {
         assertEquals(4, fields.size());
         var datatypeModel = findDataTypeModel(datatypeModels, "Animal");
         assertEquals(2, datatypeModel.getFields().size());
+    }
+
+    /** A list of a datatype and its subtypes is read as the datatype. */
+    @Test
+    void testDatatypeWithSubtypes() throws IOException {
+        var projectModel = converter.extractProjectModel("test.converter/datatype/datatype_subtypes.json");
+        Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        assertEquals(Set.of("MyDatatype", "MyCustomDatatype"),
+                datatypeModels.stream().map(DatatypeModel::getName).collect(Collectors.toSet()));
+        assertEquals("MyDatatype", findDataTypeModel(datatypeModels, "MyCustomDatatype").getParent());
+
+        var mySpr = projectModel.getSpreadsheetResultModels()
+                .stream()
+                .filter(x -> x.getName().equals("mySpr"))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(1, mySpr.getParameters().size());
+        assertEquals("MyDatatype", mySpr.getParameters().getFirst().getType().getSimpleName());
+        var myField = mySpr.getSteps()
+                .stream()
+                .filter(step -> step.getName().equals("myField"))
+                .findFirst()
+                .orElseThrow();
+        assertEquals("MyDatatype", myField.getType());
     }
 
     @Test

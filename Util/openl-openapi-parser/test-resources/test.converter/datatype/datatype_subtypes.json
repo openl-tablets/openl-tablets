@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Datatype - subtypes",
+    "version": "1.0.0",
+    "description": "A field and a request body of a datatype that has subtypes, without type info"
+  },
+  "paths": {
+    "/mySpr": {
+      "post": {
+        "operationId": "mySpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/MyDatatype"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MyCustomDatatype"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyDatatype": {
+        "type": "object",
+        "properties": {
+          "param1": {
+            "type": "string"
+          }
+        }
+      },
+      "MyCustomDatatype": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MyDatatype"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "param2": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "MyResult": {
+        "type": "object",
+        "properties": {
+          "someID": {
+            "type": "string"
+          },
+          "myField": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyDatatype"
+              },
+              {
+                "$ref": "#/components/schemas/MyCustomDatatype"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

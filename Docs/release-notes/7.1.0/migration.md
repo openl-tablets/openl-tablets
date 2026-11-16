@@ -95,6 +95,13 @@ developers.
 
 ## Developers
 
+* **The OpenAPI schema lists the children of a datatype where no type property tells them.** In a service whose
+  `rules-deploy.xml` sets `jackson.defaultTypingMode` to `DISABLED` or `jackson.jsonTypeInfoId` to `DEDUCTION`, a
+  place that may hold a value of a child datatype refers to the datatype and its children through `anyOf` instead
+  of a `$ref` to the datatype alone. With `DISABLED`, these are the results and the fields of the datatypes that
+  results hold. With `DEDUCTION`, the request bodies and the parameters too. Regenerate the clients built from the
+  OpenAPI schema of such a service: a generator may build a wrapper type for such a place.
+
 * **The design repository settings carry no comment templates and no flag.** `GET /rest/admin/settings/repos/design`
   no longer returns `useCustomComments`, `defaultCommentSave`, `defaultCommentCreate`, `defaultCommentCopiedFrom` and
   `defaultCommentRestoredFrom`, and a request of the settings API that sends one of them is refused with `400` and

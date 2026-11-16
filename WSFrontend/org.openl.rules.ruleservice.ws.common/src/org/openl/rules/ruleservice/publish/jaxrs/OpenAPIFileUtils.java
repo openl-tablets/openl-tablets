@@ -5,17 +5,19 @@ import java.util.Arrays;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
+import org.openl.rules.openapi.SubtypeReferences;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.util.StringUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OpenAPIFileUtils {
-
-    private OpenAPIFileUtils() {
-    }
 
     private static final String OPENAPI_JSON = "openapi.json";
     private static final String OPENAPI_YAML = "openapi.yaml";
@@ -29,7 +31,7 @@ public final class OpenAPIFileUtils {
                 .orElse(null);
     }
 
-    public static OpenAPI loadOpenAPI(
+    public static @Nullable OpenAPI loadOpenAPI(
             ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
         var projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
         ProjectResource projectResource;
@@ -53,8 +55,13 @@ public final class OpenAPIFileUtils {
             var openApiParser = new OpenAPIParser();
             var options = new ParseOptions();
             options.setResolve(true);
-            return openApiParser.readLocation(projectResource.getUrl().toString(), null, options)
+            var openAPI = openApiParser.readLocation(projectResource.getUrl().toString(), null, options)
                     .getOpenAPI();
+            if (openAPI != null) {
+                // A parameter is described by its declared type, whatever subtypes a value of it may be
+                SubtypeReferences.toDeclaredTypes(openAPI);
+            }
+            return openAPI;
         }
         return null;
     }

@@ -1,0 +1,12 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>jackson.defaultTypingMode</string>
+            <string>DISABLED</string>
+        </entry>
+    </configuration>
+</rules-deploy>
