@@ -1,0 +1,144 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2,
+  "executionTimeMs": "*",
+  "numberOfTests": 4,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "PremiumTest",
+      "tableId": "***",
+      "module": "Rules",
+      "executionTimeMs": "*",
+      "numberOfTests": 2,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Expected Premium",
+              "expectedValue": 1200.0,
+              "actualValue": 1200.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "vehicleType",
+              "description": "Vehicle Type",
+              "lazy": false,
+              "value": "Sedan"
+            },
+            {
+              "name": "driverAge",
+              "description": "Driver Age",
+              "lazy": false,
+              "value": 22
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Expected Premium",
+              "expectedValue": 800.0,
+              "actualValue": 800.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "vehicleType",
+              "description": "Vehicle Type",
+              "lazy": false,
+              "value": "Sedan"
+            },
+            {
+              "name": "driverAge",
+              "description": "Driver Age",
+              "lazy": false,
+              "value": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TransposedPremiumTest",
+      "tableId": "***",
+      "module": "Rules",
+      "executionTimeMs": "*",
+      "numberOfTests": 2,
+      "numberOfFailures": 0,
+      "transposed": true,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Expected Premium",
+              "expectedValue": 1200.0,
+              "actualValue": 1200.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "vehicleType",
+              "description": "Vehicle Type",
+              "lazy": false,
+              "value": "Sedan"
+            },
+            {
+              "name": "driverAge",
+              "description": "Driver Age",
+              "lazy": false,
+              "value": 22
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Expected Premium",
+              "expectedValue": 800.0,
+              "actualValue": 800.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "vehicleType",
+              "description": "Vehicle Type",
+              "lazy": false,
+              "value": "Sedan"
+            },
+            {
+              "name": "driverAge",
+              "description": "Driver Age",
+              "lazy": false,
+              "value": 40
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

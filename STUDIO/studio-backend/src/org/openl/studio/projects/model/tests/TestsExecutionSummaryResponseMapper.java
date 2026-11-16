@@ -22,6 +22,7 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ExecutionValueLevels;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.service.tables.TableLayouts;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableModules.TableLocation;
 import org.openl.studio.projects.service.tests.RetainedTestUnit;
@@ -100,22 +101,28 @@ public class TestsExecutionSummaryResponseMapper {
      * be sent to it there. A test table whose project is not known says no module either: a reader would be sent to
      * the module in the tested project.
      *
+     * <p>A test table written transposed, its cases across the columns, says so. A screen then lays its results out
+     * the same way.
+     *
      * @param testCase the results of the test table
      * @param query    what the summary is asked for
      */
     public TestCaseExecutionResult mapToTestCaseResult(TestUnitsResults testCase, TestExecutionSummaryQuery query) {
         var where = openedAt(testCase);
+        var suite = testCase.getTestSuite().getTestSuiteMethod();
         var builder = TestCaseExecutionResult.builder()
-                .name(TableSyntaxNodeUtils.getTestName(testCase.getTestSuite().getTestSuiteMethod()))
+                .name(TableSyntaxNodeUtils.getTestName(suite))
                 .tableId(testCase.getTestSuite().getTableId())
                 .module(where == null ? null : where.module())
                 .projectId(where == null || projectId.equals(where.projectId()) ? null : where.projectId())
-                .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
+                .description(suite.getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)
                 .numberOfTests(testCase.getNumberOfTests())
                 .numberOfFailures(testCase.getNumberOfFailures())
                 // A Run table states no expected values, so its cases neither pass nor fail.
-                .runTable(testCase.getTestSuite().getTestSuiteMethod().isRunMethod() ? Boolean.TRUE : null);
+                .runTable(suite.isRunMethod() ? Boolean.TRUE : null)
+                // A screen lays the results out the way the table is written.
+                .transposed(TableLayouts.isTransposed(suite) ? Boolean.TRUE : null);
 
         testCase.getFilteredTestUnits(query.failedOnly(), query.failures()).stream()
                 .map(tetUnit -> mapToTestUnitResult(testCase, tetUnit, query))

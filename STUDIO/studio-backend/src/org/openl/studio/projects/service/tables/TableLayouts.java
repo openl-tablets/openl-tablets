@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.data.ITable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
@@ -49,14 +50,13 @@ public final class TableLayouts {
         if (!(method instanceof TestSuiteMethod suite) || carriesItsOwnIdentifiers(suite)) {
             return null;
         }
-        var node = suite.getBoundNode();
-        var data = node == null ? null : node.getTable();
+        var data = dataOf(suite);
         if (data == null || data.getNumberOfRows() == 0) {
             return null;
         }
         // A line of data is a row of the table as the compiler reads it, which is a row of the sheet where the
         // table is written the usual way round and a column of it where the table is transposed.
-        var downTheRows = data.getHeaderTable().isNormalOrientation();
+        var downTheRows = !isTransposed(data);
         var grid = table.getGridTable();
         var origin = downTheRows ? grid.getGridRow(0, 0) : grid.getGridColumn(0, 0);
         var end = origin + (downTheRows ? grid.getHeight() : grid.getWidth());
@@ -70,6 +70,30 @@ public final class TableLayouts {
                 .firstDataLine(starts[0] - origin)
                 .caseLines(caseLinesOf(starts, end))
                 .build();
+    }
+
+    /**
+     * Whether the test table is written transposed: its cases across the columns and its fields down the rows.
+     *
+     * <p>A table the compiler could not build is taken as written the usual way round.
+     *
+     * @param suite the test table being asked about
+     */
+    public static boolean isTransposed(TestSuiteMethod suite) {
+        var data = dataOf(suite);
+        return data != null && isTransposed(data);
+    }
+
+    /** Whether the compiler read the cases of a test table across the columns of its sheet. */
+    private static boolean isTransposed(ITable data) {
+        return !data.getHeaderTable().isNormalOrientation();
+    }
+
+    /** The cases of the test table as the compiler read them, or {@code null} where it could not read them. */
+    private static @Nullable ITable dataOf(TestSuiteMethod suite) {
+        var node = suite.getBoundNode();
+        var data = node == null ? null : node.getTable();
+        return data == null || data.getData() == null ? null : data;
     }
 
     /**

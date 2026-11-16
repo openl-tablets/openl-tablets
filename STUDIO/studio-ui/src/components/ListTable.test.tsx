@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { onTestFinished } from 'vitest'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { layOut } from 'testing/layOut'
 
@@ -79,6 +80,117 @@ describe('ListTable', () => {
         const table = screen.getByTestId('rows')
         expect(table.querySelectorAll('thead th')).toHaveLength(2)
         expect(table.querySelectorAll('tbody tr')).toHaveLength(0)
+    })
+
+    describe('transposed', () => {
+        it('shows a column to a line under its name, and a row to a column under the first column', () => {
+            renderTable({ transposed: true })
+
+            const table = screen.getByTestId('rows')
+            expect([...table.querySelectorAll('thead th')].map(cell => cell.textContent)).toEqual(['ID', '1', '2'])
+            const lines = table.querySelectorAll('tbody tr')
+            expect(lines).toHaveLength(1)
+            expect([...lines[0]!.children].map(cell => cell.textContent)).toEqual(['Name', 'First', 'Second'])
+        })
+
+        it('keeps a click in a cell of its own to the cell', async () => {
+            const onClick = vi.fn()
+            const own: ListTableColumn<Row> = {
+                key: 'note',
+                title: 'Note',
+                ownClicks: true,
+                render: row => <button onClick={onClick} type="button">{`note ${row.id}`}</button>,
+            }
+            const parent = vi.fn()
+            renderTable({ transposed: true, columns: [...columns, own]})
+            // React handles the click on the element it renders into, so the page above it hears what is not kept.
+            document.body.addEventListener('click', parent)
+            onTestFinished(() => document.body.removeEventListener('click', parent))
+
+            await userEvent.click(screen.getByText('note 2'))
+
+            expect(onClick).toHaveBeenCalledTimes(1)
+            expect(parent).not.toHaveBeenCalled()
+        })
+
+        it('lets the keyboard reach the box its lines scroll in', () => {
+            const { rerender } = renderTable({ transposed: true, maxHeight: '400px' })
+            expect(screen.getByTestId('rows').parentElement).toHaveAttribute('tabindex', '0')
+
+            rerender(<ListTable<Row> transposed columns={columns} data-testid="rows" rowKey={row => row.id} rows={rows} />)
+
+            expect(screen.getByTestId('rows').parentElement).not.toHaveAttribute('tabindex')
+        })
+
+        it('shows only the head while there are no other columns', () => {
+            renderTable({ transposed: true, columns: [columns[0]!]})
+
+            const table = screen.getByTestId('rows')
+            expect(table.querySelectorAll('thead th')).toHaveLength(3)
+            expect(table.querySelectorAll('tbody tr')).toHaveLength(0)
+        })
+
+        describe('drawing only the lines in sight', () => {
+            /** How tall jsdom is told a line and the list are: a line as tall as one not measured yet is taken to be. */
+            const LINE = 40
+            const VIEW = 400
+
+            const tall: ListTableColumn<Row>[] = [
+                columns[0]!,
+                ...Array.from({ length: 300 }, (unused, index) => ({
+                    key: `c${index}`,
+                    title: `Field ${index}`,
+                    render: (row: Row) => `${row.id}:${index}`,
+                })),
+            ]
+
+            const laidOut = (height = VIEW) => {
+                layOut(HTMLDivElement.prototype, 'clientHeight', () => height)
+                layOut(HTMLTableCellElement.prototype, 'offsetHeight', () => LINE)
+            }
+
+            const lines = () => [...screen.getByTestId('rows').querySelectorAll<HTMLElement>('tbody th[data-index]')]
+                .map(line => Number(line.dataset['index']))
+
+            it('draws the lines in sight and a few below them, keeping the room of the rest', async () => {
+                laidOut()
+                renderTable({ columns: tall, columnsInSight: true, maxHeight: `${VIEW}px`, transposed: true })
+
+                await waitFor(() => expect(lines()).toContain(0))
+                expect(lines().length).toBeLessThan(30)
+                expect(lines()).not.toContain(299)
+                expect(Number.parseFloat(screen.getByTestId('list-lines-after').style.height))
+                    .toBeGreaterThan(200 * LINE)
+                expect(screen.queryByTestId('list-lines-before')).not.toBeInTheDocument()
+            })
+
+            it('draws the lines scrolled down to, and lets go of the ones scrolled past', async () => {
+                laidOut()
+                renderTable({ columns: tall, columnsInSight: true, maxHeight: `${VIEW}px`, transposed: true })
+                await waitFor(() => expect(lines()).toContain(0))
+                const scroller = screen.getByTestId('rows').parentElement!
+                let top = 0
+                Object.defineProperty(scroller, 'scrollTop', { configurable: true, get: () => top })
+
+                act(() => {
+                    top = 250 * LINE
+                    scroller.dispatchEvent(new Event('scroll'))
+                })
+
+                await waitFor(() => expect(lines()).toContain(252))
+                expect(lines()).not.toContain(0)
+                expect(screen.getByText('Field 252')).toBeInTheDocument()
+                expect(screen.getByTestId('list-lines-before')).toBeInTheDocument()
+            })
+
+            it('draws every line where the list has no layout to measure', () => {
+                laidOut(0)
+                renderTable({ columns: tall, columnsInSight: true, transposed: true })
+
+                expect(lines()).toHaveLength(300)
+                expect(screen.queryByTestId('list-lines-after')).not.toBeInTheDocument()
+            })
+        })
     })
 
     // A test table comparing 2559 values drew 51 000 cells for 20 cases and took the browser down. See EPBDS-17091.

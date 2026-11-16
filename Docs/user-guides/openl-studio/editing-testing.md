@@ -297,10 +297,21 @@ the table does not have starts nothing: the panel says which case it is.
 The results window lists every test table that ran, with the number of cases it holds and, in red, how many of
 them failed. The name of a table is green when every case of it passed and red when one did not, and it opens
 that test table in the editor. A test table of a project the tested project depends on opens in that project.
-Every case is a row of that table: its id, a column for each value it was given,
+For a test table written the usual way round, every case is a row: its id, a column for each value it was given,
 and a column for each value the test compares. A tick or a cross stands next to the case and next to every
 value that was compared, and a case that failed says how many of its comparisons did not match and shows the
 value that was expected under the value that came out.
+
+The results are laid out the way the test table is written. A test table written transposed, with its cases across
+the columns and its parameters down the rows, shows its results the same way: a case to a column, headed by its id,
+and a line for each value it was given and each value it compares. Long results scroll inside the table, the ids
+of the cases and the names of the lines staying in view. **Transpose** next to the name of a table turns its results
+the other way round, and a second click turns them back. It changes only what the window shows: the workbook stays
+as it is, and the table stays turned while the options below change what the window lists.
+
+![Results of a test table written transposed, a case to a column](images/test-results-transposed.png "Test results laid out as the test table")
+
+*Results of a test table written transposed*
 
 Test, Run and Benchmark show their results in one separate browser window, the results window, which can be resized
 or moved beside the editor or to another monitor. It opens at the click on **Test**, **Run** or **Benchmark**, says
