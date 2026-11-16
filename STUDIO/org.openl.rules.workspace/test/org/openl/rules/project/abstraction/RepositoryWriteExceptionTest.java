@@ -2,6 +2,7 @@ package org.openl.rules.project.abstraction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -20,7 +22,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.file.FileSystemRepository;
 
 /**
- * What a project tells about a repository that cannot store what the project writes into it.
+ * What a project tells about a repository that cannot store what the project writes into it or its deletion.
  *
  * @author Yury Molchan
  */
@@ -78,6 +80,22 @@ class RepositoryWriteExceptionTest {
         var refused = assertThrows(RepositoryWriteException.class, () -> design.update(local, null));
 
         assertEquals("Design", refused.getRepositoryName());
+    }
+
+    @Test
+    void namesTheRepositoryThatRefusesADeletion() {
+        var design = designProject(new FileSystemRepository() {
+            @Override
+            public boolean delete(FileData data) throws IOException {
+                throw new IOException("The Git server refused the changes.");
+            }
+        });
+
+        var refused = assertThrows(RepositoryWriteException.class,
+                () -> design.delete(mock(CommonUser.class), "Remove the project"));
+
+        assertEquals("Design", refused.getRepositoryName());
+        assertEquals("The Git server refused the changes.", refused.getMessage());
     }
 
     private AProject designProject(FileSystemRepository repository) {

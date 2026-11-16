@@ -54,9 +54,9 @@ To add a repository, proceed as follows:
 
     OpenL Studio checks the settings of a remote Git repository before it saves them: the Git server must let the
     user write to the repository, not only read it. A wrong password or a user who may only read is reported, even
-    for a repository anyone may read. When the Git server refuses a change later, such as a project created or saved
-    by a user who lost the access, the message tells the reason the server gave, and that the branch was changed on
-    the server meanwhile when another OpenL Studio pushed first.
+    for a repository anyone may read. When the Git server refuses a change later, such as a project created, saved
+    or deleted by a user who lost the access, the message tells the reason the server gave, and that the branch was
+    changed on the server meanwhile when another OpenL Studio pushed first.
 
 To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
 

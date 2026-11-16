@@ -1111,20 +1111,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 throw new ConflictException("project.save.changed.outside.message", String.join(", ", files));
             }
             if (e instanceof RepositoryWriteException failed) {
-                throw repositoryFailed(project, failed);
+                log.error("Failed to save the '{}' project.", project.getBusinessName(), failed);
+                throw repositoryFailed("project.save.repository.failed.message", failed);
             }
             throw e;
         }
     }
 
     /**
-     * The answer to a save the design repository could not store: a database or a remote that cannot be reached, a
-     * folder that cannot be written. It names the repository and what it answered, rather than that the save failed.
+     * The answer to a save or a deletion the design repository could not store: a database or a remote that cannot be
+     * reached, a folder that cannot be written, a Git server that refuses the push. It names the repository and what
+     * it answered, rather than that the action failed.
      */
-    private static ConflictException repositoryFailed(RulesProject project, RepositoryWriteException e) {
-        log.error("Failed to save the '{}' project.", project.getBusinessName(), e);
+    private static ConflictException repositoryFailed(String message, RepositoryWriteException e) {
         var cause = ExceptionUtils.getRootCause(e);
-        return new ConflictException("project.save.repository.failed.message",
+        return new ConflictException(message,
                 e.getRepositoryName(),
                 Objects.requireNonNullElse(cause.getMessage(), cause.getClass().getSimpleName()));
     }
@@ -1198,6 +1199,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         closeProjectForAllUsers(project);
         try {
             deleteAuthorizedProject(project, normalizedComment);
+        } catch (RepositoryWriteException e) {
+            log.error("Failed to delete the '{}' project.", project.getBusinessName(), e);
+            throw repositoryFailed("project.delete.repository.failed.message", e);
         } catch (ProjectException e) {
             log.warn("Failed to delete project '{}'", project.getBusinessName(), e);
             throw new ConflictException("project.delete.message");

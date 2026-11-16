@@ -1000,6 +1000,39 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void delete_project_names_the_repository_that_refused_the_deletion() throws Exception {
+        var reason = "The Git server refused the changes. It does not let the user 'reader' write to the repository.";
+
+        var refused = failedDeletion(new RepositoryWriteException(repository(), new IOException(reason)));
+
+        assertEquals("openl.error.409.project.delete.repository.failed.message", refused.getErrorCode());
+        assertArrayEquals(new Object[]{"Design", reason}, refused.getArgs());
+    }
+
+    @Test
+    void delete_project_keeps_the_general_message_for_a_failure_of_the_workspace() throws Exception {
+        var refused = failedDeletion(new ProjectException("Not possible to read the directory"));
+
+        assertEquals("openl.error.409.project.delete.message", refused.getErrorCode());
+    }
+
+    /** Deletes a project the user may delete, whose deletion fails, and answers what the service tells about it. */
+    private ConflictException failedDeletion(ProjectException failure) throws Exception {
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                userWorkspaceWithNonDirectoryParent(), projectStateValidator, webStudio, aclProjectsHelper);
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        doThrow(failure).when(project).delete(any());
+        return assertThrows(ConflictException.class, () -> service.delete(project, null));
+    }
+
+    @Test
     void delete_project_names_in_the_audit_log_the_folder_the_project_had() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var aclProjectsHelper = mock(AclProjectsHelper.class);

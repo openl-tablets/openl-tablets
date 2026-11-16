@@ -966,6 +966,9 @@ To delete a project, proceed as follows:
 
 *Deleting a project*
 
+When Design repository refuses the deletion, such as a Git server that does not let the user write to the repository,
+the project stays in Design repository, and the message names the repository and the reason it gave.
+
 ### Deploying a Project
 
 OpenL Studio allows deploying a project directly to a deployment repository.

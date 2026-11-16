@@ -286,7 +286,7 @@ public class AProject extends AProjectFolder implements IProject {
         try {
             getRepository().delete(data);
         } catch (IOException e) {
-            throw new ProjectException(e.getMessage(), e);
+            throw new RepositoryWriteException(getRepository(), e);
         }
         setFileData(null);
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
