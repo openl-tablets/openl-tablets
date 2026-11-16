@@ -404,6 +404,85 @@ describe('ProjectsTree', () => {
         expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
     })
 
+    it('opens on a project again after the screen showed one the search hides', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        const shown = {
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onRefresh: vi.fn(),
+            onShowAll: vi.fn(),
+            projects,
+            repositories,
+            search: 'alpha',
+        }
+        Object.assign(room, { height: 300, width: 200 })
+        const { rerender } = await renderTree({ ...shown, currentProjectId: 'p1' })
+        await nextFrame()
+        expect(treeScrollTo).toHaveBeenCalledTimes(1)
+
+        // The reader steps to a project the search hides, and back: the tree brings the first one into sight again.
+        rerender(<ProjectsTree {...shown} currentProjectId="p2" />)
+        rerender(<ProjectsTree {...shown} currentProjectId="p1" />)
+        await nextFrame()
+
+        expect(treeScrollTo).toHaveBeenCalledTimes(2)
+        expect(treeScrollTo).toHaveBeenLastCalledWith({ key: expect.stringMatching(/\/prj:p1$/), align: 'auto' })
+    })
+
+    it('opens on a file the search hides once the search shows it', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        Object.assign(room, { height: 300, width: 200 })
+        const shown = {
+            currentProjectId: 'p1',
+            filters: picks(),
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onRefresh: vi.fn(),
+            onShowAll: vi.fn(),
+            projects,
+            repositories,
+        }
+        const settle = async () => {
+            await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+            await nextFrame()
+        }
+        const { rerender } = await renderTree({ ...shown, currentFile: 'rules.xml' })
+        await settle()
+
+        // The reader searches for that file and is led to another one, which the search hides.
+        rerender(<ProjectsTree {...shown} currentFile="rules.xml" search="rules.xml" />)
+        treeScrollTo.mockClear()
+        rerender(<ProjectsTree {...shown} currentFile="rules/Main.xlsx" search="rules.xml" />)
+        await settle()
+        expect(screen.queryByTestId('tree-file-p1-rules/Main.xlsx')).not.toBeInTheDocument()
+        expect(treeScrollTo).not.toHaveBeenCalled()
+
+        rerender(<ProjectsTree {...shown} currentFile="rules/Main.xlsx" search="" />)
+        await settle()
+
+        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'true')
+        expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
+    })
+
+    it('opens on the file again once the projects are grouped otherwise', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        Object.assign(room, { height: 300, width: 200 })
+        await renderTree({ currentProjectId: 'p1', currentFile: 'rules/Main.xlsx' })
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await nextFrame()
+        treeScrollTo.mockClear()
+
+        const { onApply } = groupModalMock.mock.lastCall?.[0] as { onApply: (levels: string[]) => void }
+        act(() => onApply(['[Repository]', '', '']))
+        await nextFrame()
+
+        expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toBeInTheDocument()
+        expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
+    })
+
     it('reads the files again when a refresh drops their first read, and still opens on the file', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         const first = deferredFiles()
@@ -1134,6 +1213,11 @@ describe('ProjectsTree', () => {
         await nextFrame()
         expect(treeScrollTo).toHaveBeenCalledTimes(1)
         expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
+
+        // A tab of the project takes the place of the file: the tree shows the project again.
+        rerender(<ProjectsTree {...shown} currentProjectId="p1" />)
+        await nextFrame()
+        expect(treeScrollTo).toHaveBeenLastCalledWith({ key: expect.stringMatching(/\/prj:p1$/), align: 'auto' })
     })
 
     it('marks a repository group with the icon of its kind, and a tag group with a tag', async () => {
