@@ -1,11 +1,13 @@
 package org.openl.studio.projects.service.tables;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
@@ -60,6 +62,10 @@ import org.openl.util.RuntimeExceptionWrapper;
 @Service
 @RequiredArgsConstructor
 public class TableCopyServiceImpl implements TableCopyService {
+
+    /** The tables of definitions, headed by their keyword and an optional name. */
+    private static final Set<XlsNodeTypes> DEFINITIONS = EnumSet.of(XlsNodeTypes.XLS_CONDITIONS,
+            XlsNodeTypes.XLS_ACTIONS, XlsNodeTypes.XLS_RETURNS, XlsNodeTypes.XLS_CONSTANTS);
 
     private final SystemPropertiesService systemPropertiesService;
     private final TableVersionService versionService;
@@ -262,8 +268,7 @@ public class TableCopyServiceImpl implements TableCopyService {
         var bodyStartRow = 0;
 
         if (type != XlsNodeTypes.XLS_ENVIRONMENT) {
-            header = rename(node.getHeaderLineValue().getValue(), source.getName(), newName,
-                    type == XlsNodeTypes.XLS_OTHER);
+            header = rename(node, source.getName(), newName);
             var headerCell = original.getCell(0, 0);
             headerStyle = headerCell.getStyle();
             // A header merged over several rows is written as one row: none of its rows belongs to the body.
@@ -390,13 +395,20 @@ public class TableCopyServiceImpl implements TableCopyService {
     /**
      * The header of the copy, named after it.
      * <p>
-     * A free-form table's header is its name, so it is replaced wholesale. Every other header opens with an OpenL
-     * keyword and carries the name after it; that occurrence of the name is swapped, leaving the keyword in place.
+     * A free-form table's header is its name, so it is replaced wholesale. A table of definitions (Conditions, Actions,
+     * Returns or Constants) is headed by its keyword and an optional name, which its module does not report, so the
+     * name after the keyword is replaced or added. Every other header opens with an OpenL keyword and carries the name
+     * after it; that occurrence of the name is swapped, leaving the keyword in place.
      */
-    private static String rename(String header, String sourceName, String copyName, boolean freeForm) {
-        if (freeForm) {
+    private static String rename(TableSyntaxNode node, String sourceName, String copyName) {
+        var type = node.getNodeType();
+        if (type == XlsNodeTypes.XLS_OTHER) {
             return copyName;
         }
+        if (DEFINITIONS.contains(type)) {
+            return node.getHeader().getHeaderToken().getIdentifier() + ' ' + copyName;
+        }
+        var header = node.getHeaderLineValue().getValue();
         // The name, bounded by a start or a space before it and a space, an opening parenthesis or the end after it.
         var matcher = Pattern.compile("(^|\\s)(" + Pattern.quote(sourceName) + ")(?=\\s|\\(|$)").matcher(header);
         var start = -1;

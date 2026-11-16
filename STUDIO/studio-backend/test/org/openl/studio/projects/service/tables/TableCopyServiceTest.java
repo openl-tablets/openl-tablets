@@ -362,6 +362,30 @@ class TableCopyServiceTest {
                 () -> service.copyInto(table, "BankLimitIndex", properties, destGrid, moduleTables, null));
     }
 
+    /**
+     * A definitions table is headed by its keyword and an optional name, which its module does not know by the name it
+     * is declared under, so the copy is renamed through the header itself.
+     */
+    @ParameterizedTest
+    @CsvSource({"Conditions MyConditions", "Actions MyActions", "Returns MyReturns", "Constants MyConstants",
+            "Conditions", "Actions", "Returns", "Constants"})
+    void aDefinitionsTableIsCopiedUnderTheNewName(String header, @TempDir Path projectDir) throws Exception {
+        var keyword = header.split(" ")[0];
+        var model = TableTestProjects.projectModel(projectDir, "Rules", sheet -> {
+            TableTestProjects.row(sheet, 0, 0, header);
+            TableTestProjects.row(sheet, 1, 0, "Integer", "MAX", "65");
+        });
+        var source = TableTestProjects.tableHeaded(model, header);
+        var destGrid = creator.sheetGridModel(model, "Copies");
+
+        service.copyInto(source, "Copied", null, destGrid, model.getTableSyntaxNodes(), null);
+
+        var expected = keyword + " Copied";
+        var copy = resolve(projectDir, expected).table();
+        assertEquals(expected, String.valueOf(copy.getGridTable().getCell(0, 0).getStringValue()),
+                "the header keeps the keyword and takes the new name");
+    }
+
     /** Cells match on everything but their address: value, spans, covered flag and style. */
     private static void assertSameCell(RawTableCell expected, RawTableCell actual, int row, int column) {
         var at = " at " + row + "," + column;
