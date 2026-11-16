@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.ClientAnchor;
@@ -156,5 +157,17 @@ class GridToolTest {
                 styles.getBorderAt((int) xf.getBorderId()).getCTBorder().xmlText(),
                 xf.isSetAlignment() ? xf.getAlignment().xmlText() : "",
                 comment == null ? "" : comment.getAuthor() + ": " + comment.getString().getString());
+    }
+
+    @Test
+    void theRowsOutsideABlockAreTheRowsAboveAndUnderIt() {
+        var table = new GridRegion(10, 2, 15, 5);
+        // a header row, two properties rows, three rows of the body
+        assertEquals(List.of(new GridRegion(10, 2, 10, 5), new GridRegion(13, 2, 15, 5)),
+                GridTool.outsideRows(table, 1, 2));
+        // no block: the whole table
+        assertEquals(List.of(table), GridTool.outsideRows(table, 0, 0));
+        // a block at the bottom leaves the rows above it only
+        assertEquals(List.of(new GridRegion(10, 2, 13, 5)), GridTool.outsideRows(table, 4, 2));
     }
 }

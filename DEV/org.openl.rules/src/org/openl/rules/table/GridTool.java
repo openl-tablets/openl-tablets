@@ -116,6 +116,30 @@ public final class GridTool {
         return GridRegionUtils.height(region) > numberOfRowsOrColumns && GridRegionUtils.contains(region, region.getLeft(), regionOfTable.getTop() + firstRowOrColumn);
     }
 
+    /**
+     * The parts of a table region outside a block of its rows: the rows above the block and the rows under it. A
+     * column inserted or removed moves the cells of these parts only, so the block, such as the properties of the
+     * table, keeps its cells where they are.
+     *
+     * @param keptFrom  the first row of the block, counted from the first row of the table
+     * @param keptCount how many rows the block has; 0 for no block, which leaves the whole region
+     */
+    public static List<IGridRegion> outsideRows(IGridRegion region, int keptFrom, int keptCount) {
+        if (keptCount <= 0) {
+            return List.of(region);
+        }
+        var parts = new ArrayList<IGridRegion>(2);
+        var keptTop = region.getTop() + keptFrom;
+        var keptBottom = keptTop + keptCount - 1;
+        if (keptTop > region.getTop()) {
+            parts.add(new GridRegion(region.getTop(), region.getLeft(), keptTop - 1, region.getRight()));
+        }
+        if (keptBottom < region.getBottom()) {
+            parts.add(new GridRegion(keptBottom + 1, region.getLeft(), region.getBottom(), region.getRight()));
+        }
+        return parts;
+    }
+
     public static IUndoableGridTableAction insertColumns(int nCols,
                                                          int beforeColumns,
                                                          IGridRegion region,

@@ -492,6 +492,10 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     keeps the corner OpenL finds the table by. The header row itself cannot be removed, since a table that
     starts on a line OpenL reads as no header is a table nobody can find again.
 
+    The rows of the table properties keep their cells where they are when a column is inserted or removed, so each
+    property keeps its name and its value, and **Update table properties** on editing updates them in place. A
+    column is not removed when the table would become narrower than its properties.
+
     A table too large to draw at once opens on its first 250 rows, with **Show more rows** under it for the rest.
     A merged cell is never split between two of those readings: the first reading runs on to the end of a
     group it would otherwise have cut, so the group is one cell on screen and every action on it — taking its

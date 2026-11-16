@@ -115,6 +115,80 @@ class RawTableWriterTest {
     }
 
     @Test
+    void insertsAndRemovesAColumnLeavingThePropertiesWhereTheyAre() {
+        stampedApply("admin", updateCell(2, 2, "alpha"));
+        // header, properties | modifiedBy | admin, then the three fields
+
+        stampedApply("bob", insertColumn(1, row("", "", "x", "y", "z")));
+
+        var inserted = reload(mainProject);
+        assertEquals("properties", value(inserted, 1, 0));
+        assertEquals("modifiedBy", value(inserted, 1, 1));
+        assertEquals("bob", value(inserted, 1, 2));
+        assertEquals("x", value(inserted, 2, 1));
+        assertEquals("code", value(inserted, 2, 2));
+        assertEquals("String", value(inserted, 3, 0));
+
+        stampedApply("carol", deleteColumn(1));
+
+        var removed = reload(mainProject);
+        assertEquals(5, removed.size(), "no property row is added");
+        assertEquals("properties", value(removed, 1, 0));
+        assertEquals("modifiedBy", value(removed, 1, 1));
+        assertEquals("carol", value(removed, 1, 2));
+        assertEquals("code", value(removed, 2, 1));
+        assertEquals("alpha", value(removed, 2, 2));
+    }
+
+    @Test
+    void refusesToRemoveAColumnThePropertiesTake() {
+        stampedApply("admin", updateCell(2, 2, "alpha"));
+
+        // the properties take three columns, the whole width of the table
+        var writer = new RawTableWriter(load(mainProject));
+        var removal = deleteColumn(2);
+        var error = assertThrows(BadRequestException.class, () -> writer.apply(removal));
+        assertEquals("openl.error.400.table.remove.column.properties.message", error.getErrorCode());
+    }
+
+    @Test
+    void insertsAColumnLeavingThePropertiesWhereARowInsertedBeforeMovedThem() {
+        stampedApply("admin", updateCell(2, 2, "alpha"));
+
+        // the row goes above the properties, and the column among the columns they are written in
+        apply(List.of(insertRow(1, row("String", "added", "beta")), insertColumn(1, row("", "w", "", "x", "y", "z"))));
+
+        var source = reload(mainProject);
+        assertEquals("w", value(source, 1, 1));
+        assertEquals("added", value(source, 1, 2));
+        assertEquals("properties", value(source, 2, 0));
+        assertEquals("modifiedBy", value(source, 2, 1));
+        assertEquals("admin", value(source, 2, 2));
+        assertEquals("x", value(source, 3, 1));
+        assertEquals("code", value(source, 3, 2));
+    }
+
+    @Test
+    void movesThePropertyRowsAlongTheRowsInsertedAndRemoved() {
+        var rows = new TableWriter.PropertyRows(1, 2, 3);
+        assertEquals(new TableWriter.PropertyRows(3, 2, 3), rows.rowsInserted(1, 2));
+        assertEquals(new TableWriter.PropertyRows(1, 3, 3), rows.rowsInserted(2, 1));
+        assertEquals(rows, rows.rowsInserted(3, 1));
+        assertEquals(new TableWriter.PropertyRows(0, 2, 3), rows.rowsRemoved(0, 1));
+        assertEquals(new TableWriter.PropertyRows(1, 1, 3), rows.rowsRemoved(2, 2));
+        assertEquals(rows, rows.rowsRemoved(3, 1));
+        assertEquals(TableWriter.PropertyRows.NONE, rows.rowsRemoved(0, 5));
+        assertEquals(TableWriter.PropertyRows.NONE, TableWriter.PropertyRows.NONE.rowsInserted(0, 1));
+    }
+
+    /** Applies an action to the table as an installation recording who edited it does. */
+    private void stampedApply(String author, RawTableSourceAction action) {
+        var writer = new RawTableWriter(load(mainProject));
+        writer.stampEditWith(Map.of("modifiedBy", author));
+        writer.apply(action);
+    }
+
+    @Test
     void writesNoteOfAnEditWhereTheInstallationRecordsNothing() {
         apply(appendRow(row("double", "rate", "delta")));
 

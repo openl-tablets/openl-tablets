@@ -430,7 +430,19 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             insertBlankColumns(developerView, position + i);
         }
         linesInserted(false, position, columns.size());
-        writeLines(developerView, columns, position, false, GridRegionUtils.width(developerView.getRegion()), height);
+        // the properties rows take no cell of the new columns: their cells stay where they are
+        var properties = propertyRows().keptAt(position);
+        var written = columns.stream().map(column -> withoutRows(column, properties)).toList();
+        writeLines(developerView, written, position, false, GridRegionUtils.width(developerView.getRegion()), height);
+    }
+
+    /** The cells of a column with nothing written into the rows of the properties. */
+    private static List<RawCellInput> withoutRows(List<RawCellInput> column, PropertyRows properties) {
+        var cells = new ArrayList<>(column);
+        for (var row = properties.from(); row < properties.from() + properties.count() && row < cells.size(); row++) {
+            cells.set(row, null);
+        }
+        return cells;
     }
 
     private void appendRows(List<List<RawCellInput>> rows) {
@@ -461,7 +473,14 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
-        requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()) - count);
+        var width = GridRegionUtils.width(developerView.getRegion());
+        requirePosition(position, 0, width - count);
+        // a property written past the right edge of the table would no longer be read
+        var properties = propertyRows();
+        if (position < properties.width() && width - count < properties.width()) {
+            throw new BadRequestException("table.remove.column.properties.message",
+                    new Object[]{properties.width()});
+        }
         removeColumns(developerView, count, position);
     }
 
@@ -886,7 +905,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void insertBlankColumns(IGridTable developerView, int beforeColumn) {
-        run(developerView, new UndoableInsertColumnsAction(1, beforeColumn, getMetaInfoWriter(), getOtherTables()));
+        // the properties keep their names and values where they are
+        var properties = propertyRows().keptAt(beforeColumn);
+        run(developerView, new UndoableInsertColumnsAction(1, beforeColumn, properties.from(), properties.count(),
+                getMetaInfoWriter(), getOtherTables()));
     }
 
     private void writeRow(IGridTable developerView, int row, List<RawCellInput> cells, boolean skipCovered) {
