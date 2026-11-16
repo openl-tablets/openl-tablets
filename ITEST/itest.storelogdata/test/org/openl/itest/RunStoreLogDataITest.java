@@ -3,6 +3,7 @@ package org.openl.itest;
 import static org.awaitility.Awaitility.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,7 +45,9 @@ import org.openl.itest.common.ExpectedLogValues;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.db.DBFields;
+import org.openl.itest.db.HelloEntity10;
 import org.openl.itest.db.HelloEntity9;
+import org.openl.itest.serviceclass.RejectingBeforeInterceptor;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
@@ -154,6 +157,22 @@ class RunStoreLogDataITest {
         client.send("simple4_Hello3.post");
         client.send("simple4_Hello3.post.gzip");
         client.send("simple4_Hello3_fail.post");
+    }
+
+    @Test
+    void testStoreLogDataWhenBeforeInterceptorFails() throws Exception {
+        var table = getDBTableName(HelloEntity10.class);
+        truncateH2TableIfExists(table);
+
+        client.send("EPBDS-14242_simple4_test_rejected_by_before_interceptor");
+
+        try (var stmt = h2Connection.createStatement()) {
+            var rs = stmt.executeQuery("SELECT * FROM " + table);
+            assertTrue(rs.next(), "The log record of the rejected call is not saved.");
+            assertEquals(5, rs.getInt(DBFields.HOUR));
+            assertEquals(RejectingBeforeInterceptor.MESSAGE, rs.getString(DBFields.ERROR_MESSAGE));
+            assertFalse(rs.next());
+        }
     }
 
     @Test

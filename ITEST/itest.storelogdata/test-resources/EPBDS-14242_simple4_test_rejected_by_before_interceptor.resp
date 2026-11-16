@@ -1,0 +1,7 @@
+HTTP/1.1 422
+Content-Type: application/json
+
+{
+  "message": "The input is rejected by the before interceptor.",
+  "type": "USER_ERROR"
+}

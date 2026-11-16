@@ -10,19 +10,27 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -37,7 +45,9 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -260,6 +270,122 @@ class ServiceInterfaceMethodInterceptingTest {
         }
     }
 
+    public static class RejectingBefore implements ServiceMethodBeforeAdvice {
+        static final String MESSAGE = "Rejected before the call.";
+
+        @Override
+        public void before(Method interfaceMethod, Object proxy, Object... args) {
+            throw new OpenLUserRuntimeException(MESSAGE);
+        }
+    }
+
+    public static class FailingHandler implements ServiceExtraMethodHandler<Double> {
+        static final String MESSAGE = "Failed in the call.";
+
+        @Override
+        public Double invoke(Method interfaceMethod, Object serviceBean, Object... args) {
+            throw new OpenLUserRuntimeException(MESSAGE);
+        }
+    }
+
+    public static class FailingAfter extends AbstractServiceMethodAfterReturningAdvice<Double> {
+        static final String MESSAGE = "Failed after the call.";
+
+        @Override
+        public Double afterReturning(Method interfaceMethod, Object result, Object... args) {
+            throw new OpenLUserRuntimeException(MESSAGE);
+        }
+    }
+
+    public interface FailingCallInterface {
+        @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
+        @ServiceCallBeforeInterceptor(RejectingBefore.class)
+        @ServiceCallAfterInterceptor(ResultConverter.class)
+        Double rejected(String driverRisk);
+
+        @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
+        @ServiceCallBeforeInterceptor(RejectingBefore.class)
+        @ServiceCallAroundInterceptor(ExtraMethodAroundInterceptor.class)
+        Double rejectedAround(String driverRisk);
+
+        @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
+        @ServiceCallAfterInterceptor({FailingAfter.class, ResultConverter.class})
+        Double failedAfter(String driverRisk);
+
+        @ServiceExtraMethod(FailingHandler.class)
+        Double failedCall(String driverRisk);
+
+        @ServiceCallBeforeInterceptor(RejectingBefore.class)
+        Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext,
+                                           String driverRisk,
+                                           @ExternalParam String note);
+    }
+
+    /**
+     * Records what the listeners learn of a call: the step and the message of its exception. It fails on the first
+     * event that starts with the given text, after recording it.
+     */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    static class RecordingListener implements ServiceInvocationAdviceListener {
+        final List<String> events = new ArrayList<>();
+        List<@Nullable Object> argsAfterMethod = List.of();
+        private final @Nullable String failOn;
+
+        RecordingListener() {
+            this(null);
+        }
+
+        private void recordEvent(String event) {
+            events.add(event);
+            if (failOn != null && event.startsWith(failOn)) {
+                throw new IllegalStateException("The listener fails.");
+            }
+        }
+
+        @Override
+        public void beforeMethodInvocation(Method interfaceMethod,
+                                           Object[] args,
+                                           @Nullable Object result,
+                                           @Nullable Exception ex,
+                                           Instantiator postProcessAdvice) {
+            recordEvent("before method: " + messageOf(ex));
+        }
+
+        @Override
+        public void afterMethodInvocation(Method interfaceMethod,
+                                          Object[] args,
+                                          @Nullable Object result,
+                                          @Nullable Exception ex,
+                                          Instantiator postProcessAdvice) {
+            argsAfterMethod = Arrays.asList(args);
+            recordEvent("after method: " + messageOf(ex));
+        }
+
+        @Override
+        public void beforeServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
+                                              Method interfaceMethod,
+                                              Object[] args,
+                                              @Nullable Object result,
+                                              @Nullable Exception ex,
+                                              Instantiator postProcessAdvice) {
+            recordEvent("before " + serviceMethodAdvice.getClass().getSimpleName() + ": " + messageOf(ex));
+        }
+
+        @Override
+        public void afterServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
+                                             Method interfaceMethod,
+                                             Object[] args,
+                                             @Nullable Object result,
+                                             @Nullable Exception ex,
+                                             Instantiator postProcessAdvice) {
+            recordEvent("after " + serviceMethodAdvice.getClass().getSimpleName() + ": " + messageOf(ex));
+        }
+
+        private static @Nullable String messageOf(@Nullable Exception ex) {
+            return ex == null ? null : ex.getMessage();
+        }
+    }
+
     public static class LoadClassServiceExtraMethodHandler implements ServiceExtraMethodHandler<Object> {
         @Override
         public Object invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
@@ -423,6 +549,122 @@ class ServiceInterfaceMethodInterceptingTest {
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
 
         assertEquals(16, instance.aroundExtraMethod("High Risk Driver"), 0.1);
+    }
+
+    @Test
+    void listenersAfterRejectedRuleGetItsArgumentsWithoutExternalOnes() throws Exception {
+        var listener = new RecordingListener();
+        var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+
+        callFailing((instance, risk) -> instance.driverRiskScoreOverloadTest(context, risk, "a note"),
+                RejectingBefore.MESSAGE,
+                listener);
+
+        assertEquals(List.of(context, "High Risk Driver"), listener.argsAfterMethod);
+    }
+
+    @Test
+    void listenersOfMethodLearnTheRejectionOfBeforeInterceptor() throws Exception {
+        var events = callFailing(FailingCallInterface::rejected, RejectingBefore.MESSAGE, new RecordingListener());
+
+        assertEquals(List.of("before RejectingBefore: null",
+                "after RejectingBefore: " + RejectingBefore.MESSAGE,
+                "before method: " + RejectingBefore.MESSAGE,
+                "after method: " + RejectingBefore.MESSAGE), events);
+    }
+
+    @Test
+    void listenersOfAroundInterceptorLearnTheRejectionOfBeforeInterceptor() throws Exception {
+        var events = callFailing(FailingCallInterface::rejectedAround,
+                RejectingBefore.MESSAGE,
+                new RecordingListener());
+
+        assertEquals(List.of("before RejectingBefore: null",
+                "after RejectingBefore: " + RejectingBefore.MESSAGE,
+                "before ExtraMethodAroundInterceptor: " + RejectingBefore.MESSAGE,
+                "after ExtraMethodAroundInterceptor: " + RejectingBefore.MESSAGE), events);
+    }
+
+    @Test
+    void listenersOfAfterInterceptorLearnItsFailure() throws Exception {
+        var events = callFailing(FailingCallInterface::failedAfter, FailingAfter.MESSAGE, new RecordingListener());
+
+        assertEquals(List.of("before method: null",
+                "after method: null",
+                "before FailingAfter: null",
+                "after FailingAfter: " + FailingAfter.MESSAGE), events);
+    }
+
+    @Test
+    void failedListenerKeepsTheRejectionOfBeforeInterceptor() throws Exception {
+        var events = callFailing(FailingCallInterface::rejected,
+                RejectingBefore.MESSAGE,
+                new RecordingListener("after method"));
+
+        assertEquals("after method: " + RejectingBefore.MESSAGE, events.getLast());
+    }
+
+    @Test
+    void failedListenerKeepsTheFailureOfInterceptor() throws Exception {
+        var rejected = callFailing(FailingCallInterface::rejected,
+                RejectingBefore.MESSAGE,
+                new RecordingListener("after RejectingBefore"));
+        var failedAfter = callFailing(FailingCallInterface::failedAfter,
+                FailingAfter.MESSAGE,
+                new RecordingListener("after FailingAfter"));
+
+        assertEquals(List.of("before RejectingBefore: null",
+                "after RejectingBefore: " + RejectingBefore.MESSAGE,
+                "before method: " + RejectingBefore.MESSAGE,
+                "after method: " + RejectingBefore.MESSAGE), rejected);
+        assertEquals("after FailingAfter: " + FailingAfter.MESSAGE, failedAfter.getLast());
+    }
+
+    @Test
+    void failedListenerKeepsTheFailureOfMethodAndTheNextListeners() throws Exception {
+        var next = new RecordingListener();
+        callFailing(FailingCallInterface::failedCall,
+                FailingHandler.MESSAGE,
+                new RecordingListener("after method"),
+                next);
+
+        assertEquals(List.of("before method: null", "after method: " + FailingHandler.MESSAGE), next.events);
+    }
+
+    @Test
+    void failedListenerBeforeRejectedMethodKeepsTheListenersAfterIt() throws Exception {
+        var events = callFailing(FailingCallInterface::rejected,
+                RejectingBefore.MESSAGE,
+                new RecordingListener("before method"));
+
+        assertEquals("after method: " + RejectingBefore.MESSAGE, events.getLast());
+    }
+
+    /**
+     * Calls a method of {@link FailingCallInterface} with the given listeners, checks that the call fails with the
+     * given message, and returns what the first listener learnt of it.
+     */
+    private List<String> callFailing(BiFunction<FailingCallInterface, String, Double> call,
+                                     String message,
+                                     RecordingListener listener,
+                                     RecordingListener... others) throws Exception {
+        var previous = instantiationFactory.getServiceInvocationAdviceListeners();
+        ObjectProvider<Collection<ServiceInvocationAdviceListener>> listeners = mock();
+        var all = new ArrayList<ServiceInvocationAdviceListener>(List.of(listener));
+        all.addAll(List.of(others));
+        when(listeners.getIfAvailable()).thenReturn(all);
+        instantiationFactory.setServiceInvocationAdviceListeners(listeners);
+        try {
+            var service = instantiationFactory.createService(
+                    serviceDescriptionBuilder().setServiceClassName(FailingCallInterface.class.getName()).build());
+            var instance = (FailingCallInterface) service.getServiceBean();
+
+            var error = assertThrows(RuleServiceWrapperException.class, () -> call.apply(instance, "High Risk Driver"));
+            assertEquals(message, error.getMessage());
+            return listener.events;
+        } finally {
+            instantiationFactory.setServiceInvocationAdviceListeners(previous);
+        }
     }
 
     @Test

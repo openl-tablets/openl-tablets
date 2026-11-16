@@ -6,7 +6,9 @@ Upgrading to OpenL Tablets 7.1.0 requires no database changes and no Java versio
 suggests when a project is saved, created, copied or restored are no longer configured per design repository, and the
 **Customize comments** check box is gone: a comment is validated whenever the repository sets a pattern. This affects
 the administrators who configured comments and the clients of the repository settings API. Several fixes of the rules
-engine change how an existing project compiles or runs, as listed for the rules authors.
+engine change how an existing project compiles or runs, as listed for the rules authors. In OpenL Rule Services, the
+store log data advices of a service method also run when an interceptor of the method fails, as listed for the
+developers.
 
 ## Rules Authors
 
@@ -106,6 +108,31 @@ engine change how an existing project compiles or runs, as listed for the rules 
 * **A request that sends no comment gets the suggested one.** Saving, creating, copying or restoring a project
   through the REST API without a comment commits the comment of the table above, as before with the default
   templates.
+
+* **The store log data advices run when an interceptor fails.** When a `@ServiceCallBeforeInterceptor` throws an
+  exception, the `@PrepareStoreLogData` advices of the method run as well: the ones bound to the method, or to its
+  `@ServiceCallAroundInterceptor`, and the ones bound to the failed interceptor with `before = false`. These advices
+  get the exception of the interceptor in `ex`, the advices of the method with `before = true` included, and `result`
+  is `null`. The rule and the "after" interceptors are still not invoked, and the client still receives the error of
+  the interceptor. An advice bound to an "after" interceptor whose `afterReturning` throws gets that exception too.
+  Before, none of these advices ran, so a record of `@StoreLogDataToDB(sync = true)` was saved without their values,
+  and a failed save, such as a missing value of a `nullable = false` column, replaced the error of the interceptor
+  with `500`. Check that these advices read `args` and `result` only when `ex` is `null`, or handle the exception. An
+  advice that calls `StoreLogDataHolder.get().ignore()` now also skips the record of a rejected call.
+
+* **An advice that fails on a failed call no longer replaces its error.** Whenever the call fails, by a rejection of
+  a "before" interceptor, an exception of the rule or a failed interceptor, a `@PrepareStoreLogData` advice that
+  throws a runtime exception is logged with `A store log data advice failed on a failed service call.`, the next
+  advices still run, those of the same step included, and the client receives the error of the call. The record misses the values the failed advice did not put.
+  Before, the exception of the advice replaced the error of the call, and the advices after it did not run. On a call
+  that passes, an advice that throws still fails the call, as before.
+
+* **A `ServiceInvocationAdviceListener` learns of a rejected call.** A custom listener gets `beforeMethodInvocation`
+  and `afterMethodInvocation`, or `beforeServiceMethodAdvice` and `afterServiceMethodAdvice` for the around
+  interceptor, for a call that a "before" interceptor rejected, with that exception in `ex`, although neither the
+  method nor the around interceptor runs. A listener that counts invocations or measures their time, for metrics or
+  tracing, checks `ex` to tell such calls apart. A listener that throws a runtime exception while the call fails is
+  logged with `A listener failed on a failed service call.`, and does not change the outcome of the call.
 
 * **The report of a Test table without a name of its own is named after the table it tests.** The `test` goal of
   `openl-maven-plugin` writes the reports of `Test SayHello` in module `Main` as `TEST-OpenL.Main.SayHelloTest`, then
