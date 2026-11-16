@@ -67,6 +67,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.openapi.OpenAPIConfiguration;
@@ -79,6 +80,9 @@ import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
+import org.openl.rules.ruleservice.core.interceptors.RulesType;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
@@ -967,6 +971,9 @@ public class OpenApiProjectValidator {
             context.setTypeValidationInProgress(true);
             context.setResponseValidation(true);
             try {
+                if (isResultTypeNotReturned(openMethod, method)) {
+                    throw new DifferentTypesException();
+                }
                 validateType(context,
                         actualMediaType.getSchema(),
                         expectedMediaType.getSchema(),
@@ -986,6 +993,30 @@ public class OpenApiProjectValidator {
             context.setTypeValidationInProgress(false);
             context.setResponseValidation(false);
         }
+    }
+
+    /**
+     * Whether an annotation template names, with {@link RulesType}, a result type the rule never returns, such as a
+     * datatype for a rule that returns a number. The response is described by the type the template names, so it
+     * matches the expected response, while the rule answers with a value of another type.
+     *
+     * <p>A spreadsheet result is answered as the type the template names, and an interceptor answers with a result of
+     * its own, so neither is such a case.
+     */
+    private static boolean isResultTypeNotReturned(@Nullable IOpenMethod openMethod, Method method) {
+        if (openMethod == null || !method.isAnnotationPresent(RulesType.class)
+                || method.isAnnotationPresent(ServiceCallAfterInterceptor.class)
+                || method.isAnnotationPresent(ServiceCallAroundInterceptor.class)) {
+            return false;
+        }
+        var result = openMethod.getType().getInstanceClass();
+        var declared = method.getReturnType();
+        while (result != null && result.isArray() && declared.isArray()) {
+            result = result.getComponentType();
+            declared = declared.getComponentType();
+        }
+        return result != null && !SpreadsheetResult.class.isAssignableFrom(result)
+                && !ClassUtils.isAssignable(result, declared) && !ClassUtils.isAssignable(declared, result);
     }
 
     @SuppressWarnings("rawtypes")

@@ -1,0 +1,1 @@
+ERROR: OpenAPI Reconciliation: Return type of method 'PlanPOST' for path '/Plan' must be compatible with OpenAPI schema 'Plan'.
