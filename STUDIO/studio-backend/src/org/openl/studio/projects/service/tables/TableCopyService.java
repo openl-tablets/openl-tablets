@@ -8,6 +8,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
 
 /**
@@ -38,6 +39,9 @@ public interface TableCopyService {
      * <p>A new version is refused a number any version of the table already carries, so the engine is never left
      * with two versions it cannot tell apart.
      *
+     * <p>The source is one a copy can be made of: the caller checks it with {@link #requireCopyable(IOpenLTable)}
+     * before writing anything for the copy.
+     *
      * @param source       the table being copied, which stands down when the copy is a new version of it
      * @param newName      the name the copy is given
      * @param properties   the copy's properties, or {@code null} to keep the source's
@@ -50,4 +54,24 @@ public interface TableCopyService {
      */
     String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
             IWritableGrid destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled);
+
+    /**
+     * Refuses a table a copy cannot be made of: a datatype, and the kinds that carry no properties at all.
+     *
+     * <p>A copy is told from the table it was made of by the properties it is given, so a table that can hold none has
+     * nothing to be copied into. The table toolbar of OpenL Studio offers no copy of them either.
+     *
+     * @param source the table asked to be copied
+     * @throws BadRequestException for a Datatype, an Environment, a Properties table or a table of the type Other
+     */
+    static void requireCopyable(IOpenLTable source) {
+        var kind = OpenLTableUtils.kindOf(source);
+        switch (kind) {
+            case DATATYPE, ENVIRONMENT, PROPERTIES, OTHER -> throw new BadRequestException(
+                    "table.copy.kind.not-copyable.message", new Object[]{kind.value()});
+            default -> {
+                // Any other kind can be copied.
+            }
+        }
+    }
 }

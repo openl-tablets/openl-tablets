@@ -386,6 +386,24 @@ class TableCopyServiceTest {
                 "the header keeps the keyword and takes the new name");
     }
 
+    /** A table that carries no properties has nothing a copy could be told from it by, so none is made. */
+    @ParameterizedTest
+    @CsvSource({"Datatype Person, Datatype", "Environment, Environment", "Properties MyScope, Properties",
+            "Notes on the rates, Other"})
+    void aTableThatCarriesNoPropertiesIsNotCopied(String header, String kind, @TempDir Path projectDir)
+            throws Exception {
+        var model = TableTestProjects.projectModel(projectDir, "Rules", sheet -> {
+            TableTestProjects.row(sheet, 0, 0, header);
+            TableTestProjects.row(sheet, 1, 0, "String", "name");
+        });
+        var source = TableTestProjects.tableHeaded(model, header);
+
+        var refused = assertThrows(BadRequestException.class, () -> TableCopyService.requireCopyable(source));
+
+        assertEquals("openl.error.400.table.copy.kind.not-copyable.message", refused.getErrorCode());
+        assertArrayEquals(new Object[]{kind}, refused.getArgs());
+    }
+
     /** Cells match on everything but their address: value, spans, covered flag and style. */
     private static void assertSameCell(RawTableCell expected, RawTableCell actual, int row, int column) {
         var at = " at " + row + "," + column;

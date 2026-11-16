@@ -257,32 +257,24 @@ public class TableCopyServiceImpl implements TableCopyService {
             @Nullable Map<String, Object> declared, IWritableGrid destGrid, CopyLook look,
             @Nullable XlsModuleSyntaxNode module) {
         var node = source.getSyntaxNode();
-        var type = node.getNodeType();
-
         var builder = new TableBuilder(destGrid);
 
-        String header = null;
-        ICellStyle headerStyle = null;
+        var header = rename(node, source.getName(), newName);
+        var headerCell = original.getCell(0, 0);
+        var headerStyle = headerCell.getStyle();
+        // A header merged over several rows is written as one row: none of its rows belongs to the body.
+        var bodyStartRow = headerCell.getHeight();
+        // Replace the source's properties when the request carries them; keep them (copied with the body) otherwise.
         Map<String, Object> newProperties = null;
         ICellStyle propertiesStyle = null;
-        var bodyStartRow = 0;
-
-        if (type != XlsNodeTypes.XLS_ENVIRONMENT) {
-            header = rename(node, source.getName(), newName);
-            var headerCell = original.getCell(0, 0);
-            headerStyle = headerCell.getStyle();
-            // A header merged over several rows is written as one row: none of its rows belongs to the body.
-            bodyStartRow = headerCell.getHeight();
-            // Replace the source's properties when the request carries them; keep them (copied with the body) otherwise.
-            if (declared != null) {
-                newProperties = declared;
-                if (node.hasPropertiesDefinedInTable()) {
-                    var propertiesSection = node.getTableProperties().getPropertiesSection();
-                    propertiesStyle = propertiesSection.getSource().getCell(0, 0).getStyle();
-                    bodyStartRow += propertiesSection.getHeight();
-                } else {
-                    propertiesStyle = headerStyle;
-                }
+        if (declared != null) {
+            newProperties = declared;
+            if (node.hasPropertiesDefinedInTable()) {
+                var propertiesSection = node.getTableProperties().getPropertiesSection();
+                propertiesStyle = propertiesSection.getSource().getCell(0, 0).getStyle();
+                bodyStartRow += propertiesSection.getHeight();
+            } else {
+                propertiesStyle = headerStyle;
             }
         }
 
@@ -294,13 +286,11 @@ public class TableCopyServiceImpl implements TableCopyService {
         var bodyWidth = records.map(written -> Math.max(written.width(), keptWidth)).orElse(original.getWidth());
         int newPropertyRows = newProperties == null ? 0 : newProperties.size();
         var width = tableWidth(bodyWidth, newPropertyRows > 0);
-        var height = (header != null ? TableBuilder.HEADER_HEIGHT : 0) + newPropertyRows + keptRows + recordRows;
+        var height = TableBuilder.HEADER_HEIGHT + newPropertyRows + keptRows + recordRows;
 
         try {
             builder.beginTable(width, height);
-            if (header != null) {
-                builder.writeHeader(header, headerStyle);
-            }
+            builder.writeHeader(header, headerStyle);
             if (newPropertyRows > 0) {
                 builder.writeProperties(newProperties, propertiesStyle);
             }
@@ -395,17 +385,13 @@ public class TableCopyServiceImpl implements TableCopyService {
     /**
      * The header of the copy, named after it.
      * <p>
-     * A free-form table's header is its name, so it is replaced wholesale. A table of definitions (Conditions, Actions,
-     * Returns or Constants) is headed by its keyword and an optional name, which its module does not report, so the
-     * name after the keyword is replaced or added. Every other header opens with an OpenL keyword and carries the name
-     * after it; that occurrence of the name is swapped, leaving the keyword in place.
+     * A table of definitions (Conditions, Actions, Returns or Constants) is headed by its keyword and an optional name,
+     * which its module does not report, so the name after the keyword is replaced or added. Every other header opens
+     * with an OpenL keyword and carries the name after it; that occurrence of the name is swapped, leaving the keyword
+     * in place.
      */
     private static String rename(TableSyntaxNode node, String sourceName, String copyName) {
-        var type = node.getNodeType();
-        if (type == XlsNodeTypes.XLS_OTHER) {
-            return copyName;
-        }
-        if (DEFINITIONS.contains(type)) {
+        if (DEFINITIONS.contains(node.getNodeType())) {
             return node.getHeader().getHeaderToken().getIdentifier() + ' ' + copyName;
         }
         var header = node.getHeaderLineValue().getValue();

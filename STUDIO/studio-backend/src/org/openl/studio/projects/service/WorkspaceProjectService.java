@@ -3171,6 +3171,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var source = resolved.table();
         // A copy of the table the compiler built would be a rule nobody wrote.
         GeneratedTables.refuseAction(resolved.module(), source);
+        // Refused before a new module is made for the copy, so nothing is left behind.
+        TableCopyService.requireCopyable(source);
         var requestedSheet = request.sheetName();
         var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
                 ? requestedSheet

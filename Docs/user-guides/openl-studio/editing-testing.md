@@ -150,6 +150,9 @@ property name and value rows, offering the properties applicable to the table's 
 **Info**, **Business Dimension**, **Version** and **Dev** groups — the same names and grouping the **Table Details**
 editor uses. The copy keeps the source table's formatting — its cell styles, merged cells and comments.
 
+Datatype, Environment and Properties tables and tables of the **Other** type cannot be copied: they carry no properties
+to tell a copy from the table it was made of.
+
 To create a variant of a rule that OpenL selects at runtime from the request context, keep the source table's name and
 give the copy a different value for a **Business Dimension** property, such as **US States** or **LOB**. The copy is
 created with its properties already set, so the two same-named tables are told apart from the start.
