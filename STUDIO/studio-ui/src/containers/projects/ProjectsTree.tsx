@@ -32,7 +32,6 @@ import {
     pathToNode,
     searchTree,
     groupingSetting,
-    pathToProject,
     projectRowOf,
     type GroupNode,
     type GroupingLevels,
@@ -201,6 +200,12 @@ const widestRow = (nodes: TreeNodeData[], open: ReadonlySet<string>, depth = 0):
         depth * RAIL_INDENT + node.rowWidth,
         node.children && open.has(node.key) ? widestRow(node.children, open, depth + 1) : 0
     ), 0)
+
+/** The open rows with the keys added; the same list when they are all open already, so nothing is drawn again. */
+const openAlso = (open: string[], keys: string[]): string[] => {
+    const added = keys.filter(key => !open.includes(key))
+    return added.length === 0 ? open : [...open, ...new Set(added)]
+}
 
 /** The folders above a path, outermost first: `a/b/c.txt` lies in `a` and `a/b`. */
 const foldersAbove = (path: string): string[] => {
@@ -743,7 +748,7 @@ export const ProjectsTree = ({
         const remembered = selected[0]
         const path = remembered ? pathToNode(grouped, remembered) : null
         if (remembered && path) {
-            setExpanded(previous => [...new Set([...previous, ...path, remembered])])
+            setExpanded(previous => openAlso(previous, [...path, remembered]))
         }
     }, [grouped, projects, restored, selected])
 
@@ -769,6 +774,8 @@ export const ProjectsTree = ({
     // files read, then the folders leading to the file, and the file is picked and brought into sight. After that the
     // user decides what is open. A screen that no longer shows a file has no file picked in the tree either.
     const treeRef = useRef<GetRef<typeof Tree>>(null)
+    // The row to bring into sight: the file or the project the screen shows.
+    const [inSight, setInSight] = useState<string | null>(null)
     const openedOnFile = useRef<string | null>(null)
     useEffect(() => {
         if (!currentProjectId || !currentFile) {
@@ -785,7 +792,7 @@ export const ProjectsTree = ({
         const { path: groups, key: projectKey } = row
         if (!read) {
             // The file is found once the files of the project are read.
-            setExpanded(previous => [...new Set([...previous, ...groups, projectKey])])
+            setExpanded(previous => openAlso(previous, [...groups, projectKey]))
             const project = projects?.find(candidate => candidate.id === currentProjectId)
             if (project) {
                 void loadContents(project)
@@ -794,24 +801,48 @@ export const ProjectsTree = ({
         }
         openedOnFile.current = target
         const folders = foldersAbove(currentFile).map(folder => fileKey(currentProjectId, folder, false))
-        setExpanded(previous => [...new Set([...previous, ...groups, projectKey, ...folders])])
+        setExpanded(previous => openAlso(previous, [...groups, projectKey, ...folders]))
         const fileRow = fileKey(currentProjectId, currentFile, read.paths.includes(currentFile))
         setSelected([fileRow])
-        // The rows of the unfolded folders are drawn by the next render; the row is brought into sight after it.
-        requestAnimationFrame(() => treeRef.current?.scrollTo({ key: fileRow, align: 'auto' }))
+        setInSight(fileRow)
     }, [contents, currentFile, currentProjectId, loadContents, nodes, projects])
 
-    // The tree opens on the project the screen is showing, once — after that the user decides what is open.
+    // The tree opens on the project the screen is showing, once each time it is shown — after that the user decides
+    // what is open. The groups holding it are unfolded and its row is brought into sight, unless the screen shows a
+    // file of it, which the tree opens on instead.
     useEffect(() => {
-        if (!currentProjectId || projects === null || openedOn === currentProjectId) {
+        if (!currentProjectId) {
+            if (openedOn !== null) {
+                setOpenedOn(null)
+            }
             return
         }
-        const path = pathToProject(nodes, currentProjectId)
-        setOpenedOn(currentProjectId)
-        if (path && path.length > 0) {
-            setExpanded(previous => [...new Set([...previous, ...path])])
+        if (projects === null || openedOn === currentProjectId) {
+            return
         }
-    }, [currentProjectId, nodes, openedOn, projects])
+        setOpenedOn(currentProjectId)
+        const row = projectRowOf(nodes, currentProjectId)
+        if (!row) {
+            return
+        }
+        setExpanded(previous => openAlso(previous, row.path))
+        if (!currentFile) {
+            setInSight(row.key)
+        }
+    }, [currentFile, currentProjectId, nodes, openedOn, projects])
+
+    // A row is brought into sight once the tree is laid out — a tree just shown is measured first — and the rows of the
+    // groups and folders unfolded to reach it are drawn.
+    useEffect(() => {
+        if (!inSight || room.height === 0) {
+            return undefined
+        }
+        const frame = requestAnimationFrame(() => {
+            treeRef.current?.scrollTo({ key: inSight, align: 'auto' })
+            setInSight(null)
+        })
+        return () => cancelAnimationFrame(frame)
+    }, [inSight, room.height])
 
     // What the rows are drawn in: the theme, told by its name, appearance and density — antd-style hands out new styles
     // and a new token on every render — and the language the sizes are written in.

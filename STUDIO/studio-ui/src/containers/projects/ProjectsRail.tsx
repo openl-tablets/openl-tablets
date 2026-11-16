@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { booleanText, oneOf, storedSetting } from '../../utils/localStore'
 import { useDragSize } from '../../components/ResizeHandle'
 import { Button, Segmented, Tooltip } from 'antd'
@@ -144,7 +145,8 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const [mode, pick] = useStoredSetting(railMode)
+    // A link to a project opens the rail on the tree straight away, not on the filters for a moment.
+    const [mode, pick] = useStoredSetting(railMode, currentProjectId ? 'tree' : undefined)
     // Dragging the edge sizes the rail; the width it is left at is where it opens next time.
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', {
         min: MIN_WIDTH,
@@ -152,6 +154,14 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
         fallback: DEFAULT_WIDTH,
     })
     const [collapsed, fold] = useStoredSetting(railCollapsed)
+
+    // A project opened — from the list, the tree or a link — switches the rail to the tree, which opens on it and shows
+    // where it lies. The reader may switch back to the filters while it is shown; the next project switches again.
+    useEffect(() => {
+        if (currentProjectId) {
+            pick('tree')
+        }
+    }, [currentProjectId, pick])
 
     // The handle sits on the header row of whatever the rail shows, beside that panel's own actions.
     const foldHandle = (

@@ -186,10 +186,6 @@ export const projectRowOf = (
 const projectRowAt = (node: GroupNode, projectId: string, path: string[]): { path: string[], key: string } | null =>
     (node.project?.id === projectId ? { path, key: node.key } : null)
 
-/** The keys of every group node holding the project, so the tree can open on it. */
-export const pathToProject = (nodes: GroupNode[], projectId: string): string[] | null =>
-    projectRowOf(nodes, projectId)?.path ?? null
-
 /** The keys of the groups above a node, so a node picked earlier can be shown again. */
 export const pathToNode = (nodes: GroupNode[], key: string, trail: string[] = []): string[] | null => {
     for (const node of nodes) {

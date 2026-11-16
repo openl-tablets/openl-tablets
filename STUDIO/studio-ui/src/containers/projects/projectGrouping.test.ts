@@ -8,7 +8,6 @@ import {
     groupingSetting,
     groupKeys,
     NO_GROUPING,
-    pathToProject,
     projectRowOf,
     searchTree,
     type GroupingLevels,
@@ -139,22 +138,6 @@ describe('group filters', () => {
     })
 })
 
-describe('pathToProject', () => {
-    it('names the groups to open so a project shows', () => {
-        const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY, 'Domain'], repositoryName)
-
-        const path = pathToProject(tree, 'p1')
-
-        expect(path).toHaveLength(2)
-        expect(path?.[0]).toContain('design')
-        expect(path?.[1]).toContain('Policy')
-    })
-
-    it('answers nothing for a project the tree does not hold', () => {
-        expect(pathToProject(buildGroupTree(projects, [], repositoryName), 'nope')).toBeNull()
-    })
-})
-
 describe('projectRowOf', () => {
     it('finds the row of a project and the groups holding it', () => {
         const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY], repositoryName)
@@ -164,6 +147,16 @@ describe('projectRowOf', () => {
         expect(row?.path).toEqual([tree[0]?.key])
         expect(row?.key).toBe(tree[0]?.children.find(node => node.project?.id === 'p1')?.key)
         expect(projectRowOf(tree, 'nope')).toBeNull()
+    })
+
+    it('names every group on the way to a project nested in several', () => {
+        const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY, 'Domain'], repositoryName)
+
+        const path = projectRowOf(tree, 'p1')?.path
+
+        expect(path).toHaveLength(2)
+        expect(path?.[0]).toContain('design')
+        expect(path?.[1]).toContain('Policy')
     })
 })
 
