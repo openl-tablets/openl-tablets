@@ -8,5 +8,7 @@ root they would ride the administrator's session and pass without proving anythi
 shows that a `/rest` call really is unauthenticated here, so the `200`s that follow mean the whitelist, not a
 leaked session.
 
-`020` and `030` carry no `.resp`: the framework then expects `200` and ignores the body, which is what we want
-for a payload that names the running version.
+`020` carries no `.resp`: the framework then expects `200` and ignores the body. `030` checks the body, because
+the OpenL AI plugin reads `openl.version` from it without signing in to pick its MCP server and to warn about an
+incompatible OpenL Studio. Wildcards stand for every value but the shape of `openl.version`, so the step checks
+the set of fields and the major.minor.patch form of the version, not the running version itself.
