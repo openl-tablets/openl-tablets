@@ -1095,6 +1095,30 @@ describe('ProjectsHome', () => {
         await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/created-id'))
     })
 
+    it('re-reads the projects after a create, so the tree beside the new project lists it', async () => {
+        await renderHome()
+        expect(getProjects).toHaveBeenCalledTimes(1)
+        mockProjectSearch([...projects, {
+            ...projects[1]!,
+            id: 'created-id',
+            name: 'Created',
+            repository: 'design',
+        }] as Project[])
+
+        try {
+            await userEvent.click(screen.getByText('tree'))
+            await userEvent.click(screen.getByTestId('projects-new'))
+            await userEvent.click(screen.getByTestId('new-project-fire-created'))
+
+            await waitFor(() => expect(getProjects).toHaveBeenCalledTimes(2))
+            expect(navigateMock).toHaveBeenCalledWith('/projects/created-id')
+            await waitFor(() => expect((treeMock.mock.lastCall![0] as { projects: Project[] }).projects
+                .map(project => project.id)).toContain('created-id'))
+        } finally {
+            localStorage.removeItem('openl.projects.rail')
+        }
+    })
+
     it('opens the copy dialog with only creatable repositories', async () => {
         mockProjectSearch([{ ...projects[0]!, capabilities: { canCopy: true } }])
         await renderHome()
