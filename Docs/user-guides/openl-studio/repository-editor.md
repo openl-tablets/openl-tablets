@@ -214,14 +214,18 @@ OpenL Studio allows users to create new rule projects in the Design repository. 
 After a way is chosen, the dialog shows the source of the project and the settings that are common to all ways. **Back** returns to the choice of the way.
 
 -   **Project Name** — the name by which the project is presented in Design repository. The name of the template, the archive or the source project is suggested. Spaces at the beginning and at the end of the name are dropped. The name cannot contain the characters `\ / : ; < > ? * % ' [ ] | "` or end with a dot; such a name is refused with a message that says so. The same applies to the new name of a project copy.
--   **Repository** — the Design repository that stores the project. Only the repositories where the user may create projects are offered.
+-   **Repository** — the Design repository that stores the project. Only the repositories where the user may create
+    projects are offered. The dialog opens on the first of them and keeps the one picked until it is closed; while the
+    picked repository is not offered, the first one is shown.
 -   **Branch** — the branch of a Git repository, described below. The field is shown for repositories that support branches.
 -   **Path** — the folder of the repository where the project is stored. Leave it empty to store the project in the root of the repository, enter a path such as `folder/subfolder`, or click **Browse folders** **⋮** to select an existing folder. The field is shown for repositories that keep projects in folders.
 -   **Comment** — the comment of the commit that creates the project. A standard comment is suggested and can be
     edited: **Project Bank Rating is created.**, or **Copied from: Bank Rating.** for a copy. The field is hidden for
     repositories that do not store change comments, such as file repositories.
 
-After the project is created, its page opens and the project has the **No Changes** status, which means that it is open and can be modified.
+After the project is created, its page opens and the project has the **No Changes** status, which means that it is
+open and can be modified. When the project is not created, the dialog stays open with the message and with every field
+as it was filled in, so **Create** can be clicked again.
 
 For a Git Design repository that supports branches, every creation method displays one **Branch** field after a repository is selected. Select an existing branch from the suggestions, or type a valid new branch name in the same field. When the name does not exist, OpenL Studio creates the branch from the repository default branch and then creates the project there. Its **Branch** value is the branch where it was created. A project created in another branch than the default one is listed once that branch is picked in the **Branch** filter, or while it is open in the workspace; see [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree). In an empty repository, the first project creates the selected valid branch, including a non-default branch. Names that violate Git naming rules or the repository branch-name pattern are shown as errors below the field and are not submitted.
 

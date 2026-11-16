@@ -208,6 +208,10 @@ const mappedRepositories = [
         features: { branches: false, searchable: false, mappedFolders: true },
     },
 ]
+const twoRepositories = [
+    ...repositories,
+    { id: 'other', name: 'Other', aclId: 'b', capabilities: { canCreateProject: true } },
+]
 const branchingRepositories = [
     {
         id: 'design',
@@ -224,6 +228,12 @@ const renderWizard = (props: Record<string, unknown> = {}) =>
 /** Click a method tile, which advances to the config step in a single click. */
 const toConfig = async (methodId = 'template') => {
     await userEvent.click(screen.getByTestId(`new-project-method-${methodId}`))
+}
+
+/** Pick the Example template of the General group. */
+const pickTemplate = async () => {
+    await userEvent.click(await screen.findByTestId('template-group-General'))
+    await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
 }
 
 describe('NewProjectModal', () => {
@@ -441,6 +451,52 @@ describe('NewProjectModal', () => {
 
         expect(screen.getByTestId('opt-design')).toBeTruthy()
         expect(screen.queryByTestId('opt-readonly')).toBeNull()
+    })
+
+    it('keeps the picked repository when the repositories are read again after a failed create', async () => {
+        vi.mocked(createProject).mockRejectedValueOnce(new Error('The Git server refused the changes.'))
+        const { rerender } = renderWizard({ repositories: twoRepositories })
+
+        await toConfig()
+        await pickTemplate()
+        await userEvent.click(screen.getByTestId('opt-other'))
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+        expect(await screen.findByTestId('new-project-error')).toHaveTextContent('The Git server refused the changes.')
+
+        // The page reads the repositories again, handing the dialog a new list of the same repositories.
+        const reread = twoRepositories.map(repo => ({ ...repo }))
+        rerender(<NewProjectModal open onClose={vi.fn()} onCreated={vi.fn()} repositories={reread} />)
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+
+        await waitFor(() => expect(createProject).toHaveBeenCalledTimes(2))
+        expect(vi.mocked(createProject).mock.calls.map(([repoId]) => repoId)).toEqual(['other', 'other'])
+    })
+
+    it('opens on the first repository again, and leaves a repository that is gone', async () => {
+        const { rerender } = renderWizard({ repositories: twoRepositories })
+        const show = (open: boolean) =>
+            rerender(<NewProjectModal onClose={vi.fn()} onCreated={vi.fn()} open={open} repositories={twoRepositories} />)
+
+        // Reopened, the dialog starts on the first repository, whatever was picked before.
+        await toConfig()
+        await userEvent.click(screen.getByTestId('opt-other'))
+        await userEvent.click(screen.getByTestId('new-project-cancel'))
+        show(false)
+        show(true)
+        await toConfig()
+        await pickTemplate()
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+        await waitFor(() => expect(createProject).toHaveBeenCalledTimes(1))
+        expect(createProject).toHaveBeenLastCalledWith('design', expect.any(String), expect.anything())
+
+        // A picked repository that is no longer in the list gives way to the first one.
+        await toConfig()
+        await userEvent.click(screen.getByTestId('opt-other'))
+        rerender(<NewProjectModal open onClose={vi.fn()} onCreated={vi.fn()} repositories={repositories} />)
+        await pickTemplate()
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+        await waitFor(() => expect(createProject).toHaveBeenCalledTimes(2))
+        expect(createProject).toHaveBeenLastCalledWith('design', expect.any(String), expect.anything())
     })
 
     it('hides the repository path field when the target repository is flat', async () => {
