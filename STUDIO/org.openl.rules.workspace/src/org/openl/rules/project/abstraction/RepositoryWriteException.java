@@ -10,8 +10,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.Repository;
 
 /**
- * A repository could not store what a project wrote into it: a database or a remote that cannot be reached, a folder
- * that cannot be written.
+ * A repository could not store a change of a project, what the project wrote into it or its deletion: a database or a
+ * remote that cannot be reached, a folder that cannot be written, a Git server that refuses the push.
  *
  * <p>The failure of the repository is the cause, so a merge conflict a Git repository answers stays one.
  *
