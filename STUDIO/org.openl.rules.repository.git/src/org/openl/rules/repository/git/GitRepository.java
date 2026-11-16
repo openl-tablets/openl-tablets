@@ -106,6 +106,7 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
+import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -1787,6 +1788,38 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         var account = StringUtils.isBlank(login) ? "the account set for the repository" : "the user '%s'".formatted(login);
         return "It does not let %s write to the repository: check the password and the access of the user."
                 .formatted(account);
+    }
+
+    /**
+     * Checks that the account set for a remote repository may write to it, as a push does. The Git server is asked for
+     * what a push may change, which it answers only to an account that may write; nothing is sent. A repository that
+     * is only read, such as the one OpenL Rule Services deploy from, is checked by {@link #validateConnection()} alone.
+     *
+     * @throws IOException when the server does not let the account write, or cannot be reached
+     */
+    @Override
+    public void validateWriteAccess() throws IOException {
+        validateConnection();
+        if (!remote) {
+            return;
+        }
+        try (var transport = Transport.open(git().getRepository(), Constants.DEFAULT_REMOTE_NAME)) {
+            if (credentialsProvider != null) {
+                transport.setCredentialsProvider(credentialsProvider);
+            }
+            transport.setTimeout(connectionTimeout);
+            try (var ignored = transport.openPush()) {
+                // the server lets the account write
+            }
+        } catch (org.eclipse.jgit.errors.TransportException e) {
+            if (isRefused(e)) {
+                log.debug("The Git server refused to let the account write.", e);
+                throw new IOException("The Git server refused the access. " + refusedMessage(login));
+            }
+            throw new IOException(e.getMessage(), e);
+        } catch (URISyntaxException e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }
 
     private void validatePushResults(Iterable<PushResult> results) throws IOException {
