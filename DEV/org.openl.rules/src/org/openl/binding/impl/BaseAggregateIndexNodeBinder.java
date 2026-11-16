@@ -52,9 +52,10 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
         var containerType = targetNode.getType();
 
+        // the error nodes keep the target, so the field the operator is applied to keeps its hint and link
         if (NullOpenClass.the.equals(containerType)) {
             return makeErrorNode("An array or a collection is expected, but type '%s' is found.".formatted(
-                    NullOpenClass.the.getName()), targetNode.getSyntaxNode(), bindingContext);
+                    NullOpenClass.the.getName()), node, targetNode.getSyntaxNode(), bindingContext, targetNode);
         }
 
         var info = containerType.getAggregateInfo();
@@ -62,18 +63,22 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         if (componentType == null) {
             var typeName = containerType.getName();
             return makeErrorNode("An array or a collection is expected, but type '%s' is found.".formatted(
-                    typeName), targetNode.getSyntaxNode(), bindingContext);
+                    typeName), node, targetNode.getSyntaxNode(), bindingContext, targetNode);
         }
         var numberOfChildren = node.getNumberOfChildren();
         if (numberOfChildren < 1 || numberOfChildren > 3) {
-            return makeErrorNode("Aggregate node can have from 1 to 3 children nodes.", node, bindingContext);
+            return makeErrorNode("Aggregate node can have from 1 to 3 children nodes.",
+                    node,
+                    node,
+                    bindingContext,
+                    targetNode);
         }
 
         try {
             bindingContext.pushLocalVarContext();
             var variables = declareVariables(node, containerType, componentType, bindingContext);
             if (variables == null) {
-                return new ErrorBoundNode(node);
+                return new ErrorBoundNode(node, targetNode);
             }
             return bindExpression(node, targetNode, variables, bindingContext);
         } finally {

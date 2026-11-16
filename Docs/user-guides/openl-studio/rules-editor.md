@@ -721,7 +721,7 @@ Links to the data and datatype tables are underlined with a dotted line and has 
 
 *Links to the datatype tables from the decision and datatype table*
 
-All fields of the datatype tables are also linked and contain tooltips.
+All fields of the datatype tables are also linked and contain tooltips. A field keeps its link and tooltip in a cell with an error, such as an index of a field that is no array or collection.
 
 ![](images/datatype-field-link-tooltip.png)
 

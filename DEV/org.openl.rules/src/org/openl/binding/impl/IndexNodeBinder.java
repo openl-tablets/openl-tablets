@@ -59,7 +59,8 @@ public class IndexNodeBinder extends ANodeBinder {
 
         var message = "Index operator %s[%s] is not found."
                 .formatted(targetNode.getType(), indexExprType.getName());
-        return makeErrorNode(message, node, bindingContext);
+        // the error node keeps the target and the index, so they keep their hints and links
+        return makeErrorNode(message, node, node, bindingContext, targetNode, children[0]);
     }
 
     private IOpenIndex getMethodBasedIndex(IOpenClass[] types, IBindingContext bindingContext) {
