@@ -103,4 +103,41 @@ class TraceFrameHighlightTest {
             debugger.terminate(20_000);
         }
     }
+
+    @Test
+    void aFiredLookupRuleUnderAMergedHorizontalValueAccentsItsResultCell() {
+        // Porche is merged over C3:E3, above the models 911, Cayenne and Boxster; USA is on row 5
+        CompiledOpenClass compiled = new RulesEngineFactory<>("test/rules/EPBDS-5322/lookup.xlsx")
+                .getCompiledOpenClass();
+        IOpenClass module = compiled.getOpenClass();
+        IOpenMethod price = module.getMethods().stream()
+                .filter(method -> "price".equals(method.getName()))
+                .findFirst()
+                .orElseThrow();
+
+        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        debugger.setBreakpoints(Set.of("price"));
+        debugger.start("lookup-highlight-test", compiled.getClassLoader(), false, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(debugger.tracer());
+            price.invoke(module.newInstance(env), new Object[]{"USA", "Porche", "Cayenne"}, env);
+        });
+        try {
+            assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(20_000));
+            assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, 20_000));
+            DebugFrame lookup = debugger.stack().get(debugger.stack().size() - 1);
+
+            List<CellHighlight> highlights = new TraceHighlightServiceImpl().computeHighlights(lookup);
+            // the returned price, the model and the region of the fired rule
+            for (var cell : List.of("D5", "D4", "B5")) {
+                assertTrue(highlights.contains(new CellHighlight(cell, HighlightState.RESULT)),
+                        cell + " is accented as the result: " + highlights);
+            }
+            // the brand is accented where the merged cell shows it
+            assertTrue(highlights.contains(new CellHighlight("C3", HighlightState.RESULT)),
+                    "the merged brand is accented: " + highlights);
+        } finally {
+            debugger.terminate(20_000);
+        }
+    }
 }

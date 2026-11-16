@@ -601,7 +601,7 @@ The selected step's table is shown below, with the calculation highlighted.
 
 What the table shows depends on its kind:
 
--   A **decision table** highlights the rule that fired — the row whose conditions all matched, which produced the result.
+-   A **decision table** highlights the rule that fired — the row whose conditions all matched, which produced the result. In a lookup table, the rule is the value it returned with the conditions of its row and its column; a condition value merged over several columns is highlighted as the merged cell.
 -   A **spreadsheet table** shows a **Steps** grid with the value calculated in each cell. Cells that have not run yet appear as pending, and the cell running now as executing.
 
 The colours have a fixed meaning, shown in the legend below the table: **Result** marks the cell or row that produced the step's result. In the advanced mode, while you step through a rule, **Current step** marks the cell being calculated now, and, for a decision table, **Condition met** and **Condition not met** mark for each rule which conditions passed — so you can see exactly why a row was chosen.

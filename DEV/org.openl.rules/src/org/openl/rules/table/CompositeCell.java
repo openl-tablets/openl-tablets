@@ -48,7 +48,8 @@ public class CompositeCell implements ICell {
 
     @Override
     public IGridRegion getAbsoluteRegion() {
-        return new GridRegion(delegate.getRow(), delegate.getColumn(), delegate.getRow(), delegate.getColumn());
+        // the region of the sheet the cell covers: the merge it belongs to, as the cell of the sheet tells it
+        return delegate.getAbsoluteRegion();
     }
 
     @Override
