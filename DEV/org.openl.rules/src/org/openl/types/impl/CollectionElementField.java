@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -18,7 +20,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class CollectionElementField extends AOpenField {
     private int elementIndex;
+    /** The key of the element in a map, or {@code null} for an element of an array or a list. */
+    @Getter
     private Object mapKey;
+    /** The field of the collection the element belongs to. */
+    @Getter
     private final IOpenField field;
     private final CollectionType collectionType;
 

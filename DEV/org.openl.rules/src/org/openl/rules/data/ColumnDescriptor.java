@@ -87,6 +87,17 @@ public class ColumnDescriptor {
         }
     }
 
+    /**
+     * Returns the fields of the path of the column, one for each name of the path, as the binding of the column resolved
+     * them. A column without a field has none.
+     */
+    public IOpenField[] getPathFields() {
+        if (field instanceof FieldChain chain) {
+            return chain.getFields();
+        }
+        return field == null ? new IOpenField[0] : new IOpenField[]{field};
+    }
+
     protected IRuntimeEnv getRuntimeEnv() {
         return openl.getVm().getRuntimeEnv();
     }
