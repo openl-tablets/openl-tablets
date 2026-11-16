@@ -6,6 +6,9 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -338,20 +341,35 @@ public class TypeResolver implements INameSpacedTypeFactory {
 
     private final ConcurrentHashMap<String, IOpenClass> aliases = new ConcurrentHashMap<>();
 
+    /** The classes the module imports by name, by their simple names; checked like any class when first resolved. */
+    private final Map<String, Class<?>> imported = new HashMap<>();
+
     private final Collection<String> packages;
+
+    /** Tells the names of the classes the module generates itself, such as the beans of its Datatypes. */
+    private final Predicate<String> generated;
+
+    /** The project classes whose named classes all have been loaded. */
+    private final Set<Class<?>> complete = ConcurrentHashMap.newKeySet();
 
     public TypeResolver(ClassLoader classLoader) {
         this.classLoader = classLoader;
         packages = List.of();
+        generated = name -> false;
     }
 
-    public TypeResolver(ClassLoader classLoader, Collection<Class<?>> classes, Collection<String> packages) {
+    /**
+     * @param generated tells whether the module generates the class of the given name itself, so a project class
+     *                  may name it before it exists
+     */
+    public TypeResolver(ClassLoader classLoader,
+                        Collection<Class<?>> classes,
+                        Collection<String> packages,
+                        Predicate<String> generated) {
         this.classLoader = classLoader;
-        if (!classes.isEmpty()) {
-            for (var cls : classes) {
-                var alias = cls.getSimpleName();
-                this.aliases.put(alias, JavaOpenClass.getOpenClass(cls));
-            }
+        this.generated = generated;
+        for (var cls : classes) {
+            imported.put(cls.getSimpleName(), cls);
         }
         this.packages = packages;
     }
@@ -372,7 +390,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
             // If a type absent in the core classes, try to find in Java class loaders.
             cls = found.get(name);
             if (cls == null) {
-                cls = loadClass(classLoader, name);
+                cls = loadClass(name);
                 if (cls == null) {
                     cls = NullOpenClass.the;
                 }
@@ -399,19 +417,15 @@ public class TypeResolver implements INameSpacedTypeFactory {
     }
 
     /**
-     * Finds the type by its simple name among the aliases or in the imported packages.
+     * Finds the type by its simple name among the imported classes or in the imported packages.
      *
      * @return the found type, or {@link NullOpenClass#the} when none is found
      */
     private IOpenClass findInPackages(String name) {
         var cls2 = aliases.get(name);
         if (cls2 == null) {
-            for (var pckg : packages) {
-                cls2 = loadClass(classLoader, pckg + "." + name);
-                if (cls2 != null) {
-                    break;
-                }
-            }
+            var importedClass = imported.get(name);
+            cls2 = importedClass != null ? loadClass(importedClass.getName()) : loadFromPackages(name);
             if (cls2 == null) {
                 cls2 = NullOpenClass.the;
             }
@@ -420,12 +434,113 @@ public class TypeResolver implements INameSpacedTypeFactory {
         return cls2;
     }
 
+    private @Nullable IOpenClass loadFromPackages(String name) {
+        for (var pckg : packages) {
+            var cls = loadClass(pckg + "." + name);
+            if (cls != null) {
+                return cls;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Loads the classes the members of a project class name, and those of the project classes among them, each class
+     * once. A class absent from the classpath of the project fails the load with {@link NoClassDefFoundError} when the
+     * type is resolved, rather than when a rule first reads a member of the class.
+     *
+     * <p>Classes of the JDK and of OpenL itself are complete: their members are not walked. A class the module
+     * generates itself may be absent yet: a project class naming it is taken as it is.
+     */
+    private void checkTypesPresent(Class<?> type) {
+        var checked = new HashSet<Class<?>>();
+        var deferred = new HashSet<Class<?>>();
+        var pending = new ArrayDeque<Class<?>>();
+        pending.push(type);
+        while (!pending.isEmpty()) {
+            var next = pending.pop();
+            if (isProjectClass(next) && !complete.contains(next) && checked.add(next)) {
+                var named = presentTypesOf(next);
+                if (named == null) {
+                    deferred.add(next);
+                } else {
+                    named.forEach(other -> pending.push(componentOf(other)));
+                }
+            }
+        }
+        // a walk that met a class naming a class the module has not generated yet marks nothing complete: the classes
+        // reaching it are checked again on the next walk
+        if (deferred.isEmpty()) {
+            complete.addAll(checked);
+        }
+    }
+
+    /**
+     * The classes a project class names, or {@code null} when one of them is a class the module generates itself and
+     * has not generated yet, so the others cannot be read.
+     *
+     * @throws NoClassDefFoundError when a class it names is absent
+     */
+    private @Nullable List<Class<?>> presentTypesOf(Class<?> type) {
+        try {
+            return namedTypes(type);
+        } catch (NoClassDefFoundError e) {
+            if (generated.test(absentName(e))) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    /** The classes the members, the superclass and the interfaces of the given class name. */
+    private static List<Class<?>> namedTypes(Class<?> type) {
+        var named = new ArrayList<Class<?>>();
+        for (var field : type.getDeclaredFields()) {
+            named.add(field.getType());
+        }
+        for (var method : type.getDeclaredMethods()) {
+            named.add(method.getReturnType());
+            named.addAll(Arrays.asList(method.getParameterTypes()));
+        }
+        for (var constructor : type.getDeclaredConstructors()) {
+            named.addAll(Arrays.asList(constructor.getParameterTypes()));
+        }
+        var superclass = type.getSuperclass();
+        if (superclass != null) {
+            named.add(superclass);
+        }
+        named.addAll(Arrays.asList(type.getInterfaces()));
+        return named;
+    }
+
+    /** The name of the class whose absence the error reports. */
+    private static String absentName(NoClassDefFoundError e) {
+        var message = e.getCause() instanceof ClassNotFoundException cause ? cause.getMessage() : e.getMessage();
+        return String.valueOf(message).replace('/', '.');
+    }
+
+    private static Class<?> componentOf(Class<?> type) {
+        var component = type;
+        while (component.isArray()) {
+            component = component.getComponentType();
+        }
+        return component;
+    }
+
+    /** A class of the classpath of a project: neither of the JDK nor of OpenL. */
+    private static boolean isProjectClass(Class<?> type) {
+        var loader = type.getClassLoader();
+        return loader != null && loader != ClassLoader.getPlatformClassLoader()
+                && loader != TypeResolver.class.getClassLoader();
+    }
+
     // Acknowledged debt (DEV/AGENTS.md): blocking system classes is a security feature that needs a design.
     @SuppressWarnings("java:S1135")
-    private static IOpenClass loadClass(ClassLoader classLoader, String fullName) {
+    private @Nullable IOpenClass loadClass(String fullName) {
         // TODO add security ability to block access to system classes.
         try {
             var c = classLoader.loadClass(fullName);
+            checkTypesPresent(c);
             return JavaOpenClass.getOpenClass(c);
         } catch (ClassNotFoundException ignored) {
             // Type is not found in the package. Search in another.

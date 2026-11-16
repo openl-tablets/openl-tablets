@@ -1,1 +1,1 @@
-ERROR: Cannot load type 'com.example.beans.BeanA'.
+ERROR: Cannot load type 'com.example.beans.BeanB' because of absent type 'com.example.beans.BeanA'.

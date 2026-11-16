@@ -41,6 +41,7 @@ import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.TypeResolver;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
@@ -77,6 +78,8 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -478,7 +481,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        var typeResolver = new TypeResolver(userClassLoader, classNames, packageNames);
+        var typeResolver = new TypeResolver(userClassLoader, classNames, packageNames, XlsBinder::isGeneratedType);
         var castFactory = new CastFactory();
         castFactory.setMethodFactory(thisNamespaceLibrary.asMethodFactory());
 
@@ -487,6 +490,38 @@ public class XlsBinder implements IOpenBinder {
         op.setBinder(new Binder(thisNamespaceLibrary.asMethodFactory2(), castFactory, thisNamespaceLibrary.asVarFactory(), typeResolver, op));
         op.setVm(new SimpleRulesVM());
         return op;
+    }
+
+    /**
+     * Whether the module being bound generates the class of the given name: the bean of a Datatype it declares, bound
+     * already or not, as Constants are bound before Datatypes.
+     */
+    private static boolean isGeneratedType(String javaName) {
+        var module = XlsModuleOpenClassHolder.getInstance().getXlsModuleOpenClass();
+        return module != null && Arrays.stream(module.getXlsMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes())
+                .filter(node -> XlsNodeTypes.XLS_DATATYPE == node.getNodeType())
+                .anyMatch(node -> javaName.equals(datatypeJavaName(node)));
+    }
+
+    /**
+     * The name of the bean class a Datatype table declares, read from its header as the Datatype binder reads it, so a
+     * name in backticks is the name without them. {@code null} when the header is unreadable or declares an alias,
+     * such as {@code Datatype Gender <String>}, which has no bean class.
+     */
+    private static @Nullable String datatypeJavaName(TableSyntaxNode node) {
+        IdentifierNode[] tokens;
+        try {
+            tokens = Tokenizer.tokenize(node.getHeader().getModule(), " \n\r");
+        } catch (OpenLCompilationException e) {
+            return null;
+        }
+        if (tokens.length < 2 || tokens.length == 3 && tokens[2].getIdentifier().startsWith("<")) {
+            return null;
+        }
+        var name = tokens[1].getIdentifier();
+        var properties = node.getTableProperties();
+        var packageName = properties == null ? null : properties.getPropertyValueAsString("datatypePackage");
+        return packageName == null || packageName.isBlank() ? name : packageName + '.' + name;
     }
 
     private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode,

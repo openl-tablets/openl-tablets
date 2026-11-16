@@ -1,7 +1,11 @@
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
+ERROR: Cannot load type 'org.openl.beans.BeanA' because of absent type 'org.openl.beans.BeanB'.
+ERROR: Cannot load type 'org.openl.beans.BeanA' because of absent type 'org.openl.beans.BeanB'.
+ERROR: Cannot load type 'org.openl.beans.BeanA' because of absent type 'org.openl.beans.BeanB'.
+ERROR: Cannot load type 'org.openl.beans.BeanA' because of absent type 'org.openl.beans.BeanB'.
+ERROR: Field 'beanB' is not found in type 'null-Class'.
+ERROR: Field 'beanB' is not found in type 'null-Class'.
+ERROR: Field 'beanB' is not found in type 'null-Class'.
+ERROR: Field 'beanB' is not found in type 'null-Class'.
 ERROR: Type 'BeanB' is not found.
 ERROR: Type 'BeanB' is not found.
 ERROR: Type 'BeanB' is not found.
