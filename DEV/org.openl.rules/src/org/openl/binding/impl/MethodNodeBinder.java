@@ -19,6 +19,7 @@ import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.dependency.DependencyOpenClass;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.binding.LikePatternCheck;
 import org.openl.rules.binding.MessageSourceResourceMethod;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -80,6 +81,7 @@ public class MethodNodeBinder extends ANodeBinder {
                     methodCaller = processFoundMethodCaller(methodCaller);
                     validateMethodArguments(methodCaller, children, bindingContext);
                     MessageSourceResourceMethod.keepCall(node, methodCaller, children, bindingContext);
+                    LikePatternCheck.check(methodCaller, children, bindingContext);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, argumentTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);
@@ -326,6 +328,7 @@ public class MethodNodeBinder extends ANodeBinder {
                                 IMethodCaller methodCaller,
                                 IBoundNode[] children) {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+        LikePatternCheck.check(methodCaller, children, bindingContext);
         var errorNode = validateMethod(node, bindingContext, target, methodCaller);
         return errorNode == null ? new MethodBoundNode(node, target, methodCaller, children) : errorNode;
     }

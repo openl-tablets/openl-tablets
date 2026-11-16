@@ -1,0 +1,3 @@
+ERROR: Pattern '[a-A]' of the function 'like' is not valid: Illegal character range.
+ERROR: Pattern '[X-A]' of the function 'like' is not valid: Illegal character range.
+ERROR: Pattern '[z-b]' of the function 'like' is not valid: Illegal character range.

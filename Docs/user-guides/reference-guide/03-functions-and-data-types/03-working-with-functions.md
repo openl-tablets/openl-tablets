@@ -381,6 +381,8 @@ The `like` function provides a versatile tool for string comparison. The pattern
 | [!1]                      | NOT match to '1'.               |
 | [-1-3]                    | Match to '-', '1', '2', '3'.    |
 
+A pattern written as text in the function call is checked when the module compiles. An invalid pattern, such as `[a-A]` with a reversed range, is reported as a compilation error, for example, `Pattern '[a-A]' of the function 'like' is not valid: Illegal character range.` A pattern passed through a parameter, a variable or a table cell is known at runtime only, so an invalid one fails when the function runs.
+
 Examples are as follows:
 
 `like("(29)687-11-53", "(##)###-##-##")` -\> **TRUE**
