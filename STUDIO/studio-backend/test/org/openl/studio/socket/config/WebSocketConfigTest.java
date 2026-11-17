@@ -1,6 +1,7 @@
 package org.openl.studio.socket.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +35,9 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 class WebSocketConfigTest {
 
@@ -42,6 +46,11 @@ class WebSocketConfigTest {
     @SuppressWarnings("unchecked")
     private final WebSocketConfig config = new WebSocketConfig(mock(ApplicationContext.class), new ObjectMapper(),
             mock(AuthorizationManager.class));
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     void heartbeatSchedulerIsDaemonSoItDoesNotBlockJvmShutdown() {
@@ -65,6 +74,18 @@ class WebSocketConfigTest {
                 "broker must use the managed daemon heartbeat scheduler");
         verify(registry).setUserDestinationPrefix("/user");
         verify(registry).setApplicationDestinationPrefixes("/app");
+    }
+
+    @Test
+    void aFrameLeavesNoSecurityContextOnTheThreadThatReadIt() {
+        var frame = MessageBuilder.withPayload(new byte[0]).build();
+        SecurityContextHolder.getContext()
+                .setAuthentication(UsernamePasswordAuthenticationToken.authenticated("user", "", List.of()));
+
+        config.getSessionSecurityContextChannelInterceptor()
+                .afterSendCompletion(frame, mock(MessageChannel.class), true, null);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
