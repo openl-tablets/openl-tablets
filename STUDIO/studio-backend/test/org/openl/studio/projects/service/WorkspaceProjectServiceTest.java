@@ -94,6 +94,7 @@ import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
@@ -354,6 +355,10 @@ class WorkspaceProjectServiceTest {
                 List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))).thenReturn(true);
         when(designTimeRepository.refreshBranch("design", "feature/rates"))
                 .thenReturn(CompletableFuture.completedFuture(null));
+        var branched = mock(BranchedProject.class);
+        when(branched.entry("feature/rates"))
+                .thenReturn(Optional.of(new BranchedProject.BranchEntry(mock(AProject.class), mock(BranchStatus.class))));
+        when(designTimeRepository.getBranchedProject("design", "PricingProject")).thenReturn(Optional.of(branched));
         var model = new CreateBranchModel();
         model.setBranch("feature/rates");
         model.setRevision("main");
@@ -369,6 +374,42 @@ class WorkspaceProjectServiceTest {
                 .when(repository)
                 .createRepositoryBranch("protected/rates", "main");
         assertThrows(ForbiddenException.class, () -> service.createBranch(project, model));
+    }
+
+    /** A branch cut from a commit where the folder is no project could not be opened, so it is deleted again. */
+    @Test
+    void create_branch_deletes_a_branch_the_project_is_not_found_in() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        var workspace = workspaceFor();
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspace);
+        var rawRepository = mock(BranchRepository.class);
+        var repository = mock(BranchRepository.class, withSettings().extraInterfaces(RepositoryDelegate.class));
+        when(((RepositoryDelegate) repository).getOriginal()).thenReturn(rawRepository);
+        when(rawRepository.getId()).thenReturn("design");
+        when(rawRepository.supports()).thenReturn(new FeaturesBuilder(rawRepository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "P16639", "P16639");
+        when(project.isSupportsBranches()).thenReturn(true);
+        var artefact = mock(AProjectArtefact.class);
+        when(project.getArtefacts()).thenReturn(List.of(artefact));
+        when(acl.isGranted(
+                artefact,
+                List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))).thenReturn(true);
+        when(designTimeRepository.refreshBranch("design", "b16639"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        when(designTimeRepository.refreshRepository("design")).thenReturn(CompletableFuture.completedFuture(null));
+        when(designTimeRepository.getBranchedProject("design", "P16639")).thenReturn(Optional.empty());
+        var model = new CreateBranchModel();
+        model.setBranch("b16639");
+        model.setRevision("master");
+
+        var error = assertThrows(ConflictException.class, () -> service.createBranch(project, model));
+
+        assertEquals("openl.error.409.project.branch.not.project.message", error.getErrorCode());
+        verify(repository).createRepositoryBranch("b16639", "master");
+        verify(repository).deleteRepositoryBranch("b16639");
     }
 
     /** The texts a dependency gives lead to it: its id is found by the folder it is opened in, through others too. */

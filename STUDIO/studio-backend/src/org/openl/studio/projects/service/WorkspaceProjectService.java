@@ -1510,7 +1510,32 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!refreshProjectIndex(repository, model.getBranch())) {
             throw new ConflictException("project.indexing.incomplete.message");
         }
+        requireProjectInNewBranch(project, securedRepository, model.getBranch());
         publishStateChanged(project);
+    }
+
+    /**
+     * Deletes a branch just created when the project is not found in it, and refuses the creation. Such a branch,
+     * cut from a commit where the folder is no project, could not be opened, so nothing is left behind.
+     */
+    private void requireProjectInNewBranch(RulesProject project, BranchRepository repository, String branch) {
+        var unwrapped = unwrapBranchRepository(repository);
+        var found = getUserWorkspace().getDesignTimeRepository()
+                .getBranchedProject(unwrapped.getId(), project.getDesignProjectName())
+                .flatMap(branchedProject -> branchedProject.entry(branch))
+                .isPresent();
+        if (found) {
+            return;
+        }
+        try {
+            repository.deleteRepositoryBranch(branch);
+            auditor.branchDeleted(unwrapped.getId(), branch, project.getBusinessName());
+        } catch (IOException e) {
+            log.warn("Failed to delete the branch '{}' the project '{}' is not found in.", branch,
+                    project.getBusinessName(), e);
+        }
+        refreshRepositoryIndex(unwrapped);
+        throw new ConflictException("project.branch.not.project.message", project.getBusinessName());
     }
 
     /**

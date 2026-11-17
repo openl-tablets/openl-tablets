@@ -51,7 +51,7 @@ A branch of an existing project starts from the last commit of the branch the pr
 1.  Enter another name if necessary. Invalid Git names and names that do not match the configured branch-name pattern are reported below the field.
 1.  Click **Copy**.
 
-The project moves to the new branch. If the project has unsaved changes, the window warns that the new branch starts from the last commit and moving the project onto it discards them, and asks for the confirmation **I understand the consequences, move to the new branch**. When the project cannot move, OpenL Studio creates the branch and leaves the project on its current branch. Save or discard the changes, and then switch the project to the new branch.
+The project moves to the new branch. If the project has unsaved changes, the window warns that the new branch starts from the last commit and moving the project onto it discards them, and asks for the confirmation **I understand the consequences, move to the new branch**. When the project cannot move, OpenL Studio creates the branch and leaves the project on its current branch. Save or discard the changes, and then switch the project to the new branch. When the last commit holds no project in the folder, such as a project whose `rules.xml` was deleted, the branch could not hold the project: OpenL Studio deletes the new branch again and reports that the branch is not created.
 
 ### Working with Branches
 
