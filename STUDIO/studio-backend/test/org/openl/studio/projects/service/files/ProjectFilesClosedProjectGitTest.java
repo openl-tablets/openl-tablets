@@ -138,7 +138,7 @@ class ProjectFilesClosedProjectGitTest {
         root = rootOf(project);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null));
+                IgnoredPaths.of(null), false);
     }
 
     @AfterEach
@@ -420,7 +420,7 @@ class ProjectFilesClosedProjectGitTest {
         };
         return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()),
-                uploads, IgnoredPaths.of(null));
+                uploads, IgnoredPaths.of(null), false);
     }
 
     /** A workbook of one Datatype, at B2 of the sheet the module is named after. */

@@ -84,7 +84,7 @@ class ProjectFilesIndexWaitTest {
                 () -> new UserInfo("user1"), designTimeRepository);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null));
+                IgnoredPaths.of(null), false);
     }
 
     @Test

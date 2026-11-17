@@ -6,8 +6,10 @@ for a new descriptor that names no project. The migrate wrote such a descriptor,
 workbooks already moved: the project declared nothing, listed no module and, with no root workbook left, was
 offered no migrate to repair itself with.
 
-`010-setup` creates a project, opened, from an archive holding an `.xls` and an `.xlsx` in its root, and deletes
-the `rules.xml` the import wrote for them, so the project declares nothing.
+`010-setup` creates a project, opened, from an archive holding an `.xls` and an `.xlsx` in its root, turns on
+**Detect projects by Excel files**, without which the `rules.xml` that makes a folder a project cannot be deleted, and
+deletes the `rules.xml` the import wrote for them, so the project declares nothing. `999-tierdown` turns the setting
+off again.
 
 `020-migrate`:
 

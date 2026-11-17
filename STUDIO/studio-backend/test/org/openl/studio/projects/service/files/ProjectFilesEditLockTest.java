@@ -75,7 +75,7 @@ class ProjectFilesEditLockTest {
         descriptorCleaner = mock(ProjectDescriptorCleaner.class);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), descriptorCleaner, new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null));
+                IgnoredPaths.of(null), false);
     }
 
     @Test

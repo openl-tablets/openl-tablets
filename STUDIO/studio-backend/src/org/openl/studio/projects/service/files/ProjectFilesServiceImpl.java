@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -88,6 +90,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final BeanValidationProvider validationProvider;
     private final UploadFormatting uploadFormatting;
     private final IgnoredPaths ignoredPaths;
+    /**
+     * Whether a folder without {@code rules.xml} is found as a project by its Excel files. Without it, a folder of a
+     * repository with folders is a project only by its {@code rules.xml}.
+     */
+    @Value("${" + AdministrationSettings.PROJECT_DETECT_BY_EXCEL_FILES + ":false}")
+    private final boolean detectProjectsByExcelFiles;
 
     /**
      * Held by a write based on a version from the comparison to the end of the write, so that two writes based on the
@@ -177,6 +185,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 refuseOutdated(resource, path, expectedVersion);
             }
             requirePermission(found, BasePermission.DELETE);
+            keepDescriptor(root, path);
             lockForEditing(root, path);
             if (root instanceof ProjectFileRoot) {
                 descriptorCleaner.unregisterModules(root, found);
@@ -229,6 +238,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             requirePermission(source, BasePermission.READ);
             requirePermission(source, BasePermission.DELETE);
             requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.move.into.itself.message");
+            keepDescriptor(root, sourcePath);
             lockForEditing(root, sourcePath, destinationPath);
             var targetFolder = resolveOrCreateFolders(root, current, destinationPath,
                     true, "file.move.path.conflict.message");
@@ -651,6 +661,21 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private void requirePermission(AProjectArtefact artefact, Permission permission) {
         if (!aclProjectsHelper.hasPermission(artefact, permission)) {
             throw new ForbiddenException("default.message");
+        }
+    }
+
+    /**
+     * Refuses to delete or move the {@code rules.xml} at the root of a project that is found by it only: in a
+     * repository with folders, while folders are not found as projects by their Excel files. Without it, the folder is
+     * no longer a project once the change is saved.
+     */
+    private void keepDescriptor(FileRoot root, String path) {
+        if (!detectProjectsByExcelFiles && root instanceof ProjectFileRoot projectRoot
+                && ProjectDescriptor.FILE_NAME.equals(FilePaths.trimSlashes(path))) {
+            var repository = projectRoot.getProject().getDesignRepository();
+            if (repository != null && repository.supports().folders()) {
+                throw new ConflictException("file.descriptor.required.message");
+            }
         }
     }
 

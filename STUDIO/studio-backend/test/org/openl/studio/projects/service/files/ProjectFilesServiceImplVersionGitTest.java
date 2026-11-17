@@ -78,7 +78,7 @@ class ProjectFilesServiceImplVersionGitTest {
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
                 mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class),
                 new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null));
+                IgnoredPaths.of(null), false);
     }
 
     @AfterEach
