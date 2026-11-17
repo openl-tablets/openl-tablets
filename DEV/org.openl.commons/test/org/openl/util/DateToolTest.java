@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class DateToolTest {
 
@@ -29,7 +30,7 @@ class DateToolTest {
     @BeforeAll
     static void setup() {
         locale = Locale.getDefault();
-        Locale.setDefault(Locale.US); // Fix weekOfYear test due it Depends on Locale
+        Locale.setDefault(Locale.US); // The calendar of the tests is the Gregorian one of the US locale
     }
 
     @AfterAll
@@ -365,11 +366,14 @@ class DateToolTest {
     }
 
     @CsvSource({"2015-05-14,20",
-            "2015-12-31,1",
+            "2015-12-30,53",
+            "2015-12-31,53",
+            "2021-01-01,53",
+            "2019-12-30,1",
             "1789-05-14,20",
-            "0001-01-01,1",
+            "0001-01-01,53",
             "1899-02-28,9",
-            "3892-05-14,20",
+            "3892-05-14,19",
             "2013-12-28,52"})
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
     void test_weekOfYear(String input, int expected) throws ParseException {
@@ -378,12 +382,30 @@ class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({"2015-05-14, 3", "2015-12-31, 5", "1789-05-14, 3", "0001-01-01, 1", "1899-02-28, 5", "3892-05-14, 2"})
-    @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
+    @CsvSource({"2015-05-14, 2", "2015-12-31, 5", "1789-05-14, 2", "0001-01-01, 0", "1899-02-28, 5", "3892-05-14, 2",
+            "2024-09-01, 0", "2024-09-02, 1"})
+    @ParameterizedTest(name = "{index}: DateTool.weekOfMonth({0})={1}")
     void test_weekOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         var actual = DateTool.weekOfMonth(inputDate);
         assertEquals(expected, actual);
+    }
+
+    // ISO-8601 weeks do not depend on the first day of the week of the server locale
+    @ParameterizedTest(name = "{index}: weeks under the {0} locale")
+    @ValueSource(strings = {"en-US", "en-GB", "pl-PL", "ar-SA", "th-TH"})
+    void test_weeksDoNotDependOnLocale(String tag) throws ParseException {
+        var date = new SimpleDateFormat("yyyy-MM-dd").parse("2015-12-30");
+        var sunday = new SimpleDateFormat("yyyy-MM-dd").parse("2024-09-01");
+        try {
+            Locale.setDefault(Locale.forLanguageTag(tag));
+            assertEquals(53, DateTool.weekOfYear(date));
+            assertEquals(5, DateTool.weekOfMonth(date));
+            assertEquals(35, DateTool.weekOfYear(sunday));
+            assertEquals(0, DateTool.weekOfMonth(sunday));
+        } finally {
+            Locale.setDefault(Locale.US);
+        }
     }
 
     @CsvSource({"8072,2018-01-01,2018-03-31",

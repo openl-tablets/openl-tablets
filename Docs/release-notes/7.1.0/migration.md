@@ -51,6 +51,13 @@ developers.
   every row for the value `true` and no row for any other value. Put values of the column type into the map or the
   list, or declare the column of the type the values have.
 
+* **`weekOfYear` and `weekOfMonth` count ISO-8601 weeks on every server.** A week starts on Monday, week 1 of a year
+  holds its first Thursday, and week 1 of a month is its first week with at least four days in it, so
+  `weekOfYear(toDate("2015-12-30"))` is `53` and the days of a month before its week 1 are in week `0`. Before, both
+  followed the locale of the server: on a server with a US locale a week started on Sunday and week 1 held January 1,
+  so the same date was in week `1`. Update the expected values of the tests that check a week number near the start
+  or the end of a year or a month.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and

@@ -60,22 +60,36 @@ public class DateTool {
         return c.get(Calendar.DAY_OF_YEAR);
     }
 
+    /**
+     * Returns the week of the month of a date, counted by ISO-8601 whatever the locale of the server.
+     * <p>
+     * A week starts on Monday. The first week of a month is the first one with at least four days in that month. The
+     * days of a month before its first week are in week 0.
+     *
+     * @return the week from 0 to 5, or {@code null} for an empty date
+     */
     public static Integer weekOfMonth(Date d) {
-        if (d == null) {
-            return null;
-        }
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return c.get(Calendar.WEEK_OF_MONTH);
+        return d == null ? null : isoWeeks(d).get(Calendar.WEEK_OF_MONTH);
     }
 
+    /**
+     * Returns the week of the year of a date, counted by ISO-8601 whatever the locale of the server.
+     * <p>
+     * A week starts on Monday. Week 1 is the week with the first Thursday of the year. So the last days of December can
+     * be in week 1 of the next year, and the first days of January in week 52 or 53 of the previous year.
+     *
+     * @return the week from 1 to 53, or {@code null} for an empty date
+     */
     public static Integer weekOfYear(Date d) {
-        if (d == null) {
-            return null;
-        }
-        Calendar c = Calendar.getInstance();
+        return d == null ? null : isoWeeks(d).get(Calendar.WEEK_OF_YEAR);
+    }
+
+    private static Calendar isoWeeks(Date d) {
+        var c = Calendar.getInstance();
+        c.setFirstDayOfWeek(Calendar.MONDAY);
+        c.setMinimalDaysInFirstWeek(4);
         c.setTime(d);
-        return c.get(Calendar.WEEK_OF_YEAR);
+        return c;
     }
 
     public static Date firstDateOfQuarter(int absQuarter) {
