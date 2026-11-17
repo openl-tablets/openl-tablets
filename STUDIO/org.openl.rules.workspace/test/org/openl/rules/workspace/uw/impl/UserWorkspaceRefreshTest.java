@@ -13,6 +13,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -816,6 +817,23 @@ class UserWorkspaceRefreshTest {
         assertTrue(Files.isDirectory(userDir.resolve(PROJECT)), "The folder must not move.");
         assertFalse(Files.exists(userDir.getParent().resolve("evil")),
                 "Nothing must escape the workspace root.");
+    }
+
+    @Test
+    void syncLeavesTheFolderOfANamelessProjectAsItIs() throws IOException, ProjectException {
+        mockMappedDesign();
+        seedOpenedCopy("design", null, false);
+        // A project created from a workbook gets a rules.xml with no name: it asks for no rename.
+        Files.writeString(userDir.resolve(PROJECT).resolve("rules.xml"), "<?xml version=\"1.0\"?><project/>");
+        var renaming = spy(registry);
+        when(localWorkspace.getMetainfoRegistry()).thenReturn(renaming);
+
+        userWorkspace.syncProjects();
+        userWorkspace.getProjects(true);
+
+        verify(renaming, never()).renameProjectFolder(anyString(), anyString());
+        assertEquals(PROJECT, userWorkspace.getActualName(userWorkspace.getProject("design", PROJECT)),
+                "A project with no name in rules.xml is named by its folder.");
     }
 
     private void mockMappedDesign() throws IOException {
