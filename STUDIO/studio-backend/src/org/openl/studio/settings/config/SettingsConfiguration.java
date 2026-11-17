@@ -13,6 +13,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.rules.webstudio.web.admin.SettingsServiceImpl;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.studio.audit.service.SettingsAuditor;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.settings.service.auth.AuthenticationSettingsFactory;
@@ -55,8 +56,12 @@ public class SettingsConfiguration {
     @Bean
     public DesignRepositorySettingsService designRepositorySettingsService(@Qualifier("designRepositoryEditor") RepositoryEditor repositoryEditor,
                                                                            ObjectMapper objectMapper,
-                                                                           BeanValidationProvider beanValidationProvider) {
-        return new DesignRepositorySettingsServiceImpl(repositoryEditor, objectMapper, beanValidationProvider);
+                                                                           BeanValidationProvider beanValidationProvider,
+                                                                           LocalWorkspaceManager localWorkspaceManager) {
+        return new DesignRepositorySettingsServiceImpl(repositoryEditor,
+                objectMapper,
+                beanValidationProvider,
+                localWorkspaceManager);
     }
 
     @Bean

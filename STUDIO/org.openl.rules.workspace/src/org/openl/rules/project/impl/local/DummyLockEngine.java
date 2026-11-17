@@ -20,6 +20,11 @@ public class DummyLockEngine implements LockEngine {
     }
 
     @Override
+    public void forceUnlockRepository(String repoId) {
+        //nothing to do
+    }
+
+    @Override
     public LockInfo getLockInfo(String repoId, String branch, String projectName) {
         return LockInfo.NO_LOCK;
     }

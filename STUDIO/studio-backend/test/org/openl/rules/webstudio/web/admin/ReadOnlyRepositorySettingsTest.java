@@ -20,6 +20,7 @@ import org.springframework.core.env.StandardEnvironment;
 import org.openl.config.InMemoryProperties;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.spring.env.DisablePropertySource;
 import org.openl.studio.audit.service.SettingsAuditor;
 import org.openl.studio.common.exception.BadRequestException;
@@ -63,7 +64,7 @@ class ReadOnlyRepositorySettingsTest {
         var proxy = mock(RepositoryFactoryProxy.class);
         when(proxy.getRepoListConfig()).thenReturn(AdministrationSettings.DESIGN_REPOSITORY_CONFIGS);
         service = new DesignRepositorySettingsServiceImpl(new RepositoryEditor(proxy, properties), JSON,
-                mock(BeanValidationProvider.class));
+                mock(BeanValidationProvider.class), mock(LocalWorkspaceManager.class));
         settings = new SettingsServiceImpl(properties, environment, mock(SettingsAuditor.class), saved::putAll);
     }
 

@@ -5,6 +5,12 @@ import java.nio.file.Path;
 import org.openl.rules.project.abstraction.LockEngine;
 
 public interface LocalWorkspaceManager {
+
+    /**
+     * The type of the locks of the projects of the design repositories.
+     */
+    String PROJECT_LOCKS = "projects";
+
     LocalWorkspace getWorkspace(String userId);
 
     /**

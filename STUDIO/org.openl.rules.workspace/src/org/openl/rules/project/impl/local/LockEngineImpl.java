@@ -46,6 +46,12 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
+    public synchronized void forceUnlockRepository(String repoId) {
+        // The locks of a repository are kept in a folder named by its id
+        lockManager.getLock(repoId).forceUnlock();
+    }
+
+    @Override
     public synchronized LockInfo getLockInfo(String repoId, String branch, String projectName) {
         var lockId = getId(repoId, branch, projectName);
         return lockManager.getLock(lockId).info();
