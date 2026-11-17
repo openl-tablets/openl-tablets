@@ -1,0 +1,1 @@
+ERROR: Type 'SpreadsheetResultruleA' compilation failed with circular reference issue.

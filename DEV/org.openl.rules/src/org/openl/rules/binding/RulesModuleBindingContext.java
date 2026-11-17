@@ -2,13 +2,13 @@ package org.openl.rules.binding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,6 +39,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -77,6 +78,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     private final List<IOpenMethod> internalMethods;
 
     private final PreBinderMethods preBinderMethods = new PreBinderMethods();
+
+    /** The spreadsheet result type whose tables bind the bodies that build it, none while other tables are bound. */
+    private @Nullable CustomSpreadsheetResultOpenClass typeInBinding;
+
+    /** The tables of the spreadsheet result types being built, by their syntax nodes. */
+    private final Map<ISyntaxNode, RecursiveOpenMethodPreBinder> tablesInBinding = new IdentityHashMap<>();
 
     @Getter(AccessLevel.PRIVATE)
     @Setter
@@ -153,7 +160,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) {
+    public @Nullable IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) {
         var select = CollectionUtils.findAll(
                 preBinderMethods.values().stream().map(IOpenMethod.class::cast).toList(),
                 e -> Objects.equals(methodName, e.getName()));
@@ -163,23 +170,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if (method != null) {
                 var openMethodBinder = extractOpenMethodPrebinder(method);
                 if (openMethodBinder.isPreBindStarted()) {
-                    if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
-                        throw new RecursiveSpreadsheetMethodPreBindingException(
-                                CIRCULAR_REFERENCE.formatted(
-                                        openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
-                    }
-                    method = super.findMethodCaller(namespace, methodName, parTypes);
-                    if (method == null) {
-                        var internalSelect = CollectionUtils.findAll(internalMethods,
-                                e -> Objects.equals(methodName, e.getName()));
-                        method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect, false);
-                    }
-                    if (method != null) {
-                        return method;
-                    }
-                    throw new IllegalStateException(
-                            CIRCULAR_REFERENCE.formatted(
-                                    openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
+                    return findMethodInBinding(namespace, methodName, parTypes, openMethodBinder);
                 }
                 preBindMethod(openMethodBinder.getHeader());
             }
@@ -189,7 +180,64 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     .map(m -> extractOpenMethodPrebinder(m).getHeader())
                     .forEach(this::preBindMethod);
         }
-        method = super.findMethodCaller(namespace, methodName, parTypes);
+        return checkTableInBinding(findAddedMethod(namespace, methodName, parTypes));
+    }
+
+    /**
+     * Checks a call that reaches a table being bound by another name, such as the id of the table, as a call by its
+     * name is checked.
+     */
+    private @Nullable IMethodCaller checkTableInBinding(@Nullable IMethodCaller method) {
+        if (!tablesInBinding.isEmpty() && method != null && method.getMethod() instanceof ExecutableRulesMethod table) {
+            var openMethodBinder = tablesInBinding.get(table.getInfo().getSyntaxNode());
+            if (openMethodBinder != null && !isTypeInBinding(openMethodBinder)) {
+                throw circularReference(openMethodBinder);
+            }
+        }
+        return method;
+    }
+
+    /**
+     * Finds a method whose table is being bound, for a call written in a table bound meanwhile.
+     *
+     * <p>A table whose return type is a spreadsheet result built from its own body may call itself: the call takes the
+     * type being built, which adds nothing to it. Every table of that type is in the module by then, so a versioned
+     * table calls its dispatcher.
+     *
+     * <p>Any other call of such a table is a circular reference: a table bound meanwhile would take the type before
+     * it has all its steps.
+     */
+    private IMethodCaller findMethodInBinding(String namespace,
+                                              String methodName,
+                                              IOpenClass[] parTypes,
+                                              RecursiveOpenMethodPreBinder openMethodBinder) {
+        var allowed = !openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()
+                || isTypeInBinding(openMethodBinder);
+        var method = allowed ? findAddedMethod(namespace, methodName, parTypes) : null;
+        if (method == null) {
+            throw circularReference(openMethodBinder);
+        }
+        return method;
+    }
+
+    /** Whether the table builds the spreadsheet result type whose bodies are bound now. */
+    private boolean isTypeInBinding(RecursiveOpenMethodPreBinder openMethodBinder) {
+        return typeInBinding != null && typeInBinding == openMethodBinder.getCustomSpreadsheetResultOpenClass();
+    }
+
+    /** The error of a call that reaches a table being bound, which would take its type before it is complete. */
+    private static RuntimeException circularReference(RecursiveOpenMethodPreBinder openMethodBinder) {
+        var type = openMethodBinder.getCustomSpreadsheetResultOpenClass();
+        if (type == null) {
+            return new IllegalStateException(
+                    "Method '%s' compilation failed with circular reference issue.".formatted(openMethodBinder.getName()));
+        }
+        return new RecursiveSpreadsheetMethodPreBindingException(CIRCULAR_REFERENCE.formatted(type.getName()));
+    }
+
+    /** Finds a method the module or the internal methods of OpenL already have. */
+    private @Nullable IMethodCaller findAddedMethod(String namespace, String methodName, IOpenClass[] parTypes) {
+        var method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
             var internalSelect = CollectionUtils.findAll(internalMethods,
                     e -> Objects.equals(methodName, e.getName()));
@@ -306,13 +354,14 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         // All custom spreadsheet methods compiles at once
-        Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
+        List<RecursiveOpenMethodPreBinder> openMethodBinders;
+        @Nullable CustomSpreadsheetResultOpenClass type = null;
         if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
             if (isIgnoreCustomSpreadsheetResultCompilation()) {
                 return;
             }
-            openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
-            openMethodBinders = openMethodBinders.stream()
+            openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName())
+                    .stream()
                     .filter(RecursiveOpenMethodPreBinder::isSpreadsheetWithCustomSpreadsheetResult)
                     .toList();
             final var customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
@@ -320,6 +369,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             var openClass = super.findType(customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass csroc) {
                 csroc.setIgnoreCompilation(true);
+                type = csroc;
             } else {
                 throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
             }
@@ -331,19 +381,71 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 .filter(RecursiveOpenMethodPreBinder::isPreBindStarted)
                 .findAny();
         if (prebindingOpenMethodPreBinder.isPresent()) {
-            if (prebindingOpenMethodPreBinder.get().isSpreadsheetWithCustomSpreadsheetResult()) {
-                throw new RecursiveSpreadsheetMethodPreBindingException(
-                        CIRCULAR_REFERENCE.formatted(
-                                prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
+            if (isTypeInBinding(prebindingOpenMethodPreBinder.get())) {
+                // a call of the tables of the type being built: they are in the module, a versioned one dispatches
+                return;
             }
-            throw new IllegalStateException(
-                    CIRCULAR_REFERENCE.formatted(
-                            prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
+            throw circularReference(prebindingOpenMethodPreBinder.get());
         }
-        openMethodBinders.forEach(RecursiveOpenMethodPreBinder::startPreBind);
-        openMethodBinders.forEach(RecursiveOpenMethodPreBinder::preBind);
+        if (type == null) {
+            preBind(openMethodBinders, null);
+        } else {
+            bindType(type, openMethodBinders);
+        }
         openMethodBinders.forEach(e -> preBinderMethods.remove(e.getHeader()));
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::finishPreBind);
+    }
+
+    /**
+     * Binds the tables of a spreadsheet result type: they are added to the module first, then their bodies are bound
+     * and the type takes their steps.
+     */
+    private void bindType(CustomSpreadsheetResultOpenClass type, List<RecursiveOpenMethodPreBinder> openMethodBinders) {
+        var outerTypeInBinding = typeInBinding;
+        // a rule adds its steps after the tables that follow it, yet they keep the place of the rule
+        var keepTableOrder = openMethodBinders.size() > 1;
+        if (keepTableOrder) {
+            type.keepTableOrder();
+        }
+        openMethodBinders.forEach(e -> tablesInBinding.put(e.getTableSyntaxNode(), e));
+        try {
+            preBind(openMethodBinders, type);
+            // all tables of the type are in the module: a call of them takes the type being built
+            typeInBinding = type;
+            openMethodBinders.forEach(RecursiveOpenMethodPreBinder::bindBody);
+            forEachInTableOrder(type, openMethodBinders, RecursiveOpenMethodPreBinder::completeType);
+        } finally {
+            typeInBinding = outerTypeInBinding;
+            openMethodBinders.forEach(e -> tablesInBinding.remove(e.getTableSyntaxNode()));
+            if (keepTableOrder) {
+                type.restoreTableOrder();
+            }
+        }
+    }
+
+    /** Adds the tables to the module: the tables they call are bound meanwhile, none of them takes a type being built. */
+    private void preBind(List<RecursiveOpenMethodPreBinder> openMethodBinders,
+                         @Nullable CustomSpreadsheetResultOpenClass type) {
+        var outerTypeInBinding = typeInBinding;
+        try {
+            typeInBinding = null;
+            openMethodBinders.forEach(RecursiveOpenMethodPreBinder::startPreBind);
+            forEachInTableOrder(type, openMethodBinders, RecursiveOpenMethodPreBinder::preBind);
+        } finally {
+            typeInBinding = outerTypeInBinding;
+        }
+    }
+
+    /** Runs a step of binding on each table, telling the type the place of the table whose steps it adds. */
+    private static void forEachInTableOrder(@Nullable CustomSpreadsheetResultOpenClass type,
+                                            List<RecursiveOpenMethodPreBinder> openMethodBinders,
+                                            Consumer<RecursiveOpenMethodPreBinder> step) {
+        for (var i = 0; i < openMethodBinders.size(); i++) {
+            if (type != null) {
+                type.setTablePlace(i);
+            }
+            step.accept(openMethodBinders.get(i));
+        }
     }
 
     /**

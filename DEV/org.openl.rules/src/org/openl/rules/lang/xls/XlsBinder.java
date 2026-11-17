@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import lombok.Getter;
@@ -59,6 +60,7 @@ import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.dt.ActionsTableBinder;
 import org.openl.rules.dt.ConditionsTableBinder;
+import org.openl.rules.dt.DecisionTableBoundNode;
 import org.openl.rules.dt.DecisionTableNodeBinder;
 import org.openl.rules.dt.ReturnsTableBinder;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
@@ -998,8 +1000,7 @@ public class XlsBinder implements IOpenBinder {
                                 MethodUtil.printMethod(getHeader().getName(),
                                         getHeader().getSignature().getParameterTypes())));
                     }
-                    try {
-                        rulesModuleBindingContext.pushErrors();
+                    keepingErrorsOnTable(() -> {
                         var memberBoundNode = XlsBinder.this
                                 .beginBind(tableSyntaxNode, module, openl, rulesModuleBindingContext);
                         childrens[index] = memberBoundNode;
@@ -1011,13 +1012,37 @@ public class XlsBinder implements IOpenBinder {
                                 processError(error, rulesModuleBindingContext);
                             }
                         }
-                    } finally {
-                        rulesModuleBindingContext.popErrors()
-                                .forEach(syntaxNodeExceptionHolder::addBindingContextError);
-                    }
+                    });
                 }
             } finally {
                 completed = true;
+            }
+        }
+
+        @Override
+        public void bindBody() {
+            onDecisionTable(DecisionTableBoundNode::bindCustomSpreadsheetResultBody);
+        }
+
+        @Override
+        public void completeType() {
+            onDecisionTable(DecisionTableBoundNode::completeCustomSpreadsheetResultType);
+        }
+
+        /** Runs the step of binding on the table when it is a decision table. */
+        private void onDecisionTable(Consumer<DecisionTableBoundNode> step) {
+            if (childrens[index] instanceof DecisionTableBoundNode decisionTableBoundNode) {
+                keepingErrorsOnTable(() -> step.accept(decisionTableBoundNode));
+            }
+        }
+
+        /** Runs a step of binding the table, keeping the errors it reports on the table. */
+        private void keepingErrorsOnTable(Runnable step) {
+            rulesModuleBindingContext.pushErrors();
+            try {
+                step.run();
+            } finally {
+                rulesModuleBindingContext.popErrors().forEach(syntaxNodeExceptionHolder::addBindingContextError);
             }
         }
 

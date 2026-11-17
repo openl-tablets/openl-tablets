@@ -219,6 +219,9 @@ public class DecisionTableLoader {
      *
      * <p>The table holds the rows, the rules, the layout and the cell meta info of the reading its errors come from,
      * as far as that reading got, never those of the reading dropped.
+     *
+     * <p>The spreadsheet result type the table returns stays as it is. The table keeps the steps of its results until
+     * {@link DecisionTable#applyDeferredChanges()}.
      */
     public void loadAndBind(TableSyntaxNode tableSyntaxNode,
                             DecisionTable decisionTable,
@@ -230,59 +233,55 @@ public class DecisionTableLoader {
         int width = tableBody == null ? 0 : tableBody.getWidth();
         Direction direction = detectTableDirection(tableSyntaxNode);
         final boolean firstTransposedThenNormal = isFirstTransposed(direction, width, height);
-        try {
-            CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
-                    decisionTable,
-                    () -> loadAndBind(tableSyntaxNode,
-                            decisionTable,
-                            openl,
-                            module,
-                            firstTransposedThenNormal,
-                            bindingContext),
-                    bindingContext);
-            if (loadAndBindErrors != null) {
-                // If table have errors, try to compile transposed variant.
-                // Note that compiling transposed table consumes memory twice and for big tables it does not make any
-                // sense
-                // for smart tables
-                if (canCompileOtherDirection(direction,
-                        tableSyntaxNode,
+        CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+                decisionTable,
+                () -> loadAndBind(tableSyntaxNode,
+                        decisionTable,
+                        openl,
+                        module,
+                        firstTransposedThenNormal,
+                        bindingContext),
+                bindingContext);
+        if (loadAndBindErrors != null) {
+            // If table have errors, try to compile transposed variant.
+            // Note that compiling transposed table consumes memory twice and for big tables it does not make any
+            // sense
+            // for smart tables
+            if (canCompileOtherDirection(direction,
+                    tableSyntaxNode,
+                    tableBody,
+                    firstTransposedThenNormal,
+                    width,
+                    height)) {
+                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+                        decisionTable,
+                        () -> loadAndBind(tableSyntaxNode,
+                                decisionTable,
+                                openl,
+                                module,
+                                !firstTransposedThenNormal,
+                                bindingContext),
+                        bindingContext);
+                if (altLoadAndBindErrors == null) {
+                    return;
+                } else if (isOtherDirectionBetter(tableSyntaxNode,
                         tableBody,
                         firstTransposedThenNormal,
-                        width,
-                        height)) {
-                    CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
-                            decisionTable,
-                            () -> loadAndBind(tableSyntaxNode,
-                                    decisionTable,
-                                    openl,
-                                    module,
-                                    !firstTransposedThenNormal,
-                                    bindingContext),
-                            bindingContext);
-                    if (altLoadAndBindErrors == null) {
-                        return;
-                    } else if (isOtherDirectionBetter(tableSyntaxNode,
-                            tableBody,
-                            firstTransposedThenNormal,
-                            loadAndBindErrors,
-                            altLoadAndBindErrors)) {
-                        applyErrors(tableSyntaxNode,
-                                decisionTable,
-                                altLoadAndBindErrors,
-                                !firstTransposedThenNormal,
-                                bindingContext);
-                        return;
-                    }
-                }
-                applyErrors(tableSyntaxNode,
-                        decisionTable,
                         loadAndBindErrors,
-                        firstTransposedThenNormal,
-                        bindingContext);
+                        altLoadAndBindErrors)) {
+                    applyErrors(tableSyntaxNode,
+                            decisionTable,
+                            altLoadAndBindErrors,
+                            !firstTransposedThenNormal,
+                            bindingContext);
+                    return;
+                }
             }
-        } finally {
-            decisionTable.getDeferredChanges().forEach(DecisionTable.DeferredChange::apply);
+            applyErrors(tableSyntaxNode,
+                    decisionTable,
+                    loadAndBindErrors,
+                    firstTransposedThenNormal,
+                    bindingContext);
         }
     }
 
@@ -611,7 +610,7 @@ public class DecisionTableLoader {
     }
 
     @FunctionalInterface
-    private interface Supplier {
+    interface Supplier {
         // Runs the binding of a table, whose failure is kept and rethrown as it is when no direction compiles.
         @SuppressWarnings("java:S112")
         void get() throws Exception;
@@ -635,6 +634,17 @@ public class DecisionTableLoader {
             supplier.get();
         } catch (Exception e) {
             ex = e;
+        } catch (LinkageError e) {
+            // the scopes go back as they were, and the tables bound meanwhile keep their errors
+            // the caller reports the error on this table
+            filterErrorsAndMessagesNotRelatedToThisTable(tableSyntaxNode,
+                    bindingContext.popErrors(),
+                    bindingContext.popMessages(),
+                    bindingContext);
+            if (decisionTableMetaInfoReader != null) {
+                decisionTableMetaInfoReader.popMetaInfos();
+            }
+            throw e;
         }
         List<SyntaxNodeException> errors = bindingContext.popErrors();
         Collection<OpenLMessage> messages = bindingContext.popMessages();

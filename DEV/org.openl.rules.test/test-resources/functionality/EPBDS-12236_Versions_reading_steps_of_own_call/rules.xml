@@ -1,0 +1,8 @@
+<project>
+    <name>EPBDS-12236_Versions_reading_steps_of_own_call</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

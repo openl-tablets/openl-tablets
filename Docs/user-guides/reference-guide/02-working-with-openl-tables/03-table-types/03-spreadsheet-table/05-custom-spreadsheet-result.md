@@ -68,6 +68,21 @@ Rate = coverage.fundingType == "FullyInsured" ? RateCalculation ( rateBasis, $To
 
 If passing results of the Rate step to another rule, the type of the spreadsheet defined in this step is a united spreadsheet SRRateCalculation & SRASORate.
 
+A rule returning a united spreadsheet result can call itself:
+
+-   Each version of the rule can call the rule, and the call is dispatched again.
+-   A Spreadsheet table of the same name has the same united spreadsheet result, so it can call the rule, and the rule
+    can call it.
+-   The call returns the united spreadsheet result and adds no steps to it.
+-   The steps the results of the rule bring cannot be read in the rule or in any of its versions, since they are added
+    only when all versions are compiled: the rule passes on or returns the result of the call as it is. The steps of
+    a Spreadsheet table of the same name can be read.
+-   The steps of the rule and its versions come first, then those of the Spreadsheet tables of the same name, each in
+    the order of the tables in the module.
+-   Two rules returning united spreadsheet results that call each other are not compiled, even through the id of a
+    rule, since the steps of each depend on the other: the
+    `Type 'SpreadsheetResult<rule name>' compilation failed with circular reference issue.` error is reported.
+
 When fields in a united spreadsheet result receive numeric suffixes to keep their generated names unique, OpenL
 preserves the suffixes after applying a property naming strategy. For example, `Code` and `code` become `code` and
 `code1` with the lower camel case strategy.
