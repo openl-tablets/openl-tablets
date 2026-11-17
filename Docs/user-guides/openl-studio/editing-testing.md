@@ -405,6 +405,10 @@ A rule table can be run on its own, without a test table for it.
     parameters as a tree, or the same input as JSON, exactly as
     [Starting a Trace](#starting-a-trace) describes. A table that takes no parameters runs at once, with no panel.
 
+    The **Run**, **Trace** and **Benchmark** panels of a table share their input: what was entered to run the table
+    is there when the table is traced or measured next, and the other way round. Opening another table starts its
+    input afresh.
+
     OpenL Studio checks vocabulary values before running the table, including fields of nested datatypes and
     elements of lists. A value outside the vocabulary is refused with a message naming the invalid value, the
     vocabulary and its allowed values. The table does not run until the input is corrected.

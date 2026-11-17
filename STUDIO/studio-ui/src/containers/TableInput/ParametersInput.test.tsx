@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ParametersInput, type ParametersInputValue } from 'containers/TableInput/ParametersInput'
+import { forgetInputs } from 'containers/TableInput/sharedInput'
 import { keysOf, nameEntry, openNode } from 'testing/schemaTree'
 
 // CodeMirror does not take typed input under jsdom. A plain text area stands in for the editor.
@@ -30,6 +31,38 @@ const parsed = (onChange: ReturnType<typeof vi.fn>) => JSON.parse(lastValue(onCh
 
 
 describe('ParametersInput', () => {
+    afterEach(() => forgetInputs())
+
+    it('opens the panel of a table with the input another panel of it was given (EPBDS-16742)', async () => {
+        const run = vi.fn()
+        const { unmount } = render(<ParametersInput onChange={run} parameters={parameters} sharedAs="p1 table1" />)
+        await userEvent.click(screen.getByTestId('edit-age'))
+        await userEvent.type(screen.getByTestId('input-age'), '7{enter}')
+        unmount()
+
+        const trace = vi.fn()
+        const { unmount: closeTrace } = render(
+            <ParametersInput onChange={trace} parameters={parameters} sharedAs="p1 table1" />)
+        expect(parsed(trace)).toEqual({ params: { age: 7, policy: {} } })
+        closeTrace()
+
+        // Another table, or the same one taking other parameters, starts from its own defaults.
+        const other = vi.fn()
+        render(<ParametersInput onChange={other} parameters={parameters} sharedAs="p1 table2" />)
+        expect(parsed(other)).toEqual({ params: { policy: {} } })
+    })
+
+    it('starts every panel afresh when it is not told which table it belongs to', async () => {
+        const first = vi.fn()
+        const { unmount } = render(<ParametersInput onChange={first} parameters={parameters} />)
+        await userEvent.click(screen.getByTestId('edit-age'))
+        await userEvent.type(screen.getByTestId('input-age'), '7{enter}')
+        unmount()
+
+        const second = vi.fn()
+        render(<ParametersInput onChange={second} parameters={parameters} />)
+        expect(parsed(second)).toEqual({ params: { policy: {} } })
+    })
     it('writes the form as the structured input, with the context only when it is set', async () => {
         const onChange = vi.fn()
         render(<ParametersInput onChange={onChange} parameters={parameters} runtimeContext={runtimeContext} />)
