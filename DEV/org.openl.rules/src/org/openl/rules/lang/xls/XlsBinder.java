@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
 import lombok.Getter;
@@ -660,16 +661,37 @@ public class XlsBinder implements IOpenBinder {
                             i);
                 }
             }
+            DataNodeBinder.declareTables(tableSyntaxNodes, rulesModuleBindingContext);
         } finally {
             rulesModuleBindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
         }
 
+        IntConsumer bindDataTable = i -> {
+            childrens[i] = beginBind(tableSyntaxNodes[i], module, openl, rulesModuleBindingContext);
+            if (childrens[i] == null) {
+                module.removeUnboundDataField(tableSyntaxNodes[i].getUri());
+            }
+        };
+        var dataTableErrors = new SyntaxNodeExceptionHolder();
         for (var i = 0; i < tableSyntaxNodes.length; i++) {
-            if (!isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
-                var child = beginBind(tableSyntaxNodes[i], module, openl, rulesModuleBindingContext);
-                childrens[i] = child;
+            if (XlsNodeTypes.XLS_DATA == tableSyntaxNodes[i].getNodeType()) {
+                var index = i;
+                rulesModuleBindingContext.addDataTableBinder(tableSyntaxNodes[i].getUri(),
+                        () -> dataTableErrors.keepErrors(rulesModuleBindingContext,
+                                () -> bindDataTable.accept(index)));
             }
         }
+
+        for (var i = 0; i < tableSyntaxNodes.length; i++) {
+            if (!isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
+                if (XlsNodeTypes.XLS_DATA != tableSyntaxNodes[i].getNodeType()) {
+                    childrens[i] = beginBind(tableSyntaxNodes[i], module, openl, rulesModuleBindingContext);
+                } else if (rulesModuleBindingContext.removeDataTableBinder(tableSyntaxNodes[i].getUri())) {
+                    bindDataTable.accept(i);
+                }
+            }
+        }
+        dataTableErrors.processBindingContextErrors(rulesModuleBindingContext);
 
         addToModule(childrens, tableSyntaxNodes, module, rulesModuleBindingContext);
 
@@ -1037,12 +1059,7 @@ public class XlsBinder implements IOpenBinder {
 
         /** Runs a step of binding the table, keeping the errors it reports on the table. */
         private void keepingErrorsOnTable(Runnable step) {
-            rulesModuleBindingContext.pushErrors();
-            try {
-                step.run();
-            } finally {
-                rulesModuleBindingContext.popErrors().forEach(syntaxNodeExceptionHolder::addBindingContextError);
-            }
+            syntaxNodeExceptionHolder.keepErrors(rulesModuleBindingContext, step);
         }
 
         @Override
@@ -1055,10 +1072,19 @@ public class XlsBinder implements IOpenBinder {
 
         private final List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
 
-        // Used through the method reference syntaxNodeExceptionHolder::addBindingContextError.
+        // Used through the method reference this::addBindingContextError.
         @SuppressWarnings("java:S1144")
         private void addBindingContextError(SyntaxNodeException e) {
             syntaxNodeExceptions.add(e);
+        }
+
+        private void keepErrors(RulesModuleBindingContext bindingContext, Runnable step) {
+            bindingContext.pushErrors();
+            try {
+                step.run();
+            } finally {
+                bindingContext.popErrors().forEach(this::addBindingContextError);
+            }
         }
 
         private void processBindingContextErrors(IBindingContext bindingContext) {

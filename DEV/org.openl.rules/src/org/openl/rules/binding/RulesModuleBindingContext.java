@@ -34,6 +34,7 @@ import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -84,6 +85,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     /** The tables of the spreadsheet result types being built, by their syntax nodes. */
     private final Map<ISyntaxNode, RecursiveOpenMethodPreBinder> tablesInBinding = new IdentityHashMap<>();
+
+    private final Map<String, Runnable> dataTableBinders = new HashMap<>();
 
     @Getter(AccessLevel.PRIVATE)
     @Setter
@@ -147,6 +150,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public @Nullable IOpenField findVar(String namespace, String name, boolean strictMatch)
             throws AmbiguousFieldException {
         var openField = super.findVar(namespace, name, strictMatch);
+        if (openField instanceof DataOpenField dataField && !dataTableBinders.isEmpty()) {
+            var binder = dataTableBinders.remove(dataField.getUri());
+            if (binder != null) {
+                binder.run();
+                openField = super.findVar(namespace, name, strictMatch);
+            }
+        }
         if (openField != null) {
             return openField;
         }
@@ -299,17 +309,29 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
         } else if (openClass instanceof CustomSpreadsheetResultOpenClass csrOpenClass
                 && !csrOpenClass.isIgnoreCompilation()) {
-            // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
-            // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
-            final var methodName = csrOpenClass.getName()
-                    .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-            preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
-                if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
-                    preBindMethod(openMethodBinder.getHeader());
-                }
-            });
+            preBindSpreadsheetsOf(csrOpenClass);
         }
         return openClass;
+    }
+
+    public void addDataTableBinder(String uri, Runnable binder) {
+        dataTableBinders.put(uri, binder);
+    }
+
+    public boolean removeDataTableBinder(String uri) {
+        return dataTableBinders.remove(uri) != null;
+    }
+
+    public void preBindSpreadsheetsOf(CustomSpreadsheetResultOpenClass type) {
+        // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
+        // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
+        final var methodName = type.getName()
+                .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+        preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
+            if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
+                preBindMethod(openMethodBinder.getHeader());
+            }
+        });
     }
 
     @Override

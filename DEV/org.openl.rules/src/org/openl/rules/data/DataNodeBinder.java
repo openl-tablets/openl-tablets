@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
@@ -51,6 +52,7 @@ import org.openl.util.text.TextInterval;
 /**
  * @author snshor
  */
+@Slf4j
 public class DataNodeBinder extends AXlsTableBinder {
 
     // indexes of names in header
@@ -84,17 +86,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         var source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
-        IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
-
-        if (parsedHeader.length < 3) {
-            throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
-        }
-
-        parsedHeader = mergeArraySymbols(parsedHeader);
-
-        if (parsedHeader.length > 3) {
-            throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
-        }
+        IdentifierNode[] parsedHeader = parseHeader(source);
 
         var typeName = parsedHeader[TYPE_INDEX].getOriginalText();
         var tableName = parsedHeader[TABLE_NAME_INDEX].getText();
@@ -116,6 +108,53 @@ public class DataNodeBinder extends AXlsTableBinder {
         dataNode.setTable(dataTable);
 
         return dataNode;
+    }
+
+    private static IdentifierNode[] parseHeader(GridCellSourceCodeModule source) throws OpenLCompilationException {
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
+
+        if (parsedHeader.length < 3) {
+            throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
+        }
+
+        parsedHeader = mergeArraySymbols(parsedHeader);
+
+        if (parsedHeader.length > 3) {
+            throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
+        }
+        return parsedHeader;
+    }
+
+    public static void declareTables(TableSyntaxNode[] tableSyntaxNodes, RulesModuleBindingContext bindingContext) {
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
+        try {
+            for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+                if (XlsNodeTypes.XLS_DATA == tableSyntaxNode.getNodeType()) {
+                    declareTable(tableSyntaxNode, bindingContext);
+                }
+            }
+        } finally {
+            bindingContext.popMessages();
+            bindingContext.popErrors();
+        }
+    }
+
+    private static void declareTable(TableSyntaxNode tableSyntaxNode, RulesModuleBindingContext bindingContext) {
+        try {
+            var source = new GridCellSourceCodeModule(tableSyntaxNode.getTable().getSource(), bindingContext);
+            var parsedHeader = parseHeader(source);
+            var tableType = OpenLManager
+                    .makeType(bindingContext.getOpenL(), parsedHeader[TYPE_INDEX].getOriginalText(), source, bindingContext);
+            if (tableType.getInstanceClass() != null) {
+                var tableName = parsedHeader[TABLE_NAME_INDEX].getText();
+                var table = bindingContext.getDataBase().registerTable(tableName, tableSyntaxNode);
+                var module = bindingContext.getModule();
+                module.addField(new DataOpenField(tableName, tableType, table, module));
+            }
+        } catch (Exception | LinkageError e) {
+            log.debug("The Data table {} is not declared before the tables are bound.", tableSyntaxNode.getUri(), e);
+        }
     }
 
     private static IdentifierNode[] mergeArraySymbols(IdentifierNode[] parsedHeader) {

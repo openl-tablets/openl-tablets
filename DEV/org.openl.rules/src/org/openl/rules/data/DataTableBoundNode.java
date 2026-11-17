@@ -3,12 +3,14 @@ package org.openl.rules.data;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.binding.wrapper.DataOpenFieldWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -46,9 +48,18 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
 
         var tableSyntaxNode = getTableSyntaxNode();
 
-        field = new DataOpenField(table, openClass);
+        var declared = declaredField(openClass);
+        field = declared != null ? declared : new DataOpenField(table, openClass);
         openClass.addField(field);
         tableSyntaxNode.setMember(field);
+    }
+
+    private @Nullable DataOpenField declaredField(ModuleOpenClass openClass) {
+        var declared = openClass.getField(table.getDataModel().getName());
+        if (declared instanceof DataOpenFieldWrapper wrapper) {
+            declared = wrapper.getDelegate();
+        }
+        return declared instanceof DataOpenField dataField && dataField.fill(table) ? dataField : null;
     }
 
     @Override

@@ -225,6 +225,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
+    public IOpenField getField(String fieldName, boolean strictMatch) throws AmbiguousFieldException {
+        var field = super.getField(fieldName, strictMatch);
+        if (field == null && spreadsheet && !ignoreCompilation && module != null) {
+            var bindingContext = module.getRulesModuleBindingContext();
+            if (bindingContext != null && module.findType(getName()) == this) {
+                bindingContext.preBindSpreadsheetsOf(this);
+                field = super.getField(fieldName, strictMatch);
+            }
+        }
+        return field;
+    }
+
+    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         if (ioc instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
             return getModule().isDependencyModule(customSpreadsheetResultOpenClass.getModule(),
@@ -319,7 +332,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         for (IOpenField field : fields) {
-            var thisField = getField(field.getName());
+            var thisField = fieldMap().get(field.getName());
             if (thisField == null) {
                 addField(new CustomSpreadsheetResultField(this, field));
             } else {
