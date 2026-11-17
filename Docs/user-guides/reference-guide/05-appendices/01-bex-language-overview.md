@@ -28,6 +28,8 @@ Because of these keywords, name clashes with business vocabulary can occur. The 
 
 For example, assume there is an attribute called `isLessThanCoverageLimit`. If it is referred to as **is less than coverage limit**, a name clash with keywords **is less than** occurs. The workaround is to refer to the attribute as **Is Less Than Coverage Limit**.
 
+A name that is a keyword of BEX, such as `and`, `or`, `not` or `where`, is written in back quotes wherever it stands: in the header of the table, as in `` Spreadsheet Boolean `and`(Boolean a, Boolean b) ``, and in every call of it, as in `` = `and`(a, b) ``. Written without the back quotes, the keyword stops the table with an error that says so, such as `'and' is a keyword. To use it as a name, write it in back quotes: `and`.`
+
 ## Simplifying Expressions
 
 Unfortunately, the more complex an expression is, the less comprehensible the natural language expression becomes in BEX. For this purpose, BEX provides the following methods for simplifying expressions:
