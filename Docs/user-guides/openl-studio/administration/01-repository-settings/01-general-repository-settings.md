@@ -58,7 +58,12 @@ To add a repository, proceed as follows:
     or deleted by a user who lost the access, the message tells the reason the server gave, and that the branch was
     changed on the server meanwhile when another OpenL Studio pushed first.
 
-To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
+When the settings of a design repository move it to another place, such as another URL, local path, folder of the
+projects, AWS S3 bucket or repository type, the locks users hold on its projects are released: they were taken on the
+projects of the old place, and a project created in the new place under the same name can be edited at once.
+
+To delete a repository, click the **×** button on the repository's tab and confirm the deletion. The locks on its
+projects are released.
 
 When an environment variable or a Java system property sets the list of the repositories of a tab, such as
 `DESIGN-REPOSITORY-CONFIGS`, the repositories of that tab can be neither added nor deleted: the **Add Design
