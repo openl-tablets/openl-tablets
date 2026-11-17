@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
@@ -25,9 +26,11 @@ import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
+import org.openl.rules.webstudio.web.repository.DeploymentException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
+import org.openl.rules.webstudio.web.repository.UnreadableProjectException;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -190,7 +193,15 @@ public class DeploymentServiceImpl implements DeploymentService {
                 propertyResolver))) {
             requireCommitAuthor(request.currentUser().getUserName());
         }
-        deploymentManager.deploy(request);
+        try {
+            deploymentManager.deploy(request);
+        } catch (DeploymentException e) {
+            var unreadable = ExceptionUtils.throwableOfType(e, UnreadableProjectException.class);
+            if (unreadable == null) {
+                throw e;
+            }
+            throw new ConflictException("project.deploy.unreadable.message", unreadable.getProjectName());
+        }
         auditor.deployed(deploymentId.repository(), deploymentId.name(), project, comment);
     }
 
