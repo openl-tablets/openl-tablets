@@ -516,6 +516,10 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     from a calendar, a value of a known set is chosen from a list — and it keeps that way of writing wherever a
     row or a column laid down since has moved it.
 
+    A number cell of a module that has constants of its type, written in a Constants table, also takes the name
+    of one of them, such as `Noon` for a constant `Integer Noon 12`: the cell is written as text, and the names
+    of the constants are offered as you type.
+
     Most tables declare what a whole part of them holds. A Data table and a Test table declare their columns,
     a decision table its conditions and its returns, a lookup the cells its rules meet in — and every cell of
     that part is written the way the part was declared, however many rows or rules the table has. A line added

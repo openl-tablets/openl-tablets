@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.tableeditor.model.CellConstants;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.tables.DeclaredTableEditorsView;
 import org.openl.studio.projects.model.tables.TableCellEditorView;
@@ -83,6 +84,12 @@ class TableEditorsReaderTest {
             row(sheet, 36, 1, "name", "", "count");
             row(sheet, 37, 1, "Name", "Note", "Count");
             row(sheet, 38, 1, "Jane", "anything", "3");
+
+            // Constants a number cell may hold by name instead of a number (EPBDS-13456).
+            row(sheet, 40, 1, "Constants");
+            row(sheet, 41, 1, "Integer", "Noon", "12");
+            row(sheet, 42, 1, "Double", "Rate", "0.5");
+            row(sheet, 43, 1, "String", "Hello", "hi");
         });
     }
 
@@ -95,6 +102,16 @@ class TableEditorsReaderTest {
         assertEquals(Integer.MIN_VALUE, numeric.min());
         assertEquals(Integer.MAX_VALUE, numeric.max());
         assertEquals(Boolean.TRUE, numeric.intOnly());
+    }
+
+    @Test
+    void offersTheConstantsOfTheTypeOfANumberCell() {
+        var compiled = module.getCompiledOpenClass().getOpenClassWithErrors();
+        var read = new TableEditorsReader().read(table(module, "Greeting"), null, null, CellConstants.of(compiled));
+
+        // An Integer cell takes an Integer constant; a Double or a String one would not fit.
+        assertEquals(List.of("Noon"), editorOf(read, "numeric").constants());
+        assertNull(editorOf(read("Greeting"), "numeric").constants(), "no constant is offered unasked");
     }
 
     @Test
@@ -130,7 +147,7 @@ class TableEditorsReaderTest {
 
     @Test
     void reportsOnlyTheRowsItIsAskedAbout() {
-        var window = new TableEditorsReader().read(table(module, "Greeting"), 6, 1);
+        var window = new TableEditorsReader().read(table(module, "Greeting"), 6, 1, CellConstants.NONE);
 
         // The condition begins above the window and runs on past it, so what is left of it opens the window.
         assertEquals(editorOf(window, "numeric"), areaEditor(window, 0, 0),
@@ -234,7 +251,7 @@ class TableEditorsReaderTest {
             row(sheet, 4, 1, "345", "4", "3.2");
             sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, 3));
         });
-        var read = new TableEditorsReader().read(table(lookup, "Rating"), null, null);
+        var read = new TableEditorsReader().read(table(lookup, "Rating"), null, null, CellConstants.NONE);
 
         // The compiler also reads a lookup that fails the other way round before it drops that reading. The
         // vertical values are the ratings down the first column, and the rules meet under the risks.
@@ -271,8 +288,8 @@ class TableEditorsReaderTest {
     void readsToTheEndWhenMaxRowsIsTheLargestCount() {
         var table = table(module, "Greeting");
 
-        var uncapped = new TableEditorsReader().read(table, 5, null);
-        var capped = new TableEditorsReader().read(table, 5, Integer.MAX_VALUE);
+        var uncapped = new TableEditorsReader().read(table, 5, null, CellConstants.NONE);
+        var capped = new TableEditorsReader().read(table, 5, Integer.MAX_VALUE, CellConstants.NONE);
 
         assertNotNull(areaEditor(uncapped, 0, 0), "the rules in the window say how they are written");
         assertEquals(areaEditor(uncapped, 0, 0), areaEditor(capped, 0, 0));
@@ -281,7 +298,7 @@ class TableEditorsReaderTest {
 
     /** The whole of what the table says about how its cells are written. */
     private TableEditorsView read(String name) {
-        return new TableEditorsReader().read(table(module, name), null, null);
+        return new TableEditorsReader().read(table(module, name), null, null, CellConstants.NONE);
     }
 
     /** The first editor of the given kind, or {@code null} when the table asks for none. */

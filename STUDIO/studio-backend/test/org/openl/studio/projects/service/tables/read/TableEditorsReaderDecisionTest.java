@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.tableeditor.model.CellConstants;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.tables.DeclaredTableEditorsView;
 import org.openl.studio.projects.model.tables.TableCellEditorView;
@@ -160,7 +161,7 @@ class TableEditorsReaderDecisionTest {
     }
 
     private TableEditorsView read(String name) {
-        var read = new TableEditorsReader().read(table(module, name), null, null);
+        var read = new TableEditorsReader().read(table(module, name), null, null, CellConstants.NONE);
         assertNotNull(read);
         assertTrue(read instanceof DeclaredTableEditorsView, name + " declares what its conditions hold");
         return read;

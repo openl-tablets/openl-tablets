@@ -16,6 +16,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.tableeditor.model.ArrayCellEditor.ArrayEditorParams;
+import org.openl.rules.tableeditor.model.CellConstants;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ComboBoxCellEditor.ComboBoxParam;
 import org.openl.rules.tableeditor.model.EditorTypeResponse;
@@ -46,8 +47,6 @@ import org.openl.studio.projects.model.tables.TableEditorsView;
 @Component
 public class TableEditorsReader {
 
-    private final CellEditorSelector selector = new CellEditorSelector();
-
     /**
      * Reads the editors the cells of a window of a table ask for.
      *
@@ -57,9 +56,12 @@ public class TableEditorsReader {
      * @param openLTable the table to read
      * @param startRow   the zero-based index of the first row to look at; {@code null} starts at the top
      * @param maxRows    how many rows from {@code startRow} to look at; {@code null} looks at all of them
+     * @param constants  the constants of the module, which a number cell offers besides a number
      * @return the editors the table needs and the cells that ask for them
      */
-    public TableEditorsView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows) {
+    public TableEditorsView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows,
+            CellConstants constants) {
+        var selector = new CellEditorSelector(constants);
         var metaInfoReader = metaInfoReaderOf(openLTable);
         // The same window the raw read answers with, merged cells whole and all; see TableWindow.
         var window = TableWindow.of(openLTable.getGridTable(), startRow, maxRows);
@@ -73,8 +75,8 @@ public class TableEditorsReader {
         var declared = metaInfoReader.getAreas();
         // A table that declares what a part of it holds answers for the part, and then only for the cells that
         // are written some other way than the part they stand in.
-        var taken = byArea(openLTable.getGridTable(), declared, window);
-        var cells = collect(tableModel, metaInfoReader, window, taken, editors);
+        var taken = byArea(selector, openLTable.getGridTable(), declared, window);
+        var cells = collect(selector, tableModel, metaInfoReader, window, taken, editors);
         var view = declared.isEmpty() ? RawTableEditorsView.builder()
                 : DeclaredTableEditorsView.builder().areas(taken.stream()
                         .filter(part -> part.editor() != null)
@@ -95,7 +97,8 @@ public class TableEditorsReader {
      * written in yet as much as the ones that hold a value. That is what a line laid down in the table needs
      * to know, and it is all a table holding no rows has to say.
      */
-    private List<Taken> byArea(IGridTable table, List<TableArea> declared, TableWindow window) {
+    private static List<Taken> byArea(CellEditorSelector selector, IGridTable table, List<TableArea> declared,
+            TableWindow window) {
         var taken = new ArrayList<Taken>();
         for (var area : declared) {
             var row = area.row() - window.startRow();
@@ -111,7 +114,8 @@ public class TableEditorsReader {
                 row = 0;
             }
             var columns = area.columns() == TableArea.TO_THE_END ? null : area.columns();
-            taken.add(new Taken(row, area.column(), rows, columns, editorOf(cellOf(table, area), area.metaInfo())));
+            var editor = editorOf(selector, cellOf(table, area), area.metaInfo());
+            taken.add(new Taken(row, area.column(), rows, columns, editor));
         }
         return taken;
     }
@@ -131,8 +135,9 @@ public class TableEditorsReader {
      * <p>A cell written the same way as the part it stands in is passed by: the part has said it already, and a
      * table says the same thing about every cell of a column however many rules are written under it.
      */
-    private List<TableEditorsView.Cell> collect(TableModel tableModel, MetaInfoReader metaInfoReader,
-            TableWindow window, List<Taken> taken, Map<TableCellEditorView, Integer> editors) {
+    private static List<TableEditorsView.Cell> collect(CellEditorSelector selector, TableModel tableModel,
+            MetaInfoReader metaInfoReader, TableWindow window, List<Taken> taken,
+            Map<TableCellEditorView, Integer> editors) {
         var cells = new ArrayList<TableEditorsView.Cell>();
         var grid = tableModel.getGridTable();
         var height = window.rows() == TableWindow.EVERY_ROW ? tableModel.getHeight()
@@ -147,7 +152,7 @@ public class TableEditorsReader {
                         && tableModel.getCells()[row][column] instanceof CellModel cellModel) {
                     covered.mark(row, column, cellModel);
                     var cell = grid.getCell(cellModel.getColumn(), cellModel.getRow());
-                    var editor = editorOf(cell, metaInfoReader);
+                    var editor = editorOf(selector, cell, metaInfoReader);
                     if (editor != null && !alreadySaid(taken, row, column, editor)) {
                         cells.add(new TableEditorsView.Cell(row, column, indexOf(editor, editors)));
                     }
@@ -196,13 +201,15 @@ public class TableEditorsReader {
     }
 
     /** The editor the cell asks for, or {@code null} when it takes plain text like any other cell. */
-    private @Nullable TableCellEditorView editorOf(ICell cell, MetaInfoReader metaInfoReader) {
+    private static @Nullable TableCellEditorView editorOf(CellEditorSelector selector, ICell cell,
+            MetaInfoReader metaInfoReader) {
         var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-        return metaInfo == null ? null : editorOf(cell, metaInfo);
+        return metaInfo == null ? null : editorOf(selector, cell, metaInfo);
     }
 
     /** The editor a cell holding what the meta info describes asks for. */
-    private @Nullable TableCellEditorView editorOf(ICell cell, CellMetaInfo metaInfo) {
+    private static @Nullable TableCellEditorView editorOf(CellEditorSelector selector, ICell cell,
+            CellMetaInfo metaInfo) {
         var selected = selector.selectEditor(cell, metaInfo);
         return selected == null ? null : describe(selected.getEditorTypeAndMetadata());
     }
@@ -224,9 +231,10 @@ public class TableEditorsReader {
                     .separatorEscaper(separatorEscaper);
             case ComboBoxParam(String[] choices, String[] displayValues) -> described.choices(List.of(choices))
                     .displayValues(displayValues(displayValues));
-            case RangeParam(Number min, Number max, boolean intOnly) -> described.min(min)
+            case RangeParam(Number min, Number max, boolean intOnly, List<String> constants) -> described.min(min)
                     .max(max)
-                    .intOnly(intOnly);
+                    .intOnly(intOnly)
+                    .constants(constants.isEmpty() ? null : constants);
             case ArrayEditorParams(String separator, String entryEditor, boolean intOnly) -> described
                     .separator(separator)
                     .entryEditor(entryEditor)

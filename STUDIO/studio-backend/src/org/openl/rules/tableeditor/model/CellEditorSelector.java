@@ -33,6 +33,21 @@ import org.openl.util.formatters.IFormatter;
  */
 public class CellEditorSelector {
 
+    private final CellConstants constants;
+
+    /** Picks the editors of the cells of a module whose constants are not known. */
+    public CellEditorSelector() {
+        this(CellConstants.NONE);
+    }
+
+    /**
+     * Picks the editors of the cells of a module with the given constants, which a number cell offers besides a
+     * number.
+     */
+    public CellEditorSelector(CellConstants constants) {
+        this.constants = constants;
+    }
+
     public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
         if (cell.getFormula() != null) {
             return new FormulaCellEditor();
@@ -92,10 +107,10 @@ public class CellEditorSelector {
     }
 
     /** The editor for the type of the cell, or {@code null} when the type has no dedicated editor. */
-    private static ICellEditor typeEditor(String initialValue,
-                                          CellMetaInfo meta,
-                                          IDomain<?> domain,
-                                          Class<?> instanceClass) {
+    private ICellEditor typeEditor(String initialValue,
+                                   CellMetaInfo meta,
+                                   IDomain<?> domain,
+                                   Class<?> instanceClass) {
         ICellEditor result = null;
         // Numeric
         if (ClassUtils.isAssignable(instanceClass, Number.class)) {
@@ -140,12 +155,12 @@ public class CellEditorSelector {
         return null;
     }
 
-    private static ICellEditor numericEditor(CellMetaInfo meta, Class<?> instanceClass) {
+    private ICellEditor numericEditor(CellMetaInfo meta, Class<?> instanceClass) {
         var intOnly = IntegerValuesUtils.isIntegerValue(instanceClass);
         if (!meta.isMultiValue()) {
             Number minValue = NumberUtils.getMinValue(instanceClass);
             Number maxValue = NumberUtils.getMaxValue(instanceClass);
-            return new NumericCellEditor(minValue, maxValue, intOnly);
+            return new NumericCellEditor(minValue, maxValue, intOnly, constants.namesFor(instanceClass));
         } else {
             // Numeric Array
             return new ArrayCellEditor(ArrayCellEditor.DEFAULT_SEPARATOR, ICellEditor.CE_NUMERIC, intOnly);

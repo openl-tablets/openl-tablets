@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useId, useMemo, useRef } from 'react'
 import { Button, Checkbox, DatePicker, Flex, Input, InputNumber, Select } from 'antd'
 import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
@@ -149,6 +149,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     const listed = useMemo(() => [NO_CHOICE, ...choices], [choices])
     const separator = asked?.separator ?? ','
     const numeric = useMemo(() => numberOnly(asked?.intOnly), [asked?.intOnly])
+    const constantsListId = useId()
 
     /**
      * Enter keeps what was written and Escape leaves the cell as it was, wherever the reader is writing.
@@ -261,6 +262,25 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                 />
             )
         case 'numeric':
+            if (asked?.constants?.length) {
+                // A module with constants of the type of the cell lets the cell hold the name of one as well as a
+                // number, so it is written as text, and the names are offered as the reader types.
+                return (
+                    <>
+                        <Input
+                            {...shared}
+                            list={constantsListId}
+                            onBlur={() => onCommit()}
+                            onChange={event => onChange(event.target.value)}
+                            onKeyDown={keys}
+                            value={value}
+                        />
+                        <datalist data-testid="table-cell-constants" id={constantsListId}>
+                            {asked.constants.map(name => <option key={name} value={name} />)}
+                        </datalist>
+                    </>
+                )
+            }
             return (
                 <InputNumber
                     {...shared}

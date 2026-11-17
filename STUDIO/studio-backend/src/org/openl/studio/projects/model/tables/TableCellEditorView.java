@@ -24,6 +24,8 @@ import org.jspecify.annotations.Nullable;
  * @param max             largest value the type holds, for {@code numeric}
  * @param intOnly         {@code true} when only whole numbers are accepted, for {@code numeric} and {@code array}
  * @param entryEditor     the editor one entry is written with, for {@code array} and {@code range}
+ * @param constants       names of the constants of the module the cell may hold instead of a number, for
+ *                        {@code numeric}
  * @author Vladyslav Pikus
  */
 @Builder
@@ -56,6 +58,10 @@ public record TableCellEditorView(
         @Nullable Boolean intOnly,
 
         @Schema(description = "Editor one entry is written with; carried by 'array' and 'range'")
-        @Nullable String entryEditor
+        @Nullable String entryEditor,
+
+        @Schema(description = "Names of the constants of the module the cell may hold instead of a number; carried "
+                + "by 'numeric' when the module has constants of the type of the cell")
+        @Nullable List<String> constants
 ) {
 }

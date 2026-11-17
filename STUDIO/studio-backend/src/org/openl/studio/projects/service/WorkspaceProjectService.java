@@ -88,6 +88,7 @@ import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.tableeditor.model.CellConstants;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectLocalization;
 import org.openl.rules.ui.ProjectModel;
@@ -2544,7 +2545,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public TableEditorsView getTableEditors(RulesProject project, String tableId, @Nullable Integer startRow,
             @Nullable Integer maxRows, @Nullable String moduleName) {
         var context = getWritableTable(project, tableId, moduleName);
-        return tableEditorsReader.read(context.table(), startRow, maxRows);
+        var module = context.module().getCompiledOpenClass();
+        return tableEditorsReader.read(context.table(), startRow, maxRows,
+                CellConstants.of(module == null ? null : module.getOpenClassWithErrors()));
     }
 
     /**

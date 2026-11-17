@@ -36272,6 +36272,14 @@ Content-Type: application/json
               "description": "***"
             }
           },
+          "constants": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
           "displayValues": {
             "type": "array",
             "description": "***",
