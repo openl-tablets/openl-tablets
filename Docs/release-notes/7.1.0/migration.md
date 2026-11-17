@@ -65,6 +65,12 @@ developers.
   array kept its order without a message. Name the field of the element, such as `statuses[order by ruleId]`, or drop
   the sorting.
 
+* **A text beside a table header gets a warning.** A text in the first row of a table out of its top left cell,
+  merged or not, compiles with `A text in the first row out of the header cell is ignored.` Before, such a text, as a
+  second header written next to the first one, was ignored without a message. Move the text out of the table, or
+  merge the header cell over it if it is a part of the header, or start it with `//` to keep it as a comment.
+  Conditions, Actions and Returns tables keep their parameters next to the keyword.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
