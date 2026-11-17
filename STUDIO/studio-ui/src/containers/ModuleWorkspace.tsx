@@ -32,7 +32,7 @@ import { ClosedProject } from './projects/ClosedProject'
 import { ProjectScreenHeader } from './projects/ProjectScreenHeader'
 import { useOpenProject } from './projects/useOpenProject'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
-import { showOtherSetting } from './modules/tableGrouping'
+import { OTHER_KIND, showOtherSetting } from './modules/tableGrouping'
 import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import type { TableEditorHandle, Written } from './modules/TableEditor'
@@ -175,7 +175,7 @@ export const ModuleWorkspace = () => {
     // A screen sent to a free-form table it knows the kind of asks for them before going there, so the module
     // is read once, with the table in the list.
     const showIfOther = useCallback((kind: string) => {
-        if (kind === 'Other') {
+        if (kind === OTHER_KIND) {
             setShowOther(true)
         }
     }, [])
@@ -950,8 +950,10 @@ export const ModuleWorkspace = () => {
                     initialName={searchFor ?? ''}
                     moduleName={moduleName}
                     onClose={() => setSearchFor(null)}
+                    onShowOther={chooseOther}
                     open={searchFor !== null}
                     projectId={projectId}
+                    showOther={showOther}
                     onOpen={found => {
                         setSearchFor(null)
                         openFound(found)
