@@ -24,6 +24,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -32,6 +34,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.TableProperty;
@@ -388,8 +391,7 @@ class TableCopyServiceTest {
 
     /** A table that carries no properties has nothing a copy could be told from it by, so none is made. */
     @ParameterizedTest
-    @CsvSource({"Datatype Person, Datatype", "Environment, Environment", "Properties MyScope, Properties",
-            "Notes on the rates, Other"})
+    @CsvSource({"Datatype Person, Datatype", "Notes on the rates, Other"})
     void aTableThatCarriesNoPropertiesIsNotCopied(String header, String kind, @TempDir Path projectDir)
             throws Exception {
         var model = TableTestProjects.projectModel(projectDir, "Rules", sheet -> {
@@ -398,10 +400,118 @@ class TableCopyServiceTest {
         });
         var source = TableTestProjects.tableHeaded(model, header);
 
-        var refused = assertThrows(BadRequestException.class, () -> TableCopyService.requireCopyable(source));
+        var request = copyRequest("Copied", null);
+
+        var refused = assertThrows(BadRequestException.class, () -> TableCopyService.requireCopyable(source, request));
 
         assertEquals("openl.error.400.table.copy.kind.not-copyable.message", refused.getErrorCode());
         assertArrayEquals(new Object[]{kind}, refused.getArgs());
+    }
+
+    /**
+     * OpenL names a Test, a Run, a Properties and an Environment table on its own, so the copy of one is made without a
+     * name, or under the name given: its header keeps the keyword and the table a test calls, and the module compiles
+     * with both tables.
+     */
+    @ParameterizedTest
+    @CsvSource({"Test hello, , Test hello", "Test hello helloChecks, , Test hello", "Run hello, , Run hello",
+            "Run hello helloRun, , Run hello", "Properties, , Properties", "Properties Shared, , Properties",
+            "Environment, , Environment", "Test hello, Checked, Test hello Checked",
+            "Run hello helloRun, Checked, Run hello Checked", "Properties, Checked, Properties Checked",
+            "Environment, Checked, Environment Checked"})
+    void aTableOfAnOptionalNameIsCopiedWithOrWithoutOne(String header, @Nullable String name, String copyHeader,
+            @TempDir Path projectDir) throws Exception {
+        var model = optionallyNamed(projectDir, header);
+        var source = TableTestProjects.tableHeaded(model, header);
+        var request = copyRequest(name, null);
+        TableCopyService.requireCopyable(source, request);
+
+        service.copyInto(source, request.name(), request.properties(), creator.sheetGridModel(model, "Copies"),
+                model.getTableSyntaxNodes(), null);
+
+        var copy = resolve(projectDir, copyHeader, "Copies").table();
+        assertEquals(copyHeader, copy.getGridTable().getCell(0, 0).getStringValue());
+        assertEquals(source.getGridTable().getHeight(), copy.getGridTable().getHeight(), "the body is copied whole");
+        assertNoErrors(projectDir);
+    }
+
+    /** The rows of a Properties table are its properties, and an Environment table has none to give. */
+    @ParameterizedTest
+    @CsvSource({"Properties, Properties", "Environment, Environment"})
+    void aTableCopiedAsItStandsTakesNoProperties(String header, String kind, @TempDir Path projectDir)
+            throws Exception {
+        var source = TableTestProjects.tableHeaded(optionallyNamed(projectDir, header), header);
+
+        var request = copyRequest(null, List.of());
+
+        var refused = assertThrows(BadRequestException.class, () -> TableCopyService.requireCopyable(source, request));
+
+        assertEquals("openl.error.400.table.copy.properties.not-applicable.message", refused.getErrorCode());
+        assertArrayEquals(new Object[]{kind}, refused.getArgs());
+    }
+
+    /** A table that carries its name in a signature, or whose module knows it by its name, needs a name for a copy. */
+    @ParameterizedTest
+    @CsvSource({"SmartRules String hello(String name)", "Constants"})
+    void aCopyOfATableOfARequiredNameNeedsOne(String header, @TempDir Path projectDir) throws Exception {
+        var model = optionallyNamed(projectDir, "Constants");
+        var source = TableTestProjects.tableHeaded(model, header);
+
+        var request = copyRequest(" ", null);
+
+        var refused = assertThrows(BadRequestException.class, () -> TableCopyService.requireCopyable(source, request));
+
+        assertEquals("openl.error.400.table.name.required.message", refused.getErrorCode());
+    }
+
+    /** A copy written without the check of its request still refuses to leave a signature without a name. */
+    @Test
+    void aSignatureIsNotLeftWithoutAName(@TempDir Path projectDir) throws Exception {
+        var model = optionallyNamed(projectDir, "Constants");
+        var source = TableTestProjects.tableHeaded(model, "SmartRules String hello(String name)");
+        var destGrid = creator.sheetGridModel(model, "Copies");
+        var moduleTables = model.getTableSyntaxNodes();
+
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.copyInto(source, null, null, destGrid, moduleTables, null));
+
+        assertEquals("openl.error.400.table.name.required.message", refused.getErrorCode());
+    }
+
+    /** A rule, and under it the table of the given header with the rows its kind takes. */
+    private static ProjectModel optionallyNamed(Path projectDir, String header) throws Exception {
+        return TableTestProjects.projectModel(projectDir, "Rules", sheet -> {
+            TableTestProjects.row(sheet, 0, 0, "SmartRules String hello(String name)");
+            TableTestProjects.row(sheet, 1, 0, "Name", "Greeting");
+            TableTestProjects.row(sheet, 2, 0, "Ann", "Hi");
+            TableTestProjects.row(sheet, 4, 0, header);
+            switch (header.split(" ")[0]) {
+                case "Test" -> {
+                    TableTestProjects.row(sheet, 5, 0, "name", "_res_");
+                    TableTestProjects.row(sheet, 6, 0, "Ann", "Hi");
+                }
+                case "Run" -> {
+                    TableTestProjects.row(sheet, 5, 0, "name");
+                    TableTestProjects.row(sheet, 6, 0, "Ann");
+                }
+                case "Properties" -> TableTestProjects.row(sheet, 5, 0, "scope", "Category");
+                case "Environment" -> TableTestProjects.row(sheet, 5, 0, "import", "java.util");
+                default -> TableTestProjects.row(sheet, 5, 0, "Integer", "MAX", "65");
+            }
+        });
+    }
+
+    /** The module of the project compiles without an error. */
+    private static void assertNoErrors(Path projectDir) {
+        var errors = TableTestProjects.projectModel(projectDir).getModuleMessages().stream()
+                .filter(message -> message.getSeverity() == Severity.ERROR)
+                .map(OpenLMessage::getSummary)
+                .toList();
+        assertEquals(List.of(), errors, "the module compiles with the copy");
+    }
+
+    private static CopyTableRequest copyRequest(@Nullable String name, @Nullable List<TableProperty> properties) {
+        return new CopyTableRequest("Rules", "Copies", null, name, properties);
     }
 
     /** Cells match on everything but their address: value, spans, covered flag and style. */

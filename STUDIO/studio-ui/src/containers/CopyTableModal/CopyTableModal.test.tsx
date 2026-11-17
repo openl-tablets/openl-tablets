@@ -307,15 +307,95 @@ describe('CopyTableModal', () => {
     })
 
     it('asks for a name when the header of the table names none', async () => {
-        mockGetInfo.mockResolvedValue({ name: '', kind: 'Conditions', properties: []})
+        const user = userEvent.setup({ delay: null })
+        // The server leaves an empty name out of its answer, as it does for a Constants table headed by its keyword.
+        mockGetInfo.mockResolvedValue({ kind: 'Constants' })
         render(<CopyTableModal />)
         await openModal()
 
         await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
         // The dialog is titled by the kind, and the name is left for the author to give.
-        expect(screen.getByRole('dialog')).toHaveTextContent('project:copy_table_modal.title:Conditions')
+        expect(screen.getByRole('dialog')).toHaveTextContent('project:copy_table_modal.title:Constants')
         expect(screen.getByTestId('copy-table-name')).toHaveValue('')
         expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy' })).toBeDisabled()
+
+        await user.type(screen.getByTestId('copy-table-name'), 'Rates')
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledWith('project-id', 'source-id', {
+            moduleName: 'Main',
+            sheetName: 'Rules',
+            name: 'Rates',
+            properties: [],
+        }))
+    })
+
+    it('copies a Test table without a name, its header naming only the table it calls', async () => {
+        const user = userEvent.setup({ delay: null })
+        mockGetInfo.mockResolvedValue({ kind: 'Test', properties: [{ name: 'lob', value: 'Auto' }]})
+        mockGetSheets.mockResolvedValue([])
+        render(<CopyTableModal />)
+        await openModal({ currentModuleName: 'Pricing' })
+
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Pricing'))
+        expect(screen.getByRole('dialog')).toHaveTextContent('project:copy_table_modal.title:Test')
+        expect(screen.getByTestId('copy-table-name')).toHaveValue('')
+        // A copy without a name, into a module of no sheet yet, is written to a sheet named after its kind.
+        expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Test')
+        expect(screen.getByText('project:copy_table_modal.table_name')).not.toHaveClass(/required/)
+        // A name given still has to be one OpenL compiles.
+        await user.type(screen.getByTestId('copy-table-name'), '1st')
+        expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy' })).toBeDisabled()
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledWith('project-id', 'source-id', {
+            moduleName: 'Pricing',
+            sheetName: 'Test',
+            properties: [{ name: 'lob', value: 'Auto' }],
+        }))
+    })
+
+    it('keeps a sheet to write to when the name of a Test table is cleared', async () => {
+        const user = userEvent.setup({ delay: null })
+        mockGetInfo.mockResolvedValue({ name: 'helloChecks', kind: 'Test' })
+        mockGetSheets.mockResolvedValue([])
+        render(<CopyTableModal />)
+        await openModal({ currentModuleName: 'Pricing' })
+
+        await waitFor(() => expect(screen.getByTestId('copy-table-sheet')).toHaveValue('helloChecks'))
+        await user.clear(screen.getByTestId('copy-table-name'))
+
+        // Without a name the copy goes by its kind, so the sheet stays one Copy can write to.
+        expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Test')
+        await user.type(screen.getByTestId('copy-table-name'), 'smoke')
+        expect(screen.getByTestId('copy-table-sheet')).toHaveValue('smoke')
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledWith('project-id', 'source-id', {
+            moduleName: 'Pricing',
+            sheetName: 'Test',
+            properties: [],
+        }))
+    })
+
+    it('copies a Properties table as it stands, with no properties to give', async () => {
+        const user = userEvent.setup({ delay: null })
+        mockGetInfo.mockResolvedValue({ kind: 'Properties', properties: [{ name: 'lob', value: 'Auto' }]})
+        render(<CopyTableModal />)
+        await openModal({ currentSheetName: 'Rules' })
+
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+        expect(screen.queryByTestId('copy-table-property-row-0')).toBeNull()
+        await user.type(screen.getByTestId('copy-table-name'), 'Shared')
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledWith('project-id', 'source-id', {
+            moduleName: 'Main',
+            sheetName: 'Rules',
+            name: 'Shared',
+        }))
     })
 
     it('reads the properties and copies the table on the server by its id', async () => {

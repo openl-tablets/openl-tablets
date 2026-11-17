@@ -9,6 +9,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.model.tables.CopyTableRequest;
+import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
 
 /**
@@ -27,7 +29,8 @@ public interface TableCopyService {
      * Write a copy of {@code source} into {@code destGrid}, save it and return the copy's identifier.
      * <p>
      * The body is copied cell by cell with its styles, merges and comments, exactly as it stands in the source. The
-     * header is renamed after {@code newName}. When {@code properties} is {@code null} the source's own properties are
+     * header is renamed after {@code newName}; a copy of a kind whose name is optional is left unnamed without one, its
+     * header the keyword and, for a Test or a Run table, the table it calls. When {@code properties} is {@code null} the source's own properties are
      * kept as they are; otherwise they replace the source's — an empty list removes them. The copy is written in one
      * pass, so a copy that keeps the source's name never exists as an indistinguishable duplicate.
      *
@@ -39,11 +42,11 @@ public interface TableCopyService {
      * <p>A new version is refused a number any version of the table already carries, so the engine is never left
      * with two versions it cannot tell apart.
      *
-     * <p>The source is one a copy can be made of: the caller checks it with {@link #requireCopyable(IOpenLTable)}
-     * before writing anything for the copy.
+     * <p>The source is one a copy can be made of: the caller checks it with
+     * {@link #requireCopyable(IOpenLTable, CopyTableRequest)} before writing anything for the copy.
      *
      * @param source       the table being copied, which stands down when the copy is a new version of it
-     * @param newName      the name the copy is given
+     * @param newName      the name the copy is given, or {@code null} to leave it unnamed
      * @param properties   the copy's properties, or {@code null} to keep the source's
      * @param destGrid     the sheet or the new Markdown file the copy is written to
      * @param moduleTables the tables compiled together with the copy, which a new version is checked against
@@ -52,26 +55,48 @@ public interface TableCopyService {
      *                     source
      * @return the identifier the copy is known by once its module is compiled again
      */
-    String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
+    String copyInto(IOpenLTable source, @Nullable String newName, @Nullable List<TableProperty> properties,
             IWritableGrid destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled);
 
     /**
-     * Refuses a table a copy cannot be made of: a datatype, and the kinds that carry no properties at all.
+     * Refuses a copy that cannot be made of the table as the request asks.
      *
-     * <p>A copy is told from the table it was made of by the properties it is given, so a table that can hold none has
-     * nothing to be copied into. The table toolbar of OpenL Studio offers no copy of them either.
+     * <p>A Datatype and a table of the type Other are never copied: they carry no properties to tell a copy from the
+     * table it was made of. The table toolbar of OpenL Studio offers no copy of them either.
      *
-     * @param source the table asked to be copied
-     * @throws BadRequestException for a Datatype, an Environment, a Properties table or a table of the type Other
+     * <p>The name of a Test, a Run, a Properties and an Environment table is optional, as OpenL names each of them on
+     * its own, so their copy may be left without one. Every other copy needs a name.
+     *
+     * <p>A Properties and an Environment table are copied as they stand: the rows of a Properties table are its
+     * properties, and an Environment table has none, so the request cannot give the copy properties.
+     *
+     * @param source  the table asked to be copied
+     * @param request the copy asked for
+     * @throws BadRequestException for a Datatype or a table of the type Other, for a copy without a name that needs
+     *                             one, and for properties given to a copy of a Properties or an Environment table
      */
-    static void requireCopyable(IOpenLTable source) {
+    static void requireCopyable(IOpenLTable source, CopyTableRequest request) {
         var kind = OpenLTableUtils.kindOf(source);
         switch (kind) {
-            case DATATYPE, ENVIRONMENT, PROPERTIES, OTHER -> throw new BadRequestException(
-                    "table.copy.kind.not-copyable.message", new Object[]{kind.value()});
-            default -> {
-                // Any other kind can be copied.
+            case DATATYPE, OTHER -> throw new BadRequestException("table.copy.kind.not-copyable.message",
+                    new Object[]{kind.value()});
+            case PROPERTIES, ENVIRONMENT -> requireNoProperties(kind, request);
+            case TEST, RUN -> {
+                // OpenL names a Test or a Run table on its own, so its copy may be left without a name.
             }
+            default -> requireName(request);
+        }
+    }
+
+    private static void requireNoProperties(TableKind kind, CopyTableRequest request) {
+        if (request.properties() != null) {
+            throw new BadRequestException("table.copy.properties.not-applicable.message", new Object[]{kind.value()});
+        }
+    }
+
+    private static void requireName(CopyTableRequest request) {
+        if (request.name() == null) {
+            throw new BadRequestException("table.name.required.message");
         }
     }
 }

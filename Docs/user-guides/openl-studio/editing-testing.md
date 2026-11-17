@@ -150,9 +150,15 @@ property name and value rows, offering the properties applicable to the table's 
 **Info**, **Business Dimension**, **Version** and **Dev** groups — the same names and grouping the **Table Details**
 editor uses. The copy keeps the source table's formatting — its cell styles, merged cells and comments.
 
-Datatype, Environment and Properties tables and tables of the **Other** type cannot be copied: they carry no properties
-to tell a copy from the table it was made of. A Conditions, Actions, Returns or Constants table whose header is its
-keyword alone has no name, so the window opens with an empty **Table Name** for the copy to be named.
+Datatype tables and tables of the **Other** type cannot be copied: they carry no properties to tell a copy from the
+table it was made of. A Properties or Environment table is copied as it stands, its rows unchanged, so the window
+offers no properties for it. A module holds one Properties table for each scope and category, so a copy of a
+Properties table goes to another module or, for the **Category** scope, to another sheet.
+
+A table whose header leaves its name out, such as a Conditions table headed by its keyword alone or a Test table that
+names only the table it calls, opens the window with an empty **Table Name**. The name of a Test, Run, Properties or
+Environment table is optional, and OpenL Tablets names such a table on its own, so the copy of one can be left without
+a name. A Conditions, Actions, Returns or Constants table needs a name for its copy.
 
 To create a variant of a rule that OpenL selects at runtime from the request context, keep the source table's name and
 give the copy a different value for a **Business Dimension** property, such as **US States** or **LOB**. The copy is

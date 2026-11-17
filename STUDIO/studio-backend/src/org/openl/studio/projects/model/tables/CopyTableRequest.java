@@ -21,8 +21,10 @@ import org.jspecify.annotations.Nullable;
  *                   files the sheet is the folder of the file of the copy, and defaults to the module folder
  * @param modulePath project-relative path for a new module: an .xlsx workbook, or a folder for a module of
  *                   Markdown files; when absent, the module must already exist
- * @param name       name of the copied table
- * @param properties the copy's properties; when omitted, the source table's properties are kept
+ * @param name       name of the copied table, {@code null} when blank; optional for a Test, a Run, a Properties
+ *                   and an Environment table, whose copy is left unnamed without one
+ * @param properties the copy's properties; when omitted, the source table's properties are kept. A Properties or an
+ *                   Environment table is copied as it stands and takes none
  * @author Vladyslav Pikus
  */
 public record CopyTableRequest(
@@ -39,13 +41,21 @@ public record CopyTableRequest(
         @Pattern(regexp = "(?i).+\\.xlsx|/*[^./][^.]*")
         @Nullable String modulePath,
 
-        @Parameter(description = "Name of the copied table")
-        @NotBlank
+        @Parameter(description = "Name of the copied table. Optional for a Test, a Run, a Properties and an Environment "
+                + "table, whose copy is left unnamed without one")
         @TableNameConstraint
-        @NonNull String name,
+        @Nullable String name,
 
-        @Parameter(description = "The copy's properties. When omitted, the source table's properties are kept.")
+        @Parameter(description = "The copy's properties. When omitted, the source table's properties are kept. A "
+                + "Properties or an Environment table is copied as it stands and takes none.")
         @Valid
         @Nullable List<TableProperty> properties
 ) {
+
+    /** A blank name is no name: the copy is left unnamed where its kind allows. */
+    public CopyTableRequest {
+        if (name != null && name.isBlank()) {
+            name = null;
+        }
+    }
 }

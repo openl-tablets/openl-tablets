@@ -302,7 +302,11 @@ export interface TableVersions {
 
 /** A table's name, kind and its own properties — read cheaply for the copy dialog, without the body. */
 export interface TableCopyInfo {
-    name: string
+    /**
+     * Absent when the header leaves the name out, such as a Conditions table headed by its keyword alone or a Test
+     * table naming only the table it calls (the backend omits an empty name).
+     */
+    name?: string
     kind: string
     /** Absent when the table declares no properties (the backend omits an empty list). */
     properties?: TableProperty[]
@@ -315,7 +319,9 @@ export interface CopyTableRequest {
     moduleName: string
     sheetName?: string
     modulePath?: string
-    name: string
+    /** Left out to copy a Test, a Run, a Properties or an Environment table without a name. */
+    name?: string
+    /** Left out to keep the source's; a Properties or an Environment table takes none. */
     properties?: TableProperty[]
 }
 

@@ -147,8 +147,16 @@ describe('TableToolbar', () => {
         expect(screen.queryByTestId('table-copy')).toBeNull()
         unmount()
 
-        await draw({ canWrite: true, table: table('Environment') })
+        await draw({ canWrite: true, table: table('Other') })
         expect(screen.queryByTestId('table-copy')).toBeNull()
+    })
+
+    it('copies a Properties, an Environment, a Test and a Run table, whose name is optional', async () => {
+        for (const kind of ['Properties', 'Environment', 'Test', 'Run']) {
+            const { unmount } = await draw({ canWrite: true, table: table(kind) })
+            expect(screen.getByTestId('table-copy')).toBeEnabled()
+            unmount()
+        }
     })
 
     it('writes a test only against a table the rules can call and that answers with something', async () => {

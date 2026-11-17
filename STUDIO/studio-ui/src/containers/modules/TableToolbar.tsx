@@ -78,12 +78,12 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 /**
- * Tables a copy cannot be made of: a datatype, and the kinds that carry no properties at all.
+ * Tables a copy cannot be made of: a datatype, and whatever OpenL could not name.
  *
- * <p>A copy is told from the table it was made of by the properties it is given, so a table that can hold none —
- * the environment, the properties table itself, whatever OpenL could not name — has nothing to be copied into.
+ * <p>A copy is told from the table it was made of by the properties it is given, and these tables carry none. A
+ * Properties and an Environment table are copied as they stand, a copy being one in another module or sheet.
  */
-const NOT_COPYABLE = new Set(['Datatype', 'Environment', 'Properties', 'Other'])
+const NOT_COPYABLE = new Set(['Datatype', 'Other'])
 
 /** The families written against another table: they are the only ones with a table to name. */
 const EXERCISING = new Set<string>(EXERCISING_KINDS)

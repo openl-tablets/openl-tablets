@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { FieldRow } from 'components/FieldRow'
 import { IconAction } from 'components/IconAction'
 import { SuggestInput } from 'components/SuggestInput'
+import { EXERCISING_KINDS } from 'constants/tableKinds'
 import { useGlobalEvents } from 'hooks'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
 import { copyTable, getTableCopyInfo } from 'services/tables'
@@ -50,6 +51,18 @@ const propertyRow = (name: string, value: TablePropertyInput['value']): TablePro
     ({ id: nextPropertyId++, name, value })
 
 const blankProperty = (): TablePropertyInput => propertyRow('', '')
+
+/**
+ * The kinds OpenL names on its own, so a copy of one may be left without a name: its header keeps the keyword and, for
+ * a Test or a Run table, the table it calls.
+ */
+const NAME_OPTIONAL = new Set<string>([...EXERCISING_KINDS, 'Properties', 'Environment'])
+
+/** The kinds copied as they stand: the rows of a Properties table are its properties, and an Environment has none. */
+const COPIED_AS_THEY_STAND = new Set(['Properties', 'Environment'])
+
+/** The sheet a copy goes to by default: the one named after it, or after its kind when it has no name. */
+const defaultSheet = (name: string, kind: string): string => sheetNameFrom(name.trim() || kind)
 
 export interface CopyTableModalDetail {
     projectId: string
@@ -116,10 +129,12 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                 setSourceInfo(info)
                 setModules(available)
                 setProjectProperties(loadedProperties)
-                setTableName(info.name)
+                // A header that leaves the name out is answered without one: the author names the copy, or leaves it
+                // unnamed where its kind allows.
+                setTableName(info.name ?? '')
                 setSheetName(destination === detail.currentModuleName && detail.currentSheetName
                     ? detail.currentSheetName
-                    : sheetNameFrom(info.name))
+                    : defaultSheet(info.name ?? '', info.kind))
                 const applicableNames = new Set(loadedProperties.map(property => property.name))
                 setProperties(normalizeProperties(
                     (info.properties ?? [])
@@ -203,12 +218,15 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         }
         return !carriedOver(property) && !isValidPropertyValue(definitionOf(property.name), property.value)
     }
+    const kind = sourceInfo?.kind ?? ''
+    const nameOptional = NAME_OPTIONAL.has(kind)
+    const copiedAsItStands = COPIED_AS_THEY_STAND.has(kind)
     const partialProperty = properties.some(property =>
         !isEmptyProperty(property) && !isCompleteProperty(property))
     const submittedProperties = properties.filter(isCompleteProperty)
     const valid = Boolean(
         sourceInfo
-        && IDENTIFIER.test(tableName.trim())
+        && (IDENTIFIER.test(tableName.trim()) || (nameOptional && !tableName.trim()))
         && moduleName
         && isValidSheetName(sheetName)
         && !partialProperty
@@ -220,8 +238,10 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const handleTableNameChange = (value: string) => {
         setTableName(value)
         // The sheet mirrors the name until the author points it elsewhere, following the name clipped to Excel's
-        // limit: a longer name would otherwise leave a sheet Excel rejects and disable Copy.
-        setSheetName(current => current === sheetNameFrom(tableName) ? sheetNameFrom(value) : current)
+        // limit: a longer name would otherwise leave a sheet Excel rejects and disable Copy. A copy that may be left
+        // without a name follows its kind while it has none, so clearing the name leaves a sheet Copy can write to.
+        const sheetOf = (name: string) => nameOptional ? defaultSheet(name, kind) : sheetNameFrom(name)
+        setSheetName(current => current === sheetOf(tableName) ? sheetOf(value) : current)
     }
 
     const handleModuleChange = (value: string) => {
@@ -263,11 +283,13 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                 moduleName,
                 sheetName: sheetName.trim(),
                 ...(isNewModule ? { modulePath: defaultModulePath(moduleName, sourceInfo.kind, format) } : {}),
-                name: copyName,
-                properties: submittedProperties.map(property => ({
-                    name: property.name.trim(),
-                    value: property.value == null ? null : String(property.value),
-                })),
+                ...(copyName ? { name: copyName } : {}),
+                ...(copiedAsItStands ? {} : {
+                    properties: submittedProperties.map(property => ({
+                        name: property.name.trim(),
+                        value: property.value == null ? null : String(property.value),
+                    })),
+                }),
             })
             if (table) {
                 close()
@@ -323,9 +345,9 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                         <div className={shared.fields}>
                             <div className={styles.tableName}>
                                 <FieldRow
-                                    required
                                     htmlFor="copy-table-name"
                                     label={t('project:copy_table_modal.table_name')}
+                                    required={!nameOptional}
                                 >
                                     <Input
                                         data-testid="copy-table-name"
@@ -366,45 +388,47 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                                 />
                             </FieldRow>
                         </div>
-                        <div className={shared.section}>
-                            <FieldRow alignTop label={t('project:copy_table_modal.properties')}>
-                                <div className={shared.rowList}>
-                                    {properties.map((property, index) => (
-                                        <div
-                                            key={property.id}
-                                            className={cx(shared.rowColumns, shared.editableRow)}
-                                            data-testid={`copy-table-property-row-${index}`}
-                                        >
-                                            <Select
-                                                allowClear
-                                                data-testid={`copy-table-property-name-${index}`}
-                                                onChange={value => updatePropertyName(index, value ?? '')}
-                                                options={propertyOptionsFor(index)}
-                                                placeholder={t('project:copy_table_modal.property_name')}
-                                                showSearch={PROPERTY_SEARCH}
-                                                value={property.name || undefined}
-                                            />
-                                            <PropertyValueInput
-                                                data-testid={`copy-table-property-value-${index}`}
-                                                definition={definitionOf(property.name)}
-                                                onChange={value => updateProperty(index, 'value', value)}
-                                                placeholder={t('project:copy_table_modal.property_value')}
-                                                status={rejectedProperty(property) ? 'error' : ''}
-                                                value={property.value}
-                                                versions={sourceInfo?.versions}
-                                            />
-                                            <Space.Compact>
-                                                <IconAction
-                                                    icon={<DeleteRowOutlined />}
-                                                    onClick={() => removeProperty(index)}
-                                                    title={t('project:copy_table_modal.delete_property')}
+                        {!copiedAsItStands && (
+                            <div className={shared.section}>
+                                <FieldRow alignTop label={t('project:copy_table_modal.properties')}>
+                                    <div className={shared.rowList}>
+                                        {properties.map((property, index) => (
+                                            <div
+                                                key={property.id}
+                                                className={cx(shared.rowColumns, shared.editableRow)}
+                                                data-testid={`copy-table-property-row-${index}`}
+                                            >
+                                                <Select
+                                                    allowClear
+                                                    data-testid={`copy-table-property-name-${index}`}
+                                                    onChange={value => updatePropertyName(index, value ?? '')}
+                                                    options={propertyOptionsFor(index)}
+                                                    placeholder={t('project:copy_table_modal.property_name')}
+                                                    showSearch={PROPERTY_SEARCH}
+                                                    value={property.name || undefined}
                                                 />
-                                            </Space.Compact>
-                                        </div>
-                                    ))}
-                                </div>
-                            </FieldRow>
-                        </div>
+                                                <PropertyValueInput
+                                                    data-testid={`copy-table-property-value-${index}`}
+                                                    definition={definitionOf(property.name)}
+                                                    onChange={value => updateProperty(index, 'value', value)}
+                                                    placeholder={t('project:copy_table_modal.property_value')}
+                                                    status={rejectedProperty(property) ? 'error' : ''}
+                                                    value={property.value}
+                                                    versions={sourceInfo?.versions}
+                                                />
+                                                <Space.Compact>
+                                                    <IconAction
+                                                        icon={<DeleteRowOutlined />}
+                                                        onClick={() => removeProperty(index)}
+                                                        title={t('project:copy_table_modal.delete_property')}
+                                                    />
+                                                </Space.Compact>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </FieldRow>
+                            </div>
+                        )}
                     </div>
                 </div>
             </Spin>
