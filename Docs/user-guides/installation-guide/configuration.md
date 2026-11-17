@@ -52,9 +52,9 @@ separately, in `${openl.home.shared}/<application-name>.properties` — for exam
 
 The two files are reset independently:
 
-- **Restore Defaults and Restart** clears the values saved in the **Administration** area from
-  `${openl.home.shared}/<application-name>.properties` and restarts the instance. It never modifies
-  `application.properties`.
+- **Restore Defaults and Restart** clears the values of the **System** settings and the database settings saved in
+  `${openl.home.shared}/<application-name>.properties` and restarts the instance. The repository, security and other
+  settings stay as they are. It never modifies `application.properties`.
 - Deleting `application.properties` discards only the values written there by hand. The instance then falls back to the
   settings saved in the **Administration** area and to the built-in defaults.
 
