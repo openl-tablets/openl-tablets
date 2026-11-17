@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox, Empty, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
 import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
@@ -22,6 +22,8 @@ import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
+/** The room the line telling how many tables the filter hides takes above the list. */
+const HIDDEN_NOTE_HEIGHT = 30
 
 /** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
 const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
@@ -37,6 +39,12 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     state: css`
         padding: 12px 16px;
+    `,
+    /** The line telling how many tables the type filter hides from the search. */
+    hidden: css`
+        display: block;
+        height: ${HIDDEN_NOTE_HEIGHT}px;
+        padding: 4px 16px;
     `,
     /** A row with errors under it, named the way the Editor named it: in the error colour. */
     broken: css`
@@ -170,6 +178,11 @@ interface ModuleTablesTreeProps {
     /** Asks for the free-form tables to be listed, or to be left out again. */
     onShowOther: (shown: boolean) => void
     /**
+     * Reads every table of the module, the free-form ones included, so that a search can tell how many tables the
+     * filter hides from it.
+     */
+    onFindAll?: () => Promise<ModuleTable[]>
+    /**
      * Set while the list on screen is being read again, with or without the free-form tables. The list stays
      * on screen, dimmed, so the reader keeps their place; the filter is held while any list is on its way, or
      * a choice made in it would start a second read of the same module beside the one in flight.
@@ -199,6 +212,7 @@ export const ModuleTablesTree = ({
     onExtendedSearch,
     showOther,
     onShowOther,
+    onFindAll,
     reloading,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
@@ -227,11 +241,37 @@ export const ModuleTablesTree = ({
     })
     // A version is labelled by the dates it is told by, in the formats of the reader.
     const dateFormats = useDateFormats()
-    const shown = useMemo(() => {
-        const wanted = search.trim().toLowerCase()
-        return wanted === '' ? tables ?? [] : (tables ?? [])
-            .filter(table => versionLabel(table.name, table.dimensions, dateFormats).toLowerCase().includes(wanted))
-    }, [tables, search, dateFormats])
+    const wanted = search.trim().toLowerCase()
+    const matches = useCallback(
+        (table: ModuleTable) => versionLabel(table.name, table.dimensions, dateFormats).toLowerCase().includes(wanted),
+        [wanted, dateFormats]
+    )
+    const shown = useMemo(() => wanted === '' ? tables ?? [] : (tables ?? []).filter(matches),
+        [tables, wanted, matches])
+
+    // A search with the free-form tables filtered out tells how many of them it would find, read once per list.
+    const [every, setEvery] = useState<{ of: ModuleTable[], tables: ModuleTable[] } | null>(null)
+    const counting = !showOther && wanted !== '' && tables !== null && onFindAll !== undefined
+    // The list read for the count belongs to the list on screen: a new list is counted again, the same one is not.
+    useEffect(() => {
+        if (!counting || every?.of === tables) {
+            return
+        }
+        let current = true
+        onFindAll()
+            // The count is a hint beside the list: a failed read leaves it out.
+            .then(found => current && setEvery({ of: tables, tables: found }), () => undefined)
+        return () => {
+            current = false
+        }
+    }, [counting, every, onFindAll, tables])
+    const hidden = useMemo(() => {
+        if (!counting || every?.of !== tables) {
+            return 0
+        }
+        const listed = new Set(tables.map(table => table.id))
+        return every.tables.filter(table => !listed.has(table.id) && matches(table)).length
+    }, [counting, every, tables, matches])
 
     const nodes = useMemo(() => treeOf(shown, view, t, dateFormats), [shown, view, t, dateFormats])
     // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
@@ -274,6 +314,29 @@ export const ModuleTablesTree = ({
      * their way, and a word when the search matched none of them.
      */
     const railBody = (room: { height: number, width: number }) => {
+        if (hidden > 0) {
+            return (
+                <>
+                    <Typography.Text
+                        className={styles.hidden}
+                        data-testid="module-tables-hidden"
+                        ellipsis
+                        type="secondary"
+                    >
+                        {t('browser.module.hidden_by_filter', { count: hidden })}
+                        {' — '}
+                        <Typography.Link data-testid="module-tables-show-hidden" onClick={() => onShowOther(true)}>
+                            {t('browser.module.show_hidden')}
+                        </Typography.Link>
+                    </Typography.Text>
+                    {listBody({ height: room.height - HIDDEN_NOTE_HEIGHT, width: room.width })}
+                </>
+            )
+        }
+        return listBody(room)
+    }
+
+    const listBody = (room: { height: number, width: number }) => {
         if (tables === null) {
             return (
                 <Skeleton active className={styles.state} paragraph={{ rows: 8 }} title={false} />

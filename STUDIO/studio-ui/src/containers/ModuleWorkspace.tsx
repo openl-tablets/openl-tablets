@@ -167,6 +167,11 @@ export const ModuleWorkspace = () => {
         setShowOther(shown)
         showOtherSetting.write(shown)
     }, [])
+    // A search of the tree counts the tables the type filter hides from it.
+    const findAllTables = useCallback(
+        () => getModuleTables(projectId, moduleName, { includeOther: true }),
+        [projectId, moduleName]
+    )
     // A screen sent to a free-form table it knows the kind of asks for them before going there, so the module
     // is read once, with the table in the list.
     const showIfOther = useCallback((kind: string) => {
@@ -933,6 +938,7 @@ export const ModuleWorkspace = () => {
             <div className={shared.workspaceBody}>
                 <ModuleTablesTree
                     onExtendedSearch={setSearchFor}
+                    onFindAll={findAllTables}
                     onSelectTable={openTable}
                     onShowOther={chooseOther}
                     reloading={tablesReloading}

@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable } from 'types/tables'
@@ -116,6 +116,49 @@ describe('ModuleTablesTree', () => {
         expect(screen.getByText('Greeting')).toBeInTheDocument()
         expect(screen.getByTestId('module-tables-reloading')).toHaveClass('ant-spin-spinning')
         expect(screen.getByTestId('module-tables-filter')).toBeDisabled()
+    })
+
+    it('says how many tables the type filter hides from the search, and shows them on a click (EPBDS-16932)',
+        async () => {
+            const every: ModuleTable[] = [
+                ...tables,
+                { id: 'auto', name: 'Auto Policy Calculation', kind: 'Other', tableType: 'Other', sheet: 'Rules' },
+                { id: 'notes', name: 'Notes', kind: 'Other', tableType: 'Other', sheet: 'Rules' },
+            ]
+            const onFindAll = vi.fn().mockResolvedValue(every)
+            const onShowOther = rail({ onFindAll })
+
+            searchFor('auto')
+
+            expect(await screen.findByTestId('module-tables-hidden'))
+                .toHaveTextContent('browser.module.hidden_by_filter')
+            expect(screen.getByTestId('module-tables-empty')).toHaveTextContent('browser.module.no_match')
+            await userEvent.click(screen.getByTestId('module-tables-show-hidden'))
+            expect(onShowOther).toHaveBeenCalledWith(true)
+            expect(onFindAll).toHaveBeenCalledTimes(1)
+        })
+
+    it('says nothing about hidden tables while the filter hides none the search would find', async () => {
+        const onFindAll = vi.fn().mockResolvedValue(tables)
+        rail({ onFindAll })
+
+        searchFor('greet')
+
+        // The read answers before the screen is looked at again.
+        await act(async () => {
+            await Promise.resolve()
+        })
+        expect(onFindAll).toHaveBeenCalled()
+        expect(screen.queryByTestId('module-tables-hidden')).toBeNull()
+    })
+
+    it('reads nothing more while the filter lists every table', () => {
+        const onFindAll = vi.fn().mockResolvedValue(tables)
+        rail({ onFindAll, showOther: true })
+
+        searchFor('greet')
+
+        expect(onFindAll).not.toHaveBeenCalled()
     })
 
     it('says when nothing in the module answers the search', async () => {
