@@ -19,11 +19,11 @@ import { versionLabel } from '../../utils/tableVersion'
 import { useDateFormats } from '../../utils/dateFormat'
 import { useSearchScope } from '../../hooks/useSearchScope'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
+import { useElementSize } from '../../hooks/useElementSize'
+import { HiddenByFilterNote } from './HiddenByFilterNote'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
-/** The room the line telling how many tables the filter hides takes above the list. */
-const HIDDEN_NOTE_HEIGHT = 30
 
 /** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
 const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
@@ -40,11 +40,9 @@ const useStyles = createStyles(({ css, token }) => ({
     state: css`
         padding: 12px 16px;
     `,
-    /** The line telling how many tables the type filter hides from the search. */
+    /** The note telling how many tables the type filter hides from the search. */
     hidden: css`
-        display: block;
-        height: ${HIDDEN_NOTE_HEIGHT}px;
-        padding: 4px 16px;
+        padding: ${token.paddingXXS}px ${token.padding}px;
     `,
     /** A row with errors under it, named the way the Editor named it: in the error colour. */
     broken: css`
@@ -273,6 +271,9 @@ export const ModuleTablesTree = ({
         return every.tables.filter(table => !listed.has(table.id) && matches(table)).length
     }, [counting, every, tables, matches])
 
+    // The note wraps onto as many lines as the rail needs, so the list below it takes the room the note leaves.
+    const { ref: noteRef, size: note } = useElementSize<HTMLDivElement>()
+
     const nodes = useMemo(() => treeOf(shown, view, t, dateFormats), [shown, view, t, dateFormats])
     // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
     // what is on screen leaves the virtual list pushed to the right of an empty rail.
@@ -317,19 +318,15 @@ export const ModuleTablesTree = ({
         if (hidden > 0) {
             return (
                 <>
-                    <Typography.Text
-                        className={styles.hidden}
-                        data-testid="module-tables-hidden"
-                        ellipsis
-                        type="secondary"
-                    >
-                        {t('browser.module.hidden_by_filter', { count: hidden })}
-                        {' — '}
-                        <Typography.Link data-testid="module-tables-show-hidden" onClick={() => onShowOther(true)}>
-                            {t('browser.module.show_hidden')}
-                        </Typography.Link>
-                    </Typography.Text>
-                    {listBody({ height: room.height - HIDDEN_NOTE_HEIGHT, width: room.width })}
+                    <div ref={noteRef}>
+                        <HiddenByFilterNote
+                            className={styles.hidden}
+                            count={hidden}
+                            onShow={() => onShowOther(true)}
+                            testId="module-tables-hidden"
+                        />
+                    </div>
+                    {listBody({ height: Math.max(room.height - note.height, 0), width: room.width })}
                 </>
             )
         }
