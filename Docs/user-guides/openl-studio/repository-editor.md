@@ -998,6 +998,8 @@ A deployment name follows the rules of a project name: it cannot contain the cha
 
 The project is deployed to the selected deployment repository, and the **Project deployed** message is displayed. The project is listed in the deployment on the **Deployments** page and in **Existing deployments** of its **Deploy Configuration** tab.
 
+When the project or a project it depends on cannot be read from Design repository, such as a saved project whose `rules.xml` was deleted, nothing is deployed, and the dialog shows `Nothing is deployed: the project '<name>' cannot be read from the design repository.`
+
 A deployment repository can be configured to take projects only from the main branch of Design repository. For a project that is on another branch, the dialog explains that the project must be switched to the main branch or another repository must be selected, and **Deploy** is disabled.
 
 The following topics are included in this section:

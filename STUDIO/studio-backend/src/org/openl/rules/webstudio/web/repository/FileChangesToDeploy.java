@@ -10,11 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipInputStream;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.repository.api.FileData;
@@ -27,7 +26,6 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
 
-@Slf4j
 class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private final DesignTimeRepository designRepo;
     private final List<ProjectDescriptor> descriptors;
@@ -96,11 +94,10 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         technicalName = designProject.getName();
                     }
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
-                    return false;
+                    throw new UnreadableProjectException(projectName, e);
                 }
                 projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
-                return projectIterator != null && projectIterator.hasNext();
+                return projectIterator.hasNext();
             } else {
                 return false;
             }
@@ -138,7 +135,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     srcProjectPath += "/";
                     var files = repository.listFiles(srcProjectPath, version);
                     if (files.isEmpty()) {
-                        log.warn("Cannot find files in project {}", projectName);
+                        throw new FileNotFoundException("No file is found in '%s'.".formatted(srcProjectPath));
                     }
                     //find and remove old manifest file from deployment
                     var srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
@@ -164,8 +161,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
                 }
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                return null;
+                throw new UnreadableProjectException(projectName, e);
             }
         }
 
@@ -197,6 +193,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private class FolderIterator implements Iterator<FileItem> {
         private final Repository baseRepo;
         private final List<FileData> files;
+        private final String projectName;
         private int fileIndex;
         private final FileItem manifest;
         private boolean writeManifest;
@@ -207,6 +204,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                                Manifest manifest) throws IOException {
             this.baseRepo = baseRepo;
             this.files = files;
+            this.projectName = projectName;
             if (manifest != null) {
                 var out = new ByteArrayOutputStream();
                 manifest.write(out);
@@ -226,6 +224,9 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
         @Override
         public FileItem next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             if (fileIndex == 0 && writeManifest) {
                 writeManifest = false;
                 return manifest;
@@ -245,10 +246,8 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 openedStream = fileItem.getStream();
                 return new FileItem(fileTo, openedStream);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                return null;
+                throw new UnreadableProjectException(projectName, e);
             }
-
         }
 
         @Override

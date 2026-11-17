@@ -1,10 +1,12 @@
 package org.openl.studio.deployment.service;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -38,9 +40,11 @@ import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
+import org.openl.rules.webstudio.web.repository.DeploymentException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.UnreadableProjectException;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -49,6 +53,7 @@ import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -180,6 +185,22 @@ class DeploymentServiceImplTest {
         assertEquals("Pricing Rules", event.target());
         assertEquals(Map.of("repository", "production", "project", "Pricing", "projectRepository", "design",
                 "comment", "Release 7"), event.details());
+    }
+
+    /** EPBDS-16641: a project that cannot be read stops the deployment with a reason, and nothing is recorded. */
+    @Test
+    void an_unreadable_project_refuses_the_deployment() throws Exception {
+        doThrow(new DeploymentException("Failed to deploy",
+                new UnreadableProjectException("P16638", null))).when(deploymentManager).deploy(any(DeploymentRequest.class));
+        var deploying = deployingService(RepositoryType.DB, mock(UserManagementService.class));
+        var deploymentId = new DeploymentId("production", "Pricing Rules");
+        var project = deployableProject();
+
+        var refusal = assertThrows(ConflictException.class, () -> deploying.deploy(deploymentId, project, "R"));
+
+        assertEquals("openl.error.409.project.deploy.unreadable.message", refusal.getErrorCode());
+        assertArrayEquals(new Object[]{"P16638"}, refusal.getArgs());
+        assertTrue(events.isEmpty());
     }
 
     /**
