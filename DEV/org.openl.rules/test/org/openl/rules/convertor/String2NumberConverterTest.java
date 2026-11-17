@@ -99,6 +99,61 @@ class String2NumberConverterTest {
         assertEquals(expected, String2DataConvertorFactory.parse(type, text, null));
     }
 
+    // K, M and B multiply a number by a thousand, a million and a billion exactly
+    static Stream<Arguments> testParseMultiplierOfEveryType() {
+        return Stream.of(
+                arguments(Byte.class, "0K", (byte) 0),
+                arguments(Short.class, "32K", (short) 32000),
+                arguments(Integer.class, "1.5K", 1500),
+                arguments(Integer.class, "-2M", -2000000),
+                arguments(Integer.class, "1,500K", 1500000),
+                arguments(Long.class, "7B", 7000000000L),
+                arguments(Long.class, "1.234567B", 1234567000L),
+                arguments(Long.class, "2e3K", 2000000L),
+                arguments(Float.class, "2.5K", 2500f),
+                arguments(Double.class, "3323K", 3323000d),
+                arguments(Double.class, "0.1K", 100d),
+                arguments(Double.class, "1.0005K", 1000.5d),
+                arguments(BigInteger.class, "123456789B", new BigInteger("123456789000000000")),
+                arguments(BigDecimal.class, "1.5M", new BigDecimal("1.5E+6")));
+    }
+
+    @ParameterizedTest(name = "{0} reads \"{1}\" as {2}")
+    @MethodSource
+    void testParseMultiplierOfEveryType(Class<?> type, String text, Number expected) {
+        assertEquals(expected, String2DataConvertorFactory.parse(type, text, null));
+    }
+
+    // A whole number type takes no fraction; a small letter, a space, a letter alone or with a percent is no multiplier
+    static Stream<Arguments> testParseWrongMultiplier() {
+        return Stream.of(
+                arguments(Integer.class, "1.0005K"),
+                arguments(BigInteger.class, "0.0005K"),
+                arguments(Double.class, "2k"),
+                arguments(Double.class, "2 K"),
+                arguments(Double.class, "K"),
+                arguments(Double.class, "2KK"),
+                arguments(Double.class, "2K%"),
+                arguments(Double.class, "NaNK"));
+    }
+
+    @ParameterizedTest(name = "{0} does not read \"{1}\"")
+    @MethodSource
+    void testParseWrongMultiplier(Class<?> type, String text) {
+        assertNotANumber(type, text);
+    }
+
+    @Test
+    void testParseMultiplierOutOfRange() {
+        assertThrows(NumberFormatException.class, () -> String2DataConvertorFactory.parse(Integer.class, "3B", null));
+    }
+
+    @Test
+    void testParseMultiplierWithFormat() {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        assertThrows(NumberFormatException.class, () -> converter.parse("2K", "#,###"));
+    }
+
     @Test
     void testParseWithFormat() {
         String2NumberConverter<Number> converter = getNumberConverter();
@@ -159,6 +214,10 @@ class String2NumberConverterTest {
     @ParameterizedTest(name = "\"{1}\" is not parsed")
     @MethodSource
     void testParseWholePercentWithFraction(Class<?> type, String text) {
+        assertNotANumber(type, text);
+    }
+
+    private static void assertNotANumber(Class<?> type, String text) {
         var e = assertThrows(NumberFormatException.class, () -> String2DataConvertorFactory.parse(type, text, null));
         assertEquals("Cannot convert '%s' to a number.".formatted(text), e.getMessage());
     }
