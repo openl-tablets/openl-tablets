@@ -102,4 +102,8 @@
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
 
+    <listener>
+        <listener-class>org.openl.studio.common.utils.WorkbookThreadLocals</listener-class>
+    </listener>
+
 </web-app>
