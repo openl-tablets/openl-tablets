@@ -14,4 +14,4 @@ Calculations use regular Java syntax, similar to the one used in conditions and 
 
 Older workbooks may enclose a calculation in braces instead, as in `{ampmHr + 12}`. A rules table and a spreadsheet read it as `=ampmHr + 12`; new tables use `=`.
 
-**Note:** Excel formulas are not supported by OpenL Tablets. They are used as pre-calculated values.
+**Note:** Excel formulas are not supported by OpenL Tablets. They are used as pre-calculated values. An Excel formula whose result is an empty text, such as `=""` or `=IF(A1>0, "", "No")` when `A1` is positive, is read as an empty cell, as if nothing were written in it: in a condition it matches any value, and as a returned value it gives an empty result. To return an empty text, write the OpenL formula `=""` instead: in Excel, start it with an apostrophe, `'=""`.
