@@ -291,19 +291,25 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return anyProjectRenamed;
     }
 
+    /**
+     * The name the project declares in its {@code rules.xml}.
+     *
+     * <p>A project with no {@code rules.xml}, or one that declares no name, is named by its folder.
+     */
     @Override
     public String getActualName(AProject project) throws ProjectException, IOException {
+        var actualPath = project.getRealPath();
+        var folderName = actualPath.substring(actualPath.lastIndexOf('/') + 1);
         if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             var artefact = project
                     .getArtefact(ProjectDescriptor.FILE_NAME);
             if (artefact instanceof AProjectResource resource) {
                 try (var content = resource.getContent()) {
-                    return getActualName(content);
+                    return ProjectDescriptor.resolveName(getActualName(content), folderName);
                 }
             }
         }
-        var actualPath = project.getRealPath();
-        return actualPath.substring(actualPath.lastIndexOf('/') + 1);
+        return folderName;
     }
 
     private String getActualName(InputStream inputStream) {
