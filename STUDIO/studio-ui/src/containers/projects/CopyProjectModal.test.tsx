@@ -412,6 +412,8 @@ describe('CopyProjectModal', () => {
         await asNewProject()
         fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
         fireEvent.change(screen.getByTestId('copy-project-repository'), { target: { value: 'prod' } })
+        // The configured branch of the repository is read before the copy can be sent to it.
+        await waitFor(() => expect(screen.getByTestId('copy-project-target-branch')).not.toHaveValue(''))
         await userEvent.click(screen.getByTestId('copy-project-submit'))
         await waitFor(() => expect(screen.getByTestId('copy-project-error'))
             .toHaveTextContent('The Git server refused the changes.'))
