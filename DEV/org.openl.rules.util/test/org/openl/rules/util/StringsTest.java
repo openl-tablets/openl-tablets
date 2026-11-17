@@ -32,6 +32,8 @@ import static org.openl.rules.util.Strings.upperCase;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.stream.Stream;
@@ -411,6 +413,27 @@ class StringsTest {
         assertEquals("100.001", Strings.toString(new BigDecimal("100.00100")));
         assertEquals("true", Strings.toString(true));
         assertEquals("false", Strings.toString(false));
+    }
+
+    @Test
+    void testToStringOfArray() {
+        assertEquals("[1, 2, 3]", Strings.toString(new Integer[]{1, 2, 3}));
+        assertEquals("[1, 2.5, 0.1]", Strings.toString(new double[]{1, 2.5, 0.1}));
+        assertEquals("[1000, 100.001]",
+                Strings.toString(new BigDecimal[]{new BigDecimal("1000.000"), new BigDecimal("100.00100")}));
+        assertEquals("[a, null, c]", Strings.toString(new String[]{"a", null, "c"}));
+        assertEquals("[true, false]", Strings.toString(new boolean[]{true, false}));
+        assertEquals("[x, y]", Strings.toString(new char[]{'x', 'y'}));
+        assertEquals("[[1, 2], [3], []]", Strings.toString(new Integer[][]{{1, 2}, {3}, {}}));
+        assertEquals("[]", Strings.toString(new Object[0]));
+        assertEquals("[2024-01-15, null]",
+                Strings.toString(new Date[]{new GregorianCalendar(2024, 0, 15).getTime(), null}));
+    }
+
+    @Test
+    void testToStringOfDate() {
+        assertEquals("2024-01-15", Strings.toString(new GregorianCalendar(2024, 0, 15, 13, 45).getTime()));
+        assertEquals("0987-12-31", Strings.toString(new GregorianCalendar(987, 11, 31).getTime()));
     }
 
     @Test
