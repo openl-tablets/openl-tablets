@@ -2220,9 +2220,10 @@ class RulesUtilsTest {
         Date date = cal.getTime();
         assertEquals(5, instance.testWeekOfMonth(date));
 
+        // Sunday, September 1, 2013 is before the first ISO week of September, so it is in week 0
         cal.set(2013, 8, 1);
         date = cal.getTime();
-        assertEquals(1, instance.testWeekOfMonth(date));
+        assertEquals(0, instance.testWeekOfMonth(date));
     }
 
     @Test
