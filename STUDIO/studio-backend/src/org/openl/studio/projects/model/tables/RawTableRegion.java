@@ -19,6 +19,9 @@ import org.jspecify.annotations.Nullable;
  * @param right    the last column, in table coordinates
  * @param returned whether the table returns the cells among others, such as the cells a {@code SpreadsheetResult}
  *                 marks: they keep their role and are bold
+ * @param local    whether the cells hold a local value, as the cells of the steps and the columns a Spreadsheet marks
+ *                 {@code ~}: they keep their role and are italic in the muted colour. Cells are never both returned
+ *                 and local
  * @author Yury Molchan
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,18 +51,25 @@ public record RawTableRegion(
                 Whether the table returns the cells among others, such as the cells of the steps and the columns a \
                 SpreadsheetResult marks with *. They keep their role and are bold. Absent when they are not.""")
         @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-        boolean returned
+        boolean returned,
+
+        @Parameter(description = """
+                Whether the cells hold a local value, such as the cells of the steps and the columns a Spreadsheet \
+                marks with ~. They keep their role and are italic in the secondary colour. Never set together with \
+                returned. Absent when they do not.""")
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        boolean local
 ) {
 
-    /** A region of cells the table does not return among others. */
+    /** A region of cells the table neither returns among others nor holds as local values. */
     public RawTableRegion(RawTableRole role, @Nullable RawTableValueType type, int top, int left, int bottom,
                           int right) {
-        this(role, type, top, left, bottom, right, false);
+        this(role, type, top, left, bottom, right, false, false);
     }
 
-    /** The same cells moved to other bounds, in table coordinates: their role, type and mark stay. */
+    /** The same cells moved to other bounds, in table coordinates: their role, type and marks stay. */
     public RawTableRegion withBounds(int top, int left, int bottom, int right) {
-        return new RawTableRegion(role, type, top, left, bottom, right, returned);
+        return new RawTableRegion(role, type, top, left, bottom, right, returned, local);
     }
 
     /** Whether the region holds a cell, named in table coordinates. */

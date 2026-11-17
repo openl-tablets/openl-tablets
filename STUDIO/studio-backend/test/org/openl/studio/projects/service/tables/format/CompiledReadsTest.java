@@ -43,7 +43,10 @@ class CompiledReadsTest {
     /** A Vocabulary of a type that does not exist: the compiler binds nothing. */
     private static final int CODE_ROW = 16;
 
-    /** A Spreadsheet whose header names a parameter by its type alone: the compiler reads none of its steps. */
+    /**
+     * A Spreadsheet whose header names a parameter by its type alone: the compiler reads none of its steps. Its first
+     * step is marked ~.
+     */
     private static final int LOST_ROW = 21;
 
     /** A Spreadsheet whose last row repeats the name of the step above it: the compiler reads no step there. */
@@ -76,7 +79,7 @@ class CompiledReadsTest {
     /** A Conditions table of three parts, not the four the compiler reads. */
     private static final int PARTS_ROW = 80;
 
-    /** A SpreadsheetResult the compiler read none of, a step and a column of it marked. */
+    /** A SpreadsheetResult the compiler read none of, a step and a column of it marked *, another column ~. */
     private static final int MARKED_ROW = 84;
 
     /** A Rules table of a missing type written with a rule in each column. */
@@ -170,9 +173,12 @@ class CompiledReadsTest {
         assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(LOST_ROW + 1, 2), "The title of a column");
         assertEquals(RawTableRole.VALUE, roles.roleAt(LOST_ROW + 2, 1), "A step");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(LOST_ROW + 2, 2), "Its value");
+        assertTrue(roles.localAt(LOST_ROW + 2, 1), "A step marked ~ is local");
+        assertTrue(roles.localAt(LOST_ROW + 2, 2), "and so is its value");
         // A Spreadsheet returning a single value returns its last step.
         assertEquals(RawTableRole.RESULT, roles.roleAt(LOST_ROW + 3, 1));
         assertEquals(RawTableRole.RESULT, roles.roleAt(LOST_ROW + 3, 2));
+        assertFalse(roles.localAt(LOST_ROW + 3, 2));
     }
 
     @Test
@@ -185,8 +191,11 @@ class CompiledReadsTest {
         assertEquals(RawTableRole.KEY, roles.roleAt(MARKED_ROW + 3, 1), "The marked step");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(MARKED_ROW + 3, 2), "A SpreadsheetResult has no result");
         assertTrue(roles.returnedAt(MARKED_ROW + 3, 2), "The marked step under the marked column is bold");
-        assertEquals(RawTableRole.OUTPUT, roles.roleAt(MARKED_ROW + 3, 3), "A column not marked");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(MARKED_ROW + 3, 3), "A column not marked *");
         assertFalse(roles.returnedAt(MARKED_ROW + 3, 3));
+        assertTrue(roles.localAt(MARKED_ROW + 1, 3), "The title of the column marked ~ is local");
+        assertTrue(roles.localAt(MARKED_ROW + 3, 3), "and so are its cells");
+        assertFalse(roles.localAt(MARKED_ROW + 3, 2), "A cell returned");
     }
 
     @Test
@@ -398,7 +407,7 @@ class CompiledReadsTest {
         TableTestProjects.row(sheet, LOST_ROW, 1, "Spreadsheet Double Lost ( Integer )");
         merge(sheet, LOST_ROW, LOST_ROW, 1, 2);
         TableTestProjects.row(sheet, LOST_ROW + 1, 1, "Step", "Formula");
-        TableTestProjects.row(sheet, LOST_ROW + 2, 1, "Base", "= 1");
+        TableTestProjects.row(sheet, LOST_ROW + 2, 1, "Base~", "= 1");
         TableTestProjects.row(sheet, LOST_ROW + 3, 1, "Total", "= $Base");
 
         TableTestProjects.row(sheet, DOUBLED_ROW, 1, "Spreadsheet Double Doubled ( )");
@@ -465,7 +474,7 @@ class CompiledReadsTest {
 
         TableTestProjects.row(sheet, MARKED_ROW, 1, "Spreadsheet SpreadsheetResult Marked ( Missing m )");
         merge(sheet, MARKED_ROW, MARKED_ROW, 1, 3);
-        TableTestProjects.row(sheet, MARKED_ROW + 1, 1, "Step", "Value*", "Note");
+        TableTestProjects.row(sheet, MARKED_ROW + 1, 1, "Step", "Value*", "Note~");
         TableTestProjects.row(sheet, MARKED_ROW + 2, 1, "Base", "= 1", "a");
         TableTestProjects.row(sheet, MARKED_ROW + 3, 1, "Total*", "= $Value$Base", "b");
 

@@ -275,7 +275,9 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
       `section`. The step or the column a single value returns is the `result`, the title of the column staying a
       title; a `SpreadsheetResult` has no `result`: the name of a step it marks `*` is a `key`, and the cells it
       returns of the marked steps and columns stay `output`, marked `returned` (`Place.asReturned`,
-      `RawTableRegion.returned`), which the formatter and the Studio look draw bold.
+      `RawTableRegion.returned`), which the formatter and the Studio look draw bold. The name or title and the cells of
+      a step or a column marked `~` keep their roles, marked `local` (`Place.asLocal`, `RawTableRegion.local`), which
+      both draw italic in the muted colour (`TableStyle.Emphasis`); a cell returned is never `local`.
     - *TBasic and ColumnMatch* (`TBasicLayout`, `ColumnMatchLayout`): the ids of the columns read as `AlgorithmBuilder`
       reads them (`TableRegionLayout.idsOf`), the rows the compiled table holds; a TBasic step starting a subroutine
       is a `section` and one that returns the `result`; a ColumnMatch condition with the conditions indented under it
@@ -289,8 +291,9 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   table, mean something else: they take a new `RawTableRole` with a `TableStyle` of its own. They never take a flag
   that a layout sets on a `Place` or a `RawTableRegion` for one kind, which turns the regions into drawing hints and
   makes the look depend on the role and the flag. The types of a Datatype and of a Constants table are `fieldType`,
-  not `code` marked to draw no lines (EPBDS-17250). `returned` is the one flag of a region: a `SpreadsheetResult`
-  marks the cells it returns, whatever their role.
+  not `code` marked to draw no lines (EPBDS-17250). `returned` and `local` are the only flags of a region, the
+  modifiers of `Docs/architecture/table-formatting.md`: a `SpreadsheetResult` marks the cells it returns `*`, and a
+  Spreadsheet marks the steps and the columns of its local values `~`, whatever their role.
     - **Share a built-in style when Excel means the same.** A new role takes the built-in style of the role it is
       nearest to, as `fieldType` takes Calculation with `code` and `section` Heading 3 with `inputTitle`. A shared
       style adds no named style to the workbook. The cell formats are keyed by what they hold, so a cell of the new

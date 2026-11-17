@@ -432,10 +432,10 @@ const VALUED: ReadonlySet<string> = new Set(['value', 'output', 'result'])
 /**
  * The class a value takes in the Studio look by its type: a number and a date in the hue of a number, a boolean and a
  * text in their own. Code is highlighted piece by piece instead, and a cell of no role or no type keeps the colour of
- * its role.
+ * its role, as a local value does.
  */
 const typeClassOf = (role: CellRole | undefined, styles: RawTableGridStyles): string | false => {
-    if (role === undefined || !VALUED.has(role.region.role)) {
+    if (role === undefined || !VALUED.has(role.region.role) || role.region.local === true) {
         return false
     }
     switch (role.type) {
@@ -453,7 +453,8 @@ const typeClassOf = (role: CellRole | undefined, styles: RawTableGridStyles): st
 
 /**
  * The classes a cell takes from its role in the Studio look: its text, and its fill unless the screen paints it. A cell
- * the table returns among others, such as one a SpreadsheetResult marks, keeps the fill of its role, bold.
+ * the table returns among others, such as one a SpreadsheetResult marks, keeps the fill of its role, bold. A cell of a
+ * local value, such as one of a step a Spreadsheet marks ~, keeps the fill of its role, italic in the secondary colour.
  */
 const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles,
     painted: boolean): Array<string | false> => {
@@ -481,6 +482,7 @@ const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles,
         styles.studioCell,
         name !== undefined && text[name],
         role?.region.returned === true && styles.strong,
+        role?.region.local === true && styles.local,
         typeClassOf(role, styles),
         !painted && name !== undefined && name in fill && fill[name as keyof typeof fill],
     ]
@@ -527,11 +529,12 @@ const codeRunOf = ({ text, style }: CodePiece, bold: boolean): RawTableTextRun =
 
 /**
  * The pieces of the code a cell holds, as the code editor of the theme highlights them, or undefined for a cell that
- * holds no code. A piece takes the weight of the cell, which a result is drawn in.
+ * holds no code. A piece takes the weight of the cell, which a result is drawn in. The code of a local value is not
+ * highlighted: it is drawn in the secondary colour of the cell.
  */
 const codeRunsOf = (cell: RawTableCell, role: CellRole | undefined, roles: TableRoles, highlighter: CodeHighlighter,
     theme: { name: Parameters<CodeHighlighter['highlight']>[2], dark: boolean }): RawTableTextRun[] | undefined => {
-    if (role === undefined || !holdsCode(role) || typeof cell.value !== 'string') {
+    if (role === undefined || !holdsCode(role) || role.region.local === true || typeof cell.value !== 'string') {
         return undefined
     }
     const bold = role.region.role === 'result' || role.region.returned === true

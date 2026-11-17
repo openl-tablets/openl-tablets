@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
+import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.model.tables.RawTableSignaturePart;
 
@@ -172,6 +173,36 @@ enum TableStyle {
 
         /** The double line below the result. */
         static final Line RESULT_BELOW = new Line(BorderStyle.DOUBLE, ROLE.colour());
+    }
+
+    /**
+     * How a cell stands out of the other cells of its role. It keeps the look of its role, its fill and its lines
+     * included, and changes only its font.
+     */
+    enum Emphasis {
+        /** As the other cells of its role. */
+        NONE,
+        /** Bold, as a cell a {@code SpreadsheetResult} returns among others. */
+        RETURNED,
+        /** Italic in the muted colour, as the properties are: a local value, as a step a Spreadsheet marks ~. */
+        LOCAL;
+
+        /** The emphasis of the cells of a region. A region returned is never local. */
+        static Emphasis of(RawTableRegion region) {
+            if (region.returned()) {
+                return RETURNED;
+            }
+            return region.local() ? LOCAL : NONE;
+        }
+
+        /** The look of a role, with this emphasis. */
+        Look on(Look look) {
+            return switch (this) {
+                case NONE -> look;
+                case RETURNED -> look.toBuilder().bold(true).build();
+                case LOCAL -> look.toBuilder().italic(true).colour(Look.MUTED).build();
+            };
+        }
     }
 
     /**

@@ -372,6 +372,9 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
         marked `*` is bold, and so are the values it returns: the values of the marked steps in the marked columns,
         or in every column when no column is marked. When only columns are marked, every value of those columns is
         bold and no step name is. Their fill does not change and no line is added.
+    -   In any Spreadsheet, a step or a column marked `~`, a local value left out of a `SpreadsheetResult`, is italic
+        in a fainter colour: its name or title and every value of it. Its values are neither coloured by type nor
+        highlighted. Its fill does not change and no line is added.
     -   A heading inside the body, such as a merged step of a Spreadsheet, is centered and filled like a title.
         A dotted line sets apart the rules that share a merged value of a condition, and the columns of a lookup that
         share a merged value, from the titles down. In a Data, a Test and a Run table where a row takes several lines,
@@ -616,6 +619,10 @@ itself offers, so the tables look the same in Excel and change with the theme of
         Datatype and of constants.
     -   **Total** — what the table returns, such as the step a Spreadsheet returning one value returns or the
         `RETURN` step of a TBasic table.
+
+    The cells a Spreadsheet returning `SpreadsheetResult` returns of the steps and columns marked `*` keep their cell
+    style and are bold. The cells of a step or a column a Spreadsheet marks `~` keep their cell style and are italic,
+    in the text colour of the theme made lighter, as the table properties are.
 
     OpenL Studio redefines these styles in the Excel file with the theme colours and the theme fonts, in the font
     size of the **Normal** style, so the rows keep their height.

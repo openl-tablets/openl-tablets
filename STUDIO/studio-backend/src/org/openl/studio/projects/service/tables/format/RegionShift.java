@@ -32,8 +32,9 @@ import org.openl.studio.projects.model.tables.RawTableValueType;
  * inserted under the titles is a rule. A line removed takes its cells out of every region, and a region left with
  * none is dropped. The lines that start a group move with the lines, and a line left with no values before it starts
  * none. A group whose first lines are removed starts at the first line left of it. A line inserted next to or
- * inside cells the table returns among others, as the cells a {@code SpreadsheetResult} marks, is none of them: it
- * takes their role alone, until a compile reads the marks again.
+ * inside cells the table returns among others, as the cells a {@code SpreadsheetResult} marks, or inside cells of
+ * local values, as the cells of a step a Spreadsheet marks {@code ~}, is none of them: it takes their role alone, until
+ * a compile reads the marks again.
  *
  * <p>Once the edit is done, the regions are fitted to the table as it stands: the header and the properties are laid
  * out again from the grid, a table grown at its end takes the roles of its last line for the lines it gained, and a
@@ -375,11 +376,11 @@ public final class RegionShift {
     }
 
     /**
-     * Stretches a region over the rows inserted inside it. The cells the table returns among others are cut around
-     * them: an inserted row is none of them, and takes their role alone.
+     * Stretches a region over the rows inserted inside it. The cells the table returns among others and the cells of
+     * local values are cut around them: an inserted row is none of them, and takes their role alone.
      */
     private static void stretch(List<RawTableRegion> into, RawTableRegion region, int at, int count) {
-        if (!region.returned()) {
+        if (!region.returned() && !region.local()) {
             into.add(rows(region, region.top(), region.bottom() + count));
             return;
         }

@@ -31,6 +31,7 @@ import org.openl.rules.table.xls.Apostrophes.Quote;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableSignaturePart;
+import org.openl.studio.projects.service.tables.format.TableStyle.Emphasis;
 import org.openl.studio.projects.service.tables.format.WorkbookStyles.Edges;
 
 /**
@@ -363,16 +364,17 @@ public final class ExcelTableFormatter {
         private void writeRow(RawTableRegion region, int row, Set<Integer> groupRows, Set<Integer> groupColumns,
                               @Nullable Set<Integer> columns) {
             var style = TableStyle.of(region.role());
+            var emphasis = Emphasis.of(region);
             var edges = Edges.of(style, region, row, groupRows, table.getBottom() - table.getTop());
             var grouped = edges.grouped(style);
             var sheetRow = rowOf(table.getTop() + row);
             if (columns == null) {
                 for (var column = region.left(); column <= region.right(); column++) {
-                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges, region.returned());
+                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges, emphasis);
                 }
             } else {
                 for (var column : columns) {
-                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges, region.returned());
+                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges, emphasis);
                 }
             }
         }
@@ -384,11 +386,12 @@ public final class ExcelTableFormatter {
         }
 
         /**
-         * Gives a cell its cell format, bold when the table returns it among other cells. A text in pieces of their own
-         * fonts keeps its marks, in the font of the role of the cell, and loses every other font. An OpenL formula gets
-         * the apostrophe of Excel, and anything but a text loses it.
+         * Gives a cell its cell format, bold when the table returns it among other cells, italic in the muted colour
+         * when it holds a local value. A text in pieces of their own fonts keeps its marks, in the font of the role of
+         * the cell, and loses every other font. An OpenL formula gets the apostrophe of Excel, and anything but a text
+         * loses it.
          */
-        private void write(XSSFRow row, int column, TableStyle style, Edges edges, boolean bold) {
+        private void write(XSSFRow row, int column, TableStyle style, Edges edges, Emphasis emphasis) {
             var at = table.getLeft() + column;
             var found = row.getCell(at);
             var cell = found != null ? found : row.createCell(at);
@@ -396,7 +399,8 @@ public final class ExcelTableFormatter {
             // An absent cell format reads as the first one, as the schema of a workbook gives it.
             var source = (int) ct.getS();
             var text = textOf(cell);
-            var format = styles.format(style, edges, bold, source, Quote.of(text == null ? null : text.getString()));
+            var quote = Quote.of(text == null ? null : text.getString());
+            var format = styles.format(style, edges, emphasis, source, quote);
             if (format != source) {
                 ct.setS(format);
             }

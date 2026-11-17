@@ -34,6 +34,11 @@ record Roles(IOpenLTable table, TableRegions regions) {
         return regionAt(row, column).returned();
     }
 
+    /** Whether a cell of the sheet holds a local value, which keeps its role and is italic in the muted colour. */
+    boolean localAt(int row, int column) {
+        return regionAt(row, column).local();
+    }
+
     /** The type of the value of a cell of the sheet: its own, or the type of its region. */
     @Nullable
     RawTableValueType typeAt(int row, int column) {

@@ -250,7 +250,7 @@ class RegionShiftTest {
         var marked = new TableRegions(List.of(
                 region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
                 region(RawTableRole.KEY, 1, 0, 1, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true, false),
                 region(RawTableRole.VALUE, 2, 0, 2, 0),
                 region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
         var shift = RegionShift.of(marked, 3, 2);
@@ -271,8 +271,8 @@ class RegionShiftTest {
                 region(RawTableRole.VALUE, 1, 0, 1, 0),
                 region(RawTableRole.OUTPUT, 1, 1, 1, 1),
                 region(RawTableRole.KEY, 2, 0, 2, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 2, 1, true)), RawTableGroups.NONE, List.of(),
-                Map.of());
+                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 2, 1, true, false)), RawTableGroups.NONE,
+                List.of(), Map.of());
         var shift = RegionShift.of(marked, 3, 2);
 
         shift.rowsInserted(3, 1);
@@ -292,7 +292,7 @@ class RegionShiftTest {
         var marked = new TableRegions(List.of(
                 region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
                 region(RawTableRole.KEY, 1, 0, 2, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1, true, false),
                 region(RawTableRole.VALUE, 3, 0, 3, 0),
                 region(RawTableRole.OUTPUT, 3, 1, 3, 1)), RawTableGroups.NONE, List.of(), Map.of());
         var shift = RegionShift.of(marked, 4, 2);
@@ -312,7 +312,7 @@ class RegionShiftTest {
         var marked = new TableRegions(List.of(
                 region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
                 region(RawTableRole.KEY, 1, 0, 1, 0),
-                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, true, false),
                 region(RawTableRole.VALUE, 2, 0, 2, 0),
                 region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
         var shift = RegionShift.of(marked, 3, 2);
@@ -325,12 +325,62 @@ class RegionShiftTest {
         assertTrue(returnedAt(regions, 1, 1), "The marked step stays marked");
     }
 
+    @Test
+    void neverMakesAStepInsertedAmongLocalStepsLocal() {
+        // A Spreadsheet marking two adjacent steps ~: their names and their values are local.
+        var local = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+                new RawTableRegion(RawTableRole.VALUE, null, 1, 0, 2, 0, false, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1, false, true),
+                region(RawTableRole.VALUE, 3, 0, 3, 0),
+                region(RawTableRole.OUTPUT, 3, 1, 3, 1)), RawTableGroups.NONE, List.of(), Map.of());
+        var shift = RegionShift.of(local, 4, 2);
+
+        shift.rowsInserted(2, 1);
+        shift.rowsInserted(5, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(2, 0), 6, 2, "Spreadsheet");
+        assertTrue(regionAt(regions, 1, 0).local(), "The name of the first local step");
+        assertTrue(regionAt(regions, 1, 1).local(), "The value of the first local step");
+        assertFalse(regionAt(regions, 2, 0).local(), "The step inserted between them");
+        assertFalse(regionAt(regions, 2, 1).local());
+        assertEquals(RawTableRole.VALUE, roleAt(regions, 2, 0), "takes their roles alone");
+        assertEquals(RawTableRole.OUTPUT, roleAt(regions, 2, 1));
+        assertTrue(regionAt(regions, 3, 1).local(), "The second local step");
+        assertFalse(regionAt(regions, 4, 1).local(), "A step not marked");
+        assertEquals(RawTableRole.OUTPUT, roleAt(regions, 5, 1), "A step appended repeats the last step");
+        assertFalse(regionAt(regions, 5, 1).local());
+    }
+
+    @Test
+    void repeatsTheRolesOfALocalStepForAStepInsertedAfterItButNotItsMark() {
+        // A Spreadsheet: a step marked ~, then a step not marked.
+        var local = new TableRegions(List.of(
+                region(RawTableRole.SIGNATURE, 0, 0, 0, 1),
+                new RawTableRegion(RawTableRole.VALUE, null, 1, 0, 1, 0, false, true),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 1, 1, false, true),
+                region(RawTableRole.KEY, 2, 0, 2, 0),
+                region(RawTableRole.OUTPUT, 2, 1, 2, 1)), RawTableGroups.NONE, List.of(), Map.of());
+        var shift = RegionShift.of(local, 3, 2);
+
+        shift.rowsInserted(2, 1);
+
+        var regions = shift.fittedTo(TableRegionLayout.Head.of(2, 0), 4, 2, "Spreadsheet");
+        assertEquals(RawTableRole.VALUE, roleAt(regions, 2, 0), "The new step takes the roles of the local one");
+        assertFalse(regionAt(regions, 2, 0).local(), "but not its mark");
+        assertFalse(regionAt(regions, 2, 1).local());
+        assertTrue(regionAt(regions, 1, 1).local(), "The local step stays local");
+    }
+
     private static boolean returnedAt(TableRegions regions, int row, int column) {
+        return regionAt(regions, row, column).returned();
+    }
+
+    private static RawTableRegion regionAt(TableRegions regions, int row, int column) {
         return regions.regions().stream()
                 .filter(region -> region.holds(row, column))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("No region holds " + row + ", " + column))
-                .returned();
+                .orElseThrow(() -> new AssertionError("No region holds " + row + ", " + column));
     }
 
     @Test

@@ -204,8 +204,9 @@ public final class TableRegionLayout {
     }
 
     /**
-     * Whether two layouts of a table give each of its cells the same role, returned or not, and start the same groups.
-     * The types of the values and how the cells are cut into regions do not count: the look of a cell follows its role.
+     * Whether two layouts of a table give each of its cells the same role, returned, local or neither, and start the
+     * same groups. The types of the values and how the cells are cut into regions do not count: the look of a cell
+     * follows its role.
      *
      * @param one   a layout
      * @param other another layout of the same table
@@ -256,7 +257,8 @@ public final class TableRegionLayout {
             open.removeIf(region -> region.bottom() < row);
             Arrays.fill(roles, 0);
             for (var region : open) {
-                var role = 1 + region.role().ordinal() * 2 + (region.returned() ? 1 : 0);
+                var emphasis = TableStyle.Emphasis.of(region);
+                var role = 1 + region.role().ordinal() * TableStyle.Emphasis.values().length + emphasis.ordinal();
                 Arrays.fill(roles, region.left(), region.right() + 1, role);
             }
             return roles;
@@ -620,10 +622,13 @@ public final class TableRegionLayout {
             var lineTypes = lineTypes();
             var regions = rectangles(cells, (row, column) -> {
                 var place = cells[row][column];
-                return place == null ? null : new RoleKey(place.role(), lineTypes.get(lineKey(place, row, column)),
-                        place.byRow() ? row : null, place.returned());
+                if (place == null) {
+                    return null;
+                }
+                return new RoleKey(place.role(), lineTypes.get(lineKey(place, row, column)),
+                        place.byRow() ? row : null, place.returned(), place.local());
             }, (key, rectangle) -> new RawTableRegion(key.role(), key.type(), rectangle.top, rectangle.left,
-                    rectangle.bottom, rectangle.right, key.returned()));
+                    rectangle.bottom, rectangle.right, key.returned(), key.local()));
             var own = new HashMap<TableRegions.Cell, RawTableValueType>();
             for (var row = 0; row < cells.length; row++) {
                 for (var column = 0; column < cells[row].length; column++) {
@@ -669,11 +674,11 @@ public final class TableRegionLayout {
     }
 
     /**
-     * The key of a region of a role: the role, the type of its values, and the row of a place each row of which is a
-     * region of its own.
+     * The key of a region of a role: the role, the type of its values, the row of a place each row of which is a
+     * region of its own, and whether its cells are returned or local.
      */
     private record RoleKey(RawTableRole role, @Nullable RawTableValueType type, @Nullable Integer row,
-                           boolean returned) {
+                           boolean returned, boolean local) {
     }
 
     /**
