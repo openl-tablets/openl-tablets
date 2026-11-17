@@ -10,6 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 
 import org.openl.studio.audit.service.AuditClient;
+import org.openl.studio.common.utils.WorkbookThreadLocals;
 
 /**
  * Builds the thread pools OpenL Studio runs background work on: tests, compilations, comparisons, merges.
@@ -17,6 +18,7 @@ import org.openl.studio.audit.service.AuditClient;
  * <p>Every pool runs a task as the user who started it and for the client of the request that started it, so the audit
  * log names both for what the task does. A pool queues up to ten tasks before it refuses another, and lets the running
  * tasks end when the application stops. A pool is a bean of the application, which starts it and shuts it down.
+ * A task leaves on its thread no data of the workbooks it read.
  *
  * <p>A pool of this kind grows past its core threads only once its queue is full, so a pool meant to run several
  * tasks at once is sized by its core threads.
@@ -67,7 +69,13 @@ public final class AsyncExecutors {
         exec.setQueueCapacity(QUEUE_CAPACITY);
         exec.setAwaitTerminationSeconds(AWAIT_TERMINATION_SECONDS);
         exec.setWaitForTasksToCompleteOnShutdown(true);
-        exec.setTaskDecorator(task -> new DelegatingSecurityContextRunnable(AuditClient.carry(task)));
+        exec.setTaskDecorator(task -> new DelegatingSecurityContextRunnable(AuditClient.carry(() -> {
+            try {
+                task.run();
+            } finally {
+                WorkbookThreadLocals.clear();
+            }
+        })));
         return exec;
     }
 

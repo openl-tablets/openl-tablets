@@ -5,13 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.poi.util.LocaleUtil;
 import org.junit.jupiter.api.Test;
 
 import org.openl.dependency.DependencyType;
@@ -66,6 +70,31 @@ class WebStudioWorkspaceRelatedDependencyManagerTest {
                     externalParameters,
                     true);
 
+        }
+    }
+
+    @Test
+    void aBackgroundLoadLeavesNothingPoiCachedOnItsThread() throws Exception {
+        var factory = (WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?>)
+                new WebStudioWorkspaceRelatedSimpleProjectEngineFactoryBuilder<>()
+                        .setProject("test/rules/compilation")
+                        .setExecutionMode(false)
+                        .build();
+        var manager = (WebStudioWorkspaceRelatedDependencyManager) factory.getDependencyManager();
+        var project = AbstractDependencyManager.buildResolvedDependency(factory.getProjectDescriptor());
+        var set = new CompletableFuture<Void>();
+        var left = new CompletableFuture<Locale>();
+        try {
+            manager.loadDependencyAsync(project, compiled -> {
+                LocaleUtil.setUserLocale(Locale.of("zz"));
+                set.complete(null);
+            });
+            manager.loadDependencyAsync(project, compiled -> left.complete(LocaleUtil.getUserLocale()));
+
+            set.get(30, TimeUnit.SECONDS);
+            assertEquals(Locale.getDefault(), left.get(30, TimeUnit.SECONDS));
+        } finally {
+            manager.shutdown();
         }
     }
 

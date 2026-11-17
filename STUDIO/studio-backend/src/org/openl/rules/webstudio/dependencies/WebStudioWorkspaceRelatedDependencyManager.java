@@ -35,6 +35,7 @@ import org.openl.rules.project.instantiation.DependencyLoaderInitializationExcep
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.studio.common.utils.WorkbookThreadLocals;
 import org.openl.types.NullOpenClass;
 
 @Slf4j
@@ -268,6 +269,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             threadPriority.remove();
             threadBackgroundGeneration.remove();
             threadRefused.remove();
+            WorkbookThreadLocals.clear();
         }
     }
 

@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.poi.util.LocaleUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -44,6 +46,15 @@ class AsyncExecutorsTest {
 
         assertTrue(thread.get(5, TimeUnit.SECONDS).startsWith("async-test-pool-"));
         assertEquals(user, authentication.get(5, TimeUnit.SECONDS));
+    }
+
+    @Test
+    void aTaskLeavesNothingPoiCachedOnItsThread() throws Exception {
+        executor.afterPropertiesSet();
+
+        executor.submit(() -> LocaleUtil.setUserLocale(Locale.of("zz"))).get(5, TimeUnit.SECONDS);
+
+        assertEquals(Locale.getDefault(), executor.submit(LocaleUtil::getUserLocale).get(5, TimeUnit.SECONDS));
     }
 
     @Test
