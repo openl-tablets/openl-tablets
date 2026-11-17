@@ -1,0 +1,2 @@
+ERROR: Cannot parse cell value 'abc'. Expected value of type 'Integer'.
+ERROR: Foreign table 'aData' has errors.
