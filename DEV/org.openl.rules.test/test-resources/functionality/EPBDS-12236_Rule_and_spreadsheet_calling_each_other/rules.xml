@@ -1,0 +1,8 @@
+<project>
+    <name>EPBDS-12236_Rule_and_spreadsheet_calling_each_other</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

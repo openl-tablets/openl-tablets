@@ -1,0 +1,2 @@
+ERROR: Field '$Step1' is not found in type 'SpreadsheetResultmyVersionedRules'.
+ERROR: Field '$Step2' is not found in type 'SpreadsheetResultmyVersionedRules'.

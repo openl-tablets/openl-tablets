@@ -343,14 +343,23 @@ public class TableSyntaxNodeDispatcherBuilder {
         setTableProperties(tsn);
 
         try {
+            loadAndBind(decisionTable, tsn);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            rulesModuleBindingContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+        }
+    }
+
+    /** Binds the dispatcher table and adds the steps of its results to the spreadsheet result type it returns. */
+    private void loadAndBind(DecisionTable decisionTable, TableSyntaxNode tsn) throws Exception {
+        try {
             new DecisionTableLoader().loadAndBind(tsn,
                     decisionTable,
                     moduleOpenClass.getOpenl(),
                     moduleOpenClass,
                     createContextWithAuxiliaryMethods());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            rulesModuleBindingContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+        } finally {
+            decisionTable.applyDeferredChanges();
         }
     }
 

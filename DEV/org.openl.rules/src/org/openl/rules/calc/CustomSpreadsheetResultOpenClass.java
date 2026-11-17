@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,36 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private String[][] descriptions;
     @Getter
     private final boolean spreadsheet;
+
+    /**
+     * The rows and the columns each table added while the order of the tables is kept, with the place of the table in
+     * the module. None while the order is not kept.
+     */
+    private @Nullable List<TableCells> cellsOfTables;
+
+    /** The place in the module of the table whose rows and columns are added next. */
+    @Setter
+    private int tablePlace;
+
+    /** The rows and the columns one table added to the type. */
+    private record TableCells(int place,
+                              List<String> rowNames,
+                              List<String> rowNamesForResultModel,
+                              List<String> columnNames,
+                              List<String> columnNamesForResultModel) {
+
+        TableCells(int place,
+                   String[] rowNames,
+                   String[] rowNamesForResultModel,
+                   String[] columnNames,
+                   String[] columnNamesForResultModel) {
+            this(place,
+                    Arrays.asList(rowNames),
+                    Arrays.asList(rowNamesForResultModel),
+                    Arrays.asList(columnNames),
+                    Arrays.asList(columnNamesForResultModel));
+        }
+    }
 
     // The type is built from the row and column model of the spreadsheet result.
     @SuppressWarnings("java:S107")
@@ -260,6 +291,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             throw new IllegalStateException(
                     "Bean class for custom spreadsheet result is already generated. This spreadsheet result type cannot be extended.");
         }
+        if (cellsOfTables != null) {
+            cellsOfTables.add(new TableCells(tablePlace,
+                    rowNames,
+                    rowNamesForResultModel,
+                    columnNames,
+                    columnNamesForResultModel));
+        }
 
         var nRowNames = new ArrayList<>(Arrays.asList(this.rowNames));
         var nRowNamesForResultModel = new ArrayList<>(Arrays.asList(this.rowNamesForResultModel));
@@ -269,13 +307,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         var nColumnNamesForResultModel = new ArrayList<>(Arrays.asList(this.columnNamesForResultModel));
         var existedColumnNamesSet = Arrays.stream(this.columnNames).collect(toSet());
 
-        var rowNamesForResultModelNeedUpdate = mergeNames(rowNames,
-                rowNamesForResultModel,
+        var rowNamesForResultModelNeedUpdate = mergeNames(Arrays.asList(rowNames),
+                Arrays.asList(rowNamesForResultModel),
                 existedRowNamesSet,
                 nRowNames,
                 nRowNamesForResultModel);
-        var columnNamesForResultModelNeedUpdate = mergeNames(columnNames,
-                columnNamesForResultModel,
+        var columnNamesForResultModelNeedUpdate = mergeNames(Arrays.asList(columnNames),
+                Arrays.asList(columnNamesForResultModel),
                 existedColumnNamesSet,
                 nColumnNames,
                 nColumnNamesForResultModel);
@@ -285,15 +323,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         if (rowNamesForResultModelNeedUpdate || columnNamesForResultModelNeedUpdate) {
             this.simpleRefByRow = simpleRefByRow && this.simpleRefByRow;
             this.simpleRefByColumn = simpleRefByColumn && this.simpleRefByColumn;
-
-            this.rowNamesForResultModel = nRowNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
-            this.columnNamesForResultModel = nColumnNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
-
-            this.rowNames = nRowNames.toArray(EMPTY_STRING_ARRAY);
-            this.columnNames = nColumnNames.toArray(EMPTY_STRING_ARRAY);
-
-            this.fieldsCoordinates = Collections.unmodifiableMap(SpreadsheetResult
-                    .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow));
+            setNames(nRowNames, nRowNamesForResultModel, nColumnNames, nColumnNamesForResultModel);
         }
 
         for (IOpenField field : fields) {
@@ -308,24 +338,103 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     /**
+     * Starts keeping the order of the tables the type is built from. The rows and the columns added from now on keep
+     * the place of their table, given by {@link #setTablePlace(int)}, whenever the table adds them.
+     */
+    public void keepTableOrder() {
+        cellsOfTables = new ArrayList<>();
+        cellsOfTables.add(new TableCells(-1, rowNames, rowNamesForResultModel, columnNames, columnNamesForResultModel));
+    }
+
+    /**
+     * Puts the rows and the columns in the order of the tables that added them, as if each table added them in its
+     * turn, and stops keeping the order. The fields stay as they are.
+     *
+     * <p>A type whose bean is generated already keeps its order, which the bean follows.
+     */
+    public void restoreTableOrder() {
+        var cells = cellsOfTables;
+        cellsOfTables = null;
+        if (cells == null || generatedBean.get() != null || beanClass.get() != null) {
+            return;
+        }
+        var nRowNames = new ArrayList<String>();
+        var nRowNamesForResultModel = new ArrayList<String>();
+        var mergedRowNames = new HashSet<String>();
+        var nColumnNames = new ArrayList<String>();
+        var nColumnNamesForResultModel = new ArrayList<String>();
+        var mergedColumnNames = new HashSet<String>();
+        cells.stream().sorted(Comparator.comparingInt(TableCells::place)).forEach(c -> {
+            mergeNames(c.rowNames(), c.rowNamesForResultModel(), mergedRowNames, nRowNames, nRowNamesForResultModel);
+            mergedRowNames.addAll(c.rowNames());
+            mergeNames(c.columnNames(), c.columnNamesForResultModel(), mergedColumnNames, nColumnNames,
+                    nColumnNamesForResultModel);
+            mergedColumnNames.addAll(c.columnNames());
+        });
+        var sameOrder = nRowNames.equals(Arrays.asList(rowNames)) && nColumnNames.equals(Arrays.asList(columnNames));
+        if (sameOrder) {
+            // the tables added their rows and columns in their order, only their result model names may differ
+            rowNamesForResultModel = nRowNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
+            columnNamesForResultModel = nColumnNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
+        } else {
+            descriptions = reorderDescriptions(nRowNames, nColumnNames);
+            setNames(nRowNames, nRowNamesForResultModel, nColumnNames, nColumnNamesForResultModel);
+        }
+    }
+
+    /** Sets the rows and the columns of the type, and the places of its fields among them. */
+    private void setNames(List<String> nRowNames,
+                          List<String> nRowNamesForResultModel,
+                          List<String> nColumnNames,
+                          List<String> nColumnNamesForResultModel) {
+        rowNamesForResultModel = nRowNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
+        columnNamesForResultModel = nColumnNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
+        rowNames = nRowNames.toArray(EMPTY_STRING_ARRAY);
+        columnNames = nColumnNames.toArray(EMPTY_STRING_ARRAY);
+        fieldsCoordinates = Collections.unmodifiableMap(SpreadsheetResult
+                .buildFieldsCoordinates(columnNames, rowNames, simpleRefByColumn, simpleRefByRow));
+    }
+
+    /** The descriptions of the cells for the rows and the columns in the given order. */
+    private String[][] reorderDescriptions(List<String> nRowNames, List<String> nColumnNames) {
+        var rows = Arrays.asList(rowNames);
+        var columns = Arrays.asList(columnNames);
+        var rowIndexes = nRowNames.stream().mapToInt(rows::indexOf).toArray();
+        var columnIndexes = nColumnNames.stream().mapToInt(columns::indexOf).toArray();
+        var nDescriptions = new String[nRowNames.size()][nColumnNames.size()];
+        for (var i = 0; i < nRowNames.size(); i++) {
+            var i0 = rowIndexes[i];
+            for (var j = 0; j < nColumnNames.size(); j++) {
+                var j0 = columnIndexes[j];
+                if (i0 >= 0 && j0 >= 0 && i0 < descriptions.length && j0 < descriptions[i0].length) {
+                    nDescriptions[i][j] = descriptions[i0][j0];
+                }
+            }
+        }
+        return nDescriptions;
+    }
+
+    /**
      * Appends the names that are not merged yet, and replaces the result model names of the merged ones when given.
      *
      * @return {@code true} when the merged result model names are changed
      */
-    private static boolean mergeNames(String[] names,
-                                      String[] namesForResultModel,
+    private static boolean mergeNames(List<String> names,
+                                      List<String> namesForResultModel,
                                       Set<String> existedNamesSet,
                                       List<String> nNames,
                                       List<String> nNamesForResultModel) {
         var namesForResultModelNeedUpdate = false;
-        for (var i = 0; i < names.length; i++) {
-            if (!existedNamesSet.contains(names[i])) {
-                nNames.add(names[i]);
-                nNamesForResultModel.add(namesForResultModel[i]);
+        for (var i = 0; i < names.size(); i++) {
+            var name = names.get(i);
+            var nameForResultModel = namesForResultModel.get(i);
+            if (!existedNamesSet.contains(name)) {
+                nNames.add(name);
+                nNamesForResultModel.add(nameForResultModel);
                 namesForResultModelNeedUpdate = true;
-            } else if (namesForResultModel[i] != null) {
-                var k = nNames.indexOf(names[i]);
-                nNamesForResultModel.set(k, namesForResultModel[i]);
+            } else if (nameForResultModel != null) {
+                var k = nNames.indexOf(name);
+                nNamesForResultModel.set(k, nameForResultModel);
                 namesForResultModelNeedUpdate = true;
             }
         }
@@ -375,6 +484,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     Java bean class for custom spreadsheet result is loaded to classloader. \
                     Custom spreadsheet result cannot be extended.""");
         }
+        if (openClass == this) {
+            // a table calling itself returns the type it builds, which adds nothing to it
+            return;
+        }
         if (openClass instanceof SpreadsheetResultOpenClass class1) {
             this.updateWithType(class1.toCustomSpreadsheetResultOpenClass());
             return;
@@ -417,6 +530,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         simpleRefByColumn = true;
         fieldMap().clear();
         forgetLowerCaseFieldMaps();
+        if (cellsOfTables != null) {
+            cellsOfTables.clear();
+        }
     }
 
     private final Collection<Consumer<CustomSpreadsheetResultOpenClass>> eventsOnUpdateWithType = new ArrayList<>();

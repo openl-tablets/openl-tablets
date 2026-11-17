@@ -380,6 +380,19 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                 .forEach(IBaseDecisionRow::removeDebugInformation);
     }
 
+    /**
+     * Adds the steps of the results of the table to the spreadsheet result type it returns, once: a change that fails
+     * is not tried again.
+     */
+    public void applyDeferredChanges() {
+        if (deferredChanges.isEmpty()) {
+            return;
+        }
+        var changes = List.copyOf(deferredChanges);
+        deferredChanges.clear();
+        changes.forEach(DeferredChange::apply);
+    }
+
     public interface DeferredChange {
         void apply();
     }

@@ -305,6 +305,11 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
+    public void applyDeferredChanges() {
+        super.applyDeferredChanges();
+    }
+
+    @Override
     public ModuleOpenClass getModule() {
         return super.getModule();
     }

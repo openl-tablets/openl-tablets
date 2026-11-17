@@ -1,0 +1,8 @@
+<project>
+    <name>EPBDS-12236_United_steps_in_table_order</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>
