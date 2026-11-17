@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -65,6 +66,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -376,7 +378,7 @@ class WorkspaceProjectServiceTest {
         assertThrows(ForbiddenException.class, () -> service.createBranch(project, model));
     }
 
-    /** A branch cut from a commit where the folder is no project could not be opened, so it is deleted again. */
+    /** A branch cut from a commit where the folder is not a project could not be opened, so it is deleted again. */
     @Test
     void create_branch_deletes_a_branch_the_project_is_not_found_in() throws Exception {
         var acl = mock(RepositoryAclService.class);
@@ -408,6 +410,12 @@ class WorkspaceProjectServiceTest {
         var error = assertThrows(ConflictException.class, () -> service.createBranch(project, model));
 
         assertEquals("openl.error.409.project.branch.not.project.message", error.getErrorCode());
+        var messages = new ReloadableResourceBundleMessageSource();
+        messages.setBasename("classpath:ValidationMessages");
+        messages.setDefaultEncoding("UTF-8");
+        assertEquals("The branch is not created: the saved state of 'P16639' is not a project, so the project could"
+                + " not be opened in the branch. Save the project with its rules.xml first.",
+                messages.getMessage(error.getErrorCode(), error.getArgs(), Locale.ROOT));
         verify(repository).createRepositoryBranch("b16639", "master");
         verify(repository).deleteRepositoryBranch("b16639");
     }
