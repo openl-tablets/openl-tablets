@@ -281,6 +281,32 @@ class ExcelTableFormatterTest {
             assertEquals(BorderStyle.NONE, value.getBorderTop());
             assertEquals(BorderStyle.NONE, value.getBorderBottom());
             assertFalse(styleAt(workbook, QUOTE_ROW + 4, 2).getFont().getBold(), "A step not marked");
+            assertFalse(value.getFont().getItalic(), "A cell returned is not local");
+        }
+    }
+
+    @Test
+    void drawsTheCellsOfAStepMarkedWithATildeItalicInTheMutedColour() throws IOException {
+        try (var workbook = formatted(ExcelTableFormatterTest::fillMarks)) {
+            var name = styleAt(workbook, QUOTE_ROW + 2, 1);
+            assertEquals("Input", namedStyleAt(workbook, QUOTE_ROW + 2, 1).getName(), "A local step keeps its role");
+            assertTrue(name.getFont().getItalic());
+            assertFalse(name.getFont().getBold());
+            assertEquals(MUTED, colourOf(name.getFont()));
+            assertEquals(FontScheme.MINOR, name.getFont().getScheme());
+
+            var value = styleAt(workbook, QUOTE_ROW + 2, 2);
+            assertEquals("Output", namedStyleAt(workbook, QUOTE_ROW + 2, 2).getName());
+            assertEquals(new ThemedColor(4, 800), ThemedColor.of(value.getFillForegroundColorColor()),
+                    "The value of a local step keeps the fill of the values");
+            assertTrue(value.getFont().getItalic(), "and is italic");
+            assertEquals(MUTED, colourOf(value.getFont()), "in the muted colour");
+            assertEquals(BorderStyle.NONE, value.getBorderTop(), "with no line");
+            assertEquals(BorderStyle.NONE, value.getBorderBottom());
+
+            var other = styleAt(workbook, QUOTE_ROW + 4, 2).getFont();
+            assertFalse(other.getItalic(), "A step not marked");
+            assertEquals(TEXT, colourOf(other));
         }
     }
 
@@ -819,12 +845,12 @@ class ExcelTableFormatterTest {
         sheet.getRow(6).getCell(2).setCellStyle(quoted);
     }
 
-    /** A SpreadsheetResult marking a step and a column. */
+    /** A SpreadsheetResult marking a step and a column *, and a step ~. */
     private static void fillMarks(Sheet sheet) {
         row(sheet, QUOTE_ROW, 1, "Spreadsheet SpreadsheetResult Quote(Integer a)");
         merge(sheet, QUOTE_ROW, QUOTE_ROW, 1, 2);
         row(sheet, QUOTE_ROW + 1, 1, "Step", "Value*");
-        row(sheet, QUOTE_ROW + 2, 1, "Base", "= a");
+        row(sheet, QUOTE_ROW + 2, 1, "Base~", "= a");
         row(sheet, QUOTE_ROW + 3, 1, "Premium*", "= $Base * 2");
         row(sheet, QUOTE_ROW + 4, 1, "Tax", "= $Premium / 10");
     }

@@ -539,6 +539,32 @@ describe('RawTableGrid', () => {
             expect(cellAt('C4').style.borderBottom).toBe('')
         })
 
+        it('draws a cell of a local value italic in the secondary colour on the fill of its role', () => {
+            // A Spreadsheet marking its first step ~: its name and its value are local, the step under it is not.
+            const local = rolesOf({
+                pos: 'B2:C5',
+                regions: [
+                    { role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
+                    { role: 'inputTitle', top: 1, left: 0, bottom: 1, right: 0 },
+                    { role: 'outputTitle', top: 1, left: 1, bottom: 1, right: 1 },
+                    { role: 'value', type: 'string', top: 2, left: 0, bottom: 2, right: 0, local: true },
+                    { role: 'output', type: 'number', top: 2, left: 1, bottom: 2, right: 1, local: true },
+                    { role: 'value', type: 'string', top: 3, left: 0, bottom: 3, right: 0 },
+                    { role: 'output', type: 'number', top: 3, left: 1, bottom: 3, right: 1 },
+                ],
+            })
+            renderInTheme(<RawTableGrid roles={local} rows={rule} testId="grid" />, { theme: 'standard', mode: 'dark' })
+
+            expect(cellAt('B4')).toHaveAttribute('data-role', 'value')
+            expect(cellAt('B4')).toHaveStyle({ fontStyle: 'italic', color: colours.faint })
+            expect(cellAt('C4')).toHaveAttribute('data-role', 'output')
+            expect(cellAt('C4')).toHaveStyle({ backgroundColor: colours.outputFill, fontStyle: 'italic',
+                color: colours.faint })
+            expect(cellAt('C4')).not.toHaveStyle({ fontWeight: '600' })
+            expect(cellAt('C5')).not.toHaveStyle({ fontStyle: 'italic' })
+            expect(cellAt('C5')).not.toHaveStyle({ color: colours.faint })
+        })
+
         it('draws the marks of a text in the colours of the theme, and every other font of it plain', () => {
             const marked: RawTableCell[][] = rule.map((row, index) => (index !== 3 ? row : [
                 { cell: 'B5', value: 'sixty five', runs: [

@@ -33,7 +33,8 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 /**
  * Covers the roles of the cells of a Spreadsheet table, above all which cells it returns: the step or the column a
  * Spreadsheet returning a single value returns is its result. A SpreadsheetResult has no result: the names of the steps
- * it marks are keys, and the cells it returns of the marked steps and columns keep their roles, bold.
+ * it marks are keys, and the cells it returns of the marked steps and columns keep their roles, bold. The cells of a
+ * step or a column marked ~ keep their roles and are local, unless the Spreadsheet returns them.
  *
  * @author Yury Molchan
  */
@@ -43,13 +44,13 @@ class SpreadsheetRolesTest {
 
     /** A Spreadsheet returning a single value from its RETURN step, under a heading and with properties. */
     private static final int RETURNED_STEP = 1;
-    /** A Spreadsheet returning a single value from its RETURN column. */
+    /** A Spreadsheet returning a single value from its RETURN column, its last step marked ~. */
     private static final int RETURNED_COLUMN = 11;
     /** A Spreadsheet returning a single value from its last step, none of its steps named RETURN. */
     private static final int LAST_STEP = 17;
     /** A SpreadsheetResult marking two adjacent steps and one apart with *. */
     private static final int MARKED_STEPS = 23;
-    /** A SpreadsheetResult marking one column with *. */
+    /** A SpreadsheetResult marking one column with * and another with ~. */
     private static final int MARKED_COLUMN = 31;
     /** A SpreadsheetResult marking a step and a column with *. */
     private static final int MARKED_BOTH = 37;
@@ -96,6 +97,21 @@ class SpreadsheetRolesTest {
         assertEquals(VALUE, roles.roleAt(RETURNED_COLUMN + 2, 1), "A step name is no part of the column");
         assertEquals(OUTPUT, roles.roleAt(RETURNED_COLUMN + 3, 2));
         assertEquals(RESULT, roles.roleAt(RETURNED_COLUMN + 3, 3));
+        assertFalse(roles.localAt(RETURNED_COLUMN + 3, 2), "A step not marked");
+    }
+
+    @Test
+    void drawsAStepMarkedWithATildeOfASingleValueLocalButWhatItReturns() {
+        var roles = rolesAt(RETURNED_COLUMN);
+        var local = RETURNED_COLUMN + 4;
+
+        assertEquals(VALUE, roles.roleAt(local, 1), "The name of a local step keeps its role");
+        assertTrue(roles.localAt(local, 1), "and is local");
+        assertEquals(OUTPUT, roles.roleAt(local, 2));
+        assertTrue(roles.localAt(local, 2), "A value of a local step");
+        assertEquals(RESULT, roles.roleAt(local, 3), "The cell the RETURN column returns");
+        assertFalse(roles.localAt(local, 3), "is returned, never local");
+        assertFalse(roles.localAt(RETURNED_COLUMN + 1, 1), "The title of the column of steps");
     }
 
     @Test
@@ -145,6 +161,20 @@ class SpreadsheetRolesTest {
     }
 
     @Test
+    void drawsAColumnMarkedWithATildeOfASpreadsheetResultLocal() {
+        var roles = rolesAt(MARKED_COLUMN);
+
+        assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_COLUMN + 1, 2), "The title of a local column keeps its role");
+        assertTrue(roles.localAt(MARKED_COLUMN + 1, 2), "and is local");
+        assertTrue(roles.localAt(MARKED_COLUMN + 2, 2), "Every cell of the local column");
+        assertTrue(roles.localAt(MARKED_COLUMN + 3, 2));
+        assertFalse(roles.returnedAt(MARKED_COLUMN + 2, 2), "A local cell is not returned");
+        assertFalse(roles.localAt(MARKED_COLUMN + 2, 3), "A cell returned is not local");
+        assertFalse(roles.localAt(MARKED_COLUMN + 1, 3), "The title of the column marked *");
+        assertFalse(roles.localAt(MARKED_COLUMN + 2, 1), "The name of a step");
+    }
+
+    @Test
     void returnsTheStepsTimesTheColumnsMarkedOfASpreadsheetResult() {
         var roles = rolesAt(MARKED_BOTH);
 
@@ -167,7 +197,11 @@ class SpreadsheetRolesTest {
         assertEquals(VALUE, roles.roleAt(NOTHING_MARKED + 3, 1), "A step left out with ~ reads as any step");
         assertEquals(OUTPUT, roles.roleAt(NOTHING_MARKED + 4, 2));
         assertTrue(roles.regions().regions().stream().noneMatch(region -> region.role() == RESULT));
-        assertTrue(roles.regions().regions().stream().noneMatch(RawTableRegion::returned), "No cell is told apart");
+        assertTrue(roles.regions().regions().stream().noneMatch(RawTableRegion::returned), "No cell is returned");
+        assertTrue(roles.localAt(NOTHING_MARKED + 3, 1), "The name of the step left out is local");
+        assertTrue(roles.localAt(NOTHING_MARKED + 3, 2), "and so is its value");
+        assertFalse(roles.localAt(NOTHING_MARKED + 2, 2), "A step kept");
+        assertFalse(roles.localAt(NOTHING_MARKED + 1, 2), "The title of a column");
     }
 
     @Test
@@ -204,6 +238,7 @@ class SpreadsheetRolesTest {
         TableTestProjects.row(sheet, RETURNED_COLUMN + 1, 1, "Step", "Value", "RETURN");
         TableTestProjects.row(sheet, RETURNED_COLUMN + 2, 1, "Base", "= age", "");
         TableTestProjects.row(sheet, RETURNED_COLUMN + 3, 1, "Total", "= $Value$Base * 2", "= $Value$Total");
+        TableTestProjects.row(sheet, RETURNED_COLUMN + 4, 1, "Scratch~", "= age + 1", "= 0");
 
         TableTestProjects.row(sheet, LAST_STEP, 1, "Spreadsheet Double Total ( Integer age )");
         merge(sheet, LAST_STEP, 1, 2);
@@ -222,7 +257,7 @@ class SpreadsheetRolesTest {
 
         TableTestProjects.row(sheet, MARKED_COLUMN, 1, "Spreadsheet SpreadsheetResult Plan ( Integer age )");
         merge(sheet, MARKED_COLUMN, 1, 3);
-        TableTestProjects.row(sheet, MARKED_COLUMN + 1, 1, "Step", "Draft", "Final*");
+        TableTestProjects.row(sheet, MARKED_COLUMN + 1, 1, "Step", "Draft~", "Final*");
         TableTestProjects.row(sheet, MARKED_COLUMN + 2, 1, "Base", "= age", "= age + 1");
         TableTestProjects.row(sheet, MARKED_COLUMN + 3, 1, "Total", "= age * 2", "= age * 3");
 

@@ -33,6 +33,11 @@ export interface RawTableRegion {
     right: number
     /** Whether the table returns the cells among others, such as the cells a SpreadsheetResult marks: they are bold. */
     returned?: boolean
+    /**
+     * Whether the cells hold a local value, such as the cells of a step or a column a Spreadsheet marks `~`: they are
+     * italic in the secondary colour. Never set together with `returned`.
+     */
+    local?: boolean
 }
 
 /** The lines of the body of a table that start a group, in table coordinates. */

@@ -44,6 +44,11 @@ import org.openl.util.OpenClassUtils;
  * {@code ~}), and the other way round. Those cells keep their roles and are returned: bold, with no line. The name of a
  * marked step names a field of what it returns, a key; the title of a marked column stays a title.
  *
+ * <p>A step or a column whose name ends with {@code ~} holds a local value, which no {@code SpreadsheetResult} returns,
+ * whatever the Spreadsheet returns. Its name or title and its cells keep their roles and are local: italic in the
+ * muted colour, with no line. A cell the Spreadsheet returns is never local: a value returned crossing a local step or
+ * column stays as it is returned.
+ *
  * <p>Every step and column is the one the compiler read. A Spreadsheet the compiler read none of is read from its
  * text the same way: the names of its steps down its first column, the titles of its columns across its first row,
  * and what it returns by the type its header names and by the marks of the names and the titles.
@@ -80,8 +85,9 @@ final class SpreadsheetLayout {
      *
      * @param stepsEnd the last column of the sheet the column of steps takes
      * @param returned what the Spreadsheet returns
+     * @param local    the steps and the columns holding local values
      */
-    private record Places(int stepsEnd, Returned returned) implements TableRegionLayout.PlaceRoles {
+    private record Places(int stepsEnd, Returned returned, Local local) implements TableRegionLayout.PlaceRoles {
 
         private static final Place TITLE = Place.of(RawTableRole.OUTPUT_TITLE);
         private static final Place STEP_TITLE = Place.of(RawTableRole.INPUT_TITLE);
@@ -97,13 +103,14 @@ final class SpreadsheetLayout {
             var spreadsheet = reader.getBoundNode();
             var read = new Read(spreadsheet.getStructureBuilder());
             var isVoid = OpenClassUtils.isVoid(spreadsheet.getHeader().getType());
-            return new Places(stepsEndOf(body), isVoid ? Returned.NOTHING : read.returnedCells());
+            return new Places(stepsEndOf(body), isVoid ? Returned.NOTHING : read.returnedCells(), read.local());
         }
 
         /** The places of a body the compiler read none of, as its text tells them. */
         static Places guessed(TableBody body) {
             var type = GuessedReads.typeOf(GuessedReads.headerOf(body.compiled().node()));
-            return new Places(stepsEndOf(body), new Guess(body.rows()).returnedCells(type));
+            var guess = Guess.of(body.rows());
+            return new Places(stepsEndOf(body), guess.returnedCells(type), guess.local());
         }
 
         /** The last column of the sheet the column of steps takes. */
@@ -111,9 +118,15 @@ final class SpreadsheetLayout {
             return body.rows().getCell(0, 0).getAbsoluteRegion().getRight();
         }
 
-        /** What a cell of the body is, by the place it stands in. */
+        /** What a cell of the body is, by the place it stands in: local when its step or its column is. */
         @Override
         public Place at(ICell cell, int column, int row) {
+            var place = placeOf(cell, column, row);
+            return place != SECTION && local.holds(cell) ? place.asLocal() : place;
+        }
+
+        /** What a cell of the body is, by the place it stands in, local or not. */
+        private Place placeOf(ICell cell, int column, int row) {
             if (row == 0) {
                 return column == 0 ? STEP_TITLE : TITLE;
             }
@@ -187,25 +200,45 @@ final class SpreadsheetLayout {
          * the whole table, and no cell is told apart.
          */
         static Returned marked(List<Line> steps, List<Line> columns) {
-            var markedSteps = linesOf(steps, Line::marked);
-            var markedColumns = linesOf(columns, Line::marked);
+            var markedSteps = linesTaken(steps, Line::marked);
+            var markedColumns = linesTaken(columns, Line::marked);
             if (markedSteps.isEmpty() && markedColumns.isEmpty()) {
                 return NOTHING;
             }
             return new Returned(
-                    markedSteps.isEmpty() ? linesOf(steps, line -> !line.dropped()) : markedSteps,
-                    markedColumns.isEmpty() ? linesOf(columns, line -> !line.dropped()) : markedColumns,
+                    markedSteps.isEmpty() ? linesTaken(steps, line -> !line.dropped()) : markedSteps,
+                    markedColumns.isEmpty() ? linesTaken(columns, line -> !line.dropped()) : markedColumns,
                     markedSteps,
                     false);
         }
+    }
 
-        /** The rows or the columns of the sheet the steps or the columns a filter keeps take. */
-        private static Set<Integer> linesOf(List<Line> lines, Predicate<Line> kept) {
-            return lines.stream()
-                    .filter(kept)
-                    .flatMap(line -> line.lines().stream())
-                    .collect(Collectors.toUnmodifiableSet());
+    /**
+     * The steps and the columns of a Spreadsheet marked {@code ~}, which hold local values, by the rows and the columns
+     * of the sheet.
+     *
+     * @param rows    the rows of the sheet the local steps take
+     * @param columns the columns of the sheet the local columns take
+     */
+    private record Local(Set<Integer> rows, Set<Integer> columns) {
+
+        /** The local steps and columns among the steps and the columns of a Spreadsheet. */
+        static Local of(List<Line> steps, List<Line> columns) {
+            return new Local(linesTaken(steps, Line::dropped), linesTaken(columns, Line::dropped));
         }
+
+        /** Whether a cell stands in a local step or a local column: its name, its title or a value of it. */
+        boolean holds(ICell cell) {
+            return rows.contains(cell.getAbsoluteRow()) || columns.contains(cell.getAbsoluteColumn());
+        }
+    }
+
+    /** The rows or the columns of the sheet the steps or the columns a filter keeps take. */
+    private static Set<Integer> linesTaken(List<Line> lines, Predicate<Line> kept) {
+        return lines.stream()
+                .filter(kept)
+                .flatMap(line -> line.lines().stream())
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -229,15 +262,26 @@ final class SpreadsheetLayout {
      * The steps and the columns of a Spreadsheet the compiler read none of, as its text names them: as the compiler
      * reads a name, the part before {@code :} names the step, and a {@code *} or a {@code ~} closing it marks it.
      *
-     * @param body the body of the table
+     * @param steps   the steps down the first column that have a name
+     * @param columns the columns across the first row that have a name
      */
-    private record Guess(ILogicalTable body) {
+    private record Guess(List<Named> steps, List<Named> columns) {
 
         /** The name the compiler returns the step or the column of, whatever the type of the Spreadsheet. */
         private static final String RETURN = "RETURN";
 
         private static final String MARKED = SpreadsheetSymbols.ASTERISK.toString();
         private static final String DROPPED = SpreadsheetSymbols.TILDE.toString();
+
+        /** The steps and the columns of the body of a Spreadsheet, as its text names them. */
+        static Guess of(ILogicalTable body) {
+            return new Guess(named(body, true), named(body, false));
+        }
+
+        /** The steps and the columns marked {@code ~}. */
+        Local local() {
+            return Local.of(linesOf(steps), linesOf(columns));
+        }
 
         /**
          * What the Spreadsheet returns, as the compiler tells it from the type its header names: nothing for
@@ -248,8 +292,6 @@ final class SpreadsheetLayout {
             if ("void".equals(type)) {
                 return Returned.NOTHING;
             }
-            var steps = named(true);
-            var columns = named(false);
             var step = returnOf(steps);
             if (step != null) {
                 return Returned.single(true, step.lines());
@@ -274,7 +316,7 @@ final class SpreadsheetLayout {
         }
 
         /** The steps down the first column, or the columns across the first row, that have a name. */
-        private List<Named> named(boolean step) {
+        private static List<Named> named(ILogicalTable body, boolean step) {
             var named = new ArrayList<Named>();
             var count = step ? body.getHeight() : body.getWidth();
             for (var at = 1; at < count; at++) {
@@ -324,8 +366,20 @@ final class SpreadsheetLayout {
             if (single != null) {
                 return Returned.single(single.isRow(), sheetLines(single));
             }
-            return Returned.marked(linesOf(builder.getRowHeaders().values()),
-                    linesOf(builder.getColumnHeaders().values()));
+            return Returned.marked(steps(), columns());
+        }
+
+        /** The steps and the columns marked {@code ~}. */
+        Local local() {
+            return Local.of(steps(), columns());
+        }
+
+        private List<Line> steps() {
+            return linesOf(builder.getRowHeaders().values());
+        }
+
+        private List<Line> columns() {
+            return linesOf(builder.getColumnHeaders().values());
         }
 
         /** The steps or the columns the compiler read, and their marks. */

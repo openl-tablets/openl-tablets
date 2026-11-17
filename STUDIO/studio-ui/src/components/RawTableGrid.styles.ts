@@ -235,6 +235,11 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
         strong: css`
         font-weight: 600;
     `,
+        /** A local value: a step or a column a Spreadsheet marks ~, which it keeps out of what it returns. */
+        local: css`
+        font-style: italic;
+        color: ${roles.faint};
+    `,
         /** The fill of the titles of what a table takes, and of a heading within its body. */
         inputTitleFill: css`
         background: ${roles.inputTitleFill};
