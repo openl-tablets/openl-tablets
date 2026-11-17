@@ -189,7 +189,7 @@ describe('tableSkeletons', () => {
         expect(SIMPLE_TYPES).toContain('String')
         expect(SIMPLE_TYPES).not.toContain('int')
         expect(SIMPLE_TYPES).not.toContain('SpreadsheetResult')
-        // Exactly the keywords SequentialXlsLoader accepts; anything else is an "unrecognized keyword" error.
+        // Exactly the keywords SequentialXlsLoader accepts; anything else gets an "Unrecognized keyword" warning.
         expect(ENVIRONMENT_KEYS).toEqual(['dependency', 'import', 'include'])
         expect(TABLE_PRESETS).toHaveLength(15)
     })

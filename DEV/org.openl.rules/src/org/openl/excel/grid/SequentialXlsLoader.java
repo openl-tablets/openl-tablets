@@ -187,7 +187,7 @@ public class SequentialXlsLoader {
                 // ignore comment
                 log.debug("Comment: {}", value);
             } else {
-                var message = "Error in Environment table: unrecognized keyword '%s'".formatted(value);
+                var message = "Unrecognized keyword '%s' in an Environment table is ignored.".formatted(value);
                 messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
