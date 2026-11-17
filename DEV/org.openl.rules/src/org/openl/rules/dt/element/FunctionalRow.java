@@ -24,6 +24,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.DecisionTableRuntimePool;
 import org.openl.rules.dt.Expr;
 import org.openl.rules.dt.IDecisionTableConstants;
@@ -49,6 +50,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -526,10 +528,24 @@ public abstract class FunctionalRow implements IDecisionRow {
                 loadedValue = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(
                         singleParamGridTable), paramType, paramDecl[j].getName(), ruleName, paramOta, paramIndexed[j]);
             }
-            builders[j].writeObject(loadedValue, ruleN);
+            builders[j].writeObject(plainText(loadedValue, paramType, ota), ruleN);
 
             fromHeight += gridHeight;
         }
+    }
+
+    /**
+     * The text a condition of a Smart Rules or a Smart Lookup table holds in double quotes, without them: such a text
+     * is plain text, never a range, so {@code "EE Choice Non-Taxable"} matches only itself. Any other value is kept.
+     */
+    private Object plainText(Object value, IOpenClass paramType, OpenlToolAdaptor ota) {
+        // The cheap checks go first: the kind of the table is asked only of a quoted text
+        if (isCondition() && value instanceof String text && DecisionTableHelper.isQuotedText(text)
+                && JavaOpenClass.STRING.equals(paramType)
+                && DecisionTableHelper.isSmart(ota.getTableSyntaxNode())) {
+            return DecisionTableHelper.unquote(text);
+        }
+        return value;
     }
 
     private static class OtaBindingContext extends BindingContextDelegator {

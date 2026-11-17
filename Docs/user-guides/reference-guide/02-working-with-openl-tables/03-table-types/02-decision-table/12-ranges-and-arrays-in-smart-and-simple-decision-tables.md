@@ -26,4 +26,6 @@ Simple and smart rules and smart lookup tables support using arrays of ranges. I
 
 *Using arrays of ranges in a table*
 
+In a smart rules or smart lookup table, a String condition whose values parse as ranges, such as `A - Z` or `Z100-Z105`, becomes a StringRange condition, so a text with a dash between two words, such as `EE Choice Non-Taxable`, is read as the range from `EE Choice Non` to `Taxable`. To keep such a value a plain text, write it in double quotes: `"EE Choice Non-Taxable"` matches only the text `EE Choice Non-Taxable`. One quoted value makes every value of the column a plain text, matched as a simple rules table matches a String condition. Another way is a vocabulary data type that lists the values, since a value of a vocabulary is never a range.
+
 **Note:** String ranges are only supported in smart rules tables. For more information on range data types in OpenL Tablets, see [Range Data Types](../../../03-functions-and-data-types/02-working-with-data-types.md#range-data-types).

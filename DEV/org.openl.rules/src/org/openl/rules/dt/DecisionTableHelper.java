@@ -4992,6 +4992,11 @@ public final class DecisionTableHelper {
         }
 
         private void checkStringRange(String value) {
+            if (isQuotedText(value)) {
+                // A text in quotes is plain text, so the column holds no ranges
+                isAllParsableAsRangeFlag = false;
+                return;
+            }
             String[] arrs = checkParsableAsStringRange(value);
             if (isAllLikelyNotRangeFlag && StringRangeParser.getInstance().likelyRangeThanString(value)) {
                 isAllLikelyNotRangeFlag = false;
@@ -5285,6 +5290,20 @@ public final class DecisionTableHelper {
 
     public static boolean isCollect(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode.getHeader().isCollect();
+    }
+
+    /**
+     * Whether a value of a condition is written in double quotes, as {@code "EE Choice Non-Taxable"}. In a Smart Rules
+     * or a Smart Lookup table such a value is plain text: it is never read as a range, and it is matched without its
+     * quotes.
+     */
+    public static boolean isQuotedText(String value) {
+        return value.length() > 1 && value.startsWith("\"") && value.endsWith("\"");
+    }
+
+    /** The text of a value written in double quotes, without them. See {@link #isQuotedText(String)}. */
+    public static String unquote(String quoted) {
+        return quoted.substring(1, quoted.length() - 1);
     }
 
     public static boolean isSmart(TableSyntaxNode tableSyntaxNode) {
