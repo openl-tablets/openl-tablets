@@ -53,6 +53,15 @@ import org.openl.util.text.LocationUtils;
 
 @Slf4j
 public class SequentialXlsLoader {
+    /**
+     * The tables whose first row may hold more than the header: an unknown table, and the external conditions, actions
+     * and returns, which write their parameters next to the keyword.
+     */
+    private static final Set<String> FREE_HEADER_ROW_TYPES = Set.of(XlsNodeTypes.XLS_OTHER.toString(),
+            XlsNodeTypes.XLS_CONDITIONS.toString(),
+            XlsNodeTypes.XLS_ACTIONS.toString(),
+            XlsNodeTypes.XLS_RETURNS.toString());
+
     private final Collection<String> imports = new HashSet<>();
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -294,6 +303,9 @@ public class SequentialXlsLoader {
         TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
 
         var type = tsn.getType();
+        if (!FREE_HEADER_ROW_TYPES.contains(type)) {
+            checkHeaderRow(table);
+        }
         if (type.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())) {
             preprocessEnvironmentTable(tsn, source);
         } else if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
@@ -308,6 +320,23 @@ public class SequentialXlsLoader {
         }
 
         return tsn;
+    }
+
+    /**
+     * Warns about a text in the first row of a table out of its header cell. A table has one header, so such a text,
+     * such as a second header, is never read. A comment, which starts with {@code //}, is allowed there. The warning
+     * points at the first such cell.
+     */
+    private void checkHeaderRow(IGridTable table) {
+        for (var column = table.getCell(0, 0).getWidth(); column < table.getWidth(); column++) {
+            var value = table.getCell(column, 0).getStringValue();
+            if (!ParserUtils.isBlankOrCommented(value)) {
+                var node = new IdentifierNode(null, null, value, new GridCellSourceCodeModule(table, column, 0, null));
+                messages.add(OpenLMessagesUtils.newWarnMessage(
+                        "A text in the first row out of the header cell is ignored.", node));
+                return;
+            }
+        }
     }
 
     private void preprocessWorkbook(IOpenSourceCodeModule source) {

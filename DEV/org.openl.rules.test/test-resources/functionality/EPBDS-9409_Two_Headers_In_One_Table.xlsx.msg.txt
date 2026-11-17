@@ -1,0 +1,1 @@
+WARN: A text in the first row out of the header cell is ignored.

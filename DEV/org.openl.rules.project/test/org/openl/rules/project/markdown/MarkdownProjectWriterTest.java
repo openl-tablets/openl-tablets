@@ -69,7 +69,7 @@ class MarkdownProjectWriterTest {
             row(sheet, 7, 40.0, 1.0);
         });
         workbook(project.resolve("rules/Algorithms.xlsx"), "Algorithms", sheet -> {
-            row(sheet, 0, "Method Integer three()", "a note beside the header");
+            row(sheet, 0, "Method Integer three()", "// a note beside the header");
             row(sheet, 1, "return 3;");
         });
         var copy = dir.resolve("copy");

@@ -8,7 +8,7 @@ Content-Type: application/json
     "type": "columns",
     "cells": [
       [
-        {"value": "Batch group", "colspan": 2},
+        {"value": "// Batch group", "colspan": 2},
         {"value": null},
         {"value": null},
         {"value": null},

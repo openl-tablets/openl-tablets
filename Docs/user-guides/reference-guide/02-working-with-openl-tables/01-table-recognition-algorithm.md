@@ -36,7 +36,7 @@ The general table recognition algorithm is as follows:
 
 1.  The engine determines the width and height of the table using populated cells as clues.
 
-It is a good practice to merge all cells in the first table row, so the first row explicitly specifies the table width. The first row is called the table **header**.
+It is a good practice to merge all cells in the first table row, so the first row explicitly specifies the table width. The first row is called the table **header**. The header is the text of the top left cell, merged or not: any other text in the first row, such as a second header written next to it, is ignored with the warning `A text in the first row out of the header cell is ignored.` A comment, a text that starts with `//`, is allowed there. A Conditions, Actions or Returns table, which writes its parameters next to the keyword, and a table without a keyword are not checked.
 
 In Data and Test tables, empty columns on the right that only the merged header spans are ignored. They add no
 fields, records or test cases. For example, a header merged across A1:E1 over a vertical Data table with content

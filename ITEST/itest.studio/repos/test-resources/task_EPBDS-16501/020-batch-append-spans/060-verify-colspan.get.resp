@@ -22,7 +22,7 @@ Content-Type: application/json
       },
       {
         "cell": "E4",
-        "value": "Batch group",
+        "value": "// Batch group",
         "colspan": 2
       },
       {
