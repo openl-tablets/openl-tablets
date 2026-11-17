@@ -21,7 +21,7 @@ import {
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import { moduleRoute, projectFileRoute } from '../services/projectId'
+import { projectFileRoute } from '../services/projectId'
 import { DEFAULT_PAGE_SIZE } from '../constants/ui'
 import { HeaderActions } from '../components/HeaderActions'
 import { ListFooter } from '../components/ListFooter'
@@ -569,12 +569,8 @@ export const ProjectsHome = () => {
         [leaveTo]
     )
 
-    // A file picked in the tree is followed to where it is read: a module to the editor, any other file or a
-    // folder to the page of the project it belongs to.
-    const openModule = useCallback(
-        (project: Project, moduleName: string) => leaveTo(moduleRoute(project.id, moduleName)),
-        [leaveTo]
-    )
+    // A file or a folder picked in the tree is shown on the page of the project it belongs to. A module is shown there
+    // too, with its file actions and the button that opens it in the editor.
     const openFile = useCallback(
         (project: Project, path: string) => leaveTo(projectFileRoute(project.id, path)),
         [leaveTo]
@@ -869,7 +865,6 @@ export const ProjectsHome = () => {
                 onClearFilters={resetFilters}
                 onOpenFile={openFile}
                 onOpenGroup={openGroup}
-                onOpenModule={openModule}
                 onOpenProject={openProject}
                 onRefresh={() => void load(true)}
                 onShowAll={resetFilters}

@@ -82,9 +82,7 @@ interface ProjectsRailBaseProps {
     /** The file or folder of the current project the screen shows, which the tree opens on. */
     currentFile?: string | undefined
     onOpenProject: (project: Project) => void
-    /** A module of a project was picked in the tree: read it in the editor. */
-    onOpenModule?: ((project: Project, moduleName: string) => void) | undefined
-    /** A folder, or a file that is no module, was picked in the tree: show it on the page of its project. */
+    /** A file, a module among them, or a folder was picked in the tree: show it on the page of its project. */
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A repository or tag group was picked in the tree: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
@@ -126,7 +124,6 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
         currentFolders,
         currentFile,
         onOpenProject,
-        onOpenModule,
         onOpenFile,
         onOpenGroup,
         onShowAll,
@@ -226,7 +223,6 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
                         onClearFilters={onClearFilters}
                         onOpenFile={onOpenFile}
                         onOpenGroup={onOpenGroup}
-                        onOpenModule={onOpenModule}
                         onOpenProject={onOpenProject}
                         onShowAll={onShowAll}
                         reloadToken={reloadToken}

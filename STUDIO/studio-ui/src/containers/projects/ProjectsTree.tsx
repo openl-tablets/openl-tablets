@@ -11,7 +11,6 @@ import { getProject, getProjectFiles } from '../../services/repositories'
 import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
 import { ProjectStatus } from '../../constants/project'
 import { buildFileChangeMap } from './fileChanges'
-import { listModules } from '../../services/modules'
 import { buildFileNodes, type FileNode } from './fileNodes'
 import { iconFor } from './fileIcons'
 import type { Repository } from '../../types/repositories'
@@ -67,12 +66,7 @@ const fileKeyParts = (key: string): { projectId: string, path: string } | null =
     return separator < 0 ? null : { projectId: rest.slice(0, separator), path: rest.slice(separator + 1) }
 }
 
-/**
- * The files of one project, as the tree reads them when its row is opened.
- *
- * <p>Which of them are modules is only known while the project is open — a closed project keeps no
- * workspace copy to resolve its descriptor against — so the map is empty rather than wrong for one.
- */
+/** The files of one project, as the tree reads them when its row is opened. */
 interface ProjectContents {
     /**
      * The project as it was when its files were read — its state, branch, revision and last change: another one makes
@@ -85,8 +79,6 @@ interface ProjectContents {
     changes?: ReadonlyMap<string, ProjectFileChangeType>
     /** The size of a file in bytes, by its path. */
     sizes: Record<string, number>
-    /** The name of the module a file is, by the file's path. */
-    modules: Record<string, string>
     error?: string
 }
 
@@ -110,22 +102,20 @@ const SIZE_CHROME = 24
 const BRANCH_MARKS_WIDTH = 96
 
 /**
- * Reads the files of a project, the modules among them and, for a project being edited, its changes.
+ * Reads the files of a project and, for a project being edited, its changes.
  *
- * <p>Which files are modules is answered by a project that is open; a closed one cannot say, so its files are all read
- * as plain files rather than the read failing. The changes the screen already knows — those of the project it shows —
- * are taken as they are rather than read again.
+ * <p>The changes the screen already knows — those of the project it shows — are taken as they are rather than read
+ * again.
  */
 const readContents = async (
     project: Project,
     knownChanges: ReadonlyMap<string, ProjectFileChangeType> | undefined
 ): Promise<ProjectContents> => {
-    const [files, modules, changes] = await Promise.all([
+    const [files, changes] = await Promise.all([
         getProjectFiles(project.id).then(
             read => read.filter(node => node.type === 'file'),
             (e: unknown) => errorMessage(e)
         ),
-        listModules(project.id).catch(() => []),
         // Only a project being edited has changes to mark; they come with its status.
         project.status === ProjectStatus.Editing && !knownChanges
             ? getProject(project.id, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
@@ -134,14 +124,13 @@ const readContents = async (
             : knownChanges,
     ])
     if (typeof files === 'string') {
-        return { signature: projectSignature(project), paths: [], sizes: {}, modules: {}, error: files }
+        return { signature: projectSignature(project), paths: [], sizes: {}, error: files }
     }
     return {
         signature: projectSignature(project),
         ...(changes ? { changes } : {}),
         paths: files.map(file => file.path),
         sizes: Object.fromEntries(files.flatMap(file => (file.size === undefined ? [] : [[file.path, file.size]]))),
-        modules: Object.fromEntries(modules.filter(module => module.path).map(module => [module.path, module.name])),
     }
 }
 
@@ -438,9 +427,10 @@ interface ProjectsTreeBaseProps {
     /** The project the screen is showing, highlighted and opened in the tree. */
     currentProjectId?: string | undefined
     onOpenProject: (project: Project) => void
-    /** A module of a project was picked: read it in the editor. */
-    onOpenModule?: ((project: Project, moduleName: string) => void) | undefined
-    /** A folder, or a file that is no module, was picked: show it on the page of its project. */
+    /**
+     * A file or a folder was picked: show it on the page of its project. A module is shown there too, with its file
+     * actions and the button that opens it in the editor.
+     */
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A group was picked: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
@@ -501,7 +491,6 @@ export const ProjectsTree = ({
     repositories = NO_REPOSITORIES,
     currentProjectId,
     onOpenProject,
-    onOpenModule,
     onOpenFile,
     onOpenGroup,
     onShowAll,
@@ -1059,19 +1048,10 @@ export const ProjectsTree = ({
         }
     }
 
-    /**
-     * Follows a file to where it is read: a module to the editor, any other file or a folder to the page of its
-     * project.
-     */
+    /** Shows a file or a folder on the page of its project. */
     const openFile = (projectId: string, path: string) => {
         const project = (projects ?? []).find(candidate => candidate.id === projectId)
-        if (!project) {
-            return
-        }
-        const moduleName = contents[projectId]?.modules[path]
-        if (moduleName && onOpenModule) {
-            onOpenModule(project, moduleName)
-        } else {
+        if (project) {
             onOpenFile?.(project, path)
         }
     }
