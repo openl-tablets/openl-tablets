@@ -16,8 +16,9 @@ public class TableNameConstraintValidator implements ConstraintValidator<TableNa
 
     @Override
     public boolean isValid(@Nullable String name, ConstraintValidatorContext context) {
-        // A missing name is already reported by @NotBlank, which every name carries. The name is written to the
-        // header as it is given, so the space around one is part of what is refused.
+        // A missing name is no name: whether the table needs one depends on its kind, which is checked once the table
+        // is known. The name is written to the header as it is given, so the space around one is part of what is
+        // refused.
         return name == null || name.isBlank() || TableNameChecker.isValidJavaIdentifier(name);
     }
 }

@@ -133,6 +133,7 @@ import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.WorkspaceProjectService.WrittenTable;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.TableInputService;
@@ -470,8 +471,8 @@ public class ProjectsController {
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                            @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
         var table = (TableView) request.table();
-        return created(project, request.moduleName(), table.name,
-                () -> projectService.createNewTable(project, request));
+        return created(project, request.moduleName(),
+                () -> new WrittenTable(projectService.createNewTable(project, request), table.name));
     }
 
     @Operation(summary = "projects.tables.copy.summary", description = "projects.tables.copy.desc")
@@ -481,8 +482,7 @@ public class ProjectsController {
     public SummaryTableView copyTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                       @Valid @RequestBody CopyTableRequest request) throws ProjectException {
-        return created(project, request.moduleName(), request.name(),
-                () -> projectService.copyTable(project, tableId, request));
+        return created(project, request.moduleName(), () -> projectService.copyTable(project, tableId, request));
     }
 
     /**
@@ -511,13 +511,13 @@ public class ProjectsController {
      * <p>A table that is not found after the write is answered as a conflict, never as an empty answer: the table
      * may be in the module, and the caller is told to look.
      */
-    private SummaryTableView created(RulesProject project, String moduleName, String name,
-                                     WorkbookWrites.Write<@Nullable String, ProjectException> write)
+    private SummaryTableView created(RulesProject project, String moduleName,
+                                     WorkbookWrites.Write<WrittenTable, ProjectException> write)
             throws ProjectException {
         return getWebStudio().getWorkbookWrites().writing(() -> {
-            var tableId = write.run();
-            recompileWrittenModule(tableId != null);
-            var table = projectService.getCreatedTable(project, moduleName, tableId, name);
+            var written = write.run();
+            recompileWrittenModule(written.id() != null);
+            var table = projectService.getCreatedTable(project, moduleName, written.id(), written.name());
             if (table == null) {
                 throw new ConflictException("table.created.not-found.message");
             }

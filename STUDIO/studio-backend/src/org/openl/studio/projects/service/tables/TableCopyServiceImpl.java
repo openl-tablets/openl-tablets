@@ -1,13 +1,11 @@
 package org.openl.studio.projects.service.tables;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.openl.excel.grid.MarkdownModuleWriter;
 import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.data.OneLineRecords;
 import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -63,16 +60,12 @@ import org.openl.util.RuntimeExceptionWrapper;
 @RequiredArgsConstructor
 public class TableCopyServiceImpl implements TableCopyService {
 
-    /** The tables of definitions, headed by their keyword and an optional name. */
-    private static final Set<XlsNodeTypes> DEFINITIONS = EnumSet.of(XlsNodeTypes.XLS_CONDITIONS,
-            XlsNodeTypes.XLS_ACTIONS, XlsNodeTypes.XLS_RETURNS, XlsNodeTypes.XLS_CONSTANTS);
-
     private final SystemPropertiesService systemPropertiesService;
     private final TableVersionService versionService;
     private final TableFormatting formatting;
 
     @Override
-    public String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
+    public String copyInto(IOpenLTable source, @Nullable String newName, @Nullable List<TableProperty> properties,
             IWritableGrid destGrid, TableSyntaxNode[] moduleTables, @Nullable XlsModuleOpenClass compiled) {
         var declared = properties == null ? null : stamped(toPropertyMap(properties));
         if (declared != null) {
@@ -126,9 +119,10 @@ public class TableCopyServiceImpl implements TableCopyService {
      * with the source. The version, on the other hand, has to be free of every version in the module, whichever
      * workbook holds it.
      */
-    private boolean supersedes(IOpenLTable source, String newName, @Nullable Map<String, Object> declared,
+    private boolean supersedes(IOpenLTable source, @Nullable String newName, @Nullable Map<String, Object> declared,
             IWritableGrid destGrid, TableSyntaxNode[] moduleTables) {
-        if (!newName.equals(source.getName())) {
+        // A copy without a name keeps none of the source's, so it is a table of its own.
+        if (newName == null || !newName.equals(source.getName())) {
             return false;
         }
         if (declared == null) {
@@ -253,7 +247,7 @@ public class TableCopyServiceImpl implements TableCopyService {
                         MarkdownModuleWriter.valuesOf(oneLine, ICell::getObjectValue)));
     }
 
-    private static String build(IOpenLTable source, IGridTable original, String newName,
+    private static String build(IOpenLTable source, IGridTable original, @Nullable String newName,
             @Nullable Map<String, Object> declared, IWritableGrid destGrid, CopyLook look,
             @Nullable XlsModuleSyntaxNode module) {
         var node = source.getSyntaxNode();
@@ -385,14 +379,17 @@ public class TableCopyServiceImpl implements TableCopyService {
     /**
      * The header of the copy, named after it.
      * <p>
-     * A table of definitions (Conditions, Actions, Returns or Constants) is headed by its keyword and an optional name,
-     * which its module does not report, so the name after the keyword is replaced or added. Every other header opens
-     * with an OpenL keyword and carries the name after it; that occurrence of the name is swapped, leaving the keyword
-     * in place.
+     * A table whose name is optional, such as a Conditions or a Test table, is headed by the words before its name and
+     * the name of the copy, or by those words alone for a copy without a name. Every other header opens with an OpenL
+     * keyword and carries the name after it; that occurrence of the name is swapped, leaving the keyword in place.
      */
-    private static String rename(TableSyntaxNode node, String sourceName, String copyName) {
-        if (DEFINITIONS.contains(node.getNodeType())) {
-            return node.getHeader().getHeaderToken().getIdentifier() + ' ' + copyName;
+    private static String rename(TableSyntaxNode node, String sourceName, @Nullable String copyName) {
+        var optionallyNamed = TableHeaderNames.headerOf(node, copyName);
+        if (optionallyNamed != null) {
+            return optionallyNamed;
+        }
+        if (copyName == null) {
+            throw new BadRequestException("table.name.required.message");
         }
         var header = node.getHeaderLineValue().getValue();
         // The name, bounded by a start or a space before it and a space, an opening parenthesis or the end after it.

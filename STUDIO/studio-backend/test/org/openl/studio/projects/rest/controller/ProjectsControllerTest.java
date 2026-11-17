@@ -77,6 +77,7 @@ import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.WorkspaceProjectService.WrittenTable;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.tables.TableInputService;
@@ -275,7 +276,8 @@ class ProjectsControllerTest {
                 .kind(TableKind.RULES)
                 .name("GreetingCopy")
                 .build();
-        when(projectService.copyTable(project, "source-id", request)).thenReturn("copy-id");
+        when(projectService.copyTable(project, "source-id", request))
+                .thenReturn(new WrittenTable("copy-id", "GreetingCopy"));
         when(projectService.getCreatedTable(project, "Main", "copy-id", "GreetingCopy")).thenReturn(expected);
 
         var copied = controller.copyTable(project, "source-id", request);
@@ -284,6 +286,20 @@ class ProjectsControllerTest {
         verify(projectService).copyTable(project, "source-id", request);
         // The id the copy returns is read back, not the source name a same-named copy would collide on.
         verify(projectService).getCreatedTable(project, "Main", "copy-id", "GreetingCopy");
+    }
+
+    /** A copy into a new module, left without a name, is read back by the name its header gives it. */
+    @Test
+    void anUnnamedCopyIsReadBackByTheNameOfItsHeader() throws ProjectException {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService);
+        var project = mock(RulesProject.class);
+        var request = new CopyTableRequest("Checks", null, "rules/Checks.xlsx", null, null);
+        var expected = SummaryTableView.builder().tableType("Test").kind(TableKind.TEST).name("hello").build();
+        when(projectService.copyTable(project, "source-id", request)).thenReturn(new WrittenTable(null, "hello"));
+        when(projectService.getCreatedTable(project, "Checks", null, "hello")).thenReturn(expected);
+
+        assertEquals(expected, controller.copyTable(project, "source-id", request));
     }
 
     @Test

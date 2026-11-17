@@ -165,6 +165,7 @@ import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
+import org.openl.studio.projects.service.tables.TableHeaderNames;
 import org.openl.studio.projects.service.tables.TableLayouts;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
@@ -2405,7 +2406,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * Get a table's name, kind and its own properties, without reading the body.
      * <p>
      * The copy dialog prefills the copy's name and properties from this, so a table of any size is read cheaply. A table
-     * whose header is its keyword alone, such as a Conditions table without a name, is reported with an empty name.
+     * whose header leaves its name out, such as a Conditions table headed by its keyword alone or a Test table naming
+     * only the table it calls, is reported with an empty name.
      *
      * @param project project
      * @param tableId table id
@@ -2415,13 +2417,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getOpenLTable(project, tableId);
         var table = context.table();
         var summary = summaryTableReader.read(table);
-        // A header of its keyword alone names no table: the dialog then asks for a name instead of offering the keyword.
-        // The header of a table of the type Other is its name, whatever its first word.
-        var node = table.getSyntaxNode();
-        var header = node.getHeader();
-        var named = node.getNodeType() == XlsNodeTypes.XLS_OTHER
-                || !header.getSourceString().strip().equals(header.getHeaderToken().getIdentifier());
-        return new TablePropertiesView(named ? summary.name : "", summary.kind, tablePropertiesService.read(table),
+        // A header that leaves the name out names no table: the dialog then leaves the name to the author instead of
+        // offering the keyword or the table a test calls.
+        var name = TableHeaderNames.isUnnamed(table.getSyntaxNode()) ? "" : summary.name;
+        return new TablePropertiesView(name, summary.kind, tablePropertiesService.read(table),
                 tableVersionService.describe(table, context.module().getTableSyntaxNodes()));
     }
 
@@ -3159,19 +3158,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * copy is laid out in one pass, so a copy that keeps the source's name never exists as an indistinguishable
      * duplicate.
      *
+     * <p>A copy of a Test, a Run, a Properties or an Environment table may be left without a name, OpenL naming such a
+     * table on its own; any other copy needs one. A Properties or an Environment table is copied as it stands.
+     *
      * <p>The returned identifier is the copy's own, even when it shares the source's name — a copy kept under the same
      * name is a new version, numbered among the tables sharing that name by where it is written.
      *
      * @param project       project
      * @param sourceTableId id of the table to copy
      * @param request       the copy request
-     * @return the copy's identifier, or {@code null} for a newly created module
-     * @throws ConflictException if the project is held by another user
+     * @return the copy's identifier, {@code null} for a newly created module, and the name the copy is shown under
+     * @throws ConflictException   if the project is held by another user
+     * @throws BadRequestException when the table cannot be copied as the request asks, see
+     *                             {@link TableCopyService#requireCopyable}
      */
     @LockForEditing
-    public @Nullable String copyTable(RulesProject project,
-                                      String sourceTableId,
-                                      CopyTableRequest request) throws ProjectException {
+    public WrittenTable copyTable(RulesProject project,
+                                  String sourceTableId,
+                                  CopyTableRequest request) throws ProjectException {
         // Resolve the source (with its live grid) before opening the destination module. The resolved POI grid stays
         // valid across the reopen — the copy only reads it — so a copy into another module still sees the source cells.
         var resolved = getOpenLTable(project, sourceTableId);
@@ -3179,19 +3183,33 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // A copy of the table the compiler built would be a rule nobody wrote.
         GeneratedTables.refuseAction(resolved.module(), source);
         // Refused before a new module is made for the copy, so nothing is left behind.
-        TableCopyService.requireCopyable(source);
+        TableCopyService.requireCopyable(source, request);
+        // A copy left without a name, such as a Test table, is shown under the name its header gives it.
+        var shownName = TableHeaderNames.shownName(source, request.name());
         var requestedSheet = request.sheetName();
-        var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
-                ? requestedSheet
-                : request.name();
+        var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet) ? requestedSheet : shownName;
         var modulePath = request.modulePath();
         if (modulePath != null && !modulePath.isBlank()) {
-            return FileTypeHelper.isExcelFile(modulePath)
-                    ? copyIntoNewModule(project, source, request, sheetName)
-                    : copyIntoNewMarkdownModule(project, source, request, modulePath);
+            if (FileTypeHelper.isExcelFile(modulePath)) {
+                copyIntoNewModule(project, source, request, sheetName, shownName);
+            } else {
+                copyIntoNewMarkdownModule(project, source, request, modulePath, shownName);
+            }
+            return new WrittenTable(null, shownName);
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
-        return writing(() -> writeCopy(projectModel, source, request, sheetName));
+        return new WrittenTable(writing(() -> writeCopy(projectModel, source, request, sheetName, shownName)),
+                shownName);
+    }
+
+    /**
+     * A table just written.
+     *
+     * @param id   the identifier of the table, or {@code null} for a table written into a module of its own, which is
+     *             found by its name once the project is read again
+     * @param name the name the table is shown under
+     */
+    public record WrittenTable(@Nullable String id, String name) {
     }
 
     /**
@@ -3199,7 +3217,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * Markdown files takes it as a file of its own, in the folder the requested sheet names.
      */
     private String writeCopy(ProjectModel projectModel, IOpenLTable source, CopyTableRequest request,
-                             String sheetName) {
+                             String sheetName, String shownName) {
         var folder = MarkdownTableFiles.folderOf(projectModel.getModuleInfo());
         var compiled = projectModel.compiledModuleOf(projectModel.getXlsModuleNode());
         if (folder == null) {
@@ -3207,7 +3225,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                     tableCreatorService.sheetGridModel(projectModel, sheetName), projectModel.getTableSyntaxNodes(),
                     compiled);
         }
-        var file = markdownTableFiles.newFile(projectModel, folder, request.sheetName(), request.name(),
+        var file = markdownTableFiles.newFile(projectModel, folder, request.sheetName(), shownName,
                 OpenLTableUtils.kindOf(source));
         try {
             return tableCopyService.copyInto(source, request.name(), request.properties(), file,
@@ -3225,35 +3243,33 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     /**
      * Copy a table into a new module of Markdown files: the copy is the first file of the module, in the folder the
-     * requested sheet names, and the module is registered once the file is written.
-     *
-     * @return {@code null}, so the caller resolves the copy by name
+     * requested sheet names, and the module is registered once the file is written. The caller resolves the copy by
+     * name.
      */
-    private @Nullable String copyIntoNewMarkdownModule(RulesProject project,
-                                                       IOpenLTable source,
-                                                       CopyTableRequest request,
-                                                       String modulePath) {
+    private void copyIntoNewMarkdownModule(RulesProject project,
+                                           IOpenLTable source,
+                                           CopyTableRequest request,
+                                           String modulePath,
+                                           String shownName) {
         var projectDescriptor = getProjectDescriptor(project);
         requireModuleAbsent(projectDescriptor.getModules(), request.moduleName(), modulePath);
         var grid = tableCreatorService.newMarkdownModule(project, projectDescriptor, request.moduleName(),
-                modulePath, request.sheetName(), request.name(), OpenLTableUtils.kindOf(source));
+                modulePath, request.sheetName(), shownName, OpenLTableUtils.kindOf(source));
         writing(() -> tableCopyService.copyInto(source, request.name(), request.properties(), grid,
                 new TableSyntaxNode[0], null));
-        return null;
     }
 
     /**
      * Copy a table into a module that does not exist yet.
      * <p>
      * The module is created empty and registered, then the copy is written into it. The copy's identifier is unknown
-     * until the project is recompiled, so it is found after the write by name.
-     *
-     * @return {@code null}, so the caller resolves the copy by name
+     * until the project is recompiled, so the caller finds it after the write by name.
      */
-    private @Nullable String copyIntoNewModule(RulesProject project,
-                                               IOpenLTable source,
-                                               CopyTableRequest request,
-                                               String sheetName) throws ProjectException {
+    private void copyIntoNewModule(RulesProject project,
+                                   IOpenLTable source,
+                                   CopyTableRequest request,
+                                   String sheetName,
+                                   String shownName) throws ProjectException {
         var moduleCreated = false;
         try {
             var projectDescriptor = getProjectDescriptor(project);
@@ -3266,8 +3282,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var projectModel = openProject(project, request.moduleName()).awaitCompiled();
             // Through the queue like every other write: the copy is read out of the source table's workbook,
             // which is one this session already holds and another request may be writing.
-            writing(() -> writeCopy(projectModel, source, request, sheetName));
-            return null;
+            writing(() -> writeCopy(projectModel, source, request, sheetName, shownName));
         } catch (RuntimeException | ProjectException e) {
             // The write can fail after the empty module is registered — unlike the atomic create path. Remove
             // the module so no phantom lingers to block a retry; the lock is the interceptor's to give back.

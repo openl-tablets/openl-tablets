@@ -126,6 +126,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.service.ProjectAuditor;
@@ -186,7 +187,6 @@ import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.model.ProjectRevision;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenMethod;
 
 class WorkspaceProjectServiceTest {
@@ -1796,7 +1796,7 @@ class WorkspaceProjectServiceTest {
                 TableKind.RULES)).thenReturn(grid);
         var request = new CopyTableRequest("Rates", "rates", "rules/Rates", "CopyName", null);
 
-        var copyId = service.copyTable(project, "src-id", request);
+        var copyId = service.copyTable(project, "src-id", request).id();
 
         // The module is made by the file of the copy, so there is no module to compile before the copy is written
         assertNull(copyId);
@@ -1828,7 +1828,7 @@ class WorkspaceProjectServiceTest {
         when(tableCreatorService.sheetGridModel(destModel, "CopyName")).thenReturn(destGrid);
         var request = new CopyTableRequest("NewModule", null, "rules/NewModule.xlsx", "CopyName", null);
 
-        var copyId = service.copyTable(project, "src-id", request);
+        var copyId = service.copyTable(project, "src-id", request).id();
 
         // A new module has no compiled identifier yet, so the copy is resolved by name afterwards.
         assertNull(copyId);
@@ -2292,7 +2292,7 @@ class WorkspaceProjectServiceTest {
         when(tablePropertiesService.read(table)).thenReturn(properties);
         when(table.isVersionable()).thenReturn(true);
         when(table.getName()).thenReturn("MyTable");
-        stubHeader(table, "Rules String MyTable(String state)", "Rules");
+        stubHeader(table, "Rules String MyTable(String state)", XlsNodeTypes.XLS_DT);
 
         var view = service.getTableProperties(project, "src-id");
 
@@ -2336,7 +2336,7 @@ class WorkspaceProjectServiceTest {
         stubResolvedSource(service, project, table);
         when(summaryTableReader.read(table))
                 .thenReturn(SummaryTableView.builder().name("Conditions").kind(TableKind.CONDITIONS).build());
-        stubHeader(table, " Conditions ", "Conditions");
+        stubHeader(table, " Conditions ", XlsNodeTypes.XLS_CONDITIONS);
 
         var view = service.getTableProperties(project, "src-id");
 
@@ -2356,22 +2356,73 @@ class WorkspaceProjectServiceTest {
         stubResolvedSource(service, project, table);
         when(summaryTableReader.read(table))
                 .thenReturn(SummaryTableView.builder().name("Notes").kind(TableKind.OTHER).build());
-        stubHeader(table, "Notes", "Notes");
-        when(table.getSyntaxNode().getNodeType()).thenReturn(XlsNodeTypes.XLS_OTHER);
+        stubHeader(table, "Notes", XlsNodeTypes.XLS_OTHER);
 
         assertEquals("Notes", service.getTableProperties(project, "src-id").name());
     }
 
-    /** The header of the table as written, and the keyword it opens with. */
-    private static void stubHeader(IOpenLTable table, String header, String keyword) {
+    /** A Test table that names only the table it calls is reported without a name, and one that names itself with it. */
+    @ParameterizedTest
+    @CsvSource({"Test hello, XLS_TEST_METHOD, ''", "Test hello helloChecks, XLS_TEST_METHOD, helloChecks",
+            "Run hello, XLS_RUN_METHOD, ''", "Properties, XLS_PROPERTIES, ''", "Properties Shared, XLS_PROPERTIES, Shared",
+            "Environment, XLS_ENVIRONMENT, ''"})
+    void a_table_of_an_optional_name_is_reported_with_the_name_it_declares(String header, XlsNodeTypes type,
+            String name) throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var service = spy(newCopyService(mock(RepositoryAclService.class), mock(WebStudio.class),
+                mock(TableCreatorService.class), mock(TableCopyService.class), summaryTableReader,
+                mock(TablePropertiesService.class)));
+        var project = mock(RulesProject.class);
+        var table = mock(IOpenLTable.class);
+        stubResolvedSource(service, project, table);
+        stubHeader(table, header, type);
+        var words = header.split(" ");
+        when(summaryTableReader.read(table))
+                .thenReturn(SummaryTableView.builder().name(words[words.length - 1]).build());
+
+        assertEquals(name, service.getTableProperties(project, "src-id").name());
+    }
+
+    /** A Test table copied without a name or a sheet goes to a sheet named after the table it calls. */
+    @Test
+    void a_test_copied_without_a_name_goes_to_the_sheet_of_the_table_it_calls() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        when(source.getType()).thenReturn(XlsNodeTypes.XLS_TEST_METHOD.toString());
+        stubResolvedSource(service, project, source);
+        stubHeader(source, "Test hello", XlsNodeTypes.XLS_TEST_METHOD);
+        var destModel = mock(ProjectModel.class);
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(destModel);
+        doReturn(destHandle).when(service).openProject(project, "Existing");
+        var currentProject = mock(RulesProject.class);
+        when(webStudio.getCurrentProject()).thenReturn(currentProject);
+        var destGrid = mock(XlsSheetGridModel.class);
+        when(tableCreatorService.sheetGridModel(destModel, "hello")).thenReturn(destGrid);
+        when(tableCopyService.copyInto(eq(source), isNull(), isNull(), eq(destGrid), any(), any()))
+                .thenReturn("copy-id");
+
+        var written = service.copyTable(project, "src-id", new CopyTableRequest("Existing", null, null, " ", null));
+
+        // The copy is read back under the name its header gives it.
+        assertEquals(new WorkspaceProjectService.WrittenTable("copy-id", "hello"), written);
+    }
+
+    /** The header of the table as written, and the type it is compiled as. */
+    private static void stubHeader(IOpenLTable table, String header, XlsNodeTypes type) {
         var node = mock(TableSyntaxNode.class);
         var headerNode = mock(HeaderSyntaxNode.class);
-        var token = mock(IdentifierNode.class);
         when(table.getSyntaxNode()).thenReturn(node);
+        when(node.getNodeType()).thenReturn(type);
         when(node.getHeader()).thenReturn(headerNode);
-        when(headerNode.getSourceString()).thenReturn(header);
-        when(headerNode.getHeaderToken()).thenReturn(token);
-        when(token.getIdentifier()).thenReturn(keyword);
+        when(headerNode.getModule()).thenReturn(new StringSourceCodeModule(header, null));
     }
 
     @Test
@@ -2399,7 +2450,7 @@ class WorkspaceProjectServiceTest {
                 .thenReturn("copy-id");
         var request = new CopyTableRequest("Existing", "Copies", null, "CopyName", null);
 
-        var copyId = service.copyTable(project, "src-id", request);
+        var copyId = service.copyTable(project, "src-id", request).id();
 
         // The module is already compiled, so the copy's own identifier is known and returned.
         assertEquals("copy-id", copyId);

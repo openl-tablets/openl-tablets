@@ -28915,8 +28915,7 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
-            "description": "***",
-            "minLength": 1
+            "description": "***"
           },
           "properties": {
             "type": "array",
@@ -28931,8 +28930,7 @@ Content-Type: application/json
           }
         },
         "required": [
-          "moduleName",
-          "name"
+          "moduleName"
         ]
       },
       "CreateAuthenticationTemplateModel": {

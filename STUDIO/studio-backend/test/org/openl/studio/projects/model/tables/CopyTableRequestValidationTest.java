@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -13,8 +14,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies bean validation of the copy request: its name and module are required, a new-module path must be an xlsx
- * file, and validation cascades into each property.
+ * Verifies bean validation of the copy request: its module is required, a name given must be one OpenL compiles, a
+ * new-module path must be an xlsx file or a folder, and validation cascades into each property.
  */
 class CopyTableRequestValidationTest {
 
@@ -45,9 +46,18 @@ class CopyTableRequestValidationTest {
         assertTrue(validator.validate(request).isEmpty());
     }
 
+    /** Whether a copy needs a name depends on the kind of the table, which is checked once the table is known. */
     @Test
-    void rejectsBlankName() {
-        var request = new CopyTableRequest("Module", null, null, " ", null);
+    void acceptsARequestWithoutAName() {
+        var blank = new CopyTableRequest("Module", null, null, " ", null);
+        assertNull(blank.name(), "a blank name is no name");
+        assertTrue(validator.validate(blank).isEmpty());
+        assertTrue(validator.validate(new CopyTableRequest("Module", null, null, null, null)).isEmpty());
+    }
+
+    @Test
+    void rejectsAnInvalidName() {
+        var request = new CopyTableRequest("Module", null, null, "1Copy", null);
         assertEquals(1, validator.validate(request).size());
     }
 

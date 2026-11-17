@@ -829,11 +829,17 @@ To create a table as a copy of the existing table, proceed as follows:
 1.  Enter a valid OpenL identifier in **Table Name**. It may match an existing table name when the table is
     distinguished by its signature or properties. A name of any other shape is refused, by the window and by the
     server alike.
+    The name of a Test, Run, Properties or Environment table is optional, as OpenL Tablets names such a table on its
+    own. Leave **Table Name** empty to copy the table without a name: the copy is headed by the keyword and, for a
+    Test or Run table, by the table it calls, such as `Test calculatePremium`. A table whose header leaves its name
+    out opens with an empty **Table Name**; a Conditions, Actions, Returns or Constants table copied from such a
+    header needs a name.
 2.  Select or enter the destination **Module**.
 3.  Select or enter the destination **Sheet**. The sheet is the table's category, so a new sheet name creates a new
     category. A copy into the module of the copied table is offered its sheet, the same category; a copy into
     another module is offered a sheet of that module.
-4.  Review the property name and value rows. The names are the properties applicable to the copied table's type,
+4.  Review the property name and value rows. A Properties or Environment table is copied as it stands and offers no
+    rows. The names are the properties applicable to the copied table's type,
     offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
     Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:
     - complete the last row to add another property, or delete a row with its row control;
