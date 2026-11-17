@@ -1,11 +1,14 @@
 package org.openl.rules.util;
 
+import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringJoiner;
 
 import org.jspecify.annotations.Nullable;
 
@@ -555,6 +558,16 @@ public final class Strings {
         return buf.toString();
     }
 
+    /**
+     * Converts a value to a text. A number is written as {@link Numbers#toString(Number)} writes it, and a date in the
+     * ISO form {@code yyyy-MM-dd}, as in {@code 2024-01-15}.
+     * <p>
+     * An array is written as its elements in square brackets, separated by a comma and a space, as in
+     * {@code [1, 2, 3]}. An element is written as this function writes a value of its type, and an empty element as
+     * {@code null}. An array inside an array is written in its own brackets, as in {@code [[1, 2], [3]]}.
+     *
+     * @return the text, or {@code null} for an empty value
+     */
     public static String toString(Object obj) {
         if (obj == null) {
             return null;
@@ -562,7 +575,23 @@ public final class Strings {
         if (obj instanceof Number number) {
             return Numbers.toString(number);
         }
+        if (obj instanceof Date date) {
+            return Dates.toString(date, "yyyy-MM-dd");
+        }
+        if (obj.getClass().isArray()) {
+            return arrayToString(obj);
+        }
         return obj.toString();
+    }
+
+    private static String arrayToString(Object array) {
+        var length = Array.getLength(array);
+        var text = new StringJoiner(", ", "[", "]");
+        for (var i = 0; i < length; i++) {
+            // An empty element gives null, which StringJoiner writes as "null"
+            text.add(toString(Array.get(array, i)));
+        }
+        return text.toString();
     }
 
     public static Integer toInteger(String str) {
