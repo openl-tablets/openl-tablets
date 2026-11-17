@@ -14,6 +14,11 @@ import org.openl.types.NullOpenClass;
 public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
+    String elementFreeExpressionWarning() {
+        return "The order key does not use the element, so the order does not change.";
+    }
+
+    @Override
     IBoundNode createBoundNode(ISyntaxNode node,
                                IBoundNode targetNode,
                                IBoundNode expressionNode,

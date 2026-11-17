@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
@@ -31,6 +32,12 @@ public class TypeBindingContext extends BindingContextDelegator {
     private final VariableInContextFinder context;
     private final ILocalVar localVar;
     private final @Nullable ILocalVar variable;
+    /**
+     * Tells whether an expression bound in this context reads the local variable, a field or a method of it, or the
+     * other variable.
+     */
+    @Getter
+    private boolean variablesUsed;
 
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar) {
         return create(delegate, localVar, 1);
@@ -106,8 +113,11 @@ public class TypeBindingContext extends BindingContextDelegator {
             res = context.findVariable(name, strictMatch);
         }
         if (res == null) {
-            return super.findVar(namespace, name, strictMatch);
+            res = super.findVar(namespace, name, strictMatch);
+            variablesUsed |= res != null && (res == localVar || res == variable);
+            return res;
         }
+        variablesUsed = true;
         if (variable != null && (strictMatch ? variable.getName().equals(name)
                 : variable.getName().equalsIgnoreCase(name))) {
             throw new AmbiguousFieldException(name, List.of(variable, res));
@@ -125,6 +135,7 @@ public class TypeBindingContext extends BindingContextDelegator {
 
             if (res != null) {
                 res = new LocalVarMethodCaller(localVar, res);
+                variablesUsed = true;
             }
         }
 
