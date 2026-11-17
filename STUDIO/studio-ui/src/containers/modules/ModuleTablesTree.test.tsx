@@ -130,10 +130,12 @@ describe('ModuleTablesTree', () => {
 
             searchFor('auto')
 
-            expect(await screen.findByTestId('module-tables-hidden'))
-                .toHaveTextContent('browser.module.hidden_by_filter')
+            const note = await screen.findByTestId('module-tables-hidden')
+            expect(note).toHaveTextContent('browser.module.hidden_by_filter')
+            // The note wraps rather than cutting its end off, so the link stays in sight in a narrow rail.
+            expect(note).not.toHaveClass('ant-typography-ellipsis')
             expect(screen.getByTestId('module-tables-empty')).toHaveTextContent('browser.module.no_match')
-            await userEvent.click(screen.getByTestId('module-tables-show-hidden'))
+            await userEvent.click(screen.getByTestId('module-tables-hidden-show'))
             expect(onShowOther).toHaveBeenCalledWith(true)
             expect(onFindAll).toHaveBeenCalledTimes(1)
         })
