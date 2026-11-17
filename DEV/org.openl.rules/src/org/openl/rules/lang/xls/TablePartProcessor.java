@@ -118,7 +118,7 @@ public class TablePartProcessor {
 
     /**
      * Checks that the part is merged in the direction of the first part and has its size across that direction. A
-     * horizontal part of another height is reported as an error message only.
+     * horizontal part of another height is reported as a warning only.
      *
      * @throws OpenLCompilationException when the direction differs, or a vertical part has another width
      */
@@ -144,7 +144,7 @@ public class TablePartProcessor {
                         null,
                         makeSourceModule(tablePart.getTable()));
             } else {
-                messages.add(OpenLMessagesUtils.newErrorMessage(message));
+                messages.add(OpenLMessagesUtils.newWarnMessage(message));
             }
         }
     }

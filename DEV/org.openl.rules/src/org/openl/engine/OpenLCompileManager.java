@@ -126,11 +126,12 @@ public class OpenLCompileManager {
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
         var boundCode = binder.bind(parsedCode, bindingContext);
-        allMessages
-                .addAll(bindingContext != null && bindingContext.isExecutionMode()
-                        ? clearOpenLMessagesForExecutionMode(
-                        boundCode.getMessages())
-                        : boundCode.getMessages());
+        var executionMode = bindingContext != null && bindingContext.isExecutionMode();
+        // What the parser warns about, such as an unknown keyword of an Environment table, is a message of the module
+        allMessages.addAll(executionMode ? clearOpenLMessagesForExecutionMode(parsedCode.getMessages())
+                : parsedCode.getMessages());
+        allMessages.addAll(executionMode ? clearOpenLMessagesForExecutionMode(boundCode.getMessages())
+                : boundCode.getMessages());
 
         var bindingErrors = boundCode.getErrors();
 

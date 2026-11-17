@@ -63,6 +63,7 @@ public class ParsedCode implements IParsedCode {
         return syntaxErrors;
     }
 
+    @Override
     public Collection<OpenLMessage> getMessages() {
         return messages;
     }
