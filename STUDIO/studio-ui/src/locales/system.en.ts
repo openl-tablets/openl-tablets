@@ -8,7 +8,7 @@ i18next.addResourceBundle('en', 'system', {
     thread_number_for_tests: 'Thread Number for Tests',
     thread_number_invalid: 'Number of threads must be positive integer',
     reset_settings: 'Reset Settings',
-    restore_defaults_warning: '<0>WARNING!</0> If you click this button, all settings will be restored to default values. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.',
+    restore_defaults_warning: '<0>WARNING!</0> If you click this button, the System settings and the database settings will be restored to their default values. The repository, security and other settings stay as they are. Use this button only if you understand the consequences.',
     restore_defaults_and_restart: 'Restore Defaults and Restart',
     projects: 'Projects',
     maximum_count_of_changes: 'The maximum count of saved changes for each project per user',

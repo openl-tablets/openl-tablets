@@ -27,4 +27,4 @@ To clear all history files for all projects, click the **Clear All History** but
 > Enabling **Detect projects by Excel files** slows down the **Projects** page because OpenL Studio must inspect
 > Excel files while discovering projects.
 
-> **WARNING!** To restore all settings to their default values, in the **Reset Settings** group, click **Restore Defaults and Restart**. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.
+> **WARNING!** To restore the settings of this page and the database settings to their default values, in the **Reset Settings** group, click **Restore Defaults and Restart**. The values set for them are lost. The repository, security and other settings stay as they are. Use this button only if you understand the consequences.

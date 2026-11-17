@@ -10,7 +10,7 @@ The administration area is organized as a left-side navigation menu. The availab
 
 *OpenL Studio administration*
 
-Normally, the default settings are recommended, but users with appropriate permissions can change them as required. After making changes in a section, click **Apply** to save and reload the page. To restore all settings to their original values, in the **System** section, click the **Restore Defaults and Restart** button.
+Normally, the default settings are recommended, but users with appropriate permissions can change them as required. After making changes in a section, click **Apply** to save and reload the page. To restore the System settings and the database settings to their original values, in the **System** section, click the **Restore Defaults and Restart** button; the repository, security and other settings stay as they are.
 
 The following topics are included:
 
