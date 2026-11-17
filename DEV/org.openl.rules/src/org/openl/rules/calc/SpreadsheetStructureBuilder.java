@@ -76,6 +76,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
 import org.openl.util.MessageUtils;
 import org.openl.util.OpenClassUtils;
+import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.AbsolutePosition;
 import org.openl.util.text.LocationUtils;
@@ -83,6 +84,7 @@ import org.openl.util.text.TextInterval;
 
 public class SpreadsheetStructureBuilder {
 
+    private static final String NAMELESS_ROW = "The row has no step name, so it is not calculated.";
     private static final String CANNOT_PARSE_HEADER = "Cannot parse header.";
 
     private static final SpreadsheetHeaderDefinition[] EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY = new SpreadsheetHeaderDefinition[0];
@@ -843,7 +845,11 @@ public class SpreadsheetStructureBuilder {
         for (var index = 0; index < count; index++) {
             var cell = row ? tableBody.getCell(0, index + 1) : tableBody.getCell(index + 1, 0);
             var value = cell.getStringValue();
-            if (StringUtils.isNotBlank(value) && !(row && isCaption(tableBody, cell))) {
+            if (StringUtils.isBlank(value)) {
+                if (row && !bindingContext.isExecutionMode()) {
+                    warnIfNamelessRowHasValues(index);
+                }
+            } else if (!(row && isCaption(tableBody, cell))) {
                 if (value.trim().startsWith("//")) {
                     descriptions.add(index);
                 } else {
@@ -852,6 +858,23 @@ public class SpreadsheetStructureBuilder {
             }
         }
         return descriptions;
+    }
+
+    /**
+     * Warns about a row that holds values but has no step name. Such a row is not calculated, so neither a formula nor
+     * a RETURN can use its values. A comment, which starts with {@code //}, is no value. The warning points at the first
+     * value of the row.
+     */
+    private void warnIfNamelessRowHasValues(int index) {
+        for (var column = 1; column < tableBody.getWidth(); column++) {
+            var cell = tableBody.getCell(column, index + 1);
+            var value = cell.getStringValue();
+            if (!ParserUtils.isBlankOrCommented(value)) {
+                var node = new IdentifierNode(null, null, value, new CellSourceCodeModule(cell, tableBody));
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(NAMELESS_ROW, node));
+                return;
+            }
+        }
     }
 
     /**

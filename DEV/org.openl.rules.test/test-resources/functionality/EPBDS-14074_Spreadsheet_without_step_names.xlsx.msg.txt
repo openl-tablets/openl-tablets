@@ -1,2 +1,5 @@
 ERROR: There is no step to return: no step of the Spreadsheet has a name.
 ERROR: There is no step to return: no step of the Spreadsheet has a name.
+WARN: The row has no step name, so it is not calculated.
+WARN: The row has no step name, so it is not calculated.
+WARN: The row has no step name, so it is not calculated.
