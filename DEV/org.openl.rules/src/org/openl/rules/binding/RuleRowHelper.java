@@ -406,18 +406,16 @@ public final class RuleRowHelper {
                         oldHeader.getDeclaringClass());
                 openlAdaptor.setHeader(newHeader);
 
-                if (source.startsWith("{") && source.endsWith("}")) {
-                    var srcCode = new GridCellSourceCodeModule(cell.getSource(), bindingContext);
-
-                    return openlAdaptor.makeMethod(srcCode);
-                }
-
-                if (source.startsWith("=") && (source.length() > 2 || source.length() == 2 && Character
+                // The braces enclose the code, as in a Spreadsheet cell: they are not a block of statements.
+                var braces = source.startsWith("{") && source.endsWith("}");
+                if (braces || source.startsWith("=") && (source.length() > 2 || source.length() == 2 && Character
                         .isLetterOrDigit(source.charAt(1)))) {
 
-                    var gridSource = new GridCellSourceCodeModule(cell.getSource(),
-                            bindingContext);
-                    var code = new SubTextSourceCodeModule(gridSource, 1);
+                    var gridSource = new GridCellSourceCodeModule(cell.getSource(), bindingContext);
+                    // The code is cut out where the text stands in the cell, so spaces around it do not count
+                    var start = Math.max(0, gridSource.getCode().indexOf(source)) + 1;
+                    var end = start - 1 + source.length() - (braces ? 1 : 0);
+                    var code = new SubTextSourceCodeModule(gridSource, start, end);
 
                     return openlAdaptor.makeMethod(code);
                 }

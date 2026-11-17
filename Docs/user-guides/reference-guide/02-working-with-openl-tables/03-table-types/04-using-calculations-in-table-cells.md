@@ -12,4 +12,6 @@ The table transforms a twelve hour time format into a twenty four hour time form
 
 Calculations use regular Java syntax, similar to the one used in conditions and actions.
 
+Older workbooks may enclose a calculation in braces instead, as in `{ampmHr + 12}`. A rules table and a spreadsheet read it as `=ampmHr + 12`; new tables use `=`.
+
 **Note:** Excel formulas are not supported by OpenL Tablets. They are used as pre-calculated values.
