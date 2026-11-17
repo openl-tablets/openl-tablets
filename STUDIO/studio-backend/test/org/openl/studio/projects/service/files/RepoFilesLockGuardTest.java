@@ -132,7 +132,7 @@ class RepoFilesLockGuardTest {
         var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
                 new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null));
+                IgnoredPaths.of(null), false);
         RepoFileRoot mount = mock(RepoFileRoot.class);
         var tree = treeWithDataFile("a.txt");
         when(mount.readFolder(null)).thenReturn(tree);

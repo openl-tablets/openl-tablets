@@ -70,7 +70,7 @@ class ProjectFilesWorkingCopyTest {
                 mock(DesignTimeRepository.class));
         service = new ProjectFilesServiceImpl(acl, new FileNodeMapperImpl(), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()),
-                new UploadFormatting(mock(TableFormatting.class)), IgnoredPaths.of(null));
+                new UploadFormatting(mock(TableFormatting.class)), IgnoredPaths.of(null), false);
     }
 
     @Test
