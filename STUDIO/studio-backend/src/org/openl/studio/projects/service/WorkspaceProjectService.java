@@ -1518,7 +1518,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     /**
      * Deletes a branch just created when the project is not found in it, and refuses the creation. Such a branch,
-     * cut from a commit where the folder is no project, could not be opened, so nothing is left behind.
+     * cut from a commit where the folder is not a project, could not be opened, so nothing is left behind.
      */
     private void requireProjectInNewBranch(RulesProject project, BranchRepository repository, String branch) {
         var unwrapped = unwrapBranchRepository(repository);
