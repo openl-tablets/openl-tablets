@@ -160,8 +160,9 @@ the projects expanded in it by their path, opening the folders that hold them.
     and the tree stays as it is. A pick made in the **Filters** view narrows both.
 -   Selecting a project opens it and leaves its row folded. The arrow before the project expands it and lists its
     folders and files, with the size of every file.
--   Selecting a file opens it: a module in Rules Editor, any other file on the page of its project. Selecting a folder
-    shows it on the page of its project and leaves it folded; the arrow before it expands it.
+-   Selecting a file shows it on the page of its project. A module is shown there too, with its **More actions** icon
+    **⋮** and **Open in Editor**, which opens its tables in Rules Editor. Selecting a folder shows it on the page of
+    its project and leaves it folded; the arrow before it expands it.
 -   A link to a file or a folder of a project opens the tree on it: the project and the folders leading to it unfold,
     and the row is selected.
 -   In a project being edited, a file added or modified and not saved yet has a dot on its icon and its name in green

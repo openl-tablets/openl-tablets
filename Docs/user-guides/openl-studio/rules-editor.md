@@ -47,7 +47,7 @@ If a particular project is not available in Rules Editor, it must be opened as d
 
 ### Viewing a Module
 
-Rules Editor allows a user to work with one module at a time. To open a module, click its name in the **Modules** section of the **Overview** tab of an open project, or select it in the module switcher of the breadcrumb. The following module information is displayed:
+Rules Editor allows a user to work with one module at a time. To open a module, click its name in the **Modules** section of the **Overview** tab of an open project, select it in the module switcher of the breadcrumb, or select its workbook in the projects tree and click **Open in Editor**. The following module information is displayed:
 
 -   tree in the left pane displaying module tables
 -   contents of the table selected in the tree in the middle pane

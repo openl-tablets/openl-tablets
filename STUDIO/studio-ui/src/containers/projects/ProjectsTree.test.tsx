@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsTree } from './ProjectsTree'
 import { getProjectIndex } from '../../services/projectIndex'
 import { getProject, getProjectFiles } from '../../services/repositories'
-import { listModules } from '../../services/modules'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { FsNode } from '../../types/files'
@@ -14,7 +13,6 @@ import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 
 vi.mock('../../services/repositories', () => ({ getProject: vi.fn(), getProjectFiles: vi.fn() }))
-vi.mock('../../services/modules', () => ({ listModules: vi.fn() }))
 
 vi.mock('../../services/projectIndex', async importOriginal => ({
     getProjectIndex: vi.fn(),
@@ -214,7 +212,6 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     const onOpenGroup = vi.fn()
     const onShowAll = vi.fn()
     const onClearFilters = vi.fn()
-    const onOpenModule = vi.fn()
     const onOpenFile = vi.fn()
     const result = render(
         <ProjectsTree
@@ -222,7 +219,6 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
             onClearFilters={onClearFilters}
             onOpenFile={onOpenFile}
             onOpenGroup={onOpenGroup}
-            onOpenModule={onOpenModule}
             onOpenProject={onOpenProject}
             onShowAll={onShowAll}
             repositories={repositories}
@@ -233,7 +229,7 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     await act(async () => {
         await new Promise(resolve => setTimeout(resolve, 0))
     })
-    return { onOpenProject, onOpenGroup, onShowAll, onClearFilters, onOpenModule, onOpenFile, rerender: result.rerender }
+    return { onOpenProject, onOpenGroup, onShowAll, onClearFilters, onOpenFile, rerender: result.rerender }
 }
 
 /** Lets the frame the tree waits for to draw what it unfolded pass. */
@@ -269,7 +265,6 @@ describe('ProjectsTree', () => {
             { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file', size: 12_800 },
             { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file', size: 1536 },
         ])
-        vi.mocked(listModules).mockResolvedValue([{ name: 'Main', path: 'rules/Main.xlsx' }])
         vi.mocked(getProject).mockResolvedValue({ id: 'p1', name: 'Alpha', compileStatus: { pendingChanges: { files: []} } } as never)
     })
 
@@ -563,16 +558,16 @@ describe('ProjectsTree', () => {
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
     })
 
-    it('opens a file that is a module in the editor, and any other file on the page of its project', async () => {
+    it('opens a file, a module among them, on the page of its project', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
-        const { onOpenModule, onOpenFile } = await renderTree()
+        const { onOpenFile } = await renderTree()
 
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
         await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
 
         await userEvent.click(screen.getByTestId('tree-file-p1-rules/Main.xlsx'))
-        expect(onOpenModule).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'Main')
+        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules/Main.xlsx')
 
         await userEvent.click(screen.getByTestId('tree-file-p1-rules.xml'))
         expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules.xml')
@@ -594,14 +589,13 @@ describe('ProjectsTree', () => {
 
     it('opens a picked folder on the page of its project, leaving it folded', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
-        const { onOpenFile, onOpenModule } = await renderTree()
+        const { onOpenFile } = await renderTree()
 
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
         await userEvent.click(screen.getByTestId('tree-folder-p1-rules'))
 
         expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules')
-        expect(onOpenModule).not.toHaveBeenCalled()
         expect(screen.getByTestId('node-folder:p1:rules')).toHaveAttribute('data-expanded', 'false')
     })
 
@@ -948,23 +942,6 @@ describe('ProjectsTree', () => {
 
         expect(screen.getByTestId('tree-file-p1-alpha-notes.txt')).toBeInTheDocument()
         expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
-    })
-
-    it('reads the files of a project that cannot say which of them are modules', async () => {
-        // A closed project keeps no workspace copy, so it answers nothing about its modules; its
-        // workbooks are still listed, and lead to the file rather than to the editor.
-        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
-        vi.mocked(listModules).mockRejectedValue(new Error('The project is not opened.'))
-        const { onOpenModule, onOpenFile } = await renderTree()
-
-        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        await userEvent.click(screen.getByTestId('caret-folder:p2:rules'))
-
-        await userEvent.click(screen.getByTestId('tree-file-p2-rules/Main.xlsx'))
-
-        expect(onOpenModule).not.toHaveBeenCalled()
-        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p2' }), 'rules/Main.xlsx')
     })
 
     it('says why the files of a project could not be read', async () => {
