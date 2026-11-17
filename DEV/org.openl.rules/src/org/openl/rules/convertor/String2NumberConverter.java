@@ -26,6 +26,10 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * Without a format, commas may group the thousands of the whole part, as in {@code 1,000.00} or {@code 12,345,678}.
      * A comma between other digits, as in {@code 12,34.00} or {@code 1,00,000}, makes the text not a number. A format
      * reads commas as it defines them.
+     * <p>
+     * Without a format, a capital {@code K}, {@code M} or {@code B} at the end multiplies the number by a thousand, a
+     * million or a billion, as in {@code 3323K} or {@code 1.5M}. A whole number type takes it only when the result has
+     * no fraction, so {@code 1.5K} is 1500 and {@code 1.0005K} cannot be parsed.
      *
      * @param data   an input string to parse
      * @param format a format of parsed string. If it is null then a default format will be used.
@@ -45,18 +49,23 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         }
         var df = getFormatter(format);
         var text = data;
-        if (data.endsWith("%")) {
+        var percent = data.endsWith("%");
+        if (percent) {
             // Configure to parse percents
             df.setMultiplier(100);
             text = data.substring(0, data.length() - 1);
         }
         if (format == null) {
             text = NumberNotation.removeThousandsSeparators(text);
+            var multiplier = NumberNotation.multiplier(text.charAt(text.length() - 1));
+            if (multiplier > 1 && !percent) {
+                return parseMultiplied(data, text.substring(0, text.length() - 1), multiplier, df);
+            }
         }
         var position = new ParsePosition(0);
         var number = parseNumber(df, text, position);
         if (position.getIndex() < text.length() || df.isParseIntegerOnly() && hasFraction(number)) {
-            throw new NumberFormatException("Cannot convert '%s' to a number.".formatted(data));
+            throw notANumber(data);
         }
         return convert(number, text);
     }
@@ -76,6 +85,26 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
             number = df.parse(text.substring(0, stop) + 'E' + text.substring(stop + 1), position);
         }
         return number;
+    }
+
+    /**
+     * Parses a number written with a multiplier suffix, such as {@code 2.5K}, and multiplies it exactly.
+     */
+    private T parseMultiplied(String data, String number, long multiplier, DecimalFormat df) {
+        BigDecimal value;
+        try {
+            value = new BigDecimal(number).multiply(BigDecimal.valueOf(multiplier));
+        } catch (NumberFormatException e) {
+            throw notANumber(data);
+        }
+        if (df.isParseIntegerOnly() && hasFraction(value)) {
+            throw notANumber(data);
+        }
+        return convert(value, data);
+    }
+
+    private static NumberFormatException notANumber(String data) {
+        return new NumberFormatException("Cannot convert '%s' to a number.".formatted(data));
     }
 
     /**

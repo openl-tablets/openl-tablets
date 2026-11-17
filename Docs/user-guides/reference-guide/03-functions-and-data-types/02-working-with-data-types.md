@@ -45,6 +45,8 @@ A number in a cell or in a formula may group the thousands of its whole part wit
 -   In a cell of a Data or Test table that holds an array, every comma separates the elements, so `1,000` there is the array of `1` and `0`.
 -   A currency sign, such as `$` in `$1,000`, is not a part of a number.
 
+A number in a cell or in a formula may also end with a capital `K`, `M` or `B`, which multiplies it by a thousand, a million or a billion: `3323K` is `3323000` and `1.5M` is `1500000`. A whole number type, such as Integer, takes such a number only when it has no fraction, so `1.5K` is `1500` and `1.0005K` is not a whole number. A small letter or a space before the letter does not make a number.
+
 ### Range Data Types
 
 **Range Data Types** can be used when a business rule must be applied to a group of values. For example, a driver's insurance premium coefficient is usually the same for all drivers from within a particular age group. In such situation, a range of ages can be defined, and one rule for all drivers from within that range can be created. The way to inform OpenL Tablets that the rule must be applied to a group of drivers is to declare driver's age as the range data type.
@@ -92,7 +94,7 @@ The following rules apply:
 
 -   Infinities in IntRange are represented as `Long.MIN_VALUE` for -∞ and `Long.MAX_VALUE` for +∞.
 -   Using of ".." and "..." requires spaces between numbers and dots.
--   Numbers can be enhanced with commas that group the thousands and `K`, `M`, `B` as a postfix, for example, `1,500` is `1500` and `2K` is `2000`. A currency sign, such as `$` in `$1,500`, is not supported. A comma must separate groups of three digits. In a smart or simple rules column that holds arrays, such as `1, 3`, a comma separates the array elements instead. An IntRange border is a whole number, so `1.5K` requires a DoubleRange. Formulas accept only the `K`, `M`, `B` multipliers.
+-   Numbers can be enhanced with commas that group the thousands and `K`, `M`, `B` as a postfix, for example, `1,500` is `1500` and `2K` is `2000`. A currency sign, such as `$` in `$1,500`, is not supported. A comma must separate groups of three digits. In a smart or simple rules column that holds arrays, such as `1, 3`, a comma separates the array elements instead. An IntRange border is a whole number, so `1.5K` requires a DoubleRange. Number cells and formulas accept the same `K`, `M`, `B` multipliers.
 -   For negative values, use the '`-`' (minus) sign before the number, for example, `-<number>`.
 
 ### Void Data Type
