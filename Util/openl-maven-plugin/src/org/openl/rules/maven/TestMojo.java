@@ -387,7 +387,7 @@ public final class TestMojo extends BaseOpenLMojo {
         int i = 0;
         for (OpenLMessage message : errorMessages) {
             String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
-            error(i + 1 + ". '", message.getSummary(), "'", location);
+            error(i + 1 + ". '", message.getSummaryInTable(), "'", location);
             i++;
         }
         error("");

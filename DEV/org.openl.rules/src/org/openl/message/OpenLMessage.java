@@ -2,6 +2,8 @@ package org.openl.message;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.source.SourceRange;
@@ -26,6 +28,14 @@ public class OpenLMessage {
      * Message's severity.
      */
     private final Severity severity;
+
+    /**
+     * The name of the table the message is about, or {@code null} when it is about no table. The text of the message
+     * written to a log or to a console starts with it.
+     */
+    @Getter
+    @Setter
+    private @Nullable String table;
 
     /**
      * Constructs new instance of message with INFO severity.
@@ -69,9 +79,18 @@ public class OpenLMessage {
         return Severity.ERROR.equals(getSeverity());
     }
 
+    /**
+     * Returns the summary, which starts with the name of the table the message is about, such as
+     * {@code products: Found duplicate of field 'featureValues'}. A log and a console show the message so.
+     */
+    public String getSummaryInTable() {
+        var text = summary == null ? StringUtils.EMPTY : summary;
+        return table == null ? text : table + ": " + text;
+    }
+
     @Override
     public String toString() {
-        return summary == null ? StringUtils.EMPTY : summary;
+        return getSummaryInTable();
     }
 
     public String getSourceLocation() {

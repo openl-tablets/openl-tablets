@@ -72,6 +72,10 @@ the same deployment name at the same time can both be stored, where a sequential
 > [!Note]
 > `generate` creates a Java interface from the project's `<exposed-methods>` filter, for type-safe rule invocation.
 
+A compilation error or warning the goals print starts with the name of the table it is about, followed by its place
+in the workbook: `products: Found duplicate of field 'featureValues'` at `...Rules.xlsx?sheet=Data&cell=D5`. A message
+about no table, such as an error of a dependency, has no name.
+
 ## Test reports
 
 The `test` goal writes one report of each format in `reportsFormat` (`junit4`, `xlsx`) for every Test table, into
