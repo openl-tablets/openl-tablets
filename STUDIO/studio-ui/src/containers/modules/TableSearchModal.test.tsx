@@ -35,7 +35,9 @@ const open = (onOpen = vi.fn()) => {
             moduleName="Claims"
             onClose={vi.fn()}
             onOpen={onOpen}
+            onShowOther={vi.fn()}
             projectId="p1"
+            showOther={false}
         />
     )
     return onOpen
@@ -286,8 +288,10 @@ describe('TableSearchModal', () => {
                 moduleName="Claims"
                 onClose={vi.fn()}
                 onOpen={vi.fn()}
+                onShowOther={vi.fn()}
                 open={shown}
                 projectId="p1"
+                showOther={false}
             />
         )
         const { rerender } = render(panel(true, 'Greet'))
@@ -314,6 +318,63 @@ describe('TableSearchModal', () => {
             .toHaveTextContent('browser.module.search_no_match'))
     })
 
+    it('lays the type filter over a search of any type, says what it hides, and shows it on a click (EPBDS-16932)',
+        async () => {
+            vi.mocked(searchTables).mockResolvedValue([
+                found(),
+                found({ id: 'auto', name: 'Auto Policy Calculation', kind: 'Other', tableType: 'Other' }),
+            ])
+            const onShowOther = vi.fn()
+            const panel = (showOther: boolean) => (
+                <TableSearchModal
+                    open
+                    initialName="Auto"
+                    moduleName="Claims"
+                    onClose={vi.fn()}
+                    onOpen={vi.fn()}
+                    onShowOther={onShowOther}
+                    projectId="p1"
+                    showOther={showOther}
+                />
+            )
+            const { rerender } = render(panel(false))
+
+            await userEvent.click(screen.getByTestId('table-search-run'))
+
+            // No type named asks for every type, the free-form ones included, so they can be counted.
+            expect(searchTables).toHaveBeenCalledWith('p1', expect.objectContaining({ includeOther: true }))
+            expect(await screen.findByTestId('table-search-hidden'))
+                .toHaveTextContent('browser.module.hidden_by_filter')
+            expect(screen.getByTestId('table-search-result-table-9')).toBeInTheDocument()
+            expect(screen.queryByTestId('table-search-result-auto')).toBeNull()
+
+            await userEvent.click(screen.getByTestId('table-search-hidden-show'))
+            expect(onShowOther).toHaveBeenCalledWith(true)
+
+            // The filter lists them now, and the same results show them without another request.
+            rerender(panel(true))
+            expect(screen.getByTestId('table-search-result-auto')).toBeInTheDocument()
+            expect(screen.queryByTestId('table-search-hidden')).toBeNull()
+            expect(searchTables).toHaveBeenCalledTimes(1)
+        })
+
+    it('takes the free-form tables as found when the type they are of is asked for', async () => {
+        vi.mocked(searchTables).mockResolvedValue([
+            found({ id: 'auto', name: 'Auto Policy Calculation', kind: 'Other', tableType: 'Other' }),
+        ])
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-kind'))
+        // The list draws the types in sight only, and Other is the last of them: it is typed to be found.
+        await userEvent.keyboard('Other')
+        await userEvent.click(await screen.findByTitle('Other'))
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        expect(searchTables).toHaveBeenCalledWith('p1', expect.objectContaining({ includeOther: false }))
+        expect(await screen.findByTestId('table-search-result-auto')).toBeInTheDocument()
+        expect(screen.queryByTestId('table-search-hidden')).toBeNull()
+    })
+
     // The search is asked in the address of the request, which the server takes up to a size.
     it('takes no longer a text than the address of the search can carry', async () => {
         render(
@@ -323,7 +384,9 @@ describe('TableSearchModal', () => {
                 moduleName="Claims"
                 onClose={vi.fn()}
                 onOpen={vi.fn()}
+                onShowOther={vi.fn()}
                 projectId="p1"
+                showOther={false}
             />
         )
 

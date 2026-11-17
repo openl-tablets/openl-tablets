@@ -25,6 +25,9 @@ export const tableViewSetting = storedSetting(STORAGE_KEY, DEFAULT_VIEW, oneOf(T
 
 const OTHER_STORAGE_KEY = 'openl.module.otherTables'
 
+/** The kind the free-form tables are filed under: the tables OpenL does not recognize. */
+export const OTHER_KIND = 'Other'
+
 /**
  * Whether this browser last chose to list the free-form tables — the ones OpenL does not recognize. Hiding them,
  * the default, stores nothing.
@@ -58,7 +61,7 @@ const TYPE_GROUPS: readonly { id: string, key: string }[] = [
     { id: 'Actions', key: 'actions' },
     { id: 'Returns', key: 'returns' },
     { id: 'Environment', key: 'configuration' },
-    { id: 'Other', key: 'other' },
+    { id: OTHER_KIND, key: 'other' },
     { id: 'Properties', key: 'properties' },
 ]
 

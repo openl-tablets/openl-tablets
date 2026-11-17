@@ -21,6 +21,8 @@ import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import { tableIcon } from './tableIcons'
 import { versionLabel } from '../../utils/tableVersion'
 import { useDateFormats } from '../../utils/dateFormat'
+import { HiddenByFilterNote } from './HiddenByFilterNote'
+import { OTHER_KIND } from './tableGrouping'
 
 /**
  * The longest text a field of the search takes.
@@ -40,6 +42,15 @@ const KINDS = [
     'Rules', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'TBasic', 'Column Match', 'Method', 'Run',
     'Constants', 'Conditions', 'Actions', 'Returns', 'Environment', 'Properties', 'Other',
 ]
+
+/**
+ * What a search found, and whether the type filter of the tree is to be laid over it: a search that names no
+ * table type takes every type, and the free-form tables are then shown only while the filter lists them.
+ */
+interface SearchResults {
+    tables: ModuleTable[]
+    filtered: boolean
+}
 
 /**
  * One property the search narrows by: the property picked, and the value a table must carry for it.
@@ -147,6 +158,10 @@ interface TableSearchModalProps {
     onClose: () => void
     /** Opens one of the results, wherever it is written. */
     onOpen: (table: ModuleTable) => void
+    /** Whether the type filter of the tree lists the free-form tables, the kind Other. */
+    showOther: boolean
+    /** Asks for the free-form tables to be listed, as the type filter of the tree does. */
+    onShowOther: (shown: boolean) => void
 }
 
 type TableSearchFormProps = Omit<TableSearchModalProps, 'open' | 'onClose'>
@@ -158,6 +173,9 @@ type TableSearchFormProps = Omit<TableSearchModalProps, 'open' | 'onClose'>
  * <p>The rail's own box searches the names of the tables already on screen. This asks the server, so it reaches
  * the modules the tree does not show — the rest of the project, and the projects it depends on — and the results
  * say where each table lives, so one can be opened where it is written.
+ *
+ * <p>A search that names no table type follows the type filter of the tree: while the filter hides the free-form
+ * tables, the search leaves them out of its results too, says how many it found, and shows them on a click.
  *
  * <p>The window holds the search rather than being it: closed, the window destroys what is inside, so the
  * search opens as it starts — whatever was asked of it before, and whichever module the reader is in by then.
@@ -193,6 +211,8 @@ const TableSearchForm = ({
     moduleName,
     initialName = '',
     onOpen,
+    showOther,
+    onShowOther,
 }: TableSearchFormProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -203,7 +223,7 @@ const TableSearchForm = ({
     const [kinds, setKinds] = useState<string[]>([])
     const [filters, setFilters] = useState<PropertyFilter[]>([])
     const [properties, setProperties] = useState<ProjectProperty[]>([])
-    const [results, setResults] = useState<ModuleTable[] | null>(null)
+    const [results, setResults] = useState<SearchResults | null>(null)
     const [searching, setSearching] = useState(false)
     const [failure, setFailure] = useState<string | null>(null)
     /** The body of a result, once the reader asked for it: what was read, or why it could not be. */
@@ -224,6 +244,7 @@ const TableSearchForm = ({
     const search = useCallback(() => {
         setSearching(true)
         setFailure(null)
+        const anyKind = kinds.length === 0
         // The text is looked for exactly as typed, spaces at its edges included: two values that differ only by
         // a space are told apart. Only a field left empty asks for nothing.
         const criteria: TableSearchCriteria = {
@@ -233,14 +254,17 @@ const TableSearchForm = ({
             header: header || undefined,
             text: text || undefined,
             kinds,
+            // With no type named, every type is looked for: the type filter is laid over the results, so the
+            // tables it hides are counted rather than missed.
+            includeOther: anyKind,
             properties: Object.fromEntries(filters
                 .filter(filter => filter.name && String(filter.value ?? '') !== '')
                 .map(filter => [filter.name, String(filter.value)])),
         }
         searchTables(projectId, criteria)
-            .then(found => setResults(found))
+            .then(found => setResults({ tables: found, filtered: anyKind }))
             .catch((error: unknown) => {
-                setResults([])
+                setResults({ tables: [], filtered: false })
                 // An address too long for the server is refused with no reason of its own: say what to change.
                 setFailure(isApiHttpError(error) && error.status === URI_TOO_LONG
                     ? t('browser.module.search_too_long')
@@ -248,6 +272,10 @@ const TableSearchForm = ({
             })
             .finally(() => setSearching(false))
     }, [projectId, moduleName, scope, name, header, text, kinds, filters, t])
+
+    const hiding = results !== null && results.filtered && !showOther
+    const listed = hiding ? results.tables.filter(table => table.kind !== OTHER_KIND) : results?.tables ?? []
+    const hidden = (results?.tables.length ?? 0) - listed.length
 
     /** Where one result is written, which is the project and module its body is read through. */
     const at = (table: ModuleTable) => ({
@@ -473,10 +501,17 @@ const TableSearchForm = ({
             {searching && results === null && <Spin className={styles.results} />}
             {results !== null && (
                 <div className={styles.results} data-testid="table-search-results">
-                    {results.length === 0 ? (
+                    {hidden > 0 && (
+                        <HiddenByFilterNote
+                            count={hidden}
+                            onShow={() => onShowOther(true)}
+                            testId="table-search-hidden"
+                        />
+                    )}
+                    {listed.length === 0 ? (
                         <Empty description={t('browser.module.search_no_match')} />
                     ) : (
-                        <div className={styles.found}>{results.map(entry)}</div>
+                        <div className={styles.found}>{listed.map(entry)}</div>
                     )}
                 </div>
             )}
