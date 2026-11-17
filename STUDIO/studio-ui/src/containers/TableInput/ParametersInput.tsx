@@ -6,6 +6,7 @@ import { isRecord, primaryType, resolveSchema, type JsonSchema } from 'component
 import type { TraceParameterValue } from 'types/trace'
 import { parseJson } from 'utils/exactJson'
 import { RUNTIME_CONTEXT_LABELS } from './runtimeContextLabels'
+import { rememberedInput, rememberInput } from './sharedInput'
 
 // The editor the Projects tab opens a file with. It is loaded on first use, as CodeMirror is heavy.
 const CodeEditor = lazy(() => import('containers/projects/CodeEditor').then(module => ({ default: module.CodeEditor })))
@@ -30,6 +31,11 @@ interface ParametersInputProps {
     /** Schema of the runtime context, when the project provides one. */
     runtimeContext?: TraceParameterValue | null | undefined
     onChange: (value: ParametersInputValue) => void
+    /**
+     * Names the project and the table the input is given to, so that the Run, Trace and Benchmark panels of the
+     * table share what was entered in any of them.
+     */
+    sharedAs?: string | undefined
 }
 
 type InputMode = 'form' | 'json'
@@ -105,7 +111,7 @@ const readInput = (parsed: unknown, parameters: TraceParameterValue[]): {
  * Switching to JSON shows what the form holds. Switching back reads the text into the form when it parses, the way
  * the run reads it, so the value of the only parameter pasted as it is fills that parameter.
  */
-export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, runtimeContext, onChange }) => {
+export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, runtimeContext, onChange, sharedAs }) => {
     const { t } = useTranslation('execution')
     const formParameters: SchemaFormParameter[] = useMemo(() => [
         ...parameters.map(parameter => ({
@@ -124,8 +130,15 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
             }]
             : []),
     ], [parameters, runtimeContext, t])
+    const described = useMemo(
+        () => JSON.stringify([parameters, runtimeContext ?? null]),
+        [parameters, runtimeContext]
+    )
+    // What another panel of the table was given, or the defaults the parameters declare.
+    const startingValue = () => (sharedAs === undefined ? undefined : rememberedInput(sharedAs, described))
+        ?? initialFormValue(formParameters)
     const [mode, setMode] = useState<InputMode>('form')
-    const [value, setValue] = useState<Record<string, unknown>>(() => initialFormValue(formParameters))
+    const [value, setValue] = useState<Record<string, unknown>>(startingValue)
     const [text, setText] = useState('')
     const [error, setError] = useState<string | undefined>(undefined)
 
@@ -140,12 +153,8 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
     // table: starting again on that would take away what the reader had typed, which is most of what they
     // came to do. The label of the context comes from the translation, which may be handed out anew on its
     // own, and what is typed survives that too.
-    const described = useMemo(
-        () => JSON.stringify([parameters, runtimeContext ?? null]),
-        [parameters, runtimeContext]
-    )
     useEffect(() => {
-        const restarted = initialFormValue(formParameters)
+        const restarted = startingValue()
         setValue(restarted)
         setText(toInputJson(restarted))
         setError(undefined)
@@ -161,6 +170,12 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
             return { error: t('input.jsonInvalid', { message: (parseError as Error).message }) }
         }
     }, [t])
+
+    useEffect(() => {
+        if (sharedAs !== undefined) {
+            rememberInput(sharedAs, described, value)
+        }
+    }, [sharedAs, described, value])
 
     useEffect(() => {
         if (mode === 'form') {

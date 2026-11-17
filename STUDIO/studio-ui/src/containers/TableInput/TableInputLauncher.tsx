@@ -367,6 +367,7 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
                         onChange={setParameters}
                         parameters={declaredParameters}
                         runtimeContext={input.runtimeContext}
+                        sharedAs={`${project.id} ${detail.tableId}`}
                     />
                 )}
                 {error && <Alert showIcon data-testid="launch-error" title={error} type="error" />}
