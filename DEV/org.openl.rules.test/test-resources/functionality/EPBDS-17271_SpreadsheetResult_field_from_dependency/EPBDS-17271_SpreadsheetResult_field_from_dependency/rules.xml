@@ -1,0 +1,14 @@
+<project>
+    <name>EPBDS-17271_SpreadsheetResult_field_from_dependency</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>EPBDS-17271_Dependency</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
