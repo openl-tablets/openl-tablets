@@ -158,13 +158,29 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                                       IBoundNode targetNode,
                                       ElementVariables variables,
                                       IBindingContext bindingContext) {
-        var boundExpressionNode = bindChildNode(node.getChild(node.getNumberOfChildren() - 1),
-                TypeBindingContext.create(bindingContext, variables.element(), 1, variables.index()));
+        var elementFreeWarning = elementFreeExpressionWarning();
+        var errors = elementFreeWarning == null ? 0 : bindingContext.getErrors().length;
+        var expressionContext = TypeBindingContext.create(bindingContext, variables.element(), 1, variables.index());
+        var boundExpressionNode = bindChildNode(node.getChild(node.getNumberOfChildren() - 1), expressionContext);
         if (boundExpressionNode instanceof TypeBoundNode) {
             var message = "Type definition cannot be used as expression for array index operator.";
             return makeErrorNode(message, boundExpressionNode.getSyntaxNode(), bindingContext);
         }
+        // An expression with an error of its own is not checked: its error is reported already
+        if (elementFreeWarning != null && !expressionContext.isVariablesUsed()
+                && bindingContext.getErrors().length == errors) {
+            BindHelper.processWarn(elementFreeWarning, boundExpressionNode.getSyntaxNode(), bindingContext);
+        }
         return createBoundNode(node, targetNode, boundExpressionNode, variables, bindingContext);
+    }
+
+    /**
+     * Returns the warning to report when the expression uses neither the element nor its index, or {@code null} when
+     * such an expression needs no warning.
+     */
+    @Nullable
+    String elementFreeExpressionWarning() {
+        return null;
     }
 
     abstract IBoundNode createBoundNode(ISyntaxNode node,

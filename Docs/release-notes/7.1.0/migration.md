@@ -58,6 +58,13 @@ developers.
   so the same date was in week `1`. Update the expected values of the tests that check a week number near the start
   or the end of a year or a month.
 
+* **An order key that does not use the element gets a warning.** An `order by`, `order increasing by` or
+  `order decreasing by` expression that uses neither the element nor its index, such as
+  `statuses[order by status.ruleId]` where `status` is a parameter of the rule, compiles with `The order key does not
+  use the element, so the order does not change.` Before, such an expression was the same for every element, so the
+  array kept its order without a message. Name the field of the element, such as `statuses[order by ruleId]`, or drop
+  the sorting.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and

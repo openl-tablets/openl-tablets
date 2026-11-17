@@ -64,7 +64,7 @@ The following table describes ways of sorting:
 | Sort elements by increasing order | **Syntax:** `array[^@ <expression>]` or `array[order by <expression>] `or `array[order increasing by <expression>]` <br/>**Example:** `claims[^@ lossDate]` |
 | Sort elements by decreasing order | **Syntax:** `array[v@ <expression>]` or `array[order decreasing by <expression>]` <br/>**Example:** `claims[v@ paymentAmount]`                              |
 
-**Note:** The operator returns the array with ordered elements. It saves element order in case of equal elements. `<expression>` by which ordering is performed must have a comparable type, such as Date, String, Number.
+**Note:** The operator returns the array with ordered elements. It saves element order in case of equal elements. `<expression>` by which ordering is performed must have a comparable type, such as Date, String, Number. The expression must use the element or its index: an expression that uses neither, such as `claims[order by policy.lossDate]` where `policy` is a parameter of the rule, is the same for every element, so the array keeps its order and gets the warning `The order key does not use the element, so the order does not change.`
 
 #### SPLIT BY Operator
 
