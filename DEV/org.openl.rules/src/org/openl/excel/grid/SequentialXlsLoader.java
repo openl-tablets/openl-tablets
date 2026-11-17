@@ -36,6 +36,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -179,6 +180,9 @@ public class SequentialXlsLoader {
                 preprocessIncludeTable(row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(value)) {
                 preprocessImportTable(row.getSource());
+            } else if (PropertiesHelper.PROPERTIES_HEADER.equals(value)) {
+                var message = "Properties are not supported in an Environment table and are ignored.";
+                messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             } else if (ParserUtils.isBlankOrCommented(value)) {
                 // ignore comment
                 log.debug("Comment: {}", value);

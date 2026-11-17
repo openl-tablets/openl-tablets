@@ -1,0 +1,2 @@
+WARN: Properties are not supported in an Environment table and are ignored.
+WARN: Error in Environment table: unrecognized keyword 'foo'

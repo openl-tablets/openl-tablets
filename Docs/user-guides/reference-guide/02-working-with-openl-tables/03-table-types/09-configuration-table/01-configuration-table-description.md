@@ -20,4 +20,6 @@ The following commands are supported in configuration tables:
 | `dependency` | Adds a dependency module by its name. All data from that module becomes accessible in the current module. <br/>A dependency module can be located in the current project or its dependency projects. In simple words, this is how modules, <br/>often represented by Excel files, ‘communicate’ with each other if tables are split into different modules. |
 | `import`     | Imports the specified Java package, class, or library so that its objects and methods can be used in tables.                                                                                                                                                                                                                                      |
 
+A configuration table has no table properties: a `properties` section in it is ignored with the warning `Properties are not supported in an Environment table and are ignored.` A command that is not in the table above, except a comment, gets the warning `Error in Environment table: unrecognized keyword '<command>'`.
+
 For more information on dependency and import configurations, see [Project, Module, and Rule Dependencies](../../../04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
