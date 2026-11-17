@@ -152,6 +152,8 @@ export interface TableCellEditor {
     max?: number
     /** True when only whole numbers are accepted, for 'numeric' and 'array' */
     intOnly?: boolean
+    /** Names of the constants of the module a 'numeric' cell may hold instead of a number */
+    constants?: string[]
     /** The editor one entry is written with, for 'array' and 'range' */
     entryEditor?: string
 }

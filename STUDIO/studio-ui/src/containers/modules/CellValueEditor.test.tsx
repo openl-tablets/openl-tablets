@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { CellValueEditor } from './CellValueEditor'
 
@@ -27,6 +27,44 @@ describe('CellValueEditor', () => {
         const { container } = editor('text')
 
         expect(container.querySelector('.field')).toBe(screen.getByTestId('table-cell-input'))
+    })
+
+    it('lets a number cell of a module with constants take the name of one (EPBDS-13456)', () => {
+        const onChange = vi.fn()
+        render(
+            <CellValueEditor
+                asked={{ editor: 'numeric', constants: ['Const16', 'Const20'], intOnly: true }}
+                kind="numeric"
+                onCancel={vi.fn()}
+                onChange={onChange}
+                onCommit={vi.fn()}
+                value=""
+            />
+        )
+
+        const field = screen.getByTestId('table-cell-input')
+        fireEvent.change(field, { target: { value: 'Const16' } })
+
+        expect(onChange).toHaveBeenCalledWith('Const16')
+        expect(field).toHaveAttribute('list', screen.getByTestId('table-cell-constants').id)
+        expect([...screen.getByTestId('table-cell-constants').querySelectorAll('option')].map(o => o.value))
+            .toEqual(['Const16', 'Const20'])
+    })
+
+    it('keeps a number cell without constants to numbers', () => {
+        render(
+            <CellValueEditor
+                asked={{ editor: 'numeric', intOnly: true }}
+                kind="numeric"
+                onCancel={vi.fn()}
+                onChange={vi.fn()}
+                onCommit={vi.fn()}
+                value="5"
+            />
+        )
+
+        expect(screen.getByRole('spinbutton')).toBe(screen.getByTestId('table-cell-input'))
+        expect(screen.queryByTestId('table-cell-constants')).toBeNull()
     })
 
     it('gives a yes-or-no cell its checkbox alone, with no field around it (EPBDS-17251)', () => {

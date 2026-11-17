@@ -1,12 +1,14 @@
 package org.openl.rules.tableeditor.model;
 
+import java.util.List;
+
 
 public class NumericCellEditor implements ICellEditor {
 
     private final RangeParam params;
 
-    public NumericCellEditor(Number min, Number max, boolean intOnly) {
-        this.params = new RangeParam(min, max, intOnly);
+    public NumericCellEditor(Number min, Number max, boolean intOnly, List<String> constants) {
+        this.params = new RangeParam(min, max, intOnly, constants);
     }
 
     @Override
