@@ -12,6 +12,18 @@ class BExGrammarWithParsingHelp extends BExGrammar {
     private static final String WAS_EXPECTING = "Was expecting:";
     private static final String WAS_EXPECTING_ONE_OF = "Was expecting one of:";
 
+    /**
+     * Tells how to use a keyword, such as {@code and}, as a name, when the parser stopped at it: in back quotes, as
+     * {@code `and`}. Nothing is told about any other token.
+     */
+    static String keywordHint(Token token) {
+        if (token == null || token.kind == IDENTIFIER || token.image == null || token.image.isEmpty()
+                || !token.image.chars().allMatch(Character::isLetter)) {
+            return "";
+        }
+        return " '%1$s' is a keyword. To use it as a name, write it in back quotes: `%1$s`.".formatted(token.image);
+    }
+
     private static String addEscapes(String str) {
         var retval = new StringBuilder();
         char ch;
@@ -87,7 +99,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                 if (oneOf >= 0) {
                     msg = msg.substring(0, oneOf).trim();
                 }
-                sne = new SyntaxNodeException(msg, null, pos, module);
+                sne = new SyntaxNodeException(msg + keywordHint(pe.currentToken.next), null, pos, module);
             }
             syntaxError = sne;
         } catch (TokenMgrError err) {

@@ -1,0 +1,2 @@
+ERROR: Encountered " <BOOL_AND> "and "" at line 1, column 10. 'and' is a keyword. To use it as a name, write it in back quotes: `and`.
+ERROR: Encountered " "where" "where "" at line 1, column 2. 'where' is a keyword. To use it as a name, write it in back quotes: `where`.
