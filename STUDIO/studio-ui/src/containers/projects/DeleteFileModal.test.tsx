@@ -3,8 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeleteFileModal } from './DeleteFileModal'
 import { deleteFile } from '../../services/files'
+import { ApiHttpError } from '../../services/apiCall'
 
 vi.mock('../../services/files', () => ({ deleteFile: vi.fn() }))
+
+const notification = vi.hoisted(() => ({ error: vi.fn() }))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -23,7 +26,6 @@ vi.mock('antd', async () => {
             </div>
         ) : null
     }
-    const notification = { error: vi.fn() }
     const { withStaticApp } = await import('testing/staticAntdApp')
     return withStaticApp({ Modal, notification })
 })
@@ -58,8 +60,23 @@ describe('DeleteFileModal', () => {
         expect(screen.getByRole('dialog')).toHaveTextContent('delete_file_modal.confirm_file')
     })
 
-    it('stays open and reports a failed deletion', async () => {
-        vi.mocked(deleteFile).mockRejectedValue(new Error('locked'))
+    it('closes and reports a deletion the server refuses, which another click would not change (EPBDS-16638)',
+        async () => {
+            vi.mocked(deleteFile).mockRejectedValue(
+                new ApiHttpError(409, 'The project descriptor rules.xml cannot be deleted or moved'))
+            render(<DeleteFileModal {...props} path="rules.xml" />)
+
+            await userEvent.click(screen.getByTestId('file-delete-submit'))
+
+            await waitFor(() => expect(props.onClose).toHaveBeenCalled())
+            expect(notification.error).toHaveBeenCalledWith(expect.objectContaining({
+                description: 'The project descriptor rules.xml cannot be deleted or moved',
+            }))
+            expect(props.onDeleted).not.toHaveBeenCalled()
+        })
+
+    it('stays open and reports a deletion that failed on the way, so it can be asked for again', async () => {
+        vi.mocked(deleteFile).mockRejectedValue(new Error('Failed to fetch'))
         render(<DeleteFileModal {...props} />)
 
         await userEvent.click(screen.getByTestId('file-delete-submit'))
