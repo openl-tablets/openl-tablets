@@ -20,7 +20,7 @@ The following table describes the spreadsheet table header syntax:
 |----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Spreadsheet          | Reserved word that defines the type of the table.                                                                                                                                                                                             |
 | SpreadsheetResult    | Type of the return value. SpreadsheetResult returns the calculated content of the whole table.                                                                                                                                                |
-| \<return type\>      | Data type of the returned value. If only a single value is required, its type must be defined here as a return data type and calculated <br/>in the row or column named RETURN, or in the last row or column if the RETURN keyword is not defined. |
+| \<return type\>      | Data type of the returned value. If only a single value is required, its type must be defined here as a return data type and calculated <br/>in the row or column named RETURN, or in the last row or column with a step name if the RETURN keyword is not defined. |
 | \<table name\>       | Valid name of the table as for any executable table.                                                                                                                                                                                          |
 | \<input parameters\> | Input parameters as for any executable table.                                                                                                                                                                                                 |
 
@@ -115,7 +115,7 @@ In the first case, users get the value of SpreadsheetResult type that is an anal
 
 *Spreadsheet table returns the SpreadsheetResult datatype*
 
-In the second case, the returned result type is a data type as in all other rule tables, so there is no need for **SpreadsheetResult** in the rule table header. The value of the last row, or the latest one if there are several columns, is returned. OpenL Tablets calculates line by line as follows:
+In the second case, the returned result type is a data type as in all other rule tables, so there is no need for **SpreadsheetResult** in the rule table header. The value of the last row with a step name, or the latest one if there are several columns, is returned. A row without a step name is not calculated, and a row that holds values without a step name gets the warning `The row has no step name, so it is not calculated.` OpenL Tablets calculates line by line as follows:
 
 ![Spreadsheet table returning a single value](../../../ref-guide-images/spreadsheetTableReturningSingleValue.png)
 
