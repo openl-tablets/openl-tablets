@@ -7,8 +7,8 @@ suggests when a project is saved, created, copied or restored are no longer conf
 **Customize comments** check box is gone: a comment is validated whenever the repository sets a pattern. This affects
 the administrators who configured comments and the clients of the repository settings API. Several fixes of the rules
 engine change how an existing project compiles or runs, as listed for the rules authors. In OpenL Rule Services, the
-store log data advices of a service method also run when an interceptor of the method fails, as listed for the
-developers.
+store log data advices of a service method also run when an interceptor of the method fails, and a service takes the
+Spring configuration of its own project only, as listed for the developers.
 
 ## Rules Authors
 
@@ -160,6 +160,18 @@ developers.
   method nor the around interceptor runs. A listener that counts invocations or measures their time, for metrics or
   tracing, checks `ex` to tell such calls apart. A listener that throws a runtime exception while the call fails is
   logged with `A listener failed on a failed service call.`, and does not change the outcome of the call.
+
+* **A service is configured only by the `spring.SpringConfig` of its own project.** In a deployment of several
+  projects, the Spring configuration of a dependency project, a `groovy/spring/SpringConfig.groovy` script or a
+  compiled class, no longer applies to the services of the projects that use it. Before, a project without a
+  configuration of its own got the one of the first dependency in its `rules.xml` that has a `spring.SpringConfig`
+  class. The configuration of a project that no publisher publishes, such as one with empty `<publishers/>` in
+  `rules-deploy.xml`, a dependency only, is not applied at all. OpenL Rule Services with a single publisher publishes
+  every project, whatever `rules-deploy.xml` declares, so there such a project keeps its configuration. A
+  `spring.SpringConfig` on the classpath of OpenL Rule Services itself no longer
+  configures the services whose projects have no configuration. Copy the configuration into the project deployed as
+  the service, if its service needs it, and register the beans shared by all services in the
+  `org.openl.rules.ruleservice.spring` package.
 
 * **The report of a Test table without a name of its own is named after the table it tests.** The `test` goal of
   `openl-maven-plugin` writes the reports of `Test SayHello` in module `Main` as `TEST-OpenL.Main.SayHelloTest`, then

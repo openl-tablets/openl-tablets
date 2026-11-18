@@ -27,7 +27,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
 import org.openl.binding.MethodUtil;
@@ -102,6 +101,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                    Object serviceTarget,
                                    Map<Method, Method> methodMap,
                                    ClassLoader serviceClassLoader,
+                                   @Nullable Class<?> configurationClass,
                                    @Nullable Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
                                    ApplicationContext applicationContext,
                                    Optional<RulesDeploy> rulesDeployProvider,
@@ -142,7 +142,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.loggingEnabled = Boolean
                 .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
 
-        var configurationClass = getConfigurationClass(serviceClassLoader);
         var projectClassLoader = configurationClass != null ? configurationClass.getClassLoader() : serviceClassLoader;
         var serviceSpringContext = new AnnotationConfigApplicationContext() {
             @Override
@@ -180,18 +179,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-    }
-
-    private @Nullable Class<?> getConfigurationClass(ClassLoader serviceClassLoader) {
-        try {
-            var configurationClass = Class.forName("spring.SpringConfig", false, serviceClassLoader);
-            if (configurationClass.isAnnotationPresent(Configuration.class)) {
-                return configurationClass;
-            }
-        } catch (ClassNotFoundException ignore) {
-            // Ignore
-        }
-        return null;
     }
 
     private ObjectMapper configureObjectMapper(ApplicationContext context,

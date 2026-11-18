@@ -18,6 +18,12 @@ Content-Type: application/json
     }, {
       "name": "spring",
       "url": "spring/spring/openapi.json"
+    }, {
+      "name": "spring-dependency_main",
+      "url": "spring-dependency/main/openapi.json"
+    }, {
+      "name": "spring-dependency_own",
+      "url": "spring-dependency/own/openapi.json"
     }
   ]
 }

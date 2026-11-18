@@ -79,6 +79,37 @@ Content-Type: application/json
       "urls": {
         "RESTFUL": "spring/spring"
       }
+    },
+    {
+      "deploymentName": "spring-dependency",
+      "hasManifest": false,
+      "name": "spring-dependency_base",
+      "servicePath": "spring-dependency/base",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {}
+    },
+    {
+      "deploymentName": "spring-dependency",
+      "hasManifest": false,
+      "name": "spring-dependency_main",
+      "servicePath": "spring-dependency/main",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "spring-dependency/main"
+      }
+    },
+    {
+      "deploymentName": "spring-dependency",
+      "hasManifest": false,
+      "name": "spring-dependency_own",
+      "servicePath": "spring-dependency/own",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "spring-dependency/own"
+      }
     }
   ],
   "startedAt": "*",

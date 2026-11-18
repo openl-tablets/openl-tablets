@@ -12,6 +12,7 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import org.openl.CompiledOpenClass;
@@ -41,7 +42,7 @@ public final class OpenLService {
     @Setter(AccessLevel.PACKAGE)
     private Object serviceBean;
     @Getter
-    private CompiledOpenClass compiledOpenClass;
+    private @Nullable CompiledOpenClass compiledOpenClass;
     @Getter
     private final boolean provideRuntimeContext;
     private final Collection<Module> modules;
@@ -51,7 +52,7 @@ public final class OpenLService {
     private OpenLServiceInitializer initializer;
     @Getter
     @Setter
-    private Throwable exception;
+    private @Nullable Throwable exception;
     @Getter
     @Setter
     private Map<String, String> urls = Map.of();
@@ -59,7 +60,7 @@ public final class OpenLService {
     private final DeploymentDescription deployment;
     @Getter
     @Setter
-    private ConfigurableApplicationContext serviceContext;
+    private @Nullable ConfigurableApplicationContext serviceContext;
 
     /**
      * Returns service classloader
