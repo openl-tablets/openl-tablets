@@ -200,7 +200,8 @@ public final class OneLineRecords {
                 if (column.elementKey()) {
                     continue;
                 }
-                var cells = data.getSubtable(column.index(), first, 1, height).getSource();
+                // the lines a multi-row record is read from, a line to an element
+                var cells = table.linesOf(column.index(), first, height);
                 if (!placeCells(column, cells, indexes, recordValues, elements)) {
                     return null;
                 }

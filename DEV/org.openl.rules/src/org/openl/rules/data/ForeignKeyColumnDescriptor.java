@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -512,7 +513,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
             context.setRow(i);
             var logicalTable = LogicalTableHelper
-                    .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
+                    .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, 1))
                     .getSubtable(0, 0, 1, 1);
             if (isCollection) {
                 addValuesByForeignKey(target, logicalTable, cxt, foreignTable, foreignKeyIndex, fieldType, env);
@@ -549,6 +550,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 foreignKeyIndex,
                 foreignKeyTableAccessorChainTokens);
         var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
+        if (values.isEmpty()) {
+            // a line without keys defines no element
+            return;
+        }
         var componentType = getComponentType(fieldType);
         var currentValue = getField().get(target, env);
         var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
@@ -587,15 +592,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             if (foreignKey != null) {
                 var columnName = foreignKey.getIdentifier();
                 return foreignTable.getColumnIndex(columnName);
-            } else {
-                return foreignTable.getDataModel().getKeyColumnIndex();
             }
-        } else {
-            return -1;
+            return foreignTable.getDataModel().getKeyColumnIndex();
         }
+        return -1;
     }
 
-    public DomainOpenClass getDomainClassForForeignTable(IDataBase db) throws SyntaxNodeException {
+    public @Nullable DomainOpenClass getDomainClassForForeignTable(IDataBase db) throws SyntaxNodeException {
         if (foreignKeyTable != null) {
             var foreignKeyTableName = foreignKeyTable.getIdentifier();
             var foreignTable = db.getTable(foreignKeyTableName);
@@ -661,7 +664,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return new ResultChainObject(resObj, resType);
     }
 
-    public IOpenField getForeignKeyField(IOpenClass type, IDataBase db) {
+    public @Nullable IOpenField getForeignKeyField(IOpenClass type, IDataBase db) {
         if (foreignKeyColumnChainTokens.length > 0) {
             var fieldName = foreignKeyColumnChainTokens[foreignKeyColumnChainTokens.length - 1];
 

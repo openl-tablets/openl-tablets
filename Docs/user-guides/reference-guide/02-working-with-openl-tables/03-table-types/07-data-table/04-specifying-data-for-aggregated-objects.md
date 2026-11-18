@@ -69,8 +69,14 @@ The following rules and limitations apply:
 
     For example, the two cells of the `messages` array, each merged over the two lines of an object, give that object two messages, as the same cells unmerged with the second line left blank do.
 
+-   When an object takes one line, a column of a scalar field of the array elements whose title is merged over several cells holds one element in each cell.
+
+    For example, the title `classes[0].bands.band` merged over three columns gives each object three bands, one in each column. In a transposed table, the same title merged over three rows gives three bands, one in each row.
+
+    The list belongs to the object or to an element given by its index, such as `classes[0]`. Cells of the same value or of the same primary key give separate elements, and a column of references to another table gives one element in each cell too, a blank cell giving none. A value cell merged over several of these cells tells no element apart, so the line is read as one value: a cell merged over the whole title gives one element, and a merged cell beside another value is an error. A field that is an array, such as `bands.tags` of `String[] tags`, takes all the cells of the line as the values of one element. An object that takes several lines gives the elements line by line, as described above.
+
 -   Primary key columns must be put right before the corresponding object data.
 
     In particular, all primary keys cannot be defined in the very beginning of the table.
 
-**Note:** All mentioned formats of specifying data for aggregated objects are applicable to the input values or expected result values definition in the Test and Run tables.
+**Note:** All mentioned formats of specifying data for aggregated objects are applicable to the input values definition in the Test and Run tables. An expected result gives each element of an array by its index, such as `_res_.vehicles[1].make`.

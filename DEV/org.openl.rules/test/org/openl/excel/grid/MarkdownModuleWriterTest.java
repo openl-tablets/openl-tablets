@@ -448,6 +448,139 @@ class MarkdownModuleWriterTest {
     }
 
     @Test
+    void elementsGivenCellByCellUnderAMergedTitleTakeAColumnEach() throws IOException {
+        var workbook = workbook("Plans.xlsx", rules -> {
+            var model = rules.createSheet("Model");
+            row(model, 0, "Datatype Band");
+            row(model, 1, "String", "band");
+            row(model, 2, "Integer", "lives");
+            row(model, 4, "Datatype PlanClass");
+            row(model, 5, "String", "name");
+            row(model, 6, "Band[]", "bands");
+            row(model, 8, "Datatype Plan");
+            row(model, 9, "String", "code");
+            row(model, 10, "PlanClass[]", "classes");
+            var data = rules.createSheet("Data");
+            row(data, 0, "Data Plan plans");
+            row(data, 1, "code", "classes[0].bands.band", null, null, "classes[0].bands.lives", null, null);
+            row(data, 2, "Code", "Band", null, null, "Lives", null, null);
+            row(data, 3, "P1", "18 - 24", "25 - 29", "30 - 34", 1.0, 2.0, 3.0);
+            row(data, 4, "P2", "18 - 24", "25 - 29", null, 4.0, 5.0, null);
+            data.addMergedRegion(new CellRangeAddress(0, 0, 0, 6));
+            data.addMergedRegion(new CellRangeAddress(1, 1, 1, 3));
+            data.addMergedRegion(new CellRangeAddress(1, 1, 4, 6));
+            data.addMergedRegion(new CellRangeAddress(2, 2, 1, 3));
+            data.addMergedRegion(new CellRangeAddress(2, 2, 4, 6));
+            // The same records transposed: a record is a column, the titles are merged over the rows
+            var columns = rules.createSheet("Columns");
+            row(columns, 0, "Data Plan columnPlans");
+            row(columns, 1, "code", "Code", "P1", "P2");
+            row(columns, 2, "classes[0].bands.band", "Band", "18 - 24", "18 - 24");
+            row(columns, 3, null, null, "25 - 29", "25 - 29");
+            row(columns, 4, null, null, "30 - 34", null);
+            row(columns, 5, "classes[0].bands.lives", "Lives", 1.0, 4.0);
+            row(columns, 6, null, null, 2.0, 5.0);
+            row(columns, 7, null, null, 3.0, null);
+            columns.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+            columns.addMergedRegion(new CellRangeAddress(2, 4, 0, 0));
+            columns.addMergedRegion(new CellRangeAddress(2, 4, 1, 1));
+            columns.addMergedRegion(new CellRangeAddress(5, 7, 0, 0));
+            columns.addMergedRegion(new CellRangeAddress(5, 7, 1, 1));
+        });
+        var module = dir.resolve("md/Plans");
+
+        MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        // Each cell under the merged title is an element, so it takes columns of its own
+        assertEquals("""
+                | code | classes[0].bands[0].band | classes[0].bands[0].lives | classes[0].bands[1].band \
+                | classes[0].bands[1].lives | classes[0].bands[2].band | classes[0].bands[2].lives |
+                |---|---|---|---|---|---|---|
+                | Code | Band | Lives | Band | Lives | Band | Lives |
+                | P1 | 18 - 24 | 1 | 25 - 29 | 2 | 30 - 34 | 3 |
+                | P2 | 18 - 24 | 4 | 25 - 29 | 5 |  |  |
+                """, bodyOf(module.resolve("Data/plans.md")));
+        var factory = new RulesEngineFactory<>(module.toString());
+        var compiled = factory.getCompiledOpenClass();
+        assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
+        var rules = factory.newEngineInstance();
+        for (var getter : List.of("getPlans", "getColumnPlans")) {
+            Object[] plans = TestUtils.invoke(rules, getter);
+            assertEquals(List.of(List.of("18 - 24", "25 - 29", "30 - 34"), List.of("18 - 24", "25 - 29")),
+                    Arrays.stream(plans).map(MarkdownModuleWriterTest::bandsOf).toList(), getter);
+        }
+    }
+
+    @Test
+    void referencesGivenCellByCellUnderAMergedTitleKeepTheirElements() throws IOException {
+        var workbook = workbook("Notes.xlsx", rules -> {
+            var model = rules.createSheet("Model");
+            row(model, 0, "Datatype Note");
+            row(model, 1, "String", "id");
+            row(model, 2, "String", "text");
+            row(model, 4, "Datatype Band");
+            row(model, 5, "String", "name");
+            row(model, 6, "Note[]", "notes");
+            row(model, 8, "Datatype Plan");
+            row(model, 9, "String", "code");
+            row(model, 10, "Band[]", "bands");
+            var data = rules.createSheet("Data");
+            row(data, 0, "Data Note notes");
+            row(data, 1, "id", "text");
+            row(data, 2, "Id", "Text");
+            row(data, 3, "N1", "first");
+            row(data, 4, "N2", "second");
+            row(data, 6, "Data Plan plans");
+            row(data, 7, "code", "bands.name", null, "bands.notes", null, null, null);
+            row(data, 8, null, null, null, ">notes", null, null, null);
+            row(data, 9, "Code", "Band", null, "Notes", null, null, null);
+            // A blank cell of the keys gives no band: the key after it gives the band after B
+            row(data, 10, "P1", "A", "B", "N1", "N2", null, "N1");
+            data.addMergedRegion(new CellRangeAddress(6, 6, 0, 6));
+            data.addMergedRegion(new CellRangeAddress(7, 7, 1, 2));
+            data.addMergedRegion(new CellRangeAddress(7, 7, 3, 6));
+            data.addMergedRegion(new CellRangeAddress(8, 8, 3, 6));
+            data.addMergedRegion(new CellRangeAddress(9, 9, 1, 2));
+            data.addMergedRegion(new CellRangeAddress(9, 9, 3, 6));
+        });
+        var module = dir.resolve("md/Notes");
+
+        MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        // Each key under the merged title gives a note to the band of its cell, before and after the conversion
+        var expected = List.of(List.of("first"), List.of("second"), List.of("first"));
+        for (var source : List.of(workbook, module)) {
+            var factory = new RulesEngineFactory<>(source.toString());
+            var compiled = factory.getCompiledOpenClass();
+            assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
+            Object[] plans = TestUtils.invoke(factory.newEngineInstance(), "getPlans");
+            Object[] bands = TestUtils.invoke(plans[0], "getBands");
+            assertEquals(expected, Arrays.stream(bands).map(MarkdownModuleWriterTest::noteTextsOf).toList(),
+                    source::toString);
+        }
+    }
+
+    /** The texts of the notes of a band, none when the band has no notes. */
+    private static List<String> noteTextsOf(Object band) {
+        Object[] notes = TestUtils.invoke(band, "getNotes");
+        if (notes == null) {
+            return List.of();
+        }
+        return Arrays.stream(notes)
+                .map(note -> TestUtils.<String>invoke(note, "getText"))
+                .toList();
+    }
+
+    /** The bands of the first class of a plan. */
+    private static List<String> bandsOf(Object plan) {
+        Object[] classes = TestUtils.invoke(plan, "getClasses");
+        Object[] bands = TestUtils.invoke(classes[0], "getBands");
+        return Arrays.stream(bands)
+                .map(band -> TestUtils.<String>invoke(band, "getBand"))
+                .toList();
+    }
+
+    @Test
     void elementsToldApartByAKeyKeepTheirForeignKeysAndLoseTheKeyColumn() throws IOException {
         var workbook = workbook("Keys.xlsx", rules -> {
             var model = rules.createSheet("Model");
