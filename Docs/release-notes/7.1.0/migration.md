@@ -179,3 +179,8 @@ Spring configuration of its own project only, as listed for the developers.
   of its own keeps that name, unless a table of the same module reported before it already took the name: a Test
   table named `SayHelloTest` next to `Test SayHello` can be reported as `TEST-OpenL.Main.SayHelloTest-2`. Update the
   CI jobs that pick the reports in `target/openl-test-reports` by their names.
+
+* **A build that skips tests does not compile the `tests/` folder.** With `-DskipTests` or `-Dmaven.test.skip=true`,
+  the `compile` goal of `openl-maven-plugin` leaves the modules of the `tests/` folder out, so an error in a test
+  workbook no longer fails such a build. `-Dmaven.test.skip=true` now also skips the `test` and `verify` goals, as
+  `-DskipTests` does. Run the build without these flags to check the test workbooks.

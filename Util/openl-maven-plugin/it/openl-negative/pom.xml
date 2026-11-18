@@ -14,6 +14,7 @@
         <module>EPBDS-12729-openl-tests-failure</module>
         <module>openl-compilation-error-in-sources</module>
         <module>openl-compilation-error-in-tests</module>
+        <module>openl-compilation-error-in-tests-folder</module>
         <module>openl-databinding-negative</module>
         <module>openl-jar-verify-negative</module>
         <module>openl-lib-threshold-default</module>

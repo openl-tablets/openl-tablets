@@ -81,6 +81,19 @@ followed by `Test`: `SayHelloTest`, then `SayHelloTest-2` and so on when the mod
 a table of the same module reported before it already took gets such a number, even a table named by its author:
 a Test table named `SayHelloTest` next to `Test SayHello` can be reported as `SayHelloTest-2`.
 
+## Skipping tests
+
+A build with `-DskipTests` or `-Dmaven.test.skip=true` neither validates nor runs the tests of the project:
+
+- `compile` leaves the modules of the `tests/` folder out of compilation and logs how many it left out. The other
+  modules compile as usual, and an error in them still fails the build.
+- `test` runs no Test tables, and `verify` starts no OpenL Rule Services.
+- `package` still attaches the `tests` artifact.
+- `generate` and the Markdown copy of `openl.markdown` still read the whole project, `tests/` included.
+- Without these flags, an error in a `tests/` workbook fails the build.
+- A rules module must not use a datatype or a module of `tests/`: such a build cannot find it, as OpenL Rule Services
+  cannot in the main artifact.
+
 ## Supplementary artifacts
 
 `openl:package` attaches supplementary artifacts next to the main archive:

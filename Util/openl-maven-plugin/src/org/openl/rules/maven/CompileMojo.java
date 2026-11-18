@@ -1,7 +1,8 @@
 package org.openl.rules.maven;
 
-import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,15 +12,15 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
-import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.markdown.MarkdownProjectWriter;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
-import org.openl.types.IOpenClass;
 
 /**
  * Compiles and validates an OpenL Tablets project.
@@ -28,7 +29,7 @@ import org.openl.types.IOpenClass;
  */
 @Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true,
         requiresDependencyResolution = ResolutionScope.COMPILE)
-public final class CompileMojo extends BaseOpenLMojo {
+public final class CompileMojo extends TestsSkippingMojo {
 
     /**
      * Additional options for compilation defined externally,
@@ -44,15 +45,14 @@ public final class CompileMojo extends BaseOpenLMojo {
     @SuppressWarnings("java:S2093")
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
-        URL[] urls = toURLs(classpath);
+        var urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
             classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-            long start = System.nanoTime();
+            var start = System.nanoTime();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
-                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            var builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
@@ -61,12 +61,16 @@ public final class CompileMojo extends BaseOpenLMojo {
                     .setExecutionMode(true)
                     .setExternalParameters(externalParameters)
                     .build();
+            if (isTestsSkipped()) {
+                // Before the instantiation strategy is built: it takes the modules of the descriptor once.
+                leaveTestsOut(factory.getProjectDescriptor());
+            }
 
-            CompiledOpenClass openLRules = new OpenApiProjectValidator()
+            var openLRules = new OpenApiProjectValidator()
                     .validate(factory.getProjectDescriptor(), factory.getRulesInstantiationStrategy());
             openLRules.throwErrorExceptionsIfAny();
-            IOpenClass openClass = openLRules.getOpenClass();
-            long end = System.nanoTime();
+            var openClass = openLRules.getOpenClass();
+            var end = System.nanoTime();
 
             Collection<OpenLMessage> warnMessages = OpenLMessagesUtils
                     .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.WARN);
@@ -81,6 +85,32 @@ public final class CompileMojo extends BaseOpenLMojo {
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
+    }
+
+    /**
+     * Removes the modules of the {@code tests} folder from the project, so that they are not compiled.
+     * <p>
+     * The build log tells how many modules are left out. A project without such modules is not changed.
+     */
+    void leaveTestsOut(ProjectDescriptor descriptor) {
+        var testsFolder = descriptor.getProjectFolder()
+                .resolve(PackageMojo.TESTS_FOLDER)
+                .toAbsolutePath()
+                .normalize();
+        var kept = new ArrayList<>(descriptor.getModules());
+        if (kept.removeIf(module -> isIn(testsFolder, module))) {
+            info("Tests are skipped: the '", PackageMojo.TESTS_FOLDER, "' folder is left out of compilation, modules: ",
+                    descriptor.getModules().size() - kept.size());
+            descriptor.setModules(kept);
+        }
+    }
+
+    /**
+     * Checks whether the file of the module lies inside the folder. A module without a path is in no folder, so the
+     * compilation reports it as usual.
+     */
+    private static boolean isIn(Path folder, Module module) {
+        return module.getRulesRootPath() != null && module.getRulesPath().normalize().startsWith(folder);
     }
 
     /**

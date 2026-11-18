@@ -23,8 +23,9 @@ Configuration with all OpenL Maven Plugin Goals
               <isProvideRuntimeContext>true</isProvideRuntimeContext>
               <isProvideVariations>true</isProvideVariations>
               <generateSpreadsheetResultBeans>false</generateSpreadsheetResultBeans>
-              <!-- test goal -->
+              <!-- compile and test goals: skip compiling the tests/ folder and running the tests -->
               <skipTests>false</skipTests>
+              <!-- test goal -->
               <threadCount>auto</threadCount>
               <singleModuleMode>false</singleModuleMode>
               <testSourceDirectory>src/test/openl</testSourceDirectory>
