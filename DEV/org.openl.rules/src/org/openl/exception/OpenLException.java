@@ -14,23 +14,29 @@ public interface OpenLException {
     /**
      * Gets error cause location.
      *
-     * @return error cause location
+     * @return error cause location, or {@code null} when the error points at no source
      */
-    ILocation getLocation();
+    default @Nullable ILocation getLocation() {
+        return null;
+    }
 
     /**
      * Gets source code module where the error was occurred.
      *
-     * @return source code module
+     * @return source code module, or {@code null} when the error points at no source
      */
-    String getSourceCode();
+    default @Nullable String getSourceCode() {
+        return null;
+    }
 
     /**
      * Gets error source location URI
      *
-     * @return source location URI
+     * @return source location URI, or {@code null} when the error points at no source
      */
-    String getSourceLocation();
+    default @Nullable String getSourceLocation() {
+        return null;
+    }
 
     /**
      * Gets the piece of the source the error is about, such as a part of the text of a cell.
