@@ -148,8 +148,6 @@ class SourceCodeURLToolTest {
         when(boundNode.getSyntaxNode()).thenReturn(node);
         assertEquals(expected, new OpenLRuntimeException("Failed.", boundNode).getSourceRange());
 
-        assertEquals(expected, new OpenlNotCheckedException("Failed.", null, location, BODY).getSourceRange());
-        assertEquals(expected, new OpenLCheckedException("Failed.", null, location, BODY).getSourceRange());
         assertNull(new OpenlNotCheckedException("No source.").getSourceRange());
         assertNull(new OpenLCheckedException("No source.").getSourceRange());
 

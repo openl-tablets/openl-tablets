@@ -3,23 +3,11 @@ package org.openl.rules.project.resolving;
 import java.io.Serial;
 
 import org.openl.exception.OpenLCheckedException;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.util.text.ILocation;
 
 public class ProjectResolvingException extends OpenLCheckedException {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
-    public ProjectResolvingException() {
-    }
-
-    public ProjectResolvingException(String message,
-                                     Throwable cause,
-                                     ILocation location,
-                                     IOpenSourceCodeModule sourceModule) {
-        super(message, cause, location, sourceModule);
-    }
 
     public ProjectResolvingException(String message, Throwable cause) {
         super(message, cause);
