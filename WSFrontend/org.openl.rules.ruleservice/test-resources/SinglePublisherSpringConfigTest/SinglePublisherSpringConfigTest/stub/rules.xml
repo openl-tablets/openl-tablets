@@ -1,0 +1,11 @@
+<project>
+    <name>stub</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="."/>
+    </classpath>
+</project>

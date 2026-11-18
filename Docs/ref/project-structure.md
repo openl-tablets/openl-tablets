@@ -13,7 +13,8 @@
     - `message_en_US.properties` - messages for English (United States)
 - `groovy/` - Groovy scripts accessible from rule tables
     - `spring/` - Spring Framework related scripts
-        - `SpringConfig.groovy` - the Spring configuration entry point
+        - `SpringConfig.groovy` - the Spring configuration entry point of the service of this project; the one of a
+          dependency project never applies to it, and a project that no publisher publishes applies none
     - `Service.groovy` - service interface which defined in `rules-deploy.xml` as `serviceClass`
 - `tests/` - for Test, Data and Run tables
 - `tags.properties` - tag definitions of this project

@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import jakarta.annotation.PreDestroy;
@@ -337,7 +338,11 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         Objects.requireNonNull(service, "service cannot be null");
         final var servicePath = service.getDeployPath();
 
-        var publishers = resolvePublishers(service.getPublishers(), servicePath);
+        var publishers = resolvePublishers(service.getPublishers(),
+                unknown -> log.warn(
+                        "Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
+                        unknown,
+                        servicePath));
         Exception e1 = null;
         var deployedPublishers = new ArrayList<RuleServicePublisher>();
         if (!publishers.isEmpty()) {
@@ -373,20 +378,27 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     /**
-     * Returns the supported publishers with the given names, or all supported publishers when only one is supported.
+     * Tells whether a service that declares the given publishers is published by any of them.
+     *
+     * <p>When OpenL Rule Services supports a single publisher, it publishes every service, whatever the service
+     * declares. Otherwise, a service is published by the declared publishers that are supported.
      */
-    private List<RuleServicePublisher> resolvePublishers(Collection<String> sp, String servicePath) {
+    public boolean isPublished(Collection<String> declaredPublishers) {
+        return !resolvePublishers(declaredPublishers, unknown -> {}).isEmpty();
+    }
+
+    /**
+     * Returns the supported publishers with the given names, or all supported publishers when only one is supported.
+     * A name no supported publisher has is passed to the given consumer.
+     */
+    private List<RuleServicePublisher> resolvePublishers(Collection<String> sp, Consumer<String> unknownPublisher) {
         var publishers = new ArrayList<RuleServicePublisher>();
         if (supportedPublishers.size() > 1) {
             for (String p : sp) {
-                var publisher = supportedPublishers.stream().filter(n -> n.name().equalsIgnoreCase(p)).findFirst();
-                if (publisher.isPresent()) {
-                    publishers.add(publisher.get());
-                } else {
-                    log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
-                            p,
-                            servicePath);
-                }
+                supportedPublishers.stream()
+                        .filter(n -> n.name().equalsIgnoreCase(p))
+                        .findFirst()
+                        .ifPresentOrElse(publishers::add, () -> unknownPublisher.accept(p));
             }
         } else {
             publishers.addAll(supportedPublishers);

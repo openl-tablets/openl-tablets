@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import java.net.URLClassLoader;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,7 +49,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
     private final ThreadLocal<Deque<IDependencyLoader>> compilationStackThreadLocal = ThreadLocal
             .withInitial(ArrayDeque::new);
-    private final Map<ProjectDescriptor, ClassLoader> externalJarsClassloaders = new HashMap<>();
+    private final Map<ProjectDescriptor, OpenLClassLoader> externalJarsClassloaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
     protected boolean executionMode;
     private Map<String, Object> externalParameters;
@@ -420,21 +421,31 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 node.getModule());
     }
 
-    public synchronized ClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
+    /**
+     * Returns the class loader of the classpath of the project. The project compiles with it.
+     *
+     * <p>A class or a resource that the classpath of the project lacks is looked up in the classpaths of its
+     * dependency projects, in the order the project declares them. {@code findResource} looks at the classpath of the
+     * project only, so it tells whether the project itself has a resource.
+     *
+     * <p>The project keeps the same class loader until {@link #resetAll()}, or until a reset dependency has put
+     * generated classes, such as datatypes, into the class loader of the project or of a project it depends on.
+     */
+    public synchronized URLClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
         var breadcrumbs = new HashSet<ProjectDescriptor>();
         breadcrumbs.add(project);
         return getExternalJarsClassLoaderRec(project, breadcrumbs);
     }
 
-    private synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project,
-                                                                  Set<ProjectDescriptor> breadcrumbs) {
+    private synchronized OpenLClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project,
+                                                                        Set<ProjectDescriptor> breadcrumbs) {
         getDependencyLoaders(); // Init dependency loaders
         if (externalJarsClassloaders.get(project) != null) {
             return externalJarsClassloaders.get(project);
         }
         ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
         var externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
-        // To load classes from dependency jars first
+        // What the classpath of the project lacks is looked up in the dependency projects
         if (project.getDependencies() != null) {
             var loadedProjects = getDependencyLoaders().stream()
                     .filter(IDependencyLoader::isProjectLoader)

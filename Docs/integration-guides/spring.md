@@ -40,7 +40,9 @@ or in `META-INF/openl/extension-my-configuration.xml` XML configuration file:
 
 A rules project can have a Spring configuration of its own: a `spring.SpringConfig` class annotated with
 `@Configuration`, usually the `groovy/spring/SpringConfig.groovy` script. OpenL Rule Services creates a Spring context
-for the service of the project from it and creates the service interceptors in that context.
+for the service of the project from it and creates the service interceptors in that context. A published service whose
+project has a `spring/SpringConfig` file that does not define the `spring.SpringConfig` class, such as a script of
+another package, fails.
 
 ```groovy
 package spring
@@ -53,6 +55,19 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
 class SpringConfig {
 }
 ```
+
+Only the configuration on the classpath of the project deployed as the service applies. In a deployment of several
+projects, the configurations of the dependency projects are never applied to the services of the projects that use
+them: a project without a configuration of its own gets a service with no project Spring configuration, whatever its
+dependencies have. A dependency project published as a service of its own is still configured by its own
+configuration. A project that no publisher publishes, such as one with empty `<publishers/>` in `rules-deploy.xml`, as
+OpenL Maven Plugin writes it for a dependency, is only a dependency: its configuration never applies. OpenL Rule
+Services with a single publisher publishes every project, whatever `rules-deploy.xml` declares, so there every project
+gets its own configuration.
+
+A `spring.SpringConfig` on the classpath of OpenL Rule Services itself is not the configuration of a project: a
+service whose project has no configuration does not get it. Register the beans shared by all services as the previous
+section shows.
 
 The configuration can proxy beans by class, as `@EnableAspectJAutoProxy(proxyTargetClass = true)` does, without
 starting the JVM with `--add-opens=java.base/java.lang=ALL-UNNAMED`. A proxy intercepts every method of the bean that is

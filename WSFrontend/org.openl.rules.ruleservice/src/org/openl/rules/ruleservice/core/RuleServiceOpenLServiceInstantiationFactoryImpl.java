@@ -8,14 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.util.ClassUtils;
 
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
@@ -25,6 +29,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -39,6 +44,9 @@ import org.openl.types.IOpenClass;
  */
 @Slf4j
 public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServiceInstantiationFactory {
+
+    private static final String SPRING_CONFIG = "spring.SpringConfig";
+    private static final String SPRING_CONFIG_PATH = ClassUtils.convertClassNameToResourcePath(SPRING_CONFIG);
 
     @Getter
     @Setter
@@ -86,10 +94,60 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             var serviceTarget = resolveInterfaceAndClassLoader(service,
                     serviceDescription,
                     instantiationStrategy);
-            instantiateServiceBean(service, serviceTarget, serviceClassLoader);
+            var configurationClass = isPublished(service)
+                    ? findSpringConfig(dependencyManager, serviceDescription.getProjectDescriptor())
+                    : null;
+            instantiateServiceBean(service, serviceTarget, serviceClassLoader, configurationClass);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    /**
+     * Returns the Spring configuration of the project deployed as the service, or {@code null} when it has none.
+     *
+     * <p>The configuration is the {@code spring.SpringConfig} class annotated with {@code @Configuration}, compiled or
+     * as a Groovy script, on the classpath of the project itself. The configuration of a dependency project never
+     * applies: only the project deployed as the service decides how the service is configured.
+     *
+     * <p>A {@code spring.SpringConfig} class without {@code @Configuration} is skipped. A project whose
+     * {@code spring/SpringConfig} file defines no such class fails the service.
+     */
+    private static @Nullable Class<?> findSpringConfig(RuleServiceDependencyManager dependencyManager,
+                                                       @Nullable ProjectDescriptor project)
+            throws RuleServiceInstantiationException {
+        if (project == null) {
+            return null;
+        }
+        var projectClassLoader = dependencyManager.getExternalJarsClassLoader(project);
+        var own = Stream.of(ClassUtils.CLASS_FILE_SUFFIX, ".groovy")
+                .anyMatch(suffix -> projectClassLoader.findResource(SPRING_CONFIG_PATH + suffix) != null);
+        if (!own) {
+            return null;
+        }
+        try {
+            var configurationClass = Class.forName(SPRING_CONFIG, false, projectClassLoader);
+            return configurationClass.isAnnotationPresent(Configuration.class) ? configurationClass : null;
+        } catch (ClassNotFoundException e) {
+            throw new RuleServiceInstantiationException(
+                    "Failed to load the Spring configuration '%s' of project '%s'.".formatted(SPRING_CONFIG,
+                            project.getName()),
+                    e);
+        }
+    }
+
+    /**
+     * Tells whether any publisher publishes the service. A service published nowhere, such as the one of a project
+     * with empty {@code <publishers/>}, is only a dependency of other services: it gets no Spring configuration. Its
+     * interceptors, if it has any, get the beans of OpenL Rule Services only, and an interceptor that needs a bean of
+     * the configuration of the project fails the service.
+     *
+     * <p>Without the service manager, the service counts as published.
+     */
+    private boolean isPublished(OpenLService service) {
+        return getServiceManagerIfAvailable()
+                .map(manager -> manager.isPublished(service.getPublishers()))
+                .orElse(true);
     }
 
     private ClassLoader resolveServiceClassLoader(OpenLService service,
@@ -113,7 +171,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private void instantiateServiceBean(OpenLService service,
                                         Pair<Object, Map<Method, Method>> serviceTarget,
-                                        ClassLoader classLoader) throws RuleServiceInstantiationException {
+                                        ClassLoader classLoader,
+                                        @Nullable Class<?> configurationClass)
+            throws RuleServiceInstantiationException {
         Class<?> serviceClass = service.getServiceClass();
         try {
             if (!serviceClass.isInterface()) {
@@ -126,6 +186,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     serviceTarget.getLeft(),
                     serviceTarget.getRight(),
                     classLoader,
+                    configurationClass,
                     getListServiceInvocationAdviceListeners(),
                     applicationContext,
                     getServiceManagerIfAvailable().map(ServiceManagerImpl::getRulesDeployInProcess),

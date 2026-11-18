@@ -33,6 +33,7 @@ class ServiceInvocationAdviceTest {
                         serviceTarget,
                         methodMap,
                         classLoader,
+                        null,
                         listeners,
                         applicationContext,
                         rulesDeploy,
