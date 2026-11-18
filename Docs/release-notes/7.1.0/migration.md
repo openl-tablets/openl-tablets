@@ -71,6 +71,14 @@ Spring configuration of its own project only, as listed for the developers.
   merge the header cell over it if it is a part of the header, or start it with `//` to keep it as a comment.
   Conditions, Actions and Returns tables keep their parameters next to the keyword.
 
+* **The last element of a list given cell by cell is no longer a copy of the first one.** In a Data table, a field of
+  the list elements whose title is merged over several cells, such as `classes[0].bands.band` merged over three
+  columns, or over three rows of a transposed table, gives one element in each cell. Before, the last element took the
+  values of the first one, so the bands `18 - 24`, `25 - 29`, `30 - 34` were read as `18 - 24`, `25 - 29`, `18 - 24`.
+  A rule that looks an element up, counts or sums the elements of such a list may give another result now: before,
+  a lookup of the band `30 - 34` found no element, and the values of the band `18 - 24` were counted twice. Update the
+  expected values of the tests that were set on the copied element.
+
 ## Administrators
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
