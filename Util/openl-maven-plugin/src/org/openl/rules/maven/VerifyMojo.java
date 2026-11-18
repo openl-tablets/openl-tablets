@@ -32,13 +32,7 @@ import org.eclipse.aether.util.artifact.JavaScopes;
  */
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true,
         requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class VerifyMojo extends BaseOpenLMojo {
-
-    /**
-     * Parameter to skip running OpenL Tablets verify goal if it set to 'true'.
-     */
-    @Parameter(property = "skipTests")
-    private boolean skipTests;
+public class VerifyMojo extends TestsSkippingMojo {
 
     /**
      * Parameter to skip running OpenL Tablets verify goal if it set to 'true'.
@@ -166,9 +160,8 @@ public class VerifyMojo extends BaseOpenLMojo {
     private static String versionlessKey(String groupId, String artifactId, String classifier) {
         if (classifier == null) {
             return groupId + ":" + artifactId;
-        } else {
-            return groupId + ":" + artifactId + ":" + classifier;
         }
+        return groupId + ":" + artifactId + ":" + classifier;
     }
 
     @Override
@@ -177,7 +170,7 @@ public class VerifyMojo extends BaseOpenLMojo {
         // PackageMojo already suppresses the *-deployment.zip on that signal, so verification has nothing
         // meaningful to do (the main artifact alone can't boot when there are OpenL deps, and there is
         // nothing to publish when there aren't). Skip cleanly via the standard disable hook.
-        return skipTests || skipITs || OpenLPackagings.hasEmptyPublishers(sourceDirectory.toPath());
+        return isTestsSkipped() || skipITs || OpenLPackagings.hasEmptyPublishers(sourceDirectory.toPath());
     }
 
     @Override

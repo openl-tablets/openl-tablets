@@ -54,6 +54,10 @@ public final class PackageMojo extends BaseOpenLMojo {
     public static final String DEPLOYMENT_CLASSIFIER = "deployment";
     /** Classifier of the auto-attached archive with the tests; skipped by {@code DeployMojo}. */
     static final String TESTS_CLASSIFIER = "tests";
+    /** Folder of the project that holds the test modules, packaged into the {@code tests} artifact. */
+    static final String TESTS_FOLDER = "tests";
+    /** Pattern of every file of the {@link #TESTS_FOLDER}. */
+    private static final String TESTS_FILES = TESTS_FOLDER + "/**";
     /** Classifier of the auto-attached jar with the project's compiled classes, like 'attachClasses' in war packaging. */
     private static final String CLASSES_CLASSIFIER = "classes";
 
@@ -515,7 +519,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         final var targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
         strings.add(targetDir);
         strings.add("pom.xml");
-        strings.add("tests/**");
+        strings.add(TESTS_FILES);
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
@@ -538,9 +542,9 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private void buildTestsArtifact(File openLSourceDir, String[] types) throws IOException {
-        var testsFiles = scanFiles(openLSourceDir, new String[]{"tests/**"}, null);
+        var testsFiles = scanFiles(openLSourceDir, new String[]{TESTS_FILES}, null);
         if (testsFiles.length == 0) {
-            debug("No files found under 'tests/' folder, skipping tests artifact.");
+            debug("No files found under '", TESTS_FOLDER, "/' folder, skipping tests artifact.");
             return;
         }
 

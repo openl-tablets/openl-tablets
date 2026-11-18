@@ -17,9 +17,11 @@ try {
             'External parameters for Project',
             'Exceeding increased lib threshold',
             'Markdown Rules',
+            'Tests folder skipped by maven.test.skip',
             'OpenAPI Verify Positive Test',
             'OpenL Project',
             'Service',
+            'Tests folder skipped by skipTests',
             'When tested method has two candidates',
     ].each { name ->
         assert lines.any { it =~ /^\[INFO\] ${Pattern.quote(name)} \.+ SUCCESS/ }, "Module '${name}' must pass"
@@ -75,6 +77,21 @@ try {
     // ---------------------------------------------------------------------------------------
     assert !sections['openl-openapi-verify-positive'].any { it.contains('OpenAPI Reconciliation: ') }
     assert lines.any { it.contains('Service \'openl-openapi-verify-positive-0.0.0\' has been deployed successfully.') }
+
+    // ---------------------------------------------------------------------------------------
+    // openl-skip-tests, openl-maven-test-skip: the workbook of the tests folder does not
+    // compile, but skipTests and maven.test.skip leave it out of compilation. The rules
+    // compile, neither tests nor the verification run, and the tests artifact is still packaged.
+    // ---------------------------------------------------------------------------------------
+    ['openl-skip-tests', 'openl-maven-test-skip'].each { module ->
+        def section = sections[module]
+        assert section.any { it.contains("Tests are skipped: the 'tests' folder is left out of compilation, modules: 1") }
+        assert section.any { it.contains('Methods      : 2') }
+        assert !section.any { it.contains('OPENL TESTS') }
+        assert !section.any { it.contains('OPENL VERIFY') }
+        assert new File(folder, "${module}/target/${module}-0.0.0.zip").exists()
+        assert new File(folder, "${module}/target/${module}-0.0.0-tests.zip").exists()
+    }
 
     // ---------------------------------------------------------------------------------------
     // openl-testedmethod-has-two-candidates: the test picks the right overload and passes.

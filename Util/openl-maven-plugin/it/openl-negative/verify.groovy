@@ -14,6 +14,7 @@ try {
             'EPBDS-12729 Tests failures',
             'Compilation error in OpenL Sources',
             'Compilation error in OpenL Tests',
+            'Compilation error in the tests folder',
             'Data Binding Negative Test',
             'OpenL Jar Negative Test',
             'Exceeding default lib threshold',
@@ -93,9 +94,18 @@ try {
     assert sections['EPBDS-12729-openl-tests-failure'].any { it =~ /Run tests using \d+ threads/ }
 
     // ---------------------------------------------------------------------------------------
-    // openl-compilation-error-in-sources, openl-compilation-error-in-tests: the compilation
-    // must break the build; asserted by the reactor summary check above.
+    // openl-compilation-error-in-sources, openl-compilation-error-in-tests,
+    // openl-compilation-error-in-tests-folder: the compilation must break the build; asserted
+    // by the reactor summary check above. The tests folder is compiled when tests are not skipped.
     // ---------------------------------------------------------------------------------------
+    // Maven prints the failure of each module after the reactor summary, outside the module section.
+    def testsFolderFailure = lines.findIndexOf {
+        it.contains(':compile (default-compile) on project openl-compilation-error-in-tests-folder:')
+    }
+    assert testsFolderFailure >= 0
+    def testsFolderErrors = lines.drop(testsFolderFailure + 1).takeWhile { !it.contains('Failed to execute goal') }
+    assert testsFolderErrors.any { it.contains("Identifier 'unknownValue' is not found.") }
+    assert testsFolderErrors.any { it.contains('tests/BrokenTests.xlsx') }
 
     // ---------------------------------------------------------------------------------------
     // openl-databinding-negative: a mixin class absent on the classpath fails the verification.
