@@ -146,7 +146,7 @@
         <maven.api.version>3.10.1</maven.api.version>
         <maven.plugin.version>3.16.0</maven.plugin.version>
         <maven.scm.version>2.2.1</maven.scm.version>
-        <plexus-utils.version>4.1.0</plexus-utils.version>
+        <plexus-utils.version>4.2.0</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
         <jetty.version>12.1.15</jetty.version>
