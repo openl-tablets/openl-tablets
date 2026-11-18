@@ -764,14 +764,24 @@ Keep `secret.key` out of `application.properties` in a shared environment — pa
 environment variable instead. Quote the value if it contains spaces or shell metacharacters, so that
 `-Dsecret.key=...` reaches the application intact.
 
-`secret.key` also protects the passwords that the **Administration** area saves. When a repository, database, or mail
-password is entered in the UI, it is stored as `ENC(...)` in the settings file, encrypted with the current
-`secret.key`.
+`secret.key` also protects the secrets that the **Administration** area saves. A repository, database, or mail
+password, the client secret of OAuth2, the access and secret keys of an AWS S3 repository, and the account key of an
+Azure Blob Storage repository are stored as `ENC(...)` in the settings file, encrypted with the current `secret.key`,
+and so is the private key OpenL Studio generates for SAML. At the first start after the upgrade to 7.1.0, when
+`secret.key` is set, OpenL Studio encrypts the secrets that an earlier version stored in plain text.
+
+A secret stored as `ENC(...)` can be read only with the `secret.key` it was encrypted with. When `secret.key` changes
+or is removed, the application logs a warning naming each setting it cannot decrypt and reads it as an empty value —
+a wrong key may rarely give unreadable text instead. The affected connections, such as a repository, the mail server or
+the OAuth2 sign-in, then fail to authenticate until their secrets are entered again in the **Administration** area. The
+SAML key pair is generated anew instead, at the next start or when the SAML settings are saved, with a warning, and
+the identity provider needs the new service provider metadata. Setting the previous `secret.key` back makes the other
+secrets readable again.
 
 > [!Note]
-> Define `secret.key` before creating any connection that stores a password. Passwords saved while `secret.key` was
-> blank are stored as plain text, and passwords saved under a different `secret.key` decode to an empty value once the
-> key changes — the affected connections then fail to authenticate and their passwords have to be entered again.
+> Define `secret.key` before creating any connection that stores a secret. Secrets saved while `secret.key` was
+> blank are stored as plain text and stay so until their values are changed, since saving the same value again
+> stores nothing.
 
 To produce an encrypted value on Linux, substituting the `secret.key` value for `MyMasterPassword`:
 
@@ -808,10 +818,12 @@ the old location and requires moving it manually.
 ### What Moves to the Shared Directory
 
 - **Administration settings** — every instance reads the same `<application-name>.properties`, so a change applied in
-  one instance's **Administration** area takes effect everywhere. The passwords in that file are stored as `ENC(...)`,
-  so every instance needs the same `secret.key`: an instance configured with a different key reads such a password as
-  an empty value. Changing the key therefore means changing it on all instances together and re-entering the affected
-  passwords afterwards, which saves them encrypted with the new key.
+  one instance's **Administration** area takes effect everywhere. The secrets in that file are stored as `ENC(...)`,
+  so every instance needs the same `secret.key`: an instance configured with a different key cannot read such a
+  secret. Changing the key therefore means changing it on all instances together and re-entering the affected
+  secrets afterwards, which saves them encrypted with the new key. With SAML, start the instances one at a time after
+  the change: the first one generates the new key pair and saves it, and the next ones read it. Give the identity
+  provider the new service provider metadata once they all have started.
 - **User workspace and project history** — users see the same open projects and history on whichever instance serves
   them.
 - **Locks** — an instance sees projects locked by users on other instances.

@@ -206,7 +206,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         if (propertyInternal != null) {
             var value = propertyInternal.toString();
             value = StringUtils.trimToEmpty(value);
-            return DynamicPropertySource.decode(value);
+            return DynamicPropertySource.decode(name, value);
         }
         return propertyInternal;
     }

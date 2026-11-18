@@ -7,8 +7,11 @@ import java.security.GeneralSecurityException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -31,6 +34,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public static final String OPENL_HOME_SHARED = "openl.home.shared";
 
     private static final String PROP_VERSION = ".version";
+    private static final Set<String> UNDECRYPTABLE = ConcurrentHashMap.newKeySet();
 
     private final FirewallPropertyResolver resolver;
     private final String appName;
@@ -101,7 +105,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             return null;
         }
         property = StringUtils.trimToEmpty(property);
-        return decode(property);
+        return decode(name, property);
     }
 
     private static DynamicPropertySource THE;
@@ -128,7 +132,9 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
      * Stores the given settings, keeping only what differs from the application defaults.
      *
      * <p>A property with a {@code null} value is removed, and settings that leave nothing to store delete the
-     * file. A password is stored encrypted when a secret key is configured.
+     * file. Passwords and the properties {@code secret} reports as secret are stored encrypted when a secret key is
+     * configured, except the secret key itself under either of its names; a value that cannot be encrypted fails the
+     * save, and nothing is stored.
      *
      * <p>The stored file stays newer than what this source has read, so the running application meets it as a
      * change on its next {@link #reloadIfModified()} and reloads its configuration. A caller that stores
@@ -136,8 +142,9 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
      * itself right after, otherwise its own write is taken for a change someone made.
      *
      * @param config settings to store, a {@code null} value removing the property
+     * @param secret tells the properties whose values are secret
      */
-    public synchronized void save(Map<String, String> config) throws IOException {
+    public synchronized void save(Map<String, String> config, Predicate<String> secret) throws IOException {
         final var properties = new TreeMap<>(settings.get());
         for (Map.Entry<String, String> pair : config.entrySet()) {
             var propertyName = pair.getKey();
@@ -145,12 +152,12 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             if (value == null) {
                 properties.remove(propertyName);
             } else {
-                if (propertyName.endsWith("password")) {
+                if ((propertyName.endsWith("password") || secret.test(propertyName))
+                        && !"secret.key".equals(propertyName) && !"repository.encode.decode.key".equals(propertyName)) {
                     try {
                         value = encodePassword(value);
-                    } catch (Exception e) {
-                        ConfigLog.LOG.error("Error when setting password property: {}", propertyName, e);
-                        continue;
+                    } catch (GeneralSecurityException e) {
+                        throw new IOException("The setting '" + propertyName + "' cannot be encrypted.", e);
                     }
                 }
                 properties.put(propertyName, value);
@@ -207,18 +214,26 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         PropertiesUtils.store(settingsFile.toPath(), properties.entrySet());
     }
 
-    static String decode(String value) {
-        if (value != null && value.startsWith("ENC(") && value.endsWith(")")) {
-            try {
-                return PassCoder.decode(value.substring(4, value.length() - 1),
-                        DynamicPropertySource.get().getSecretKey(),
-                        DynamicPropertySource.get().getCipher());
-            } catch (Exception e) {
-                return "";
-            }
-        } else {
+    static String decode(String name, String value) {
+        if (value == null || !value.startsWith("ENC(") || !value.endsWith(")")) {
             return value;
         }
+        try {
+            var source = DynamicPropertySource.get();
+            var secretKey = source.getSecretKey();
+            return secretKey == null
+                    ? undecryptable(name)
+                    : PassCoder.decode(value.substring(4, value.length() - 1), secretKey, source.getCipher());
+        } catch (Exception e) {
+            return undecryptable(name);
+        }
+    }
+
+    private static String undecryptable(String name) {
+        if (UNDECRYPTABLE.add(name)) {
+            ConfigLog.LOG.warn("!     Cannot decrypt '{}' with the current secret.key, so it is read as empty.", name);
+        }
+        return "";
     }
 
     public Map<String, String> getProperties() {

@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web;
 
+import java.io.IOException;
+import java.util.Map;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -7,6 +10,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
 import org.openl.spring.env.DisablePropertySource;
+import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.settings.converter.SecretSettings;
 import org.openl.util.StringUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -33,6 +38,10 @@ public final class Props {
 
     public static void setEnvironment(Environment environment) {
         env = environment;
+    }
+
+    public static void save(Map<String, String> settings) throws IOException {
+        DynamicPropertySource.get().save(settings, SecretSettings::isSecret);
     }
 
     public static boolean isDisabled(String name) {

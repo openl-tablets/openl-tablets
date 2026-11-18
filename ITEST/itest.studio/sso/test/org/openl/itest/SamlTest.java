@@ -57,7 +57,7 @@ class SamlTest extends AbstractKeycloakTest {
         }
     }
 
-    private void initStudio(HttpClient httpClient, String authServerUrl) {
+    static void initStudio(HttpClient httpClient, String authServerUrl) {
         var samlConfig = (ObjectNode) httpClient.readTree("test-resources-saml/set-authentication-template.json");
         samlConfig.put("metadataUrl", authServerUrl + "/realms/openlstudio/protocol/saml/descriptor");
         samlConfig.put("entityId", ENTITY_ID);

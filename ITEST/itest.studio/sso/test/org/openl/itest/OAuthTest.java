@@ -33,7 +33,7 @@ import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 class OAuthTest extends AbstractKeycloakTest {
 
     private static final String CLIENT_ID = "openlstudio";
-    private static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
+    static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
     private static final String AUDIT_ANALYST = "audit_analyst";
     private static final String AUDIT_ANALYSTS_GROUP = "audit-analysts";
 
@@ -200,7 +200,7 @@ class OAuthTest extends AbstractKeycloakTest {
         return tokens;
     }
 
-    private void initStudio(org.openl.itest.core.HttpClient httpClient, String authServerUrl) {
+    static void initStudio(org.openl.itest.core.HttpClient httpClient, String authServerUrl) {
         var oauth2Config = (ObjectNode) httpClient.readTree("test-resources-oauth2/set-authentication-template.json");
         oauth2Config.put("issuerUri", authServerUrl + "/realms/openlstudio");
         oauth2Config.put("clientSecret", CLIENT_SECRET);
