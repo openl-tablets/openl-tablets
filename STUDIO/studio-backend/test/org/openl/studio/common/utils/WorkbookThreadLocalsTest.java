@@ -10,13 +10,15 @@ import org.junit.jupiter.api.Test;
 class WorkbookThreadLocalsTest {
 
     @Test
-    void requestEndClearsPoiAlsoWhenACleanerIsRegisteredMeanwhile() {
-        try (var poi = mockStatic(ThreadLocalUtil.class)) {
+    void requestEndClearsPoiAndXmlBeansAlsoWhenACleanerIsRegisteredMeanwhile() {
+        try (var poi = mockStatic(ThreadLocalUtil.class);
+             var xmlBeans = mockStatic(org.apache.xmlbeans.ThreadLocalUtil.class)) {
             poi.when(ThreadLocalUtil::clearAllThreadLocals).thenThrow(ConcurrentModificationException.class);
 
             new WorkbookThreadLocals().requestDestroyed(null);
 
             poi.verify(ThreadLocalUtil::clearAllThreadLocals);
+            xmlBeans.verify(org.apache.xmlbeans.ThreadLocalUtil::clearAllThreadLocals);
         }
     }
 }
