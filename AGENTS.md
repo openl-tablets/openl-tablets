@@ -93,6 +93,10 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
   the reactor; openl-maven-plugin still builds with its tests skipped. `-Pitest` re-adds the dropped
   modules
+- **Quick Build legs** — `.github/workflows/build-quick.yml` runs the unit tests in the legs of its `tests`
+  matrix, against the artifacts of its `build` job. Give a new module with a `src` or `test` folder exactly one
+  leg there; the `build` job fails while such a module is in none or in two. A new ITEST suite takes an `itest` leg
+  instead (see `ITEST/AGENTS.md`), and openl-maven-plugin, studio-ui and studio-mcp are tested by jobs of their own
 - **`-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.lint.skip`, `-Dnpm.build.skip`** — leave out one studio-ui
   step at a time: the vitest suite, the `tsc --noEmit` pass, the ESLint pass, the production bundle. studio-mcp
   honours the first and the last. `-DskipTests` already implies the first
