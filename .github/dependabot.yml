@@ -12,6 +12,10 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "software.amazon.*"
         update-types: ["version-update:semver-patch"]
+      # The oldest Maven which the OpenL Maven Plugin supports, see maven.api.version in pom.xml
+      - dependency-name: "org.apache.maven:maven-core"
+      - dependency-name: "org.apache.maven:maven-plugin-api"
+      - dependency-name: "org.apache.maven:apache-maven"
 
   - package-ecosystem: "github-actions"
     directory: "/"

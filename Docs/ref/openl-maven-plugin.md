@@ -1,6 +1,6 @@
 # OpenL Tablets — OpenL Maven Plugin (`openl-maven-plugin`)
 
-Integrates OpenL rules compilation into the Maven lifecycle.
+Integrates OpenL rules compilation into the Maven lifecycle. Runs on Java 21 and Maven 3.8.8 or later.
 
 ```xml
 <!-- inside the project's pom.xml -->
