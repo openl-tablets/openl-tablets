@@ -5,13 +5,14 @@
 # The work is split into parallel jobs:
 #   build    - compiles everything without tests (-T1C), assembles demo.zip and shares the artifacts via ~/.m2;
 #              fails first when an ITEST suite is in no leg of the 'itest' matrix
-#   itest    - a matrix of integration-test jobs (the ITEST suites, the openl-maven-plugin invoker
-#              tests with the archetypes) running against the artifacts from 'build'
+#   itest    - a matrix of integration-test jobs of the ITEST suites running against the artifacts from 'build'
+#   maven-plugin - a matrix of the openl-maven-plugin invoker tests in two sets, on the Maven of the runner,
+#              on Maven 3.9.9 and on Maven 3.8.8, the oldest one the plugin supports, and of the archetype tests
 #   demo     - a matrix that starts demo.zip on Linux, Windows and macOS and checks its endpoints
 #   tests    - the whole build with unit tests but without integration tests, in parallel with the 'build' track
 #   frontend - the vitest suites of studio-ui and studio-mcp, in parallel with the 'tests' track
-#   sonar    - waits for 'tests', 'itest' and 'frontend', combines their coverage into one JaCoCo
-#              report and runs the SonarCloud analysis
+#   sonar    - waits for 'tests', 'itest', 'maven-plugin' and 'frontend', combines their coverage into one
+#              JaCoCo report and runs the SonarCloud analysis
 #
 # The studio-ui suite runs in a job of its own because it dominated 'tests': vitest took some 11 of that
 # job's 19 minutes while sharing four cores with the -T1C reactor, and the whole Java side fitted inside
@@ -19,13 +20,13 @@
 # 'frontend' (-Dnpm.test.skip=true), which runs it alone on its own runner. The flag skips the studio-mcp
 # suite too, so 'frontend' runs that one as well.
 #
-# Coverage: 'tests', 'frontend' and every 'itest' leg upload what they measured - target/*.exec from the
-# JaCoCo agent (-Psonar), lcov.info from vitest - and 'tests' and the 'itest' legs add the class files
-# they compiled. The 'sonar' job downloads everything into the same workspace locations, so it builds
-# nothing: the JaCoCo command-line tool folds all execution data onto the production classes (same
-# commit, same JDK - the class ids match), and the Sonar analysis reads the same classes. Recompiling
-# the whole reactor there instead took ~10 of that job's ~17 minutes, all of them after the last 'itest'
-# leg had finished.
+# Coverage: 'tests', 'frontend' and every 'itest' and 'maven-plugin' leg upload what they measured -
+# target/*.exec from the JaCoCo agent (-Psonar), lcov.info from vitest - and 'tests' and the other legs
+# add the class files they compiled. The 'sonar' job downloads everything into the same workspace
+# locations, so it builds nothing: the JaCoCo command-line tool folds all execution data onto the
+# production classes (same commit, same JDK - the class ids match), and the Sonar analysis reads the same
+# classes. Recompiling the whole reactor there instead took ~10 of that job's ~17 minutes, all of them
+# after the last integration-test leg had finished.
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Quick Build
@@ -284,13 +285,11 @@ jobs:
       fail-fast: false
       # Rebalance the legs from the job timings when they drift apart. The slowest leg ends the itest
       # track, which 'sonar' waits for together with 'tests'. The modules that cannot be split set the
-      # floor - openl-maven-plugin ~5.4 minutes, studio repos ~5.2, studio acl ~5.2 - so each of them
+      # floor - studio repos ~5.2, studio acl ~5.2 - so each of them
       # has a leg of its own, and the other suites are packed to stay below it: multi ~1.8, simple ~1.3
       # with five studio suites under 0.6 each; the services legs under 2.6. sso ~4.3 and mcp ~0.8 have
       # legs of their own too: Maven stops a leg at its first failing suite, skipping the rest.
       # Every ITEST leg adds ~1 minute of its own: the runner setup and the ITEST/server-core harness.
-      # The maven-plugin leg runs 'install': the archetype integration tests build a generated
-      # project in a forked Maven, which resolves openl-maven-plugin from ~/.m2.
       matrix:
         include:
           - name: studio-acl
@@ -309,11 +308,6 @@ jobs:
             modules: ITEST/server-core,ITEST/itest.smoke,ITEST/itest.security,ITEST/itest.healthchecks,ITEST/itest.deployment-filter,ITEST/itest.unpackClasspathJar,ITEST/itest.unpackClasspathZip,ITEST/itest.ws-rest-rules-deploy,ITEST/itest.local-zip-repository,ITEST/itest.spring-boot,ITEST/itest.spring-boot/spring-boot-app,ITEST/itest.spring-boot/spring-boot-web-app,ITEST/itest.spring-boot/openl-rules
           - name: services-data
             modules: ITEST/server-core,ITEST/itest.kafka.smoke,ITEST/itest.tracing,ITEST/itest.storelogdata,ITEST/itest.s3
-          - name: maven-plugin
-            modules: Util/openl-maven-plugin,Util/openl-simple-project-archetype,Util/openl-project-archetype
-            goal: install
-            # The default invoker parallelism 0.4C truncates to a single thread on a 4-core runner
-            opts: -Dinvoker.parallelThreads=1C
 
     steps:
 
@@ -339,12 +333,11 @@ jobs:
           path: ~/.m2/repository/org/openl/
 
       - name: Run integration tests
-        run: mvn -B "-Dstyle.color=always" ${{ matrix.goal || 'verify' }} ${{ matrix.opts }} -Psonar -nsu -pl "${{ matrix.modules }}"
+        run: mvn -B "-Dstyle.color=always" verify -Psonar -nsu -pl "${{ matrix.modules }}"
 
         # The root pom.xml anchors the artifact at the repository root, so every coverage
         # artifact restores to the same workspace locations by a single download step.
-        # The class files are those of the modules this leg compiled - see the tests job. A target
-        # folder nested in another one belongs to a project the invoker or archetype tests generated.
+        # The class files are those of the modules this leg compiled - see the tests job.
       - name: Share coverage data
         uses: actions/upload-artifact@v7
         with:
@@ -354,6 +347,123 @@ jobs:
             ITEST/**/target/*.exec
             ITEST/**/target/classes/**/*.class
             ITEST/**/target/test-classes/**/*.class
+          retention-days: 7
+
+  maven-plugin:
+
+    name: ${{ matrix.name }}
+
+    needs: build
+
+    # Do not start the legs when the artifacts failed to build
+    if: success()
+
+    runs-on: ubuntu-latest
+
+    # The invoker tests of openl-maven-plugin run in two sets: FIRST_SET lists the cases of set 1, and set 2
+    # runs all the others, so a new case lands there by itself. Both sets run the setup cases (_*) first.
+    # The sets are balanced by the times of the cases on the runner, some 400 seconds each.
+    # The runner's Maven builds the plugin in every leg - the OpenL build needs Maven 3.9 - and the invoker
+    # runs the cases on the Maven of the leg: the runner's one, 3.9.9, or 3.8.8, the oldest Maven the plugin
+    # supports (maven.api.version in pom.xml). Every leg runs the unit tests of the plugin too.
+    # The archetype tests build a generated project in a forked Maven, which resolves openl-maven-plugin
+    # of the 'build' job from ~/.m2, so they have a leg of their own.
+    # A leg is named by its Maven and its set, short enough for the checks list of a pull request; its id
+    # names the coverage artifact.
+    env:
+      FIRST_SET: openl-tests-big-testsuite,openl-positive,openl-multiproject,openl-cross-project-dependencies,openl-negative,openl-verify-groovy,openl-migrate,openl-recompile-without-clean
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Maven default set 1
+            id: maven-default-set-1
+            set: 1
+          - name: Maven default set 2
+            id: maven-default-set-2
+            set: 2
+          - name: Maven 3.9.9 set 1
+            id: maven-3.9.9-set-1
+            set: 1
+            maven: 3.9.9
+          - name: Maven 3.9.9 set 2
+            id: maven-3.9.9-set-2
+            set: 2
+            maven: 3.9.9
+          - name: Maven 3.8.8 set 1
+            id: maven-3.8.8-set-1
+            set: 1
+            maven: 3.8.8
+          - name: Maven 3.8.8 set 2
+            id: maven-3.8.8-set-2
+            set: 2
+            maven: 3.8.8
+          - name: Maven archetypes
+            id: maven-archetypes
+            modules: Util/openl-simple-project-archetype,Util/openl-project-archetype
+
+    steps:
+
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          cache: 'maven'
+
+      - name: Download OpenL artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: openl-artifacts
+          path: ~/.m2/repository/org/openl/
+
+      - name: Setup Maven ${{ matrix.maven }} for the invoker
+        if: matrix.maven
+        run: >
+          mvn -B -N dependency:unpack "-Dartifact=org.apache.maven:apache-maven:${{ matrix.maven }}:zip:bin"
+          "-DoutputDirectory=$RUNNER_TEMP"
+
+        # The default invoker parallelism 0.4C truncates to a single thread on a 4-core runner
+      - name: Run tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(-pl "${{ matrix.modules || 'Util/openl-maven-plugin' }}" -Dinvoker.parallelThreads=1C)
+          # The patterns name the pom.xml of a case, so a file next to the case folders is never taken for one
+          case "${{ matrix.set }}" in
+            1) args+=("-Dinvoker.test=_*/pom.xml,${FIRST_SET//,//pom.xml,}/pom.xml") ;;
+            2) args+=("-Dinvoker.test=*/pom.xml,!${FIRST_SET//,//pom.xml,!}/pom.xml") ;;
+            *) ;; # the archetype tests
+          esac
+          if [ -n "${{ matrix.maven }}" ]; then
+            args+=("-Dinvoker.mavenHome=$RUNNER_TEMP/apache-maven-${{ matrix.maven }}")
+          fi
+          mvn -B "-Dstyle.color=always" verify -Psonar -nsu "${args[@]}"
+
+        # The plugin legs write the same target/*.exec files, so each leg names them after itself before
+        # they merge in the 'sonar' job. The class files are the same in all legs - see the tests job.
+        # A target folder nested in another one belongs to a project the invoker or archetype tests generated.
+      - name: Name the coverage data after the leg
+        shell: bash
+        run: |
+          shopt -s nullglob
+          for f in Util/*/target/*.exec; do mv "$f" "${f%.exec}-${{ matrix.id }}.exec"; done
+
+      - name: Share coverage data
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-maven-plugin-${{ matrix.id }}
+          path: |
+            pom.xml
             Util/*/target/*.exec
             Util/*/target/classes/**/*.class
             Util/*/target/test-classes/**/*.class
@@ -521,7 +631,7 @@ jobs:
 
     name: Sonar analysis
 
-    needs: [ tests, itest, frontend ]
+    needs: [ tests, itest, maven-plugin, frontend ]
 
     # Runs only when every previous job succeeded, and never for dependabot
     if: success() && github.actor != 'dependabot[bot]'
