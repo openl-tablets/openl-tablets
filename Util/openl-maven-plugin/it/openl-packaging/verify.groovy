@@ -171,7 +171,7 @@ try {
     assert sections['silent-consumer'].any { it.contains("declares empty <publishers/>; skipping the deployment artifact") } :
             "Expected build.log to contain the empty-publishers skip message."
     int silentVerifyStart = lines.findIndexOf {
-        it.contains("openl:") && it.contains(":verify (default-verify) @ silent-consumer")
+        it.contains(":verify (default-verify) @ silent-consumer")
     }
     assert silentVerifyStart != -1 : "Expected the verify goal to fire for silent-consumer."
     // The next non-blank lines after the verify goal banner should be either the next goal or another

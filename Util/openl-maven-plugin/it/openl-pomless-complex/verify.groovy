@@ -156,7 +156,8 @@ try {
     assert !pricingRules.contains('77.77.77'),
             "the 77.77.77 placeholder must be gone from pricing/rules.xml after the reactor sync"
 
-    assert logs =~ /openl:[^:]+:sync-versions \(default-sync-versions\) @ public-api/,
+    // Maven 3.8 names the plugin by its artifactId in a goal header, later versions by its prefix
+    assert logs =~ /openl(-maven-plugin)?:[^:]+:sync-versions \(default-sync-versions\) @ public-api/,
             "openl:sync-versions must run on public-api (validate phase)"
     assert logs =~ /Synced 1 <mavenArtifact> version\(s\) in .*public-api.*rules\.xml/,
             "sync-versions must log the single public-api rewrite"
@@ -298,7 +299,7 @@ try {
     }
 
     // BOM goal must have actually run on the anchor — log evidence.
-    assert logs =~ /openl:[^:]+:prepare-bom \(default-prepare-bom\) @ openl-pomless-complex/,
+    assert logs =~ /openl(-maven-plugin)?:[^:]+:prepare-bom \(default-prepare-bom\) @ openl-pomless-complex/,
             "openl:prepare-bom must run on the anchor"
     assert logs.contains("Attached deployment BOM (6 OpenL projects)"),
             "log must announce the deployment BOM with the discovered project count"
@@ -307,11 +308,11 @@ try {
     // 5. openl:compile and openl:package executed per pom-less project.
     // ---------------------------------------------------------------------------------------
     projects.each { name, _info ->
-        assert logs =~ /openl:[^:]+:compile \(default-compile\) @ ${java.util.regex.Pattern.quote(name)}/,
+        assert logs =~ /openl(-maven-plugin)?:[^:]+:compile \(default-compile\) @ ${java.util.regex.Pattern.quote(name)}/,
                 "openl:compile did not run for '${name}'"
-        assert logs =~ /openl:[^:]+:package \(default-package\) @ ${java.util.regex.Pattern.quote(name)}/,
+        assert logs =~ /openl(-maven-plugin)?:[^:]+:package \(default-package\) @ ${java.util.regex.Pattern.quote(name)}/,
                 "openl:package did not run for '${name}'"
-        assert logs =~ /openl:[^:]+:prepare-pom \(default-prepare-pom\) @ ${java.util.regex.Pattern.quote(name)}/,
+        assert logs =~ /openl(-maven-plugin)?:[^:]+:prepare-pom \(default-prepare-pom\) @ ${java.util.regex.Pattern.quote(name)}/,
                 "openl:prepare-pom did not run for '${name}'"
     }
 

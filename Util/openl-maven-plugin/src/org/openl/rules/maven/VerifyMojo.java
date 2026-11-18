@@ -88,7 +88,9 @@ public class VerifyMojo extends BaseOpenLMojo {
         // Route log4j-api users (Apache POI) into the Maven slf4j logger instead of the silent log4j fallback.
         openlJars.putAll(getJars("org.apache.logging.log4j:log4j-to-slf4j"));
 
-        try (var world = new ClassWorld(); var jettyClassLoader = world.newRealm("jetty")) {
+        // Closing the realm releases its jars. ClassWorld has no close() before plexus-classworlds 2.7.0 (Maven 3.8.8).
+        var world = new ClassWorld();
+        try (var jettyClassLoader = world.newRealm("jetty")) {
 
             // JettysourcePathsourcePath Server with annotations
             for (var x : getJars("org.eclipse.jetty.ee10:jetty-ee10-annotations").values()) {

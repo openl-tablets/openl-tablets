@@ -87,6 +87,9 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
   (the slow ITEST suites, the archetypes, openl-maven-plugin); the studio-ui vitest suite still runs
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
+- **`-Dinvoker.mavenHome=<dir>`** — run the openl-maven-plugin invoker tests on another Maven installation; the
+  Quick Build runs them on the default Maven, on 3.9.9 and on 3.8.8, the oldest one the plugin supports
+  (`maven.api.version`)
 - **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
   the reactor; openl-maven-plugin still builds with its tests skipped. `-Pitest` re-adds the dropped
   modules

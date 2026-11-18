@@ -139,6 +139,10 @@
                     <scope>compile</scope>
                     <properties>
                         <maven.compiler.release>21</maven.compiler.release>
+                        <!-- Maven 3.8 compiles with maven-compiler-plugin 3.1, which has no release option. Later
+                             versions ignore these two when the release is set. -->
+                        <maven.compiler.source>21</maven.compiler.source>
+                        <maven.compiler.target>21</maven.compiler.target>
                     </properties>
                     <showErrors>true</showErrors>
                     <!-- `@{jacoco.argLine}` (late-bound by maven-invoker-plugin) rather than `${...}` so the

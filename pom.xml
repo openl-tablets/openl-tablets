@@ -143,7 +143,10 @@
         <slf4j.version>2.0.20</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
-        <maven.api.version>3.10.1</maven.api.version>
+        <!-- The oldest Maven the plugin runs on: it compiles against this API and declares it as the required
+             Maven version. The Quick Build runs its integration tests on this Maven too. Dependabot leaves it
+             alone. -->
+        <maven.api.version>3.8.8</maven.api.version>
         <maven.plugin.version>3.16.0</maven.plugin.version>
         <maven.scm.version>2.2.1</maven.scm.version>
         <plexus-utils.version>4.2.0</plexus-utils.version>
