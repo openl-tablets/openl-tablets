@@ -630,8 +630,9 @@ public class Table implements ITable {
         var pkDescriptor = descriptors.getFirst();
 
         Object[] prevRow = null;
-        var shouldSkipMergingSameValues = !pkDescriptor.isPrimaryKey() && !pkDescriptor
-                .isDeclaredClassSupportMultirow();
+        // a cell under a merged title is an element of its own, even of the same value or key as the cell before
+        var shouldSkipMergingSameValues = givesElementPerCell(descriptors, rowNum, height)
+                || !pkDescriptor.isPrimaryKey() && !pkDescriptor.isDeclaredClassSupportMultirow();
 
         try {
             for (var i = 0; i < rowValues.length; i++) {
@@ -666,8 +667,8 @@ public class Table implements ITable {
         var emptyRows = new boolean[lines];
         Arrays.fill(emptyRows, true);
         for (var descriptor : group.cells()) {
-            var cells = logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height).getSource();
-            for (var i = 0; i < lines; i++) {
+            var cells = linesOf(descriptor, rowNum, height);
+            for (var i = 0; i < Math.min(lines, cells.getHeight()); i++) {
                 if (StringUtils.isNotBlank(cells.getCell(0, i).getStringValue())) {
                     emptyRows[i] = false;
                 }
@@ -677,26 +678,85 @@ public class Table implements ITable {
     }
 
     /**
-     * Parses the values of the descriptors in each row of the literal.
+     * Parses the values of the descriptors in each row of the literal. A column with fewer lines than the others has
+     * no value in the lines after its last one.
      */
     private Object[][] parseRowValues(List<ColumnDescriptor> descriptors,
                                       OpenlToolAdaptor openlAdapter,
                                       int rowNum,
                                       int height) {
-        Object[][] rowValues = null;
+        var lines = descriptors.stream()
+                .map(descriptor -> linesOf(descriptor, rowNum, height))
+                .toList();
+        var lineCount = lines.stream()
+                .mapToInt(IGridTable::getHeight)
+                .max()
+                .orElse(0);
+        var rowValues = new Object[lineCount][descriptors.size()];
         for (var colNum = 0; colNum < descriptors.size(); colNum++) {
-            var descriptor = descriptors.get(colNum);
-            // the lines of the value as the grid has them: the logical table would take a cell merged over the lines
-            // for one line
-            var values = logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height).getSource();
-            if (rowValues == null) {
-                rowValues = new Object[values.getHeight()][descriptors.size()];
-            }
+            var values = lines.get(colNum);
             for (var i = 0; i < values.getHeight(); i++) {
-                rowValues[i][colNum] = lineValue(descriptor, values, i, openlAdapter);
+                rowValues[i][colNum] = lineValue(descriptors.get(colNum), values, i, openlAdapter);
             }
         }
         return rowValues;
+    }
+
+    /**
+     * Returns the values of a column in the lines of an object, one line to a row of the result.
+     *
+     * <p>A column keeps the lines of the sheet. The cells of a line of an array are its elements, and a cell merged
+     * over several lines stays one cell.
+     *
+     * <p>A field of the elements of a list, such as {@code bands.band}, is the exception when the object takes one
+     * line and the title is merged over several cells. Then each cell is a line of its own and gives one element. In a
+     * transposed table these cells are the rows the title is merged over. The other collections of the path are given
+     * by index, such as {@code classes[0].bands.band}; an array field keeps its line.
+     *
+     * <p>A reference to another table gives an element in each cell of an object of one line under a merged title, an
+     * array of references too, as the keys of the references are read.
+     *
+     * @param column the index of the column in the data of the table
+     * @param rowNum the first row of the object in the data of the table
+     * @param height the number of rows the object takes
+     */
+    IGridTable linesOf(int column, int rowNum, int height) {
+        var descriptor = getColumnDescriptor(column);
+        return descriptor == null ? logicalTable.getSubtable(column, rowNum, 1, height).getSource()
+                : linesOf(descriptor, rowNum, height);
+    }
+
+    /** The values of a column with a field in the lines of an object, as {@link #linesOf(int, int, int)} tells. */
+    private IGridTable linesOf(ColumnDescriptor descriptor, int rowNum, int height) {
+        var values = valuesOf(descriptor, rowNum, height);
+        if (descriptor.isReference()) {
+            // the lines a reference reads its keys from, ForeignKeyColumnDescriptor.populateLiteralByForeignKey
+            return LogicalTableHelper.make1ColumnTable(values).getSource();
+        }
+        return isElementPerCell(descriptor, values) ? values.transpose().getSource() : values.getSource();
+    }
+
+    /** Whether a column of an object gives an element in each cell, as {@link #isElementPerCell} tells. */
+    private boolean givesElementPerCell(List<ColumnDescriptor> descriptors, int rowNum, int height) {
+        return descriptors.stream()
+                .anyMatch(descriptor -> isElementPerCell(descriptor, valuesOf(descriptor, rowNum, height)));
+    }
+
+    private ILogicalTable valuesOf(ColumnDescriptor descriptor, int rowNum, int height) {
+        return logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height);
+    }
+
+    /**
+     * Whether each cell of the values of a column in an object gives an element: the column is a field of the elements
+     * of a list, not an array, and the object takes one line under a title merged over several cells. A line is a row
+     * of the sheet, or a column of it in a transposed table; an object of one row of the table that takes two rows of
+     * the sheet gives its elements line by line. A value cell merged over several cells under the title tells no
+     * element apart, so the line stays one value, which is an error for several values.
+     */
+    private static boolean isElementPerCell(ColumnDescriptor descriptor, ILogicalTable values) {
+        var cells = values.getSource();
+        return cells.getHeight() == 1 && values.getWidth() > 1 && values.getWidth() == cells.getWidth()
+                && descriptor.isElementField() && !descriptor.isValuesAnArray();
     }
 
     /**

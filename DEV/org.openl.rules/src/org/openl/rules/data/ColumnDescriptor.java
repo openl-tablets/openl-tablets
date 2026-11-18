@@ -8,6 +8,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +47,15 @@ public class ColumnDescriptor {
     @Getter
     @Setter
     private boolean supportMultirows;
+    /**
+     * Whether the column gives a field of the elements of one collection named without an index, such as
+     * {@code drivers.name} or {@code policy[0].drivers.name}: the lines of a record give the elements.
+     *
+     * <p>Unlike {@link #isSupportMultirows()}, it is not passed on to the columns before such a column. A path with
+     * two collections without an index, such as {@code policies.drivers.name}, gives no such field.
+     */
+    @Getter
+    private final boolean elementField;
 
     /**
      * Flag indicating that current column descriptor is a constructor.<br>
@@ -81,9 +91,12 @@ public class ColumnDescriptor {
         this.columnIdx = columnIdx;
         if (field == null) {
             this.valuesAnArray = false;
+            this.elementField = false;
         } else {
             this.valuesAnArray = isValuesAnArray(field.getType());
-            this.supportMultirows = isSupportMultirows(field);
+            var collectionsWithoutIndex = countCollectionsWithoutIndex(field);
+            this.elementField = collectionsWithoutIndex == 1;
+            this.supportMultirows = collectionsWithoutIndex > 0;
         }
     }
 
@@ -115,16 +128,17 @@ public class ColumnDescriptor {
         return paramType.getAggregateInfo().isAggregate(paramType);
     }
 
-    private static boolean isSupportMultirows(IOpenField field) {
+    /**
+     * Counts the collections of the path of a field named without an index, such as {@code drivers} in
+     * {@code drivers.name}.
+     */
+    private static long countCollectionsWithoutIndex(IOpenField field) {
         if (field instanceof FieldChain fieldChain) {
-            var fields = fieldChain.getFields();
-            for (IOpenField f : fields) {
-                if (f instanceof CollectionElementWithMultiRowField) {
-                    return true;
-                }
-            }
+            return Arrays.stream(fieldChain.getFields())
+                    .filter(CollectionElementWithMultiRowField.class::isInstance)
+                    .count();
         }
-        return false;
+        return 0;
     }
 
     public ColumnGroupKey buildGroupKey() {

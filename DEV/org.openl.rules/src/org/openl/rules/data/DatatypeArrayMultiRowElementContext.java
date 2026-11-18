@@ -48,7 +48,8 @@ public class DatatypeArrayMultiRowElementContext {
      * Returns the index of the collection element that the current row defines.
      *
      * <p>A row continues the element of the previous row when its values are the same. Otherwise, it defines the
-     * next element of the same collection.
+     * next element of the same collection. A row that set nothing in the collection, such as a blank cell of
+     * references, is passed over: the next row is compared with the row before it.
      *
      * <p>Rows without values before the first element of a collection define no element. The first row with values
      * defines the first element, so the collection does not start with an empty element. After the first element, an
@@ -61,7 +62,7 @@ public class DatatypeArrayMultiRowElementContext {
         var elements = arrayIndexes.computeIfAbsent(array, k -> new HashMap<>());
         var element = elements.get(row);
         if (element == null) {
-            var prev = row > 0 ? elements.get(row - 1) : null;
+            var prev = previousOf(elements);
             var defined = !rowValueIsEmpty;
             if (prev == null || prev.target() != target) {
                 element = new Element(0, target, defined);
@@ -90,6 +91,17 @@ public class DatatypeArrayMultiRowElementContext {
             indexes.put(array, lines);
         });
         return indexes;
+    }
+
+    /** The element of the closest row before the current one that asked for an element of the collection. */
+    private @Nullable Element previousOf(Map<Integer, Element> elements) {
+        for (var line = row - 1; line >= 0; line--) {
+            var element = elements.get(line);
+            if (element != null) {
+                return element;
+            }
+        }
+        return null;
     }
 
     private static boolean isBeforeFirstElement(Element element) {
