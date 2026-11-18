@@ -69,7 +69,8 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
                     .build();
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
         } catch (Exception e) {
-            log.error("", e);
+            log.error("The SAML sign-in cannot be set up: the key pair of the service provider or the metadata of the"
+                    + " identity provider cannot be read.", e);
         }
     }
 

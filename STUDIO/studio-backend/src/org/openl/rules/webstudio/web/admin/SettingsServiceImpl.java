@@ -21,7 +21,6 @@ import org.springframework.validation.annotation.Validated;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.rules.webstudio.web.Props;
-import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.audit.service.SettingsAuditor;
 
 /**
@@ -61,7 +60,7 @@ public class SettingsServiceImpl implements SettingsService {
     public SettingsServiceImpl(InMemoryProperties inMemoryProperties,
                                ConfigurableEnvironment environment,
                                SettingsAuditor auditor) {
-        this(inMemoryProperties, environment, auditor, settings -> DynamicPropertySource.get().save(settings));
+        this(inMemoryProperties, environment, auditor, Props::save);
     }
 
     @Override

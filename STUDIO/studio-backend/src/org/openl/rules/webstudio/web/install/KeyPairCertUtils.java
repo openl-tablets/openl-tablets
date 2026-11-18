@@ -1,9 +1,13 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
+import java.security.cert.CertificateFactory;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.time.Period;
 import java.util.Base64;
@@ -19,6 +23,7 @@ import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Generate KeyPair and X509Certificate.
@@ -81,6 +86,34 @@ public class KeyPairCertUtils {
         } catch (Exception e) {
             log.error("Cannot generate X.509 certificate for the application", e);
             return null;
+        }
+    }
+
+    public static @Nullable Pair<String, String> renewUnreadable(@Nullable String privateKey,
+                                                                @Nullable String certificate) {
+        if (isReadable(privateKey, certificate)) {
+            return null;
+        }
+        if (privateKey != null) {
+            log.warn("The SAML key pair of the service provider is incomplete or cannot be read, for instance after"
+                    + " secret.key has changed or has been removed. A new key pair is generated: give the identity"
+                    + " provider the new metadata of the service provider.");
+        }
+        return generateCertificate();
+    }
+
+    private static boolean isReadable(@Nullable String privateKey, @Nullable String certificate) {
+        if (privateKey == null || privateKey.isBlank() || certificate == null || certificate.isBlank()) {
+            return false;
+        }
+        try {
+            KeyFactory.getInstance("RSA")
+                    .generatePrivate(new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(privateKey)));
+            CertificateFactory.getInstance("X.509")
+                    .generateCertificate(new ByteArrayInputStream(Base64.getMimeDecoder().decode(certificate)));
+            return true;
+        } catch (GeneralSecurityException | IllegalArgumentException e) {
+            return false;
         }
     }
 }

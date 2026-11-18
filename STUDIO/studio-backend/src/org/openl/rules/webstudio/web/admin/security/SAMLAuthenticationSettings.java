@@ -86,12 +86,11 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
         properties.setProperty(FORCE_AUTHN, forceAuthN);
         attributes.store(properties);
 
-        if (properties.getProperty(LOCAL_KEY) == null || properties.getProperty(LOCAL_CERTIFICATE) == null) {
-            var pair = KeyPairCertUtils.generateCertificate();
-            if (pair != null) {
-                properties.setProperty(LOCAL_KEY, pair.getKey());
-                properties.setProperty(LOCAL_CERTIFICATE, pair.getValue());
-            }
+        var pair = KeyPairCertUtils.renewUnreadable(properties.getProperty(LOCAL_KEY),
+                properties.getProperty(LOCAL_CERTIFICATE));
+        if (pair != null) {
+            properties.setProperty(LOCAL_KEY, pair.getKey());
+            properties.setProperty(LOCAL_CERTIFICATE, pair.getValue());
         }
     }
 

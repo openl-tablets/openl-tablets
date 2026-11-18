@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 
@@ -42,6 +41,7 @@ import org.openl.rules.workspace.RepositorySettingNames;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.settings.converter.SecretSettings;
 import org.openl.util.FileUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
@@ -117,22 +117,26 @@ public final class Migrator {
         // Due they should be unique and private per installation they cannot be defined in openl-default.properties
         // So it should be executed always there on startup
         // Introduced in 5.26
-        if ("saml".equals(Props.text("user.mode")) && (Props.text("security.saml.local-key") == null
-                || Props.text("security.saml.local-certificate") == null)) {
-            Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
-            if (pair != null) {
-                props.put("security.saml.local-key", pair.getKey());
-                props.put("security.saml.local-certificate", pair.getValue());
-            }
-        }
+        generateSamlKeyPair(props);
 
         try {
-            settings.save(props);
+            Props.save(props);
             settings.reloadIfModified();
         } catch (IOException e) {
             log.error("Migration of properties failed.", e);
         }
         return stringFromVersion;
+    }
+
+    static void generateSamlKeyPair(Map<String, String> props) {
+        if ("saml".equals(Props.text("user.mode"))) {
+            var pair = KeyPairCertUtils.renewUnreadable(Props.text("security.saml.local-key"),
+                    Props.text("security.saml.local-certificate"));
+            if (pair != null) {
+                props.put("security.saml.local-key", pair.getKey());
+                props.put("security.saml.local-certificate", pair.getValue());
+            }
+        }
     }
 
     /**
@@ -324,6 +328,17 @@ public final class Migrator {
                 .filter(StringUtils::isNotEmpty)
                 .toList();
         props.putAll(commentSettingsTo710(settings.getPropertyNames(), designRepositories, Props::text));
+        plainSecretsTo710(settings.getProperties(), props);
+    }
+
+    static void plainSecretsTo710(Map<String, String> stored, Map<String, String> props) {
+        stored.forEach((property, value) -> {
+            var trimmed = value.trim();
+            if (SecretSettings.isSecret(property) && !props.containsKey(property)
+                    && !(trimmed.startsWith("ENC(") && trimmed.endsWith(")"))) {
+                props.put(property, value);
+            }
+        });
     }
 
     /**

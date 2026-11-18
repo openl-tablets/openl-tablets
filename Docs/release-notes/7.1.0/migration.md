@@ -6,8 +6,9 @@ Upgrading to OpenL Tablets 7.1.0 requires no database changes and no Java versio
 suggests when a project is saved, created, copied or restored are no longer configured per design repository, and the
 **Customize comments** check box is gone: a comment is validated whenever the repository sets a pattern. This affects
 the administrators who configured comments and the clients of the repository settings API. Several fixes of the rules
-engine change how an existing project compiles or runs, as listed for the rules authors. In OpenL Rule Services, the
-store log data advices of a service method also run when an interceptor of the method fails, and a service takes the
+engine change how an existing project compiles or runs, as listed for the rules authors. With `secret.key` set,
+OpenL Studio stores all its secrets encrypted, as listed for the administrators. In OpenL Rule Services, the store
+log data advices of a service method also run when an interceptor of the method fails, and a service takes the
 Spring configuration of its own project only, as listed for the developers.
 
 ## Rules Authors
@@ -80,6 +81,18 @@ Spring configuration of its own project only, as listed for the developers.
   expected values of the tests that were set on the copied element.
 
 ## Administrators
+
+* **All secrets are stored encrypted.** With `secret.key` set, the client secret of OAuth2, the access and secret keys
+  of an AWS S3 repository, the account key of an Azure Blob Storage repository and the private key OpenL Studio
+  generates for SAML are stored as `ENC(...)` in the settings file, as the passwords already were. At the first start
+  after the upgrade, when `secret.key` is set, OpenL Studio encrypts the ones an earlier version stored in plain text;
+  any other secret stored in plain text stays so until its value is changed. Such a secret can be read only with the
+  same `secret.key`: after the key changes or is removed, OpenL Studio logs a warning and reads the secret as empty, so
+  the connection fails until the secret is entered again; OpenL Rule Services reads an `ENC(...)` value of
+  `application.properties` the same way. The SAML key pair is generated anew instead, with a warning, and the identity
+  provider needs the new service provider metadata; in a cluster, start the instances one at a time after changing the
+  key. See
+  [Encrypting Passwords](https://openl-tablets.github.io/openl-tablets/user-guides/installation-guide/configuration#encrypting-passwords).
 
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
   **Restore from old version** fields leave the **Comments** section of a design repository, and these settings are

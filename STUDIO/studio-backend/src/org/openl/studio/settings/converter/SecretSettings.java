@@ -15,8 +15,11 @@ import lombok.NoArgsConstructor;
  * prefix (see {@link SettingDeclarations}).
  *
  * <p>A property is taken for secret by its name as well, whether a model declares it or not: when the last part of
- * the name holds {@code password} or {@code secret}, or ends with {@code key}. A secret value is never shown, so
- * taking one setting too many for secret costs nothing.
+ * the name holds {@code password} or {@code secret}, or ends with {@code key}.
+ *
+ * <p>A secret value is never shown, and with {@code secret.key} set it is stored encrypted, so it cannot be read once
+ * {@code secret.key} changes. A new setting this naming rule matches is stored encrypted too: give it such a name
+ * only when its value is a secret.
  *
  * <p>The value of an ordinary setting may still hold credentials, such as an address with a user and a token in it:
  * {@link #masked(String)} hides them.
