@@ -25,9 +25,9 @@ wins.
 ### Prerequisites
 
 - **JDK 21+** (Java Development Kit)
-- **Maven**
+- **Maven 3.8.8+**
 - **Docker** — for `docker compose` and the TestContainers-based tests
-- **Node.js and npm** — only to run the frontend tooling directly in `STUDIO/studio-ui`; the Maven build downloads
+- **Node.js 24 and npm** — only to run the frontend tooling directly in `STUDIO/studio-ui`; the Maven build downloads
   its own copy
 
 ### Build and Run
@@ -44,7 +44,7 @@ mvn clean install -DskipTests -T1C
 docker compose up --build
 ```
 
-The Maven build must run first: `docker compose` runs no Maven, it builds the images from the build output in
+The  build must run first: `docker compose` runs no , it builds the images from the build output in
 `STUDIO/studio-backend/target/webapp` and `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`.
 
 `docker compose up --build` starts:
@@ -214,7 +214,7 @@ Follow [.editorconfig](.editorconfig):
 
 ### Unit Tests
 
-- Write JUnit 5 tests for all new functionality; test classes and test methods are package-private
+- Write JUnit 6 tests for all new functionality; test classes and test methods are package-private
 - Keep at least 80% line coverage on new or changed Java code
 - Test both success and failure scenarios
 - Use meaningful test method names
