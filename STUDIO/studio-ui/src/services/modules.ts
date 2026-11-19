@@ -1,6 +1,19 @@
 import type { ModuleTable, RawTableView, RawTableViewData } from 'types/tables'
-import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
+import apiCall, { asArray, hasErrorCode, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { expandRawTable } from './rawTables'
+
+/*
+ * A 404 to a request for a module or a table names in its code what was not found. Only the codes below say the
+ * module or the table is missing; a 404 for the project itself, or for its descriptor, says nothing about them.
+ */
+
+/** Whether a request failed because the project has no module of the name it was asked for. */
+export const isModuleNotFound = (error: unknown): boolean =>
+    hasErrorCode(error, 'openl.error.404.project.module.identifier.message')
+
+/** Whether a request failed because the project, or the module it was asked through, holds no such table. */
+export const isTableNotFound = (error: unknown): boolean =>
+    hasErrorCode(error, 'openl.error.404.table.message', 'openl.error.404.table.in.module.message')
 
 const moduleUrl = (projectId: string, moduleName: string): string =>
     `/projects/${projectId}/modules/${encodeURIComponent(moduleName)}`

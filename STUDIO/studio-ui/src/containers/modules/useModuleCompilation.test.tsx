@@ -1,7 +1,7 @@
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
-import { NotFoundError } from '../../services/apiCall'
+import { moduleNotFound } from '../../testing/errors'
 import { startModuleCompilation } from '../../services/modules'
 import { useModuleCompilation } from './useModuleCompilation'
 
@@ -11,7 +11,10 @@ vi.mock('../../services/projectStatus', async importOriginal => ({
     subscribeProjectStatus: vi.fn(),
 }))
 
-vi.mock('../../services/modules', () => ({ startModuleCompilation: vi.fn() }))
+vi.mock('../../services/modules', async importOriginal => ({
+    isModuleNotFound: (await importOriginal<typeof import('../../services/modules')>()).isModuleNotFound,
+    startModuleCompilation: vi.fn(),
+}))
 
 const compiling = (compiled: number, total: number, ...names: string[]): ProjectStatusUpdate => ({
     projectId: 'p1',
@@ -240,7 +243,7 @@ describe('useModuleCompilation', () => {
     })
 
     it.each([
-        ['is gone when the project has no such module', new NotFoundError('The module is not found in the project.'), true],
+        ['is gone when the project has no such module', moduleNotFound(), true],
         ['is not gone when the compilation fails for another reason', new Error('no such module'), false],
     ])('%s', async (_case, refusal, gone) => {
         captureUpdates()
@@ -272,7 +275,7 @@ describe('useModuleCompilation', () => {
         }), { initialProps: { module: 'Claims' } })
         rerender({ module: 'Policy' })
         await waitFor(() => expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Policy', false))
-        await act(async () => refuse(new NotFoundError('The module is not found in the project.')))
+        await act(async () => refuse(moduleNotFound()))
 
         // The module now open is not the one the server could not find.
         expect(result.current.gone).toBe(false)

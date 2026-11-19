@@ -10,6 +10,7 @@ import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEd
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
 import { renderInTheme, tokenFor } from '../testing/theme'
+import { moduleNotFound, projectNotFound, tableNotFound } from '../testing/errors'
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { App as AntApp, ConfigProvider } from 'antd'
 
@@ -69,15 +70,20 @@ vi.mock('../services/repositories', () => ({
 }))
 
 
-vi.mock('../services/modules', () => ({
-    cancelModuleCompilation: vi.fn(),
-    getMessageStacktrace: vi.fn(),
-    getModuleTables: vi.fn(),
-    getRawTable: vi.fn(),
-    listModules: vi.fn(),
-    stopEditingTable: vi.fn(),
-    TABLE_PAGE_ROWS: 2000,
-}))
+vi.mock('../services/modules', async importOriginal => {
+    const { isModuleNotFound, isTableNotFound } = await importOriginal<typeof import('../services/modules')>()
+    return {
+        isModuleNotFound,
+        isTableNotFound,
+        cancelModuleCompilation: vi.fn(),
+        getMessageStacktrace: vi.fn(),
+        getModuleTables: vi.fn(),
+        getRawTable: vi.fn(),
+        listModules: vi.fn(),
+        stopEditingTable: vi.fn(),
+        TABLE_PAGE_ROWS: 2000,
+    }
+})
 
 // The compilation is followed on the status channel, which this screen is not the place to test: the module is
 // compiled exactly when the project is open.
@@ -305,7 +311,7 @@ describe('ModuleWorkspace', () => {
     it('goes to the project, saying why, when the project no longer has the module', async () => {
         workspace.opened = true
         // A sync with another branch took the module away while it was open.
-        vi.mocked(getModuleTables).mockRejectedValue(new NotFoundError('The module is not found in the project.'))
+        vi.mocked(getModuleTables).mockRejectedValue(moduleNotFound())
         render(<AntApp><ModuleWorkspace /></AntApp>)
 
         await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/p1', { replace: true }))
@@ -313,6 +319,18 @@ describe('ModuleWorkspace', () => {
         // No dead end: the screen does not settle on the failure.
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
     })
+
+    it('says what failed, and stays, when the read of the tables finds the project rather than the module gone',
+        async () => {
+            workspace.opened = true
+            // The descriptor of the project could not be resolved: the module may well be there.
+            vi.mocked(getModuleTables).mockRejectedValue(projectNotFound())
+            render(<AntApp><ModuleWorkspace /></AntApp>)
+
+            expect(await screen.findByTestId('module-workspace-error')).toHaveTextContent(projectNotFound().message)
+            expect(navigateMock).not.toHaveBeenCalledWith('/projects/p1', { replace: true })
+            expect(screen.queryByText('browser.module.gone')).toBeNull()
+        })
 
     it('stays on the module open now when the read of the module left behind finds that one gone', async () => {
         workspace.opened = true
@@ -324,7 +342,7 @@ describe('ModuleWorkspace', () => {
         routeParams.moduleName = 'Car Rating'
         rerender(<AntApp><ModuleWorkspace /></AntApp>)
         await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Car Rating', expect.anything()))
-        await act(async () => refuse(new NotFoundError('The module is not found in the project.')))
+        await act(async () => refuse(moduleNotFound()))
 
         expect(navigateMock).not.toHaveBeenCalledWith('/projects/p1', { replace: true })
         expect(screen.queryByText('browser.module.gone')).toBeNull()
@@ -334,7 +352,7 @@ describe('ModuleWorkspace', () => {
         workspace.opened = true
         // Compiling the module finds it gone, and so does the read of its tables.
         workspace.gone = true
-        vi.mocked(getModuleTables).mockRejectedValue(new NotFoundError('The module is not found in the project.'))
+        vi.mocked(getModuleTables).mockRejectedValue(moduleNotFound())
         render(<AntApp><ModuleWorkspace /></AntApp>)
 
         await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/p1', { replace: true }))
@@ -540,7 +558,7 @@ describe('ModuleWorkspace', () => {
             searchParams.set('table', 't-first')
             rerender(<ModuleWorkspace />)
             await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-first', expect.anything()))
-            vi.mocked(getRawTable).mockRejectedValue(new NotFoundError('The table is not found.'))
+            vi.mocked(getRawTable).mockRejectedValue(tableNotFound())
 
             searchParams.set('table', 't-1')
             rerender(<ModuleWorkspace />)
@@ -729,7 +747,7 @@ describe('ModuleWorkspace', () => {
 
     it('says the module has no table a link names that the whole list does not hold, the utility tables included', async () => {
         workspace.opened = true
-        vi.mocked(getRawTable).mockRejectedValue(new NotFoundError('The table is not found.'))
+        vi.mocked(getRawTable).mockRejectedValue(tableNotFound())
         searchParams.set('table', 't-gone')
         render(<ModuleWorkspace />)
 
@@ -780,22 +798,26 @@ describe('ModuleWorkspace', () => {
         expect(navigateMock).not.toHaveBeenCalled()
     })
 
-    it('tells why a table the list does not name could not be read, rather than calling it missing', async () => {
-        workspace.opened = true
-        vi.mocked(getRawTable).mockRejectedValue(new ApiHttpError(500, 'The module could not be read.'))
-        searchParams.set('table', 't-dispatch')
-        render(<ModuleWorkspace />)
+    it.each([
+        ['the server failed', new ApiHttpError(500, 'The module could not be read.')],
+        ['the project was not resolved', projectNotFound()],
+    ])('tells why a table the list does not name could not be read when %s, rather than calling it missing',
+        async (_case, refusal) => {
+            workspace.opened = true
+            vi.mocked(getRawTable).mockRejectedValue(refusal)
+            searchParams.set('table', 't-dispatch')
+            render(<ModuleWorkspace />)
 
-        // The server failed: the table may well be there, so the reader is told what went wrong.
-        expect(await screen.findByText('The module could not be read.')).toBeInTheDocument()
-        expect(screen.getByText('browser.module.table_load_failed')).toBeInTheDocument()
-        expect(screen.queryByTestId('module-table-missing')).toBeNull()
-    })
+            // The table may well be there, so the reader is told what went wrong.
+            expect(await screen.findByText(refusal.message)).toBeInTheDocument()
+            expect(screen.getByText('browser.module.table_load_failed')).toBeInTheDocument()
+            expect(screen.queryByTestId('module-table-missing')).toBeNull()
+        })
 
     it('shows a table the address names once the module holds it after all', async () => {
         workspace.opened = true
         const fresh = { id: 't-new', name: 'Fresh', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
-        vi.mocked(getRawTable).mockRejectedValueOnce(new NotFoundError('The table is not found.'))
+        vi.mocked(getRawTable).mockRejectedValueOnce(tableNotFound())
         searchParams.set('table', 't-new')
         render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
@@ -928,7 +950,7 @@ describe('ModuleWorkspace', () => {
             Promise.resolve(workspace.branch === 'feature' && options?.includeOther ? [bankRating, notes] : [bankRating]))
         vi.mocked(getRawTable).mockImplementation(() => workspace.branch === 'feature'
             ? Promise.resolve({ id: 't-9', name: 'Notes', source: []} as never)
-            : Promise.reject(new NotFoundError('The table is not found.')))
+            : Promise.reject(tableNotFound()))
         searchParams.set('table', 't-9')
         render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
