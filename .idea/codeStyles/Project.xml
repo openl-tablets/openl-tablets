@@ -8,6 +8,8 @@
       </option>
       <option name="IMPORT_LAYOUT_TABLE">
         <value>
+          <package name="" withSubpackages="true" static="false" module="true" />
+          <emptyLine />
           <package name="" withSubpackages="true" static="true" />
           <emptyLine />
           <package name="org.openl" withSubpackages="true" static="true" />

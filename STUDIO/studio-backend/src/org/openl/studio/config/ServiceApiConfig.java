@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -34,7 +35,8 @@ public class ServiceApiConfig {
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                                              ApplicationEventPublisher eventPublisher,
                                              ProtectedBranchBypassService bypassService,
-                                             ProjectAccessService projectAccessService) {
+                                             ProjectAccessService projectAccessService,
+                                             MavenDependencyResolver mavenDependencyResolver) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
         rulesUserSession.setWorkspaceManager(workspaceManager);
@@ -46,7 +48,8 @@ public class ServiceApiConfig {
                 projectDescriptorArtefactResolver,
                 eventPublisher,
                 bypassService,
-                projectAccessService);
+                projectAccessService,
+                mavenDependencyResolver);
         rulesUserSession.setWebStudio(webStudio);
         return rulesUserSession;
     }

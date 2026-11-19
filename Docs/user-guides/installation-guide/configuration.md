@@ -456,6 +456,19 @@ Applies to Git design repositories. See [Customizing Git Commit Comments][git-co
 A Git repository stores the comment directly as the commit message. The comments OpenL Studio suggests are not
 configured.
 
+### Maven Repository
+
+Described in [Managing the Maven Repository][maven].
+
+| Field    | Property                    |
+|----------|-----------------------------|
+| URL      | `maven.repository.url`      |
+| Username | `maven.repository.username` |
+| Password | `maven.repository.password` |
+
+OpenL Studio downloads nothing while the URL is empty. The folder that keeps the downloaded files has no UI field:
+see [Maven Local Repository](#maven-local-repository).
+
 ### Email Server
 
 Described in [Managing Email Server Configuration][mail].
@@ -496,6 +509,20 @@ repository.production.account-name = openlrules
 repository.production.account-key = ENC(yZaBcDeFgHiJkLmNoPqR==)
 repository.production.listener-timer-period = 10
 ```
+
+### Maven Local Repository
+
+`maven.repository.local` is the folder that keeps the files OpenL Studio downloads from the
+[Maven repository](#maven-repository), laid out as a local Maven repository, and the downloaded projects unpacked
+beside their archives:
+
+```properties
+maven.repository.local = ${openl.home}/maven-repository
+```
+
+A file is downloaded once and read from this folder afterwards; a snapshot version is checked in the Maven repository
+again. OpenL Studio deletes nothing here, including the files of a dependency no project names any more: the folder is
+a cache to empty when it grows. OpenL Studio then downloads again what a project still names, when it compiles it.
 
 ### Cross-Origin Requests
 
@@ -828,6 +855,7 @@ the old location and requires moving it manually.
   them.
 - **Locks** — an instance sees projects locked by users on other instances.
 - **Project index** and the broadcast notification.
+- **Maven local repository** — a dependency downloaded by one instance is read by all of them.
 
 ### What Stays Local
 
@@ -864,3 +892,4 @@ Put a load balancer in front of the instances and enable sticky sessions.
 [git-repo]: ../openl-studio/administration/01-repository-settings/02-git-repository-settings.md#managing-git-repository-settings
 [git-comments]: ../openl-studio/administration/01-repository-settings/02-git-repository-settings.md#customizing-git-commit-comments
 [mail]: ../openl-studio/administration/07-email-server.md#managing-email-server-configuration
+[maven]: ../openl-studio/administration/09-maven.md#managing-the-maven-repository

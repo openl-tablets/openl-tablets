@@ -40,6 +40,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
@@ -132,6 +133,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
     @Getter
     private final ProtectedBranchBypassService bypassService;
     private final ProjectAccessService projectAccessService;
+    /** Downloads the dependencies a rules.xml names by Maven coordinates. */
+    @Getter
+    private final @Nullable MavenDependencyResolver mavenDependencyResolver;
 
     /** Lets one write at a time into the workbooks this session holds. */
     @Getter
@@ -143,9 +147,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                      ApplicationEventPublisher eventPublisher,
                      ProtectedBranchBypassService bypassService,
-                     ProjectAccessService projectAccessService
-
-    ) {
+                     ProjectAccessService projectAccessService,
+                     @Nullable MavenDependencyResolver mavenDependencyResolver) {
         model = new ProjectModel(this, testSuiteExecutor);
         this.designRepositoryAclService = designRepositoryAclService;
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
@@ -153,6 +156,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
         this.projectAccessService = projectAccessService;
+        this.mavenDependencyResolver = mavenDependencyResolver;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         projectResolver = ProjectResolver.getInstance();

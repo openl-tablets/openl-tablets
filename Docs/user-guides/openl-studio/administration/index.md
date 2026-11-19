@@ -22,3 +22,4 @@ The following topics are included:
 -   [Managing Tags](06-tags.md#managing-tags)
 -   [Managing Email Server Configuration](07-email-server.md#managing-email-server-configuration)
 -   [Reviewing the Audit Log](08-audit-log.md#reviewing-the-audit-log)
+-   [Managing the Maven Repository](09-maven.md#managing-the-maven-repository)

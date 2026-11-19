@@ -1,7 +1,10 @@
 package org.openl.rules.project.instantiation;
 
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -9,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
@@ -30,6 +34,7 @@ import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -444,7 +449,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             return externalJarsClassloaders.get(project);
         }
         ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
-        var externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
+        var externalJarsClassloader = new OpenLClassLoader(classPathOf(project), parentClassLoader);
         // What the classpath of the project lacks is looked up in the dependency projects
         if (project.getDependencies() != null) {
             var loadedProjects = getDependencyLoaders().stream()
@@ -462,6 +467,43 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
         externalJarsClassloaders.put(project, externalJarsClassloader);
         return externalJarsClassloader;
+    }
+
+    private URL[] classPathOf(ProjectDescriptor project) {
+        var libraries = getLibraries(project);
+        if (libraries.isEmpty()) {
+            return project.getClassPathUrls();
+        }
+        var urls = new ArrayList<>(Arrays.asList(project.getClassPathUrls()));
+        urls.addAll(libraries);
+        return urls.toArray(new URL[0]);
+    }
+
+    /**
+     * Returns the libraries the project takes from outside its own files, such as those its {@code rules.xml} names by
+     * Maven coordinates.
+     *
+     * <p>The class loader of the project reads them after its own classpath. There are none by default.
+     *
+     * @param project the project
+     * @return the locations of the libraries
+     */
+    protected List<URL> getLibraries(ProjectDescriptor project) {
+        return List.of();
+    }
+
+    /**
+     * Returns what went wrong while the dependencies of the project declared in its {@code rules.xml} were looked
+     * for, such as a library that could not be downloaded.
+     *
+     * <p>Every module of the project and the project itself report these messages when they compile. There are none
+     * by default.
+     *
+     * @param project the project
+     * @return the messages
+     */
+    public Collection<OpenLMessage> getDependencyMessages(ProjectDescriptor project) {
+        return List.of();
     }
 
     private static @Nullable ProjectDescriptor findProject(Collection<ProjectDescriptor> projects, String name) {

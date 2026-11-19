@@ -318,6 +318,19 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        <!-- Downloads the Maven dependencies of rules.xml -->
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-supplier-mvn3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-transport-jdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-xml</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
@@ -530,7 +543,7 @@
                                     | GNU General Public License, version 2 with the GNU Classpath Exception</licenseMerge>
                                 <licenseMerge>LGPL-2.1-or-later | LGPL 2.1 | GNU Library General Public License v2.1 or later</licenseMerge>
                                 <licenseMerge>LGPL-3.0-only | GNU Lesser General Public License</licenseMerge>
-                                <licenseMerge>MIT | The MIT License (MIT) | Bouncy Castle Licence</licenseMerge>
+                                <licenseMerge>MIT | The MIT License (MIT) | MIT license | Bouncy Castle Licence</licenseMerge>
                                 <licenseMerge>MPL-1.1 | MPL 1.1</licenseMerge>
                                 <licenseMerge>MPL-2.0 | MPL 2.0</licenseMerge>
                             </licenseMerges>

@@ -2,6 +2,7 @@ package org.openl.rules.project.instantiation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -146,10 +147,26 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         var oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            return engineFactory.getCompiledOpenClass();
+            return withDependencyMessages(engineFactory.getCompiledOpenClass());
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    /**
+     * Adds what went wrong with the dependencies of the project to what the compilation reports. Called while the
+     * class loader of the project is the context one, which the result keeps.
+     */
+    private CompiledOpenClass withDependencyMessages(CompiledOpenClass compiled) {
+        var dependencyMessages = dependencyManager.getDependencyMessages(project);
+        if (dependencyMessages.isEmpty()) {
+            return compiled;
+        }
+        var allMessages = new LinkedHashSet<>(dependencyMessages);
+        allMessages.addAll(compiled.getAllMessages());
+        var messages = new LinkedHashSet<>(dependencyMessages);
+        messages.addAll(compiled.getMessages());
+        return new CompiledOpenClass(compiled.getOpenClassWithErrors(), allMessages, messages);
     }
 
     protected void onCompilationComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {

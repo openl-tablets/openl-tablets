@@ -173,7 +173,9 @@ A `rules.xml` `<dependency>` becomes a Maven dependency:
   `zip`); `jar`-type entries get `<optional>true</optional>` (self-contained in `lib/`, not inherited downstream).
 - **By name** — `<name>` only; resolved against reactor sibling OpenL projects, emitted with `<type>zip</type>`.
 
-`<mavenArtifact>` wins when both present. Every `<dependency>` needs a `<name>` (OpenL loader requirement).
+`<mavenArtifact>` wins when both present. A `<dependency>` without `<name>` is a library, not an OpenL project: the
+loader leaves it to the classpath, which gets it from `lib/` of the packaged archive, and OpenL Studio downloads it
+from its Maven repository (see `rules.xml.md`, Maven Dependencies in OpenL Studio).
 
 A `<mavenArtifact>` resolving to a reactor OpenL artefact (pom-less under any anchor, or a classic openl module) takes
 the reactor version, whatever the coordinate declares. Precedence: anchor `<dependencyManagement>` > reactor-sibling

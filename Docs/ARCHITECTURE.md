@@ -73,6 +73,9 @@ The server renders no page. A Spring backend answers the REST API under `/rest` 
   changes the build files and the files of version control systems ([Ignored Paths](architecture/ignored-paths.md)).
 - **Branches** — a project can live in several Git branches
   ([Cross-Branch Projects](architecture/cross-branch-projects.md)).
+- **Maven dependencies** — a library and an OpenL project that `rules.xml` names by Maven coordinates are downloaded
+  from a Maven repository to compile a project; a project the user opened wins over the downloaded one
+  ([Maven Dependencies in OpenL Studio](architecture/maven-dependencies.md)).
 - **Editing** — a table write locks the project ([Project Editing Lock](architecture/project-editing-lock.md)) and
   compiles only the module that changed.
 - **Live updates** — the server pushes changes of projects and compile states over the WebSocket

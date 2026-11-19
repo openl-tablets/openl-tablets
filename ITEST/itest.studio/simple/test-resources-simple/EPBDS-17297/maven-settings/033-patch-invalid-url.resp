@@ -1,0 +1,14 @@
+HTTP/1.1 400 OK
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.Pattern",
+      "message": "The URL must use http, https or file.",
+      "field": "url",
+      "rejectedValue": "ftp://repo.example.com/maven2"
+    }
+  ]
+}

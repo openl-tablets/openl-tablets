@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { Notification } from 'containers/Notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'
+import { Maven } from 'containers/Maven'
 import { Tags } from 'containers/Tags'
 import { Repositories } from '../containers/Repositories'
 import { Skeleton } from 'antd'
@@ -163,6 +164,10 @@ const router = createBrowserRouter([
                     {
                         path: 'mail',
                         element: <Email />,
+                    },
+                    {
+                        path: 'maven',
+                        element: <Maven />,
                     },
                     {
                         path: 'repositories/:repositoryTab',
