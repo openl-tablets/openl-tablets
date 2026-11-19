@@ -11,12 +11,14 @@ import {
     getMessageStacktrace,
     getModuleTables,
     getRawTable,
+    isModuleNotFound,
+    isTableNotFound,
     listModules,
     stopEditingTable,
     TABLE_PAGE_ROWS,
     type ModuleInfo,
 } from '../services/modules'
-import { LOCAL_LOAD_API_OPTIONS, NotFoundError, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
+import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { localizationRoute, moduleRoute, projectFileRoute } from '../services/projectId'
 import { isUnresolvedProjectLink } from '../services/projectLink'
@@ -365,7 +367,7 @@ export const ModuleWorkspace = () => {
                 if (onScreen.current !== here) {
                     return
                 }
-                if (error instanceof NotFoundError) {
+                if (isModuleNotFound(error)) {
                     leaveGoneModule()
                 } else if (tablesReloading) {
                     chooseOther(!showOther)
@@ -674,7 +676,7 @@ export const ModuleWorkspace = () => {
                 if (tableLoads.isLatest(generation)) {
                     setTableError({
                         message: errorMessage(error),
-                        gone: isApiHttpError(error) && error.status === 404,
+                        gone: isTableNotFound(error),
                     })
                 }
             })

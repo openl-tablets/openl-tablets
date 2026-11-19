@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
-import { NotFoundError } from '../../services/apiCall'
-import { startModuleCompilation } from '../../services/modules'
+import { isModuleNotFound, startModuleCompilation } from '../../services/modules'
 import type { ProjectCompileState, ProjectStatusUpdate } from '../../services/projectStatus'
 import { errorHandler } from '../../utils/errorHandling'
 
@@ -152,7 +151,7 @@ export const useModuleCompilation = ({
         compiled: modulesOf(status)?.compiled ?? 0,
         total: modulesOf(status)?.total ?? 0,
         failure: failed?.message ?? null,
-        gone: failed instanceof NotFoundError,
+        gone: isModuleNotFound(failed),
         tests: counted.current,
         state: status?.compileState ?? 'idle',
         verifyNeeded: status?.manualCompileNeeded === true,

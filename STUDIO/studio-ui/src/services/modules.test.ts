@@ -1,5 +1,13 @@
-import apiCall from 'services/apiCall'
-import { cancelModuleCompilation, getModuleTables, getRawTable, startModuleCompilation } from 'services/modules'
+import apiCall, { NotFoundError } from 'services/apiCall'
+import { moduleNotFound, projectNotFound, tableNotFound } from '../testing/errors'
+import {
+    cancelModuleCompilation,
+    getModuleTables,
+    getRawTable,
+    isModuleNotFound,
+    isTableNotFound,
+    startModuleCompilation,
+} from 'services/modules'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services/apiCall', async () => {
@@ -23,6 +31,25 @@ describe('modules service', () => {
         await startModuleCompilation('p1', 'Bank Rating', true)
         expect(mockApiCall).toHaveBeenLastCalledWith(
             '/projects/p1/modules/Bank%20Rating/compile?reset=true', { method: 'POST' }, expect.anything())
+    })
+
+    it.each([
+        ['the project has no such module', moduleNotFound(), true],
+        ['the project is not found', projectNotFound(), false],
+        ['a 404 carries no code', new NotFoundError('gone'), false],
+        ['the error is not an HTTP one', new Error('gone'), false],
+    ])('tells a missing module when %s', (_case, error, missing) => {
+        expect(isModuleNotFound(error)).toBe(missing)
+    })
+
+    it.each([
+        ['the module holds no such table', tableNotFound(), true],
+        ['the project holds no such table', new NotFoundError('gone', { code: 'openl.error.404.table.message' }), true],
+        ['the module is not found', moduleNotFound(), false],
+        ['the project is not found', projectNotFound(), false],
+        ['a 404 carries no code', new NotFoundError('gone'), false],
+    ])('tells a missing table when %s', (_case, error, missing) => {
+        expect(isTableNotFound(error)).toBe(missing)
     })
 
     it('tells a compilation to stop', async () => {
