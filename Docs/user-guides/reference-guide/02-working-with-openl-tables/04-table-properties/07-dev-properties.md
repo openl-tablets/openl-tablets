@@ -162,6 +162,9 @@ Precision property shortcut definition is required when results of the whole tes
 
 Precision defined for the column has higher priority than precision defined at the table level.
 
+A column of an array result, such as `_res_ (5)` for a rule returning `Double[]`, compares each element with the
+precision of the column: the expected `1.331,2` matches `1.331004` and `2`.
+
 Precision is a whole number of decimal places from `-99` to `99`, zero and negative values included. A precision in
 significant figures is `sf`, or a whole number from 1 to 99 followed by `sf` without a space. A test table with
 a precision outside these limits, such as `100` or `100sf`, does not compile. The error of a column precision names
