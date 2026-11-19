@@ -1,5 +1,6 @@
 package org.openl.rules.data;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -849,7 +850,9 @@ public class DataTableBindHelper {
         private final IBindingContext bindingContext;
         private final ITable table;
         private final IOpenClass type;
-        private IdentifierNode[] fieldAccessorChainTokens;
+        private final IdentifierNode[] fieldAccessorChainTokens;
+        // the precision a result column ends with, such as (5) in _res_ (5): it is no field of the chain
+        private final @Nullable IdentifierNode precisionNode;
         private IOpenClass loadedFieldType;
         // the chain of fields to access the target field, e.g. for
         // driver.name it will be array consisting of two fields:
@@ -868,22 +871,32 @@ public class DataTableBindHelper {
             this.bindingContext = bindingContext;
             this.table = table;
             this.type = type;
-            this.fieldAccessorChainTokens = fieldAccessorChainTokens;
             this.loadedFieldType = type;
-            this.fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
             this.isResult = fieldAccessorChainTokens[0].getIdentifier()
                     .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) || fieldAccessorChainTokens[0].getIdentifier()
                     .startsWith(TestMethodHelper.EXPECTED_ERROR);
+            var last = fieldAccessorChainTokens.length - 1;
+            this.precisionNode = isResult && last > 0
+                    && StringUtils.matches(PRECISION_LIKE_PATTERN, fieldAccessorChainTokens[last].getIdentifier())
+                    ? fieldAccessorChainTokens[last]
+                    : null;
+            this.fieldAccessorChainTokens = precisionNode == null ? fieldAccessorChainTokens
+                    : Arrays.copyOf(fieldAccessorChainTokens, last);
+            this.fieldAccessorChain = new IOpenField[this.fieldAccessorChainTokens.length];
             this.multiRowsArentSupported = type instanceof TestMethodOpenClass && isResult;
         }
 
         private IOpenField process() {
             IOpenField chainField = null;
-            // HERE
             for (var fieldIndex = 0; !stop && fieldIndex < fieldAccessorChain.length; fieldIndex++) {
                 processField(fieldIndex);
             }
-            if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
+            if (!stop && precisionNode != null && !isPrecisionNode(precisionNode)) {
+                var message = ("Precision '%s' is out of range. Use a whole number of decimal places from -99 to 99,"
+                        + " a number of significant figures from 1sf to 99sf, or sf.")
+                        .formatted(precisionNode.getIdentifier());
+                bindingContext.addError(SyntaxNodeExceptionUtils.createError(message, precisionNode));
+            } else if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
                 // loading of all
                 // fields in
                 // fieldAccessorChain.
@@ -906,15 +919,6 @@ public class DataTableBindHelper {
 
             if (fieldIndex > 0 && fieldIndex == fieldAccessorChain.length - 1 && identifier.equals(FPK)) {
                 processPrimaryKey(fieldIndex, fieldNameNode);
-            } else if (isResult && StringUtils.matches(PRECISION_PATTERN, identifier)) {
-                fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
-                fieldAccessorChainTokens = ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
-                // Skip creation of IOpenField
-            } else if (isResult && StringUtils.matches(PRECISION_LIKE_PATTERN, identifier)) {
-                var message = ("Precision '%s' is out of range. Use a whole number of decimal places from -99 to 99,"
-                        + " a number of significant figures from 1sf to 99sf, or sf.").formatted(identifier);
-                bindingContext.addError(SyntaxNodeExceptionUtils.createError(message, fieldNameNode));
-                stop = true;
             } else {
                 processNamedField(fieldIndex, fieldNameNode, identifier);
             }
