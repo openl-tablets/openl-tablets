@@ -24,7 +24,8 @@ import org.openl.rules.testmethod.result.Tolerance;
  * A text cell is read as it is typed, and a number cell as its number format shows it: {@code 10} formatted with
  * {@code 0.00} reads {@code 10.00}, and with {@code $#,##0.00} reads {@code $10.00}, whose number is {@code 10.00}.
  * Grouping commas are skipped, a percent is a hundredth, and an exponent keeps the figures of its mantissa:
- * {@code 1.00E+03} has three figures.
+ * {@code 1.00E+03} has three figures. A typed {@code K}, {@code M} or {@code B} keeps the figures of the number it
+ * multiplies: {@code 1.5K} is 1500 written to the hundreds.
  * <p>
  * A fraction format, such as {@code # ?/?} or {@code # ?/16}, shows the number to one part of its denominator: a cell
  * showing {@code 1 1/2} has the denominator 2, and a whole number shown without a fraction the denominator 1 or the one
@@ -38,7 +39,8 @@ import org.openl.rules.testmethod.result.Tolerance;
  */
 final class WrittenFigures {
 
-    private static final Pattern NUMBER = Pattern.compile("[-+]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?%?");
+    // A number without a percent or a multiplier
+    private static final Pattern NUMBER = Pattern.compile("[-+]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?");
 
     // The number a format shows among what it adds, such as a currency, a unit or the parentheses of a negative
     private static final Pattern SHOWN_NUMBER = Pattern.compile("(\\d[\\d,]*(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?%?");
@@ -138,8 +140,8 @@ final class WrittenFigures {
     }
 
     /**
-     * Returns the decimal place of the last figure of a written number, such as 2 for {@code 10.00} and -1 for
-     * {@code 1.00E+03}.
+     * Returns the decimal place of the last figure of a written number, such as 2 for {@code 10.00}, -1 for
+     * {@code 1.00E+03} and -2 for {@code 1.5K}.
      *
      * @return the decimal place, or {@code null} when the text is not one number
      */
@@ -149,23 +151,32 @@ final class WrittenFigures {
     }
 
     /**
-     * Reads a written number with the figures it is written with. A percent is a hundredth.
+     * Reads a written number with the figures it is written with. A percent is a hundredth, and a {@code K}, an
+     * {@code M} or a {@code B} multiplies the number by a thousand, a million or a billion.
      *
      * @return the number, or {@code null} when the text is not one number
      */
     private static @Nullable BigDecimal valueOf(String text) {
         var number = NumberNotation.removeThousandsSeparators(text.strip());
-        if (!NUMBER.matcher(number).matches()) {
+        var power = number.isEmpty() ? 0 : powerOf(number.charAt(number.length() - 1));
+        var digits = power == 0 ? number : number.substring(0, number.length() - 1);
+        if (!NUMBER.matcher(digits).matches()) {
             return null;
         }
         try {
-            return number.endsWith("%")
-                    ? new BigDecimal(number.substring(0, number.length() - 1)).scaleByPowerOfTen(-2)
-                    : new BigDecimal(number);
+            return new BigDecimal(digits).scaleByPowerOfTen(power);
         } catch (NumberFormatException | ArithmeticException e) {
             // an exponent beyond the range of a decimal place
             return null;
         }
+    }
+
+    /**
+     * Returns the power of ten a suffix multiplies a number by: -2 for a percent, 3 for {@code K}, 6 for {@code M}, 9
+     * for {@code B}, and 0 for any other character.
+     */
+    private static int powerOf(char suffix) {
+        return suffix == '%' ? -2 : (int) Math.log10((double) NumberNotation.multiplier(suffix));
     }
 
     /**

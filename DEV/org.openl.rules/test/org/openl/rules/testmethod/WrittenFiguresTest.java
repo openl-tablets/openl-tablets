@@ -42,6 +42,22 @@ class WrittenFiguresTest {
     }
 
     @Test
+    void multiplierKeepsTheFiguresOfTheNumber() {
+        // 1.5K is 1500 written to the hundreds
+        assertEquals(-2, WrittenFigures.scaleOf("1.5K"));
+        assertEquals(-3, WrittenFigures.scaleOf("3323K"));
+        assertEquals(-4, WrittenFigures.scaleOf("1.25M"));
+        assertEquals(-9, WrittenFigures.scaleOf("-2B"));
+        assertEquals(-1, WrittenFigures.scaleOf("1,234.56K"));
+        assertEquals(-2, WrittenFigures.scaleOf("1.5E-3M"));
+        assertNull(WrittenFigures.scaleOf("1.5k"));
+        assertNull(WrittenFigures.scaleOf("1.5 K"));
+        assertNull(WrittenFigures.scaleOf("1.5%K"));
+        assertNull(WrittenFigures.scaleOf("1.5K%"));
+        assertNull(WrittenFigures.scaleOf("K"));
+    }
+
+    @Test
     void notOneNumber() {
         assertNull(WrittenFigures.scaleOf(""));
         assertNull(WrittenFigures.scaleOf("abc"));
@@ -65,6 +81,7 @@ class WrittenFiguresTest {
     @Test
     void textCell() {
         assertEquals(2, scaleOf(cell("10.00", null)));
+        assertEquals(-2, scaleOf(cell("1.5K", null)));
         assertNull(scaleOf(cell("ten", null)));
     }
 
