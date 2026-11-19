@@ -61,16 +61,23 @@
         <entry path="classes/"/>
     </classpath>
 
-    <!-- Cross-project rule dependencies -->
+    <!-- Cross-project rule dependencies and libraries -->
     <dependencies>
         <dependency>
             <name>SharedDataProject</name>
             <!-- If true - makes all modules of the dependency available without an explicit `Environment` table. -->
             <autoIncluded>false</autoIncluded>
-            <!-- Maven coordinates of the dependent project; will be resolved if absent locally. -->
+            <!-- Maven coordinates of the zip archive of the dependent project: groupId:artifactId:version. -->
+            <!-- OpenL Studio downloads it while the user has no project of the name open (see below). -->
             <!-- In pom-less mode (see openl-maven-plugin.md) this becomes a real Maven dependency; -->
             <!-- when omitted, the participant tries to match <name> against sibling pom-less projects. -->
             <mavenArtifact>com.example:shared-data-project:1.0.0</mavenArtifact>
+        </dependency>
+        <dependency>
+            <!-- A dependency without <name> is a library: groupId:artifactId:jar[:classifier]:version. -->
+            <!-- OpenL Studio downloads it with the libraries it needs at runtime and puts them on the classpath; -->
+            <!-- the OpenL Maven Plugin packs them into lib/ of the project archive. -->
+            <mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>
         </dependency>
     </dependencies>
 
@@ -134,6 +141,32 @@ modules it matches.
 The processor class is looked up on the project's own classpath, so a class shipped in the project's `lib/` is found.
 A project that is not open in the workspace has no working copy from which those libraries can be read, so a declared
 processor — and the patterns that processor interprets — are left unchecked.
+
+## Maven Dependencies in OpenL Studio
+
+OpenL Studio downloads a `<dependency>` with `<mavenArtifact>` from the Maven repository set in the **Maven** section of
+the administration, to compile a project and run its tests:
+
+- **Coordinates** — `groupId:artifactId[:extension[:classifier]]:version`, the version last, as the OpenL Maven Plugin
+  reads them; without the extension they name a `zip` archive, the packaging of an OpenL project
+- **A library** — a dependency without `<name>`, such as `org.apache.commons:commons-text:jar:1.15.0`, downloaded with
+  its `compile` and `runtime` dependencies and read after the project's own `<classpath>` entries
+- **An OpenL project** — a dependency with `<name>`, such as `com.example:shared-data-project:1.0.0`; its `rules.xml`
+  must have the name the dependency gives
+- **A project the user opened** — always wins, with the user's changes; opening or closing it switches between it and
+  the download at the next compilation
+- **A project the user has not open** — closed, or in no design repository: the archive is unpacked and compiles as a
+  read-only dependency, with what it depends on in turn
+- **A download failure** — a missing dependency, invalid coordinates or an archive of another project: an error of the
+  project and of each module, starting with `Cannot download a Maven dependency:` or naming the coordinates
+- **Five minutes** — what was found, or failed, is kept that long, so a fix in the Maven repository shows once that
+  time has passed
+- **The local repository** — `maven.repository.local` keeps the files, downloaded once; a snapshot version is checked in
+  the Maven repository again
+- **No Maven repository set** — nothing is downloaded: a library is expected in `lib/`, where the OpenL Maven Plugin
+  packs it, and a project dependency among the projects the user opened
+- **OpenL Rule Services** — download nothing: a deployed project carries its libraries in `lib/`, and its project
+  dependencies are deployed with it
 
 ## Multi-Module Projects
 

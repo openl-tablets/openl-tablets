@@ -166,7 +166,8 @@ class ProjectModelDependencyModulesTest {
                 getClass().getClassLoader(),
                 false,
                 Map.of(),
-                false);
+                false,
+                null);
     }
 
     private static boolean isModule(IDependencyLoader loader, String name) {

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,6 +102,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         for (RulesProject pr : getAllProjects()) {
             var dependencyNames = projectDescriptorResolver.getDependencies(pr).stream()
                     .map(ProjectDependencyDescriptor::getName)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
             for (String dependencyName : dependencyNames) {
                 index.computeIfAbsent(dependencyName, key -> new ArrayList<>()).add(pr);
@@ -143,7 +145,8 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
         for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
             var dependencyName = dependency.getName();
-            if (walk.processed().add(dependencyName)) {
+            // A dependency without a name is a library named by Maven coordinates, not a project.
+            if (dependencyName != null && walk.processed().add(dependencyName)) {
                 // A name the workspace has no project for is kept as it is declared: the screen shows the
                 // dependency and says it is missing, instead of hiding what rules.xml asks for.
                 var resolved = resolveDependency(dependencyName, repoId, branch, walk.index());

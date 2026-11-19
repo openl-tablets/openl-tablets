@@ -84,7 +84,7 @@ class WebStudioProjectsTest {
         var session = mock(RulesUserSession.class);
         when(session.getUserWorkspace()).thenReturn(userWorkspace);
 
-        var studio = new WebStudio(session, null, null, null, null, null, null);
+        var studio = new WebStudio(session, null, null, null, null, null, null, null);
 
         var projects = studio.getProjects().get(REPOSITORY_ID);
         assertEquals(List.of("Rates"), projects.stream().map(ProjectDescriptor::getName).toList());
@@ -115,7 +115,7 @@ class WebStudioProjectsTest {
         var session = mock(RulesUserSession.class);
         when(session.getUserWorkspace()).thenReturn(userWorkspace);
 
-        var studio = new WebStudio(session, null, null, null, null, null, null);
+        var studio = new WebStudio(session, null, null, null, null, null, null, null);
 
         var projects = studio.getProjects().get(REPOSITORY_ID);
         assertEquals(List.of("Bank Rating"), projects.stream().map(ProjectDescriptor::getName).toList());
@@ -213,7 +213,7 @@ class WebStudioProjectsTest {
         WebStudio studio() {
             var session = mock(RulesUserSession.class);
             when(session.getUserWorkspace()).thenReturn(user);
-            return new WebStudio(session, null, null, null, null, null, null);
+            return new WebStudio(session, null, null, null, null, null, null, null);
         }
     }
 
@@ -221,7 +221,7 @@ class WebStudioProjectsTest {
     @Test
     void savingAProjectEditedInPlaceKeepsItsHistory() throws Exception {
         var session = mock(RulesUserSession.class);
-        var studio = new WebStudio(session, null, null, null, null, null, null);
+        var studio = new WebStudio(session, null, null, null, null, null, null, null);
         var project = mock(RulesProject.class);
         when(project.isInPlace()).thenReturn(true);
 

@@ -12,6 +12,9 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -20,8 +23,11 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
 
 class AbstractDependencyManagerTest {
 
@@ -83,6 +89,49 @@ class AbstractDependencyManagerTest {
         var pattern = AbstractDependencyManager.dependencyPattern(identifier, withWildcardSupport);
 
         assertEquals(expected, pattern.matcher(name).matches());
+    }
+
+    @Test
+    void theProjectReadsItsLibrariesAfterItsClasspathAndReportsWhatWentWrongWithItsDependencies() throws Exception {
+        var project = ProjectResolver.getInstance().resolve(Path.of("test-resources/dependencies/test1/module"));
+        var library = DESCRIPTOR_ZIP.toUri().toURL();
+        var problem = new OpenLMessage("Cannot download 'com.example:lib:jar:1.0.0'.", Severity.ERROR);
+        var dependencyManager = new SimpleDependencyManager(List.of(project),
+                Thread.currentThread().getContextClassLoader(),
+                false,
+                Map.of()) {
+            @Override
+            protected List<URL> getLibraries(ProjectDescriptor p) {
+                return List.of(library);
+            }
+
+            @Override
+            public Collection<OpenLMessage> getDependencyMessages(ProjectDescriptor p) {
+                return List.of(problem);
+            }
+        };
+
+        var expectedUrls = new ArrayList<>(List.of(project.getClassPathUrls()));
+        expectedUrls.add(library);
+        assertEquals(expectedUrls, List.of(dependencyManager.getExternalJarsClassLoader(project).getURLs()));
+
+        for (var dependency : List.of(AbstractDependencyManager.buildResolvedDependency(project),
+                AbstractDependencyManager.buildResolvedDependency(project.getModules().getFirst()))) {
+            var compiled = dependencyManager.loadDependency(dependency).getCompiledOpenClass();
+            assertTrue(compiled.hasErrors(), dependency + " fails with the problem of its dependencies");
+            assertTrue(compiled.getMessages().contains(problem), dependency + " reports the problem");
+            assertEquals(1, compiled.getAllMessages().stream().filter(problem::equals).count(),
+                    dependency + " reports the problem once");
+        }
+    }
+
+    @Test
+    void aProjectHasNoLibrariesAndNoDependencyMessagesByDefault() {
+        var dependencyManager = managerOf();
+        var project = new ProjectDescriptor();
+
+        assertEquals(List.of(), dependencyManager.getLibraries(project));
+        assertEquals(List.of(), dependencyManager.getDependencyMessages(project));
     }
 
     /**

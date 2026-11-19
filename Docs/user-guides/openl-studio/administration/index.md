@@ -6,7 +6,7 @@ To access administration tools, click the user icon in the top-right corner and 
 
 The administration area is organized as a left-side navigation menu. The available items depend on the user's permissions: all users can access their personal settings, while administration sections are visible only to users with administration privileges.
 
-![](../images/admin-overview.png)
+![The administration menu with the System section open](../images/admin-overview.png)
 
 *OpenL Studio administration*
 
@@ -22,3 +22,4 @@ The following topics are included:
 -   [Managing Tags](06-tags.md#managing-tags)
 -   [Managing Email Server Configuration](07-email-server.md#managing-email-server-configuration)
 -   [Reviewing the Audit Log](08-audit-log.md#reviewing-the-audit-log)
+-   [Managing the Maven Repository](09-maven.md#managing-the-maven-repository)
