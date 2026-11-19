@@ -151,6 +151,11 @@
         <maven.scm.version>2.2.1</maven.scm.version>
         <plexus-utils.version>4.2.0</plexus-utils.version>
 
+        <!-- Maven Resolver: OpenL Studio downloads the Maven dependencies of rules.xml with it -->
+        <maven-resolver.version>2.0.25</maven-resolver.version>
+        <!-- Xpp3Dom of plexus-utils 4 for the Maven 3 model the resolver reads POMs with -->
+        <plexus-xml3.version>3.0.2</plexus-xml3.version>
+
         <!-- DEMO & ITEST -->
         <jetty.version>12.1.15</jetty.version>
 
@@ -956,6 +961,33 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
                 <version>${plexus-utils.version}</version>
+            </dependency>
+            <!-- Maven Resolver of OpenL Studio. The JDK HTTP client transports the files, so Apache HttpClient 4 and
+                 Commons Logging stay out of the war. -->
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-supplier-mvn3</artifactId>
+                <version>${maven-resolver.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.maven.resolver</groupId>
+                        <artifactId>maven-resolver-transport-apache</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>jcl-over-slf4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-jdk</artifactId>
+                <version>${maven-resolver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-xml</artifactId>
+                <version>${plexus-xml3.version}</version>
             </dependency>
             <!-- SCM API + git provider used by the 'migrate' goal in openl-maven-plugin to create one commit per migrator. -->
             <dependency>

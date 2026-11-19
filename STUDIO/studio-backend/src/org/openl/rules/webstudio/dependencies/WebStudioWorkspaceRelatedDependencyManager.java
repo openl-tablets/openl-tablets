@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.net.URL;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,12 +32,14 @@ import org.openl.dependency.DependencyType;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.studio.common.utils.WorkbookThreadLocals;
 import org.openl.types.NullOpenClass;
 
@@ -64,15 +69,68 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onResetCompleteListeners = new CopyOnWriteArrayList<>();
     @Getter
     private final boolean canUnload;
+    private final @Nullable MavenDependencyResolver mavenDependencyResolver;
+    /** The libraries the class loader of each project was built with, so its errors tell of the same download. */
+    private final Map<ProjectDescriptor, MavenDependencyResolver.Libraries> libraries = new ConcurrentHashMap<>();
+    /** The dependencies left out of the compilations, as another project of their name is compiled. */
+    private final List<DependencyConflict> conflicts = new CopyOnWriteArrayList<>();
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
                                                       ClassLoader rootClassLoader,
                                                       boolean executionMode,
                                                       Map<String, Object> externalParameters,
-                                                      boolean canUnload) {
+                                                      boolean canUnload,
+                                                      @Nullable MavenDependencyResolver mavenDependencyResolver) {
         super(rootClassLoader, executionMode, externalParameters);
         this.projects = new LinkedHashSet<>(Objects.requireNonNull(projects, "projects cannot be null"));
         this.canUnload = canUnload;
+        this.mavenDependencyResolver = mavenDependencyResolver;
+    }
+
+    /** The libraries the project names by Maven coordinates, downloaded from the Maven repository. */
+    @Override
+    protected List<URL> getLibraries(ProjectDescriptor project) {
+        if (mavenDependencyResolver == null) {
+            return List.of();
+        }
+        var found = mavenDependencyResolver.librariesOf(project);
+        libraries.put(project, found);
+        return found.files().stream().map(file -> URLSourceCodeModule.toUrl(file.toFile())).toList();
+    }
+
+    /**
+     * What went wrong while the dependencies of the project named by Maven coordinates were downloaded: a library,
+     * or a project the workspace lacks.
+     *
+     * <p>The libraries are told of as the class loader of the project got them, so a library fixed in the repository
+     * meanwhile is reported until the project compiles anew.
+     *
+     * <p>A dependency left out because another project of its name is compiled is a warning of the project the
+     * compilation is of.
+     */
+    @Override
+    public Collection<OpenLMessage> getDependencyMessages(ProjectDescriptor project) {
+        var told = conflicts.stream()
+                .filter(conflict -> conflict.concerns(project.getName()))
+                .map(DependencyConflict::message)
+                .toList();
+        if (mavenDependencyResolver == null || project.getDependencies() == null) {
+            return told;
+        }
+        var used = libraries.get(project);
+        var messages = new ArrayList<>((used == null ? mavenDependencyResolver.librariesOf(project) : used).messages());
+        messages.addAll(told);
+        var loadedProjects = getDependencyLoaders().stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .map(loader -> loader.getProject().getName())
+                .collect(Collectors.toSet());
+        MavenDependencyResolver.namedMavenDependenciesOf(project.getDependencies())
+                .stream()
+                .filter(dependency -> !loadedProjects.contains(dependency.getName()))
+                .map(dependency -> mavenDependencyResolver.projectOf(dependency).problem())
+                .filter(Objects::nonNull)
+                .forEach(messages::add);
+        return messages;
     }
 
     private DependencyType resolveDependencyType(ResolvedDependency dependency) {
@@ -359,9 +417,15 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         super.resetAll();
     }
 
-    public void expand(Set<ProjectDescriptor> projects) {
-        var dependencyLoaders = buildDependencyLoaders(projects);
-        addDependencyLoaders(dependencyLoaders);
+    /** Loads the projects of another workspace too, and tells the dependencies it left out. */
+    public void expand(WebStudioWorkspaceDependencyManagerFactory.Workspace workspace) {
+        addDependencyLoaders(buildDependencyLoaders(workspace.projects()));
+        addConflicts(workspace.conflicts());
+    }
+
+    /** Tells the dependencies a walk left out, as another project of their name is compiled. */
+    void addConflicts(Collection<DependencyConflict> found) {
+        found.stream().filter(conflict -> !conflicts.contains(conflict)).forEach(conflicts::add);
     }
 
     /**

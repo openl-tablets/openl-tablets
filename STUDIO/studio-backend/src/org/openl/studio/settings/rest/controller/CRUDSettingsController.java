@@ -2,18 +2,11 @@ package org.openl.studio.settings.rest.controller;
 
 import java.io.IOException;
 import java.util.function.Supplier;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -23,32 +16,17 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.settings.converter.ReadOnlySettings;
 
+/**
+ * Settings of one kind that an administrator also replaces as a whole or resets to their defaults.
+ *
+ * @param <E> the settings
+ */
 @AdminPrivilege
-public abstract class CRUDSettingsController<E extends SettingsHolder> {
-
-    private final ObjectMapper objectMapper;
-    private final BeanValidationProvider validationProvider;
-    protected final SettingsService settingsService;
-    private final Supplier<E> settingsFactory;
+public abstract class CRUDSettingsController<E extends SettingsHolder> extends PatchSettingsController<E> {
 
     protected CRUDSettingsController(ObjectMapper objectMapper, BeanValidationProvider validationProvider,
                                      SettingsService settingsService, Supplier<E> settingsFactory) {
-        this.validationProvider = validationProvider;
-        this.settingsService = settingsService;
-        this.settingsFactory = settingsFactory;
-        this.objectMapper = objectMapper;
-    }
-
-    @GetMapping
-    @Operation(summary = "msg.settings.get-all.summary", description = "msg.settings.get-all.desc")
-    public E getSettings() {
-        return loadSettings();
-    }
-
-    private E loadSettings() {
-        var settings = settingsFactory.get();
-        settingsService.load(settings);
-        return settings;
+        super(objectMapper, validationProvider, settingsService, settingsFactory);
     }
 
     @PostMapping
@@ -58,33 +36,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
                 ReadOnlySettings.answerOf(objectMapper, settings));
         settingsService.store(settings);
         settingsService.commit();
-    }
-
-    /**
-     * Applies a JSON merge patch to the stored settings, validates and stores them.
-     *
-     * <p>A patch value the settings cannot hold, such as text or a fraction for a whole number, is refused with
-     * {@code 400} as an unreadable request body is, naming the field. A patch that changes a read-only setting is
-     * refused with {@code 400} too, naming the setting.
-     */
-    @PatchMapping(consumes = "application/merge-patch+json")
-    @Operation(summary = "msg.settings.patch-merge.summary", description = "msg.settings.patch-merge.desc")
-    public void mergePatchSettings(@RequestBody JsonNode patch, HttpServletRequest request) throws IOException {
-        var originalSettings = loadSettings();
-        ReadOnlySettings.check(ReadOnlySettings.answerOf(objectMapper, originalSettings), patch);
-        E updatedSettings;
-        try {
-            updatedSettings = mergeSettings(originalSettings, patch);
-        } catch (JsonMappingException e) {
-            throw new HttpMessageNotReadableException(e.getOriginalMessage(), e, new ServletServerHttpRequest(request));
-        }
-        validationProvider.validate(updatedSettings);
-        settingsService.store(updatedSettings);
-        settingsService.commit();
-    }
-
-    protected E mergeSettings(E originalSettings, JsonNode patch) throws IOException {
-        return objectMapper.readerForUpdating(originalSettings).readValue(patch);
     }
 
     @DeleteMapping

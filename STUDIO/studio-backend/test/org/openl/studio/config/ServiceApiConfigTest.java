@@ -29,6 +29,7 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
@@ -142,6 +143,7 @@ class ServiceApiConfigTest {
                 () -> mock(ProjectDescriptorArtefactResolver.class));
         context.registerBean(ProtectedBranchBypassService.class, () -> mock(ProtectedBranchBypassService.class));
         context.registerBean(ProjectAccessService.class, () -> mock(ProjectAccessService.class));
+        context.registerBean(MavenDependencyResolver.class, () -> mock(MavenDependencyResolver.class));
         context.refresh();
         return context;
     }

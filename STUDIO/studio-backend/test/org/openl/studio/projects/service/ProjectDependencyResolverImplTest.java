@@ -296,6 +296,23 @@ class ProjectDependencyResolverImplTest {
     }
 
     @Test
+    void leavesOutALibraryNamedByMavenCoordinates() throws Exception {
+        // A dependency without a name is a library on the classpath, neither a project nor a missing one.
+        RulesProject source = project("ACC Master Offer", "master");
+        ProjectDependencyDescriptor library = dependency(null);
+        ProjectDependencyDescriptor declared = dependency("Ghost");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(library, declared));
+
+        UserWorkspace workspace = workspace(source);
+
+        var dependencies = resolver(descriptorResolver, workspace).getDependencies(source);
+
+        assertEquals(List.of("Ghost"), dependencies.stream().map(ProjectDependency::name).toList());
+        assertEquals(List.of(), resolver(descriptorResolver, workspace).getDependsOnProject(source));
+    }
+
+    @Test
     void usedByMatchesAClosedProjectByStableBusinessName() throws Exception {
         // A closed project in a mapped repo has getName() carrying the internal path suffix, while the
         // dependency descriptor and business name stay clean. usedBy must still resolve regardless of state.

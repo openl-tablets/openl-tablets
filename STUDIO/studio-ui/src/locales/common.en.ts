@@ -63,6 +63,7 @@ i18next.addResourceBundle('en', 'common', {
         notification: 'Notification',
         tags: 'Tags',
         mail: 'Mail',
+        maven: 'Maven',
     },
     search: {
         label: 'Search in {{scope}}',

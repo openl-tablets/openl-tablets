@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "url": "https://nexus.example.com/repository/public",
+  "username": "openl",
+  "password": {
+    "secret": true
+  }
+}

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -1877,38 +1878,64 @@ public class ProjectModel {
      * Makes the active dependency manager serve the project. It stays as it is when it already loads the project,
      * and is expanded when every project it loads belongs to the project's workspace.
      *
+     * <p>A project counts as loaded only when it is the very project the workspace of the opened one resolves: two
+     * projects of a name, such as two versions of one downloaded from the Maven repository, are different projects.
+     *
      * @return whether the manager serves the project now; otherwise it has to be replaced
      */
     private boolean adaptWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
-        Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
-                .resolveWorkspace(projectDescriptor);
-        Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
-                .map(ProjectDescriptor::getName)
-                .collect(Collectors.toSet());
-        var foundOpenedProject = false;
-        var allProjectCanBeReused = true;
-        Collection<IDependencyLoader> projectDependencyLoaders = webStudioWorkspaceDependencyManager
-                .getDependencyLoaders()
+        var workspace = webStudioWorkspaceDependencyManagerFactory.workspaceOf(projectDescriptor);
+        var loaded = webStudioWorkspaceDependencyManager.getDependencyLoaders()
                 .stream()
                 .filter(IDependencyLoader::isProjectLoader)
+                .map(IDependencyLoader::getProject)
                 .toList();
-        for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
-            if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
-                foundOpenedProject = true;
+        return switch (reuseOf(loaded, workspace.projects(), projectDescriptor)) {
+            case REUSE -> true;
+            case EXPAND -> {
+                webStudioWorkspaceDependencyManager.expand(workspace);
+                yield true;
             }
-            if (!projectNamesInWorkspace.contains(projectDependencyLoader.getProject().getName())) {
-                allProjectCanBeReused = false;
+            case REPLACE -> false;
+        };
+    }
+
+    /** What is done with a dependency manager to compile a project. */
+    enum Reuse {
+        /** It loads the project already. */
+        REUSE,
+        /** Every project it loads belongs to the workspace of the project, which it is expanded with. */
+        EXPAND,
+        /** It loads another project of a name the workspace has, or one the workspace does not need. */
+        REPLACE
+    }
+
+    /**
+     * What is done with a dependency manager loading the given projects to compile the opened one, whose workspace
+     * holds the given projects.
+     */
+    static Reuse reuseOf(Collection<ProjectDescriptor> loaded,
+                         Collection<ProjectDescriptor> workspace,
+                         ProjectDescriptor opened) {
+        var workspaceByName = new HashMap<String, ProjectDescriptor>();
+        workspace.forEach(project -> workspaceByName.putIfAbsent(project.getName(), project));
+        var foundOpened = false;
+        var allInWorkspace = true;
+        for (var project : loaded) {
+            var inWorkspace = workspaceByName.get(project.getName());
+            if (inWorkspace == null) {
+                allInWorkspace = false;
+            } else if (!WebStudioWorkspaceDependencyManagerFactory.isSameProject(inWorkspace, project)) {
+                // Another project of the name: what is compiled of it is not what the opened project needs
+                return Reuse.REPLACE;
+            } else if (project.getName().equals(opened.getName())) {
+                foundOpened = true;
             }
         }
-        if (foundOpenedProject) {
-            return true;
+        if (foundOpened) {
+            return Reuse.REUSE;
         }
-        if (allProjectCanBeReused) {
-            // If loaded projects are a part of the new opened project, then we can reuse dependency manager
-            webStudioWorkspaceDependencyManager
-                    .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
-        }
-        return allProjectCanBeReused;
+        return allInWorkspace ? Reuse.EXPAND : Reuse.REPLACE;
     }
 
     public boolean isCompiledSuccessfully() {

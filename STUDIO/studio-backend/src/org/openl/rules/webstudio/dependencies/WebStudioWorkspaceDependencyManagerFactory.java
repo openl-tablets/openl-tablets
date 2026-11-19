@@ -1,13 +1,18 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.HashSet;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -20,53 +25,139 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     private final WebStudio studio;
 
     public WebStudioWorkspaceRelatedDependencyManager buildDependencyManager(ProjectDescriptor project) {
-        var workspaceProjectsToResolveDependencies = resolveWorkspace(project);
+        var workspace = workspaceOf(project);
         var rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
-        return new WebStudioWorkspaceRelatedDependencyManager(workspaceProjectsToResolveDependencies,
+        var manager = new WebStudioWorkspaceRelatedDependencyManager(workspace.projects(),
                 rootClassLoader,
                 false,
-                studio.getExternalProperties(), studio.isAutoCompile());
+                studio.getExternalProperties(),
+                studio.isAutoCompile(),
+                studio.getMavenDependencyResolver());
+        manager.addConflicts(workspace.conflicts());
+        return manager;
     }
 
     /**
      * The project and every project it depends on, directly or through another one.
      *
+     * @see #workspaceOf(ProjectDescriptor)
+     */
+    public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
+        return workspaceOf(project).projects();
+    }
+
+    /**
+     * The project and every project it depends on, directly or through another one, and the dependencies left out.
+     *
+     * <p>A dependency is a project of the session with its name. When the session has none, a dependency with Maven
+     * coordinates is the project downloaded from the Maven repository.
+     *
+     * <p>One project of a name is compiled: the one the walk reaches first, through the dependencies in the order each
+     * project declares them. A dependency that leads to another project of the name, such as another version of a
+     * project downloaded from the Maven repository, is left out and told as a conflict.
+     *
      * <p>The projects of the session are read once for the whole walk, so every dependency is found in the same
      * reading of them, even when the session reads its projects again meanwhile.
      */
-    public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
-        var workspace = new LinkedHashSet<ProjectDescriptor>();
-        var breadcrumbs = new HashSet<ProjectDescriptor>();
-        workspace.add(project);
-        breadcrumbs.add(project);
-        resolveWorkspaceRec(project, studio.getAllProjects(), workspace, breadcrumbs);
-        return workspace;
+    public Workspace workspaceOf(ProjectDescriptor project) {
+        var walk = new Walk(project, studio.getAllProjects());
+        walk.follow(project);
+        return new Workspace(walk.projects(), walk.conflicts);
     }
 
-    private void resolveWorkspaceRec(ProjectDescriptor p,
-                                     List<ProjectDescriptor> allProjects,
-                                     Set<ProjectDescriptor> workspace,
-                                     Set<ProjectDescriptor> breadcrumbs) {
-        if (p.getDependencies() != null && !p.getDependencies().isEmpty()) {
-            var projectDependencyNames = p.getDependencies()
-                    .stream()
-                    .map(ProjectDependencyDescriptor::getName)
-                    .collect(Collectors.toSet());
-            for (ProjectDescriptor pd : allProjects) {
-                if (projectDependencyNames.contains(pd.getName())) {
-                    if (!breadcrumbs.contains(pd)) {
-                        workspace.add(pd);
-                        breadcrumbs.add(pd);
-                        resolveWorkspaceRec(pd, allProjects, workspace, breadcrumbs);
-                        breadcrumbs.remove(pd);
-                    }
-                    projectDependencyNames.remove(pd.getName());
+    private @Nullable ProjectDescriptor findDependency(ProjectDependencyDescriptor dependency,
+                                                       Map<String, ProjectDescriptor> allProjects) {
+        var name = dependency.getName();
+        if (name == null) {
+            // A library, not a project
+            return null;
+        }
+        var found = allProjects.get(name);
+        if (found != null) {
+            return found;
+        }
+        var resolver = studio.getMavenDependencyResolver();
+        var downloaded = resolver == null ? null : resolver.projectOf(dependency).project();
+        if (downloaded == null) {
+            log.warn("Dependency '{}' is not found.", name);
+        }
+        return downloaded;
+    }
+
+    /**
+     * Whether both are one project: of the same name, in the same folder. Two projects of one name, such as two
+     * versions of a project downloaded from the Maven repository, are different projects.
+     */
+    public static boolean isSameProject(ProjectDescriptor one, ProjectDescriptor other) {
+        return one.getName().equals(other.getName()) && Objects.equals(folderOf(one), folderOf(other));
+    }
+
+    /** The folder of the project, as an absolute normalized path, or {@code null} when the project has none. */
+    private static @Nullable Path folderOf(ProjectDescriptor project) {
+        var folder = project.getProjectFolder();
+        return folder == null ? null : folder.toAbsolutePath().normalize();
+    }
+
+    /**
+     * What a compilation of a project takes in.
+     *
+     * @param projects  the project first, then every project it depends on
+     * @param conflicts the dependencies left out, as another project of their name is compiled
+     */
+    public record Workspace(Set<ProjectDescriptor> projects, List<DependencyConflict> conflicts) {
+    }
+
+    /** A project of the workspace, and how it was asked for: by which project, with which coordinates. */
+    private record Taken(ProjectDescriptor project, DependencyConflict.Request request) {
+    }
+
+    /** One walk from a project through its dependencies. */
+    private final class Walk {
+        private final ProjectDescriptor root;
+        /** The projects of the session by name; the first of a name wins, as the session lists them. */
+        private final Map<String, ProjectDescriptor> allProjects = new HashMap<>();
+        /** The projects of the workspace by name, in the order the walk takes them. */
+        private final Map<String, Taken> taken = new LinkedHashMap<>();
+        private final List<DependencyConflict> conflicts = new ArrayList<>();
+
+        private Walk(ProjectDescriptor root, List<ProjectDescriptor> allProjects) {
+            this.root = root;
+            allProjects.forEach(project -> this.allProjects.putIfAbsent(project.getName(), project));
+            taken.put(root.getName(), new Taken(root, new DependencyConflict.Request(null, null)));
+        }
+
+        private Set<ProjectDescriptor> projects() {
+            var projects = new LinkedHashSet<ProjectDescriptor>();
+            taken.values().forEach(project -> projects.add(project.project()));
+            return projects;
+        }
+
+        private void follow(ProjectDescriptor project) {
+            if (project.getDependencies() == null) {
+                return;
+            }
+            for (ProjectDependencyDescriptor dependency : project.getDependencies()) {
+                var found = findDependency(dependency, allProjects);
+                if (found != null) {
+                    take(project, dependency, found);
                 }
             }
-            for (String notFoundProjectDependencyName : projectDependencyNames) {
-                log.warn("Dependency '{}' for project '{}' is not found.",
-                        p.getName(),
-                        notFoundProjectDependencyName);
+        }
+
+        /**
+         * Takes a dependency in and follows it, unless a project of its name is taken already: the same project, as on
+         * a cycle, needs nothing more, and another one is a conflict.
+         */
+        private void take(ProjectDescriptor requester,
+                          ProjectDependencyDescriptor dependency,
+                          ProjectDescriptor found) {
+            var request = new DependencyConflict.Request(requester.getName(), dependency.getMavenArtifact());
+            var kept = taken.get(found.getName());
+            if (kept == null) {
+                taken.put(found.getName(), new Taken(found, request));
+                follow(found);
+            } else if (!isSameProject(kept.project(), found)) {
+                conflicts.add(new DependencyConflict(found.getName(), root.getName(), kept.request(), request));
             }
         }
     }

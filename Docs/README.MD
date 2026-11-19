@@ -49,7 +49,8 @@ Studio.
   [internals](architecture/mcp-server-internals.md), [MCP File Transfer Links](architecture/mcp-file-transfer.md),
   [Table Formatting](architecture/table-formatting.md) with its
   [Single-Table Bind for Format on Save](architecture/single-table-bind.md),
-  [Stable Table Ids](architecture/table-ids.md), and [Stable Project Ids](architecture/project-ids.md).
+  [Stable Table Ids](architecture/table-ids.md), [Stable Project Ids](architecture/project-ids.md), and
+  [Maven Dependencies in OpenL Studio](architecture/maven-dependencies.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),
   [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md),

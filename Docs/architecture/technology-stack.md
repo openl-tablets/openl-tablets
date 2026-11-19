@@ -40,6 +40,8 @@ dependencies of `STUDIO/studio-ui/package.json` and `STUDIO/studio-mcp/package.j
   the bundled MariaDB driver also serves MySQL.
 - **JGit** — Git repositories. **AWS SDK** — S3 repositories. **Azure Storage Blob** — Azure Blob repositories.
 - **Cache2k** through JCache — caches of access control lists.
+- **Maven Resolver** with the Maven 3 POM model and the JDK HTTP transport — the Maven dependencies `rules.xml`
+  names, downloaded by OpenL Studio; see [Maven Dependencies in OpenL Studio](maven-dependencies.md).
 
 ## Security
 
