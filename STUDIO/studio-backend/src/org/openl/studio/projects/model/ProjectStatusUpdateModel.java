@@ -17,7 +17,7 @@ import org.openl.studio.projects.converter.ProjectStatusDeserializer;
  *
  * @author Vladyslav Pikus
  */
-@Builder
+@Builder(toBuilder = true)
 @Jacksonized
 public record ProjectStatusUpdateModel(
         @Parameter(description = "Target project status to transition to.", schema = @Schema(allowableValues = {"OPENED", "CLOSED"}))
@@ -49,7 +49,15 @@ public record ProjectStatusUpdateModel(
                 or opening a revision.""")
         Boolean discardChanges,
 
-        @Parameter(description = "When opening a project, also open its dependency projects. Defaults to false.")
-        Boolean openDependencies
+        @Parameter(description = """
+                Also open the dependency projects: with the project, or alone when the project is open already. \
+                A dependency with unsaved changes is left as it is. Defaults to false.""")
+        Boolean openDependencies,
+
+        @Parameter(description = """
+                When opening the project or its dependencies, or switching the branch of an open project, also move \
+                the dependency projects of its repository to the branch of the project. A dependency with unsaved \
+                changes stays on its branch. Defaults to false.""")
+        Boolean switchDependencies
 ) {
 }

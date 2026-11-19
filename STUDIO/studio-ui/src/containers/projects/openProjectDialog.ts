@@ -1,4 +1,8 @@
+import type { SetProjectStatusOptions } from '../../services/repositories'
 import type { Project, ProjectDependency } from '../../types/projects'
+
+/** What the user answered about the dependencies of the project being opened. */
+export type OpenDependenciesOptions = Pick<SetProjectStatusOptions, 'openDependencies' | 'switchDependencies'>
 
 /**
  * The project fields opening needs. Both the list and the detail response carry the dependencies, so the
@@ -22,17 +26,19 @@ export const closeProjectDialog = (): void => {
  * Opens a project, asking first when it declares dependencies.
  *
  * A project that declares none has nothing to decide, so it opens straight away, together with its
- * dependencies as before. Otherwise the dialog offers the choice and warns about the dependencies the
- * branch of the project does not hold.
+ * dependencies as before. Otherwise the dialog offers the choice, offers to move the dependencies onto the
+ * branch of the project, and warns about the ones that stay off it.
  *
- * @param run opens the project, with whether to open its dependencies too
+ * @param run opens the project, with whether to open its dependencies too and whether to move them onto its
+ *            branch
  */
 export const openProjectDialog = (
     project: OpenableProject,
-    run: (openDependencies: boolean) => void
+    run: (options: OpenDependenciesOptions) => void
 ): void => {
     if (project.dependencies.length === 0) {
-        run(true)
+        // The list can be older than the project: whatever the server finds to open follows it to its branch.
+        run({ openDependencies: true, switchDependencies: true })
         return
     }
     window.dispatchEvent(new CustomEvent('openProjectModal', {

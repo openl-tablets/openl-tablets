@@ -1245,7 +1245,7 @@ describe('ProjectsHome row actions', () => {
 
         await userEvent.click(screen.getByTestId('project-action-open-p1'))
 
-        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true, switchDependencies: true }))
     })
 
     it('hides the loading overlay when a ping echoes the action the user is still waiting for', async () => {

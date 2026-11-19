@@ -407,9 +407,9 @@ export const ProjectWorkspace = () => {
             // The detail response is already loaded, so the dialog never reads the dependencies again.
             open: () => openProjectDialog(
                 { ...project, dependencies: project.dependencies ?? []},
-                openDependencies => runAction(
+                options => runAction(
                     'open',
-                    () => setProjectStatus(project.id, 'OPENED', { openDependencies }),
+                    () => setProjectStatus(project.id, 'OPENED', options),
                     'browser.status_change_failed'
                 )
             ),

@@ -153,7 +153,7 @@ export const editProjectLocalizationSchema = z.strictObject({
 export const projectStatusSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: z.string().optional().describe(
-    "Put the project on this branch first, opening a closed one. Omit for a repository without branches."
+    "Put the project and its dependencies on this branch, opening a closed one. Omit for a repository without branches."
   ),
   timeoutMs: z.number().int().positive().max(600000).default(30000).describe(
     "How long to wait for the compilation; on expiry the state is answered as compiling, with no error."
@@ -174,9 +174,9 @@ export const projectStatusSchema = z.strictObject({
 
 export const openProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  branch: z.string().optional().describe("Open the project on this branch."),
+  branch: z.string().optional().describe("Open the project on this branch; its dependencies follow."),
   revision: z.string().optional().describe("A revision from openl_repository_project_revisions to open, read-only."),
-  openDependencies: z.boolean().optional().describe("Also open the projects it depends on."),
+  openDependencies: z.boolean().optional().describe("Also open its dependencies, on its branch."),
 });
 
 export const closeProjectSchema = z.strictObject({

@@ -214,7 +214,7 @@ describe('getProjects', () => {
         }, { throwError: true })
     })
 
-    it('can discard changes while switching a branch', async () => {
+    it('can discard changes while switching a branch, moving the dependencies along', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
         await switchProjectBranch('abc', 'feature', { discardChanges: true })
@@ -222,7 +222,19 @@ describe('getProjects', () => {
         expect(apiCall).toHaveBeenCalledWith('/projects/abc', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ branch: 'feature', discardChanges: true }),
+            body: JSON.stringify({ branch: 'feature', switchDependencies: true, discardChanges: true }),
+        }, { throwError: true })
+    })
+
+    it('opens a project with its dependencies moved onto its branch', async () => {
+        vi.mocked(apiCall).mockResolvedValue(undefined)
+
+        await setProjectStatus('abc', ProjectStatus.Opened, { openDependencies: true, switchDependencies: true })
+
+        expect(apiCall).toHaveBeenCalledWith('/projects/abc', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: ProjectStatus.Opened, openDependencies: true, switchDependencies: true }),
         }, { throwError: true })
     })
 

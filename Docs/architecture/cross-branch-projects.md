@@ -120,7 +120,7 @@ An opened local copy must be associated by `(repositoryId, external project name
 paths cannot be used for this association because mapped paths may differ by branch.
 
 Each dependency must keep its own effective branch. Resolving a dependency must not switch it to the declaring
-project's branch.
+project's branch: only the explicit move described below does.
 
 A dependency must be resolved inside the branch of the declaring project. A project of the same repository counts
 only when that branch contains it — membership comes from the index, not from the branch the workspace happens to
@@ -130,7 +130,25 @@ copy another branch keeps is a different version of the same content rather than
 The declaring project's branch scopes the lookup and nothing else. It decides membership; it never becomes the
 resolved dependency's branch. The dependency keeps its own effective branch, and that branch is what selects the
 version compiled and opened — which is why a dependency the workspace shows on another branch is reported as
-such, for the user to switch, rather than silently re-pointed.
+such rather than silently re-pointed.
+
+Moving the dependencies onto the branch of a project is a separate step that opening or switching the project asks
+for (`switchDependencies` of the project status update):
+
+- A dependency of the project's own repository moves when the project, or a dependency already on that branch,
+  declares it there. What moves is read from the branch it moves to, because what a dependency declares can differ
+  between branches.
+- A dependency with unsaved changes keeps its branch, so no edit is lost, and opening the project does not open it
+  again. So do a dependency the branch of the project does not hold for the user, and one the client is merging,
+  which stays read-only while its merge runs.
+- What only a dependency that stays declares stays where it is too.
+- A dependency of another repository is never moved, by the same exception as the lookup, and neither is one
+  reached only through it.
+
+OpenL Studio asks for the move by default: the window that opens a project lets the user keep the branches, and a
+branch switch of an open project — the one after creating a branch too — always takes the dependencies along. A
+closed project is not compiled, so switching it leaves its dependencies where they are until it is opened. The MCP
+server takes them along whenever it opens a project with its dependencies or puts it on a branch.
 
 Another repository is the exception to the scope: nothing keeps the branches of two repositories in step, so a
 match there counts whatever branch it is on. The same rule decides which projects a project reports as its

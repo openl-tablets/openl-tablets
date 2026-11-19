@@ -471,7 +471,8 @@ describe("project status", () => {
     const result = await executeTool("project_status", { projectId, branch: "develop" }, harness.client);
 
     expect(textOf(result)).toContain("\nBranch: develop.");
-    expect(harness.mockHttp.history.patch).toHaveLength(1);
+    // The dependencies follow the project onto the branch, as a switch in Studio takes them
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ branch: "develop", switchDependencies: true }]);
   });
 
   it("reads the status of the branch the project is opened on without switching it", async () => {
@@ -691,8 +692,10 @@ describe("project status", () => {
 describe("open, save and close", () => {
   it.each([
     [{}, { status: "OPENED" }],
-    [{ branch: "develop" }, { status: "OPENED", branch: "develop" }],
+    [{ branch: "develop" }, { status: "OPENED", switchDependencies: true, branch: "develop" }],
     [{ revision: "abc123" }, { status: "OPENED", revision: "abc123" }],
+    // The dependencies follow it to its branch (EPBDS-8462)
+    [{ openDependencies: true }, { status: "OPENED", openDependencies: true, switchDependencies: true }],
   ])("openl_open_project opens a closed project as %j asks", async (args, patch) => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("CLOSED"));
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
@@ -720,7 +723,8 @@ describe("open, save and close", () => {
       projectId: "design-project1", branch: "develop", }, harness.client);
 
     expect(harness.mockHttp.history.get).toHaveLength(1);
-    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ branch: "develop" }]);
+    // The dependencies follow it onto the branch, as a switch in Studio takes them
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ branch: "develop", switchDependencies: true }]);
     expect(dataOf(result)).toEqual({ opened: true });
   });
 
@@ -732,7 +736,7 @@ describe("open, save and close", () => {
       projectId: "design-project1", branch: "develop", revision: "abc123", openDependencies: true, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([
-      { status: "OPENED", revision: "abc123", openDependencies: true, branch: "develop" },
+      { status: "OPENED", revision: "abc123", openDependencies: true, switchDependencies: true, branch: "develop" },
     ]);
     expect(dataOf(result)).toEqual({ opened: true });
   });

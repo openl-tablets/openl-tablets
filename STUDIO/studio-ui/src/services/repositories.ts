@@ -357,9 +357,11 @@ export function downloadProject(projectId: string, version?: string): void {
 
 type ProjectStatusToSet = 'OPENED' | 'CLOSED'
 
-interface SetProjectStatusOptions {
+export interface SetProjectStatusOptions {
     discardChanges?: boolean
     openDependencies?: boolean
+    /** Move the dependencies of the project's repository to its branch; one with unsaved changes stays. */
+    switchDependencies?: boolean
 }
 
 interface DiscardChangesOptions {
@@ -387,6 +389,7 @@ export async function setProjectStatus(
     await patchProject(projectId, {
         status,
         ...(options.openDependencies ? { openDependencies: true } : {}),
+        ...(options.switchDependencies ? { switchDependencies: true } : {}),
         ...(options.discardChanges ? { discardChanges: true } : {}),
     })
 }
@@ -610,7 +613,13 @@ export async function getProjectBranches(
     return asArray(response)
 }
 
-/** Switch a project to a different branch. The backend opens the project on that branch. */
+/**
+ * Switch a project to a different branch. An open project is opened again on that branch.
+ *
+ * The dependencies of an open project's repository move to that branch with it, so the project keeps compiling
+ * against the versions its branch holds. A dependency with unsaved changes stays on its branch. A closed project
+ * leaves its dependencies where they are until it is opened.
+ */
 export async function switchProjectBranch(
     projectId: string,
     branch: string,
@@ -618,6 +627,7 @@ export async function switchProjectBranch(
 ): Promise<void> {
     await patchProject(projectId, {
         branch,
+        switchDependencies: true,
         ...(options.discardChanges ? { discardChanges: true } : {}),
     })
 }

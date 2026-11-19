@@ -513,7 +513,7 @@ describe('ProjectWorkspace', () => {
         expect(liveHandlers.holdWhile).toBe(false)
 
         await userEvent.click(screen.getByTestId('open-p1'))
-        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true, switchDependencies: true }))
         // The action's own read is on the wire, and the environment is slow. A refresh started
         // beside it would supersede it and unlock the buttons over the state before the action, so
         // the page asks the hook to hold what arrives (the holding itself is the hook's own test).
@@ -678,7 +678,7 @@ describe('ProjectWorkspace', () => {
 
         await userEvent.click(screen.getByTestId('open-p1'))
 
-        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true }))
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true, switchDependencies: true }))
     })
 
     it('withdraws the open question when the route swaps in another project', async () => {

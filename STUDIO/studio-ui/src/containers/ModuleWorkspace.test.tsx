@@ -99,7 +99,8 @@ vi.mock('./modules/useModuleCompilation', () => ({
 
 // The question asked before a closed project is opened is answered here; the dialog has its own tests.
 vi.mock('./projects/openProjectDialog', () => ({
-    openProjectDialog: (_project: unknown, onConfirm: (openDependencies: boolean) => void) => onConfirm(false),
+    openProjectDialog: (_project: unknown, onConfirm: (options: { openDependencies: boolean }) => void) =>
+        onConfirm({ openDependencies: false }),
     closeProjectDialog: vi.fn(),
 }))
 

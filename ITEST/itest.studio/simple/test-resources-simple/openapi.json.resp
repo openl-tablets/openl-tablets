@@ -33118,6 +33118,10 @@ Content-Type: application/json
               "OPENED",
               "CLOSED"
             ]
+          },
+          "switchDependencies": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },

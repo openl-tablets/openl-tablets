@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "Chain",
+  "branch": "master",
+  "dependencies": [
+    {
+      "name": "Consumer",
+      "branch": "master"
+    },
+    {
+      "name": "Provider",
+      "branch": "master",
+      "transitive": true
+    }
+  ]
+}
