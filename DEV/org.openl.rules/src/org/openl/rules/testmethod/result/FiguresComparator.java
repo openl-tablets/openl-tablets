@@ -12,6 +12,9 @@ import org.openl.rules.helpers.NumberUtils;
  * its {@code N}th figure for {@code Nsf}, or at the last figure it is written with for {@code sf}. So {@code 99.00} in
  * 4 figures matches {@code 98.995}, but not {@code 99.005}. A half rounds away from zero.
  * <p>
+ * An expected number shown as a fraction rounds to a whole number of parts of its denominator, as a decimal rounds at
+ * its last figure: {@code 12 36/100} matches from {@code 12.355} up to, but not including, {@code 12.365}.
+ * <p>
  * Without the written text, the expected number is taken as it reads: all the digits of a {@code BigDecimal}, the
  * shortest form of a {@code Double} or a {@code Float}, every digit of a whole number. The numbers are compared as
  * decimals, with all the digits they show, and only zero agrees with zero in {@code N} figures. NaN equals NaN, and an
@@ -47,12 +50,16 @@ class FiguresComparator implements TestResultComparator {
             // zero has no significant figures
             return actual.signum() == 0;
         }
-        long scale = switch (figures) {
-            case Tolerance.SignificantFigures(int count) -> count - 1 - exponent(expected);
+        return switch (figures) {
+            case Tolerance.SignificantFigures(int count) -> isEqualAt(expected, actual, count - 1L - exponent(expected));
             case Tolerance.ExpectedFigures(Integer written) ->
-                written == null ? lastScale(expectedResult, expected) : written;
+                isEqualAt(expected, actual, written == null ? lastScale(expectedResult, expected) : written);
+            case Tolerance.ExpectedFraction(int denominator) -> {
+                // counted in parts 1/denominator, both numbers round to whole parts
+                var parts = BigDecimal.valueOf(denominator);
+                yield isEqualAt(expected.multiply(parts), actual.multiply(parts), 0);
+            }
         };
-        return isEqualAt(expected, actual, scale);
     }
 
     /**

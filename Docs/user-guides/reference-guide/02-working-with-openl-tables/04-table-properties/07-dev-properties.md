@@ -109,6 +109,12 @@ expected value sets its own rounding:
 - A number cell in the General format, which shows no more figures than the number has, and a cell that holds more
   than one number, such as an array, are read as the number they hold: every digit of a whole number counts, and a
   fraction has the digits of its shortest form.
+- A number cell in a fraction format, such as `# ?/?`, rounds to the parts of the denominator it shows, as a decimal
+  rounds at its last figure. `12 36/100` rounds as `12.36` does: it matches from `12.355` up to, but not including,
+  `12.365`. `1 1/2` matches from `1.25` up to `1.75`, and a whole number shown without a fraction, such as `2`, from
+  `1.5` up to `2.5`. A format with a fixed denominator, such as `# ?/16`, keeps it for every value: `2` matches from
+  `1 31/32` up to `2 1/32` there. Only the section of the format that shows the value counts: `0.00;# ?/16` shows
+  `1.25` to hundredths, and `-1.25` to sixteenths.
 - The numbers are compared as decimals, with all the digits they show, so a `BigDecimal` or `BigInteger` value keeps
   all its digits. With *N*`sf`, only zero matches an expected zero.
 - A half rounds away from zero: `-99.005` rounds to `-99.01`.

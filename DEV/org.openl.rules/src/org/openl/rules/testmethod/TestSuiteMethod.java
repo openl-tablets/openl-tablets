@@ -358,9 +358,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         var tolerances = new HashMap<Integer, Tolerance>();
         for (var i = 0; i < columns.length; i++) {
             var cell = table.getData().getSubtable(columnIndexes[i], row, 1, 1).getSource().getCell(0, 0);
-            var scale = WrittenFigures.scaleOf(cell, formatter);
-            if (scale != null) {
-                tolerances.put(columns[i], new Tolerance.ExpectedFigures(scale));
+            var figures = WrittenFigures.figuresOf(cell, formatter);
+            if (figures != null) {
+                tolerances.put(columns[i], figures);
             }
         }
         return tolerances;

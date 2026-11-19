@@ -42,8 +42,11 @@ class FiguresComparatorTest {
         assertTrue(figures(4).isEqual(99.0, 99.0049));
         assertFalse(figures(4).isEqual(-99.0, -99.005));
         assertTrue(figures(4).isEqual(-99.0, -98.995));
-        // the expected value is rounded too
+        // the expected value is rounded too: 1.3314 in 4 figures is 1.331, matched from 1.3305 up to 1.3315
+        assertTrue(figures(4).isEqual(1.3314, 1.3310));
+        assertFalse(figures(4).isEqual(1.3314, 1.33189));
         assertTrue(figures(4).isEqual(1.3314, 1.3306));
+        assertFalse(figures(4).isEqual(1.3314, 1.3319));
         assertTrue(figures(2).isEqual(11.0, 10.648));
         assertTrue(figures(2).isEqual(11000, 10648));
         assertFalse(figures(2).isEqual(10.0, 10.648));
@@ -180,6 +183,40 @@ class FiguresComparatorTest {
         var hundreds = new FiguresComparator(new Tolerance.ExpectedFigures(-2));
         assertTrue(hundreds.isEqual(1000, 1049));
         assertFalse(hundreds.isEqual(1000, 1050));
+    }
+
+    @Test
+    void roundedToThePartsOfTheShownFraction() {
+        // 12 36/100 rounds as 12.36 does: from 12.355 up to, but not including, 12.365
+        var hundredths = fraction(100);
+        assertTrue(hundredths.isEqual(12.36, 12.355));
+        assertTrue(hundredths.isEqual(12.36, 12.3649999));
+        assertFalse(hundredths.isEqual(12.36, 12.365));
+        assertFalse(hundredths.isEqual(12.36, 12.3549999));
+        // a half rounds away from zero
+        assertTrue(hundredths.isEqual(-12.36, -12.355));
+        assertFalse(hundredths.isEqual(-12.36, -12.365));
+        // 12/13 rounds to thirteenths
+        var thirteenths = fraction(13);
+        assertTrue(thirteenths.isEqual(12.0 / 13, 12.0 / 13 + 1.0 / 27));
+        assertFalse(thirteenths.isEqual(12.0 / 13, 12.0 / 13 + 1.0 / 25));
+        // 1 1/2 rounds to halves
+        var halves = fraction(2);
+        assertTrue(halves.isEqual(1.5, 1.25));
+        assertFalse(halves.isEqual(1.5, 1.75));
+        assertTrue(halves.isEqual(new BigDecimal("1.5"), TWO_THIRDS.add(BigDecimal.ONE)));
+        // the expected value is rounded too
+        assertTrue(halves.isEqual(1.6, 1.5));
+        // a whole number shown without a fraction rounds to units
+        assertTrue(fraction(1).isEqual(2, 1.5));
+        assertTrue(fraction(1).isEqual(2, 2.4999));
+        assertFalse(fraction(1).isEqual(2, 2.5));
+        assertTrue(halves.isEqual(Double.NaN, Double.NaN));
+        assertFalse(halves.isEqual(Double.POSITIVE_INFINITY, 1.5));
+    }
+
+    private static TestResultComparator fraction(int denominator) {
+        return new FiguresComparator(new Tolerance.ExpectedFraction(denominator));
     }
 
     private static TestResultComparator figures(int count) {
