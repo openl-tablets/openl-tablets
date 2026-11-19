@@ -38,13 +38,17 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     @Override
     public List<ProjectDependency> getDependencies(RulesProject project) {
+        var declared = declaredDependencies(project);
+        if (declared.isEmpty()) {
+            // Nothing to resolve, so the workspace-wide index is not built for it.
+            return List.of();
+        }
         // Build the dependency-name index once per request; listing a page resolves dependencies for
         // every project and would otherwise rebuild it each time (O(N^2)).
         var projectIndex = listingContext.dependencyIndex(() ->
                 getAllProjects().stream().collect(Collectors.groupingBy(this::dependencyLookupName)));
 
         var dependencies = new ArrayList<ProjectDependency>();
-        var declared = declaredDependencies(project);
         var walk = new Walk(project.getRepository().getId(),
                 project.getBranch(),
                 declared.stream().map(ProjectDependencyDescriptor::getName).collect(Collectors.toSet()),

@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -165,6 +166,7 @@ import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.localization.LocalizationCache;
+import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
@@ -1474,6 +1476,348 @@ class WorkspaceProjectServiceTest {
         verify(project).releaseMyLock();
         verify(userWorkspace).setProjectBranch(project, "feature");
         verify(project).open();
+    }
+
+    @Test
+    void switching_the_branch_moves_the_dependencies_its_branch_declares() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "main");
+        when(project.getBranch()).thenReturn("main", "feature");
+        when(project.isOpened()).thenReturn(true);
+        var provider = branchProject(repository, "Provider", "main");
+        // Declared by Provider on the branch it moves to.
+        var rates = branchProject(repository, "Rates", "main");
+        var onBranch = branchProject(repository, "OnBranch", "feature");
+        var edited = branchProject(repository, "Edited", "main");
+        when(edited.isOpened()).thenReturn(true);
+        when(edited.isModified()).thenReturn(true);
+        // Declared only by the edited dependency, which keeps its branch.
+        var editedOnly = branchProject(repository, "EditedOnly", "main");
+        var otherRepository = mock(Repository.class);
+        when(otherRepository.getId()).thenReturn("other");
+        var foreign = branchProject(otherRepository, "Foreign", "main");
+        // Reached only through another repository.
+        var throughForeign = branchProject(repository, "ThroughForeign", "main");
+        declares(resolver, project, provider, onBranch, edited, foreign);
+        declares(resolver, provider, rates);
+        declares(resolver, edited, editedOnly);
+        declares(resolver, foreign, throughForeign);
+
+        try (var ignored = mockStatic(ProjectHistoryService.class)) {
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .branch("feature")
+                    .switchDependencies(true)
+                    .build());
+        }
+
+        verify(userWorkspace).setProjectBranch(project, "feature");
+        verify(userWorkspace).setProjectBranch(provider, "feature");
+        verify(userWorkspace).setProjectBranch(rates, "feature");
+        for (var stays : List.of(onBranch, edited, editedOnly, foreign, throughForeign)) {
+            verify(userWorkspace, never()).setProjectBranch(eq(stays), any());
+        }
+    }
+
+    @Test
+    void a_dependency_the_branch_cannot_take_keeps_its_branch_and_the_switch_goes_on() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "main");
+        when(project.getBranch()).thenReturn("main", "feature");
+        when(project.isOpened()).thenReturn(true);
+        var missing = branchProject(repository, "Missing", "main");
+        doThrow(new ProjectException("Project ''{0}'' is not found in branch ''{1}''.", null, "Missing", "feature"))
+                .when(userWorkspace).setProjectBranch(missing, "feature");
+        var refused = branchProject(repository, "Refused", "main");
+        when(refused.getLastHistoryVersion()).thenReturn(null);
+        var provider = branchProject(repository, "Provider", "main");
+        declares(resolver, project, missing, refused, provider);
+
+        try (var ignored = mockStatic(ProjectHistoryService.class)) {
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .branch("feature")
+                    .switchDependencies(true)
+                    .build());
+        }
+
+        verify(userWorkspace).setProjectBranch(provider, "feature");
+        // The workspace has no history of the refused one on that branch, so it goes back where it was.
+        verify(userWorkspace).setProjectBranch(refused, "main");
+        verify(resolver, never()).getDependencies(missing);
+        verify(resolver, never()).getDependencies(refused);
+    }
+
+    @Test
+    void a_dependency_the_client_is_merging_keeps_its_branch() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "main");
+        when(project.getBranch()).thenReturn("main", "feature");
+        when(project.isOpened()).thenReturn(true);
+        var merging = branchProject(repository, "Merging", "main");
+        var provider = branchProject(repository, "Provider", "main");
+        declares(resolver, project, merging, provider);
+        when(service.getMergeLauncher().isRunning(any())).thenAnswer(
+                invocation -> invocation.<Supplier<RulesProject>>getArgument(0).get() == merging);
+
+        try (var ignored = mockStatic(ProjectHistoryService.class)) {
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .branch("feature")
+                    .switchDependencies(true)
+                    .build());
+        }
+
+        verify(userWorkspace, never()).setProjectBranch(eq(merging), any());
+        verify(userWorkspace).setProjectBranch(provider, "feature");
+    }
+
+    @Test
+    void a_dependency_whose_switch_fails_after_its_branch_changed_goes_back() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "main");
+        when(project.getBranch()).thenReturn("main", "feature");
+        when(project.isOpened()).thenReturn(true);
+        var rates = branchProject(repository, "Rates", "main");
+        when(rates.isOpened()).thenReturn(true);
+        var ratesBranch = new AtomicReference<>("main");
+        when(rates.getBranch()).thenAnswer(invocation -> ratesBranch.get());
+        doAnswer(invocation -> {
+            ratesBranch.set(invocation.getArgument(1));
+            return null;
+        }).when(userWorkspace).setProjectBranch(eq(rates), any());
+        declares(resolver, project, rates);
+
+        try (var history = mockStatic(ProjectHistoryService.class)) {
+            history.when(() -> ProjectHistoryService.deleteHistory(any(), eq("Rates")))
+                    .thenThrow(new IOException("disk full"));
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .branch("feature")
+                    .switchDependencies(true)
+                    .build());
+        }
+
+        var order = inOrder(userWorkspace);
+        order.verify(userWorkspace).setProjectBranch(rates, "feature");
+        order.verify(userWorkspace).setProjectBranch(rates, "main");
+        assertEquals("main", rates.getBranch());
+    }
+
+    @Test
+    void a_dependency_that_cannot_go_back_is_opened_on_the_branch_it_is_on() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "main");
+        when(project.getBranch()).thenReturn("main", "feature");
+        when(project.isOpened()).thenReturn(true);
+        var rates = branchProject(repository, "Rates", "main");
+        when(rates.isOpened()).thenReturn(true);
+        var ratesBranch = new AtomicReference<>("main");
+        when(rates.getBranch()).thenAnswer(invocation -> ratesBranch.get());
+        doAnswer(invocation -> {
+            ratesBranch.set(invocation.getArgument(1));
+            return null;
+        }).when(userWorkspace).setProjectBranch(rates, "feature");
+        // The branch it came from is gone from the index meanwhile.
+        doThrow(new ProjectException("Project ''{0}'' is not found in branch ''{1}''.", null, "Rates", "main"))
+                .when(userWorkspace).setProjectBranch(rates, "main");
+        declares(resolver, project, rates);
+
+        try (var history = mockStatic(ProjectHistoryService.class)) {
+            history.when(() -> ProjectHistoryService.deleteHistory(any(), eq("Rates")))
+                    .thenThrow(new IOException("disk full"));
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .branch("feature")
+                    .switchDependencies(true)
+                    .build());
+        }
+
+        assertEquals("feature", rates.getBranch());
+        // Its copy follows the branch it is on now.
+        verify(rates).open();
+    }
+
+    @Test
+    void a_dependency_that_can_neither_go_back_nor_open_is_closed() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "main");
+        when(project.getBranch()).thenReturn("main", "feature");
+        when(project.isOpened()).thenReturn(true);
+        var rates = branchProject(repository, "Rates", "main");
+        when(rates.isOpened()).thenReturn(true);
+        var ratesBranch = new AtomicReference<>("main");
+        when(rates.getBranch()).thenAnswer(invocation -> ratesBranch.get());
+        doAnswer(invocation -> {
+            ratesBranch.set(invocation.getArgument(1));
+            return null;
+        }).when(userWorkspace).setProjectBranch(rates, "feature");
+        doThrow(new ProjectException("Project ''{0}'' is not found in branch ''{1}''.", null, "Rates", "main"))
+                .when(userWorkspace).setProjectBranch(rates, "main");
+        var openFailure = new ProjectException("Cannot open the project.");
+        doThrow(openFailure).when(rates).open();
+        declares(resolver, project, rates);
+        var model = ProjectStatusUpdateModel.builder().branch("feature").switchDependencies(true).build();
+
+        try (var history = mockStatic(ProjectHistoryService.class)) {
+            history.when(() -> ProjectHistoryService.deleteHistory(any(), eq("Rates")))
+                    .thenThrow(new IOException("disk full"));
+            var error = assertThrows(ProjectException.class, () -> service.updateProjectStatus(project, model));
+            assertSame(openFailure, error);
+        }
+
+        // Closed rather than shown with the copy of the branch it left.
+        verify(rates).close();
+    }
+
+    @Test
+    void switching_the_branch_leaves_the_dependencies_where_they_are_unless_asked() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var project = branchProject(repository(), "Consumer", "main");
+        when(project.isOpened()).thenReturn(true);
+
+        try (var ignored = mockStatic(ProjectHistoryService.class)) {
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().branch("feature").build());
+        }
+
+        verify(userWorkspace).setProjectBranch(project, "feature");
+        verify(resolver, never()).getDependencies(any());
+    }
+
+    @Test
+    void switching_the_branch_of_a_closed_project_leaves_its_dependencies_where_they_are() throws Exception {
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = serviceWithModel(userWorkspace);
+        var resolver = resolverOf(service);
+        var project = branchProject(repository(), "Consumer", "main");
+
+        service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                .branch("feature")
+                .switchDependencies(true)
+                .build());
+
+        verify(userWorkspace).setProjectBranch(project, "feature");
+        verify(resolver, never()).getDependencies(any());
+    }
+
+    @Test
+    void opening_with_the_dependencies_moves_them_and_opens_each_once() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var userWorkspace = mock(UserWorkspace.class);
+        var webStudio = mock(WebStudio.class);
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
+                webStudio);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "feature");
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        when(projectStateValidator.canOpen(project)).thenReturn(true);
+        var closed = branchProject(repository, "Provider", "main");
+        var opened = branchProject(repository, "Rates", "main");
+        when(opened.isOpened()).thenReturn(true);
+        var edited = branchProject(repository, "Draft", "main");
+        when(edited.isOpened()).thenReturn(true);
+        when(edited.isModified()).thenReturn(true);
+        // On the branch already, but the client is merging it.
+        var merging = branchProject(repository, "Merging", "feature");
+        when(service.getMergeLauncher().isRunning(any())).thenAnswer(
+                invocation -> invocation.<Supplier<RulesProject>>getArgument(0).get() == merging);
+        declares(resolver, project, closed, opened, edited, merging);
+        when(resolver.getProjectDependencies(project)).thenReturn(List.of(closed, opened, edited, merging));
+
+        try (var ignored = mockStatic(ProjectHistoryService.class)) {
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .status(ProjectStatus.VIEWING)
+                    .openDependencies(true)
+                    .switchDependencies(true)
+                    .build());
+        }
+
+        var order = inOrder(project, userWorkspace, closed);
+        order.verify(project).open();
+        order.verify(userWorkspace).setProjectBranch(closed, "feature");
+        order.verify(closed).open();
+        // The move reopened it on the branch already.
+        verify(opened, times(1)).open();
+        // Opening it again would overwrite its unsaved changes.
+        verify(edited, never()).open();
+        verify(userWorkspace, never()).setProjectBranch(eq(edited), any());
+        // It stays read-only while its merge runs.
+        verify(merging, never()).open();
+    }
+
+    @Test
+    void an_open_project_opens_its_dependencies_on_its_branch() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var userWorkspace = mock(UserWorkspace.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var project = branchProject(repository, "Consumer", "feature");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        var provider = branchProject(repository, "Provider", "main");
+        declares(resolver, project, provider);
+        when(resolver.getProjectDependencies(project)).thenReturn(List.of(provider));
+
+        service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                .status(ProjectStatus.VIEWING)
+                .openDependencies(true)
+                .switchDependencies(true)
+                .build());
+
+        verify(project, never()).open();
+        verify(userWorkspace).setProjectBranch(provider, "feature");
+        verify(provider).open();
+    }
+
+    /** A closed project of a repository with branches, on the given branch, with a saved revision there. */
+    private RulesProject branchProject(Repository repository, String name, String branch) {
+        var project = project(repository, name, name);
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getBranch()).thenReturn(branch);
+        when(project.getLastHistoryVersion()).thenReturn("revision");
+        return project;
+    }
+
+    /** Has the project declare the given projects itself in its {@code rules.xml}. */
+    private static void declares(ProjectDependencyResolver resolver, RulesProject project, RulesProject... declared) {
+        var dependencies = new ArrayList<ProjectDependency>();
+        for (var dependency : declared) {
+            dependencies.add(new ProjectDependency(dependency.toString(), dependency, false));
+        }
+        when(resolver.getDependencies(project)).thenReturn(dependencies);
+    }
+
+    /** A service whose editor model can be cleared, as switching an open project needs. */
+    private static WorkspaceProjectService serviceWithModel(UserWorkspace userWorkspace) throws ProjectException {
+        var webStudio = mock(WebStudio.class);
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
+        return newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class), userWorkspace,
+                mock(ProjectStateValidator.class), webStudio);
+    }
+
+    private static ProjectDependencyResolver resolverOf(WorkspaceProjectService service) {
+        return (ProjectDependencyResolver) ReflectionTestUtils.getField(service, "projectDependencyResolver");
     }
 
     @Test
@@ -3930,9 +4274,16 @@ class WorkspaceProjectServiceTest {
                 moduleCompilationLauncher,
                 () -> userWorkspace, uploadFormatting, mock(MarkdownTableFiles.class)) {
 
+            private final ProjectsMergeLauncher mergeLauncher = mock(ProjectsMergeLauncher.class);
+
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;
+            }
+
+            @Override
+            protected ProjectsMergeLauncher getMergeLauncher() {
+                return mergeLauncher;
             }
         };
     }

@@ -1249,14 +1249,10 @@ public class ProjectsController {
      * calling {@code isNotBlank} / {@code trimToNull}.
      */
     private static ProjectStatusUpdateModel normalize(ProjectStatusUpdateModel raw) {
-        return ProjectStatusUpdateModel.builder()
-                .status(raw.status())
+        return raw.toBuilder()
                 .branch(StringUtils.trimToNull(raw.branch()))
                 .revision(StringUtils.trimToNull(raw.revision()))
                 .comment(StringUtils.trimToNull(raw.comment()))
-                .save(raw.save())
-                .discardChanges(raw.discardChanges())
-                .openDependencies(raw.openDependencies())
                 .build();
     }
 }

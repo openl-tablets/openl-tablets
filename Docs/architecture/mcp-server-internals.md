@@ -92,10 +92,10 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   `202 {"status":"notReady"}` until it is ready: test results and merges. It reads again after a pause that grows
   from 250 ms to 2 s, sends `notifications/progress` meanwhile, and stops on the `AbortSignal` of the call.
 - **Table runs** — `openl_run_table` starts the run and polls its result within the same call.
-- **Compilation** — `openl_project_status` switches the project to a requested branch, then compiles an idle project
-  through a table read, which Studio answers once the compilation ends, and waits for a compilation already running,
-  such as the one an edit starts, reading the short status as a refresh from disk does (`untilCompiled` of
-  `handlers/freshness.ts`). One that outlasts `timeoutMs` (30 seconds by default) is answered as `compiling`, without
+- **Compilation** — `openl_project_status` switches the project to a requested branch, taking its dependencies of the
+  same repository along as Studio does, then compiles an idle project through a table read, which Studio answers once
+  the compilation ends, and waits for a compilation already running, such as the one an edit starts, reading the short
+  status as a refresh from disk does (`untilCompiled` of `handlers/freshness.ts`). One that outlasts `timeoutMs` (30 seconds by default) is answered as `compiling`, without
   counts of messages or tests, with a note to call again. The server opens no WebSocket.
 - **Trace** — `openl_resume_trace` polls the trace status every 250 ms, 30 s by default.
 

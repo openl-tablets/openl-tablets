@@ -9,7 +9,7 @@ describe('openProjectDialog', () => {
 
         openProjectDialog({ ...project, dependencies: []}, run)
 
-        expect(run).toHaveBeenCalledWith(true)
+        expect(run).toHaveBeenCalledWith({ openDependencies: true, switchDependencies: true })
         expect(dispatch).not.toHaveBeenCalled()
         dispatch.mockRestore()
     })
@@ -29,7 +29,7 @@ describe('openProjectDialog', () => {
         expect(run).not.toHaveBeenCalled()
         expect(events).toHaveLength(1)
         expect(events[0]!.detail.dependencies).toEqual([{ name: 'Provider' }])
-        events[0]!.detail.onConfirm(false)
-        expect(run).toHaveBeenCalledWith(false)
+        events[0]!.detail.onConfirm({ openDependencies: false })
+        expect(run).toHaveBeenCalledWith({ openDependencies: false })
     })
 })

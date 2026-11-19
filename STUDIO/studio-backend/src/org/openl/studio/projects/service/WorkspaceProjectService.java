@@ -151,6 +151,7 @@ import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.localization.ProjectMessages;
+import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
@@ -345,6 +346,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     @Lookup
     public CompilationJobRegistry getCompilationJobRegistry() {
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
+    }
+
+    /**
+     * The merges of the client. Looked up when needed, because the launcher depends on this service.
+     */
+    @Lookup
+    protected ProjectsMergeLauncher getMergeLauncher() {
         // Spring overrides this method with a lookup of the bean; the stub itself never runs.
         throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
@@ -970,6 +980,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (model.status() == ProjectStatus.VIEWING) {
             if (!project.isOpened() || StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision())) {
                 open(project, Boolean.TRUE.equals(model.openDependencies()), model);
+            } else if (Boolean.TRUE.equals(model.openDependencies())) {
+                // The project is open already, so only its dependencies are left to open.
+                requireGranted(project, BasePermission.READ);
+                openAllDependencies(project, moveDependenciesToBranchOf(project, model));
             }
         } else {
             closeOrSwitchBranch(project, model);
@@ -977,8 +991,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Closes the project when the model asks for it, switching it to the requested branch first, or else only
-     * switches it to the requested branch.
+     * Closes the project when the model asks for it, switching it to the requested branch first, or else switches
+     * it to the requested branch.
+     *
+     * <p>A switch of an open project without a close takes its dependencies to the new branch too when the model
+     * asks for it. A closed project is not compiled, so its dependencies stay where they are until it is opened.
+     * Closing never moves them.
      */
     private void closeOrSwitchBranch(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         var closeRequested = model.status() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED;
@@ -990,6 +1008,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         if (!closeRequested && StringUtils.isNotBlank(model.branch())) {
             switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
+            if (project.isOpened()) {
+                moveDependenciesToBranchOf(project, model);
+            }
         }
     }
 
@@ -1391,8 +1412,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         openRequestedView(project, model, wasOpened);
 
+        var reopened = moveDependenciesToBranchOf(project, model);
         if (openDependencies) {
-            openAllDependencies(project);
+            openAllDependencies(project, reopened);
         }
         publishStateChanged(project);
     }
@@ -1476,9 +1498,151 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    private void openAllDependencies(RulesProject project) throws ProjectException {
-        for (RulesProject rulesProject : projectDependencyResolver.getProjectDependencies(project)) {
-            rulesProject.open();
+    /**
+     * Moves the dependencies of a project to the branch the project is on, when the model asks for it.
+     *
+     * <p>A dependency moves when the project, or a dependency already on that branch, declares it there, so what
+     * moves is read from the branch it moves to. Only the dependencies of the project's own repository move: a
+     * dependency of another repository keeps its branch, because nothing keeps the branches of two repositories
+     * in step, and so does a dependency reached only through one.
+     *
+     * <p>A dependency with unsaved changes keeps its branch and its changes, and so do one the branch of the project
+     * does not hold and one the client is merging. What only such a dependency declares stays where it is too.
+     *
+     * @return the dependencies that were open and are now open on the branch of the project
+     */
+    private Set<RulesProject> moveDependenciesToBranchOf(RulesProject project,
+                                                         ProjectStatusUpdateModel model) throws ProjectException {
+        var branch = project.getBranch();
+        if (!Boolean.TRUE.equals(model.switchDependencies()) || !project.isSupportsBranches() || branch == null) {
+            return Set.of();
+        }
+        var repositoryId = project.getRepository().getId();
+        var reopened = new HashSet<RulesProject>();
+        var seen = new HashSet<RulesProject>();
+        var onBranch = new ArrayDeque<RulesProject>();
+        onBranch.add(project);
+        while (!onBranch.isEmpty()) {
+            for (var dependency : declaredInRepository(onBranch.remove(), repositoryId)) {
+                if (seen.add(dependency) && followsBranch(dependency, branch, reopened)) {
+                    onBranch.add(dependency);
+                }
+            }
+        }
+        return reopened;
+    }
+
+    /**
+     * The projects of the given repository that the project declares itself in its {@code rules.xml}.
+     */
+    private List<RulesProject> declaredInRepository(RulesProject project, String repositoryId) {
+        return projectDependencyResolver.getDependencies(project)
+                .stream()
+                .filter(dependency -> !dependency.transitive())
+                .map(ProjectDependency::project)
+                .filter(Objects::nonNull)
+                .filter(RulesProject::isSupportsBranches)
+                .filter(dependency -> dependency.getRepository().getId().equals(repositoryId))
+                .toList();
+    }
+
+    /**
+     * Puts a dependency on the branch, unless it is there already.
+     *
+     * <p>A switch that fails puts the dependency back on its branch. When it cannot go back, an open dependency is
+     * opened again on the branch it is on now, or closed when that fails too, so a copy always matches its branch.
+     *
+     * @param reopened collects the dependency when it was open and is reopened on the branch
+     * @return whether the dependency is on the branch now
+     */
+    private boolean followsBranch(RulesProject dependency,
+                                  String branch,
+                                  Set<RulesProject> reopened) throws ProjectException {
+        var previousBranch = dependency.getBranch();
+        if (branch.equals(previousBranch)) {
+            return true;
+        }
+        if (getMergeLauncher().isRunning(() -> dependency)) {
+            // The project is read-only for the client while its merge runs.
+            log.info("Dependency '{}' stays on branch '{}': it is being merged.", dependency.getBusinessName(),
+                    previousBranch);
+            return false;
+        }
+        var wasOpened = dependency.isOpened();
+        try {
+            // A modified dependency is refused here, before anything of it changes.
+            switchToBranch(dependency, branch, false);
+        } catch (ConflictException | ProjectException e) {
+            var reason = e instanceof ConflictException conflict ? conflict.getErrorCode() : e.getMessage();
+            if (restoreBranch(dependency, previousBranch)) {
+                log.info("Dependency '{}' stays on branch '{}': {}", dependency.getBusinessName(), previousBranch,
+                        reason);
+                return false;
+            }
+            log.warn("Dependency '{}' cannot go back to branch '{}' after: {}", dependency.getBusinessName(),
+                    previousBranch, reason);
+            if (wasOpened) {
+                openOrClose(dependency);
+            }
+        }
+        if (wasOpened) {
+            reopened.add(dependency);
+        }
+        return true;
+    }
+
+    /**
+     * Brings the copy of a dependency up to the branch it is on now.
+     *
+     * <p>When that fails, the dependency is closed rather than show the copy of one branch as another, and the
+     * failure is passed on. The dependency has no unsaved changes here, so closing it loses nothing.
+     */
+    private static void openOrClose(RulesProject dependency) throws ProjectException {
+        try {
+            dependency.open();
+        } catch (ProjectException openFailure) {
+            try {
+                dependency.close();
+            } catch (ProjectException closeFailure) {
+                openFailure.addSuppressed(closeFailure);
+            }
+            throw openFailure;
+        }
+    }
+
+    /**
+     * Puts a dependency back on its branch when a switch failed after the branch had changed, so the dependency
+     * matches the copy it keeps.
+     *
+     * @return whether the dependency is on its previous branch, which it is when the switch never changed it
+     */
+    private boolean restoreBranch(RulesProject dependency, @Nullable String previousBranch) {
+        if (previousBranch == null || previousBranch.equals(dependency.getBranch())) {
+            return true;
+        }
+        try {
+            getUserWorkspace().setProjectBranch(dependency, previousBranch);
+            return true;
+        } catch (ProjectException e) {
+            log.debug("Dependency '{}' cannot be put back on branch '{}'.", dependency.getBusinessName(),
+                    previousBranch, e);
+            return false;
+        }
+    }
+
+    /**
+     * Opens every dependency of the project.
+     *
+     * <p>A dependency with unsaved changes is open already and stays as it is: opening it again would overwrite
+     * its changes. A dependency the move has just reopened is not opened a second time, and one the client is
+     * merging stays read-only while its merge runs.
+     */
+    private void openAllDependencies(RulesProject project, Set<RulesProject> reopened) throws ProjectException {
+        for (RulesProject dependency : projectDependencyResolver.getProjectDependencies(project)) {
+            if (!dependency.isModified() && !reopened.contains(dependency)
+                    && !getMergeLauncher().isRunning(() -> dependency)) {
+                dependency.open();
+            }
         }
     }
 

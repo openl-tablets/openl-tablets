@@ -712,6 +712,8 @@ export interface ProjectStatusUpdateModel {
   save?: boolean;
   discardChanges?: boolean;
   openDependencies?: boolean;
+  /** Move the dependencies of the project's repository to its branch; one with unsaved changes stays. */
+  switchDependencies?: boolean;
 }
 
 /**

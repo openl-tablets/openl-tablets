@@ -159,7 +159,7 @@ describe('LocalizationWorkspace', () => {
         await userEvent.click(await screen.findByTestId('localization-closed-open'))
 
         // A project that declares no dependencies opens at once, its dependencies asked for as the Projects screen asks.
-        expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true })
+        expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', { openDependencies: true, switchDependencies: true })
         expect(await within(await screen.findByTestId('localization-table')).findByText('greeting')).toBeInTheDocument()
         expect(screen.queryByTestId('localization-closed')).not.toBeInTheDocument()
     })

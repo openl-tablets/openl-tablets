@@ -669,9 +669,11 @@ export class OpenLClient {
    * Open a project for viewing/editing.
    *
    * Sends PATCH /projects/{projectId} with status "OPENED".
-   * Use this only for projects that are not yet opened (status CLOSED, etc.).
-   * To put a project on a branch whatever its status, use {@link openOnBranch}: Studio answers
-   * 409 Conflict when an already opened project is opened again.
+   * An opened project asked for nothing else is left as it is; asked for its dependencies, Studio opens only them.
+   * To put a project on a branch whatever its status, use {@link openOnBranch}.
+   *
+   * Dependencies opened with it move to the branch of the project first, as Studio opens them; one with unsaved
+   * changes keeps its branch.
    *
    * @param options - Optional revision, and whether to open the dependencies too
    */
@@ -680,13 +682,14 @@ export class OpenLClient {
     options?: { revision?: string; openDependencies?: boolean }
   ): Promise<"opened" | "already_open"> {
     const project = await this.getProjectAndEnsureNotLocal(projectId);
-    // Studio refuses to open an opened project again: one asked for nothing else is left as it is
+    // An opened project asked for nothing else is left as it is
     if (!options?.revision && !options?.openDependencies && (project.status === "OPENED" || project.status === "EDITING")) {
       return "already_open";
     }
     const updateModel: Types.ProjectStatusUpdateModel = {
       status: "OPENED",
       ...options,
+      switchDependencies: options?.openDependencies || undefined,
     };
 
     await this.http.patch(projectPath(projectId), updateModel);
@@ -700,6 +703,9 @@ export class OpenLClient {
    * switches its branch alone; with a revision or with its dependencies asked for, it is opened again on the branch
    * with them. Studio refuses to open again a project with unsaved changes: 409 Conflict.
    *
+   * The dependencies of the project's repository move to the branch too, as a switch in Studio takes them, whether
+   * the project is opened or only switched. A dependency with unsaved changes keeps its branch.
+   *
    * A project of a local repository has no branches and is refused.
    *
    * @returns `switched_branch` when only the branch of an opened project was switched, `opened` otherwise.
@@ -712,7 +718,11 @@ export class OpenLClient {
     const project = await this.getProjectAndEnsureNotLocal(projectId);
     const opened = project.status === "OPENED" || project.status === "EDITING";
     const reopen = !opened || Boolean(options.revision) || options.openDependencies === true;
-    const update: Types.ProjectStatusUpdateModel = reopen ? { status: "OPENED", ...options, branch } : { branch };
+    const update: Types.ProjectStatusUpdateModel = {
+      ...(reopen ? { status: "OPENED" as const, ...options } : {}),
+      branch,
+      switchDependencies: true,
+    };
     await this.http.patch(projectPath(projectId), update);
     return reopen ? "opened" : "switched_branch";
   }

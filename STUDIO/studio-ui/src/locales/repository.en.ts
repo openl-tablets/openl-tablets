@@ -151,9 +151,11 @@ i18next.addResourceBundle('en', 'repository', {
             title: 'Open project "{{name}}"',
             confirm_button: 'Open',
             open_dependencies: 'Open Dependencies',
+            switch_dependencies: 'Open them on branch "{{branch}}"',
             other_branch_warning: 'The project is compiled against these dependencies as they are, which can '
-                + 'fail. Switch the ones this repository keeps on another branch over to "{{branch}}" first. '
-                + 'A dependency marked as not found stays unavailable until "{{branch}}" contains it.',
+                + 'fail. Switch the ones this repository keeps on another branch over to "{{branch}}"; one with '
+                + 'unsaved changes can move once they are saved or discarded. A dependency marked as not found '
+                + 'stays unavailable until "{{branch}}" contains it.',
         },
         close_discard_title: 'Discard unsaved changes?',
         close_discard_warning: 'The project is modified. If you close the project, all changes will be lost.',

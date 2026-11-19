@@ -711,10 +711,10 @@ export const ProjectsHome = () => {
         // The list response carries the dependencies, so the dialog never reads them again.
         onOpen: project => openProjectDialog(
             { ...project, dependencies: project.dependencies ?? []},
-            openDependencies => runAction(
+            options => runAction(
                 project,
                 'open',
-                () => setProjectStatus(project.id, 'OPENED', { openDependencies }),
+                () => setProjectStatus(project.id, 'OPENED', options),
                 'browser.status_change_failed'
             )
         ),

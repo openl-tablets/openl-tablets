@@ -424,22 +424,29 @@ To open a project, proceed as follows:
 When the project declares dependencies, **Open** first asks whether to open them together with it. Opening them
 is the default, because the project needs them to compile.
 
-![The Open project dialog warning about a dependency that is not found](images/open-project-dialog.png "Opening a project with dependencies")
+When the workspace keeps a dependency of the same repository on another branch and the dependency has no unsaved
+changes, the window also offers **Open them on branch** followed by the branch of the project, selected by default.
+It switches such dependencies, and the ones they declare on that branch, over to the branch of the project before
+opening them, so the project is compiled against the versions its own branch holds. A dependency with unsaved
+changes is never switched: it keeps its branch and its changes, and so do the dependencies only it declares.
+
+![The Open project dialog offering to open the dependencies on the branch of the project and warning about a dependency that is not found](images/open-project-dialog.png "Opening a project with dependencies")
 
 *Opening a project with dependencies*
 
-The same window warns about every dependency the branch of the project does not hold. The project is compiled
-against them as they are, which can fail, and the two kinds are dealt with differently:
+The same window warns about every dependency the project is compiled against off its branch, which can fail:
 
--   A dependency of the same repository that the workspace keeps on another branch is switched over to the branch
-    of the project before opening it. Branches of one repository are not switched together: each project keeps the
-    branch it was switched to.
+-   A dependency of the same repository that stays on another branch: one with unsaved changes, every such
+    dependency when **Open them on branch** is cleared, and one that another dependency brings in when the move
+    may not reach it, because it goes only through dependencies on the branch of the project. Save or discard its
+    changes and switch its branch, as described in
+    [Working with Project Branches](project-branches.md#working-with-branches).
 -   A dependency marked **Not Found** stays unavailable until the branch of the project contains it, so switching
     branches does not help. Bring the project into that branch, or open the depending project on a branch that
     already has it.
 
-A dependency of another repository is never reported here: repositories keep no branches in step, so its branch
-means nothing to this project.
+A dependency of another repository is never switched or reported here: repositories keep no branches in step, so its
+branch means nothing to this project.
 
 Any project revision can be opened, with the project status set to **Viewing Revision**, as follows:
 

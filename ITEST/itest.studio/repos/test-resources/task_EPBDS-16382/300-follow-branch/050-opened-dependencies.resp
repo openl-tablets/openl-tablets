@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "Chain",
+  "branch": "${FOLLOW_BRANCH}",
+  "status": "OPENED",
+  "dependencies": [
+    {
+      "name": "Consumer",
+      "branch": "${FOLLOW_BRANCH}",
+      "status": "OPENED"
+    },
+    {
+      "name": "Provider",
+      "branch": "${FOLLOW_BRANCH}",
+      "status": "OPENED",
+      "transitive": true
+    }
+  ]
+}

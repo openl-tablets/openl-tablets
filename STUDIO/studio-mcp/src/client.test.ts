@@ -262,15 +262,19 @@ describe("OpenLClient", () => {
       const result = await client.openOnBranch("design-project1", "feature/new-rules", { revision: "abc" });
 
       expect(result).toBe("opened");
-      expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "OPENED", revision: "abc", branch: "feature/new-rules" }]);
+      expect(mockHttp.history.patch.map(bodyOf)).toEqual([
+        { status: "OPENED", revision: "abc", branch: "feature/new-rules", switchDependencies: true },
+      ]);
     });
 
     it.each([
-      ["OPENED", { revision: "abc" }, { status: "OPENED", revision: "abc", branch: "feature/new-rules" }, "opened"],
-      ["EDITING", { openDependencies: true }, { status: "OPENED", openDependencies: true, branch: "feature/new-rules" },
-        "opened"],
-      ["OPENED", {}, { branch: "feature/new-rules" }, "switched_branch"],
-      ["EDITING", { openDependencies: false }, { branch: "feature/new-rules" }, "switched_branch"],
+      ["OPENED", { revision: "abc" },
+        { status: "OPENED", revision: "abc", branch: "feature/new-rules", switchDependencies: true }, "opened"],
+      ["EDITING", { openDependencies: true },
+        { status: "OPENED", openDependencies: true, branch: "feature/new-rules", switchDependencies: true }, "opened"],
+      ["OPENED", {}, { branch: "feature/new-rules", switchDependencies: true }, "switched_branch"],
+      ["EDITING", { openDependencies: false }, { branch: "feature/new-rules", switchDependencies: true },
+        "switched_branch"],
     ] as const)("puts an %s project on the branch with %j", async (status, options, patch, action) => {
       mockHttp.onGet(projectPath).reply(200, projectView(status));
       mockHttp.onPatch(projectPath).reply(204);

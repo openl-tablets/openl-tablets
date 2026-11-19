@@ -241,7 +241,7 @@ If **Auto-included** is cleared or the single module mode is selected, the root 
 > Module names of the root and dependency projects must be unique.
 
 > [!Note]
-> Dependency projects must be open to make dependency work. When a project with dependencies is opened, OpenL Studio offers to open its dependencies too, as described in [Opening a Project](repository-editor.md#opening-a-project).
+> Dependency projects must be open to make dependency work. When a project with dependencies is opened, OpenL Studio offers to open its dependencies too, on the branch of the project, as described in [Opening a Project](repository-editor.md#opening-a-project).
 
 For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
 
