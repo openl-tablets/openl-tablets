@@ -17,7 +17,8 @@ import org.jspecify.annotations.Nullable;
  * and they must be equal. {@code Nsf}, such as {@code 4sf}, counts {@code N} figures: {@code 99.00} matches
  * {@code 98.995}, but not {@code 99.005}, which rounds to {@code 99.01}. {@code sf} takes the figures the expected
  * value is written with: {@code 10.00} matches {@code 10.004}, {@code 10.000} does not, and {@code 0.0001} matches
- * {@code 0.00006}, but not {@code 0.00004}.
+ * {@code 0.00006}, but not {@code 0.00004}. An expected value shown as a fraction rounds to the parts of its
+ * denominator: {@code 1 1/2} matches {@code 1.25}, but not {@code 1.75}, which rounds to {@code 2}.
  * <p>
  * A precision counts from {@code -99} to {@code 99} decimal places, or from 1 to 99 significant figures.
  *
@@ -58,6 +59,14 @@ public sealed interface Tolerance {
      * {@code scale}: 2 for {@code 10.00}. Without a scale, the expected value is taken as it reads.
      */
     record ExpectedFigures(@Nullable Integer scale) implements Figures {
+    }
+
+    /**
+     * An agreement to the fraction the expected value is shown as: both values are rounded half up to a whole number
+     * of parts {@code 1/denominator}, and they must be equal. So {@code 12 36/100} matches {@code 12.355}, but not
+     * {@code 12.365}.
+     */
+    record ExpectedFraction(int denominator) implements Figures {
     }
 
     /**

@@ -46,6 +46,14 @@ class SignificantFiguresTest {
         assertEquals(List.of(TestStatus.TR_NEQ, TestStatus.TR_OK), statuses(instance.CubeFiguresTest()));
     }
 
+    @Test
+    void roundedToThePartsOfTheExpectedFraction() {
+        // 1.1 ** 3 is 1.331: 5.324 quarters round to 5 as 1 1/4 does, 21.296 sixteenths to 21, not 20 as 1 4/16
+        // 0.98 ** 3 is 0.941192 and 0.95 ** 3 is 0.857375: 12.24 thirteenths round to 12 as 12/13, 11.15 to 11
+        assertEquals(List.of(TestStatus.TR_OK, TestStatus.TR_NEQ, TestStatus.TR_OK, TestStatus.TR_NEQ),
+                statuses(instance.CubeFractionTest()));
+    }
+
     private static List<TestStatus> statuses(TestUnitsResults results) {
         return results.getTestUnits().stream().map(ITestUnit::getResultStatus).toList();
     }
@@ -57,5 +65,7 @@ class SignificantFiguresTest {
         TestUnitsResults CubePropertyTest();
 
         TestUnitsResults CubeFiguresTest();
+
+        TestUnitsResults CubeFractionTest();
     }
 }

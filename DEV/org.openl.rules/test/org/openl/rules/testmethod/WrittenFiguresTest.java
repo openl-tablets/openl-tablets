@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.testmethod.result.Tolerance;
 
 /**
  * @author Yury Molchan
@@ -116,6 +117,54 @@ class WrittenFiguresTest {
     }
 
     @Test
+    void fractionShownByTheFormat() {
+        // the denominator the cell shows
+        assertEquals(fraction(2), figuresOf(cell(1.5, style(181, "# ?/?"))));
+        assertEquals(fraction(4), figuresOf(cell(0.25, style(181, "# ?/?"))));
+        assertEquals(fraction(2), figuresOf(cell(-1.5, style(181, "# ?/?"))));
+        assertEquals(fraction(4), figuresOf(cell(2.75, style(182, "?/?"))));
+        assertEquals(fraction(13), figuresOf(cell(12.0 / 13, style(183, "# ##/##"))));
+        assertEquals(fraction(2), figuresOf(cell(1.5, style(184, "# ?/? \"kg\""))));
+        // a whole number shows no fraction
+        assertEquals(fraction(1), figuresOf(cell(2.0, style(181, "# ?/?"))));
+        assertEquals(fraction(1), figuresOf(cell(0.01, style(181, "# ?/?"))));
+        // the denominator the format fixes, even for a whole number
+        assertEquals(fraction(16), figuresOf(cell(1.5, style(185, "# ?/16"))));
+        assertEquals(fraction(16), figuresOf(cell(2.0, style(185, "# ?/16"))));
+        assertEquals(fraction(100), figuresOf(cell(0.25, style(186, "# ??/100"))));
+        // Apache POI reads 016 as 16, and shows a fraction with spaces before the slash
+        assertEquals(fraction(16), figuresOf(cell(2.0, style(197, "# ?/016"))));
+        assertEquals(fraction(16), figuresOf(cell(2.0, style(198, "# ?/ 16"))));
+        assertEquals(fraction(2), figuresOf(cell(1.5, style(199, "# ?\\ /?"))));
+        // a denominator a format cannot fix is the one the cell shows: Apache POI shows hundredths for # ?/0
+        assertEquals(fraction(100), figuresOf(cell(1.5, style(187, "# ?/0"))));
+        assertNull(figuresOf(cell(Double.NaN, style(181, "# ?/?"))));
+    }
+
+    @Test
+    void onlyTheSectionShowingTheValueCounts() {
+        // 1.25 is shown by 0.00, and -1.25 by # ?/16
+        assertEquals(2, scaleOf(cell(1.25, style(188, "0.00;# ?/16"))));
+        assertEquals(fraction(16), figuresOf(cell(-1.25, style(188, "0.00;# ?/16"))));
+        assertEquals(fraction(4), figuresOf(cell(-1.25, style(189, "0.00;# ?/?"))));
+        // a percent of the negative section, too
+        assertEquals(4, scaleOf(cell(0.125, style(190, "0.00%;-0.00%"))));
+        assertEquals(4, scaleOf(cell(-0.125, style(191, "0.00%;(0.00%)"))));
+        assertEquals(2, scaleOf(cell(0.125, style(192, "0%;[Red]-0%"))));
+    }
+
+    @Test
+    void textInQuotesIsNoFraction() {
+        assertEquals(2, scaleOf(cell(1.25, style(193, "\"?/8 \"0.00"))));
+        assertEquals(2, scaleOf(cell(1.25, style(194, "0.00\" ?/8\""))));
+        assertEquals(fraction(8), figuresOf(cell(1.25, style(195, "# ?/8\" kg\""))));
+        assertEquals(fraction(4), figuresOf(cell(1.25, style(196, "\"x/16 \"# ?/?"))));
+        // Apache POI shows 1 1/2 /8, and the fraction is 1 1/2
+        assertEquals(fraction(2), figuresOf(cell(1.5, style(200, "#\" \"?/?\" /8\""))));
+        assertEquals(fraction(2), figuresOf(cell(1.5, style(201, "# ?/?\\/\\8"))));
+    }
+
+    @Test
     void exponentBeyondTheDecimalPlaces() {
         assertNull(WrittenFigures.scaleOf("1E99999999999"));
         assertNull(WrittenFigures.scaleOf("1E-2147483647%"));
@@ -131,7 +180,15 @@ class WrittenFiguresTest {
     }
 
     private static @Nullable Integer scaleOf(ICell cell) {
-        return WrittenFigures.scaleOf(cell, new DataFormatter(Locale.US));
+        return figuresOf(cell) instanceof Tolerance.ExpectedFigures(Integer scale) ? scale : null;
+    }
+
+    private static Tolerance.@Nullable Figures figuresOf(ICell cell) {
+        return WrittenFigures.figuresOf(cell, new DataFormatter(Locale.US));
+    }
+
+    private static Tolerance fraction(int denominator) {
+        return new Tolerance.ExpectedFraction(denominator);
     }
 
     private static ICell cell(@Nullable Object value, @Nullable ICellStyle style) {
