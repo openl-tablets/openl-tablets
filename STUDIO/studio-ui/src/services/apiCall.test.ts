@@ -2,6 +2,8 @@ import apiCall, {
     ApiHttpError,
     EmptyError,
     fieldErrorsOf,
+    ForbiddenError,
+    hasErrorCode,
     NotFoundError,
     isApiHttpError,
     notifyLoadFailure,
@@ -134,6 +136,23 @@ describe('apiCall', () => {
 
         await expect(apiCall('/missing', undefined, { throwError: true })).rejects.toBeInstanceOf(NotFoundError)
         expect(__appStoreState['setShowNotFound']).toHaveBeenCalledTimes(1)
+    })
+
+    it.each([
+        [404, NotFoundError, 'openl.error.404.project.module.identifier.message'],
+        [403, ForbiddenError, 'openl.error.403.default.message'],
+    ])('keeps the body of a %i, whose code tells what was refused', async (status, kind, code) => {
+        const body = { code, message: 'Refused' }
+        fetchMock.mockResolvedValueOnce(mockResponse({ status, jsonData: body }))
+
+        const error = await apiCall('/refused', undefined, { throwError: true, suppressErrorPages: true })
+            .catch((refused: unknown) => refused) as ApiHttpError
+
+        expect(error).toBeInstanceOf(kind)
+        expect(error.message).toBe('Refused')
+        expect(error.payload).toEqual(body)
+        expect(hasErrorCode(error, code)).toBe(true)
+        expect(hasErrorCode(error, 'openl.error.404.project.identifier.message')).toBe(false)
     })
 
     it('throws forbidden without showing the global page when error pages are suppressed', async () => {

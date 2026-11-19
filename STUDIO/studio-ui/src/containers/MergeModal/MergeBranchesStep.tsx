@@ -3,7 +3,7 @@ import { App, Alert, Button, Checkbox, Form, Space, Spin, Tooltip } from 'antd'
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
-import { apiCall, ApiHttpError, isApiHttpError } from '../../services'
+import { apiCall, hasErrorCode, isApiHttpError } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
 import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse, MergeSummary } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
@@ -38,14 +38,6 @@ const useStyles = createStyles(({ css }) => ({
         min-width: 0;
     `,
 }))
-
-const isBypassRequired = (err: unknown): err is ApiHttpError => {
-    if (!isApiHttpError(err)) {
-        return false
-    }
-    const payload = err.payload as { code?: unknown } | undefined
-    return payload?.code === BYPASS_REQUIRED_CODE
-}
 
 interface MergeBranchesStepProps {
     projectId: string
@@ -332,7 +324,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     notifyCancelled()
                     return
                 }
-                if (!force && isBypassRequired(err)) {
+                if (!force && hasErrorCode(err, BYPASS_REQUIRED_CODE)) {
                     setIsMerging(false)
                     modal.confirm({
                         title: t('merge:bypass.title'),

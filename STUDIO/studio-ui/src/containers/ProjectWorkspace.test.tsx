@@ -52,17 +52,13 @@ vi.mock('react-router', () => ({
     Link: ({ children, to }: { children?: unknown, to?: string }) => <a href={to}>{children as never}</a>,
 }))
 
-vi.mock('../services/repositories', () => ({
+vi.mock('../services/repositories', async importOriginal => ({
+    isProjectModifiedConflict: (await importOriginal<typeof import('../services/repositories')>())
+        .isProjectModifiedConflict,
     getDesignRepositories: vi.fn(),
     getProject: vi.fn(),
     getProjectBranches: vi.fn(),
     getProjectFiles: vi.fn(),
-    isProjectModifiedConflict: vi.fn((error: unknown) => Boolean(
-        error
-            && typeof error === 'object'
-            && 'payload' in error
-            && (error as { payload?: { code?: string } }).payload?.code === 'openl.error.409.project.close.modified.message'
-    )),
     setProjectStatus: vi.fn(),
     switchProjectBranch: vi.fn(),
     unlockProject: vi.fn(),

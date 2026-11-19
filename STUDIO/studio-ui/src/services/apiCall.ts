@@ -64,22 +64,6 @@ const isJsonResponse = (response: Response): boolean => {
     return Boolean(contentType?.includes('application/json'))
 }
 
-/**
- * Extract error message from response body.
- * Tries to parse JSON and extract 'message' field, falls back to default message.
- */
-const extractErrorMessage = async (response: Response, defaultMessage: string): Promise<string> => {
-    try {
-        if (isJsonResponse(response)) {
-            const data = await response.json()
-            return data.message || defaultMessage
-        }
-    } catch {
-        // Ignore parse errors, use default message
-    }
-    return defaultMessage
-}
-
 export interface ApiCallOptions {
     throwError?: boolean
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
@@ -112,6 +96,13 @@ const getErrorMessage = (payload: unknown, fallbackMessage: string): string => {
 
 const isApiHttpError = (error: unknown): error is ApiHttpError =>
     error instanceof ApiHttpError
+
+/** Whether a request failed with an error the server names by one of the codes, as `openl.error.404.table.message`. */
+const hasErrorCode = (error: unknown, ...codes: string[]): boolean => {
+    const payload = isApiHttpError(error) ? error.payload : undefined
+    const code = typeof payload === 'object' && payload !== null && 'code' in payload ? payload.code : undefined
+    return typeof code === 'string' && codes.includes(code)
+}
 
 /** Reads a successful response as the caller asked for, or as what its body holds. */
 const readResponse = async (response: Response, opts: ApiCallOptions) => {
@@ -177,33 +168,33 @@ const throwResponseError = async (response: Response, opts: ApiCallOptions): Pro
         // pages a caller handles locally — it must never swallow an authentication failure.
         appStore.setShowLogin(true)
         throw new EmptyError()
-    } else if (status === 403) {
+    }
+    // The body is kept with every error: its code tells what failed — a project, a module, a table not found.
+    const payload = await tryParseJsonBody(response)
+    if (status === 403) {
         if (!opts.suppressErrorPages) {
             appStore.setShowForbidden(true)
         }
-        // Try to extract error message from response body
-        const errorMessage = await extractErrorMessage(response, 'Forbidden! You do not have permission to access this resource.')
-        throw new ForbiddenError(errorMessage)
+        throw new ForbiddenError(
+            getErrorMessage(payload, 'Forbidden! You do not have permission to access this resource.'),
+            payload
+        )
     } else if (status === 404) {
         if (!opts.suppressErrorPages) {
             appStore.setShowNotFound(true)
         }
-        // Try to extract error message from response body
-        const errorMessage = await extractErrorMessage(response, 'Not found')
-        throw new NotFoundError(errorMessage)
+        throw new NotFoundError(getErrorMessage(payload, 'Not found'), payload)
     } else if (status === 500) {
         if (!opts.suppressErrorPages) {
             appStore.setShowServerError(true)
         }
-        const payload = await tryParseJsonBody(response)
         throw new ApiHttpError(
             status,
             getErrorMessage(payload, 'Internal server error! Please try again later.'),
             payload
         )
-    } else {
-        throw responseError(status, await tryParseJsonBody(response))
     }
+    throw responseError(status, payload)
 }
 
 const apiCall = async (
@@ -300,5 +291,5 @@ export const readTaskResult = async (
     return response
 }
 
-export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError, fieldErrorsOf }
+export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError, hasErrorCode, fieldErrorsOf }
 export default apiCall
