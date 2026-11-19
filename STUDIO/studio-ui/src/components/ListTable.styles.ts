@@ -1,6 +1,9 @@
 import { createStyles } from 'antd-style'
 import { LIST_PAGE_COLORS } from 'styles/listPageTheme'
 
+/** How wide a name of a transposed list grows before it wraps, in the size of its own letters. */
+const LINE_NAME_WIDTH = '24em'
+
 /** What a list table adds to the shared list look: it fills its container and may scroll inside. */
 export const useStyles = createStyles(({ css, token }) => ({
     scroll: css`
@@ -32,12 +35,22 @@ export const useStyles = createStyles(({ css, token }) => ({
         border-bottom: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
         background: ${LIST_PAGE_COLORS.containerBg};
         text-align: left;
-        white-space: nowrap;
         vertical-align: middle;
 
         thead tr & {
             z-index: 2;
         }
+    `,
+    /**
+     * The text of a name of a transposed list: on one line, up to a width the column keeps to. A longer name wraps,
+     * between its words or within one, rather than take the room of the values.
+     */
+    lineNameText: css`
+        display: block;
+        width: max-content;
+        max-width: ${LINE_NAME_WIDTH};
+        white-space: normal;
+        overflow-wrap: anywhere;
     `,
     /**
      * A line of a transposed list: its first value, which follows the name, is padded as every other value, and the

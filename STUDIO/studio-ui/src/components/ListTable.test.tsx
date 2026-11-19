@@ -189,6 +189,182 @@ describe('ListTable', () => {
 
                 expect(lines()).toHaveLength(300)
                 expect(screen.queryByTestId('list-lines-after')).not.toBeInTheDocument()
+                expect(screen.queryByTestId('list-column-widths')).not.toBeInTheDocument()
+            })
+
+            // A line with a long name widened the first column, which wrapped the values and made every line taller,
+            // so the line left the lines drawn, the column narrowed, and the line came back on every frame.
+            // See EPBDS-17288.
+            describe('keeping the widths of the columns', () => {
+                /**
+                 * Lays the head out and hands back what tells the list that its sizes changed. A cell is as wide as
+                 * what it holds, or as its column where the column is held wider, and is read half a pixel past a
+                 * column held: a browser lays the cells out to a fraction of a pixel, which the list must not take for
+                 * a wider value.
+                 */
+                const measured = () => {
+                    /** How wide the box is, and how wide what each cell of the head holds is, the names first. */
+                    const drawn = { box: 800, head: [0, 0, 0]}
+                    laidOut()
+                    layOut(HTMLDivElement.prototype, 'clientWidth', () => drawn.box)
+                    layOut(HTMLTableCellElement.prototype, 'getBoundingClientRect', function () {
+                        const cell = this as HTMLTableCellElement
+                        const holds = cell.closest('thead') ? drawn.head[cell.cellIndex] ?? 0 : 0
+                        const col = cell.closest('table')?.querySelector('colgroup')?.children[cell.cellIndex]
+                        const held = Number.parseFloat((col as HTMLElement | undefined)?.style.width ?? '')
+                        const width = Number.isNaN(held) ? holds : Math.max(held, holds) + 0.5
+                        return () => ({ width }) as DOMRect
+                    })
+                    const told: ResizeObserverCallback[] = []
+                    vi.stubGlobal('ResizeObserver', class {
+                        constructor(callback: ResizeObserverCallback) {
+                            told.push(callback)
+                        }
+
+                        observe = vi.fn()
+                        unobserve = vi.fn()
+                        disconnect = vi.fn()
+                    })
+                    // The list holds the widths it is told of before the next frame is laid out.
+                    return async (box: number, ...head: number[]) => {
+                        act(() => {
+                            drawn.box = box
+                            drawn.head = head
+                            told.forEach(callback => callback([], {} as ResizeObserver))
+                        })
+                        await act(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
+                    }
+                }
+
+                /** The widths the columns keep, the names first. */
+                const widths = () => [...screen.getByTestId('list-column-widths').children]
+                    .map(col => (col as HTMLElement).style.width)
+
+                /** The list of the tall lines, drawn as they scroll, of these lines and these rows. */
+                const list = (lineColumns = tall, listed = rows) => (
+                    <ListTable<Row>
+                        columnsInSight
+                        transposed
+                        columns={lineColumns}
+                        data-testid="rows"
+                        maxHeight={`${VIEW}px`}
+                        rowKey={row => row.id}
+                        rows={listed}
+                    />
+                )
+
+                const renderLines = async () => {
+                    const view = render(list())
+                    await waitFor(() => expect(lines()).toContain(0))
+                    return view
+                }
+
+                it('keeps the widest width each column was drawn at, so a line going out of sight leaves it as it is',
+                    async () => {
+                        const resized = measured()
+                        await renderLines()
+
+                        await resized(800, 572.25, 300, 300)
+                        expect(widths()).toEqual(['572.25px', '300px', '300px'])
+
+                        await resized(800, 89, 300, 300)
+                        expect(widths()).toEqual(['572.25px', '300px', '300px'])
+                    })
+
+                // Taken up to the next whole pixel, every column held widened a pixel on every frame on a screen of
+                // two device pixels to one, until the names took the whole box.
+                it('leaves a column as it is while its cells are read a fraction of a pixel past it', async () => {
+                    const resized = measured()
+                    await renderLines()
+
+                    for (let frame = 0; frame < 5; frame++) {
+                        await resized(800, 572.25, 300, 300)
+                    }
+
+                    expect(widths()).toEqual(['572.25px', '300px', '300px'])
+                })
+
+                it('lets the rows share the box anew once the names widen, so the list keeps to the box', async () => {
+                    const resized = measured()
+                    await renderLines()
+                    await resized(800, 122, 413, 413)
+
+                    await resized(800, 572, 214, 214)
+
+                    expect(widths()).toEqual(['572.5px', '214px', '214px'])
+                })
+
+                it('lets the rows share the box anew once a row outgrows its column, so the list keeps to the box',
+                    async () => {
+                        const resized = measured()
+                        await renderLines()
+                        await resized(800, 122, 413, 413)
+
+                        await resized(800, 122, 600, 200)
+
+                        const [name, first, second] = widths().map(width => Number.parseFloat(width))
+                        expect(name).toBe(122)
+                        expect(first).toBeGreaterThanOrEqual(600)
+                        expect(second).toBe(200)
+                    })
+
+                // Shared anew from the values in sight, a column a value out of sight had widened narrowed again, and
+                // two such values took the width from each other as the reader scrolled between them.
+                it('keeps the width a row needed while another row outgrows its column', async () => {
+                    const resized = measured()
+                    await renderLines()
+                    await resized(800, 122, 413, 413)
+                    await resized(800, 122, 600, 200)
+
+                    await resized(800, 122, 200, 600)
+
+                    const [, first, second] = widths().map(width => Number.parseFloat(width))
+                    expect(first).toBeGreaterThanOrEqual(600)
+                    expect(second).toBeGreaterThanOrEqual(600)
+                })
+
+                it('starts the widths anew when the box changes its width', async () => {
+                    const resized = measured()
+                    await renderLines()
+                    await resized(800, 572, 300, 300)
+
+                    await resized(600, 200, 200, 200)
+
+                    expect(widths()).toEqual(['200px', '200px', '200px'])
+                })
+
+                it('starts the widths anew for other rows', async () => {
+                    const resized = measured()
+                    const { rerender } = await renderLines()
+                    await resized(800, 572, 300, 300)
+
+                    rerender(list(tall, [rows[1]!, { id: '3', name: 'Third' }]))
+
+                    expect(widths()).toEqual(['', '', ''])
+                })
+
+                it('starts the widths anew for other lines, as their names in another language', async () => {
+                    const resized = measured()
+                    const { rerender } = await renderLines()
+                    await resized(800, 572, 300, 300)
+
+                    rerender(list([...tall]))
+
+                    expect(widths()).toEqual(['', '', ''])
+                })
+
+                it('holds nothing once the list is gone before the widths it was told of are held', async () => {
+                    const resized = measured()
+                    const { unmount } = await renderLines()
+                    const cancelled = vi.spyOn(window, 'cancelAnimationFrame')
+                    onTestFinished(() => cancelled.mockRestore())
+
+                    const held = resized(800, 572, 300, 300)
+                    unmount()
+                    await held
+
+                    expect(cancelled).toHaveBeenCalled()
+                })
             })
         })
     })
