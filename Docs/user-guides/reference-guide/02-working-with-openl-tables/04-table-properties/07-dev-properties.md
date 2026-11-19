@@ -104,8 +104,10 @@ expected value sets its own rounding:
   formatted with `0.00` reads `10.00`. What the format adds around the number, such as a currency, a unit or the
   parentheses of a negative number, is skipped: `$#,##0.00` shows `$10.00`, which reads `10.00`, and `"CO2: "0.00`
   shows `CO2: 10.00`, which reads `10.00` too. Grouping commas are skipped, a percent is a hundredth, and an exponent
-  keeps the figures of its mantissa: `1.00E+03` has three figures. A format that shows thousands keeps the place of
-  the figures in the value: `0.00,` shows `1234.5` as `1.23`, whose last figure is the tens.
+  keeps the figures of its mantissa: `1.00E+03` has three figures. A `K`, `M` or `B` typed after a number keeps
+  the figures of that number: `1.5K` is `1500` written to the hundreds, so it matches from `1450` up to, but not
+  including, `1550`. A format that shows thousands keeps the place of the figures in the value: `0.00,` shows
+  `1234.5` as `1.23`, whose last figure is the tens.
 - A number cell in the General format, which shows no more figures than the number has, and a cell that holds more
   than one number, such as an array, are read as the number they hold: every digit of a whole number counts, and a
   fraction has the digits of its shortest form.
