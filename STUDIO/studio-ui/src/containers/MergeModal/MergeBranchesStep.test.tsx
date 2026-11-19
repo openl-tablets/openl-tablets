@@ -24,22 +24,10 @@ vi.mock('antd', async () => {
     })
 })
 
-vi.mock('services', () => {
-    class MockApiHttpError extends Error {
-        status: number
-        payload?: unknown
-        constructor(status: number, message: string, payload?: unknown) {
-            super(message)
-            this.name = 'ApiHttpError'
-            this.status = status
-            this.payload = payload
-        }
-    }
-    return {
-        apiCall: vi.fn(),
-        isApiHttpError: vi.fn((err: unknown) => err instanceof MockApiHttpError),
-        ApiHttpError: MockApiHttpError,
-    }
+vi.mock('services', async () => {
+    const { ApiHttpError, hasErrorCode, isApiHttpError } =
+        await vi.importActual<typeof import('services/apiCall')>('services/apiCall')
+    return { apiCall: vi.fn(), ApiHttpError, hasErrorCode, isApiHttpError }
 })
 
 vi.mock('../../services/repositories', () => ({

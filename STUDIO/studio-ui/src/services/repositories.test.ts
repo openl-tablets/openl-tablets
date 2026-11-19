@@ -25,21 +25,9 @@ import {
 } from './repositories'
 import { ProjectStatus } from '../constants/project'
 
-vi.mock('./apiCall', () => ({
+vi.mock('./apiCall', async importOriginal => ({
+    ...await importOriginal<typeof import('./apiCall')>(),
     default: vi.fn(),
-    LOCAL_LOAD_API_OPTIONS: { throwError: true, suppressErrorPages: true },
-    asArray: (value: unknown) => Array.isArray(value) ? value : [],
-    isApiHttpError: (value: unknown) => value instanceof Error && value.name === 'ApiHttpError',
-    ApiHttpError: class ApiHttpError extends Error {
-        status: number
-        payload?: unknown
-        constructor(status: number, message: string, payload?: unknown) {
-            super(message)
-            this.name = 'ApiHttpError'
-            this.status = status
-            this.payload = payload
-        }
-    },
 }))
 
 vi.mock('./config', () => ({ default: { CONTEXT: '/studio', API_ROOT: '/studio/rest' } }))

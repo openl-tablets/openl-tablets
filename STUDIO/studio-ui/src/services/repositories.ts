@@ -1,4 +1,4 @@
-import apiCall, { asArray, isApiHttpError, LOCAL_LOAD_API_OPTIONS, type ApiCallOptions } from './apiCall'
+import apiCall, { asArray, hasErrorCode, LOCAL_LOAD_API_OPTIONS, type ApiCallOptions } from './apiCall'
 import CONFIG from './config'
 import { triggerDownload } from '../utils/download'
 import type { Repository, RepositoryConfig } from '../types/repositories'
@@ -12,16 +12,7 @@ const PROJECT_MODIFIED_ERROR_CODE = 'openl.error.409.project.close.modified.mess
 
 export type ProjectInclude = 'summary' | 'status' | 'deleted' | 'descriptor'
 
-export const isProjectModifiedConflict = (error: unknown): boolean => {
-    if (!isApiHttpError(error) || error.status !== 409) {
-        return false
-    }
-    const payload = error.payload
-    return !!payload
-        && typeof payload === 'object'
-        && 'code' in payload
-        && payload['code'] === PROJECT_MODIFIED_ERROR_CODE
-}
+export const isProjectModifiedConflict = (error: unknown): boolean => hasErrorCode(error, PROJECT_MODIFIED_ERROR_CODE)
 
 /**
  * Fetch the design repositories the current user may read, including the effective access
