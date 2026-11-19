@@ -74,6 +74,14 @@ describe('ListTable', () => {
         expect(screen.getByText('Second').closest('tr')).not.toHaveAttribute('tabindex')
     })
 
+    // Clipped as `hidden` does, the table became the box its sticky head and the names of its lines stuck to, so they
+    // scrolled away with the rows. See EPBDS-17288.
+    it('clips its corners without becoming a box that scrolls, so a sticky head stays in view', () => {
+        renderTable({ maxHeight: '400px' })
+
+        expect(getComputedStyle(screen.getByTestId('rows')).overflow).toBe('clip')
+    })
+
     it('shows no rows and only the header while there is nothing to list', () => {
         renderTable({ rows: []})
 

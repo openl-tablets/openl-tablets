@@ -82,7 +82,9 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         color: ${LIST_PAGE_COLORS.text};
         font-family: ${token.fontFamily};
         font-size: ${token.fontSize}px;
-        overflow: hidden;
+        /* Clips the rounded corners without making the table a box that scrolls: clipped as "hidden" does, the table
+           was the box a sticky head stuck to, and the head scrolled away with the rows. */
+        overflow: clip;
     `,
     listHead: css`
         background: ${LIST_PAGE_COLORS.containerBg};

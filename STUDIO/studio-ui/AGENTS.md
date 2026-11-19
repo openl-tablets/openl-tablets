@@ -593,7 +593,10 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   (`TestsResults`), and a test table is drawn again only once the results read with a new choice are there.
   `ListTable` given `transposed` lays every column out as a line under its name, the rows across under the first
   column, and `columnsInSight` then draws the lines in sight through a vertical virtualizer inside the box of its
-  `maxHeight`, which takes the focus so the keyboard scrolls it. A name of a line keeps to one line up to a width of its
+  `maxHeight`, which takes the focus so the keyboard scrolls it. The shared list look (`listTable`) clips its rounded
+  corners with `overflow: clip`: clipped as `hidden` does, a table was the box its sticky head and names stuck to, and
+  they scrolled away with the rows or the lines.
+  A name of a line keeps to one line up to a width of its
   own (`lineNameText`) and wraps past it, within a word too, so a long name never takes the room of the values. Each
   column is held at the width it has been drawn at, read off the head into a `<colgroup>` (`HeldWidths`,
   `useKeptWidths`, whose JSDoc gives the reasons): a column following the lines drawn widened under a long name, made
