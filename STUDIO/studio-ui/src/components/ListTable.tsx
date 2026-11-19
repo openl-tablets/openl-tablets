@@ -39,12 +39,14 @@ interface ListTableProps<T> {
      * has no layout to measure, every column is drawn.
      *
      * A transposed list scrolls its lines inside the box of its `maxHeight`: without one, the box is as tall as every
-     * line, and every line is drawn.
+     * line, and every line is drawn. Its columns stand still as the lines go by: a column widens only for a wider value
+     * or name, the others sharing what is left of the box.
      */
     columnsInSight?: boolean | undefined
     /**
      * Lays the list out the other way round: every column is a line under its name, and every row is a column. The
-     * first column heads the rows, its name in the corner.
+     * first column heads the rows, its name in the corner. A name keeps to one line up to a width of its own, and a
+     * longer one wraps, within a word too.
      *
      * A transposed list is read, not chosen: a row is neither picked nor marked as picked. A list asked to scroll keeps
      * its head in view above the lines, and the names of the lines beside the rows.
@@ -118,6 +120,174 @@ const useColumnsDrawn = <T, >(
         after: Math.max(0, virtualizer.getTotalSize() - (items.at(-1)?.end ?? 0)),
         measure: virtualizer.measureElement,
     }
+}
+
+/** A column of a transposed list with the cell of its head, which is as wide as the column. */
+type HeadColumn = readonly [HTMLElement, Element]
+
+/** The columns of a transposed list with the cells of its head, the names first. */
+const headColumns = (head: HTMLTableRowElement, columnSet: HTMLTableColElement | null): HeadColumn[] => {
+    const cells = [...head.cells]
+    return ([...columnSet?.children ?? []] as HTMLElement[]).flatMap((col, at): HeadColumn[] => {
+        const cell = cells[at]
+        return cell === undefined ? [] : [[col, cell]]
+    })
+}
+
+/** How wide a cell is drawn, unrounded. */
+const widthOf = (cell: Element): number => cell.getBoundingClientRect().width
+
+/**
+ * The widths the columns of a transposed list are held at, read off the cells of its head.
+ *
+ * A column is held at the very width it is drawn at, not rounded: rounded up, the columns held took more than the box,
+ * and every column held widened a little every frame. A column widens only once it is drawn wider than it holds its
+ * cell, past a fraction of a pixel.
+ *
+ * The names never narrow. A column of a row that a value takes wider than it is held — a value no narrower column can
+ * hold — keeps the width its value needed, even once the value is out of sight. When the names widen or a row outgrows
+ * its column, the other columns of the rows share anew what the box leaves them, and narrow for it.
+ */
+class HeldWidths {
+    /** How wide each column held holds its cell. */
+    private readonly held = new WeakMap<HTMLElement, number>()
+    /** The width a column of a row was taken to by its values once it was held. */
+    private readonly needed = new WeakMap<HTMLElement, number>()
+    /** The widest each cell has been drawn at since the columns were last held, by its place. */
+    private drawn: number[] = []
+    private boxWidth: number
+
+    constructor(private readonly box: HTMLElement) {
+        this.boxWidth = box.clientWidth
+    }
+
+    /** Reads how wide the cells are drawn, to be held: the widest since the columns were last held. */
+    read(columns: readonly HeadColumn[]): void {
+        columns.forEach(([, cell], at) => {
+            this.drawn[at] = Math.max(this.drawn[at] ?? 0, widthOf(cell))
+        })
+    }
+
+    /**
+     * Holds the columns at the widths read since they were last held. A box of another width, a scroll bar coming or
+     * going included, holds them anew from the cells as they are drawn in it.
+     */
+    hold(columns: readonly HeadColumn[]): void {
+        const drawn = this.drawn
+        this.drawn = []
+        if (this.box.clientWidth !== this.boxWidth) {
+            this.boxWidth = this.box.clientWidth
+            this.forget(columns)
+            this.holdAsDrawn(columns)
+            return
+        }
+        const [names, ...rows] = columns
+        const [namesWidth, ...rowWidths] = drawn
+        const namesGrew = names !== undefined && namesWidth !== undefined && this.outgrows(names[0], namesWidth)
+        let grew = namesGrew
+        rows.forEach(([col], at) => {
+            const width = rowWidths[at]
+            if (width === undefined || !this.outgrows(col, width)) {
+                return
+            }
+            grew = true
+            // A column held before and drawn wider since was taken so wide by its values.
+            if (this.held.has(col)) {
+                this.needed.set(col, width)
+            }
+        })
+        if (!grew) {
+            return
+        }
+        if (namesGrew) {
+            names[0].style.width = `${namesWidth}px`
+        }
+        // The rows share anew what is left, each at least as wide as its values needed.
+        rows.forEach(([col]) => {
+            const width = this.needed.get(col)
+            col.style.width = width === undefined ? '' : `${width}px`
+        })
+        this.holdAsDrawn(rows)
+        if (namesGrew) {
+            this.held.set(names[0], widthOf(names[1]))
+        }
+    }
+
+    /** Lets every column go, as it is drawn by its cells alone. */
+    forget(columns: readonly HeadColumn[]): void {
+        columns.forEach(([col]) => {
+            col.style.width = ''
+            this.needed.delete(col)
+        })
+    }
+
+    private outgrows(col: HTMLElement, width: number): boolean {
+        return width > (this.held.get(col) ?? 0) + 0.5
+    }
+
+    /** Holds the columns at the widths their cells are drawn at now. */
+    private holdAsDrawn(columns: readonly HeadColumn[]): void {
+        // Every width is read before any is written, so the list is laid out once for all of them.
+        const widths = columns.map(([, cell]) => widthOf(cell))
+        columns.forEach(([col], at) => {
+            const width = widths[at] ?? 0
+            col.style.width = `${width}px`
+            this.held.set(col, width)
+        })
+    }
+}
+
+/**
+ * Holds the columns of a transposed list at the widths they have been drawn at, read off the head of the list.
+ *
+ * The browser lays a table out by the lines drawn, and which lines are drawn follows how tall they are. A line whose
+ * name widens the first column wraps the values beside it and makes every line taller. The line then leaves the lines
+ * drawn, the column narrows again, and the line comes back: the list would be drawn anew on every frame. Held, the
+ * columns stand still as the lines go by, and a column widens only for a wider value, the others sharing what is left
+ * of the box, as far as the values let them.
+ *
+ * A column does not narrow when what it holds shrinks, as a value folded up. The widths start anew when the box
+ * changes its width, and for other lines or rows: another page of the rows, other values, names or language.
+ *
+ * @param scroller the box the lines scroll in
+ * @param kept     whether the widths are kept at all
+ * @param lines    the lines the widths are kept for
+ * @param rows     the keys of the rows the widths are kept for
+ * @return the row of the head of the list, whose cells are as wide as the columns, and the columns, the names first
+ */
+const useKeptWidths = (scroller: HTMLDivElement | null, kept: boolean, lines: unknown, rows: string) => {
+    const headRow = React.useRef<HTMLTableRowElement>(null)
+    const columnSet = React.useRef<HTMLTableColElement>(null)
+    React.useLayoutEffect(() => {
+        const row = headRow.current
+        if (!kept || scroller === null || row === null) {
+            return undefined
+        }
+        // The same cells and columns while the lines and the rows stay the same.
+        const columns = headColumns(row, columnSet.current)
+        const widths = new HeldWidths(scroller)
+        widths.forget(columns)
+        // The widths are read as the browser tells the cells resized, while the lines that widened them are still
+        // drawn, and held before the next frame is laid out: held at once, they would resize the very cells the
+        // browser is telling of, which it reports as an error.
+        let frame: number | null = null
+        const observer = new ResizeObserver(() => {
+            widths.read(columns)
+            frame ??= requestAnimationFrame(() => {
+                frame = null
+                widths.hold(columns)
+            })
+        })
+        observer.observe(scroller)
+        columns.forEach(([, cell]) => observer.observe(cell))
+        return () => {
+            observer.disconnect()
+            if (frame !== null) {
+                cancelAnimationFrame(frame)
+            }
+        }
+    }, [kept, lines, rows, scroller])
+    return { headRow, columnSet }
 }
 
 type ListStyles = ReturnType<typeof useStyles>
@@ -252,6 +422,9 @@ const ColumnsList = <T, >({
     // Kept while the columns stay the same, so a render that only scrolls does not measure the lines anew.
     const lines = React.useMemo(() => columns.slice(1), [columns])
     const { drawn, before, after, measure } = useColumnsDrawn(lines, scroller, true, !!columnsInSight)
+    // The widths of the columns are kept for these lines and these rows, where only the lines in sight are drawn.
+    const widthsKept = head !== undefined && measure !== undefined
+    const { headRow, columnSet } = useKeptWidths(scroller, widthsKept, lines, JSON.stringify(rows.map(rowKey)))
 
     // The classes of a line, of its name and of the cells of each column, put together once, not for every cell.
     const lineClass = cx(shared.listRow, styles.noHover, styles.line)
@@ -277,10 +450,16 @@ const ColumnsList = <T, >({
             scrollsIn={columnsInSight ? setScroller : undefined}
             tableClass={cx(shared.listTable, styles.table)}
         >
+            {widthsKept && (
+                <colgroup ref={columnSet} data-testid="list-column-widths">
+                    <col />
+                    {rows.map(row => <col key={rowKey(row)} />)}
+                </colgroup>
+            )}
             {head && (
                 <thead className={cx(shared.listHead, maxHeight && styles.stickyHead)}>
-                    <tr>
-                        <th className={nameClass}>{head.title}</th>
+                    <tr ref={headRow}>
+                        <th className={nameClass}><span className={styles.lineNameText}>{head.title}</span></th>
                         {rows.map(row => (
                             <th
                                 key={rowKey(row)}
@@ -300,7 +479,7 @@ const ColumnsList = <T, >({
                         {/* A line is measured by its name: a browser may measure the height of a table row
                             without its rules. */}
                         <th ref={measure} className={nameClass} data-index={index}>
-                            {column.title}
+                            <span className={styles.lineNameText}>{column.title}</span>
                         </th>
                         {rows.map(row => (
                             <td

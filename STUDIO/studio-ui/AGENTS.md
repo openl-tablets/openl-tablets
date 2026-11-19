@@ -593,7 +593,15 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   (`TestsResults`), and a test table is drawn again only once the results read with a new choice are there.
   `ListTable` given `transposed` lays every column out as a line under its name, the rows across under the first
   column, and `columnsInSight` then draws the lines in sight through a vertical virtualizer inside the box of its
-  `maxHeight`, which takes the focus so the keyboard scrolls it. The results of a test table written transposed (`transposed` of the results) are laid out so, a case
+  `maxHeight`, which takes the focus so the keyboard scrolls it. A name of a line keeps to one line up to a width of its
+  own (`lineNameText`) and wraps past it, within a word too, so a long name never takes the room of the values. Each
+  column is held at the width it has been drawn at, read off the head into a `<colgroup>` (`HeldWidths`,
+  `useKeptWidths`, whose JSDoc gives the reasons): a column following the lines drawn widened under a long name, made
+  every line taller, let that line out of sight again, and the list was drawn anew on every frame. A column widens only
+  for a wider value or name, the other columns of the rows sharing what is left of the box; it does not narrow when
+  what it holds shrinks, and the widths start anew when the box changes its width and for other lines or rows. The
+  results of
+  a test table written transposed (`transposed` of the results) are laid out so, a case
   to a column, and **Transpose** turns a table the other way round; the tables turned are kept by the screen, not by
   `ScreenMemory`, so they stay turned while the results are read again. The test
   tables of a page are drawn as the window scrolls to them (`useWindowVirtualizer`, each measured as it is drawn),
