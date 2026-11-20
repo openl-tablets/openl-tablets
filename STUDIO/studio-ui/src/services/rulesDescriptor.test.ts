@@ -110,6 +110,29 @@ describe('parseRulesDescriptor', () => {
 })
 
 describe('serializeRulesDescriptor', () => {
+    it('keeps a library, a dependency that names coordinates and no project', () => {
+        const original = `
+            <project>
+                <name>Pricing</name>
+                <dependencies>
+                    <dependency><mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact></dependency>
+                    <dependency><name>Common</name></dependency>
+                </dependencies>
+            </project>
+        `
+        const descriptor = parseRulesDescriptor(original)
+        expect(descriptor.dependencies).toEqual([
+            { name: '', autoIncluded: false, mavenArtifact: 'org.apache.commons:commons-text:jar:1.15.0' },
+            { name: 'Common', autoIncluded: false, mavenArtifact: '' },
+        ])
+
+        // Another field edited: the library is written back as it was declared
+        const out = serializeRulesDescriptor({ ...descriptor, description: 'edited' })
+
+        expect(out).toContain('<mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>')
+        expect(parseRulesDescriptor(out).dependencies).toEqual(descriptor.dependencies)
+    })
+
     it('rewrites the managed elements and keeps the modules, classpath and unknowns verbatim', () => {
         const original = `
             <project>

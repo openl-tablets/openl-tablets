@@ -77,6 +77,9 @@ A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both trav
   - **Take the id from the project** — `AProject.getProjectId()`, which `RulesProject` computes once. Never build one
     from a name, a `FileData` or a request value: a create or a copy answers `ProjectCreationService.idOfWritten`, the
     id of the folder it wrote. A client never builds or decodes an id either.
+  - **A downloaded project is the exception.** `ProjectIdConverter` also takes `maven:groupId:artifactId:version`
+    (`MavenCoordinates.projectId`), the id of a dependency downloaded from the Maven repository, and the UI builds it
+    from the coordinates (`mavenProjectId`); see `Docs/architecture/maven-dependencies.md`.
   - **The folder, not the name.** A design project's folder is its internal path in a repository with folders, or the
     key it is stored under in JDBC and AWS S3; a local-only project's folder is its workspace folder. The id survives a
     rename in `rules.xml`, saved or not, a branch switch, an open and a close.

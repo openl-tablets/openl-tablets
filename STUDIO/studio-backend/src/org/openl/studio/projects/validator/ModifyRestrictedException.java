@@ -1,6 +1,7 @@
 package org.openl.studio.projects.validator;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -31,13 +32,15 @@ public class ModifyRestrictedException extends RestRuntimeException {
         return switch (restriction) {
             case LOCKED -> "file.project.locked.message";
             case BRANCH_PROTECTED -> "file.project.branch.protected.message";
+            case READ_ONLY -> "project.read-only.message";
         };
     }
 
-    private static String detail(UserWorkspaceProject project, ModifyRestriction restriction) {
+    private static @Nullable String detail(UserWorkspaceProject project, ModifyRestriction restriction) {
         return switch (restriction) {
             case LOCKED -> project.getLockInfo().getLockedBy();
             case BRANCH_PROTECTED -> project.getBranch();
+            case READ_ONLY -> null;
         };
     }
 }

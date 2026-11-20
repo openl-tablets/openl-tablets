@@ -1,23 +1,27 @@
 import { Link } from 'react-router'
-import { Tag } from 'antd'
+import { WarningOutlined } from '@ant-design/icons'
+import { Tag, Tooltip } from 'antd'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { BranchLabel } from './BranchLabel'
 import { useSharedStyles } from './sharedStyles'
 import type { ProjectDependency } from '../../types/projects'
+import { mavenProjectPage } from '../../services/mavenDependencies'
+import { projectCoordinatesOf } from '../../services/projectId'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The rows step in from the heading they belong to, like every other list on the tab. */
     indent: css`
         margin-left: 18px;
     `,
+    /** The name keeps room for a few letters however many marks follow it, and is cut short past that. */
     rowName: css`
         flex: 1;
-        min-width: 0;
+        min-width: 5em;
     `,
     rowLink: css`
         flex: 1;
-        min-width: 0;
+        min-width: 5em;
         color: ${token.colorLink};
 
         &:hover {
@@ -47,6 +51,28 @@ const useStyles = createStyles(({ css, token }) => ({
         background: ${token.colorFillQuaternary};
         border-color: ${token.colorBorderSecondary};
     `,
+    /** The project compiles with its Maven archive: a fact about where it comes from, not an error. */
+    mavenTag: css`
+        flex: none;
+        margin: 0;
+        color: ${token.colorInfoText};
+        background: ${token.colorInfoBg};
+        border-color: ${token.colorInfoBorder};
+    `,
+    /** Another version of the project is asked for and left out: worth a look, not an error of its own. */
+    conflictTag: css`
+        flex: none;
+        margin: 0;
+        color: ${token.colorWarningText};
+        background: ${token.colorWarningBg};
+        border-color: ${token.colorWarningBorder};
+    `,
+    /** Coordinates the dependency names while the open project is used instead. */
+    mavenDeclared: css`
+        flex: none;
+        font-size: 12px;
+        color: ${token.colorTextTertiary};
+    `,
 }))
 
 /**
@@ -73,6 +99,39 @@ export const DependencyList = ({ deps }: { deps: ProjectDependency[] }) => {
                             </Link>
                         )
                         : <span className={cx(shared.valueText, shared.ellipsis, styles.rowName)}>{dep.name}</span>}
+                    {/* The project compiles with the archive of the Maven repository, which opens read-only. */}
+                    {dep.maven && <MavenSource coordinates={dep.mavenArtifact} name={dep.name} styles={styles} />}
+                    {!dep.maven && dep.mavenArtifact && (
+                        <Tooltip title={t('browser.overview.dependency_maven_declared')}>
+                            <span
+                                className={styles.mavenDeclared}
+                                data-testid={`dependency-maven-declared-${dep.name}`}
+                            >
+                                {dep.mavenArtifact}
+                            </span>
+                        </Tooltip>
+                    )}
+                    {/* One project of a name is compiled: the other versions asked for are left out. */}
+                    {dep.conflicts && dep.conflicts.length > 0 && (
+                        <Tooltip
+                            title={dep.conflicts.map(conflict => (
+                                <div key={`${conflict.requestedBy} ${conflict.mavenArtifact ?? ''}`}>
+                                    {t('browser.overview.dependency_conflict_item', {
+                                        coordinates: conflict.mavenArtifact ?? dep.name,
+                                        project: conflict.requestedBy,
+                                    })}
+                                </div>
+                            ))}
+                        >
+                            <Tag
+                                className={styles.conflictTag}
+                                data-testid={`dependency-conflict-${dep.name}`}
+                                icon={<WarningOutlined />}
+                            >
+                                {t('browser.overview.dependency_conflict')}
+                            </Tag>
+                        </Tooltip>
+                    )}
                     {dep.missing && (
                         <Tag className={styles.missingTag} data-testid={`dependency-missing-${dep.name}`}>
                             {t('browser.overview.dependency_missing')}
@@ -93,6 +152,43 @@ export const DependencyList = ({ deps }: { deps: ProjectDependency[] }) => {
                             testId={`dependency-branch-${dep.id}`}
                         />
                     )}
+                </li>
+            ))}
+        </ul>
+    )
+}
+
+/** Where a project compiled from its Maven archive comes from, with a link to see the archive read-only. */
+const MavenSource = ({ coordinates, name, styles }: {
+    coordinates: string | undefined
+    name: string
+    styles: ReturnType<typeof useStyles>['styles']
+}) => {
+    const { t } = useTranslation('repository')
+    const parsed = projectCoordinatesOf(coordinates)
+    const tag = (
+        <Tag className={styles.mavenTag} data-testid={`dependency-maven-${name}`}>
+            {t('browser.overview.dependency_maven')}
+        </Tag>
+    )
+    return parsed
+        ? (
+            <Tooltip title={t('browser.overview.dependency_maven_open', { coordinates })}>
+                <Link data-testid={`dependency-maven-link-${name}`} to={mavenProjectPage(parsed)}>{tag}</Link>
+            </Tooltip>
+        )
+        : tag
+}
+
+/** The libraries a project names by Maven coordinates, one per line. */
+export const LibraryList = ({ libraries }: { libraries: string[] }) => {
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
+    return (
+        <ul className={cx(shared.linedList, styles.indent)}>
+            {libraries.map(library => (
+                <li key={library} className={shared.linedItem} data-testid={`library-${library}`}>
+                    <span className={cx(shared.valueText, shared.ellipsis, styles.rowName)}>{library}</span>
                 </li>
             ))}
         </ul>

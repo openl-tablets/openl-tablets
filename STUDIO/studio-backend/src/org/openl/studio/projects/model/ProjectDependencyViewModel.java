@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,12 +30,35 @@ public class ProjectDependencyViewModel extends AProjectViewModel {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public final boolean transitive;
 
+    @Parameter(description = """
+            Maven coordinates of the project's archive the dependency names. Absent when it names none""")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public final String mavenArtifact;
+
+    @Parameter(description = """
+            Whether the project compiles with the archive downloaded from the Maven repository, since the user has no \
+            project of that name open""")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public final boolean maven;
+
+    @Parameter(description = """
+            Other dependencies of the name, which ask for other Maven coordinates and are left out: one project of a \
+            name is compiled, the one reached first. Absent when there is none""")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public final List<ProjectDependencyConflictView> conflicts;
+
     private ProjectDependencyViewModel(Builder from) {
         super(from);
         this.branchProtected = from.branchProtected;
         this.branchDefault = from.branchDefault;
         this.missing = from.missing;
         this.transitive = from.transitive;
+        this.mavenArtifact = from.mavenArtifact;
+        this.maven = from.maven;
+        this.conflicts = from.conflicts;
     }
 
     public static Builder builder() {
@@ -46,6 +71,9 @@ public class ProjectDependencyViewModel extends AProjectViewModel {
         private boolean branchDefault;
         private boolean missing;
         private boolean transitive;
+        private String mavenArtifact;
+        private List<ProjectDependencyConflictView> conflicts = List.of();
+        private boolean maven;
 
         private Builder() {
         }
@@ -67,6 +95,21 @@ public class ProjectDependencyViewModel extends AProjectViewModel {
 
         public Builder transitive(boolean transitive) {
             this.transitive = transitive;
+            return this;
+        }
+
+        public Builder mavenArtifact(String mavenArtifact) {
+            this.mavenArtifact = mavenArtifact;
+            return this;
+        }
+
+        public Builder conflicts(List<ProjectDependencyConflictView> conflicts) {
+            this.conflicts = List.copyOf(conflicts);
+            return this;
+        }
+
+        public Builder maven(boolean maven) {
+            this.maven = maven;
             return this;
         }
 

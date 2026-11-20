@@ -170,6 +170,25 @@ class ProjectModelHistoryTest {
         verify(state).notifyModified();
     }
 
+    @Test
+    void keepsNoHistoryOfAReadOnlyProject() throws IOException {
+        var studio = studioOf(mock(ProjectState.class));
+        var project = studio.getCurrentProject();
+        // A project downloaded from the Maven repository: its repository id names no folder on Windows
+        when(project.isReadOnly()).thenReturn(true);
+        when(project.isInPlace()).thenReturn(true);
+        when(project.getLocalRepository().getId()).thenReturn("maven:com.example:domain:1.0.0");
+        var model = new ProjectModel(studio);
+        var listeners = new ArrayList<XlsWorkbookListener>();
+        var workbook = workbookOf(Files.writeString(workspace.resolve("Rating.xlsx"), "rules"), listeners);
+        var module = mock(Module.class);
+        when(module.getRulesRootPath()).thenReturn("rules/Rating.xlsx");
+
+        model.initProjectHistory(tableIn(workbook), module);
+
+        assertTrue(listeners.isEmpty(), "nothing writes the project, so nothing is listened to");
+    }
+
     /** A session with a workspace of its own, the project Pricing open in it. */
     private WebStudio studioOf(ProjectState state) {
         var repository = mock(LocalRepository.class);

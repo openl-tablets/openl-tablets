@@ -204,6 +204,20 @@ describe('ModuleActionBar', () => {
         expect(onTableCreated).toHaveBeenCalledWith({ id: 'new-1' }, 'Claims')
     })
 
+    it('shows a read-only project the new table, disabled, and keeps no local changes', async () => {
+        // The server tells it, as of a project downloaded from the Maven repository; the id is not looked at
+        const readOnly = { ...project({ canDeploy: true }), readOnly: true }
+        render(<ModuleActionBar moduleName="Claims" modulePath="rules/Claims.xlsx" project={readOnly} />)
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        expect(screen.getByTestId('module-createTable')).toBeDisabled()
+        await userEvent.click(screen.getByTestId('module-more'))
+        expect(await screen.findByText('browser.module.dependencies')).toBeInTheDocument()
+        expect(screen.queryByText('browser.module.local_changes')).toBeNull()
+    })
+
     it('offers on a screen of the whole project what acts on the project alone', async () => {
         render(
             <ModuleActionBar

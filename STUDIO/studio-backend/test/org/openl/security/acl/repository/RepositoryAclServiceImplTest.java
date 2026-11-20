@@ -1,9 +1,11 @@
 package org.openl.security.acl.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +24,7 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.security.acl.SidManagingAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
 
@@ -78,6 +81,15 @@ class RepositoryAclServiceImplTest {
     }
 
     @Test
+    void anArtefactOfADesignRepositoryIsAskedOfItsAcl() {
+        var identity = new ObjectIdentityImpl(ProjectArtifact.class, "design:/rules/Rates");
+        granted(identity);
+
+        assertTrue(service.isGranted(artefactAt(identity), List.of(BasePermission.WRITE)));
+        verify(aclService).readAclById(identity);
+    }
+
+    @Test
     void eachDistinctIdentityIsReadOnItsOwn() {
         var rates = new ObjectIdentityImpl(ProjectArtifact.class, "design:/rules/Rates");
         var pricing = new ObjectIdentityImpl(ProjectArtifact.class, "design:/rules/Pricing");
@@ -90,5 +102,49 @@ class RepositoryAclServiceImplTest {
         assertEquals(2, result.size());
         verify(aclService, times(1)).readAclById(rates);
         verify(aclService, times(1)).readAclById(pricing);
+    }
+
+    /** An artefact of a project downloaded from the Maven repository, opened in a read-only repository. */
+    private static AProjectArtefact readOnlyArtefact() {
+        var repository = mock(LocalRepository.class);
+        when(repository.isReadOnly()).thenReturn(true);
+        var artefact = mock(AProjectArtefact.class);
+        when(artefact.getRepository()).thenReturn(repository);
+        return artefact;
+    }
+
+    @Test
+    void aReadOnlyProjectIsReadByEveryoneAndChangedByNobody() {
+        var artefact = readOnlyArtefact();
+
+        assertTrue(service.isGranted(artefact, List.of(BasePermission.READ)));
+        assertTrue(service.isGranted(artefact, true, BasePermission.READ));
+        assertFalse(service.isGranted(artefact, List.of(BasePermission.READ, BasePermission.WRITE)));
+        assertFalse(service.isGranted(artefact, false, BasePermission.WRITE));
+        assertFalse(service.isGranted(artefact, true, BasePermission.DELETE));
+        verify(aclService, never()).readAclById(any());
+    }
+
+    @Test
+    void aReadOnlyProjectIsListedForAReadOnly() {
+        var artefact = readOnlyArtefact();
+
+        assertEquals(1, service.filterGranted(List.of(artefact), List.of(BasePermission.READ)).size());
+        assertTrue(service.filterGranted(List.of(artefact), List.of(BasePermission.WRITE)).isEmpty());
+        verify(aclService, never()).readAclById(any());
+    }
+
+    @Test
+    void anArtefactOfAnEditableLocalRepositoryKeepsItsAcl() {
+        var identity = new ObjectIdentityImpl(ProjectArtifact.class, "design:/rules/Rates");
+        granted(identity);
+        var repository = mock(LocalRepository.class);
+        when(repository.getId()).thenReturn("design");
+        var artefact = mock(AProjectArtefact.class);
+        when(artefact.getRepository()).thenReturn(repository);
+        when(oidProvider.getArtifactOid(artefact)).thenReturn(identity);
+
+        assertEquals(1, service.filterGranted(List.of(artefact), List.of(BasePermission.WRITE)).size());
+        assertTrue(service.isGranted(artefact, List.of(BasePermission.WRITE)));
     }
 }

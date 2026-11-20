@@ -43,9 +43,12 @@ public final class TableModules {
      * <p>The project is answered only where the modules were addressed — a screen that has to send a reader to
      * a table needs it, because a table exercised by this project may be written in one it depends on.
      *
+     * <p>A project downloaded from the Maven repository is addressed by the id it is opened under in the session:
+     * {@code maven:groupId:artifactId:version}.
+     *
      * @param module      name of the module holding the table
      * @param projectId   identifier the Projects API addresses that project by, absent when it has none
-     * @param projectName name of that project, absent for the same reason
+     * @param projectName name of that project, absent when the project is not addressed
      */
     public record TableLocation(String module, @Nullable String projectId, @Nullable String projectName) {
     }
@@ -67,12 +70,12 @@ public final class TableModules {
         }
 
         TableLocation asTableLocation() {
-            return new TableLocation(name, project == null ? null : project.id(), project == null ? null
-                    : project.name());
+            return project == null ? new TableLocation(name, null, null)
+                    : new TableLocation(name, project.id(), project.name());
         }
     }
 
-    /** How a project is addressed by the Projects API, and what it is called. */
+    /** How the Projects API addresses a project, and what it is called. */
     private record ProjectAddress(String id, String name) {
     }
 
@@ -232,12 +235,17 @@ public final class TableModules {
     private static @Nullable ProjectAddress address(WebStudio studio,
                                                     @Nullable String repositoryId,
                                                     ProjectDescriptor descriptor) {
-        if (repositoryId == null || descriptor.getProjectFolder() == null) {
+        if (descriptor.getProjectFolder() == null) {
             return null;
         }
-        var project = studio.projectOf(repositoryId, descriptor);
-        return project == null ? null
-                : new ProjectAddress(project.getProjectId().value(), descriptor.getName());
+        var project = repositoryId == null ? null : studio.projectOf(repositoryId, descriptor);
+        if (project != null) {
+            return new ProjectAddress(project.getProjectId().value(), descriptor.getName());
+        }
+        // A project of no repository of the workspace, or another folder than the one of the project of its name
+        var resolver = studio.getMavenDependencyResolver();
+        var coordinates = resolver == null ? null : resolver.coordinatesOf(descriptor.getProjectFolder());
+        return coordinates == null ? null : new ProjectAddress(coordinates.projectId(), descriptor.getName());
     }
 
     /**

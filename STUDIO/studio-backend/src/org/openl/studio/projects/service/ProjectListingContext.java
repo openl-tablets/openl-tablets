@@ -2,6 +2,7 @@ package org.openl.studio.projects.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -25,6 +26,7 @@ public class ProjectListingContext {
     private Object usedByIndex;
     private Boolean canDeployToAnyRepository;
     private Boolean canCreateInAnyRepository;
+    private Set<String> openedProjectNames;
     private final Map<String, String> repositoryTypes = new HashMap<>();
     private final Map<String, Boolean> branchMembership = new HashMap<>();
 
@@ -81,6 +83,14 @@ public class ProjectListingContext {
                                       BooleanSupplier compute) {
         return branchMembership.computeIfAbsent(repositoryId + ':' + name + ':' + branch,
                 key -> compute.getAsBoolean());
+    }
+
+    /** The names of the projects opened in the session, computed once per request. */
+    public Set<String> openedProjectNames(Supplier<Set<String>> compute) {
+        if (openedProjectNames == null) {
+            openedProjectNames = compute.get();
+        }
+        return openedProjectNames;
     }
 
     /** Whether the user can create a project in any repository, computed once per request. */

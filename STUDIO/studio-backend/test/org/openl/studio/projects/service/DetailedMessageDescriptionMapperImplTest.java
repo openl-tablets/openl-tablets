@@ -35,6 +35,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.source.IOpenSourceCodeModule;
@@ -42,6 +43,7 @@ import org.openl.source.SourceRange;
 import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.studio.dependencies.service.MavenCoordinates;
 import org.openl.studio.projects.model.project.status.FilePlace;
 import org.openl.studio.projects.model.project.status.LocalizationFileMessageSource;
 import org.openl.studio.projects.model.project.status.MessagePositions;
@@ -319,6 +321,31 @@ class DetailedMessageDescriptionMapperImplTest {
         assertEquals("Shared", location.name());
         assertEquals("Shared Rules", location.project());
         assertEquals(ProjectIds.of("design", "Shared Rules").value(), location.projectId());
+    }
+
+    @Test
+    void aMessageRaisedInAProjectDownloadedFromMavenNamesItsMavenId() {
+        var downloaded = new ProjectDescriptor();
+        downloaded.setName("Domain");
+        downloaded.setProjectFolder(Path.of("/maven/com/example/domain/1.0.0/domain-1.0.0-1"));
+        var module = module("Domain", "uri");
+        when(module.getProject()).thenReturn(downloaded);
+        var workspace = workspaceOf(module);
+        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(workspace);
+        var studio = mock(WebStudio.class);
+        var resolver = mock(MavenDependencyResolver.class);
+        when(studio.getProjects()).thenReturn(Map.of());
+        when(studio.getMavenDependencyResolver()).thenReturn(resolver);
+        when(resolver.coordinatesOf(downloaded.getProjectFolder()))
+                .thenReturn(new MavenCoordinates("com.example", "domain", "1.0.0"));
+        when(model.getStudio()).thenReturn(studio);
+
+        var result = mapper.mapSorted(List.of(message("uri")), model);
+
+        // A downloaded project is addressed by the id it is opened under in the session
+        var location = (ModuleMessageSource) result.getFirst().location();
+        assertEquals("Domain", location.project());
+        assertEquals("maven:com.example:domain:1.0.0", location.projectId());
     }
 
     @Test

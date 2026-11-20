@@ -28,6 +28,11 @@ public interface ProjectDependencyResolver {
     }
 
     /**
+     * Returns the Maven coordinates of the libraries the project declares: the dependencies without a name.
+     */
+    List<String> getLibraries(RulesProject project);
+
+    /**
      * Returns all projects that depend on project
      */
     List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException;

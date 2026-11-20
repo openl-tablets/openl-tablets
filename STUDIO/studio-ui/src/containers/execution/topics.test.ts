@@ -32,7 +32,7 @@ describe('the topics an execution is reported on', () => {
         expect(traceStatusTopic('p1', 't1')).toBe('/user/topic/projects/p1/tables/t1/trace/status')
     })
 
-    it('escapes what a project or a table is called', () => {
-        expect(runStatusTopic('a/b', 'c d')).toBe('/user/topic/projects/a%2Fb/tables/c%20d/run/status')
+    it('keeps the id of a project as it is, and escapes what a table is called', () => {
+        expect(runStatusTopic('maven:com.example:domain:1.0.0', 'c d')).toBe('/user/topic/projects/maven:com.example:domain:1.0.0/tables/c%20d/run/status')
     })
 })

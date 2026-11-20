@@ -53,6 +53,17 @@ class AclProjectsHelperImplTest {
     }
 
     @Test
+    void allow_only_read_when_project_is_read_only() {
+        var project = mock(UserWorkspaceProject.class);
+        when(project.isReadOnly()).thenReturn(true);
+        assertTrue(aclProjectsHelper.hasPermission(project, BasePermission.READ));
+        assertFalse(aclProjectsHelper.hasPermission(project, BasePermission.WRITE));
+        assertFalse(aclProjectsHelper.hasPermission(project, BasePermission.DELETE));
+        assertFalse(aclProjectsHelper.hasPermission(project, BasePermission.CREATE));
+        verify(aclServiceProvider, never()).getDesignRepoAclService();
+    }
+
+    @Test
     void allow_delete_when_allowProjectCreateDelete_is_true() {
         var project = mock(AProject.class);
         when(aclServiceProvider.getDesignRepoAclService()).thenReturn(repositoryAclService);

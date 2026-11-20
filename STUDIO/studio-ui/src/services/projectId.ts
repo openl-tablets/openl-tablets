@@ -1,14 +1,75 @@
 /**
+ * The prefix of the id of a project downloaded from the Maven repository: the Projects API addresses it by
+ * `maven:groupId:artifactId:version`, and no id of a project of the workspace holds a colon.
+ */
+const MAVEN_ID = 'maven:'
+
+/** The id a screen addresses a project downloaded from the Maven repository by, from its coordinates. */
+export const mavenProjectId = (coordinates: string): string => `${MAVEN_ID}${coordinates}`
+
+/** The Maven coordinates of the archive of an OpenL project. */
+export interface MavenCoordinates {
+    groupId: string
+    artifactId: string
+    version: string
+}
+
+/**
+ * The coordinates of the archive of an OpenL project that rules.xml writes: `groupId:artifactId:version`, or with
+ * the `zip` extension. Coordinates of anything else — a jar, a classifier — name no project to show.
+ */
+export const projectCoordinatesOf = (mavenArtifact: string | undefined): MavenCoordinates | undefined => {
+    const parts = mavenArtifact?.trim().split(':') ?? []
+    const archive = parts.length === 3 || (parts.length === 4 && parts[2] === 'zip')
+    if (!archive || parts.some(part => part === '')) {
+        return undefined
+    }
+    return { groupId: parts[0]!, artifactId: parts[1]!, version: parts[parts.length - 1]! }
+}
+
+/** The coordinates as rules.xml writes them: `groupId:artifactId:version`. */
+export const coordinatesText = ({ groupId, artifactId, version }: MavenCoordinates): string =>
+    `${groupId}:${artifactId}:${version}`
+
+/** The coordinates as the id a screen addresses the downloaded project by. */
+export const mavenIdOf = (coordinates: MavenCoordinates): string => mavenProjectId(coordinatesText(coordinates))
+
+/** The coordinates of the downloaded project an id stands for, or undefined for a project of the workspace. */
+export const mavenArtifactOf = (projectId: string): string | undefined =>
+    (projectId.startsWith(MAVEN_ID) ? projectId.slice(MAVEN_ID.length) : undefined)
+
+/** The screen of a downloaded project: `/maven/groupId/artifactId/version`. */
+const mavenScreen = (coordinates: string): string => {
+    const parts = coordinates.split(':')
+    // The version is the last part: an archive named with its `zip` extension writes it before
+    const named = parts.length > 3 ? [parts[0], parts[1], parts[parts.length - 1]] : parts
+    return `/maven/${named.map(part => encodeURIComponent(part ?? '')).join('/')}`
+}
+
+/**
+ * The WebSocket topics of a project, `/user/topic/projects/{projectId}`: the server names them by the id as it is, a
+ * colon of a downloaded project's id included. No id holds a slash.
+ */
+export const projectTopic = (projectId: string): string => `/user/topic/projects/${projectId}`
+
+/** The screen of a project: `/projects/{id}`, or `/maven/groupId/artifactId/version` for a downloaded one. */
+export const projectRoute = (projectId: string): string => {
+    const maven = mavenArtifactOf(projectId)
+    return maven === undefined ? `/projects/${encodeURIComponent(projectId)}` : mavenScreen(maven)
+}
+
+/**
  * The address of a module's screen, and of one table read through it.
  *
  * Every way into the editor — a module row, a compilation problem, a test result, a graph node, a word in a
- * cell — leads here, so the address is spelled in one place rather than at each of them.
+ * cell — leads here, so the address is spelled in one place rather than at each of them. A module of a project
+ * downloaded from the Maven repository opens read-only, under the address of that project.
  *
  * <p>A reader sent by a compilation message arrives at the cell it was raised against, named the way the
  * workbook names it — `D101` — so the table opens with that cell marked.
  */
 export const moduleRoute = (projectId: string, moduleName: string, tableId?: string, cell?: string): string =>
-    `/projects/${projectId}/modules/${encodeURIComponent(moduleName)}`
+    `${projectRoute(projectId)}/modules/${encodeURIComponent(moduleName)}`
         + (tableId ? `?table=${encodeURIComponent(tableId)}` : '')
         + (tableId && cell ? `&errorCell=${encodeURIComponent(cell)}` : '')
 
@@ -40,7 +101,7 @@ export const untranslatedRoute = (projectId: string, language: string): string =
  * path of its own.
  */
 export const projectFileRoute = (projectId: string, path: string, line?: number): string =>
-    `/projects/${projectId}?file=${encodeURIComponent(path)}`
+    `${projectRoute(projectId)}?file=${encodeURIComponent(path)}`
         + (line === undefined ? '' : `&line=${line}`)
 
 /**

@@ -48,6 +48,9 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     @Override
     public Optional<ModifyRestriction> modifyRestriction(UserWorkspaceProject project) {
+        if (project.isReadOnly()) {
+            return Optional.of(ModifyRestriction.READ_ONLY);
+        }
         if (isCurrentBranchProtectionEnforced(project)) {
             return Optional.of(ModifyRestriction.BRANCH_PROTECTED);
         }
@@ -85,6 +88,9 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
     @Override
     public boolean canDelete(UserWorkspaceProject project) {
         if (project == null || project.isDeleted()) {
+            return false;
+        }
+        if (project.isReadOnly()) {
             return false;
         }
         if (project.isLocalOnly()) {

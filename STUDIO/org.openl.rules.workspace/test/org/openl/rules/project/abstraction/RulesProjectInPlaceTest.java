@@ -19,6 +19,7 @@ import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.LocalRepository;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -43,6 +44,8 @@ class RulesProjectInPlaceTest {
     private MetainfoRegistry registry;
     private InPlaceRepository inPlace;
     private RulesProject project;
+    private Repository design;
+    private FileData designData;
 
     @BeforeEach
     void init() throws Exception {
@@ -53,8 +56,8 @@ class RulesProjectInPlaceTest {
         files.setRoot(designRoot);
         files.setId("design");
         files.initialize();
-        var design = MappedRepository.create(files, "DESIGN/rules/");
-        var designData = design.listFolders("DESIGN/rules/").getFirst();
+        design = MappedRepository.create(files, "DESIGN/rules/");
+        designData = design.listFolders("DESIGN/rules/").getFirst();
 
         registry = MetainfoRegistry.open(userDir);
         inPlace = new InPlaceRepository(designRoot, userDir, registry, IgnoredPaths.of("**/pom.xml"));
@@ -108,6 +111,24 @@ class RulesProjectInPlaceTest {
 
         assertEquals("as on disk", Files.readString(folder.resolve("rules/Main.xlsx")));
         assertTrue(Files.exists(folder.resolve("rules.xml")), "closing never deletes the folder of the project");
+    }
+
+    @Test
+    void isReadOnlyOnlyWhenOpenedFromAReadOnlyRepository() throws Exception {
+        var readOnly = new InPlaceRepository(designRoot, userDir, registry, IgnoredPaths.of(null)) {
+            @Override
+            public boolean isReadOnly() {
+                return true;
+            }
+        };
+        var localData = new FileData();
+        localData.setName("bank-rating");
+
+        assertFalse(project.isReadOnly(), "a project edited in place is changed");
+        assertFalse(inPlace.isReadOnly());
+        assertTrue(new RulesProject(USER, readOnly, localData, null, null, new DummyLockEngine()).isReadOnly());
+        assertFalse(new RulesProject(USER, readOnly, null, design, designData, new DummyLockEngine()).isReadOnly(),
+                "a project not opened is read from its design repository");
     }
 
     private static void write(Path file, String content) throws IOException {

@@ -55,6 +55,11 @@ describe('repositoryListPath', () => {
         // A local project lists under the Local facet, not under the repository it was checked out from.
         expect(repositoryListPath(local)).toBe('/projects?repo=__local__')
     })
+
+    it('leads nowhere for a project downloaded from the Maven repository, which the list does not hold', () => {
+        const downloaded = project({ id: 'maven:com.example:domain:1.0.0', name: 'Domain', status: ProjectStatus.Local })
+        expect(repositoryListPath(downloaded)).toBeUndefined()
+    })
 })
 
 describe('refineProjects', () => {

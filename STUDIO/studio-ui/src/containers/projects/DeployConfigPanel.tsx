@@ -304,7 +304,7 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
     const form = (): ReactNode => (
         <div className={styles.panel} data-testid="deploy-config">
             {state === 'missing' && (
-                <Alert showIcon data-testid="deploy-config-missing" style={{ marginBottom: 16 }} title={t('browser.deploy_config.none')} type="info" />
+                <Alert showIcon data-testid="deploy-config-missing" style={{ marginBottom: 16 }} title={t(canWrite ? 'browser.deploy_config.none' : 'browser.deploy_config.none_read_only')} type="info" />
             )}
             <FieldRow label={t('browser.deploy_config.provide_runtime_context')} labelWidth={180}>
                 <Switch

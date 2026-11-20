@@ -39,6 +39,7 @@ import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 import org.openl.studio.audit.service.SignInAuditor;
 import org.openl.studio.common.projection.FieldProjectionInterceptor;
 import org.openl.studio.projects.rest.MergeInProgressInterceptor;
+import org.openl.studio.projects.rest.ReadOnlyProjectInterceptor;
 
 /**
  * Spring OpenL Studio API Configuration
@@ -67,6 +68,7 @@ public class ApiConfig implements WebMvcConfigurer {
     private final FieldProjectionInterceptor fieldProjectionInterceptor;
 
     private final MergeInProgressInterceptor mergeInProgressInterceptor;
+    private final ReadOnlyProjectInterceptor readOnlyProjectInterceptor;
 
     private final SignInAuditor signInAuditor;
 
@@ -86,6 +88,7 @@ public class ApiConfig implements WebMvcConfigurer {
         registry.addInterceptor(signInAuditor);
         registry.addInterceptor(fieldProjectionInterceptor);
         registry.addInterceptor(mergeInProgressInterceptor);
+        registry.addInterceptor(readOnlyProjectInterceptor);
     }
 
     @Override

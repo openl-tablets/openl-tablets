@@ -93,7 +93,9 @@ public class SummaryTableView extends TableView {
      * <p>Told only where an answer can hold tables of more than one module, because that is where a screen
      * cannot work it out from the request it made.
      */
-    public SummaryTableView locatedAt(String module, String project, String projectId) {
+    public SummaryTableView locatedAt(String module,
+                                      @Nullable String project,
+                                      @Nullable String projectId) {
         this.module = module;
         this.project = project;
         this.projectId = projectId;

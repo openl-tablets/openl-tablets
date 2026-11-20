@@ -18,7 +18,7 @@ import org.openl.util.FileUtils;
  *
  * @author Yury Molchan
  */
-final class FileMediaTypes {
+public final class FileMediaTypes {
 
     private static final MediaType TEXT_MARKDOWN = MediaType.parseMediaType("text/markdown");
     private static final MediaType APPLICATION_YAML = MediaType.parseMediaType("application/yaml");
@@ -37,7 +37,7 @@ final class FileMediaTypes {
     /**
      * The media type of a file by its name.
      */
-    static MediaType of(String fileName) {
+    public static MediaType of(String fileName) {
         var extension = Objects.requireNonNullElse(FileUtils.getExtension(fileName), "");
         var type = TEXT_TYPES.get(extension.toLowerCase(Locale.ROOT));
         return type != null ? type : MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM);

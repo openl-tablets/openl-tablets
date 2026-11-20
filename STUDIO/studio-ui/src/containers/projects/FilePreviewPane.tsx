@@ -97,7 +97,7 @@ interface FilePreviewPaneProps {
     /** Opens the module the file is, in the editor. */
     onOpenModule?: (moduleName: string) => void
     /** Opens the messages of the project, for a localization file, on the Localization screen. */
-    onOpenLocalization?: () => void
+    onOpenLocalization?: (() => void) | undefined
     /**
      * Whether the project is open: only the files of an open project are checked, as the check reads the copy of the
      * project in the workspace and refuses a closed one. Every caller tells it from the status of the project.

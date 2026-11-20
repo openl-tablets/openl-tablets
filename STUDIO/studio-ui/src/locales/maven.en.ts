@@ -26,4 +26,9 @@ i18next.addResourceBundle('en', 'maven', {
     confirm_delete_cache_message: 'Every project downloads its Maven dependencies again when it compiles next.',
     cache_deleted: 'The downloaded dependencies are deleted',
     cache_delete_failed: 'Cannot delete the downloaded dependencies',
+    view: {
+        read_only: 'Read-only',
+        read_only_hint: 'A project downloaded from the Maven repository. It is compiled as a dependency while no project of its name is open, and cannot be edited.',
+        coordinates: 'Coordinates',
+    },
 })

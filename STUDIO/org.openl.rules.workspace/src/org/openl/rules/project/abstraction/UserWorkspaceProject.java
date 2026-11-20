@@ -41,6 +41,14 @@ public abstract class UserWorkspaceProject extends AProject {
         return false;
     }
 
+    /**
+     * Whether the project is only read: it is shown, compiled and run, and deployed or exported, but never changed,
+     * whatever the permissions of the user.
+     */
+    public boolean isReadOnly() {
+        return false;
+    }
+
     public boolean isLockedByMe(LockInfo lockInfo) {
         return isLockedByUser(lockInfo, user);
     }

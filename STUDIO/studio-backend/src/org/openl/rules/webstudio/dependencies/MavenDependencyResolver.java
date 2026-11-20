@@ -61,6 +61,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
+import org.openl.studio.dependencies.service.MavenCoordinates;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
@@ -192,6 +193,20 @@ public class MavenDependencyResolver implements DisposableBean {
         }
         return cached(new ProjectKey(dependency.getName(), coordinates),
                 () -> resolveProject(dependency.getName(), coordinates));
+    }
+
+    /**
+     * Downloads the OpenL project the Maven coordinates name, whatever its name: a project looked at by its
+     * coordinates, which no dependency may name.
+     *
+     * @param coordinates the coordinates of the archive of the project, as a dependency writes them
+     * @return the project, or what went wrong; nothing while no repository is set
+     */
+    public DownloadedProject projectAt(String coordinates) {
+        if (!isEnabled()) {
+            return DownloadedProject.NONE;
+        }
+        return cached(new ProjectKey(null, coordinates), () -> resolveProject(null, coordinates));
     }
 
     /**
@@ -354,29 +369,33 @@ public class MavenDependencyResolver implements DisposableBean {
         }
     }
 
+    /**
+     * Downloads and reads the project. A project of a dependency must have the name of the dependency; a project
+     * downloaded with no name to have may have any.
+     */
     @Locked.Read("repositoryLock")
-    private DownloadedProject resolveProject(String name, String coordinates) {
+    private DownloadedProject resolveProject(@Nullable String name, String coordinates) {
+        var ofDependency = name == null ? "" : " of the dependency '%s'".formatted(name);
         var artifact = artifactOf(coordinates);
         if (artifact == null) {
             return new DownloadedProject(null,
-                    error("The Maven coordinates '%s' of the dependency '%s' are not valid.".formatted(coordinates,
-                            name)));
+                    error("The Maven coordinates '%s'%s are not valid.".formatted(coordinates, ofDependency)));
         }
         Path archive;
         try (var session = newSession()) {
             var request = new ArtifactRequest(artifact, repositories(), null);
             archive = system().resolveArtifact(session, request).getArtifact().getPath();
         } catch (ArtifactResolutionException e) {
-            log.warn("Cannot download the project '{}' from '{}'.", name, coordinates, e);
+            log.warn("Cannot download the project{} from '{}'.", ofDependency, coordinates, e);
             return new DownloadedProject(null, downloadError(e));
         }
         try {
             var project = ProjectResolver.getInstance().resolve(unpacked(archive));
             if (project == null) {
                 return new DownloadedProject(null,
-                        error("'%s' of the dependency '%s' is not an OpenL project.".formatted(coordinates, name)));
+                        error("'%s'%s is not an OpenL project.".formatted(coordinates, ofDependency)));
             }
-            if (!name.equals(project.getName())) {
+            if (name != null && !name.equals(project.getName())) {
                 return new DownloadedProject(null,
                         error("'%s' is the project '%s', not the dependency '%s'.".formatted(coordinates,
                                 project.getName(),
@@ -384,9 +403,9 @@ public class MavenDependencyResolver implements DisposableBean {
             }
             return new DownloadedProject(project, null);
         } catch (IOException | ProjectResolvingException e) {
-            log.warn("Cannot read the project '{}' downloaded from '{}'.", name, coordinates, e);
+            log.warn("Cannot read the project{} downloaded from '{}'.", ofDependency, coordinates, e);
             return new DownloadedProject(null,
-                    error("Cannot read the project '%s' downloaded from '%s': %s".formatted(name,
+                    error("Cannot read the project%s downloaded from '%s': %s".formatted(ofDependency,
                             coordinates,
                             e.getMessage())));
         }
@@ -425,6 +444,38 @@ public class MavenDependencyResolver implements DisposableBean {
     }
 
     /**
+     * The coordinates of the downloaded project unpacked into the folder.
+     *
+     * <p>A project is unpacked beside its archive, in the folder of its version of the local repository, so the
+     * coordinates are told by where the folder is.
+     *
+     * @param folder the folder of a project
+     * @return the coordinates, or {@code null} for a folder that holds no project downloaded as a plain {@code zip}
+     */
+    public @Nullable MavenCoordinates coordinatesOf(@Nullable Path folder) {
+        if (folder == null) {
+            return null;
+        }
+        var unpacked = folder.toAbsolutePath().normalize();
+        if (!unpacked.startsWith(localRepository)) {
+            return null;
+        }
+        var path = localRepository.relativize(unpacked);
+        var count = path.getNameCount();
+        if (count < 4) {
+            return null;
+        }
+        var version = path.getName(count - 2).toString();
+        var artifactId = path.getName(count - 3).toString();
+        // The folder of a plain archive alone: one of another extension or with a classifier is no such project
+        if (!path.getFileName().toString().matches(Pattern.quote(artifactId + "-" + version + "-") + "\\d+")) {
+            return null;
+        }
+        var groupId = path.subpath(0, count - 3).toString().replace(path.getFileSystem().getSeparator(), ".");
+        return new MavenCoordinates(groupId, artifactId, version);
+    }
+
+    /**
      * Reads coordinates as the OpenL Maven Plugin does: {@code groupId:artifactId[:extension[:classifier]]:version},
      * the extension {@code zip} when it is left out.
      *
@@ -433,7 +484,7 @@ public class MavenDependencyResolver implements DisposableBean {
      *
      * @return the artifact, or {@code null} when the coordinates are not valid
      */
-    static @Nullable Artifact artifactOf(String coordinates) {
+    public static @Nullable Artifact artifactOf(String coordinates) {
         var parts = coordinates.trim().split(":", -1);
         if (parts.length < 3 || parts.length > 5 || !Arrays.stream(parts).allMatch(MavenDependencyResolver::isPart)) {
             return null;
@@ -522,7 +573,8 @@ public class MavenDependencyResolver implements DisposableBean {
         static final DownloadedProject NONE = new DownloadedProject(null, null);
     }
 
-    private record ProjectKey(String name, String coordinates) {
+    /** What a downloaded project is kept by: the name it must have, if any, and its coordinates. */
+    private record ProjectKey(@Nullable String name, String coordinates) {
     }
 
     /** An answer, being resolved or found, and until when it is kept. */

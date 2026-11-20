@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -111,6 +112,11 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         return index;
     }
 
+    @Override
+    public List<String> getLibraries(RulesProject project) {
+        return MavenDependencyResolver.libraryCoordinatesOf(declaredDependencies(project));
+    }
+
     /**
      * What a project declares in its {@code rules.xml}, empty when the descriptor cannot be read.
      */
@@ -135,7 +141,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     private void calcDependencies(RulesProject project,
                                   List<ProjectDependencyDescriptor> dependenciesDescriptors,
                                   Walk walk,
-                                  Collection<ProjectDependency> result) {
+                                  List<ProjectDependency> result) {
         if (dependenciesDescriptors.isEmpty()) {
             return;
         }
@@ -146,16 +152,35 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
             var dependencyName = dependency.getName();
             // A dependency without a name is a library named by Maven coordinates, not a project.
-            if (dependencyName != null && walk.processed().add(dependencyName)) {
-                // A name the workspace has no project for is kept as it is declared: the screen shows the
-                // dependency and says it is missing, instead of hiding what rules.xml asks for.
-                var resolved = resolveDependency(dependencyName, repoId, branch, walk.index());
-                result.add(new ProjectDependency(dependencyName,
-                        resolved.orElse(null),
-                        !walk.declared().contains(dependencyName)));
-                resolved.ifPresent(dep -> calcDependencies(dep, declaredDependencies(dep), walk, result));
+            if (dependencyName != null) {
+                if (walk.processed().add(dependencyName)) {
+                    // A name the workspace has no project for is kept as it is declared: the screen shows the
+                    // dependency and says it is missing, instead of hiding what rules.xml asks for.
+                    var resolved = resolveDependency(dependencyName, repoId, branch, walk.index());
+                    result.add(new ProjectDependency(dependencyName,
+                            resolved.orElse(null),
+                            !walk.declared().contains(dependencyName),
+                            dependency.getMavenArtifact()));
+                    resolved.ifPresent(dep -> calcDependencies(dep, declaredDependencies(dep), walk, result));
+                } else {
+                    tellConflict(project, dependency, result);
+                }
             }
         }
+    }
+
+    /**
+     * Tells the dependency of the name reached first that another one asks for other Maven coordinates: one project of
+     * a name is compiled, the one reached first, and the other is left out.
+     */
+    private void tellConflict(RulesProject requester,
+                              ProjectDependencyDescriptor dependency,
+                              List<ProjectDependency> result) {
+        var request = new ProjectDependency.Request(dependencyLookupName(requester), dependency.getMavenArtifact());
+        result.replaceAll(reached -> reached.name().equals(dependency.getName())
+                && !Objects.equals(reached.mavenArtifact(), dependency.getMavenArtifact())
+                ? reached.withConflict(request)
+                : reached);
     }
 
     /**

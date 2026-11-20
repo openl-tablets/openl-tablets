@@ -68,8 +68,8 @@ flowchart TD
   of each project it finds, the downloaded ones included, with the same precedence at every step.
 - **A downloaded project must have the name.** The `<name>` of its `rules.xml` is the name the dependency gives;
   another name is an error, since rules address a dependency by name.
-- **A downloaded project is read-only.** It is in no repository and in no project list; the editor shows its tables
-  as those of a dependency, with no address of a project of their own.
+- **A downloaded project is read-only.** It is in no design repository: the projects tree lists it under a `Maven`
+  repository of its own, and its screens show it without anything that writes.
 - **The project list does not show a library.** `ProjectDependencyResolverImpl` lists the projects a `rules.xml`
   depends on, so a dependency without a name is left out rather than shown as a missing project.
 
@@ -87,11 +87,93 @@ versions of one downloaded project — UsesDomain `com.example:domain:1.0.0`, Cu
 - **It is told.** The compilation reports a warning on the project it is of
   (`WebStudioWorkspaceRelatedDependencyManager.getDependencyMessages`): `Two projects 'Domain' are required:
   com.example:domain:1.0.0, which 'UsesDomain' depends on, is compiled, and com.example:domain:2.0.0, which
-  'CustomDomain' depends on, is left out.`
+  'CustomDomain' depends on, is left out.` The Overview marks the dependency **Version conflict**, with the versions
+  left out on hover (`conflicts` of a dependency, `ProjectDependencyResolverImpl`), unless a project of the name is
+  open, which every version compiles with.
 - **A session compiles each project with its own.** The session keeps the dependencies it compiled for the next
   project when that one needs them (`ProjectModel.reuseOf`): only when every project it holds is the very project —
   the same folder — the next one resolves, not merely one of its name. After a project that compiled Domain 1.0.0,
   CustomDomain is compiled anew with Domain 2.0.0.
+- **The projects tree tells them apart.** A downloaded project shows its version beside its name, or its coordinates
+  when another one of the name has the same version; a project of a design repository shows its repository beside
+  its name when another project has the name, or its path when that one is in the same repository
+  (`projectQualifiers`). The page of a downloaded project shows its version beside its title.
+
+## On the Overview
+
+`GET /rest/projects/{projectId}` tells where each dependency is compiled from, so the **Overview** tab can show it:
+
+- **`mavenArtifact`** of a dependency — the coordinates its `rules.xml` names (`ProjectDependency`,
+  `ProjectDependencyResolverImpl`).
+- **`maven`** of a dependency — true while a Maven repository is set and the user has no project of that name open,
+  the rule of [Which Project Is Compiled](#which-project-is-compiled). Such a dependency is not `missing`. Nothing is
+  downloaded to tell it: the flag follows the rule, not a download.
+- **`libraries`** of the project — the coordinates of the dependencies without a name.
+
+`DependencyList` marks a dependency compiled from Maven **From Maven** and links it to its read-only page; an open
+project shows its coordinates in grey. `LibraryList` lists the libraries. The editor of the section edits the project
+and the coordinates of each dependency; one with coordinates and no project is a library.
+
+## Read-only View
+
+A downloaded project is opened in the session as a project of its own, read-only, under the Projects API id
+`maven:groupId:artifactId:version` (`MavenCoordinates.projectId`). Every endpoint of the Projects API serves it, and the
+screens of a project of the workspace show it: the project at `/maven/{groupId}/{artifactId}/{version}`
+(`ProjectWorkspace`, `ProjectDetail`) and its modules at `.../modules/{moduleName}?table={tableId}`
+(`ModuleWorkspace`), addresses that tell the coordinates, beside the `/projects/{projectId}` of the projects of a
+repository. The Overview, the Deploy Configuration, the files in the projects tree, the editor of a module with Run,
+Test, Trace and Benchmark, the dependencies of the tables and the problems of the compilation are those of any project;
+Export is offered, nothing that writes.
+
+- **Opened in the session.** `ProjectIdConverter` hands a `maven:` id to `WebStudio.downloadedProject`
+  (`DownloadedProjects`). It downloads the archive the coordinates name (no extension or `zip`, no classifier) on
+  request, whether the workspace depends on it or not and whatever the name of its project
+  (`MavenDependencyResolver.projectAt`), so an address typed or shared opens it; the answer is `404` when no Maven
+  repository is set, or the archive cannot be downloaded or is no OpenL project. The project is opened where it is
+  unpacked: a `DownloadedRulesProject`, named as its `rules.xml` names it, in a `DownloadedProjectRepository` of its
+  own that bears the id. `WebStudio.getProjectByName` and `WebStudio.getProject` find it by that repository, so
+  `WorkspaceProjectService.openProject` compiles it as the current project of the session, and its dependencies
+  follow [Which Project Is Compiled](#which-project-is-compiled) at every step, the downloaded ones included. The
+  session keeps the project while it stays the same download. It stays out of `WebStudio.getProjects`: it is
+  compiled for no other project, and the projects of the workspace keep compiling with the dependencies their own
+  `rules.xml` names.
+- **Read-only, whoever asks.** `RulesProject.isReadOnly` is true for a project of a read-only `LocalRepository`, and
+  the project view tells it (`readOnly`). `ProjectStateValidatorImpl` gives such a project the `READ_ONLY`
+  restriction, so `ProjectAccessService` tells it as not writable and not deletable, while exportable;
+  the ACL grants nothing but `READ` on it (`RepositoryAclServiceImpl`, `AclProjectsHelperImpl`), and
+  `ProjectLockInterceptor` refuses to take it for an edit. The ACL of single-user mode grants everything, so
+  `ReadOnlyProjectInterceptor` refuses every request of the REST API about a `maven:` project but a read with
+  `409 project.read-only.message`; a compilation, a run, a test, a trace or a benchmark is a read too
+  (`@ChangesNothing`). `DownloadedProjectRepository` refuses every write of a file under all of them.
+- **Exported as it is unpacked.** Export zips its folder, as the files of any project.
+- **Shown read-only.** The repository of the project answers as `Maven`, and the screens follow the `readOnly` of the
+  project view: the title bears the version and a Read-only tag (`ReadOnlyTag`), the Overview tells the repository and
+  the coordinates in place of the path, the branch and the revision, Edit, Copy, Remove, Create Test and Create Table
+  stand disabled with the reason on hover, and the local changes and the messages editor are not offered. The
+  WebSocket topics of a project bear its id as it is (`projectTopic`), as the server names them, so the compilation
+  status reaches the screen.
+- **Listed beside the design repositories.** `GET /rest/maven` lists every project the workspace depends on that can
+  be downloaded, by its coordinates and name (`MavenDependencyController`, `MavenProjectViewer.projects`); a project
+  of another extension than `zip`, or with a classifier, is left out, since its `maven:` id would open the plain
+  archive, and no table links to it (`MavenDependencyResolver.coordinatesOf`). The Projects
+  screen puts them into its tree under a repository of their own, `Maven` (`mavenProjectOf`), and hosts the page of
+  one beside the tree, as it hosts the page of a project of the workspace. A project opened by its address that the
+  list does not hold is added to the tree while it is shown, so its files unfold there too.
+
+### Links Between Projects
+
+A table names where a table it leads to lives (`TableModules.TableLocation`): the module, and the project by its
+`projectId` — `maven:groupId:artifactId:version` for a downloaded one, which `TableModules` tells by the folder it is
+unpacked into (`MavenDependencyResolver.coordinatesOf`). The views that send a reader to a table carry it: a word of
+a cell (`RawTableCellUsage`), a table a search finds (`SummaryTableView`), the tables a test exercises
+(`TableTargetView`), the tests of a table (`TableTestView`), and a message of the compilation about a table or a
+module (`TableMessageSource`, `ModuleMessageSource`), which the problems of the project lead to. `projectRoute` and
+`moduleRoute` turn a `maven:` id into the `/maven/...` addresses, so a link leads from a project of the workspace
+into a downloaded one and back, and from one downloaded project into another.
+
+The MCP server of OpenL Studio reads a downloaded project with its usual tools: `openl_get_project` tells a
+dependency compiled from the Maven repository (`maven: true`) and its coordinates, and every project tool takes the
+id `maven:groupId:artifactId:version`, so an agent sees the rules a dependency compiles from.
 
 ## Libraries on the Classpath
 
@@ -257,7 +339,17 @@ OpenL Studio downloaded or used — so a local repository shared with Maven keep
   as another project of their name is compiled (`DependencyConflict`).
 - **`ProjectModel.reuseOf`** — whether the dependencies the session compiled serve the next project.
 - **`WebStudioWorkspaceRelatedDependencyManager`** — implements the two hooks for a compilation of the session.
-- **`ProjectDependencyResolverImpl`** — the project list leaves libraries out.
+- **`ProjectDependencyResolverImpl`** — the project list leaves libraries out, tells the coordinates of each
+  dependency and lists the libraries.
+- **`MavenProjectViewer`**, **`MavenDependencyController`** (`org.openl.studio.dependencies`) — the list of the
+  downloaded projects the workspace depends on, for the projects tree.
+- **`DependencyList`** (`studio-ui`) — the Overview marks, **Version conflict** among them.
+- **`ReadOnlyTag`** (`studio-ui`, `containers/maven`) — the version and the Read-only tag a downloaded project's
+  screens show beside the title.
+- **`DownloadedProjects`**, **`DownloadedRulesProject`**, **`DownloadedProjectRepository`** — a downloaded project
+  opened read-only in the session, under the id `maven:groupId:artifactId:version`.
+- **`ReadOnlyProjectInterceptor`** — refuses every request that would change a downloaded project.
+- **`projectQualifiers`** (`studio-ui`) — what tells projects of one name apart in the projects tree.
 - **`MavenRepositorySettings`**, **`MavenRepositorySettingsController`** — the settings, the size of the local
   repository and its emptying, through REST.
 - **`Maven.tsx`** (`studio-ui`) — the **Maven** section of the administration.

@@ -238,6 +238,7 @@ public class TagFillService {
         return switch (restriction) {
             case BRANCH_PROTECTED -> TagFillBlocker.branchProtected(project.getBranch());
             case LOCKED -> lockBlocker(project);
+            case READ_ONLY -> TagFillBlocker.of(TagFillBlocker.Reason.NO_PERMISSION);
         };
     }
 

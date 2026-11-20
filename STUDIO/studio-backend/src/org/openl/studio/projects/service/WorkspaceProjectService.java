@@ -94,6 +94,7 @@ import org.openl.rules.ui.ProjectLocalization;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.WorkbookWrites;
+import org.openl.rules.webstudio.dependencies.DownloadedProjectRepository;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.web.CellValueSelector;
 import org.openl.rules.webstudio.web.SearchScope;
@@ -122,6 +123,7 @@ import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.DescriptorViewModel;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
+import org.openl.studio.projects.model.ProjectDependencyConflictView;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectRepositoryModel;
@@ -831,12 +833,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         builder.branchDefault(src.isBranchDefault());
         builder.inDefaultBranch(src.isInDefaultBranch());
         builder.overwritesNewerRevision(src.isReadingOtherVersion());
+        builder.readOnly(src.isReadOnly());
         builder.repositoryInfo(mapRepositoryInfo(src));
-        projectDependencyResolver.getDependencies(src).stream()
+        var dependencies = projectDependencyResolver.getDependencies(src);
+        // The projects a dependency compiles with, by name: the opened ones, whatever their repository and branch
+        Set<String> opened = dependencies.isEmpty() || !isMavenEnabled()
+                ? null
+                : listingContext.openedProjectNames(this::openedProjectNames);
+        dependencies.stream()
                 .sorted(DEPENDENCY_NAME_ORDER)
-                .map(this::mapProjectDependency)
+                .map(dependency -> mapProjectDependency(dependency, opened))
                 .map(ProjectDependencyViewModel.Builder::build)
                 .forEach(builder::addDependency);
+        builder.libraries(projectDependencyResolver.getLibraries(src));
         if (includeDescriptor) {
             resolveProjectDescriptor(src).ifPresent(descriptor -> builder.descriptor(mapDescriptor(descriptor)));
         }
@@ -846,13 +855,41 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Maps a declared dependency. A dependency the workspace has no project for carries its name and the
      * mark that it is missing, so the screen can show what {@code rules.xml} asks for and cannot find.
+     *
+     * <p>A dependency naming Maven coordinates compiles with the archive downloaded from the Maven repository while
+     * the user has the project closed, or the workspace has none: it is marked so, and is not missing.
      */
-    private ProjectDependencyViewModel.Builder mapProjectDependency(ProjectDependency dependency) {
+    private ProjectDependencyViewModel.Builder mapProjectDependency(ProjectDependency dependency,
+                                                                    @Nullable Set<String> opened) {
         var project = dependency.project();
+        // The project of the name opened is what every dependency of the name compiles with: no version is left out
+        var archives = opened != null && !opened.contains(dependency.name());
+        var fromMaven = archives && dependency.mavenArtifact() != null;
         var builder = project == null
-                ? ProjectDependencyViewModel.builder().name(dependency.name()).missing(true)
+                ? ProjectDependencyViewModel.builder().name(dependency.name()).missing(!fromMaven)
                 : mapProjectDependency(project).name(dependency.name());
-        return builder.transitive(dependency.transitive());
+        return builder.transitive(dependency.transitive())
+                .mavenArtifact(dependency.mavenArtifact())
+                .maven(fromMaven)
+                .conflicts(archives ? dependency.conflicts()
+                        .stream()
+                        .map(conflict -> new ProjectDependencyConflictView(conflict.requestedBy(),
+                                conflict.mavenArtifact()))
+                        .toList() : List.of());
+    }
+
+    /** Whether OpenL Studio downloads the dependencies rules.xml names by Maven coordinates. */
+    private boolean isMavenEnabled() {
+        var resolver = getWebStudio().getMavenDependencyResolver();
+        return resolver != null && resolver.isEnabled();
+    }
+
+    /** The names of the projects opened in the session, which the dependencies of those names compile with. */
+    private Set<String> openedProjectNames() {
+        return getWebStudio().getAllProjects()
+                .stream()
+                .map(ProjectDescriptor::getName)
+                .collect(Collectors.toSet());
     }
 
     protected ProjectDependencyViewModel.Builder mapProjectDependency(RulesProject src) {
@@ -1709,6 +1746,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * few repositories.
      */
     private @Nullable ProjectRepositoryModel mapRepositoryInfo(RulesProject project) {
+        if (project.isReadOnly()) {
+            // Downloaded from the Maven repository: the repository of its own it is opened in
+            var repository = project.getRepository();
+            return new ProjectRepositoryModel(repository.getId(),
+                    repository.getName(),
+                    DownloadedProjectRepository.TYPE,
+                    new RepositoryFeatures(repository.supports()));
+        }
         if (project.isLocalOnly()) {
             return null;
         }
@@ -2341,7 +2386,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var webstudio = getWebStudio();
         var projectName = project.getName();
-        if (project.isLocalOnly()) {
+        if (project.isLocalOnly() && !project.isReadOnly()) {
             // The case when in local project is not linked to any design repository,
             // so project name is may not equal to it is business name.
             // In that case we should resolve project descriptor manually. and get real project name from it.

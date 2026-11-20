@@ -517,6 +517,11 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return !isRepositoryOnly() && localRepository.isReadOnly();
+    }
+
+    @Override
     public boolean isInPlace() {
         return localRepository instanceof InPlaceRepository && !isRepositoryOnly();
     }

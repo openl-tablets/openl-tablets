@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.cache.Cache;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -20,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.SidManagingAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
@@ -63,6 +65,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         if (projectArtefact == null) {
             return false;
         }
+        if (projectArtefact.getRepository() instanceof LocalRepository local && local.isReadOnly()) {
+            return readsOnly(permissions);
+        }
         if (LocalWorkspace.LOCAL_ID.equals(projectArtefact.getRepository().getId())) {
             return true;
         }
@@ -73,6 +78,11 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
             oi = oidProvider.getParentOid(oi);
         }
         return isGranted(oi, sids, permissions);
+    }
+
+    /** Whether the permissions only read: all a read-only project grants, to everyone who reaches it. */
+    private static boolean readsOnly(List<Permission> permissions) {
+        return permissions.stream().allMatch(permission -> permission.getMask() == BasePermission.READ.getMask());
     }
 
     @Override
@@ -101,6 +111,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
                                   Map<ObjectIdentity, Boolean> decisions) {
         if (artefact == null) {
             return false;
+        }
+        if (artefact.getRepository() instanceof LocalRepository local && local.isReadOnly()) {
+            return readsOnly(permissions);
         }
         if (LocalWorkspace.LOCAL_ID.equals(artefact.getRepository().getId())) {
             return true;
