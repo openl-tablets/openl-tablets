@@ -636,7 +636,7 @@ OpenL Studio downloads it, and the projects tree lists it under **Maven** while 
 that is not an OpenL project, or that the Maven repository does not have, shows why the project cannot be shown.
 
 The page is the page of a project of the workspace, with the version of the project and **Read-only** beside its
-title, and **Export** above its tabs:
+title, and **Deploy** and **Export** above its tabs:
 
 -   **Overview** lists the modules, the projects it depends on, the projects of your workspace that depend on it
     under **Used by**, and the libraries it names; the right column shows the **Maven** repository and the
@@ -662,7 +662,7 @@ compilation below. The project is compiled with the projects it depends on, as a
 
 -   **Run**, **Trace** and **Benchmark** run the table, and **Test** runs the tests of the project.
 -   **More** > **Table Dependencies** shows how the tables use each other.
--   **Export** saves the project as a ZIP archive.
+-   **Deploy** deploys the project as it is downloaded, and **Export** saves it as a ZIP archive.
 -   **Edit**, **Copy**, **Remove**, **Create Test** and **Create Table** stand disabled: the project is read-only.
 
 A call in a cell leads to the table it names — in this project, in another downloaded project, or in a project of
@@ -1053,13 +1053,25 @@ To deploy a project, proceed as follows:
 3.  In the **Deployment Name** field, select an existing deployment from the list or type a new name to create one.
 4.  In the **Comment** field, enter a comment describing the deployment. A repository that keeps no comments, such as
     a **Local** one, does not offer the field.
-5.  Click **Deploy**.
+5.  If a dependency of the project names Maven coordinates, select in **Dependencies** where a dependency project
+    that both Design repository and the Maven repository have is taken from: **From design repositories**, the
+    default, or **From Maven repository**. A dependency project only one of them has comes from that one.
+    When several versions of one dependency project are required, the dialog warns: the deployment holds the version
+    the project is compiled with, as its **Overview** shows.
+6.  Click **Deploy**.
 
 A deployment name follows the rules of a project name: it cannot contain the characters `\ / : ; < > ? * % ' [ ] | "`, start with a space, end with a space or a dot, or be a reserved word such as `CON`. If the name is not accepted, the reason is displayed under **Deployment Name**, and nothing is deployed.
 
 The project is deployed to the selected deployment repository, and the **Project deployed** message is displayed. The project is listed in the deployment on the **Deployments** page and in **Existing deployments** of its **Deploy Configuration** tab.
 
 When the project or a project it depends on cannot be read from Design repository, such as a saved project whose `rules.xml` was deleted, nothing is deployed, and the dialog shows `Nothing is deployed: the project '<name>' cannot be read from the design repository.`
+
+The deployment holds the project, the projects it depends on, and the libraries the `rules.xml` of these projects name
+by Maven coordinates, so OpenL Rule Services runs it without a Maven repository. A library is put into the `lib`
+folder of the project that names it; a project downloaded from the Maven repository is deployed as it was packaged,
+with its own libraries. When the Maven repository has not something the deployment needs, nothing is deployed, and
+the dialog shows `Nothing is deployed: the deployment needs what cannot be downloaded from the Maven repository.`
+followed by the reason.
 
 A deployment repository can be configured to take projects only from the main branch of Design repository. For a project that is on another branch, the dialog explains that the project must be switched to the main branch or another repository must be selected, and **Deploy** is disabled.
 

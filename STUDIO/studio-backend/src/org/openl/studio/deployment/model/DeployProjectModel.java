@@ -17,6 +17,8 @@ public class DeployProjectModel {
     private static final String FIELD_DEPLOYMENT_NAME_DESC = "Deployment name";
     private static final String FIELD_PROJECT_ID_DESC = "Project identifier to deploy";
     private static final String FIELD_DEPLOYMENT_COMMENT_DESC = "Deployment reason comment";
+    private static final String FIELD_DEPENDENCY_SOURCE_DESC = "Where a dependency project both a design "
+            + "repository and the Maven repository have is taken from: REPOSITORY, the default, or MAVEN";
 
     @Parameter(description = FIELD_PROD_REPO_ID_DESC, required = true)
     public final String productionRepositoryId;
@@ -31,11 +33,15 @@ public class DeployProjectModel {
     @Parameter(description = FIELD_DEPLOYMENT_COMMENT_DESC)
     public final String comment;
 
+    @Parameter(description = FIELD_DEPENDENCY_SOURCE_DESC)
+    public final DependencySource dependencySource;
+
     public DeployProjectModel(Builder builder) {
         this.productionRepositoryId = builder.productionRepositoryId;
         this.deploymentName = builder.deploymentName;
         this.projectId = builder.projectId;
         this.comment = builder.comment;
+        this.dependencySource = builder.dependencySource;
     }
 
     @JsonCreator
@@ -49,6 +55,7 @@ public class DeployProjectModel {
         private String deploymentName;
         private ProjectId projectId;
         private String comment;
+        private DependencySource dependencySource;
 
         public Builder productionRepositoryId(String productionRepositoryId) {
             this.productionRepositoryId = productionRepositoryId;
@@ -67,6 +74,11 @@ public class DeployProjectModel {
 
         public Builder comment(String comment) {
             this.comment = comment;
+            return this;
+        }
+
+        public Builder dependencySource(DependencySource dependencySource) {
+            this.dependencySource = dependencySource;
             return this;
         }
 

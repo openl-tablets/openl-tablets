@@ -68,22 +68,24 @@ export function registerDeploymentHandlers(): void {
     name: "deploy_project",
     title: "Deploy Project",
     description:
-      "Deploy a project, with the projects it depends on, to a production repository, where OpenL Rule Services runs it: as a new deployment, or again to an existing one, a newer version or a rollback. Save the project first.",
+      "Deploy a project, with the projects it depends on and its Maven libraries, to a production repository, where OpenL Rule Services runs it: as a new deployment, or again to an existing one, a newer version or a rollback. Save the project first.",
     schema: schemas.deployProjectSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const { projectId, deploymentId, deploymentName, repository, comment } = args;
+      const { projectId, deploymentId, deploymentName, repository, comment, dependencySource } = args;
       if (deploymentId !== undefined) {
-        await client.redeployProject(deploymentId, { projectId, comment });
+        await client.redeployProject(deploymentId, { projectId, comment, dependencySource });
         return formatResult({ redeployed: deploymentId });
       }
       // The schema has checked that a new deployment names both
       const name = deploymentName as string;
       // The caller names the repository; Studio takes its id
       const repositoryId = await client.getProductionRepositoryId(repository as string);
-      await client.deployProject({ projectId, deploymentName: name, productionRepositoryId: repositoryId, comment });
+      await client.deployProject({
+        projectId, deploymentName: name, productionRepositoryId: repositoryId, comment, dependencySource,
+      });
       return formatResult({ deployed: name, repository: repositoryId });
     },
   });

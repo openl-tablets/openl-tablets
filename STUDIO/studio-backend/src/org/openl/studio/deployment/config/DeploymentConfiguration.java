@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
@@ -14,6 +15,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.deployment.service.DeploymentServiceImpl;
+import org.openl.studio.deployment.service.MavenDeploymentPlanner;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
@@ -30,9 +32,9 @@ public class DeploymentConfiguration {
                                                ProjectVersionCacheManager projectVersionCacheManager,
                                                ProjectAuditor auditor,
                                                UserManagementService userManagementService,
-                                               Environment environment) {
-        return new DeploymentServiceImpl(projectDependencyResolver,
-                deploymentRepositoryService,
+                                               Environment environment,
+                                               MavenDependencyResolver mavenDependencyResolver) {
+        return new DeploymentServiceImpl(deploymentRepositoryService,
                 deploymentManager,
                 userWorkspaceProvider,
                 projectStateValidator,
@@ -40,7 +42,8 @@ public class DeploymentConfiguration {
                 projectVersionCacheManager,
                 auditor,
                 userManagementService,
-                environment);
+                environment,
+                new MavenDeploymentPlanner(projectDependencyResolver, mavenDependencyResolver));
     }
 
 }

@@ -38,8 +38,8 @@ import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.deployment.model.DependencySource;
 import org.openl.studio.deployment.model.DeploymentId;
-import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
@@ -49,7 +49,6 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     private static final String SEPARATOR = "#";
 
-    private final ProjectDependencyResolver projectDependencyResolver;
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
     private final DeploymentManager deploymentManager;
     private final ObjectProvider<UserWorkspace> userWorkspaceProvider;
@@ -59,6 +58,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final ProjectAuditor auditor;
     private final UserManagementService userManagementService;
     private final PropertyResolver propertyResolver;
+    private final MavenDeploymentPlanner mavenDeploymentPlanner;
 
     @Override
     public List<Deployment> getDeployments(DeploymentCriteriaQuery query) {
@@ -145,7 +145,8 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public void deploy(DeploymentId deploymentId, RulesProject project, String comment) throws ProjectException {
+    public void deploy(DeploymentId deploymentId, RulesProject project, String comment, DependencySource source)
+            throws ProjectException {
         if (!projectStateValidator.canDeploy(project)) {
             if (project.isDeleted()) {
                 throw new ConflictException("project.deploy.deleted.message");
@@ -175,10 +176,13 @@ public class DeploymentServiceImpl implements DeploymentService {
                 .currentUser(getUserWorkspace().getUser())
                 .comment(comment);
 
-        var projectDescriptors = Stream.concat(Stream.of(project), projectDependencyResolver.getProjectDependencies(project).stream())
-                .map(ProjectDescriptorImpl::from)
-                .toList();
-        deploymentRequest.projectDescriptors(projectDescriptors);
+        var plan = mavenDeploymentPlanner.plan(project, source);
+        var projectDescriptors = plan.repositoryProjects().stream().map(ProjectDescriptorImpl::from).toList();
+        deploymentRequest.projectDescriptors(projectDescriptors).extras(plan.extras());
+        if (project.isReadOnly()) {
+            // Downloaded from the Maven repository, the project is no design-repository project of the deployment
+            deploymentRequest.downloadedFolder(plan.extras().projects().get(project.getBusinessName()));
+        }
         var request = deploymentRequest.build();
 
         var validBranchName = deploymentManager.validateOnMainBranch(request);

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.acls.domain.BasePermission;
@@ -41,6 +42,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
 import org.openl.rules.webstudio.web.repository.DeploymentException;
+import org.openl.rules.webstudio.web.repository.DeploymentExtras;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
@@ -54,8 +56,8 @@ import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.deployment.model.DependencySource;
 import org.openl.studio.deployment.model.DeploymentId;
-import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -82,8 +84,7 @@ class DeploymentServiceImplTest {
         deploymentManager = mock(DeploymentManager.class);
         deploymentManager.repositoryFactoryProxy = mock(RepositoryFactoryProxy.class);
         projectVersionCacheManager = mock(ProjectVersionCacheManager.class);
-        service = new DeploymentServiceImpl(mock(ProjectDependencyResolver.class),
-                deploymentRepositoryService,
+        service = new DeploymentServiceImpl(deploymentRepositoryService,
                 deploymentManager,
                 (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class),
                 mock(ProjectStateValidator.class),
@@ -92,7 +93,8 @@ class DeploymentServiceImplTest {
                 new ProjectAuditor(event -> {
                 }),
                 mock(UserManagementService.class),
-                new MockEnvironment());
+                new MockEnvironment(),
+                planner());
 
         broken = config("broken");
         when(deploymentManager.getDeployRepository("broken"))
@@ -177,7 +179,10 @@ class DeploymentServiceImplTest {
     @Test
     void a_deployment_is_recorded_in_the_audit_log() throws Exception {
         deployingService(RepositoryType.DB, mock(UserManagementService.class))
-                .deploy(new DeploymentId("production", "Pricing Rules"), deployableProject(), "Release 7");
+                .deploy(new DeploymentId("production", "Pricing Rules"),
+                        deployableProject(),
+                        "Release 7",
+                        DependencySource.REPOSITORY);
 
         verify(deploymentManager).deploy(any(DeploymentRequest.class));
         var event = events.getFirst();
@@ -185,6 +190,19 @@ class DeploymentServiceImplTest {
         assertEquals("Pricing Rules", event.target());
         assertEquals(Map.of("repository", "production", "project", "Pricing", "projectRepository", "design",
                 "comment", "Release 7"), event.details());
+    }
+
+    @Test
+    void the_projects_the_plan_takes_from_the_design_repositories_are_deployed_from_them() throws Exception {
+        deployingService(RepositoryType.DB, mock(UserManagementService.class))
+                .deploy(new DeploymentId("production", "Pricing Rules"),
+                        deployableProject(),
+                        "Release 7",
+                        DependencySource.REPOSITORY);
+
+        var request = ArgumentCaptor.forClass(DeploymentRequest.class);
+        verify(deploymentManager).deploy(request.capture());
+        assertEquals(1, request.getValue().projectDescriptors().size());
     }
 
     /** EPBDS-16641: a project that cannot be read stops the deployment with a reason, and nothing is recorded. */
@@ -196,7 +214,8 @@ class DeploymentServiceImplTest {
         var deploymentId = new DeploymentId("production", "Pricing Rules");
         var project = deployableProject();
 
-        var refusal = assertThrows(ConflictException.class, () -> deploying.deploy(deploymentId, project, "R"));
+        var refusal = assertThrows(ConflictException.class,
+                () -> deploying.deploy(deploymentId, project, "R", DependencySource.REPOSITORY));
 
         assertEquals("openl.error.409.project.deploy.unreadable.message", refusal.getErrorCode());
         assertArrayEquals(new Object[]{"P16638"}, refusal.getArgs());
@@ -212,7 +231,10 @@ class DeploymentServiceImplTest {
                                                                                  UserManagementService users)
             throws Exception {
         deployingService(type, users)
-                .deploy(new DeploymentId("production", "Pricing Rules"), deployableProject(), "Release 7");
+                .deploy(new DeploymentId("production", "Pricing Rules"),
+                        deployableProject(),
+                        "Release 7",
+                        DependencySource.REPOSITORY);
 
         verify(deploymentManager).deploy(any(DeploymentRequest.class));
     }
@@ -231,7 +253,8 @@ class DeploymentServiceImplTest {
         var project = deployableProject();
         var deploymentId = new DeploymentId("production", "Pricing Rules");
 
-        var refusal = assertThrows(BadRequestException.class, () -> deploying.deploy(deploymentId, project, "R"));
+        var refusal = assertThrows(BadRequestException.class,
+                () -> deploying.deploy(deploymentId, project, "R", DependencySource.REPOSITORY));
 
         assertEquals("openl.error.400.commit-info.required.message", refusal.getErrorCode());
         verify(deploymentManager, never()).deploy(any(DeploymentRequest.class));
@@ -271,8 +294,7 @@ class DeploymentServiceImplTest {
         when(workspace.getUser()).thenReturn(user);
         var workspaceProvider = (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class);
         when(workspaceProvider.getObject()).thenReturn(workspace);
-        return new DeploymentServiceImpl(mock(ProjectDependencyResolver.class),
-                deploymentRepositoryService,
+        return new DeploymentServiceImpl(deploymentRepositoryService,
                 deploymentManager,
                 workspaceProvider,
                 stateValidator,
@@ -280,7 +302,16 @@ class DeploymentServiceImplTest {
                 projectVersionCacheManager,
                 new ProjectAuditor(event -> events.add((AuditEvent) event)),
                 users,
-                new MockEnvironment().withProperty("repository.production.factory", type.getFactoryId()));
+                new MockEnvironment().withProperty("repository.production.factory", type.getFactoryId()),
+                planner());
+    }
+
+    /** A planner of deployments holding the deployed project only, and nothing from the Maven repository. */
+    private static MavenDeploymentPlanner planner() {
+        var planner = mock(MavenDeploymentPlanner.class);
+        when(planner.plan(any(), any())).thenAnswer(call -> new MavenDeploymentPlanner.Plan(
+                List.of(call.<RulesProject>getArgument(0)), DeploymentExtras.NONE));
+        return planner;
     }
 
     /** The project {@code Pricing} of the design repository {@code design}. */
