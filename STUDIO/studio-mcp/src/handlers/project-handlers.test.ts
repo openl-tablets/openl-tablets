@@ -160,6 +160,16 @@ describe("project lists and details", () => {
     expect(harness.mockHttp.history.get.map((request) => request.params?.include)).toEqual([undefined, undefined]);
   });
 
+  it("reads a project downloaded from the Maven repository by its maven id, as a project of the workspace", async () => {
+    const maven = "maven:com.example:domain:1.0.0";
+    harness.mockHttp.onGet(`/projects/${encodeURIComponent(maven)}`)
+      .reply(200, projectView("LOCAL", { id: maven, name: "Domain", readOnly: true }));
+
+    const project = dataOf(await executeTool("get_project", { projectId: maven }, harness.client));
+
+    expect(project).toMatchObject({ projectId: maven, name: "Domain", readOnly: true });
+  });
+
   it("names the capabilities of a project it reads, leaving out one Studio marks unavailable", async () => {
     const capabilities = { canOpen: true, canSave: false, canDeploy: true } as ProjectViewModel["capabilities"];
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", { capabilities }));
