@@ -49,6 +49,20 @@ class TestSuiteTest {
         assertEquals(List.of(firstResult, secondResult, thirdResult), results.getTestUnits());
     }
 
+    /** The given runner runs only the cases the indices name, in the order of the indices. */
+    @Test
+    void runsTheNamedCasesByTheGivenRunner() {
+        when(runner.runTest(same(first), any(), any(), anyInt())).thenReturn(firstResult);
+        when(runner.runTest(same(third), any(), any(), anyInt())).thenReturn(thirdResult);
+        var method = mock(TestSuiteMethod.class);
+        when(method.getTest(0)).thenReturn(first);
+        when(method.getTest(2)).thenReturn(third);
+
+        var results = new TestSuite(method, runner, 2, 0).invokeSequentially(openClass, 1);
+
+        assertEquals(List.of(thirdResult, firstResult), results.getTestUnits());
+    }
+
     @Test
     void runsNoFurtherCaseOnceTheThreadIsAskedToStop() {
         when(runner.runTest(same(first), any(), any(), anyInt())).thenReturn(firstResult);
