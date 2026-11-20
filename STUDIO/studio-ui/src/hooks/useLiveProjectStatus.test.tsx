@@ -5,7 +5,7 @@ import { subscribeProjectStatus, type ProjectStatusUpdate } from '../services/pr
 import { getProject } from '../services/repositories'
 import webSocketService from '../services/websocket'
 import type { Project } from '../types/projects'
-import { useLiveProjectStatus } from './useLiveProjectStatus'
+import { STATUS_QUIET_SPELL_MS, useLiveProjectStatus } from './useLiveProjectStatus'
 
 // Only the channel is stubbed; the freshness rule stays the one the screens use.
 vi.mock('../services/projectStatus', async importOriginal => ({
@@ -28,6 +28,8 @@ vi.mock('../services/websocket', () => {
     }
 })
 
+const STATUS_ONLY = { includes: ['status'], fields: 'compileStatus' }
+
 const status = (compileState: ProjectStatusUpdate['compileState'], message?: string): ProjectStatusUpdate => ({
     projectId: 'p1',
     branch: 'main',
@@ -39,12 +41,13 @@ const status = (compileState: ProjectStatusUpdate['compileState'], message?: str
     }),
 })
 
-const Probe = ({ enabled, initial, readAt }: {
+const Probe = ({ enabled, initial, readAt, waiting }: {
     enabled: boolean
     initial: ProjectStatusUpdate | null
     readAt?: number
+    waiting?: boolean
 }) => {
-    const live = useLiveProjectStatus('p1', 'main', enabled, initial, readAt)
+    const live = useLiveProjectStatus('p1', 'main', enabled, initial, readAt, waiting)
     return <span data-testid="state">{live?.compileState ?? 'none'}</span>
 }
 
@@ -213,6 +216,55 @@ describe('useLiveProjectStatus', () => {
 
         // The compilation ended while the connection was down: it is not shown as running for good.
         expect(getByTestId('state').textContent).toBe('warnings')
+        // The status alone is asked for, not the rest of the project.
+        expect(getProject).toHaveBeenCalledWith('p1', STATUS_ONLY, expect.anything())
+    })
+
+    it('reads the status again after a quiet spell while the caller waits, as an end may reach nobody', async () => {
+        vi.useFakeTimers()
+        try {
+            captureUpdates()
+            vi.mocked(getProject).mockResolvedValue({ compileStatus: status('warnings') } as Project)
+            const { getByTestId, rerender } = render(<Probe enabled waiting initial={status('compiling')} />)
+
+            // The compilation ended between the read and the subscription: nothing is pushed
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(STATUS_QUIET_SPELL_MS - 100)
+            })
+            expect(getProject).not.toHaveBeenCalled()
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(200)
+            })
+            expect(getProject).toHaveBeenCalledWith('p1', STATUS_ONLY, expect.anything())
+            expect(getByTestId('state').textContent).toBe('warnings')
+
+            // A caller no longer waiting reads nothing more
+            rerender(<Probe enabled initial={status('compiling')} waiting={false} />)
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(3 * STATUS_QUIET_SPELL_MS)
+            })
+            expect(getProject).toHaveBeenCalledTimes(1)
+        } finally {
+            vi.useRealTimers()
+        }
+    })
+
+    it('reads nothing again while it hears the compilation going on', async () => {
+        vi.useFakeTimers()
+        try {
+            const push = captureUpdates()
+            render(<Probe enabled waiting initial={status('compiling')} />)
+            for (let i = 0; i < 4; i++) {
+                await act(async () => {
+                    await vi.advanceTimersByTimeAsync(STATUS_QUIET_SPELL_MS / 2)
+                    push({ ...status('compiling'), compilation: { modules: { compiled: i, total: 4 } } })
+                })
+            }
+
+            expect(getProject).not.toHaveBeenCalled()
+        } finally {
+            vi.useRealTimers()
+        }
     })
 
     it('unsubscribes on unmount', async () => {

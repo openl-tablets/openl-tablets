@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { isPushFresherThanRead, subscribeProjectStatus, type ProjectStatusUpdate } from '../services/projectStatus'
 import { getProject } from '../services/repositories'
@@ -18,6 +18,14 @@ interface ShownStatus {
     status: ProjectStatusUpdate | null
 }
 
+/**
+ * How long a caller that waits for the status hears nothing — no push, no read — before the status is read again.
+ */
+export const STATUS_QUIET_SPELL_MS = 5000
+
+/** The read of the status alone: the project answers with its compile status and no other field. */
+const STATUS_ONLY = { includes: ['status'], fields: 'compileStatus' } satisfies Parameters<typeof getProject>[1]
+
 const sameStatus = (one: ProjectStatusUpdate | null, other: ProjectStatusUpdate | null): boolean =>
     one === other || JSON.stringify(one) === JSON.stringify(other)
 
@@ -34,6 +42,13 @@ const sameStatus = (one: ProjectStatusUpdate | null, other: ProjectStatusUpdate 
  * Nothing pushed while the connection is down arrives later, so the status is read afresh on every reconnect, as a
  * push: a compilation that ended meanwhile, or one the restart of the server ended, is not shown as running for good.
  *
+ * Nor does anything arrive that is pushed before the server has made the subscription: a compilation can end between
+ * the caller's read and the subscription, and the socket says nothing of it. So while the caller is {@code waiting}
+ * — for its module to be compiled, say — the status is read again after every quiet spell of
+ * {@link STATUS_QUIET_SPELL_MS} in which nothing was pushed or read, the socket connected or not.
+ *
+ * Either read asks the server for the compile status alone, not for the rest of the project.
+ *
  * A status equal to the one already shown keeps its object, so a re-read that changed nothing costs
  * the callers nothing — their message lists and paging are derived from that object.
  */
@@ -42,10 +57,30 @@ export function useLiveProjectStatus(
     branch: string | null,
     enabled: boolean,
     initial: ProjectStatusUpdate | null,
-    initialReadAt = 0
+    initialReadAt = 0,
+    waiting = false
 ): ProjectStatusUpdate | null {
     const [pushed, setPushed] = useState<PushedStatus | null>(null)
     const shown = useRef<ShownStatus>({ from: null, status: null })
+
+    // Reads the status as a push, and nothing else of the project. An answer about a project or a branch the screen
+    // moved away from is not shown: a push belongs to the channel it came from.
+    const readAfresh = useCallback(() => {
+        const readAt = Date.now()
+        getProject(projectId, STATUS_ONLY, LOCAL_LOAD_API_OPTIONS)
+            .then(read => {
+                const update = read.compileStatus
+                if (update) {
+                    // A push that arrived while the read was on its way is the fresher of the two.
+                    setPushed(shownNow => (shownNow !== null && shownNow.at > readAt
+                        ? shownNow
+                        : { update, at: readAt, projectId, branch }))
+                }
+            })
+            .catch(() => {
+                // The next push, the next reconnect or the next quiet spell tells the status instead.
+            })
+    }, [projectId, branch])
 
     useEffect(() => {
         setPushed(null)
@@ -58,28 +93,22 @@ export function useLiveProjectStatus(
                 setPushed({ update, at: Date.now(), projectId, branch })
             }
         })
-        const stopListening = webSocketService.onReconnect(() => {
-            const readAt = Date.now()
-            getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
-                .then(read => {
-                    const update = read.compileStatus
-                    if (!cancelled && update) {
-                        // A push that arrived while the read was on its way is the fresher of the two.
-                        setPushed(shownNow => (shownNow !== null && shownNow.at > readAt
-                            ? shownNow
-                            : { update, at: readAt, projectId, branch }))
-                    }
-                })
-                .catch(() => {
-                    // The next push, or the next reconnect, tells the status instead.
-                })
-        })
+        const stopListening = webSocketService.onReconnect(readAfresh)
         return () => {
             cancelled = true
             subscription.unsubscribe()
             stopListening()
         }
-    }, [projectId, branch, enabled])
+    }, [projectId, branch, enabled, readAfresh])
+
+    // Every push and every read starts the spell over, so a compilation heard going on is not read again.
+    useEffect(() => {
+        if (!enabled || !waiting) {
+            return undefined
+        }
+        const spell = setTimeout(readAfresh, STATUS_QUIET_SPELL_MS)
+        return () => clearTimeout(spell)
+    }, [enabled, waiting, readAfresh, pushed, initial])
 
     if (!enabled) {
         return null
