@@ -30,6 +30,10 @@ Content-Type: application/json
     },
     {
       "description": "***",
+      "name": "Dependencies: Maven"
+    },
+    {
+      "description": "***",
       "name": "Deployments"
     },
     {
@@ -8272,6 +8276,122 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Mail"
+        ]
+      }
+    },
+    "/maven": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MavenProjectSummary"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Dependencies: Maven"
         ]
       }
     },
@@ -31793,6 +31913,28 @@ Content-Type: application/json
           }
         }
       },
+      "MavenProjectSummary": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "artifactId": {
+            "type": "string",
+            "description": "***"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "version": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
       "MavenRepositorySettings": {
         "type": "object",
         "properties": {
@@ -33089,6 +33231,48 @@ Content-Type: application/json
           }
         }
       },
+      "ProjectDependencyConflictView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "mavenArtifact": {
+            "type": "string",
+            "description": "***"
+          },
+          "requestedBy": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectDependencyConflictView_Detailed": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "mavenArtifact": {
+            "type": "string",
+            "description": "***"
+          },
+          "requestedBy": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectDependencyConflictView_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "mavenArtifact": {
+            "type": "string",
+            "description": "***"
+          },
+          "requestedBy": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
       "ProjectDependencyViewModel": {
         "type": "object",
         "properties": {
@@ -33104,7 +33288,22 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "conflicts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyConflictView"
+            }
+          },
           "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "maven": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "mavenArtifact": {
             "type": "string",
             "description": "***"
           },
@@ -33157,7 +33356,22 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "conflicts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyConflictView_Detailed"
+            }
+          },
           "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "maven": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "mavenArtifact": {
             "type": "string",
             "description": "***"
           },
@@ -33210,7 +33424,22 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "conflicts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyConflictView_Full"
+            }
+          },
           "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "maven": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "mavenArtifact": {
             "type": "string",
             "description": "***"
           },
@@ -33863,6 +34092,13 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "libraries": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
           "lockInfo": {
             "$ref": "#/components/schemas/ProjectLockInfo"
           },
@@ -33885,6 +34121,10 @@ Content-Type: application/json
           },
           "path": {
             "type": "string",
+            "description": "***"
+          },
+          "readOnly": {
+            "type": "boolean",
             "description": "***"
           },
           "repository": {
@@ -33997,6 +34237,13 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "libraries": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
           "lockInfo": {
             "$ref": "#/components/schemas/ProjectLockInfo_Detailed"
           },
@@ -34019,6 +34266,10 @@ Content-Type: application/json
           },
           "path": {
             "type": "string",
+            "description": "***"
+          },
+          "readOnly": {
+            "type": "boolean",
             "description": "***"
           },
           "repository": {
@@ -34110,6 +34361,13 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "libraries": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
           "lockInfo": {
             "$ref": "#/components/schemas/ProjectLockInfo_Full"
           },
@@ -34132,6 +34390,10 @@ Content-Type: application/json
           },
           "path": {
             "type": "string",
+            "description": "***"
+          },
+          "readOnly": {
+            "type": "boolean",
             "description": "***"
           },
           "repository": {

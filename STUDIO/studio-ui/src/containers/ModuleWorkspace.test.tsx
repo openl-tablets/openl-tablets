@@ -161,14 +161,15 @@ vi.mock('./modules/TableSearchModal', () => ({
 }))
 // The band shows what it is handed, so a test can read what the screen decided; its Edit is what starts editing.
 vi.mock('./modules/TableToolbar', () => ({
-    TableToolbar: ({ runState, projectCompiled, onEdit, onWritten, onRemoved }: {
+    TableToolbar: ({ runState, projectCompiled, readOnly, onEdit, onWritten, onRemoved }: {
         runState?: string
         projectCompiled?: boolean
+        readOnly?: boolean
         onEdit?: () => void
         onWritten?: (written: { id: string, kind: string }, module: string) => void
         onRemoved?: () => void
     }) => (
-        <div data-compiled={String(projectCompiled)} data-testid="table-toolbar">
+        <div data-compiled={String(projectCompiled)} data-read-only={String(readOnly)} data-testid="table-toolbar">
             {runState}
             <button data-testid="table-edit" onClick={() => onEdit?.()} type="button" />
             <button data-testid="table-written" onClick={() => onWritten?.({ id: 't-5', kind: 'Rules' }, 'Pricing')} type="button" />
@@ -256,6 +257,8 @@ describe('ModuleWorkspace', () => {
         useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS })
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
+        // A project of the workspace, not one downloaded from the Maven repository by its coordinates
+        Object.assign(routeParams, { groupId: undefined })
         workspace.opened = false
         workspace.state = 'ok'
         workspace.branch = 'master'
@@ -318,6 +321,17 @@ describe('ModuleWorkspace', () => {
         expect(await screen.findByText('browser.module.gone')).toBeInTheDocument()
         // No dead end: the screen does not settle on the failure.
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
+    })
+
+    it('reads a project downloaded from the Maven repository by the coordinates of its address', async () => {
+        workspace.opened = true
+        Object.assign(routeParams, { projectId: undefined, groupId: 'com.example', artifactId: 'domain', version: '1.0.0' })
+        vi.mocked(getModuleTables).mockRejectedValue(moduleNotFound())
+        render(<AntApp><ModuleWorkspace /></AntApp>)
+
+        // Its page is under its coordinates too
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/maven/com.example/domain/1.0.0', { replace: true }))
+        expect(getProject).toHaveBeenCalledWith('maven:com.example:domain:1.0.0', expect.anything(), expect.anything())
     })
 
     it('says what failed, and stays, when the read of the tables finds the project rather than the module gone',
@@ -761,6 +775,21 @@ describe('ModuleWorkspace', () => {
         expect(screen.queryByTestId('table-details')).toBeNull()
         expect(navigateMock).not.toHaveBeenCalled()
         expect(getModuleTables).toHaveBeenCalledTimes(2)
+    })
+
+    it('hands the band of the table whether the project, as the server tells it, can only be read', async () => {
+        workspace.opened = true
+        const { unmount } = render(<ModuleWorkspace />)
+        expect(await screen.findByTestId('table-toolbar')).toHaveAttribute('data-read-only', 'false')
+        expect(screen.queryByTestId('maven-read-only')).toBeNull()
+        unmount()
+
+        vi.mocked(getProject).mockResolvedValue({ ...project('OPENED'), readOnly: true } as never)
+        render(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('table-toolbar')).toHaveAttribute('data-read-only', 'true')
+        // The header marks the project read-only beside the name of the module
+        expect(within(screen.getByTestId('module-header')).getByTestId('maven-read-only')).toBeInTheDocument()
     })
 
     it('writes a table of a Markdown file as one of a workbook', async () => {

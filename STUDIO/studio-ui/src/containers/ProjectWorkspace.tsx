@@ -12,6 +12,7 @@ import {
     unlockProject,
 } from '../services/repositories'
 import { isUnresolvedProjectLink } from '../services/projectLink'
+import { projectIdOfParams } from '../services/mavenDependencies'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
 import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
@@ -88,11 +89,6 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 /**
- * A single project's workspace page, addressed by the project id in the URL. Hosts the project
- * header, actions and content tabs; the content canvas is where table editing will live when the
- * Editor's features move here.
- */
-/**
  * What the page shows in place of a project it has not got: why the project could not be read, that the link leads
  * to no project, or a skeleton while the project is read. The tree beside it stays, so the reader can go on to another
  * project.
@@ -126,12 +122,18 @@ const ProjectAbsent = ({ error, linkProblem, styles }: {
     )
 }
 
+/**
+ * A single project's workspace page, addressed by the project id in the URL, or by the coordinates of a project
+ * downloaded from the Maven repository, which its own capabilities keep read-only. Hosts the project header, actions
+ * and content tabs.
+ */
 export const ProjectWorkspace = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const navigate = useNavigate()
-    const { projectId } = useParams()
+    const route = useParams()
+    const projectId = projectIdOfParams(route)
     const [project, setProject] = useState<Project | null>(null)
     // Whether the link leads to no project: shown in place of the project.
     const [linkProblem, setLinkProblem] = useState(false)

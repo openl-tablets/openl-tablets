@@ -111,6 +111,13 @@ class TagFillServiceTest {
                 refuse(files, new ForbiddenException("default.message"));
             }
         },
+        /** A project downloaded from the Maven repository, which nobody writes. */
+        READ_ONLY(TagFillBlocker.of(TagFillBlocker.Reason.NO_PERMISSION)) {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                refuse(files, new ModifyRestrictedException(project, ModifyRestriction.READ_ONLY));
+            }
+        },
         /** A closed project kept as an archive. */
         ARCHIVE(TagFillBlocker.of(TagFillBlocker.Reason.ARCHIVE)) {
             @Override

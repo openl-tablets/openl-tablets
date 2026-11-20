@@ -8,6 +8,7 @@ import { supportsBranches } from '../../utils/repositoryFeatures'
 import { CompilationMark } from '../modules/ModuleCompilationView'
 import type { ConfirmBefore } from '../modules/useConfirmBefore'
 import type { ModuleCompilation } from '../modules/useModuleCompilation'
+import { ReadOnlyTag } from '../maven/mavenProject'
 import { BranchSwitcher } from './BranchSwitcher'
 import { CrumbSwitcher } from './CrumbSwitcher'
 import { switchedRoute, switcherItems } from './moduleSwitcher'
@@ -47,7 +48,8 @@ interface ProjectScreenHeaderProps {
  *
  * <p>The trail leads to the projects of the repository, to another project and to another branch. The title opens
  * another module of the project, or its messages, and the mark beside it tells what was compiled and compiles it
- * again.
+ * again. A project that can only be read, such as one downloaded from the Maven repository, is marked so beside its
+ * title.
  * The actions of the screen come at the end.
  */
 export const ProjectScreenHeader = ({
@@ -72,12 +74,14 @@ export const ProjectScreenHeader = ({
     // The modules of the project, and after them its messages, which they all share.
     const localizationLabel = t('localization:title')
     const items = useMemo(() => switcherItems(modules, localizationLabel), [modules, localizationLabel])
+    const repositoryPath = repositoryListPath(project)
+    const repositoryLabel = project.repositoryInfo?.name ?? project.repository
 
     const crumbs = (
         <>
             <Link to="/projects">{t('home.title')}</Link>
             <span aria-hidden>/</span>
-            <Link to={repositoryListPath(project)}>{project.repositoryInfo?.name ?? project.repository}</Link>
+            {repositoryPath ? <Link to={repositoryPath}>{repositoryLabel}</Link> : <span>{repositoryLabel}</span>}
             <span aria-hidden>/</span>
             {/* Which of its modules to read is the reader's to say, on the project's own screen. */}
             <ProjectSwitcher
@@ -129,7 +133,10 @@ export const ProjectScreenHeader = ({
                 />
             )}
             titleAfter={(
-                <CompilationMark compilation={compilation} disabled={compilationDisabled} onRefresh={onRefresh} />
+                <>
+                    {project.readOnly && <ReadOnlyTag projectId={project.id} />}
+                    <CompilationMark compilation={compilation} disabled={compilationDisabled} onRefresh={onRefresh} />
+                </>
             )}
         />
     )

@@ -41,7 +41,8 @@ public final class ProjectExternalDependenciesHelper {
      * The names of the projects the project includes whole in its compilation ({@code autoIncluded}), in the order it
      * declares them.
      *
-     * <p>A dependency on a Maven artifact declares no name, and its name is {@code null}.
+     * <p>A dependency on a Maven artifact declares no name: it names no project to include, whatever its
+     * {@code autoIncluded} says.
      */
     public static List<String> autoIncludedProjects(ProjectDescriptor projectDescriptor) {
         var dependencies = projectDescriptor.getDependencies();
@@ -49,7 +50,7 @@ public final class ProjectExternalDependenciesHelper {
             return List.of();
         }
         return dependencies.stream()
-                .filter(ProjectDependencyDescriptor::isAutoIncluded)
+                .filter(dependency -> dependency.isAutoIncluded() && dependency.getName() != null)
                 .map(ProjectDependencyDescriptor::getName)
                 .toList();
     }

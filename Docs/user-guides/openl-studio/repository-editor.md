@@ -605,7 +605,7 @@ The left part describes the project configuration that is stored in `rules.xml`:
 
 -   **Modules** lists the modules of the project. Modules that are found by the standard `rules/` and `tests/` folders are shown as **Auto-discovered modules** and **Auto-discovered tests** with the pattern that finds them, and modules that `rules.xml` declares are shown with their names and paths. Click the name of a module to open it in the editor.
 -   **Version patterns**, **Properties processor** and **Exposed methods** show the corresponding settings of `rules.xml`.
--   **Dependencies** lists the projects that this project depends on under **Depends on**, followed by the projects that depend on it under **Used by**. A link opens the project, and **Not Found** marks a dependency that no project of the repository satisfies.
+-   **Dependencies** lists the projects that this project depends on under **Depends on**, followed by the projects that depend on it under **Used by** and the **Libraries** it names by Maven coordinates. A link opens the project, and **Not Found** marks a dependency that no project of the repository satisfies. A dependency that names Maven coordinates is compiled from the archive of the Maven repository while you have no project of its name open: it is marked **From Maven**, and clicking the mark opens the archive read-only, as described in [Viewing a Maven Dependency](#viewing-a-maven-dependency). While the project is open, its coordinates are shown beside it in grey. A project depending on two projects that need two versions of one downloaded project compiles one of them, the first one its dependencies reach: the dependency is marked **Version conflict**, the versions left out are listed on hover, and the compilation reports a warning. To edit a dependency, its project and its Maven coordinates, click **Edit**; a dependency with coordinates and no project is a library.
 -   **Sources** lists the folders and libraries that hold the source code of the project.
 -   **OpenAPI** shows the OpenAPI file of the project and its mode.
 
@@ -622,6 +622,57 @@ The right part shows the properties of the project:
 -   **Tags** — the tags of the project. See [Tagging a Project](#tagging-a-project).
 
 When another user locks the project, the tab starts with a note saying who locked the project and when, and the **Release lock** button unlocks it, as described in [Unlocking a Project](#unlocking-a-project).
+
+### Viewing a Maven Dependency
+
+The projects tree lists the projects downloaded from the Maven repository that your workspace depends on under the
+**Maven** repository, beside the design repositories. A project of it opens read-only at an address made of its
+coordinates, `/maven/<groupId>/<artifactId>/<version>`. It is also reached from the **From Maven** mark of a
+dependency on the **Overview** tab, and from any link to a table of the project, such as the **Target Table** of a
+test or a call in a cell.
+
+The address opens any OpenL project of the Maven repository, even one that no project of your workspace depends on:
+OpenL Studio downloads it, and the projects tree lists it under **Maven** while it is shown. An address of an archive
+that is not an OpenL project, or that the Maven repository does not have, shows why the project cannot be shown.
+
+The page is the page of a project of the workspace, with the version of the project and **Read-only** beside its
+title, and **Export** above its tabs:
+
+-   **Overview** lists the modules, the projects it depends on, the projects of your workspace that depend on it
+    under **Used by**, and the libraries it names; the right column shows the **Maven** repository and the
+    coordinates of the project.
+-   **Deploy Configuration** shows its `rules-deploy.xml` settings and the deployments that carry it.
+-   Its files unfold in the projects tree. A file picked there is shown with **Export**, and a workbook of a module
+    also offers to open the module; a folder can be exported as a ZIP archive.
+
+Nothing on the page can be edited. The version stands beside the name of the project in the projects tree too, so two
+versions of one project are told apart; projects of one name in two repositories show their repository there.
+
+![The page of a project downloaded from the Maven repository](images/maven-dependency.png "A Maven dependency, read-only")
+
+*A Maven dependency, read-only*
+
+![A file of a project downloaded from the Maven repository](images/maven-dependency-file.png "A file of a Maven dependency, read-only")
+
+*A file of a Maven dependency, read-only*
+
+A module of the project opens in the editor, as a module of a project of the workspace does: the tables in the tree on
+the left, the table picked in the middle, its properties in **Table Details** on the right, and the problems of the
+compilation below. The project is compiled with the projects it depends on, as a project of the workspace is.
+
+-   **Run**, **Trace** and **Benchmark** run the table, and **Test** runs the tests of the project.
+-   **More** > **Table Dependencies** shows how the tables use each other.
+-   **Export** saves the project as a ZIP archive.
+-   **Edit**, **Copy**, **Remove**, **Create Test** and **Create Table** stand disabled: the project is read-only.
+
+A call in a cell leads to the table it names — in this project, in another downloaded project, or in a project of
+your workspace — and the trail above the title leads back to the page of the project.
+
+![A module of a project downloaded from the Maven repository](images/maven-dependency-module.png "A module of a Maven dependency, read-only")
+
+*A module of a Maven dependency, read-only*
+
+To change the project, open it from its design repository, and it is compiled instead of the downloaded one.
 
 ### Tagging a Project
 

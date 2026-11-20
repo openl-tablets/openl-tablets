@@ -1,5 +1,6 @@
-import { BranchesOutlined, DatabaseOutlined, HddOutlined } from '@ant-design/icons'
+import { BranchesOutlined, CloudDownloadOutlined, DatabaseOutlined, HddOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { MAVEN_REPOSITORY } from '../../services/mavenDependencies'
 import { useSharedStyles } from './sharedStyles'
 
 const GIT_REPOSITORY_TYPE = 'repo-git'
@@ -10,6 +11,7 @@ const ICONS = {
     local: HddOutlined,
     git: BranchesOutlined,
     database: DatabaseOutlined,
+    maven: CloudDownloadOutlined,
 }
 
 const useStyles = createStyles(({ css }) => ({
@@ -65,6 +67,9 @@ const iconKind = (type: string | undefined) => {
     }
     if (type === GIT_REPOSITORY_TYPE) {
         return 'git'
+    }
+    if (type === MAVEN_REPOSITORY.type) {
+        return 'maven'
     }
     return 'database'
 }

@@ -15,12 +15,14 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.dependencies.service.MavenCoordinates;
 
 /**
  * Resolves the project a request names by its id.
@@ -52,6 +54,13 @@ public class ProjectIdConverter implements Converter<String, RulesProject> {
         throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
+    /** The session, which opens the projects downloaded from the Maven repository. */
+    @Lookup
+    public WebStudio getWebStudio() {
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
+    }
+
     @Override
     @Nonnull
     public RulesProject convert(String id) {
@@ -79,11 +88,17 @@ public class ProjectIdConverter implements Converter<String, RulesProject> {
     /**
      * The project the id names, or {@code null} when the workspace has none.
      *
-     * <p>A text that is not an id names no project, and is answered without listing the projects again.
+     * <p>A text that is not an id names no project, and is answered without listing the projects again. An id of the
+     * coordinates of a project of the Maven repository, {@code maven:groupId:artifactId:version}, names that project
+     * downloaded and opened read-only (see {@link WebStudio#downloadedProject}).
      *
-     * @throws GoneException when the project the id named was deleted
+     * @throws GoneException     when the project the id named was deleted
+     * @throws NotFoundException when the project of the Maven repository cannot be downloaded
      */
     public @Nullable RulesProject find(ProjectId id) {
+        if (MavenCoordinates.ofProjectId(id.value()) != null) {
+            return getWebStudio().downloadedProject(id.value());
+        }
         if (!ProjectIds.isId(id.value())) {
             return null;
         }

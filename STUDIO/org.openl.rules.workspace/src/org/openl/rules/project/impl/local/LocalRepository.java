@@ -50,6 +50,13 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     /**
+     * Whether the projects of this repository are only read: nothing writes their files, and nobody may change them.
+     */
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    /**
      * The folder of the user workspace the projects of this repository belong to.
      *
      * <p>The workspace keeps the local edit history of the projects in its {@code .history} folder. For a copy in the

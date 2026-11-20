@@ -119,14 +119,18 @@ function appendTags(params: URLSearchParams, tags: Iterable<string> | undefined)
  * Load a single project by id. This detail response carries everything the workspace needs — including
  * the dependency graph and, when the descriptor is requested, the resolved modules and sources that are
  * too costly to compute for every row of the list. The rest of rules.xml the UI reads from the file.
+ *
+ * {@code fields} keeps only the fields named, comma-separated, and the server builds only those: a caller that reads
+ * the compile status alone asks for {@code compileStatus}. The fields left out are missing from the answer.
  */
 export async function getProject(
     projectId: string,
-    options: { includes?: Iterable<ProjectInclude> } = {},
+    options: { includes?: Iterable<ProjectInclude>, fields?: string } = {},
     apiOptions: ApiCallOptions = THROW_API_OPTIONS
 ): Promise<Project> {
     const params = new URLSearchParams()
     appendRepeated(params, 'include', options.includes)
+    setParam(params, 'fields', options.fields)
     const query = params.toString()
     const suffix = query ? `?${query}` : ''
     const path = `/projects/${encodeURIComponent(projectId)}${suffix}`

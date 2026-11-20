@@ -17,6 +17,9 @@ whichever branch, after a rename, across restarts and on every Studio instance.
   from where the project is.
 - **The id is opaque and short.** Thirteen characters of a fixed alphabet, safe in a URL path, a STOMP destination and
   JSON as they are. No client builds or decodes it.
+- **A downloaded project is named by its coordinates.** A dependency downloaded from the Maven repository has no
+  folder in a repository: its id is `maven:groupId:artifactId:version`, which a client builds from the coordinates
+  (see [Maven Dependencies in OpenL Studio](maven-dependencies.md#read-only-view)).
 
 ## Decisions at a Glance
 
@@ -27,7 +30,7 @@ whichever branch, after a rename, across restarts and on every Studio instance.
   another instance compute the same ids from the same repositories.
 - **The contract** — every REST path, query parameter and body field that names a project, and every WebSocket
   destination, takes this id and nothing else: neither the Base64 `repository:name` id of earlier versions nor a bare
-  project name.
+  project name. The `maven:` id of a downloaded project is the one exception.
 - **Old ids** — not accepted and not migrated: an old id answers `404`, as an old table id does. Neither a link
   saved from OpenL Studio 6.4 nor a link by name is translated, by the REST API or in the browser.
 - **Renamed projects** — a rename in `rules.xml` keeps the folder, and so the id.

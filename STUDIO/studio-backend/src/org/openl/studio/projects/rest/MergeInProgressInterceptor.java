@@ -1,16 +1,12 @@
 package org.openl.studio.projects.rest;
 
-import java.util.Map;
-import java.util.Set;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.HandlerMapping;
 
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.converter.ProjectIdConverter;
@@ -37,18 +33,15 @@ import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
 @RequiredArgsConstructor
 public class MergeInProgressInterceptor implements HandlerInterceptor {
 
-    private static final String PROJECT_ID = "projectId";
-    private static final Set<String> READS = Set.of("GET", "HEAD", "OPTIONS");
-
     private final ProjectsMergeLauncher mergeLauncher;
     private final ProjectIdConverter projectIdConverter;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        var identity = projectIdentityOf(request);
+        var identity = ProjectRequests.projectIdOf(request);
         if (identity != null) {
             mergeLauncher.settleFinished();
-            if (!READS.contains(request.getMethod()) && !isLetThrough(handler)
+            if (ProjectRequests.mayChange(request, handler) && !isMergeEndpoint(handler)
                     && mergeLauncher.isRunning(() -> projectIdConverter.convert(identity))) {
                 throw new ConflictException("project.merge.running.message");
             }
@@ -56,15 +49,8 @@ public class MergeInProgressInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private static @Nullable String projectIdentityOf(HttpServletRequest request) {
-        return request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) instanceof Map<?, ?> variables
-                && variables.get(PROJECT_ID) instanceof String identity ? identity : null;
-    }
-
-    /** Whether the endpoint goes on during a merge: an endpoint of the merge itself, or one that changes nothing. */
-    private static boolean isLetThrough(Object handler) {
-        return handler instanceof HandlerMethod method
-                && (method.getBeanType() == ProjectsMergeController.class
-                || method.hasMethodAnnotation(ChangesNothing.class));
+    /** Whether the endpoint is one of the merge itself, which goes on during the merge. */
+    private static boolean isMergeEndpoint(Object handler) {
+        return handler instanceof HandlerMethod method && method.getBeanType() == ProjectsMergeController.class;
     }
 }

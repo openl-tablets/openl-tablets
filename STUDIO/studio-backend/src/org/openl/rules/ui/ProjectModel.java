@@ -2106,12 +2106,16 @@ public class ProjectModel {
         return openClass != null && !(openClass instanceof NullOpenClass);
     }
 
-    /** Where the edits of a module of this project are kept, or nothing when the model stands outside a workspace. */
+    /**
+     * Where the edits of a module of this project are kept, or nothing when the model stands outside a workspace or
+     * the project is read-only.
+     */
     private @Nullable String historyFolderOf(Module module) {
-        // A model outside a workspace — a project read straight from disk — keeps no history of its edits.
+        // A model outside a workspace — a project read straight from disk — keeps no history of its edits, nor does a
+        // project nothing edits, as one downloaded from the Maven repository, whose repository id names no folder.
         var workspace = studio.getUserWorkspace();
         var project = getProject();
-        if (workspace == null || project == null) {
+        if (workspace == null || project == null || project.isReadOnly()) {
             return null;
         }
         var location = workspace.getLocalWorkspace().getLocation();

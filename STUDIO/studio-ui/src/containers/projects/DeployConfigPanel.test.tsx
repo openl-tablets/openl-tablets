@@ -305,6 +305,14 @@ describe('DeployConfigPanel', () => {
         expect(screen.getByTestId('deploy-config-save')).toBeInTheDocument()
     })
 
+    it('tells a reader who may not write that there is no file, without asking for one', async () => {
+        vi.mocked(rootFileExists).mockResolvedValue(false)
+        await renderPanel(false)
+
+        expect(screen.getByTestId('deploy-config-missing')).toHaveTextContent('browser.deploy_config.none_read_only')
+        expect(screen.queryByTestId('deploy-config-edit')).not.toBeInTheDocument()
+    })
+
     it('shows a hint and creates the file on save when missing', async () => {
         const onSaved = vi.fn()
         vi.mocked(rootFileExists).mockResolvedValue(false)

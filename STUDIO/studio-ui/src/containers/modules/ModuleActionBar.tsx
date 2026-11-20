@@ -114,8 +114,11 @@ export const ModuleActionBar = ({
     // Only a module of a single file is downloaded from here: a folder is downloaded with the project.
     const exportable = !!modulePath && (isWorkbookPath(modulePath) || isMarkdownPath(modulePath))
     const exportHint = modulePath ? 'browser.module.export_folder' : 'browser.module.export_unavailable'
-    // The local changes are the versions a workbook is saved in: a Markdown file keeps none, so its module offers none
-    const keepsLocalChanges = !modulePath || isWorkbookPath(modulePath)
+    // A read-only project shows it, disabled, so the reader sees why no table is written into it.
+    const readOnly = project.readOnly === true
+    // The local changes are the versions a workbook is saved in: a Markdown file keeps none, so its module offers none,
+    // and neither does a read-only project, which is never saved
+    const keepsLocalChanges = !readOnly && (!modulePath || isWorkbookPath(modulePath))
     // Writing a table into the project is the project's own right, so it is offered by the same capability
     // the files of a project are written by.
     const canWrite = !!project.capabilities?.canWrite
@@ -244,21 +247,23 @@ export const ModuleActionBar = ({
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
                 )}
             </Button>
-            {canWrite && ofModule && !singleFile && (
-                <Button
-                    data-testid="module-createTable"
-                    disabled={disabled}
-                    icon={<PlusOutlined />}
-                    onClick={() => confirmWrite(() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
-                        detail: {
-                            projectId: project.id,
-                            currentModuleName: moduleName,
-                            onSuccess: onTableCreated,
-                        },
-                    })))}
-                >
-                    {t('browser.module.createTable')}
-                </Button>
+            {(canWrite || readOnly) && ofModule && !singleFile && (
+                <Tooltip title={readOnly ? t('browser.module.read_only') : undefined}>
+                    <Button
+                        data-testid="module-createTable"
+                        disabled={disabled || readOnly}
+                        icon={<PlusOutlined />}
+                        onClick={() => confirmWrite(() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
+                            detail: {
+                                projectId: project.id,
+                                currentModuleName: moduleName,
+                                onSuccess: onTableCreated,
+                            },
+                        })))}
+                    >
+                        {t('browser.module.createTable')}
+                    </Button>
+                </Tooltip>
             )}
             <Dropdown
                 disabled={disabled}

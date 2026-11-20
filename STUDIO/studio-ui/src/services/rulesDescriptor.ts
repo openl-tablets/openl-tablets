@@ -46,7 +46,7 @@ export interface DeclaredDependency {
     name: string
     /** Whether every module of the dependency is included automatically. */
     autoIncluded: boolean
-    /** Kept as declared and carried through edits; the form does not change it. */
+    /** The Maven coordinates it names; with no name, the dependency is a library. */
     mavenArtifact?: string | undefined
 }
 
@@ -118,7 +118,8 @@ const MAPPING: XmlMapping<RulesDescriptor> = {
             fields: {
                 name: { kind: 'text', tag: 'name' },
                 autoIncluded: { kind: 'flag', tag: 'autoIncluded', secondary: true },
-                mavenArtifact: { kind: 'text', tag: 'mavenArtifact', secondary: true },
+                // Coordinates alone make a dependency: a library, which names no project
+                mavenArtifact: { kind: 'text', tag: 'mavenArtifact' },
             },
         },
         exposedMethods: {

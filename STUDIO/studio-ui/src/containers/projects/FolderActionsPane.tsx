@@ -42,7 +42,7 @@ interface FolderActionsPaneProps {
     /** Drops a virtual folder from the tree (client-side only, no server call). */
     onRemoveVirtual?: () => void
     /** Opens the messages of the project on the Localization screen, offered for the folder of its messages. */
-    onOpenLocalization?: () => void
+    onOpenLocalization?: (() => void) | undefined
     /** Adds an empty folder, kept in the browser until a file is created inside it. */
     onCreateFolder: (path: string) => void
 }

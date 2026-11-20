@@ -4,7 +4,7 @@ import { App } from 'antd'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getProjectFiles } from '../../services/repositories'
-import { OverviewPanel } from './OverviewPanel'
+import { OverviewPanel, withProject } from './OverviewPanel'
 import { ProjectStatus } from '../../constants/project'
 import { getFileContent, uploadFile, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
@@ -132,6 +132,27 @@ describe('OverviewPanel', () => {
         expect(screen.queryByText('browser.overview.branch')).toBeNull()
         expect(screen.queryByText('browser.overview.path')).toBeNull()
         expect(screen.queryByText('—')).toBeNull()
+    })
+
+    it('shows a project that can only be read with its coordinates, and offers no edit', async () => {
+        setRulesXml('<project><name>Domain</name><comment>Shared rules</comment></project>')
+        await renderPanel({
+            ...base,
+            id: 'maven:com.example:domain:1.0.0',
+            repository: 'maven:com.example:domain:1.0.0',
+            readOnly: true,
+            capabilities: { canDeploy: true, canExport: true },
+            descriptor: { modules: [{ name: 'Main', path: 'rules/Main.xlsx' }], modulesDefault: false },
+        }, 'maven')
+
+        expect(await screen.findByText('Shared rules')).toBeInTheDocument()
+        expect(screen.getByRole('link', { name: 'Main' })).toHaveAttribute('href', '/maven/com.example/domain/1.0.0/modules/Main')
+        expect(screen.getByTestId('overview-coordinates')).toHaveTextContent('com.example:domain:1.0.0')
+        expect(screen.getByText('browser.overview.repository')).toBeInTheDocument()
+        // A downloaded project has no status of the workspace: it is not a local project
+        expect(screen.queryByText('browser.overview.status')).toBeNull()
+        expect(screen.queryByTestId('overview-edit')).toBeNull()
+        expect(getFileContent).toHaveBeenCalledWith('maven:com.example:domain:1.0.0', 'rules.xml')
     })
 
     it('renders depends-on entries as links to the referenced projects', async () => {
@@ -972,5 +993,15 @@ describe('OverviewPanel', () => {
         })
         expect(screen.getByTestId('overview-edit')).toBeInTheDocument()
         expect(screen.getByTestId('overview-edit')).not.toBeDisabled()
+    })
+})
+
+describe('withProject', () => {
+    it('drops the auto-included flag of a dependency whose project is cleared', () => {
+        const dependency = { name: 'Domain', autoIncluded: true, mavenArtifact: 'g:a:jar:1.0' }
+
+        expect(withProject(dependency, undefined))
+            .toEqual({ name: '', autoIncluded: false, mavenArtifact: 'g:a:jar:1.0' })
+        expect(withProject(dependency, 'Common')).toEqual({ ...dependency, name: 'Common' })
     })
 })

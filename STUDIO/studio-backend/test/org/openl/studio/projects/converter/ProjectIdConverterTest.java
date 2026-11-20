@@ -28,6 +28,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.StaleIds;
@@ -50,10 +51,16 @@ class ProjectIdConverterTest {
     private final UserWorkspace workspace = mock(UserWorkspace.class);
     private final DesignTimeRepository designTimeRepository = mock(DesignTimeRepository.class);
     private final MetainfoRegistry metainfoRegistry = mock(MetainfoRegistry.class);
+    private final WebStudio webStudio = mock(WebStudio.class);
     private final ProjectIdConverter converter = new ProjectIdConverter(aclService) {
         @Override
         public UserWorkspace getUserWorkspace() {
             return workspace;
+        }
+
+        @Override
+        public WebStudio getWebStudio() {
+            return webStudio;
         }
     };
 
@@ -205,6 +212,32 @@ class ProjectIdConverterTest {
         readable(project);
 
         assertSame(project, converter.convert(ID.value()));
+    }
+
+    @Test
+    void anIdOfMavenCoordinatesServesTheDownloadedProject() {
+        var downloaded = mock(RulesProject.class);
+        when(webStudio.downloadedProject("maven:org.example:rating:1.0")).thenReturn(downloaded);
+        readable(downloaded);
+
+        assertSame(downloaded, converter.convert("maven:org.example:rating:1.0"));
+        verify(workspace, never()).getProjectById(any(), anyBoolean());
+    }
+
+    @Test
+    void aMavenProjectThatCannotBeDownloadedIsReportedAsTheSessionReportsIt() {
+        when(webStudio.downloadedProject("maven:org.example:rating:1.0"))
+                .thenThrow(new NotFoundException("dependency.maven.not-downloaded.message", "x", "y"));
+
+        var ex = assertThrows(NotFoundException.class, () -> converter.convert("maven:org.example:rating:1.0"));
+
+        assertEquals("openl.error.404.dependency.maven.not-downloaded.message", ex.getErrorCode());
+    }
+
+    @Test
+    void anIncompleteMavenIdNamesNoProject() {
+        assertNull(converter.find(ProjectId.of("maven:org.example:rating")));
+        verify(webStudio, never()).downloadedProject(any());
     }
 
     private void listed(RulesProject project) {

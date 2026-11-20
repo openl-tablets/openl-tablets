@@ -44,11 +44,18 @@ export interface Project {
      * to it would save it over the revisions that came after.
      */
     overwritesNewerRevision?: boolean
+    /**
+     * Whether the project can only be read, such as one downloaded from the Maven repository: it is compiled, run and
+     * deployed, and never changed. Absent otherwise.
+     */
+    readOnly?: boolean
     capabilities?: ProjectCapabilities
     /** Other projects this project depends on (from its rules.xml). */
     dependencies?: ProjectDependency[]
     /** Other projects that depend on this one. Only populated on the single-project detail response. */
     usedBy?: ProjectDependency[]
+    /** The Maven coordinates of the libraries rules.xml names. */
+    libraries?: string[]
     /**
      * The parts of rules.xml the UI cannot work out from the file itself — the resolved modules and the
      * sources — with whether each is an engine default. Only populated when the descriptor is requested.
@@ -86,6 +93,23 @@ export interface ProjectDependency {
     missing?: boolean
     /** Whether another dependency declares this one instead of the project itself. */
     transitive?: boolean
+    /** The Maven coordinates of the project's archive the dependency names. */
+    mavenArtifact?: string
+    /** Whether the project compiles with the archive downloaded from the Maven repository, as none is open. */
+    maven?: boolean
+    /**
+     * The other dependencies of the name, which ask for other Maven coordinates and are left out: one project of a
+     * name is compiled, the one reached first. Absent when there is none.
+     */
+    conflicts?: ProjectDependencyConflict[]
+}
+
+/** A dependency of the same name that asks for other Maven coordinates and is left out. */
+export interface ProjectDependencyConflict {
+    /** The project declaring it. */
+    requestedBy: string
+    /** The coordinates it asks for; absent when it names none. */
+    mavenArtifact?: string
 }
 
 /**

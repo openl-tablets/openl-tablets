@@ -71,12 +71,27 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                // The list and a project share one screen: its rail stays while the reader steps between them.
-                path: 'projects',
+                // The list and a project share one screen: its rail stays while the reader steps between them, a
+                // project downloaded from the Maven repository included.
                 element: <ProjectsThemeProvider><ProjectsHome /></ProjectsThemeProvider>,
                 children: [
                     {
-                        path: ':projectId',
+                        path: 'projects',
+                        children: [
+                            {
+                                path: ':projectId',
+                                element: (
+                                    <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                                        <ProjectWorkspace />
+                                    </React.Suspense>
+                                ),
+                            },
+                        ],
+                    },
+                    {
+                        // A project downloaded from the Maven repository, addressed by its coordinates: the screen of
+                        // a project of the workspace, which the project, opened read-only, keeps from writing.
+                        path: 'maven/:groupId/:artifactId/:version',
                         element: (
                             <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
                                 <ProjectWorkspace />
@@ -84,6 +99,18 @@ const router = createBrowserRouter([
                         ),
                     },
                 ],
+            },
+            {
+                // A module of that project, read-only: the screen of a module of a project of the workspace, which the
+                // project, opened read-only, keeps from writing.
+                path: 'maven/:groupId/:artifactId/:version/modules/:moduleName',
+                element: (
+                    <ProjectsThemeProvider>
+                        <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                            <ModuleWorkspace />
+                        </React.Suspense>
+                    </ProjectsThemeProvider>
+                ),
             },
             {
                 path: 'deployments',

@@ -483,10 +483,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     private static Stream<ResolvedDependency> autoIncluded(ProjectDescriptor project) {
-        // A Maven artifact without a name is a jar on the classpath, not a project.
         return ProjectExternalDependenciesHelper.autoIncludedProjects(project)
                 .stream()
-                .filter(Objects::nonNull)
                 .map(AbstractDependencyManager::buildResolvedDependency);
     }
 
