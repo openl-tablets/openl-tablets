@@ -173,6 +173,10 @@ The MCP server of OpenL Studio reads a downloaded project with its usual tools: 
 dependency compiled from the Maven repository (`maven: true`) and its coordinates, and every project tool takes the
 id `maven:groupId:artifactId:version`, so an agent sees the rules a dependency compiles from.
 
+The MCP server of OpenL Studio reads the same endpoints in `openl_get_maven_dependency`: it lists the tables of a
+downloaded project by module, finds them by name and reads one, so an agent sees the rules a dependency compiles
+from.
+
 ## Libraries on the Classpath
 
 `AbstractDependencyManager.getExternalJarsClassLoader` builds the class loader a project compiles and runs with. The

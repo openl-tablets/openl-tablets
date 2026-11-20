@@ -411,7 +411,7 @@ export function registerProjectHandlers(): void {
     name: "get_project",
     title: "Get Project Details",
     description:
-      "Get a project: its name, branch, status, repository, last change, revision and 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when not available; a project edited in place (a file repository in single-user mode) never has the first three, as it is always open and its edits are in its files.",
+      "Get a project: its name, branch, status, repository, last change, revision and 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when not available; a project edited in place (a file repository in single-user mode) never has the first three, as it is always open and its edits are in its files. A dependency with 'maven': true is a project downloaded from the Maven repository: every project tool reads it, read-only, by the projectId maven:groupId:artifactId:version of its 'mavenArtifact'.",
     schema: schemas.getProjectSchema,
     annotations: {
       readOnlyHint: true,

@@ -88,6 +88,8 @@ export interface ProjectViewModel {
   comment?: string;
   repository?: string;
   repositoryInfo?: { name: string; features?: RepositoryFeatures };
+  /** Whether nothing of the project can be changed, as of one downloaded from the Maven repository. */
+  readOnly?: boolean;
   /** What the user may do with the project: an operation left out is not available. */
   capabilities?: ProjectCapabilities;
   /** The projects that depend on the project. */
