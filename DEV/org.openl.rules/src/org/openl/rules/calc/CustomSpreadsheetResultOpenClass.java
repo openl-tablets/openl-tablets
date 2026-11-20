@@ -40,7 +40,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.rules.calc.SpreadsheetResultBeanByteCodeGenerator.FieldDescription;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -109,9 +108,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
      */
     @Setter(AccessLevel.PACKAGE)
     private boolean replacedVersion;
-
-    @Getter
-    private ILogicalTable logicalTable;
 
     private final AtomicReference<GeneratedBean> generatedBean = new AtomicReference<>();
     protected volatile String beanClassName;
@@ -189,10 +185,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.descriptions = descriptions;
     }
 
-    public CustomSpreadsheetResultOpenClass(String name,
-                                            XlsModuleOpenClass module,
-                                            ILogicalTable logicalTable,
-                                            boolean spreadsheet) {
+    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, boolean spreadsheet) {
         this(name,
                 EMPTY_STRING_ARRAY,
                 EMPTY_STRING_ARRAY,
@@ -203,7 +196,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 spreadsheet);
         this.simpleRefByRow = true;
         this.simpleRefByColumn = true;
-        this.logicalTable = logicalTable;
     }
 
     @Override
@@ -600,7 +592,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 }
             }
             type.setMetaInfo(getMetaInfo());
-            type.logicalTable = this.logicalTable;
             return type;
         }
         return this;
@@ -615,7 +606,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 columnNamesForResultModel,
                 fieldsCoordinates);
         spr.setCustomSpreadsheetResultOpenClass(this);
-        spr.setLogicalTable(logicalTable);
         return spr;
     }
 

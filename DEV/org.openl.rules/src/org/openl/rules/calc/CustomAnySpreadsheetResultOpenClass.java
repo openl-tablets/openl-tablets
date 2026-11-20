@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.openl.rules.calc.SpreadsheetResultBeanByteCodeGenerator.FieldDescription;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 
 // The type is equal by its module and name; the types merged into it only decorate the generated bean.
@@ -15,8 +14,8 @@ public class CustomAnySpreadsheetResultOpenClass extends CustomSpreadsheetResult
 
     private final Set<CustomSpreadsheetResultOpenClass> anyOpenClasses = new HashSet<>();
 
-    public CustomAnySpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, ILogicalTable logicalTable, boolean spreadsheet) {
-        super(name, module, logicalTable, spreadsheet);
+    public CustomAnySpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, boolean spreadsheet) {
+        super(name, module, spreadsheet);
     }
 
     @Override

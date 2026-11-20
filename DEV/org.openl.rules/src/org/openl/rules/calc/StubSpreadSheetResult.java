@@ -4,8 +4,6 @@ import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.table.ILogicalTable;
-
 public final class StubSpreadSheetResult extends SpreadsheetResult {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -74,16 +72,6 @@ public final class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     public String getRowName(int row) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ILogicalTable getLogicalTable() {
-        return null;
-    }
-
-    @Override
-    public void setLogicalTable(ILogicalTable logicalTable) {
         throw new UnsupportedOperationException();
     }
 
