@@ -163,6 +163,8 @@ the administration, to compile a project and run its tests:
   time has passed
 - **The local repository** — `maven.repository.local` keeps the files, downloaded once; a snapshot version is checked in
   the Maven repository again
+- **Cleanup** — a dependency no project used for a period, or used longest ago while the folder is too large, is
+  removed from the local repository
 - **No Maven repository set** — nothing is downloaded: a library is expected in `lib/`, where the OpenL Maven Plugin
   packs it, and a project dependency among the projects the user opened
 - **OpenL Rule Services** — download nothing: a deployed project carries its libraries in `lib/`, and its project

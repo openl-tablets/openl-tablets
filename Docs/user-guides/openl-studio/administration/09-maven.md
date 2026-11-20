@@ -10,7 +10,13 @@ To set the Maven repository, proceed as follows:
 2. In the **URL** field, enter the address of the repository, such as `https://repo.maven.apache.org/maven2`, or
    `file:///opt/maven-repository` for a repository in a folder of the server.
 3. If the repository requires authentication, enter the **Username** and the **Password**.
-4. Click **Apply** and confirm.
+4. In the **Cleanup Period (Days)** field, enter how many days a downloaded dependency no project uses is kept.
+5. In the **Cleanup Threshold (MB)** field, enter how large the downloaded dependencies may grow before the ones used
+   longest ago are removed.
+
+   A `0` in either field turns that rule off. A dependency a project reads at the moment is never removed.
+
+6. Click **Apply** and confirm.
 
    OpenL Studio restarts, so all users lose their unsaved changes.
 
@@ -19,6 +25,10 @@ To set the Maven repository, proceed as follows:
 *Maven repository settings*
 
 To stop downloading, clear the **URL** field and click **Apply**.
+
+The size of the downloaded dependencies shows under **Downloaded dependencies**. To delete them all, click **Delete
+Cache** and confirm. Every project downloads its Maven dependencies again when it compiles next. In a cluster, each
+OpenL Studio instance keeps its own downloads, and the button deletes those of the instance that serves you.
 
 What OpenL Studio does with the downloaded dependencies:
 

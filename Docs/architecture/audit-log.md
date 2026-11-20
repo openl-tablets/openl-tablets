@@ -301,6 +301,15 @@ one `settingsChanged` event (category `settings`) for every save, however many s
   overrides the properties files of the application, so saving it records the change. The deployment changes its
   settings with a restart, as the next section tells.
 
+### Downloaded Maven Dependencies
+
+Removing downloaded Maven dependencies from the local repository is a `mavenCacheCleaned` event (category
+`settings`), whether an administrator empties the repository with **Delete Cache** of the **Maven** section or the
+hourly cleanup removes what went unused or what was used longest ago
+([Maven Dependencies in OpenL Studio](maven-dependencies.md)). The details hold the trigger (`user` or `cleanup`), the
+number of versions removed (`removed`) and the bytes they held (`bytes`). An emptying names the administrator, a
+cleanup no one; a cleanup that removes nothing records nothing.
+
 ### Settings of the Deployment
 
 A setting an environment variable, a system property, an init parameter of the context, JNDI or a properties file

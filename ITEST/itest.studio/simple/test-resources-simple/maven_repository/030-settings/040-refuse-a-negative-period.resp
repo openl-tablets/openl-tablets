@@ -1,0 +1,14 @@
+HTTP/1.1 400 OK
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.Min",
+      "message": "The cleanup period cannot be negative.",
+      "field": "cleanupPeriod",
+      "rejectedValue": -1
+    }
+  ]
+}

@@ -47,6 +47,7 @@ i18next.addResourceBundle('en', 'audit', {
     },
     actions: {
         settingsChanged: 'Settings changed',
+        mavenCacheCleaned: 'Maven dependencies removed',
         signIn: 'Sign in',
         signOut: 'Sign out',
         sessionStarted: 'Session started',
