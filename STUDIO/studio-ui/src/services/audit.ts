@@ -31,7 +31,7 @@ export const AUDIT_ACTIONS = {
         'protectionBypassed',
     ],
     deployment: ['projectDeployed'],
-    settings: ['settingsChanged'],
+    settings: ['settingsChanged', 'mavenCacheCleaned'],
     tag: [
         'tagTypeCreated',
         'tagTypeUpdated',

@@ -2103,6 +2103,7 @@ Content-Type: application/json
                   "protectionBypassed",
                   "projectDeployed",
                   "settingsChanged",
+                  "mavenCacheCleaned",
                   "tagTypeCreated",
                   "tagTypeUpdated",
                   "tagTypeDeleted",
@@ -3710,6 +3711,212 @@ Content-Type: application/json
         },
         "responses": {
           "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Settings: Maven Repository"
+        ]
+      }
+    },
+    "/admin/settings/maven/cache": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Settings: Maven Repository"
+        ]
+      },
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MavenCacheModel"
+                }
+              }
+            },
             "description": "***"
           },
           "400": {
@@ -28940,6 +29147,7 @@ Content-Type: application/json
               "protectionBypassed",
               "projectDeployed",
               "settingsChanged",
+              "mavenCacheCleaned",
               "tagTypeCreated",
               "tagTypeUpdated",
               "tagTypeDeleted",
@@ -33288,9 +33496,34 @@ Content-Type: application/json
           }
         }
       },
+      "MavenCacheModel": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          }
+        }
+      },
       "MavenRepositorySettings": {
         "type": "object",
         "properties": {
+          "cleanupPeriod": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "example": 30,
+            "minimum": 0
+          },
+          "cleanupThreshold": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "example": 1024,
+            "minimum": 0
+          },
           "password": {
             "type": "string",
             "description": "***",

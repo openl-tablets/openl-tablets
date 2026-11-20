@@ -460,14 +460,21 @@ configured.
 
 Described in [Managing the Maven Repository][maven].
 
-| Field    | Property                    |
-|----------|-----------------------------|
-| URL      | `maven.repository.url`      |
-| Username | `maven.repository.username` |
-| Password | `maven.repository.password` |
+| Field                  | Property                             |
+|------------------------|--------------------------------------|
+| URL                    | `maven.repository.url`               |
+| Username               | `maven.repository.username`          |
+| Password               | `maven.repository.password`          |
+| Cleanup Period (Days)  | `maven.repository.cleanup.period`    |
+| Cleanup Threshold (MB) | `maven.repository.cleanup.threshold` |
 
 OpenL Studio downloads nothing while the URL is empty. The folder that keeps the downloaded files has no UI field:
 see [Maven Local Repository](#maven-local-repository).
+
+Every hour, OpenL Studio removes from that folder the dependencies no project has used for the cleanup period, 30
+days by default, then, while the folder is larger than the cleanup threshold, 1024 MB by default, the ones used longest
+ago. A `0` turns either rule off. A dependency a project compiled at the moment reads is never removed. In a cluster,
+one instance at a time cleans the folder the instances share.
 
 ### Email Server
 
@@ -521,8 +528,11 @@ maven.repository.local = ${openl.home}/maven-repository
 ```
 
 A file is downloaded once and read from this folder afterwards; a snapshot version is checked in the Maven repository
-again. OpenL Studio deletes nothing here, including the files of a dependency no project names any more: the folder is
-a cache to empty when it grows. OpenL Studio then downloads again what a project still names, when it compiles it.
+again. The cleanup of the [Maven repository](#maven-repository) settings removes what the projects stopped using, and
+**Delete Cache** in the **Maven** section of the administration empties the folder. OpenL Studio then downloads again
+what a project still names, when it compiles it. Each use is recorded in a `.openl-last-used` file beside the
+downloaded files of a version, and only a version holding that file is ever removed, so a folder shared with Maven
+keeps the rest. In a cluster each instance keeps a folder of its own: do not point several instances to one folder.
 
 ### Cross-Origin Requests
 

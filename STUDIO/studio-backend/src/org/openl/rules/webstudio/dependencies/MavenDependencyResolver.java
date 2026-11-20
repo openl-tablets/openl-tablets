@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -18,11 +16,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import lombok.Locked;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.aether.AbstractRepositoryListener;
 import org.eclipse.aether.ConfigurationProperties;
+import org.eclipse.aether.RepositoryEvent;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
@@ -97,6 +100,9 @@ public class MavenDependencyResolver implements DisposableBean {
     private final Clock clock;
     private final Map<Object, Cached<?>> cache = new ConcurrentHashMap<>();
     private final Object extractLock = new Object();
+    /** Resolutions read the local repository together; a removal from it runs alone. */
+    private final ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
+    private final LocalMavenRepository local;
     private volatile @Nullable RepositorySystem system;
 
     @Autowired
@@ -115,6 +121,7 @@ public class MavenDependencyResolver implements DisposableBean {
         this.repository = remoteRepository(url, username, password);
         this.localRepository = localRepository;
         this.clock = clock;
+        this.local = new LocalMavenRepository(localRepository, clock);
     }
 
     private static @Nullable RemoteRepository remoteRepository(@Nullable String url,
@@ -228,11 +235,60 @@ public class MavenDependencyResolver implements DisposableBean {
         return current.answer().join();
     }
 
+    /** The size of the files kept in the local repository, in bytes. */
+    public long localRepositorySize() {
+        return local.size();
+    }
+
+    /**
+     * Removes from the local repository the versions no project needs: those unused for longer than the period, then,
+     * while the repository is larger than the limit, those used longest ago. What the answers kept in memory name
+     * stays, since the projects compiled at the moment read it.
+     *
+     * @param unusedFor how long a version may stay unused, or {@code null} for no limit
+     * @param maxBytes  how large the repository may grow, or {@code 0} for no limit
+     * @return what was removed
+     */
+    @Locked.Write("repositoryLock")
+    LocalMavenRepository.Removal cleanLocalRepository(@Nullable Duration unusedFor, long maxBytes) {
+        return local.clean(unusedFor, maxBytes, filesInUse());
+    }
+
+    /**
+     * Removes every file of the local repository and forgets every answer, so each project downloads its
+     * dependencies again when it compiles next. A file the operating system keeps open, as Windows does for a jar a
+     * class loader reads, stays.
+     *
+     * @return what was removed
+     */
+    @Locked.Write("repositoryLock")
+    LocalMavenRepository.Removal clearLocalRepository() {
+        cache.clear();
+        return local.clear();
+    }
+
+    /** The files the answers kept in memory name: the libraries and the unpacked projects. */
+    private List<Path> filesInUse() {
+        var files = new ArrayList<Path>();
+        for (Cached<?> cached : cache.values()) {
+            switch (cached.answer().getNow(null)) {
+                case Libraries libraries -> files.addAll(libraries.files());
+                case DownloadedProject downloaded when downloaded.project() != null ->
+                        files.add(downloaded.project().getProjectFolder());
+                case null, default -> {
+                    // Nothing found, so nothing read
+                }
+            }
+        }
+        return files;
+    }
+
     /** How many answers are kept in memory. */
     int cachedAnswers() {
         return cache.size();
     }
 
+    @Locked.Read("repositoryLock")
     private Libraries resolveLibraries(List<String> coordinates) {
         var messages = new ArrayList<OpenLMessage>();
         var collect = new CollectRequest();
@@ -279,6 +335,7 @@ public class MavenDependencyResolver implements DisposableBean {
         }
     }
 
+    @Locked.Read("repositoryLock")
     private DownloadedProject resolveProject(String name, String coordinates) {
         var artifact = artifactOf(coordinates);
         if (artifact == null) {
@@ -376,6 +433,17 @@ public class MavenDependencyResolver implements DisposableBean {
                 // A repository that does not answer fails the compilation in a minute, not in half an hour
                 .setConfigProperty(ConfigurationProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT_MILLIS)
                 .setConfigProperty(ConfigurationProperties.REQUEST_TIMEOUT, REQUEST_TIMEOUT_MILLIS)
+                // Every file a resolution reads is used: a library, an archive, and the POMs its dependencies are
+                // worked out from, which a cleanup must not take away from under the files it keeps.
+                .withRepositoryListener(new AbstractRepositoryListener() {
+                    @Override
+                    public void artifactResolved(RepositoryEvent event) {
+                        var path = event.getPath();
+                        if (path != null && event.getExceptions().isEmpty()) {
+                            local.markUsed(path);
+                        }
+                    }
+                })
                 .build();
     }
 

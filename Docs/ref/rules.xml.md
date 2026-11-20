@@ -163,7 +163,8 @@ is not the project named — is an error of the project and of each of its modul
 so a fix in the Maven repository shows once that time has passed.
 
 The files are kept in a local Maven repository (`maven.repository.local`) and downloaded once; a snapshot version is
-checked in the Maven repository again. While no Maven repository is set, nothing is downloaded: a library is expected
+checked in the Maven repository again. A dependency no project used for a period, or used longest ago while the folder
+is too large, is removed from it. While no Maven repository is set, nothing is downloaded: a library is expected
 in `lib/`, where the OpenL Maven Plugin packs it, and a project dependency among the projects the user opened.
 OpenL Rule Services download nothing either: a deployed project carries its libraries in `lib/`, and its project
 dependencies are deployed with it.

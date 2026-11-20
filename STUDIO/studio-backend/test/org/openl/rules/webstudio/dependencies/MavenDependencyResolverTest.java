@@ -164,6 +164,54 @@ class MavenDependencyResolverTest {
     }
 
     @Test
+    void recordsTheUseOfWhatItResolves() throws Exception {
+        publishParent("com.example", "parent", "3");
+        publishWithParent("com.example", "lib", "1.0.0", "parent", "3");
+        publishProject("com.example", "domain", "1.0.0", "Domain");
+
+        resolver.librariesOf(project("Rules", library("com.example:lib:jar:1.0.0")));
+        resolver.projectOf(projectDependency("Domain", "com.example:domain:1.0.0"));
+
+        // The parent POM is read to work the dependencies out, so it is used as much as the jar
+        for (var version : List.of("com/example/lib/1.0.0", "com/example/parent/3", "com/example/domain/1.0.0")) {
+            var marker = local.resolve(version).resolve(LocalMavenRepository.LAST_USED);
+            assertEquals(clock.instant(), Files.getLastModifiedTime(marker).toInstant(), version);
+        }
+    }
+
+    @Test
+    void cleansWhatNoAnswerInMemoryNames() throws Exception {
+        publish("com.example", "kept", "1.0.0", "jar", null);
+        publish("com.example", "dropped", "1.0.0", "jar", null);
+        resolver.librariesOf(project("Old", library("com.example:dropped:jar:1.0.0")));
+        clock.advance(MavenDependencyResolver.CACHE_PERIOD.plusSeconds(1));
+        resolver.librariesOf(project("New", library("com.example:kept:jar:1.0.0")));
+
+        // Any size is too large: only what the projects read now stays
+        var removal = resolver.cleanLocalRepository(null, 1);
+
+        assertEquals(1, removal.versions());
+        assertFalse(Files.exists(local.resolve("com/example/dropped")));
+        assertTrue(Files.isDirectory(local.resolve("com/example/kept/1.0.0")));
+        assertTrue(resolver.localRepositorySize() > 0);
+    }
+
+    @Test
+    void emptiesTheLocalRepositoryAndForgetsEveryAnswer() throws Exception {
+        publish("com.example", "lib", "1.0.0", "jar", null);
+        var project = project("Rules", library("com.example:lib:jar:1.0.0"));
+        var first = resolver.librariesOf(project);
+
+        var removal = resolver.clearLocalRepository();
+
+        assertEquals(1, removal.versions());
+        assertEquals(0, resolver.cachedAnswers());
+        assertFalse(Files.exists(local.resolve("com/example/lib/1.0.0")));
+        var again = resolver.librariesOf(project);
+        assertEquals(fileNames(first.files()), fileNames(again.files()), "downloaded again when asked");
+    }
+
+    @Test
     void downloadsAndUnpacksAnOpenLProject() throws Exception {
         publishProject("com.example", "domain", "1.0.0", "Domain");
 
@@ -358,6 +406,37 @@ class MavenDependencyResolverTest {
                     %s
                 </project>
                 """.formatted(groupId, artifactId, version, dependencies == null ? "" : dependencies));
+    }
+
+    /** Puts a parent POM into the remote repository. */
+    private void publishParent(String groupId, String artifactId, String version) throws IOException {
+        Files.writeString(artifactPath(groupId, artifactId, version, null, "pom"), """
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>%s</groupId>
+                    <artifactId>%s</artifactId>
+                    <version>%s</version>
+                    <packaging>pom</packaging>
+                </project>
+                """.formatted(groupId, artifactId, version));
+    }
+
+    /** Puts a jar whose POM inherits the given parent into the remote repository. */
+    private void publishWithParent(String groupId, String artifactId, String version, String parent,
+                                   String parentVersion) throws IOException {
+        writeZip(artifactPath(groupId, artifactId, version, null, "jar"), Map.of("META-INF/MANIFEST.MF", ""));
+        Files.writeString(artifactPath(groupId, artifactId, version, null, "pom"), """
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>%s</groupId>
+                        <artifactId>%s</artifactId>
+                        <version>%s</version>
+                    </parent>
+                    <artifactId>%s</artifactId>
+                    <version>%s</version>
+                </project>
+                """.formatted(groupId, parent, parentVersion, artifactId, version));
     }
 
     /** Puts an archive of an OpenL project into the remote repository, as the OpenL Maven Plugin packages it. */
