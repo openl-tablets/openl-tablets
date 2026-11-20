@@ -32,8 +32,6 @@ class WebSocketService {
     private readonly subscriptions: Map<string, WebSocketSubscription> = new Map()
     private isConnected = false
     private reconnectAttempts = 0
-    /** Whether the client has connected before: a connect after that is a reconnect. */
-    private connectedBefore = false
     private readonly reconnectListeners = new Set<() => void>()
     private readonly maxReconnectAttempts = 5
     private readonly reconnectDelay = 5000
@@ -64,8 +62,6 @@ class WebSocketService {
     private onConnect() {
         this.isConnected = true
         this.reconnectAttempts = 0
-        const reconnected = this.connectedBefore
-        this.connectedBefore = true
 
         // Re-subscribe to all previous subscriptions
         this.subscriptions.forEach((subscription) => {
@@ -82,13 +78,13 @@ class WebSocketService {
                 subscription.stompSubscription = stompSubscription
             }
         })
-        if (reconnected) {
-            this.reconnectListeners.forEach(listener => listener())
-        }
+        // A listener added before this connect waited without the connection, whether it was lost or not made yet
+        this.reconnectListeners.forEach(listener => listener())
     }
 
     /**
-     * Runs the listener on every reconnect, once the subscriptions are made again.
+     * Runs the listener on every connect after it is added, once the subscriptions are made: a reconnect, and the
+     * first connect too, which may come only after failed attempts, while the server starts.
      *
      * <p>Nothing pushed while the connection was down arrives later, so what depends on the pushes reads the state
      * afresh: a compilation may have ended meanwhile, or the server may have been restarted under it.
@@ -147,8 +143,9 @@ class WebSocketService {
                     resolve()
                 } else if (Date.now() >= deadline) {
                     settled = true
-                    // Timeout should terminate this connect attempt and prevent late connect state.
-                    void this.client?.deactivate()
+                    // Only the caller stops waiting. The client keeps trying, as while the server starts: once it
+                    // connects, the subscriptions are made and the listeners told, so nothing waits for good on a
+                    // connection given up at the first try.
                     reject(new WebSocketConnectionTimeoutError(timeoutMs))
                 } else {
                     setTimeout(checkConnection, 100)

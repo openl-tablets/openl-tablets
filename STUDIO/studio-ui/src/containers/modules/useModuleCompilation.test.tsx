@@ -1,8 +1,11 @@
 import { act, render, renderHook, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { STATUS_QUIET_SPELL_MS } from '../../hooks/useLiveProjectStatus'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
+import { getProject } from '../../services/repositories'
 import { moduleNotFound } from '../../testing/errors'
 import { startModuleCompilation } from '../../services/modules'
+import type { Project } from '../../types/projects'
 import { useModuleCompilation } from './useModuleCompilation'
 
 // Only the channel and the request are stubbed; the readiness rule stays the one the editor runs on.
@@ -10,6 +13,8 @@ vi.mock('../../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../../services/projectStatus')>()),
     subscribeProjectStatus: vi.fn(),
 }))
+
+vi.mock('../../services/repositories', () => ({ getProject: vi.fn() }))
 
 vi.mock('../../services/modules', async importOriginal => ({
     isModuleNotFound: (await importOriginal<typeof import('../../services/modules')>()).isModuleNotFound,
@@ -283,5 +288,66 @@ describe('useModuleCompilation', () => {
 
         rerender({ module: 'Claims' })
         expect(result.current.gone).toBe(true)
+    })
+
+    describe('reading the status again after a quiet spell', () => {
+        beforeEach(() => {
+            vi.useFakeTimers()
+            // A read that carries no status says nothing new, so it starts no further spell.
+            vi.mocked(getProject).mockResolvedValue({} as Project)
+        })
+
+        afterEach(() => {
+            vi.useRealTimers()
+        })
+
+        /** Lets a few quiet spells pass, and says whether the status was read again meanwhile. */
+        const readAgain = async () => {
+            // The answers already on their way land first: act draws what they change only once it ends.
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(0)
+            })
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(3 * STATUS_QUIET_SPELL_MS)
+            })
+            return vi.mocked(getProject).mock.calls.length > 0
+        }
+
+        it('reads while the compilation it asked for may still end unheard', async () => {
+            captureUpdates()
+            render(<Probe />)
+
+            expect(await readAgain()).toBe(true)
+        })
+
+        it('reads nothing on a screen that compiles nothing on open, until a compilation is reported running', async () => {
+            const push = captureUpdates()
+            render(<Probe compileOnOpen={false} />)
+
+            expect(await readAgain()).toBe(false)
+
+            push(compiling(1, 12))
+            expect(await readAgain()).toBe(true)
+        })
+
+        it.each([
+            ['refused', new Error('no such module')],
+            ['gone', moduleNotFound()],
+        ])('reads nothing for a module whose compilation was %s', async (_case, refusal) => {
+            captureUpdates()
+            vi.mocked(startModuleCompilation).mockRejectedValue(refusal)
+            render(<Probe />)
+
+            expect(await readAgain()).toBe(false)
+        })
+
+        it('reads nothing while the module waits for the reader to verify it', async () => {
+            const push = captureUpdates()
+            render(<Probe />)
+
+            push({ projectId: 'p1', branch: 'main', compileState: 'ok', manualCompileNeeded: true })
+
+            expect(await readAgain()).toBe(false)
+        })
     })
 })
