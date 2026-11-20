@@ -12,11 +12,13 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.message.OpenLMessage;
+import org.openl.rules.testmethod.ITestResultBuilder;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.testmethod.result.ComparedResult;
@@ -70,7 +72,7 @@ public final class RetainedTestUnit implements ITestUnit {
     /**
      * Copies what a case reports, holding a value with inner structure through the reference the holder makes.
      *
-     * <p>A run holds the value softly; see {@link #retain(TestUnitsResults, TestsRerun)}.
+     * <p>A run holds the value softly. See {@link #builder(TestSuiteMethod, TestsRerun)}.
      *
      * @param unit   the case the engine reported
      * @param method the test table the case belongs to
@@ -97,20 +99,39 @@ public final class RetainedTestUnit implements ITestUnit {
     }
 
     /**
-     * Keeps the cases of a test table the way a run keeps them, in place of the ones the engine reported.
+     * Builds the cases of a test table the way a run keeps them, each one as soon as it ends.
      *
-     * <p>The engine's cases hold every value the cases returned and compared, so they are let go. The table
-     * reports the same, and the heavy values are held softly. A case that gave a value back runs again for it the
-     * given way.
+     * <p>A case reports what the engine reported. Its heavy values are held softly from the moment it ends. When
+     * memory runs short, the values of the cases that ended are given back while the rest of the table runs. A
+     * table of many cases with large results therefore runs to its end.
      *
-     * @param results the results of a test table that has just run
-     * @param rerun   runs the cases of the run again
-     * @return the same results
+     * <p>A case that gave a value back runs again for it the given way.
+     *
+     * @param method the test table the cases belong to
+     * @param rerun  runs the cases of the run again
+     * @return what builds each case of the run
      */
-    public static TestUnitsResults retain(TestUnitsResults results, TestsRerun rerun) {
-        var method = results.getTestSuite().getTestSuiteMethod();
-        results.getTestUnits().replaceAll(unit -> new RetainedTestUnit(unit, method, rerun, SoftReference::new));
-        return results;
+    static ITestResultBuilder builder(TestSuiteMethod method, TestsRerun rerun) {
+        return builder(method, rerun, SoftReference::new);
+    }
+
+    /**
+     * Builds the cases of a test table, each one as soon as it ends, holding its heavy values through the reference
+     * the holder makes.
+     *
+     * @param method the test table the cases belong to
+     * @param rerun  runs the cases of the run again
+     * @param holder makes the reference a value with inner structure is held by
+     * @return what builds each case of the run
+     */
+    static ITestResultBuilder builder(TestSuiteMethod method,
+                                      TestsRerun rerun,
+                                      Function<Object, Reference<Object>> holder) {
+        return (test, result, error, executionTime) -> new RetainedTestUnit(
+                TestUnit.Builder.getInstance().build(test, result, error, executionTime),
+                method,
+                rerun,
+                holder);
     }
 
     /**

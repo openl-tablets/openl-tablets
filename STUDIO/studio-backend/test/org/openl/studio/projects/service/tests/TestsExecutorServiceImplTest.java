@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -23,6 +24,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
 
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.studio.projects.service.tables.TableModules;
@@ -123,6 +125,35 @@ class TestsExecutorServiceImplTest {
         } finally {
             Thread.interrupted();
         }
+    }
+
+    /** A run keeps each case the ranges name the way a run keeps it, and runs no other case. */
+    @Test
+    void keepsTheCasesTheRangesNameTheWayARunKeepsThem() throws Exception {
+        var model = TableTestProjects.projectModel(dir, "Tests", sheet -> {
+            write(sheet, 1, "Method int Calc(int x)");
+            write(sheet, 2, "return x * 2;");
+            write(sheet, 4, "Test Calc CalcTest");
+            write(sheet, 5, "x", "_res_");
+            write(sheet, 6, "X", "Result");
+            write(sheet, 7, 1, 2);
+            write(sheet, 8, 2, 4);
+            write(sheet, 9, 3, 7);
+        });
+        awaitCompiled(model);
+        var table = TableTestProjects.table(model, "CalcTest");
+
+        var run = new TestsExecutorServiceImpl()
+                .runSingle(mock(ProjectTestsExecutionProgressListener.class), model, TableModules.none(), table,
+                        "2-3", false)
+                .get();
+
+        var results = run.tables().getFirst();
+        var units = results.getTestUnits();
+        assertTrue(units.stream().allMatch(RetainedTestUnit.class::isInstance));
+        assertEquals(List.of(4, 6), units.stream().map(ITestUnit::getActualResult).toList());
+        // The third case expects 7, so it fails, and the run counts it.
+        assertEquals(1, results.getNumberOfFailures());
     }
 
     private ProjectModel twoTestTables() throws Exception {

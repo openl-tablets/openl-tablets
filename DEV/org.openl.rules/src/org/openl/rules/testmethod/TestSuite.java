@@ -44,6 +44,20 @@ public class TestSuite implements INamedThing {
         }
     }
 
+    /**
+     * A suite of the cases the indices name in a test table, run by the given runner.
+     *
+     * <p>The cases run in the order of the indices.
+     *
+     * @param testSuiteMethod the test table
+     * @param testRunner      runs each case and builds what the case reports
+     * @param testIndices     the indices of the cases
+     */
+    public TestSuite(TestSuiteMethod testSuiteMethod, TestRunner testRunner, int... testIndices) {
+        this(testSuiteMethod, testIndices);
+        this.testRunner = testRunner;
+    }
+
     public TestSuite(TestDescription... tests) {
         this.tests = tests;
     }

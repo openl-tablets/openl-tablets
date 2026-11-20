@@ -367,7 +367,8 @@ it a level at a time: its fields when you click it, and the fields of every node
 **Show more** under them reads the next ones. Only what you open is read, so a value of any size opens at once.
 
 The results stay on the server while they are read. When the server runs short of memory, it releases the large
-values the rules returned and compared, such as spreadsheet results, and keeps the rest of the results. A value
+values the rules returned and compared, such as spreadsheet results, and keeps the rest of the results. It does so
+while the tests still run as well, so a test table of many test cases with large results runs to its end. A value
 that was released comes back when you open it, by running its test case again. **Save to Excel** runs again the
 test cases whose values were released. Once the project is compiled again, as editing it or opening another
 module does, a released value cannot come back: run the tests again. A test case that runs again computes its

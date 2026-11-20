@@ -25,9 +25,7 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.common.exception.NotFoundException;
 
@@ -171,20 +169,41 @@ class RetainedTestUnitTest {
         assertEquals(List.of(premium, 140), RetainedTestUnit.heldValues(retained(unit)));
     }
 
+    /** Each case is built the way a run keeps it, and reports what the engine reported. */
     @Test
-    void keepsTheCasesOfATestTableInPlaceOfTheEngines() {
-        var suite = mock(TestSuite.class);
-        when(suite.getTestSuiteMethod()).thenReturn(method);
-        var results = new TestUnitsResults(suite);
-        var failed = returning(Map.of("premium", 150));
-        when(failed.getResultStatus()).thenReturn(TestStatus.TR_NEQ);
-        results.getTestUnits().addAll(List.of(returning(100.0), failed));
+    void buildsEachCaseTheWayTheRunKeepsIt() {
+        var test = mock(TestDescription.class);
+        var premium = Map.of("premium", 150);
 
-        assertSame(results, RetainedTestUnit.retain(results, rerun));
+        var unit = RetainedTestUnit.builder(method, rerun).build(test, premium, null, 10);
 
-        assertTrue(results.getTestUnits().stream().allMatch(RetainedTestUnit.class::isInstance));
-        assertEquals(2, results.getNumberOfTestUnits());
-        assertEquals(1, results.getNumberOfFailures());
+        var retained = assertInstanceOf(RetainedTestUnit.class, unit);
+        assertSame(test, retained.getTest());
+        assertSame(premium, retained.getActualResult());
+        assertEquals(TestStatus.TR_OK, retained.getResultStatus());
+        assertEquals(10, retained.getExecutionTime());
+        // It runs again in the table it belongs to.
+        again = returning(premium);
+        assertSame(again, retained.again());
+        assertEquals(List.of(test), ranAgain);
+    }
+
+    /**
+     * A case gives its heavy value back as soon as it ends, not once the whole table ran: the value is held through
+     * the reference of the run from the moment the case is built.
+     */
+    @Test
+    void holdsTheValueOfEachCaseSoftlyFromTheMomentItEnds() {
+        var premium = Map.of("premium", 150);
+
+        var unit = RetainedTestUnit.builder(method, rerun, holder)
+                .build(mock(TestDescription.class), premium, null, 10);
+
+        assertSame(premium, unit.getActualResult());
+        assertEquals(1, held.size(), "the value is held through the reference of the run");
+        held.getFirst().clear();
+        assertTrue(RetainedTestUnit.isReleased(unit.getActualResult()));
+        assertEquals(TestStatus.TR_OK, unit.getResultStatus());
     }
 
     /** A case runs again on its own, in the table it belongs to, and keeps what it kept. */

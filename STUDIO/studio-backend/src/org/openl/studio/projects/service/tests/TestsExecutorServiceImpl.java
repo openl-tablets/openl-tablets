@@ -16,6 +16,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.TestRunner;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -102,11 +103,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         if (method instanceof TestSuiteMethod testSuiteMethod) {
-            // Every case of the test table, or only the cases the ranges name.
-            var testSuite = testRanges == null
-                    ? new TestSuite(testSuiteMethod)
-                    : new TestSuite(testSuiteMethod, testSuiteMethod.getIndices(testRanges));
-            var unitsResult = run.test(testSuite);
+            var unitsResult = run.test(testSuiteMethod, testRanges);
             if (unitsResult != null) {
                 listener.onTestUnitExecuted(unitsResult);
                 executionResult.add(unitsResult);
@@ -146,7 +143,6 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             return null;
         }
         var testedMethod = testSuiteMethod.getTestedMethod();
-        var testSuite = new TestSuite(testSuiteMethod);
         Collection<IOpenMethod> methods = testedMethod instanceof OpenMethodDispatcher dispatcher
                 ? dispatcher.getCandidates()
                 : Set.of(testedMethod);
@@ -158,9 +154,9 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             }
         }
         if (run.currentOpenedModule() || noErrors) {
-            return run.test(testSuite);
+            return run.test(testSuiteMethod, null);
         }
-        var testUnitsResults = new TestUnitsResults(testSuite);
+        var testUnitsResults = new TestUnitsResults(new TestSuite(testSuiteMethod));
         testUnitsResults.setTestedRulesHaveErrors(true);
         return testUnitsResults;
     }
@@ -187,13 +183,21 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         }
 
         /**
-         * Runs a test table, or the cases of it a suite names.
+         * Runs a test table, or the cases of it the ranges name.
          *
+         * <p>Each case is kept the way {@link RetainedTestUnit} keeps it, as soon as it ends. The values of the cases
+         * that ended can be given back while the rest of the table runs.
+         *
+         * @param method     the test table
+         * @param testRanges the ranges of the cases to run, or {@code null} for every case
          * @return the results of the cases that ran, or {@code null} when the project was compiled again
          */
-        @Nullable TestUnitsResults test(TestSuite testSuite) {
-            var results = model.runTest(testSuite, currentOpenedModule, compiled);
-            return results == null ? null : RetainedTestUnit.retain(results, rerun);
+        @Nullable TestUnitsResults test(TestSuiteMethod method, @Nullable String testRanges) {
+            var runner = new TestRunner(RetainedTestUnit.builder(method, rerun));
+            var testSuite = testRanges == null
+                    ? new TestSuite(method, runner)
+                    : new TestSuite(method, runner, method.getIndices(testRanges));
+            return model.runTest(testSuite, currentOpenedModule, compiled);
         }
 
         /** Whether the run is asked to stop, or tests what the project no longer is, or what was let go of. */
