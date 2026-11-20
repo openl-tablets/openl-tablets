@@ -29,7 +29,8 @@ coordinates: a library, and an OpenL project that the user's workspace lacks.
   Maven coordinates name, else not found.
 - **Libraries** — the class loader of the project reads them after its own classpath. Two hooks of
   `AbstractDependencyManager` carry them into the engine; only OpenL Studio implements them.
-- **Caching** — every answer, failures included, is kept in memory for five minutes; the files stay on disk.
+- **Caching** — every answer, failures included, is kept in memory for five minutes; the files stay on disk until a
+  cleanup removes what went unused for a period, or what was used longest ago while the folder is too large.
 - **OpenL Rule Services are not changed.** A deployed project carries its libraries in `lib/`, and its dependency
   projects are deployed with it.
 
@@ -137,7 +138,7 @@ are unchanged.
 ```mermaid
 flowchart LR
     R["rules.xml"] -->|coordinates| C["in-memory answers<br/>(5 minutes)"]
-    C -->|miss or expired| L["local repository<br/>(disk, kept)"]
+    C -->|miss or expired| L["local repository<br/>(disk, cleaned up)"]
     L -->|missing release, any snapshot| U["Maven repository"]
     C --> CL["class loader of the project<br/>(until the project is reset)"]
 ```
@@ -151,7 +152,8 @@ flowchart LR
   project from. A library fixed in the repository shows up, with its errors gone, once the project compiles anew.
 - **Class loaders** — the dependency manager keeps one per project until the project is reset or closed, or the
   manager is replaced. A change of `rules.xml` resets the project, so the next compilation reads the new coordinates.
-- **On disk** — the local repository keeps every file it downloaded, and every folder it unpacked.
+- **On disk** — the local repository keeps what it downloaded and unpacked until the cleanup removes it, or an
+  administrator empties it.
 
 ## Dependencies No Longer Needed
 
@@ -160,24 +162,59 @@ When a `rules.xml` stops naming a dependency, or names another version:
 - **The classpath forgets it at the next compilation.** The project is reset, and its new class loader reads only
   what the coordinates name now. A project dependency no longer named is no longer compiled with it.
 - **Memory forgets it within five minutes**, once its answer expires unasked.
-- **The disk keeps it.** Nothing deletes a file of the local repository: another project or another instance may name
-  the same coordinates, and Maven offers no record of who uses a file. The folder is a cache an administrator may
-  empty. Studio downloads again whatever a project still names, at its next compilation.
-  - Emptying it while Studio runs is safe for files no class loader holds open. A project compiled from a deleted
-    file reads it again once it is reset. On Windows a file a class loader holds cannot be deleted until then.
-  - The unpacked folders of old snapshots are never used again once a newer one exists, and can be deleted at any
-    time no project compiled from them is open.
+- **The disk forgets it once it has gone unused for the cleanup period**, or sooner when the local repository grows
+  past the cleanup threshold, as the next section tells.
+
+## Cleanup of the Local Repository
+
+The unit the cleanup works on is a **version** of an artifact: the folder `groupId/artifactId/version` with every file
+of it and every folder an archive was unpacked into. Only a version holding the marker below is ever removed — one
+OpenL Studio downloaded or used — so a local repository shared with Maven keeps every other file.
+
+- **Use is recorded beside the files.** Every file a resolution reads — a library, an archive of a project, and the
+  POMs the dependencies are worked out from — sets the modification time of the marker `.openl-last-used` in the
+  folder of its version (a listener of the resolver session calls `LocalMavenRepository.markUsed`). A parent POM is
+  thus kept as long as the jars it describes, and a resolution never needs the network for a POM the cleanup
+  took. The downloaded files are never touched: the unpacked folder of an archive is named after its modification
+  time. A marker touched within the last hour is not written again (`LocalMavenRepository.USE_RECORDING_PERIOD`): the
+  cleanup counts in days, and a resolution reads hundreds of files.
+- **Two rules, in this order** (`LocalMavenRepository.clean`):
+  1. a version unused for longer than `maven.repository.cleanup.period` days is removed;
+  2. while the versions OpenL Studio downloaded or used take more than `maven.repository.cleanup.threshold` MB, the
+     version used longest ago is removed, then the next. The other files of a folder shared with Maven do not count.
+
+  A zero turns a rule off. The cleanup does not run when both are off.
+- **What the projects asked for lately stays.** A version that an answer in memory names — a library, an unpacked
+  project — is never removed, whatever the rules say. Resolutions and removals exclude each other
+  (`MavenDependencyResolver`, a read-write lock), so no file is removed while a resolution reads it. A class loader
+  older than the answers, of a project compiled long ago, opened its jars already: see the last point.
+- **When it runs** — `MavenRepositoryCleanup` cleans the repository five minutes after the start, then every hour.
+  Each instance cleans its own local repository by its own settings, which a cluster keeps the same. Pointing
+  several instances to one folder is not supported: one may remove what another has just resolved.
+- **Emptying on demand** — the **Delete Cache** button of the **Maven** section, through
+  `DELETE /rest/admin/settings/maven/cache`, removes every version of the local repository of the instance that
+  serves the request and forgets every answer, so
+  each project downloads its dependencies again when it compiles next. `GET /rest/admin/settings/maven/cache` answers
+  the size of the repository, which the section shows.
+- **Recorded in the audit log** — a cleanup that removes something, and every emptying, is a `mavenCacheCleaned`
+  event (category `settings`), with the trigger (`cleanup` or `user`), the number of versions removed and the bytes
+  they held. An emptying is recorded for the administrator who asked for it; a cleanup for no one.
+- **A file the system keeps open stays.** Windows keeps a jar open while a class loader reads it, so that file is not
+  removed; the cleanup or the next emptying removes it once the project is reset. On Linux and macOS a removed file
+  stays readable to a class loader that opened it already.
 
 ## Configuration
 
-| Field    | Property                    | Default                                  |
-|----------|-----------------------------|------------------------------------------|
-| URL      | `maven.repository.url`      | empty: nothing is downloaded             |
-| Username | `maven.repository.username` | empty: no authentication                 |
-| Password | `maven.repository.password` | empty; a secret, stored encrypted        |
-| —        | `maven.repository.local`    | `${openl.home.shared}/maven-repository`  |
+| Field                  | Property                             | Default                                 |
+|------------------------|--------------------------------------|-----------------------------------------|
+| URL                    | `maven.repository.url`               | empty: nothing is downloaded            |
+| Username               | `maven.repository.username`          | empty: no authentication                |
+| Password               | `maven.repository.password`          | empty; a secret, stored encrypted       |
+| Cleanup Period (Days)  | `maven.repository.cleanup.period`    | `30`; `0` keeps what is unused          |
+| Cleanup Threshold (MB) | `maven.repository.cleanup.threshold` | `1024`; `0` sets no limit               |
+| —                      | `maven.repository.local`             | `${openl.home}/maven-repository`        |
 
-`MavenRepositorySettings` declares the first three for the **Maven** section of the administration and for
+`MavenRepositorySettings` declares the first five for the **Maven** section of the administration and for
 `/rest/admin/settings/maven` (`MavenRepositorySettingsController`), which reads them (`GET`) and changes them
 (`PATCH`). A property the deployment sets is read-only there, as with every setting.
 
@@ -200,8 +237,12 @@ When a `rules.xml` stops naming a dependency, or names another version:
   it.
 - **Recording failures in the local repository**, as Maven does by default. A fixed repository would stay unseen until
   `*.lastUpdated` files were deleted by hand.
-- **Removing unused files from the local repository.** Nothing records which project, session or instance uses a
-  file, so no deletion is known to be safe; the folder stays a cache.
+- **Telling use by the access time of the files.** Many file systems are mounted without it (`noatime`), and a
+  backup reads every file; a marker the resolver sets says what the projects used.
+- **Telling use by the modification time of the downloaded files.** Touching an archive would move the folder it is
+  unpacked into, and a checksum tool would take the file for changed.
+- **Removing a version as soon as no `rules.xml` names it.** Studio does not read every project of every user and
+  every instance, so it cannot know that nothing names a version; an unused period is what tells it.
 
 ## Implementation Map
 
@@ -210,10 +251,13 @@ When a `rules.xml` stops naming a dependency, or names another version:
 - **`SimpleDependencyLoader`** — adds the dependency messages to what a compilation reports.
 - **`MavenDependencyResolver`** (`studio-backend`, `org.openl.rules.webstudio.dependencies`) — the resolver, the
   in-memory answers, the unpacking.
+- **`LocalMavenRepository`** — the marks of use, the cleanup rules, the emptying.
+- **`MavenRepositoryCleanup`** — the hourly cleanup and the audit events.
 - **`WebStudioWorkspaceDependencyManagerFactory`** — which project a dependency is, and the dependencies left out
   as another project of their name is compiled (`DependencyConflict`).
 - **`ProjectModel.reuseOf`** — whether the dependencies the session compiled serve the next project.
 - **`WebStudioWorkspaceRelatedDependencyManager`** — implements the two hooks for a compilation of the session.
 - **`ProjectDependencyResolverImpl`** — the project list leaves libraries out.
-- **`MavenRepositorySettings`**, **`MavenRepositorySettingsController`** — the settings and their REST endpoint.
+- **`MavenRepositorySettings`**, **`MavenRepositorySettingsController`** — the settings, the size of the local
+  repository and its emptying, through REST.
 - **`Maven.tsx`** (`studio-ui`) — the **Maven** section of the administration.

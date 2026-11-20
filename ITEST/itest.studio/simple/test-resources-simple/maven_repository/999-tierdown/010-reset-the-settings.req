@@ -5,5 +5,7 @@ Content-Type: application/merge-patch+json
 {
   "url": "",
   "username": "",
-  "password": ""
+  "password": "",
+  "cleanupPeriod": 30,
+  "cleanupThreshold": 1024
 }

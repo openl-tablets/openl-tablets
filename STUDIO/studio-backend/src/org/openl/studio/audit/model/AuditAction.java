@@ -141,6 +141,11 @@ public enum AuditAction {
     @JsonProperty("settingsChanged")
     SETTINGS_CHANGED(AuditCategory.SETTINGS),
 
+    @Schema(description = "Downloaded Maven dependencies were removed from the local repository, by a user or by the "
+            + "cleanup.")
+    @JsonProperty("mavenCacheCleaned")
+    MAVEN_CACHE_CLEANED(AuditCategory.SETTINGS),
+
     @Schema(description = "A tag type was created, with the tags it was created with.")
     @JsonProperty("tagTypeCreated")
     TAG_TYPE_CREATED(AuditCategory.TAG),

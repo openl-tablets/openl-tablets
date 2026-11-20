@@ -4,5 +4,7 @@ Content-Type: application/json
 {
   "url": "",
   "username": "",
-  "password": ""
+  "password": "",
+  "cleanupPeriod": 30,
+  "cleanupThreshold": 1024
 }

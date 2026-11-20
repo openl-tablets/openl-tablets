@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatFileSize } from './fileSize'
+import { formatFileSize, formatMegabytes } from './fileSize'
 
 describe('formatFileSize', () => {
     it('keeps one decimal under ten kilobytes and none above', () => {
@@ -13,5 +13,13 @@ describe('formatFileSize', () => {
 
     it('gives no text without a size', () => {
         expect(formatFileSize(undefined, 'en')).toBeNull()
+    })
+})
+
+describe('formatMegabytes', () => {
+    it('writes megabytes with one decimal in the UI language', () => {
+        expect(formatMegabytes(0, 'en')).toBe('0.0 MB')
+        expect(formatMegabytes(1536 * 1024, 'en')).toBe('1.5 MB')
+        expect(formatMegabytes(1536 * 1024, 'de')).toBe('1,5 MB')
     })
 })

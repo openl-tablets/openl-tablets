@@ -266,6 +266,7 @@ const ACTION_KINDS: Record<AuditAction, ActionKind> = {
     tagTypeDeleted: 'removed',
     tagDeleted: 'removed',
     auditLogPurged: 'removed',
+    mavenCacheCleaned: 'removed',
     userUpdated: 'changed',
     passwordChanged: 'changed',
     externalGroupsChanged: 'changed',

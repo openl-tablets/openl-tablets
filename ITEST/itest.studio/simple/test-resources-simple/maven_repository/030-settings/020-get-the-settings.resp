@@ -6,5 +6,7 @@ Content-Type: application/json
   "username": "openl",
   "password": {
     "secret": true
-  }
+  },
+  "cleanupPeriod": 7,
+  "cleanupThreshold": 0
 }

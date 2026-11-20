@@ -5,5 +5,7 @@ Content-Type: application/merge-patch+json
 {
   "url": "https://nexus.example.com/repository/public",
   "username": "openl",
-  "password": "secret"
+  "password": "secret",
+  "cleanupPeriod": 7,
+  "cleanupThreshold": 0
 }
