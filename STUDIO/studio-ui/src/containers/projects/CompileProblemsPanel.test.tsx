@@ -6,6 +6,10 @@ import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { ProjectStatusDetailedMessage, ProjectStatusUpdate } from '../../services/projectStatus'
 
+/** The server numbers every status it reads: one built later is fresher. */
+let lastSequence = 0
+const nextSequence = (): number => ++lastSequence
+
 vi.mock('../../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../../services/projectStatus')>()),
     subscribeProjectStatus: () => ({ unsubscribe: () => {} }),
@@ -45,6 +49,7 @@ const status = (
     projectId: 'p1',
     branch: 'main',
     compileState: compileState ?? (items.some(item => item.severity === 'ERROR') ? 'errors' : 'warnings'),
+    sequence: nextSequence(),
     compilation: {
         messages: {
             total: items.length,
@@ -317,6 +322,7 @@ describe('CompileProblemsPanel', () => {
             projectId: 'p1',
             branch: 'main',
             compileState: 'compiling',
+            sequence: nextSequence(),
             compilation: { messages: { total: 3, errors: 2, warnings: 1 } },
         }
 

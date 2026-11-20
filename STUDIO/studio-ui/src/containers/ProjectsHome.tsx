@@ -74,7 +74,8 @@ import type { ProjectRail, ProjectRailState } from './projects/projectRail'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import {
-    isPushFresherThanRead,
+    fresherStatus,
+    isReadBefore,
     subscribeWorkspaceProjectStatuses,
     type ProjectCompileState,
     type ProjectStatusUpdate,
@@ -142,27 +143,38 @@ const COMPILE_SUMMARY_ORDER: ProjectCompileState[] = ['errors', 'warnings', 'com
 const listSignature = (projects: Project[]): string => JSON.stringify(projects.map(projectSignature))
 
 /**
- * The compile statuses to show after a snapshot arrives: the snapshot, except where a status pushed
- * over the socket while the read was in flight is fresher — that one stays on top.
+ * The number the server read the statuses of a snapshot under: the smallest of them, as it read them one after
+ * another. A snapshot without a status has nothing to be out of date about.
+ */
+const snapshotReadAt = (snapshot: ProjectStatusUpdate[]): number =>
+    Math.min(...snapshot.map(status => status.sequence))
+
+/**
+ * The compile statuses to show after a snapshot arrives: for each project, the fresher of the snapshot and of what
+ * the screen holds, which a push may have brought while the read was in flight. A status of a project the snapshot
+ * does not list stays only when it was pushed after the snapshot was read.
  */
 const overlayFreshStatuses = (
     snapshot: ProjectStatusUpdate[],
-    previous: ProjectStatusUpdate[],
-    pushedAt: Map<string, number>,
-    readStartedAt: number
+    previous: ProjectStatusUpdate[]
 ): ProjectStatusUpdate[] => {
-    const pushed = previous.filter(status => isPushFresherThanRead(pushedAt.get(status.projectId) ?? 0, readStartedAt))
-    const overridden = new Set(pushed.map(status => status.projectId))
-    return [...snapshot.filter(status => !overridden.has(status.projectId)), ...pushed]
+    const held = new Map(previous.map(status => [status.projectId, status]))
+    const listed = new Set(snapshot.map(status => status.projectId))
+    const readAt = snapshotReadAt(snapshot)
+    return [
+        ...snapshot.map(status => fresherStatus(held.get(status.projectId) ?? null, status)),
+        ...previous.filter(status => !listed.has(status.projectId) && !isReadBefore(status, readAt)),
+    ]
 }
 
-/** Replaces the project's status in place; a repeated identical status keeps the same array. */
+/** Replaces the project's status in place with a fresher one; an older one keeps the same array. */
 const upsertStatus = (previous: ProjectStatusUpdate[], update: ProjectStatusUpdate): ProjectStatusUpdate[] => {
     const index = previous.findIndex(status => status.projectId === update.projectId)
-    if (index < 0) {
+    const held = previous[index]
+    if (held === undefined) {
         return [...previous, update]
     }
-    if (JSON.stringify(previous[index]) === JSON.stringify(update)) {
+    if (fresherStatus(held, update) !== update) {
         return previous
     }
     const next = [...previous]
@@ -277,8 +289,14 @@ export const ProjectsHome = () => {
     const [discardCloseTarget, setDiscardCloseTarget] = useState<Project | null>(null)
     // Bumped on every load so a stale response never overwrites a fresher one.
     const loads = useLoadGeneration()
-    // When each project's compile status last arrived by push — a load never overwrites a fresher push.
-    const statusPushedAt = useRef(new Map<string, number>())
+    // The number the status subscription last started at, the one the snapshot on screen was read under, and the
+    // reads on their way: a snapshot read before the subscription started may miss a change nobody heard.
+    const statusesStartedAt = useRef<number | null>(null)
+    const statusesReadAt = useRef(Number.POSITIVE_INFINITY)
+    const loadsInFlight = useRef(0)
+    const readAgainFor = useRef<number | null>(null)
+    // What runs once a load settles, or the subscription starts: set below, once the load exists.
+    const checkStatusesRead = useRef<() => void>(() => undefined)
 
     const search = params.get('q') ?? ''
     // No sort in the URL means the default name order — shown without an arrow until a header is clicked.
@@ -415,13 +433,14 @@ export const ProjectsHome = () => {
     // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
     // counts — the expensive part of the list response — are counted from the same snapshot.
     const load = useCallback((refresh = false, { silent = false } = {}) => {
-        const { generation, startedAt } = loads.start(silent)
+        const { generation } = loads.start(silent)
         if (!silent) {
             setLoading(true)
         }
         if (refresh) {
             invalidateProjectIndex()
         }
+        loadsInFlight.current += 1
         return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjectIndex()])
             .then(([repos_, index]): Project[] | null => {
                 if (!loads.isLatest(generation)) {
@@ -430,7 +449,8 @@ export const ProjectsHome = () => {
                 setRepositories(repos_)
                 setAllProjects(index.projects)
                 setProjectIndexHealth(index.projectIndexHealth)
-                setCompileStatuses(previous => overlayFreshStatuses(index.statuses, previous, statusPushedAt.current, startedAt))
+                setCompileStatuses(previous => overlayFreshStatuses(index.statuses, previous))
+                statusesReadAt.current = snapshotReadAt(index.statuses)
                 setError(null)
                 return index.projects
             })
@@ -449,6 +469,8 @@ export const ProjectsHome = () => {
                 if (loads.ownsSpinner(generation)) {
                     setLoading(false)
                 }
+                loadsInFlight.current -= 1
+                checkStatusesRead.current()
             })
     }, [loads])
 
@@ -502,13 +524,30 @@ export const ProjectsHome = () => {
         }
     })
 
+    // A change told before the status subscription started — on the first visit, or while the connection was down —
+    // reached nobody. Once no read is on its way, a snapshot read before the subscription started is read once more.
+    useEffect(() => {
+        checkStatusesRead.current = () => {
+            const startedAt = statusesStartedAt.current
+            if (startedAt === null || loadsInFlight.current > 0 || readAgainFor.current === startedAt
+                || statusesReadAt.current >= startedAt) {
+                return
+            }
+            readAgainFor.current = startedAt
+            void load(true, { silent: true })
+        }
+    }, [load])
+
     // One subscription feeds the compile dots of every row: each pushed status names its own project,
     // and it replaces that project's snapshot entry in place.
     useEffect(() => {
-        const subscription = subscribeWorkspaceProjectStatuses(update => {
-            statusPushedAt.current.set(update.projectId, Date.now())
-            setCompileStatuses(previous => upsertStatus(previous, update))
-        })
+        const subscription = subscribeWorkspaceProjectStatuses(
+            update => setCompileStatuses(previous => upsertStatus(previous, update)),
+            sequence => {
+                statusesStartedAt.current = sequence
+                checkStatusesRead.current()
+            }
+        )
         return () => subscription.unsubscribe()
     }, [])
 

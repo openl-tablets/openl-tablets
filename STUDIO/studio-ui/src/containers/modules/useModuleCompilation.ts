@@ -40,7 +40,6 @@ interface ModuleCompilationRequest {
     branch: string | null
     moduleName: string
     initial: ProjectStatusUpdate | null
-    initialReadAt?: number | undefined
     reloadToken?: number | undefined
     enabled?: boolean | undefined
     /** Whether the module is to be built from its workbook afresh, dropping what was compiled before. */
@@ -74,7 +73,6 @@ export const useModuleCompilation = ({
     branch,
     moduleName,
     initial,
-    initialReadAt = 0,
     reloadToken = 0,
     enabled = true,
     rebuild = true,
@@ -91,7 +89,7 @@ export const useModuleCompilation = ({
     // Subscribed only once the project is known, and with it the branch the channel is named after. Listening
     // before that subscribes to the wrong channel and throws away what it heard when the right one replaces it,
     // which on a project that compiles in a moment means hearing nothing at all.
-    const status = useLiveProjectStatus(projectId, branch, enabled, initial, initialReadAt)
+    const status = useLiveProjectStatus(projectId, branch, enabled, initial)
     const compiledModules = modulesOf(status)?.compiledModules
     const named = (compiledModules ?? []).includes(moduleName)
     // A module named as compiled stays compiled. A compilation reports its progress many times a second, and a

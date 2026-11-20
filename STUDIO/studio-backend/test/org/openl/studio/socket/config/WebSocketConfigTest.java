@@ -28,8 +28,10 @@ import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.config.SimpleBrokerRegistration;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.ExecutorSubscribableChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.TaskScheduler;
@@ -39,13 +41,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.openl.studio.socket.StatusSequence;
+
 class WebSocketConfigTest {
 
     private static final String STATUS_TOPIC = "/topic/projects/p1/status";
 
     @SuppressWarnings("unchecked")
     private final WebSocketConfig config = new WebSocketConfig(mock(ApplicationContext.class), new ObjectMapper(),
-            mock(AuthorizationManager.class));
+            mock(AuthorizationManager.class), new StatusSequence());
 
     @AfterEach
     void clearSecurityContext() {
@@ -74,6 +78,15 @@ class WebSocketConfigTest {
                 "broker must use the managed daemon heartbeat scheduler");
         verify(registry).setUserDestinationPrefix("/user");
         verify(registry).setApplicationDestinationPrefixes("/app");
+    }
+
+    @Test
+    void theFramesOfTheClientsAskingForAReceiptOfASubscriptionAreAnswered() {
+        var registration = new Inbound();
+
+        config.configureClientInboundChannel(registration);
+
+        assertTrue(registration.interceptors().stream().anyMatch(SubscriptionReceiptInterceptor.class::isInstance));
     }
 
     @Test
@@ -157,6 +170,14 @@ class WebSocketConfigTest {
             latch.await(300, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    /** The registration of the inbound channel the configuration fills in, asked for its interceptors. */
+    private static final class Inbound extends ChannelRegistration {
+
+        List<ChannelInterceptor> interceptors() {
+            return getInterceptors();
         }
     }
 

@@ -8,6 +8,7 @@ import type { Project, ProjectsPage } from '../types/projects'
 import type { ProjectRail } from './projects/projectRail'
 import { ProjectStatus } from '../constants/project'
 import { getProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
+import type { ProjectCompileState } from '../services/projectStatus'
 import { notification } from 'antd'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { openCompareWindow } from './projects/compare'
@@ -28,6 +29,8 @@ const { address, copyModalMock, navigateMock, treeMock, liveHandlers, shown } = 
         workspaceChange: undefined as (() => void) | undefined,
         focus: undefined as (() => void) | undefined,
         statusUpdate: undefined as ((update: unknown) => void) | undefined,
+        // Tells the screen its status subscription started, with the number the server gave that moment.
+        statusStarted: undefined as ((sequence: number) => void) | undefined,
         // Whether the screen is currently telling the hook to hold the pings back.
         holdWhile: false,
     },
@@ -46,8 +49,9 @@ vi.mock('../hooks', async () => ({
 
 vi.mock('../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../services/projectStatus')>()),
-    subscribeWorkspaceProjectStatuses: (onUpdate: (update: unknown) => void) => {
+    subscribeWorkspaceProjectStatuses: (onUpdate: (update: unknown) => void, onStarted: (sequence: number) => void) => {
         liveHandlers.statusUpdate = onUpdate
+        liveHandlers.statusStarted = onStarted
         return { unsubscribe: vi.fn() }
     },
 }))
@@ -458,10 +462,81 @@ describe('ProjectsHome', () => {
 
         // A compile finished with errors somewhere in the workspace — no per-row subscription involved.
         await act(async () => {
-            liveHandlers.statusUpdate?.({ projectId: 'p1', compileState: 'errors' })
+            liveHandlers.statusUpdate?.({ projectId: 'p1', compileState: 'errors', sequence: 1 })
         })
 
         expect(screen.getByTestId('projects-compile-summary').textContent).toContain('browser.compile.errors')
+    })
+
+    describe('when the status stream starts', () => {
+        /** The list the server read its statuses for under the given number. */
+        const listReadAt = (sequence: number, compileState: ProjectCompileState = 'ok') =>
+            vi.mocked(getProjects).mockResolvedValue({
+                ...projectsPage(projects, projects.length, false),
+                statuses: [{ projectId: 'p1', compileState, sequence }],
+            })
+
+        const startStatuses = async (sequence: number) => {
+            await act(async () => {
+                liveHandlers.statusStarted?.(sequence)
+                await Promise.resolve()
+            })
+        }
+
+        it('reads the list again, once, when its statuses were read before the stream started', async () => {
+            listReadAt(10)
+            await renderHome()
+            expect(getProjects).toHaveBeenCalledTimes(1)
+            // A compilation began between the read and the start of the stream: nothing was pushed of it.
+            listReadAt(30, 'errors')
+
+            await startStatuses(20)
+            await waitFor(() => expect(getProjects).toHaveBeenCalledTimes(2))
+            await waitFor(() =>
+                expect(screen.getByTestId('projects-compile-summary').textContent).toContain('browser.compile.errors'))
+
+            await startStatuses(20)
+            expect(getProjects).toHaveBeenCalledTimes(2)
+        })
+
+        it('trusts a list whose statuses were read after the stream started', async () => {
+            listReadAt(30)
+            await renderHome()
+
+            await startStatuses(20)
+
+            expect(getProjects).toHaveBeenCalledTimes(1)
+        })
+
+        it('reads the list again after a reconnect, which starts the stream anew', async () => {
+            listReadAt(30)
+            await renderHome()
+            await startStatuses(20)
+
+            await startStatuses(40)
+
+            await waitFor(() => expect(getProjects).toHaveBeenCalledTimes(2))
+        })
+
+        it('keeps a status pushed after the list was read, and drops one pushed before', async () => {
+            listReadAt(10)
+            await renderHome()
+            await act(async () => {
+                liveHandlers.statusUpdate?.({ projectId: 'p1', compileState: 'errors', sequence: 5 })
+            })
+            expect(screen.getByTestId('projects-compile-summary').textContent).not.toContain('browser.compile.errors')
+
+            await act(async () => {
+                liveHandlers.statusUpdate?.({ projectId: 'p1', compileState: 'errors', sequence: 15 })
+            })
+            listReadAt(12)
+            await act(async () => {
+                liveHandlers.workspaceChange?.()
+            })
+
+            await waitFor(() => expect(getProjects).toHaveBeenCalledTimes(2))
+            expect(screen.getByTestId('projects-compile-summary').textContent).toContain('browser.compile.errors')
+        })
     })
 
     it('sums the list up in the bar under it, with no page title above', async () => {

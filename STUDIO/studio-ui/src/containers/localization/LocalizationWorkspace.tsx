@@ -126,7 +126,6 @@ const LocalizationScreen = () => {
     const uiLocale = i18n.resolvedLanguage ?? i18n.language
 
     const [project, setProject] = useState<Project | null>(null)
-    const [statusReadAt, setStatusReadAt] = useState(0)
     const [linkProblem, setLinkProblem] = useState(false)
     const [failure, setFailure] = useState<string | null>(null)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
@@ -156,12 +155,10 @@ const LocalizationScreen = () => {
         let current = true
         setProject(null)
         setLinkProblem(false)
-        const startedAt = Date.now()
         getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
                 if (current) {
                     setProject(loaded)
-                    setStatusReadAt(startedAt)
                 }
             })
             .catch((error: unknown) => {
@@ -261,7 +258,6 @@ const LocalizationScreen = () => {
         branch,
         moduleName: firstModule ?? '',
         initial: project?.compileStatus ?? null,
-        initialReadAt: statusReadAt,
         reloadToken,
         enabled: readable && firstModule !== undefined,
         // Opening the messages compiles nothing: the screen follows a compilation the reader asked for elsewhere,
@@ -546,7 +542,6 @@ const LocalizationScreen = () => {
                     </Modal>
                     <CompileProblemsPanel
                         project={project}
-                        statusReadAt={statusReadAt}
                         supportsBranches={supportsBranches({ features: project.repositoryInfo?.features })}
                     />
                 </div>

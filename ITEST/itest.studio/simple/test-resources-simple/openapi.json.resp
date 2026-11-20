@@ -33168,6 +33168,11 @@ Content-Type: application/json
           "revision": {
             "type": "string",
             "description": "***"
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           }
         }
       },
@@ -33214,6 +33219,11 @@ Content-Type: application/json
           "revision": {
             "type": "string",
             "description": "***"
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           }
         }
       },
@@ -33259,6 +33269,11 @@ Content-Type: application/json
           },
           "revision": {
             "type": "string",
+            "description": "***"
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int64",
             "description": "***"
           }
         }

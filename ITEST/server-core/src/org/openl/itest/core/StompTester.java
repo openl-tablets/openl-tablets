@@ -23,6 +23,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -45,6 +46,8 @@ public final class StompTester implements AutoCloseable {
     private static final long DEFAULT_CONNECT_TIMEOUT_SECONDS = 5;
 
     private final WebSocketStompClient client;
+    // Tracks the receipts the server owes, and gives up on one that does not come.
+    private final ThreadPoolTaskScheduler receipts = new ThreadPoolTaskScheduler();
     private final StompSession session;
     private final List<CompletableFuture<?>> pendingAwaits = new ArrayList<>();
 
@@ -79,6 +82,9 @@ public final class StompTester implements AutoCloseable {
         // StringMessageConverter rejects them. We hand a raw String to the frame
         // handler and let callers parse JSON themselves.
         this.client.setMessageConverter(new RawStringMessageConverter());
+        receipts.setDaemon(true);
+        receipts.initialize();
+        this.client.setTaskScheduler(receipts);
         var headers = new WebSocketHttpHeaders();
         var cookie = http.getCookie();
         if (cookie != null) {
@@ -135,11 +141,36 @@ public final class StompTester implements AutoCloseable {
      * returns true. The subscription is cancelled as soon as the future settles.
      */
     public <T> CompletableFuture<T> awaitMatching(String topic, Class<T> type, Predicate<? super T> condition) {
+        return awaitMatching(new StompHeaders(), topic, type, condition, null);
+    }
+
+    /**
+     * {@link #awaitMatching} that asks the server for a receipt of the subscription. The receipt future completes with
+     * the headers of the receipt once the server registered the subscription, and fails when none comes in time.
+     */
+    public <T> Receipted<T> awaitMatchingWithReceipt(String topic, Class<T> type, Predicate<? super T> condition) {
+        var headers = new StompHeaders();
+        headers.setReceipt("receipt-" + topic);
+        var receipt = new CompletableFuture<StompHeaders>();
+        var match = awaitMatching(headers, topic, type, condition, receipt);
+        return new Receipted<>(receipt, match);
+    }
+
+    /** A subscription that asked for a receipt: the receipt, and the first payload that matched. */
+    public record Receipted<T>(CompletableFuture<StompHeaders> receipt, CompletableFuture<T> match) {
+    }
+
+    private <T> CompletableFuture<T> awaitMatching(StompHeaders headers,
+                                                   String topic,
+                                                   Class<T> type,
+                                                   Predicate<? super T> condition,
+                                                   @Nullable CompletableFuture<StompHeaders> receipt) {
         var result = new CompletableFuture<T>();
         synchronized (pendingAwaits) {
             pendingAwaits.add(result);
         }
-        var subscription = session.subscribe(topic, new StringFrameHandler(body -> {
+        headers.setDestination(topic);
+        var subscription = session.subscribe(headers, new StringFrameHandler(body -> {
             try {
                 T payload = type == String.class
                         ? type.cast(body)
@@ -151,6 +182,11 @@ public final class StompTester implements AutoCloseable {
                 result.completeExceptionally(e);
             }
         }));
+        if (receipt != null) {
+            subscription.addReceiptTask(receipt::complete);
+            subscription.addReceiptLostTask(() -> receipt.completeExceptionally(
+                    new AssertionError("No receipt of the subscription to " + topic)));
+        }
         result.whenComplete((ignored, ex) -> {
             synchronized (pendingAwaits) {
                 pendingAwaits.remove(result);
@@ -181,6 +217,7 @@ public final class StompTester implements AutoCloseable {
             // Best-effort.
         }
         client.stop();
+        receipts.shutdown();
     }
 
     private void failPending(Throwable ex) {

@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -37,12 +39,14 @@ import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.socket.StatusSequence;
 
 class ProjectStatusMapperImplTest {
 
     private CompilationJobRegistry compilationJobRegistry;
     private PendingChangesResolver pendingChangesResolver;
     private DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
+    private StatusSequence statusSequence;
     private ProjectStatusMapperImpl mapper;
 
     private RulesProject project;
@@ -53,8 +57,9 @@ class ProjectStatusMapperImplTest {
         compilationJobRegistry = mock(CompilationJobRegistry.class);
         pendingChangesResolver = mock(PendingChangesResolver.class);
         detailedMessageDescriptionMapper = mock(DetailedMessageDescriptionMapper.class);
+        statusSequence = mock(StatusSequence.class);
         mapper = new ProjectStatusMapperImpl(compilationJobRegistry, pendingChangesResolver,
-                detailedMessageDescriptionMapper);
+                detailedMessageDescriptionMapper, statusSequence);
 
         project = mock(RulesProject.class);
         when(project.isSupportsBranches()).thenReturn(false);
@@ -84,6 +89,31 @@ class ProjectStatusMapperImplTest {
 
         when(project.getProjectId()).thenReturn(ProjectIds.of("design", "Rating"));
         when(detailedMessageDescriptionMapper.mapSorted(any(), any())).thenReturn(List.of());
+    }
+
+    @Test
+    void aStatusReadLaterHasALargerSequenceWhicheverDetailItIsReadIn() {
+        mapper = new ProjectStatusMapperImpl(compilationJobRegistry, pendingChangesResolver,
+                detailedMessageDescriptionMapper, new StatusSequence());
+
+        var progress = mapper.mapProgress(project, model);
+        var full = mapper.map(project, model);
+        var summary = mapper.mapSummary(project);
+
+        assertTrue(progress.sequence() < full.sequence() && full.sequence() < summary.sequence());
+    }
+
+    @Test
+    void theSequenceIsTakenBeforeTheStateIsRead() {
+        when(statusSequence.next()).thenReturn(42L);
+
+        var status = mapper.map(project, model);
+
+        assertEquals(42L, status.sequence());
+        // Taken after, a change made while the status is read would leave it numbered as fresher than it is.
+        var order = inOrder(statusSequence, model);
+        order.verify(statusSequence).next();
+        order.verify(model).getCompilationStatus();
     }
 
     @Test

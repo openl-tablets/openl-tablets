@@ -1,4 +1,5 @@
 import { subscribeTopic, type TopicSubscription } from './stompTopic'
+import type { SubscriptionStarted } from './websocket'
 
 /**
  * Compilation severity values produced by the backend (`@JsonProperty` on the enum, but
@@ -196,6 +197,11 @@ export interface ProjectStatusUpdate {
      * compilation read it: what the screen shows of the file is what it held before, until the reader refreshes.
      */
     changedOnDisk?: boolean
+    /**
+     * Orders the statuses of the server: one read later has a larger sequence, whether it was read over REST or
+     * pushed over the socket.
+     */
+    sequence: number
 }
 
 /** The one subscription handle shape — an alias of the shared topic multiplexer's. */
@@ -224,31 +230,60 @@ function buildDestination(projectId: string, branch: string | null | undefined):
  * the open project); the shared topic subscription fans the messages out locally.
  *
  * <p>Caller responsibilities:
- *   - read the current state first — {@code getProject} with the {@code status} expansion — STOMP
- *     only pushes transitions and does not replay state on subscribe.
+ *   - read the current state — {@code getProject} with the {@code status} expansion — STOMP only pushes
+ *     transitions and does not replay state on subscribe. {@code onStarted} tells the number the subscription
+ *     started at, on every start and reconnect; a status read before it ({@link isReadBefore}) is read again.
+ *   - keep the fresher status of what is read and what is pushed ({@link fresherStatus}).
  *   - call {@code subscription.unsubscribe()} when navigating away to avoid leaking
  *     handlers across project / module changes.
  */
 export function subscribeProjectStatus(
     projectId: string,
     branch: string | null,
-    onUpdate: (status: ProjectStatusUpdate) => void
+    onUpdate: (status: ProjectStatusUpdate) => void,
+    onStarted?: SubscriptionStarted
 ): ProjectStatusSubscription {
-    return subscribeTopic(buildDestination(projectId, branch), statusBodyHandler(onUpdate))
+    return subscribeTopic(buildDestination(projectId, branch), statusBodyHandler(onUpdate), onStarted)
 }
 
 /**
- * Whether a status the channel pushed still outranks the one a read carries.
- *
- * A push and a read answer the same question from two sides, and the fresher one wins: a push beats
- * a read that started before it arrived, and gives way to a read started after it. Both screens ask
- * this — the list about each row, the project page about the one project — so they ask it here.
- *
- * @param pushedAt       when the pushed status arrived
- * @param readStartedAt  when the read carrying the other status started
+ * The fresher of two statuses of one project: the one the server read later, whether it was read or pushed.
+ * A push and a read answer the same question from two sides, and arrive in no particular order.
+ * Null stands for no status at all, and gives way to any status.
  */
-export function isPushFresherThanRead(pushedAt: number, readStartedAt: number): boolean {
-    return pushedAt > readStartedAt
+export function fresherStatus(one: ProjectStatusUpdate | null, other: ProjectStatusUpdate): ProjectStatusUpdate
+export function fresherStatus(
+    one: ProjectStatusUpdate | null,
+    other: ProjectStatusUpdate | null
+): ProjectStatusUpdate | null
+export function fresherStatus(
+    one: ProjectStatusUpdate | null,
+    other: ProjectStatusUpdate | null
+): ProjectStatusUpdate | null {
+    if (one === null || other === null) {
+        return one ?? other
+    }
+    return other.sequence > one.sequence ? other : one
+}
+
+/**
+ * Whether two statuses say the same, whenever the server read them: a re-read that changed nothing keeps what a
+ * screen derived from the status it shows.
+ */
+export function isSameStatus(one: ProjectStatusUpdate | null, other: ProjectStatusUpdate | null): boolean {
+    if (one === other) {
+        return true
+    }
+    return one !== null && other !== null
+        && JSON.stringify({ ...one, sequence: 0 }) === JSON.stringify({ ...other, sequence: 0 })
+}
+
+/**
+ * Whether the status was read before a subscription started at the given number. A change told in between reached
+ * nobody, so the status may be out of date with nothing on its way to correct it, and is read again.
+ */
+export function isReadBefore(status: ProjectStatusUpdate, startedAt: number): boolean {
+    return status.sequence < startedAt
 }
 
 /**
@@ -259,9 +294,10 @@ export function isPushFresherThanRead(pushedAt: number, readStartedAt: number): 
  * per row. The single-project screens keep {@link subscribeProjectStatus}.
  */
 export function subscribeWorkspaceProjectStatuses(
-    onUpdate: (status: ProjectStatusUpdate) => void
+    onUpdate: (status: ProjectStatusUpdate) => void,
+    onStarted?: SubscriptionStarted
 ): ProjectStatusSubscription {
-    return subscribeTopic('/user/topic/workspace/projects/status', statusBodyHandler(onUpdate))
+    return subscribeTopic('/user/topic/workspace/projects/status', statusBodyHandler(onUpdate), onStarted)
 }
 
 function statusBodyHandler(onUpdate: (status: ProjectStatusUpdate) => void): (body: string) => void {

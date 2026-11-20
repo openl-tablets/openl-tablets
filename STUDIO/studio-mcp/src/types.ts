@@ -1220,6 +1220,8 @@ export interface ProjectStatusView {
    * the tables Studio answers with are what the files held before.
    */
   changedOnDisk?: boolean;
+  /** Orders the statuses Studio reads, for a client that follows them over its WebSocket. */
+  sequence?: number;
 }
 
 // =============================================================================

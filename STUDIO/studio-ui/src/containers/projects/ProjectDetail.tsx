@@ -120,8 +120,6 @@ const useStyles = createStyles(({ css, token }) => ({
 
 interface ProjectDetailProps {
     project: Project | null
-    /** When the read behind the shown project started; the compile dot weighs pushed statuses against it. */
-    statusReadAt?: number | undefined
     repoLabel: string
     repoFeatures?: RepositoryFeatures | undefined
     repoType?: string | undefined
@@ -179,7 +177,6 @@ const moduleNamesByFile = (modules: ProjectModule[] | undefined): Record<string,
  */
 export const ProjectDetail = ({
     project,
-    statusReadAt,
     repoLabel,
     repoFeatures,
     repoType,
@@ -281,7 +278,7 @@ export const ProjectDetail = ({
     // The compilation of the project, whose messages mark where a Markdown file of a module breaks the format.
     const compiled = !!project && COMPILE_RELEVANT_STATUSES.has(project.status)
     const compileStatus = useLiveProjectStatus(project?.id ?? '', project?.branch ?? null, compiled,
-        compiled ? project.compileStatus ?? null : null, statusReadAt)
+        compiled ? project.compileStatus ?? null : null)
     const repositorySupportsRevisionSearch = supportsRevisionSearch({ features: repoFeatures })
     const hasBranches = repositorySupportsBranches && !!project?.branch && !isLocal
     const tabKeys = [
@@ -479,7 +476,6 @@ export const ProjectDetail = ({
                         compileStatus={project.compileStatus}
                         projectId={project.id}
                         status={project.status}
-                        statusReadAt={statusReadAt}
                     />
                 )}
             />

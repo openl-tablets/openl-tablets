@@ -33,6 +33,7 @@ import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.socket.StatusSequence;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private final CompilationJobRegistry compilationJobRegistry;
     private final PendingChangesResolver pendingChangesResolver;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
+    private final StatusSequence statusSequence;
 
     /** How much of the status is asked for, and so how much work building it is worth. */
     @RequiredArgsConstructor
@@ -100,9 +102,11 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     }
 
     private ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model, Detail detail) {
-        var projectId = project.getProjectId();
+        // Numbered before anything is read: a change made while the status is being read is told again, under a
+        // larger number, so the number never claims a state fresher than the one read.
         var builder = ProjectStatusViewModel.builder()
-                .projectId(projectId);
+                .sequence(statusSequence.next())
+                .projectId(project.getProjectId());
         if (project.isSupportsBranches()) {
             builder.branch(project.getBranch());
         }

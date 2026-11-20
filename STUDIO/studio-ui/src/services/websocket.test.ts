@@ -33,6 +33,7 @@ describe('webSocketService', () => {
                 deactivate = vi.fn()
                 subscribe = vi.fn(() => ({ unsubscribe: vi.fn() }))
                 publish = vi.fn()
+                watchForReceipt = vi.fn()
 
                 constructor(config: any) {
                     this.config = config
@@ -240,6 +241,62 @@ describe('webSocketService', () => {
             command: 'MESSAGE',
             destination: '/topic/progress',
         })
+    })
+
+    it('asks for a receipt of a subscription that wants to know when it starts, and tells the number it carries',
+        async () => {
+            const { webSocketService, latestConfig, latestClient } = await loadService()
+            const onStarted = vi.fn()
+            latestConfig().onConnect()
+
+            webSocketService.subscribe('/user/topic/status', vi.fn(), 'sub-s', onStarted)
+
+            const [receipt, onReceipt] = latestClient().watchForReceipt.mock.calls[0]
+            expect(latestClient().subscribe).toHaveBeenCalledWith(
+                '/user/topic/status',
+                expect.any(Function),
+                { id: 'sub-s', receipt }
+            )
+            // Watched before the frame leaves, so the receipt cannot arrive unwatched.
+            expect(latestClient().watchForReceipt.mock.invocationCallOrder[0])
+                .toBeLessThan(latestClient().subscribe.mock.invocationCallOrder[0])
+
+            onReceipt({ headers: { 'receipt-id': receipt, 'status-sequence': '1700000000000001' } })
+
+            expect(onStarted).toHaveBeenCalledWith(1_700_000_000_000_001)
+        })
+
+    it('ignores a receipt that carries no number', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        const onStarted = vi.fn()
+        latestConfig().onConnect()
+        webSocketService.subscribe('/user/topic/status', vi.fn(), 'sub-s', onStarted)
+
+        const [, onReceipt] = latestClient().watchForReceipt.mock.calls[0]
+        onReceipt({ headers: {} })
+
+        expect(onStarted).not.toHaveBeenCalled()
+    })
+
+    it('asks for a receipt of its own every time the subscription is made again on a reconnect', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        webSocketService.subscribe('/user/topic/status', vi.fn(), 'sub-s', vi.fn())
+
+        latestConfig().onConnect()
+        latestConfig().onConnect()
+
+        const receipts = latestClient().watchForReceipt.mock.calls.map((call: unknown[]) => call[0])
+        expect(receipts).toHaveLength(2)
+        expect(new Set(receipts).size).toBe(2)
+    })
+
+    it('asks for no receipt of a subscription that does not want to know when it starts', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        latestConfig().onConnect()
+
+        webSocketService.subscribe('/topic/events', vi.fn(), 'sub-x')
+
+        expect(latestClient().watchForReceipt).not.toHaveBeenCalled()
     })
 
     it('auto-generates a subscription id when none is supplied', async () => {

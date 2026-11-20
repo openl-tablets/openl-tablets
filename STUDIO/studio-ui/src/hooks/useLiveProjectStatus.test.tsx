@@ -3,7 +3,6 @@ import { useRef } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../services/projectStatus'
 import { getProject } from '../services/repositories'
-import webSocketService from '../services/websocket'
 import type { Project } from '../types/projects'
 import { useLiveProjectStatus } from './useLiveProjectStatus'
 
@@ -15,23 +14,15 @@ vi.mock('../services/projectStatus', async importOriginal => ({
 
 vi.mock('../services/repositories', () => ({ getProject: vi.fn() }))
 
-vi.mock('../services/websocket', () => {
-    const listeners = new Set<() => void>()
-    return {
-        default: {
-            onReconnect: (listener: () => void) => {
-                listeners.add(listener)
-                return () => listeners.delete(listener)
-            },
-            reconnect: () => listeners.forEach(listener => listener()),
-        },
-    }
-})
-
-const status = (compileState: ProjectStatusUpdate['compileState'], message?: string): ProjectStatusUpdate => ({
+const status = (
+    compileState: ProjectStatusUpdate['compileState'],
+    sequence: number,
+    message?: string
+): ProjectStatusUpdate => ({
     projectId: 'p1',
     branch: 'main',
     compileState,
+    sequence,
     ...(message === undefined ? {} : {
         compilation: {
             messages: { total: 1, errors: 1, warnings: 0, items: [{ id: 1, summary: message, severity: 'ERROR', stacktrace: false }]},
@@ -39,28 +30,46 @@ const status = (compileState: ProjectStatusUpdate['compileState'], message?: str
     }),
 })
 
-const Probe = ({ enabled, initial, readAt }: {
-    enabled: boolean
+const Probe = ({ enabled = true, initial, branch = 'main' }: {
+    enabled?: boolean
     initial: ProjectStatusUpdate | null
-    readAt?: number
+    branch?: string
 }) => {
-    const live = useLiveProjectStatus('p1', 'main', enabled, initial, readAt)
+    const live = useLiveProjectStatus('p1', branch, enabled, initial)
     return <span data-testid="state">{live?.compileState ?? 'none'}</span>
 }
 
-const Messages = ({ initial, readAt }: { initial: ProjectStatusUpdate, readAt?: number }) => {
-    const live = useLiveProjectStatus('p1', 'main', true, initial, readAt)
+const Messages = ({ initial }: { initial: ProjectStatusUpdate }) => {
+    const live = useLiveProjectStatus('p1', 'main', true, initial)
     return <span data-testid="message">{live?.compilation?.messages?.items?.[0]?.summary ?? 'none'}</span>
 }
 
-/** Captures the channel listener, so a test can push a status by hand. */
-const captureUpdates = () => {
+/** Captures the channel listeners, so a test can push a status, or start the subscription, by hand. */
+const captureChannel = () => {
     let onUpdate!: (update: ProjectStatusUpdate) => void
-    vi.mocked(subscribeProjectStatus).mockImplementation((_id, _branch, listener) => {
+    let onStarted: ((sequence: number) => void) | undefined
+    vi.mocked(subscribeProjectStatus).mockImplementation((_id, _branch, listener, started) => {
         onUpdate = listener
+        onStarted = started
         return { unsubscribe: vi.fn() }
     })
-    return (update: ProjectStatusUpdate) => onUpdate(update)
+    return {
+        push: (update: ProjectStatusUpdate) => act(() => onUpdate(update)),
+        start: async (sequence: number) => {
+            await act(async () => {
+                onStarted?.(sequence)
+                await settle()
+            })
+        },
+    }
+}
+
+const settle = () => new Promise(resolve => setTimeout(resolve, 0))
+
+const mount = async (element: React.ReactElement) => {
+    const rendered = render(element)
+    await act(settle)
+    return rendered
 }
 
 describe('useLiveProjectStatus', () => {
@@ -70,56 +79,42 @@ describe('useLiveProjectStatus', () => {
     })
 
     it('subscribes, seeds from the initial status and applies pushed updates when enabled', async () => {
-        const push = captureUpdates()
+        const { push } = captureChannel()
 
-        const { getByTestId } = render(<Probe enabled initial={status('ok')} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        const { getByTestId } = await mount(<Probe initial={status('ok', 10)} />)
 
-        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
+        expect(subscribeProjectStatus)
+            .toHaveBeenCalledWith('p1', 'main', expect.any(Function), expect.any(Function))
         expect(getByTestId('state').textContent).toBe('ok')
 
-        act(() => push(status('errors')))
+        push(status('errors', 11))
         expect(getByTestId('state').textContent).toBe('errors')
     })
 
-    it('gives way to a read that started after the push, so a lost update does not stick', async () => {
-        const push = captureUpdates()
+    it('gives way to a status the server read after the push, so a lost update does not stick', async () => {
+        const { push } = captureChannel()
+        const { getByTestId, rerender } = await mount(<Probe initial={status('idle', 10)} />)
 
-        const { getByTestId, rerender } = render(<Probe enabled initial={status('idle')} readAt={1_000} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
-
-        // The channel says the project is compiling, which is newer than the read behind the screen.
-        act(() => push(status('compiling')))
+        push(status('compiling', 11))
         expect(getByTestId('state').textContent).toBe('compiling')
 
-        // A read started after that push carries the answer the server gives now - the finished compile
-        // whose push never arrived - so the pushed status steps aside.
-        rerender(<Probe enabled initial={status('ok')} readAt={Date.now() + 1_000} />)
+        // The read the server answered later carries the finished compile whose push never arrived.
+        rerender(<Probe initial={status('ok', 12)} />)
         expect(getByTestId('state').textContent).toBe('ok')
     })
 
-    it('keeps the push that arrived while the read behind the screen was still in flight', async () => {
-        const push = captureUpdates()
-        // A moment before the push, so the two cannot fall into the same millisecond and tie.
-        const readStartedAt = Date.now() - 1_000
+    it('keeps a push the server sent after the read that lands later', async () => {
+        const { push } = captureChannel()
+        const { getByTestId, rerender } = await mount(<Probe initial={status('idle', 10)} />)
+        push(status('compiling', 12))
 
-        const { getByTestId, rerender } = render(<Probe enabled initial={status('idle')} readAt={readStartedAt} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
-        act(() => push(status('compiling')))
-
-        // The read that was already running lands afterwards with what the server knew before the push.
-        rerender(<Probe enabled initial={status('ok')} readAt={readStartedAt} />)
+        // The read was answered before the push, though its answer arrives after it.
+        rerender(<Probe initial={status('ok', 11)} />)
 
         expect(getByTestId('state').textContent).toBe('compiling')
     })
 
-    it('answers with the same object when a re-read brings back the same status', async () => {
+    it('answers with the same object when a re-read brings back the same status', () => {
         const Identity = ({ initial }: { initial: ProjectStatusUpdate }) => {
             const live = useLiveProjectStatus('p1', 'main', true, initial)
             const seen = useRef<ProjectStatusUpdate | null>(null)
@@ -128,101 +123,145 @@ describe('useLiveProjectStatus', () => {
             return <span data-testid="stable">{String(stable)}</span>
         }
 
-        // A read carries an equal status in a new object - the panels derive their message lists and
-        // their paging from it, so a new identity would reset what the user expanded.
-        const { getByTestId, rerender } = render(<Identity initial={status('errors')} />)
-        rerender(<Identity initial={status('errors')} />)
+        // A read carries an equal status in a new object, numbered anew - the panels derive their message lists
+        // and their paging from it, so a new identity would reset what the user expanded.
+        const { getByTestId, rerender } = render(<Identity initial={status('errors', 10)} />)
+        rerender(<Identity initial={status('errors', 11)} />)
 
         expect(getByTestId('stable').textContent).toBe('true')
     })
 
     it('answers again when only the message texts changed, not their counts', async () => {
-        const push = captureUpdates()
-        const { getByTestId, rerender } = render(<Messages initial={status('errors', 'the old error')} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        const { push } = captureChannel()
+        const { getByTestId, rerender } = await mount(<Messages initial={status('errors', 10, 'the old error')} />)
 
         // The author fixed one error and introduced another, so the counts and the state are the same.
-        act(() => push(status('errors', 'the new error')))
+        push(status('errors', 11, 'the new error'))
         expect(getByTestId('message').textContent).toBe('the new error')
 
         // The same holds for a read that brings the new text.
-        rerender(<Messages initial={status('errors', 'a third error')} readAt={Date.now() + 1_000} />)
+        rerender(<Messages initial={status('errors', 12, 'a third error')} />)
         expect(getByTestId('message').textContent).toBe('a third error')
     })
 
     it('leaves a pushed status alone when a read carries none at all', async () => {
-        const push = captureUpdates()
-        const { getByTestId, rerender } = render(<Probe enabled initial={status('idle')} readAt={1_000} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
-        act(() => push(status('errors')))
+        const { push } = captureChannel()
+        const { getByTestId, rerender } = await mount(<Probe initial={status('idle', 10)} />)
+        push(status('errors', 11))
 
         // The server holds no compilation for the project, so its answer says nothing about it.
-        rerender(<Probe enabled initial={null} readAt={Date.now() + 1_000} />)
+        rerender(<Probe initial={null} />)
 
         expect(getByTestId('state').textContent).toBe('errors')
     })
 
     it('drops a push of the branch left behind, even when the new one looks just like it', async () => {
-        const push = captureUpdates()
+        const { push } = captureChannel()
         // Every value the hook answers with, including the render committed before the resubscribe
         // effect runs - that one is painted, so the branch left behind must not show through it.
         const answered: string[] = []
-        const readAt = Date.now() - 1_000
         const Branch = ({ branch, initial }: { branch: string, initial: ProjectStatusUpdate }) => {
-            const live = useLiveProjectStatus('p1', branch, true, initial, readAt)
+            const live = useLiveProjectStatus('p1', branch, true, initial)
             answered.push(live?.compilation?.messages?.items?.[0]?.summary ?? 'none')
             return null
         }
 
-        const { rerender } = render(<Branch branch="main" initial={status('errors', 'from main')} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
-        act(() => push(status('errors', 'pushed on main')))
+        const { rerender } = await mount(<Branch branch="main" initial={status('errors', 10, 'from main')} />)
+        push(status('errors', 12, 'pushed on main'))
         answered.length = 0
 
-        // A branch just cut from main: same state, same counts, its own messages.
-        rerender(<Branch branch="feature" initial={status('errors', 'from feature')} />)
+        // A branch just cut from main: same state, same counts, its own messages, read before the push.
+        rerender(<Branch branch="feature" initial={{ ...status('errors', 11, 'from feature'), branch: 'feature' }} />)
 
         expect(answered).not.toContain('pushed on main')
         expect(answered.at(-1)).toBe('from feature')
     })
 
     it('does not subscribe when disabled', async () => {
-        const { getByTestId } = render(<Probe enabled={false} initial={status('ok')} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        const { getByTestId } = await mount(<Probe enabled={false} initial={status('ok', 10)} />)
 
         expect(subscribeProjectStatus).not.toHaveBeenCalled()
         expect(getByTestId('state').textContent).toBe('none')
     })
 
-    it('reads the status afresh once the channel reconnects, as nothing pushed meanwhile arrives', async () => {
-        vi.mocked(getProject).mockResolvedValue({ compileStatus: status('warnings') } as Project)
+    it('reads the status again when the subscription started after it was read', async () => {
+        const { start } = captureChannel()
+        vi.mocked(getProject).mockResolvedValue({ compileStatus: status('compiling', 30) } as Project)
+        const { getByTestId } = await mount(<Probe initial={status('ok', 10)} />)
 
-        const { getByTestId } = render(<Probe enabled initial={status('compiling')} />)
-        await act(async () => {
-            (webSocketService as unknown as { reconnect: () => void }).reconnect()
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        // A compilation began between the read and the start of the subscription: nothing was pushed of it.
+        await start(20)
+
+        expect(getProject).toHaveBeenCalledTimes(1)
+        expect(getByTestId('state').textContent).toBe('compiling')
+    })
+
+    it('trusts a status read after the subscription started', async () => {
+        const { start } = captureChannel()
+        await mount(<Probe initial={status('ok', 30)} />)
+
+        await start(20)
+
+        expect(getProject).not.toHaveBeenCalled()
+    })
+
+    it('waits for the read on its way, and reads again when it turns out older than the subscription', async () => {
+        const { start } = captureChannel()
+        vi.mocked(getProject).mockResolvedValue({ compileStatus: status('compiling', 30) } as Project)
+        const { getByTestId, rerender } = await mount(<Probe initial={null} />)
+
+        await start(20)
+        expect(getProject).not.toHaveBeenCalled()
+
+        rerender(<Probe initial={status('ok', 10)} />)
+        await act(settle)
+
+        expect(getProject).toHaveBeenCalledTimes(1)
+        expect(getByTestId('state').textContent).toBe('compiling')
+    })
+
+    it('reads the status again once per start, as after a reconnect', async () => {
+        const { start } = captureChannel()
+        vi.mocked(getProject).mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValue({ compileStatus: status('warnings', 40) } as Project)
+        const { getByTestId, rerender } = await mount(<Probe initial={status('compiling', 10)} />)
+
+        await start(20)
+        rerender(<Probe initial={status('compiling', 10)} />)
+        await act(settle)
+        expect(getProject).toHaveBeenCalledTimes(1)
+        expect(getByTestId('state').textContent).toBe('compiling')
 
         // The compilation ended while the connection was down: it is not shown as running for good.
+        await start(35)
+
+        expect(getProject).toHaveBeenCalledTimes(2)
         expect(getByTestId('state').textContent).toBe('warnings')
+    })
+
+    it('drops a status read again for a branch left behind', async () => {
+        const { start } = captureChannel()
+        let answer!: (project: Project) => void
+        vi.mocked(getProject).mockReturnValue(new Promise(resolve => {
+            answer = resolve
+        }))
+        const { getByTestId, rerender } = await mount(<Probe initial={status('ok', 10)} />)
+        await start(20)
+
+        rerender(<Probe branch="feature" initial={{ ...status('idle', 25), branch: 'feature' }} />)
+        await act(async () => {
+            answer({ compileStatus: status('errors', 30) } as Project)
+            await settle()
+        })
+
+        expect(getByTestId('state').textContent).toBe('idle')
     })
 
     it('unsubscribes on unmount', async () => {
         const unsubscribe = vi.fn()
         vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe })
 
-        const { unmount } = render(<Probe enabled initial={status('ok')} />)
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        const { unmount } = await mount(<Probe initial={status('ok', 10)} />)
         unmount()
 
         expect(unsubscribe).toHaveBeenCalled()

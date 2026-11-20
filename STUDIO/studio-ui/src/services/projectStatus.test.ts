@@ -1,6 +1,10 @@
-import type {
-    subscribeProjectStatus as SubscribeProjectStatusFn,
-    subscribeWorkspaceProjectStatuses as SubscribeWorkspaceProjectStatusesFn,
+import {
+    fresherStatus,
+    isReadBefore,
+    isSameStatus,
+    type ProjectStatusUpdate,
+    type subscribeProjectStatus as SubscribeProjectStatusFn,
+    type subscribeWorkspaceProjectStatuses as SubscribeWorkspaceProjectStatusesFn,
 } from 'services/projectStatus'
 
 vi.mock('services/websocket', () => ({
@@ -43,6 +47,8 @@ describe('projectStatus service', () => {
             expect(mockedWebSocketService.connect).toHaveBeenCalled()
             expect(mockedWebSocketService.subscribe).toHaveBeenCalledWith(
                 '/user/topic/projects/abc%3D/status',
+                expect.any(Function),
+                undefined,
                 expect.any(Function)
             )
         })
@@ -52,6 +58,8 @@ describe('projectStatus service', () => {
 
             expect(mockedWebSocketService.subscribe).toHaveBeenCalledWith(
                 '/user/topic/projects/abc%3D/branches/feature%2Fx/status',
+                expect.any(Function),
+                undefined,
                 expect.any(Function)
             )
         })
@@ -126,6 +134,45 @@ describe('projectStatus service', () => {
             expect(mockedWebSocketService.unsubscribe).toHaveBeenCalledTimes(1)
         })
 
+        it('tells every listener when the subscription starts, again after a reconnect', () => {
+            const listenerA = vi.fn()
+            const listenerB = vi.fn()
+            subscribeProjectStatus('abc=', null, vi.fn(), listenerA)
+            subscribeProjectStatus('abc=', null, vi.fn(), listenerB)
+            const started = mockedWebSocketService.subscribe.mock.calls[0]![3] as (sequence: number) => void
+
+            started(20)
+            started(40)
+
+            expect(listenerA.mock.calls).toEqual([[20], [40]])
+            expect(listenerB.mock.calls).toEqual([[20], [40]])
+        })
+
+        it('tells a listener joining a subscription that already started its number at once', async () => {
+            subscribeProjectStatus('abc=', null, vi.fn(), vi.fn())
+            const started = mockedWebSocketService.subscribe.mock.calls[0]![3] as (sequence: number) => void
+            started(20)
+            const late = vi.fn()
+
+            subscribeProjectStatus('abc=', null, vi.fn(), late)
+            expect(late).not.toHaveBeenCalled()
+            await Promise.resolve()
+
+            expect(late).toHaveBeenCalledWith(20)
+        })
+
+        it('tells a listener that left before its turn nothing', async () => {
+            subscribeProjectStatus('abc=', null, vi.fn(), vi.fn())
+            const started = mockedWebSocketService.subscribe.mock.calls[0]![3] as (sequence: number) => void
+            started(20)
+            const late = vi.fn()
+
+            subscribeProjectStatus('abc=', null, vi.fn(), late).unsubscribe()
+            await Promise.resolve()
+
+            expect(late).not.toHaveBeenCalled()
+        })
+
         it('re-subscribes after the cooldown completes', () => {
             subscribeProjectStatus('abc=', null, vi.fn()).unsubscribe()
             vi.advanceTimersByTime(5000)
@@ -142,6 +189,8 @@ describe('projectStatus service', () => {
 
             expect(mockedWebSocketService.subscribe).toHaveBeenCalledWith(
                 '/user/topic/workspace/projects/status',
+                expect.any(Function),
+                undefined,
                 expect.any(Function)
             )
             // Each update names its own project — the screen routes it, not the transport.
@@ -149,5 +198,38 @@ describe('projectStatus service', () => {
             stompCallback({ body: JSON.stringify({ projectId: 'abc=', compileState: 'errors' }) })
             expect(onUpdate).toHaveBeenCalledWith({ projectId: 'abc=', compileState: 'errors' })
         })
+    })
+})
+
+describe('project status freshness', () => {
+    const status = (sequence: number, compileState: ProjectStatusUpdate['compileState'] = 'ok'): ProjectStatusUpdate =>
+        ({ projectId: 'p1', compileState, sequence })
+
+    it('keeps the status the server read later, whichever arrives last', () => {
+        const read = status(10)
+        const pushed = status(20, 'compiling')
+
+        expect(fresherStatus(read, pushed)).toBe(pushed)
+        expect(fresherStatus(pushed, read)).toBe(pushed)
+    })
+
+    it('takes any status over none', () => {
+        const read = status(10)
+
+        expect(fresherStatus(null, read)).toBe(read)
+        expect(fresherStatus(read, null)).toBe(read)
+        expect(fresherStatus(null, null)).toBeNull()
+    })
+
+    it('tells a status read before the subscription started', () => {
+        expect(isReadBefore(status(10), 20)).toBe(true)
+        expect(isReadBefore(status(30), 20)).toBe(false)
+    })
+
+    it('tells two statuses saying the same apart from the moment they were read', () => {
+        expect(isSameStatus(status(10), status(20))).toBe(true)
+        expect(isSameStatus(status(10), status(20, 'errors'))).toBe(false)
+        expect(isSameStatus(null, null)).toBe(true)
+        expect(isSameStatus(status(10), null)).toBe(false)
     })
 })

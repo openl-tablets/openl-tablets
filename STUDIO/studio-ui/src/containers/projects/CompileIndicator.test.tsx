@@ -4,6 +4,10 @@ import { ProjectStatus } from '../../constants/project'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { CompileDot, LiveCompileDot, RowCompileDot } from './CompileIndicator'
 
+/** The server numbers every status it reads: one built later is fresher. */
+let lastSequence = 0
+const nextSequence = (): number => ++lastSequence
+
 // Only the channel is stubbed; the freshness rule stays the one the screens use.
 vi.mock('../../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../../services/projectStatus')>()),
@@ -29,6 +33,7 @@ const compileStatus = (state: ProjectStatusUpdate['compileState']): ProjectStatu
     projectId: 'p1',
     branch: 'main',
     compileState: state,
+    sequence: nextSequence(),
 })
 
 describe('LiveCompileDot', () => {
@@ -45,7 +50,7 @@ describe('LiveCompileDot', () => {
             status={ProjectStatus.Opened}
         />)
 
-        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
+        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function), expect.any(Function))
         expect(await screen.findByTestId('compile-dot-p1')).toBeInTheDocument()
     })
 
@@ -114,6 +119,7 @@ describe('RowCompileDot', () => {
                     projectId: 'p1',
                     branch: 'main',
                     compileState: 'errors',
+                    sequence: nextSequence(),
                     compilation: {
                         messages: {
                             items: [],

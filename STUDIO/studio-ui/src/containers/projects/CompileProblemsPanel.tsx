@@ -81,10 +81,12 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
+/** A status no read carried, so the server never numbered it: any status it read outranks this one. */
 const buildStatus = (project: Project, state: ProjectCompileState, supportsBranches: boolean): ProjectStatusUpdate => ({
     projectId: project.id,
     branch: supportsBranches ? project.branch || null : null,
     compileState: state,
+    sequence: 0,
 })
 
 const errorMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
@@ -128,11 +130,9 @@ const routeOf = (projectId: string, where: ProjectStatusMessageSource | undefine
  * The panel folds by its header, is dragged taller or lower by its top edge, and keeps both between
  * visits. It only exists while there is something to show — a clean project has no panel at all.
  */
-export const CompileProblemsPanel = ({ project, supportsBranches = true, statusReadAt }: {
+export const CompileProblemsPanel = ({ project, supportsBranches = true }: {
     project: Project
     supportsBranches?: boolean
-    /** When the read carrying the project's compile status started; an older push gives way to it. */
-    statusReadAt?: number | undefined
 }) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
@@ -144,8 +144,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         project.id,
         supportsBranches ? project.branch || null : null,
         live,
-        live ? project.compileStatus ?? buildStatus(project, 'compiling', supportsBranches) : null,
-        statusReadAt
+        live ? project.compileStatus ?? buildStatus(project, 'compiling', supportsBranches) : null
     )
     const status = liveStatus ?? buildStatus(project, 'idle', supportsBranches)
 

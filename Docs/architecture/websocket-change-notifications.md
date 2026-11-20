@@ -31,6 +31,47 @@ A ping body carries file paths and origins at most. No project content ever ride
 broadcast reaches every authenticated session, so clients re-read what they show through the REST
 API under their own ACL.
 
+## Current state and the subscription
+
+The compile status is read over REST and followed over the socket. The socket pushes transitions only: it does
+not replay the state to a new subscription, as the state lives in the session of the client, which a STOMP frame
+does not reach. Two things keep a screen from showing a stale status for good:
+
+- **every status is numbered.** `ProjectStatusMapper` takes a number of `StatusSequence` before it reads the
+  state, for the REST answer and for the push alike, and the status carries it as `sequence`. A number taken later
+  is larger, from any thread, and it follows the microseconds of the wall clock, so the numbers after a restart of
+  the server are larger than the ones before it. A client keeps the status with the larger number, whichever way it
+  came and in whichever order it arrived (`fresherStatus`);
+- **a subscription tells when it starts.** The UI asks every SUBSCRIBE frame for a receipt. The simple broker
+  answers the receipt of a DISCONNECT only, so `SubscriptionReceiptInterceptor` answers the one of a SUBSCRIBE once
+  the handler of its destination registered it — the user-destination handler hands the frame on to the broker in
+  the same call, as the broker channel has no executor and the order of the frames a session sends is not kept.
+  The receipt carries the number of that moment in its `status-sequence` header, and the subscription is made
+  again, with a new receipt, on every reconnect.
+
+A status read under a smaller number than the start of the subscription may have changed before the subscription
+heard of it, with nothing on its way to correct it: such a status is read once more (`isReadBefore`).
+
+```mermaid
+sequenceDiagram
+    participant UI
+    participant Server
+    UI->>Server: GET project, include=status
+    Server-->>UI: compileStatus, sequence 10
+    Note over Server: a compilation starts, pushed to nobody
+    UI->>Server: SUBSCRIBE with a receipt
+    Server-->>UI: RECEIPT, status-sequence 20
+    UI->>Server: GET project, include=status, as 10 is less than 20
+    Server-->>UI: compileStatus compiling, sequence 30
+    Server-->>UI: MESSAGE compileStatus ok, sequence 40
+```
+
+- **the project screens** (`useLiveProjectStatus`) read the status again when the one they show was read before the
+  subscription started. While no status is known yet, the read of the screen is on its way, and the check waits for
+  it;
+- **the projects list** reads its snapshot again, quietly, when the statuses it holds were read before the workspace
+  status stream started, once no read of it is on its way. The number of a snapshot is the smallest of its statuses.
+
 ## Delivery order
 
 A session hears the messages of every destination in the order the server published them
@@ -187,7 +228,8 @@ flowchart LR
 ## Staleness policy
 
 Pings are the fast path, not the guarantee — they can be lost while a laptop sleeps or the socket
-reconnects. Behind them:
+reconnects. The compile statuses are read again whenever the status subscription starts after they were read (see
+[Current state and the subscription](#current-state-and-the-subscription)). Behind the pings:
 
 - the workspace snapshot has a trust window (5 min); an older snapshot is re-read instead of served;
 - coming back to the tab (`useWindowFocus`) re-reads quietly what outlived the window — the projects

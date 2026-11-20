@@ -45,6 +45,7 @@ Content-Type: application/json
       "projectId": "EJ59YSPW9GKE4",
       "revision": "*",
       "compileState": "errors",
+      "sequence": "#",
       "lastModifiedBy": {
         "author": "admin",
         "date": "*"

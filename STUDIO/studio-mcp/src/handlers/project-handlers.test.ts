@@ -172,7 +172,7 @@ describe("project lists and details", () => {
   it("answers the compile status of a project without what the project names already", async () => {
     const compileStatus = {
       projectId: "design:project1:hash123", branch: "main", revision: "r1", compileState: "ok",
-      lastModifiedBy: { author: "admin", date: "2024-01-01T00:00:00Z" },
+      lastModifiedBy: { author: "admin", date: "2024-01-01T00:00:00Z" }, sequence: 1_700_000_000_000_001,
     };
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", {
       branch: "main", revision: "r1", repositoryInfo: { name: "Design" }, compileStatus,

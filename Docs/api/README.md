@@ -61,6 +61,13 @@ compiled it. A client asks it in short before working with the tables,
 `GET /rest/projects/{projectId}?include=status&fields=compileStatus(compileState,changedOnDisk)`, and compiles the
 module again with `POST /rest/projects/{projectId}/modules/{module}/compile?reset=true` when the files changed.
 
+Every status carries a `sequence`: a status the server read later has a larger one, whether it was read over REST or
+pushed over the WebSocket, so a client that gets both keeps the status with the largest. A subscription to a status
+destination that sends a `receipt` header is answered with a `RECEIPT` frame once it is registered, and its
+`status-sequence` header holds the sequence the subscription started at: a status read under a smaller one may have
+changed before the subscription heard of it, and is read again. See
+[WebSocket Change Notifications](../architecture/websocket-change-notifications.md#current-state-and-the-subscription).
+
 ### Pages of Results
 
 A list endpoint takes `size` (the page size, `50` by default) and either `page` (the zero-based page number) or `offset`

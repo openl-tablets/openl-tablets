@@ -1,9 +1,8 @@
 import { useRef } from 'react'
 
-/** A reload in flight: which one it is, and when it started. */
+/** A reload in flight: which one it is. */
 export interface Load {
     generation: number
-    startedAt: number
 }
 
 interface LoadGeneration {
@@ -36,7 +35,7 @@ export function useLoadGeneration(): LoadGeneration {
             if (!silent) {
                 shown.current = generation
             }
-            return { generation, startedAt: Date.now() }
+            return { generation }
         },
         isLatest: (generation: number) => generation === latest.current,
         ownsSpinner: (generation: number) => generation === shown.current,

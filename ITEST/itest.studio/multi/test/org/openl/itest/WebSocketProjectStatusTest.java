@@ -29,6 +29,10 @@ import org.openl.itest.core.StompTester;
  *     <li>Compilation progress is pushed to the subscriber over the WebSocket.</li>
  * </ol>
  *
+ * <p>The subscription asks for a receipt, which the server sends once the subscription is registered. It carries the
+ * sequence the subscription started at: larger than the one of the status read before, and smaller than the one of
+ * every status pushed after.
+ *
  * <p>The per-user destination ({@code /user/topic/projects/{id}/status}) is only delivered when the WebSocket
  * principal matches the user that triggered compilation, so receiving a frame confirms the handshake's
  * credentials became the STOMP principal.
@@ -47,9 +51,9 @@ class WebSocketProjectStatusTest {
 
     /**
      * Minimal projection of {@code ProjectStatusViewModel}. {@code projectId} is the id of the project;
-     * {@code compileState} is the lowercase {@code CompileState}.
+     * {@code compileState} is the lowercase {@code CompileState}; {@code sequence} orders the statuses.
      */
-    record StatusUpdate(String projectId, String compileState) {
+    record StatusUpdate(String projectId, String compileState, long sequence) {
     }
 
     /** The project list, reduced to the ids of the projects it holds. */
@@ -86,8 +90,13 @@ class WebSocketProjectStatusTest {
         try (var stomp = new StompTester(client, client.getWebSocketBaseURL(),
                 Map.of("Authorization", ADMIN_BASIC))) {
             var statusTopic = "/user/topic/projects/" + initial.projectId() + "/status";
-            var compiled = stomp.awaitMatching(statusTopic, StatusUpdate.class,
+            var subscription = stomp.awaitMatchingWithReceipt(statusTopic, StatusUpdate.class,
                     u -> TERMINAL_STATES.contains(u.compileState()));
+            var compiled = subscription.match();
+            // The subscription is registered once its receipt arrives: nothing told from then on is missed.
+            var startedAt = Long.parseLong(subscription.receipt().get(10, TimeUnit.SECONDS)
+                    .getFirst("status-sequence"));
+            assertTrue(startedAt > initial.sequence(), "The status was read before the subscription started");
 
             // 5. Reading the tables initializes compilation (blocks until compiled).
             client.getForObject(tablesUrl, String.class, 200, "Authorization", ADMIN_BASIC);
@@ -96,6 +105,7 @@ class WebSocketProjectStatusTest {
             var terminal = compiled.get(30, TimeUnit.SECONDS);
             assertTrue(TERMINAL_STATES.contains(terminal.compileState()),
                     "Expected a terminal compile state over WebSocket, got: " + terminal.compileState());
+            assertTrue(terminal.sequence() > startedAt, "A status pushed after the start is numbered after it");
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Client, IMessage, StompConfig } from '@stomp/stompjs'
+import { Client, type IMessage, type StompConfig, type StompHeaders } from '@stomp/stompjs'
 
 export interface WebSocketMessage {
     body: string
@@ -7,10 +7,20 @@ export interface WebSocketMessage {
     destination: string
 }
 
+/**
+ * Told the subscription started, with the number the server gave that moment: what it publishes after reaches the
+ * subscription. Matches the {@code status-sequence} header of {@code SubscriptionReceiptInterceptor}.
+ */
+export type SubscriptionStarted = (sequence: number) => void
+
+/** The header of the receipt of a subscription that holds the number the subscription started at. */
+const SEQUENCE_HEADER = 'status-sequence'
+
 interface WebSocketSubscription {
     id: string
     destination: string
     callback: (message: WebSocketMessage) => void
+    onStarted?: SubscriptionStarted | undefined
     stompSubscription?: { unsubscribe: () => void }
 }
 
@@ -32,9 +42,8 @@ class WebSocketService {
     private readonly subscriptions: Map<string, WebSocketSubscription> = new Map()
     private isConnected = false
     private reconnectAttempts = 0
-    /** Whether the client has connected before: a connect after that is a reconnect. */
-    private connectedBefore = false
-    private readonly reconnectListeners = new Set<() => void>()
+    /** Counts the receipts asked for, so that each one is told apart. */
+    private receipts = 0
     private readonly maxReconnectAttempts = 5
     private readonly reconnectDelay = 5000
 
@@ -64,42 +73,43 @@ class WebSocketService {
     private onConnect() {
         this.isConnected = true
         this.reconnectAttempts = 0
-        const reconnected = this.connectedBefore
-        this.connectedBefore = true
 
-        // Re-subscribe to all previous subscriptions
-        this.subscriptions.forEach((subscription) => {
-            if (this.client) {
-                const stompSubscription = this.client.subscribe(subscription.destination, (message: IMessage) => {
-                    const wsMessage: WebSocketMessage = {
-                        body: message.body,
-                        headers: message.headers,
-                        command: message.command,
-                        destination: subscription.destination
-                    }
-                    subscription.callback(wsMessage)
-                }, { id: subscription.id })
-                subscription.stompSubscription = stompSubscription
-            }
-        })
-        if (reconnected) {
-            this.reconnectListeners.forEach(listener => listener())
-        }
+        // Re-subscribe to all previous subscriptions. A subscription that is told when it starts is told again:
+        // nothing published while the connection was down arrives later.
+        this.subscriptions.forEach(subscription => this.start(subscription))
     }
 
     /**
-     * Runs the listener on every reconnect, once the subscriptions are made again.
-     *
-     * <p>Nothing pushed while the connection was down arrives later, so what depends on the pushes reads the state
-     * afresh: a compilation may have ended meanwhile, or the server may have been restarted under it.
-     *
-     * @returns what stops the listener
+     * Sends the subscription to the server. One that wants to know when it starts asks for a receipt, which the
+     * server sends once the subscription is registered.
      */
-    public onReconnect(listener: () => void): () => void {
-        this.reconnectListeners.add(listener)
-        return () => {
-            this.reconnectListeners.delete(listener)
+    private start(subscription: WebSocketSubscription) {
+        if (!this.client) {
+            return
         }
+        const { id, onStarted } = subscription
+        let headers: StompHeaders = { id }
+        if (onStarted) {
+            this.receipts += 1
+            const receipt = `${id}-${this.receipts}`
+            // Watched before the frame leaves, so the receipt cannot arrive unwatched.
+            this.client.watchForReceipt(receipt, frame => {
+                const sequence = Number(frame.headers[SEQUENCE_HEADER])
+                if (Number.isSafeInteger(sequence)) {
+                    onStarted(sequence)
+                }
+            })
+            headers = { id, receipt }
+        }
+        subscription.stompSubscription = this.client.subscribe(subscription.destination, (message: IMessage) => {
+            subscription.callback({
+                body: message.body,
+                headers: message.headers,
+                command: message.command,
+                // The subscription destination rather than the one the message names
+                destination: subscription.destination,
+            })
+        }, headers)
     }
 
     private onDisconnect() {
@@ -164,33 +174,31 @@ class WebSocketService {
         }
     }
 
+    /**
+     * Subscribes to the destination, now or as soon as the client connects, and again after every reconnect.
+     *
+     * @param onStarted told every time the subscription starts on the server, with the number of that moment
+     * @returns the id of the subscription, for {@link unsubscribe}
+     */
     public subscribe(
         destination: string,
         callback: (message: WebSocketMessage) => void,
-        subscriptionId?: string
+        subscriptionId?: string,
+        onStarted?: SubscriptionStarted
     ): string {
         const id = subscriptionId || `sub_${Date.now()}_${randomSuffix()}`
 
         const subscription: WebSocketSubscription = {
             id,
             destination,
-            callback
+            callback,
+            onStarted,
         }
 
         this.subscriptions.set(id, subscription)
 
-        if (this.client && this.isConnected) {
-            const stompSubscription = this.client.subscribe(destination, (message: IMessage) => {
-                const wsMessage: WebSocketMessage = {
-                    body: message.body,
-                    headers: message.headers,
-                    command: message.command,
-                    destination: destination // Use the subscription destination instead of message.destination
-                }
-                callback(wsMessage)
-            }, { id })
-            // Store the STOMP subscription for proper unsubscribe
-            subscription.stompSubscription = stompSubscription
+        if (this.isConnected) {
+            this.start(subscription)
         }
 
         return id

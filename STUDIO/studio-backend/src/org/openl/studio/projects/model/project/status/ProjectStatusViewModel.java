@@ -40,6 +40,14 @@ public record ProjectStatusViewModel (
         Boolean changedOnDisk,
 
         @Parameter(description = "Files modified locally and not yet committed to the design repository.")
-        PendingChanges pendingChanges
+        PendingChanges pendingChanges,
+
+        @Parameter(description = """
+                Orders the statuses the server tells: a status read later has a larger sequence, whether it is read \
+                over REST or pushed over the WebSocket. A client keeps the status with the largest sequence. The \
+                receipt of a subscription to a status destination carries the sequence the subscription started at \
+                in its status-sequence header: a status with a smaller one may have changed unheard, and is read \
+                again""")
+        long sequence
 ) {
 }

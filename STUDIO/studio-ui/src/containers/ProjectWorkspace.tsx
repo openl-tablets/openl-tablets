@@ -135,9 +135,6 @@ export const ProjectWorkspace = () => {
     const [project, setProject] = useState<Project | null>(null)
     // Whether the link leads to no project: shown in place of the project.
     const [linkProblem, setLinkProblem] = useState(false)
-    // When the read behind the shown project started, so the compile dot can tell a pushed status
-    // that is newer than this answer from one this answer has already overtaken.
-    const [statusReadAt, setStatusReadAt] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [files, setFiles] = useState<FsNode[] | 'loading' | 'error'>()
@@ -196,7 +193,7 @@ export const ProjectWorkspace = () => {
         if (!projectId) {
             return null
         }
-        const { generation, startedAt } = loads.start(silent)
+        const { generation } = loads.start(silent)
         if (!silent) {
             setLoading(true)
         }
@@ -207,8 +204,8 @@ export const ProjectWorkspace = () => {
             }
             if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
                 // The tabs are left alone: nothing the signature covers changed. The compile status is
-                // not part of it and is the server's latest word, so it is taken anyway - otherwise a
-                // push that was lost would go on outranking every read that follows it.
+                // not part of it, and is taken anyway: the compile dot keeps the fresher of it and of what
+                // was pushed.
                 loadedAt.current = Date.now()
                 setProject(current => {
                     const { compileStatus } = loaded
@@ -218,11 +215,9 @@ export const ProjectWorkspace = () => {
                     // A read carrying no status says nothing about it, and leaves the shown one alone.
                     return compileStatus === undefined ? current : { ...current, compileStatus }
                 })
-                setStatusReadAt(startedAt)
                 return loaded
             }
             setProject(loaded)
-            setStatusReadAt(startedAt)
             setChangedFiles(touched)
             setReloadToken(token => token + 1)
             fileLoads.start(true)
@@ -479,7 +474,6 @@ export const ProjectWorkspace = () => {
                             repoFeatures={repoInfo?.features}
                             repoLabel={repoLabel}
                             repoType={repoType}
-                            statusReadAt={statusReadAt}
                             virtualFolders={virtualFolders}
                             headerPrefix={(
                                 <span className={styles.crumb}>
@@ -490,7 +484,6 @@ export const ProjectWorkspace = () => {
                         />
                         <CompileProblemsPanel
                             project={project}
-                            statusReadAt={statusReadAt}
                             supportsBranches={supportsBranches({ features: repoInfo?.features })}
                         />
                         {/* Once the project is on screen, every wait for it is shown over what it replaces —

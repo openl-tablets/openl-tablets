@@ -5,6 +5,10 @@ import { moduleNotFound } from '../../testing/errors'
 import { startModuleCompilation } from '../../services/modules'
 import { useModuleCompilation } from './useModuleCompilation'
 
+/** The server numbers every status it reads: one built later is fresher. */
+let lastSequence = 0
+const nextSequence = (): number => ++lastSequence
+
 // Only the channel and the request are stubbed; the readiness rule stays the one the editor runs on.
 vi.mock('../../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../../services/projectStatus')>()),
@@ -20,6 +24,7 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     projectId: 'p1',
     branch: 'main',
     compileState: 'compiling',
+    sequence: nextSequence(),
     compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
@@ -75,7 +80,7 @@ describe('useModuleCompilation', () => {
 
         // One channel, joined once: re-joining would throw away what a quick compilation already said.
         expect(subscribeProjectStatus).toHaveBeenCalledTimes(1)
-        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
+        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function), expect.any(Function))
         push(compiling(2, 2, 'Claims'))
         expect(getByTestId('state')).toHaveTextContent('ready 2/2')
     })
@@ -99,6 +104,7 @@ describe('useModuleCompilation', () => {
             projectId: 'p1',
             branch: 'main',
             compileState: 'ok',
+            sequence: nextSequence(),
             compilation: { modules: { compiled: 2, total: 2, compiledModules: ['Claims']}, tests: { total: 7 } },
         })
         expect(getByTestId('state')).toHaveTextContent('tests:7')

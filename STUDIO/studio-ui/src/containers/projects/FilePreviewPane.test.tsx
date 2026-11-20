@@ -17,6 +17,10 @@ import type {
     ProjectStatusUpdate,
 } from '../../services/projectStatus'
 
+/** The server numbers every status it reads: one built later is fresher. */
+let lastSequence = 0
+const nextSequence = (): number => ++lastSequence
+
 vi.mock('../../services/modules', () => ({
     searchTables: vi.fn(),
 }))
@@ -224,6 +228,7 @@ const compiled = (
     projectId: 'p1',
     branch: 'main',
     compileState,
+    sequence: nextSequence(),
     compilation: {
         messages: { items, total: items.length, errors: items.length, warnings: 0 },
         modules: { compiledModules, total: 1, compiled: compiledModules.length },

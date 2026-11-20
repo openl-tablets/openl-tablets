@@ -1,14 +1,21 @@
-import { webSocketService, type WebSocketMessage } from './websocket'
+import { webSocketService, type SubscriptionStarted, type WebSocketMessage } from './websocket'
 
 export interface TopicSubscription {
     /** Cancel the subscription. Idempotent. */
     unsubscribe(): void
 }
 
+interface TopicListener {
+    onBody: (body: string) => void
+    onStarted?: SubscriptionStarted | undefined
+}
+
 interface MultiplexedTopic {
-    listeners: Set<(body: string) => void>
+    listeners: Set<TopicListener>
     stompSubscriptionId: string
     teardownTimer: ReturnType<typeof setTimeout> | undefined
+    /** The number the server subscription last started at; null until it started. */
+    startedAt: number | null
 }
 
 /**
@@ -25,10 +32,17 @@ const TEARDOWN_COOLDOWN_MS = 5000
 /**
  * Subscribe to a STOMP destination, sharing one server subscription between every local listener.
  *
- * The callback receives the raw message body; the caller parses it. STOMP only pushes transitions —
- * a subscriber needing the current state must fetch it separately first.
+ * The callback receives the raw message body; the caller parses it. STOMP only pushes transitions — a
+ * subscriber needing the current state reads it separately. {@code onStarted} tells it the number the server
+ * subscription started at, as soon as it is known and after every reconnect: a state read under a smaller number
+ * may have changed before anything was pushed to the subscription, and is read again. A listener joining a
+ * subscription that already started is told its number at once.
  */
-export function subscribeTopic(destination: string, onBody: (body: string) => void): TopicSubscription {
+export function subscribeTopic(
+    destination: string,
+    onBody: (body: string) => void,
+    onStarted?: SubscriptionStarted
+): TopicSubscription {
     let entry = topics.get(destination)
     if (entry) {
         // A pending teardown from the last panel-reload tick — rescue it.
@@ -46,26 +60,42 @@ export function subscribeTopic(destination: string, onBody: (body: string) => vo
             listeners: new Set(),
             stompSubscriptionId: '',
             teardownTimer: undefined,
+            startedAt: null,
         }
         newEntry.stompSubscriptionId = webSocketService.subscribe(
             destination,
             (message: WebSocketMessage) => {
-                newEntry.listeners.forEach(listener => listener(message.body))
+                newEntry.listeners.forEach(listener => listener.onBody(message.body))
+            },
+            undefined,
+            sequence => {
+                newEntry.startedAt = sequence
+                newEntry.listeners.forEach(listener => listener.onStarted?.(sequence))
             }
         )
         topics.set(destination, newEntry)
         entry = newEntry
     }
-    entry.listeners.add(onBody)
-
     let unsubscribed = false
+    const listener: TopicListener = { onBody, onStarted }
+    entry.listeners.add(listener)
+    const { startedAt } = entry
+    if (onStarted && startedAt !== null) {
+        // Told asynchronously, as it is told while the subscription is still starting.
+        queueMicrotask(() => {
+            if (!unsubscribed) {
+                onStarted(startedAt)
+            }
+        })
+    }
+
     return {
         unsubscribe: () => {
             if (unsubscribed) {
                 return
             }
             unsubscribed = true
-            entry.listeners.delete(onBody)
+            entry.listeners.delete(listener)
             if (entry.listeners.size === 0) {
                 entry.teardownTimer = setTimeout(() => {
                     // Re-check size — a `subscribe()` could have arrived during the cooldown.

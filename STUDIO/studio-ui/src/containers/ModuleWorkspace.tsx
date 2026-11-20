@@ -147,7 +147,6 @@ export const ModuleWorkspace = () => {
     // read for the previous address is none of the new one's: nothing is shown, compiled or read of it there.
     const [projectRead, setProjectRead] = useState<{ address: string, project: Project } | null>(null)
     const project = projectReadFor(projectRead, projectId)
-    const [statusReadAt, setStatusReadAt] = useState(0)
     const [loadError, setLoadError] = useState<string | null>(null)
     // Whether the link leads to no project: shown in place of the module.
     const [linkProblem, setLinkProblem] = useState(false)
@@ -261,7 +260,7 @@ export const ModuleWorkspace = () => {
         if (!projectId) {
             return
         }
-        const { generation, startedAt } = projectLoads.start(true)
+        const { generation } = projectLoads.start(true)
         getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
                 // An older read may be for an address the screen has left.
@@ -269,7 +268,6 @@ export const ModuleWorkspace = () => {
                     return
                 }
                 setProjectRead({ address: projectId, project: loaded })
-                setStatusReadAt(startedAt)
                 // A read that answers puts the last failure behind it: one error while a module compiles
                 // would otherwise leave the screen on a dead end until the browser is reloaded.
                 setLoadError(null)
@@ -315,7 +313,6 @@ export const ModuleWorkspace = () => {
         branch,
         moduleName,
         initial: project?.compileStatus ?? null,
-        initialReadAt: statusReadAt,
         reloadToken,
         enabled: project !== null && !closed,
         rebuild,
@@ -1014,7 +1011,6 @@ export const ModuleWorkspace = () => {
                     </div>
                     <CompileProblemsPanel
                         project={project}
-                        statusReadAt={statusReadAt}
                         supportsBranches={supportsBranches({ features: project.repositoryInfo?.features })}
                     />
                 </div>

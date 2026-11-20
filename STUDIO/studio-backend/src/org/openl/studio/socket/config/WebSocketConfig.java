@@ -36,6 +36,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
+import org.openl.studio.socket.StatusSequence;
 import org.openl.studio.socket.handler.AnonymousSupportHandshakeHandler;
 import org.openl.studio.socket.handler.SecurityContextHandshakeInterceptor;
 
@@ -44,9 +45,12 @@ import org.openl.studio.socket.handler.SecurityContextHandshakeInterceptor;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private static final String USER_DESTINATION_PREFIX = "/user";
+
     private final ApplicationContext applicationContext;
     private final ObjectMapper objectMapper;
     private final AuthorizationManager<Message<?>> messageAuthorizationManager;
+    private final StatusSequence statusSequence;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -63,12 +67,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic", "/queue") // for broadcast messages to all subscribers
                 .setTaskScheduler(messageBrokerTaskScheduler());
-        registry.setUserDestinationPrefix("/user"); // for user-specific destinations
+        registry.setUserDestinationPrefix(USER_DESTINATION_PREFIX); // for user-specific destinations
         registry.setApplicationDestinationPrefixes("/app"); // prefix for messages sent to the server
         // A session hears its messages in the order they were published. They are handed over by a pool of
         // threads, and a compilation reports that it ended a moment after its progress: overtaken by it, the end
         // would leave a screen showing the compilation going on for good.
         registry.setPreservePublishOrder(true);
+        // Neither the order of the frames a session sends is kept, nor is the broker channel given an executor: a
+        // subscription to a user destination is then registered in the call that handles its frame, which the
+        // receipt of a subscription relies on (SubscriptionReceiptInterceptor).
     }
 
     // Spring-managed so the heartbeat scheduler is shut down on context close. Its worker thread is
@@ -92,9 +99,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         var authInterceptor = new AuthorizationChannelInterceptor(messageAuthorizationManager);
         var publisher = new SpringAuthorizationEventPublisher(applicationContext);
         authInterceptor.setAuthorizationEventPublisher(publisher);
+        // The outbound channel is a bean of the configuration this one takes part in, so it is looked up once the
+        // first receipt is due rather than injected.
+        var receipts = new SubscriptionReceiptInterceptor(
+                () -> applicationContext.getBean("clientOutboundChannel", MessageChannel.class),
+                statusSequence,
+                USER_DESTINATION_PREFIX + "/");
         registration.interceptors(getSessionSecurityContextChannelInterceptor(),
                 new SecurityContextPropagationChannelInterceptor(),
-                authInterceptor);
+                authInterceptor,
+                receipts);
     }
 
     // Resolve the security context from the session attributes

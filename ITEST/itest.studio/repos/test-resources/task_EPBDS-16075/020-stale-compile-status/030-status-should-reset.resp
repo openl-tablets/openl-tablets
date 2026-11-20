@@ -6,6 +6,7 @@ Content-Type: application/json
     "projectId": "M1T9ZSAXDKV7D",
     "revision": "*",
     "compileState": "idle",
+    "sequence": "#",
     "lastModifiedBy": {
       "author": "admin",
       "date": "*"

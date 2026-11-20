@@ -102,7 +102,11 @@ The build writes two pages (`build.rollupOptions.input`):
   also says what the cells of the whole table mean (`regions`, `groups`, `signature`), which a screen turns into the
   `roles` of the grid once per read (`rolesOf`).
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
-  an address of its own, so it is not under `CONFIG.API_ROOT`.
+  an address of its own, so it is not under `CONFIG.API_ROOT`. `services/stompTopic.ts` asks every subscription for
+  a receipt and tells its listeners the `status-sequence` it carries, on every start and reconnect. A compile status
+  read before that number is read again, and of a status read and a status pushed the one with the larger `sequence`
+  wins (`fresherStatus`, `isReadBefore` of `services/projectStatus.ts`), never the one that arrived last; see
+  `Docs/architecture/websocket-change-notifications.md`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
   with; Mermaid is a chunk of its own, loaded with the first diagram, and so are the code grammars and the colour
   schemes of the code editor, shared with it and loaded with the first code block (`HighlightedCode`) or the first

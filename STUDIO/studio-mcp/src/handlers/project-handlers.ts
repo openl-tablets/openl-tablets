@@ -309,7 +309,8 @@ type AnsweredProject = Omit<Types.ProjectViewModel, "compileStatus" | "capabilit
 /**
  * A project as the project tools answer it: its capabilities as a list of names, and its compile status without the
  * id, the branch, the revision and the last change the project names already, which an agent would otherwise read
- * twice; a value that differs stays. Without its `details` it leaves out where it lives, its tags, its last comment and
+ * twice; a value that differs stays. The sequence Studio orders its statuses by tells an agent nothing, and is left
+ * out. Without its `details` it leaves out where it lives, its tags, its last comment and
  * its default-branch flags, and names the projects using it by their ids and names.
  */
 function answeredProject({ capabilities, ...whole }: Types.ProjectViewModel, details: boolean): AnsweredProject {
@@ -319,7 +320,7 @@ function answeredProject({ capabilities, ...whole }: Types.ProjectViewModel, det
   if (!project.compileStatus) {
     return answered;
   }
-  const { projectId, branch, revision, lastModifiedBy, ...status } = project.compileStatus;
+  const { projectId, branch, revision, lastModifiedBy, sequence: _sequence, ...status } = project.compileStatus;
   const sameChange = lastModifiedBy?.author === project.modifiedBy && lastModifiedBy?.date === project.modifiedAt;
   return {
     ...answered,
