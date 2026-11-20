@@ -166,8 +166,9 @@ The files are kept in a local Maven repository (`maven.repository.local`) and do
 checked in the Maven repository again. A dependency no project used for a period, or used longest ago while the folder
 is too large, is removed from it. While no Maven repository is set, nothing is downloaded: a library is expected
 in `lib/`, where the OpenL Maven Plugin packs it, and a project dependency among the projects the user opened.
-OpenL Rule Services download nothing either: a deployed project carries its libraries in `lib/`, and its project
-dependencies are deployed with it.
+OpenL Rule Services download nothing either: OpenL Studio puts into a deployment the libraries the projects name by
+Maven coordinates, in the `lib/` folder of each project, and the project dependencies, from a design repository or
+from the Maven repository, as the user chooses in the **Deploy** dialog.
 
 ## Multi-Module Projects
 

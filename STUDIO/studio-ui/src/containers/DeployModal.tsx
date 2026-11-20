@@ -3,7 +3,7 @@ import { App, Alert, Modal, Form, Button, Space, Spin } from 'antd'
 import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
-import { Select, TextArea } from 'components/form'
+import { RadioGroup, Select, TextArea } from 'components/form'
 import { apiCall, fieldErrorsOf, ForbiddenError, isApiHttpError } from 'services'
 import { errorHandler } from 'utils/errorHandling'
 import { supportsComments } from 'utils/repositoryFeatures'
@@ -23,16 +23,22 @@ interface DeployModalDetail {
     repository: string
     revision: string
     status: string
+    /** The projects the project depends on; one with Maven coordinates lets the deployment take it from Maven. */
+    dependencies?: Array<{ name?: string, mavenArtifact?: string, conflicts?: unknown[] }>
 }
 
 interface ProjectDeployedDetail {
     projectId?: string
 }
 
+/** Where a dependency project that both a design repository and the Maven repository have is taken from. */
+type DependencySource = 'REPOSITORY' | 'MAVEN'
+
 interface DeployFormValues {
     repository: string
     deploymentName: string
     comment: string
+    dependencySource?: DependencySource
 }
 
 /** The field of the form each field of the deploy request is typed in. */
@@ -67,6 +73,10 @@ export const DeployModal: React.FC = () => {
     const selected = deploymentRepositories.find(repository => repository.id === selectedRepository)
     // A repository that keeps no comment, such as a Local one, is not asked for one.
     const keepsComments = supportsComments(selected)
+    // A dependency that names Maven coordinates can be deployed from the Maven repository instead.
+    const choosesDependencySource = !!detail?.dependencies?.some(dependency => dependency.mavenArtifact)
+    // A dependency asked for in several versions is deployed in the one the project is compiled with
+    const conflicting = (detail?.dependencies ?? []).filter(dependency => (dependency.conflicts?.length ?? 0) > 0)
 
     const fetchDeploymentRepositories = async () => {
         const response: Repository[] = await apiCall('/production-repos')
@@ -138,7 +148,7 @@ export const DeployModal: React.FC = () => {
 
     /** Sends the deployment the form describes, and tells whether it was sent. */
     const sendDeployment = async (
-        { repository, deploymentName, comment }: DeployFormValues,
+        { repository, deploymentName, comment, dependencySource }: DeployFormValues,
         projectId: string | undefined
     ): Promise<boolean> => {
         const deployOptions = { throwError: true, suppressErrorPages: true }
@@ -151,6 +161,7 @@ export const DeployModal: React.FC = () => {
                 },
                 body: JSON.stringify({
                     comment,
+                    dependencySource,
                     deploymentName,
                     productionRepositoryId: repository,
                     projectId,
@@ -175,6 +186,7 @@ export const DeployModal: React.FC = () => {
             },
             body: JSON.stringify({
                 comment,
+                dependencySource,
                 projectId,
             }),
         }, deployOptions)
@@ -376,6 +388,16 @@ export const DeployModal: React.FC = () => {
             >
                 <Spin description={t('deploy:messages.deploying_project')} spinning={isDeploying}>
                     <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
+                        {conflicting.length > 0 && (
+                            <Alert
+                                showIcon
+                                data-testid="deploy-version-conflict"
+                                type="warning"
+                                title={t('deploy:notifications.version_conflict', {
+                                    projects: conflicting.map(dependency => dependency.name).join(', '),
+                                })}
+                            />
+                        )}
                         {mainBranchOnlyBlocked && (
                             <Alert
                                 showIcon
@@ -387,6 +409,7 @@ export const DeployModal: React.FC = () => {
                         <Form
                             labelWrap
                             form={form}
+                            initialValues={{ dependencySource: 'REPOSITORY' }}
                             labelAlign="end"
                             labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                             name="deploy_form"
@@ -421,6 +444,17 @@ export const DeployModal: React.FC = () => {
                                 style={{ width: '100%' }}
                                 suffix={null}
                             />
+                            {choosesDependencySource && (
+                                <RadioGroup
+                                    label={t('deploy:dependency_source.label')}
+                                    name="dependencySource"
+                                    tooltip={t('deploy:dependency_source.tooltip')}
+                                    options={[
+                                        { label: t('deploy:dependency_source.repository'), value: 'REPOSITORY' },
+                                        { label: t('deploy:dependency_source.maven'), value: 'MAVEN' },
+                                    ]}
+                                />
+                            )}
                             {keepsComments && (
                                 <TextArea
                                     required

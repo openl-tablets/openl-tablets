@@ -14,6 +14,12 @@ i18next.addResourceBundle('en', 'deploy', {
         label: 'Comment',
         placeholder: 'Enter a comment',
     },
+    dependency_source: {
+        label: 'Dependencies',
+        repository: 'From design repositories',
+        maven: 'From Maven repository',
+        tooltip: 'Where a dependency project that both a design repository and the Maven repository have is taken from. A project only one of them has comes from that one, and the libraries named by Maven coordinates are always included.',
+    },
     buttons: {
         cancel: 'Cancel',
         deploy: 'Deploy',
@@ -29,6 +35,7 @@ i18next.addResourceBundle('en', 'deploy', {
         deploy_failed_description: 'Failed to deploy the project. Please try again.',
         no_deploy_rights: 'You do not have permission to deploy to the selected repository. Please select another repository.',
         no_deploy_rights_short: 'No permission to deploy. Select another repository.',
+        version_conflict: 'Several versions of {{projects}} are required. The deployment holds the version the project is compiled with, as its Overview shows.',
         main_branch_only: 'This repository takes a project only from the main branch of its design repository, and the project is on "{{branch}}". Switch the project to the main branch, or pick another repository.',
     },
 })

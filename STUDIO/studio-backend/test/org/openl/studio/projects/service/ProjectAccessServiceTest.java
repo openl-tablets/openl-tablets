@@ -317,4 +317,30 @@ class ProjectAccessServiceTest {
         assertNull(service.computeCapabilities(project).canCopy());
         assertNull(service.computeCapabilities(project).canManageBranches());
     }
+
+    @Test
+    void a_read_only_project_is_deployed_and_exported_but_never_changed() {
+        // A project downloaded from the Maven repository is local only, has no design repository, and is read-only.
+        when(project.isLocalOnly()).thenReturn(true);
+        when(project.isReadOnly()).thenReturn(true);
+        when(project.isOpenedForEditing()).thenReturn(true);
+        when(stateValidator.canDeploy(project)).thenReturn(true);
+        when(listingContext.canDeployToAnyRepository(any())).thenReturn(true);
+        // The state answers that it is read-only: nothing modifies or deletes it.
+        when(stateValidator.canModify(project)).thenReturn(false);
+        when(stateValidator.canDelete(project)).thenReturn(false);
+
+        var caps = service.computeCapabilities(project);
+
+        assertEquals(Boolean.TRUE, caps.canDeploy());
+        assertEquals(Boolean.TRUE, caps.canExport());
+        assertNull(caps.project().canWrite());
+        assertNull(caps.project().canDelete());
+        assertNull(caps.canCopy());
+        assertNull(caps.canManageBranches());
+
+        // Deploying it still needs a production repository the user may write to.
+        when(listingContext.canDeployToAnyRepository(any())).thenReturn(false);
+        assertNull(service.computeCapabilities(project).canDeploy());
+    }
 }

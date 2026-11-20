@@ -8,6 +8,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
+import org.openl.studio.deployment.model.DependencySource;
 import org.openl.studio.deployment.model.DeploymentId;
 
 public interface DeploymentService {
@@ -23,12 +24,18 @@ public interface DeploymentService {
     /**
      * Deploys a project to the specified deployment ID and records the deployment in the audit log.
      *
+     * <p>The deployment holds the project, its dependency projects and the libraries the projects name by Maven
+     * coordinates.
+     *
      * @param deploymentId the ID of the deployment target
      * @param project      the project to be deployed
      * @param comment      an optional comment for the deployment
+     * @param source       where a dependency project both a design repository and the Maven repository have is
+     *                     taken from
      * @throws ProjectException if there is an error during deployment
      */
-    void deploy(DeploymentId deploymentId, RulesProject project, String comment) throws ProjectException;
+    void deploy(DeploymentId deploymentId, RulesProject project, String comment, DependencySource source)
+            throws ProjectException;
 
     /**
      * Finds the design repository revision a deployed project was built from.

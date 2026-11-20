@@ -139,7 +139,16 @@ vi.mock('components/form', async () => {
             <textarea aria-label={label} placeholder={placeholder} />
         </actual.Form.Item>
     )
-    return { Select, TextArea }
+    const RadioGroup = ({ label, name, options }: {
+        label: string
+        name: string
+        options: Array<{ label: string; value: string }>
+    }) => (
+        <actual.Form.Item label={label} name={name}>
+            <actual.Radio.Group aria-label={label} options={options} />
+        </actual.Form.Item>
+    )
+    return { RadioGroup, Select, TextArea }
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
@@ -256,6 +265,48 @@ describe('DeployModal', () => {
             expect.objectContaining({ method: 'POST', body: JSON.stringify({ projectId: 'proj-1' }) }),
             { throwError: true, suppressErrorPages: true }
         ))
+    })
+
+    it('lets a project with a Maven dependency take its dependencies from the Maven repository', async () => {
+        mockApiCall.mockResolvedValueOnce(undefined)
+        renderDeployModal()
+        await openModal({ ...defaultDetail, dependencies: [{ mavenArtifact: 'com.example:domain:1.0.0' }]})
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/production-repos'))
+        expect(screen.getByRole('radio', { name: 'deploy:dependency_source.repository' })).toBeChecked()
+        await userEvent.click(screen.getByRole('radio', { name: 'deploy:dependency_source.maven' }))
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+        await screen.findByRole('option', { name: 'Deploy1' })
+        await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
+        await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Release')
+        await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(
+            '/deployments/dep-1',
+            expect.objectContaining({
+                body: JSON.stringify({ comment: 'Release', dependencySource: 'MAVEN', projectId: 'proj-1' }),
+            }),
+            { throwError: true, suppressErrorPages: true }
+        ))
+    })
+
+    it('warns of a dependency several versions of which are required', async () => {
+        renderDeployModal()
+        await openModal({
+            ...defaultDetail,
+            dependencies: [{ name: 'Domain', mavenArtifact: 'com.example:domain:1.0.0', conflicts: [{ requestedBy: 'CustomDomain' }]}],
+        })
+
+        expect(await screen.findByTestId('deploy-version-conflict')).toHaveTextContent('deploy:notifications.version_conflict')
+    })
+
+    it('offers no choice of dependencies to a project without a Maven dependency', async () => {
+        renderDeployModal()
+        await openModal({ ...defaultDetail, dependencies: [{ name: 'Common' }]})
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/production-repos'))
+        expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('deploy-version-conflict')).not.toBeInTheDocument()
     })
 
     it.each([

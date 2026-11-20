@@ -39,6 +39,9 @@ What OpenL Studio does with the downloaded dependencies:
   `com.example:shared-data-project:1.0.0`, is downloaded while you have no project of that name open. The project
   compiles as a dependency and cannot be edited. Once you open a project of that name, it is compiled instead, with
   your changes; closing it switches back to the downloaded one.
+- **A deployment** — a deployed project carries the libraries it names, and the **Deploy** dialog lets the user take
+  a dependency project from the Maven repository instead of Design repository, so OpenL Rule Services need no
+  Maven repository.
 
 A dependency that cannot be downloaded shows as an error of the project, which starts with
 `Cannot download a Maven dependency:` or names the coordinates. OpenL Studio asks the Maven repository again after

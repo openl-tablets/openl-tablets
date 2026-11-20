@@ -97,6 +97,16 @@ describe("deployment tools", () => {
     expect(dataOf(result)).toEqual({ redeployed: "deploy 001" });
   });
 
+  it("openl_deploy_project takes the dependency projects from the Maven repository when asked", async () => {
+    harness.mockHttp.onPost("/deployments/d1").reply(204);
+
+    await executeTool("deploy_project", { deploymentId: "d1", projectId: "p1", dependencySource: "MAVEN" }, harness.client);
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ projectId: "p1", dependencySource: "MAVEN" });
+    await expect(executeTool("deploy_project", { deploymentId: "d1", projectId: "p1", dependencySource: "jar" },
+      harness.client)).rejects.toThrow();
+  });
+
   it.each([
     [{ deploymentId: "d1", deploymentName: "project1" }, /takes no deploymentName/],
     [{ deploymentName: "project1" }, /needs deploymentName and repository/],

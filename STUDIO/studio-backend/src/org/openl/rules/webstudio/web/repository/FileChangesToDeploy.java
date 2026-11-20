@@ -6,11 +6,17 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipInputStream;
@@ -32,19 +38,25 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private final String rulesPath;
     private final String deploymentPath;
     private final String username;
+    private final DeploymentExtras extras;
 
     private InputStream openedStream;
 
+    /**
+     * @param extras what the deployment carries from the Maven repository, written after the files of the projects
+     */
     FileChangesToDeploy(Collection<ProjectDescriptor> projectDescriptors,
                         DesignTimeRepository designRepo,
                         String rulesPath,
                         String deploymentPath,
-                        String username) {
+                        String username,
+                        DeploymentExtras extras) {
         this.descriptors = new ArrayList<>(projectDescriptors);
         this.designRepo = designRepo;
         this.rulesPath = rulesPath;
         this.deploymentPath = deploymentPath;
         this.username = username;
+        this.extras = extras;
     }
 
     @Override
@@ -53,11 +65,14 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     }
 
     /**
-     * Iterates over the files of every project to deploy, one project after another.
+     * Iterates over the files of every project to deploy, one project after another, and then over what the
+     * deployment carries from the Maven repository that the projects do not hold themselves.
      */
     private class DeploymentFilesIterator implements Iterator<FileItem> {
         private int descriptorIndex;
         private Iterator<FileItem> projectIterator;
+        private boolean extrasStarted;
+        private final Set<String> written = new HashSet<>();
 
         @Override
         public boolean hasNext() {
@@ -98,8 +113,35 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 }
                 projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
                 return projectIterator.hasNext();
+            } else if (!extrasStarted) {
+                extrasStarted = true;
+                projectIterator = extrasIterator();
+                return projectIterator.hasNext();
             } else {
                 return false;
+            }
+        }
+
+        /** The libraries of the projects and the files of the downloaded projects, but what was written already. */
+        private Iterator<FileItem> extrasIterator() {
+            var files = new LinkedHashMap<String, Path>();
+            for (var pd : descriptors) {
+                var folder = deploymentPath + pd.projectName() + "/";
+                extras.libraryEntries(pd.projectName()).forEach((entry, file) -> files.put(folder + entry, file));
+            }
+            extras.projects().forEach((name, project) -> DeploymentExtras.projectEntries(project)
+                    .forEach((entry, file) -> files.put(deploymentPath + name + "/" + entry, file)));
+            files.keySet().removeAll(written);
+            return files.entrySet().stream().map(file -> new FileItem(file.getKey(), open(file.getValue()))).iterator();
+        }
+
+        private InputStream open(Path file) {
+            try {
+                IOUtils.closeQuietly(openedStream);
+                openedStream = Files.newInputStream(file);
+                return openedStream;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
 
@@ -167,7 +209,9 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
         @Override
         public FileItem next() {
-            return projectIterator.next();
+            var item = projectIterator.next();
+            written.add(item.getData().getName());
+            return item;
         }
 
         @Override

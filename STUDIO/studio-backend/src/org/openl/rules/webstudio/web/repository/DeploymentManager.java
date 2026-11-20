@@ -4,11 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -86,7 +88,8 @@ public class DeploymentManager implements InitializingBean {
                         designRepository,
                         rulesPath,
                         deploymentPath,
-                        request.currentUser().getUserName())) {
+                        request.currentUser().getUserName(),
+                        request.extras())) {
                     var deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(request.currentUser().getUserInfo());
@@ -103,6 +106,9 @@ public class DeploymentManager implements InitializingBean {
 
                 for (ProjectDescriptor pd : request.projectDescriptors()) {
                     deployProject(request, pd, deployRepo, rulesPath, deploymentPath);
+                }
+                for (var project : request.extras().projects().entrySet()) {
+                    deployDownloadedProject(request, project.getKey(), project.getValue(), deployRepo, deploymentPath);
                 }
             }
             return id;
@@ -162,14 +168,30 @@ public class DeploymentManager implements InitializingBean {
                     version,
                     deployRepo,
                     dest,
-                    manifestBuilder.build());
+                    manifestBuilder.build(),
+                    request.extras().libraryEntries(projectName));
         } else {
             var srcPrj = designRepo.readHistory(rulesPath + projectName, version);
             includeManifestIntoArchiveAndSave(deployRepo,
                     dest,
                     srcPrj.getStream(),
-                    manifestBuilder.build());
+                    manifestBuilder.build(),
+                    request.extras().libraryEntries(projectName));
         }
+    }
+
+    /** Saves a project downloaded from the Maven repository, as it was unpacked, as an archive of its own. */
+    private void deployDownloadedProject(DeploymentRequest request,
+                                         String name,
+                                         Path folder,
+                                         Repository deployRepo,
+                                         String deploymentPath) throws IOException {
+        var archive = DeploymentExtras.archiveOf(folder);
+        var dest = new FileData();
+        dest.setName(deploymentPath + name);
+        dest.setAuthor(request.currentUser().getUserInfo());
+        dest.setComment(request.comment());
+        save(deployRepo, dest, archive);
     }
 
     public String validateOnMainBranch(DeploymentRequest request) {
@@ -204,12 +226,12 @@ public class DeploymentManager implements InitializingBean {
     private void includeManifestIntoArchiveAndSave(Repository deployRepo,
                                                    FileData dest,
                                                    InputStream in,
-                                                   Manifest manifest) throws ProjectException {
+                                                   Manifest manifest,
+                                                   Map<String, Path> libraries) throws ProjectException {
         var out = new ByteArrayOutputStream();
         try (in) {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
-            dest.setSize(out.size());
-            deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
+            save(deployRepo, dest, DeploymentExtras.withEntries(out.toByteArray(), libraries));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
@@ -221,15 +243,20 @@ public class DeploymentManager implements InitializingBean {
                                 String version,
                                 Repository deployRepo,
                                 FileData dest,
-                                Manifest manifest) throws ProjectException {
+                                Manifest manifest,
+                                Map<String, Path> libraries) throws ProjectException {
         var out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.archive(designRepository, designRepo, rulesPath, projectName, version, out, manifest);
-            dest.setSize(out.size());
-            deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
+            save(deployRepo, dest, DeploymentExtras.withEntries(out.toByteArray(), libraries));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
+    }
+
+    private static void save(Repository deployRepo, FileData dest, byte[] archive) throws IOException {
+        dest.setSize(archive.length);
+        deployRepo.save(dest, new ByteArrayInputStream(archive));
     }
 
     private List<FileData> findProjectsToDelete(List<FileData> existingProjects,

@@ -32143,6 +32143,14 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "dependencySource": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "REPOSITORY",
+              "MAVEN"
+            ]
+          },
           "deploymentName": {
             "type": "string",
             "description": "***"
@@ -37092,6 +37100,14 @@ Content-Type: application/json
           "comment": {
             "type": "string",
             "description": "***"
+          },
+          "dependencySource": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "REPOSITORY",
+              "MAVEN"
+            ]
           },
           "projectId": {
             "type": "string",
