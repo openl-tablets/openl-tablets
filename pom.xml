@@ -157,7 +157,7 @@
         <!-- Repositories -->
         <amazonaws.version>2.57.9</amazonaws.version>
         <azure.version>12.37.2</azure.version>
-        <netty.version>4.2.20.Final</netty.version>
+        <netty.version>4.2.21.Final</netty.version>
         <jgit.version>7.8.0.202609011348-openl2</jgit.version>
 
         <!-- DB -->
