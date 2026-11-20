@@ -211,6 +211,34 @@ describe('CompileProblemsPanel', () => {
         expect(navigate).toHaveBeenCalledWith('/projects/p9/modules/Bank%20Rating?table=table-9')
     })
 
+    it('opens a table of a dependency downloaded from the Maven repository there, by its id', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([{
+                    id: 7,
+                    severity: 'WARN' as const,
+                    summary: 'Deprecated function',
+                    stacktrace: false,
+                    location: {
+                        type: 'table' as const,
+                        id: 'table-9',
+                        module: 'Offer Configuration',
+                        project: 'Offer API',
+                        projectId: 'maven:com.example:offer-api:26.100.0',
+                        cell: 'B46',
+                    },
+                }], 'warnings'),
+            }}
+        />)
+
+        fireEvent.click(screen.getByTestId('compile-message-7'))
+
+        // Not the project being compiled: the downloaded one the table is written in
+        expect(navigate).toHaveBeenCalledWith(
+            '/maven/com.example/offer-api/26.100.0/modules/Offer%20Configuration?table=table-9&errorCell=B46')
+    })
+
     it('sends the reader to the cell the problem was raised against', () => {
         render(<CompileProblemsPanel
             project={{

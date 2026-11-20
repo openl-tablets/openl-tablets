@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
 import { HeaderActionsSlot } from '../components/HeaderActions'
-import { getDesignRepositories, getProjectBranches, getProjects, setProjectStatus, switchProjectBranch } from '../services/repositories'
+import { getDesignRepositories, getProject, getProjectBranches, getProjects, setProjectStatus, switchProjectBranch } from '../services/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
 import type { ProjectRail } from './projects/projectRail'
 import { ProjectStatus } from '../constants/project'
@@ -13,11 +13,17 @@ import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialog
 import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { hasSearchScope, searchFor, searchScope } from '../testing/search'
+import { getMavenProjects } from '../services/mavenDependencies'
 
 const { address, copyModalMock, navigateMock, treeMock, liveHandlers, shown } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
     // The project the address names, if any, and what the screen hands the page of the project it shows.
-    shown: { projectId: undefined as string | undefined, rail: null as ProjectRail | null },
+    shown: {
+        projectId: undefined as string | undefined,
+        // The coordinates of a project of the Maven repository the address names, if any.
+        maven: undefined as { groupId: string, artifactId: string, version: string } | undefined,
+        rail: null as ProjectRail | null,
+    },
     // Whether the address changes a render after it is set, as the router changes it, rather than with it; and how
     // the reader came to it: the first page is loaded, a link is followed, the screen replaces its own parameters.
     address: { deferred: false, navigationType: 'POP' },
@@ -60,7 +66,12 @@ vi.mock('react-router', async () => {
             return <div data-testid="project-outlet" />
         },
         NavigationType: { Pop: 'POP', Push: 'PUSH', Replace: 'REPLACE' },
-        useMatch: () => (shown.projectId ? { params: { projectId: shown.projectId } } : null),
+        useMatch: (pattern: string) => {
+            if (pattern.startsWith('/maven/')) {
+                return shown.maven ? { params: shown.maven } : null
+            }
+            return shown.projectId ? { params: { projectId: shown.projectId } } : null
+        },
         useNavigate: () => navigateMock,
         useNavigationType: () => address.navigationType,
         // URL params modeled as plain state: functional updates work, and a replace is told apart from a link.
@@ -83,6 +94,11 @@ vi.mock('react-router', async () => {
     }
 })
 
+vi.mock('../services/mavenDependencies', async importOriginal => ({
+    ...(await importOriginal<typeof import('../services/mavenDependencies')>()),
+    getMavenProjects: vi.fn(async () => []),
+}))
+
 vi.mock('./projects/filterStorage', () => ({
     // The screen under test starts from a clean slate; restoring is covered by the storage's own tests.
     loadProjectFilters: vi.fn(() => new URLSearchParams()),
@@ -92,6 +108,7 @@ vi.mock('./projects/filterStorage', () => ({
 vi.mock('../services/repositories', () => ({
     getDesignRepositories: vi.fn(),
     getProjects: vi.fn(),
+    getProject: vi.fn(),
     getProjectBranches: vi.fn(),
     switchProjectBranch: vi.fn(),
     isProjectModifiedConflict: vi.fn(() => false),
@@ -425,6 +442,8 @@ describe('ProjectsHome', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         shown.projectId = undefined
+        shown.maven = undefined
+        vi.mocked(getMavenProjects).mockResolvedValue([])
         address.navigationType = 'POP'
         // The snapshot of the workspace is shared by the screens, so each test starts without one.
         invalidateProjectIndex()
@@ -917,6 +936,58 @@ describe('ProjectsHome', () => {
                 const props = treeMock.mock.lastCall![0] as { currentProjectId?: string, search?: string }
                 expect(props.currentProjectId).toBe('p1')
                 expect(props.search).toBeUndefined()
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
+
+        it('lists a project of the Maven repository opened by its address, though nothing depends on it', async () => {
+            shown.maven = { groupId: 'com.example', artifactId: 'offer', version: '24.8.1' }
+            vi.mocked(getProject).mockResolvedValue({ name: 'Offer' } as Project)
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+
+                await waitFor(() => {
+                    const props = treeMock.mock.lastCall![0] as { projects: Project[] | null }
+                    expect(props.projects?.find(project => project.repository === 'maven'))
+                        .toMatchObject({ id: 'maven:com.example:offer:24.8.1', name: 'Offer' })
+                })
+                // Named by the Projects API, which compiles nothing for it.
+                expect(getProject).toHaveBeenCalledWith('maven:com.example:offer:24.8.1', { fields: 'name' }, expect.anything())
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
+
+        it('reads no Maven project the list holds already', async () => {
+            shown.maven = { groupId: 'com.example', artifactId: 'domain', version: '1.0.0' }
+            vi.mocked(getMavenProjects).mockResolvedValue([{ ...shown.maven, name: 'Domain' }])
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+
+                await waitFor(() => {
+                    const props = treeMock.mock.lastCall![0] as { projects: Project[] | null }
+                    expect(props.projects?.filter(project => project.repository === 'maven')).toHaveLength(1)
+                })
+                expect(getProject).not.toHaveBeenCalled()
+            } finally {
+                localStorage.removeItem('openl.projects.rail')
+            }
+        })
+
+        it('lists no Maven project that cannot be read, which its page tells about', async () => {
+            shown.maven = { groupId: 'com.example', artifactId: 'none', version: '1.0.0' }
+            vi.mocked(getProject).mockRejectedValue(new Error('not an OpenL project'))
+            localStorage.setItem('openl.projects.rail', 'tree')
+            try {
+                await renderHome()
+
+                await waitFor(() => expect(getProject).toHaveBeenCalledTimes(1))
+                const props = treeMock.mock.lastCall![0] as { projects: Project[] | null }
+                expect(props.projects?.some(project => project.repository === 'maven')).toBe(false)
+                expect(screen.getByTestId('project-outlet')).toBeInTheDocument()
             } finally {
                 localStorage.removeItem('openl.projects.rail')
             }

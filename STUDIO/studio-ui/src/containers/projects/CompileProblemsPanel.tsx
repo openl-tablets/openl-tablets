@@ -110,6 +110,7 @@ const routeOf = (projectId: string, where: ProjectStatusMessageSource | undefine
             ? untranslatedRoute(projectId, where.language ?? '')
             : localizationRoute(projectId, where.key, where.language)
     }
+    // The project the server names, which a dependency may be, or else the project compiled
     const inProject = where.projectId ?? projectId
     if (where.path) {
         return projectFileRoute(inProject, where.path, where.line)

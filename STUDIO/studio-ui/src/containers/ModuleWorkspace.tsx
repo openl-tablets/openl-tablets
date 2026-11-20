@@ -20,7 +20,8 @@ import {
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
-import { localizationRoute, moduleRoute, projectFileRoute } from '../services/projectId'
+import { localizationRoute, moduleRoute, projectFileRoute, projectRoute } from '../services/projectId'
+import { mavenIdOfParams } from '../services/mavenDependencies'
 import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
@@ -138,7 +139,10 @@ export const ModuleWorkspace = () => {
     const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { notification } = App.useApp()
-    const { projectId = '', moduleName = '' } = useParams()
+    const route = useParams()
+    const { projectId: addressed, moduleName = '' } = route
+    // A project downloaded from the Maven repository is addressed by its coordinates, and opened read-only
+    const projectId = addressed ?? mavenIdOfParams(route) ?? ''
     const [search, setSearch] = useSearchParams()
     // What the extended search was opened with, and whether it stands open at all.
     const [searchFor, setSearchFor] = useState<string | null>(null)
@@ -305,7 +309,7 @@ export const ModuleWorkspace = () => {
     // reader goes to the project. Both may find it out, and the reader is told once.
     const leaveGoneModule = useCallback(() => {
         notification.warning({ key: `module-gone ${moduleName}`, title: t('browser.module.gone', { module: moduleName }) })
-        void navigate(`/projects/${projectId}`, { replace: true })
+        void navigate(projectRoute(projectId), { replace: true })
     }, [moduleName, navigate, notification, projectId, t])
 
     // Followed by the id the server issued, not the one the address carries: a link written elsewhere may
@@ -861,6 +865,7 @@ export const ModuleWorkspace = () => {
                 onWritten={openWritten}
                 projectCompiled={projectCompiled}
                 projectId={project.id}
+                readOnly={project.readOnly === true}
                 runState={runState}
                 table={selected}
                 version={selectedVersion}

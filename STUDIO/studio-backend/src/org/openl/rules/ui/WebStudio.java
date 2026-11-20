@@ -40,6 +40,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.webstudio.dependencies.DownloadedProjects;
 import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -140,6 +141,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     /** Lets one write at a time into the workbooks this session holds. */
     @Getter
     private final WorkbookWrites workbookWrites = new WorkbookWrites();
+    /** The projects downloaded from the Maven repository the session opened. */
+    private final DownloadedProjects downloadedProjects = new DownloadedProjects();
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
@@ -363,6 +366,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public @Nullable RulesProject getProject(String repositoryId, String name) {
+        if (downloadedProjects.holds(repositoryId)) {
+            return downloadedProjects.project(repositoryId, name);
+        }
         var userWorkspace = rulesUserSession.getUserWorkspace();
         try {
             return userWorkspace.getProject(repositoryId, name, false);
@@ -719,7 +725,22 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public ProjectDescriptor getProjectByName(String repositoryId, final String name) {
+        if (downloadedProjects.holds(repositoryId)) {
+            return downloadedProjects.descriptor(repositoryId, name);
+        }
         return CollectionUtils.findFirst(getProjects().get(repositoryId), project -> project.getName().equals(name));
+    }
+
+    /**
+     * The OpenL project downloaded from the Maven repository the id names, {@code maven:groupId:artifactId:version},
+     * opened read-only in the session.
+     *
+     * @return the project, or {@code null} when the id names no downloaded project
+     * @throws NotFoundException when no Maven repository is set, or the project cannot be downloaded
+     * @see DownloadedProjects
+     */
+    public @Nullable RulesProject downloadedProject(String projectId) {
+        return downloadedProjects.open(projectId, getMavenDependencyResolver(), getUserWorkspace());
     }
 
     public String getCurrentUsername() {

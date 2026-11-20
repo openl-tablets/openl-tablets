@@ -35,6 +35,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.studio.dependencies.service.MavenCoordinates;
 
 class MavenDependencyResolverTest {
 
@@ -67,6 +68,7 @@ class MavenDependencyResolverTest {
                 disabled.librariesOf(project("Rules", library("com.example:lib:jar:1.0.0"))));
         assertSame(MavenDependencyResolver.DownloadedProject.NONE,
                 disabled.projectOf(projectDependency("Domain", "com.example:domain:1.0.0")));
+        assertSame(MavenDependencyResolver.DownloadedProject.NONE, disabled.projectAt("com.example:domain:1.0.0"));
         disabled.destroy();
     }
 
@@ -252,6 +254,22 @@ class MavenDependencyResolverTest {
     }
 
     @Test
+    void downloadsAProjectByItsCoordinatesWhateverItsName() throws Exception {
+        publishProject("com.example", "domain", "1.0.0", "Other");
+
+        var downloaded = resolver.projectAt("com.example:domain:1.0.0");
+
+        assertNull(downloaded.problem());
+        assertEquals("Other", downloaded.project().getName());
+        assertSame(downloaded, resolver.projectAt("com.example:domain:1.0.0"), "kept as a dependency is");
+        assertEquals("The Maven coordinates 'com.example:domain' are not valid.",
+                resolver.projectAt("com.example:domain").problem().getSummary());
+        writeZip(artifactPath("com.example", "none", "1.0.0", null, "zip"), Map.of("readme.txt", "Nothing"));
+        assertEquals("'com.example:none:1.0.0' is not an OpenL project.",
+                resolver.projectAt("com.example:none:1.0.0").problem().getSummary());
+    }
+
+    @Test
     void refusesAnArchiveThatIsNoOpenLProject() throws Exception {
         writeZip(artifactPath("com.example", "domain", "1.0.0", null, "zip"), Map.of("readme.txt", "Nothing"));
 
@@ -298,6 +316,19 @@ class MavenDependencyResolverTest {
     }
 
     @Test
+    void tellsTheCoordinatesOfADownloadedProjectByItsFolder() throws Exception {
+        publishProject("com.example.rules", "domain", "1.0.0", "Domain");
+        var project = resolver.projectOf(projectDependency("Domain", "com.example.rules:domain:1.0.0")).project();
+
+        assertNotNull(project);
+        assertEquals(new MavenCoordinates("com.example.rules", "domain", "1.0.0"),
+                resolver.coordinatesOf(project.getProjectFolder()));
+        assertNull(resolver.coordinatesOf(local.resolve("com/example/rules/domain/1.0.0")), "the version is no project");
+        assertNull(resolver.coordinatesOf(temp.resolve("elsewhere/domain-1.0.0-1")));
+        assertNull(resolver.coordinatesOf(null));
+    }
+
+    @Test
     void refusesCoordinatesThatNameAFileOutsideTheRepository() {
         for (var coordinates : List.of("com.example:..:1.0.0", "com.example:lib:..", "com.example:lib:jar:.:1.0",
                 "com/example:lib:1.0.0", "com.example:lib:1.0\\..\\..")) {
@@ -318,7 +349,7 @@ class MavenDependencyResolverTest {
         var downloaded = resolver.projectOf(projectDependency("Domain", "com.example:domain:1.0.0"));
 
         assertNull(downloaded.project());
-        assertTrue(downloaded.problem().getSummary().startsWith("Cannot read the project 'Domain'"),
+        assertTrue(downloaded.problem().getSummary().startsWith("Cannot read the project of the dependency 'Domain'"),
                 downloaded.problem().getSummary());
         try (var files = Files.list(local.resolve("com/example/domain/1.0.0"))) {
             assertEquals(List.of(), files.filter(Files::isDirectory).toList(), "no unpacked or temporary folder");

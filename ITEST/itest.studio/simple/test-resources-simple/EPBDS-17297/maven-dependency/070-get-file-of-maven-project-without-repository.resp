@@ -1,0 +1,7 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.dependency.maven.no-repository.message",
+  "message": "No Maven repository is set to download the project 'com.example:undeclared:1.0.0' from."
+}

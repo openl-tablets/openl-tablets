@@ -8,10 +8,12 @@ import { errorMessage } from '../../utils/errorMessage'
 import { getProjectIndex, invalidateProjectIndex, projectSignature } from '../../services/projectIndex'
 import type { Project } from '../../types/projects'
 import { getProject, getProjectFiles } from '../../services/repositories'
+import { mavenArtifactOf } from '../../services/projectId'
 import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
 import { ProjectStatus } from '../../constants/project'
 import { buildFileChangeMap } from './fileChanges'
 import { buildFileNodes, type FileNode } from './fileNodes'
+import { qualifiersOf } from './projectQualifiers'
 import { iconFor } from './fileIcons'
 import type { Repository } from '../../types/repositories'
 import { STATUS_META } from '../../constants/projectStatusMeta'
@@ -49,8 +51,8 @@ import type { ProjectFileChangeType } from '../../services/projectStatus'
 const SELECTED_STORAGE_KEY = 'openl.projects.tree.selected'
 
 /**
- * The key of a file or folder row: what it is, the project it belongs to, and the path inside it. The project id
- * holds no colon.
+ * The key of a file or folder row: what it is, the project it belongs to, and the path inside it. The id of a project
+ * of the workspace holds no colon; the id of a downloaded one holds its coordinates, `maven:groupId:artifactId:version`.
  */
 const fileKey = (projectId: string, path: string, isFile: boolean): string =>
     `${isFile ? 'file' : 'folder'}:${projectId}:${path}`
@@ -62,8 +64,16 @@ const fileKeyParts = (key: string): { projectId: string, path: string } | null =
         return null
     }
     const rest = key.slice(kind.length)
-    const separator = rest.indexOf(':')
-    return separator < 0 ? null : { projectId: rest.slice(0, separator), path: rest.slice(separator + 1) }
+    // The id of a downloaded project spans four parts
+    const parts = mavenArtifactOf(rest) === undefined ? 1 : 4
+    let separator = -1
+    for (let part = 0; part < parts; part++) {
+        separator = rest.indexOf(':', separator + 1)
+        if (separator < 0) {
+            return null
+        }
+    }
+    return { projectId: rest.slice(0, separator), path: rest.slice(separator + 1) }
 }
 
 /** The files of one project, as the tree reads them when its row is opened. */
@@ -374,6 +384,12 @@ const useStyles = createStyles(({ css, token }) => ({
      * A tree drawn a screenful at a time scrolls sideways within its own box and cuts its rows at the edge of it, the
      * padding of the size included: the size stands where it does in a tree drawn whole.
      */
+    /** What tells a project from another of its name: secondary to the name it follows. */
+    qualifier: css`
+        margin-left: ${token.marginXS}px;
+        color: ${token.colorTextTertiary};
+        font-weight: normal;
+    `,
     size: css`
         flex: none;
         position: sticky;
@@ -663,6 +679,9 @@ export const ProjectsTree = ({
         (id: string) => repoMeta.get(id)?.name ?? id,
         [repoMeta]
     )
+    // What tells a project from another of its name — two versions of one downloaded from the Maven repository, or
+    // projects of one name in two repositories — written beside its name, as the tree may show them side by side.
+    const qualifiers = useMemo(() => qualifiersOf(visible, repositoryName), [repositoryName, visible])
 
     // The grouping levels offer every tag the projects the tree shows actually carry, not only the types an
     // administrator configured in the database. A tag only a project the tree hides carries, such as one left in
@@ -1010,9 +1029,10 @@ export const ProjectsTree = ({
             const meta = STATUS_META[status]
             const Icon = meta.icon
             const held = contentsOf(project)
+            const qualifier = qualifiers.get(project.id)
             return {
                 key: node.key,
-                rowWidth: railRowWidth(project.name),
+                rowWidth: railRowWidth(qualifier ? `${project.name} ${qualifier}` : project.name),
                 // The row opens into the files of the project, read when it is first opened. A project
                 // that turned out to hold none has nothing to open into.
                 isLeaf: held?.length === 0,
@@ -1032,6 +1052,11 @@ export const ProjectsTree = ({
                 title: (
                     <span className={cx(styles.node, current && styles.current)} data-testid={`tree-project-${project.id}`}>
                         {project.name}
+                        {qualifier && (
+                            <span className={styles.qualifier} data-testid={`tree-project-qualifier-${project.id}`}>
+                                {qualifier}
+                            </span>
+                        )}
                     </span>
                 ),
             }

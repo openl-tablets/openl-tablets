@@ -9,6 +9,7 @@ import { supportsBranches } from '../../utils/repositoryFeatures'
 import { CompilationMark } from '../modules/ModuleCompilationView'
 import type { ConfirmBefore } from '../modules/useConfirmBefore'
 import type { ModuleCompilation } from '../modules/useModuleCompilation'
+import { ReadOnlyTag } from '../maven/mavenProject'
 import { BranchSwitcher } from './BranchSwitcher'
 import { CrumbSwitcher } from './CrumbSwitcher'
 import { switchedRoute, switcherItems } from './moduleSwitcher'
@@ -54,7 +55,8 @@ interface ProjectScreenHeaderProps {
  * The header of a screen of an opened project: the module page and the screen of the messages wear the same one.
  *
  * <p>The trail names the repository and leads to another project and another branch. The title opens another
- * module of the project, or its messages, and the mark beside it tells what was compiled and compiles it again.
+ * module of the project, or its messages, and the mark beside it tells what was compiled and compiles it again. A
+ * project that can only be read, such as one downloaded from the Maven repository, is marked so beside its title.
  * The actions of the screen come at the end.
  */
 export const ProjectScreenHeader = ({
@@ -137,7 +139,10 @@ export const ProjectScreenHeader = ({
                 />
             )}
             titleAfter={(
-                <CompilationMark compilation={compilation} disabled={compilationDisabled} onRefresh={onRefresh} />
+                <>
+                    {project.readOnly && <ReadOnlyTag projectId={project.id} />}
+                    <CompilationMark compilation={compilation} disabled={compilationDisabled} onRefresh={onRefresh} />
+                </>
             )}
         />
     )

@@ -16,12 +16,14 @@ import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
     getDesignRepositories,
+    getProject,
     isProjectModifiedConflict,
     setProjectStatus,
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import { projectFileRoute } from '../services/projectId'
+import { mavenArtifactOf, projectFileRoute, projectRoute } from '../services/projectId'
+import { getMavenProjects, mavenIdOf, mavenIdOfParams, mavenProjectOf, projectCoordinatesOf } from '../services/mavenDependencies'
 import { DEFAULT_PAGE_SIZE } from '../constants/ui'
 import { HeaderActions } from '../components/HeaderActions'
 import { ListFooter } from '../components/ListFooter'
@@ -208,7 +210,9 @@ export const ProjectsHome = () => {
     const [urlParams, setUrlParams] = useSearchParams()
     // The project the address names, shown beside the rail in place of the list. The screen stays while the reader
     // steps from the list to a project and between projects, so the rail keeps its view, its tree and what it read.
-    const shownProjectId = useMatch('/projects/:projectId')?.params.projectId
+    // A project downloaded from the Maven repository is shown here too, at the address its coordinates make.
+    const mavenShown = useMatch('/maven/:groupId/:artifactId/:version')?.params
+    const shownProjectId = useMatch('/projects/:projectId')?.params.projectId ?? mavenIdOfParams(mavenShown)
     const projectShown = shownProjectId !== undefined
     // What the project shown tells the tree beside it. A report about the project the reader came from is stale: until
     // the page of the new one reports, the tree marks the project the address names, with the changes it read itself.
@@ -262,6 +266,44 @@ export const ProjectsHome = () => {
     }, [params])
     const [repositories, setRepositories] = useState<Repository[]>([])
     const [allProjects, setAllProjects] = useState<Project[]>([])
+    // The projects of the Maven repository the workspace depends on: the tree lists them under a repository of their
+    // own, read-only. They are read again whenever the projects are, since opening a project may name new ones.
+    const [mavenProjects, setMavenProjects] = useState<Project[]>([])
+    const [mavenListRead, setMavenListRead] = useState(false)
+    useEffect(() => {
+        let dropped = false
+        getMavenProjects()
+            .then(read => !dropped && setMavenProjects(read.map(mavenProjectOf)))
+            .catch(() => !dropped && setMavenProjects([]))
+            .finally(() => !dropped && setMavenListRead(true))
+        return () => {
+            dropped = true
+        }
+    }, [allProjects])
+    // A project of the Maven repository opened by its address, which the workspace does not depend on, is listed there
+    // too while it is shown, so its files unfold in the tree as those of the others do.
+    const [addressedMaven, setAddressedMaven] = useState<Project | null>(null)
+    const addressedCoordinates = shownProjectId === undefined ? undefined : mavenArtifactOf(shownProjectId)
+    const addressedListed = mavenProjects.some(project => project.id === shownProjectId)
+    useEffect(() => {
+        const coordinates = projectCoordinatesOf(addressedCoordinates)
+        if (coordinates === undefined || !mavenListRead || addressedListed) {
+            return undefined
+        }
+        let dropped = false
+        // The Projects API names the project without compiling it, as the Maven one would.
+        getProject(mavenIdOf(coordinates), { fields: 'name' }, LOCAL_LOAD_API_OPTIONS)
+            .then(read => !dropped && setAddressedMaven(mavenProjectOf({ ...coordinates, name: read.name })))
+            .catch(() => !dropped && setAddressedMaven(null))
+        return () => {
+            dropped = true
+        }
+    }, [addressedCoordinates, addressedListed, mavenListRead])
+    const railProjects = useMemo(() => {
+        const addressed = addressedMaven !== null && addressedMaven.id === shownProjectId && !addressedListed ? [addressedMaven] : []
+        const downloaded = [...mavenProjects, ...addressed]
+        return downloaded.length === 0 ? allProjects : [...allProjects, ...downloaded]
+    }, [addressedListed, addressedMaven, allProjects, mavenProjects, shownProjectId])
     const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>([])
     const [projectIndexHealth, setProjectIndexHealth] = useState<Record<string, ProjectIndexHealth>>({})
     const [loading, setLoading] = useState(true)
@@ -565,7 +607,7 @@ export const ProjectsHome = () => {
     }, [navigate, params])
 
     const openProject = useCallback(
-        (project: Project) => leaveTo(`/projects/${encodeURIComponent(project.id)}`),
+        (project: Project) => leaveTo(projectRoute(project.id)),
         [leaveTo]
     )
 
@@ -870,7 +912,7 @@ export const ProjectsHome = () => {
                 onShowAll={resetFilters}
                 // Hand the tree the snapshot the list already read, so the list screen reads /projects once,
                 // not once for the list and again for the tree. `null` while the first read is still running.
-                projects={loading && allProjects.length === 0 ? null : allProjects}
+                projects={loading && allProjects.length === 0 ? null : railProjects}
                 reloadToken={reloadToken}
                 repositories={repositories}
                 search={projectShown ? undefined : debouncedSearch}

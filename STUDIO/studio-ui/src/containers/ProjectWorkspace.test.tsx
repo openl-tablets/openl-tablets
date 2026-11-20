@@ -15,13 +15,22 @@ import { ApiHttpError, ForbiddenError, NotFoundError } from '../services'
 import type { ProjectRailState } from './projects/projectRail'
 import { notification } from 'antd'
 
-const { copyModalMock, navigateMock, overviewMock, railReporter, routeParams, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
+/** The parameters of the address: a project id, or the coordinates of a project downloaded from Maven. */
+interface RouteParams {
+    projectId?: string
+    groupId?: string
+    artifactId?: string
+    version?: string
+}
+
+const routeParams = vi.hoisted((): RouteParams => ({ projectId: 'p1' }))
+
+const { copyModalMock, navigateMock, overviewMock, railReporter, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
     overviewMock: vi.fn(),
     // Where the page tells the tree of the Projects screen what it shows.
     railReporter: { report: vi.fn(), reloaded: vi.fn() },
     navigateMock: vi.fn(),
-    routeParams: { projectId: 'p1' },
     searchParamsMock: new URLSearchParams(),
     setSearchParamsMock: vi.fn(),
     // The change ping captured from the screen, plus whether the screen asks the hook to hold it.
@@ -319,6 +328,9 @@ const primaryActionId = () => screen.getByTestId('project-actions')
 describe('ProjectWorkspace', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        for (const key of Object.keys(routeParams) as Array<keyof RouteParams>) {
+            delete routeParams[key]
+        }
         routeParams.projectId = 'p1'
         for (const key of Array.from(searchParamsMock.keys())) {
             searchParamsMock.delete(key)
@@ -997,5 +1009,38 @@ describe('ProjectWorkspace', () => {
 
         view.unmount()
         expect(lastRail()).toEqual({})
+    })
+
+    it('shows a project downloaded from the Maven repository, addressed by its coordinates, read-only', async () => {
+        const maven = 'maven:com.example:domain:1.0.0'
+        delete routeParams.projectId
+        Object.assign(routeParams, { groupId: 'com.example', artifactId: 'domain', version: '1.0.0' })
+        vi.mocked(getProject).mockResolvedValue(project({
+            id: maven,
+            name: 'Domain',
+            repository: maven,
+            repositoryInfo: { id: maven, name: 'Maven', type: 'maven' },
+            status: 'LOCAL',
+            branch: undefined,
+            readOnly: true,
+            capabilities: { canDeploy: true, canExport: true },
+        }) as never)
+
+        await renderWorkspace()
+
+        expect(getProject).toHaveBeenCalledWith(maven, { includes: ['status', 'descriptor']}, expect.anything())
+        expect(lastRail()).toMatchObject({ address: maven, currentProjectId: maven })
+        // The usual screen of a project: the repository it comes from, its version and the mark that it is read-only.
+        expect(screen.getByText('Maven')).toBeInTheDocument()
+        expect(screen.getByText('1.0.0')).toBeInTheDocument()
+        expect(screen.getByText('view.read_only')).toBeInTheDocument()
+        expect(screen.queryByTestId(`status-${maven}`)).toBeNull()
+        expect(overviewMock).toHaveBeenCalledWith(maven)
+        // It is deployed and exported, and offers nothing that writes it.
+        expect(screen.getByTestId(`deploy-${maven}`)).toBeInTheDocument()
+        expect(screen.getByTestId(`export-${maven}`)).toBeInTheDocument()
+        for (const action of ['open', 'close', 'save', 'sync', 'copy', 'delete', 'addFiles', 'compare']) {
+            expect(screen.queryByTestId(`${action}-${maven}`)).toBeNull()
+        }
     })
 })

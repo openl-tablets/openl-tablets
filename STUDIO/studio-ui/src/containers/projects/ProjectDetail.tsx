@@ -39,6 +39,7 @@ import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
 import { ValueText } from './ValueText'
 import { BranchSwitcher } from './BranchSwitcher'
+import { ReadOnlyTag } from '../maven/mavenProject'
 import { SystemContext } from '../../contexts'
 import { supportsBranches, supportsRevisionSearch } from '../../utils/repositoryFeatures'
 
@@ -311,6 +312,9 @@ export const ProjectDetail = ({
 
     const muted = project.status === ProjectStatus.Deleted
     const canWriteFiles = project.capabilities?.canWrite ?? false
+    // A project that can only be read, such as one downloaded from the Maven repository, keeps its messages to
+    // itself: the Localization screen is where they are edited.
+    const openLocalization = project.readOnly ? undefined : () => navigate(localizationRoute(project.id))
 
     // What the page shows for a file or a folder picked in the tree: a placeholder while the freshly
     // selected path is still being classified, the folder actions for a folder, the preview for a file.
@@ -334,7 +338,7 @@ export const ProjectDetail = ({
                     onChanged={() => onChanged?.()}
                     onCreateFolder={createFolder}
                     onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
-                    onOpenLocalization={() => navigate(localizationRoute(project.id))}
+                    onOpenLocalization={openLocalization}
                     onRemoveVirtual={() => { onRemoveVirtualFolder(path); setSelectedFile(null) }}
                     path={path}
                     projectId={project.id}
@@ -355,7 +359,7 @@ export const ProjectDetail = ({
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
                 onMoved={newPath => { setSelectedFile(newPath); void onChanged?.() }}
-                onOpenLocalization={() => navigate(localizationRoute(project.id))}
+                onOpenLocalization={openLocalization}
                 onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
                 onOpenTable={(moduleName, tableId) => navigate(moduleRoute(project.id, moduleName, tableId))}
                 path={path}
@@ -439,7 +443,8 @@ export const ProjectDetail = ({
             <WorkspaceHeader
                 muted={muted}
                 title={project.name}
-                titleBefore={<StatusMark status={project.status} testId={`status-${project.id}`} />}
+                // A project that can only be read is told by the mark after its title, not by a status of the workspace
+                titleBefore={!project.readOnly && <StatusMark status={project.status} testId={`status-${project.id}`} />}
                 actions={(
                     <ProjectActionBar
                         handlers={handlers}
@@ -474,13 +479,16 @@ export const ProjectDetail = ({
                     </>
                 )}
                 titleAfter={(
-                    <LiveCompileDot
-                        branch={project.branch ?? null}
-                        compileStatus={project.compileStatus}
-                        projectId={project.id}
-                        status={project.status}
-                        statusReadAt={statusReadAt}
-                    />
+                    <>
+                        {project.readOnly && <ReadOnlyTag projectId={project.id} />}
+                        <LiveCompileDot
+                            branch={project.branch ?? null}
+                            compileStatus={project.compileStatus}
+                            projectId={project.id}
+                            status={project.status}
+                            statusReadAt={statusReadAt}
+                        />
+                    </>
                 )}
             />
             {selectedFile ? (

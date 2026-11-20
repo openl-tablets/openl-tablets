@@ -112,6 +112,11 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         return index;
     }
 
+    @Override
+    public List<String> getLibraries(RulesProject project) {
+        return MavenDependencyResolver.libraryCoordinatesOf(declaredDependencies(project));
+    }
+
     /**
      * What a project declares in its {@code rules.xml}, empty when the descriptor cannot be read.
      */
@@ -136,7 +141,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     private void calcDependencies(RulesProject project,
                                   List<ProjectDependencyDescriptor> dependenciesDescriptors,
                                   Walk walk,
-                                  Collection<ProjectDependency> result) {
+                                  List<ProjectDependency> result) {
         if (dependenciesDescriptors.isEmpty()) {
             return;
         }
@@ -153,8 +158,28 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
                 var resolved = resolveDependency(dependencyName, repoId, branch, walk.index());
                 result.add(new ProjectDependency(dependencyName,
                         resolved.orElse(null),
-                        !walk.declared().contains(dependencyName)));
+                        !walk.declared().contains(dependencyName),
+                        dependency.getMavenArtifact()));
                 resolved.ifPresent(dep -> calcDependencies(dep, declaredDependencies(dep), walk, result));
+            } else if (dependencyName != null) {
+                tellConflict(project, dependency, result);
+            }
+        }
+    }
+
+    /**
+     * Tells the dependency of the name reached first that another one asks for other Maven coordinates: one project of
+     * a name is compiled, the one reached first, and the other is left out.
+     */
+    private void tellConflict(RulesProject requester,
+                              ProjectDependencyDescriptor dependency,
+                              List<ProjectDependency> result) {
+        for (int i = 0; i < result.size(); i++) {
+            var reached = result.get(i);
+            if (reached.name().equals(dependency.getName())
+                    && !Objects.equals(reached.mavenArtifact(), dependency.getMavenArtifact())) {
+                result.set(i, reached.withConflict(new ProjectDependency.Request(dependencyLookupName(requester),
+                        dependency.getMavenArtifact())));
             }
         }
     }

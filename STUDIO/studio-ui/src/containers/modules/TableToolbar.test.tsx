@@ -41,6 +41,8 @@ interface DrawProps {
     runState?: TableRunState
     onWritten?: (written: SummaryTable, moduleName: string) => void
     onRemoved?: () => void
+    /** Whether the project can only be read, as the server tells it. */
+    readOnly?: boolean
 }
 
 const toolbar = (props: DrawProps) => (
@@ -52,6 +54,7 @@ const toolbar = (props: DrawProps) => (
             onWritten={props.onWritten}
             projectCompiled={props.projectCompiled ?? false}
             projectId="p1"
+            readOnly={props.readOnly ?? false}
             runState={props.runState ?? 'can-run'}
             table={props.table}
         />
@@ -112,6 +115,21 @@ describe('TableToolbar', () => {
 
         // The project says what may be done to it; the band asks nothing of its own.
         expect(offered()).toEqual(['table-run', 'table-trace', 'table-benchmark'])
+    })
+
+    it('shows a read-only project what would change it, disabled, and runs it', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openRunLaunch', opened)
+        await draw({ readOnly: true, table: table('Spreadsheet') })
+
+        expect(offered()).toEqual(
+            ['table-edit', 'table-copy', 'table-remove', 'table-run', 'table-trace', 'table-benchmark', 'table-createTest'])
+        for (const write of ['table-edit', 'table-copy', 'table-remove', 'table-createTest']) {
+            expect(screen.getByTestId(write)).toBeDisabled()
+        }
+        await userEvent.click(screen.getByTestId('table-run'))
+        window.removeEventListener('openRunLaunch', opened)
+        expect(opened).toHaveBeenCalledTimes(1)
     })
 
     it('asks the copy dialog for a copy of the table, where the table is written', async () => {

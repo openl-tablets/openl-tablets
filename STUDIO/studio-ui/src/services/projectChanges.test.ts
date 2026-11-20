@@ -13,13 +13,14 @@ describe('subscribeProjectChanges', () => {
         vi.mocked(subscribeTopic).mockReturnValue({ unsubscribe: vi.fn() })
         const onChange = vi.fn()
 
-        subscribeProjectChanges('design:My Project', onChange)
+        subscribeProjectChanges('maven:com.example:domain:1.0.0', onChange)
 
         const destinations = vi.mocked(subscribeTopic).mock.calls.map(([destination]) => destination)
         expect(destinations.sort()).toEqual([
             '/user/topic/projects/changed',
-            // The project id travels URL-encoded, matching the backend's destination.
-            '/user/topic/projects/design%3AMy%20Project/changed',
+            // The project id travels as it is, as the backend names the destination: a colon of a downloaded
+            // project's id stays.
+            '/user/topic/projects/maven:com.example:domain:1.0.0/changed',
             // The id-free workspace ping backs the id-keyed one up: the id mutates when the project
             // opens or turns local, and a ping to the new id would miss the old subscription.
             '/user/topic/workspace/changed',

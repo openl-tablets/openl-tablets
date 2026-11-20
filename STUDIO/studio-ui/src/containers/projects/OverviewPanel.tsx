@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { moduleRoute } from '../../services/projectId'
+import { mavenArtifactOf, moduleRoute } from '../../services/projectId'
 import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tag, Tooltip, Typography, Upload } from 'antd'
 import {
     ApartmentOutlined,
@@ -53,7 +53,7 @@ import { useSharedStyles } from './sharedStyles'
 import { StatusPill } from './StatusIndicator'
 import { ValueText } from './ValueText'
 import { RepoBadge } from './RepoBadge'
-import { DependencyList } from './DependencyList'
+import { DependencyList, LibraryList } from './DependencyList'
 import { BranchSwitcher } from './BranchSwitcher'
 import { GitCommitMessage } from './GitCommitMessage'
 import { useProjectTags } from './useProjectTags'
@@ -641,7 +641,8 @@ const ModuleFields = ({ module, onChange, testId }: {
 
 /**
  * The editable fields of one declared dependency, on one line: the project it points at, chosen from the
- * other projects, and its auto-included flag beside it.
+ * other projects, the Maven coordinates it names, and the auto-included flag of a project. A dependency with
+ * coordinates and no project is a library.
  */
 const DependencyFields = ({ dependency, names, onChange, testId }: {
     dependency: DeclaredDependency
@@ -656,6 +657,7 @@ const DependencyFields = ({ dependency, names, onChange, testId }: {
     return (
         <div className={styles.dependencyFields}>
             <Select
+                allowClear
                 className={styles.dependencySelect}
                 data-testid={testId}
                 onChange={value => onChange({ ...dependency, name: value ?? '' })}
@@ -665,13 +667,23 @@ const DependencyFields = ({ dependency, names, onChange, testId }: {
                 size="small"
                 value={dependency.name || undefined}
             />
-            <Checkbox
-                checked={dependency.autoIncluded}
-                data-testid={`${testId}-auto`}
-                onChange={event => onChange({ ...dependency, autoIncluded: event.target.checked })}
-            >
-                {t('browser.overview.dependency_auto_included')}
-            </Checkbox>
+            <Input
+                className={styles.dependencySelect}
+                data-testid={`${testId}-maven`}
+                onChange={event => onChange({ ...dependency, mavenArtifact: event.target.value || undefined })}
+                placeholder={t('browser.overview.dependency_maven_artifact')}
+                size="small"
+                value={dependency.mavenArtifact ?? ''}
+            />
+            {dependency.name && (
+                <Checkbox
+                    checked={dependency.autoIncluded}
+                    data-testid={`${testId}-auto`}
+                    onChange={event => onChange({ ...dependency, autoIncluded: event.target.checked })}
+                >
+                    {t('browser.overview.dependency_auto_included')}
+                </Checkbox>
+            )}
         </div>
     )
 }
@@ -1173,17 +1185,18 @@ const ExposedMethodsSection = ({ editor }: { editor: DescriptorEditor }) => {
 
 /** One column of related projects: what this one depends on, or what uses it. */
 /** The projects this one depends on — the declared list while editing — and the projects using it. */
-const DependenciesSection = ({ editor, dependsOn, usedBy, projectNames }: {
+const DependenciesSection = ({ editor, dependsOn, usedBy, libraries, projectNames }: {
     editor: DescriptorEditor
     dependsOn: ProjectDependency[]
     usedBy: ProjectDependency[]
+    libraries: string[]
     projectNames: string[]
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { editing, shown, editDraft } = editor
-    if (!editing && dependsOn.length === 0 && usedBy.length === 0) {
+    if (!editing && dependsOn.length === 0 && usedBy.length === 0 && libraries.length === 0) {
         return null
     }
     return (
@@ -1218,6 +1231,14 @@ const DependenciesSection = ({ editor, dependsOn, usedBy, projectNames }: {
                                     <ImportOutlined /> {t('browser.overview.used_by')}
                                 </span>
                                 <DependencyList deps={usedBy} />
+                            </div>
+                        )}
+                        {libraries.length > 0 && (
+                            <div className={styles.dependencyColumn}>
+                                <span className={cx(shared.microLabel, styles.dependencyLabel)}>
+                                    <CodeOutlined /> {t('browser.overview.libraries')}
+                                </span>
+                                <LibraryList libraries={libraries} />
                             </div>
                         )}
                     </div>
@@ -1475,7 +1496,12 @@ const OpenApiSection = ({ editor, projectId, files: projectFiles, staged, onPick
     )
 }
 
-/** The identity of the project on the right: status, where it lives, its last change and its tags. */
+/**
+ * The identity of the project on the right: status, where it lives, its last change and its tags.
+ *
+ * A project that can only be read, downloaded from the Maven repository, has no status of the workspace: it tells
+ * the coordinates it was downloaded by instead.
+ */
 const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTags, tagsContent, tagsAction, onChanged, onBranchSwitching, busy }: {
     project: Project
     repoLabel: string
@@ -1494,6 +1520,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
     const { styles } = useStyles()
     const tags = Object.entries(project.tags ?? {})
     const date = formatDateTime(project.modifiedAt)
+    const coordinates = project.readOnly ? mavenArtifactOf(project.id) : undefined
 
     const metaRow = (label: string, value: ReactNode, action?: ReactNode) => (
         <div className={styles.metaRow}>
@@ -1508,13 +1535,17 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
     return (
         <div className={styles.right} data-testid="overview-right">
             <dl className={styles.meta}>
-                {metaRow(t('browser.overview.status'), (
+                {!project.readOnly && metaRow(t('browser.overview.status'), (
                     <span className={styles.statusValue}>
                         {/* The project's own screen phrases a status its own way — see STATUS_META. */}
                         <StatusPill status={project.status} />
                     </span>
                 ))}
                 {metaRow(t('browser.overview.repository'), <RepoBadge className={styles.metaMuted} name={repoLabel} type={repoType} />)}
+                {coordinates && metaRow(
+                    t('maven:view.coordinates'),
+                    <ValueText data-testid="overview-coordinates">{coordinates}</ValueText>
+                )}
                 {project.path && metaRow(t('browser.overview.path'), <ValueText>{project.path}</ValueText>)}
                 {supportsBranches && project.branch && metaRow(t('browser.overview.branch'), (
                     <BranchSwitcher
@@ -1674,6 +1705,7 @@ export const OverviewPanel = ({
                 <DependenciesSection
                     dependsOn={project.dependencies ?? []}
                     editor={descriptor.editor}
+                    libraries={project.libraries ?? []}
                     projectNames={descriptor.projectNames}
                     usedBy={project.usedBy ?? []}
                 />

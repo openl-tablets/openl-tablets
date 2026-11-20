@@ -50,6 +50,12 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final List<ProjectDependencyViewModel> dependencies;
 
+    @Parameter(description = """
+            Maven coordinates of the libraries the project's rules.xml names. Absent when it names none""")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public final List<String> libraries;
+
     @Parameter(description = "Projects that depend on this one. Present only on the single-project response")
     @JsonView(GenericView.Full.class)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -84,6 +90,13 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public final boolean overwritesNewerRevision;
 
+    @Parameter(description = """
+            Whether the project can only be read, such as a project downloaded from the Maven repository: nothing of \
+            it can be changed or saved. Absent otherwise""")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public final boolean readOnly;
+
     @Parameter(description = "The repository the project is stored in. Travels with the project, so it is readable without access to the repository as a whole")
     @JsonView(GenericView.Full.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -109,11 +122,13 @@ public class ProjectViewModel extends AProjectViewModel {
         this.comment = from.comment;
         this.dependencies = Optional.ofNullable(from.dependencies).map(List::copyOf).orElseGet(List::of);
         this.usedBy = Optional.ofNullable(from.usedBy).map(List::copyOf).orElseGet(List::of);
+        this.libraries = Optional.ofNullable(from.libraries).map(List::copyOf).orElseGet(List::of);
         this.descriptor = from.descriptor;
         this.branchProtected = from.branchProtected;
         this.branchDefault = from.branchDefault;
         this.inDefaultBranch = from.inDefaultBranch;
         this.overwritesNewerRevision = from.overwritesNewerRevision;
+        this.readOnly = from.readOnly;
         this.repositoryInfo = from.repositoryInfo;
         this.capabilities = from.capabilities;
         this.compileStatus = from.compileStatus;
@@ -133,11 +148,13 @@ public class ProjectViewModel extends AProjectViewModel {
         private String comment;
         private List<ProjectDependencyViewModel> dependencies;
         private List<ProjectDependencyViewModel> usedBy;
+        private List<String> libraries;
         private DescriptorViewModel descriptor;
         private boolean branchProtected;
         private boolean branchDefault;
         private boolean inDefaultBranch;
         private boolean overwritesNewerRevision;
+        private boolean readOnly;
         private ProjectRepositoryModel repositoryInfo;
         private ProjectCapabilities capabilities;
         private ProjectStatusViewModel compileStatus;
@@ -188,6 +205,11 @@ public class ProjectViewModel extends AProjectViewModel {
             return this;
         }
 
+        public Builder libraries(List<String> libraries) {
+            this.libraries = libraries;
+            return this;
+        }
+
         public Builder addUsedBy(ProjectDependencyViewModel usedBy) {
             if (this.usedBy == null) {
                 this.usedBy = new ArrayList<>();
@@ -218,6 +240,11 @@ public class ProjectViewModel extends AProjectViewModel {
 
         public Builder overwritesNewerRevision(boolean overwritesNewerRevision) {
             this.overwritesNewerRevision = overwritesNewerRevision;
+            return this;
+        }
+
+        public Builder readOnly(boolean readOnly) {
+            this.readOnly = readOnly;
             return this;
         }
 

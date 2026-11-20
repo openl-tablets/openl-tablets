@@ -187,6 +187,9 @@ vi.mock('./BranchSwitcher', () => ({
         return <div data-testid="crumb-branch-switcher" />
     },
 }))
+vi.mock('../maven/mavenProject', () => ({
+    ReadOnlyTag: ({ projectId }: { projectId: string }) => <span data-testid="read-only-tag">{projectId}</span>,
+}))
 vi.mock('./ValueText', () => ({ ValueText: ({ children }: Record<string, unknown>) => <span>{children as never}</span> }))
 
 const PROJECT: Project = {
@@ -648,6 +651,24 @@ describe('ProjectDetail', () => {
         latestFilePreviewProps().onOpenModule?.('Nested')
 
         expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Nested')
+    })
+
+    it('marks a project that can only be read by its tag, and leads from it to no Localization screen', () => {
+        setParams('file=rules.xlsx')
+        const { unmount } = renderProjectDetail()
+        expect(screen.getByTestId('status-mark')).toBeInTheDocument()
+        expect(screen.queryByTestId('read-only-tag')).toBeNull()
+        expect(filePreviewMock.mock.lastCall?.[0]).toHaveProperty('onOpenLocalization', expect.any(Function))
+        unmount()
+
+        const maven = 'maven:com.example:domain:1.0.0'
+        renderProjectDetail({
+            project: { ...PROJECT, id: maven, readOnly: true, status: ProjectStatus.Local, capabilities: { canDeploy: true } },
+        })
+
+        expect(screen.getByTestId('read-only-tag')).toHaveTextContent(maven)
+        expect(screen.queryByTestId('status-mark')).toBeNull()
+        expect(filePreviewMock.mock.lastCall?.[0]).toMatchObject({ canWrite: false, onOpenLocalization: undefined })
     })
 
     it('drops a selection the loaded files do not hold, and shows the tabs again', () => {

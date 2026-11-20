@@ -56,10 +56,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -115,6 +117,7 @@ import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.WorkbookWrites;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -139,6 +142,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.exception.PreconditionFailedException;
+import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -146,6 +150,7 @@ import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
+import org.openl.studio.projects.model.ProjectDependencyConflictView;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.project.status.CompileState;
@@ -287,6 +292,76 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void get_project_tells_a_read_only_project_and_no_other() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+        var json = new ObjectMapper().findAndRegisterModules().writerWithView(GenericView.Full.class);
+
+        var editable = service.getProject(project);
+        when(project.isReadOnly()).thenReturn(true);
+        var readOnly = service.getProject(project);
+
+        assertFalse(editable.readOnly);
+        assertFalse(json.writeValueAsString(editable).contains("\"readOnly\""), "absent for a project to edit");
+        assertTrue(readOnly.readOnly);
+        assertTrue(json.writeValueAsString(readOnly).contains("\"readOnly\":true"));
+    }
+
+    @Test
+    void get_project_tells_the_dependencies_compiled_from_maven_and_the_libraries() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var webStudio = mock(WebStudio.class);
+        var maven = mock(MavenDependencyResolver.class);
+        when(maven.isEnabled()).thenReturn(true);
+        when(webStudio.getMavenDependencyResolver()).thenReturn(maven);
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project), mock(ProjectStateValidator.class), webStudio);
+        var resolver = resolverOf(service);
+        var repository = repository();
+        var open = branchProject(repository, "Open", "main");
+        when(open.isOpened()).thenReturn(true);
+        var closed = branchProject(repository, "Closed", "main");
+        when(resolver.getDependencies(project)).thenReturn(List.of(
+                new ProjectDependency("Absent", null, false, "com.example:absent:1.0",
+                        List.of(new ProjectDependency.Request("Other", "com.example:absent:2.0"))),
+                new ProjectDependency("Closed", closed, false, "com.example:closed:1.0"),
+                new ProjectDependency("Ghost", null, false, null),
+                new ProjectDependency("Open", open, false, "com.example:open:1.0",
+                        List.of(new ProjectDependency.Request("Other", "com.example:open:2.0")))));
+        when(resolver.getLibraries(project)).thenReturn(List.of("org.example:lib:jar:1.0"));
+
+        var result = service.getProject(project);
+
+        var byName = result.dependencies.stream().collect(Collectors.toMap(dep -> dep.name, Function.identity()));
+        assertTrue(byName.get("Absent").maven, "no project of the name: the archive is compiled");
+        assertFalse(byName.get("Absent").missing, "an archive stands for the project");
+        assertTrue(byName.get("Closed").maven, "a closed project: the archive is compiled");
+        assertFalse(byName.get("Open").maven, "an open project is compiled itself");
+        assertEquals("com.example:open:1.0", byName.get("Open").mavenArtifact);
+        assertEquals(List.of(new ProjectDependencyConflictView("Other", "com.example:absent:2.0")),
+                byName.get("Absent").conflicts, "the archive compiled leaves the other version out");
+        assertEquals(List.of(), byName.get("Open").conflicts, "the open project serves every version");
+        assertTrue(byName.get("Ghost").missing);
+        assertFalse(byName.get("Ghost").maven);
+        assertEquals(List.of("org.example:lib:jar:1.0"), result.libraries);
+    }
+
+    @Test
+    void get_project_tells_no_maven_dependency_while_no_maven_repository_is_set() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+        when(resolverOf(service).getDependencies(project)).thenReturn(List.of(
+                new ProjectDependency("Absent", null, false, "com.example:absent:1.0")));
+
+        var dependency = service.getProject(project).dependencies.getFirst();
+
+        assertFalse(dependency.maven);
+        assertTrue(dependency.missing);
+    }
+
+    @Test
     void branch_filter_matches_every_actual_project_branch() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var project = projectWithSimpleExcelModule();
@@ -334,6 +409,39 @@ class WorkspaceProjectServiceTest {
         var result = service.getProject(project);
 
         assertNull(result.repositoryInfo);
+    }
+
+    @Test
+    void get_project_reports_the_maven_repository_of_a_read_only_project() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        when(project.isLocalOnly()).thenReturn(true);
+        when(project.isReadOnly()).thenReturn(true);
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+
+        var result = service.getProject(project);
+
+        assertNotNull(result.repositoryInfo);
+        assertEquals("design", result.repositoryInfo.id());
+        assertEquals("Design", result.repositoryInfo.name());
+        assertEquals("maven", result.repositoryInfo.type());
+        assertNotNull(result.repositoryInfo.features());
+    }
+
+    /** A read-only project is named by its rules.xml, as the session opened it, so no folder is resolved again. */
+    @Test
+    void a_read_only_project_is_described_as_the_session_opened_it() throws Exception {
+        var project = project(repository(), "Domain", "domain-1.0.0");
+        when(project.isOpened()).thenReturn(true);
+        when(project.isLocalOnly()).thenReturn(true);
+        when(project.isReadOnly()).thenReturn(true);
+        var descriptor = new ProjectDescriptor();
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getProjectByName("design", "Domain")).thenReturn(descriptor);
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project), mock(ProjectStateValidator.class), webStudio);
+
+        assertSame(descriptor, service.findProjectDescriptor(project));
     }
 
     @Test
@@ -1802,7 +1910,7 @@ class WorkspaceProjectServiceTest {
     private static void declares(ProjectDependencyResolver resolver, RulesProject project, RulesProject... declared) {
         var dependencies = new ArrayList<ProjectDependency>();
         for (var dependency : declared) {
-            dependencies.add(new ProjectDependency(dependency.toString(), dependency, false));
+            dependencies.add(new ProjectDependency(dependency.toString(), dependency, false, null));
         }
         when(resolver.getDependencies(project)).thenReturn(dependencies);
     }

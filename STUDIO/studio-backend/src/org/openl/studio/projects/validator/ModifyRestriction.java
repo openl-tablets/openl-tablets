@@ -16,5 +16,10 @@ public enum ModifyRestriction {
      * The project is locked, and the current user does not have it opened for editing: another user is editing it,
      * or a lock of the current user outlived the editing.
      */
-    LOCKED
+    LOCKED,
+
+    /**
+     * The project is read-only, as a project downloaded from the Maven repository is: nobody changes it.
+     */
+    READ_ONLY
 }

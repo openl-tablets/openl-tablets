@@ -1,5 +1,6 @@
 package org.openl.studio.projects.validator;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -161,6 +162,25 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
+    void modifyRestriction_readOnly_isReadOnlyBeforeAnythingElse() {
+        var project = projectWith().readOnly(true).localOnly(true).protectedBranch(true).locked(true).build();
+        assertEquals(Optional.of(ModifyRestriction.READ_ONLY), validator.modifyRestriction(project));
+        assertFalse(validator.canModify(project));
+    }
+
+    @Test
+    void modifyRestrictedException_readOnly_namesTheProjectOnly() {
+        var project = projectWith().readOnly(true).build();
+        when(project.getBusinessName()).thenReturn("Bank Rating");
+
+        var ex = new ModifyRestrictedException(project, ModifyRestriction.READ_ONLY);
+
+        assertEquals("openl.error.409.project.read-only.message", ex.getErrorCode());
+        assertArrayEquals(new Object[]{"Bank Rating", null}, ex.getArgs());
+        assertEquals(ModifyRestriction.READ_ONLY, ex.getRestriction());
+    }
+
+    @Test
     void modifyRestriction_lockedOnProtectedBranch_namesTheBranchFirst() {
         var project = projectWith().protectedBranch(true).locked(true).build();
         assertEquals(Optional.of(ModifyRestriction.BRANCH_PROTECTED), validator.modifyRestriction(project));
@@ -266,6 +286,13 @@ class ProjectStateValidatorImplTest {
     }
 
     // --- canDelete ---
+
+    @Test
+    void canDelete_readOnly_returnsFalse() {
+        // A project downloaded from the Maven repository is local only, yet nobody deletes it
+        var project = projectWith().localOnly(true).readOnly(true).build();
+        assertFalse(validator.canDelete(project));
+    }
 
     @Test
     void canDelete_null_returnsFalse() {
@@ -514,7 +541,13 @@ class ProjectStateValidatorImplTest {
         private boolean branchRepo;
         private boolean existsInBranch = true;
         private boolean inPlace;
+        private boolean readOnly;
         private String branch = "main";
+
+        ProjectMockBuilder readOnly(boolean v) {
+            this.readOnly = v;
+            return this;
+        }
 
         ProjectMockBuilder inPlace(boolean v) {
             this.inPlace = v;
@@ -587,6 +620,7 @@ class ProjectStateValidatorImplTest {
             when(project.isLockedByMe()).thenReturn(lockedByMe);
             when(project.isOpened()).thenReturn(opened);
             when(project.isInPlace()).thenReturn(inPlace);
+            when(project.isReadOnly()).thenReturn(readOnly);
 
             if (protectedBranch || branchRepo) {
                 var repo = mock(BranchRepository.class);

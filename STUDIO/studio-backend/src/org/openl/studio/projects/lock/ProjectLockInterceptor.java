@@ -20,6 +20,8 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
+import org.openl.studio.projects.validator.ModifyRestriction;
 import org.openl.util.StringUtils;
 
 /**
@@ -105,8 +107,14 @@ public class ProjectLockInterceptor implements MethodInterceptor {
                 "@LockForEditing on " + invocation.getMethod() + " names no project to hold");
     }
 
-    /** Only somebody who may write the project takes it up, and a reader is told so before anything is held. */
+    /**
+     * Only somebody who may write the project takes it up, and a reader is told so before anything is held. A
+     * read-only project is written by nobody.
+     */
     private void requireMayWrite(RulesProject project) {
+        if (project.isReadOnly()) {
+            throw new ModifyRestrictedException(project, ModifyRestriction.READ_ONLY);
+        }
         if (!designRepositoryAclService.isGranted(project, WRITE)) {
             throw new ForbiddenException("default.message");
         }

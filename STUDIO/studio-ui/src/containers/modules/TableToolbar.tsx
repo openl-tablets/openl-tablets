@@ -166,6 +166,11 @@ interface TableToolbarProps {
     /** Whether the reader may edit the project; what writes to the module is offered only then. */
     canWrite?: boolean
     /**
+     * Whether the project can only be read, such as one downloaded from the Maven repository: what would change the
+     * table is shown, disabled, so the reader sees why nothing does.
+     */
+    readOnly?: boolean
+    /**
      * What the table is as something to run, as the read of it answered.
      *
      * <p>Absent while that read is on its way, and then nothing is offered to run: a table the compiler could
@@ -205,6 +210,7 @@ export const TableToolbar = ({
     table,
     projectCompiled = false,
     canWrite = false,
+    readOnly = false,
     runState,
     onWritten,
     onRemoved,
@@ -366,8 +372,9 @@ export const TableToolbar = ({
     const runnable = EXECUTABLE.has(table.kind) && (runState === 'can-run' || runState === 'can-run-module')
     // A table runs the tests written against it, when there are some. A test table is written against another
     // one and is covered by none: Run executes its own cases, and a second button doing the same is not offered.
+    // A read-only project shows what would change the table, disabled, so the reader sees why nothing does.
     const offered = ACTIONS.filter(action => action.writes
-        ? canWrite && (action.suits?.(table) ?? true)
+        ? (canWrite || readOnly) && (action.suits?.(table) ?? true)
         : runnable && (!action.needsTests || tests.length > 0))
 
     // A test is a table of its own, written where its author put it: another module of this project, or a
@@ -455,9 +462,13 @@ export const TableToolbar = ({
     return (
         <div className={band.bar} data-testid="table-toolbar">
             {offered.map(action => {
-                const answers = answer(action)
+                const refused = readOnly && action.writes
+                const answers = refused ? undefined : answer(action)
                 return (
-                    <Tooltip key={action.key} title={answers ? undefined : t('browser.module.planned')}>
+                    <Tooltip
+                        key={action.key}
+                        title={answers ? undefined : t(refused ? 'browser.module.read_only' : 'browser.module.planned')}
+                    >
                         <BandAction
                             disabled={!answers}
                             icon={action.icon}

@@ -296,6 +296,51 @@ class ProjectDependencyResolverImplTest {
     }
 
     @Test
+    void carriesTheMavenCoordinatesAndListsTheLibraries() throws Exception {
+        RulesProject source = project("ACC Master Offer", "master");
+        ProjectDependencyDescriptor project = dependency("Domain");
+        when(project.getMavenArtifact()).thenReturn("com.example:domain:1.0.0");
+        ProjectDependencyDescriptor library = dependency(null);
+        when(library.getMavenArtifact()).thenReturn("org.example:lib:jar:2.0");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(project, library));
+
+        var resolver = resolver(descriptorResolver, workspace(source));
+
+        assertEquals("com.example:domain:1.0.0", resolver.getDependencies(source).getFirst().mavenArtifact());
+        assertEquals(List.of("org.example:lib:jar:2.0"), resolver.getLibraries(source));
+    }
+
+    @Test
+    void tellsTheDependencyReachedFirstOfAnotherOneOfItsNameAskingForOtherCoordinates() throws Exception {
+        // Portal -> UsesDomain -> Domain 1.0.0, Portal -> CustomDomain -> Domain 2.0.0: one Domain is compiled
+        RulesProject uses = project("UsesDomain", "master");
+        RulesProject custom = project("CustomDomain", "master");
+        RulesProject portal = project("Portal", "master");
+        ProjectDependencyDescriptor declaresUses = dependency("UsesDomain");
+        ProjectDependencyDescriptor declaresCustom = dependency("CustomDomain");
+        ProjectDependencyDescriptor domain1 = dependency("Domain");
+        when(domain1.getMavenArtifact()).thenReturn("com.example:domain:1.0.0");
+        ProjectDependencyDescriptor domain2 = dependency("Domain");
+        when(domain2.getMavenArtifact()).thenReturn("com.example:domain:2.0.0");
+        ProjectDependencyDescriptor sameDomain = dependency("Domain");
+        when(sameDomain.getMavenArtifact()).thenReturn("com.example:domain:1.0.0");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(portal)).thenReturn(List.of(declaresUses, declaresCustom, sameDomain));
+        when(descriptorResolver.getDependencies(uses)).thenReturn(List.of(domain1));
+        when(descriptorResolver.getDependencies(custom)).thenReturn(List.of(domain2));
+
+        var dependencies = resolver(descriptorResolver, workspace(portal, uses, custom)).getDependencies(portal);
+
+        var domain = dependencies.stream().filter(dependency -> dependency.name().equals("Domain")).findFirst()
+                .orElseThrow();
+        assertEquals("com.example:domain:1.0.0", domain.mavenArtifact());
+        assertEquals(List.of(new ProjectDependency.Request("CustomDomain", "com.example:domain:2.0.0")),
+                domain.conflicts());
+        assertEquals(List.of(), dependencies.getFirst().conflicts());
+    }
+
+    @Test
     void leavesOutALibraryNamedByMavenCoordinates() throws Exception {
         // A dependency without a name is a library on the classpath, neither a project nor a missing one.
         RulesProject source = project("ACC Master Offer", "master");

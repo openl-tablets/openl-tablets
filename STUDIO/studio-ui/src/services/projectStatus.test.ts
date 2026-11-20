@@ -38,20 +38,20 @@ describe('projectStatus service', () => {
 
     describe('subscribeProjectStatus', () => {
         it('subscribes to branchless topic when branch is null', () => {
-            subscribeProjectStatus('abc=', null, () => undefined)
+            subscribeProjectStatus('maven:com.example:domain:1.0.0', null, () => undefined)
 
             expect(mockedWebSocketService.connect).toHaveBeenCalled()
             expect(mockedWebSocketService.subscribe).toHaveBeenCalledWith(
-                '/user/topic/projects/abc%3D/status',
+                '/user/topic/projects/maven:com.example:domain:1.0.0/status',
                 expect.any(Function)
             )
         })
 
         it('subscribes to branch-scoped topic when branch is provided', () => {
-            subscribeProjectStatus('abc=', 'feature/x', () => undefined)
+            subscribeProjectStatus('maven:com.example:domain:1.0.0', 'feature/x', () => undefined)
 
             expect(mockedWebSocketService.subscribe).toHaveBeenCalledWith(
-                '/user/topic/projects/abc%3D/branches/feature%2Fx/status',
+                '/user/topic/projects/maven:com.example:domain:1.0.0/branches/feature%2Fx/status',
                 expect.any(Function)
             )
         })

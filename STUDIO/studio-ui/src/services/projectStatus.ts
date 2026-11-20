@@ -1,3 +1,4 @@
+import { projectTopic } from './projectId'
 import { subscribeTopic, type TopicSubscription } from './stompTopic'
 
 /**
@@ -204,11 +205,11 @@ export type ProjectStatusSubscription = TopicSubscription
 /**
  * Build the user-scoped STOMP destination matching
  * {@code ProjectSocketNotificationService.notifyProjectStatus} on the backend:
- *   - with branch:  /user/topic/projects/{urlEncoded(projectId)}/branches/{urlEncoded(branch)}/status
- *   - without:      /user/topic/projects/{urlEncoded(projectId)}/status
+ *   - with branch:  /user/topic/projects/{projectId}/branches/{urlEncoded(branch)}/status
+ *   - without:      /user/topic/projects/{projectId}/status
  */
 function buildDestination(projectId: string, branch: string | null | undefined): string {
-    const base = `/user/topic/projects/${encodeURIComponent(projectId)}`
+    const base = projectTopic(projectId)
     if (branch === null || branch === undefined || branch === '') {
         return `${base}/status`
     }

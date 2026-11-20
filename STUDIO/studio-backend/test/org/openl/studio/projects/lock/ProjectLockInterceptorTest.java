@@ -35,6 +35,8 @@ import org.openl.rules.ui.WorkbookWrites;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
+import org.openl.studio.projects.validator.ModifyRestriction;
 
 /**
  * What {@link LockForEditing} means, proved through the proxy that gives it its meaning.
@@ -227,6 +229,22 @@ class ProjectLockInterceptorTest {
         var conflict = assertThrows(ConflictException.class, () -> locked.write(project));
 
         assertEquals("openl.error.409.project.locked.by.message", conflict.getErrorCode());
+        assertFalse(target.ran);
+    }
+
+    @Test
+    void a_read_only_project_is_written_by_nobody_whatever_the_acl_grants() throws Exception {
+        var target = new Written();
+        var project = free();
+        when(project.isReadOnly()).thenReturn(true);
+        when(project.getBusinessName()).thenReturn("Bank Rating");
+        var acl = mayWrite();
+
+        var refusal = assertThrows(ModifyRestrictedException.class, () -> locking(target, acl).write(project));
+
+        assertEquals(ModifyRestriction.READ_ONLY, refusal.getRestriction());
+        verify(acl, never()).isGranted(any(), any(List.class));
+        verify(project, never()).tryLockOrThrow();
         assertFalse(target.ran);
     }
 

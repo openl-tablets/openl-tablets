@@ -91,6 +91,14 @@ describe('getProjects', () => {
         expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=status&include=descriptor', undefined, { throwError: true })
     })
 
+    it('requests only the fields a caller names of one project', async () => {
+        vi.mocked(apiCall).mockResolvedValue({ compileStatus: null })
+
+        await getProject('abc', { includes: ['status'], fields: 'compileStatus' })
+
+        expect(apiCall).toHaveBeenCalledWith('/projects/abc?include=status&fields=compileStatus', undefined, { throwError: true })
+    })
+
     it('reads the files a revision changed, leaving a failure to the list that shows them', async () => {
         const base = { revisionNo: 'b1', fullComment: 'Before' }
         const revision = { revisionNo: 'a1', fullComment: 'After' }

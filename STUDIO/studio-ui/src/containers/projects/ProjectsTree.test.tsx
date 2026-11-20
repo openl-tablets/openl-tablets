@@ -9,6 +9,7 @@ import type { Project } from '../../types/projects'
 import type { FsNode } from '../../types/files'
 import type { Repository } from '../../types/repositories'
 import { listingQueryOf } from './projectListing'
+import { mavenProjectOf } from '../../services/mavenDependencies'
 import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 
@@ -69,6 +70,7 @@ vi.mock('@ant-design/icons', () => {
         BranchesOutlined: icon('branches'),
         ClearOutlined: icon('clear'),
         SafetyOutlined: icon('safety'),
+        CloudDownloadOutlined: icon('cloud-download'),
         CloudUploadOutlined: icon('cloud-upload'),
         DatabaseOutlined: icon('database'),
         DeleteOutlined: icon('delete'),
@@ -571,6 +573,44 @@ describe('ProjectsTree', () => {
 
         await userEvent.click(screen.getByTestId('tree-file-p1-rules.xml'))
         expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules.xml')
+    })
+
+    it('lists a project of the Maven repository under a repository of its own, and opens its files', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const domain = mavenProjectOf({ groupId: 'com.example', artifactId: 'domain', version: '1.0.0', name: 'Domain' })
+        const { onOpenFile, onOpenProject } = await renderTree({ projects: [...projects, domain], onRefresh: vi.fn() })
+        const id = 'maven:com.example:domain:1.0.0'
+
+        await userEvent.click(screen.getByTestId(`caret-grp/prj:${id}`))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        expect(getProjectFiles).toHaveBeenCalledWith(id)
+        await userEvent.click(screen.getByTestId(`caret-folder:${id}:rules`))
+        await userEvent.click(screen.getByTestId(`tree-file-${id}-rules/Main.xlsx`))
+        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id }), 'rules/Main.xlsx')
+
+        await userEvent.click(screen.getByTestId(`tree-folder-${id}-rules`))
+        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id }), 'rules')
+        expect(onOpenProject).not.toHaveBeenCalled()
+    })
+
+    it('tells apart the projects of one name, listed flat side by side', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const domain = { ...projects[0]!, id: 'd1', name: 'Domain' }
+        const version = (v: string) => mavenProjectOf({ groupId: 'com.example', artifactId: 'domain', version: v, name: 'Domain' })
+        await renderTree({ projects: [domain, version('1.0.0'), version('2.0.0')], onRefresh: vi.fn() })
+
+        expect(screen.getByTestId('tree-project-qualifier-d1')).toHaveTextContent(
+            repositories.find(repository => repository.id === domain.repository)?.name ?? domain.repository)
+        expect(screen.getByTestId('tree-project-qualifier-maven:com.example:domain:1.0.0')).toHaveTextContent('1.0.0')
+        expect(screen.getByTestId('tree-project-qualifier-maven:com.example:domain:2.0.0')).toHaveTextContent('2.0.0')
+    })
+
+    it('groups the projects of the Maven repository under its name', async () => {
+        const domain = mavenProjectOf({ groupId: 'com.example', artifactId: 'domain', version: '1.0.0', name: 'Domain' })
+        await renderTree({ projects: [...projects, domain], onRefresh: vi.fn() })
+
+        expect(screen.getByText('Maven')).toBeInTheDocument()
+        expect(screen.getByTestId('repo-badge-maven')).toBeInTheDocument()
     })
 
     it('shows the size of each file', async () => {
