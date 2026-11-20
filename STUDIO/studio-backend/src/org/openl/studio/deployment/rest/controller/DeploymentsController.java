@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.utils.AuditFields;
 import org.openl.studio.common.utils.DateTimes;
+import org.openl.studio.deployment.model.DependencySource;
 import org.openl.studio.deployment.model.DeployProjectModel;
 import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.deployment.model.DeploymentItemViewModel;
@@ -106,7 +108,10 @@ public class DeploymentsController {
     public void deploy(@Valid @RequestBody DeployProjectModel deployProject) throws ProjectException {
         var deploymentId = new DeploymentId(deployProject.productionRepositoryId, deployProject.deploymentName);
         var projectToDeploy = projectConverter.resolve(deployProject.projectId);
-        deploymentService.deploy(deploymentId, projectToDeploy, deployProject.comment);
+        deploymentService.deploy(deploymentId,
+                projectToDeploy,
+                deployProject.comment,
+                sourceOf(deployProject.dependencySource));
     }
 
     @Operation(summary = "deployments.redeploy.summary", description = "deployments.redeploy.desc")
@@ -115,7 +120,15 @@ public class DeploymentsController {
                          @Valid @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
         var deploymentId = decodeDeploymentId(id);
         var projectToDeploy = projectConverter.resolve(redeployProject.projectId);
-        deploymentService.deploy(deploymentId, projectToDeploy, redeployProject.comment);
+        deploymentService.deploy(deploymentId,
+                projectToDeploy,
+                redeployProject.comment,
+                sourceOf(redeployProject.dependencySource));
+    }
+
+    /** The dependency source a request asks for: the design repositories when it names none. */
+    private static DependencySource sourceOf(@Nullable DependencySource source) {
+        return source == null ? DependencySource.REPOSITORY : source;
     }
 
     /**

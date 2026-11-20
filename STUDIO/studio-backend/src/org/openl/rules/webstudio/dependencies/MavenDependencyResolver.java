@@ -173,11 +173,21 @@ public class MavenDependencyResolver implements DisposableBean {
      * @return the libraries found, and what went wrong; nothing while no repository is set
      */
     public Libraries librariesOf(ProjectDescriptor project) {
-        var coordinates = libraryCoordinatesOf(project.getDependencies());
-        if (!isEnabled() || coordinates.isEmpty()) {
+        return librariesNamed(libraryCoordinatesOf(project.getDependencies()));
+    }
+
+    /**
+     * Downloads the libraries the coordinates name, with the libraries they need at runtime.
+     *
+     * @param coordinates the coordinates of the libraries, as the dependencies without a name write them
+     * @return the libraries found, and what went wrong; nothing while no repository is set
+     */
+    public Libraries librariesNamed(List<String> coordinates) {
+        var distinct = coordinates.stream().map(String::trim).distinct().toList();
+        if (!isEnabled() || distinct.isEmpty()) {
             return Libraries.NONE;
         }
-        return cached(coordinates, () -> resolveLibraries(coordinates));
+        return cached(distinct, () -> resolveLibraries(distinct));
     }
 
     /**
@@ -223,8 +233,6 @@ public class MavenDependencyResolver implements DisposableBean {
                 .filter(dependency -> dependency.getName() == null)
                 .map(ProjectDependencyDescriptor::getMavenArtifact)
                 .filter(Objects::nonNull)
-                .map(String::trim)
-                .distinct()
                 .toList();
     }
 

@@ -4,11 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -72,7 +72,9 @@ public class DeploymentManager implements InitializingBean {
         }
         try {
             var sb = new StringBuilder(request.name());
-            var apiVersion = getApiVersion(request.name(), request.projectDescriptors());
+            var apiVersion = request.downloadedFolder() == null
+                    ? getApiVersion(request.name(), request.projectDescriptors())
+                    : readApiVersion(request.downloadedFolder());
             if (apiVersion != null) {
                 sb.append(API_VERSION_SEPARATOR).append(apiVersion);
             }
@@ -91,7 +93,8 @@ public class DeploymentManager implements InitializingBean {
                         rulesPath,
                         deploymentPath,
                         request.currentUser().getUserName(),
-                        projectFiles)) {
+                        projectFiles,
+                        request.extras())) {
                     var deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(request.currentUser().getUserInfo());
@@ -100,7 +103,7 @@ public class DeploymentManager implements InitializingBean {
                 }
             } else {
                 var existingProjects = deployRepo.list(deploymentPath);
-                var projectsToDelete = findProjectsToDelete(existingProjects, request.projectDescriptors());
+                var projectsToDelete = findProjectsToDelete(existingProjects, request);
                 for (FileData fileData : projectsToDelete) {
                     fileData.setAuthor(request.currentUser().getUserInfo());
                     deployRepo.delete(fileData);
@@ -108,6 +111,9 @@ public class DeploymentManager implements InitializingBean {
 
                 for (ProjectDescriptor pd : request.projectDescriptors()) {
                     deployProject(request, pd, deployRepo, rulesPath, deploymentPath);
+                }
+                for (var project : request.extras().projects().entrySet()) {
+                    deployDownloadedProject(request, project.getKey(), project.getValue(), deployRepo, deploymentPath);
                 }
             }
             return id;
@@ -167,14 +173,30 @@ public class DeploymentManager implements InitializingBean {
                     version,
                     deployRepo,
                     dest,
-                    manifestBuilder.build());
+                    manifestBuilder.build(),
+                    request.extras().libraryEntries(projectName));
         } else {
             var srcPrj = designRepo.readHistory(rulesPath + projectName, version);
             includeManifestIntoArchiveAndSave(deployRepo,
                     dest,
                     srcPrj.getStream(),
-                    manifestBuilder.build());
+                    manifestBuilder.build(),
+                    request.extras().libraryEntries(projectName));
         }
+    }
+
+    /** Saves a project downloaded from the Maven repository, as it was unpacked, as an archive of its own. */
+    private void deployDownloadedProject(DeploymentRequest request,
+                                         String name,
+                                         Path folder,
+                                         Repository deployRepo,
+                                         String deploymentPath) throws IOException {
+        var archive = DeploymentExtras.archiveOf(folder);
+        var dest = new FileData();
+        dest.setName(deploymentPath + name);
+        dest.setAuthor(request.currentUser().getUserInfo());
+        dest.setComment(request.comment());
+        save(deployRepo, dest, archive);
     }
 
     public String validateOnMainBranch(DeploymentRequest request) {
@@ -209,12 +231,12 @@ public class DeploymentManager implements InitializingBean {
     private void includeManifestIntoArchiveAndSave(Repository deployRepo,
                                                    FileData dest,
                                                    InputStream in,
-                                                   Manifest manifest) throws ProjectException {
+                                                   Manifest manifest,
+                                                   Map<String, Path> libraries) throws ProjectException {
         var out = new ByteArrayOutputStream();
         try (in) {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
-            dest.setSize(out.size());
-            deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
+            save(deployRepo, dest, DeploymentExtras.withEntries(out.toByteArray(), libraries));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
@@ -226,34 +248,33 @@ public class DeploymentManager implements InitializingBean {
                                 String version,
                                 Repository deployRepo,
                                 FileData dest,
-                                Manifest manifest) throws ProjectException {
+                                Manifest manifest,
+                                Map<String, Path> libraries) throws ProjectException {
         var out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.archive(designRepository, designRepo, rulesPath, projectName, version, out, manifest,
                     projectFiles);
-            dest.setSize(out.size());
-            deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
+            save(deployRepo, dest, DeploymentExtras.withEntries(out.toByteArray(), libraries));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
     }
 
-    private List<FileData> findProjectsToDelete(List<FileData> existingProjects,
-                                                Collection<ProjectDescriptor> projectsToDeploy) {
-        var projectsToDelete = new ArrayList<FileData>(existingProjects);
-        // Filter out projects that will be replaced with a new version
-        for (ProjectDescriptor projectToDeploy : projectsToDeploy) {
-            for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext(); ) {
-                var folderPath = it.next().getName();
-                var projectName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
-                if (projectName.equals(projectToDeploy.projectName())) {
-                    // This project will be replaced with a new version. No need to delete it
-                    it.remove();
-                    break;
-                }
-            }
-        }
-        return projectsToDelete;
+    private static void save(Repository deployRepo, FileData dest, byte[] archive) throws IOException {
+        dest.setSize(archive.length);
+        deployRepo.save(dest, new ByteArrayInputStream(archive));
+    }
+
+    /**
+     * The projects of the deployment that are deployed no more. A project deployed again, of a design repository or
+     * downloaded from the Maven repository, replaces its previous version instead.
+     */
+    private static List<FileData> findProjectsToDelete(List<FileData> existingProjects, DeploymentRequest request) {
+        var deployed = new HashSet<>(request.extras().projects().keySet());
+        request.projectDescriptors().forEach(pd -> deployed.add(pd.projectName()));
+        return existingProjects.stream()
+                .filter(file -> !deployed.contains(file.getName().substring(file.getName().lastIndexOf('/') + 1)))
+                .toList();
     }
 
     private String getApiVersion(String deploymentName, Collection<ProjectDescriptor> projectDescriptors) {
@@ -275,6 +296,13 @@ public class DeploymentManager implements InitializingBean {
         }
 
         return null;
+    }
+
+    /** The API version the {@code rules-deploy.xml} of the project in the folder tells, if any. */
+    private static @Nullable String readApiVersion(Path projectFolder) {
+        var rulesDeploy = RulesDeploy.read(projectFolder);
+        var apiVersion = rulesDeploy == null ? null : rulesDeploy.getVersion();
+        return StringUtils.isNotBlank(apiVersion) ? apiVersion : null;
     }
 
     private @Nullable String readApiVersion(ProjectDescriptor pd) throws IOException {

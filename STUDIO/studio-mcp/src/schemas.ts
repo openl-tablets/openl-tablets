@@ -636,6 +636,7 @@ export const deployProjectSchema = z.strictObject({
   repository: z.string().optional().describe("The production repository of a new deployment, by an id or name from openl_list_deploy_repositories."),
   deploymentId: z.string().optional().describe("A deployment from openl_list_deployments to deploy to again."),
   comment: z.string().optional(),
+  dependencySource: z.enum(["REPOSITORY", "MAVEN"]).optional().describe("Take the dependency projects from the design repositories (default) or from Maven."),
 }).superRefine((data, ctx) => {
   const created = data.deploymentName !== undefined || data.repository !== undefined;
   if (data.deploymentId !== undefined && created) {

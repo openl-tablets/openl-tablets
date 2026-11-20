@@ -167,8 +167,8 @@ the administration, to compile a project and run its tests:
   removed from the local repository
 - **No Maven repository set** — nothing is downloaded: a library is expected in `lib/`, where the OpenL Maven Plugin
   packs it, and a project dependency among the projects the user opened
-- **OpenL Rule Services** — download nothing: a deployed project carries its libraries in `lib/`, and its project
-  dependencies are deployed with it
+- **OpenL Rule Services** — download nothing: OpenL Studio deploys the libraries into `lib/` of each project, and the
+  project dependencies from a design repository or the Maven repository, as the **Deploy** dialog chooses
 
 ## Multi-Module Projects
 

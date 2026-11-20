@@ -690,12 +690,17 @@ export interface DeployProjectRequest {
   deploymentName: string;         // Name for the deployment
   productionRepositoryId: string;
   comment?: string;
+  dependencySource?: DependencySource;
 }
+
+/** Where a deployment takes a dependency project both a design repository and the Maven repository have. */
+export type DependencySource = "REPOSITORY" | "MAVEN";
 
 /** Redeploy project request (OpenAPI 3.0.1) */
 export interface RedeployProjectRequest {
   projectId: string;              // Project ID from backend
   comment?: string;
+  dependencySource?: DependencySource;
 }
 
 /** Branch create request (OpenAPI 3.0.1) */

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -16,11 +17,15 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.DateTimes;
+import org.openl.studio.deployment.model.DependencySource;
+import org.openl.studio.deployment.model.DeployProjectModel;
 import org.openl.studio.deployment.model.DeploymentId;
+import org.openl.studio.deployment.model.RedeployProjectModel;
 import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.projects.converter.ProjectIdConverter;
 
@@ -34,6 +39,22 @@ class DeploymentsControllerTest {
         var id = new DeploymentId("prod", "Missing").encode();
 
         assertThrows(NotFoundException.class, () -> controller.getDeployment(id));
+    }
+
+    @Test
+    void deploys_from_the_design_repositories_unless_asked_for_maven() throws Exception {
+        var service = mock(DeploymentService.class);
+        var converter = mock(ProjectIdConverter.class);
+        var project = mock(RulesProject.class);
+        when(converter.resolve(any())).thenReturn(project);
+        var controller = new DeploymentsController(service, converter);
+
+        controller.deploy(DeployProjectModel.builder().productionRepositoryId("prod").deploymentName("Rules").build());
+        controller.redeploy(new DeploymentId("prod", "Rules").encode(),
+                RedeployProjectModel.builder().dependencySource(DependencySource.MAVEN).comment("c").build());
+
+        verify(service).deploy(new DeploymentId("prod", "Rules"), project, null, DependencySource.REPOSITORY);
+        verify(service).deploy(new DeploymentId("prod", "Rules"), project, "c", DependencySource.MAVEN);
     }
 
     @Test

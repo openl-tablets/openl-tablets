@@ -31,8 +31,8 @@ coordinates: a library, and an OpenL project that the user's workspace lacks.
   `AbstractDependencyManager` carry them into the engine; only OpenL Studio implements them.
 - **Caching** — every answer, failures included, is kept in memory for five minutes; the files stay on disk until a
   cleanup removes what went unused for a period, or what was used longest ago while the folder is too large.
-- **OpenL Rule Services are not changed.** A deployed project carries its libraries in `lib/`, and its dependency
-  projects are deployed with it.
+- **OpenL Rule Services are not changed.** OpenL Studio puts into a deployment what the projects need from the
+  Maven repository, so Rule Services run it without one. See [Deployment](#deployment).
 
 ## Coordinates
 
@@ -89,7 +89,9 @@ versions of one downloaded project — UsesDomain `com.example:domain:1.0.0`, Cu
   com.example:domain:1.0.0, which 'UsesDomain' depends on, is compiled, and com.example:domain:2.0.0, which
   'CustomDomain' depends on, is left out.` The Overview marks the dependency **Version conflict**, with the versions
   left out on hover (`conflicts` of a dependency, `ProjectDependencyResolverImpl`), unless a project of the name is
-  open, which every version compiles with.
+  open, which every version compiles with. The **Deploy** dialog warns of such a dependency.
+- **A deployment holds the same one.** `MavenDeploymentPlanner` walks the dependencies in the order a compilation
+  does, so the project of a name a deployment carries is the one the project is compiled with.
 - **A session compiles each project with its own.** The session keeps the dependencies it compiled for the next
   project when that one needs them (`ProjectModel.reuseOf`): only when every project it holds is the very project —
   the same folder — the next one resolves, not merely one of its name. After a project that compiled Domain 1.0.0,
@@ -123,7 +125,7 @@ screens of a project of the workspace show it: the project at `/maven/{groupId}/
 (`ModuleWorkspace`), addresses that tell the coordinates, beside the `/projects/{projectId}` of the projects of a
 repository. The Overview, the Deploy Configuration, the files in the projects tree, the editor of a module with Run,
 Test, Trace and Benchmark, the dependencies of the tables and the problems of the compilation are those of any project;
-Export is offered, nothing that writes.
+Deploy and Export are offered, nothing that writes.
 
 - **Opened in the session.** `ProjectIdConverter` hands a `maven:` id to `WebStudio.downloadedProject`
   (`DownloadedProjects`). It downloads the archive the coordinates name (no extension or `zip`, no classifier) on
@@ -139,13 +141,16 @@ Export is offered, nothing that writes.
   `rules.xml` names.
 - **Read-only, whoever asks.** `RulesProject.isReadOnly` is true for a project of a read-only `LocalRepository`, and
   the project view tells it (`readOnly`). `ProjectStateValidatorImpl` gives such a project the `READ_ONLY`
-  restriction, so `ProjectAccessService` tells it as not writable and not deletable, while exportable;
+  restriction, so `ProjectAccessService` tells it as not writable and not deletable, while deployable and exportable;
   the ACL grants nothing but `READ` on it (`RepositoryAclServiceImpl`, `AclProjectsHelperImpl`), and
   `ProjectLockInterceptor` refuses to take it for an edit. The ACL of single-user mode grants everything, so
   `ReadOnlyProjectInterceptor` refuses every request of the REST API about a `maven:` project but a read with
   `409 project.read-only.message`; a compilation, a run, a test, a trace or a benchmark is a read too
   (`@ChangesNothing`). `DownloadedProjectRepository` refuses every write of a file under all of them.
-- **Exported as it is unpacked.** Export zips its folder, as the files of any project.
+- **Deployed as it is unpacked.** `MavenDeploymentPlanner` puts the project into the extras of the deployment, as a
+  downloaded dependency is, with the libraries it carries, and leaves it out of the projects of the design
+  repositories the plan takes (`Plan.repositoryProjects`), which `DeploymentServiceImpl` deploys. Export zips its
+  folder, as the files of any project.
 - **Shown read-only.** The repository of the project answers as `Maven`, and the screens follow the `readOnly` of the
   project view: the title bears the version and a Read-only tag (`ReadOnlyTag`), the Overview tells the repository and
   the coordinates in place of the path, the branch and the revision, Edit, Copy, Remove, Create Test and Create Table
@@ -174,10 +179,6 @@ into a downloaded one and back, and from one downloaded project into another.
 The MCP server of OpenL Studio reads a downloaded project with its usual tools: `openl_get_project` tells a
 dependency compiled from the Maven repository (`maven: true`) and its coordinates, and every project tool takes the
 id `maven:groupId:artifactId:version`, so an agent sees the rules a dependency compiles from.
-
-The MCP server of OpenL Studio reads the same endpoints in `openl_get_maven_dependency`: it lists the tables of a
-downloaded project by module, finds them by name and reads one, so an agent sees the rules a dependency compiles
-from.
 
 ## Libraries on the Classpath
 
@@ -218,6 +219,32 @@ are unchanged.
   (`domain-1.0.0-1795125964000/`). A new snapshot is unpacked into a new folder, so a class loader still reading the
   old files keeps them. The archive is unpacked into a temporary folder that is renamed when complete, so a failed
   or concurrent unpacking leaves no half-written folder.
+
+## Deployment
+
+A deployment holds the deployed project, its dependency projects and their libraries, so OpenL Rule Services, which
+know no Maven repository, run it as it compiled in Studio. `MavenDeploymentPlanner` works the contents out and
+`DeploymentManager` writes them:
+
+- **The source of a dependency project is the user's choice** — the **Deploy** dialog offers **Dependencies** when a
+  dependency of the project names Maven coordinates, and the REST requests of `/rest/deployments` and the MCP tool
+  `openl_deploy_project` take `dependencySource`: `REPOSITORY`, the default, or `MAVEN`. The choice decides only a
+  project both sources have; a project only one has comes from that one, and one neither has is left out, as before.
+- **The walk is transitive** — it follows what each chosen project declares: a project of a design repository by
+  `ProjectDependencyResolver`, with the same branch rules as the workspace; a downloaded project by its own
+  `rules.xml`. A project of a design repository reached only through a downloaded one is looked up among those the
+  walk from the deployed project resolves.
+- **Libraries** — the libraries the deployed project and every dependency project of a design repository name are
+  downloaded and written to the `lib/` folder of that project, which the default classpath reads. A file of the
+  project with the same name wins; libraries of other groups that share a file name are numbered, `lib/2-util-1.0.jar`
+  (`DeploymentExtras.libraryEntries`). A downloaded project is written as it was packaged: the OpenL Maven Plugin packs
+  its libraries into its `lib/` already.
+- **Both kinds of deployment repository** — a repository of folders gets the files after those of the projects
+  (`FileChangesToDeploy`); a repository of archives gets the libraries inside the archive of the project and each
+  downloaded project as an archive of its own (`DeploymentExtras`).
+- **All or nothing** — a library or a project the deployment needs that cannot be downloaded refuses the deployment
+  with `409` and the reasons, since the deployment would not run.
+- **Without a Maven repository** the deployment holds the projects of the design repositories only, as before.
 
 ## Caching and Lifecycle
 
@@ -309,6 +336,8 @@ OpenL Studio downloaded or used — so a local repository shared with Maven keep
 - **Several remote repositories, mirrors and proxies.** One URL serves a repository manager, such as Nexus or
   Artifactory, which groups the others; Studio configures no proxy for the repository.
 - **OpenL Rule Services.** They run what is deployed, which carries its libraries and its dependency projects.
+- **A project with its own `<classpath>` that leaves out `lib/*.jar`.** The deployed libraries are written to `lib/`,
+  which such a project does not read.
 - **Editing a downloaded project.** Open the project from its design repository instead; the workspace copy then
   wins.
 

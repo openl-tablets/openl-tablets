@@ -70,7 +70,9 @@ public class ProjectAccessService {
                 .canSave(flag(projectStateValidator.canSave(workspaceProject) && write.getAsBoolean()))
                 .canUnlock(flag(workspaceProject.isLocked() && !workspaceProject.isLockedByMe()
                         && administer.getAsBoolean()))
-                .canDeploy(flag(!localOnly && projectStateValidator.canDeploy(workspaceProject)
+                // A read-only project, downloaded from the Maven repository, has no design repository, and is deployed
+                .canDeploy(flag((!localOnly || workspaceProject.isReadOnly())
+                        && projectStateValidator.canDeploy(workspaceProject)
                         && listingContext.canDeployToAnyRepository(deploymentRepositoryService::canDeployToAnyRepository)))
                 .canCompare(flag(readShared))
                 .canViewHistory(flag(versioned && readShared))
