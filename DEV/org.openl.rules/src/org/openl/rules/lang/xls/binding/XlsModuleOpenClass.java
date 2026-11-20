@@ -696,6 +696,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return new MatchingOpenMethodDispatcher(method, this);
     }
 
+    public void removeUnboundDataFields() {
+        if (fieldMap().values().removeIf(field -> field instanceof DataOpenField data
+                && data.getNodeType() == XlsNodeTypes.XLS_DATA
+                && data.getDeclaringClass() == this
+                && data.getData() == null)) {
+            forgetLowerCaseFieldMaps();
+        }
+    }
+
     @Override
     public void clearForExecutionMode() {
         super.clearForExecutionMode();

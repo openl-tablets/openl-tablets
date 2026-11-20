@@ -28,13 +28,24 @@ public class DataOpenField extends AOpenField {
     }
 
     public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
-        super(table.getDataModel().getName(),
-                table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
-        this.table = table;
+        this(table.getDataModel().getName(), table.getDataModel().getType(), table, declaringClass);
         this.data = table.getDataArray();
+    }
+
+    DataOpenField(String name, IOpenClass tableType, ITable table, ModuleOpenClass declaringClass) {
+        super(name, tableType.getAggregateInfo().getIndexedAggregateType(tableType));
+        this.table = table;
         this.nodeType = table.getTableSyntaxNode().getNodeType();
         this.declaringClass = declaringClass;
         this.uri = table.getTableSyntaxNode().getUri();
+    }
+
+    boolean fill(ITable boundTable) {
+        if (table != boundTable) {
+            return false;
+        }
+        data = boundTable.getDataArray();
+        return true;
     }
 
     @Override

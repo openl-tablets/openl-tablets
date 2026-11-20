@@ -661,6 +661,7 @@ public class XlsBinder implements IOpenBinder {
                             i);
                 }
             }
+            DataNodeBinder.declareTables(tableSyntaxNodes, rulesModuleBindingContext);
         } finally {
             rulesModuleBindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
         }
@@ -673,6 +674,7 @@ public class XlsBinder implements IOpenBinder {
         }
 
         addToModule(childrens, tableSyntaxNodes, module, rulesModuleBindingContext);
+        module.removeUnboundDataFields();
 
         generateByteCode(childrens, tableSyntaxNodes, rulesModuleBindingContext);
 
