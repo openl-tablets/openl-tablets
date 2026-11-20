@@ -12,10 +12,7 @@ import org.openl.types.java.JavaOpenClass;
 class CustomSpreadsheetResultOpenClassTest {
     @Test
     void fieldsDifferingOnlyInCaseCoexistAfterALookup() {
-        var openClass = new CustomSpreadsheetResultOpenClass("CSR1",
-                null,
-                null,
-                true);
+        var openClass = new CustomSpreadsheetResultOpenClass("CSR1", null, true);
         openClass.getField("$f1", true);
         var lowerCase = new CustomSpreadsheetResultField(null, "$f1", JavaOpenClass.OBJECT);
         var upperCase = new CustomSpreadsheetResultField(null, "$F1", JavaOpenClass.OBJECT);
@@ -29,10 +26,7 @@ class CustomSpreadsheetResultOpenClassTest {
 
     @Test
     void testIsAssignableFromNullOpenClass() {
-        var openClass = new CustomSpreadsheetResultOpenClass("CSR1",
-                null,
-                null,
-                true);
+        var openClass = new CustomSpreadsheetResultOpenClass("CSR1", null, true);
         assertFalse(openClass.isAssignableFrom(NullOpenClass.the));
     }
 }

@@ -144,28 +144,8 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
-    public BidiMap<Integer, Integer> getRowOffsets() {
-        return delegate.getRowOffsets();
-    }
-
-    @Override
-    public void setRowOffsets(BidiMap<Integer, Integer> rowOffsets) {
-        delegate.setRowOffsets(rowOffsets);
-    }
-
-    @Override
     public String[] getColumnNames() {
         return delegate.getColumnNames();
-    }
-
-    @Override
-    public void setColumnOffsets(BidiMap<Integer, Integer> columnOffsets) {
-        delegate.setColumnOffsets(columnOffsets);
-    }
-
-    @Override
-    public BidiMap<Integer, Integer> getColumnOffsets() {
-        return delegate.getColumnOffsets();
     }
 
     @Override

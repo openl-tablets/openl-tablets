@@ -33,13 +33,11 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * table body
      */
     private String[] rowNames;
-    private BidiMap<Integer, Integer> rowOffsets;
     private BidiMap<Integer, Integer> rowDescriptions;
     /**
      * Top left cell is not included. So the column names starts from [0, 1] in the Spreadsheet table body
      */
     private String[] columnNames;
-    private BidiMap<Integer, Integer> columnOffsets;
     private BidiMap<Integer, Integer> columnDescriptions;
 
     private String[] rowNamesForResultModel;
@@ -131,20 +129,12 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.columnNames = colNames;
     }
 
-    public void setColumnOffsets(BidiMap<Integer, Integer> columnOffsets) {
-        this.columnOffsets = columnOffsets;
-    }
-
     public void setResultBuilder(IResultBuilder resultBuilder) {
         this.resultBuilder = resultBuilder;
     }
 
     public void setRowNames(String[] rowNames) {
         this.rowNames = rowNames;
-    }
-
-    public void setRowOffsets(BidiMap<Integer, Integer> rowOffsets) {
-        this.rowOffsets = rowOffsets;
     }
 
     public String[] getRowNamesForResultModel() {
@@ -175,16 +165,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return rowNames;
     }
 
-    public BidiMap<Integer, Integer> getRowOffsets() {
-        return rowOffsets;
-    }
-
     public String[] getColumnNames() {
         return columnNames;
-    }
-
-    public BidiMap<Integer, Integer> getColumnOffsets() {
-        return columnOffsets;
     }
 
     public BidiMap<Integer, Integer> getColumnDescriptions() {

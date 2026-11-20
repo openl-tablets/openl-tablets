@@ -18,12 +18,10 @@ import jakarta.xml.bind.annotation.XmlTransient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.collections4.BidiMap;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -61,30 +59,11 @@ public class SpreadsheetResult implements Serializable {
     transient Map<String, Point> fieldsCoordinates;
 
     /**
-     * logical representation of calculated spreadsheet table it is needed for web studio to display results
-     */
-    @Getter(onMethod_ = {@XmlTransient})
-    @Setter
-    private transient ILogicalTable logicalTable;
-
-    /**
      * Spreadsheet open class. This field is used for output bean generation.
      */
     @Getter(onMethod_ = {@XmlTransient})
     @Setter
     private transient CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
-
-    /**
-     * Transient offset mappings for display purposes only.
-     * Maps logical index to physical index (where physical includes description rows/columns).
-     * These are not serialized and are only used for UI rendering.
-     */
-    @Getter(onMethod_ = {@XmlTransient})
-    @Setter
-    private transient BidiMap<Integer, Integer> rowOffsets;
-    @Getter(onMethod_ = {@XmlTransient})
-    @Setter
-    private transient BidiMap<Integer, Integer> columnOffsets;
 
     public SpreadsheetResult(Object[][] results,
                              String[] rowNames,
@@ -116,10 +95,7 @@ public class SpreadsheetResult implements Serializable {
                 spr.rowNamesForResultModel,
                 spr.columnNamesForResultModel,
                 spr.fieldsCoordinates);
-        this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
-        this.rowOffsets = spr.rowOffsets;
-        this.columnOffsets = spr.columnOffsets;
     }
 
     static Map<String, Point> buildFieldsCoordinates2(String[] columnNames,

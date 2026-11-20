@@ -69,8 +69,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     }
 
     private String[][] getDescriptions(Spreadsheet spreadsheet) {
-        BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
-        BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
+        BidiMap<Integer, Integer> rowOffsets = structureBuilder.getRowOffsets();
+        BidiMap<Integer, Integer> columnOffsets = structureBuilder.getColumnOffsets();
         String[][] descriptions = new String[spreadsheet.getHeight()][spreadsheet.getWidth()];
         for (var i = 0; i < spreadsheet.getHeight(); i++) {
             for (var j = 0; j < spreadsheet.getWidth(); j++) {
@@ -146,11 +146,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         // Add generated type to be accessible through binding context.
         //
         spreadsheet.setRowNames(structureBuilder.getRowNames());
-        spreadsheet.setRowOffsets(structureBuilder.getRowOffsets());
         spreadsheet.setRowDescriptions(structureBuilder.getRowDescriptions());
 
         spreadsheet.setColumnNames(structureBuilder.getColumnNames());
-        spreadsheet.setColumnOffsets(structureBuilder.getColumnOffsets());
         spreadsheet.setColumnDescriptions(structureBuilder.getColumnDescriptions());
 
         spreadsheet.setRowNamesForResultModel(structureBuilder.getRowNamesForResultModel());
