@@ -66,6 +66,10 @@ const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.m
  * asks for it to be built again from the workbook, dropping what was compiled before — that is what a refresh is
  * for.
  *
+ * While a compilation asked for here, or one the channel reports running, can still bring this module, the status
+ * is read again after every quiet spell, so an end the channel missed still opens the module. A refused request, a
+ * module that is gone and a module waiting for the reader's Verify stop the reads: nothing is under way to end.
+ *
  * Nothing is asked for at all while {@code enabled} is false — of a project nobody has opened there is no copy to
  * compile, and the screen asks the reader to open it first.
  */
@@ -91,7 +95,9 @@ export const useModuleCompilation = ({
     // Subscribed only once the project is known, and with it the branch the channel is named after. Listening
     // before that subscribes to the wrong channel and throws away what it heard when the right one replaces it,
     // which on a project that compiles in a moment means hearing nothing at all.
-    const status = useLiveProjectStatus(projectId, branch, enabled, initial, initialReadAt)
+    // Waiting for the module, the status is read again after a quiet spell: an end the socket missed reaches it
+    const [waiting, setWaiting] = useState(false)
+    const status = useLiveProjectStatus(projectId, branch, enabled, initial, initialReadAt, waiting)
     const compiledModules = modulesOf(status)?.compiledModules
     const named = (compiledModules ?? []).includes(moduleName)
     // A module named as compiled stays compiled. A compilation reports its progress many times a second, and a
@@ -144,6 +150,15 @@ export const useModuleCompilation = ({
         })
     }, [projectId, branch, moduleName, reloadToken, ready, enabled, rebuild, compileOnOpen])
 
+    // A screen that compiles nothing on open has nothing to wait for until the reader asks, or a compilation runs.
+    const compiling = status?.compileState === 'compiling'
+    const verifyNeeded = status?.manualCompileNeeded === true
+    useEffect(() => {
+        const askedHere = asked.current.checkout === `${projectId} ${branch ?? ''}`
+            && asked.current.keys.has(`${moduleName} ${reloadToken}`)
+        setWaiting(enabled && !ready && failed === null && !verifyNeeded && (askedHere || compiling))
+    }, [projectId, branch, moduleName, reloadToken, enabled, ready, failed, verifyNeeded, compiling])
+
     counted.current = status?.compilation?.tests?.total ?? counted.current
 
     return {
@@ -154,7 +169,7 @@ export const useModuleCompilation = ({
         gone: isModuleNotFound(failed),
         tests: counted.current,
         state: status?.compileState ?? 'idle',
-        verifyNeeded: status?.manualCompileNeeded === true,
+        verifyNeeded,
         changedOnDisk: status?.changedOnDisk === true,
         status,
     }

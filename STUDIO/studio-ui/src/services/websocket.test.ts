@@ -75,6 +75,26 @@ describe('webSocketService', () => {
         await timeoutAssertion
     })
 
+    it('keeps trying after the caller stops waiting, and connects late with the subscriptions made', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        const callback = vi.fn()
+        webSocketService.subscribe('/topic/status', callback, 'sub-1')
+        const listener = vi.fn()
+        webSocketService.onReconnect(listener)
+
+        const connectPromise = webSocketService.connect(50)
+        const timeoutAssertion = expect(connectPromise).rejects.toThrow()
+        await vi.advanceTimersByTimeAsync(150)
+        await timeoutAssertion
+
+        // The client was left trying: the server answers later
+        expect(latestClient().deactivate).not.toHaveBeenCalled()
+        latestConfig().onConnect()
+        expect(latestClient().subscribe).toHaveBeenCalledWith('/topic/status', expect.any(Function), { id: 'sub-1' })
+        expect(listener).toHaveBeenCalledTimes(1)
+        await expect(webSocketService.connect(50)).resolves.toBeUndefined()
+    })
+
     it('queues subscription and re-subscribes on connect callback', async () => {
         const { webSocketService, latestConfig, latestClient } = await loadService()
         const callback = vi.fn()
@@ -89,6 +109,24 @@ describe('webSocketService', () => {
             expect.any(Function),
             { id: 'sub-1' }
         )
+    })
+
+    it('tells its listeners of every connect, the first one included, once the subscriptions are made', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        webSocketService.subscribe('/topic/status', vi.fn(), 'sub-1')
+        const listener = vi.fn(() => expect(latestClient().subscribe).toHaveBeenCalled())
+        const stop = webSocketService.onReconnect(listener)
+
+        // A page loaded while the server starts subscribes before the first connect, which comes after failed attempts
+        latestConfig().onConnect()
+        expect(listener).toHaveBeenCalledTimes(1)
+        latestConfig().onDisconnect()
+        latestConfig().onConnect()
+        expect(listener).toHaveBeenCalledTimes(2)
+
+        stop()
+        latestConfig().onConnect()
+        expect(listener).toHaveBeenCalledTimes(2)
     })
 
     it('handles failed reconnect attempts without unhandled rejection', async () => {

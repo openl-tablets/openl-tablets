@@ -193,6 +193,15 @@ reconnects. Behind them:
 - coming back to the tab (`useWindowFocus`) re-reads quietly what outlived the window — the projects
   list its snapshot, the open project page its detail read;
 - every successful mutating REST call still invalidates the snapshot locally (`openl:workspace-changed`);
+- the socket keeps trying until it connects: a `connect` that times out stops only its caller, never the
+  reconnect loop of the client, so a page whose first attempts fail, as while the server starts, connects later;
+- a screen that follows the compile status (`useLiveProjectStatus`) reads it again on every connect of the socket
+  (`webSocketService.onReconnect`), the first one too: a page loaded while the server starts subscribes before the
+  socket is up, and a compilation that ends before it connects is told by nothing else;
+- while a screen waits for the status to change — the module screen for its module to be compiled — it reads the
+  status again after every quiet spell of 5 seconds with nothing pushed or read (`STATUS_QUIET_SPELL_MS`): the
+  simple broker confirms no subscription, so a compilation that ends between the read of the screen and its
+  subscription reaches it no other way;
 - the files watcher retries its initial registration until the workspaces root becomes walkable, so
   a transient filesystem failure at startup cannot silence it for the process's lifetime.
 
