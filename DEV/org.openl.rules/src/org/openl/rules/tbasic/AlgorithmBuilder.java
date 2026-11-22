@@ -315,15 +315,9 @@ public class AlgorithmBuilder {
             // set sequential number of the row in table
             aRow.setRowNumber(r + 1);
 
-            var rowTable = grid.getRow(r);
-            aRow.setGridRegion(rowTable.getRegion());
-
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 var c = column.columnIndex;
-
-                var valueTable = rowTable.getColumn(c);
-                aRow.setValueGridRegion(column.id, valueTable.getRegion());
 
                 var value = grid.getCell(c, r)
                     .getStringValue();

@@ -62,11 +62,6 @@ public class MessageSourceResourceMethod implements IOpenMethod {
      */
     private final boolean keepsCalls;
 
-    /** The messages of the module the method is bound in, which a hint over a key of a call of it shows. */
-    public OpenLMessageSource getMessageSource() {
-        return module.getMessageSource();
-    }
-
     /**
      * Keeps a call of the built-in {@code msg} that writes its key as text in the module the call is bound in, to
      * be checked once the compilation knows which messages the call reads at runtime. Any other call is left alone.

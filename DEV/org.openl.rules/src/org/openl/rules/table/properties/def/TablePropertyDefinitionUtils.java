@@ -37,18 +37,17 @@ public final class TablePropertyDefinitionUtils {
     private TablePropertyDefinitionUtils() {
     }
 
-    private static final List<TablePropertyDefinition> PROPERTIES_TO_BE_SET_BY_DEFAULT;
     private static final Map<String, Object> PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
     private static final Map<String, Object> GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
 
     static {
-        PROPERTIES_TO_BE_SET_BY_DEFAULT = Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+        var propertiesToBeSetByDefault = Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
                 .filter(propDefinition -> propDefinition.getDefaultValue() != null)
                 .toList();
 
         var propertiesMapToBeSetByDefault = new HashMap<String, Object>();
 
-        for (TablePropertyDefinition propertyWithDefaultValue : PROPERTIES_TO_BE_SET_BY_DEFAULT) {
+        for (TablePropertyDefinition propertyWithDefaultValue : propertiesToBeSetByDefault) {
             var defaultPropertyName = propertyWithDefaultValue.getName();
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
                     .getPropertyByName(defaultPropertyName);
@@ -194,15 +193,6 @@ public final class TablePropertyDefinitionUtils {
 
     public static boolean isPropertyExist(String propertyName) {
         return getPropertyByName(propertyName) != null;
-    }
-
-    /**
-     * Gets list of properties that must me set for every table by default.
-     *
-     * @return list of properties.
-     */
-    public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault() {
-        return PROPERTIES_TO_BE_SET_BY_DEFAULT;
     }
 
     /**

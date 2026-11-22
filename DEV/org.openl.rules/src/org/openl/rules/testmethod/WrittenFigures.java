@@ -140,17 +140,6 @@ final class WrittenFigures {
     }
 
     /**
-     * Returns the decimal place of the last figure of a written number, such as 2 for {@code 10.00}, -1 for
-     * {@code 1.00E+03} and -2 for {@code 1.5K}.
-     *
-     * @return the decimal place, or {@code null} when the text is not one number
-     */
-    static @Nullable Integer scaleOf(String text) {
-        var written = valueOf(text);
-        return written == null ? null : written.scale();
-    }
-
-    /**
      * Reads a written number with the figures it is written with. A percent is a hundredth, and a {@code K}, an
      * {@code M} or a {@code B} multiplies the number by a thousand, a million or a billion.
      *

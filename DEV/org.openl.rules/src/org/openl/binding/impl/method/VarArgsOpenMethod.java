@@ -14,10 +14,6 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
     private final IOpenCast[] parameterCasts;
     private final IMethodCaller methodCaller;
 
-    public VarArgsOpenMethod(IMethodCaller methodCaller, Class<?> componentVarArgClass, int indexOfFirstVarArg) {
-        this(methodCaller, componentVarArgClass, indexOfFirstVarArg, null);
-    }
-
     public VarArgsOpenMethod(IMethodCaller methodCaller,
                              Class<?> componentVarArgClass,
                              int indexOfFirstVarArg,

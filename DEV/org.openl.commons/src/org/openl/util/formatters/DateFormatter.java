@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,11 +22,6 @@ public class DateFormatter implements IFormatter {
         this(new SimpleDateFormat());
     }
 
-    public DateFormatter(Locale locale) {
-        this(DateFormat
-                .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault() : locale));
-    }
-
     public DateFormatter(DateFormat format) {
         this.format = format;
     }
@@ -38,16 +32,6 @@ public class DateFormatter implements IFormatter {
         } catch (Exception e) {
             log.error("Could not create format: {}", format);
             this.format = new SimpleDateFormat();
-        }
-    }
-
-    public DateFormatter(String format, Locale locale) {
-        try {
-            this.format = new SimpleDateFormat(format, locale);
-        } catch (Exception e) {
-            log.error("Could not create format: {}", format);
-            this.format = DateFormat
-                    .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault() : locale);
         }
     }
 

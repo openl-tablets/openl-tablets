@@ -36,14 +36,6 @@ public class FieldDescription {
         this.getterVisitorWriters = getterVisitorWriters;
     }
 
-    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, boolean isTransient) {
-        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, null, isTransient);
-    }
-
-    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, boolean isTransient) {
-        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, null, null, null, false, isTransient, null, null);
-    }
-
     // The constructor takes the properties of the generated datatype field.
     @SuppressWarnings("java:S107")
     public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, String description, String[] allowableValues, String example, boolean mandatory, boolean isTransient) {

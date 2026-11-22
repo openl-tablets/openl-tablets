@@ -16,20 +16,10 @@ public abstract class AMatchingExpression implements IMatchingExpression {
     @Getter
     private IMatchingExpression contextAttributeExpression;
 
-    protected AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
-        this.contextAttributeExpression = Objects.requireNonNull(matchingExpression,
-                "matchingExpression cannot be null");
-        this.operationName = operationName;
-    }
-
     protected AMatchingExpression(String operationName, String operation, String contextAttribute) {
         this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute cannot be null");
         this.operationName = operationName;
         this.operation = operation;
-    }
-
-    protected AMatchingExpression(String contextAttribute) {
-        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute cannot be null");
     }
 
     @Override

@@ -12,15 +12,4 @@ public class AmbiguousDependencyException extends OpenLCompilationException {
         super(message, insideCause, location, source);
     }
 
-    public AmbiguousDependencyException(String message, Throwable cause, ILocation location) {
-        super(message, cause, location);
-    }
-
-    public AmbiguousDependencyException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public AmbiguousDependencyException(String message) {
-        super(message);
-    }
 }

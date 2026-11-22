@@ -7,14 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
@@ -49,12 +47,8 @@ class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     private Map<String, Object> initDefaultProperties() {
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
-                .getPropertiesToBeSetByDefault();
         var defaultProperties = new HashMap<String, Object>();
-
-        for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
-            var propertyName = propertyWithDefaultValue.getName();
+        for (var propertyName : TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault().keySet()) {
             defaultProperties.put(propertyName, propertyName + "Value");
         }
         return defaultProperties;

@@ -6,7 +6,7 @@
 package org.openl.util.conf;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -17,44 +17,31 @@ import org.junit.jupiter.api.Test;
 class VersionTest {
 
     @Test
-    void testIsVersion() {
-        var t1 = "1.2.3";
+    void testParseValidVersions() {
+        assertEquals("1.2.3", Version.parseVersion("1.2.3", 0, "..").toString());
+        assertEquals("12312.212.322", Version.parseVersion("x_12312.212.322.zx", 2, "..").toString());
+        assertEquals("2.2.2_4", Version.parseVersion("x_2.2.2_04.zx", 2, ".._").toString());
+    }
 
-        assertTrue(Version.isVersion(t1, 0, ".."));
-
-        var t2 = "x_12312.212.322.zx";
-
-        assertTrue(Version.isVersion(t2, 2, ".."));
-
-        var t3 = "x_2.2.2_04.zx";
-
-        assertTrue(Version.isVersion(t3, 2));
-
-        var t4 = "x_.12312.212.322.zx";
-
-        assertFalse(Version.isVersion(t4, 2));
-
-        var t5 = "x_1.2..2.zx";
-
-        assertFalse(Version.isVersion(t5, 2));
+    @Test
+    void testParseInvalidVersions() {
+        assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("x_.12312.212.322.zx", 2, ".._"));
+        assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("x_1.2..2.zx", 2, ".._"));
+        assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("", 0, ".."));
     }
 
     @Test
     void testParseVersion() {
-        Version version = Version.parseVersion("x_9.1.44", 2, "..");
+        var version = Version.parseVersion("x_9.1.44", 2, "..");
 
         assertEquals("9.1.44", version.toString());
 
-        assertTrue(new Version(11, 1, 1, -1, null).compareTo(version) > 0);
+        assertTrue(Version.parseVersion("11.1.1", 0, "..").compareTo(version) > 0);
 
-        assertEquals(0, new Version(9, 1, 44, -1, null).compareTo(version));
+        assertEquals(0, Version.parseVersion("9.1.44", 0, "..").compareTo(version));
+        assertEquals(Version.parseVersion("9.1.44", 0, ".."), version);
 
-        assertTrue(new Version(9, 1, 43, -1, null).compareTo(version) < 0);
-
-        var vx = "c:/exlipse/plugins/org.openl.eclipse.j_1.3.4/lib/apache/xyz_7.3.5.jar";
-
-        assertEquals(new Version(7, 3, 5, -1, ".."), Version.extractVersion(vx, ".."));
-
+        assertTrue(Version.parseVersion("9.1.43", 0, "..").compareTo(version) < 0);
     }
 
 }

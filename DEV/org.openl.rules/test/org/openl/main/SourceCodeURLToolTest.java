@@ -146,7 +146,7 @@ class SourceCodeURLToolTest {
         assertEquals(expected, new OpenLWarnMessage("Deprecated.", node).getSourceRange());
         var boundNode = mock(IBoundNode.class);
         when(boundNode.getSyntaxNode()).thenReturn(node);
-        assertEquals(expected, new OpenLRuntimeException("Failed.", boundNode).getSourceRange());
+        assertEquals(expected, new OpenLRuntimeException(new IllegalStateException("Failed."), boundNode).getSourceRange());
 
         assertNull(new OpenlNotCheckedException("No source.").getSourceRange());
         assertNull(new OpenLCheckedException("No source.").getSourceRange());

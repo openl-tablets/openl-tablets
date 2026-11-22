@@ -25,11 +25,6 @@ public class ArrayFieldIndex implements IOpenIndex {
     private final IOpenField indexField;
 
     @Override
-    public IOpenClass getIndexType() {
-        return indexField.getType();
-    }
-
-    @Override
     public @Nullable Object getValue(Object container, Object index) {
         if (index != null) {
             var len = Array.getLength(container);

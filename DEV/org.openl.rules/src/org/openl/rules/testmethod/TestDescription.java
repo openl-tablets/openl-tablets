@@ -17,7 +17,6 @@ import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.data.RowIdField;
 import org.openl.rules.testmethod.result.Tolerance;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -193,14 +192,14 @@ public class TestDescription {
      */
     public String getId() {
         if (hasId()) {
-            return String.valueOf(getArgumentValue(RowIdField.ROW_ID));
+            return String.valueOf(getArgumentValue(TestMethodOpenClass.ROW_ID));
         } else {
             return String.valueOf(index + 1);
         }
     }
 
     public boolean hasId() {
-        return testObject.containsField(RowIdField.ROW_ID);
+        return testObject.containsField(TestMethodOpenClass.ROW_ID);
     }
 
     protected static IOpenField getKeyField(String paramName,

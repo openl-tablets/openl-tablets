@@ -751,34 +751,6 @@ public final class PoiExcelHelper {
         return rgb[0] << 16 | rgb[1] << 8 | rgb[2];
     }
 
-    /**
-     * The colour a workbook holds once the colour {@code #rrggbb} is written into it: the colour itself, or the colour
-     * of the palette of an {@code .xls} workbook it is written as.
-     *
-     * <p>A palette with no room left for another colour holds the nearest colour it has, so a cell written with the
-     * colour reads back that one.
-     *
-     * @param hex      the colour as {@code #rrggbb}
-     * @param workbook the workbook the colour is written into
-     * @return the red, green and blue the workbook holds
-     */
-    public static short[] toStoredRgb(String hex, Workbook workbook) {
-        return toStoredRgb(toRgb(hex), workbook);
-    }
-
-    /**
-     * The colour a workbook holds once the colour is written into it, as {@link #toStoredRgb(String, Workbook)} tells.
-     *
-     * @param rgb      the red, green and blue of the colour
-     * @param workbook the workbook the colour is written into
-     * @return the red, green and blue the workbook holds
-     */
-    public static short[] toStoredRgb(short[] rgb, Workbook workbook) {
-        return workbook instanceof HSSFWorkbook hssf
-                ? Optional.ofNullable(toRgb(getOrAddColorIndex(rgb, hssf), hssf)).orElse(rgb)
-                : rgb;
-    }
-
     /** The colour {@code 0xRRGGBB} as the red, green and blue a workbook writes. */
     private static short[] toRgb(int rgb) {
         return new short[]{(short) (rgb >> 16 & 0xFF), (short) (rgb >> 8 & 0xFF), (short) (rgb & 0xFF)};

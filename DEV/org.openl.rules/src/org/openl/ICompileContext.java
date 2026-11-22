@@ -1,6 +1,5 @@
 package org.openl;
 
-import java.util.List;
 import java.util.Set;
 
 import org.openl.validation.IOpenLValidator;
@@ -13,12 +12,6 @@ import org.openl.validation.IOpenLValidator;
 public interface ICompileContext {
 
     void addValidator(IOpenLValidator validator);
-
-    void addValidators(List<IOpenLValidator> validators);
-
-    void removeValidator(IOpenLValidator validator);
-
-    void removeValidators();
 
     Set<IOpenLValidator> getValidators();
 }

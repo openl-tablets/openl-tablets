@@ -52,10 +52,6 @@ public abstract class ADispatcherTableColumn implements IDecisionTableColumn {
         return DecisionTableColumnHeaders.CONDITION.getHeaderKey();
     }
 
-    int getRulesNumber() {
-        return rules.getRulesNumber();
-    }
-
     protected TablePropertyDefinition getProperty() {
         return dimensionProperty;
     }

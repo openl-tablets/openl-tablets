@@ -30,11 +30,6 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         }
 
         @Override
-        public IOpenClass getIndexType() {
-            return JavaOpenClass.INT;
-        }
-
-        @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
             var idx = (Integer) index;

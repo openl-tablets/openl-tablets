@@ -25,11 +25,6 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
         }
 
         @Override
-        public IOpenClass getIndexType() {
-            return JavaOpenClass.OBJECT;
-        }
-
-        @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
             return container == null ? null : ((Map<Object, Object>) container).get(index);

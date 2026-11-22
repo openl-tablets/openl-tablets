@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.excel.parser.dom.DOMReader;
+
 class ExcelReaderFactoryTest {
     private static final String FOLDER = FolderUtils.getResourcesFolder();
 
@@ -22,10 +24,9 @@ class ExcelReaderFactoryTest {
 
     private void compareDifferentImplementations(String fileName) {
         ExcelReaderFactory sequentialFactory = ExcelReaderFactory.sequentialFactory();
-        ExcelReaderFactory fullReadFactory = ExcelReaderFactory.fullReadFactory();
 
         try (var lightReader = sequentialFactory.create(fileName);
-             var fullReader = fullReadFactory.create(fileName)) {
+             var fullReader = new DOMReader(fileName)) {
             List<? extends SheetDescriptor> fullReaderSheets = fullReader.getSheets();
             List<? extends SheetDescriptor> lightReaderSheets = lightReader.getSheets();
 

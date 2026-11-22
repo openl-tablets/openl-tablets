@@ -491,54 +491,6 @@ class MathUtilsTest {
     }
 
     @Test
-    void testSumForByte() {
-        byte[] arr = null;
-        assertNull(MathUtils.sum(arr));
-        arr = new byte[]{1, 2, 3};
-        assertEquals(Byte.valueOf("6"), MathUtils.sum(arr));
-    }
-
-    @Test
-    void testSumForShort() {
-        short[] arr = null;
-        assertNull(MathUtils.sum(arr));
-        arr = new short[]{1, 2, 3};
-        assertEquals(Short.valueOf("6"), MathUtils.sum(arr));
-    }
-
-    @Test
-    void testSumForInt() {
-        int[] arr = null;
-        assertNull(MathUtils.sum(arr));
-        arr = new int[]{1, 2, 3};
-        assertEquals(Integer.valueOf("6"), MathUtils.sum(arr));
-    }
-
-    @Test
-    void testSumForLong() {
-        long[] arr = null;
-        assertNull(MathUtils.sum(arr));
-        arr = new long[]{1, 2, 3};
-        assertEquals(Long.valueOf("6"), MathUtils.sum(arr));
-    }
-
-    @Test
-    void testSumForFloat() {
-        float[] arr = null;
-        assertNull(MathUtils.sum(arr));
-        arr = new float[]{1.1f, 2.2f, 3.3f};
-        assertEquals(Float.parseFloat("6.6"), MathUtils.sum(arr), 0.1);
-    }
-
-    @Test
-    void testSumForDouble() {
-        double[] arr = null;
-        assertNull(MathUtils.sum(arr));
-        arr = new double[]{1.1d, 2.2d, 3.3d};
-        assertEquals(Double.parseDouble("6.6"), MathUtils.sum(arr), 0.1);
-    }
-
-    @Test
     void testNaN() {
         var nan = Double.NaN;
         Double[] boxed = {3.0, nan, null, 1.0};

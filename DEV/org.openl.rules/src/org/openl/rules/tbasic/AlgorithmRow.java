@@ -1,10 +1,6 @@
 package org.openl.rules.tbasic;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openl.meta.StringValue;
-import org.openl.rules.table.IGridRegion;
 import org.openl.util.StringUtils;
 
 public class AlgorithmRow {
@@ -17,10 +13,6 @@ public class AlgorithmRow {
     private StringValue after;
     private int operationLevel;
     private int rowNumber;
-    private IGridRegion gridRegion;
-
-    // capacity by number of values
-    private final Map<String, IGridRegion> valueGridRegions = HashMap.newHashMap(7);
 
     public StringValue getAction() {
         if (action == null) {
@@ -57,13 +49,6 @@ public class AlgorithmRow {
         return description;
     }
 
-    /**
-     * @return the gridRegion
-     */
-    public IGridRegion getGridRegion() {
-        return gridRegion;
-    }
-
     public StringValue getLabel() {
         if (label == null) {
             label = new StringValue(StringUtils.EMPTY);
@@ -89,10 +74,6 @@ public class AlgorithmRow {
         return rowNumber;
     }
 
-    public IGridRegion getValueGridRegion(String valueName) {
-        return valueGridRegions.get(valueName);
-    }
-
     public void setAction(StringValue action) {
         this.action = action;
     }
@@ -113,13 +94,6 @@ public class AlgorithmRow {
         this.description = description;
     }
 
-    /**
-     * @param gridRegion the gridRegion to set
-     */
-    public void setGridRegion(IGridRegion gridRegion) {
-        this.gridRegion = gridRegion;
-    }
-
     public void setLabel(StringValue label) {
         this.label = label;
     }
@@ -137,10 +111,6 @@ public class AlgorithmRow {
      */
     public void setRowNumber(int rowNumber) {
         this.rowNumber = rowNumber;
-    }
-
-    public void setValueGridRegion(String valueName, IGridRegion region) {
-        valueGridRegions.put(valueName, region);
     }
 
     @Override

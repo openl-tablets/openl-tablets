@@ -39,8 +39,8 @@ class NillableFieldSchemaTest {
     private static Class<?> datatypeBean() throws Exception {
         var byteCode = new JavaBeanClassBuilder(BEAN)
                 .addFields(Map.of(
-                        "grade", new FieldDescription(String.class.getName(), "A", "A", null, false),
-                        "age", new FieldDescription(int.class.getName(), 30, "30", null, false),
+                        "grade", new FieldDescription(String.class.getName(), "A", "A", null, null, null, null, null, false, false),
+                        "age", new FieldDescription(int.class.getName(), 30, "30", null, null, null, null, null, false, false),
                         "note", new FieldDescription(String.class.getName())))
                 .byteCode();
         var classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());

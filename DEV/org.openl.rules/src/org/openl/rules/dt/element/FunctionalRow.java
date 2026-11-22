@@ -190,21 +190,6 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     @Override
-    public String[] getParamPresentation() {
-        var length = paramsTable.getHeight();
-        String[] result = new String[length];
-        var fromHeight = 0;
-        for (var i = 0; i < result.length; i++) {
-            var gridHeight = paramsTable.getRow(i).getSource().getHeight();
-            var singleParamGridTable = presentationTable.getSource()
-                    .getRows(fromHeight, fromHeight + gridHeight - 1);
-            result[i] = singleParamGridTable.getCell(0, 0).getStringValue();
-            fromHeight += gridHeight;
-        }
-        return result;
-    }
-
-    @Override
     public boolean hasDeclaredParams() {
         var res = false;
         for (var i = 0; i < paramsTable.getHeight(); i++) {
