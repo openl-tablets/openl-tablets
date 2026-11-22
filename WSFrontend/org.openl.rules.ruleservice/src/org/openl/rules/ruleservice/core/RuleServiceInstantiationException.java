@@ -19,12 +19,4 @@ public class RuleServiceInstantiationException extends RuleServiceException {
         super(message, cause);
     }
 
-    public RuleServiceInstantiationException(String message) {
-        super(message);
-    }
-
-    public RuleServiceInstantiationException(Throwable cause) {
-        super(cause);
-    }
-
 }
