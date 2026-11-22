@@ -20,8 +20,4 @@ public class KafkaServiceException extends RuleServiceException {
         super(message);
     }
 
-    public KafkaServiceException(Throwable cause) {
-        super(cause);
-    }
-
 }

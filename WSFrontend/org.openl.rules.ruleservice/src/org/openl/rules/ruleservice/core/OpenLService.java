@@ -274,22 +274,6 @@ public final class OpenLService {
         }
 
         /**
-         * Adds module to the builder.
-         *
-         * @param module
-         * @return
-         */
-        public OpenLServiceBuilder addModule(Module module) {
-            if (this.modules == null) {
-                this.modules = new ArrayList<>();
-            }
-            if (module != null) {
-                this.modules.add(module);
-            }
-            return this;
-        }
-
-        /**
          * Sets deployPath to the builder.
          *
          * @param deployPath

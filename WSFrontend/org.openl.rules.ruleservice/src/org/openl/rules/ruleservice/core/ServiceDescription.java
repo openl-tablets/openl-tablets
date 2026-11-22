@@ -196,37 +196,6 @@ public final class ServiceDescription {
         }
 
         /**
-         * Adds modules to the builder.
-         *
-         * @param modules
-         * @return
-         */
-        public ServiceDescriptionBuilder addModules(Collection<Module> modules) {
-            if (this.modules == null) {
-                this.modules = new HashSet<>(modules);
-            } else {
-                this.modules.addAll(modules);
-            }
-            return this;
-        }
-
-        /**
-         * Add module to the builder.
-         *
-         * @param module
-         * @return
-         */
-        public ServiceDescriptionBuilder addModule(Module module) {
-            if (this.modules == null) {
-                this.modules = HashSet.newHashSet(0);
-            }
-            if (module != null) {
-                this.modules.add(module);
-            }
-            return this;
-        }
-
-        /**
          * Sets provideRuntimeContext to the builder.
          *
          * @param provideRuntimeContext

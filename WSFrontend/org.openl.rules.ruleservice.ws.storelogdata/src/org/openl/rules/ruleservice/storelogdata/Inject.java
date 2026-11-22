@@ -14,10 +14,6 @@ public class Inject<R> {
     private final BiFunction<Method, Annotation, R> resourceFunction;
     private final Consumer<R> destroyFunction;
 
-    public Inject(Class<? extends Annotation> annotationClass, BiFunction<Method, Annotation, R> resourceFunction) {
-        this(annotationClass, resourceFunction, null);
-    }
-
     public Inject(Class<? extends Annotation> annotationClass,
                   BiFunction<Method, Annotation, R> resourceFunction,
                   Consumer<R> destroyFunction) {

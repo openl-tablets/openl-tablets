@@ -18,8 +18,4 @@ public class KafkaServiceConfigurationException extends KafkaServiceException {
         super(message);
     }
 
-    public KafkaServiceConfigurationException(Throwable cause) {
-        super(cause);
-    }
-
 }

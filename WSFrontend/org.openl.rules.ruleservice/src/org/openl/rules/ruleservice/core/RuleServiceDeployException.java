@@ -37,13 +37,4 @@ public class RuleServiceDeployException extends RuleServiceException {
         super(message, cause);
     }
 
-    /**
-     * Constructs a new RuleServiceDeployException with a cause.
-     *
-     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
-     *              value is permitted, and indicates that the cause is nonexistent or unknown.)
-     */
-    public RuleServiceDeployException(Throwable cause) {
-        super(cause);
-    }
 }
