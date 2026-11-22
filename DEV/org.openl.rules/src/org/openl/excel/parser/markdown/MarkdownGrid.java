@@ -410,11 +410,6 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         putKeepingIndent(col, row, textOf(value));
     }
 
-    @Override
-    public void setCellStringValue(int col, int row, @Nullable String value) {
-        putKeepingIndent(col, row, value);
-    }
-
     /**
      * Refuses an Excel formula: a Markdown file holds no Excel formulas.
      *
@@ -444,24 +439,6 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var indented = MarkdownIndent.of(text);
         var level = indented.level() > 0 ? indented.level() : MarkdownIndent.of(valueAt(column, row)).level();
         put(column, row, MarkdownIndent.write(indented.text(), level));
-    }
-
-    @Override
-    public void createCell(int col,
-                           int row,
-                           @Nullable Object value,
-                           @Nullable String formula,
-                           @Nullable ICellStyle style,
-                           @Nullable String comment,
-                           @Nullable String prevCommentAuthor) {
-        if (StringUtils.isNotBlank(formula)) {
-            setCellFormula(col, row, formula);
-        } else {
-            setCellValue(col, row, value);
-        }
-        if (style != null && style.getIndent() > 0) {
-            setCellIndent(col, row, style.getIndent());
-        }
     }
 
     @Override

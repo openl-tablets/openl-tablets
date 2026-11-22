@@ -9,8 +9,6 @@ public class SetBorderStyleAction extends AUndoableCellAction {
     private final int col;
     private final int row;
 
-    private boolean clearCell = true;
-
     private final ICellStyle newCellStyle;
 
     public SetBorderStyleAction(int col, int row, ICellStyle newCellStyle, MetaInfoWriter metaInfoWriter) {
@@ -20,24 +18,10 @@ public class SetBorderStyleAction extends AUndoableCellAction {
         this.newCellStyle = newCellStyle;
     }
 
-    public SetBorderStyleAction(int col,
-                                int row,
-                                ICellStyle newCellStyle,
-                                boolean clearCell,
-                                MetaInfoWriter metaInfoWriter) {
-        super(col, row, metaInfoWriter);
-        this.col = col;
-        this.row = row;
-        this.newCellStyle = newCellStyle;
-        this.clearCell = clearCell;
-    }
-
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-        if (clearCell) {
-            grid.clearCell(getCol(), getRow());
-        }
+        grid.clearCell(getCol(), getRow());
 
         grid.setCellBorderStyle(col, row, newCellStyle);
     }

@@ -76,7 +76,7 @@ class FormulaWritesTest {
         try (var workbook = new XSSFWorkbook()) {
             var cell = workbook.createSheet().createRow(0).createCell(0);
 
-            grid(workbook).setCellStringValue(0, 0, "= $F1 * 2");
+            grid(workbook).setCellValue(0, 0, "= $F1 * 2");
 
             assertTrue(cell.getCellStyle().getQuotePrefixed());
         }
@@ -89,7 +89,10 @@ class FormulaWritesTest {
             var cell = workbook.createSheet().createRow(0).createCell(0);
             var plain = workbook.createCellStyle();
 
-            grid(workbook).createCell(0, 0, "= $F1 * 2", null, new XlsCellStyle(plain, workbook), null, null);
+            var grid = grid(workbook);
+            grid.setCellValue(0, 0, "= $F1 * 2");
+            grid.setCellStyle(0, 0, new XlsCellStyle(plain, workbook));
+            grid.setApostrophe(0, 0);
 
             assertEquals("= $F1 * 2", cell.getStringCellValue());
             assertTrue(cell.getCellStyle().getQuotePrefixed());

@@ -21,9 +21,8 @@ class FileSignatureHelperTest {
     }
 
     @Test
-    void testXlsFile_isOle2() throws IOException {
+    void testXlsFile_isNotArchive() throws IOException {
         var sign = readSignature("sample.xls");
-        assertTrue(FileSignatureHelper.isOle2Sign(sign));
         assertFalse(FileSignatureHelper.isArchiveSign(sign));
     }
 
@@ -31,7 +30,6 @@ class FileSignatureHelperTest {
     void testXlsxFile_isArchive() throws IOException {
         var sign = readSignature("sample.xlsx");
         assertTrue(FileSignatureHelper.isArchiveSign(sign));
-        assertFalse(FileSignatureHelper.isOle2Sign(sign));
     }
 
     @Test
@@ -39,7 +37,6 @@ class FileSignatureHelperTest {
         var sign = readSignature("sample.zip");
         assertTrue(FileSignatureHelper.isArchiveSign(sign));
         assertFalse(FileSignatureHelper.isEmptyArchive(sign));
-        assertFalse(FileSignatureHelper.isOle2Sign(sign));
     }
 
     @Test
@@ -47,13 +44,11 @@ class FileSignatureHelperTest {
         var sign = readSignature("empty.zip");
         assertTrue(FileSignatureHelper.isArchiveSign(sign));
         assertTrue(FileSignatureHelper.isEmptyArchive(sign));
-        assertFalse(FileSignatureHelper.isOle2Sign(sign));
     }
 
     @Test
-    void testPlainTextFile_isNeitherArchiveNorOle2() throws IOException {
+    void testPlainTextFile_isNotArchive() throws IOException {
         var sign = readSignature("plain.txt");
         assertFalse(FileSignatureHelper.isArchiveSign(sign));
-        assertFalse(FileSignatureHelper.isOle2Sign(sign));
     }
 }

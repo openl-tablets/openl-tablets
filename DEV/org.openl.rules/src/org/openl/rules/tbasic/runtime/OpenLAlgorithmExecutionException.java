@@ -23,19 +23,4 @@ public class OpenLAlgorithmExecutionException extends RuntimeException {
         super(message);
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public OpenLAlgorithmExecutionException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    /**
-     * @param cause
-     */
-    public OpenLAlgorithmExecutionException(Throwable cause) {
-        super(cause);
-    }
-
 }

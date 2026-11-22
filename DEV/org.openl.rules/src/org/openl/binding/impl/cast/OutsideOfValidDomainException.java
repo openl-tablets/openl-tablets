@@ -24,27 +24,6 @@ public class OutsideOfValidDomainException extends OpenLRuntimeException {
         this.allowedValues = null;
     }
 
-    public OutsideOfValidDomainException(String message, Throwable cause) {
-        super(message, cause);
-        this.value = null;
-        this.vocabulary = null;
-        this.allowedValues = null;
-    }
-
-    public OutsideOfValidDomainException(String message) {
-        super(message);
-        this.value = null;
-        this.vocabulary = null;
-        this.allowedValues = null;
-    }
-
-    public OutsideOfValidDomainException(Throwable cause) {
-        super(cause);
-        this.value = null;
-        this.vocabulary = null;
-        this.allowedValues = null;
-    }
-
     public OutsideOfValidDomainException(Object value, String vocabulary, String allowedValues) {
         super("Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
                 value, vocabulary, allowedValues));

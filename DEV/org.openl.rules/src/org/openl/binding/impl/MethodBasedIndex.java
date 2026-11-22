@@ -25,18 +25,6 @@ public class MethodBasedIndex implements IOpenIndex {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.types.IOpenIndex#getIndexType()
-     */
-    @Override
-    public IOpenClass getIndexType() {
-        var n = writer.getMethod().getSignature().getParameterTypes().length;
-
-        return reader.getMethod().getSignature().getParameterTypes()[n - 1];
-    }
-
-    /*
-     * (non-Javadoc)
-     *
      * @see org.openl.types.IOpenIndex#getValue(java.lang.Object, java.lang.Object)
      */
     @Override

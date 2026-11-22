@@ -34,7 +34,7 @@ class TypeToAliasCastTest {
 
         var e = assertThrows(OutsideOfValidDomainException.class, () -> cast.convert("Not Existing"));
         assertEquals("Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]",
-                e.getOriginalMessage());
+                e.getMessage());
     }
 
     @Test
@@ -114,7 +114,7 @@ class TypeToAliasCastTest {
 
         assertEquals(1, cast.convert(1, env));
         var e = assertThrows(OutsideOfValidDomainException.class, () -> cast.convert(null, env));
-        assertEquals("Object '0' is outside of valid domain 'Grade'. Valid values: [1, 2]", e.getOriginalMessage());
+        assertEquals("Object '0' is outside of valid domain 'Grade'. Valid values: [1, 2]", e.getMessage());
     }
 
     /**

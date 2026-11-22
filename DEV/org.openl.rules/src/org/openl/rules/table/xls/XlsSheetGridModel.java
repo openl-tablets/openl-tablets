@@ -337,18 +337,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public void createCell(int col, int row, Object value, String formula, ICellStyle style, String comment, String prevCommentAuthor) {
-        if (StringUtils.isNotBlank(formula)) {
-            setCellFormula(col, row, formula);
-        } else {
-            setCellValue(col, row, value);
-        }
-        setCellStyle(col, row, style);
-        setApostrophe(col, row);
-        setCellComment(col, row, comment, prevCommentAuthor);
-    }
-
-    @Override
     public @Nullable IGridRegion findEmptyRect(int width, int height) {
         var lastRow = getSheet().getLastRowNum();
         var top = lastRow + 2;
@@ -414,17 +402,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } catch (NullPointerException e) {
             return 0;
         }
-    }
-
-    /**
-     * Gets the URI to the table by table region. Just calls {@link XlsSheetGridModel#getRangeUri(int, int, int, int)}.
-     *
-     * @param region Table region.
-     * @return URI to the table in the sheet. (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
-     * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
-     */
-    public String getRangeUri(IGridRegion region) {
-        return getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
     }
 
     @Override
@@ -511,13 +488,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (cell instanceof XSSFCell xssf && xssf.getCTCell().isSetIs()) {
             cell.setBlank();
         }
-    }
-
-    @Override
-    public void setCellStringValue(int col, int row, String value) {
-        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite());
-        cell.setCellValue(value);
-        apostrophes.set(cell);
     }
 
     @Override

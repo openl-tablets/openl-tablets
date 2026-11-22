@@ -2,7 +2,6 @@ package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 
 public final class NumberUtils {
 
@@ -46,21 +45,6 @@ public final class NumberUtils {
         } else {
             return null;
         }
-    }
-
-    public static Double roundValue(Double value, int scale) {
-
-        if (value != null) {
-            if (value.isInfinite() || value.isNaN()) {
-                return value;
-            }
-            BigDecimal roundedValue = BigDecimal.valueOf(value);
-            roundedValue = roundedValue.setScale(scale, RoundingMode.HALF_UP);
-
-            return roundedValue.doubleValue();
-        }
-
-        return null;
     }
 
     /**

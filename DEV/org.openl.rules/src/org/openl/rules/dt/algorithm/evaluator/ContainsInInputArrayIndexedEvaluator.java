@@ -27,10 +27,6 @@ public class ContainsInInputArrayIndexedEvaluator extends AEqualsIndexedEvaluato
 
     private final List<ConditionParameter> values;
 
-    public ContainsInInputArrayIndexedEvaluator(ConditionCasts conditionCasts) {
-        this(conditionCasts, List.of());
-    }
-
     /**
      * @param values the column parameters the index is built from; an empty list means the first parameter of the
      *               condition the index belongs to

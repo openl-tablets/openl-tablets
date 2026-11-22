@@ -17,28 +17,6 @@ public final class GridRegionUtils {
     }
 
     /**
-     * Return absolute column index taking into account region.
-     *
-     * @param region Region which contains column.
-     * @param column Column index in the region.
-     * @return Absolute column index.
-     */
-    public static int getAbsoluteColumn(IGridRegion region, int column) {
-        return column + region.getLeft();
-    }
-
-    /**
-     * Return absolute row index taking into account region.
-     *
-     * @param region Region which contains row.
-     * @param row    Row index in the region.
-     * @return Absolute row index.
-     */
-    public static int getAbsoluteRow(IGridRegion region, int row) {
-        return row + region.getTop();
-    }
-
-    /**
      * Calculates grid region height.
      *
      * @param i1 grid region

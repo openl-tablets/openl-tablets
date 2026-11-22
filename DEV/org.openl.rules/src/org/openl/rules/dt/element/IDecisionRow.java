@@ -21,8 +21,6 @@ public interface IDecisionRow extends IBaseDecisionRow {
     @Override
     IOpenSourceCodeModule getSourceCodeModule();
 
-    String[] getParamPresentation();
-
     @Override
     Object getParamValue(int paramIndex, int ruleN);
 

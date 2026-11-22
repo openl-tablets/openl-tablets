@@ -14,8 +14,6 @@ package org.openl.types;
 public interface IOpenIndex {
     IOpenClass getElementType();
 
-    IOpenClass getIndexType();
-
     Object getValue(Object container, Object index);
 
     boolean isWritable();

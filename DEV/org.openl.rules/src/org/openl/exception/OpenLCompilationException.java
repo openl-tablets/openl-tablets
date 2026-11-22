@@ -20,7 +20,6 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private final Throwable insideCause;
     private final transient ILocation location;
     private final String sourceLocation;
-    private final String sourceUri;
     private final String sourceCode;
     private final SourceRange sourceRange;
 
@@ -32,19 +31,13 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         this.insideCause = insideCause;
         this.location = location;
         if (source != null) {
-            this.sourceUri = source.getUri();
             this.sourceCode = source.getCode();
             this.sourceRange = SourceCodeURLTool.rangeOf(location, source);
         } else {
-            this.sourceUri = null;
             this.sourceCode = null;
             this.sourceRange = null;
         }
         this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, source);
-    }
-
-    public OpenLCompilationException(String message, Throwable cause, ILocation location) {
-        this(message, cause, location, null);
     }
 
     public OpenLCompilationException(String message, Throwable cause) {
@@ -79,10 +72,6 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     @Override
     public synchronized Throwable getCause() {
         return getOriginalCause();
-    }
-
-    public String getSourceUri() {
-        return sourceUri;
     }
 
     @Override

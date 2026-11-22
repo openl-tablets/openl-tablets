@@ -19,13 +19,6 @@ public class TableSyntaxNodeKey {
     }
 
     /**
-     * @return The TableSyntaxNode, key was generated for
-     */
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tsn;
-    }
-
-    /**
      * @return {@link DimensionPropertiesMethodKey} for {@link TableSyntaxNode} member.
      */
     public DimensionPropertiesMethodKey getMethodKey() {

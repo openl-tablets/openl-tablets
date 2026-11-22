@@ -609,10 +609,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return spr;
     }
 
-    public Object createBean(SpreadsheetResult spreadsheetResult) {
-        return createBean(spreadsheetResult, null);
-    }
-
     public Object createBean(SpreadsheetResult spreadsheetResult,
                              SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         Class<?> clazz = getBeanClass();

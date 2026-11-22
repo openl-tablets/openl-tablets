@@ -1,7 +1,6 @@
 package org.openl.rules.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
@@ -58,24 +57,6 @@ class NumberUtilsTest {
     @Test
     void testBigDecimal() {
         assertEquals(36, NumberUtils.getScale(new BigDecimal("12.123456789123456789123456789123456789")));
-    }
-
-    @Test
-    void testRoundValue() {
-        assertEquals(0.35, NumberUtils.roundValue(0.35, 2), 0.001);
-
-        assertEquals(0.3, NumberUtils.roundValue(0.34, 1), 0.01);
-        assertEquals(0.4, NumberUtils.roundValue(0.35, 1), 0.01);
-        assertEquals(0.4, NumberUtils.roundValue(0.36, 1), 0.01);
-
-        assertNull(NumberUtils.roundValue(null, 1));
-    }
-
-    @Test
-    void testInfinity() {
-        assertEquals(Double.POSITIVE_INFINITY, NumberUtils.roundValue(Double.POSITIVE_INFINITY, 1), 0.01);
-        assertEquals(Double.NEGATIVE_INFINITY, NumberUtils.roundValue(Double.NEGATIVE_INFINITY, 1), 0.01);
-        assertEquals(Double.NaN, NumberUtils.roundValue(Double.NaN, 1), 0.01);
     }
 
     @Test

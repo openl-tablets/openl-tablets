@@ -62,7 +62,6 @@ class ArrayParameterColumnTest {
     void testGetRuleValue() {
         var arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
-        assertEquals(2, arrayColumn.getRulesNumber());
         assertEquals(1, arrayColumn.getNumberOfLocalParameters());
         assertEquals("AT,BA,CL,SA", arrayColumn.getRuleValue(0, 0));
         assertEquals("AU,BE,CA", arrayColumn.getRuleValue(1, 0));

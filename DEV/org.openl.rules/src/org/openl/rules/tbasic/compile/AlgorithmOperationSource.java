@@ -3,7 +3,6 @@ package org.openl.rules.tbasic.compile;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
@@ -17,27 +16,8 @@ public class AlgorithmOperationSource {
     @Getter
     private final String operationFieldName;
 
-    public IGridRegion getGridRegion() {
-        IGridRegion sourceRegion = null;
-
-        if (operationFieldName != null) {
-            sourceRegion = sourceNode.getAlgorithmRow().getValueGridRegion(operationFieldName);
-        }
-
-        // if source is not value source or not found
-        if (sourceRegion == null) {
-            sourceRegion = sourceNode.getAlgorithmRow().getGridRegion();
-        }
-
-        return sourceRegion;
-    }
-
     public String getOperationName() {
         return sourceNode.getAlgorithmRow().getOperation().getValue();
-    }
-
-    public int getRowNumber() {
-        return sourceNode.getAlgorithmRow().getRowNumber();
     }
 
     public IOpenSourceCodeModule getSourceModule() {

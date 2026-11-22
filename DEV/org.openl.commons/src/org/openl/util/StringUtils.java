@@ -141,37 +141,6 @@ public class StringUtils {
 
     /**
      * <p>
-     * Splits the provided string into an array of trimmed strings, separated by new line character codes: {@code '\n'}
-     * and {@code '\r'}. Blank lines are omitted from the result.
-     * </p>
-     * <p>
-     * A blank or {@code null} input String returns {@code null}.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.toLines(null)                 = null
-     * StringUtils.toLines("")                   = null
-     * StringUtils.toLines("   ")                = null
-     * StringUtils.toLines("  abc  ")            = ["abc"]
-     * StringUtils.toLines("a b c")              = ["a b c"]
-     * StringUtils.toLines("a\rb\nc")            = ["a", "b", "c"]
-     * StringUtils.toLines("\r a\n\t\r \n c \n") = ["a", "c"]
-     * </pre>
-     *
-     * @param text the String to parse, may be null
-     * @return an array of parsed Strings, {@code null} if blank String input
-     */
-    // Public utility contract: a blank text gives a null result, as documented.
-    @SuppressWarnings("java:S1168")
-    public static String[] toLines(final String text) {
-        if (isBlank(text)) {
-            return null;
-        }
-        return text.lines().map(String::trim).filter(line -> !line.isEmpty()).toArray(String[]::new);
-    }
-
-    /**
-     * <p>
      * Joins the elements of the provided array into a single String containing the provided list of elements.
      * </p>
      * <p>

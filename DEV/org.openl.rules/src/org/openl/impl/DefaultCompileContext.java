@@ -1,6 +1,5 @@
 package org.openl.impl;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -15,7 +14,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * Set of validators that will be used in validation process.
      */
-    private Set<IOpenLValidator> validators = new CopyOnWriteArraySet<>();
+    private final Set<IOpenLValidator> validators = new CopyOnWriteArraySet<>();
 
     /**
      * {@inheritDoc}
@@ -23,33 +22,6 @@ public class DefaultCompileContext implements ICompileContext {
     @Override
     public void addValidator(IOpenLValidator validator) {
         validators.add(validator);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addValidators(List<IOpenLValidator> validators) {
-
-        for (IOpenLValidator validator : validators) {
-            addValidator(validator);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeValidator(IOpenLValidator validator) {
-        validators.remove(validator);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeValidators() {
-        validators = new CopyOnWriteArraySet<>();
     }
 
     /**

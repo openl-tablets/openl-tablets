@@ -28,15 +28,6 @@ public class OpenLMessage {
     private final Severity severity;
 
     /**
-     * Constructs new instance of message with INFO severity.
-     *
-     * @param summary brief information
-     */
-    public OpenLMessage(String summary) {
-        this(summary, Severity.INFO);
-    }
-
-    /**
      * Constructs new instance of message.
      *
      * @param summary  brief information

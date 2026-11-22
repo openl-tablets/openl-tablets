@@ -7,18 +7,12 @@ import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayElements;
 
 @RequiredArgsConstructor
 public class ArrayIndex implements IOpenIndex {
     @Getter
     private final IOpenClass elementType;
-
-    @Override
-    public IOpenClass getIndexType() {
-        return JavaOpenClass.INT;
-    }
 
     @Override
     public Object getValue(Object container, Object index) {

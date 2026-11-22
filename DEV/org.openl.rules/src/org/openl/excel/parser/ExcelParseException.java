@@ -21,7 +21,4 @@ public class ExcelParseException extends RuntimeException {
         super(cause);
     }
 
-    public ExcelParseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

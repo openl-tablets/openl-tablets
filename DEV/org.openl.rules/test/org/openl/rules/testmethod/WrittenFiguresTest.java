@@ -23,58 +23,58 @@ class WrittenFiguresTest {
 
     @Test
     void writtenNumber() {
-        assertEquals(2, WrittenFigures.scaleOf("10.00"));
-        assertEquals(3, WrittenFigures.scaleOf("10.000"));
-        assertEquals(4, WrittenFigures.scaleOf("0.0001"));
-        assertEquals(0, WrittenFigures.scaleOf("1000"));
-        assertEquals(0, WrittenFigures.scaleOf(" 7 "));
-        assertEquals(1, WrittenFigures.scaleOf("-3.0"));
-        assertEquals(1, WrittenFigures.scaleOf("+.5"));
-        assertEquals(0, WrittenFigures.scaleOf("5."));
+        assertEquals(2, scaleOf(cell("10.00", null)));
+        assertEquals(3, scaleOf(cell("10.000", null)));
+        assertEquals(4, scaleOf(cell("0.0001", null)));
+        assertEquals(0, scaleOf(cell("1000", null)));
+        assertEquals(0, scaleOf(cell(" 7 ", null)));
+        assertEquals(1, scaleOf(cell("-3.0", null)));
+        assertEquals(1, scaleOf(cell("+.5", null)));
+        assertEquals(0, scaleOf(cell("5.", null)));
     }
 
     @Test
     void groupingPercentAndExponent() {
-        assertEquals(2, WrittenFigures.scaleOf("1,000.50"));
-        assertEquals(3, WrittenFigures.scaleOf("12.5%"));
-        assertEquals(-1, WrittenFigures.scaleOf("1.00E+03"));
-        assertEquals(9, WrittenFigures.scaleOf("1.331e-6"));
+        assertEquals(2, scaleOf(cell("1,000.50", null)));
+        assertEquals(3, scaleOf(cell("12.5%", null)));
+        assertEquals(-1, scaleOf(cell("1.00E+03", null)));
+        assertEquals(9, scaleOf(cell("1.331e-6", null)));
     }
 
     @Test
     void multiplierKeepsTheFiguresOfTheNumber() {
         // 1.5K is 1500 written to the hundreds
-        assertEquals(-2, WrittenFigures.scaleOf("1.5K"));
-        assertEquals(-3, WrittenFigures.scaleOf("3323K"));
-        assertEquals(-4, WrittenFigures.scaleOf("1.25M"));
-        assertEquals(-9, WrittenFigures.scaleOf("-2B"));
-        assertEquals(-1, WrittenFigures.scaleOf("1,234.56K"));
-        assertEquals(-2, WrittenFigures.scaleOf("1.5E-3M"));
-        assertNull(WrittenFigures.scaleOf("1.5k"));
-        assertNull(WrittenFigures.scaleOf("1.5 K"));
-        assertNull(WrittenFigures.scaleOf("1.5%K"));
-        assertNull(WrittenFigures.scaleOf("1.5K%"));
-        assertNull(WrittenFigures.scaleOf("K"));
+        assertEquals(-2, scaleOf(cell("1.5K", null)));
+        assertEquals(-3, scaleOf(cell("3323K", null)));
+        assertEquals(-4, scaleOf(cell("1.25M", null)));
+        assertEquals(-9, scaleOf(cell("-2B", null)));
+        assertEquals(-1, scaleOf(cell("1,234.56K", null)));
+        assertEquals(-2, scaleOf(cell("1.5E-3M", null)));
+        assertNull(scaleOf(cell("1.5k", null)));
+        assertNull(scaleOf(cell("1.5 K", null)));
+        assertNull(scaleOf(cell("1.5%K", null)));
+        assertNull(scaleOf(cell("1.5K%", null)));
+        assertNull(scaleOf(cell("K", null)));
     }
 
     @Test
     void notOneNumber() {
-        assertNull(WrittenFigures.scaleOf(""));
-        assertNull(WrittenFigures.scaleOf("abc"));
-        assertNull(WrittenFigures.scaleOf("%"));
-        assertNull(WrittenFigures.scaleOf("1.0, 2.0"));
-        assertNull(WrittenFigures.scaleOf("$10.00"));
+        assertNull(scaleOf(cell("", null)));
+        assertNull(scaleOf(cell("abc", null)));
+        assertNull(scaleOf(cell("%", null)));
+        assertNull(scaleOf(cell("1.0, 2.0", null)));
+        assertNull(scaleOf(cell("$10.00", null)));
         // commas that do not group thousands
-        assertNull(WrittenFigures.scaleOf("12,34.00"));
-        assertNull(WrittenFigures.scaleOf("0,500"));
+        assertNull(scaleOf(cell("12,34.00", null)));
+        assertNull(scaleOf(cell("0,500", null)));
     }
 
     @Test
     void longTextIsReadInLinearTime() {
         var digits = "9".repeat(100_000);
         assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
-            assertNull(WrittenFigures.scaleOf(digits + "x"));
-            assertEquals(0, WrittenFigures.scaleOf(digits));
+            assertNull(scaleOf(cell(digits + "x", null)));
+            assertEquals(0, scaleOf(cell(digits, null)));
         });
     }
 
@@ -183,8 +183,8 @@ class WrittenFiguresTest {
 
     @Test
     void exponentBeyondTheDecimalPlaces() {
-        assertNull(WrittenFigures.scaleOf("1E99999999999"));
-        assertNull(WrittenFigures.scaleOf("1E-2147483647%"));
+        assertNull(scaleOf(cell("1E99999999999", null)));
+        assertNull(scaleOf(cell("1E-2147483647%", null)));
     }
 
     @Test

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.excel.parser.dom.DOMReader;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellComment;
 
@@ -15,7 +16,7 @@ class CommentsTest {
 
     @Test
     void commentWithDomInXls() {
-        try (var reader = ExcelReaderFactory.fullReadFactory().create(XLS)) {
+        try (var reader = new DOMReader(XLS)) {
             var comment = readComment(reader);
 
             assertNotNull(comment);
@@ -25,7 +26,7 @@ class CommentsTest {
 
     @Test
     void commentWithDomInXlsx() {
-        try (var reader = ExcelReaderFactory.fullReadFactory().create(XLSX)) {
+        try (var reader = new DOMReader(XLSX)) {
             var comment = readComment(reader);
 
             assertNotNull(comment);

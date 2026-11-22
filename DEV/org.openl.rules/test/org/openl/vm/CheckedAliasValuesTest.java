@@ -42,7 +42,7 @@ class CheckedAliasValuesTest {
         var e = assertThrows(OutsideOfValidDomainException.class, () -> values.check(value, TEXTS));
 
         assertEquals("Object 'Val3' is outside of valid domain 'Texts'. Valid values: [Val1, Val2]",
-                e.getOriginalMessage());
+                e.getMessage());
         assertFalse(values.contains(value, TEXTS));
     }
 

@@ -18,10 +18,6 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
     private final int keptCount;
     private final MetaInfoWriter metaInfoWriter;
 
-    public UndoableRemoveColumnsAction(int nCols, int startCol, MetaInfoWriter metaInfoWriter) {
-        this(nCols, startCol, 0, 0, metaInfoWriter);
-    }
-
     /**
      * Removes the columns from every row of the table but a block of rows, such as its properties, whose cells stay
      * where they are.

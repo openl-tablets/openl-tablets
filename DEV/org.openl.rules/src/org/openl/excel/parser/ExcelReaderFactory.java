@@ -8,7 +8,6 @@ import java.nio.file.Path;
 
 import org.apache.poi.poifs.filesystem.FileMagic;
 
-import org.openl.excel.parser.dom.DOMReader;
 import org.openl.excel.parser.event.EventReader;
 import org.openl.excel.parser.markdown.MarkdownReader;
 import org.openl.excel.parser.sax.SAXReader;
@@ -18,10 +17,6 @@ public abstract class ExcelReaderFactory {
 
     public static ExcelReaderFactory sequentialFactory() {
         return new SequentialExcelReaderFactory();
-    }
-
-    public static ExcelReaderFactory fullReadFactory() {
-        return new FullReadExcelReaderFactory();
     }
 
     /**
@@ -107,13 +102,6 @@ public abstract class ExcelReaderFactory {
                 default:
                     throw new ExcelParseException("Unknown file format");
             }
-        }
-    }
-
-    private static class FullReadExcelReaderFactory extends ExcelReaderFactory {
-        @Override
-        public ExcelReader create(String fileName, InputStream is) {
-            return fileName != null ? new DOMReader(fileName) : new DOMReader(is);
         }
     }
 }

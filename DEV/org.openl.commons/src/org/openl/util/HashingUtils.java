@@ -29,10 +29,6 @@ public final class HashingUtils {
         return getSha1Digest().digest(getBytesUtf8(data));
     }
 
-    public static String sha1Hex(String data) {
-        return encodeHexString(sha1(data));
-    }
-
     private static MessageDigest getSha256Digest() {
         return getDigest("SHA-256");
     }

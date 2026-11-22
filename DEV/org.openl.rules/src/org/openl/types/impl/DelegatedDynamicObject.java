@@ -65,8 +65,4 @@ public class DelegatedDynamicObject extends DynamicObject {
         }
     }
 
-    public boolean isAssignableFrom(Class<?> type) {
-        return type.isInstance(parent);
-    }
-
 }

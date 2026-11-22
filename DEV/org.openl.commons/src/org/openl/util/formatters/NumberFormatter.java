@@ -29,10 +29,6 @@ public class NumberFormatter implements IFormatter {
         this(NumberFormat.getInstance(locale == null ? Locale.getDefault() : locale));
     }
 
-    public NumberFormatter(String format) {
-        this(new DecimalFormat(format));
-    }
-
     public NumberFormatter(String format, Locale locale) {
         this(new DecimalFormat(format, createDecimalFormatSymbols(locale)));
     }

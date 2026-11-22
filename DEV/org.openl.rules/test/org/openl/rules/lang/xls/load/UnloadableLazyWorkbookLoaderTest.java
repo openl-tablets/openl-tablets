@@ -57,7 +57,7 @@ class UnloadableLazyWorkbookLoaderTest {
         var workbookSource = new XlsWorkbookSourceCodeModule(source, new UnloadableLazyWorkbookLoader(source));
         var grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, workbookSource));
 
-        grid.setCellStringValue(0, 0, "written through the grid");
+        grid.setCellValue(0, 0, "written through the grid");
         forceGarbageCollection();
         workbookSource.save();
 

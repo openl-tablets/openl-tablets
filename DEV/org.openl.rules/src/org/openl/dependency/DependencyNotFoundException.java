@@ -12,15 +12,4 @@ public class DependencyNotFoundException extends OpenLCompilationException {
         super(message, insideCause, location, source);
     }
 
-    public DependencyNotFoundException(String message, Throwable cause, ILocation location) {
-        super(message, cause, location);
-    }
-
-    public DependencyNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public DependencyNotFoundException(String message) {
-        super(message);
-    }
 }

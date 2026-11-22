@@ -55,10 +55,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         this(cause == null ? null : cause.toString(), cause, syntaxNodeOf(node));
     }
 
-    public OpenLRuntimeException(String message, IBoundNode node) {
-        this(message, null, syntaxNodeOf(node));
-    }
-
     protected OpenLRuntimeException(String message, ISyntaxNode syntaxNode) {
         this(message, null, syntaxNode);
     }
@@ -82,10 +78,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     private static ISyntaxNode syntaxNodeOf(IBoundNode node) {
         return node == null ? null : node.getSyntaxNode();
-    }
-
-    public String getOriginalMessage() {
-        return super.getMessage();
     }
 
     @Override

@@ -47,11 +47,6 @@ public class JavaBeanClassBuilder {
         return this;
     }
 
-    public JavaBeanClassBuilder addField(String name, String type) {
-        addField(name, new FieldDescription(type));
-        return this;
-    }
-
     public JavaBeanClassBuilder addFields(Map<String, FieldDescription> fields) {
         for (Map.Entry<String, FieldDescription> field : fields.entrySet()) {
             addField(field.getKey(), field.getValue());

@@ -42,16 +42,6 @@ public class Constraints {
         return new ArrayList<>(items);
     }
 
-    public void addAll(String constraintsStr) {
-        addAll(ConstraintsParser.parse(constraintsStr));
-    }
-
-    public void addAll(List<Constraint> constraints) {
-        if (CollectionUtils.isNotEmpty(constraints)) {
-            this.items.addAll(constraints);
-        }
-    }
-
     public void add(Constraint constraint) {
         items.add(constraint);
     }

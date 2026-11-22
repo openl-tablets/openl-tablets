@@ -3,7 +3,6 @@ package org.openl.rules.testmethod;
 import lombok.Getter;
 
 import org.openl.rules.context.DefaultRulesRuntimeContext;
-import org.openl.rules.data.RowIdField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicObject;
@@ -14,6 +13,9 @@ import org.openl.vm.IRuntimeEnv;
 // OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
 @SuppressWarnings("java:S2160")
 public class TestMethodOpenClass extends ADynamicClass {
+
+    /** The field of a test case that holds its ID, the {@code _id_} column of a test table. */
+    static final String ROW_ID = "_id_";
 
     public TestMethodOpenClass(String tableName, IOpenMethod testedMethod) {
 
@@ -87,7 +89,7 @@ public class TestMethodOpenClass extends ADynamicClass {
     }
 
     protected void addTestId() {
-        var idField = new DynamicObjectField(this, RowIdField.ROW_ID, JavaOpenClass.STRING);
+        var idField = new DynamicObjectField(this, ROW_ID, JavaOpenClass.STRING);
         addField(idField);
     }
 }

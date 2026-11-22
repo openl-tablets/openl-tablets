@@ -125,8 +125,4 @@ public final class ZipArchiver implements Closeable {
         zos.close();
     }
 
-    public void finish() throws IOException {
-        zos.finish();
-    }
-
 }

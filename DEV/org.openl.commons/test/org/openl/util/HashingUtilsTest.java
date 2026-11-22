@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class HashingUtilsTest {
     @Test
     void sha1_validString_returnsExpectedHash() {
         // "hello" in SHA-1 should produce a known hash
-        String result = HashingUtils.sha1Hex("hello");
+        var result = HexFormat.of().formatHex(HashingUtils.sha1("hello"));
         assertNotNull(result);
         assertEquals(40, result.length(), "SHA-1 hash should be 20 bytes");
         assertEquals("aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d", result);
@@ -55,7 +56,7 @@ class HashingUtilsTest {
 
     @Test
     void sha1_emptyString_returnsExpectedHash() {
-        String result = HashingUtils.sha1Hex("");
+        var result = HexFormat.of().formatHex(HashingUtils.sha1(""));
         assertNotNull(result);
         assertEquals(40, result.length());
         // SHA-1 of empty string

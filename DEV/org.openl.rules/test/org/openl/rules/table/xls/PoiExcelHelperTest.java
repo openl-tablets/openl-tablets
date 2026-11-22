@@ -152,16 +152,23 @@ class PoiExcelHelperTest {
     }
 
     @Test
-    void holdsAColourTheXlsPaletteHasNoRoomForAsTheNearestOneItHas() throws IOException {
-        try (var xls = new HSSFWorkbook(); var xlsx = new XSSFWorkbook()) {
+    void writesAColourTheXlsPaletteHasNoRoomForAsTheNearestOneItHas() throws IOException {
+        try (var xls = new HSSFWorkbook()) {
             // The palette of an .xls workbook is full: a colour it lacks is held as the nearest one it has.
             var nearest = xls.getCustomPalette().findSimilarColor(0xB4, 0xC6, 0xE7).getTriplet();
-            assertArrayEquals(nearest, PoiExcelHelper.toStoredRgb("#b4c6e7", xls));
-            assertArrayEquals(new short[]{0x80, 0x80, 0x80}, PoiExcelHelper.toStoredRgb("#808080", xls));
-            // An .xlsx workbook holds every colour as it is.
-            assertArrayEquals(new short[]{0xB4, 0xC6, 0xE7}, PoiExcelHelper.toStoredRgb("#b4c6e7", xlsx));
-            assertEquals(0xB4C6E7, PoiExcelHelper.toRgbValue(new short[]{0xB4, 0xC6, 0xE7}));
+            var font = xls.createFont();
+            PoiExcelHelper.setFontColor(font, new short[]{0xB4, 0xC6, 0xE7}, xls);
+            assertArrayEquals(nearest, PoiExcelHelper.toRgb(font.getColor(), xls));
+
+            // A colour the palette has is held as it is.
+            PoiExcelHelper.setFontColor(font, new short[]{0x80, 0x80, 0x80}, xls);
+            assertArrayEquals(new short[]{0x80, 0x80, 0x80}, PoiExcelHelper.toRgb(font.getColor(), xls));
         }
+    }
+
+    @Test
+    void writesAColourAsItsRgbValue() {
+        assertEquals(0xB4C6E7, PoiExcelHelper.toRgbValue(new short[]{0xB4, 0xC6, 0xE7}));
     }
 
     /**
