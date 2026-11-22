@@ -3,7 +3,7 @@
 ## Resume point
 
 - No PR is open: #2542 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- Everything up to `origin/main` 91ffa3cdc9 is swept, Java included. A run is: sweep the delta since that SHA, then
+- Everything up to `origin/main` c62d8d8a63 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
@@ -96,7 +96,7 @@
   fields in a binary .xls, YamlMapperFactoryTest transients, InterfaceTransformerTest.TestInterface. Error Prone
   reports BeanA.getAB every build; it stays.
 - Bundle conventions: ValidationMessages `openl.error.<status>.<code>.message` (Java passes `<code>.message` or the
-  `{full.key}`; unnumbered keys `openl.error.<code>.message` pass `<code>` alone; a key with no `.message` is
+  `{full.key}`; unnumbered keys `openl.error.<code>.message` pass `<code>` or `<code>.message`; a key with no `.message` is
   `openl.error.<status>.` + the whole literal, so test that candidate too), sql-errors
   keyed by vendor error code, `openl-default.properties` keys composed as `repo-<id>.` and `$ref` indirection —
   the documented `repository.archive.*` and `repository.design.*` are that composition, not dead keys.
@@ -137,7 +137,8 @@
   skipped before the failure stay unbuilt and later goals cannot resolve them. Add
   `-Dmaven.test.failure.ignore=true` (see Container facts: signing). Before every push, list open `dead-code/*` PRs and re-fetch main.
 - Index the whole tree once (regex `[A-Za-z_$][\w$]*` per file into a Counter, ~8 s) and answer every "is this name
-  used" question from it; a name whose total count equals its count in its own file is unreferenced.
+  used" question from it; a name whose total count equals its count in its own file is unreferenced. For a delta,
+  index the base SHA too: a name that HAD outside hits and now has none is what the delta orphaned.
 - `-Dpmd.rulesets` on the CLI is IGNORED (default rules run): configure the plugin in the root pom.
 - PMD needs reactor artifacts and a warm `~/.m2`, so run it online and fully qualified (a `pmd:` prefix fails):
   `mvn test-compile org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd dependency:analyze-only -Pitest -fae -T2
@@ -294,7 +295,6 @@
 
 ## Run log
 
-- 2026-11-01: delta 205 commits (MCP tools, per-user date formats, table types out of tutorials). Error Prone,
-  tsc, i18n, bundles, defaults, Docs images and tokens at zero but 1 stale class in Docs: #2465 opened (-2).
 - 2026-11-08: delta 137 commits; every vein zero but tsc's 4 unused `import React` in tests: #2488 opened (-4), merged.
 - 2026-11-15: delta 118 commits; every vein zero but tsc's 12 unused `import React` (production): #2542 (-12), merged.
+- 2026-11-22: delta 140 commits, cold `~/.m2` (reactor ~60 min); every vein zero incl. PMD on delta files. No PR.
