@@ -265,27 +265,6 @@ public final class MetainfoRegistry {
     }
 
     /**
-     * Relinks the registered project to another repository revision.
-     *
-     * <p>The recorded file baselines are preserved, and the local-changes state is not reset. The whole
-     * replacement runs under the project lock, so a concurrent editing notification cannot be lost.
-     */
-    public void relink(String projectName, ProjectMetainfo metainfo) {
-        var lock = lockOf(projectName);
-        lock.lock();
-        try {
-            var previous = records.get(projectName);
-            var merged = previous == null ? metainfo : metainfo.withFiles(previous.files());
-            store(userDir, projectName, merged);
-            records.put(projectName, merged);
-        } catch (IOException e) {
-            throw new IllegalStateException("Cannot relink the metainfo of the '" + projectName + "' project.", e);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
      * Runs the action under the project lock.
      *
      * <p>A multi-step operation whose intermediate state must not be observed by a concurrent

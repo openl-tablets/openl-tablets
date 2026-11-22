@@ -91,27 +91,15 @@ public class AProjectArtefact implements IProjectArtefact {
         return fileDatas.stream().map(this::createProjectVersion).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public int getVersionsCount() {
-        try {
-            return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-    }
-
     protected ProjectVersion createProjectVersion(FileData fileData) {
         if (fileData == null) {
             return new RepositoryProjectVersionImpl(true);
         }
         var rvii = Optional.ofNullable(fileData.getAuthor())
-                .map(author -> new RepositoryVersionInfoImpl(fileData.getModifiedAt(), author.getName(), author.getEmail()))
-                .orElse(new RepositoryVersionInfoImpl(fileData.getModifiedAt(), null, null));
+                .map(author -> new RepositoryVersionInfoImpl(fileData.getModifiedAt(), author.getName()))
+                .orElse(new RepositoryVersionInfoImpl(fileData.getModifiedAt(), null));
         var version = fileData.getVersion();
-        var projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version,
-                rvii,
-                fileData.isDeleted());
-        projectVersion.setVersionComment(fileData.getComment());
-        return projectVersion;
+        return new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii, fileData.isDeleted());
     }
 
     /**

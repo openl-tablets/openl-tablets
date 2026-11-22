@@ -18,18 +18,6 @@ public class CommonVersionImpl implements CommonVersion {
 
     private String versionName;
 
-    public CommonVersionImpl(CommonVersion version) {
-        major = version.getMajor();
-        minor = version.getMinor();
-        revision = version.getRevision();
-    }
-
-    public CommonVersionImpl(int major, int minor, int revision) {
-        this.major = major;
-        this.minor = minor;
-        this.revision = "" + revision;
-    }
-
     public CommonVersionImpl(int revision) {
         this.revision = "" + revision;
     }
@@ -114,12 +102,6 @@ public class CommonVersionImpl implements CommonVersion {
         }
 
         return versionName;
-    }
-
-    @Override
-    public String getShortVersion() {
-        var version = getVersionName();
-        return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 
     @Override

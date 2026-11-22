@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.util.Objects;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
@@ -24,9 +23,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     @Getter
     private final VersionInfo versionInfo;
 
-    @Getter
-    @Setter
-    private String versionComment;
     @Getter
     private boolean deleted;
 
@@ -90,12 +86,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         }
 
         return versionName;
-    }
-
-    @Override
-    public String getShortVersion() {
-        var version = getVersionName();
-        return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 
     @Override

@@ -48,25 +48,4 @@ public interface ArtefactPath {
      */
     int segmentCount();
 
-    /**
-     * Create new instance of ArtefactPath from base one, excluding first segment of base path.
-     * <p/>
-     * It is used to translate path of artefact in the workspace to path in a project.
-     *
-     * @return new instance where first segment of base path is excluded.
-     */
-    ArtefactPath withoutFirstSegment();
-
-    ArtefactPath withoutSegment(int segmentIndex);
-
-    /**
-     * Creates new instance of ArtefactPath from base one, adding one more segment.
-     * <p/>
-     * It should be used to build artefact paths recursively.
-     *
-     * @param segment adding segment
-     * @return new instance where specified segment is appended to path
-     */
-    ArtefactPath withSegment(String segment);
-
 }

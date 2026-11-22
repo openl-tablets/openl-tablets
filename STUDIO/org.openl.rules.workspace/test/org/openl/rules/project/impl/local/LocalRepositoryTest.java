@@ -47,7 +47,9 @@ class LocalRepositoryTest {
 
     @Test
     void linkIsFullWhenAuthorIsKnown() throws IOException {
-        projectState.saveFileData("design", createFileData(new UserInfo("jdoe", "jdoe@email.to", "John Doe")));
+        projectState.saveSnapshot("design",
+                createFileData(new UserInfo("jdoe", "jdoe@email.to", "John Doe")),
+                Map.of());
 
         assertEquals("John Doe", readRecord().get("author"));
         var link = projectState.getFileData();
@@ -61,7 +63,7 @@ class LocalRepositoryTest {
     void linkSurvivesBlankAuthorName() throws IOException {
         // Regression for EPBDS-16228: a revision authored with a blank git ident must not leave
         // the checked out project unlinked, otherwise it shows up as a separate local project.
-        projectState.saveFileData("design", createFileData(new UserInfo(null, "some@email.to", "")));
+        projectState.saveSnapshot("design", createFileData(new UserInfo(null, "some@email.to", "")), Map.of());
 
         assertNull(readRecord().get("author"));
         var link = projectState.getFileData();
@@ -73,23 +75,12 @@ class LocalRepositoryTest {
 
     @Test
     void linkSurvivesAbsentAuthor() {
-        projectState.saveFileData("design", createFileData(null));
+        projectState.saveSnapshot("design", createFileData(null), Map.of());
 
         var link = projectState.getFileData();
         assertNotNull(link);
         assertEquals("rev-1", link.getVersion());
         assertNull(link.getAuthor());
-    }
-
-    @Test
-    void emptyFileDataIsNotSaved() {
-        FileData fileData = createFileData(new UserInfo("jdoe"));
-        fileData.setVersion(null);
-
-        projectState.saveFileData("design", fileData);
-
-        assertNull(projectState.getFileData());
-        assertNull(projectState.getRepositoryId());
     }
 
     @Test
@@ -110,16 +101,6 @@ class LocalRepositoryTest {
         assertTrue(saved.getModifiedAt().getTime() > baselineTime,
                 "The modification time must differ from the baseline after the edit.");
         assertTrue(projectState.isModified());
-    }
-
-    @Test
-    void relinkPreservesLocalChanges() {
-        projectState.notifyModified();
-        assertTrue(projectState.isModified());
-
-        projectState.saveFileData("design", createFileData(new UserInfo("jdoe")));
-
-        assertTrue(projectState.isModified(), "Relinking is not a synchronization point.");
     }
 
     private static FileData createFileData(UserInfo author) {

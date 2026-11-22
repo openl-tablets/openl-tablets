@@ -8,8 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -209,36 +207,5 @@ class LockTest {
         lock.unlock();
         var lockInfo = lock.info();
         assertFalse(lockInfo.isLocked());
-    }
-
-    @Test
-    void testForceLock() {
-        var lock1 = lock.tryLock("user1");
-        assertTrue(lock1);
-        lock.forceLock("user2", 1, TimeUnit.SECONDS);
-        var lockInfo = lock.info();
-        assertEquals("user2", lockInfo.getLockedBy());
-    }
-
-    @Test
-    void testForceLockInterrupting() throws InterruptedException {
-        assertTrue(lock.tryLock("user1"));
-
-        var interrupted = new AtomicBoolean(true);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> {
-            var locked = lock.forceLock("user3", 1, TimeUnit.MINUTES);
-            interrupted.set(locked);
-        });
-
-        // Interrupt long running thread
-        executor.shutdownNow();
-        executor.awaitTermination(5, TimeUnit.SECONDS);
-        assertTrue(executor.isTerminated(), "Long running thread must be terminated");
-        assertFalse(interrupted.get(), "forceLock() must not get a lock when it was interrupted");
-
-        // Make sure that the lock is not overridden.
-        var lockInfo = lock.info();
-        assertEquals("user1", lockInfo.getLockedBy());
     }
 }

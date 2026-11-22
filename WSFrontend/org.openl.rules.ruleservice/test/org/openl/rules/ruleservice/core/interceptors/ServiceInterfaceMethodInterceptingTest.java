@@ -440,7 +440,7 @@ class ServiceInterfaceMethodInterceptingTest {
 
     @BeforeEach
     void before() throws Exception {
-        CommonVersion version = new CommonVersionImpl(0, 0, 1);
+        CommonVersion version = new CommonVersionImpl("0.0.1");
         deploymentDescription = new DeploymentDescription("someDeploymentName", version);
 
         modules = new ArrayList<>();

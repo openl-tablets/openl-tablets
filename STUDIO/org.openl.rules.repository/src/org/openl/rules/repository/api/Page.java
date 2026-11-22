@@ -51,20 +51,6 @@ public final class Page extends Pageable {
         return false;
     }
 
-    public Page withPage(int page) {
-        return new Page(page, getPageSize());
-    }
-
-    /**
-     * Create a new {@link Page} for the first page and given {@code pageSize}
-     *
-     * @param pageSize the number of elements per page
-     * @return new {@link Page} instance
-     */
-    public static Page ofSize(int pageSize) {
-        return new Page(0, pageSize);
-    }
-
     public static Page of(int page, int pageSize) {
         return new Page(page, pageSize);
     }

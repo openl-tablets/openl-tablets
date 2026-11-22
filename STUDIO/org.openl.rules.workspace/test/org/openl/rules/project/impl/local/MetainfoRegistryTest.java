@@ -365,21 +365,6 @@ class MetainfoRegistryTest {
     }
 
     @Test
-    void relinkPreservesBaselinesAndLocalChanges() throws IOException {
-        var metainfo = saveProjectWithFile("data");
-        registry.markDirty(PROJECT);
-
-        registry.relink(PROJECT, new ProjectMetainfo("local", null, null, "rev-2", null, 2L, 3L, null, Map.of()));
-
-        var relinked = registry.get(PROJECT);
-        assertNotNull(relinked);
-        assertEquals("local", relinked.repositoryId());
-        assertEquals("rev-2", relinked.version());
-        assertEquals(metainfo.files(), relinked.files(), "Relinking must keep the recorded baselines.");
-        assertTrue(registry.isDirty(PROJECT), "Relinking is not a synchronization point.");
-    }
-
-    @Test
     void uniqueIdIsReturnedForUnchangedFile() throws IOException {
         saveProjectWithFile("data");
         var baseline = registry.get(PROJECT).files().get("/rules/Main.xlsx");

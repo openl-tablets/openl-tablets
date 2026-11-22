@@ -9,7 +9,7 @@ class RepositoryProjectVersionImplTest {
 
     @Test
     void takesItsNumbersFromTheVersion() {
-        var version = new RepositoryProjectVersionImpl(new CommonVersionImpl(1, 2, 3), null);
+        var version = new RepositoryProjectVersionImpl(new CommonVersionImpl("1.2.3"), null);
 
         assertEquals(1, version.getMajor());
         assertEquals(2, version.getMinor());

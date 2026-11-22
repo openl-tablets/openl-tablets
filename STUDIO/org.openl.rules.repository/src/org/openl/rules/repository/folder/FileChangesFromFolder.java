@@ -30,10 +30,6 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
     private final String folderTo;
     private final List<FileAdaptor> fileAdaptors;
 
-    public FileChangesFromFolder(Path walkRoot) throws IOException {
-        this(walkRoot, StringUtils.EMPTY);
-    }
-
     public FileChangesFromFolder(Path walkRoot, String folderTo) throws IOException {
         this(walkRoot, folderTo, ACCEPT_ALL);
     }

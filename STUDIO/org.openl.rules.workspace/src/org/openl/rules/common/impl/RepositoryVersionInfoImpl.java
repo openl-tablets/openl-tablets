@@ -17,7 +17,5 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
     private final Date createdAt;
     @Getter
     private final String createdBy;
-    @Getter
-    private final String emailCreatedBy;
 
 }

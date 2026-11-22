@@ -17,16 +17,6 @@ public class ArtefactPathImpl implements ArtefactPath {
     private String stringValue;
     private final List<String> segments = new ArrayList<>();
 
-    public ArtefactPathImpl(ArtefactPath artefactPath) {
-        segments.addAll(artefactPath.getSegments());
-    }
-
-    public ArtefactPathImpl(List<String> segments) {
-        for (String element : segments) {
-            addSegment(element);
-        }
-    }
-
     public ArtefactPathImpl(String pathAsString) {
         if (!pathAsString.isEmpty() && pathAsString.charAt(0) == SEGMENT_DELIMITER) {
             appendToSegments(pathAsString.substring(1));
@@ -145,42 +135,4 @@ public class ArtefactPathImpl implements ArtefactPath {
         return segments.size();
     }
 
-    @Override
-    public ArtefactPath withoutFirstSegment() {
-        var relativeSegments = new ArrayList<String>();
-        var isFisrt = true;
-        for (String s : segments) {
-            if (isFisrt) {
-                isFisrt = false;
-                continue;
-            }
-
-            relativeSegments.add(s);
-        }
-
-        return new ArtefactPathImpl(relativeSegments);
-    }
-
-    @Override
-    public ArtefactPath withoutSegment(int segmentIndex) {
-        var relativeSegments = new ArrayList<String>();
-        Iterator<String> segmentIterator = segments.iterator();
-        for (var i = 0; segmentIterator.hasNext(); i++) {
-            if (i != segmentIndex) {
-                relativeSegments.add(segmentIterator.next());
-            } else {
-                segmentIterator.next();
-            }
-        }
-
-        return new ArtefactPathImpl(relativeSegments);
-    }
-
-    @Override
-    public ArtefactPath withSegment(String segment) {
-        var api = new ArtefactPathImpl(this);
-        api.addSegment(segment);
-
-        return api;
-    }
 }
