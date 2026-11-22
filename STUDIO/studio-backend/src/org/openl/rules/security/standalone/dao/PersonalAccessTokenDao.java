@@ -42,13 +42,6 @@ public interface PersonalAccessTokenDao extends Dao<PersonalAccessToken> {
     void deleteByPublicId(String publicId);
 
     /**
-     * Deletes all tokens for a specific user.
-     *
-     * @param loginName user's login name
-     */
-    void deleteAllByLoginName(String loginName);
-
-    /**
      * Checks if a token exists with the given public ID.
      *
      * @param publicId token public identifier

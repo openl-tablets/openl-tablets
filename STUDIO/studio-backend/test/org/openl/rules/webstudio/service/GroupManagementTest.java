@@ -96,13 +96,6 @@ class GroupManagementTest {
         assertEquals(1, queryCount.getTotal());
 
         QueryCountHolder.clear();
-        var cntExternalGroups = externalGroupService.countAllForUser("jdoe");
-        assertEquals(privileges.size(), cntExternalGroups);
-        queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getSelect());
-        assertEquals(1, queryCount.getTotal());
-
-        QueryCountHolder.clear();
         List<Group> matchedExtGroups = externalGroupService.findMatchedForUser("jdoe");
         assertCollectionEquals(Stream.of("Analysts", "Deployers").collect(Collectors.toSet()),
                 matchedExtGroups,
@@ -110,13 +103,6 @@ class GroupManagementTest {
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(3, queryCount.getSelect());
         assertEquals(3, queryCount.getTotal());
-
-        QueryCountHolder.clear();
-        var cntMatchedExternalGroups = externalGroupService.countMatchedForUser("jdoe");
-        assertEquals(2, cntMatchedExternalGroups);
-        queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getSelect());
-        assertEquals(1, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> notMatchedExtGroups = externalGroupService.findNotMatchedForUser("jdoe");
@@ -172,20 +158,11 @@ class GroupManagementTest {
         assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
-        var cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        var cntExternalGroups = externalGroupService.findAllForUser("jdoe").size();
         assertEquals(privileges.size(), cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
         assertEquals(2, queryCount.getTotal());
-
-        QueryCountHolder.clear();
-        externalGroupService.deleteAll();
-        queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(1, queryCount.getTotal());
-
-        QueryCountHolder.clear();
-        testEmpty();
     }
 
     @Test
@@ -204,7 +181,7 @@ class GroupManagementTest {
         assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
-        var cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        var cntExternalGroups = externalGroupService.findAllForUser("jdoe").size();
         assertEquals(12, cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
@@ -224,7 +201,7 @@ class GroupManagementTest {
         assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
-        cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        cntExternalGroups = externalGroupService.findAllForUser("jdoe").size();
         assertEquals(9, cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
@@ -308,13 +285,11 @@ class GroupManagementTest {
         assertTrue(externalGroupService.findMatchedForUser("Foo").isEmpty());
         assertTrue(externalGroupService.findNotMatchedForUser("Foo").isEmpty());
 
-        assertEquals(0, externalGroupService.countAllForUser("Foo"));
-        assertEquals(0, externalGroupService.countMatchedForUser("Foo"));
         assertEquals(0, externalGroupService.countNotMatchedForUser("Foo"));
 
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(7, queryCount.getSelect());
-        assertEquals(7, queryCount.getTotal());
+        assertEquals(5, queryCount.getSelect());
+        assertEquals(5, queryCount.getTotal());
     }
 
     @Test

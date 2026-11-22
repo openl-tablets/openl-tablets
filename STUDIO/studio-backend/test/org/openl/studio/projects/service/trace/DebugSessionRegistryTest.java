@@ -90,7 +90,7 @@ class DebugSessionRegistryTest {
     void workspaceResetClearsTheSession() {
         var registry = registry();
         registry.start(session(projectId("A")));
-        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, null));
         assertNull(registry.find(projectId("A")));
     }
 
@@ -152,7 +152,7 @@ class DebugSessionRegistryTest {
         assertNull(registry.tree(projectId("A"), "run-2"));
 
         registry.keepTree(new TraceTreeSnapshot("run-3", projectId("A"), tree(), 1));
-        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, null));
         assertNull(registry.tree(projectId("A"), "run-3"));
     }
 

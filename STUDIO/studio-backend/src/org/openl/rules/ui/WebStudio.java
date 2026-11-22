@@ -371,19 +371,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return currentProject;
     }
 
-    /**
-     * Path of the open module's rules file relative to the project root, with '/' separators.
-     * Empty when no module is open.
-     */
-    public String getCurrentModulePath() {
-        var module = getCurrentModule();
-        if (module == null) {
-            return "";
-        }
-        var projectFolder = getCurrentProjectDescriptor().getProjectFolder().toAbsolutePath();
-        return projectFolder.relativize(module.getRulesPath()).toString().replace('\\', '/');
-    }
-
     public List<ProjectDescriptor> getAllProjects() {
         return sortedByName(getProjects());
     }
@@ -860,23 +847,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         return null;
-    }
-
-    public List<String> getProjectBranches() {
-        try {
-            if (!isSupportsBranches()) {
-                return Collections.emptyList();
-            }
-            var project = getCurrentProject();
-            return rulesUserSession.getUserWorkspace()
-                    .getDesignTimeRepository()
-                    .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
-                    .map(branchedProject -> List.copyOf(branchedProject.entries().keySet()))
-                    .orElseGet(Collections::emptyList);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return Collections.emptyList();
-        }
     }
 
     /**

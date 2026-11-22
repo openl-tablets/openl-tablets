@@ -42,30 +42,6 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     // The creator takes the target repository and every field of the project creation request.
     @SuppressWarnings("java:S107")
-    public ZipFileProjectCreator(String repositoryId,
-                                 String uploadedFileName,
-                                 InputStream uploadedFileStream,
-                                 String projectName,
-                                 String projectFolder,
-                                 UserWorkspace userWorkspace,
-                                 String comment,
-                                 PathFilter zipFilter,
-                                 ZipCharsetDetector zipCharsetDetector,
-                                 Map<String, String> tags) throws IOException {
-        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
-                uploadedFileName,
-                uploadedFileStream,
-                projectName,
-                projectFolder,
-                userWorkspace,
-                comment,
-                zipFilter,
-                zipCharsetDetector,
-                tags);
-    }
-
-    // The creator takes the target repository and every field of the project creation request.
-    @SuppressWarnings("java:S107")
     public ZipFileProjectCreator(Repository repository,
                                  String uploadedFileName,
                                  InputStream uploadedFileStream,

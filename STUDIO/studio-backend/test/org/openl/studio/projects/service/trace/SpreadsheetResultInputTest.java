@@ -147,16 +147,6 @@ class SpreadsheetResultInputTest {
     }
 
     @Test
-    @DisplayName("One argument can be read on its own, as the legacy input form reads it")
-    void parseParameterReadsOneArgument() throws Exception {
-        var ratingDetails = assertInstanceOf(SpreadsheetResult.class,
-                parser.parseParameter("{\"Plan\":\"P6\",\"Total\":3.0}", ratingDetailsType, mapper));
-
-        assertEquals("P6", ratingDetails.getFieldValue("$Plan"));
-        assertEquals(3.0, ratingDetails.getFieldValue("$Total"));
-    }
-
-    @Test
     @DisplayName("A runtime context in the structured form is read alongside the arguments")
     void runtimeContextIsReadFromStructuredInput() {
         var target = method("PolicyOverrideCalculation", ratingDetailsType);

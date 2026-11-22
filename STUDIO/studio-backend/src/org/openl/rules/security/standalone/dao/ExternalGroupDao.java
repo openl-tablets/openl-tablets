@@ -13,11 +13,6 @@ import org.openl.rules.security.standalone.persistence.Group;
 public interface ExternalGroupDao extends Dao<ExternalGroup> {
 
     /**
-     * Delete all external groups
-     */
-    void deleteAll();
-
-    /**
      * Delete all external groups by given login name
      *
      * @param loginName username
@@ -42,28 +37,12 @@ public interface ExternalGroupDao extends Dao<ExternalGroup> {
     List<String> findGroupNamesForUser(String loginName);
 
     /**
-     * Count all external groups for user
-     *
-     * @param loginName username
-     * @return positive number of external groups otherwise {@code 0}
-     */
-    long countAllForUser(String loginName);
-
-    /**
      * Find all matched external groups for user. By matched means that the same internal group exists
      *
      * @param loginName username
      * @return found collection of external group for user
      */
     List<Group> findMatchedForUser(String loginName);
-
-    /**
-     * Find all matched external groups for user. By matched means that the same internal groups exist
-     *
-     * @param loginName username
-     * @return positive number of matched external groups otherwise {@code 0}
-     */
-    long countMatchedForUser(String loginName);
 
     /**
      * Find all not matched external groups for user. By not matched means that the same internal group doesn't exit

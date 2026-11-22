@@ -342,16 +342,6 @@ public class ProjectCreationService {
      */
     // The method takes every field of the project creation request.
     @SuppressWarnings("java:S107")
-    public FileData createFromTemplate(String repositoryId, String projectName, String path,
-                                       String type, String category, String template,
-                                       String comment, Map<String, String> tags) {
-        requireCreatePermission(repositoryId);
-        return createFromTemplate(getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId),
-                projectName, path, type, category, template, comment, tags);
-    }
-
-    // The method takes every field of the project creation request.
-    @SuppressWarnings("java:S107")
     public FileData createFromTemplate(Repository repository, String projectName, String path,
                                        String type, String category, String template,
                                        String comment, Map<String, String> tags) {
@@ -378,17 +368,6 @@ public class ProjectCreationService {
      *
      * @return the created project's file data (branch/revision)
      */
-    // The method takes every field of the project creation request.
-    @SuppressWarnings("java:S107")
-    public FileData createFromFiles(String repositoryId, String projectName, String path, List<ProjectFile> files,
-                                    String comment, String modelsPath, String algorithmsPath, String modelsModuleName,
-                                    String algorithmsModuleName, Map<String, String> tags) {
-        requireCreatePermission(repositoryId);
-        return createFromFiles(getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId),
-                projectName, path, files, comment, modelsPath, algorithmsPath, modelsModuleName,
-                algorithmsModuleName, tags);
-    }
-
     // The method takes every field of the project creation request.
     @SuppressWarnings("java:S107")
     public FileData createFromFiles(Repository repository, String projectName, String path, List<ProjectFile> files,
@@ -437,28 +416,16 @@ public class ProjectCreationService {
      * produced (an archive stays closed, other sources stay opened), so existing API callers are unaffected.
      *
      * <p>The wire codes {@code OPENED} and {@code CLOSED} arrive as {@link ProjectStatus#VIEWING} and
-     * {@link ProjectStatus#CLOSED}; any other value is ignored.
-     */
-    public void applyStatusAfterCreate(String repositoryId, String projectName, @Nullable ProjectStatus status) {
-        applyStatusAfterCreate(null, repositoryId, projectName, status);
-    }
-
-    /**
-     * Sets the status of a freshly created project using the exact repository branch that received the write.
+     * {@link ProjectStatus#CLOSED}; any other value is ignored. The project is looked up in the repository branch
+     * that received the write.
      */
     public void applyStatusAfterCreate(Repository repository,
                                        String projectName,
                                        @Nullable ProjectStatus status) {
-        applyStatusAfterCreate(repository, repository.getId(), projectName, status);
-    }
-
-    private void applyStatusAfterCreate(@Nullable Repository repository,
-                                        String repositoryId,
-                                        String projectName,
-                                        @Nullable ProjectStatus status) {
         if (status != ProjectStatus.VIEWING && status != ProjectStatus.CLOSED) {
             return;
         }
+        var repositoryId = repository.getId();
         var workspace = getUserWorkspace();
         // The project is already committed by the time this runs; setting its workspace status is a
         // convenience on top. A failure here (or a same-named project already open elsewhere, which blocks
@@ -492,7 +459,7 @@ public class ProjectCreationService {
      * same way the legacy project creator and the copy flow build theirs.
      */
     private RulesProject resolveCreatedProject(UserWorkspace workspace,
-                                               @Nullable Repository repository,
+                                               Repository repository,
                                                String repositoryId,
                                                String projectName)
             throws ProjectException {

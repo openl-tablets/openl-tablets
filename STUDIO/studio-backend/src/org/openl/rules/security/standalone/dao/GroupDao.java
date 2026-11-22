@@ -26,8 +26,6 @@ public interface GroupDao extends Dao<Group> {
 
     void deleteGroupById(Long id);
 
-    void deleteGroupByName(String name);
-
     List<Group> getAllGroups();
 
     List<String> findGroupNames(String searchTerm, int limit);

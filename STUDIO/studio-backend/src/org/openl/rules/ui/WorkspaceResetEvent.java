@@ -21,11 +21,6 @@ public class WorkspaceResetEvent extends ApplicationEvent {
 
     private final @Nullable ProjectId projectId;
 
-    /** A reset of every project of the session. */
-    public WorkspaceResetEvent(@NonNull Object source) {
-        this(source, null);
-    }
-
     /**
      * @param projectId the project reset, or {@code null} for every project of the session
      */

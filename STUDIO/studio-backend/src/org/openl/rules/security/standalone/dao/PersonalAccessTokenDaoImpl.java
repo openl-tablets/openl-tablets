@@ -75,19 +75,6 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         session.createMutationQuery(delete).executeUpdate();
     }
 
-    @Override
-    public void deleteAllByLoginName(String loginName) {
-        var session = getSession();
-        var cb = session.getCriteriaBuilder();
-
-        var delete = cb.createCriteriaDelete(PersonalAccessToken.class);
-        var root = delete.from(PersonalAccessToken.class);
-
-        delete.where(cb.equal(root.get(LOGIN_NAME), loginName));
-
-        session.createMutationQuery(delete).executeUpdate();
-    }
-
 
     @Override
     public boolean existsByPublicId(String publicId) {

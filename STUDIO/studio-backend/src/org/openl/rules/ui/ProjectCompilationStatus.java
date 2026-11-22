@@ -96,11 +96,6 @@ public final class ProjectCompilationStatus {
             return this;
         }
 
-        public Builder setModulesCompiled(Integer modulesCompiled) {
-            this.modulesCompiled = modulesCompiled;
-            return this;
-        }
-
         public Builder addMessage(OpenLMessage message) {
             if (uniqueMessages.add(message)) {
                 messages.computeIfAbsent(message.getSeverity(), e -> new ArrayList<>()).add(message);

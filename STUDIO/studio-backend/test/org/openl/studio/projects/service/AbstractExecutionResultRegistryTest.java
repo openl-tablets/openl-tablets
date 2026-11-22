@@ -273,7 +273,7 @@ class AbstractExecutionResultRegistryTest {
         var task = new CompletableFuture<String>();
         registry.setTask(projectId, "t1", task);
 
-        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, null));
 
         assertTrue(task.isCancelled());
         assertFalse(registry.hasTask(projectId));
@@ -309,7 +309,7 @@ class AbstractExecutionResultRegistryTest {
 
     @Test
     void workspaceReset_marksNothingWithoutAnExecution() {
-        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, null));
 
         assertFalse(registry.isOutdated(projectId));
     }
@@ -317,7 +317,7 @@ class AbstractExecutionResultRegistryTest {
     @Test
     void registerTask_forgetsThatTheResultsWereOutdated() {
         registry.setTask(projectId, "t1", CompletableFuture.completedFuture("done"));
-        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this, null));
 
         registry.setTask(projectId, "t1", new CompletableFuture<>());
 

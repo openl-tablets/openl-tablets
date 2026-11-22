@@ -129,13 +129,4 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
                 .collect(Collectors.toSet());
     }
 
-    @Override
-    public void deleteGroupByName(String name) {
-        var builder = getSession().getCriteriaBuilder();
-        var criteria = builder.createCriteriaDelete(Group.class);
-        var root = criteria.from(Group.class);
-        criteria.where(builder.equal(root.get(NAME), name));
-        getSession().createMutationQuery(criteria).executeUpdate();
-    }
-
 }

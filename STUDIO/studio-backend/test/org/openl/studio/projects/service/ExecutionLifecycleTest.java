@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -83,5 +84,32 @@ class ExecutionLifecycleTest {
         assertThrows(ExecutionException.class, result::get);
         assertEquals(List.of(ExecutionStatus.STARTED), reported.statuses);
         assertEquals("IllegalStateException", reported.error);
+    }
+
+    @Test
+    void isInterrupted_direct() {
+        assertTrue(ExecutionLifecycle.isInterrupted(new InterruptedException()));
+    }
+
+    @Test
+    void isInterrupted_wrapped() {
+        assertTrue(ExecutionLifecycle.isInterrupted(
+                new RuntimeException(new InterruptedException())));
+    }
+
+    @Test
+    void isInterrupted_deeplyWrapped() {
+        assertTrue(ExecutionLifecycle.isInterrupted(
+                new RuntimeException(new IllegalStateException(new InterruptedException()))));
+    }
+
+    @Test
+    void isInterrupted_notInterrupted() {
+        assertFalse(ExecutionLifecycle.isInterrupted(new RuntimeException("error")));
+    }
+
+    @Test
+    void isInterrupted_nullCause() {
+        assertFalse(ExecutionLifecycle.isInterrupted(new RuntimeException()));
     }
 }

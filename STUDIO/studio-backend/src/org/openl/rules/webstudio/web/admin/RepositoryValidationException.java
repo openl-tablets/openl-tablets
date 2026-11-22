@@ -21,8 +21,4 @@ public class RepositoryValidationException extends CommonException {
         super(msg, cause);
     }
 
-    public RepositoryValidationException(String pattern, Throwable cause, Object... params) {
-        super(pattern, cause, params);
-    }
-
 }
