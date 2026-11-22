@@ -76,7 +76,7 @@ class DataTableExporterTest {
         var myModel = new DataModel("getMyModel", "Test", infoForNotOk, secondModel);
 
         try (var bos = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateDataTables(Arrays.asList(emptyModel, dm, myModel), bos);
+            ExcelFileBuilder.generateAlgorithmsModule(List.of(), Arrays.asList(emptyModel, dm, myModel), bos, null);
             try (var fos = new FileOutputStream(DATA_TEST_PROJECT_NAME)) {
                 fos.write(bos.toByteArray());
             }

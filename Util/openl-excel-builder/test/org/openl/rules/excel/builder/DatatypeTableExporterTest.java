@@ -87,7 +87,9 @@ class DatatypeTableExporterTest {
                 List.of(),
                 List.of(),
                 List.of());
-        ExcelFileBuilder.generateProject(projectModel);
+        try (var bos = new FileOutputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME)) {
+            ExcelFileBuilder.generateDataTypes(projectModel, bos);
+        }
 
         try (var wb = new XSSFWorkbook(
                 new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
