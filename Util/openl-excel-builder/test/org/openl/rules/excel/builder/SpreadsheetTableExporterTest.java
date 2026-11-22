@@ -9,6 +9,7 @@ import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporte
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -55,7 +56,9 @@ class SpreadsheetTableExporterTest {
                 List.of(resultModel),
                 List.of());
 
-        ExcelFileBuilder.generateProject(projectModel);
+        try (var bos = new FileOutputStream("../openl-excel-builder/spr_test_project.xlsx")) {
+            ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(), List.of(), bos, null);
+        }
 
         try (var wb = new XSSFWorkbook(new FileInputStream("../openl-excel-builder/spr_test_project.xlsx"))) {
             var dtsSheet = wb.getSheet(SPR_RESULT_SHEET);

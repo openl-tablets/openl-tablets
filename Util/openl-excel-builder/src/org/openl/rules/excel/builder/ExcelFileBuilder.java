@@ -5,7 +5,6 @@ import static org.openl.rules.excel.builder.export.DatatypeTableExporter.DATATYP
 import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -44,31 +43,6 @@ public class ExcelFileBuilder {
     }
 
     /**
-     * Generating xlsx file with project which contains data types and spreadsheets.
-     *
-     * @param projectModel - model of the project.
-     */
-    public static void generateProject(ProjectModel projectModel) {
-        var projectName = projectModel.getName();
-        var fileName = projectName + ".xlsx";
-        try (var fos = new FileOutputStream(fileName)) {
-            writeProject(projectModel, fos);
-        } catch (IOException e) {
-            log.error("Error on saving the file occurred.", e);
-        }
-    }
-
-    /**
-     * Generate project model to the the output stream.
-     *
-     * @param projectModel - model of the project with data types and spreadsheets.
-     * @param outputStream - output stream, which contains result file.
-     */
-    public static void generateProject(ProjectModel projectModel, OutputStream outputStream) {
-        writeProject(projectModel, outputStream);
-    }
-
-    /**
      * Generate the vocabularies and the data types of the project to the output stream.
      *
      * @param projectModel - model of the project.
@@ -76,10 +50,6 @@ public class ExcelFileBuilder {
      */
     public static void generateDataTypes(ProjectModel projectModel, OutputStream outputStream) {
         writeDataTypes(projectModel, outputStream);
-    }
-
-    public static void generateDataTables(List<DataModel> dataModels, OutputStream outputStream) {
-        writeDataTables(dataModels, outputStream);
     }
 
     /**
@@ -122,22 +92,6 @@ public class ExcelFileBuilder {
         datatypeTableExporter.setTableStyle(tableStyle);
         datatypeTableExporter.export(projectModel.getDatatypeModels(), dtSheet);
         dtSheet.validateMergedRegions();
-    }
-
-    private static void writeDataTables(List<DataModel> dataModels, OutputStream outputStream) {
-        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
-            Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            var dtSheet = workbook.createSheet(DATA_SHEET);
-            var datatypeStyles = stylesMap.get(DATA_SHEET);
-            var dataTableExporter = new DataTableExporter();
-            dataTableExporter.setTableStyle(datatypeStyles);
-            dataTableExporter.export(dataModels, dtSheet);
-            dtSheet.validateMergedRegions();
-            autoSizeSheets(workbook);
-            workbook.write(outputStream);
-        } catch (IOException e) {
-            log.error("Error on generating Data tables workbook occurred.", e);
-        }
     }
 
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels,
@@ -211,40 +165,6 @@ public class ExcelFileBuilder {
         environmentTableExporter.setTableStyle(style);
         environmentTableExporter.export(List.of(environmentModel), envSheet);
         envSheet.validateMergedRegions();
-    }
-
-    /**
-     * Writing project to Excel file with styles from template.
-     *
-     * @param projectModel - model of the project with data types, environment, spreadsheets
-     * @param fos          - output stream.
-     */
-    private static void writeProject(ProjectModel projectModel, OutputStream fos) {
-        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
-            Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-
-            writeDataTypes(projectModel, workbook, stylesMap.get(DATATYPES_SHEET));
-
-            var sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
-            var dataSheet = workbook.createSheet(DATA_SHEET);
-            var sprStyles = stylesMap.get(SPR_RESULT_SHEET);
-            var dataStyles = stylesMap.get(DATA_SHEET);
-
-            var sprTableExporter = new SpreadsheetResultTableExporter();
-            sprTableExporter.setTableStyle(sprStyles);
-
-            var dataTableExporter = new DataTableExporter();
-            dataTableExporter.setTableStyle(dataStyles);
-
-            sprTableExporter.export(projectModel.getSpreadsheetResultModels(), sprSheet);
-            dataTableExporter.export(projectModel.getDataModels(), dataSheet);
-            sprSheet.validateMergedRegions();
-            dataSheet.validateMergedRegions();
-            autoSizeSheets(workbook);
-            workbook.write(fos);
-        } catch (IOException e) {
-            log.error("Error on generating workbook occurred.", e);
-        }
     }
 
     /**
