@@ -19,11 +19,6 @@ public abstract class UserWorkspaceProject extends AProject {
     @Getter(AccessLevel.PROTECTED)
     private final WorkspaceUser user;
 
-    protected UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
-        super(repository, folderPath, version);
-        this.user = user;
-    }
-
     protected UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData) {
         super(repository, fileData);
         this.user = user;

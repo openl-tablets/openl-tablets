@@ -11,5 +11,4 @@ public interface CommonVersion extends Comparable<CommonVersion> {
 
     String getVersionName();
 
-    String getShortVersion();
 }

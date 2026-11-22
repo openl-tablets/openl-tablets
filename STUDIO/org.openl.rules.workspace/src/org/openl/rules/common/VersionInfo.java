@@ -8,5 +8,4 @@ public interface VersionInfo extends Serializable {
 
     String getCreatedBy();
 
-    String getEmailCreatedBy();
 }

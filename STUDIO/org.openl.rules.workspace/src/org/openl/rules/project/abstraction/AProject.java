@@ -219,11 +219,6 @@ public class AProject extends AProjectFolder implements IProject {
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
 
-    @Override
-    public int getVersionsCount() {
-        return getHistoryFileDatas().size();
-    }
-
     public List<FileData> getHistoryFileDatas() {
         if (historyFileDatas == null) {
             try {

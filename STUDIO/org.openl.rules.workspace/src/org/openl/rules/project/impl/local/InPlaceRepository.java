@@ -85,11 +85,6 @@ public class InPlaceRepository extends LocalRepository {
         }
 
         @Override
-        public void saveFileData(String repositoryId, FileData fileData) {
-            // Nothing is recorded: the folder is the project.
-        }
-
-        @Override
         public void saveSnapshot(String repositoryId,
                                  FileData fileData,
                                  Map<String, ProjectMetainfo.FileBaseline> baselines) {

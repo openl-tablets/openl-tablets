@@ -28,16 +28,6 @@ public interface ProjectState {
     String getRepositoryId();
 
     /**
-     * Relinks the local project copy to another repository project.
-     *
-     * <p>The link identifies the repository, the path in it, and the checked out version. The author and
-     * other revision details are optional display metadata. The link is written whenever the version and
-     * the modification time are known; a missing author does not prevent it. The recorded file baselines
-     * and the local-changes state are preserved.
-     */
-    void saveFileData(String repositoryId, FileData fileData);
-
-    /**
      * Stores the synchronization snapshot: the link to the repository project and the baselines of all
      * project files. Resets the local-changes state.
      */

@@ -27,7 +27,7 @@ class FileChangesFromFolderTest {
 
     @Test
     void testIterator() throws IOException {
-        var actualEntries = executeIterator("test-resources/archive.zip", FileChangesFromFolder::new);
+        var actualEntries = executeIterator("test-resources/archive.zip", root -> new FileChangesFromFolder(root, ""));
         assertEquals(7, actualEntries.size());
         assertSizeEquals(23, actualEntries.get("/deployment.yaml"));
         assertSizeEquals(290, actualEntries.get("/project1/rules-deploy.xml"));

@@ -466,11 +466,10 @@ class GitRepositoryTest {
         assertTrue(deletedData.isDeleted());
         assertEquals(0, repo.listFiles(projectPath, deletedData.getVersion()).size());
         assertEquals(4, repo.listHistory(projectPath, null, false, Page.unpaged()).size(), "Actual project changes must be 4.");
-        Page page = Page.ofSize(2);
-        assertEquals(2, repo.listHistory(projectPath, null, false, page).size(), "Actual project changes must be 2.");
-        assertEquals(2, repo.listHistory(projectPath, null, false, page.withPage(1)).size(), "Actual project changes must be 2.");
-        assertEquals(0, repo.listHistory(projectPath, null, false, page.withPage(2)).size(), "Actual project changes must be 0.");
-        assertEquals(0, repo.listHistory(projectPath, null, false, page.withPage(3)).size(), "Actual project changes must be 0.");
+        assertEquals(2, repo.listHistory(projectPath, null, false, Page.of(0, 2)).size(), "Actual project changes must be 2.");
+        assertEquals(2, repo.listHistory(projectPath, null, false, Page.of(1, 2)).size(), "Actual project changes must be 2.");
+        assertEquals(0, repo.listHistory(projectPath, null, false, Page.of(2, 2)).size(), "Actual project changes must be 0.");
+        assertEquals(0, repo.listHistory(projectPath, null, false, Page.of(3, 2)).size(), "Actual project changes must be 0.");
 
         // Create new version after deletion
         var text = "Reincarnation";

@@ -111,23 +111,6 @@ public class Lock {
         return result;
     }
 
-    public boolean forceLock(String lockedBy, long timeToLive, TimeUnit unit) {
-        var result = tryLock(lockedBy, timeToLive, unit);
-        if (!result && !Thread.currentThread().isInterrupted()) {
-            var info = getInfo();
-            var message = """
-                    Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.
-                    Lock path: {}
-                    Locked at: {}
-                    Locked by: {}
-                    Time to live: {} {}""";
-            log.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
-            forceUnlock();
-            result = tryLock(lockedBy);
-        }
-        return result;
-    }
-
     public void unlock() {
         unlock(false);
     }

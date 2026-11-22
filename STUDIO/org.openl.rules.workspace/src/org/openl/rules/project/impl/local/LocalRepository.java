@@ -253,15 +253,6 @@ public class LocalRepository extends FileSystemRepository {
         }
 
         @Override
-        public void saveFileData(String repositoryId, FileData fileData) {
-            if (fileData.getVersion() == null || fileData.getModifiedAt() == null) {
-                // No need to save empty fileData
-                return;
-            }
-            registry.relink(projectName, toMetainfo(repositoryId, fileData, Map.of()));
-        }
-
-        @Override
         public void saveSnapshot(String repositoryId,
                                  FileData fileData,
                                  Map<String, ProjectMetainfo.FileBaseline> baselines) {
