@@ -227,34 +227,6 @@ class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    void testDeleteAllByUser() {
-        initUser("jdoe");
-        initUser("jsmith");
-
-        var token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
-        var token2 = createToken(TEST_PUBLIC_ID_2, "jdoe", "Token 2");
-        var token3 = createToken(TEST_PUBLIC_ID_3, "jsmith", "Token 3");
-
-        tokenService.save(token1);
-        tokenService.save(token2);
-        tokenService.save(token3);
-
-        assertEquals(2, tokenService.getTokensByUser("jdoe").size());
-        assertEquals(1, tokenService.getTokensByUser("jsmith").size());
-
-        QueryCountHolder.clear();
-        tokenService.deleteAllByUser("jdoe");
-
-        QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(1, queryCount.getTotal());
-
-        QueryCountHolder.clear();
-        assertTrue(tokenService.getTokensByUser("jdoe").isEmpty());
-        assertEquals(1, tokenService.getTokensByUser("jsmith").size());
-    }
-
-    @Test
     void testCascadeDeleteOnUserDeletion() {
         initUser("jdoe");
 

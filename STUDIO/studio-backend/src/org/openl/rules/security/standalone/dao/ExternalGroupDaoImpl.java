@@ -24,11 +24,6 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
     private static final String GROUP_NAME = "groupName";
 
     @Override
-    public void deleteAll() {
-        getSession().createMutationQuery("DELETE ExternalGroup").executeUpdate();
-    }
-
-    @Override
     public void deleteAllForUser(String loginName) {
         getSession().createMutationQuery("DELETE ExternalGroup ext where ext.loginName = :loginName")
                 .setParameter(LOGIN_NAME, loginName)
@@ -59,18 +54,6 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         return session.createQuery(query).getResultList();
     }
 
-    @Override
-    public long countAllForUser(String loginName) {
-        var session = getSession();
-        var cb = session.getCriteriaBuilder();
-        var query = cb.createQuery(Long.class);
-        var root = query.from(ExternalGroup.class);
-
-        query.select(cb.count(root)).where(getPredicatesAllForUser(root, cb, loginName));
-
-        return session.createQuery(query).getSingleResult();
-    }
-
     private Predicate[] getPredicatesAllForUser(Root<ExternalGroup> root, CriteriaBuilder cb, String loginName) {
         return new Predicate[]{cb.equal(root.get(LOGIN_NAME), loginName)};
     }
@@ -85,18 +68,6 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         query.select(groupRoot).where(getPredicatesMatchedForUser(groupRoot, query, cb, loginName));
 
         return session.createQuery(query).getResultList();
-    }
-
-    @Override
-    public long countMatchedForUser(String loginName) {
-        var session = getSession();
-        var cb = session.getCriteriaBuilder();
-        var query = cb.createQuery(Long.class);
-        var groupRoot = query.from(Group.class);
-
-        query.select(cb.count(groupRoot)).where(getPredicatesMatchedForUser(groupRoot, query, cb, loginName));
-
-        return session.createQuery(query).getSingleResult();
     }
 
     private Predicate[] getPredicatesMatchedForUser(Root<Group> root,

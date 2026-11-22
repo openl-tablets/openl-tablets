@@ -2552,17 +2552,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Get table in raw format as 2D matrix with merge information
-     *
-     * @param project project
-     * @param tableId table id
-     * @return raw table data
-     */
-    public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, RawTableRead.builder().build(), null);
-    }
-
-    /**
      * Get a window of a table in raw format: the {@code maxRows} rows starting at {@code startRow} and,
      * optionally, each cell's Excel style and the roles of the cells of the table.
      * <p>

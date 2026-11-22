@@ -91,15 +91,6 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Nullable
-    public Object parseParameter(String json, IOpenClass parameterType, ObjectMapper mapper) throws IOException {
-        return parseParameter(read(json, mapper), parameterType, mapper, new BeanClassRegistry());
-    }
-
     private static TokenBuffer read(String json, ObjectMapper mapper) throws IOException {
         try (var parser = mapper.createParser(json)) {
             parser.nextToken();

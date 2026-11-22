@@ -56,12 +56,6 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private final ObjectProvider<ExternalGroupRolesAuditor> rolesAuditor;
 
     @Override
-    @Transactional
-    public void deleteAll() {
-        externalGroupDao.deleteAll();
-    }
-
-    @Override
     public void mergeAllForUser(String loginName, Collection<? extends GrantedAuthority> externalGroups) {
         var change = mergeGroups(loginName, externalGroups);
         if (change != null) {
@@ -178,23 +172,11 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     @Override
     @Transactional
-    public long countAllForUser(String loginName) {
-        return externalGroupDao.countAllForUser(loginName);
-    }
-
-    @Override
-    @Transactional
     public List<Group> findMatchedForUser(String loginName) {
         return externalGroupDao.findMatchedForUser(loginName)
                 .stream()
                 .map(PrivilegesEvaluator::wrap)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public long countMatchedForUser(String loginName) {
-        return externalGroupDao.countMatchedForUser(loginName);
     }
 
     @Override

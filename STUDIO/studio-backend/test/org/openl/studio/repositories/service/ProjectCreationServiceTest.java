@@ -252,7 +252,7 @@ class ProjectCreationServiceTest {
 
     @Test
     void create_from_template_is_denied_without_create_permission() {
-        assertThrows(ForbiddenException.class, () -> service.createFromTemplate("design", "Project", null,
+        assertThrows(ForbiddenException.class, () -> service.createFromTemplate(designRepository(), "Project", null,
                 "predefined", "examples", "Example", "comment", null));
     }
 
@@ -295,7 +295,7 @@ class ProjectCreationServiceTest {
     @Test
     void create_from_files_is_denied_without_create_permission() {
         List<ProjectFile> files = List.of();
-        assertThrows(ForbiddenException.class, () -> service.createFromFiles("design", "Project", null,
+        assertThrows(ForbiddenException.class, () -> service.createFromFiles(designRepository(), "Project", null,
                 files, "comment", "rules/Models.xlsx", "rules/Algorithms.xlsx", "Models", "Algorithms", null));
     }
 
@@ -376,7 +376,7 @@ class ProjectCreationServiceTest {
         service = serviceWithWorkspace(workspace);
 
         // OPENED arrives as VIEWING through the status converter.
-        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+        service.applyStatusAfterCreate(designRepository(), "Alpha", ProjectStatus.VIEWING);
 
         verify(project).open();
         verify(workspace).refresh();
@@ -401,7 +401,7 @@ class ProjectCreationServiceTest {
                 new ProjectAuditor(event -> events.add((AuditEvent) event)), workspace);
         testService.designWorkspaceProject = project;
 
-        testService.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+        testService.applyStatusAfterCreate(designRepository(), "Alpha", ProjectStatus.VIEWING);
 
         // The stale design-project cache is invalidated before the design lookup.
         verify(designTimeRepository).refresh();
@@ -470,7 +470,7 @@ class ProjectCreationServiceTest {
         when(workspace.getProject("design", "Alpha")).thenReturn(project);
         service = serviceWithWorkspace(workspace);
 
-        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.CLOSED);
+        service.applyStatusAfterCreate(designRepository(), "Alpha", ProjectStatus.CLOSED);
 
         verify(project).close();
         verify(workspace).refresh();
@@ -484,7 +484,7 @@ class ProjectCreationServiceTest {
         when(workspace.getProject("design", "Alpha")).thenReturn(project);
         service = serviceWithWorkspace(workspace);
 
-        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+        service.applyStatusAfterCreate(designRepository(), "Alpha", ProjectStatus.VIEWING);
 
         verify(project, never()).open();
         verify(workspace, never()).refresh();
@@ -499,7 +499,7 @@ class ProjectCreationServiceTest {
         when(workspace.isOpenedOtherProject(project)).thenReturn(true);
         service = serviceWithWorkspace(workspace);
 
-        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+        service.applyStatusAfterCreate(designRepository(), "Alpha", ProjectStatus.VIEWING);
 
         verify(project, never()).open();
     }
@@ -515,7 +515,7 @@ class ProjectCreationServiceTest {
         service = serviceWithWorkspace(workspace);
 
         // The project was created; a failed open is logged, never turned into a create error.
-        assertDoesNotThrow(() -> service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING));
+        assertDoesNotThrow(() -> service.applyStatusAfterCreate(designRepository(), "Alpha", ProjectStatus.VIEWING));
     }
 
     @Test
@@ -549,7 +549,7 @@ class ProjectCreationServiceTest {
         var workspace = mock(UserWorkspace.class);
         service = serviceWithWorkspace(workspace);
 
-        service.applyStatusAfterCreate("design", "Alpha", null);
+        service.applyStatusAfterCreate(designRepository(), "Alpha", null);
 
         verifyNoInteractions(workspace);
     }
@@ -677,5 +677,12 @@ class ProjectCreationServiceTest {
                     ? designWorkspaceProject
                     : super.newWorkspaceProject(workspace, repositoryId, designProject);
         }
+    }
+
+    /** A repository without branches, as the design repository is in these tests. */
+    private static Repository designRepository() {
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn("design");
+        return repository;
     }
 }

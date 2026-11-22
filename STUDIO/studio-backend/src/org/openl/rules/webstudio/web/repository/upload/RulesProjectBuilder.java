@@ -36,18 +36,6 @@ public class RulesProjectBuilder {
     private String createProjectName;
 
     public RulesProjectBuilder(UserWorkspace workspace,
-                               String repositoryId,
-                               String projectName,
-                               String projectFolder,
-                               String comment) {
-        this(workspace,
-                workspace.getDesignTimeRepository().getRepository(repositoryId),
-                projectName,
-                projectFolder,
-                comment);
-    }
-
-    public RulesProjectBuilder(UserWorkspace workspace,
                                Repository designRepository,
                                String projectName,
                                String projectFolder,

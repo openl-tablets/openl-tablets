@@ -123,18 +123,6 @@ public class PersonalAccessTokenServiceImpl implements PersonalAccessTokenServic
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation delegates to the DAO to remove all user tokens in a single operation.
-     * </p>
-     */
-    @Transactional
-    @Override
-    public void deleteAllByUser(String loginName) {
-        tokenDao.deleteAllByLoginName(loginName);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * This implementation delegates to the DAO for an efficient existence check.
      * </p>
      */

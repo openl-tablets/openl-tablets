@@ -82,18 +82,6 @@ public interface PersonalAccessTokenService {
     void deleteByPublicId(String publicId);
 
     /**
-     * Deletes all tokens belonging to a specific user.
-     * <p>
-     * This method is typically used when a user account is deleted or when
-     * all user tokens need to be revoked at once. The operation is permanent
-     * and cannot be undone.
-     * </p>
-     *
-     * @param loginName the user's login name (must not be null)
-     */
-    void deleteAllByUser(String loginName);
-
-    /**
      * Checks if a token exists with the given public ID.
      * <p>
      * This method performs a lightweight existence check without loading

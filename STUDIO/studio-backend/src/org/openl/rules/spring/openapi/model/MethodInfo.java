@@ -68,10 +68,6 @@ public class MethodInfo {
         return handler.getMethod();
     }
 
-    public boolean ignoreJsonView() {
-        return operationAnnotation != null && operationAnnotation.ignoreJsonView();
-    }
-
     public Type getReturnType() {
         return OpenApiUtils.getType(handler.getReturnType());
     }

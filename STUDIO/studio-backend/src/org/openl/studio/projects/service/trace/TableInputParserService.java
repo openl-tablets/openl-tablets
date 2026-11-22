@@ -1,16 +1,13 @@
 package org.openl.studio.projects.service.trace;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.service.DispatchedVersionCheck;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -89,19 +86,4 @@ public interface TableInputParserService {
      */
     void validateInput(ParseResult parsed, DispatchedVersionCheck.Selection selection);
 
-    /**
-     * Reads a single parameter value from its JSON.
-     *
-     * <p>A spreadsheet result parameter is read in the same shape OpenL Rule Services publishes for it, so
-     * the request body of a deployed service can be replayed as is. Any other parameter is read into its own
-     * type.
-     *
-     * @param json          JSON of that one parameter value
-     * @param parameterType declared type of the parameter
-     * @param mapper        ObjectMapper configured for the project
-     * @return the parameter value, {@code null} when the JSON is the {@code null} literal
-     * @throws IOException if the JSON cannot be read as the parameter type
-     */
-    @Nullable
-    Object parseParameter(String json, IOpenClass parameterType, ObjectMapper mapper) throws IOException;
 }

@@ -112,10 +112,4 @@ public abstract class AbstractMethodExecutorService {
         return ExecutionLifecycle.execute(listener, task);
     }
 
-    /**
-     * Checks if the exception is caused by thread interruption.
-     */
-    protected static boolean isInterruptedException(Throwable e) {
-        return ExecutionLifecycle.isInterrupted(e);
-    }
 }

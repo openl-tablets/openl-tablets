@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -284,34 +283,5 @@ class AbstractMethodExecutorServiceTest {
 
         var ex = assertThrows(ExecutionException.class, future::get);
         assertSame(error, ex.getCause());
-    }
-
-    // --- isInterruptedException ---
-
-    @Test
-    void isInterruptedException_direct() {
-        assertTrue(AbstractMethodExecutorService.isInterruptedException(new InterruptedException()));
-    }
-
-    @Test
-    void isInterruptedException_wrapped() {
-        assertTrue(AbstractMethodExecutorService.isInterruptedException(
-                new RuntimeException(new InterruptedException())));
-    }
-
-    @Test
-    void isInterruptedException_deeplyWrapped() {
-        assertTrue(AbstractMethodExecutorService.isInterruptedException(
-                new RuntimeException(new IllegalStateException(new InterruptedException()))));
-    }
-
-    @Test
-    void isInterruptedException_notInterrupted() {
-        assertFalse(AbstractMethodExecutorService.isInterruptedException(new RuntimeException("error")));
-    }
-
-    @Test
-    void isInterruptedException_nullCause() {
-        assertFalse(AbstractMethodExecutorService.isInterruptedException(new RuntimeException()));
     }
 }

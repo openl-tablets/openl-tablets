@@ -12,7 +12,4 @@ public class OpenAPIProjectException extends ProjectException {
         super(msg, cause);
     }
 
-    public OpenAPIProjectException(String pattern, Throwable cause, Object... params) {
-        super(pattern, cause, params);
-    }
 }
