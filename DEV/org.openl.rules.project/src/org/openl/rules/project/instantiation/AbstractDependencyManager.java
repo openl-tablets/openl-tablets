@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -56,6 +57,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             .withInitial(ArrayDeque::new);
     private final Map<ProjectDescriptor, OpenLClassLoader> externalJarsClassloaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
+    /** Reads the provided libraries of every project, behind the root class loader; created once one has any. */
+    private @Nullable OpenLClassLoader providedClassLoader;
+    /** Whether the provided libraries of the projects loaded are in the provided class loader. */
+    private boolean providedLibrariesRead;
     protected boolean executionMode;
     private Map<String, Object> externalParameters;
 
@@ -448,14 +453,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (externalJarsClassloaders.get(project) != null) {
             return externalJarsClassloaders.get(project);
         }
-        ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
-        var externalJarsClassloader = new OpenLClassLoader(classPathOf(project), parentClassLoader);
+        var externalJarsClassloader = new OpenLClassLoader(classPathOf(project), parentClassLoaderOf(project));
         // What the classpath of the project lacks is looked up in the dependency projects
         if (project.getDependencies() != null) {
-            var loadedProjects = getDependencyLoaders().stream()
-                    .filter(IDependencyLoader::isProjectLoader)
-                    .map(IDependencyLoader::getProject)
-                    .toList();
+            var loadedProjects = loadedProjects().toList();
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 var dependencyProject = findProject(loadedProjects, projectDependencyDescriptor.getName());
                 if (dependencyProject != null && breadcrumbs.add(dependencyProject)) {
@@ -467,6 +468,41 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
         externalJarsClassloaders.put(project, externalJarsClassloader);
         return externalJarsClassloader;
+    }
+
+    /**
+     * The class loader the class loader of a project asks first: the root one, then the provided libraries of every
+     * project, which the class loader of each project shares, as the application running the projects would.
+     *
+     * <p>The provided libraries of every project loaded are read before the first class loader of a project is built,
+     * so each one has the same parent and reads the same provided libraries, whatever the order they are built in.
+     */
+    private ClassLoader parentClassLoaderOf(ProjectDescriptor project) {
+        var root = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
+        if (!providedLibrariesRead) {
+            providedLibrariesRead = true;
+            loadedProjects().distinct().forEach(loaded -> addProvidedLibraries(getProvidedLibraries(loaded), root));
+        }
+        // A project loaded later, as a workspace grows, adds its own
+        addProvidedLibraries(getProvidedLibraries(project), root);
+        return providedClassLoader == null ? root : providedClassLoader;
+    }
+
+    /** The projects the dependency loaders load as a whole, one for each loader of a project. */
+    protected Stream<ProjectDescriptor> loadedProjects() {
+        return getDependencyLoaders().stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .map(IDependencyLoader::getProject);
+    }
+
+    private void addProvidedLibraries(List<URL> providedLibraries, ClassLoader root) {
+        if (providedLibraries.isEmpty()) {
+            return;
+        }
+        if (providedClassLoader == null) {
+            providedClassLoader = new OpenLClassLoader(new URL[0], root);
+        }
+        providedLibraries.forEach(providedClassLoader::addURL);
     }
 
     private URL[] classPathOf(ProjectDescriptor project) {
@@ -489,6 +525,21 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
      * @return the locations of the libraries
      */
     protected List<URL> getLibraries(ProjectDescriptor project) {
+        return List.of();
+    }
+
+    /**
+     * Returns the libraries the application running the project provides, such as the {@code provided} dependencies
+     * of its {@code pom.xml}, which OpenL Rule Services ship with.
+     *
+     * <p>The libraries of every project are read by one class loader, after the root class loader, which the class
+     * loader of each project asks first: a class the root class loader has wins, and every project reads the same
+     * class of a provided library. There are none by default.
+     *
+     * @param project the project
+     * @return the locations of the libraries
+     */
+    protected List<URL> getProvidedLibraries(ProjectDescriptor project) {
         return List.of();
     }
 
@@ -656,6 +707,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             entry.getKey().releaseClassPath();
         }
         externalJarsClassloaders.clear();
+        if (providedClassLoader != null) {
+            OpenClassUtil.releaseClassLoader(providedClassLoader);
+            providedClassLoader = null;
+        }
+        providedLibrariesRead = false;
         getDependencyLoaders().forEach(IDependencyLoader::reset);
         dependencyRelations.clear();
     }

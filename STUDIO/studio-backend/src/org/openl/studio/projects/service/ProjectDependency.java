@@ -40,6 +40,11 @@ public record ProjectDependency(String name,
         this(name, project, transitive, mavenArtifact, List.of());
     }
 
+    /** The same dependency, naming the coordinates another declaration of its name gives. */
+    public ProjectDependency withMavenArtifact(String coordinates) {
+        return new ProjectDependency(name, project, transitive, coordinates, conflicts);
+    }
+
     /** The same dependency, told of one more dependency of its name that is left out. */
     public ProjectDependency withConflict(Request conflict) {
         var all = new ArrayList<>(conflicts);

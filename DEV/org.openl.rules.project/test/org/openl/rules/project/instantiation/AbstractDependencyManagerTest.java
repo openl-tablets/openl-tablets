@@ -3,10 +3,14 @@ package org.openl.rules.project.instantiation;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -123,6 +127,71 @@ class AbstractDependencyManagerTest {
             assertEquals(1, compiled.getAllMessages().stream().filter(problem::equals).count(),
                     dependency + " reports the problem once");
         }
+    }
+
+    @Test
+    void everyProjectReadsTheProvidedLibrariesThroughOneClassLoaderBehindTheRootOne() throws Exception {
+        var module = ProjectResolver.getInstance().resolve(Path.of("test-resources/dependencies/test1/module"));
+        var other = new ProjectDescriptor();
+        other.setName("Other");
+        var plain = new ProjectDescriptor();
+        plain.setName("Plain");
+        var provided = DESCRIPTOR_ZIP.toUri().toURL();
+        var root = Thread.currentThread().getContextClassLoader();
+        var dependencyManager = new SimpleDependencyManager(List.of(module, other, plain), root, false, Map.of()) {
+            @Override
+            protected List<URL> getProvidedLibraries(ProjectDescriptor p) {
+                return p == plain ? List.of() : List.of(provided);
+            }
+        };
+
+        var parent = dependencyManager.getExternalJarsClassLoader(module).getParent();
+
+        assertSame(root, parent.getParent(), "the root class loader is asked first");
+        assertEquals(List.of(provided), List.of(((URLClassLoader) parent).getURLs()));
+        assertNotNull(parent.getResource("rules-clspth.xml"), "a provided library is read");
+        assertSame(parent, dependencyManager.getExternalJarsClassLoader(other).getParent(), "one for every project");
+        assertSame(parent, dependencyManager.getExternalJarsClassLoader(plain).getParent());
+        assertFalse(List.of(dependencyManager.getExternalJarsClassLoader(module).getURLs()).contains(provided),
+                "the project does not read it itself");
+
+        dependencyManager.resetAll();
+
+        assertNotSame(parent,
+                dependencyManager.getExternalJarsClassLoader(module).getParent(),
+                "a new one after a reset");
+    }
+
+    /** A project without provided libraries built first still reads those of the others, as the order is no matter. */
+    @Test
+    void everyProjectHasTheProvidedClassLoaderAsParentWhateverTheOrder() throws Exception {
+        var module = ProjectResolver.getInstance().resolve(Path.of("test-resources/dependencies/test1/module"));
+        var plain = new ProjectDescriptor();
+        plain.setName("Plain");
+        var provided = DESCRIPTOR_ZIP.toUri().toURL();
+        var root = Thread.currentThread().getContextClassLoader();
+        var dependencyManager = new SimpleDependencyManager(List.of(module, plain), root, false, Map.of()) {
+            @Override
+            protected List<URL> getProvidedLibraries(ProjectDescriptor p) {
+                return p == plain ? List.of() : List.of(provided);
+            }
+        };
+
+        var parent = dependencyManager.getExternalJarsClassLoader(plain).getParent();
+
+        assertNotSame(root, parent, "the provided libraries of the other project are read too");
+        assertEquals(List.of(provided), List.of(((URLClassLoader) parent).getURLs()));
+        assertSame(parent, dependencyManager.getExternalJarsClassLoader(module).getParent());
+    }
+
+    @Test
+    void aProjectReadsNoProvidedLibraryByDefault() {
+        var dependencyManager = managerOf();
+        var project = new ProjectDescriptor();
+
+        assertEquals(List.of(), dependencyManager.getProvidedLibraries(project));
+        assertSame(Thread.currentThread().getContextClassLoader(),
+                dependencyManager.getExternalJarsClassLoader(project).getParent());
     }
 
     @Test

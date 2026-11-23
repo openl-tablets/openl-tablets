@@ -151,8 +151,20 @@ the administration, to compile a project and run its tests:
   reads them; without the extension they name a `zip` archive, the packaging of an OpenL project
 - **A library** — a dependency without `<name>`, such as `org.apache.commons:commons-text:jar:1.15.0`, downloaded with
   its `compile` and `runtime` dependencies and read after the project's own `<classpath>` entries
+- **A `pom.xml`** — beside `rules.xml`: its `compile` and `runtime` dependencies are libraries too, read as Maven
+  reads them, a parent by `relativePath` first, BOMs included
+- **`provided` dependencies** — of the `pom.xml`, downloaded unless OpenL Studio ships them, and read by one class
+  loader shared by every project, behind OpenL Studio's own, as OpenL Rule Services embed them; never deployed
+- **The `pom.xml` wins** — for a library both name, and its `dependencyManagement` sets the version of a `rules.xml`
+  library
+- **Left out of the libraries** — `zip` archives of OpenL projects and what they need, and the `org.openl.rules`,
+  `org.openl` and `org.slf4j` groups, which OpenL brings itself, as the OpenL Maven Plugin leaves them out of `lib/`
 - **An OpenL project** — a dependency with `<name>`, such as `com.example:shared-data-project:1.0.0`; its `rules.xml`
   must have the name the dependency gives
+- **An OpenL project of the `pom.xml`** — a dependency with `<name>` only takes the coordinates of the `zip` of the
+  `pom.xml`, or of one it depends on in turn, whose `rules.xml` has that name; they win over `<mavenArtifact>`
+- **A module of the same build** — a `zip` of the `pom.xml` that is a module of the build its parents beside it list,
+  at that module's version, is built with it as in a Maven build: not downloaded, so it gives no coordinates
 - **A project the user opened** — always wins, with the user's changes; opening or closing it switches between it and
   the download at the next compilation
 - **A project the user has not open** — closed, or in no design repository: the archive is unpacked and compiles as a

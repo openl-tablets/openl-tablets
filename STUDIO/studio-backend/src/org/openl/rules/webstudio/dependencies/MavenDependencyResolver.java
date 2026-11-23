@@ -1,6 +1,10 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -11,19 +15,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
+import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import lombok.Locked;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.model.building.ModelBuildingException;
+import org.apache.maven.model.building.ModelProblem;
 import org.eclipse.aether.AbstractRepositoryListener;
 import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.RepositoryEvent;
@@ -33,6 +45,8 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactRequest;
@@ -40,13 +54,16 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.spi.connector.filter.RemoteRepositoryFilterSource;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.supplier.RepositorySystemSupplier;
 import org.eclipse.aether.supplier.SessionBuilderSupplier;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.jdk.JdkTransporterFactory;
+import org.eclipse.aether.util.artifact.ArtifactIdUtils;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
+import org.eclipse.aether.util.filter.ScopeDependencyFilter;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.eclipse.aether.util.repository.SimpleResolutionErrorPolicy;
 import org.jspecify.annotations.Nullable;
@@ -70,7 +87,11 @@ import org.openl.util.ZipUtils;
  * Downloads from a Maven repository the dependencies a {@code rules.xml} names by Maven coordinates.
  *
  * <p>A dependency with no {@code <name>} is a library: it is downloaded with the libraries it needs at runtime, and
- * OpenL Studio puts them on the classpath of the project. A dependency with a {@code <name>} is an OpenL project:
+ * OpenL Studio puts them on the classpath of the project. The dependencies a {@code pom.xml} of the project declares
+ * are libraries too, as the OpenL Maven Plugin packs them into the {@code lib} folder of the project; the
+ * {@code pom.xml} decides of a library both name. Its {@code provided} dependencies are downloaded too, unless OpenL
+ * Studio ships them itself: the application running the project provides them. A dependency with a {@code <name>} is
+ * an OpenL project, named by its coordinates or by the {@code zip} of the {@code pom.xml} whose project has the name:
  * its archive is downloaded and unpacked, and OpenL Studio compiles it as a dependency when the workspace has no
  * project of that name.
  *
@@ -93,6 +114,7 @@ public class MavenDependencyResolver implements DisposableBean {
     /** The extension of the archive of an OpenL project. */
     public static final String ZIP = "zip";
     private static final String REPOSITORY_ID = "openl";
+    static final String POM = "pom";
     /**
      * A part of coordinates: no path separator and no dot first, so it names no file outside the local repository,
      * and a group, mapped to folders, starts in none above it.
@@ -106,6 +128,17 @@ public class MavenDependencyResolver implements DisposableBean {
      * the filter would refuse every artifact of the company; Maven 3 does not use it either.
      */
     private static final String PREFIXES_FILTER = "aether.remoteRepositoryFilter.prefixes";
+    /**
+     * What a library brings at runtime, and a provided library OpenL Studio does not ship, but an archive of another
+     * OpenL project or a library of the groups OpenL brings itself, and what either needs in turn.
+     */
+    private static final DependencyFilter LIBRARIES = DependencyFilterUtils.andFilter(
+            new ScopeDependencyFilter(JavaScopes.TEST, JavaScopes.SYSTEM),
+            MavenDependencyResolver::isToDownload);
+    /** The archives of OpenL projects, and those they depend on in turn. */
+    private static final DependencyFilter PROJECTS = DependencyFilterUtils.andFilter(
+            DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME),
+            (node, parents) -> isProject(node) && parents.stream().allMatch(MavenDependencyResolver::isProject));
 
     private final @Nullable RemoteRepository repository;
     private final Path localRepository;
@@ -115,6 +148,9 @@ public class MavenDependencyResolver implements DisposableBean {
     /** Resolutions read the local repository together; a removal from it runs alone. */
     private final ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
     private final LocalMavenRepository local;
+    private final MissingArtifacts missing;
+    /** The files read by what keeps them in use a while, released once it is gone. */
+    private final Map<Object, Set<Path>> held = new WeakHashMap<>();
     /** Created at the first resolution, as no resolution may happen at all. */
     private final AtomicReference<@Nullable RepositorySystem> system = new AtomicReference<>();
 
@@ -136,6 +172,7 @@ public class MavenDependencyResolver implements DisposableBean {
         this.localRepository = localRepository.toAbsolutePath().normalize();
         this.clock = clock;
         this.local = new LocalMavenRepository(this.localRepository, clock);
+        this.missing = new MissingArtifacts(clock, CACHE_PERIOD);
     }
 
     private static @Nullable RemoteRepository remoteRepository(@Nullable String url,
@@ -161,35 +198,68 @@ public class MavenDependencyResolver implements DisposableBean {
         return repository != null;
     }
 
-    /** The repository the dependencies are downloaded from, as a resolution asks for it. */
-    private List<RemoteRepository> repositories() {
-        return List.of(Objects.requireNonNull(repository));
-    }
-
     /**
-     * Downloads the libraries the project names by Maven coordinates, with the libraries they need at runtime.
+     * Downloads the libraries the project names by Maven coordinates and those its {@code pom.xml} declares, with the
+     * libraries they need at runtime.
      *
      * @param project the project
+     * @param pom     the {@code pom.xml} of the project, or {@code null} when it has none or carries its
+     *                libraries, as a project downloaded from the Maven repository does in its {@code lib} folder
      * @return the libraries found, and what went wrong; nothing while no repository is set
      */
-    public Libraries librariesOf(ProjectDescriptor project) {
-        return librariesNamed(libraryCoordinatesOf(project.getDependencies()));
+    public Libraries librariesOf(ProjectDescriptor project, @Nullable ProjectPom pom) {
+        return librariesNamed(libraryCoordinatesOf(project.getDependencies()), pom);
     }
 
     /**
-     * Downloads the libraries the coordinates name, with the libraries they need at runtime.
+     * Downloads the libraries the coordinates name and those the {@code pom.xml} declares, with the libraries they
+     * need at runtime. The {@code pom.xml} is read as Maven reads it: with its parents, its properties and its
+     * dependency management, which sets the version of the coordinates too.
+     *
+     * <p>Neither an archive of another OpenL project nor what it needs is a library, since that project is compiled
+     * with its own; nor is a library of the groups OpenL brings itself, {@code org.openl.rules}, {@code org.openl} and
+     * {@code org.slf4j}, nor what it needs. The OpenL Maven Plugin leaves them out of the {@code lib} folder too.
+     *
+     * <p>The {@code provided} dependencies of the {@code pom.xml}, with what they need, are told apart: the application
+     * running the project ships them. One OpenL Studio ships itself, with what it needs, is not downloaded.
      *
      * @param coordinates the coordinates of the libraries, as the dependencies without a name write them
+     * @param pom         the {@code pom.xml} of the project, or {@code null} when it has none
      * @return the libraries found, and what went wrong; nothing while no repository is set
      */
-    public Libraries librariesNamed(List<String> coordinates) {
-        var distinct = coordinates.stream().map(String::trim).distinct().toList();
-        if (!isEnabled() || distinct.isEmpty()) {
-            return Libraries.NONE;
-        }
-        return cached(distinct, () -> resolveLibraries(distinct));
+    public Libraries librariesNamed(List<String> coordinates, @Nullable ProjectPom pom) {
+        return libraries(coordinates, pom, true);
     }
 
+    /**
+     * Downloads the libraries a deployment of the project carries: those of
+     * {@link #librariesNamed(List, ProjectPom)}, but the {@code provided} ones, which the application running the
+     * project ships. A {@code provided} library the Maven repository lacks does not stop the deployment.
+     *
+     * @param coordinates the coordinates of the libraries, as the dependencies without a name write them
+     * @param pom         the {@code pom.xml} of the project, or {@code null} when it has none
+     * @return the libraries found, and what went wrong; nothing while no repository is set
+     */
+    public Libraries librariesToDeploy(List<String> coordinates, @Nullable ProjectPom pom) {
+        return libraries(coordinates, pom, false);
+    }
+
+    private Libraries libraries(List<String> coordinates, @Nullable ProjectPom pom, boolean withProvided) {
+        var distinct = coordinates.stream().map(String::trim).distinct().toList();
+        if (!isEnabled() || distinct.isEmpty() && pom == null) {
+            return Libraries.NONE;
+        }
+        var key = new LibrariesKey(distinct, pom, withProvided);
+        return cached(key, () -> resolveLibraries(key));
+    }
+
+    /**
+     * Whether the folder holds a project downloaded from the Maven repository: one in the local repository, which
+     * carries its libraries and names the projects it depends on in its {@code rules.xml}.
+     */
+    public boolean isDownloaded(Path folder) {
+        return folder.toAbsolutePath().normalize().startsWith(localRepository);
+    }
     /**
      * Downloads the OpenL project the dependency names by Maven coordinates.
      *
@@ -220,6 +290,25 @@ public class MavenDependencyResolver implements DisposableBean {
     }
 
     /**
+     * The OpenL projects the {@code pom.xml} of a project depends on, as the OpenL Maven Plugin finds them: the
+     * archives of its {@code zip} dependencies and those they depend on in turn, by the names their {@code rules.xml}
+     * give. A dependency of the {@code rules.xml} of the project that names only a project is the project of that
+     * name.
+     *
+     * <p>A project downloaded from the Maven repository has none to tell: the archive of the project that depends on
+     * it named those it depends on in turn.
+     *
+     * @param pom the {@code pom.xml}, or {@code null} when the project has none
+     * @return the coordinates of the projects by their names, and what went wrong; nothing while no repository is set
+     */
+    public PomProjects projectsOfPom(@Nullable ProjectPom pom) {
+        if (!isEnabled() || pom == null) {
+            return PomProjects.NONE;
+        }
+        return cached(new PomProjectsKey(pom), () -> resolvePomProjects(pom));
+    }
+
+    /**
      * The coordinates of the libraries among the dependencies: a dependency without a name is a library.
      *
      * @param dependencies the dependencies a {@code rules.xml} declares, or {@code null} when it declares none
@@ -237,19 +326,45 @@ public class MavenDependencyResolver implements DisposableBean {
     }
 
     /**
-     * The dependencies that name an OpenL project by Maven coordinates: those with both a name and coordinates.
+     * The dependencies that name an OpenL project by Maven coordinates, those of the project of its name a
+     * {@code pom.xml} depends on winning over those the dependency names.
      *
      * @param dependencies the dependencies a {@code rules.xml} declares, or {@code null} when it declares none
+     * @param pomProjects  the coordinates of the projects the {@code pom.xml} depends on, by name
      * @return the dependencies, in the order they are declared
+     * @see #projectsOfPom(ProjectPom)
      */
     public static List<ProjectDependencyDescriptor> namedMavenDependenciesOf(
-            @Nullable Collection<ProjectDependencyDescriptor> dependencies) {
+            @Nullable Collection<ProjectDependencyDescriptor> dependencies,
+            Map<String, String> pomProjects) {
         if (dependencies == null) {
             return List.of();
         }
         return dependencies.stream()
-                .filter(dependency -> dependency.getName() != null && dependency.getMavenArtifact() != null)
+                .filter(dependency -> dependency.getName() != null)
+                .map(dependency -> withPomCoordinates(dependency, pomProjects))
+                .filter(dependency -> dependency.getMavenArtifact() != null)
                 .toList();
+    }
+
+    /**
+     * The dependency with the coordinates of the project of its name a {@code pom.xml} depends on, which win over
+     * those it names itself, as the {@code pom.xml} decides in the OpenL Maven Plugin.
+     *
+     * @param dependency  a dependency with a name
+     * @param pomProjects the coordinates of the projects the {@code pom.xml} depends on, by name
+     * @return the dependency, or a copy of it with the coordinates of the {@code pom.xml}
+     */
+    public static ProjectDependencyDescriptor withPomCoordinates(ProjectDependencyDescriptor dependency,
+                                                                 Map<String, String> pomProjects) {
+        var coordinates = pomProjects.get(dependency.getName());
+        if (coordinates == null || coordinates.equals(dependency.getMavenArtifact())) {
+            return dependency;
+        }
+        var named = new ProjectDependencyDescriptor();
+        named.setName(dependency.getName());
+        named.setMavenArtifact(coordinates);
+        return named;
     }
 
     /**
@@ -306,15 +421,41 @@ public class MavenDependencyResolver implements DisposableBean {
     @Locked.Write("repositoryLock")
     LocalMavenRepository.Removal clearLocalRepository() {
         cache.clear();
+        missing.clear();
         return local.clear();
     }
 
-    /** The files the answers kept in memory name: the libraries and the unpacked projects. */
+    /**
+     * Keeps the files from a cleanup of the local repository while the holder is in use: a dependency manager
+     * reading the libraries and the downloaded projects it compiles, or a session reading the downloaded projects it
+     * opened. They are released once nothing refers to the holder.
+     *
+     * @param holder what reads the files
+     * @param files  the files, or the folders of the unpacked projects
+     */
+    public void hold(Object holder, Collection<Path> files) {
+        if (!files.isEmpty()) {
+            synchronized (held) {
+                held.computeIfAbsent(holder, key -> new HashSet<>()).addAll(files);
+            }
+        }
+    }
+
+    /**
+     * The files in use: those the answers kept in memory name, the libraries and the unpacked projects, and those
+     * the dependency managers and the sessions hold.
+     */
     private List<Path> filesInUse() {
         var files = new ArrayList<Path>();
+        synchronized (held) {
+            held.values().forEach(files::addAll);
+        }
         for (Cached<?> cached : cache.values()) {
             switch (cached.answer().getNow(null)) {
-                case Libraries libraries -> files.addAll(libraries.files());
+                case Libraries libraries -> {
+                    files.addAll(libraries.files());
+                    files.addAll(libraries.provided());
+                }
                 case DownloadedProject downloaded when downloaded.project() != null ->
                         files.add(downloaded.project().getProjectFolder());
                 case null, default -> {
@@ -330,36 +471,187 @@ public class MavenDependencyResolver implements DisposableBean {
         return cache.size();
     }
 
+    /**
+     * Resolves the libraries and, apart, the {@code provided} ones: what a {@code provided} library needs is read
+     * with it, behind the project's own libraries, even when a library of the project needs it too.
+     */
     @Locked.Read("repositoryLock")
-    private Libraries resolveLibraries(List<String> coordinates) {
+    private Libraries resolveLibraries(LibrariesKey key) {
         var messages = new ArrayList<OpenLMessage>();
-        var collect = new CollectRequest();
-        collect.setRepositories(List.of(Objects.requireNonNull(repository)));
-        for (String coordinate : coordinates) {
-            var artifact = artifactOf(coordinate);
-            if (artifact == null) {
-                messages.add(error("The Maven coordinates '%s' are not valid.".formatted(coordinate)));
-            } else {
-                collect.addDependency(new Dependency(artifact, JavaScopes.RUNTIME));
-            }
-        }
-        if (collect.getDependencies().isEmpty()) {
-            return new Libraries(List.of(), messages);
-        }
-        var request = new DependencyRequest(collect, DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME));
-        List<ArtifactResult> results;
+        var repositories = repositories();
+        var libraries = new CollectRequest();
+        libraries.setRepositories(repositories);
+        var provided = new CollectRequest();
+        provided.setRepositories(repositories);
         try (var session = newSession()) {
-            results = resolve(session, request, messages);
+            var pom = key.pom() == null ? null : effectivePom(key.pom(), session, repositories, messages);
+            if (pom != null) {
+                pom.libraries().forEach(libraries::addDependency);
+                libraries.setManagedDependencies(pom.managed());
+                if (key.withProvided()) {
+                    pom.provided().forEach(provided::addDependency);
+                    provided.setManagedDependencies(pom.managed());
+                }
+            }
+            for (String coordinate : key.coordinates()) {
+                var artifact = artifactOf(coordinate);
+                if (artifact == null) {
+                    messages.add(error("The Maven coordinates '%s' are not valid.".formatted(coordinate)));
+                } else if (pom == null) {
+                    libraries.addDependency(new Dependency(artifact, JavaScopes.RUNTIME));
+                } else if (!pom.declares(artifact)) {
+                    libraries.addDependency(new Dependency(pom.managedVersionOf(artifact), JavaScopes.RUNTIME));
+                }
+            }
+            return new Libraries(filesOf(session, libraries, messages), filesOf(session, provided, messages), messages);
+        }
+    }
+
+    /** The files of the libraries the request names, with those they need; what cannot be downloaded is told. */
+    private List<Path> filesOf(RepositorySystemSession session, CollectRequest collect, List<OpenLMessage> messages) {
+        if (collect.getDependencies().isEmpty()) {
+            return List.of();
         }
         var files = new ArrayList<Path>();
-        for (ArtifactResult result : results) {
-            if (result.isResolved()) {
-                files.add(result.getArtifact().getPath());
-            } else {
+        for (ArtifactResult result : resolve(session, new DependencyRequest(collect, LIBRARIES), messages)) {
+            if (!result.isResolved()) {
                 result.getExceptions().forEach(e -> messages.add(downloadError(e)));
+            } else if (isClasspathFile(result.getArtifact())) {
+                files.add(result.getArtifact().getPath());
             }
         }
-        return new Libraries(files, messages);
+        return files;
+    }
+
+    /** Whether the node of a dependency graph is a library, or the root of the graph, which names no artifact. */
+    private static boolean isLibrary(DependencyNode node) {
+        return node.getArtifact() == null || EffectivePom.isLibrary(node.getArtifact());
+    }
+
+    private static boolean isProject(DependencyNode node) {
+        return node.getArtifact() == null || EffectivePom.isProject(node.getArtifact());
+    }
+
+    private static boolean isToDownload(DependencyNode node, List<DependencyNode> parents) {
+        if (!isLibrary(node) || !parents.stream().allMatch(MavenDependencyResolver::isLibrary)) {
+            return false;
+        }
+        // A provided library OpenL Studio ships, or one such a library needs, is read from OpenL Studio
+        return !isProvided(node) || !isShipped(node) && parents.stream().noneMatch(MavenDependencyResolver::isShipped);
+    }
+
+    private static boolean isProvided(DependencyNode node) {
+        return node.getDependency() != null && JavaScopes.PROVIDED.equals(node.getDependency().getScope());
+    }
+
+    /**
+     * Whether OpenL Studio ships the library itself: the Maven descriptor a jar of it holds tells, or, for a jar built
+     * without one, such as a jar of Spring, a jar of OpenL Studio named after the artifact, {@code artifactId-version},
+     * that holds classes of the group of the library.
+     */
+    private static boolean isShipped(DependencyNode node) {
+        var artifact = node.getArtifact();
+        if (artifact == null) {
+            return false;
+        }
+        var library = artifact.getGroupId() + "/" + artifact.getArtifactId();
+        return ShippedJars.SHIPPED.computeIfAbsent(library, key -> MavenDependencyResolver.class.getClassLoader()
+                .getResource("META-INF/maven/%s/pom.properties".formatted(key)) != null
+                || ShippedJars.hasJarOf(artifact.getGroupId(), artifact.getArtifactId()));
+    }
+
+    /** The jars of OpenL Studio by the artifacts they are named after, read once. */
+    static final class ShippedJars {
+        private static final Pattern JAR_NAME = Pattern.compile("(.+?)-\\d[^/]*\\.jar");
+        private static final Map<String, List<Path>> JARS = jars();
+        /** Whether OpenL Studio ships each library asked about, by its group and artifact. */
+        static final Map<String, Boolean> SHIPPED = new ConcurrentHashMap<>();
+
+        private ShippedJars() {
+        }
+
+        /**
+         * Whether a jar named after the artifact holds classes of the group: a jar of another group may have the same
+         * name, such as the {@code utils} of the AWS SDK. A group is matched by its package, or by its first two
+         * names for a group whose classes sit in a package of the company, such as {@code org.springframework.boot}.
+         */
+        static boolean hasJarOf(String groupId, String artifactId) {
+            return JARS.getOrDefault(artifactId, List.of()).stream().anyMatch(jar -> holdsClassesOf(jar, groupId));
+        }
+
+        /** Whether the jar holds a file in the package of the group, or in that of its first two names. */
+        static boolean holdsClassesOf(Path jar, String groupId) {
+            var names = groupId.split("\\.");
+            var packages = names.length > 2
+                    ? List.of(groupId.replace('.', '/') + "/", names[0] + "/" + names[1] + "/")
+                    : List.of(groupId.replace('.', '/') + "/");
+            try (var file = new JarFile(jar.toFile())) {
+                return file.stream().anyMatch(entry -> packages.stream().anyMatch(entry.getName()::startsWith));
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        private static Map<String, List<Path>> jars() {
+            var jars = new ArrayList<Path>();
+            for (var entry : System.getProperty("java.class.path", "").split(File.pathSeparator)) {
+                if (!entry.isBlank()) {
+                    jars.add(Path.of(entry));
+                }
+            }
+            for (var loader = MavenDependencyResolver.class.getClassLoader(); loader != null;
+                 loader = loader.getParent()) {
+                if (loader instanceof URLClassLoader urls) {
+                    Arrays.stream(urls.getURLs()).map(ShippedJars::pathOf).filter(Objects::nonNull).forEach(jars::add);
+                }
+            }
+            var byArtifact = new HashMap<String, List<Path>>();
+            for (var jar : jars) {
+                var matcher = JAR_NAME.matcher(String.valueOf(jar.getFileName()));
+                if (matcher.matches()) {
+                    byArtifact.computeIfAbsent(matcher.group(1), key -> new ArrayList<>()).add(jar);
+                }
+            }
+            return Map.copyOf(byArtifact);
+        }
+
+        private static @Nullable Path pathOf(URL url) {
+            try {
+                return "file".equals(url.getProtocol()) ? Path.of(url.toURI()) : null;
+            } catch (URISyntaxException | IllegalArgumentException e) {
+                return null;
+            }
+        }
+    }
+
+    /** The repository the dependencies are downloaded from, as a resolution asks for it. */
+    private List<RemoteRepository> repositories() {
+        return List.of(Objects.requireNonNull(repository));
+    }
+
+    /** Whether the file goes on the classpath: a POM only names what a dependency of the type {@code pom} brings. */
+    private static boolean isClasspathFile(Artifact artifact) {
+        return !POM.equals(artifact.getExtension());
+    }
+
+    /** Reads the {@code pom.xml} as Maven does, or tells why it cannot be read. */
+    private @Nullable EffectivePom effectivePom(ProjectPom pom,
+                                                RepositorySystemSession session,
+                                                List<RemoteRepository> repositories,
+                                                List<OpenLMessage> messages) {
+        try {
+            return EffectivePom.read(pom,
+                    new PomModelResolver(system(), session, repositories),
+                    session.getArtifactTypeRegistry());
+        } catch (ModelBuildingException e) {
+            log.warn("Cannot read the pom.xml of a project.", e);
+            messages.add(error("Cannot read the pom.xml of the project: " + e.getProblems()
+                    .stream()
+                    .filter(problem -> problem.getSeverity() != ModelProblem.Severity.WARNING)
+                    .map(ModelProblem::getMessage)
+                    .collect(Collectors.joining(" "))));
+            return null;
+        }
     }
 
     private List<ArtifactResult> resolve(RepositorySystemSession session,
@@ -375,6 +667,59 @@ public class MavenDependencyResolver implements DisposableBean {
             }
             return result.getArtifactResults();
         }
+    }
+
+    @Locked.Read("repositoryLock")
+    private PomProjects resolvePomProjects(ProjectPom pom) {
+        var messages = new ArrayList<OpenLMessage>();
+        var repositories = repositories();
+        var collect = new CollectRequest();
+        collect.setRepositories(repositories);
+        List<ArtifactResult> results;
+        try (var session = newSession()) {
+            var model = effectivePom(pom, session, repositories, messages);
+            if (model == null || model.projects().isEmpty()) {
+                return new PomProjects(Map.of(), messages);
+            }
+            // A module of the same build is built with it, not downloaded
+            var root = PomReactor.rootOf(pom);
+            var modules = root == null
+                    ? Set.<String>of()
+                    : cached(new ReactorKey(root.text(), root.path()), () -> PomReactor.modulesOf(root));
+            model.projects()
+                    .stream()
+                    .filter(dependency -> !PomReactor.holds(modules, dependency.getArtifact()))
+                    .forEach(collect::addDependency);
+            if (collect.getDependencies().isEmpty()) {
+                return new PomProjects(Map.of(), messages);
+            }
+            collect.setManagedDependencies(model.managed());
+            results = resolve(session, new DependencyRequest(collect, PROJECTS), messages);
+        }
+        var byName = new LinkedHashMap<String, String>();
+        for (ArtifactResult result : results) {
+            if (result.isResolved()) {
+                var coordinates = coordinatesOf(result.getArtifact());
+                var project = projectAt(coordinates).project();
+                // An archive that is no OpenL project is no project the rules.xml can name
+                if (project != null && project.getName() != null) {
+                    byName.putIfAbsent(project.getName(), coordinates);
+                }
+            } else {
+                result.getExceptions().forEach(e -> messages.add(downloadError(e)));
+            }
+        }
+        return new PomProjects(byName, messages);
+    }
+
+    /**
+     * The coordinates of the archive as {@code rules.xml} writes them: a plain {@code zip}, the packaging of an OpenL
+     * project, without its extension, as a project is addressed by; another one with its extension and classifier.
+     */
+    private static String coordinatesOf(Artifact artifact) {
+        return ZIP.equals(artifact.getExtension()) && artifact.getClassifier().isEmpty()
+                ? "%s:%s:%s".formatted(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion())
+                : ArtifactIdUtils.toBaseId(artifact);
     }
 
     /**
@@ -517,6 +862,9 @@ public class MavenDependencyResolver implements DisposableBean {
                 .setConfigProperty(ConfigurationProperties.REQUEST_TIMEOUT, REQUEST_TIMEOUT_MILLIS)
                 // Every artifact is asked for, whatever the prefixes the repository publishes
                 .setConfigProperty(PREFIXES_FILTER, false)
+                // Only the one repository set is read, not those the POMs of the dependencies declare, Maven Central
+                // of the super POM among them
+                .setIgnoreArtifactDescriptorRepositories(true)
                 // Every file a resolution reads is used: a library, an archive, and the POMs its dependencies are
                 // worked out from, which a cleanup must not take away from under the files it keeps.
                 .withRepositoryListener(new AbstractRepositoryListener() {
@@ -528,6 +876,8 @@ public class MavenDependencyResolver implements DisposableBean {
                         }
                     }
                 })
+                // What the repository missed a while ago is not asked for again
+                .withRepositoryListener(missing)
                 .build();
     }
 
@@ -537,7 +887,7 @@ public class MavenDependencyResolver implements DisposableBean {
             synchronized (system) {
                 current = system.get();
                 if (current == null) {
-                    current = new JdkRepositorySystemSupplier().get();
+                    current = new JdkRepositorySystemSupplier(missing).get();
                     system.set(current);
                 }
             }
@@ -565,10 +915,12 @@ public class MavenDependencyResolver implements DisposableBean {
      * Libraries downloaded for a project.
      *
      * @param files    the files of the libraries found, each with the libraries it needs at runtime
+     * @param provided the files of the libraries the application running the project provides, which OpenL Studio
+     *                 does not ship itself
      * @param messages what went wrong
      */
-    public record Libraries(List<Path> files, Collection<OpenLMessage> messages) {
-        static final Libraries NONE = new Libraries(List.of(), List.of());
+    public record Libraries(List<Path> files, List<Path> provided, Collection<OpenLMessage> messages) {
+        static final Libraries NONE = new Libraries(List.of(), List.of(), List.of());
     }
 
     /**
@@ -579,6 +931,31 @@ public class MavenDependencyResolver implements DisposableBean {
      */
     public record DownloadedProject(@Nullable ProjectDescriptor project, @Nullable OpenLMessage problem) {
         static final DownloadedProject NONE = new DownloadedProject(null, null);
+    }
+
+    /**
+     * The OpenL projects a {@code pom.xml} depends on.
+     *
+     * @param coordinatesByName the coordinates of the archive of each project, by the name its {@code rules.xml} gives
+     * @param messages          what went wrong
+     */
+    public record PomProjects(Map<String, String> coordinatesByName, Collection<OpenLMessage> messages) {
+        static final PomProjects NONE = new PomProjects(Map.of(), List.of());
+    }
+
+    /** What the projects of a {@code pom.xml} are kept by: its text. */
+    private record PomProjectsKey(ProjectPom pom) {
+    }
+
+    /**
+     * What the modules of a build are kept by: the text and the path of its topmost parent, whichever version of a
+     * module asks, since each module of a design repository has the version of its own last change.
+     */
+    private record ReactorKey(String text, String path) {
+    }
+
+    /** What libraries are kept by: the coordinates {@code rules.xml} names and the {@code pom.xml}, if any. */
+    private record LibrariesKey(List<String> coordinates, @Nullable ProjectPom pom, boolean withProvided) {
     }
 
     /** What a downloaded project is kept by: the name it must have, if any, and its coordinates. */
@@ -594,8 +971,24 @@ public class MavenDependencyResolver implements DisposableBean {
         }
     }
 
-    /** Transports the files with the HTTP client of the JDK, so no other HTTP library is needed. */
+    /**
+     * Transports the files with the HTTP client of the JDK, so no other HTTP library is needed, and does not ask for
+     * what the repository missed a while ago.
+     */
     private static final class JdkRepositorySystemSupplier extends RepositorySystemSupplier {
+        private final MissingArtifacts missing;
+
+        private JdkRepositorySystemSupplier(MissingArtifacts missing) {
+            this.missing = missing;
+        }
+
+        @Override
+        protected Map<String, RemoteRepositoryFilterSource> createRemoteRepositoryFilterSources() {
+            var sources = new HashMap<>(super.createRemoteRepositoryFilterSources());
+            sources.put("missing", missing);
+            return sources;
+        }
+
         @Override
         protected Map<String, TransporterFactory> createTransporterFactories() {
             var factories = new HashMap<String, TransporterFactory>();

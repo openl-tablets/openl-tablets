@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,5 +51,18 @@ class ProjectDescriptorArtefactResolverTest {
         var resolver = new ProjectDescriptorArtefactResolver(new ConcurrentMapCacheManager());
         AProject project = mockProject("<project/>", "DESIGN/some/path/physical-folder");
         assertEquals("physical-folder", resolver.getLogicalName(project));
+    }
+
+    @Test
+    void readsThePomOfTheProjectWhenItHasOne() throws Exception {
+        var resolver = new ProjectDescriptorArtefactResolver(new ConcurrentMapCacheManager());
+        AProject project = mockProject("<project/>", "DESIGN/rules");
+        AProjectResource pom = mock(AProjectResource.class);
+        when(pom.getContent()).thenReturn(new ByteArrayInputStream("<project/>".getBytes(StandardCharsets.UTF_8)));
+        when(project.hasArtefact("pom.xml")).thenReturn(true);
+        when(project.getArtefact("pom.xml")).thenReturn(pom);
+
+        assertEquals("<project/>", resolver.getPom(project).text());
+        assertNull(resolver.getPom(mockProject("<project/>", "DESIGN/other")));
     }
 }

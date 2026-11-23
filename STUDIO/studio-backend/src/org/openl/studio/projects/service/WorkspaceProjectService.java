@@ -399,7 +399,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public ProjectViewModel getProject(RulesProject project, Collection<ProjectInclude> includes,
                                        FieldNode selection) {
         var normalizedIncludes = ProjectInclude.normalize(includes);
-        var builder = mapWorkspaceProjectResponse(project, Map.of(), normalizedIncludes.contains(ProjectInclude.DESCRIPTOR));
+        // The dependencies read the pom.xml of every project they reach: a client asking for the status alone
+        // skips them
+        var builder = mapWorkspaceProjectResponse(project,
+                Map.of(),
+                normalizedIncludes.contains(ProjectInclude.DESCRIPTOR),
+                selection.selects("dependencies")
+                        ? projectDependencyResolver.getDependencies(project, true)
+                        : List.of());
         if (selection.selects("usedBy")) {
             addUsedBy(project, builder);
         }
@@ -822,12 +829,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     protected ProjectViewModel.Builder mapProjectResponse(RulesProject src,
                                                           ProjectCriteriaQuery query,
                                                           Map<AProject, ProjectStatus> statuses) {
-        return mapWorkspaceProjectResponse(src, statuses, query.includeDescriptor());
+        // Only the pom.xml of an opened project gives coordinates: a closed one would be read for every row
+        return mapWorkspaceProjectResponse(src,
+                statuses,
+                query.includeDescriptor(),
+                projectDependencyResolver.getDependencies(src, false));
     }
 
     private ProjectViewModel.Builder mapWorkspaceProjectResponse(RulesProject src,
                                                                  Map<AProject, ProjectStatus> statuses,
-                                                                 boolean includeDescriptor) {
+                                                                 boolean includeDescriptor,
+                                                                 List<ProjectDependency> dependencies) {
         var builder = super.mapProjectResponse(src, statuses);
         builder.branchProtected(src.isBranchProtected());
         builder.branchDefault(src.isBranchDefault());
@@ -835,7 +847,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         builder.overwritesNewerRevision(src.isReadingOtherVersion());
         builder.readOnly(src.isReadOnly());
         builder.repositoryInfo(mapRepositoryInfo(src));
-        var dependencies = projectDependencyResolver.getDependencies(src);
         // The projects a dependency compiles with, by name: the opened ones, whatever their repository and branch
         Set<String> opened = dependencies.isEmpty() || !isMavenEnabled()
                 ? null

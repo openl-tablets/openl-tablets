@@ -1,7 +1,9 @@
 ### Managing the Maven Repository
 
 A `rules.xml` can name its dependencies by Maven coordinates in `<mavenArtifact>`: a library, such as a jar with Java
-classes the rules call, and an OpenL project. OpenL Studio downloads them from a Maven repository, such as Maven
+classes the rules call, and an OpenL project. A project built by Maven has a `pom.xml` beside `rules.xml`, whose
+dependencies are libraries of the project too, and whose `zip` dependencies are the OpenL projects `rules.xml` names
+by name. OpenL Studio downloads them from a Maven repository, such as Maven
 Central or a Nexus or Artifactory server of the company, to compile the project and run its tests.
 
 To set the Maven repository, proceed as follows:

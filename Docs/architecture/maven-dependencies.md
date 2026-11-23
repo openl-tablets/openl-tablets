@@ -25,9 +25,10 @@ coordinates: a library, and an OpenL project that the user's workspace lacks.
   addresses. The **Maven** section of the administration edits it, through `/rest/admin/settings/maven`.
 - **One local repository per instance** — `maven.repository.local`, by default `${openl.home}/maven-repository`,
   laid out as `~/.m2/repository` is. It is a cache: each instance of a cluster keeps, cleans and empties its own.
-- **Precedence of a project dependency** — the project of the user's workspace with that name, else the archive the
-  Maven coordinates name, else not found.
-- **Libraries** — the class loader of the project reads them after its own classpath. Two hooks of
+- **Precedence of a project dependency** — the project of the user's workspace with that name, else the archive of
+  that name a `pom.xml` depends on, else the archive the Maven coordinates name, else not found.
+- **Libraries** — the class loader of the project reads them after its own classpath; the `provided` libraries of a
+  `pom.xml` are read by one class loader behind Studio's, which every project shares. Three hooks of
   `AbstractDependencyManager` carry them into the engine; only OpenL Studio implements them.
 - **Caching** — every answer, failures included, is kept in memory for five minutes; the files stay on disk until a
   cleanup removes what went unused for a period, or what was used longest ago while the folder is too large.
@@ -49,13 +50,79 @@ A `<dependency>` names Maven coordinates in `<mavenArtifact>` as the OpenL Maven
 Coordinates that are not three to five parts of letters, digits and `_ . + -` are reported as not valid; nothing is
 downloaded for them. A part is never `.` or `..`, so coordinates name no file outside the local repository.
 
+## The pom.xml of a Project
+
+A project built by Maven before pom-less projects keeps its libraries in a `pom.xml` beside `rules.xml`: the OpenL
+Maven Plugin packs them into `lib/` of the archive, and `rules.xml` does not name them. Studio reads the `pom.xml` as
+the plugin's build does:
+
+- **Where it is read** — `pom.xml` is a protected file: listed and edited, hidden from business users unless **Show
+  Hidden Files** is on, and never deployed ([Ignored, Protected and Hidden Files](ignored-paths.md)). A compilation
+  reads it from the folder of the project, with the changes not saved yet (`WebStudio.pomOf`, `ProjectPoms`); a
+  deployment and the Overview, from the design repository (`ProjectDescriptorArtefactResolver.getPom`). The design
+  repository is read at the head of the branch of the project, as a build of the branch reads it, or at the revision
+  opened when it is an older one. A repository keeping each project as one archive, a database or AWS S3, holds the
+  `pom.xml` inside the archive and no POM beside it. Nothing is read while no Maven repository is set.
+
+- **The effective model** — `EffectivePom` builds it with `maven-model-builder`: the parents, the properties put in,
+  `dependencyManagement` with the imported BOMs, the profiles active by default. A parent is read as in a build of
+  several modules: by its `relativePath`, `../pom.xml` by default, beside the `pom.xml` — in the design repository
+  (`ProjectPom`), or on disk inside the folder of a project of no design repository, so a path cannot reach another
+  file of the server — when it is the parent named; else, like the BOMs, from the Maven repository
+  (`PomModelResolver`), where a parent version range takes its highest version. A managed dependency sets only what
+  it states: one without a scope leaves the dependency its own, as Maven reads it. The repositories a POM declares
+  are not read, those of the POMs of the dependencies neither (`setIgnoreArtifactDescriptorRepositories`), and only
+  the `java.*`, `os.*` and separator system properties reach the model.
+- **The libraries** — the `compile` and `runtime` dependencies, collected in the request of the `rules.xml` libraries
+  with the managed versions of the model, so Maven mediates them together. For a group and artifact both name, the
+  `pom.xml` wins, and its management sets the version of a `rules.xml` library, as `openl:sync-versions` does.
+- **The provided libraries** — the `provided` dependencies, with what they need, are downloaded too, in a request of
+  their own, so a library they need goes with them even when a library of the project needs it as well. Those Studio
+  ships itself are not: a jar of Studio holding the Maven descriptor of the library,
+  `META-INF/maven/<groupId>/<artifactId>/`, or, for a jar built without one such as those of Spring, named
+  `<artifactId>-<version>.jar` and holding classes of the group of the library, and what such a library needs. OpenL
+  Rule Services embed what the projects take as provided, which Studio may lack; see [Libraries on the
+  Classpath](#libraries-on-the-classpath).
+- **What is left out** — as the plugin leaves it out of `lib/`: the `test` and `system` dependencies, the
+  `zip` archive of another OpenL project and what it needs, which that project is compiled with, and the groups OpenL
+  brings itself, `org.openl.rules`, `org.openl` and `org.slf4j`, with what they need. The last rule holds for the
+  `rules.xml` libraries too. A dependency of a type only an extension of the build knows, such as a `tile`, is left
+  out as well, and of a dependency of the type `pom` only what it brings is taken, not the POM itself.
+- **The OpenL projects** — the plugin unpacks the `zip` dependencies of the `pom.xml`, and those they depend on in turn,
+  into the workspace a project compiles in, and a `rules.xml` dependency names one by the `<name>` its own `rules.xml`
+  gives. `MavenDependencyResolver.projectsOfPom` downloads them alike, through `zip` dependencies only, and tells their
+  coordinates by name, as `rules.xml` writes those of a plain `zip`, `groupId:artifactId:version`; a dependency with a
+  `<name>` takes them, winning over its own `<mavenArtifact>` (`withPomCoordinates`). A walk — of a compilation, of the
+  projects tree, of the Overview, of a deployment — keeps the projects of every `pom.xml` it goes through, so a
+  downloaded project finds those its own `rules.xml` names by name. The Overview of a project reads the `pom.xml` of
+  every project of its walk, a closed one too, from the repository at its revision, as a deployment does, and resolves
+  them all at once on virtual threads before the walk, which then finds each answer in memory. A name nothing is found
+  for takes the coordinates a later declaration gives, as the compilation does, and a request for the same archive
+  however written is no conflict. A read of the project that leaves its dependencies out of the fields, such as its
+  compile status, walks none; a list of projects reads that of an opened project only
+  (`ProjectDependencyResolver.getDependencies(project, everyPom)`), since a closed one would read its repository, and
+  download the archives it names, for every project listed.
+- **A module of the same build** — the build is the topmost parent found beside the `pom.xml`, each parent by its
+  `relativePath`, with every module it lists and the modules those list in turn. A `zip` dependency on one of its
+  modules, such as a `${project.version}` sibling, is built with it, as Maven takes it from the reactor
+  (`PomReactor`). It is not downloaded and gives no coordinates: the repository holds no such version, such as a
+  `-SNAPSHOT` no pipeline publishes, and the project of its name in the workspace is used. A module is matched by its
+  `groupId`, `artifactId` and version, inherited from its parent when it does not say them and with the properties
+  of the build put in, such as the `${revision}` of a CI-friendly version; the modules of a build
+  are read once in five minutes, whichever `pom.xml` of the build asks.
+- **A model that cannot be built** — such as one whose parent the repository lacks — is an error of the project,
+  `Cannot read the pom.xml of the project:` with the problems; the `rules.xml` libraries are downloaded still.
+- **A downloaded project** — its `pom.xml` is not read: its archive holds its libraries in `lib/` already.
+- **Caching** — the text of the `pom.xml` is a part of what the answer is kept by, so an edited `pom.xml` is read
+  again at the next compilation.
+
 ## Which Project Is Compiled
 
 ```mermaid
 flowchart TD
     D["dependency with a name"] --> W{"a project of that name<br/>in the user's workspace?"}
     W -->|yes| P["compile the workspace project"]
-    W -->|no| M{"Maven coordinates and<br/>a Maven repository set?"}
+    W -->|no| M{"Maven coordinates, of the pom.xml<br/>or the dependency, and<br/>a Maven repository set?"}
     M -->|yes| A["download the archive, unpack it,<br/>compile it read-only"]
     M -->|no| N["Dependency 'name' is not found."]
     A -->|cannot be downloaded or read| E["the problem is an error of the project"]
@@ -187,9 +254,15 @@ class loader asks, in this order:
 
 1. the class loader of OpenL Studio, since `OpenLClassLoader` delegates to its parent first — a class Studio ships
    wins over the same class in a downloaded jar;
-2. the classpath of the project: its folder, then its `<classpath>` entries (`lib/*.jar`, `classes/` by default);
-3. the libraries `getLibraries(project)` returns — in Studio, `MavenDependencyResolver.librariesOf(project)`;
-4. the class loaders of the dependency projects, in the order the project declares them, so a project also reads the
+2. the provided libraries `getProvidedLibraries(project)` returns, of this project and of every other one the manager
+   loaded — in Studio, `MavenDependencyResolver.librariesOf(project).provided()`. One class loader of the manager
+   reads them, the parent of the class loader of each project, as the one application OpenL Rule Services are would
+   read them: every project sees the same class of a provided library. The provided libraries of every project loaded
+   are read before the first class loader of a project is built, so each one has the same parent whatever the order
+   they are built in. It is dropped with every other class loader when the manager resets all;
+3. the classpath of the project: its folder, then its `<classpath>` entries (`lib/*.jar`, `classes/` by default);
+4. the libraries `getLibraries(project)` returns — in Studio, `MavenDependencyResolver.librariesOf(project)`;
+5. the class loaders of the dependency projects, in the order the project declares them, so a project also reads the
    libraries of the projects it depends on.
 
 The compiled module keeps the class loader, and a test run, a run and a trace set it as the context class loader
@@ -199,7 +272,7 @@ The compiled module keeps the class loader, and a test run, a run and a trace se
 that are not valid, an archive that is not the project named. `SimpleDependencyLoader` adds these errors to what the
 project and each of its modules report, ahead of the errors of the compilation, which are often their consequence.
 
-Both hooks answer nothing in `AbstractDependencyManager`, so the engine, the OpenL Maven Plugin and OpenL Rule Services
+The hooks answer nothing in `AbstractDependencyManager`, so the engine, the OpenL Maven Plugin and OpenL Rule Services
 are unchanged.
 
 ## Resolution
@@ -213,6 +286,11 @@ are unchanged.
   as any other.
 - **Failures are not recorded on disk** (`SimpleResolutionErrorPolicy(false, false)`): a library put into the
   repository after a failure is found once the in-memory answer expires, without deleting `*.lastUpdated` files.
+- **What the repository misses is not asked for again for five minutes** (`MissingArtifacts`), whichever resolution
+  asks: the `pom.xml` files of a walk name the same missing versions, and a repository group answers that one is
+  missing only after asking each repository it groups. A listener of the resolver records each artifact and each
+  metadata found missing, and a filter of the remote repository refuses it until the period is over; a failure to
+  transfer is not recorded, and emptying the local repository forgets them.
 - **Snapshots are checked on every resolution** (`UPDATE_POLICY_ALWAYS`), which the in-memory cache limits to once in
   five minutes. A release present on disk is read without asking the repository.
 - **An archive is unpacked beside it**, into a folder named after the archive and its modification time
@@ -231,14 +309,17 @@ know no Maven repository, run it as it compiled in Studio. `MavenDeploymentPlann
   `openl_deploy_project` take `dependencySource`: `REPOSITORY`, the default, or `MAVEN`. The choice decides only a
   project both sources have; a project only one has comes from that one, and one neither has is left out, as before.
 - **The walk is transitive** — it follows what each chosen project declares: a project of a design repository by
-  `ProjectDependencyResolver`, with the same branch rules as the workspace; a downloaded project by its own
-  `rules.xml`. A project of a design repository reached only through a downloaded one is looked up among those the
-  walk from the deployed project resolves.
-- **Libraries** — the libraries the deployed project and every dependency project of a design repository name are
+  `ProjectDependencyResolver`, with the same branch rules as the workspace; a downloaded project by its own `rules.xml`.
+  A name nothing is found for yet stays open, so a later project of the walk that gives its coordinates brings it in, as
+  the compilation does. A project of a design repository reached only through a downloaded one is looked up among those
+  the walk from the deployed project resolves.
+- **Libraries** — the libraries the deployed project and every dependency project of a design repository name, in
+  `rules.xml` or in the `pom.xml` of the revision deployed (`ProjectDescriptorArtefactResolver.getPom`), are
   downloaded and written to the `lib/` folder of that project, which the default classpath reads. A file of the
   project with the same name wins; libraries of other groups that share a file name are numbered, `lib/2-util-1.0.jar`
   (`DeploymentExtras.libraryEntries`). A downloaded project is written as it was packaged: the OpenL Maven Plugin packs
-  its libraries into its `lib/` already.
+  its libraries into its `lib/` already. The `provided` libraries are not deployed, nor resolved for a deployment
+  (`MavenDependencyResolver.librariesToDeploy`): OpenL Rule Services ship them.
 - **Both kinds of deployment repository** — a repository of folders gets the files after those of the projects
   (`FileChangesToDeploy`); a repository of archives gets the libraries inside the archive of the project and each
   downloaded project as an archive of its own (`DeploymentExtras`).
@@ -298,9 +379,11 @@ OpenL Studio downloaded or used — so a local repository shared with Maven keep
 
   A zero turns a rule off. The cleanup does not run when both are off.
 - **What the projects asked for lately stays.** A version that an answer in memory names — a library, an unpacked
-  project — is never removed, whatever the rules say. Resolutions and removals exclude each other
-  (`MavenDependencyResolver`, a read-write lock), so no file is removed while a resolution reads it. A class loader
-  older than the answers, of a project compiled long ago, opened its jars already: see the last point.
+  project — is never removed, whatever the rules say, nor one a live dependency manager reads, its libraries and the
+  downloaded projects it compiles, or a downloaded project a session opened (`MavenDependencyResolver.hold`).
+  Resolutions and removals exclude each other (`MavenDependencyResolver`, a read-write lock), so no file is removed
+  while a resolution reads it. What a dependency manager or a session holds is released once nothing refers to it any
+  more.
 - **When it runs** — `MavenRepositoryCleanup` cleans the repository five minutes after the start, then every hour.
   Each instance cleans its own local repository by its own settings, which a cluster keeps the same. Pointing
   several instances to one folder is not supported: one may remove what another has just resolved.
@@ -361,17 +444,23 @@ OpenL Studio downloaded or used — so a local repository shared with Maven keep
 
 ## Implementation Map
 
-- **`AbstractDependencyManager`** (`DEV/org.openl.rules.project`) — `getLibraries`, `getDependencyMessages`, and
-  the class loader that reads the libraries.
+- **`AbstractDependencyManager`** (`DEV/org.openl.rules.project`) — `getLibraries`, `getProvidedLibraries`,
+  `getDependencyMessages`, and the class loaders that read the libraries.
 - **`SimpleDependencyLoader`** — adds the dependency messages to what a compilation reports.
 - **`MavenDependencyResolver`** (`studio-backend`, `org.openl.rules.webstudio.dependencies`) — the resolver, the
   in-memory answers, the unpacking.
+- **`ProjectPoms`**, **`WebStudio.pomOf`** — the `pom.xml` of a project; **`ProjectPom`** — the POMs it names by a
+  relative path, read beside it, in the design repository of a project of the workspace.
+- **`EffectivePom`**, **`PomModelResolver`** — the effective model of the `pom.xml` of a project, with its parents and
+  BOMs read from the Maven repository; `MavenDependencyResolver.projectsOfPom` — the OpenL projects it depends on;
+  **`PomReactor`** — the modules of the build it belongs to.
+- **`MissingArtifacts`** — what the repository missed, not asked for again for five minutes.
 - **`LocalMavenRepository`** — the marks of use, the cleanup rules, the emptying.
 - **`MavenRepositoryCleanup`** — the hourly cleanup and the audit events.
 - **`WebStudioWorkspaceDependencyManagerFactory`** — which project a dependency is, and the dependencies left out
   as another project of their name is compiled (`DependencyConflict`).
 - **`ProjectModel.reuseOf`** — whether the dependencies the session compiled serve the next project.
-- **`WebStudioWorkspaceRelatedDependencyManager`** — implements the two hooks for a compilation of the session.
+- **`WebStudioWorkspaceRelatedDependencyManager`** — implements the three hooks for a compilation of the session.
 - **`ProjectDependencyResolverImpl`** — the project list leaves libraries out, tells the coordinates of each
   dependency and lists the libraries.
 - **`MavenProjectViewer`**, **`MavenDependencyController`** (`org.openl.studio.dependencies`) — the list of the
