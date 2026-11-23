@@ -4,6 +4,7 @@ import static org.openl.rules.webstudio.dependencies.MavenDependencyResolver.nam
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,9 +38,10 @@ public class MavenProjectViewer {
 
     /**
      * The projects of the Maven repository the workspace depends on, as the projects of a repository are listed: every
-     * one that a {@code rules.xml} of an opened project names by its coordinates, or that such a project names in turn,
-     * and that can be downloaded. A project of another extension than {@code zip}, or with a classifier, is not listed:
-     * the coordinates of the list open the plain archive.
+     * one that a {@code rules.xml} of an opened project names by its coordinates, or by a name its {@code pom.xml}
+     * gives the coordinates of, or that such a project names in turn, and that can be downloaded. A project of another
+     * extension than {@code zip}, or with a classifier, is not listed: the coordinates of the list open the plain
+     * archive.
      *
      * <p>Nothing is listed while no Maven repository is set.
      */
@@ -51,7 +53,14 @@ public class MavenProjectViewer {
         }
         var found = new LinkedHashMap<MavenCoordinates, MavenProjectSummary>();
         var queue = new ArrayDeque<ProjectDependencyDescriptor>();
-        studio.getAllProjects().forEach(project -> queue.addAll(namedMavenDependenciesOf(project.getDependencies())));
+        // A downloaded project names by name the projects the pom.xml of the opened one depends on, as a compilation
+        // finds them
+        var pomProjects = new HashMap<String, String>();
+        for (var project : studio.getAllProjects()) {
+            var ofPom = resolver.projectsOfPom(studio.pomOf(project)).coordinatesByName();
+            ofPom.forEach(pomProjects::putIfAbsent);
+            queue.addAll(namedMavenDependenciesOf(project.getDependencies(), ofPom));
+        }
         var seen = new HashSet<String>();
         while (!queue.isEmpty()) {
             var dependency = queue.poll();
@@ -70,7 +79,7 @@ public class MavenProjectViewer {
                                     artifact.getVersion(),
                                     project.getName()));
                 }
-                queue.addAll(namedMavenDependenciesOf(project.getDependencies()));
+                queue.addAll(namedMavenDependenciesOf(project.getDependencies(), pomProjects));
             }
         }
         return found.values()

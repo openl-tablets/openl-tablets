@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
@@ -39,7 +42,8 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
         when(studio.getMavenDependencyResolver()).thenReturn(resolver);
         when(studio.getExternalProperties()).thenReturn(Map.of());
         when(resolver.projectOf(any())).thenReturn(MavenDependencyResolver.DownloadedProject.NONE);
-        when(resolver.librariesOf(any())).thenReturn(MavenDependencyResolver.Libraries.NONE);
+        when(resolver.librariesOf(any(), any())).thenReturn(MavenDependencyResolver.Libraries.NONE);
+        when(resolver.projectsOfPom(any())).thenReturn(MavenDependencyResolver.PomProjects.NONE);
     }
 
     @Test
@@ -66,6 +70,25 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
     }
 
     @Test
+    void aProjectNamedByNameIsTheOneOfThatNameThePomDependsOn() {
+        var rules = project("Rules", dependency("Domain", null));
+        var downloaded = project("Domain", dependency("Common", null));
+        var common = project("Common");
+        var pom = ProjectPom.of("<project/>");
+        when(studio.pomOf(rules)).thenReturn(pom);
+        when(resolver.projectsOfPom(pom)).thenReturn(new MavenDependencyResolver.PomProjects(
+                Map.of("Domain", "com.example:domain:zip:1.0.0", "Common", "com.example:common:zip:1.0.0"),
+                List.of()));
+        when(resolver.projectOf(argThat(named("Domain", "com.example:domain:zip:1.0.0"))))
+                .thenReturn(new MavenDependencyResolver.DownloadedProject(downloaded, null));
+        when(resolver.projectOf(argThat(named("Common", "com.example:common:zip:1.0.0"))))
+                .thenReturn(new MavenDependencyResolver.DownloadedProject(common, null));
+
+        assertEquals(List.of(rules, downloaded, common), List.copyOf(factory.resolveWorkspace(rules)),
+                "a downloaded project finds what the pom.xml of the project depending on it named");
+    }
+
+    @Test
     void aProjectNeitherTheSessionNorTheRepositoryHasIsLeftOut() {
         var rules = project("Rules", dependency("Domain", "com.example:domain:1.0.0"), dependency("Other", null));
 
@@ -81,6 +104,7 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
         var manager = factory.buildDependencyManager(rules);
         try {
             assertEquals(List.of(), manager.getLibraries(rules));
+            assertEquals(List.of(), manager.getProvidedLibraries(rules));
             assertEquals(List.of(), manager.getDependencyMessages(rules));
         } finally {
             manager.shutdown();
@@ -90,6 +114,7 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
     @Test
     void theManagerReadsTheLibrariesAndReportsWhatWasNotDownloaded() throws Exception {
         var library = Path.of("repository", "lib-1.0.0.jar").toAbsolutePath();
+        var provided = Path.of("repository", "embedded-1.0.0.jar").toAbsolutePath();
         var libraryProblem = new OpenLMessage("Cannot download a Maven dependency: lib", Severity.ERROR);
         var projectProblem = new OpenLMessage("Cannot download a Maven dependency: domain", Severity.ERROR);
         var common = project("Common");
@@ -101,20 +126,36 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
                 commonDependency,
                 dependency("Plain", null),
                 dependency(null, "com.example:lib:jar:1.0.0"));
-        when(resolver.librariesOf(rules)).thenReturn(
-                new MavenDependencyResolver.Libraries(List.of(library), List.of(libraryProblem)));
+        when(resolver.librariesOf(eq(rules), any())).thenReturn(
+                new MavenDependencyResolver.Libraries(List.of(library), List.of(provided), List.of(libraryProblem)));
         when(resolver.projectOf(domainDependency)).thenReturn(
                 new MavenDependencyResolver.DownloadedProject(null, projectProblem));
 
         var manager = factory.buildDependencyManager(rules);
         try {
             assertEquals(List.of(library.toUri().toURL()), manager.getLibraries(rules));
+            assertEquals(List.of(provided.toUri().toURL()), manager.getProvidedLibraries(rules));
             assertEquals(List.of(libraryProblem, projectProblem), List.copyOf(manager.getDependencyMessages(rules)));
             assertEquals(List.of(), manager.getDependencyMessages(common));
         } finally {
             manager.shutdown();
         }
         verify(resolver, never()).projectOf(commonDependency);
+    }
+
+    @Test
+    void reportsWhatWentWrongWithTheLibrariesOfAProjectDeclaringNoDependency() {
+        var problem = new OpenLMessage("Cannot read the pom.xml of the project: no parent", Severity.ERROR);
+        var rules = project("Rules");
+        when(resolver.librariesOf(eq(rules), any())).thenReturn(
+                new MavenDependencyResolver.Libraries(List.of(), List.of(), List.of(problem)));
+
+        var manager = factory.buildDependencyManager(rules);
+        try {
+            assertEquals(List.of(problem), List.copyOf(manager.getDependencyMessages(rules)));
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test
@@ -178,6 +219,11 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
         assertFalse(conflict.concerns("Rules"));
         assertTrue(conflict.concerns("Domain"));
         assertFalse(conflict.concerns("Other"));
+    }
+
+    private static ArgumentMatcher<ProjectDependencyDescriptor> named(String name, String coordinates) {
+        return dependency -> dependency != null && name.equals(dependency.getName())
+                && coordinates.equals(dependency.getMavenArtifact());
     }
 
     private static ProjectDescriptor at(ProjectDescriptor project, String folder) {

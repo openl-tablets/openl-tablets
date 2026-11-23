@@ -32,7 +32,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
                 false,
                 studio.getExternalProperties(),
                 studio.isAutoCompile(),
-                studio.getMavenDependencyResolver());
+                studio.getMavenDependencyResolver(),
+                studio::pomOf);
         manager.addConflicts(workspace.conflicts());
         return manager;
     }
@@ -49,8 +50,9 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     /**
      * The project and every project it depends on, directly or through another one, and the dependencies left out.
      *
-     * <p>A dependency is a project of the session with its name. When the session has none, a dependency with Maven
-     * coordinates is the project downloaded from the Maven repository.
+     * <p>A dependency is a project of the session with its name. When the session has none, it is the project
+     * downloaded from the Maven repository: the one of its name a {@code pom.xml} the walk went through depends on, as
+     * the OpenL Maven Plugin finds it, else the one its Maven coordinates name.
      *
      * <p>One project of a name is compiled: the one the walk reaches first, through the dependencies in the order each
      * project declares them. A dependency that leads to another project of the name, such as another version of a
@@ -66,7 +68,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     }
 
     private @Nullable ProjectDescriptor findDependency(ProjectDependencyDescriptor dependency,
-                                                       Map<String, ProjectDescriptor> allProjects) {
+                                                       Map<String, ProjectDescriptor> allProjects,
+                                                       Map<String, String> pomProjects) {
         var name = dependency.getName();
         if (name == null) {
             // A library, not a project
@@ -77,7 +80,9 @@ public class WebStudioWorkspaceDependencyManagerFactory {
             return found;
         }
         var resolver = studio.getMavenDependencyResolver();
-        var downloaded = resolver == null ? null : resolver.projectOf(dependency).project();
+        var downloaded = resolver == null
+                ? null
+                : resolver.projectOf(MavenDependencyResolver.withPomCoordinates(dependency, pomProjects)).project();
         if (downloaded == null) {
             log.warn("Dependency '{}' is not found.", name);
         }
@@ -118,6 +123,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         private final Map<String, ProjectDescriptor> allProjects = new HashMap<>();
         /** The projects of the workspace by name, in the order the walk takes them. */
         private final Map<String, Taken> taken = new LinkedHashMap<>();
+        /** The coordinates of the projects the {@code pom.xml} files the walk went through depend on, by name. */
+        private final Map<String, String> pomProjects = new HashMap<>();
         private final List<DependencyConflict> conflicts = new ArrayList<>();
 
         private Walk(ProjectDescriptor root, List<ProjectDescriptor> allProjects) {
@@ -136,8 +143,12 @@ public class WebStudioWorkspaceDependencyManagerFactory {
             if (project.getDependencies() == null) {
                 return;
             }
+            var resolver = studio.getMavenDependencyResolver();
+            if (resolver != null) {
+                resolver.projectsOfPom(studio.pomOf(project)).coordinatesByName().forEach(pomProjects::putIfAbsent);
+            }
             for (ProjectDependencyDescriptor dependency : project.getDependencies()) {
-                var found = findDependency(dependency, allProjects);
+                var found = findDependency(dependency, allProjects, pomProjects);
                 if (found != null) {
                     take(project, dependency, found);
                 }

@@ -324,7 +324,7 @@ class WorkspaceProjectServiceTest {
         var closed = branchProject(repository, "Closed", "main");
         // Compiled with: the projects opened in the session, one the branch of the project does not hold included
         when(webStudio.getAllProjects()).thenReturn(List.of(descriptorNamed("Open"), descriptorNamed("Elsewhere")));
-        when(resolver.getDependencies(project)).thenReturn(List.of(
+        when(resolver.getDependencies(project, true)).thenReturn(List.of(
                 new ProjectDependency("Absent", null, false, "com.example:absent:1.0",
                         List.of(new ProjectDependency.Request("Other", "com.example:absent:2.0"))),
                 new ProjectDependency("Closed", closed, false, "com.example:closed:1.0"),
@@ -364,7 +364,7 @@ class WorkspaceProjectServiceTest {
         var project = projectWithSimpleExcelModule();
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
                 workspaceFor(project));
-        when(resolverOf(service).getDependencies(project)).thenReturn(List.of(
+        when(resolverOf(service).getDependencies(project, true)).thenReturn(List.of(
                 new ProjectDependency("Absent", null, false, "com.example:absent:1.0")));
 
         var dependency = service.getProject(project).dependencies.getFirst();
@@ -787,6 +787,36 @@ class WorkspaceProjectServiceTest {
 
         var result = response.getContent().iterator().next();
         assertNull(result.descriptor);
+    }
+
+    /** A list reads the pom.xml of the opened projects only; one project shown reads that of the closed ones too. */
+    @Test
+    void only_one_project_shown_reads_the_pom_of_a_closed_dependency() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var project = projectWithSimpleExcelModule();
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspaceFor(project));
+        var resolver = resolverOf(service);
+
+        service.getProjects(ProjectCriteriaQuery.builder().build(), Pageable.unpaged());
+        service.getProject(project);
+
+        verify(resolver).getDependencies(project, false);
+        verify(resolver).getDependencies(project, true);
+    }
+
+    /** A client asking for the status alone gets no dependencies, so no pom.xml of them is read. */
+    @Test
+    void a_status_alone_reads_no_dependency() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+        var resolver = resolverOf(service);
+
+        var result = service.getProject(project, List.of(), new FieldProjectionSupport().parseSelection("id,name"));
+
+        verify(resolver, never()).getDependencies(eq(project), anyBoolean());
+        assertTrue(result.dependencies == null || result.dependencies.isEmpty());
     }
 
     @Test

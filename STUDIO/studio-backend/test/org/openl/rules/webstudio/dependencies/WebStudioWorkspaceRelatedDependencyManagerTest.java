@@ -69,7 +69,8 @@ class WebStudioWorkspaceRelatedDependencyManagerTest {
                     isExecutionMode(),
                     externalParameters,
                     true,
-                    null);
+                    null,
+                    project -> null);
 
         }
     }

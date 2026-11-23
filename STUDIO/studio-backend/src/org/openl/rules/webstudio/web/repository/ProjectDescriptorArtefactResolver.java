@@ -1,18 +1,23 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.webstudio.dependencies.ProjectPom;
+import org.openl.rules.webstudio.dependencies.ProjectPoms;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -76,6 +81,21 @@ public class ProjectDescriptorArtefactResolver {
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
         var pd = getProjectDescriptor(project);
         return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : List.of();
+    }
+
+    /**
+     * The {@code pom.xml} of the project, as the revision of the project holds it.
+     *
+     * <p>A project of a design repository reads the POMs it names by a relative path, such as a parent of a build of
+     * several modules, from the repository at the same revision ({@link ProjectPoms}). Another project reads its
+     * {@code pom.xml} as any of its files, and every other POM from the Maven repository.
+     *
+     * @return the {@code pom.xml}, or {@code null} when the project has none
+     */
+    public @Nullable ProjectPom getPom(AProject project) throws ProjectException, IOException {
+        return project instanceof RulesProject rulesProject && !rulesProject.isLocalOnly()
+                ? ProjectPoms.inRepository(rulesProject, null)
+                : ProjectPoms.inArchive(project);
     }
 
     public String getLogicalName(AProject project) {

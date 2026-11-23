@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,11 @@ import org.openl.studio.projects.service.ProjectDependencyResolver;
 
 /**
  * Works out what a deployment of a project holds: the dependency projects, each taken from a design repository or
- * from the Maven repository, and the libraries the projects name by Maven coordinates.
+ * from the Maven repository, and the libraries the projects name by Maven coordinates or declare in their
+ * {@code pom.xml}.
+ *
+ * <p>A dependency named by a name only is the project of that name the {@code pom.xml} of a project the walk went
+ * through depends on, as a compilation finds it.
  *
  * <p>The dependencies are followed from project to project. A dependency project both sources have comes from the one
  * chosen; one only a source has comes from that source. A project downloaded from the Maven repository carries its
@@ -58,12 +63,14 @@ public class MavenDeploymentPlanner {
             // Downloaded from the Maven repository: deployed as it is unpacked, with the libraries it carries
             walk.mavenProjects.put(project.getBusinessName(), folderOf(project));
         } else {
-            walk.repositoryProjects.add(project);
+            walk.takeRepositoryProject(project);
         }
         walk.follow(walk.rootDependencies);
         var libraries = new LinkedHashMap<String, List<Path>>();
         for (var deployed : walk.repositoryProjects) {
-            var found = mavenResolver.librariesNamed(dependencyResolver.getLibraries(deployed));
+            // The provided libraries are not deployed: the application running the project ships them
+            var found = mavenResolver.librariesToDeploy(dependencyResolver.getLibraries(deployed),
+                    dependencyResolver.getPom(deployed));
             walk.problems.addAll(found.messages().stream().map(OpenLMessage::getSummary).toList());
             if (!found.files().isEmpty()) {
                 libraries.put(deployed.getBusinessName(), found.files());
@@ -92,7 +99,9 @@ public class MavenDeploymentPlanner {
         private final Set<String> seen = new HashSet<>();
         private final List<RulesProject> repositoryProjects = new ArrayList<>();
         private final Map<String, Path> mavenProjects = new LinkedHashMap<>();
-        private final List<String> problems = new ArrayList<>();
+        private final Set<String> problems = new LinkedHashSet<>();
+        /** The coordinates of the projects the {@code pom.xml} files the walk went through depend on, by name. */
+        private final Map<String, String> pomProjects = new HashMap<>();
 
         private Walk(DependencySource source, List<ProjectDependency> rootDependencies) {
             this.source = source;
@@ -111,7 +120,7 @@ public class MavenDeploymentPlanner {
 
         private void takeAll(List<ProjectDependency> dependencies) {
             for (var dependency : dependencies) {
-                if (seen.add(dependency.name())) {
+                if (!seen.contains(dependency.name())) {
                     visit(dependency);
                 }
             }
@@ -123,15 +132,27 @@ public class MavenDeploymentPlanner {
             var repositoryProject = resolved.containsKey(dependency.name())
                     ? resolved.get(dependency.name())
                     : dependency.project();
-            var coordinates = dependency.mavenArtifact();
+            var coordinates = pomProjects.getOrDefault(dependency.name(), dependency.mavenArtifact());
+            // A name is taken once, but one nothing is found for stays open: a later project of the walk may give its
+            // coordinates, as the compilation takes them
             if (coordinates != null && mavenResolver.isEnabled()
                     && (source == DependencySource.MAVEN || repositoryProject == null)) {
+                seen.add(dependency.name());
                 download(dependency.name(), coordinates);
             } else if (repositoryProject != null) {
-                repositoryProjects.add(repositoryProject);
+                seen.add(dependency.name());
+                takeRepositoryProject(repositoryProject);
                 follow(dependencyResolver.getDependencies(repositoryProject));
             }
             // A dependency no source has is left to the deployment to report, as before
+        }
+
+        /** Takes in a project of a design repository, and the projects its {@code pom.xml} depends on. */
+        private void takeRepositoryProject(RulesProject project) {
+            repositoryProjects.add(project);
+            var ofPom = mavenResolver.projectsOfPom(dependencyResolver.getPom(project));
+            ofPom.coordinatesByName().forEach(pomProjects::putIfAbsent);
+            problems.addAll(ofPom.messages().stream().map(OpenLMessage::getSummary).toList());
         }
 
         private void download(String name, String coordinates) {

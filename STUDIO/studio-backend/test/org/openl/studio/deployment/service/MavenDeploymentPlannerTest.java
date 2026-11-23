@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
+import org.openl.rules.webstudio.dependencies.ProjectPom;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.deployment.model.DependencySource;
 import org.openl.studio.projects.service.ProjectDependency;
@@ -73,6 +75,73 @@ class MavenDeploymentPlannerTest {
         assertEquals(List.of(rules, domain, common), plan.repositoryProjects());
         assertEquals(Map.of(), plan.extras().projects());
         assertEquals(List.of("lib-1.0.0.jar"), fileNames(plan.extras().libraries().get("Rules")));
+    }
+
+    @Test
+    void downloadsTheLibrariesThePomOfAProjectDeclares() throws IOException {
+        publish("com/example/packed/2.0.0/packed-2.0.0.jar", Map.of("packed.txt", "packed"));
+        when(dependencies.getPom(domain)).thenReturn(ProjectPom.of("""
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>domain</artifactId>
+                    <version>1.0.0</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.example</groupId>
+                            <artifactId>packed</artifactId>
+                            <version>2.0.0</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """));
+
+        var plan = new MavenDeploymentPlanner(dependencies, maven).plan(rules, DependencySource.REPOSITORY);
+
+        assertEquals(List.of("packed-2.0.0.jar"), fileNames(plan.extras().libraries().get("Domain")));
+    }
+
+    @Test
+    void downloadsADependencyNamedByNameByTheCoordinatesThePomGives() throws IOException {
+        publish("com/example/domain-rules/2.0.0/domain-rules-2.0.0.zip",
+                Map.of("rules.xml", "<project><name>Domain</name></project>"));
+        when(dependencies.getPom(rules)).thenReturn(ProjectPom.of("""
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>rules</artifactId>
+                    <version>1.0.0</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.example</groupId>
+                            <artifactId>domain-rules</artifactId>
+                            <version>2.0.0</version>
+                            <type>zip</type>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """));
+
+        var plan = new MavenDeploymentPlanner(dependencies, maven).plan(rules, DependencySource.MAVEN);
+
+        assertEquals(List.of(rules), plan.repositoryProjects(), "the archive of Domain names no Common");
+        assertTrue(plan.extras().projects().get("Domain").toString().contains("2.0.0"),
+                "the pom.xml wins over the coordinates of rules.xml");
+    }
+
+    /** A name nothing is found for stays open: a later project of the walk gives its coordinates, as it compiles. */
+    @Test
+    void downloadsADependencyALaterProjectGivesTheCoordinatesOf() {
+        when(dependencies.getDependencies(rules)).thenReturn(List.of(
+                new ProjectDependency("Shared", null, false, null),
+                new ProjectDependency("Domain", domain, false, null)));
+        when(dependencies.getDependencies(domain)).thenReturn(List.of(
+                new ProjectDependency("Shared", null, false, "com.example:shared:1.0.0")));
+
+        var plan = new MavenDeploymentPlanner(dependencies, maven).plan(rules, DependencySource.REPOSITORY);
+
+        assertEquals(List.of(rules, domain), plan.repositoryProjects());
+        assertEquals(Set.of("Shared"), plan.extras().projects().keySet());
     }
 
     @Test

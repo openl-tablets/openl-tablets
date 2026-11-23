@@ -42,6 +42,8 @@ import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.webstudio.dependencies.DownloadedProjects;
 import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
+import org.openl.rules.webstudio.dependencies.ProjectPom;
+import org.openl.rules.webstudio.dependencies.ProjectPoms;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -301,6 +303,42 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return Stream.of(folder.getFileName().toString(), descriptor.getName())
                 .map(name -> getProject(repositoryId, name))
                 .filter(project -> project != null && isFolderOf(project, folder))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * The {@code pom.xml} of the project, whose dependencies a compilation of it takes into account: the one its folder
+     * holds, with the changes not saved yet. A project of the workspace reads the POMs it names by a relative path,
+     * such as a parent of a build of several modules, from its design repository; another one, from its folder.
+     *
+     * @return the {@code pom.xml}, or {@code null} when the project has none, when no Maven repository is set, or when
+     *         it is downloaded from the Maven repository and carries its libraries
+     */
+    public @Nullable ProjectPom pomOf(ProjectDescriptor descriptor) {
+        var folder = descriptor.getProjectFolder();
+        var resolver = mavenDependencyResolver;
+        if (folder == null || resolver == null || !resolver.isEnabled() || resolver.isDownloaded(folder)) {
+            return null;
+        }
+        try {
+            var project = projectOf(descriptor);
+            return project == null ? ProjectPoms.inFolder(folder, folder) : ProjectPoms.inRepository(project, folder);
+        } catch (IOException e) {
+            log.warn("Cannot read the pom.xml of the project '{}'.", descriptor.getName(), e);
+            return null;
+        }
+    }
+
+    /**
+     * The project of the workspace the descriptor was resolved for, in whichever repository: the descriptor a
+     * compilation holds may be another reading of the project, so it is matched by its name and its folder.
+     */
+    private @Nullable RulesProject projectOf(ProjectDescriptor descriptor) {
+        return getProjects().keySet()
+                .stream()
+                .map(repositoryId -> projectOf(repositoryId, descriptor))
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
     }

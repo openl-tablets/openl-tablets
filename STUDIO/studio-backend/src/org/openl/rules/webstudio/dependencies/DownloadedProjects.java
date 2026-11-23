@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
@@ -43,6 +45,8 @@ public final class DownloadedProjects {
             return null;
         }
         var descriptor = descriptorAt(coordinates, resolver);
+        // The session reads the unpacked project as long as it lives
+        Objects.requireNonNull(resolver).hold(this, List.of(descriptor.getProjectFolder()));
         return opened.compute(projectId,
                 (id, kept) -> kept != null && kept.isOf(descriptor) ? kept : openOf(id, descriptor, workspace))
                 .project();

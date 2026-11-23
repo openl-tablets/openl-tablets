@@ -9,18 +9,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
+import org.openl.rules.webstudio.dependencies.ProjectPom;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -31,6 +38,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
     private final ProjectListingContext listingContext;
+    private final MavenDependencyResolver mavenResolver;
 
     @Lookup
     protected UserWorkspace getUserWorkspace() {
@@ -39,7 +47,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     }
 
     @Override
-    public List<ProjectDependency> getDependencies(RulesProject project) {
+    public List<ProjectDependency> getDependencies(RulesProject project, boolean everyPom) {
         var declared = declaredDependencies(project);
         if (declared.isEmpty()) {
             // Nothing to resolve, so the workspace-wide index is not built for it.
@@ -50,14 +58,54 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         var projectIndex = listingContext.dependencyIndex(() ->
                 getAllProjects().stream().collect(Collectors.groupingBy(this::dependencyLookupName)));
 
+        // Each pom.xml is read once for the walks of this call
+        var poms = new ConcurrentHashMap<RulesProject, Optional<ProjectPom>>();
+        Function<RulesProject, ProjectPom> pomOf = reached -> poms
+                .computeIfAbsent(reached, key -> Optional.ofNullable(getPom(key)))
+                .orElse(null);
+        if (everyPom && mavenResolver.isEnabled()) {
+            resolvePoms(project, declared, projectIndex, pomOf);
+        }
+        Predicate<RulesProject> readsPom = everyPom ? reached -> true : RulesProject::isOpened;
         var dependencies = new ArrayList<ProjectDependency>();
-        var walk = new Walk(project.getRepository().getId(),
+        calcDependencies(project, declared, newWalk(project, declared, projectIndex, readsPom, pomOf), dependencies);
+        return dependencies;
+    }
+
+    private Walk newWalk(RulesProject project,
+                         List<ProjectDependencyDescriptor> declared,
+                         Map<String, List<RulesProject>> index,
+                         Predicate<RulesProject> readsPom,
+                         Function<RulesProject, ProjectPom> pomOf) {
+        return new Walk(project.getRepository().getId(),
                 project.getBranch(),
                 declared.stream().map(ProjectDependencyDescriptor::getName).collect(Collectors.toSet()),
-                projectIndex,
-                new HashSet<>(Set.of(dependencyLookupName(project))));
-        calcDependencies(project, declared, walk, dependencies);
-        return dependencies;
+                index,
+                new HashSet<>(Set.of(dependencyLookupName(project))),
+                new HashMap<>(),
+                readsPom,
+                pomOf);
+    }
+
+    /**
+     * Resolves the {@code pom.xml} of every project the walk reaches at once, so the walk finds each answer in
+     * memory. One after another, a walk of many projects would wait for the Maven repository as many times.
+     *
+     * <p>The projects a walk reaches do not depend on the coordinates the {@code pom.xml} files give, so a walk that
+     * reads no {@code pom.xml} finds them all.
+     */
+    private void resolvePoms(RulesProject project,
+                             List<ProjectDependencyDescriptor> declared,
+                             Map<String, List<RulesProject>> index,
+                             Function<RulesProject, ProjectPom> pomOf) {
+        var reached = new ArrayList<ProjectDependency>();
+        calcDependencies(project, declared, newWalk(project, declared, index, any -> false, pomOf), reached);
+        // A pom.xml and its parents are read from the repository as the user asking
+        try (var executor = new DelegatingSecurityContextExecutorService(Executors.newVirtualThreadPerTaskExecutor())) {
+            Stream.concat(Stream.of(project), reached.stream().map(ProjectDependency::project))
+                    .filter(Objects::nonNull)
+                    .forEach(each -> executor.submit(() -> mavenResolver.projectsOfPom(pomOf.apply(each))));
+        }
     }
 
     /**
@@ -67,12 +115,23 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
      * <p>The branch stays the one the project is opened on for every step inside its own repository, so a
      * dependency reached through another one is looked for where the project itself lives. Another repository
      * keeps its own branch, since nothing pairs the branches of two repositories.
+     *
+     * <p>A dependency named by a name only takes the coordinates of the project of that name the {@code pom.xml} of
+     * a project of the walk depends on, as a compilation does. A list of projects reads the {@code pom.xml} of an
+     * opened project only: that of a closed one would read its repository, and download the archives it names, for
+     * every project listed.
+     *
+     * @param readsPom whether the walk reads the {@code pom.xml} of a project
+     * @param pomOf    reads the {@code pom.xml} of a project, once for the walks of one call
      */
     private record Walk(String repositoryId,
                         @Nullable String branch,
                         Set<String> declared,
                         Map<String, List<RulesProject>> index,
-                        Set<String> processed) {
+                        Set<String> processed,
+                        Map<String, String> pomProjects,
+                        Predicate<RulesProject> readsPom,
+                        Function<RulesProject, ProjectPom> pomOf) {
     }
 
     @Override
@@ -117,6 +176,19 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         return MavenDependencyResolver.libraryCoordinatesOf(declaredDependencies(project));
     }
 
+    @Override
+    public @Nullable ProjectPom getPom(RulesProject project) {
+        if (!mavenResolver.isEnabled()) {
+            return null;
+        }
+        try {
+            return projectDescriptorResolver.getPom(project);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
     /**
      * What a project declares in its {@code rules.xml}, empty when the descriptor cannot be read.
      */
@@ -148,8 +220,14 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
         var repoId = project.getRepository().getId();
         var branch = repoId.equals(walk.repositoryId()) ? walk.branch() : project.getBranch();
+        if (walk.readsPom().test(project) && mavenResolver.isEnabled()) {
+            mavenResolver.projectsOfPom(walk.pomOf().apply(project))
+                    .coordinatesByName()
+                    .forEach(walk.pomProjects()::putIfAbsent);
+        }
 
-        for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
+        for (ProjectDependencyDescriptor declared : dependenciesDescriptors) {
+            var dependency = MavenDependencyResolver.withPomCoordinates(declared, walk.pomProjects());
             var dependencyName = dependency.getName();
             // A dependency without a name is a library named by Maven coordinates, not a project.
             if (dependencyName != null) {
@@ -172,15 +250,39 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     /**
      * Tells the dependency of the name reached first that another one asks for other Maven coordinates: one project of
      * a name is compiled, the one reached first, and the other is left out.
+     *
+     * <p>A repeat that names no coordinates asks for the one reached first. One that names the same archive, however
+     * written, asks for nothing else. A name nothing was found for takes the coordinates a later declaration gives, as
+     * the compilation downloads them.
      */
     private void tellConflict(RulesProject requester,
                               ProjectDependencyDescriptor dependency,
                               List<ProjectDependency> result) {
-        var request = new ProjectDependency.Request(dependencyLookupName(requester), dependency.getMavenArtifact());
-        result.replaceAll(reached -> reached.name().equals(dependency.getName())
-                && !Objects.equals(reached.mavenArtifact(), dependency.getMavenArtifact())
-                ? reached.withConflict(request)
-                : reached);
+        var coordinates = dependency.getMavenArtifact();
+        if (coordinates == null) {
+            return;
+        }
+        var request = new ProjectDependency.Request(dependencyLookupName(requester), coordinates);
+        result.replaceAll(reached -> {
+            if (!reached.name().equals(dependency.getName()) || isSameArchive(reached.mavenArtifact(), coordinates)) {
+                return reached;
+            }
+            return reached.project() == null && reached.mavenArtifact() == null
+                    ? reached.withMavenArtifact(coordinates)
+                    : reached.withConflict(request);
+        });
+    }
+
+    /** Whether the coordinates name the archive the others do, such as with or without its {@code zip} extension. */
+    private static boolean isSameArchive(@Nullable String reached, String asked) {
+        if (reached == null) {
+            return false;
+        }
+        var reachedArtifact = MavenDependencyResolver.artifactOf(reached);
+        var askedArtifact = MavenDependencyResolver.artifactOf(asked);
+        return reachedArtifact != null && askedArtifact != null
+                ? reachedArtifact.equals(askedArtifact)
+                : reached.trim().equals(asked.trim());
     }
 
     /**

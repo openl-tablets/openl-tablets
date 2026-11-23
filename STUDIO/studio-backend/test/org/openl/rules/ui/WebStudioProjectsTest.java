@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -32,6 +33,7 @@ import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -119,6 +121,54 @@ class WebStudioProjectsTest {
 
         var projects = studio.getProjects().get(REPOSITORY_ID);
         assertEquals(List.of("Bank Rating"), projects.stream().map(ProjectDescriptor::getName).toList());
+    }
+
+    /** The pom.xml of a project is read from its folder on disk, or found for none downloaded from Maven. */
+    @Test
+    void readsThePomOfAProjectFromItsFolder() throws IOException {
+        var design = Files.createDirectories(root.resolve("design"));
+        Files.createDirectories(design.resolve("bank-rating"));
+        Files.writeString(design.resolve("bank-rating").resolve(ProjectDescriptor.FILE_NAME),
+                "<project><name>Bank Rating</name></project>");
+        Files.writeString(design.resolve("bank-rating").resolve("pom.xml"), "<project>pom</project>");
+        Files.createDirectories(design.resolve("plain"));
+        Files.writeString(design.resolve("plain").resolve(ProjectDescriptor.FILE_NAME),
+                "<project><name>Plain</name></project>");
+        var inPlace = mock(InPlaceRepository.class);
+        when(inPlace.getRoot()).thenReturn(design);
+        when(inPlace.getId()).thenReturn(REPOSITORY_ID);
+        var bankRating = mock(AProject.class);
+        when(bankRating.getRepository()).thenReturn(inPlace);
+        when(bankRating.getFolderPath()).thenReturn("bank-rating");
+        var plain = mock(AProject.class);
+        when(plain.getRepository()).thenReturn(inPlace);
+        when(plain.getFolderPath()).thenReturn("plain");
+        var workspaceRepository = mock(LocalRepository.class);
+        when(workspaceRepository.getRoot()).thenReturn(root.resolve("workspace"));
+        var localWorkspace = mock(LocalWorkspace.class);
+        when(localWorkspace.getRepository(REPOSITORY_ID)).thenReturn(workspaceRepository);
+        doReturn(List.of(bankRating, plain)).when(localWorkspace).getProjects();
+        var userWorkspace = mock(UserWorkspace.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(mock(DesignTimeRepository.class));
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        var session = mock(RulesUserSession.class);
+        when(session.getUserWorkspace()).thenReturn(userWorkspace);
+        var maven = new MavenDependencyResolver(root.resolve("remote").toUri().toString(), null, null,
+                root.resolve("maven").toString());
+        var studio = new WebStudio(session, null, null, null, null, null, null, maven);
+        var projects = studio.getProjects().get(REPOSITORY_ID);
+        var downloaded = new ProjectDescriptor();
+        downloaded.setProjectFolder(Files.createDirectories(root.resolve("maven/com/example/d/1.0.0/d-1.0.0-1")));
+        Files.writeString(downloaded.getProjectFolder().resolve("pom.xml"), "<project/>");
+
+        assertEquals("<project>pom</project>", studio.pomOf(projects.getFirst()).text());
+        assertNull(studio.pomOf(projects.getLast()), "neither its folder nor a project of the workspace has one");
+        assertNull(studio.pomOf(downloaded), "it carries its libraries");
+        assertNull(new WebStudio(session, null, null, null, null, null, null, null).pomOf(projects.getFirst()),
+                "nothing is read while OpenL Studio downloads no dependency");
+        assertNull(new WebStudio(session, null, null, null, null, null, null,
+                new MavenDependencyResolver("", null, null, root.resolve("maven").toString()))
+                .pomOf(projects.getFirst()), "nor while no Maven repository is set");
     }
 
     /**

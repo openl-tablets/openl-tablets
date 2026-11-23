@@ -6,17 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.dependencies.MavenDependencyResolver;
+import org.openl.rules.webstudio.dependencies.ProjectPom;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -68,7 +72,14 @@ class ProjectDependencyResolverImplTest {
     private static ProjectDependencyResolverImpl resolver(ProjectDescriptorArtefactResolver descriptorResolver,
                                                           UserWorkspace workspace,
                                                           ProjectListingContext listingContext) {
-        return new ProjectDependencyResolverImpl(descriptorResolver, listingContext) {
+        return resolver(descriptorResolver, workspace, listingContext, mock(MavenDependencyResolver.class));
+    }
+
+    private static ProjectDependencyResolverImpl resolver(ProjectDescriptorArtefactResolver descriptorResolver,
+                                                          UserWorkspace workspace,
+                                                          ProjectListingContext listingContext,
+                                                          MavenDependencyResolver mavenResolver) {
+        return new ProjectDependencyResolverImpl(descriptorResolver, listingContext, mavenResolver) {
             @Override
             protected UserWorkspace getUserWorkspace() {
                 return workspace;
@@ -309,6 +320,109 @@ class ProjectDependencyResolverImplTest {
 
         assertEquals("com.example:domain:1.0.0", resolver.getDependencies(source).getFirst().mavenArtifact());
         assertEquals(List.of("org.example:lib:jar:2.0"), resolver.getLibraries(source));
+    }
+
+    /** While no Maven repository is set, nothing of a pom.xml is used: it is not read. */
+    @Test
+    void readsNoPomWhileNoMavenRepositoryIsSet() throws Exception {
+        RulesProject source = project("Rules", "master");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getPom(source)).thenReturn(ProjectPom.of("<project/>"));
+        var maven = mock(MavenDependencyResolver.class);
+        var resolver = resolver(descriptorResolver, workspace(source), new ProjectListingContext(), maven);
+
+        assertNull(resolver.getPom(source));
+        verify(descriptorResolver, never()).getPom(source);
+
+        when(maven.isEnabled()).thenReturn(true);
+        assertEquals(ProjectPom.of("<project/>"), resolver.getPom(source));
+    }
+
+    @Test
+    void takesTheCoordinatesThePomOfAnOpenedProjectGivesTheNameOf() throws Exception {
+        RulesProject source = project("Rules", "master");
+        when(source.isOpened()).thenReturn(true);
+        RulesProject closed = project("Closed", "master");
+        ProjectDependencyDescriptor domain = dependency("Domain");
+        ProjectDependencyDescriptor declaresClosed = dependency("Closed");
+        ProjectDependencyDescriptor common = dependency("Common");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(domain, declaresClosed));
+        when(descriptorResolver.getDependencies(closed)).thenReturn(List.of(common));
+        when(descriptorResolver.getPom(source)).thenReturn(ProjectPom.of("<project/>"));
+        var maven = mock(MavenDependencyResolver.class);
+        when(maven.isEnabled()).thenReturn(true);
+        when(maven.projectsOfPom(ProjectPom.of("<project/>"))).thenReturn(new MavenDependencyResolver.PomProjects(
+                Map.of("Domain", "com.example:domain:zip:1.0.0", "Common", "com.example:common:zip:1.0.0"),
+                List.of()));
+
+        var dependencies = resolver(descriptorResolver, workspace(source, closed), new ProjectListingContext(), maven)
+                .getDependencies(source);
+
+        assertEquals(List.of("com.example:domain:zip:1.0.0", "null", "com.example:common:zip:1.0.0"),
+                dependencies.stream().map(dependency -> String.valueOf(dependency.mavenArtifact())).toList());
+        verify(descriptorResolver, never()).getPom(closed);
+    }
+
+    /** One project shown reads the pom.xml of a closed project of the walk too, and the walk is started at it. */
+    @Test
+    void takesTheCoordinatesThePomOfAClosedProjectGivesWhenEveryPomIsRead() throws Exception {
+        RulesProject source = project("Rules", "master");
+        RulesProject closed = project("Closed", "master");
+        ProjectDependencyDescriptor declaresClosed = dependency("Closed");
+        ProjectDependencyDescriptor common = dependency("Common");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(declaresClosed));
+        when(descriptorResolver.getDependencies(closed)).thenReturn(List.of(common));
+        when(descriptorResolver.getPom(closed)).thenReturn(ProjectPom.of("<project>closed</project>"));
+        var maven = mock(MavenDependencyResolver.class);
+        when(maven.isEnabled()).thenReturn(true);
+        when(maven.projectsOfPom(ProjectPom.of("<project>closed</project>")))
+                .thenReturn(new MavenDependencyResolver.PomProjects(Map.of("Common", "com.example:common:zip:1.0.0"),
+                        List.of()));
+        when(maven.projectsOfPom(null)).thenReturn(new MavenDependencyResolver.PomProjects(Map.of(), List.of()));
+        var resolver = resolver(descriptorResolver, workspace(source, closed), new ProjectListingContext(), maven);
+
+        var listed = resolver.getDependencies(source);
+        var shown = resolver.getDependencies(source, true);
+
+        assertNull(listed.getLast().mavenArtifact(), "a list reads no closed pom.xml");
+        assertEquals("com.example:common:zip:1.0.0", shown.getLast().mavenArtifact());
+        // Read once, resolved at once before the walk, which then finds the answers in memory
+        verify(descriptorResolver).getPom(source);
+        verify(descriptorResolver).getPom(closed);
+    }
+
+    /**
+     * A repeat naming no coordinates, or the same archive written otherwise, asks for nothing else; a name nothing was
+     * found for takes the coordinates a later declaration gives, as the compilation downloads them.
+     */
+    @Test
+    void tellsNoConflictOfARepeatAskingForTheSameProject() throws Exception {
+        RulesProject source = project("Portal", "master");
+        RulesProject other = project("Other", "master");
+        RulesProject third = project("Third", "master");
+        ProjectDependencyDescriptor declaresOther = dependency("Other");
+        ProjectDependencyDescriptor declaresThird = dependency("Third");
+        ProjectDependencyDescriptor sharedByName = dependency("Shared");
+        ProjectDependencyDescriptor sharedOnZip = dependency("Shared");
+        when(sharedOnZip.getMavenArtifact()).thenReturn("com.example:shared:zip:1.0.0");
+        ProjectDependencyDescriptor sharedByCoordinates = dependency("Shared");
+        when(sharedByCoordinates.getMavenArtifact()).thenReturn("com.example:shared:1.0.0");
+        ProjectDescriptorArtefactResolver descriptorResolver = mockDescriptorResolver();
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(sharedByName, declaresOther,
+                declaresThird));
+        when(descriptorResolver.getDependencies(other)).thenReturn(List.of(sharedOnZip));
+        when(descriptorResolver.getDependencies(third)).thenReturn(List.of(sharedByCoordinates, sharedByName));
+
+        var shared = resolver(descriptorResolver, workspace(source, other, third)).getDependencies(source)
+                .stream()
+                .filter(dependency -> dependency.name().equals("Shared"))
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals("com.example:shared:zip:1.0.0", shared.mavenArtifact(), "the later declaration gives them");
+        assertEquals(List.of(), shared.conflicts());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -70,6 +72,10 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     @Getter
     private final boolean canUnload;
     private final @Nullable MavenDependencyResolver mavenDependencyResolver;
+    /** Reads the {@code pom.xml} of a project. */
+    private final Function<ProjectDescriptor, @Nullable ProjectPom> pomReader;
+    /** The {@code pom.xml} of each project, read once for the compilations of this manager. */
+    private final Map<ProjectDescriptor, Optional<ProjectPom>> poms = new ConcurrentHashMap<>();
     /** The libraries the class loader of each project was built with, so its errors tell of the same download. */
     private final Map<ProjectDescriptor, MavenDependencyResolver.Libraries> libraries = new ConcurrentHashMap<>();
     /** The dependencies left out of the compilations, as another project of their name is compiled. */
@@ -80,27 +86,65 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                                                       boolean executionMode,
                                                       Map<String, Object> externalParameters,
                                                       boolean canUnload,
-                                                      @Nullable MavenDependencyResolver mavenDependencyResolver) {
+                                                      @Nullable MavenDependencyResolver mavenDependencyResolver,
+                                                      Function<ProjectDescriptor, @Nullable ProjectPom> pomReader) {
         super(rootClassLoader, executionMode, externalParameters);
         this.projects = new LinkedHashSet<>(Objects.requireNonNull(projects, "projects cannot be null"));
         this.canUnload = canUnload;
         this.mavenDependencyResolver = mavenDependencyResolver;
+        this.pomReader = pomReader;
+        holdDownloaded(this.projects);
+    }
+
+    /** Keeps the downloaded projects it compiles from a cleanup of the local repository while it is in use. */
+    private void holdDownloaded(Collection<ProjectDescriptor> compiled) {
+        var resolver = mavenDependencyResolver;
+        if (resolver != null) {
+            resolver.hold(this, compiled.stream()
+                    .map(ProjectDescriptor::getProjectFolder)
+                    .filter(folder -> folder != null && resolver.isDownloaded(folder))
+                    .toList());
+        }
     }
 
     /** The libraries the project names by Maven coordinates, downloaded from the Maven repository. */
     @Override
     protected List<URL> getLibraries(ProjectDescriptor project) {
+        return urlsOf(downloadedLibrariesOf(project).files());
+    }
+
+    /**
+     * The libraries the {@code pom.xml} of the project marks as {@code provided}, which OpenL Rule Services ship and
+     * OpenL Studio does not, downloaded from the Maven repository.
+     */
+    @Override
+    protected List<URL> getProvidedLibraries(ProjectDescriptor project) {
+        return urlsOf(downloadedLibrariesOf(project).provided());
+    }
+
+    private MavenDependencyResolver.Libraries downloadedLibrariesOf(ProjectDescriptor project) {
         if (mavenDependencyResolver == null) {
-            return List.of();
+            return MavenDependencyResolver.Libraries.NONE;
         }
-        var found = mavenDependencyResolver.librariesOf(project);
+        var found = mavenDependencyResolver.librariesOf(project, pomOf(project));
         libraries.put(project, found);
-        return found.files().stream().map(file -> URLSourceCodeModule.toUrl(file.toFile())).toList();
+        // The class loaders read the files as long as the manager lives
+        mavenDependencyResolver.hold(this, found.files());
+        mavenDependencyResolver.hold(this, found.provided());
+        return found;
+    }
+
+    private @Nullable ProjectPom pomOf(ProjectDescriptor project) {
+        return poms.computeIfAbsent(project, key -> Optional.ofNullable(pomReader.apply(key))).orElse(null);
+    }
+
+    private static List<URL> urlsOf(List<Path> files) {
+        return files.stream().map(file -> URLSourceCodeModule.toUrl(file.toFile())).toList();
     }
 
     /**
      * What went wrong while the dependencies of the project named by Maven coordinates were downloaded: a library,
-     * or a project the workspace lacks.
+     * a project the workspace lacks, or a project its {@code pom.xml} depends on.
      *
      * <p>The libraries are told of as the class loader of the project got them, so a library fixed in the repository
      * meanwhile is reported until the project compiles anew.
@@ -114,17 +158,17 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 .filter(conflict -> conflict.concerns(project.getName()))
                 .map(DependencyConflict::message)
                 .toList();
-        if (mavenDependencyResolver == null || project.getDependencies() == null) {
+        if (mavenDependencyResolver == null) {
             return told;
         }
         var used = libraries.get(project);
-        var messages = new ArrayList<>((used == null ? mavenDependencyResolver.librariesOf(project) : used).messages());
+        var messages = new ArrayList<>(
+                (used == null ? mavenDependencyResolver.librariesOf(project, pomOf(project)) : used).messages());
+        var pomProjects = mavenDependencyResolver.projectsOfPom(pomOf(project));
+        messages.addAll(pomProjects.messages());
         messages.addAll(told);
-        var loadedProjects = getDependencyLoaders().stream()
-                .filter(IDependencyLoader::isProjectLoader)
-                .map(loader -> loader.getProject().getName())
-                .collect(Collectors.toSet());
-        MavenDependencyResolver.namedMavenDependenciesOf(project.getDependencies())
+        var loadedProjects = loadedProjects().map(ProjectDescriptor::getName).collect(Collectors.toSet());
+        MavenDependencyResolver.namedMavenDependenciesOf(project.getDependencies(), pomProjects.coordinatesByName())
                 .stream()
                 .filter(dependency -> !loadedProjects.contains(dependency.getName()))
                 .map(dependency -> mavenDependencyResolver.projectOf(dependency).problem())
@@ -419,6 +463,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     /** Loads the projects of another workspace too, and tells the dependencies it left out. */
     public void expand(WebStudioWorkspaceDependencyManagerFactory.Workspace workspace) {
+        holdDownloaded(workspace.projects());
         addDependencyLoaders(buildDependencyLoaders(workspace.projects()));
         addConflicts(workspace.conflicts());
     }
