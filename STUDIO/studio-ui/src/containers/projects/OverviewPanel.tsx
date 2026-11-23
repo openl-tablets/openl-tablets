@@ -159,14 +159,11 @@ const useStyles = createStyles(({ css, token }) => ({
             font-size: 10px;
         }
     `,
-    twoCol: css`
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-
-        @media (max-width: 640px) {
-            grid-template-columns: 1fr;
-        }
+    /** Depends-on and used-by stand one under the other in one column. */
+    dependencyGroups: css`
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     `,
     description: css`
         margin: 0;
@@ -300,7 +297,7 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 4px;
         min-width: 0;
     `,
-    /** Depends-on and used-by stand as two columns of one Dependencies section. */
+    /** One group of the Dependencies section: depends-on or used-by, under its label. */
     dependencyColumn: css`
         display: flex;
         flex-direction: column;
@@ -1171,7 +1168,6 @@ const ExposedMethodsSection = ({ editor }: { editor: DescriptorEditor }) => {
     )
 }
 
-/** One column of related projects: what this one depends on, or what uses it. */
 /** The projects this one depends on — the declared list while editing — and the projects using it. */
 const DependenciesSection = ({ editor, dependsOn, usedBy, projectNames }: {
     editor: DescriptorEditor
@@ -1203,7 +1199,7 @@ const DependenciesSection = ({ editor, dependsOn, usedBy, projectNames }: {
                     />
                 )
                 : (
-                    <div className={styles.twoCol}>
+                    <div className={styles.dependencyGroups}>
                         {dependsOn.length > 0 && (
                             <div className={styles.dependencyColumn}>
                                 <span className={cx(shared.microLabel, styles.dependencyLabel)}>
