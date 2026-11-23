@@ -37,10 +37,12 @@ describe('SettingsMenu', () => {
         await userEvent.click(screen.getByTestId('settings-menu'))
 
         expect(await screen.findByText('common:settings.table_settings')).toBeInTheDocument()
+        expect(screen.getByText('common:settings.files_settings')).toBeInTheDocument()
         expect(screen.getByText('common:settings.testing_settings')).toBeInTheDocument()
         expect(screen.getByText('common:settings.trace_settings')).toBeInTheDocument()
         expect(screen.getByTestId('settings-showHeader')).toBeChecked()
         expect(screen.getByTestId('settings-showFormulas')).toBeChecked()
+        expect(screen.getByTestId('settings-showHiddenFiles')).not.toBeChecked()
         expect(screen.getByTestId('settings-testsFailuresOnly')).not.toBeChecked()
         expect(screen.getByTestId('settings-showComplexResult')).not.toBeChecked()
         expect(screen.getByTestId('settings-showRealNumbers')).not.toBeChecked()
@@ -52,8 +54,14 @@ describe('SettingsMenu', () => {
         await userEvent.click(screen.getByTestId('settings-menu'))
         await userEvent.click(await screen.findByText('common:settings.show_header'))
         await userEvent.click(screen.getByText('common:settings.show_numbers_without_formatting'))
+        await userEvent.click(screen.getByText('common:settings.show_hidden_files'))
 
-        expect(readUserSettings()).toEqual({ ...DEFAULT_USER_SETTINGS, showHeader: false, showRealNumbers: true })
+        expect(readUserSettings()).toEqual({
+            ...DEFAULT_USER_SETTINGS,
+            showHeader: false,
+            showRealNumbers: true,
+            showHiddenFiles: true,
+        })
         expect(screen.getByTestId('settings-showHeader')).not.toBeChecked()
         expect(openMenu()).not.toBeNull()
 

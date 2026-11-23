@@ -15,11 +15,11 @@ i18next.addResourceBundle('en', 'system', {
     detect_projects_by_excel_files: 'Detect projects by Excel files',
     detect_projects_by_excel_files_info: 'Treat folders without rules.xml as projects when they contain an Excel file in their root. A repository that keeps projects as archives, such as a database or AWS S3 repository, has no folders and lists its projects either way. Enabling this setting slows down the Repository tab.',
     ignored_paths: 'Ignored Paths',
-    ignored_paths_info: 'Paths no repository shows or changes, such as build files or the files of a version '
-        + 'control system: Ant-style patterns relative to the repository root, separated by commas, such as '
-        + '**/pom.xml. A save of a project keeps the ignored files, and an uploaded project leaves them out. The '
-        + '.git folder is always ignored. To keep the default paths and add your own, write '
-        + '${repository.default-ignored-paths}, **/target/**.',
+    ignored_paths_info: 'Paths no repository shows or changes, such as the files of a version control system, '
+        + 'the output of a build or the temporary files of an operating system: Ant-style patterns relative to '
+        + 'the repository root, separated by commas, such as **/.DS_Store. A save of a project keeps the ignored '
+        + 'files, and an uploaded project leaves them out. The .git folder is always ignored. To keep the default '
+        + 'paths and add your own, write ${repository.default-ignored-paths}, **/build/**.',
     clear_all_history: 'Clear All History',
     other: 'Other',
     audit_log: 'Audit Log',

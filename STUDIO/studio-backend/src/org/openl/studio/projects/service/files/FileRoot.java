@@ -52,6 +52,14 @@ public interface FileRoot {
     void requireModifiable();
 
     /**
+     * Whether the mount is a project, so that the protected and the hidden files of a project are told by their
+     * mount-relative paths. A repository subtree is not one: nothing in it is protected or hidden.
+     */
+    default boolean isProject() {
+        return false;
+    }
+
+    /**
      * The path a file of the mount has in its repository. The ignored paths of the repositories are matched against
      * it.
      *

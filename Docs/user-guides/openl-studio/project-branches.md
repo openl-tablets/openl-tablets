@@ -261,10 +261,10 @@ contain the project when it is opened. Proceed as follows:
     such as one where such a formula would read the workbook your branch links under the same number, stays a
     conflict as a whole file.
 
-    A file the system settings ignore, such as the `pom.xml` whose version a CI pipeline bumps in both branches,
-    never conflicts: it keeps the version of the branch the changes are merged into, and the message of the merge
-    names it. For more information on ignored files, see
-    [Managing System Settings](administration/02-system-settings.md).
+    A file the system settings ignore, such as a CI pipeline definition in the `.github` folder, never conflicts:
+    it keeps the version of the branch the changes are merged into, and the message of the merge names it. For more
+    information on ignored files, see [Managing System Settings](administration/02-system-settings.md). A protected
+    file, such as the `pom.xml` of the project, is merged as any other file.
 
     If Sync finds such a conflict, or both branches changed the same place of any other file, the **Resolve
     Conflicts** dialog appears. **Cancel**, the close button and Esc all cancel the merge and leave both branches as

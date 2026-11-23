@@ -24,6 +24,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -49,6 +50,9 @@ public class DeploymentManager implements InitializingBean {
     private DesignTimeRepository designRepository;
     @Setter
     private PropertyResolver propertyResolver;
+    /** The protected files of a project, which a deployment leaves out. */
+    @Setter
+    private ProjectFiles projectFiles;
 
     private final Set<String> deployers = new HashSet<>();
     @Setter
@@ -86,7 +90,8 @@ public class DeploymentManager implements InitializingBean {
                         designRepository,
                         rulesPath,
                         deploymentPath,
-                        request.currentUser().getUserName())) {
+                        request.currentUser().getUserName(),
+                        projectFiles)) {
                     var deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(request.currentUser().getUserInfo());
@@ -224,7 +229,8 @@ public class DeploymentManager implements InitializingBean {
                                 Manifest manifest) throws ProjectException {
         var out = new ByteArrayOutputStream();
         try {
-            RepositoryUtils.archive(designRepository, designRepo, rulesPath, projectName, version, out, manifest);
+            RepositoryUtils.archive(designRepository, designRepo, rulesPath, projectName, version, out, manifest,
+                    projectFiles);
             dest.setSize(out.size());
             deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
         } catch (IOException e) {

@@ -31,6 +31,14 @@ class IgnoredPathsTest {
         assertFalse(SETTING.matches(path));
     }
 
+    /** The temporary files the default setting ignores, as a ZIP archive opened as a file system names them too. */
+    @ParameterizedTest
+    @ValueSource(strings = {"p/.DS_Store", "/.DS_Store", "p/~$Rules.xlsx", "/p/target/classes/a.class", "__MACOSX",
+            "__MACOSX/._Rules.xlsx", "p/Thumbs.db"})
+    void ignoresTemporaryFilesAPatternNames(String path) {
+        assertTrue(IgnoredPaths.of("**/.DS_Store, **/~$*, **/target/**, **/__MACOSX/**, **/Thumbs.db").matches(path));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"pom.xml", ".gitignore"})
     void ignoresOnlyTheGitFolderWithoutSetting(String path) {

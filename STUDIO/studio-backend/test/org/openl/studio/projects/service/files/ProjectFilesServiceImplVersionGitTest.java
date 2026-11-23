@@ -26,6 +26,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -78,7 +79,7 @@ class ProjectFilesServiceImplVersionGitTest {
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
                 mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class),
                 new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null), false);
+                IgnoredPaths.of(null), ProjectFiles.of(null, null), false);
     }
 
     @AfterEach

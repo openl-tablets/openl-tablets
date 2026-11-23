@@ -43,6 +43,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -93,7 +94,7 @@ class ZipProjectSaveStrategyTest {
         saveStrategy = new ZipProjectSaveStrategy(designTimeRepositoryMock,
                 zipFilterMock,
                 zipCharsetDetectorMock,
-                userManagementService, new UploadFormatting(mock(TableFormatting.class)));
+                userManagementService, new UploadFormatting(mock(TableFormatting.class)), ProjectFiles.of(null, null));
     }
 
     @Test
@@ -491,9 +492,44 @@ class ZipProjectSaveStrategyTest {
         var charsets = mock(ZipCharsetDetector.class);
         when(charsets.detectCharset(any())).thenReturn(StandardCharsets.UTF_8);
 
-        new ZipProjectSaveStrategy(designTimeRepositoryMock, zipFilter, charsets, userManagementService, uploads)
-                .save(repo, model, archive);
+        new ZipProjectSaveStrategy(designTimeRepositoryMock, zipFilter, charsets, userManagementService, uploads,
+                ProjectFiles.of(null, null)).save(repo, model, archive);
         return saved;
+    }
+
+    @Test
+    void testOverwriteKeepsTheProtectedFilesOfTheProjectInPlaceOfTheArchiveOnes(@TempDir Path tempFolder)
+            throws Exception {
+        mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
+        var model = new CreateUpdateProjectModel("design1", "jsmith", "Project 1", "foo/Project 1", "Bar", true);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var saved = captureFileItems(repo);
+        var folder = BASE_RULES_LOCATION + "Project 1/";
+        var pom = new FileData();
+        pom.setName(folder + "pom.xml");
+        var descriptor = new FileData();
+        descriptor.setName(folder + "rules.xml");
+        when(repo.list(folder)).thenReturn(List.of(pom, descriptor));
+        when(repo.read(folder + "pom.xml")).thenReturn(new FileItem(pom,
+                new ByteArrayInputStream("<kept/>".getBytes(StandardCharsets.UTF_8))));
+        var archive = tempFolder.resolve("project.zip");
+        try (var zip = new ZipOutputStream(Files.newOutputStream(archive))) {
+            zip.putNextEntry(new ZipEntry("rules.xml"));
+            zip.write("<project><name>Project 1</name></project>".getBytes(StandardCharsets.UTF_8));
+            zip.putNextEntry(new ZipEntry("pom.xml"));
+            zip.write("<uploaded/>".getBytes(StandardCharsets.UTF_8));
+        }
+        var projectFiles = ProjectFiles.of("pom.xml", null);
+        PathFilter zipFilter = path -> !projectFiles.isProtected(path);
+        var charsets = mock(ZipCharsetDetector.class);
+        when(charsets.detectCharset(any())).thenReturn(StandardCharsets.UTF_8);
+
+        new ZipProjectSaveStrategy(designTimeRepositoryMock, zipFilter, charsets, userManagementService,
+                new UploadFormatting(mock(TableFormatting.class)), projectFiles).save(repo, model, archive);
+
+        assertEquals(Set.of(folder + "rules.xml", folder + "pom.xml"), saved.keySet());
+        assertEquals("<kept/>", new String(saved.get(folder + "pom.xml").getStream().readAllBytes(),
+                StandardCharsets.UTF_8));
     }
 
     private static String headerStyle(Path tempFolder, FileItem workbook) throws IOException {

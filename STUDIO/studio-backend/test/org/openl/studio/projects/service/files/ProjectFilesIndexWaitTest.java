@@ -27,6 +27,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -84,7 +85,7 @@ class ProjectFilesIndexWaitTest {
                 () -> new UserInfo("user1"), designTimeRepository);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null), false);
+                IgnoredPaths.of(null), ProjectFiles.of(null, null), false);
     }
 
     @Test

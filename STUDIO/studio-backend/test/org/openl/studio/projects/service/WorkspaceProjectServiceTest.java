@@ -762,6 +762,30 @@ class WorkspaceProjectServiceTest {
         assertTrue(result.descriptor.sourcesDefault());
     }
 
+    /**
+     * A project kept as an archive, as in an AWS S3 repository, is not filtered by the ignored paths, so the lock file
+     * Excel leaves beside an open workbook reaches the listing: it matches the pattern by name but is no module.
+     */
+    @Test
+    void get_project_matches_no_lock_file_of_excel_to_a_pattern() throws Exception {
+        var project = closedProject("""
+                <project>
+                    <modules>
+                        <module>
+                            <name>Rules</name>
+                            <rules-root path="rules/*.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """, "rules/Rating.xlsx", "rules/~$Rating.xlsx");
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class));
+
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
+
+        var matched = result.descriptor.modules().getFirst().modules();
+        assertEquals(List.of("rules/Rating.xlsx"), matched.stream().map(ModuleViewModel::path).toList());
+    }
+
     @Test
     void get_project_uses_default_module_patterns_when_workspace_folder_is_unavailable() throws Exception {
         var project = closedProject("""

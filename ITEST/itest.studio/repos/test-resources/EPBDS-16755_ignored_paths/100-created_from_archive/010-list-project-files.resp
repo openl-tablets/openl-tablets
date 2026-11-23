@@ -20,6 +20,7 @@ Content-Type: application/json
     "type": "file",
     "path": "rules.xml",
     "name": "rules.xml",
+    "hidden": true,
     "extension": "xml",
     "size": "*",
     "lastModified": "*"

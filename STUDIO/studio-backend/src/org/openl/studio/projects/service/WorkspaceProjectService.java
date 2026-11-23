@@ -665,7 +665,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (module.isModuleWithWildcard()) {
                 for (var file : files) {
                     var relativePath = relativeProjectFilePath(projectPath, file);
-                    if (isNotTemporaryFile(relativePath)
+                    // A project kept as an archive is not filtered by the ignored paths: the engine rule applies.
+                    if (!FileTypeHelper.isLockFile(FileUtils.getName(relativePath))
                             && FileUtils.pathMatches(module.getRulesRootPath(), relativePath)
                             && modules.stream()
                                     .noneMatch(existing -> Objects.equals(existing.getRulesRootPath(), relativePath))) {
@@ -721,13 +722,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private static boolean isDirectProjectExcelFile(String relativePath) {
-        return !relativePath.contains("/")
-                && isNotTemporaryFile(relativePath)
-                && FileTypeHelper.isExcelFile(relativePath);
-    }
-
-    private static boolean isNotTemporaryFile(String path) {
-        return !FileUtils.getName(path).startsWith("~$");
+        return !relativePath.contains("/") && FileTypeHelper.isExcelFile(relativePath);
     }
 
     private static String relativeProjectFilePath(String projectPath, FileData file) {

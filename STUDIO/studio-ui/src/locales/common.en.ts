@@ -106,6 +106,8 @@ i18next.addResourceBundle('en', 'common', {
         table_settings: 'Table Settings',
         show_header: 'Show Header',
         show_formulas: 'Show Formulas',
+        files_settings: 'Files',
+        show_hidden_files: 'Show Hidden Files',
         testing_settings: 'Testing Settings',
         tests_per_page: 'Tests Per Page',
         trace_settings: 'Trace Settings',

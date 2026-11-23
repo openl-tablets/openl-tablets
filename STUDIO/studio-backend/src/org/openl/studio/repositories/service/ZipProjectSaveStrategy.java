@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -53,6 +54,9 @@ import org.openl.util.ZipUtils;
  * <p>An archive that overwrites a project has its {@code .xlsx} files formatted with the OpenL table style while
  * tables are formatted on save: the archive is unpacked into a temporary folder, formatted there, and the folder is
  * committed in its place.
+ *
+ * <p>The ignored paths and the protected files of the archive are left out. An archive that overwrites a project
+ * kept in folders keeps the protected files the project holds, such as its {@code pom.xml}.
  */
 @Component
 @RequiredArgsConstructor
@@ -66,6 +70,7 @@ public class ZipProjectSaveStrategy {
     private final ZipCharsetDetector zipCharsetDetector;
     private final UserManagementService userManagementService;
     private final UploadFormatting uploadFormatting;
+    private final ProjectFiles projectFiles;
 
     public FileData save(Repository repository, CreateUpdateProjectModel model, Path zipArchive) throws IOException {
         var author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
@@ -90,13 +95,16 @@ public class ZipProjectSaveStrategy {
             var generatedRulesXml = Files.exists(root.resolve(ProjectDescriptor.FILE_NAME))
                     ? Optional.<byte[]>empty()
                     : Optional.of(rulesXml(root, filter, model.getProjectName()));
+            var kept = model.isOverwrite() && repository.supports().folders()
+                    ? protectedFilesOf(repository, projectData.getName())
+                    : List.<FileItem>of();
             var stage = model.isOverwrite() ? formattedStage(root, filter, adaptor, generatedRulesXml) : null;
             if (stage == null) {
-                return save(repository, projectData, root, filter, generatedRulesXml, adaptor);
+                return save(repository, projectData, root, filter, generatedRulesXml, kept, adaptor);
             }
             try {
                 // The stage holds the project as it is saved: the files the filter keeps, the descriptor named.
-                return save(repository, projectData, stage, file -> true, Optional.empty());
+                return save(repository, projectData, stage, file -> true, Optional.empty(), kept);
             } finally {
                 FileUtils.deleteQuietly(stage);
             }
@@ -114,18 +122,41 @@ public class ZipProjectSaveStrategy {
         return designTimeRepository.getRulesLocation() + model.getProjectName();
     }
 
+    /**
+     * The protected files a project holds, which a save that overwrites it keeps: a full save deletes every file it
+     * is not given.
+     */
+    private List<FileItem> protectedFilesOf(Repository repository, String projectFolder) throws IOException {
+        var prefix = projectFolder + "/";
+        var kept = new ArrayList<FileItem>();
+        var protectedNames = repository.list(prefix).stream()
+                .map(FileData::getName)
+                .filter(name -> projectFiles.isProtected(name.substring(prefix.length())))
+                .toList();
+        for (var name : protectedNames) {
+            var item = repository.read(name);
+            if (item != null) {
+                try (var content = item.getStream()) {
+                    kept.add(new FileItem(name, new ByteArrayInputStream(content.readAllBytes())));
+                }
+            }
+        }
+        return kept;
+    }
+
     private static FileData save(Repository repository,
                                  FileData projectData,
                                  Path projectRoot,
                                  Predicate<Path> filter,
                                  Optional<byte[]> generatedRulesXml,
+                                 List<FileItem> kept,
                                  FileAdaptor... adaptors) throws IOException {
         if (repository.supports().folders()) {
             try (var changes = new FileChangesFromFolder(projectRoot, projectData.getName(), filter, adaptors)) {
-                var projectChanges = generatedRulesXml.isPresent()
-                        ? appendProjectDescriptor(changes, projectData.getName(), generatedRulesXml.orElseThrow())
-                        : changes;
-                return repository.save(projectData, projectChanges, ChangesetType.FULL);
+                var added = new ArrayList<>(kept);
+                generatedRulesXml.ifPresent(rulesXml -> added.add(new FileItem(
+                        projectData.getName() + "/" + ProjectDescriptor.FILE_NAME, new ByteArrayInputStream(rulesXml))));
+                return repository.save(projectData, appended(changes, added), ChangesetType.FULL);
             }
         }
         return saveAsArchive(repository, projectData, projectRoot, filter, generatedRulesXml, adaptors);
@@ -208,13 +239,11 @@ public class ZipProjectSaveStrategy {
         }
     }
 
-    private static Iterable<FileItem> appendProjectDescriptor(Iterable<FileItem> changes,
-                                                              String projectFolder,
-                                                              byte[] rulesXml) {
-        var descriptor = new FileItem(projectFolder + "/" + ProjectDescriptor.FILE_NAME,
-                new ByteArrayInputStream(rulesXml));
-        return () -> Stream.concat(StreamSupport.stream(changes.spliterator(), false), Stream.of(descriptor))
-                .iterator();
+    private static Iterable<FileItem> appended(Iterable<FileItem> changes, List<FileItem> added) {
+        if (added.isEmpty()) {
+            return changes;
+        }
+        return () -> Stream.concat(StreamSupport.stream(changes.spliterator(), false), added.stream()).iterator();
     }
 
     private static byte[] rulesXml(Path projectRoot, Predicate<Path> filter, String projectName) throws IOException {
@@ -227,7 +256,6 @@ public class ZipProjectSaveStrategy {
                     .map(Path::toString)
                     .filter(FileTypeHelper::isExcelFile)
                     .filter(fileName -> !fileName.toLowerCase(Locale.ROOT).endsWith(".xlsx"))
-                    .filter(fileName -> !fileName.startsWith("._"))
                     .map(ZipProjectSaveStrategy::module)
                     .forEach(modules::add);
         }

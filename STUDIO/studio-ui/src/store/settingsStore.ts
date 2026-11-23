@@ -3,12 +3,14 @@ import { booleanText, oneOf, storedSetting, type SettingCodec, type StoredSettin
 import { FAILURES_PER_TEST, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import type { TestsQuery } from 'services/execution'
 
-/** The choices of **My Settings**: how the tables, the test results, the trace and the dates are shown. */
+/** The choices of **My Settings**: how the tables, the files, the test results, the trace and the dates are shown. */
 export interface UserSettings {
     /** The technical rows of a table are shown above its data. */
     showHeader: boolean
     /** A cell holding an Excel formula shows the formula rather than its value. */
     showFormulas: boolean
+    /** The trees of files show the hidden files of a project too, such as `rules.xml` and `pom.xml`. */
+    showHiddenFiles: boolean
     /** How many test tables one page of the test results holds; `-1` for all of them. */
     testsPerPage: number
     /** The test results list only the failed cases. */
@@ -52,6 +54,7 @@ export const TIME_FORMATS = ['HH:mm:ss', 'h:mm:ss A'] as const
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = {
     showHeader: true,
     showFormulas: false,
+    showHiddenFiles: false,
     testsPerPage: TESTS_PAGE_SIZE,
     testsFailuresOnly: false,
     showComplexResult: false,
@@ -73,6 +76,7 @@ const setting = <K extends keyof UserSettings>(key: K, codec: SettingCodec<UserS
 const STORED: {readonly [K in keyof UserSettings]: StoredSetting<UserSettings[K]> } = {
     showHeader: setting('showHeader', booleanText),
     showFormulas: setting('showFormulas', booleanText),
+    showHiddenFiles: setting('showHiddenFiles', booleanText),
     testsPerPage: setting('testsPerPage', oneOf(TESTS_PAGE_SIZES)),
     testsFailuresOnly: setting('testsFailuresOnly', booleanText),
     showComplexResult: setting('showComplexResult', booleanText),

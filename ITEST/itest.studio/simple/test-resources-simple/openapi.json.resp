@@ -30579,6 +30579,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "hidden": {
+            "type": "boolean",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"

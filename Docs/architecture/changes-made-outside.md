@@ -174,6 +174,6 @@ folder. So the projects of a design repository on the file system are edited whe
   a write of a table or a file based on an outdated read is refused by its version.
 - **Ignored paths.** The folder of the projects is often a working copy of a developer, with the `.git` folder, the
   output of a build and the files of an IDE. `InPlaceRepository` keeps out of reach the paths the design repository
-  ignores ([Ignored Paths](ignored-paths.md)). The repository watcher does not read an ignored folder, so a fetch of
-  Git or a build is no change of the projects. A module path with a wildcard finds no workbook in an ignored folder:
+  ignores ([Ignored, Protected and Hidden Files](ignored-paths.md)). The repository watcher does not read an
+  ignored folder, so a fetch of Git or a build is no change of the projects. A module path with a wildcard finds no workbook in an ignored folder:
   `WebStudio` and `ProjectModel` resolve a project with `FileSystemRepository.ignores` of its repository.

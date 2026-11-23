@@ -58,6 +58,7 @@
         <property name="repositoryFactoryProxy" ref="productionRepositoryFactoryProxy"/>
         <property name="designRepository" ref="designTimeRepository"/>
         <property name="propertyResolver" ref="environment"/>
+        <property name="projectFiles" ref="projectFiles"/>
     </bean>
 
     <bean id="projectVersionCacheDB" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionH2CacheDB">

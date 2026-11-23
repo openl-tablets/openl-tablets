@@ -45,6 +45,7 @@ import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 import { formatFileSize } from '../../utils/fileSize'
 import { joinClasses } from '../../utils/joinClasses'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
+import { useSettingsStore } from '../../store'
 
 const SELECTED_STORAGE_KEY = 'openl.projects.tree.selected'
 
@@ -75,6 +76,11 @@ interface ProjectContents {
     signature: string
     /** The paths of the files of the project. */
     paths: string[]
+    /**
+     * The same files without the hidden ones, such as `rules.xml`, which the tree shows only while **Show Hidden
+     * Files** is on; absent when the project has no hidden file.
+     */
+    withoutHidden?: ProjectContents
     /** The files changed and not saved yet, by path: read for a project being edited only. */
     changes?: ReadonlyMap<string, ProjectFileChangeType>
     /** The size of a file in bytes, by its path. */
@@ -126,13 +132,29 @@ const readContents = async (
     if (typeof files === 'string') {
         return { signature: projectSignature(project), paths: [], sizes: {}, error: files }
     }
-    return {
+    const read: ProjectContents = {
         signature: projectSignature(project),
         ...(changes ? { changes } : {}),
         paths: files.map(file => file.path),
         sizes: Object.fromEntries(files.flatMap(file => (file.size === undefined ? [] : [[file.path, file.size]]))),
     }
+    const shown = files.filter(file => !file.hidden)
+    return shown.length === files.length
+        ? read
+        : { ...read, withoutHidden: { ...read, paths: shown.map(file => file.path) } }
 }
+
+/**
+ * The files of the projects as the tree shows them: the hidden ones only while **Show Hidden Files** is on.
+ *
+ * <p>A project keeps the same files from one call to the next, so the rows built on them are kept too.
+ */
+const shownContents = (
+    contents: Record<string, ProjectContents>,
+    showHidden: boolean
+): Record<string, ProjectContents> => (showHidden
+    ? contents
+    : Object.fromEntries(Object.entries(contents).map(([projectId, read]) => [projectId, read.withoutHidden ?? read])))
 
 /** Ends a read of the files of a project, unless a refresh since has handed its place to another read. */
 const settle = (inFlight: Map<string, number>, projectId: string, begun: number): void => {
@@ -546,7 +568,10 @@ export const ProjectsTree = ({
     // something else, or the grouping is changed.
     const [openedOn, setOpenedOn] = useState<string | null>(null)
     // The files of the projects whose rows have been opened, read once each and kept while the tree stands.
-    const [contents, setContents] = useState<Record<string, ProjectContents>>({})
+    const [readFiles, setReadFiles] = useState<Record<string, ProjectContents>>({})
+    // The files as the rows show them: the hidden ones only when the user asks to see them.
+    const showHiddenFiles = useSettingsStore(state => state.settings.showHiddenFiles)
+    const contents = useMemo(() => shownContents(readFiles, showHiddenFiles), [readFiles, showHiddenFiles])
 
     // The list supplies the projects it already read; only a single-project page lets the tree read them
     // itself, so the list screen no longer pulls the same /projects snapshot a second time.
@@ -607,7 +632,7 @@ export const ProjectsTree = ({
         for (const project of stale) {
             rereading.current.set(project.id, begun)
             void readContents(project, project.id === currentProjectId ? currentFileChanges : undefined)
-                .then(read => setContents(previous => (begun === generation.current && project.id in previous
+                .then(read => setReadFiles(previous => (begun === generation.current && project.id in previous
                     ? { ...previous, [project.id]: read }
                     : previous)))
                 .finally(() => {
@@ -762,7 +787,7 @@ export const ProjectsTree = ({
         try {
             const read = await readContents(project, project.id === currentProjectId ? currentFileChanges : undefined)
             if (begun === generation.current) {
-                setContents(previous => ({ ...previous, [project.id]: read }))
+                setReadFiles(previous => ({ ...previous, [project.id]: read }))
             }
         } finally {
             settle(reading.current, project.id, begun)
@@ -814,10 +839,12 @@ export const ProjectsTree = ({
         setOpenedOn(target)
         const folders = foldersAbove(currentFile).map(folder => fileKey(currentProjectId, folder, false))
         setExpanded(previous => openAlso(previous, [...row.path, row.key, ...folders]))
-        const fileRow = fileKey(currentProjectId, currentFile, read.paths.includes(currentFile))
+        // A hidden file is told apart by every file read, so its row is the one picked once the hidden files are shown.
+        const fileRow = fileKey(currentProjectId, currentFile,
+            (readFiles[currentProjectId] ?? read).paths.includes(currentFile))
         setSelected([fileRow])
         setInSight(fileRow)
-    }, [contents, currentFile, currentProjectId, foundIn, loadContents, nodes, openedOn, projects])
+    }, [contents, currentFile, currentProjectId, foundIn, loadContents, nodes, openedOn, projects, readFiles])
 
     // A row is brought into sight once the tree is laid out — a tree just shown is measured first — and the rows of the
     // groups and folders unfolded to reach it are drawn.
@@ -1060,7 +1087,7 @@ export const ProjectsTree = ({
         generation.current += 1
         reading.current.clear()
         rereading.current.clear()
-        setContents({})
+        setReadFiles({})
         // When the screen supplies the projects, it owns the read: ask it to refresh and hand them down.
         // The controlled shape guarantees a refresh, so a supplied tree never falls back to reading itself.
         if (controlled) {

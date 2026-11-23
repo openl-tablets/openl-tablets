@@ -70,7 +70,9 @@ The server renders no page. A Spring backend answers the REST API under `/rest` 
   ([Workspace Metainfo Registry](architecture/workspace-metainfo-registry.md)). `GitRepository` checks a branch name or
   a revision it is given against the Git reference-name rules before it looks them up, so a name such as
   `../../config` fails with an `IOException`. A commit id is a valid revision as it is. No repository shows or
-  changes the build files and the files of version control systems ([Ignored Paths](architecture/ignored-paths.md)).
+  changes the files of version control systems and the system and temporary files, and a project keeps its
+  `pom.xml` out of an export, a deployment and an import
+  ([Ignored, Protected and Hidden Files](architecture/ignored-paths.md)).
 - **Branches** — a project can live in several Git branches
   ([Cross-Branch Projects](architecture/cross-branch-projects.md)).
 - **Editing** — a table write locks the project ([Project Editing Lock](architecture/project-editing-lock.md)) and

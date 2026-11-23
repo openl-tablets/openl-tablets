@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "projectHistoryCount": 10,
   "detectProjectsByExcelFiles": true,
-  "ignoredPaths": "**/.git*/**, **/pom.xml, **/.mvn/**, **/mvnw*, **/.dockerignore, **/.svn/**, **/CVS/**, **/.cvsignore",
+  "ignoredPaths": "**/.git*/**, **/.svn/**, **/CVS/**, **/.cvsignore, **/Jenkinsfile, **/.dockerignore, **/.mvn/**, **/mvnw*, **/target/**, **/.gradle/**, **/.bsp/**, **/.bloop/**, **/.metals/**, **/node_modules/**, **/.idea/**, **/*.iml, **/.vscode/**, **/.settings/**, **/.project, **/.classpath, **/*.log, **/*.tmp, **/*.swp, **/*~, **/~$*, **/.~lock.*, **/.DS_Store, **/._*, **/__MACOSX/**, **/Thumbs.db, **/desktop.ini",
   "updateSystemProperties": true,
   "formatTablesOnSave": true,
   "testRunThreadCount": 2,

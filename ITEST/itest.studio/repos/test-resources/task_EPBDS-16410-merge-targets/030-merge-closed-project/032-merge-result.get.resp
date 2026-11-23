@@ -17,10 +17,6 @@ Content-Type: application/json
         "status": "added",
         "files": [
           {
-            "path": "EPBDS-16410-InBranch/__MACOSX/._Main.xlsx",
-            "type": "added"
-          },
-          {
             "path": "EPBDS-16410-InBranch/Main.xlsx",
             "type": "added"
           },

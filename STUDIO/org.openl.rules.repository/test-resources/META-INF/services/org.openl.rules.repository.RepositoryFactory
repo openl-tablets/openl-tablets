@@ -1,2 +1,3 @@
 org.openl.rules.repository.CountingRepositoryFactory
 org.openl.rules.repository.FailingRepositoryFactory
+org.openl.rules.repository.SettingsRepositoryFactory

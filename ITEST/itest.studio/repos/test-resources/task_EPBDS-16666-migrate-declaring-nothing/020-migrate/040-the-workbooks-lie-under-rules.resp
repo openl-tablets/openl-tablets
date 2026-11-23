@@ -27,6 +27,7 @@ Content-Type: application/json
   },
   {
     "path": "rules.xml",
+    "hidden": true,
     "name": "rules.xml",
     "type": "file",
     "extension": "xml",

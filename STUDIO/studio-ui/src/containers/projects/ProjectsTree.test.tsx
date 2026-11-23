@@ -11,6 +11,7 @@ import type { Repository } from '../../types/repositories'
 import { listingQueryOf } from './projectListing'
 import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
 import { RAIL_INDENT, railRowWidth } from './railRowWidth'
+import { useSettingsStore } from '../../store'
 
 vi.mock('../../services/repositories', () => ({ getProject: vi.fn(), getProjectFiles: vi.fn() }))
 
@@ -399,6 +400,28 @@ describe('ProjectsTree', () => {
         expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
     })
 
+    it('picks a hidden file a link names as soon as the hidden files are shown', async () => {
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file', hidden: true },
+            { path: 'Main.xlsx', name: 'Main.xlsx', basePath: '', type: 'file' },
+        ])
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        Object.assign(room, { height: 300, width: 200 })
+        await renderTree({ currentProjectId: 'p1', currentFile: 'rules.xml' })
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await nextFrame()
+
+        try {
+            expect(screen.queryByTestId('tree-file-p1-rules.xml')).not.toBeInTheDocument()
+
+            act(() => useSettingsStore.getState().setSetting('showHiddenFiles', true))
+
+            expect(screen.getByTestId('node-file:p1:rules.xml')).toHaveAttribute('data-selected', 'true')
+        } finally {
+            act(() => useSettingsStore.getState().setSetting('showHiddenFiles', false))
+        }
+    })
+
     it('opens on a project again after the screen showed one the search hides', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
         const shown = {
@@ -556,6 +579,34 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves the hidden files of a project out until Show Hidden Files is on, reading nothing again', async () => {
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'rules', name: 'rules', basePath: '', type: 'folder' },
+            { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file' },
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file', hidden: true },
+            { path: 'pom.xml', name: 'pom.xml', basePath: '', type: 'file', hidden: true },
+        ])
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        try {
+            expect(screen.getByTestId('tree-folder-p1-rules')).toBeInTheDocument()
+            expect(screen.queryByTestId('tree-file-p1-rules.xml')).not.toBeInTheDocument()
+            expect(screen.queryByTestId('tree-file-p1-pom.xml')).not.toBeInTheDocument()
+
+            act(() => useSettingsStore.getState().setSetting('showHiddenFiles', true))
+
+            expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
+            expect(screen.getByTestId('tree-file-p1-pom.xml')).toBeInTheDocument()
+            expect(getProjectFiles).toHaveBeenCalledTimes(1)
+        } finally {
+            act(() => useSettingsStore.getState().setSetting('showHiddenFiles', false))
+        }
+        expect(screen.queryByTestId('tree-file-p1-pom.xml')).not.toBeInTheDocument()
     })
 
     it('opens a file, a module among them, on the page of its project', async () => {
