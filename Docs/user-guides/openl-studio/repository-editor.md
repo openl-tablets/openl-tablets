@@ -605,7 +605,7 @@ The left part describes the project configuration that is stored in `rules.xml`:
 
 -   **Modules** lists the modules of the project. Modules that are found by the standard `rules/` and `tests/` folders are shown as **Auto-discovered modules** and **Auto-discovered tests** with the pattern that finds them, and modules that `rules.xml` declares are shown with their names and paths. Click the name of a module to open it in the editor.
 -   **Version patterns**, **Properties processor** and **Exposed methods** show the corresponding settings of `rules.xml`.
--   **Dependencies** lists the projects that this project depends on and the projects that depend on it. A link opens the project, and **Not Found** marks a dependency that no project of the repository satisfies.
+-   **Dependencies** lists the projects that this project depends on under **Depends on**, followed by the projects that depend on it under **Used by**. A link opens the project, and **Not Found** marks a dependency that no project of the repository satisfies.
 -   **Sources** lists the folders and libraries that hold the source code of the project.
 -   **OpenAPI** shows the OpenAPI file of the project and its mode.
 
