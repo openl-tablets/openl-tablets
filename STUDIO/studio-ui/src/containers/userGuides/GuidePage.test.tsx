@@ -73,7 +73,8 @@ describe('GuidePage', () => {
         expect(await screen.findByRole('heading', { level: 2, name: 'Using Rules Editor' })).toBeInTheDocument()
         expect(fetchGuidePage).toHaveBeenCalledWith('openl-studio/rules-editor.md')
         expect(screen.getByText('guides:on_this_page')).toBeInTheDocument()
-        expect(screen.getByRole('link', { name: 'Copying a Table' }))
+        // The outline is hidden below 1100px, and jsdom draws every page 1024px wide.
+        expect(screen.getByRole('link', { hidden: true, name: 'Copying a Table' }))
             .toHaveAttribute('href', '/docs/openl-studio/rules-editor#copying-a-table')
     })
 

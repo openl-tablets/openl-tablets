@@ -1,16 +1,16 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { onTestFinished } from 'vitest'
+import { AppStyles } from 'App.styles'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { roleColoursOf } from 'components/RawTableGrid.styles'
 import { rolesOf } from 'components/tableRoles'
 import { contrastRatio, opaque } from 'styles/colorMath'
 import { markInksOf } from './textMarks'
 import { paperToken } from 'styles/paper'
-import { LIST_PAGE_COLORS } from 'styles/listPageTheme'
 import { THEME_ORDER, variantOf } from 'styles/themes'
 import { layOut } from 'testing/layOut'
-import { hex, renderInTheme, tokenFor } from 'testing/theme'
+import { hex, paletteFor, renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
 import { highlight } from 'utils/codeHighlight'
 import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
@@ -739,21 +739,26 @@ describe('RawTableGrid', () => {
         /** The colour the code editor of the theme gives a keyword. */
         const highlightedKeyword = () =>
             hex(highlight('if', 'openl', 'standard', false)?.find(piece => piece.text === 'if')?.style?.color)
+        /** The colours the custom properties of the page stand for, once `AppStyles` publishes them. */
+        const palette = paletteFor('standard', false)
         const drawIn = (rows = steps, kind?: string, formulas = false) => renderInTheme(
-            <RawTableGrid formulas={formulas} roles={rolesOfKind(kind)} rows={rows} testId="grid" />,
+            <>
+                <AppStyles />
+                <RawTableGrid formulas={formulas} roles={rolesOfKind(kind)} rows={rows} testId="grid" />
+            </>,
             { theme: 'standard', mode: 'light' }
         )
 
         it('colours a value by its type, a date whole with its separators', () => {
             drawIn()
 
-            expect(cellAt('B2')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxNumber })
-            expect(cellAt('C2')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxNumber })
+            expect(cellAt('B2')).toHaveStyle({ color: palette.syntaxNumber })
+            expect(cellAt('C2')).toHaveStyle({ color: palette.syntaxNumber })
             expect(cellAt('C2').querySelectorAll('span')).toHaveLength(0)
-            expect(cellAt('D2')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxBoolean })
-            expect(cellAt('B3')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxString })
+            expect(cellAt('D2')).toHaveStyle({ color: palette.syntaxBoolean })
+            expect(cellAt('B3')).toHaveStyle({ color: palette.syntaxString })
             // A name of a step holds no value of a type.
-            expect(cellAt('A2')).not.toHaveStyle({ color: LIST_PAGE_COLORS.syntaxString })
+            expect(cellAt('A2')).not.toHaveStyle({ color: palette.syntaxString })
         })
 
         it('highlights the code a cell holds as the code editor of the theme does', async () => {
@@ -819,11 +824,16 @@ describe('RawTableGrid', () => {
         })
 
         it('draws code as written in the formatting of the workbook', () => {
-            renderInTheme(<RawTableGrid roles={rolesOfKind()} rows={steps} testId="grid" />,
-                { theme: 'standard', mode: 'light', excelFormatting: true })
+            renderInTheme(
+                <>
+                    <AppStyles />
+                    <RawTableGrid roles={rolesOfKind()} rows={steps} testId="grid" />
+                </>,
+                { theme: 'standard', mode: 'light', excelFormatting: true }
+            )
 
             expect(cellAt('E2').querySelectorAll('span')).toHaveLength(0)
-            expect(cellAt('B2')).not.toHaveStyle({ color: LIST_PAGE_COLORS.syntaxNumber })
+            expect(cellAt('B2')).not.toHaveStyle({ color: palette.syntaxNumber })
         })
     })
 
