@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { ComparisonPanes as Panes } from './ComparisonPanes'
 import { paperToken } from 'styles/paper'
-import { renderInTheme } from 'testing/theme'
+import { hex, renderInTheme } from 'testing/theme'
 import type { ComparisonLine, ComparisonSide, ComparisonTable } from 'types/compare'
 
 /**
@@ -137,7 +137,8 @@ describe('ComparisonPanes', () => {
         )
 
         const changed = screen.getByTestId('compare-pane-first').querySelector('[data-cell="A2"]') as HTMLElement
-        expect(getComputedStyle(changed).boxShadow).toContain(paperToken().colorWarning)
+        const frame = getComputedStyle(changed).boxShadow.match(/rgba?\([^)]*\)/)?.[0]
+        expect(hex(frame)).toBe(hex(paperToken().colorWarning))
         expect(changed).toHaveStyle({ color: paperToken().colorText })
     })
 
@@ -176,7 +177,7 @@ describe('ComparisonPanes', () => {
             view="combined"
         />)
 
-        expect(getComputedStyle(screen.getByTestId('compare-restyled')).outline).toContain('dashed')
+        expect(getComputedStyle(screen.getByTestId('compare-restyled')).outlineStyle).toBe('dashed')
     })
 
     it('frames a table wider than its pane whole, so the frame is scrolled with the table', () => {
@@ -205,7 +206,7 @@ describe('ComparisonPanes', () => {
         />)
 
         for (const table of screen.getAllByTestId('compare-restyled')) {
-            expect(getComputedStyle(table).outline).toBe('')
+            expect(getComputedStyle(table).outlineStyle).toBe('none')
         }
         expect(screen.queryByTestId('compare-formatting-changed')).toBeNull()
         // The cells that read differently are still told.
@@ -234,7 +235,7 @@ describe('ComparisonPanes', () => {
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />)
 
         for (const table of screen.getAllByTestId('compare-restyled')) {
-            expect(getComputedStyle(table).outline).toBe('')
+            expect(getComputedStyle(table).outlineStyle).toBe('none')
         }
     })
 

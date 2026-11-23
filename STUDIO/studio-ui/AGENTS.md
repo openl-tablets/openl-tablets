@@ -409,6 +409,13 @@ Tests are co-located with sources (e.g. `src/containers/DeployModal.test.tsx` ne
 - `vitest.setup.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia`, and `getComputedStyle` for jsdom. The
   `MessageChannel` polyfill delivers messages via `setTimeout(0)` — required for React's scheduler to commit
   async-scheduled state updates.
+- **jsdom computes styles as a browser does at 1024×768**, a size no test can change:
+    - a `var(--openl-…)` resolves only where its custom property is published, so a test that asserts a colour of
+      `LIST_PAGE_COLORS` renders `AppStyles` and compares against `paletteFor(...)`;
+    - `@media` rules apply, so a part hidden below a breakpoint wider than 1024px, such as the outline of a guide, is
+      inaccessible and is queried with `{ hidden: true }`;
+    - a colour reads back as `rgb()`, so compare colours through `hex` of `testing/theme`, and a shorthand such as
+      `outline` reads back whole, so assert its longhand (`outlineStyle`).
 - **"Current testing environment is not configured to support act(...)"**: this fires when an async callback chain
   schedules a `setState` after an outer `act(async () => { await userEvent.click(...) })` wrapper has already closed.
   Fix by **removing** the outer `act`. `userEvent` already wraps clicks in act, and the following `waitFor(...)` retries

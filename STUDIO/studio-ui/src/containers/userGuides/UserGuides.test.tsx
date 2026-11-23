@@ -104,7 +104,8 @@ describe('UserGuides', () => {
 
     it('names the section picked in the outline in the address of the page, which the outline scrolls to alone', async () => {
         renderAt('/docs/openl-studio/rules-editor')
-        const section = await screen.findByRole('link', { name: 'Copying a Table' })
+        // The outline is hidden below 1100px, and jsdom draws every page 1024px wide.
+        const section = await screen.findByRole('link', { hidden: true, name: 'Copying a Table' })
         vi.mocked(Element.prototype.scrollIntoView).mockClear()
 
         await userEvent.click(section)
