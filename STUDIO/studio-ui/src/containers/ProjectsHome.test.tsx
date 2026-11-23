@@ -249,9 +249,15 @@ vi.mock('antd', async () => {
         </div>
     )
 
-    const Checkbox = ({ children, checked, onChange, ...rest }: Record<string, unknown>) => (
+    const Checkbox = ({ children, checked, indeterminate, onChange, ...rest }: Record<string, unknown>) => (
         <label {...rest}>
             <input
+                // A check box shows a dash by a property of its own, which no attribute sets.
+                ref={input => {
+                    if (input) {
+                        input.indeterminate = indeterminate === true
+                    }
+                }}
                 checked={checked as boolean}
                 onChange={event => (onChange as (e: { target: { checked: boolean } }) => void)?.({ target: { checked: event.target.checked } })}
                 type="checkbox"
@@ -317,9 +323,12 @@ vi.mock('antd', async () => {
 
     const { withStaticApp } = await import('testing/staticAntdApp')
 
+    // The theme a part lays over the controls inside it is nothing to a test that draws no styles.
+    const ConfigProvider = ({ children }: { children?: unknown }) => children as never
+
     return withStaticApp({
-        Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert,
-        Typography, Modal, notification, Pagination
+        Button, Input, Select, Segmented, Dropdown, Checkbox, ConfigProvider, Empty, Tag, Tooltip, Skeleton, Spin,
+        Alert, Typography, Modal, notification, Pagination
     })
 })
 
@@ -623,6 +632,29 @@ describe('ProjectsHome', () => {
 
         expect(screen.queryByTestId('project-row-p1')).toBeNull()
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
+    })
+
+    it('picks and drops every repository at once from the head of the group', async () => {
+        await renderHome()
+        // The check box of a value, inside the row the test id names.
+        const box = (testId: string) => within(screen.getByTestId(testId)).getByRole('checkbox')
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+        await waitFor(() => expect(screen.queryByTestId('project-row-p1')).toBeNull())
+        expect(box('filter-all-repository')).toBePartiallyChecked()
+
+        await userEvent.click(screen.getByTestId('filter-all-repository'))
+        await screen.findByTestId('project-row-p1')
+
+        expect(box('filter-repo-design')).toBeChecked()
+        expect(box('filter-repo-ro')).toBeChecked()
+        expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
+        expect(screen.getByTestId('projects-filter-clear')).toBeTruthy()
+
+        await userEvent.click(screen.getByTestId('filter-all-repository'))
+
+        await waitFor(() => expect(screen.queryByTestId('projects-filter-clear')).toBeNull())
+        expect(box('filter-repo-design')).not.toBeChecked()
+        expect(box('filter-repo-ro')).not.toBeChecked()
     })
 
     it('offers only the statuses some project is actually in', async () => {

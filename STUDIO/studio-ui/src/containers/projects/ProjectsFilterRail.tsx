@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Checkbox } from 'antd'
+import { Button, Checkbox, ConfigProvider, Tooltip, type ThemeConfig } from 'antd'
 import {
     DownOutlined,
     EyeInvisibleOutlined,
@@ -9,7 +9,7 @@ import {
     RightOutlined,
     SettingOutlined,
 } from '@ant-design/icons'
-import { createStyles } from 'antd-style'
+import { createStyles, useTheme } from 'antd-style'
 import {
     closestCenter,
     DndContext,
@@ -48,7 +48,13 @@ import {
     STATUS_GROUP,
     tagGroupId,
 } from './filterLayout'
-import { isFiltered, LOCAL_REPO_KEY, statusCount, type BranchFacetCount } from './projectListing'
+import {
+    isFiltered,
+    LOCAL_REPO_KEY,
+    statusCount,
+    type BranchFacetCount,
+    type FilterParam,
+} from './projectListing'
 import { ClearFiltersRow } from './ClearFiltersRow'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 
@@ -78,6 +84,15 @@ const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         gap: ${token.marginXXS}px;
         margin: 0 0 ${token.marginXXS}px;
+    `,
+    /** The place of the check box that picks every value of a group: centred over the check boxes of its values. */
+    pickAll: css`
+        display: inline-flex;
+        justify-content: center;
+        box-sizing: content-box;
+        width: ${token.controlInteractiveSize}px;
+        padding-left: ${token.paddingXS}px;
+        margin-right: ${token.marginXXS}px;
     `,
     /** The fold chevron of the group head, sized down; the rest is {@link useSharedStyles.sectionToggle}. */
     sectionToggle: css`
@@ -147,21 +162,29 @@ interface ProjectsFilterRailProps {
     repos: Set<string>
     tags: Set<string>
     branches: Set<string>
-    onToggleStatus: (status: string) => void
-    onToggleRepo: (repoId: string) => void
-    onToggleTag: (key: string) => void
-    onToggleBranch: (branch: string) => void
+    /** Picks the given values of one group, or drops them from the picks. */
+    onPick: (param: FilterParam, values: string[], picked: boolean) => void
     /** Clears every pick, bringing the list back to its default view. */
     onClearFilters: () => void
     /** What the rail hangs on the header row, beside the actions of the filters themselves. */
     headerActions?: ReactNode
 }
 
+interface FilterValue {
+    value: string
+    label: ReactNode
+    count: number
+}
+
 interface FilterGroup {
     id: string
     title: string
-    /** Draws the values of the group; called only while they are shown. */
-    renderRows: () => ReactNode
+    /** The parameter of the list that the values of the group pick. */
+    param: FilterParam
+    /** The values the group offers, in the order it lists them. */
+    values: FilterValue[]
+    /** The values picked, of this group and maybe of others. */
+    picked: Set<string>
 }
 
 /**
@@ -182,10 +205,7 @@ export const ProjectsFilterRail = ({
     repos,
     tags,
     branches,
-    onToggleStatus,
-    onToggleRepo,
-    onToggleTag,
-    onToggleBranch,
+    onPick,
     onClearFilters,
     headerActions,
 }: ProjectsFilterRailProps) => {
@@ -234,95 +254,66 @@ export const ProjectsFilterRail = ({
     const hasLocal = repoCounts.has(LOCAL_REPO_KEY)
     const hasFilters = isFiltered({ statuses, repositories: repos, tags, branches })
 
-    const renderRow = (testId: string, checked: boolean, onChange: () => void, label: ReactNode, count?: number) => (
-        <label key={testId} className={shared.railRow}>
-            <Checkbox checked={checked} data-testid={testId} onChange={onChange} />
-            <span className={cx(shared.ellipsis, styles.label)}>{label}</span>
-            {count !== undefined && <span className={cx(shared.valueText, styles.count)}>{count}</span>}
-        </label>
-    )
-
     // The groups in the order asked for; a stored arrangement rearranges them from here, and a tag type
     // added since falls in at its place instead of being lost.
     const groups: FilterGroup[] = [
         {
             id: REPOSITORY_GROUP,
             title: t('home.facet_repository'),
-            renderRows: () => (
-                <>
-                    {repositories.map(repo =>
-                        renderRow(
-                            `filter-repo-${repo.id}`,
-                            repos.has(repo.id),
-                            () => onToggleRepo(repo.id),
-                            <RepoBadge name={repo.name} type={repo.type} />,
-                            repoCounts.get(repo.id) ?? 0
-                        )
-                    )}
-                    {hasLocal && renderRow(
-                        `filter-repo-${LOCAL_REPO_KEY}`,
-                        repos.has(LOCAL_REPO_KEY),
-                        () => onToggleRepo(LOCAL_REPO_KEY),
-                        <RepoBadge name={t('home.local')} type="repo-file" />,
-                        repoCounts.get(LOCAL_REPO_KEY) ?? 0
-                    )}
-                </>
-            ),
+            param: 'repo',
+            picked: repos,
+            values: [
+                ...repositories.map(repo => ({
+                    value: repo.id,
+                    label: <RepoBadge name={repo.name} type={repo.type} />,
+                    count: repoCounts.get(repo.id) ?? 0,
+                })),
+                ...(hasLocal ? [{
+                    value: LOCAL_REPO_KEY,
+                    label: <RepoBadge name={t('home.local')} type="repo-file" />,
+                    count: repoCounts.get(LOCAL_REPO_KEY) ?? 0,
+                }] : []),
+            ],
         },
         {
             id: BRANCH_GROUP,
             title: t('home.facet_branch'),
-            renderRows: () => (
-                <>
-                    {(branchCounts ?? []).map(({ id, count, isDefault, isProtected }) =>
-                        renderRow(
-                            `filter-branch-${id}`,
-                            branches.has(id),
-                            () => onToggleBranch(id),
-                            <span className={styles.branchFacet}>
-                                <span className={shared.ellipsis}>{id}</span>
-                                <BranchMarks isDefault={isDefault} isProtected={isProtected} testId={`filter-branch-label-${id}`} />
-                            </span>,
-                            count
-                        )
-                    )}
-                </>
-            ),
+            param: 'branch',
+            picked: branches,
+            values: (branchCounts ?? []).map(({ id, count, isDefault, isProtected }) => ({
+                value: id,
+                label: (
+                    <span className={styles.branchFacet}>
+                        <span className={shared.ellipsis}>{id}</span>
+                        <BranchMarks isDefault={isDefault} isProtected={isProtected} testId={`filter-branch-label-${id}`} />
+                    </span>
+                ),
+                count,
+            })),
         },
-        ...(tagCounts ?? []).map(facet => ({
+        ...(tagCounts ?? []).map((facet): FilterGroup => ({
             id: tagGroupId(facet.type),
             title: facet.type,
-            renderRows: () => (
-                <>
-                    {facet.values.map(({ id, count }) => {
-                        const key = `${facet.type}:${id}`
-                        return renderRow(`filter-tag-${key}`, tags.has(key), () => onToggleTag(key), id, count)
-                    })}
-                </>
-            ),
+            param: 'tags',
+            picked: tags,
+            values: facet.values.map(({ id, count }) => ({ value: `${facet.type}:${id}`, label: id, count })),
         })),
         {
             id: STATUS_GROUP,
             title: t('home.facet_status'),
-            renderRows: () => (
-                <>
-                    {STATUS_ORDER
-                        // A state no project is in is noise and is not offered. A ticked one stays even at
-                        // zero so it can be unticked; until the counts arrive every state is kept.
-                        .filter(status => statusCounts === undefined
-                            || statusCount(statusCounts, status) > 0
-                            || statuses.has(status))
-                        .map(status =>
-                            renderRow(
-                                `filter-status-${status}`,
-                                statuses.has(status),
-                                () => onToggleStatus(status),
-                                t(STATUS_META[status].labelKey),
-                                statusCount(statusCounts, status)
-                            )
-                        )}
-                </>
-            ),
+            param: 'status',
+            picked: statuses,
+            values: STATUS_ORDER
+                // A state no project is in is noise and is not offered. A ticked one stays even at
+                // zero so it can be unticked; until the counts arrive every state is kept.
+                .filter(status => statusCounts === undefined
+                    || statusCount(statusCounts, status) > 0
+                    || statuses.has(status))
+                .map(status => ({
+                    value: status,
+                    label: t(STATUS_META[status].labelKey),
+                    count: statusCount(statusCounts, status),
+                })),
         },
     ]
 
@@ -388,6 +379,7 @@ export const ProjectsFilterRail = ({
                                     first={index === 0}
                                     group={group}
                                     onHide={() => apply({ ...layout, hidden: [...layout.hidden, group.id]})}
+                                    onPick={onPick}
                                     onToggle={() => apply({
                                         ...layout,
                                         collapsed: layout.collapsed.includes(group.id)
@@ -435,15 +427,17 @@ interface SortableGroupProps {
     arranging: boolean
     onToggle: () => void
     onHide: () => void
+    onPick: ProjectsFilterRailProps['onPick']
 }
 
 /**
- * One group of the rail: folds by its head.
+ * One group of the rail: folds by its head, and picks or drops all its values by the {@link PickAllBox} before
+ * the title.
  *
  * While the rail is arranged, the group shows its head alone and keeps its fold for later. The whole head
  * picks the group up, except the button that puts the group away.
  */
-const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide }: SortableGroupProps) => {
+const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide, onPick }: SortableGroupProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -454,6 +448,7 @@ const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide }:
         data: { title: group.title },
     })
     const title = <span className={shared.ellipsis}>{group.title}</span>
+    const { id, param, picked, values } = group
 
     return (
         <div
@@ -488,20 +483,84 @@ const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide }:
                             />
                         </>
                     ) : (
-                        <button
-                            aria-expanded={!collapsed}
-                            className={cx(shared.microLabel, shared.sectionToggle, styles.sectionToggle)}
-                            data-testid={`filter-toggle-${group.id}`}
-                            onClick={onToggle}
-                            type="button"
-                        >
-                            {title}
-                            {collapsed ? <RightOutlined /> : <DownOutlined />}
-                        </button>
+                        <>
+                            <PickAllBox className={styles.pickAll} group={group} onPick={onPick} />
+                            <button
+                                aria-expanded={!collapsed}
+                                className={cx(shared.microLabel, shared.sectionToggle, styles.sectionToggle)}
+                                data-testid={`filter-toggle-${id}`}
+                                onClick={onToggle}
+                                type="button"
+                            >
+                                {title}
+                                {collapsed ? <RightOutlined /> : <DownOutlined />}
+                            </button>
+                        </>
                     )}
                 </div>
-                {!arranging && !collapsed && group.renderRows()}
+                {!arranging && !collapsed && values.map(({ value, label, count }) => (
+                    <label key={value} className={shared.railRow}>
+                        <Checkbox
+                            checked={picked.has(value)}
+                            data-testid={`filter-${param === 'tags' ? 'tag' : param}-${value}`}
+                            onChange={() => onPick(param, [value], !picked.has(value))}
+                        />
+                        <span className={cx(shared.ellipsis, styles.label)}>{label}</span>
+                        <span className={cx(shared.valueText, styles.count)}>{count}</span>
+                    </label>
+                ))}
             </div>
         </div>
+    )
+}
+
+interface PickAllBoxProps {
+    className: string
+    group: FilterGroup
+    onPick: ProjectsFilterRailProps['onPick']
+}
+
+/**
+ * The check box before the title of a group: picks every value the group offers, or drops them all once all are
+ * picked. It shows a dash while only some are, and is disabled while the group offers none.
+ *
+ * It is smaller than the check boxes of the values and takes the grey of the group's caption rather than their
+ * accent, so it reads as part of the head.
+ */
+const PickAllBox = ({ className, group: { id, title, param, picked, values }, onPick }: PickAllBoxProps) => {
+    const { t } = useTranslation('repository')
+    const { controlInteractiveSize, openl } = useTheme()
+    // Ant Design derives its palettes from a colour, so the tokens take the colours of the palette in force.
+    const theme = useMemo<ThemeConfig>(() => ({
+        components: {
+            Checkbox: {
+                controlInteractiveSize: controlInteractiveSize - 4,
+                // The dash of a partly picked group is half as wide as this.
+                fontSizeLG: controlInteractiveSize - 4,
+                colorPrimary: openl.textTertiary,
+                colorPrimaryHover: openl.textSecondary,
+                colorBorder: openl.textQuaternary,
+            },
+        },
+    }), [controlInteractiveSize, openl])
+    const pickedCount = values.filter(({ value }) => picked.has(value)).length
+    const allPicked = pickedCount > 0 && pickedCount === values.length
+    const label = t(allPicked ? 'home.filter_group.deselect_all' : 'home.filter_group.select_all', { name: title })
+
+    return (
+        <Tooltip title={label}>
+            <span className={className}>
+                <ConfigProvider theme={theme}>
+                    <Checkbox
+                        aria-label={label}
+                        checked={allPicked}
+                        data-testid={`filter-all-${id}`}
+                        disabled={values.length === 0}
+                        indeterminate={pickedCount > 0 && !allPicked}
+                        onChange={() => onPick(param, values.map(({ value }) => value), !allPicked)}
+                    />
+                </ConfigProvider>
+            </span>
+        </Tooltip>
     )
 }

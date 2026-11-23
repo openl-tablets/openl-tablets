@@ -80,6 +80,8 @@ i18next.addResourceBundle('en', 'repository', {
             done: 'Done',
             hide: 'Hide this filter',
             show: 'Show this filter',
+            select_all: 'Select all values of {{name}}',
+            deselect_all: 'Deselect all values of {{name}}',
             instructions: 'To move a filter, press Space or Enter on it, move it with the arrow keys, and press Space or Enter again. Escape leaves it where it was.',
             picked_up: 'Picked up the {{name}} filter.',
             moved: 'The {{name}} filter is at place {{place}} of {{count}}.',

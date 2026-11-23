@@ -18,6 +18,7 @@ vi.mock('antd-style', () => ({
         styles: new Proxy({}, { get: (_target, name) => String(name) }),
         cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
     }),
+    useTheme: () => ({ controlInteractiveSize: 16, openl: new Proxy({}, { get: () => '#888888' }) }),
 }))
 
 /** The height of a group head, of one value under it, and of the part of the rail the reader sees. */
@@ -37,24 +38,23 @@ const tagCounts: TagFacetSummary[] = [{ type: 'Domain', values: [{ id: 'Policy',
 
 const statusCounts: ProjectStatusSummary = { local: 0, opened: 1, viewingVersion: 0, editing: 0, closed: 3, deleted: 0 }
 
-const renderRail = (tags = tagCounts) => render(
+const renderRail = (tags = tagCounts, { picked = [] as string[], onPick = vi.fn() } = {}) => render(
     <ProjectsFilterRail
         branchCounts={branchCounts}
-        branches={new Set()}
+        branches={new Set(picked)}
         onClearFilters={vi.fn()}
-        onToggleBranch={vi.fn()}
-        onToggleRepo={vi.fn()}
-        onToggleStatus={vi.fn()}
-        onToggleTag={vi.fn()}
+        onPick={onPick}
         repos={new Set()}
         repositories={repositories}
         repositoryCounts={[{ id: 'design', name: 'Design', count: 4 }]}
         statusCounts={statusCounts}
         statuses={new Set()}
         tagCounts={tags}
-        tags={new Set()}
+        tags={new Set(picked)}
     />
 )
+
+const branchIds = branchCounts.map(({ id }) => id)
 
 const groupNodes = () => [...document.querySelectorAll<HTMLElement>('[data-testid^="filter-group-"]')]
 
@@ -112,6 +112,60 @@ describe('ProjectsFilterRail', () => {
 
     afterEach(() => {
         vi.restoreAllMocks()
+    })
+
+    it('picks every value of a group from the check box of its head', async () => {
+        const onPick = vi.fn()
+        renderRail(tagCounts, { onPick })
+        const pickAll = screen.getByTestId('filter-all-branch')
+        expect(pickAll).not.toBeChecked()
+        expect(pickAll).toHaveAccessibleName('home.filter_group.select_all home.facet_branch')
+
+        await userEvent.click(pickAll)
+
+        expect(onPick).toHaveBeenCalledExactlyOnceWith('branch', branchIds, true)
+    })
+
+    it('picks the rest of a group that only some values of are picked', async () => {
+        const onPick = vi.fn()
+        renderRail(tagCounts, { onPick, picked: ['main']})
+        const pickAll = screen.getByTestId('filter-all-branch')
+        expect(pickAll).toBePartiallyChecked()
+
+        await userEvent.click(pickAll)
+
+        expect(onPick).toHaveBeenCalledExactlyOnceWith('branch', branchIds, true)
+    })
+
+    it('drops every value of a group once all of them are picked, keeping the picks of other groups', async () => {
+        const onPick = vi.fn()
+        // A tag picked under another type is no value of the Domain group.
+        renderRail(tagCounts, { onPick, picked: ['Domain:Policy', 'LOB:Auto']})
+        const pickAll = screen.getByTestId('filter-all-tag:Domain')
+        expect(pickAll).toBeChecked()
+        expect(pickAll).toHaveAccessibleName('home.filter_group.deselect_all Domain')
+
+        await userEvent.click(pickAll)
+
+        expect(onPick).toHaveBeenCalledExactlyOnceWith('tags', ['Domain:Policy'], false)
+    })
+
+    it('picks one value by its own check box', async () => {
+        const onPick = vi.fn()
+        renderRail(tagCounts, { onPick, picked: ['main']})
+
+        await userEvent.click(screen.getByTestId('filter-branch-main'))
+        await userEvent.click(screen.getByTestId('filter-status-CLOSED'))
+
+        expect(onPick.mock.calls).toEqual([['branch', ['main'], false], ['status', ['CLOSED'], true]])
+    })
+
+    it('offers no pick of a group with no values, and keeps the pick of a folded one', async () => {
+        renderRail([{ type: 'Empty', values: []}, ...tagCounts], { picked: ['Domain:Policy']})
+        await userEvent.click(screen.getByTestId('filter-toggle-tag:Domain'))
+
+        expect(screen.getByTestId('filter-all-tag:Empty')).toBeDisabled()
+        expect(screen.getByTestId('filter-all-tag:Domain')).toBeChecked()
     })
 
     it('lists no values while the filters are arranged, and shows them again folded as before', async () => {

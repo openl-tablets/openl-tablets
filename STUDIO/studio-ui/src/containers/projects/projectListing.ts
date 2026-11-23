@@ -20,19 +20,38 @@ export interface ListingQuery {
 }
 
 /** The parameters of the list's URL that carry the picks of the Filters view, and nothing else. */
-export const FILTER_PARAMS = ['status', 'repo', 'tags', 'branch']
+export const FILTER_PARAMS = ['status', 'repo', 'tags', 'branch'] as const
 
-const listParam = (params: URLSearchParams, key: string): Set<string> =>
-    new Set((params.get(key) ?? '').split(',').filter(Boolean))
+/** One of the parameters that carry the picks of the Filters view: the group of values it picks from. */
+export type FilterParam = (typeof FILTER_PARAMS)[number]
+
+/**
+ * The values one parameter of the list's URL picks.
+ *
+ * Branch names may legally contain a comma, so branch filters ride as repeated params (branch=a&branch=b)
+ * rather than one comma-joined value like the other facets, which can never collide with their values.
+ */
+export const pickedIn = (params: URLSearchParams, param: FilterParam): Set<string> => new Set(
+    (param === 'branch' ? params.getAll(param) : (params.get(param) ?? '').split(',')).filter(Boolean)
+)
+
+/** Writes the values one parameter of the list's URL picks, the way {@link pickedIn} reads them; none drop it. */
+export const writePicked = (params: URLSearchParams, param: FilterParam, values: Iterable<string>): void => {
+    const list = [...values]
+    params.delete(param)
+    if (param === 'branch') {
+        list.forEach(value => params.append(param, value))
+    } else if (list.length > 0) {
+        params.set(param, list.join(','))
+    }
+}
 
 /** The picks a URL of the list carries — or the stored state of the list, which has the same shape. */
 export const listingQueryOf = (params: URLSearchParams): ListingQuery => ({
-    statuses: listParam(params, 'status'),
-    repositories: listParam(params, 'repo'),
-    tags: listParam(params, 'tags'),
-    // Branch names may legally contain a comma, so branch filters ride as repeated params (branch=a&branch=b)
-    // rather than one comma-joined value like the other facets, which can never collide with their values.
-    branches: new Set(params.getAll('branch').filter(Boolean)),
+    statuses: pickedIn(params, 'status'),
+    repositories: pickedIn(params, 'repo'),
+    tags: pickedIn(params, 'tags'),
+    branches: pickedIn(params, 'branch'),
 })
 
 /** Whether any value is picked in the Filters view. */
