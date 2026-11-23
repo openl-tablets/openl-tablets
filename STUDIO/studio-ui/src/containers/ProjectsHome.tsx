@@ -47,8 +47,11 @@ import {
     countFacets,
     FILTER_PARAMS,
     listingQueryOf,
+    type FilterParam,
     type ListingQuery,
     listingScope,
+    pickedIn,
+    writePicked,
     refineProjects,
     searchProjects,
     sortProjects,
@@ -381,31 +384,14 @@ export const ProjectsHome = () => {
         }, { replace: true })
     }, [setParams])
 
-    const toggleInParam = useCallback((key: string, current: Set<string>, value: string) => {
-        // A pick of the Filters view narrows the tree again.
-        setGroupPicks({})
-        const next = new Set(current)
-        if (next.has(value)) {
-            next.delete(value)
-        } else {
-            next.add(value)
-        }
-        setParam(key, [...next].join(','), true)
-    }, [setParam])
-
-    // The branch facet writes repeated params instead of a comma-joined value, since a branch name may hold
-    // a comma; every other facet toggles through toggleInParam.
-    const toggleBranch = useCallback((value: string) => {
+    // A pick of the Filters view narrows the tree again.
+    const pickFilters = useCallback((param: FilterParam, values: string[], picked: boolean) => {
         setGroupPicks({})
         setParams(prev => {
             const next = new URLSearchParams(prev)
-            const chosen = new Set(prev.getAll('branch'))
-            if (chosen.has(value)) {
-                chosen.delete(value)
-            } else {
-                chosen.add(value)
-            }
-            setRepeatedListParam(next, 'branch', [...chosen])
+            const chosen = pickedIn(prev, param)
+            values.forEach(value => (picked ? chosen.add(value) : chosen.delete(value)))
+            writePicked(next, param, chosen)
             next.delete('page')
             return next
         }, { replace: true })
@@ -589,9 +575,9 @@ export const ProjectsHome = () => {
     const openGroup = useCallback((filters: NodeFilters) => {
         const next = new URLSearchParams(params)
         next.delete('page')
-        setListParam(next, 'repo', filters.repositories)
-        setRepeatedListParam(next, 'branch', filters.branches)
-        setListParam(next, 'tags', filters.tags)
+        writePicked(next, 'repo', filters.repositories)
+        writePicked(next, 'branch', filters.branches)
+        writePicked(next, 'tags', filters.tags)
         setGroupPicks(previous => ({ ...previous, [picksOf(next)]: treeNarrowBy }))
         setParams(next, { replace: true })
     }, [params, setParams, treeNarrowBy])
@@ -877,10 +863,7 @@ export const ProjectsHome = () => {
                 filterView={headerActions => renderFilterRail({
                     headerActions,
                     onClearFilters: resetFilters,
-                    onToggleBranch: toggleBranch,
-                    onToggleRepo: value => toggleInParam('repo', repos, value),
-                    onToggleStatus: value => toggleInParam('status', statuses, value),
-                    onToggleTag: value => toggleInParam('tags', tags, value),
+                    onPick: pickFilters,
                     branchCounts: facets?.branchCounts,
                     branches,
                     repos,
@@ -1015,24 +998,4 @@ const picksOf = (params: URLSearchParams): string => {
     const picks = new URLSearchParams()
     FILTER_PARAMS.forEach(key => params.getAll(key).forEach(value => picks.append(key, value)))
     return picks.toString()
-}
-
-/** Writes one of the list's multi-value parameters, or drops it when the group does not use it. */
-const setListParam = (params: URLSearchParams, key: string, values: string[]): void => {
-    if (values.length === 0) {
-        params.delete(key)
-    } else {
-        params.set(key, values.join(','))
-    }
-}
-
-/**
- * Writes a multi-value parameter as one entry per value ({@code key=a&key=b}), so a value that itself
- * contains the comma the other facets join on — a branch name may — survives the round trip.
- */
-const setRepeatedListParam = (params: URLSearchParams, key: string, values: string[]): void => {
-    params.delete(key)
-    for (const value of values) {
-        params.append(key, value)
-    }
 }

@@ -6,10 +6,12 @@ import {
     isInDefaultView,
     listingQueryOf,
     listingScope,
+    pickedIn,
     refineProjects,
     searchProjects,
     selectProjects,
     sortProjects,
+    writePicked,
 } from './projectListing'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
@@ -117,6 +119,29 @@ describe('listingQueryOf', () => {
         })
         expect(isFiltered(query)).toBe(true)
         expect(isFiltered(listingQueryOf(new URLSearchParams('q=rates&sort=name')))).toBe(false)
+    })
+})
+
+describe('writePicked', () => {
+    it('writes the picks the way they are read back, a branch holding a comma included', () => {
+        const params = new URLSearchParams('q=rates&tags=LOB:Auto')
+
+        writePicked(params, 'branch', ['main', 'feature/a,b'])
+        writePicked(params, 'repo', ['design', 'local'])
+
+        expect(params.getAll('branch')).toEqual(['main', 'feature/a,b'])
+        expect(params.get('repo')).toBe('design,local')
+        expect(pickedIn(params, 'branch')).toEqual(new Set(['main', 'feature/a,b']))
+        expect(pickedIn(params, 'repo')).toEqual(new Set(['design', 'local']))
+    })
+
+    it('drops the parameter once nothing is picked, keeping the others', () => {
+        const params = new URLSearchParams('q=rates&branch=main&branch=dev&tags=LOB:Auto')
+
+        writePicked(params, 'branch', [])
+        writePicked(params, 'tags', new Set())
+
+        expect(params.toString()).toBe('q=rates')
     })
 })
 

@@ -131,11 +131,13 @@ The **Filters** view lists the filter values in groups: **Repository**, **Branch
 **Status**. Each value shows how many projects it covers.
 
 -   Several values of one group show the projects that match any of them.
+-   The small grey check box before the title of a group selects all values of the group at once. When all of them
+    are selected, it clears them. A dash in the check box shows that only some values of the group are selected.
 -   Values of different groups show the projects that match all of them.
 -   The **Branch** group lists every branch with its count, including a branch whose projects the default view hides.
     While no branch is picked, the counts of the other groups cover only the projects the default view shows.
 
-![The Filters view with a tag value picked and Clear filters under its title](images/projects-filters-view.png "Filtering projects in the Filters view")
+![The Filters view with a tag value picked, a dash in the check box of its group, and Clear filters under its title](images/projects-filters-view.png "Filtering projects in the Filters view")
 
 To reorder the groups or hide some of them, click **Arrange the filters**, the gear icon in the header of the view.
 While the filters are arranged, each group shows only its title:
