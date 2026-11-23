@@ -16,6 +16,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -32,6 +33,8 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private final String rulesPath;
     private final String deploymentPath;
     private final String username;
+    /** The protected files of a project, which a deployment leaves out. */
+    private final ProjectFiles projectFiles;
 
     private InputStream openedStream;
 
@@ -39,12 +42,14 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         DesignTimeRepository designRepo,
                         String rulesPath,
                         String deploymentPath,
-                        String username) {
+                        String username,
+                        ProjectFiles projectFiles) {
         this.descriptors = new ArrayList<>(projectDescriptors);
         this.designRepo = designRepo;
         this.rulesPath = rulesPath;
         this.deploymentPath = deploymentPath;
         this.username = username;
+        this.projectFiles = projectFiles;
     }
 
     @Override
@@ -133,18 +138,15 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         srcProjectPath = ((FolderMapper) repository).getRealPath(srcProjectPath);
                     }
                     srcProjectPath += "/";
-                    var files = repository.listFiles(srcProjectPath, version);
-                    if (files.isEmpty()) {
+                    var listed = repository.listFiles(srcProjectPath, version);
+                    if (listed.isEmpty()) {
                         throw new FileNotFoundException("No file is found in '%s'.".formatted(srcProjectPath));
                     }
-                    //find and remove old manifest file from deployment
-                    var srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
-                    Iterator<FileData> it = files.iterator();
-                    while (it.hasNext()) {
-                        var f = it.next();
-                        if (srcManFileName.equals(f.getName())) {
-                            it.remove();
-                            break;
+                    var files = new ArrayList<FileData>();
+                    for (var file : listed) {
+                        if (RepositoryUtils.isDeployed(file.getName().substring(srcProjectPath.length()),
+                                projectFiles)) {
+                            files.add(file);
                         }
                     }
                     return new FolderIterator(repository, files, projectName, manifestBuilder.build());
@@ -219,7 +221,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
         @Override
         public boolean hasNext() {
-            return fileIndex < files.size();
+            return writeManifest || fileIndex < files.size();
         }
 
         @Override
@@ -227,7 +229,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            if (fileIndex == 0 && writeManifest) {
+            if (writeManifest) {
                 writeManifest = false;
                 return manifest;
             }

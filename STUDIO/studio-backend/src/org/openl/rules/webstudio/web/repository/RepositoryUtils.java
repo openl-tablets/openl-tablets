@@ -14,6 +14,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -42,13 +43,28 @@ public final class RepositoryUtils {
     private RepositoryUtils() {
     }
 
+    /**
+     * Writes a project of a design repository with folders as a ZIP archive to deploy, with the manifest given in
+     * place of its own. The protected files of the project are left out.
+     */
+    /**
+     * Whether a deployment carries a file of a project: the old manifest is replaced, and the protected files, such as
+     * {@code pom.xml}, are not deployed.
+     *
+     * @param internalPath the path of the file relative to the root of the project
+     */
+    static boolean isDeployed(String internalPath, ProjectFiles projectFiles) {
+        return !projectFiles.isProtected(internalPath) && !JarFile.MANIFEST_NAME.equals(internalPath);
+    }
+
     public static void archive(DesignTimeRepository designTimeRepository,
                                Repository folderRepository,
                                String rulesPath,
                                String projectName,
                                String version,
                                OutputStream out,
-                               Manifest manifest) throws IOException {
+                               Manifest manifest,
+                               ProjectFiles projectFiles) throws IOException {
         try (ZipOutputStream zipOutputStream = new DeploymentOutputStream(out, manifest)) {
             var projectPath = rulesPath + projectName + PATH_SEPARATOR;
             folderRepository = getRepositoryForVersion(
@@ -57,8 +73,7 @@ public final class RepositoryUtils {
 
             for (FileData file : files) {
                 var internalPath = file.getName().substring(projectPath.length());
-                if (JarFile.MANIFEST_NAME.equals(internalPath)) {
-                    // skip old manifest
+                if (!isDeployed(internalPath, projectFiles)) {
                     continue;
                 }
                 zipOutputStream.putNextEntry(new ZipEntry(internalPath));

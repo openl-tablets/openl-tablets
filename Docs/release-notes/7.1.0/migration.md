@@ -6,10 +6,12 @@ Upgrading to OpenL Tablets 7.1.0 requires no database changes and no Java versio
 suggests when a project is saved, created, copied or restored are no longer configured per design repository, and the
 **Customize comments** check box is gone: a comment is validated whenever the repository sets a pattern. This affects
 the administrators who configured comments and the clients of the repository settings API. Several fixes of the rules
-engine change how an existing project compiles or runs, as listed for the rules authors. With `secret.key` set,
-OpenL Studio stores all its secrets encrypted, as listed for the administrators. In OpenL Rule Services, the store
-log data advices of a service method also run when an interceptor of the method fails, and a service takes the
-Spring configuration of its own project only, as listed for the developers.
+engine change how an existing project compiles or runs, as listed for the rules authors. With `secret.key` set, OpenL
+Studio stores its secrets encrypted, though a secret an earlier version stored in plain text may stay so until it is
+changed, and the `pom.xml` of a project turns from an ignored file into a protected one, which a developer edits but an
+export and an import leave out, as listed for the administrators. In OpenL Rule Services, the store log data advices of
+a service method also run when an interceptor of the method fails, and a service takes the Spring configuration of its
+own project only, as listed for the developers.
 
 ## Rules Authors
 
@@ -82,6 +84,27 @@ Spring configuration of its own project only, as listed for the developers.
 
 ## Administrators
 
+* **`pom.xml` is protected rather than ignored, and the system and temporary files are ignored.** The default of
+  `repository.default-ignored-paths` no longer holds `**/pom.xml`, and it ignores the build output `target`, the
+  folders of Gradle, sbt and the IDEs, `Jenkinsfile`, logs, the lock files of Microsoft Office and LibreOffice, and
+  the files macOS and Windows leave, such as `.DS_Store`, `__MACOSX` and `Thumbs.db`. The `pom.xml` at the root of a
+  project is a protected file instead, by the new `project.protected-files` property: a developer opens, edits and
+  merges it in OpenL Studio, while the export of the project, its deployment and an import of an archive leave it out,
+  and an archive uploaded over the project keeps the `pom.xml` the project holds. A revision that changes only it
+  stays a technical revision. `META-INF/MANIFEST.MF` is protected too, so a deployment archive uploaded as a project
+  no longer brings the manifest of that deployment with it. The new `project.hidden-files` property hides `rules.xml`, `rules-deploy.xml` and
+  `tags.properties` in the project tree unless **Show Hidden Files** is on in **My Settings**.
+
+  ```properties
+  project.protected-files = pom.xml, META-INF/MANIFEST.MF
+  project.hidden-files = rules.xml, rules-deploy.xml, tags.properties
+  ```
+
+  A `repository.ignored-paths` value that lists the paths itself, without `${repository.default-ignored-paths}`,
+  keeps ignoring what it lists: remove `**/pom.xml` from it to let a developer edit `pom.xml`, and add the temporary
+  files above to hide them. A `pom.xml` deeper in a project, such as `rules/pom.xml`, is an ordinary file now; add a
+  pattern such as `**/pom.xml` to `project.protected-files` to protect it as well.
+
 * **All secrets are stored encrypted.** With `secret.key` set, the client secret of OAuth2, the access and secret keys
   of an AWS S3 repository, the account key of an Azure Blob Storage repository and the private key OpenL Studio
   generates for SAML are stored as `ENC(...)` in the settings file, as the passwords already were. At the first start
@@ -135,6 +158,12 @@ Spring configuration of its own project only, as listed for the developers.
   before committing, and a request of the REST API that sends no comment is refused by such a repository.
 
 ## Developers
+
+* **The Files API marks the hidden files of a project.** A file or a folder of `GET /rest/projects/{id}/files` and
+  `POST /rest/projects/{id}/file-search` that `project.hidden-files` or `project.protected-files` names carries
+  `"hidden": true`; the field is absent otherwise. A client that compares the whole entry, such as a test of the
+  listing of a project with a `rules.xml`, expects the field. `pom.xml` is listed, read and written now, while
+  `GET /rest/projects/{id}/files/?download=true` and an upload of an archive or of several files leave it out.
 
 * **The OpenAPI schema lists the children of a datatype where no type property tells them.** In a service whose
   `rules-deploy.xml` sets `jackson.defaultTypingMode` to `DISABLED` or `jackson.jsonTypeInfoId` to `DEDUCTION`, a

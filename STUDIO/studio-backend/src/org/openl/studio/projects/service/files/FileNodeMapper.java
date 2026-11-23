@@ -15,5 +15,14 @@ public interface FileNodeMapper {
             .<FsNode, Boolean>comparing(FileNode.class::isInstance)
             .thenComparing(FsNode::getName, String.CASE_INSENSITIVE_ORDER);
 
-    FsNode map(AProjectArtefact artefact);
+    /**
+     * Maps an artefact of a mount.
+     *
+     * <p>A file or a folder of a project is marked hidden when the project settings list it as a hidden or a
+     * protected file. Nothing is hidden in a mount that is not a project.
+     *
+     * @param artefact the artefact, its internal path relative to the root of the mount
+     * @param root     the mount the artefact belongs to
+     */
+    FsNode map(AProjectArtefact artefact, FileRoot root);
 }

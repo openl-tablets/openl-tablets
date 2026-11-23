@@ -14,7 +14,7 @@ Content-Type: application/json
         "path": "EPBDS-16410-InBranch",
         "current": true,
         "status": "added",
-        "changedFiles": 3
+        "changedFiles": 2
       }
     ],
     "hiddenProjects": 0

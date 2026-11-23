@@ -35,8 +35,8 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -90,6 +90,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final BeanValidationProvider validationProvider;
     private final UploadFormatting uploadFormatting;
     private final IgnoredPaths ignoredPaths;
+    private final ProjectFiles projectFiles;
     /**
      * Whether a folder without {@code rules.xml} is found as a project by its Excel files. Without it, a folder of a
      * repository with folders is a project only by its {@code rules.xml}.
@@ -116,9 +117,9 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         var filter = buildFilterCriteria(query);
 
         if (viewMode == FileViewMode.NESTED && recursive) {
-            return buildNested(baseFolder, filter);
+            return buildNested(root, baseFolder, filter);
         }
-        return buildFlatList(baseFolder, filter, recursive);
+        return buildFlatList(root, baseFolder, filter, recursive);
     }
 
     @Override
@@ -131,7 +132,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     @Override
     public FsNode getNode(@NotNull FileRoot root, @NotBlank String path, String version) {
-        return resourceMapper.map(getResource(root, path, version));
+        return resourceMapper.map(getResource(root, path, version), root);
     }
 
     @Override
@@ -349,7 +350,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             throw new BadRequestException("file.base-path.not-folder.message", new Object[]{path});
         }
         requirePermission(artefact, BasePermission.READ);
-        archiveSupport.writeZip((AProjectFolder) artefact, out);
+        // An export of a project leaves its protected files out, as a deployment does.
+        archiveSupport.writeZip((AProjectFolder) artefact, out, file -> isProtected(root, file.getInternalPath()));
     }
 
     @Override
@@ -402,7 +404,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * skipped. For {@code REPLACE} the base folder is made to contain exactly the uploaded
      * entries, and the user must be allowed to delete every file the replace removes.
      *
-     * <p>An entry at an ignored path is left out, as an uploaded project leaves it out.
+     * <p>An entry at an ignored path or of a protected file is left out, as an uploaded project leaves it out. A
+     * {@code REPLACE} keeps the protected files the base folder holds.
      *
      * @return the mount-relative paths of the files written
      */
@@ -412,11 +415,26 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                       ConflictPolicy conflictPolicy,
                                       String comment) {
         uploaded.forEach(entry -> validateResourcePath(entry.fullPath()));
-        var entries = uploaded.stream().filter(entry -> !isIgnored(root, entry.fullPath())).toList();
+        var entries = uploaded.stream().filter(entry -> isImported(root, entry.fullPath())).toList();
         if (conflictPolicy == ConflictPolicy.REPLACE && entries.isEmpty()) {
             throw new BadRequestException("file.archive.empty.message");
         }
-        var current = root.readFolder(null);
+        // The files a closed project holds are read and written under one lock, so that the protected files a
+        // replace gives back as they are cannot undo a change committed in between.
+        lockIfClosed(root);
+        try {
+            return writeEntries(root, basePath, entries, conflictPolicy, comment, root.readFolder(null));
+        } finally {
+            unlockIfClosed(root);
+        }
+    }
+
+    private List<String> writeEntries(FileRoot root,
+                                      String basePath,
+                                      List<FileEntry> entries,
+                                      ConflictPolicy conflictPolicy,
+                                      String comment,
+                                      AProjectFolder current) {
         var written = new LinkedHashMap<String, byte[]>();
         for (FileEntry entry : entries) {
             if (!isEntrySkipped(current, entry, conflictPolicy)) {
@@ -427,15 +445,14 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
         }
         var replace = conflictPolicy == ConflictPolicy.REPLACE;
-        if (replace) {
-            requireRemovedFilesDeletable(current, basePath, entries);
-        }
+        var kept = replace ? keptOnReplace(root, current, basePath, entries) : List.<AProjectArtefact>of();
         var items = new ArrayList<FileItem>();
-        formatted(root, current, basePath, written, replace).forEach((path, data) -> {
-            var fileData = new FileData();
-            fileData.setName(path);
-            items.add(new FileItem(fileData, new ByteArrayInputStream(data)));
-        });
+        formatted(root, current, basePath, written, replace)
+                .forEach((path, data) -> items.add(new FileItem(path, new ByteArrayInputStream(data))));
+        for (var file : kept) {
+            // A full replace deletes every file it is not given: the protected ones are given as they are.
+            items.add(new FileItem(file.getInternalPath(), new ByteArrayInputStream(contentOf(file))));
+        }
         if (replace) {
             root.writeBatch(basePath, items, ChangesetType.FULL, comment);
         } else if (!items.isEmpty()) {
@@ -494,18 +511,45 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * Verifies the user may delete every file that the full replace removes: the files under the
-     * base folder that are not part of the upload.
+     * The protected files under the base folder, which a full replace of it keeps, after verifying the user may
+     * delete every file the replace removes: the other files under the base folder that are not part of the upload.
+     *
+     * <p>An upload that puts a file under a protected file the replace keeps, such as {@code pom.xml/a.txt}, is
+     * refused before anything is written.
      */
-    private void requireRemovedFilesDeletable(AProjectFolder current, String basePath, List<FileEntry> entries) {
+    private List<AProjectArtefact> keptOnReplace(FileRoot root,
+                                                 AProjectFolder current,
+                                                 String basePath,
+                                                 List<FileEntry> entries) {
         AProjectArtefact base = basePath.isEmpty() ? current : findArtefactByPath(current, basePath);
         if (!(base instanceof AProjectFolder folder)) {
-            return;
+            return List.of();
         }
-        Set<String> kept = entries.stream().map(FileEntry::fullPath).collect(Collectors.toSet());
-        filesUnder(folder).stream()
-                .filter(file -> !kept.contains(file.getInternalPath()))
-                .forEach(file -> requirePermission(file, BasePermission.DELETE));
+        Set<String> uploaded = entries.stream().map(FileEntry::fullPath).collect(Collectors.toSet());
+        var kept = new ArrayList<AProjectArtefact>();
+        for (var file : filesUnder(folder)) {
+            var path = file.getInternalPath();
+            if (isProtected(root, path)) {
+                kept.add(file);
+            } else if (!uploaded.contains(path)) {
+                requirePermission(file, BasePermission.DELETE);
+            }
+        }
+        for (var file : kept) {
+            var under = file.getInternalPath() + "/";
+            if (uploaded.stream().anyMatch(path -> path.startsWith(under))) {
+                throw new ConflictException(PATH_NOT_FOLDER, file.getInternalPath());
+            }
+        }
+        return kept;
+    }
+
+    private static byte[] contentOf(AProjectArtefact file) {
+        try (var content = ((AProjectResource) file).getContent()) {
+            return content.readAllBytes();
+        } catch (IOException | ProjectException e) {
+            throw new ConflictException("file.read.failed.message");
+        }
     }
 
     /** Every file under the folder, however deep. */
@@ -1048,6 +1092,16 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         return ignoredPaths.matches(root.repositoryPathOf(path));
     }
 
+    /** Whether a file is a protected file of the project the mount is: an export and an import leave it out. */
+    private boolean isProtected(FileRoot root, String path) {
+        return root.isProject() && projectFiles.isProtected(path);
+    }
+
+    /** Whether an upload writes a file: neither ignored nor protected. */
+    private boolean isImported(FileRoot root, String path) {
+        return !isProtected(root, path) && !isIgnored(root, path);
+    }
+
     private AProjectArtefact findArtefactByPath(AProjectFolder rootFolder, String path) {
         var segments = path.split("/");
         AProjectArtefact current = rootFolder;
@@ -1064,7 +1118,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         return current;
     }
 
-    private List<FsNode> buildNested(AProjectFolder rootFolder,
+    private List<FsNode> buildNested(FileRoot root,
+                                       AProjectFolder rootFolder,
                                        Predicate<AProjectArtefact> filter) {
         var builtChildren = new IdentityHashMap<AProjectFolder, List<FsNode>>();
         record Frame(AProjectFolder folder, boolean expanded) {}
@@ -1084,7 +1139,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                     }
                 }
             } else {
-                var children = buildNestedChildren(folder, filter, builtChildren);
+                var children = buildNestedChildren(root, folder, filter, builtChildren);
                 children.sort(FileNodeMapper.NODE_COMPARATOR);
                 builtChildren.put(folder, children);
             }
@@ -1093,20 +1148,21 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         return builtChildren.getOrDefault(rootFolder, List.of());
     }
 
-    private List<FsNode> buildNestedChildren(AProjectFolder folder,
+    private List<FsNode> buildNestedChildren(FileRoot root,
+                                               AProjectFolder folder,
                                                Predicate<AProjectArtefact> filter,
                                                IdentityHashMap<AProjectFolder, List<FsNode>> builtChildren) {
         var out = new ArrayList<FsNode>();
         for (var artefact : folder.getArtefacts()) {
             if (!artefact.isFolder()) {
                 if (filter.test(artefact)) {
-                    out.add(resourceMapper.map(artefact));
+                    out.add(resourceMapper.map(artefact, root));
                 }
                 continue;
             }
             var childChildren = builtChildren.getOrDefault(artefact, List.of());
             if (filter.test(artefact) || !childChildren.isEmpty()) {
-                var mapped = resourceMapper.map(artefact);
+                var mapped = resourceMapper.map(artefact, root);
                 if (mapped instanceof FolderNode fr && !childChildren.isEmpty()) {
                     // childChildren was already sorted when it was stored, so no need to sort again.
                     mapped = fr.withChildren(childChildren);
@@ -1180,7 +1236,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     /**
      * Builds a flat list of resources using iterative queue-based traversal.
      */
-    private List<FsNode> buildFlatList(AProjectFolder rootFolder,
+    private List<FsNode> buildFlatList(FileRoot root,
+                                         AProjectFolder rootFolder,
                                          Predicate<AProjectArtefact> filter,
                                          boolean recursive) {
         var result = new ArrayList<FsNode>();
@@ -1192,7 +1249,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             var folder = queue.poll();
             for (AProjectArtefact artefact : folder.getArtefacts()) {
                 if (filter.test(artefact)) {
-                    result.add(resourceMapper.map(artefact));
+                    result.add(resourceMapper.map(artefact, root));
                 }
 
                 if (recursive && artefact.isFolder()) {

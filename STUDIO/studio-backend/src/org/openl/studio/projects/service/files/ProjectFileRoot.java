@@ -152,6 +152,11 @@ public class ProjectFileRoot implements FileRoot {
         }
     }
 
+    @Override
+    public boolean isProject() {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      *

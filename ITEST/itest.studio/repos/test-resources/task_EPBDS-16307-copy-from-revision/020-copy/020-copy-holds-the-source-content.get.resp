@@ -3,11 +3,6 @@ Content-Type: application/json
 
 [
   {
-    "path": "__MACOSX",
-    "name": "__MACOSX",
-    "type": "folder"
-  },
-  {
     "path": "Added.txt",
     "name": "Added.txt",
     "type": "file",
@@ -24,6 +19,7 @@ Content-Type: application/json
   {
     "path": "rules.xml",
     "name": "rules.xml",
+    "hidden": true,
     "type": "file",
     "extension": "xml",
     "size": -1

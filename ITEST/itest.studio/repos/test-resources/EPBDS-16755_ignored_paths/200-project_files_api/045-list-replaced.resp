@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "type": "file",
+    "path": "pom.xml",
+    "name": "pom.xml",
+    "hidden": true,
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules.xml",
+    "name": "rules.xml",
+    "hidden": true,
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

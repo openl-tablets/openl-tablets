@@ -138,7 +138,7 @@ To manage personal settings, proceed as follows:
 
 1.  In OpenL Studio, in the top-right corner, click the settings icon beside the theme icon.
 
-    ![My Settings menu with the Table Settings, Testing Settings, Trace Settings and Date & Time groups](images/user-settings-menu.png "My Settings menu")
+    ![My Settings menu with the Table Settings, Files, Testing Settings, Trace Settings and Date & Time groups](images/user-settings-menu.png "My Settings menu")
 
     *My Settings menu*
 
@@ -150,7 +150,15 @@ To manage personal settings, proceed as follows:
     Whether the tables are drawn in the colours of the OpenL Studio theme or as the Excel file formats them is chosen
     in the theme menu, by the **Excel Formatting** switch described in [Switching the Theme](#switching-the-theme).
 
-3.  In the **Testing Settings** group, configure the following options:
+3.  In the **Files** group, turn the following option on or off:
+
+    -   **Show Hidden Files** — show the technical files of a project in the project tree: its descriptor
+        `rules.xml`, `rules-deploy.xml`, `tags.properties` and the build file `pom.xml`. They are hidden by default,
+        as a business user does not edit them there. A hidden file is still opened by a link that names it, and the
+        files an administrator hides are set by the `project.hidden-files` and `project.protected-files` properties
+        described in [Configuration](../installation-guide/configuration.md#system).
+
+4.  In the **Testing Settings** group, configure the following options:
 
     -   **Tests Per Page** — number of test results displayed per page; point to it and pick 1, 5, 20 or **All**.
         Default is 5.
@@ -159,11 +167,11 @@ To manage personal settings, proceed as follows:
 
     For more information on testing settings, see [Running Unit Tests](editing-testing.md#running-unit-tests).
 
-4.  In the **Trace Settings** group, turn the following option on or off:
+5.  In the **Trace Settings** group, turn the following option on or off:
 
     -   **Show Numbers Without Formatting** — display numeric values without locale-based formatting in the trace view.
 
-5.  In the **Date & Time** group, choose how dates and times are written:
+6.  In the **Date & Time** group, choose how dates and times are written:
 
     -   **Date Format** — point to it and pick how a date is written, each format shown on the same moment. The first
         one, marked **System**, writes it as the regional settings of the web browser do, such as `12/31/2026` in the

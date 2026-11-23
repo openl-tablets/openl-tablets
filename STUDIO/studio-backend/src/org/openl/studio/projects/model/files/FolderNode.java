@@ -17,7 +17,7 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @SuperBuilder
 @Jacksonized
-@JsonPropertyOrder({"path", "name", "type", "basePath", "children"})
+@JsonPropertyOrder({"path", "name", "type", "basePath", "hidden", "children"})
 @Schema(description = "A folder resource in the mount")
 public class FolderNode extends FsNode {
 
@@ -38,6 +38,7 @@ public class FolderNode extends FsNode {
                 .path(getPath())
                 .name(getName())
                 .basePath(getBasePath())
+                .hidden(isHidden())
                 .children(children)
                 .build();
     }

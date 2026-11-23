@@ -561,6 +561,8 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   0.26 seconds a screenful at a time. It builds the rows of the files of a project once for each read of them and
   keeps them while the files the search finds, the changes, the theme, the density and the language stay, so
   reading or opening another project, or typing on a search that finds the same files, leaves them as they are.
+  A file the Files API marks `hidden`, such as `rules.xml` or `pom.xml`, is left out of the rows and of the search
+  unless **Show Hidden Files** of **My Settings** (`showHiddenFiles`) is on; turning it on reads nothing again.
   The size of a file keeps to the right edge of the rail as a `sticky` column, which a virtual list leaves working:
   it scrolls sideways within its own box. A table of a workbook that scrolls on a
   screen of its own — the table of the module editor — is handed the element it scrolls in (`scroller` of

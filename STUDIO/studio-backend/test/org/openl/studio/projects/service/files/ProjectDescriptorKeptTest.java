@@ -20,6 +20,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -66,7 +67,7 @@ class ProjectDescriptorKeptTest {
         return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
                 new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null), detectByExcel);
+                IgnoredPaths.of(null), ProjectFiles.of(null, null), detectByExcel);
     }
 
     @Test

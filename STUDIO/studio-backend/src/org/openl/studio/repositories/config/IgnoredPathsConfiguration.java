@@ -5,10 +5,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.workspace.filter.PathFilter;
 
 /**
- * The paths the repositories neither show nor change, as the {@link IgnoredPaths#PROPERTY} setting lists them.
+ * The files of the repositories and the projects kept apart from the rules: the paths the repositories neither show
+ * nor change, as the {@link IgnoredPaths#PROPERTY} setting lists them, and the protected and hidden files of every
+ * project, as the {@link ProjectFiles#PROTECTED_PROPERTY} and {@link ProjectFiles#HIDDEN_PROPERTY} settings list them.
  */
 @Configuration
 public class IgnoredPathsConfiguration {
@@ -18,11 +21,18 @@ public class IgnoredPathsConfiguration {
         return IgnoredPaths.of(setting);
     }
 
+    @Bean
+    public ProjectFiles projectFiles(@Value("${" + ProjectFiles.PROTECTED_PROPERTY + ":}") String protectedFiles,
+                                     @Value("${" + ProjectFiles.HIDDEN_PROPERTY + ":}") String hiddenFiles) {
+        return ProjectFiles.of(protectedFiles, hiddenFiles);
+    }
+
     /**
-     * Leaves the ignored paths out of a project uploaded as a ZIP archive.
+     * Leaves out of a project uploaded as a ZIP archive the ignored paths and the protected files, by their paths
+     * relative to the root of the project.
      */
     @Bean
-    public PathFilter zipFilter(IgnoredPaths ignoredPaths) {
-        return path -> !ignoredPaths.matches(path);
+    public PathFilter zipFilter(IgnoredPaths ignoredPaths, ProjectFiles projectFiles) {
+        return path -> !projectFiles.isProtected(path) && !ignoredPaths.matches(path);
     }
 }

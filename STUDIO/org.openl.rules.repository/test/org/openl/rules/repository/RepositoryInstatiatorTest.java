@@ -37,6 +37,17 @@ class RepositoryInstatiatorTest {
     }
 
     @Test
+    void givesARepositoryTheSettingsOfTheFilesKeptApartOfEveryRepository() {
+        RepositoryInstatiator.newRepository("repository.design", Map.of(
+                "repository.design.factory", "repo-settings-test-only",
+                IgnoredPaths.PROPERTY, "**/.DS_Store",
+                ProjectFiles.PROTECTED_PROPERTY, "pom.xml")::get);
+
+        assertEquals(Map.of("ignored-paths", "**/.DS_Store", "protected-files", "pom.xml"),
+                SettingsRepositoryFactory.GIVEN);
+    }
+
+    @Test
     void namingARepositoryTypeDoesNotLookUpTheFactoriesAgain() {
         // Every repository the settings name asks for its type, and a listing names them all. A lookup
         // reads the declaration out of every jar on the class path and builds each factory it names, so

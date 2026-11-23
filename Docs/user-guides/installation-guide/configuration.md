@@ -155,12 +155,25 @@ The following related properties have no field in the UI:
   [Cluster Mode Configuration](#cluster-mode-configuration).
 - **`user.workspace.home`** — directory that stores local copies of the projects opened by users.
 - **`admin.notification-file`** — file that stores the message sent from [Managing Notifications][notifications].
-- **`repository.default-ignored-paths`** — the paths `repository.ignored-paths` ignores by default. Refer to it to
-  add paths of your own without repeating the defaults:
-  `repository.ignored-paths = ${repository.default-ignored-paths}, **/target/**`, or the environment variable
+- **`repository.default-ignored-paths`** — the paths `repository.ignored-paths` ignores by default: the files of
+  version control systems and CI pipelines, the build output `target`, and the system and temporary files of
+  operating systems and editors, such as `.DS_Store`, `Thumbs.db` and the `~$` lock files of Microsoft Office. Refer
+  to it to add paths of your own without repeating the defaults:
+  `repository.ignored-paths = ${repository.default-ignored-paths}, **/build/**`, or the environment variable
   `REPOSITORY_IGNORED-PATHS` with the same value. Docker Compose reads `${...}` in a value as a variable of its own,
   so a compose file doubles the dollar sign:
-  `REPOSITORY_IGNORED-PATHS: "$${repository.default-ignored-paths}, **/target/**"`.
+  `REPOSITORY_IGNORED-PATHS: "$${repository.default-ignored-paths}, **/build/**"`.
+- **`project.protected-files`** — the protected files of every project, `pom.xml, META-INF/MANIFEST.MF` by
+  default: Ant-style patterns relative to the project root, separated by commas, the letter case ignored. A
+  protected file is listed, opened, edited and merged like any other file, but the export of a project and its
+  deployment leave it out, and an import of a project, such as a ZIP archive uploaded over it, neither writes it nor
+  deletes the one the project holds. A deployment writes a manifest of its own, so it never carries the one of a
+  project. In a Git repository, a revision that changes only protected and ignored files is a technical revision.
+  The screens of OpenL Studio hide a protected file unless **Show Hidden Files** is on in **My Settings**.
+- **`project.hidden-files`** — the files of every project hidden from business users,
+  `rules.xml, rules-deploy.xml, tags.properties` by default: patterns relative to the project root, as above. The
+  screens of OpenL Studio leave a hidden file out of the trees of files unless **Show Hidden Files** is on in
+  **My Settings**. Nothing else changes: the REST API and the MCP server list, read and write it as any other file.
 
 #### Audit Log
 

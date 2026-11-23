@@ -16,11 +16,9 @@ describe('isWorkbookPath', () => {
         expect(isWorkbookPath('rules.xlsx/Alg.txt')).toBe(false)
     })
 
-    it('reads no workbook out of the lock file Excel leaves beside an open one', () => {
-        expect(isWorkbookPath('rules/~$Algorithms.xlsx')).toBe(false)
-        // A path written on Windows ends in a file name just the same.
-        expect(isWorkbookPath('rules\\~$Algorithms.xlsx')).toBe(false)
+    it('reads a path written on Windows, which ends in a file name just the same', () => {
         expect(isWorkbookPath('rules\\Algorithms.xlsx')).toBe(true)
+        expect(isWorkbookPath('rules.xlsx\\Algorithms.txt')).toBe(false)
     })
 
     it('offers the extensions to a file picker', () => {

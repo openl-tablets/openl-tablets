@@ -16,5 +16,14 @@ Content-Type: application/json
     "extension": "dat",
     "size": "*",
     "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "EPBDS-16755/uploaded/pom.xml",
+    "name": "pom.xml",
+    "basePath": "EPBDS-16755/uploaded",
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
   }
 ]

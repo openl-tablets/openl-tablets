@@ -3,27 +3,38 @@ package org.openl.rules.webstudio.web.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.jar.Manifest;
+import java.util.zip.ZipInputStream;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -45,6 +56,34 @@ class RepositoryUtilsTest {
     static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
+    }
+
+    @Test
+    void anArchiveToDeployLeavesTheProtectedFilesAndTheOldManifestOut() throws Exception {
+        var repository = mock(Repository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setFolders(true).build());
+        var files = new ArrayList<FileData>();
+        for (var name : List.of("rules.xml", "pom.xml", "META-INF/MANIFEST.MF", "rules/pom.xml")) {
+            var file = new FileData();
+            file.setName("rules/P/" + name);
+            files.add(file);
+        }
+        when(repository.listFiles("rules/P/", "1")).thenReturn(List.copyOf(files));
+        when(repository.readHistory(anyString(), any())).thenAnswer(call -> new FileItem(call.<String>getArgument(0),
+                new ByteArrayInputStream(new byte[0])));
+        var out = new ByteArrayOutputStream();
+
+        RepositoryUtils.archive(mock(DesignTimeRepository.class), repository, "rules/", "P", "1", out, new Manifest(),
+                ProjectFiles.of("pom.xml", null));
+
+        var entries = new ArrayList<String>();
+        try (var zip = new ZipInputStream(new ByteArrayInputStream(out.toByteArray()))) {
+            for (var entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+                entries.add(entry.getName());
+            }
+        }
+        // The manifest the deployment writes, not the one of the project.
+        assertEquals(List.of("META-INF/MANIFEST.MF", "rules.xml", "rules/pom.xml"), entries);
     }
 
     @Test

@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -176,22 +177,25 @@ class FileArchiveSupport {
 
     /**
      * Writes the readable files of a folder to the stream as a ZIP archive. Entry names are relative
-     * to the folder. Files the user cannot read are skipped.
+     * to the folder. Files the user cannot read and the files left out are skipped.
+     *
+     * @param leftOut the files and folders the archive leaves out, such as the protected files of a project
      */
-    void writeZip(AProjectFolder folder, OutputStream out) throws IOException {
+    void writeZip(AProjectFolder folder, OutputStream out, Predicate<AProjectArtefact> leftOut) throws IOException {
         try (var zos = new ZipOutputStream(out)) {
-            zipFolder(folder, "", zos);
+            zipFolder(folder, "", zos, leftOut);
         }
     }
 
-    private void zipFolder(AProjectFolder folder, String prefix, ZipOutputStream zos) throws IOException {
+    private void zipFolder(AProjectFolder folder, String prefix, ZipOutputStream zos,
+                           Predicate<AProjectArtefact> leftOut) throws IOException {
         for (AProjectArtefact artefact : folder.getArtefacts()) {
-            if (!aclProjectsHelper.hasPermission(artefact, BasePermission.READ)) {
+            if (!isZipped(artefact, leftOut)) {
                 continue;
             }
             String entryName = FilePaths.join(prefix, artefact.getName());
             if (artefact.isFolder()) {
-                zipFolder((AProjectFolder) artefact, entryName, zos);
+                zipFolder((AProjectFolder) artefact, entryName, zos, leftOut);
             } else {
                 zos.putNextEntry(new ZipEntry(entryName));
                 try (var in = ((AProjectResource) artefact).getContent()) {
@@ -202,5 +206,9 @@ class FileArchiveSupport {
                 zos.closeEntry();
             }
         }
+    }
+
+    private boolean isZipped(AProjectArtefact artefact, Predicate<AProjectArtefact> leftOut) {
+        return !leftOut.test(artefact) && aclProjectsHelper.hasPermission(artefact, BasePermission.READ);
     }
 }

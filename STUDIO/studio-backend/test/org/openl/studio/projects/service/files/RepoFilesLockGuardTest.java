@@ -24,6 +24,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -132,7 +133,7 @@ class RepoFilesLockGuardTest {
         var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
                 new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null), false);
+                IgnoredPaths.of(null), ProjectFiles.of(null, null), false);
         RepoFileRoot mount = mock(RepoFileRoot.class);
         var tree = treeWithDataFile("a.txt");
         when(mount.readFolder(null)).thenReturn(tree);

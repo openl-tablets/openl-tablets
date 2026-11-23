@@ -24,6 +24,7 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -68,9 +69,9 @@ class ProjectFilesWorkingCopyTest {
         root = new ProjectFileRoot(project, acl, new ProjectStateValidatorImpl(mock(ProtectedBranchBypassService.class)),
                 mock(ProjectFileLookupService.class), () -> new UserInfo("admin", "admin@example.com", "Admin"),
                 mock(DesignTimeRepository.class));
-        service = new ProjectFilesServiceImpl(acl, new FileNodeMapperImpl(), mock(FileSearchSupport.class),
+        service = new ProjectFilesServiceImpl(acl, new FileNodeMapperImpl(ProjectFiles.of(null, null)), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()),
-                new UploadFormatting(mock(TableFormatting.class)), IgnoredPaths.of(null), false);
+                new UploadFormatting(mock(TableFormatting.class)), IgnoredPaths.of(null), ProjectFiles.of(null, null), false);
     }
 
     @Test

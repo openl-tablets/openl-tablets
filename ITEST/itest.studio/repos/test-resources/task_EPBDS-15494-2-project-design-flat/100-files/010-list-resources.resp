@@ -61,6 +61,7 @@ Content-Type: application/json
   {
     "type": "file",
     "path": "rules-deploy.xml",
+    "hidden": true,
     "name": "rules-deploy.xml",
     "extension": "xml",
     "size": "*",
@@ -69,6 +70,7 @@ Content-Type: application/json
   {
     "type": "file",
     "path": "rules.xml",
+    "hidden": true,
     "name": "rules.xml",
     "extension": "xml",
     "size": "*",

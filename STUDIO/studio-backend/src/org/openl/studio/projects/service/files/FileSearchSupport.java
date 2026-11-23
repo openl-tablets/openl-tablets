@@ -63,7 +63,7 @@ class FileSearchSupport {
             var folder = queue.poll();
             for (AProjectArtefact artefact : folder.getArtefacts()) {
                 if (matchesSearch(artefact, query, pattern, matcher, extensions, contentNeedle)) {
-                    result.add(resourceMapper.map(artefact));
+                    result.add(resourceMapper.map(artefact, root));
                 }
                 if (query.recursive() && artefact.isFolder()) {
                     queue.add((AProjectFolder) artefact);

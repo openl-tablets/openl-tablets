@@ -37,6 +37,9 @@ public final class RepositoryInstatiator {
     /** The parameter a repository is given the {@link IgnoredPaths#PROPERTY} setting by, if it takes it. */
     private static final String IGNORED_PATHS = "ignored-paths";
 
+    /** The parameter a repository is given the {@link ProjectFiles#PROTECTED_PROPERTY} setting by, if it takes it. */
+    private static final String PROTECTED_FILES = "protected-files";
+
     /**
      * The repository factories declared on the class path, looked up once.
      *
@@ -71,7 +74,8 @@ public final class RepositoryInstatiator {
      * <p>The repository keeps the paths the {@link IgnoredPaths#PROPERTY} setting lists out of reach, and the
      * {@code .git} folder always: see {@link PathCheckedRepository}. A repository with an {@code ignoredPaths}
      * parameter is given the setting too, to apply it where only the repository can, such as to the real paths of a
-     * file system.
+     * file system. A repository with a {@code protectedFiles} parameter is given the
+     * {@link ProjectFiles#PROTECTED_PROPERTY} setting, to tell the revisions that change only them.
      *
      * @param prefix the prefix of the properties of the repository, such as {@code repository.design}
      * @param props  the properties by name
@@ -112,6 +116,9 @@ public final class RepositoryInstatiator {
         if (IGNORED_PATHS.equals(key)) {
             // One setting serves every repository.
             return props.apply(IgnoredPaths.PROPERTY);
+        }
+        if (PROTECTED_FILES.equals(key)) {
+            return props.apply(ProjectFiles.PROTECTED_PROPERTY);
         }
         var value = props.apply(prefix + '.' + key);
         if (Objects.isNull(value)) {

@@ -25,5 +25,14 @@ Content-Type: application/json
     "extension": "dat",
     "size": "*",
     "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "imported/pom.xml",
+    "name": "pom.xml",
+    "basePath": "imported",
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
   }
 ]

@@ -16,7 +16,7 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @SuperBuilder
 @Jacksonized
-@JsonPropertyOrder({"path", "name", "type", "basePath", "extension", "size", "lastModified", "content"})
+@JsonPropertyOrder({"path", "name", "type", "basePath", "hidden", "extension", "size", "lastModified", "content"})
 @Schema(description = "A file resource in the mount")
 public class FileNode extends FsNode {
 

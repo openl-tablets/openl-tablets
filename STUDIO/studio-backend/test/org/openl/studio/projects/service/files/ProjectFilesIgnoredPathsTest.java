@@ -25,6 +25,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -53,7 +54,7 @@ class ProjectFilesIgnoredPathsTest {
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
                 new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of("**/.git*/**, **/pom.xml"), false);
+                IgnoredPaths.of("**/.git*/**, **/pom.xml"), ProjectFiles.of(null, null), false);
         root = mock(FileRoot.class);
         when(root.repositoryPathOf(anyString())).thenAnswer(call -> call.getArgument(0));
         var project = mock(AProject.class);

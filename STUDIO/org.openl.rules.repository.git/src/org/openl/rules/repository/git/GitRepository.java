@@ -123,6 +123,8 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.IgnoringRepository;
+import org.openl.rules.repository.PathPatterns;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.BranchTreeRevision;
@@ -213,6 +215,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
     /** The paths whose changes make no revision of a project: a commit that changes only them is technical. */
     private IgnoredPaths ignoredPaths = IgnoredPaths.of(null);
+    private PathPatterns protectedFiles = PathPatterns.NONE;
 
     private boolean useLFS;
 
@@ -948,6 +951,17 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     @Override
     public void setIgnoredPaths(String setting) {
         this.ignoredPaths = IgnoredPaths.of(setting);
+    }
+
+    /**
+     * Sets the protected files of every project, by patterns relative to the root of the project, such as
+     * {@code pom.xml}: a commit that changes only them and the ignored files of a project is a technical revision of
+     * it.
+     *
+     * @param setting the patterns separated by commas, see {@link ProjectFiles#PROTECTED_PROPERTY}
+     */
+    public void setProtectedFiles(String setting) {
+        this.protectedFiles = PathPatterns.of(setting);
     }
 
     public void setProtectedBranches(String... patterns) {
@@ -1954,7 +1968,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
                 maxCount = page.getPageSize();
             }
             try (var or = repository.newObjectReader(); var walk = headersWalk(or)) {
-                var tw = createTreeWalk(or, name);
+                var tw = createTreeWalk(or, name, protectedFiles);
 
                 var stop = false;
                 while (!stop && processed < maxCount && iterator.hasNext()) {
@@ -2225,8 +2239,8 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /**
-     * The latest commit, from the given one back, that changes the path: a commit that changes only ignored files of
-     * a folder does not count.
+     * The latest commit, from the given one back, that changes the path: a commit that changes only technical files of
+     * a folder, its ignored files and the protected files of its project, does not count.
      */
     @Nullable RevCommit findFirstCommit(Git git,
                                         ObjectId startCommit,
@@ -2236,17 +2250,42 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
     /**
      * The latest commit, from the given one back, that changes each of the paths, found in one walk over the history.
-     * A commit that changes only ignored files of a folder does not count.
+     * A commit that changes only technical files of a folder, its ignored files and the protected files of its
+     * project, does not count.
      *
      * @return the commits by path; a path that no commit changes is left out
      */
     Map<String, RevCommit> findFirstCommits(Git git,
                                             ObjectId startCommit,
                                             Collection<String> paths) throws IOException, GitAPIException {
+        return findLatestChanges(git, startCommit, paths, protectedFiles);
+    }
+
+    /**
+     * The latest commit, from the given one back, that changes any file of the path but the ignored ones, the
+     * protected files included. A save based on an older commit than this one is merged, so that the protected files
+     * a save writes as the user read them do not replace a later change of them, such as a version bump in
+     * {@code pom.xml}.
+     */
+    private @Nullable RevCommit findLatestChange(Git git,
+                                                 ObjectId startCommit,
+                                                 String path) throws IOException, GitAPIException {
+        return findLatestChanges(git, startCommit, Set.of(path), PathPatterns.NONE).get(path);
+    }
+
+    /**
+     * The latest commit, from the given one back, that changes each of the paths, found in one walk over the history.
+     *
+     * @param technical the protected files whose changes do not count, besides the ignored files
+     */
+    private Map<String, RevCommit> findLatestChanges(Git git,
+                                                     ObjectId startCommit,
+                                                     Collection<String> paths,
+                                                     PathPatterns technical) throws IOException, GitAPIException {
         // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
         try (var or = git.getRepository().newObjectReader(); var walk = headersWalk(or)) {
-            var changes = new LatestChanges(or, walk, paths);
+            var changes = new LatestChanges(or, walk, paths, technical);
             var commits = new DescendantsFirstCommits(git.log().add(startCommit).call().iterator());
             while (changes.isPending() && commits.hasNext()) {
                 changes.weigh(commits.next());
@@ -2274,11 +2313,11 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         /**
          * @param walk the walk to find the commit the parents of a merge parted at
          */
-        private LatestChanges(ObjectReader reader, RevWalk walk, Collection<String> paths) {
+        private LatestChanges(ObjectReader reader, RevWalk walk, Collection<String> paths, PathPatterns technical) {
             this.walk = walk;
             for (var path : paths) {
                 var spelled = spelled(path);
-                pending.put(spelled, createTreeWalk(reader, spelled));
+                pending.put(spelled, createTreeWalk(reader, spelled, technical));
             }
             touched = new TreeWalk(reader);
             touched.setRecursive(false);
@@ -2491,14 +2530,15 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /**
-     * A walk over the changes of the path, the ignored files of a folder left out: a commit that changes only them
-     * changes nothing of the folder.
+     * A walk over the changes of the path, the technical files of a folder left out: the ignored files and the given
+     * protected files of the project the folder is. A commit that changes only them changes nothing of the folder.
      */
-    private TreeWalk createTreeWalk(ObjectReader or, String path) {
+    private TreeWalk createTreeWalk(ObjectReader or, String path, PathPatterns protectedFiles) {
+        var filter = PathFilter.create(path);
         // The cheap comparison of the object ids comes first: the patterns are matched only against what differs.
-        var t = AndTreeFilter.create(new TreeFilter[]{PathFilterGroup.create(Set.of(PathFilter.create(path))),
+        var t = AndTreeFilter.create(new TreeFilter[]{PathFilterGroup.create(Set.of(filter)),
                 TreeFilter.ANY_DIFF,
-                new IgnoredPathsTreeFilter(ignoredPaths)});
+                new TechnicalFilesTreeFilter(ignoredPaths, protectedFiles, filter.getPath() + "/")});
         var tw = new TreeWalk(or);
         tw.setFilter(t);
         tw.setRecursive(t.shouldBeRecursive());
@@ -3605,6 +3645,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         repo.baseBranch = baseBranch; // Base branch is only one
         repo.setTagPrefix(tagPrefix);
         repo.ignoredPaths = ignoredPaths;
+        repo.protectedFiles = protectedFiles;
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
         repo.git.set(git());
@@ -3756,7 +3797,8 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         if (branchId != null) {
             List<Ref> tags = git().tagList().call();
 
-            var commit = findFirstCommit(git(), branchId, path);
+            // A commit that changes only protected files counts: the save writes them too.
+            var commit = findLatestChange(git(), branchId, path);
             if (commit != null) {
                 String lastVersion = getVersionName(git().getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);

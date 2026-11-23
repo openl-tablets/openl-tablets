@@ -660,7 +660,7 @@ public class ProjectDescriptor {
         }
 
         private static boolean isNotTemporaryFile(Path file) throws IOException {
-            if (file.getFileName().toString().startsWith("~$")) {
+            if (FileTypeHelper.isLockFile(file.getFileName().toString())) {
                 return false;
             }
             if (OS.isWindows() && Files.isHidden(file)) {

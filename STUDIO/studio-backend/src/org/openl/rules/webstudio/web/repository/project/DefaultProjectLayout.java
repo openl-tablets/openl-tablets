@@ -19,8 +19,9 @@ public final class DefaultProjectLayout {
 
     /**
      * Returns the standard project path for a file. Workbooks outside the standard module folders are placed under
-     * {@code rules/}. Other files, macOS resource forks, and workbooks already under {@code rules/} or {@code tests/}
-     * keep their paths.
+     * {@code rules/}. Other files and workbooks already under {@code rules/} or {@code tests/} keep their paths.
+     *
+     * <p>The files are expected without the ignored paths, such as the resource forks macOS packs into an archive.
      */
     public static String filePath(String fileName) {
         var normalizedName = fileName.replace('\\', '/');
@@ -63,9 +64,7 @@ public final class DefaultProjectLayout {
 
     private static boolean isWorkbook(String fileName) {
         var normalizedName = fileName.replace('\\', '/');
-        var name = normalizedName.substring(normalizedName.lastIndexOf('/') + 1);
-        return FileTypeHelper.isExcelFile(name) && !name.startsWith("._") && !normalizedName.startsWith("__MACOSX/")
-                && !normalizedName.contains("/__MACOSX/");
+        return FileTypeHelper.isExcelFile(normalizedName.substring(normalizedName.lastIndexOf('/') + 1));
     }
 
     private static Module module(String fileName) {

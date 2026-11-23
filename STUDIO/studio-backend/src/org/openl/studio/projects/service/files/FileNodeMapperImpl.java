@@ -1,8 +1,10 @@
 package org.openl.studio.projects.service.files;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FolderNode;
@@ -13,19 +15,24 @@ import org.openl.util.FileUtils;
  * Maps project artefacts to FsNode DTOs.
  */
 @Component
+@RequiredArgsConstructor
 class FileNodeMapperImpl implements FileNodeMapper {
 
+    private final ProjectFiles projectFiles;
+
     @Override
-    public FsNode map(AProjectArtefact artefact) {
+    public FsNode map(AProjectArtefact artefact, FileRoot root) {
         var path = artefact.getInternalPath();
         var name = artefact.getName();
         String basePath = getParentPath(path);
+        var hidden = root.isProject() && projectFiles.isHidden(path);
 
         if (artefact.isFolder()) {
             return FolderNode.builder()
                     .path(path)
                     .name(name)
                     .basePath(basePath)
+                    .hidden(hidden)
                     .build();
         }
 
@@ -33,6 +40,7 @@ class FileNodeMapperImpl implements FileNodeMapper {
                 .path(path)
                 .name(name)
                 .basePath(basePath)
+                .hidden(hidden)
                 .extension(FileUtils.getExtension(name));
 
         var fileData = artefact.getFileData();

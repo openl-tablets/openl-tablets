@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -99,17 +100,20 @@ class ExcelFilesProjectCreatorTest {
     }
 
     @Test
-    void keepsMacOSResourceForksOutsideRuleModules() throws Exception {
+    void leavesTheIgnoredPathsSuchAsMacOSResourceForksOut() throws Exception {
         var workbook = projectFile("Main.xlsx", "workbook");
         var resourceFork = projectFile("__MACOSX/._Main.xlsx", "metadata");
-        var creator = creator(workbook, resourceFork);
+        var lockFile = projectFile("~$Main.xlsx", "lock");
+        var ignoredPaths = IgnoredPaths.of("**/__MACOSX/**, **/._*, **/~$*");
+        var creator = new ExcelFilesProjectCreator(mock(Repository.class), "Project", "", mock(UserWorkspace.class),
+                "Create Project", path -> !ignoredPaths.matches(path), Map.of(), workbook, resourceFork, lockFile);
 
         try (var builders = mockConstruction(RulesProjectBuilder.class)) {
             var builder = creator.getProjectBuilder();
             var names = ArgumentCaptor.forClass(String.class);
-            verify(builder, times(3)).addFile(names.capture(), any(InputStream.class));
+            verify(builder, times(2)).addFile(names.capture(), any(InputStream.class));
 
-            assertEquals(List.of("rules.xml", "rules/Main.xlsx", "__MACOSX/._Main.xlsx"), names.getAllValues());
+            assertEquals(List.of("rules.xml", "rules/Main.xlsx"), names.getAllValues());
         } finally {
             creator.destroy();
         }

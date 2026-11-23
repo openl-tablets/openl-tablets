@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -28,6 +29,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.ProjectFiles;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -75,7 +77,7 @@ class ProjectFilesEditLockTest {
         descriptorCleaner = mock(ProjectDescriptorCleaner.class);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), descriptorCleaner, new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
-                IgnoredPaths.of(null), false);
+                IgnoredPaths.of(null), ProjectFiles.of(null, null), false);
     }
 
     @Test
@@ -108,6 +110,24 @@ class ProjectFilesEditLockTest {
         verify(project).tryLockOrThrow();
         verify(repository).save(any(FileData.class), any(), eq(ChangesetType.DIFF));
         verify(project).unlock();
+    }
+
+    /** The files a replace reads, the protected ones it gives back among them, are read under the lock it commits under. */
+    @Test
+    void replaceOfClosedProjectReadsItsFilesUnderTheLock() throws Exception {
+        closedProject();
+        projectWithFile("a.txt");
+        var projectData = new FileData();
+        projectData.setName("Project1");
+        when(project.getFileData()).thenReturn(projectData);
+        var order = inOrder(project);
+
+        service.uploadFiles(root, "", List.of(new ProjectFilesService.UploadedFile("b.txt", new byte[0])),
+                ConflictPolicy.REPLACE);
+
+        order.verify(project).tryLockOrThrow();
+        order.verify(project).getArtefacts();
+        order.verify(project).unlock();
     }
 
     @Test

@@ -1,7 +1,12 @@
-HTTP/1.1 404
+HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "code": "openl.error.404.file.not.found.message",
-  "message": "***"
+  "type": "file",
+  "path": "EPBDS-16755/uploaded/pom.xml",
+  "name": "pom.xml",
+  "basePath": "EPBDS-16755/uploaded",
+  "extension": "xml",
+  "size": "*",
+  "lastModified": "*"
 }
