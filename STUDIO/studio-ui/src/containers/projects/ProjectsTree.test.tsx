@@ -12,7 +12,6 @@ import type { Repository } from '../../types/repositories'
 import { listingQueryOf } from './projectListing'
 import { mavenProjectOf } from '../../services/mavenDependencies'
 import { hasSearchScope, searchFor, searchScope } from '../../testing/search'
-import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 import { useSettingsStore } from '../../store'
 
 vi.mock('../../services/repositories', () => ({ getProject: vi.fn(), getProjectFiles: vi.fn() }))
@@ -43,7 +42,7 @@ const { appearance, drawnTrees, room, treeScrollTo, treeSizes } = vi.hoisted(() 
     // The room the rail gives the tree: jsdom lays nothing out, so none until a test lays it out.
     room: { height: 0, width: 0 },
     drawnTrees: [] as unknown[],
-    // The height the tree was drawn in and how far it scrolls sideways, each time it was drawn.
+    // The height the tree was drawn in and how far it was told to scroll sideways, each time it was drawn.
     treeSizes: [] as Array<{ height: unknown, scrollWidth: unknown }>,
     // What the tree was asked to bring into sight.
     treeScrollTo: vi.fn(),
@@ -1003,6 +1002,9 @@ describe('ProjectsTree', () => {
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
         expect(screen.getByTestId('tree-files-error-p1')).toHaveTextContent('no access')
+        // A long error ends in an ellipsis and gives way to Retry, which stays in the rail.
+        expect(screen.getByTitle('no access')).toHaveTextContent('no access')
+        expect(screen.getByTestId('tree-files-retry-p1')).toBeInTheDocument()
     })
 
     it('reads again the files of a project in the workspace when the workspace changes, but not of a closed one', async () => {
@@ -1351,7 +1353,7 @@ describe('ProjectsTree', () => {
         expect(treeSizes.at(-1)).toEqual({ height: undefined, scrollWidth: undefined })
     })
 
-    it('draws a screenful once laid out, scrolling sideways as far as the widest row in sight', async () => {
+    it('draws a screenful once laid out, keeping to the width of the rail however long a name is', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         const longName = 'a-file-whose-name-runs-far-past-the-edge-of-the-rail.txt'
         vi.mocked(getProjectFiles).mockResolvedValue([
@@ -1360,16 +1362,27 @@ describe('ProjectsTree', () => {
         Object.assign(room, { height: 300, width: 200 })
         await renderTree()
 
-        // The room of the rail, and at least as wide as it.
-        expect(treeSizes.at(-1)).toEqual({ height: 300, scrollWidth: 200 })
+        expect(treeSizes.at(-1)).toEqual({ height: 300, scrollWidth: undefined })
 
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        expect(treeSizes.at(-1)?.scrollWidth).toBeGreaterThanOrEqual(RAIL_INDENT + railRowWidth(longName))
 
-        // A folded row is out of sight: the tree scrolls no further than the rows it shows.
-        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
-        expect(treeSizes.at(-1)).toEqual({ height: 300, scrollWidth: 200 })
+        // The tree never scrolls sideways: the long name ends in an ellipsis, and names itself in full when pointed at.
+        expect(treeSizes.at(-1)).toEqual({ height: 300, scrollWidth: undefined })
+        expect(screen.getByTitle(longName)).toHaveTextContent(longName)
+    })
+
+    it('names a group in full when pointed at, as a long name ends in an ellipsis', async () => {
+        await renderTree()
+
+        expect(screen.getByTitle('Design')).toHaveTextContent('Design')
+    })
+
+    it('names a project in full when pointed at, as a long name ends in an ellipsis', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+
+        expect(screen.getByTitle('Alpha')).toHaveTextContent('Alpha')
     })
 
     it('builds the rows of the files of a project once for each read, and again in another theme or density', async () => {
