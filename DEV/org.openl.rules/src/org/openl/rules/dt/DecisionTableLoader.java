@@ -431,6 +431,11 @@ public class DecisionTableLoader {
         return count;
     }
 
+    private static boolean returnsArray(@NonNull DecisionTable decisionTable) {
+        var type = decisionTable.getType();
+        return type != null && type.isArray();
+    }
+
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
                                                   DecisionTable decisionTable,
                                                   IBindingContext bindingContext) throws SyntaxNodeException {
@@ -506,7 +511,8 @@ public class DecisionTableLoader {
             try {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor(
                         !DecisionTableHelper.isSmart(tableSyntaxNode)
-                                && !DecisionTableHelper.isSimple(tableSyntaxNode));
+                                && !DecisionTableHelper.isSimple(tableSyntaxNode),
+                        returnsArray(decisionTable));
                 IGridTable convertedTable = dtlc.convertTable(toParse);
                 toParse = LogicalTableHelper.logicalTable(convertedTable);
                 tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale(), transpose);

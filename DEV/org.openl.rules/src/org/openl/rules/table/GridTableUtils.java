@@ -31,24 +31,58 @@ public final class GridTableUtils {
     }
 
     /**
-     * Returns all regions of a table.
+     * Returns all regions of a table: the region of each cell of the sheet its cells cover.
+     *
+     * <p>A cell of the table that covers several cells of the sheet, such as the values a rule returns as one array,
+     * gives the region of each of them. A merged region is given once.
      *
      * @param table the table with regions.
-     * @return a the regions of the table.
+     * @return a the regions of the table, row by row.
      */
-    public static List<IGridRegion> getGridRegions(ILogicalTable table) {
-        var height = table.getHeight();
-        var width = table.getWidth();
+    public static @NonNull List<@NonNull IGridRegion> getGridRegions(@NonNull ILogicalTable table) {
         var regions = new ArrayList<IGridRegion>();
-
-        // Go through all possible cells
-        for (var row = 0; row < height; row++) {
-            for (var column = 0; column < width; column++) {
-                var cell = table.getCell(column, row);
-                regions.add(cell.getAbsoluteRegion());
+        var top = 0;
+        for (var row = 0; row < table.getHeight(); row++) {
+            var height = table.getRowHeight(row);
+            var left = 0;
+            for (var column = 0; column < table.getWidth(); column++) {
+                var width = table.getColumnWidth(column);
+                addBlockRegions(regions, table.getSource(), left, top, width, height);
+                left += width;
             }
+            top += height;
         }
         return regions;
+    }
+
+    /**
+     * Adds the regions of the cells of a block of the grid that no region added before covers.
+     *
+     * <p>A region merged across the edge of the block is added by the first block it reaches only.
+     */
+    private static void addBlockRegions(@NonNull List<@NonNull IGridRegion> regions,
+                                        @NonNull IGridTable grid,
+                                        int left,
+                                        int top,
+                                        int width,
+                                        int height) {
+        for (var row = top; row < top + height; row++) {
+            for (var column = left; column < left + width; column++) {
+                var cell = grid.getCell(column, row);
+                if (!covers(regions, cell.getAbsoluteColumn(), cell.getAbsoluteRow())) {
+                    regions.add(cell.getAbsoluteRegion());
+                }
+            }
+        }
+    }
+
+    private static boolean covers(@NonNull List<@NonNull IGridRegion> regions, int column, int row) {
+        for (var region : regions) {
+            if (GridRegionUtils.contains(region, column, row)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Whether the two cells belong to one merged region. */

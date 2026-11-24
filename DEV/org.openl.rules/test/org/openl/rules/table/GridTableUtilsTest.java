@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.datatype.binding.MockGridTable;
+import org.openl.rules.dt.DecisionTableHelper;
 
 /**
  * Created by ymolchan on 14.07.2014.
@@ -68,6 +69,20 @@ class GridTableUtilsTest {
         assertEquals(2, regions.size());
         var expected = Arrays.asList(mr(0, 0, 1, 0), mr(0, 1, 1, 1));
         assertEquals(expected, regions);
+    }
+
+    @Test
+    void getGridRegionsMergedAcrossLogicalRows() {
+        // The first column splits the table into two rows, and the second column is merged over both of them.
+        var grid = DecisionTableHelper.createVirtualGrid();
+        grid.setCellValue(0, 0, "a");
+        grid.setCellValue(1, 0, "b");
+        grid.setCellValue(0, 1, "c");
+        grid.addMergedRegion(mr(0, 1, 1, 1));
+        var table = LogicalTableHelper.logicalTable(new GridTable(0, 0, 1, 1, grid));
+        assertEquals(2, table.getHeight());
+        var regions = GridTableUtils.getGridRegions(table);
+        assertEquals(List.of(sr(0, 0), mr(0, 1, 1, 1), sr(1, 0)), regions);
     }
 
     @Test

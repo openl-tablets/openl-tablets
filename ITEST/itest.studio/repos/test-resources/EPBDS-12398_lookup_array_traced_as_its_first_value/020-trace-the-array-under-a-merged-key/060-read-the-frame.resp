@@ -1,0 +1,101 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "parameters": [
+    {
+      "name": "param1",
+      "description": "Integer",
+      "lazy": false,
+      "value": 200
+    },
+    {
+      "name": "param2",
+      "description": "String",
+      "lazy": false,
+      "value": "bbbb"
+    },
+    {
+      "name": "param3",
+      "description": "String",
+      "lazy": false,
+      "value": "CCT"
+    }
+  ],
+  "context": {
+    "name": "context",
+    "description": "DefaultRulesRuntimeContext",
+    "lazy": false,
+    "value": {
+      "currentDate": null,
+      "requestDate": null,
+      "lob": null,
+      "nature": null,
+      "usState": null,
+      "country": null,
+      "usRegion": null,
+      "currency": null,
+      "lang": null,
+      "region": null,
+      "caProvince": null,
+      "caRegion": null,
+      "locale": null
+    }
+  },
+  "result": {
+    "name": "return",
+    "description": "Double[]",
+    "lazy": true,
+    "parameterId": "###",
+    "type": "Double[]"
+  },
+  "steps": [
+    {
+      "ref": "R4",
+      "label": "R4",
+      "status": "executed",
+      "value": {
+        "name": "R4",
+        "description": "Double[]",
+        "lazy": true,
+        "parameterId": "###",
+        "type": "Double[]"
+      }
+    }
+  ],
+  "decision": {
+    "firedRules": [
+      "R4"
+    ],
+    "conditions": [
+      {
+        "condition": "HC1",
+        "rule": "R3",
+        "matched": true
+      },
+      {
+        "condition": "C1",
+        "rule": "R1",
+        "matched": false
+      },
+      {
+        "condition": "C1",
+        "rule": "R2",
+        "matched": true
+      },
+      {
+        "condition": "C2",
+        "rule": "R2",
+        "matched": true
+      }
+    ]
+  },
+  "ruleNames": [
+    "R1",
+    "R2",
+    "R3",
+    "R4"
+  ],
+  "errors": []
+}
+

@@ -46,9 +46,10 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTransform
                              @NonNull IGridTable lookupValuesTable,
                              int retTableWidth,
                              int @NonNull [] hConditionRows,
+                             int @NonNull [] groupStarts,
                              int firstVerticalColumn,
-                             int[] horizontalHeaderOffsets) {
-        super(entireTable, lookupValuesTable, retTableWidth, hConditionRows);
+                             int @NonNull [] horizontalHeaderOffsets) {
+        super(entireTable, lookupValuesTable, retTableWidth, hConditionRows, groupStarts);
         this.firstVerticalColumn = firstVerticalColumn;
         this.horizontalHeaderOffsets = horizontalHeaderOffsets;
     }

@@ -1,0 +1,47 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "suspended",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "instance": 0,
+      "uri": "${PROJECT_BUSINESS_NAME}/EPBDS-7689_ExternalConditions_AdditionalCases.xlsx?sheet=%D0%9B%D0%B8%D1%81%D1%821&range=C118:I121",
+      "tableId": "***",
+      "name": "SmartMyLookup",
+      "kind": "decisionTable",
+      "active": true,
+      "completed": true,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R1",
+          "label": "R1",
+          "status": "pending"
+        },
+        {
+          "ref": "R2",
+          "label": "R2",
+          "status": "pending"
+        },
+        {
+          "ref": "R3",
+          "label": "R3",
+          "status": "pending"
+        },
+        {
+          "ref": "R4",
+          "label": "R4",
+          "status": "executed",
+          "durationMillis": "*"
+        }
+      ],
+      "durationMillis": "*",
+      "selfMillis": "*"
+    }
+  ],
+  "sessionId": "***"
+}
+
