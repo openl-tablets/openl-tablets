@@ -3,6 +3,8 @@ package org.openl.rules.dt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
+import static org.openl.rules.table.GridTableUtils.isSameMergedCell;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
@@ -4548,14 +4551,21 @@ public final class DecisionTableHelper {
         return true;
     }
 
-    private static int calculateRowsCount(ILogicalTable originalTable, int column, int height) {
-        var h = 0;
-        var k = 0;
-        while (h < height && h < originalTable.getSource().getHeight()) {
-            h = h + originalTable.getSource().getCell(column, h).getHeight();
-            k++;
+    /**
+     * Counts the cells of the column in its first rows: a cell merged down over several rows counts once.
+     *
+     * <p>A cell is told from the one above it by its merged region, so the count is the same whichever column of a
+     * merged region the column is.
+     */
+    private static int calculateRowsCount(@NonNull ILogicalTable originalTable, int column, int height) {
+        var source = originalTable.getSource();
+        var count = 0;
+        for (var row = 0; row < Math.min(height, source.getHeight()); row++) {
+            if (row == 0 || !isSameMergedCell(source.getCell(column, row - 1), source.getCell(column, row))) {
+                count++;
+            }
         }
-        return k;
+        return count;
     }
 
     private static class CellValue {

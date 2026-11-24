@@ -1,5 +1,7 @@
 package org.openl.rules.dt;
 
+import org.jspecify.annotations.NonNull;
+
 import org.openl.rules.table.IGridTable;
 
 /**
@@ -40,12 +42,13 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTransform
     private final int firstVerticalColumn;
     private final int[] horizontalHeaderOffsets;
 
-    LookupHeadersTransformer(IGridTable entireTable,
-                             IGridTable lookupValuesTable,
+    LookupHeadersTransformer(@NonNull IGridTable entireTable,
+                             @NonNull IGridTable lookupValuesTable,
                              int retTableWidth,
+                             int @NonNull [] hConditionRows,
                              int firstVerticalColumn,
                              int[] horizontalHeaderOffsets) {
-        super(entireTable, lookupValuesTable, retTableWidth);
+        super(entireTable, lookupValuesTable, retTableWidth, hConditionRows);
         this.firstVerticalColumn = firstVerticalColumn;
         this.horizontalHeaderOffsets = horizontalHeaderOffsets;
     }

@@ -3,15 +3,16 @@ package org.openl.rules.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * @author Andrei Ostrovski, Yury Molchan
  */
-public class GridTableUtils {
-
-    private GridTableUtils() {
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class GridTableUtils {
 
     /**
      * Extracts original table.
@@ -48,6 +49,15 @@ public class GridTableUtils {
             }
         }
         return regions;
+    }
+
+    /** Whether the two cells belong to one merged region. */
+    public static boolean isSameMergedCell(@NonNull ICell cell, @NonNull ICell other) {
+        var region = cell.getRegion();
+        var otherRegion = other.getRegion();
+        return region != null && otherRegion != null
+                && region.getTop() == otherRegion.getTop()
+                && region.getLeft() == otherRegion.getLeft();
     }
 
     public static boolean isSingleCellTable(ILogicalTable table) {

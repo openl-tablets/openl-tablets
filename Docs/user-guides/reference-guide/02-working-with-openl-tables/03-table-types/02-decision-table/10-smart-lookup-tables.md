@@ -14,7 +14,7 @@ Condition matching algorithm for smart lookup tables is the same as for smart ru
 
 Boolean conditions can be used in the smart lookup tables as column headers. For more information on these conditions, see [Smart Rules Table](05-smart-rules-tables.md#smart-rules-table).
 
-The number of horizontal conditions is determined by the height of the first column title cell. This means that title cells of the vertical conditions must be merged on all rows which go for horizontal conditions.
+Title cells of the vertical conditions must be merged on all rows that hold horizontal condition values. Each horizontal condition takes one of these rows, or several rows when its values are merged down, as described in [Merged Horizontal Condition Values](08-lookup-tables-overview.md#merged-horizontal-condition-values).
 
 The following is an example of a smart lookup table with several horizontal conditions:
 

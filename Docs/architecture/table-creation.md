@@ -205,8 +205,9 @@ same way, and the server refuses any write that would leave either one inside th
 A lookup is read where a row and a column cross.
 
 The leading arguments run down the left, one column each; the trailing ones run across the top, one row each. The
-corner where the two meet is written as a merged cell, and its height is precisely what tells OpenL how many
-arguments are horizontal — so the corner's rows and columns always add up to the signature.
+corner where the two meet is written as a merged cell over the rows of the horizontal arguments, one row each in a new
+table, which is how OpenL tells how many arguments are horizontal — so the corner's rows and columns always add up to
+the signature.
 
 The corner is kept as square as it can be and gains a row before a column: two arguments give 1×1, three 2×1,
 five 3×2. Fewer than two arguments cannot form a lookup at all.
@@ -281,8 +282,8 @@ The behaviour that looks arbitrary is not; each rule is the compiler's:
 
 - A blank row ends a table and a blank column cuts it off before the columns beyond it, so neither may be written.
   A line an existing merge spans into is not blank — the merge keeps it part of the table.
-- The height of a lookup's top-left cell is the number of horizontal arguments, so that cell must be merged, and
-  a row of the band left empty would change the count.
+- A lookup's top-left cell spans the rows of the horizontal arguments, one row each in a new table, so that cell
+  must be merged, and a row of the band left empty would change the count.
 - A Properties table compiles only when it declares `scope`, so that row is there from the start.
 - A Spreadsheet needs at least one step, a lookup at least one row to look up.
 - A table name becomes an identifier, so it is validated as one.
