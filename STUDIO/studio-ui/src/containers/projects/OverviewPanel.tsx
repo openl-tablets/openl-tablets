@@ -85,8 +85,8 @@ const useStyles = createStyles(({ css, token }) => ({
     lockBanner: css`
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 12px;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
         border: 1px solid ${token.colorWarningBorder};
         border-radius: ${token.borderRadius}px;
         background: ${token.colorWarningBg};
@@ -102,8 +102,7 @@ const useStyles = createStyles(({ css, token }) => ({
     sectionTitle: css`
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        margin: 0 0 8px;
+        margin: 0 0 ${token.marginXS}px;
     `,
     sectionTitleText: css`
         display: inline-flex;
@@ -226,7 +225,7 @@ const useStyles = createStyles(({ css, token }) => ({
         margin: 0;
     `,
     metaRow: css`
-        padding: 10px 0;
+        padding: ${token.paddingSM}px 0;
         border-top: 1px solid ${token.colorBorderSecondary};
 
         &:first-of-type {
@@ -262,14 +261,8 @@ const useStyles = createStyles(({ css, token }) => ({
     metaMuted: css`
         color: ${token.colorTextTertiary};
     `,
-    statusValue: css`
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    `,
     pattern: css`
-        padding: 6px 8px;
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
         border: 1px solid ${token.colorBorderSecondary};
         border-radius: ${token.borderRadiusSM}px;
         background: ${token.colorFillQuaternary};
@@ -1553,10 +1546,8 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
         <div className={styles.right} data-testid="overview-right">
             <dl className={styles.meta}>
                 {!project.readOnly && metaRow(t('browser.overview.status'), (
-                    <span className={styles.statusValue}>
-                        {/* The project's own screen phrases a status its own way — see STATUS_META. */}
-                        <StatusPill status={project.status} />
-                    </span>
+                    // The project's own screen phrases a status its own way — see STATUS_META.
+                    <StatusPill status={project.status} />
                 ))}
                 {metaRow(t('browser.overview.repository'), <RepoBadge className={styles.metaMuted} name={repoLabel} type={repoType} />)}
                 {coordinates && metaRow(
@@ -1701,7 +1692,6 @@ export const OverviewPanel = ({
                     <Alert
                         showIcon
                         data-testid="overview-descriptor-error"
-                        style={{ marginBottom: 12 }}
                         title={t('browser.overview.descriptor_read_failed')}
                         type="warning"
                     />

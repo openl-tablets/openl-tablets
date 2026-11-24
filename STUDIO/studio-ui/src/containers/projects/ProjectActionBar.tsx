@@ -17,7 +17,7 @@ const TITLE_MIN = 80
 /** The gap of the title row the bar sits in — kept in sync with `titleRow` in {@link ProjectDetail}. */
 const TITLE_ROW_GAP = 12
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, token }) => ({
     bar: css`
         position: relative;
         display: flex;
@@ -41,10 +41,9 @@ const useStyles = createStyles(({ css }) => ({
     overflow: css`
         display: flex;
         flex-direction: column;
-        align-items: stretch;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
         min-width: 180px;
-        padding: 4px;
+        padding: ${token.paddingXXS}px;
 
         button {
             justify-content: flex-start;
