@@ -11,8 +11,10 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -26,7 +28,8 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.ZipUtils;
 
 /**
- * Finds the OpenL projects and deployments of the classpath for {@link JarLocalRepository}.
+ * Finds the OpenL projects and deployments of the classpath, for {@link JarLocalRepository} and for the deployment of
+ * the classpath to another repository.
  *
  * <p>A jar with {@code rules.xml}, {@code deployment.xml} or {@code deployment.yaml} at its root is a project or a
  * deployment, and so is a zip archive in the {@code /openl/} folder of the classpath.
@@ -39,17 +42,49 @@ import org.openl.util.ZipUtils;
  * @author Yury Molchan
  */
 @Slf4j
-final class ClasspathArchives {
+public final class ClasspathArchives {
 
     private static final List<String> DESCRIPTOR_FILES = List.of("rules.xml", "deployment.xml", "deployment.yaml");
     private static final String ARCHIVE_SEPARATOR = "!/";
     private static final String NESTED_SCHEME = "nested:";
     private static final String NESTED_SEPARATOR = "/!";
 
-    private final PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+    private final ResourcePatternResolver resourceResolver;
 
     /**
-     * Finds the projects and the deployments of the classpath.
+     * Finds the archives of the classpath of the thread context class loader.
+     */
+    public ClasspathArchives() {
+        this(new PathMatchingResourcePatternResolver());
+    }
+
+    /**
+     * @param resourceResolver the resolver of the classpath to search
+     */
+    public ClasspathArchives(ResourcePatternResolver resourceResolver) {
+        this.resourceResolver = resourceResolver;
+    }
+
+    /**
+     * Finds the projects and the deployments of the classpath, each once, in the order they are found.
+     *
+     * <p>A resource that cannot be read, such as one of a class loader handing out URIs of an unknown scheme, is
+     * skipped with a warning in the log.
+     *
+     * @return the paths of the archives
+     */
+    public List<Path> archives() {
+        var archives = new LinkedHashSet<Path>();
+        try {
+            scan(true, archives::add);
+        } catch (IOException e) {
+            log.warn("Failed to search the classpath for OpenL projects.", e);
+        }
+        return List.copyOf(archives);
+    }
+
+    /**
+     * Finds the projects and the deployments of the classpath, for a repository to hold them.
      *
      * @return the archives by their base names
      * @throws IllegalStateException when the classpath cannot be read, or two archives have base names the repository
@@ -60,26 +95,7 @@ final class ClasspathArchives {
         // The archives by the keys the repository looks names up by, so names it would take as one conflict here
         var byKey = new HashMap<String, Path>();
         try {
-            for (var descriptor : DESCRIPTOR_FILES) {
-                var locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + descriptor;
-                collect(storage, byKey, resourceResolver.getResources(locationPattern), true);
-            }
-            collect(storage, byKey, getArchives(), false);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to initialize a repository.", e);
-        }
-        return storage;
-    }
-
-    private void collect(Map<String, Path> storage,
-                         Map<String, Path> byKey,
-                         Resource[] resources,
-                         boolean descriptor) throws IOException {
-        for (var resource : resources) {
-            var path = toPath(resource.getURI(), descriptor);
-            if (path == null) {
-                log.warn("The resource '{}' is skipped: it is not in an archive that can be read in place.", resource);
-            } else {
+            scan(false, path -> {
                 var name = FileUtils.getBaseName(path.getFileName().toString());
                 var existed = byKey.putIfAbsent(AbstractArchiveRepository.keyOf(name), path);
                 if (existed == null) {
@@ -88,33 +104,81 @@ final class ClasspathArchives {
                     throw new IllegalStateException("The resources '%s' and '%s' conflict for the same '%s' name."
                             .formatted(existed, path, name));
                 }
+            });
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to initialize a repository.", e);
+        }
+        return storage;
+    }
+
+    /**
+     * Passes the path of every project and deployment of the classpath to the collector.
+     *
+     * @param lenient whether a resource or a location that cannot be read is skipped rather than failing the search
+     */
+    private void scan(boolean lenient, Consumer<Path> collector) throws IOException {
+        for (var descriptor : DESCRIPTOR_FILES) {
+            var locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + descriptor;
+            for (var resource : getResources(locationPattern, lenient)) {
+                collect(resource, true, lenient, collector);
             }
+        }
+        for (var resource : getResources("/openl/*.zip", lenient)) {
+            collect(resource, false, lenient, collector);
         }
     }
 
-    private Resource[] getArchives() throws IOException {
+    private void collect(Resource resource,
+                         boolean descriptor,
+                         boolean lenient,
+                         Consumer<Path> collector) throws IOException {
         try {
-            return resourceResolver.getResources("/openl/*.zip");
+            var path = toPath(resource.getURI(), descriptor);
+            if (path == null) {
+                log.warn("The resource '{}' is skipped: it is not in an archive that can be read in place.", resource);
+            } else {
+                collector.accept(path);
+            }
+        } catch (IOException | RuntimeException e) {
+            if (!lenient) {
+                throw e;
+            }
+            log.warn("The resource '{}' is skipped: it cannot be read.", resource, e);
+        }
+    }
+
+    private Resource[] getResources(String locationPattern, boolean lenient) throws IOException {
+        try {
+            return resourceResolver.getResources(locationPattern);
         } catch (FileNotFoundException ignored) {
-            return new Resource[0];// OK
+            return new Resource[0]; // the classpath has no such folder
+        } catch (IOException | RuntimeException e) {
+            if (!lenient) {
+                throw e;
+            }
+            log.warn("Failed to search the classpath for '{}'.", locationPattern, e);
+            return new Resource[0];
         }
     }
 
     /**
      * Finds the file of a project or of a deployment found on the classpath.
      *
-     * <p>A descriptor stands for the archive holding it, and an archive stands for itself. A resource in a folder of
-     * the classpath stands for itself. An archive nested into a Spring Boot 3.2+ executable jar stands for the path
-     * Spring Boot gives to it, which is read in place.
+     * <p>A descriptor stands for the archive holding it, and an archive stands for itself. An archive nested into a
+     * Spring Boot 3.2+ executable jar stands for the path Spring Boot gives to it, which is read in place.
      *
      * @param uri        the URI of the resource
      * @param descriptor whether the resource is a descriptor of a project or of a deployment
-     * @return {@code null} when a descriptor is in a folder of an archive rather than at the root of an archive, or
-     *         when an archive is nested in a way Spring Boot cannot read in place
+     * @return {@code null} when a descriptor is not at the root of an archive, such as one in a folder of the
+     *         classpath or in {@code BOOT-INF/classes} of Spring Boot, or when an archive is nested in a way Spring
+     *         Boot cannot read in place
      */
     @Nullable Path toPath(URI uri, boolean descriptor) throws IOException {
         var location = ArchiveLocation.of(uri);
-        if (descriptor && !location.entries().isEmpty()) {
+        if (descriptor) {
+            if (location.entries().isEmpty()) {
+                return null; // a descriptor in a folder of the classpath, which is no archive of its own
+            }
             location = location.parent();
         }
         if (location.entries().isEmpty()) {

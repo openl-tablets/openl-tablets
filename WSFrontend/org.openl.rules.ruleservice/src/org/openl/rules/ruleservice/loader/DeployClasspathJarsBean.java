@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.loader;
 
-import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
-
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
@@ -11,18 +9,17 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
+import org.openl.rules.repository.zip.ClasspathArchives;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.spring.config.ConditionalOnEnable;
 
 /**
  * Deploys the OpenL projects packed into the JAR files of the classpath to the deployment repository.
+ *
+ * <p>The projects are found as {@link ClasspathArchives} tells, so the projects packed into a Spring Boot executable
+ * jar are deployed too. Each project is deployed once.
  *
  * <p>The deployment starts when the application starts. It runs in the background and retries until the
  * deployment repository accepts every project.
@@ -42,8 +39,7 @@ public class DeployClasspathJarsBean {
     private final DeployStrategy deployStrategy;
     private final Thread deployThread;
     private final long retryPeriod;
-    PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-
+    ClasspathArchives archives = new ClasspathArchives(); // Package level for tests only
 
     public DeployClasspathJarsBean(RulesDeployerService rulesDeployerService,
                                    @Value("${ruleservice.datasource.deploy.classpath.jars}") DeployStrategy deployStrategy,
@@ -59,35 +55,9 @@ public class DeployClasspathJarsBean {
         deployThread.start();
     }
 
-    private void processResources(ArrayDeque<Path> filesToDeploy, String location) {
-        try {
-            for (var rulesXmlResource : resourceResolver.getResources(location)) {
-                addResourceFile(filesToDeploy, rulesXmlResource);
-            }
-        } catch (Exception e) {
-            log.warn("Failed to search resources.", e);
-        }
-    }
-
-    private static void addResourceFile(ArrayDeque<Path> filesToDeploy, Resource rulesXmlResource) {
-        try {
-            var resourceURL = rulesXmlResource.getURL();
-            if ("jar".equals(resourceURL.getProtocol())) {
-                resourceURL = ResourceUtils.extractJarFileURL(resourceURL);
-            }
-            filesToDeploy.add(ResourceUtils.getFile(resourceURL).toPath());
-        } catch (Exception e) {
-            log.warn("Failed to load a resource.", e);
-        }
-    }
-
     private void deployLoop() {
-        var filesToDeploy = new ArrayDeque<Path>(); // Package level for tests only
         try {
-            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + ProjectDescriptor.FILE_NAME);
-            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.XML.getFileName());
-            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.YAML.getFileName());
-            processResources(filesToDeploy, "/openl/*.zip");
+            var filesToDeploy = new ArrayDeque<>(archives.archives());
 
             var ready = false; // The deployment repository ready status
 
@@ -105,7 +75,7 @@ public class DeployClasspathJarsBean {
 
                 ready = deployFirst(filesToDeploy);
             }
-            log.info("All jars were deployed successfully.");
+            log.info("The deployment of the jars is finished.");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.info("Deploy jars task is interrupted.");
@@ -116,16 +86,21 @@ public class DeployClasspathJarsBean {
      * Deploys the first file of the queue and removes it from the queue. When the deployment fails, waits for the retry
      * period and leaves the file in the queue.
      *
+     * <p>A file the deployer rejects as invalid, such as an empty archive or no archive at all, is removed from the
+     * queue with an error in the log, since a retry cannot deploy it, and the files behind it are deployed.
+     *
      * @return {@code false} when the deployment failed
      */
     private boolean deployFirst(ArrayDeque<Path> filesToDeploy) throws InterruptedException {
+        var file = filesToDeploy.peek();
         try {
-            // Deploy a file from the queue
-            var file = filesToDeploy.peek();
             rulesDeployerService.deploy(file, isOverwrite());
-            // File was deployed successfully. Remove it from the queue.
             filesToDeploy.remove();
             log.info("File '{}' was deployed successfully.", file);
+            return true;
+        } catch (IllegalArgumentException e) {
+            filesToDeploy.remove();
+            log.error("File '{}' is not deployed: {}", file, e.getMessage(), e);
             return true;
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
