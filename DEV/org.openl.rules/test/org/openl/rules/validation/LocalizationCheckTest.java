@@ -12,6 +12,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -56,15 +57,28 @@ class LocalizationCheckTest {
     }
 
     @Test
-    void warnsAboutAFileTheEngineCannotReadRatherThanFailing() throws IOException {
+    void warnsAboutABrokenUnicodeEscapeOnItsKeyAndChecksTheOtherTexts() throws IOException {
         // A path written with single backslashes reads "\\users" as a broken \\u escape.
-        write("message.properties", "path = C:\\users\\me\n");
+        write("message.properties", "greeting = Hello\npath = C:\\users\\me \\u12G4\nfarewell = Bye\nfarewell = Bye\n");
 
-        var message = single(check().messages());
+        var messages = check().messages();
 
-        assertEquals("A \\u not followed by four hexadecimal digits breaks the file: none of its texts is read. "
-                + "Write \\\\u for a backslash before u.", message.getSummary());
+        assertEquals(2, messages.size(), () -> messages.stream().map(OpenLMessage::getSummary).toList().toString());
+        var message = (OpenLFileMessage) messages.getFirst();
+        assertEquals("""
+                A \\u not followed by four hexadecimal digits is read as written. Write \\\\u for a backslash \
+                before u.""", message.getSummary());
+        assertEquals(Severity.WARN, message.getSeverity());
         assertEquals(project.resolve("i18n/message.properties"), message.getFile());
+        assertEquals(2, message.getLine());
+        assertEquals("path", message.getKey());
+        assertEquals(List.of(new TextRange(2, 9, 2, 11), new TextRange(2, 19, 2, 23)), message.getPlaces());
+        // Each escape is a piece of the text, as read: "\\u" and "\\u12" of "C:\\usersme \\u12G4".
+        assertEquals(List.of("\\u", "\\u12"),
+                message.getPieces().stream().map(piece -> piece.code().substring(piece.start(), piece.end())).toList());
+        // The texts after the broken one are read and checked as usual.
+        assertEquals("Written twice, on lines 3 and 4: the last text wins.", messages.get(1).getSummary());
+        assertEquals("C:\\usersme \\u12G4", new OpenLMessageSource(loader).getMessageBundle(Locale.ROOT).msg("path"));
     }
 
     @Test

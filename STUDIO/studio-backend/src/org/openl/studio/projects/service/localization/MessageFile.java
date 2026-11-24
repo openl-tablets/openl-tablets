@@ -17,6 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.util.HashingUtils;
@@ -28,7 +30,8 @@ import org.openl.util.PropertiesUtils;
  *
  * <p>A message is read as the engine reads it ({@link PropertiesUtils}): only an equals sign or a colon ends a key, a
  * line without one is a key with no text, a line starting with {@code #} or {@code !} is a comment, and a backslash at
- * the end of a line continues the message on the next one.
+ * the end of a line continues the message on the next one. A <code>&#92;u</code> not followed by four hexadecimal
+ * digits is read as written, so it breaks no other message of the file.
  *
  * <p>A file that is not UTF-8 is read in the legacy encoding of Windows, the way a user wrote it. It is written in
  * UTF-8, whole, the first time it is written.
@@ -142,6 +145,7 @@ public record MessageFile(String tag,
      * Splits a file into its messages: the lines of the file, each joined with those it continues on, read one by
      * one as the engine reads them.
      */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Lines {
 
         private final byte[] bytes;
@@ -153,12 +157,7 @@ public record MessageFile(String tag,
         private long start = -1;
         private boolean comment;
 
-        Lines(byte[] bytes, Charset charset) {
-            this.bytes = bytes;
-            this.charset = charset;
-        }
-
-        void read() {
+        void read() throws IOException {
             var at = 0;
             while (at < bytes.length) {
                 var contentEnd = at;
@@ -187,7 +186,7 @@ public record MessageFile(String tag,
             return next;
         }
 
-        private void readLine(int from, int contentEnd, int next) {
+        private void readLine(int from, int contentEnd, int next) throws IOException {
             var content = new String(bytes, from, contentEnd - from, charset);
             if (start < 0) {
                 start = from;
@@ -202,19 +201,15 @@ public record MessageFile(String tag,
         }
 
         /** Reads the message whose lines were gathered, unless they are a comment or blank. */
-        private void take(long contentEnd, long end) {
+        private void take(long contentEnd, long end) throws IOException {
             if (!comment) {
-                try {
-                    for (var entry : PropertiesUtils.readEntries(new StringReader(logical.toString()))) {
-                        messages.add(new Message(entry.key(),
-                                entry.value(),
-                                separatorOf(logical),
-                                start,
-                                contentEnd,
-                                end));
-                    }
-                } catch (IOException e) {
-                    // A truncated escape at the end of the file: the engine fails on it too, and reads nothing of it.
+                for (var entry : PropertiesUtils.readEntries(new StringReader(logical.toString()))) {
+                    messages.add(new Message(entry.key(),
+                            entry.value(),
+                            separatorOf(logical),
+                            start,
+                            contentEnd,
+                            end));
                 }
             }
             logical.setLength(0);
