@@ -26,7 +26,11 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
   compilation errors and warnings (`.msg.txt`), Java and Groovy interop, engine internals. The warnings of a source
   include those OpenL Studio adds about its calls of `msg` (`MessageCallCheck`), checked against the messages of the
   project. A behavior users see is shown and tested once, in `Example-4-Reference-Guide` of `org.openl.rules.demo`,
-  never again here
+  never again here.
+  **A case there is never deleted because the behavior it checks changed** — not a workbook, a table, a test case
+  or a line of `.msg.txt`. Its expected result is updated instead, and a workbook that now compiles gets a test
+  table that shows it works, so the case keeps failing if the old behavior comes back by mistake. Update an expected
+  result only when the change is intended — a fix or a feature that asks for it — never to make a regression pass
 - **org.openl.rules.demo** — Demo projects OpenL Studio offers as templates, examples and tutorials. The jar ships
   inside the OpenL Studio war only: it is installed into the local repository but never deployed.
   `DemoProjectsTest` compiles every project and runs its test tables during the build, with dispatching validation
