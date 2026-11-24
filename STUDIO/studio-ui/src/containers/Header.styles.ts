@@ -9,7 +9,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             border-bottom: 1px solid ${token.colorSplit};
             display: flex;
             align-items: center;
-            padding: 0 15px;
+            padding: 0 ${token.padding}px;
             line-height: ${APP_HEADER_HEIGHT}px;
             height: ${APP_HEADER_HEIGHT}px;
         }
@@ -22,9 +22,8 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
 
         .header-logo {
-            display: block;
             line-height: 14px;
-            padding-right: 9px;
+            padding-right: ${token.paddingXS}px;
         }
 
         .header-logo img {
