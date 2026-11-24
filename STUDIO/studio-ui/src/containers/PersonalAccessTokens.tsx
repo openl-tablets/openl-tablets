@@ -6,6 +6,7 @@ import {
     DatePicker,
     Drawer,
     Empty,
+    Flex,
     Form,
     Input,
     Select,
@@ -18,6 +19,7 @@ import {
 } from 'antd'
 import { CopyOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useTheme } from 'antd-style'
 import dayjs, { Dayjs } from 'dayjs'
 import { apiCall } from '../services'
 import { SystemContext } from '../contexts'
@@ -51,6 +53,7 @@ export const PersonalAccessTokens: React.FC = () => {
     useDateFormats()
     const { modal, notification } = App.useApp()
     const { t } = useTranslation()
+    const token = useTheme()
     const { styles, cx } = useStyles()
     const { isPersonalAccessTokenEnabled } = useContext(SystemContext)
     const [tokens, setTokens] = useState<PersonalAccessToken[]>([])
@@ -235,14 +238,14 @@ export const PersonalAccessTokens: React.FC = () => {
     const renderDrawerExtra = () => {
         if (drawerMode === 'create') {
             return (
-                <>
-                    <Button onClick={closeDrawer} style={{ marginRight: 12 }}>
+                <Flex gap="small">
+                    <Button onClick={closeDrawer}>
                         {t('common:btn.cancel')}
                     </Button>
                     <Button loading={creating} onClick={form.submit} type="primary">
                         {t('common:btn.create')}
                     </Button>
-                </>
+                </Flex>
             )
         }
         return (
@@ -341,7 +344,7 @@ export const PersonalAccessTokens: React.FC = () => {
 
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <Flex align="center" justify="space-between" style={{ marginBottom: token.marginXS }}>
                 <Typography.Title level={4} style={{ marginTop: 0, marginBottom: 0 }}>
                     {t('pat:title')}
                 </Typography.Title>
@@ -353,8 +356,8 @@ export const PersonalAccessTokens: React.FC = () => {
                         {t('pat:create_token')}
                     </Button>
                 )}
-            </div>
-            <Typography.Paragraph style={{ marginBottom: 16 }} type="secondary">
+            </Flex>
+            <Typography.Paragraph style={{ marginBottom: token.margin }} type="secondary">
                 {t('pat:description')}
             </Typography.Paragraph>
             {!hasTokens ? (

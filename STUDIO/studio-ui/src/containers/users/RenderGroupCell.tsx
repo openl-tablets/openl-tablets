@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react'
 import { UserDetailsGroup } from '../../types/user'
 import { UserGroupType } from '../../constants'
-import { Button, Tag } from 'antd'
+import { Button, Flex, Tag } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { apiCall } from '../../services'
 import { GroupItem } from '../../types/group'
@@ -105,7 +105,7 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
     }, [userGroups, notMatchedExternalGroups, notMatchedExternalGroupsCount])
 
     return (
-        <div>
+        <Flex wrap gap={4}>
             {groups
                 && groups.length > 0
                 && groups.map((group) => (
@@ -119,7 +119,7 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
                         renderButton={(onOpenEditDrawer) => (
                             <Tag
                                 onClick={() => onClickGroup(group, onOpenEditDrawer)}
-                                style={{ cursor: 'pointer', margin: '2px' }}
+                                style={{ cursor: 'pointer' }}
                                 {...(group.color !== undefined && { color: group.color })}
                             >
                                 {group.name}
@@ -132,6 +132,6 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
                     {t('users:collapse_groups')}
                 </Button>
             ) : null}
-        </div>
+        </Flex>
     )
 }

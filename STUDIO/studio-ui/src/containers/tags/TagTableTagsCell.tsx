@@ -75,7 +75,6 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
     const tagInputStyle: React.CSSProperties = {
         width: 64,
         height: 22,
-        marginInlineEnd: 8,
         verticalAlign: 'top',
         cursor: 'text',
     }

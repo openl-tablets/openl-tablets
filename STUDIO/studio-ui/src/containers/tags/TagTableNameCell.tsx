@@ -33,23 +33,21 @@ export const TagTableNameCell: FC<TagTableNameCellProps> = ({ name, onChange }) 
     }
 
     return editing ? (
-        <div>
-            <Input
-                ref={inputRef}
-                onChange={onChangeName}
-                value={value}
-                onBlur={() => {
-                    toggleEdit()
-                    void handleChangeName(value)
-                }}
-                onPressEnter={() => {
-                    toggleEdit()
-                    void handleChangeName(value)
-                }}
-            />
-        </div>
+        <Input
+            ref={inputRef}
+            onChange={onChangeName}
+            value={value}
+            onBlur={() => {
+                toggleEdit()
+                void handleChangeName(value)
+            }}
+            onPressEnter={() => {
+                toggleEdit()
+                void handleChangeName(value)
+            }}
+        />
     ) : (
-        <button className="editable-cell-wrap" onClick={toggleEdit} style={{ paddingRight: 24 }} type="button">
+        <button className="editable-cell-wrap" onClick={toggleEdit} type="button">
             {value}
         </button>
     )

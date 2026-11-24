@@ -11,7 +11,7 @@ interface InitialUsersProps {
 export const InitialUsers: FC<InitialUsersProps> = ({ userGroups, showDefaultGroup = true }) => {
     const { t } = useTranslation()
     return (
-        <div>
+        <>
             <Divider titlePlacement="start">{t('security:configure_initial_users')}</Divider>
             <Typography.Paragraph>
                 {t('security:configure_initial_users_info')}
@@ -29,6 +29,6 @@ export const InitialUsers: FC<InitialUsersProps> = ({ userGroups, showDefaultGro
             {showDefaultGroup && (
                 <Select label={t('security:default_group')} name="defaultGroup" options={userGroups} />
             )}
-        </div>
+        </>
     )
 }

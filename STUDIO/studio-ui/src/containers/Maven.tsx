@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { App, Button, Divider, Form, Row, Space, Typography } from 'antd'
+import { App, Button, Divider, Flex, Form, Row, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Input, InputNumber, InputPassword } from '../components'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
@@ -160,7 +160,7 @@ export const Maven: React.FC = () => {
             <Typography.Title level={5} style={{ marginTop: 0 }}>
                 {t('maven:cache_title')}
             </Typography.Title>
-            <Space align="center" style={{ justifyContent: 'space-between', width: '100%' }}>
+            <Flex align="center" justify="space-between">
                 <Typography.Text data-testid="maven-cache-size">
                     {cacheSize === undefined
                         ? t('maven:cache_size_unknown')
@@ -169,7 +169,7 @@ export const Maven: React.FC = () => {
                 <Button danger loading={deleting} onClick={confirmDeleteCache}>
                     {t('maven:delete_cache')}
                 </Button>
-            </Space>
+            </Flex>
         </Form>
     )
 }

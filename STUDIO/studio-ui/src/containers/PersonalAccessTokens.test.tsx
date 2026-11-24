@@ -86,6 +86,7 @@ vi.mock('antd', async () => {
         notification: { error: vi.fn(), success: vi.fn() },
         Select: () => <select />,
         Space: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+        Flex: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
         Table: () => <table data-testid="pat-table" />,
         Tag: ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
         Tooltip: ({ open, title, children }: {

@@ -1,16 +1,18 @@
 import { Outlet } from 'react-router'
+import { Flex, theme } from 'antd'
 import MainMenu from '../components/MainMenu'
 import { GroupsProvider } from '../contexts'
 
 export const AdministrationLayout = () => {
+    const { token } = theme.useToken()
     return (
         <GroupsProvider>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
+            <Flex>
                 <MainMenu />
-                <div id="content" style={{ padding: 20, width: '100%' }}>
+                <div style={{ padding: token.paddingMD, width: '100%' }}>
                     <Outlet />
                 </div>
-            </div>
+            </Flex>
         </GroupsProvider>
     )
 }

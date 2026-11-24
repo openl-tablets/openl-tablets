@@ -22,7 +22,7 @@ export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {
 
     return (
         <>
-            <InfoCircleOutlined onClick={showModal} style={{ color: token.colorTextTertiary, marginLeft: 5 }} />
+            <InfoCircleOutlined onClick={showModal} style={{ color: token.colorTextTertiary, marginInlineStart: token.marginXXS }} />
             <Modal
                 footer={[<Button key="ok" onClick={handleClose}>OK</Button>]}
                 onCancel={handleClose}

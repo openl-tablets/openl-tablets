@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { apiCall } from '../../services'
-import { Button, Divider, Form, Select as AntdSelect } from 'antd'
+import { Button, Divider, Flex, Form, Select as AntdSelect } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { NONE_ROLE_VALUE, REPOSITORY_SEARCH, roleOptions } from './utils'
@@ -47,12 +47,12 @@ export const DeployRepositoriesTab: React.FC<{ selectedRepositories: string[] }>
                     style={{ width: '100%' }}
                 />
             </Form.Item>
-            <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+            <Divider size="middle" />
             <Form.List name="deployRepos">
                 {(fields, { add, remove }) => (
                     <>
                         {fields.map(({ key, name, ...restField }) => (
-                            <div key={key} style={{ display: 'flex', width: '100%', marginBottom: 8, gap: 8, alignItems: 'center' }}>
+                            <Flex key={key} align="center" gap="small" style={{ marginBottom: 8 }}>
                                 <Form.Item
                                     {...restField}
                                     name={[name, 'id']}
@@ -85,7 +85,7 @@ export const DeployRepositoriesTab: React.FC<{ selectedRepositories: string[] }>
                                     style={{ flexShrink: 0, alignSelf: 'flex-start' }}
                                     type="text"
                                 />
-                            </div>
+                            </Flex>
                         ))}
                         <Form.Item style={{ marginTop: 24 }}>
                             <Button block icon={<PlusOutlined />} onClick={() => add()} type="dashed">
