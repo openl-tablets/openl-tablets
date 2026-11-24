@@ -27,8 +27,12 @@ Test (after all changes)
 ⬜ 8. Add test rows C1..Cn (testing)
 ⬜ 9. Run the full suite once on the saved revision
 
+Guidance (after the tests and their fixes) — one item per changed project
+⬜ 10. <update | create> the AGENTS.md of <project> (project-guidance)
+⬜ 11. <update | create> the AGENTS.md of <another changed project> (project-guidance)
+
 Finish
-⬜ 10. Check dependent projects' suites, then ask to merge <task branch> → <base>; merge only on your "yes" (branching)
+⬜ 12. Check dependent projects' suites, then ask to merge <task branch> → <base>; merge only on your "yes" (branching)
 
 Test cases
 - C1 (from AC): <input> → <expected>
@@ -60,6 +64,7 @@ Tests: <X/Y passed> on <project>, read from per-row detail.
 Verification case: <input> → expected <…> → actual <…> — <match | mismatch>.
 State: <branch and revision | local project saved>.
 Change log: <path | not used>.
+Guidance: <project>: <AGENTS.md created | updated: sections | unchanged — why>; a line per changed project.
 Deviations from the plan: <none | what and why>.
 Open problems: <none | problem — effect — decision needed, one per line>.
 Feedback: <none | category — what happened, one per line>.
