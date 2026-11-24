@@ -1,3 +1,6 @@
+To run OpenL Rule Services inside a Spring Boot application, see
+[OpenL Rule Services in Spring Boot](../user-guides/rule-services/spring-boot.md).
+
 ## Adding Spring Framework configurations
 
 OpenL Rule Services imports all Spring Framework configurations which are exist in

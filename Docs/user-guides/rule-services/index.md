@@ -16,6 +16,7 @@ This guide is organized into the following sections:
 
 - [OpenL Rule Services Configuration](configuration.md) - Basic configuration and setup
 - [Advanced Configuration and Customization](advanced-configuration.md) - Advanced features, customization, and integration
+- [OpenL Rule Services in Spring Boot](spring-boot.md) - Running the services in a Spring Boot application, as a web service or as a Java library
 
 ### Appendices
 
