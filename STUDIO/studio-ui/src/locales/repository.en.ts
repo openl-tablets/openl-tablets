@@ -45,7 +45,6 @@ i18next.addResourceBundle('en', 'repository', {
             level_repository: '[Repository]',
             level_branch: '[Branch]',
             apply: 'Apply',
-            refresh: 'Reload the tree',
             resize: 'Drag to resize',
             show_panel: 'Show the panel',
             hide_panel: 'Hide the panel',

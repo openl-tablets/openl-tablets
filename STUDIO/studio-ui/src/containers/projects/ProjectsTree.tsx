@@ -1,11 +1,11 @@
 import { plainText, storedSetting } from '../../utils/localStore'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Alert, Button, Empty, Skeleton, Tooltip, Tree, type GetRef } from 'antd'
-import { BranchesOutlined, PartitionOutlined, ReloadOutlined, TagOutlined } from '@ant-design/icons'
+import { BranchesOutlined, PartitionOutlined, TagOutlined } from '@ant-design/icons'
 import { createStyles, useTheme, useThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
-import { getProjectIndex, invalidateProjectIndex, projectSignature } from '../../services/projectIndex'
+import { getProjectIndex, projectSignature } from '../../services/projectIndex'
 import type { Project } from '../../types/projects'
 import { getProject, getProjectFiles } from '../../services/repositories'
 import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
@@ -40,6 +40,7 @@ import { GroupProjectsModal } from './GroupProjectsModal'
 import { isFiltered, selectProjects, type ListingQuery } from './projectListing'
 import { ClearFiltersButton } from './ClearFiltersButton'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
+import { useWorkspaceChanges } from '../../hooks/useWorkspaceChanges'
 import { useElementSize } from '../../hooks/useElementSize'
 import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 import { formatFileSize } from '../../utils/fileSize'
@@ -156,12 +157,12 @@ const shownContents = (
     ? contents
     : Object.fromEntries(Object.entries(contents).map(([projectId, read]) => [projectId, read.withoutHidden ?? read])))
 
-/** Ends a read of the files of a project, unless a refresh since has handed its place to another read. */
-const settle = (inFlight: Map<string, number>, projectId: string, begun: number): void => {
-    if (inFlight.get(projectId) === begun) {
-        inFlight.delete(projectId)
-    }
-}
+/** The states of a project kept in the workspace, whose files can change while the state stays the same. */
+const WORKSPACE_STATUSES: ReadonlySet<ProjectStatus> = new Set([
+    ProjectStatus.Local,
+    ProjectStatus.Opened,
+    ProjectStatus.Editing,
+])
 
 /** One empty list for a project without empty folders, so the memos built on it hold. */
 const NO_FOLDERS: string[] = []
@@ -598,11 +599,10 @@ export const ProjectsTree = ({
         load()
     }, [controlled, load, reloadToken])
 
-    // Files already read are read again where they stand: a row keeps what it shows until the fresh files replace it,
-    // so an open row neither empties nor jumps. A project is read again once at a time.
-    const rereading = useRef(new Map<string, number>())
-    // The projects whose files are read for the first time.
-    const reading = useRef(new Map<string, number>())
+    // The projects whose files are being read, the first time or again. Files already read are read again where they
+    // stand: a row keeps what it shows until the fresh files replace it, so an open row neither empties nor jumps. A
+    // project is read once at a time.
+    const inFlight = useRef(new Set<string>())
     // The projects asked to be read again while a read of them was on its way, which began before the change: they are
     // read once more when it is back. Bumped as such a read comes back.
     const readAgain = useRef(new Set<string>())
@@ -612,24 +612,27 @@ export const ProjectsTree = ({
             setReadsBack(count => count + 1)
         }
     }, [])
-    // Bumped by a refresh, which drops the files read so far: a read begun before it never replaces a newer one, nor
-    // holds back the read that replaces it. Each read in flight is kept with the refresh it began after.
-    const generation = useRef(0)
+    const readInto = useCallback((project: Project) => {
+        inFlight.current.add(project.id)
+        return readContents(project, project.id === currentProjectId ? currentFileChanges : undefined)
+            .then(read => setReadFiles(previous => ({ ...previous, [project.id]: read })))
+            .finally(() => {
+                inFlight.current.delete(project.id)
+                readBack(project.id)
+            })
+    }, [currentFileChanges, currentProjectId, readBack])
     const reread = useCallback((ids: string[]) => {
-        const stale = (projects ?? []).filter(project => ids.includes(project.id) && !rereading.current.has(project.id))
-        const begun = generation.current
-        for (const project of stale) {
-            rereading.current.set(project.id, begun)
-            void readContents(project, project.id === currentProjectId ? currentFileChanges : undefined)
-                .then(read => setReadFiles(previous => (begun === generation.current && project.id in previous
-                    ? { ...previous, [project.id]: read }
-                    : previous)))
-                .finally(() => {
-                    settle(rereading.current, project.id, begun)
-                    readBack(project.id)
-                })
-        }
-    }, [currentFileChanges, currentProjectId, projects, readBack])
+        (projects ?? [])
+            .filter(project => ids.includes(project.id) && !inFlight.current.has(project.id))
+            .forEach(project => void readInto(project))
+    }, [projects, readInto])
+
+    // Reads again the files of the projects whose files are read. A read on its way may have begun before the change,
+    // so its project is read once more when it is back.
+    const readFilesAgain = useCallback((ids: string[]) => {
+        ids.filter(id => inFlight.current.has(id)).forEach(id => readAgain.current.add(id))
+        reread(ids.filter(id => !inFlight.current.has(id) && contents[id] !== undefined))
+    }, [contents, reread])
 
     // A change the screen made is read again in the files of its project, so an open row lists what is there now.
     const seenToken = useRef(reloadToken)
@@ -638,20 +641,20 @@ export const ProjectsTree = ({
             return
         }
         seenToken.current = reloadToken
-        if (!currentProjectId) {
-            return
+        if (currentProjectId) {
+            readFilesAgain([currentProjectId])
         }
-        if (rereading.current.has(currentProjectId) || reading.current.has(currentProjectId)) {
-            readAgain.current.add(currentProjectId)
-        } else if (contents[currentProjectId]) {
-            reread([currentProjectId])
-        }
-    }, [contents, currentProjectId, reloadToken, reread])
+    }, [currentProjectId, readFilesAgain, reloadToken])
+
+    // The files of a project in the workspace change without its state changing: another tab, or a client such as an
+    // agent, writes them. So every change of the workspace has the files read of such a project read again.
+    useWorkspaceChanges(() => readFilesAgain((projects ?? [])
+        .filter(project => WORKSPACE_STATUSES.has(project.status))
+        .map(project => project.id)))
 
     // A project asked to be read again while a read of it was on its way is read once that read is back.
     useEffect(() => {
-        const due = [...readAgain.current]
-            .filter(id => !rereading.current.has(id) && !reading.current.has(id))
+        const due = [...readAgain.current].filter(id => !inFlight.current.has(id))
         due.forEach(id => readAgain.current.delete(id))
         if (due.length > 0) {
             reread(due)
@@ -768,21 +771,11 @@ export const ProjectsTree = ({
 
     /** Reads the files of a project the first time its row is opened; a read already on its way is not repeated. */
     const loadContents = useCallback(async (project: Project) => {
-        if (contents[project.id] || reading.current.has(project.id)) {
+        if (contents[project.id] || inFlight.current.has(project.id)) {
             return
         }
-        const begun = generation.current
-        reading.current.set(project.id, begun)
-        try {
-            const read = await readContents(project, project.id === currentProjectId ? currentFileChanges : undefined)
-            if (begun === generation.current) {
-                setReadFiles(previous => ({ ...previous, [project.id]: read }))
-            }
-        } finally {
-            settle(reading.current, project.id, begun)
-            readBack(project.id)
-        }
-    }, [contents, currentFileChanges, currentProjectId, readBack])
+        await readInto(project)
+    }, [contents, readInto])
 
     // The tree opens on what the screen shows — a project, or a file or folder of it — once each time that changes;
     // after that the user decides what is open. The groups holding the project are unfolded. For a file, so are the
@@ -869,8 +862,8 @@ export const ProjectsTree = ({
     const widest = useMemo(() => Math.ceil(widestRow(treeData, new Set(openKeys))), [openKeys, treeData])
     const scrollWidth = Math.max(widest, room.width)
 
-    // Which rows have been read is told to the tree rather than left to it, so a refresh that drops what
-    // was read has the rows read again instead of standing open and empty.
+    // Which rows have been read is told to the tree rather than left to it: a row counts as read while the files of
+    // its project are.
     const loadedKeys = useMemo(() => {
         const keys: string[] = []
         const walk = (list: GroupNode[]) => list.forEach(node => {
@@ -940,13 +933,29 @@ export const ProjectsTree = ({
             return undefined
         }
         if (read.error) {
+            // A failed read stays as it is until it is read again: the row offers that, for this project alone.
             return [{
                 key: `error:${project.id}`,
-                rowWidth: railRowWidth(read.error),
+                rowWidth: railRowWidth(`${read.error} ${t('home.retry')}`),
                 isLeaf: true,
                 selectable: false,
                 icon: null,
-                title: <span className={styles.node} data-testid={`tree-files-error-${project.id}`}>{read.error}</span>,
+                title: (
+                    <span className={styles.node} data-testid={`tree-files-error-${project.id}`}>
+                        {read.error}
+                        <Button
+                            data-testid={`tree-files-retry-${project.id}`}
+                            size="small"
+                            type="link"
+                            onClick={event => {
+                                event.stopPropagation()
+                                reread([project.id])
+                            }}
+                        >
+                            {t('home.retry')}
+                        </Button>
+                    </span>
+                ),
             }]
         }
         // A search shows the files it found in a project, and every file of a project found by its own name. The files
@@ -1072,18 +1081,15 @@ export const ProjectsTree = ({
         }
     }
 
-    const refresh = () => {
-        generation.current += 1
-        reading.current.clear()
-        rereading.current.clear()
-        setReadFiles({})
+    // The projects keep themselves current, so they are read again by hand only after a read failed.
+    const retry = () => {
         // When the screen supplies the projects, it owns the read: ask it to refresh and hand them down.
         // The controlled shape guarantees a refresh, so a supplied tree never falls back to reading itself.
         if (controlled) {
             onRefresh?.()
             return
         }
-        invalidateProjectIndex()
+        // A failed read is not remembered, so reading again asks the server anew.
         setSelfProjects(null)
         load()
     }
@@ -1102,7 +1108,17 @@ export const ProjectsTree = ({
         if (shownError) {
             return (
                 <div className={styles.state}>
-                    <Alert showIcon data-testid="projects-tree-error" title={shownError} type="error" />
+                    <Alert
+                        showIcon
+                        data-testid="projects-tree-error"
+                        title={shownError}
+                        type="error"
+                        action={(
+                            <Button data-testid="projects-tree-retry" onClick={retry} size="small">
+                                {t('home.retry')}
+                            </Button>
+                        )}
+                    />
                 </div>
             )
         }
@@ -1202,16 +1218,6 @@ export const ProjectsTree = ({
                             data-testid="projects-tree-group"
                             icon={<PartitionOutlined />}
                             onClick={() => setGrouping(true)}
-                            size="small"
-                            type="text"
-                        />
-                    </Tooltip>
-                    <Tooltip title={t('home.tree.refresh')}>
-                        <Button
-                            aria-label={t('home.tree.refresh')}
-                            data-testid="projects-tree-refresh"
-                            icon={<ReloadOutlined />}
-                            onClick={refresh}
                             size="small"
                             type="text"
                         />

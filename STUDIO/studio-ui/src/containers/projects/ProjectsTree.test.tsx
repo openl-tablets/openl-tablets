@@ -15,9 +15,16 @@ import { useSettingsStore } from '../../store'
 
 vi.mock('../../services/repositories', () => ({ getProject: vi.fn(), getProjectFiles: vi.fn() }))
 
+// The workspace pings the tree listens to, captured to fire by hand.
+const { pings } = vi.hoisted(() => ({ pings: { change: undefined as (() => void) | undefined } }))
+vi.mock('../../hooks/useWorkspaceChanges', () => ({
+    useWorkspaceChanges: (onChange: () => void) => {
+        pings.change = onChange
+    },
+}))
+
 vi.mock('../../services/projectIndex', async importOriginal => ({
     getProjectIndex: vi.fn(),
-    invalidateProjectIndex: vi.fn(),
     projectSignature: (await importOriginal<typeof import('../../services/projectIndex')>()).projectSignature,
 }))
 
@@ -82,7 +89,6 @@ vi.mock('@ant-design/icons', () => {
         HddOutlined: icon('hdd'),
         HistoryOutlined: icon('history'),
         PartitionOutlined: icon('partition'),
-        ReloadOutlined: icon('reload'),
         TagOutlined: icon('tag'),
     }
 })
@@ -120,10 +126,15 @@ vi.mock('antd', () => {
                             caret
                         </button>
                     )}
-                    <button disabled={node.selectable === false} onClick={() => onSelect(node.key)} type="button">
+                    {/* Like the real tree, the row is a span, so a title may hold a button of its own. */}
+                    <span
+                        aria-disabled={node.selectable === false}
+                        onClick={() => node.selectable !== false && onSelect(node.key)}
+                        role="button"
+                    >
                         {node.icon as never}
                         {node.title as never}
-                    </button>
+                    </span>
                     {expanded.includes(node.key) && node.children
                         && renderNodes(node.children, expanded, onSelect, onToggle, selected)}
                 </li>
@@ -171,10 +182,10 @@ vi.mock('antd', () => {
     }
     Empty.PRESENTED_IMAGE_SIMPLE = 'simple'
     const Skeleton = () => <div data-testid="tree-skeleton" />
-    const Alert = ({ title, ...rest }: Record<string, unknown>) => {
+    const Alert = ({ title, action, ...rest }: Record<string, unknown>) => {
         const { showIcon, type, ...dom } = rest
         void showIcon; void type
-        return <div {...dom}>{title as never}</div>
+        return <div {...dom}>{title as never}{action as never}</div>
     }
     const Typography = {
         Text: ({ children, ...rest }: Record<string, unknown>) => {
@@ -293,22 +304,23 @@ describe('ProjectsTree', () => {
         expect(screen.queryByText('Design')).not.toBeInTheDocument()
     })
 
-    it('asks the screen to refresh instead of reading the index when the projects are supplied', async () => {
+    it('asks the screen to read the projects again instead of reading the index when they are supplied', async () => {
         const onRefresh = vi.fn()
         render(
             <ProjectsTree
+                error="down"
                 filters={picks()}
                 onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={onRefresh}
-                projects={projects}
+                projects={[]}
                 repositories={repositories}
             />
         )
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
-        await userEvent.click(screen.getByTestId('projects-tree-refresh'))
+        await userEvent.click(screen.getByTestId('projects-tree-retry'))
 
         expect(onRefresh).toHaveBeenCalledTimes(1)
         expect(getProjectIndex).not.toHaveBeenCalled()
@@ -493,27 +505,6 @@ describe('ProjectsTree', () => {
 
         expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toBeInTheDocument()
         expect(treeScrollTo).toHaveBeenCalledWith({ key: 'file:p1:rules/Main.xlsx', align: 'auto' })
-    })
-
-    it('reads the files again when a refresh drops their first read, and still opens on the file', async () => {
-        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
-        const first = deferredFiles()
-        vi.mocked(getProjectFiles).mockReturnValueOnce(first.promise)
-        await renderTree({
-            currentFile: 'rules/Main.xlsx',
-            currentProjectId: 'p1',
-            onRefresh: vi.fn(),
-            projects,
-        })
-
-        // The reader refreshes the tree while the files the link needs are on their way.
-        await userEvent.click(screen.getByTestId('projects-tree-refresh'))
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        await act(async () => first.resolve([]))
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-
-        expect(getProjectFiles).toHaveBeenCalledTimes(2)
-        expect(screen.getByTestId('node-file:p1:rules/Main.xlsx')).toHaveAttribute('data-selected', 'true')
     })
 
     it('opens on the file once, leaving what the reader folds afterwards folded', async () => {
@@ -829,39 +820,6 @@ describe('ProjectsTree', () => {
         expect(getProjectFiles).toHaveBeenCalledTimes(2)
     })
 
-    it('keeps the files read after a refresh over a read begun before it', async () => {
-        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
-        const shown = {
-            currentProjectId: 'p1',
-            filters: picks(),
-            onClearFilters: vi.fn(),
-            onOpenGroup: vi.fn(),
-            onOpenProject: vi.fn(),
-            onRefresh: vi.fn(),
-            projects,
-            repositories,
-        }
-        const { rerender } = await renderTree({ ...shown, reloadToken: 1 })
-        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        // A read again begins, and the reader refreshes the tree while it is on its way.
-        const older = deferredFiles()
-        vi.mocked(getProjectFiles).mockReturnValueOnce(older.promise)
-        rerender(<ProjectsTree {...shown} reloadToken={2} />)
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        await userEvent.click(screen.getByTestId('projects-tree-refresh'))
-        vi.mocked(getProjectFiles).mockResolvedValueOnce([{ path: 'fresh.txt', name: 'fresh.txt', basePath: '', type: 'file' }])
-        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
-        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
-        expect(screen.getByTestId('tree-file-p1-fresh.txt')).toBeInTheDocument()
-
-        await act(async () => older.resolve([{ path: 'stale.txt', name: 'stale.txt', basePath: '', type: 'file' }]))
-
-        expect(screen.getByTestId('tree-file-p1-fresh.txt')).toBeInTheDocument()
-        expect(screen.queryByTestId('tree-file-p1-stale.txt')).toBeNull()
-    })
-
     it('marks no file of a project the screen does not show', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         const changes = new Map([['rules.xml', 'added' as const]])
@@ -991,6 +949,37 @@ describe('ProjectsTree', () => {
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
         expect(screen.getByTestId('tree-files-error-p1')).toHaveTextContent('no access')
+    })
+
+    it('reads again the files of a project in the workspace when the workspace changes, but not of a closed one', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        vi.mocked(getProjectFiles).mockClear()
+        vi.mocked(getProjectFiles).mockResolvedValue([{ path: 'fresh.txt', name: 'fresh.txt', basePath: '', type: 'file' }])
+
+        // Another tab, or an agent, wrote a file of the project being edited: its state stays the same.
+        await act(async () => pings.change?.())
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(vi.mocked(getProjectFiles).mock.calls.map(([projectId]) => projectId)).toEqual(['p1'])
+        expect(screen.getByTestId('tree-file-p1-fresh.txt')).toBeInTheDocument()
+    })
+
+    it('reads the files of a project again from the row that says they could not be read', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockRejectedValueOnce(new Error('no access'))
+        await renderTree()
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        await userEvent.click(screen.getByTestId('tree-files-retry-p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(screen.queryByTestId('tree-files-error-p1')).toBeNull()
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
     })
 
     it('groups by the levels the user stored, and a group shows what it holds without unfolding', async () => {
@@ -1172,7 +1161,7 @@ describe('ProjectsTree', () => {
     it('offers to clear the filters in its header row, which has no title', async () => {
         await renderTree({ filters: picks('status=EDITING') })
 
-        const header = screen.getByTestId('projects-tree-refresh').closest('div')
+        const header = screen.getByTestId('projects-tree-group').closest('div')
         expect(header?.firstElementChild).toContainElement(screen.getByTestId('projects-tree-clear-filters'))
         expect(header).not.toHaveTextContent('home.tree.title')
     })
@@ -1442,12 +1431,19 @@ describe('ProjectsTree', () => {
         expect(screen.getByTestId('projects-tree-no-match')).toBeInTheDocument()
     })
 
-    it('says so when the projects cannot be read', async () => {
+    it('says so when the projects cannot be read, and reads them again on Retry', async () => {
         vi.mocked(getProjectIndex).mockRejectedValue(new Error('nope'))
 
         await renderTree()
 
         expect(screen.getByTestId('projects-tree-error')).toHaveTextContent('nope')
+
+        vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: [], projectIndexHealth: {} })
+        await userEvent.click(screen.getByTestId('projects-tree-retry'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(screen.queryByTestId('projects-tree-error')).toBeNull()
+        expect(screen.getByText('Design')).toBeInTheDocument()
     })
 
     it('says why the screen supplying the projects could not read them', async () => {
