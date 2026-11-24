@@ -1,5 +1,6 @@
 package org.openl.rules.dt;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +19,8 @@ class ConditionFormulaComputedOnceTest {
 
     public interface Rules {
         Integer returnConditionParam(Integer a);
+
+        Integer[] filterAll(Integer[] xs);
     }
 
     private static Rules rules;
@@ -50,5 +53,11 @@ class ConditionFormulaComputedOnceTest {
     void aRuleThatDoesNotReturnComputesItsFormulaOnce() {
         assertEquals(33, rules.returnConditionParam(3));
         assertEquals(1, FormulaCalls.CALLS.get());
+    }
+
+    @Test
+    void aTableCalledForEachElementFromARuleComputesTheFormulaForEachElement() {
+        assertArrayEquals(new Integer[]{5, null}, rules.filterAll(new Integer[]{5, -3}));
+        assertArrayEquals(new Integer[]{null, 5}, rules.filterAll(new Integer[]{-3, 5}));
     }
 }
