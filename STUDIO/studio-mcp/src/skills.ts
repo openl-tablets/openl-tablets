@@ -8,14 +8,14 @@
  * The skills are part of the server and never change while it runs.
  */
 
-import { SkillsExtension, memorySkillFiles } from "@modelcontextprotocol/server/ext/skills";
-import files from "virtual:skills";
+import { SkillsExtension, memorySkillFiles } from '@modelcontextprotocol/server/ext/skills'
+import files from 'virtual:skills'
 
 /**
  * The skills, which `attach` serves from a server before it connects. A skill the extension refuses fails the start
  * rather than going missing.
  */
-export const SKILLS = await SkillsExtension.load(memorySkillFiles(files), { strict: true });
+export const SKILLS = await SkillsExtension.load(memorySkillFiles(files), { strict: true })
 
 /**
  * The skills, by name, URI and description, for the server instructions, which tell an agent about them when its
@@ -31,6 +31,6 @@ way: a relative path resolves against the folder of its \`SKILL.md\`. A question
 root cause before \`planning\` plans any fix.
 
 ${SKILLS.entries
-  .map(({ uri, frontmatter: { name, description } }) =>
-    `- \`${name}\` (\`${uri}\`) — ${description.replaceAll(/\s+/g, " ").trim()}`)
-  .join("\n")}`;
+    .map(({ uri, frontmatter: { name, description } }) =>
+        `- \`${name}\` (\`${uri}\`) — ${description.replaceAll(/\s+/g, ' ').trim()}`)
+    .join('\n')}`

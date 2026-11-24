@@ -3,315 +3,340 @@
  * arguments before any request, and the errors of OpenL Studio as the agent reads them.
  */
 
-import { describe, it, expect } from "vitest";
-import { pageOf, projectView } from "../testing/openl-api-mocks.js";
-import { bodyOf } from "../testing/mock-http.js";
-import { executeTool, getAllTools } from "./index.js";
-import { harness, useToolHarness } from "../testing/harness.js";
+import { describe, it, expect } from 'vitest'
+import { pageOf, projectView } from '../testing/openl-api-mocks.js'
+import { bodyOf } from '../testing/mock-http.js'
+import { executeTool, getAllTools } from './index.js'
+import { harness, useToolHarness } from '../testing/harness.js'
 
-useToolHarness();
+useToolHarness()
 
-describe("tool registry", () => {
-  it("exposes every tool under a bare name (the openl_ prefix is a wire-only concern)", () => {
-    const names = getAllTools().map((t) => t.name);
-    // The registry never carries the namespace prefix — it is added/stripped only
-    // at the MCP protocol boundary (see constants.test.ts).
-    expect(names.some((n) => n.startsWith("openl_"))).toBe(false);
-    // The bare names are exactly what executeTool dispatches on.
-    expect(names).toContain("list_repositories");
-  });
+describe('tool registry', () => {
+    it('exposes every tool under a bare name (the openl_ prefix is a wire-only concern)', () => {
+        const names = getAllTools().map((t) => t.name)
+        // The registry never carries the namespace prefix — it is added/stripped only
+        // at the MCP protocol boundary (see constants.test.ts).
+        expect(names.some((n) => n.startsWith('openl_'))).toBe(false)
+        // The bare names are exactly what executeTool dispatches on.
+        expect(names).toContain('list_repositories')
+    })
 
-  it("publishes only strict objects, so an unknown argument is refused, not dropped", () => {
-    const lenient: string[] = [];
-    const visit = (node: unknown, path: string): void => {
-      if (Array.isArray(node)) {
-        node.forEach((item, index) => visit(item, `${path}[${index}]`));
-      } else if (node !== null && typeof node === "object") {
-        const schema = node as Record<string, unknown>;
-        if (schema.type === "object" && "properties" in schema && schema.additionalProperties !== false) {
-          lenient.push(path);
+    it('publishes only strict objects, so an unknown argument is refused, not dropped', () => {
+        const lenient: string[] = []
+        const visit = (node: unknown, path: string): void => {
+            if (Array.isArray(node)) {
+                node.forEach((item, index) => visit(item, `${path}[${index}]`))
+            } else if (node !== null && typeof node === 'object') {
+                const schema = node as Record<string, unknown>
+                if (schema.type === 'object' && 'properties' in schema && schema.additionalProperties !== false) {
+                    lenient.push(path)
+                }
+                Object.entries(schema).forEach(([key, value]) => visit(value, `${path}.${key}`))
+            }
         }
-        Object.entries(schema).forEach(([key, value]) => visit(value, `${path}.${key}`));
-      }
-    };
-    getAllTools().forEach((tool) => visit(tool.inputSchema, tool.name));
-    expect(lenient).toEqual([]);
-  });
+        getAllTools().forEach((tool) => visit(tool.inputSchema, tool.name))
+        expect(lenient).toEqual([])
+    })
 
-  it("publishes no dialect, no safe-integer bounds and no length of a non-empty string, but the bounds of a tool", () => {
-    const published = JSON.stringify(getAllTools().map((tool) => tool.inputSchema));
-    const listTables = getAllTools().find((tool) => tool.name === "list_tables")?.inputSchema;
+    it('publishes no dialect, no safe-integer bounds and no length of a non-empty string, but the bounds of a tool', () => {
+        const published = JSON.stringify(getAllTools().map((tool) => tool.inputSchema))
+        const listTables = getAllTools().find((tool) => tool.name === 'list_tables')?.inputSchema
 
-    expect(published).not.toContain("$schema");
-    expect(published).not.toContain(String(Number.MAX_SAFE_INTEGER));
-    expect(published).not.toContain('"minLength":1');
-    expect(published).toContain('"maxLength":255');
-    expect(listTables?.properties).toMatchObject({
-      limit: { type: "integer", exclusiveMinimum: 0, maximum: 200 },
-      offset: { type: "integer", minimum: 0 },
-    });
-  });
+        expect(published).not.toContain('$schema')
+        expect(published).not.toContain(String(Number.MAX_SAFE_INTEGER))
+        expect(published).not.toContain('"minLength":1')
+        expect(published).toContain('"maxLength":255')
+        expect(listTables?.properties).toMatchObject({
+            limit: { type: 'integer', exclusiveMinimum: 0, maximum: 200 },
+            offset: { type: 'integer', minimum: 0 },
+        })
+    })
 
-  it("advertises as destructive only the tools that replace or remove data", () => {
-    // MCP takes a tool that is not read-only for destructive unless it says otherwise
-    const destructive = getAllTools()
-      .filter(({ annotations }) => !annotations?.readOnlyHint && annotations?.destructiveHint !== false)
-      .map(({ name }) => name);
-    expect(destructive.toSorted()).toEqual([
-      "cancel_merge_conflicts", "close_project", "delete_project", "delete_project_branch", "delete_project_file",
-      "delete_table", "deploy_project", "edit_table", "merge_project_branches", "move_project_file", "project_localization_edit",
-      "resolve_merge_conflicts", "restore_project_local_change", "update_table", "write_project_file",
-    ]);
-  });
+    it('advertises as destructive only the tools that replace or remove data', () => {
+        // MCP takes a tool that is not read-only for destructive unless it says otherwise
+        const destructive = getAllTools()
+            .filter(({ annotations }) => !annotations?.readOnlyHint && annotations?.destructiveHint !== false)
+            .map(({ name }) => name)
+        expect(destructive.toSorted()).toEqual([
+            'cancel_merge_conflicts',
+            'close_project',
+            'delete_project',
+            'delete_project_branch',
+            'delete_project_file',
+            'delete_table',
+            'deploy_project',
+            'edit_table',
+            'merge_project_branches',
+            'move_project_file',
+            'project_localization_edit',
+            'resolve_merge_conflicts',
+            'restore_project_local_change',
+            'update_table',
+            'write_project_file',
+        ])
+    })
 
-  it("leaves a field with a default out of the required ones", () => {
-    const required = (name: string): unknown =>
-      getAllTools().find((tool) => tool.name === name)?.inputSchema.required;
-    expect(required("read_project_file")).toEqual(["projectId"]);
-    expect(required("list_projects")).toBeUndefined();
-  });
-});
+    it('leaves a field with a default out of the required ones', () => {
+        const required = (name: string): unknown =>
+            getAllTools().find((tool) => tool.name === name)?.inputSchema.required
+        expect(required('read_project_file')).toEqual(['projectId'])
+        expect(required('list_projects')).toBeUndefined()
+    })
+})
 
-describe("argument validation", () => {
-  it("rejects unknown arguments before a handler can call the backend", async () => {
-    await expect(
-      executeTool("list_repositories", { limti: 10 }, harness.client)
-    ).rejects.toThrow(/Invalid arguments for list_repositories.*limti.*list_repositories takes only: .*\blimit\b/s);
-    expect(harness.mockHttp.history.get).toHaveLength(0);
-  });
+describe('argument validation', () => {
+    it('rejects unknown arguments before a handler can call the backend', async () => {
+        await expect(
+            executeTool('list_repositories', { limti: 10 }, harness.client)
+        ).rejects.toThrow(/Invalid arguments for list_repositories.*limti.*list_repositories takes only: .*\blimit\b/s)
+        expect(harness.mockHttp.history.get).toHaveLength(0)
+    })
 
-  it.each([
-    ["an unknown argument inside another one", "list_tables",
-      { projectId: "p1", properties: { state: 1 } },
-      /propertyFilter/],
-    ["a missing argument", "get_table", { projectId: "p1" }, /tableId/],
-  ])("names no arguments for %s", async (_case, toolName, args, rejected) => {
-    const error = await executeTool(toolName, args, harness.client).catch((thrown: unknown) => thrown);
+    it.each([
+        [
+            'an unknown argument inside another one',
+            'list_tables',
+            { projectId: 'p1', properties: { state: 1 } },
+            /propertyFilter/
+        ],
+        ['a missing argument', 'get_table', { projectId: 'p1' }, /tableId/],
+    ])('names no arguments for %s', async (_case, toolName, args, rejected) => {
+        const error = await executeTool(toolName, args, harness.client).catch((thrown: unknown) => thrown)
 
-    expect((error as Error).message).toMatch(rejected);
-    expect((error as Error).message).not.toContain("takes only");
-  });
+        expect((error as Error).message).toMatch(rejected)
+        expect((error as Error).message).not.toContain('takes only')
+    })
 
-  it.each([
-    ["project_status", { projectId: "p1", timeoutMs: 600_001 }, /timeoutMs/],
-    ["create_upload_link", { projectId: "p1", path: "a.bin", size: -1 }, /size/],
-    ["read_merge_conflict", { projectId: "p1", path: "rules/Main.xlsx", table: "Rates/B2:C6", side: "OURS" }, /give one of them/],
-    ["get_test_results", { projectId: "p1", summary: true, offset: 0 }, /A summary takes no tableId, offset or limit/],
-    ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
-    ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
-    ["get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, /response_format/],
-    ["list_tables", { projectId: "p1", offset: 2 ** 60 }, /Invalid arguments for list_tables.*offset/s],
-  ])("enforces the published %s constraints at runtime", async (toolName, args, message) => {
-    await expect(executeTool(toolName, args, harness.client)).rejects.toThrow(message);
-    expect(harness.mockHttp.history.get).toHaveLength(0);
-  });
+    it.each([
+        ['project_status', { projectId: 'p1', timeoutMs: 600_001 }, /timeoutMs/],
+        ['create_upload_link', { projectId: 'p1', path: 'a.bin', size: -1 }, /size/],
+        ['read_merge_conflict', { projectId: 'p1', path: 'rules/Main.xlsx', table: 'Rates/B2:C6', side: 'OURS' }, /give one of them/],
+        ['get_test_results', { projectId: 'p1', summary: true, offset: 0 }, /A summary takes no tableId, offset or limit/],
+        ['list_projects', { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
+        ['list_projects', { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
+        ['get_table', { projectId: 'p1', tableId: 't1', response_format: 'json' }, /response_format/],
+        ['list_tables', { projectId: 'p1', offset: 2 ** 60 }, /Invalid arguments for list_tables.*offset/s],
+    ])('enforces the published %s constraints at runtime', async (toolName, args, message) => {
+        await expect(executeTool(toolName, args, harness.client)).rejects.toThrow(message)
+        expect(harness.mockHttp.history.get).toHaveLength(0)
+    })
 
-  it("names the tool that lists the missing identifier", async () => {
-    await expect(executeTool("get_project", {}, harness.client))
-      .rejects.toThrow(/Invalid arguments for get_project.*projectId.*openl_list_projects/s);
-  });
-});
+    it('names the tool that lists the missing identifier', async () => {
+        await expect(executeTool('get_project', {}, harness.client))
+            .rejects.toThrow(/Invalid arguments for get_project.*projectId.*openl_list_projects/s)
+    })
+})
 
-describe("argument aliases", () => {
-  it("takes the name a tool declares as an alias for the argument it has under another name", async () => {
-    harness.mockHttp.onGet("/projects").reply(200, pageOf([]));
-    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
-    harness.mockHttp.onPost("/projects/p1/tables/t1/actions").reply(204);
-    harness.mockHttp.onGet("/projects/p1/tables/t1").reply(200, { id: "t1", tableType: "RawSource", source: [] });
+describe('argument aliases', () => {
+    it('takes the name a tool declares as an alias for the argument it has under another name', async () => {
+        harness.mockHttp.onGet('/projects').reply(200, pageOf([]))
+        harness.mockHttp.onPost('/projects/p1/file-search').reply(200, [])
+        harness.mockHttp.onPost('/projects/p1/tables/t1/actions').reply(204)
+        harness.mockHttp.onGet('/projects/p1/tables/t1').reply(200, { id: 't1', tableType: 'RawSource', source: [] })
 
-    await executeTool("list_projects", { search: "Rating" }, harness.client);
-    await executeTool("search_project_files", { projectId: "p1", query: "rate", recursive: false }, harness.client);
-    await executeTool("edit_table", {
-      projectId: "p1", id: "t1", version: "v1", actions: [{ action: "delete_rows", position: 2 }],
-    }, harness.client);
+        await executeTool('list_projects', { search: 'Rating' }, harness.client)
+        await executeTool('search_project_files', { projectId: 'p1', query: 'rate', recursive: false }, harness.client)
+        await executeTool('edit_table', {
+            projectId: 'p1',
+            id: 't1',
+            version: 'v1',
+            actions: [{ action: 'delete_rows', position: 2 }],
+        }, harness.client)
 
-    expect(harness.mockHttp.history.get[0].params).toMatchObject({ name: "Rating" });
-    expect(JSON.parse(harness.mockHttp.history.post[0].data as string)).toMatchObject({ content: "rate" });
-    const edit = harness.mockHttp.history.post.find((request) => request.url?.endsWith("/actions"));
-    expect(JSON.parse(edit?.data as string)).toMatchObject({ target: { type: "rows", position: 2 } });
-  });
+        expect(harness.mockHttp.history.get[0].params).toMatchObject({ name: 'Rating' })
+        expect(JSON.parse(harness.mockHttp.history.post[0].data as string)).toMatchObject({ content: 'rate' })
+        const edit = harness.mockHttp.history.post.find((request) => request.url?.endsWith('/actions'))
+        expect(JSON.parse(edit?.data as string)).toMatchObject({ target: { type: 'rows', position: 2 } })
+    })
 
-  it("leaves a name to a tool that takes it itself, and refuses an argument given under both names", async () => {
-    harness.mockHttp.onGet("../docs/toc.json").reply(200, { title: "Docs", children: [] });
+    it('leaves a name to a tool that takes it itself, and refuses an argument given under both names', async () => {
+        harness.mockHttp.onGet('../docs/toc.json').reply(200, { title: 'Docs', children: [] })
 
-    await executeTool("list_guides", { search: "spreadsheet" }, harness.client);
-    await expect(executeTool("list_projects", { search: "a", name: "b" }, harness.client))
-      .rejects.toThrow(/Unrecognized key: "search"/);
-  });
-});
+        await executeTool('list_guides', { search: 'spreadsheet' }, harness.client)
+        await expect(executeTool('list_projects', { search: 'a', name: 'b' }, harness.client))
+            .rejects.toThrow(/Unrecognized key: "search"/)
+    })
+})
 
-describe("options in other letters", () => {
-  it("takes an option in other letters for the one the tool names, which it publishes alone", async () => {
-    harness.mockHttp.onGet("/projects").reply(200, pageOf([]));
-    const sides = getAllTools().find((tool) => tool.name === "read_merge_conflict")?.inputSchema.properties;
+describe('options in other letters', () => {
+    it('takes an option in other letters for the one the tool names, which it publishes alone', async () => {
+        harness.mockHttp.onGet('/projects').reply(200, pageOf([]))
+        const sides = getAllTools().find((tool) => tool.name === 'read_merge_conflict')?.inputSchema.properties
 
-    await executeTool("list_projects", { status: "opened" }, harness.client);
+        await executeTool('list_projects', { status: 'opened' }, harness.client)
 
-    expect(harness.mockHttp.history.get[0].params).toMatchObject({ status: "OPENED" });
-    expect(sides).toMatchObject({ side: { enum: ["BASE", "OURS", "THEIRS"] } });
-  });
+        expect(harness.mockHttp.history.get[0].params).toMatchObject({ status: 'OPENED' })
+        expect(sides).toMatchObject({ side: { enum: ['BASE', 'OURS', 'THEIRS'] } })
+    })
 
-  it("refuses an option no spelling names, with the options of the tool", async () => {
-    await expect(executeTool("list_projects", { status: "open" }, harness.client))
-      .rejects.toThrow(/Invalid arguments for list_projects.*"OPENED"/s);
-    expect(harness.mockHttp.history.get).toHaveLength(0);
-  });
-});
+    it('refuses an option no spelling names, with the options of the tool', async () => {
+        await expect(executeTool('list_projects', { status: 'open' }, harness.client))
+            .rejects.toThrow(/Invalid arguments for list_projects.*"OPENED"/s)
+        expect(harness.mockHttp.history.get).toHaveLength(0)
+    })
+})
 
-describe("a table named by its name", () => {
-  const tablesPath = "/projects/p1/tables";
+describe('a table named by its name', () => {
+    const tablesPath = '/projects/p1/tables'
 
-  it("is read by the id of the one table of that name", async () => {
-    harness.mockHttp.onGet(`${tablesPath}/AgeFactor`).reply(404, { message: "The table is not found." });
-    harness.mockHttp.onGet(tablesPath, { params: { name: "AgeFactor", size: 50 } })
-      .reply(200, pageOf([{ id: "T1", name: "AgeFactor" }, { id: "T2", name: "AgeFactorOld" }], { total: 2 }));
-    harness.mockHttp.onGet(`${tablesPath}/T1`).reply(200, { id: "T1", name: "AgeFactor", tableType: "RawSource", source: [[{ value: "x" }]] });
+    it('is read by the id of the one table of that name', async () => {
+        harness.mockHttp.onGet(`${tablesPath}/AgeFactor`).reply(404, { message: 'The table is not found.' })
+        harness.mockHttp.onGet(tablesPath, { params: { name: 'AgeFactor', size: 50 } })
+            .reply(200, pageOf([{ id: 'T1', name: 'AgeFactor' }, { id: 'T2', name: 'AgeFactorOld' }], { total: 2 }))
+        harness.mockHttp.onGet(`${tablesPath}/T1`).reply(200, { id: 'T1', name: 'AgeFactor', tableType: 'RawSource', source: [[{ value: 'x' }]] })
 
-    const result = await executeTool("get_table", { projectId: "p1", tableId: "AgeFactor" }, harness.client);
+        const result = await executeTool('get_table', { projectId: 'p1', tableId: 'AgeFactor' }, harness.client)
 
-    expect(JSON.parse(result.content[0].text).data.rows).toEqual([["x"]]);
-    expect(result.content).toHaveLength(1);
-  });
+        expect(JSON.parse(result.content[0].text).data.rows).toEqual([['x']])
+        expect(result.content).toHaveLength(1)
+    })
 
-  it("is refused with the ids of the tables of that name when there are several", async () => {
-    harness.mockHttp.onGet(`${tablesPath}/Rate`).reply(404, { message: "The table is not found." });
-    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
-      { id: "T1", name: "Rate", module: "Rates-2026" }, { id: "T2", name: "Rate", module: "Rates-2027" },
-    ], { total: 2 }));
+    it('is refused with the ids of the tables of that name when there are several', async () => {
+        harness.mockHttp.onGet(`${tablesPath}/Rate`).reply(404, { message: 'The table is not found.' })
+        harness.mockHttp.onGet(tablesPath).reply(200, pageOf([
+            { id: 'T1', name: 'Rate', module: 'Rates-2026' },
+            { id: 'T2', name: 'Rate', module: 'Rates-2027' },
+        ], { total: 2 }))
 
-    await expect(executeTool("get_table", { projectId: "p1", tableId: "Rate" }, harness.client))
-      .rejects.toThrow("'Rate' is the name of 2 tables, not an id: give the id of one of them, T1 (Rates-2026), T2 (Rates-2027).");
-  });
+        await expect(executeTool('get_table', { projectId: 'p1', tableId: 'Rate' }, harness.client))
+            .rejects.toThrow("'Rate' is the name of 2 tables, not an id: give the id of one of them, T1 (Rates-2026), T2 (Rates-2027).")
+    })
 
-  it("is passed on for Studio to refuse when no table has that name", async () => {
-    harness.mockHttp.onGet(`${tablesPath}/T9`).reply(404, { message: "The table is not found." });
-    harness.mockHttp.onGet(tablesPath).reply(200, pageOf([], { total: 0 }));
+    it('is passed on for Studio to refuse when no table has that name', async () => {
+        harness.mockHttp.onGet(`${tablesPath}/T9`).reply(404, { message: 'The table is not found.' })
+        harness.mockHttp.onGet(tablesPath).reply(200, pageOf([], { total: 0 }))
 
-    await expect(executeTool("get_table", { projectId: "p1", tableId: "T9" }, harness.client)).rejects.toThrow(/not found/);
-  });
+        await expect(executeTool('get_table', { projectId: 'p1', tableId: 'T9' }, harness.client)).rejects.toThrow(/not found/)
+    })
 
-  it("is not looked for when it has the shape of an id", async () => {
-    harness.mockHttp.onGet(`${tablesPath}/QFVRFV3YHVHG7S4E`).reply(404, { message: "The table is not found." });
+    it('is not looked for when it has the shape of an id', async () => {
+        harness.mockHttp.onGet(`${tablesPath}/QFVRFV3YHVHG7S4E`).reply(404, { message: 'The table is not found.' })
 
-    await expect(executeTool("get_table", { projectId: "p1", tableId: "QFVRFV3YHVHG7S4E" }, harness.client)).rejects.toThrow(/not found/);
-    expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual([`${tablesPath}/QFVRFV3YHVHG7S4E`]);
-  });
-});
+        await expect(executeTool('get_table', { projectId: 'p1', tableId: 'QFVRFV3YHVHG7S4E' }, harness.client)).rejects.toThrow(/not found/)
+        expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual([`${tablesPath}/QFVRFV3YHVHG7S4E`])
+    })
+})
 
-describe("errors of OpenL Studio", () => {
-  const callAndCatch = async (): Promise<Error> => {
-    try {
-      await executeTool("edit_table", {
-        projectId: "p1", tableId: "t1", version: "v1", action: "update_cell", row: 0, column: 0, value: "x",
-      }, harness.client);
-    } catch (e) {
-      return e as Error;
+describe('errors of OpenL Studio', () => {
+    const callAndCatch = async (): Promise<Error> => {
+        try {
+            await executeTool('edit_table', {
+                projectId: 'p1',
+                tableId: 't1',
+                version: 'v1',
+                action: 'update_cell',
+                row: 0,
+                column: 0,
+                value: 'x',
+            }, harness.client)
+        } catch (e) {
+            return e as Error
+        }
+        throw new Error('expected the tool to throw')
     }
-    throw new Error("expected the tool to throw");
-  };
 
-  it("surfaces a ValidationError's field and global errors in the message", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(400, {
-      code: "VALIDATION_ERROR",
-      message: "Validation failed",
-      fields: [
-        { field: "cells", code: "TOO_TALL", message: "column height 6 exceeds table height 5", rejectedValue: [[{ value: "a" }]] },
-        { field: "position", message: "must be >= 1", rejectedValue: 0 },
-      ],
-      errors: [{ code: "G1", message: "the table has no room to grow" }],
-    });
+    it("surfaces a ValidationError's field and global errors in the message", async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(400, {
+            code: 'VALIDATION_ERROR',
+            message: 'Validation failed',
+            fields: [
+                { field: 'cells', code: 'TOO_TALL', message: 'column height 6 exceeds table height 5', rejectedValue: [[{ value: 'a' }]] },
+                { field: 'position', message: 'must be >= 1', rejectedValue: 0 },
+            ],
+            errors: [{ code: 'G1', message: 'the table has no room to grow' }],
+        })
 
-    const msg = (await callAndCatch()).message;
-    // Top-level message kept as the headline.
-    expect(msg).toContain("Validation failed");
-    // Each field error surfaces with its field, reason, and rejected value.
-    expect(msg).toContain("Field errors:");
-    expect(msg).toContain("cells: column height 6 exceeds table height 5");
-    expect(msg).toContain("position: must be >= 1 (rejected: 0)");
-    // Additional global errors surface too.
-    expect(msg).toContain("Additional errors:");
-    expect(msg).toContain("the table has no room to grow");
-  });
+        const msg = (await callAndCatch()).message
+        // Top-level message kept as the headline.
+        expect(msg).toContain('Validation failed')
+        // Each field error surfaces with its field, reason, and rejected value.
+        expect(msg).toContain('Field errors:')
+        expect(msg).toContain('cells: column height 6 exceeds table height 5')
+        expect(msg).toContain('position: must be >= 1 (rejected: 0)')
+        // Additional global errors surface too.
+        expect(msg).toContain('Additional errors:')
+        expect(msg).toContain('the table has no room to grow')
+    })
 
-  it("uses the field errors as the headline when the ValidationError has no top-level message", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(400, {
-      code: "VALIDATION_ERROR",
-      fields: [{ field: "row", message: "must be within the table" }],
-    });
+    it('uses the field errors as the headline when the ValidationError has no top-level message', async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(400, {
+            code: 'VALIDATION_ERROR',
+            fields: [{ field: 'row', message: 'must be within the table' }],
+        })
 
-    const msg = (await callAndCatch()).message;
-    expect(msg).toContain("Field errors:");
-    expect(msg).toContain("row: must be within the table");
-  });
+        const msg = (await callAndCatch()).message
+        expect(msg).toContain('Field errors:')
+        expect(msg).toContain('row: must be within the table')
+    })
 
-  it("leaves a simple BaseError message intact (no field section)", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, { code: "LOCKED", message: "Project is locked" });
+    it('leaves a simple BaseError message intact (no field section)', async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, { code: 'LOCKED', message: 'Project is locked' })
 
-    const msg = (await callAndCatch()).message;
-    expect(msg).toContain("Project is locked");
-    expect(msg).not.toContain("Field errors");
-  });
+        const msg = (await callAndCatch()).message
+        expect(msg).toContain('Project is locked')
+        expect(msg).not.toContain('Field errors')
+    })
 
-  it("passes on what OpenL Studio says to do about a refused token, so the agent can tell the user", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(401, {
-      code: "openl.error.401.token.expired.message",
-      message: "The personal access token has expired. Create a new token in Personal Access Tokens of OpenL Studio "
-        + "and use it instead.",
-    });
+    it('passes on what OpenL Studio says to do about a refused token, so the agent can tell the user', async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(401, {
+            code: 'openl.error.401.token.expired.message',
+            message: 'The personal access token has expired. Create a new token in Personal Access Tokens of OpenL Studio '
+                + 'and use it instead.',
+        })
 
-    const msg = (await callAndCatch()).message;
-    expect(msg).toBe("OpenL Studio API error (401): The personal access token has expired. Create a new token in "
-      + "Personal Access Tokens of OpenL Studio and use it instead.");
-  });
+        const msg = (await callAndCatch()).message
+        expect(msg).toBe('OpenL Studio API error (401): The personal access token has expired. Create a new token in '
+            + 'Personal Access Tokens of OpenL Studio and use it instead.')
+    })
 
-  it("answers why a closed project could not be opened for the call, not Studio's refusal of the call", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
-      code: "openl.error.409.project.not.opened.message",
-      message: "The project is not opened.",
-    });
-    harness.mockHttp.onGet("/projects/p1").reply(200, projectView("CLOSED", { id: "p1" }));
-    harness.mockHttp.onPatch("/projects/p1").reply(409, { message: "The project is locked by another user." });
+    it("answers why a closed project could not be opened for the call, not Studio's refusal of the call", async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+            code: 'openl.error.409.project.not.opened.message',
+            message: 'The project is not opened.',
+        })
+        harness.mockHttp.onGet('/projects/p1').reply(200, projectView('CLOSED', { id: 'p1' }))
+        harness.mockHttp.onPatch('/projects/p1').reply(409, { message: 'The project is locked by another user.' })
 
-    const msg = (await callAndCatch()).message;
-    expect(msg).toBe("The project is closed, and opening it for this call failed: "
-      + "OpenL Studio API error (409): The project is locked by another user.");
-  });
+        const msg = (await callAndCatch()).message
+        expect(msg).toBe('The project is closed, and opening it for this call failed: '
+            + 'OpenL Studio API error (409): The project is locked by another user.')
+    })
 
-  it("tells to open a project Studio still finds closed once the call opened it", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
-      code: "openl.error.409.project.not.opened.message",
-      message: "The project is not opened.",
-    });
-    harness.mockHttp.onGet("/projects/p1").reply(200, projectView("CLOSED", { id: "p1" }));
-    harness.mockHttp.onPatch("/projects/p1").reply(204);
+    it('tells to open a project Studio still finds closed once the call opened it', async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+            code: 'openl.error.409.project.not.opened.message',
+            message: 'The project is not opened.',
+        })
+        harness.mockHttp.onGet('/projects/p1').reply(200, projectView('CLOSED', { id: 'p1' }))
+        harness.mockHttp.onPatch('/projects/p1').reply(204)
 
-    const msg = (await callAndCatch()).message;
-    expect(msg).toBe("OpenL Studio API error (409): The project is not opened.\nOpen it with openl_open_project, and repeat the call.");
-  });
+        const msg = (await callAndCatch()).message
+        expect(msg).toBe('OpenL Studio API error (409): The project is not opened.\nOpen it with openl_open_project, and repeat the call.')
+    })
 
-  it("opens a closed project for a call Studio refuses while it is closed, and makes the call again", async () => {
-    const table = "/projects/p1/tables/QFVRFV3YHVHG7S4E";
-    harness.mockHttp.onGet(table)
-      .replyOnce(409, { code: "openl.error.409.project.not.opened.message", message: "The project is not opened." })
-      .onGet(table).reply(200, { id: "QFVRFV3YHVHG7S4E", name: "T", tableType: "RawSource", source: [[{ value: "x" }]] });
-    harness.mockHttp.onGet("/projects/p1").reply(200, projectView("CLOSED", { id: "p1" }));
-    harness.mockHttp.onPatch("/projects/p1").reply(204);
+    it('opens a closed project for a call Studio refuses while it is closed, and makes the call again', async () => {
+        const table = '/projects/p1/tables/QFVRFV3YHVHG7S4E'
+        harness.mockHttp.onGet(table)
+            .replyOnce(409, { code: 'openl.error.409.project.not.opened.message', message: 'The project is not opened.' })
+            .onGet(table).reply(200, { id: 'QFVRFV3YHVHG7S4E', name: 'T', tableType: 'RawSource', source: [[{ value: 'x' }]] })
+        harness.mockHttp.onGet('/projects/p1').reply(200, projectView('CLOSED', { id: 'p1' }))
+        harness.mockHttp.onPatch('/projects/p1').reply(204)
 
-    const result = await executeTool("get_table", { projectId: "p1", tableId: "QFVRFV3YHVHG7S4E" }, harness.client);
+        const result = await executeTool('get_table', { projectId: 'p1', tableId: 'QFVRFV3YHVHG7S4E' }, harness.client)
 
-    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "OPENED" }]);
-    expect(JSON.parse(result.content[0].text).data.rows).toEqual([["x"]]);
-    expect(result.content[1].text).toBe("Opened the project in OpenL Studio for this call.");
-  });
+        expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: 'OPENED' }])
+        expect(JSON.parse(result.content[0].text).data.rows).toEqual([['x']])
+        expect(result.content[1].text).toBe('Opened the project in OpenL Studio for this call.')
+    })
 
-  it("tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists", async () => {
-    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
-      code: "openl.error.409.workbook.changed.outside.message",
-      message: "Bank Rating.xlsx changed outside OpenL Studio since it was read. Refresh the project and repeat the edit.",
-    });
+    it('tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists', async () => {
+        harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+            code: 'openl.error.409.workbook.changed.outside.message',
+            message: 'Bank Rating.xlsx changed outside OpenL Studio since it was read. Refresh the project and repeat the edit.',
+        })
 
-    const msg = (await callAndCatch()).message;
-    expect(msg).toMatch(/changed outside OpenL Studio.*read the table again with openl_get_table/);
-    expect(msg).not.toContain("Refresh the project");
-  });
-});
+        const msg = (await callAndCatch()).message
+        expect(msg).toMatch(/changed outside OpenL Studio.*read the table again with openl_get_table/)
+        expect(msg).not.toContain('Refresh the project')
+    })
+})

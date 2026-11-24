@@ -11,25 +11,25 @@
  * still loaded only when the call runs. A built-in module of Node.js is left to the runtime.
  */
 
-import { isBuiltin } from "node:module";
-import type { Plugin } from "rolldown";
+import { isBuiltin } from 'node:module'
+import type { Plugin } from 'rolldown'
 
 /** A call of the `require` of a dependency, with the name of the module it loads; never a method of an object. */
-const OWN_REQUIRE = /(?<![\w.$])__require\((["'])([^"']+)\1\)/g;
+const OWN_REQUIRE = /(?<![\w.$])__require\((["'])([^"']+)\1\)/g
 
 /** The code with every `__require` of a package turned into a `require` the bundler resolves. */
 export function bundledRequires(code: string): string {
-  return code.replaceAll(OWN_REQUIRE, (call: string, quote: string, module: string) =>
-    isBuiltin(module) ? call : `require(${quote}${module}${quote})`);
+    return code.replaceAll(OWN_REQUIRE, (call: string, quote: string, module: string) =>
+        isBuiltin(module) ? call : `require(${quote}${module}${quote})`)
 }
 
 /** The plugin, applied to the modules of `node_modules` that call `__require`. */
 export function requires(): Plugin {
-  return {
-    name: "requires",
-    transform: {
-      filter: { id: /[\\/]node_modules[\\/]/, code: "__require(" },
-      handler: (code) => ({ code: bundledRequires(code) }),
-    },
-  };
+    return {
+        name: 'requires',
+        transform: {
+            filter: { id: /[\\/]node_modules[\\/]/, code: '__require(' },
+            handler: (code) => ({ code: bundledRequires(code) }),
+        },
+    }
 }

@@ -9,24 +9,24 @@
  * It sends OpenTelemetry data only when `OTEL_SDK_DISABLED` is `false`, which
  * Studio sets when it sends telemetry itself, see `telemetry.ts`.
  */
-import { startHttpServer } from "./http-server.js";
-import { sanitizeError } from "./utils.js";
+import { startHttpServer } from './http-server.js'
+import { sanitizeError } from './utils.js'
 
-if (process.env.OTEL_SDK_DISABLED === "false") {
-  try {
-    const { startTelemetry } = await import("./telemetry.js");
-    const stopTelemetry = startTelemetry();
-    // Studio stops the server with SIGTERM: the telemetry still buffered is sent before it exits
-    process.once("SIGTERM", () => void stopTelemetry().finally(() => process.exit(0)));
-  } catch (error: unknown) {
-    // The server runs without telemetry rather than not at all
-    console.error("Failed to start OpenTelemetry:", sanitizeError(error));
-  }
+if (process.env.OTEL_SDK_DISABLED === 'false') {
+    try {
+        const { startTelemetry } = await import('./telemetry.js')
+        const stopTelemetry = startTelemetry()
+        // Studio stops the server with SIGTERM: the telemetry still buffered is sent before it exits
+        process.once('SIGTERM', () => void stopTelemetry().finally(() => process.exit(0)))
+    } catch (error: unknown) {
+        // The server runs without telemetry rather than not at all
+        console.error('Failed to start OpenTelemetry:', sanitizeError(error))
+    }
 }
 
 try {
-  await startHttpServer();
+    await startHttpServer()
 } catch (error: unknown) {
-  console.error("Failed to start OpenL MCP server:", sanitizeError(error));
-  process.exit(1);
+    console.error('Failed to start OpenL MCP server:', sanitizeError(error))
+    process.exit(1)
 }

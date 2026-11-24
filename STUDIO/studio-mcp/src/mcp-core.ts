@@ -1,22 +1,22 @@
-import { CLIENT_INFO_META_KEY, McpServer, type StandardSchemaWithJSON, type ToolAnnotations } from "@modelcontextprotocol/server";
-import { SERVER_INFO, mcpToolName } from "./constants.js";
-import { registerAllTools, getAllTools, executeTool } from "./handlers/index.js";
-import type { OpenLClient } from "./client.js";
-import { SKILLS, SKILLS_OVERVIEW } from "./skills.js";
-import { traceToolCall } from "./tool-telemetry.js";
-import type { McpClientInfo } from "./types.js";
+import { CLIENT_INFO_META_KEY, McpServer, type StandardSchemaWithJSON, type ToolAnnotations } from '@modelcontextprotocol/server'
+import { SERVER_INFO, mcpToolName } from './constants.js'
+import { registerAllTools, getAllTools, executeTool } from './handlers/index.js'
+import type { OpenLClient } from './client.js'
+import { SKILLS, SKILLS_OVERVIEW } from './skills.js'
+import { traceToolCall } from './tool-telemetry.js'
+import type { McpClientInfo } from './types.js'
 
 /**
  * The name and the version of the client a request of the stateless protocol (2026-07-28) carries in its `_meta`
  * envelope, or nothing for a request of a session, which named its client when it opened.
  */
 export function clientInfoOf(envelope: object | undefined): McpClientInfo | undefined {
-  const info = (envelope as Record<string, unknown> | undefined)?.[CLIENT_INFO_META_KEY];
-  if (typeof info !== "object" || info === null || typeof (info as { name?: unknown }).name !== "string") {
-    return undefined;
-  }
-  const { name, version } = info as { name: string; version?: unknown };
-  return { name, version: typeof version === "string" ? version : undefined };
+    const info = (envelope as Record<string, unknown> | undefined)?.[CLIENT_INFO_META_KEY]
+    if (typeof info !== 'object' || info === null || typeof (info as { name?: unknown }).name !== 'string') {
+        return undefined
+    }
+    const { name, version } = info as { name: string, version?: unknown }
+    return { name, version: typeof version === 'string' ? version : undefined }
 }
 
 /**
@@ -24,14 +24,14 @@ export function clientInfoOf(envelope: object | undefined): McpClientInfo | unde
  * on as they came, since `executeTool` validates them with the hints and the hooks of each tool.
  */
 function publishedSchema(inputSchema: Record<string, unknown>): StandardSchemaWithJSON {
-  return {
-    "~standard": {
-      version: 1,
-      vendor: "studio-mcp",
-      validate: (value) => ({ value }),
-      jsonSchema: { input: () => inputSchema, output: () => inputSchema },
-    },
-  };
+    return {
+        '~standard': {
+            version: 1,
+            vendor: 'studio-mcp',
+            validate: (value) => ({ value }),
+            jsonSchema: { input: () => inputSchema, output: () => inputSchema },
+        },
+    }
 }
 
 /**
@@ -65,26 +65,29 @@ them, or are committed at once in a closed project: say so when you leave them u
 \`openl_deploy_project\` deploys. A project of the \`local\` repository, or edited in place, has no save: its edits \
 are in its files already.
 
-${SKILLS_OVERVIEW}`;
+${SKILLS_OVERVIEW}`
 
 /** The values MCP takes for an annotation a tool leaves out, which a tool publishes only to say otherwise. */
 const ANNOTATION_DEFAULTS: Readonly<Record<string, boolean>> = {
-  readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true,
-};
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: true,
+}
 
 /** The annotations of a tool without those of the default value, which every agent would load for nothing. */
 function withoutDefaults(annotations: ToolAnnotations | undefined): ToolAnnotations | undefined {
-  return annotations && Object.fromEntries(Object.entries(annotations).filter(([key, value]) => ANNOTATION_DEFAULTS[key] !== value));
+    return annotations && Object.fromEntries(Object.entries(annotations).filter(([key, value]) => ANNOTATION_DEFAULTS[key] !== value))
 }
 
 // The tools are the same for every server, so they are registered, and their wire names and configurations built,
 // once, when the module loads.
-registerAllTools();
+registerAllTools()
 const TOOLS = getAllTools().map(({ name, title, description, inputSchema, annotations }) => ({
-  name,
-  wireName: mcpToolName(name),
-  config: { title, description, inputSchema: publishedSchema(inputSchema), annotations: withoutDefaults(annotations) },
-}));
+    name,
+    wireName: mcpToolName(name),
+    config: { title, description, inputSchema: publishedSchema(inputSchema), annotations: withoutDefaults(annotations) },
+}))
 
 
 /**
@@ -96,39 +99,39 @@ const TOOLS = getAllTools().map(({ name, title, description, inputSchema, annota
  * `executeTool` wraps it in, so the model can self-correct.
  */
 export function createConfiguredServer(client: OpenLClient): McpServer {
-  const server = new McpServer(
-    {
-      name: SERVER_INFO.NAME,
-      version: SERVER_INFO.VERSION,
-      description: SERVER_INFO.DESCRIPTION,
-    },
-    // The tools and the skills never change while the server runs
-    {
-      instructions: INSTRUCTIONS,
-      capabilities: {
-        tools: { listChanged: false },
-        resources: { listChanged: false },
-      },
-    },
-  );
-  for (const { name, wireName, config } of TOOLS) {
-    // Adapt the SDK context into the small stable shape the tool handlers need (AbortSignal, progress token,
-    // notification sender).
-    server.registerTool(
-      wireName,
-      config,
-      (args, ctx) => {
-        // A client of the stateless protocol names itself in each request; a session got the name when it opened
-        client.callsFor(clientInfoOf(ctx.mcpReq.envelope));
-        return traceToolCall(wireName, () => executeTool(name, args, client, {
-          signal: ctx.mcpReq.signal,
-          _meta: ctx.mcpReq._meta,
-          sendNotification: (notification) => ctx.mcpReq.notify(notification),
-        }));
-      },
-    );
-  }
-  SKILLS.attach(server);
+    const server = new McpServer(
+        {
+            name: SERVER_INFO.NAME,
+            version: SERVER_INFO.VERSION,
+            description: SERVER_INFO.DESCRIPTION,
+        },
+        // The tools and the skills never change while the server runs
+        {
+            instructions: INSTRUCTIONS,
+            capabilities: {
+                tools: { listChanged: false },
+                resources: { listChanged: false },
+            },
+        }
+    )
+    for (const { name, wireName, config } of TOOLS) {
+        // Adapt the SDK context into the small stable shape the tool handlers need (AbortSignal, progress token,
+        // notification sender).
+        server.registerTool(
+            wireName,
+            config,
+            (args, ctx) => {
+                // A client of the stateless protocol names itself in each request; a session got the name when it opened
+                client.callsFor(clientInfoOf(ctx.mcpReq.envelope))
+                return traceToolCall(wireName, () => executeTool(name, args, client, {
+                    signal: ctx.mcpReq.signal,
+                    _meta: ctx.mcpReq._meta,
+                    sendNotification: (notification) => ctx.mcpReq.notify(notification),
+                }))
+            }
+        )
+    }
+    SKILLS.attach(server)
 
-  return server;
+    return server
 }

@@ -3,112 +3,112 @@
  * (summary, full, and by-table views).
  */
 
-import * as schemas from "../schemas.js";
-import { RESPONSE_LIMITS } from "../constants.js";
-import { cutJson } from "../json-cut.js";
-import { countLine, fitItems, hasMoreItems, markdownTable, type Column, type ListPage } from "../markdown-list.js";
-import { cutText, formatCount } from "../text.js";
-import type * as Types from "../types.js";
-import { registerTool, textResult, type ToolHandlerExtra, type ToolResponse } from "./common.js";
-import type { OpenLClient } from "../client.js";
-import { waitForResult, type WaitOptions } from "./wait.js";
+import * as schemas from '../schemas.js'
+import { RESPONSE_LIMITS } from '../constants.js'
+import { cutJson } from '../json-cut.js'
+import { countLine, fitItems, hasMoreItems, markdownTable, type Column, type ListPage } from '../markdown-list.js'
+import { cutText, formatCount } from '../text.js'
+import type * as Types from '../types.js'
+import { registerTool, textResult, type ToolHandlerExtra, type ToolResponse } from './common.js'
+import type { OpenLClient } from '../client.js'
+import { waitForResult, type WaitOptions } from './wait.js'
 
-const TEST_RESULTS_DEFAULT_TIMEOUT_MS = 120_000;
+const TEST_RESULTS_DEFAULT_TIMEOUT_MS = 120_000
 
 /** How the result tools wait while Studio is still running the tests. */
 const TEST_RESULTS_WAIT: WaitOptions = {
-  timeoutMs: TEST_RESULTS_DEFAULT_TIMEOUT_MS,
-  progressMessage: "Test execution is still running…",
-  timeoutMessage: `Test execution did not finish within the internal ${TEST_RESULTS_DEFAULT_TIMEOUT_MS} ms safety limit. The execution may still be running in Studio.`,
-};
+    timeoutMs: TEST_RESULTS_DEFAULT_TIMEOUT_MS,
+    progressMessage: 'Test execution is still running…',
+    timeoutMessage: `Test execution did not finish within the internal ${TEST_RESULTS_DEFAULT_TIMEOUT_MS} ms safety limit. The execution may still be running in Studio.`,
+}
 
 export function registerTestingHandlers(): void {
-  registerTool({
-    name: "run_project_tests",
-    compiled: true,
-    title: "Run Project Tests",
-    description:
-      "Run the tests of a project, a module or one table, wait for them, and answer the counts and the test tables that failed, with their failed tests; read the others with openl_get_test_results.",
-    schema: schemas.runProjectTestsSchema,
-    annotations: {
-      destructiveHint: false,
-      openWorldHint: true,
-    },
-    handler: async (args, client, extra): Promise<ToolResponse> => {
-      await client.startProjectTests(args.projectId, args);
-      return textResult(await testResultsText(client, args.projectId, { failuresOnly: true, failedTables: true }, extra));
-    },
-  });
+    registerTool({
+        name: 'run_project_tests',
+        compiled: true,
+        title: 'Run Project Tests',
+        description:
+            'Run the tests of a project, a module or one table, wait for them, and answer the counts and the test tables that failed, with their failed tests; read the others with openl_get_test_results.',
+        schema: schemas.runProjectTestsSchema,
+        annotations: {
+            destructiveHint: false,
+            openWorldHint: true,
+        },
+        handler: async (args, client, extra): Promise<ToolResponse> => {
+            await client.startProjectTests(args.projectId, args)
+            return textResult(await testResultsText(client, args.projectId, { failuresOnly: true, failedTables: true }, extra))
+        },
+    })
 
-  registerTool({
-    name: "get_test_results",
-    title: "Get Test Results",
-    description:
-      "Read the results of the last openl_run_project_tests, waiting while it runs: the counts, the test tables with their tests and failures, and the failed tests of each with their inputs and failed assertions, expected and actual. An input with inner structure shows only its type and key; caseId reads it whole. A page holds up to 25,000 characters, cut at whole test tables or tests; its first lines name the next offset.",
-    schema: schemas.getTestResultsSchema,
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-      openWorldHint: true,
-    },
-    handler: async (args, client, extra): Promise<ToolResponse> => {
-      const { projectId, summary, caseId, ...options } = args;
-      if (caseId !== undefined) {
-        const unit = await waitForResult(
-          (request) => client.getTestCase(projectId, args.tableId as string, caseId, request),
-          TEST_RESULTS_WAIT,
-          extra,
-        );
-        return textResult(testCaseMarkdown(unit));
-      }
-      if (summary) {
-        const counts = await waitForResult(
-          (request) => client.getTestResultsSummary(projectId, request),
-          TEST_RESULTS_WAIT,
-          extra,
-        );
-        return textResult(countsLine(counts));
-      }
+    registerTool({
+        name: 'get_test_results',
+        title: 'Get Test Results',
+        description:
+            'Read the results of the last openl_run_project_tests, waiting while it runs: the counts, the test tables with their tests and failures, and the failed tests of each with their inputs and failed assertions, expected and actual. An input with inner structure shows only its type and key; caseId reads it whole. A page holds up to 25,000 characters, cut at whole test tables or tests; its first lines name the next offset.',
+        schema: schemas.getTestResultsSchema,
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
+        handler: async (args, client, extra): Promise<ToolResponse> => {
+            const { projectId, summary, caseId, ...options } = args
+            if (caseId !== undefined) {
+                const unit = await waitForResult(
+                    (request) => client.getTestCase(projectId, args.tableId as string, caseId, request),
+                    TEST_RESULTS_WAIT,
+                    extra
+                )
+                return textResult(testCaseMarkdown(unit))
+            }
+            if (summary) {
+                const counts = await waitForResult(
+                    (request) => client.getTestResultsSummary(projectId, request),
+                    TEST_RESULTS_WAIT,
+                    extra
+                )
+                return textResult(countsLine(counts))
+            }
 
-      return textResult(await testResultsText(client, projectId, options, extra));
-    },
-  });
+            return textResult(await testResultsText(client, projectId, options, extra))
+        },
+    })
 }
 
 /** How many failed tests of each test table a read of all of them lists; a test table with more counts the others. */
-const FAILURES_LISTED = 5;
+const FAILURES_LISTED = 5
 
 /**
  * The results of the last run of the tests as text, waiting while Studio still runs them: a page of its test tables, or
  * with `tableId` of the tests of one test table. With `failedTables` the page lists only the test tables that failed.
  */
 async function testResultsText(
-  client: OpenLClient,
-  projectId: string,
-  options: { tableId?: string; failuresOnly: boolean; failedTables?: boolean; offset?: number; limit?: number },
-  extra: ToolHandlerExtra | undefined,
+    client: OpenLClient,
+    projectId: string,
+    options: { tableId?: string, failuresOnly: boolean, failedTables?: boolean, offset?: number, limit?: number },
+    extra: ToolHandlerExtra | undefined
 ): Promise<string> {
-  const read = await waitForResult(
-    (request) => client.getTestResults(projectId, { ...options, failures: FAILURES_LISTED, ...request }),
-    TEST_RESULTS_WAIT,
-    extra,
-  );
-  // Only a read of the failed tests is cut to some of them
-  const results = options.failuresOnly ? withOmittedFailures(read) : read;
-  if (options.tableId !== undefined) {
-    return testsOfTable(results, options.offset ?? 0, options.limit ?? 50);
-  }
-  const pageSize = results.pageSize || options.limit || 50;
-  const offset = options.offset ?? (results.pageNumber || 0) * pageSize;
-  const hasMore = hasMoreItems(offset, results.numberOfElements, pageSize, results.total);
-  return options.failedTables ? failedTestTables(results, offset, hasMore) : testTables(results, offset, hasMore);
+    const read = await waitForResult(
+        (request) => client.getTestResults(projectId, { ...options, failures: FAILURES_LISTED, ...request }),
+        TEST_RESULTS_WAIT,
+        extra
+    )
+    // Only a read of the failed tests is cut to some of them
+    const results = options.failuresOnly ? withOmittedFailures(read) : read
+    if (options.tableId !== undefined) {
+        return testsOfTable(results, options.offset ?? 0, options.limit ?? 50)
+    }
+    const pageSize = results.pageSize || options.limit || 50
+    const offset = options.offset ?? (results.pageNumber || 0) * pageSize
+    const hasMore = hasMoreItems(offset, results.numberOfElements, pageSize, results.total)
+    return options.failedTables ? failedTestTables(results, offset, hasMore) : testTables(results, offset, hasMore)
 }
 
 /** The time and the counts of a run: `159 tests: 158 passed, 1 failed, in 6.13 s.` */
-function countsLine(run: { numberOfTests: number; numberOfFailures: number; executionTimeMs: number }): string {
-  const passed = run.numberOfTests - run.numberOfFailures;
-  return `${formatCount(run.numberOfTests, "test")}: ${passed} passed, ${run.numberOfFailures} failed, in ` +
-    `${(run.executionTimeMs / 1_000).toFixed(2)} s.`;
+function countsLine(run: { numberOfTests: number, numberOfFailures: number, executionTimeMs: number }): string {
+    const passed = run.numberOfTests - run.numberOfFailures
+    return `${formatCount(run.numberOfTests, 'test')}: ${passed} passed, ${run.numberOfFailures} failed, in ` +
+        `${(run.executionTimeMs / 1_000).toFixed(2)} s.`
 }
 
 /**
@@ -116,78 +116,78 @@ function countsLine(run: { numberOfTests: number; numberOfFailures: number; exec
  * `failures` of them per test table, and the agent must not take a cut list for every failure.
  */
 function withOmittedFailures(results: Types.TestsExecutionSummary): Types.TestsExecutionSummary {
-  return {
-    ...results,
-    testCases: results.testCases.map((testCase) => {
-      const failed = (testCase.testUnits ?? []).filter((unit) => unit.status !== "TR_OK").length;
-      const omitted = testCase.numberOfFailures - failed;
-      return omitted > 0 ? { ...testCase, omittedFailures: omitted } : testCase;
-    }),
-  };
+    return {
+        ...results,
+        testCases: results.testCases.map((testCase) => {
+            const failed = (testCase.testUnits ?? []).filter((unit) => unit.status !== 'TR_OK').length
+            const omitted = testCase.numberOfFailures - failed
+            return omitted > 0 ? { ...testCase, omittedFailures: omitted } : testCase
+        }),
+    }
 }
 
 /** The longest text of an input the table of tests shows; caseId reads the test with its inputs as JSON. */
-const INPUT_TEXT = 120;
+const INPUT_TEXT = 120
 
 /** The inputs of a test on one line: `age=25; policy=Policy MP000001`, a long value cut. */
 function inputsOf(unit: Types.TestUnitExecutionResult): string {
-  return (unit.parameters ?? []).map(({ name, lazy, type, key, value }) => {
-    const text = lazy ? `${type ?? "value"} ${key ?? ""}`.trim() : JSON.stringify(value) ?? "";
-    return `${name}=${cutText(text, INPUT_TEXT)}`;
-  }).join("; ");
+    return (unit.parameters ?? []).map(({ name, lazy, type, key, value }) => {
+        const text = lazy ? `${type ?? 'value'} ${key ?? ''}`.trim() : JSON.stringify(value) ?? ''
+        return `${name}=${cutText(text, INPUT_TEXT)}`
+    }).join('; ')
 }
 
 /** The status of a test as a word. */
-function statusOf(status: Types.TestUnitExecutionResult["status"]): string {
-  switch (status) {
-    case "TR_OK": return "passed";
-    case "TR_EXCEPTION": return "error";
-    default: return "failed";
-  }
+function statusOf(status: Types.TestUnitExecutionResult['status']): string {
+    switch (status) {
+        case 'TR_OK': return 'passed'
+        case 'TR_EXCEPTION': return 'error'
+        default: return 'failed'
+    }
 }
 
 /** What an assertion compares: its description, and the field when another assertion of the test has the same. */
 function assertionName(assertion: Types.TestAssertionExecutionResult): string {
-  if (!assertion.field) {
-    return assertion.description ?? "";
-  }
-  return assertion.description ? `${assertion.description} (${assertion.field})` : assertion.field;
+    if (!assertion.field) {
+        return assertion.description ?? ''
+    }
+    return assertion.description ? `${assertion.description} (${assertion.field})` : assertion.field
 }
 
 /** The failures of a test: each error, and each failed assertion with its values. */
 function failuresOf(unit: Types.TestUnitExecutionResult): string {
-  return [
-    ...(unit.errors ?? []).map((error) => `error: ${error.summary}`),
-    ...(unit.testAssertions ?? []).filter((assertion) => assertion.status !== "TR_OK").map((assertion) => {
-      const name = assertionName(assertion);
-      const label = name ? `${name}: ` : "";
-      return `${label}expected ${JSON.stringify(assertion.expectedValue)}, `
-        + `actual ${JSON.stringify(assertion.actualValue)}`;
-    }),
-  ].join("; ");
+    return [
+        ...(unit.errors ?? []).map((error) => `error: ${error.summary}`),
+        ...(unit.testAssertions ?? []).filter((assertion) => assertion.status !== 'TR_OK').map((assertion) => {
+            const name = assertionName(assertion)
+            const label = name ? `${name}: ` : ''
+            return `${label}expected ${JSON.stringify(assertion.expectedValue)}, `
+                + `actual ${JSON.stringify(assertion.actualValue)}`
+        }),
+    ].join('; ')
 }
 
 /** The columns of the table of the tests of a test table: a test with its inputs once and its failures. */
 const TEST_COLUMNS: Array<Column<Types.TestUnitExecutionResult>> = [
-  { header: "test", value: (unit) => unit.id },
-  { header: "status", value: (unit) => statusOf(unit.status) },
-  { header: "inputs", value: inputsOf },
-  { header: "failures", value: failuresOf },
-];
+    { header: 'test', value: (unit) => unit.id },
+    { header: 'status', value: (unit) => statusOf(unit.status) },
+    { header: 'inputs', value: inputsOf },
+    { header: 'failures', value: failuresOf },
+]
 
 /** The table of the tests of test tables, and the note on the failed tests a list leaves out. */
 function testsSection(testCases: Types.TestCaseExecutionResult[]): string[] {
-  const omitted = testCases.filter((testCase) => (testCase.omittedFailures ?? 0) > 0)
-    .map((testCase) => `${testCase.name} has ${formatCount(testCase.omittedFailures ?? 0, "more failed test")}: ` +
-      `read them with tableId ${testCase.tableId}.`);
-  const tables = testCases.filter((testCase) => testCase.testUnits?.length)
-    .map((testCase) => `test table: ${testCase.name}\n\n${markdownTable(testCase.testUnits ?? [], TEST_COLUMNS)}`);
-  return [...tables, ...omitted];
+    const omitted = testCases.filter((testCase) => (testCase.omittedFailures ?? 0) > 0)
+        .map((testCase) => `${testCase.name} has ${formatCount(testCase.omittedFailures ?? 0, 'more failed test')}: ` +
+            `read them with tableId ${testCase.tableId}.`)
+    const tables = testCases.filter((testCase) => testCase.testUnits?.length)
+        .map((testCase) => `test table: ${testCase.name}\n\n${markdownTable(testCase.testUnits ?? [], TEST_COLUMNS)}`)
+    return [...tables, ...omitted]
 }
 
 /** A page of the test tables of a run: their counts, and the tests they list; cut by whole test tables. */
 function testTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean): string {
-  return testTablesPage(results, { noun: "test tables", one: "test table", items: results.testCases, offset, total: results.total, hasMore });
+    return testTablesPage(results, { noun: 'test tables', one: 'test table', items: results.testCases, offset, total: results.total, hasMore })
 }
 
 /**
@@ -196,63 +196,63 @@ function testTables(results: Types.TestsExecutionSummary, offset: number, hasMor
  * stops.
  */
 function failedTestTables(results: Types.TestsExecutionSummary, offset: number, hasMore: boolean): string {
-  const failed = results.testCases.filter((testCase) => testCase.numberOfFailures > 0);
-  if (failed.length === 0) {
-    return countsLine(results);
-  }
-  const last = failed.length < results.testCases.length;
-  return testTablesPage(results, {
-    noun: "failed test tables",
-    one: "failed test table",
-    items: failed,
-    offset,
-    total: last ? offset + failed.length : undefined,
-    hasMore: !last && hasMore,
-  });
+    const failed = results.testCases.filter((testCase) => testCase.numberOfFailures > 0)
+    if (failed.length === 0) {
+        return countsLine(results)
+    }
+    const last = failed.length < results.testCases.length
+    return testTablesPage(results, {
+        noun: 'failed test tables',
+        one: 'failed test table',
+        items: failed,
+        offset,
+        total: last ? offset + failed.length : undefined,
+        hasMore: !last && hasMore,
+    })
 }
 
 /** The counts of a run and a list of its test tables with the tests they list; cut by whole test tables. */
 function testTablesPage(
-  results: Types.TestsExecutionSummary,
-  list: Pick<ListPage<Types.TestCaseExecutionResult>, "noun" | "one" | "items" | "offset" | "total" | "hasMore">,
+    results: Types.TestsExecutionSummary,
+    list: Pick<ListPage<Types.TestCaseExecutionResult>, 'noun' | 'one' | 'items' | 'offset' | 'total' | 'hasMore'>
 ): string {
-  const render = (count: number): string => {
-    const shown = list.items.slice(0, count);
-    return [
-      countsLine(results),
-      countLine(list, count),
-      ...(count > 0 ? [markdownTable(shown, [
-        { header: "test table", value: (testCase) => testCase.name },
-        { header: "tableId", value: (testCase) => testCase.tableId },
-        { header: "tests", value: (testCase) => testCase.numberOfTests },
-        { header: "failed", value: (testCase) => testCase.numberOfFailures },
-      ])] : []),
-      ...testsSection(shown),
-    ].join("\n\n");
-  };
-  return fitItems(render, list.items.length);
+    const render = (count: number): string => {
+        const shown = list.items.slice(0, count)
+        return [
+            countsLine(results),
+            countLine(list, count),
+            ...(count > 0 ? [markdownTable(shown, [
+                { header: 'test table', value: (testCase) => testCase.name },
+                { header: 'tableId', value: (testCase) => testCase.tableId },
+                { header: 'tests', value: (testCase) => testCase.numberOfTests },
+                { header: 'failed', value: (testCase) => testCase.numberOfFailures },
+            ])] : []),
+            ...testsSection(shown),
+        ].join('\n\n')
+    }
+    return fitItems(render, list.items.length)
 }
 
 /** A page of the tests of one test table, at most `limit` from `offset`: cut by whole tests. */
 function testsOfTable(results: Types.TestsExecutionSummary, offset: number, limit: number): string {
-  const [table] = results.testCases;
-  if (!table) {
-    return "No test table of the run has that id.";
-  }
-  const units = table.testUnits ?? [];
-  const counts = `${table.name} (${table.tableId}): ${formatCount(table.numberOfTests, "test")}, ${table.numberOfFailures} failed.`;
-  // With only the failures asked for, a test table without them lists no test
-  if (units.length === 0) {
-    return counts;
-  }
-  const page = units.slice(offset, offset + limit);
-  const list = { noun: "tests listed", one: "test listed", items: page, offset, total: units.length };
-  const render = (count: number): string => [
-    counts,
-    countLine(list, count),
-    ...testsSection([{ ...table, testUnits: page.slice(0, count) }]),
-  ].join("\n\n");
-  return fitItems(render, page.length);
+    const [table] = results.testCases
+    if (!table) {
+        return 'No test table of the run has that id.'
+    }
+    const units = table.testUnits ?? []
+    const counts = `${table.name} (${table.tableId}): ${formatCount(table.numberOfTests, 'test')}, ${table.numberOfFailures} failed.`
+    // With only the failures asked for, a test table without them lists no test
+    if (units.length === 0) {
+        return counts
+    }
+    const page = units.slice(offset, offset + limit)
+    const list = { noun: 'tests listed', one: 'test listed', items: page, offset, total: units.length }
+    const render = (count: number): string => [
+        counts,
+        countLine(list, count),
+        ...testsSection([{ ...table, testUnits: page.slice(0, count) }]),
+    ].join('\n\n')
+    return fitItems(render, page.length)
 }
 
 /**
@@ -260,18 +260,18 @@ function testsOfTable(results: Types.TestsExecutionSummary, offset: number, limi
  * assertion of it: the inputs are cut as they are written, so the answer stays within the limit.
  */
 function testCaseMarkdown(unit: Types.TestUnitExecutionResult): string {
-  const inputs = Object.fromEntries((unit.parameters ?? []).map(({ name, value }) => [name, value]));
-  const { value, cuts } = cutJson(inputs, RESPONSE_LIMITS.MAX_CHARACTERS / 2);
-  const cutNote = cuts.length > 0 ? `, cut to fit: ${cuts.join("; ")}` : "";
-  return [
-    `Test ${unit.id}: ${statusOf(unit.status)}.`,
-    `Inputs${cutNote}:\n\n\`\`\`json\n${JSON.stringify(value)}\n\`\`\``,
-    markdownTable(unit.testAssertions ?? [], [
-      { header: "assertion", value: assertionName },
-      { header: "status", value: (assertion) => statusOf(assertion.status) },
-      { header: "expected", value: (assertion) => JSON.stringify(assertion.expectedValue) },
-      { header: "actual", value: (assertion) => JSON.stringify(assertion.actualValue) },
-    ]),
-    ...(unit.errors ?? []).map((error) => `Error: ${error.summary}`),
-  ].join("\n\n");
+    const inputs = Object.fromEntries((unit.parameters ?? []).map(({ name, value }) => [name, value]))
+    const { value, cuts } = cutJson(inputs, RESPONSE_LIMITS.MAX_CHARACTERS / 2)
+    const cutNote = cuts.length > 0 ? `, cut to fit: ${cuts.join('; ')}` : ''
+    return [
+        `Test ${unit.id}: ${statusOf(unit.status)}.`,
+        `Inputs${cutNote}:\n\n\`\`\`json\n${JSON.stringify(value)}\n\`\`\``,
+        markdownTable(unit.testAssertions ?? [], [
+            { header: 'assertion', value: assertionName },
+            { header: 'status', value: (assertion) => statusOf(assertion.status) },
+            { header: 'expected', value: (assertion) => JSON.stringify(assertion.expectedValue) },
+            { header: 'actual', value: (assertion) => JSON.stringify(assertion.actualValue) },
+        ]),
+        ...(unit.errors ?? []).map((error) => `Error: ${error.summary}`),
+    ].join('\n\n')
 }

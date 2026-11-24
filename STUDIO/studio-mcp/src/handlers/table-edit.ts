@@ -9,17 +9,17 @@
  * own.
  */
 
-import type { OpenLClient } from "../client.js";
-import type { RawTableView } from "../types.js";
-import { formatResult, type ToolResponse } from "./common.js";
+import type { OpenLClient } from '../client.js'
+import type { RawTableView } from '../types.js'
+import { formatResult, type ToolResponse } from './common.js'
 
 
 /** The compile message Studio gives a lookup whose inputs are all vertical. */
-const NO_HORIZONTAL_INPUT = "No input parameter found for horizontal condition";
+const NO_HORIZONTAL_INPUT = 'No input parameter found for horizontal condition'
 
 /** What the answer of a write adds to that message: the table type of such a lookup. */
 const ONE_INPUT_LOOKUP =
-  "A SmartLookup or SimpleLookup takes a horizontal input: a lookup of one input, or of vertical inputs only, is a SmartRules or SimpleRules table.";
+    'A SmartLookup or SimpleLookup takes a horizontal input: a lookup of one input, or of vertical inputs only, is a SmartRules or SimpleRules table.'
 /**
  * Read a table back after an edit, with the messages of its compilation.
  *
@@ -32,17 +32,17 @@ const ONE_INPUT_LOOKUP =
  * so callers don't claim `recompileTriggered: true` falsely.
  */
 async function readTableBack(
-  client: OpenLClient,
-  projectId: string,
-  tableId: string,
+    client: OpenLClient,
+    projectId: string,
+    tableId: string
 ): Promise<RawTableView | undefined> {
-  try {
-    // A read of one row compiles the table as a read of all of it does
-    return await client.getTable(projectId, tableId, { offset: 0, limit: 1 });
-  } catch {
-    // Best-effort: the edit already applied; compile status refreshes on next read.
-    return undefined;
-  }
+    try {
+        // A read of one row compiles the table as a read of all of it does
+        return await client.getTable(projectId, tableId, { offset: 0, limit: 1 })
+    } catch {
+        // Best-effort: the edit already applied; compile status refreshes on next read.
+        return undefined
+    }
 }
 
 /**
@@ -62,52 +62,52 @@ async function readTableBack(
  * @param editVerb   the verb of the edit for the recompile-miss note ("update", "append", "edit")
  */
 export async function finishTableEdit(
-  client: OpenLClient,
-  args: { projectId: string; tableId: string },
-  reportedId: string | undefined,
-  editVerb: string,
+    client: OpenLClient,
+    args: { projectId: string, tableId: string },
+    reportedId: string | undefined,
+    editVerb: string
 ): Promise<ToolResponse> {
-  const { projectId, tableId: requestedId } = args;
-  const currentId = reportedId ?? requestedId;
-  const notes: string[] = [];
-  const idChanged = currentId !== requestedId;
-  if (idChanged) {
-    notes.push(
-      `The table is now known by the id '${currentId}', no longer '${requestedId}'. Use 'tableId' from this response for subsequent calls.`,
-    );
-  }
+    const { projectId, tableId: requestedId } = args
+    const currentId = reportedId ?? requestedId
+    const notes: string[] = []
+    const idChanged = currentId !== requestedId
+    if (idChanged) {
+        notes.push(
+            `The table is now known by the id '${currentId}', no longer '${requestedId}'. Use 'tableId' from this response for subsequent calls.`
+        )
+    }
 
-  // Reading the table back makes openl_project_status reflect the change, also
-  // when automatic compilation is off.
-  const table = await readTableBack(client, projectId, currentId);
-  const recompileTriggered = table !== undefined;
-  if (!recompileTriggered) {
-    notes.push(
-      `The table could not be read back under id '${currentId}', but the ${editVerb} WAS applied. Run openl_project_status to see whether the project compiles.`,
-    );
-  }
-  // An error names the cell it points to, the one to fix, when it points to one
-  const errors = (table?.messages ?? [])
-    .filter((item) => item.severity === "ERROR")
-    .map((item) => {
-      const cell = item.location?.cell;
-      return typeof cell === "string" ? `${cell}: ${item.summary ?? ""}` : item.summary ?? "";
-    });
-  if (errors.length > 0) {
-    notes.push(
-      `The table does NOT compile after the ${editVerb}, which WAS applied: fix the errors, or restore the module from its local edit history (openl_list_project_local_changes, openl_restore_project_local_change).`,
-    );
-  }
-  if (errors.some((error) => error.includes(NO_HORIZONTAL_INPUT))) {
-    notes.push(ONE_INPUT_LOOKUP);
-  }
+    // Reading the table back makes openl_project_status reflect the change, also
+    // when automatic compilation is off.
+    const table = await readTableBack(client, projectId, currentId)
+    const recompileTriggered = table !== undefined
+    if (!recompileTriggered) {
+        notes.push(
+            `The table could not be read back under id '${currentId}', but the ${editVerb} WAS applied. Run openl_project_status to see whether the project compiles.`
+        )
+    }
+    // An error names the cell it points to, the one to fix, when it points to one
+    const errors = (table?.messages ?? [])
+        .filter((item) => item.severity === 'ERROR')
+        .map((item) => {
+            const cell = item.location?.cell
+            return typeof cell === 'string' ? `${cell}: ${item.summary ?? ''}` : item.summary ?? ''
+        })
+    if (errors.length > 0) {
+        notes.push(
+            `The table does NOT compile after the ${editVerb}, which WAS applied: fix the errors, or restore the module from its local edit history (openl_list_project_local_changes, openl_restore_project_local_change).`
+        )
+    }
+    if (errors.some((error) => error.includes(NO_HORIZONTAL_INPUT))) {
+        notes.push(ONE_INPUT_LOOKUP)
+    }
 
-  return formatResult({
-    tableId: currentId,
-    ...(table?.version === undefined ? {} : { version: table.version }),
-    ...(idChanged ? { previousTableId: requestedId } : {}),
-    ...(recompileTriggered ? {} : { recompileTriggered }),
-    ...(errors.length > 0 ? { compiles: false, errors } : {}),
-    ...(notes.length > 0 ? { note: notes.join(" ") } : {}),
-  });
+    return formatResult({
+        tableId: currentId,
+        ...(table?.version === undefined ? {} : { version: table.version }),
+        ...(idChanged ? { previousTableId: requestedId } : {}),
+        ...(recompileTriggered ? {} : { recompileTriggered }),
+        ...(errors.length > 0 ? { compiles: false, errors } : {}),
+        ...(notes.length > 0 ? { note: notes.join(' ') } : {}),
+    })
 }

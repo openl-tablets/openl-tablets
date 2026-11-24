@@ -3,27 +3,27 @@
  * tables of their own (`markdown-list.ts`).
  */
 
-import { RESPONSE_LIMITS } from "./constants.js";
-import type * as Types from "./types.js";
-import { formatCount, largestFitting } from "./text.js";
-import { cutJson } from "./json-cut.js";
+import { RESPONSE_LIMITS } from './constants.js'
+import type * as Types from './types.js'
+import { formatCount, largestFitting } from './text.js'
+import { cutJson } from './json-cut.js'
 
 interface Response {
-  [key: string]: unknown;
-  data: unknown;
-  truncated?: boolean;
-  truncation_message?: string;
+    [key: string]: unknown
+    data: unknown
+    truncated?: boolean
+    truncation_message?: string
 }
 
-const RESPONSE_WRAPPER_FIELDS = new Set(["data", "truncated", "truncation_message"]);
+const RESPONSE_WRAPPER_FIELDS = new Set(['data', 'truncated', 'truncation_message'])
 
 export interface FormatOptions {
-  /** Fields answered beside the data, such as what a search found. */
-  responseMetadata?: Record<string, unknown>;
-  /** Character limit (defaults to RESPONSE_LIMITS.MAX_CHARACTERS) */
-  characterLimit?: number;
-  /** How a response over the character limit is cut; a list is cut by its leading items when this is omitted. */
-  truncation?: Truncation;
+    /** Fields answered beside the data, such as what a search found. */
+    responseMetadata?: Record<string, unknown>
+    /** Character limit (defaults to RESPONSE_LIMITS.MAX_CHARACTERS) */
+    characterLimit?: number
+    /** How a response over the character limit is cut; a list is cut by its leading items when this is omitted. */
+    truncation?: Truncation
 }
 
 /**
@@ -31,46 +31,46 @@ export interface FormatOptions {
  * with only the first `count` of them, and `next` how to read the ones after them.
  */
 export interface Truncation {
-  items: number;
-  unit: string;
-  cut: (count: number) => unknown;
-  next: (count: number) => string;
-  /** The metadata of a response of the first `count` items: the whole response holds all of them. */
-  metadata?: (count: number) => Record<string, unknown>;
+    items: number
+    unit: string
+    cut: (count: number) => unknown
+    next: (count: number) => string
+    /** The metadata of a response of the first `count` items: the whole response holds all of them. */
+    metadata?: (count: number) => Record<string, unknown>
 }
 
 /** Keep backend metadata from overriding formatter-owned response fields. */
 function withoutWrapperFields(record: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(record).filter(([key]) => !RESPONSE_WRAPPER_FIELDS.has(key)),
-  );
+    return Object.fromEntries(
+        Object.entries(record).filter(([key]) => !RESPONSE_WRAPPER_FIELDS.has(key))
+    )
 }
 
 /** The cuts an answer names, at most this many: the rest it counts. */
-const NAMED_CUTS = 8;
+const NAMED_CUTS = 8
 
 /**
  * A response whose data does not fit even when cut by whole items, cut as JSON of the same structure: its long texts
  * shortened, its largest arrays cut in the middle, and the cuts named, so the agent reads what is left by the same paths.
  */
 function cutJsonResponse(response: Response, charLimit: number): string {
-  const { data, ...metadata } = response;
-  const answer = (value: unknown, cuts: string[]): string => {
-    const named = cuts.slice(0, NAMED_CUTS).join("; ");
-    const more = cuts.length > NAMED_CUTS ? `; and ${cuts.length - NAMED_CUTS} more` : "";
-    const message = `${RESPONSE_LIMITS.TRUNCATION_MESSAGE} Cut: ${named}${more}. Narrow the request to read the rest.`;
-    return JSON.stringify({ ...metadata, data: value, truncated: true, truncation_message: message });
-  };
-  // The metadata and the note take their share of the limit: the data is cut again by what they take beyond it
-  let budget = charLimit - answer(null, []).length;
-  for (;;) {
-    const { value, cuts } = cutJson(data, Math.max(0, budget));
-    const text = answer(value, cuts);
-    if (text.length <= charLimit || budget <= 0) {
-      return text;
+    const { data, ...metadata } = response
+    const answer = (value: unknown, cuts: string[]): string => {
+        const named = cuts.slice(0, NAMED_CUTS).join('; ')
+        const more = cuts.length > NAMED_CUTS ? `; and ${cuts.length - NAMED_CUTS} more` : ''
+        const message = `${RESPONSE_LIMITS.TRUNCATION_MESSAGE} Cut: ${named}${more}. Narrow the request to read the rest.`
+        return JSON.stringify({ ...metadata, data: value, truncated: true, truncation_message: message })
     }
-    budget -= text.length - charLimit;
-  }
+    // The metadata and the note take their share of the limit: the data is cut again by what they take beyond it
+    let budget = charLimit - answer(null, []).length
+    for (;;) {
+        const { value, cuts } = cutJson(data, Math.max(0, budget))
+        const text = answer(value, cuts)
+        if (text.length <= charLimit || budget <= 0) {
+            return text
+        }
+        budget -= text.length - charLimit
+    }
 }
 
 /**
@@ -79,33 +79,33 @@ function cutJsonResponse(response: Response, charLimit: number): string {
  * when it is a list or names its `truncation`, and in its structure otherwise.
  */
 export function formatResponse(data: unknown, options?: FormatOptions): string {
-  const truncation = options?.truncation;
-  const response: Response = {
-    ...withoutWrapperFields({ ...options?.responseMetadata }),
-    // The metadata of a cut is the formatter's own, such as the pagination of what it holds
-    ...truncation?.metadata?.(truncation.items),
-    data,
-  };
-  const charLimit = options?.characterLimit || RESPONSE_LIMITS.MAX_CHARACTERS;
-  const whole = JSON.stringify(response);
-  if (whole.length <= charLimit) {
-    return whole;
-  }
-  const cut = truncation ?? listTruncation(data);
-  return (cut && fitLeadingItems(response, charLimit, cut)) ?? cutJsonResponse(response, charLimit);
+    const truncation = options?.truncation
+    const response: Response = {
+        ...withoutWrapperFields({ ...options?.responseMetadata }),
+        // The metadata of a cut is the formatter's own, such as the pagination of what it holds
+        ...truncation?.metadata?.(truncation.items),
+        data,
+    }
+    const charLimit = options?.characterLimit || RESPONSE_LIMITS.MAX_CHARACTERS
+    const whole = JSON.stringify(response)
+    if (whole.length <= charLimit) {
+        return whole
+    }
+    const cut = truncation ?? listTruncation(data)
+    return (cut && fitLeadingItems(response, charLimit, cut)) ?? cutJsonResponse(response, charLimit)
 }
 
 /** The cut of a list: its leading items. */
 function listTruncation(items: unknown): Truncation | undefined {
-  if (!Array.isArray(items) || items.length === 0) {
-    return undefined;
-  }
-  return {
-    items: items.length,
-    unit: "items",
-    cut: (count) => items.slice(0, count),
-    next: () => "narrow the request to read the rest",
-  };
+    if (!Array.isArray(items) || items.length === 0) {
+        return undefined
+    }
+    return {
+        items: items.length,
+        unit: 'items',
+        cut: (count) => items.slice(0, count),
+        next: () => 'narrow the request to read the rest',
+    }
 }
 
 /**
@@ -113,16 +113,16 @@ function listTruncation(items: unknown): Truncation | undefined {
  * rest, or a cut of the first item in its structure when not even it fits.
  */
 function fitLeadingItems(response: Response, charLimit: number, truncation: Truncation): string {
-  const page = (count: number): Response => ({ ...response, data: truncation.cut(count), ...truncation.metadata?.(count) });
-  const message = (count: number): string =>
-    `${RESPONSE_LIMITS.TRUNCATION_MESSAGE} It holds ${count} of ${truncation.items} ${truncation.unit}; ${truncation.next(count)}.`;
-  const fit = (count: number): string => JSON.stringify({ ...page(count), truncated: true, truncation_message: message(count) });
-  // Probing 1, 2, 4… items first keeps every probe near the size of the answer, not of the whole response
-  let fits = 1;
-  while (fits * 2 < truncation.items && fit(fits * 2).length <= charLimit) {
-    fits *= 2;
-  }
-  return largestFitting(fits, Math.min(fits * 2, truncation.items) - 1, fit, charLimit) ?? cutJsonResponse(page(1), charLimit);
+    const page = (count: number): Response => ({ ...response, data: truncation.cut(count), ...truncation.metadata?.(count) })
+    const message = (count: number): string =>
+        `${RESPONSE_LIMITS.TRUNCATION_MESSAGE} It holds ${count} of ${truncation.items} ${truncation.unit}; ${truncation.next(count)}.`
+    const fit = (count: number): string => JSON.stringify({ ...page(count), truncated: true, truncation_message: message(count) })
+    // Probing 1, 2, 4… items first keeps every probe near the size of the answer, not of the whole response
+    let fits = 1
+    while (fits * 2 < truncation.items && fit(fits * 2).length <= charLimit) {
+        fits *= 2
+    }
+    return largestFitting(fits, Math.min(fits * 2, truncation.items) - 1, fit, charLimit) ?? cutJsonResponse(page(1), charLimit)
 }
 
 /**
@@ -131,32 +131,32 @@ function fitLeadingItems(response: Response, charLimit: number, truncation: Trun
  * from the document alone.
  */
 export const AGENTS_DOCUMENT_NOTE =
-  "*The AGENTS.md files that apply, from the root folder to the project folder: a later file overrides an earlier one.*";
+    '*The AGENTS.md files that apply, from the root folder to the project folder: a later file overrides an earlier one.*'
 
 /** The longest guidance answered whole; longer guidance answers the opening of each file and its contents. */
-const AGENTS_WHOLE_CHARACTERS = 12_000;
+const AGENTS_WHOLE_CHARACTERS = 12_000
 
 /** A heading of a Markdown text and the extent of its section: up to the next heading of its level or higher. */
 interface Section {
-  level: number;
-  title: string;
-  start: number;
-  end: number;
+    level: number
+    title: string
+    start: number
+    end: number
 }
 
 /** The title of an ATX heading: its closing sequence, `## Title ##`, left out, which a space must precede. */
 function headingTitle(text: string): string {
-  const title = text.trimEnd();
-  let end = title.length;
-  while (end > 0 && title[end - 1] === "#") {
-    end--;
-  }
-  return end < title.length && title[end - 1] === " " ? title.slice(0, end).trimEnd() : title;
+    const title = text.trimEnd()
+    let end = title.length
+    while (end > 0 && title[end - 1] === '#') {
+        end--
+    }
+    return end < title.length && title[end - 1] === ' ' ? title.slice(0, end).trimEnd() : title
 }
 
 /** The fence a line starts with: indented by at most three spaces, as more is indented code. */
 function fenceOf(line: string): string | undefined {
-  return /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    return /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1]
 }
 
 /**
@@ -164,65 +164,65 @@ function fenceOf(line: string): string | undefined {
  * character, at least as long and with nothing after it.
  */
 function fenceAfter(open: string | undefined, line: string, marker: string | undefined): string | undefined {
-  if (open === undefined) {
-    return marker;
-  }
-  const closes = marker?.startsWith(open[0]) && marker.length >= open.length
-    && !line.slice(line.indexOf(marker) + marker.length).trim();
-  return closes ? undefined : open;
+    if (open === undefined) {
+        return marker
+    }
+    const closes = marker?.startsWith(open[0]) && marker.length >= open.length
+        && !line.slice(line.indexOf(marker) + marker.length).trim()
+    return closes ? undefined : open
 }
 
 /** The sections of a Markdown text by its headings, in their order, fenced code left out. */
 export function sectionsOf(text: string): Section[] {
-  const headings: Array<Omit<Section, "end">> = [];
-  // The fence a code block opened with, which only a fence of the same character and at least its length closes
-  let fence: string | undefined;
-  let offset = 0;
-  for (const line of text.split("\n")) {
-    // A file written on Windows ends its lines with CR LF
-    const content = line.endsWith("\r") ? line.slice(0, -1) : line;
-    const marker = fenceOf(content);
-    fence = fenceAfter(fence, content, marker);
-    const heading = fence !== undefined || marker ? null : /^ {0,3}(#{1,6})\s+(\S.*)$/.exec(content);
-    if (heading) {
-      headings.push({ level: heading[1].length, title: headingTitle(heading[2]), start: offset });
+    const headings: Array<Omit<Section, 'end'>> = []
+    // The fence a code block opened with, which only a fence of the same character and at least its length closes
+    let fence: string | undefined
+    let offset = 0
+    for (const line of text.split('\n')) {
+        // A file written on Windows ends its lines with CR LF
+        const content = line.endsWith('\r') ? line.slice(0, -1) : line
+        const marker = fenceOf(content)
+        fence = fenceAfter(fence, content, marker)
+        const heading = fence !== undefined || marker ? null : /^ {0,3}(#{1,6})\s+(\S.*)$/.exec(content)
+        if (heading) {
+            headings.push({ level: heading[1].length, title: headingTitle(heading[2]), start: offset })
+        }
+        offset += line.length + 1
     }
-    offset += line.length + 1;
-  }
-  return headings.map((heading, index) => ({
-    ...heading,
-    end: headings.find((next, after) => after > index && next.level <= heading.level)?.start ?? text.length,
-  }));
+    return headings.map((heading, index) => ({
+        ...heading,
+        end: headings.find((next, after) => after > index && next.level <= heading.level)?.start ?? text.length,
+    }))
 }
 
 /** The sections of a guidance file whose headings hold one of the titles, each with its subsections. */
 function chosenSections(content: string, titles: string[]): string {
-  const wanted = titles.map((title) => title.toLowerCase());
-  const texts: string[] = [];
-  let end = -1;
-  for (const section of sectionsOf(content)) {
-    // A section inside one already chosen comes with it
-    if (section.start >= end && wanted.some((title) => section.title.toLowerCase().includes(title))) {
-      texts.push(content.slice(section.start, section.end).trimEnd());
-      end = section.end;
+    const wanted = titles.map((title) => title.toLowerCase())
+    const texts: string[] = []
+    let end = -1
+    for (const section of sectionsOf(content)) {
+        // A section inside one already chosen comes with it
+        if (section.start >= end && wanted.some((title) => section.title.toLowerCase().includes(title))) {
+            texts.push(content.slice(section.start, section.end).trimEnd())
+            end = section.end
+        }
     }
-  }
-  if (texts.length === 0) {
-    return "*No section of this file has such a heading.*";
-  }
-  return texts.join("\n\n");
+    if (texts.length === 0) {
+        return '*No section of this file has such a heading.*'
+    }
+    return texts.join('\n\n')
 }
 
 /** The opening of a guidance file, the text before its first section below its title, and its contents. */
 function outlineOf(content: string): string {
-  const sections = sectionsOf(content).filter((section) => section.level > 1 || section.start > 0);
-  if (sections.length === 0) {
-    return content;
-  }
-  const top = Math.min(...sections.map((section) => section.level));
-  const contents = sections.map(({ level, title, start, end }) =>
-    `${"  ".repeat(level - top)}- ${title} (${formatCount(end - start, "character")})`);
-  return `${content.slice(0, sections[0].start).trimEnd()}\n\nContents:\n${contents.join("\n")}`;
+    const sections = sectionsOf(content).filter((section) => section.level > 1 || section.start > 0)
+    if (sections.length === 0) {
+        return content
+    }
+    const top = Math.min(...sections.map((section) => section.level))
+    const contents = sections.map(({ level, title, start, end }) =>
+        `${'  '.repeat(level - top)}- ${title} (${formatCount(end - start, 'character')})`)
+    return `${content.slice(0, sections[0].start).trimEnd()}\n\nContents:\n${contents.join('\n')}`
 }
 
 /**
@@ -243,23 +243,23 @@ function outlineOf(content: string): string {
  * @returns A markdown document, or a short note when the project has none.
  */
 export function formatAgentsDocument(files: Types.AgentsFile[], titles?: string[]): string {
-  if (files.length === 0) {
-    return "No AGENTS.md files apply to this project.";
-  }
-  const body = (part: (content: string) => string): string => files.toReversed().map((file) => {
-    const path = file.path.startsWith("/") ? file.path : `/${file.path}`;
-    // trimEnd so a file ending in newlines doesn't widen the gap before the next section.
-    return `-----\n## ${path}\n\n${part(file.content).trimEnd()}`;
-  }).join("\n\n");
-  if (titles) {
-    return `${AGENTS_DOCUMENT_NOTE}\n\n${body((content) => chosenSections(content, titles))}\n`;
-  }
-  const whole = `${AGENTS_DOCUMENT_NOTE}\n\n${body((content) => content)}\n`;
-  if (whole.length <= AGENTS_WHOLE_CHARACTERS) {
-    return whole;
-  }
-  const note = `${AGENTS_DOCUMENT_NOTE} The guidance is ${formatCount(whole.length, "character")}: each file comes `
-    + "with its opening and the contents of its sections. Read the sections your task needs with `sections`, by their "
-    + "headings.";
-  return `${note}\n\n${body(outlineOf)}\n`;
+    if (files.length === 0) {
+        return 'No AGENTS.md files apply to this project.'
+    }
+    const body = (part: (content: string) => string): string => files.toReversed().map((file) => {
+        const path = file.path.startsWith('/') ? file.path : `/${file.path}`
+        // trimEnd so a file ending in newlines doesn't widen the gap before the next section.
+        return `-----\n## ${path}\n\n${part(file.content).trimEnd()}`
+    }).join('\n\n')
+    if (titles) {
+        return `${AGENTS_DOCUMENT_NOTE}\n\n${body((content) => chosenSections(content, titles))}\n`
+    }
+    const whole = `${AGENTS_DOCUMENT_NOTE}\n\n${body((content) => content)}\n`
+    if (whole.length <= AGENTS_WHOLE_CHARACTERS) {
+        return whole
+    }
+    const note = `${AGENTS_DOCUMENT_NOTE} The guidance is ${formatCount(whole.length, 'character')}: each file comes `
+        + 'with its opening and the contents of its sections. Read the sections your task needs with `sections`, by their '
+        + 'headings.'
+    return `${note}\n\n${body(outlineOf)}\n`
 }

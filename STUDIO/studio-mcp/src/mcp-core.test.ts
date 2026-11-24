@@ -9,163 +9,163 @@
  * an in-memory transport pair, using pre-existing tools as vehicles.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { MockHttp } from "./testing/mock-http.js";
-import { InMemoryTransport } from "@modelcontextprotocol/server";
-import type { McpServer } from "@modelcontextprotocol/server";
-import { Client } from "@modelcontextprotocol/client";
-import { OpenLClient } from "./client.js";
-import { clientInfoOf, createConfiguredServer } from "./mcp-core.js";
-import { mcpToolName } from "./constants.js";
-import { getAllTools } from "./handlers/index.js";
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { MockHttp } from './testing/mock-http.js'
+import { InMemoryTransport } from '@modelcontextprotocol/server'
+import type { McpServer } from '@modelcontextprotocol/server'
+import { Client } from '@modelcontextprotocol/client'
+import { OpenLClient } from './client.js'
+import { clientInfoOf, createConfiguredServer } from './mcp-core.js'
+import { mcpToolName } from './constants.js'
+import { getAllTools } from './handlers/index.js'
 
-describe("MCP core — tool-call error channel", () => {
-  let openlClient: OpenLClient;
-  let mockHttp: MockHttp;
-  let server: McpServer;
-  let client: Client;
+describe('MCP core — tool-call error channel', () => {
+    let openlClient: OpenLClient
+    let mockHttp: MockHttp
+    let server: McpServer
+    let client: Client
 
-  beforeEach(async () => {
-    openlClient = new OpenLClient({ baseUrl: "http://localhost:8080", authorization: "Token openl_pat_test" });
-    mockHttp = new MockHttp(openlClient);
+    beforeEach(async () => {
+        openlClient = new OpenLClient({ baseUrl: 'http://localhost:8080', authorization: 'Token openl_pat_test' })
+        mockHttp = new MockHttp(openlClient)
 
-    server = createConfiguredServer(openlClient);
+        server = createConfiguredServer(openlClient)
 
-    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-    await server.connect(serverTransport);
-    client = new Client({ name: "test-client", version: "0.0.0" });
-    await client.connect(clientTransport);
-  });
+        const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+        await server.connect(serverTransport)
+        client = new Client({ name: 'test-client', version: '0.0.0' })
+        await client.connect(clientTransport)
+    })
 
-  afterEach(async () => {
-    await client.close();
-    await server.close();
-  });
+    afterEach(async () => {
+        await client.close()
+        await server.close()
+    })
 
-  const textOf = (result: { content: unknown }) =>
-    (result.content as Array<{ type: string; text: string }>)[0].text;
+    const textOf = (result: { content: unknown }) =>
+        (result.content as Array<{ type: string, text: string }>)[0].text
 
-  it("surfaces a backend error as an isError result carrying the detailed reason", async () => {
-    // The studio rejects the read with a precise reason in the error body.
-    mockHttp
-      .onGet(/\/tables\/t1$/)
-      .reply(400, { code: "BAD_REQUEST", message: "column height 6 exceeds table height 5" });
+    it('surfaces a backend error as an isError result carrying the detailed reason', async () => {
+        // The studio rejects the read with a precise reason in the error body.
+        mockHttp
+            .onGet(/\/tables\/t1$/)
+            .reply(400, { code: 'BAD_REQUEST', message: 'column height 6 exceeds table height 5' })
 
-    const result = await client.callTool({
-      name: "openl_get_table",
-      arguments: { projectId: "p1", tableId: "t1" },
-    });
+        const result = await client.callTool({
+            name: 'openl_get_table',
+            arguments: { projectId: 'p1', tableId: 't1' },
+        })
 
-    // Reported as a tool RESULT (isError), not a thrown protocol error.
-    expect(result.isError).toBe(true);
-    const text = textOf(result);
-    // The precise backend reason reaches the model, not a generic "failed".
-    expect(text).toContain("column height 6 exceeds table height 5");
-    expect(text).toContain("400");
-    // ...but the internal studio REST endpoint is NOT leaked to the agent.
-    expect(text).not.toContain("/projects/");
-    expect(text).not.toContain("/tables/");
-  });
+        // Reported as a tool RESULT (isError), not a thrown protocol error.
+        expect(result.isError).toBe(true)
+        const text = textOf(result)
+        // The precise backend reason reaches the model, not a generic "failed".
+        expect(text).toContain('column height 6 exceeds table height 5')
+        expect(text).toContain('400')
+        // ...but the internal studio REST endpoint is NOT leaked to the agent.
+        expect(text).not.toContain('/projects/')
+        expect(text).not.toContain('/tables/')
+    })
 
-  it("surfaces an argument-validation failure as an isError result (no backend call)", async () => {
-    // get_table requires tableId; the handler rejects before any backend call.
-    const result = await client.callTool({
-      name: "openl_get_table",
-      arguments: { projectId: "p1" },
-    });
+    it('surfaces an argument-validation failure as an isError result (no backend call)', async () => {
+        // get_table requires tableId; the handler rejects before any backend call.
+        const result = await client.callTool({
+            name: 'openl_get_table',
+            arguments: { projectId: 'p1' },
+        })
 
-    expect(result.isError).toBe(true);
-    expect(textOf(result)).toContain("Invalid arguments for get_table");
-    expect(mockHttp.requests).toHaveLength(0);
-  });
+        expect(result.isError).toBe(true)
+        expect(textOf(result)).toContain('Invalid arguments for get_table')
+        expect(mockHttp.requests).toHaveLength(0)
+    })
 
-  it("succeeds without isError when the tool runs cleanly", async () => {
-    mockHttp.onGet("/repos").reply(200, [{ id: "design", name: "Design" }]);
+    it('succeeds without isError when the tool runs cleanly', async () => {
+        mockHttp.onGet('/repos').reply(200, [{ id: 'design', name: 'Design' }])
 
-    const result = await client.callTool({ name: "openl_list_repositories", arguments: {} });
+        const result = await client.callTool({ name: 'openl_list_repositories', arguments: {} })
 
-    expect(result.isError).toBeFalsy();
-    expect(textOf(result)).toContain("Design");
-  });
+        expect(result.isError).toBeFalsy()
+        expect(textOf(result)).toContain('Design')
+    })
 
-  it("does not advertise repeatable side effects as idempotent", async () => {
-    const tools = await client.listTools();
-    for (const name of [
-      "openl_edit_table",
-      "openl_run_project_tests",
-      "openl_deploy_project",
-    ]) {
-      const tool = tools.tools.find((candidate) => candidate.name === name);
-      expect(tool?.annotations?.idempotentHint).not.toBe(true);
-    }
-  });
+    it('does not advertise repeatable side effects as idempotent', async () => {
+        const tools = await client.listTools()
+        for (const name of [
+            'openl_edit_table',
+            'openl_run_project_tests',
+            'openl_deploy_project',
+        ]) {
+            const tool = tools.tools.find((candidate) => candidate.name === name)
+            expect(tool?.annotations?.idempotentHint).not.toBe(true)
+        }
+    })
 
-  it("lists every tool with the JSON Schema of the registry, as the SDK does not rewrite it", async () => {
-    const { tools } = await client.listTools();
-    const registry = new Map(getAllTools().map((tool) => [mcpToolName(tool.name), tool.inputSchema]));
+    it('lists every tool with the JSON Schema of the registry, as the SDK does not rewrite it', async () => {
+        const { tools } = await client.listTools()
+        const registry = new Map(getAllTools().map((tool) => [mcpToolName(tool.name), tool.inputSchema]))
 
-    expect(tools).toHaveLength(registry.size);
-    for (const tool of tools) {
-      expect(tool.inputSchema).toEqual(registry.get(tool.name));
-    }
-  });
+        expect(tools).toHaveLength(registry.size)
+        for (const tool of tools) {
+            expect(tool.inputSchema).toEqual(registry.get(tool.name))
+        }
+    })
 
-  it("keeps what a client loads, the tool list and the instructions, under the size they were cut to", async () => {
-    // A client without deferred tools loads every definition on every request: raise the ceiling only for a reason
-    const { tools } = await client.listTools();
-    const size = JSON.stringify(tools).length + (client.getInstructions() ?? "").length;
+    it('keeps what a client loads, the tool list and the instructions, under the size they were cut to', async () => {
+        // A client without deferred tools loads every definition on every request: raise the ceiling only for a reason
+        const { tools } = await client.listTools()
+        const size = JSON.stringify(tools).length + (client.getInstructions() ?? '').length
 
-    expect(size).toBeLessThanOrEqual(79_800);
-  });
+        expect(size).toBeLessThanOrEqual(79_800)
+    })
 
-  it("publishes no annotation of the value MCP takes when it is left out", async () => {
-    const { tools } = await client.listTools();
+    it('publishes no annotation of the value MCP takes when it is left out', async () => {
+        const { tools } = await client.listTools()
 
-    expect(tools.flatMap(({ annotations }) => Object.entries(annotations ?? {}))).not.toContainEqual(["openWorldHint", true]);
-  });
+        expect(tools.flatMap(({ annotations }) => Object.entries(annotations ?? {}))).not.toContainEqual(['openWorldHint', true])
+    })
 
-  it("advertises whole-table replacement as destructive and idempotent", async () => {
-    const tools = await client.listTools();
-    const update = tools.tools.find((tool) => tool.name === "openl_update_table");
+    it('advertises whole-table replacement as destructive and idempotent', async () => {
+        const tools = await client.listTools()
+        const update = tools.tools.find((tool) => tool.name === 'openl_update_table')
 
-    // MCP takes a tool that is not read-only for destructive unless it says otherwise
-    expect(update?.annotations?.readOnlyHint).toBeUndefined();
-    expect(update?.annotations?.destructiveHint).not.toBe(false);
-    expect(update?.annotations?.idempotentHint).toBe(true);
-  });
+        // MCP takes a tool that is not read-only for destructive unless it says otherwise
+        expect(update?.annotations?.readOnlyHint).toBeUndefined()
+        expect(update?.annotations?.destructiveHint).not.toBe(false)
+        expect(update?.annotations?.idempotentHint).toBe(true)
+    })
 
-  it("surfaces a backend HTTP 405 as an isError result, not a protocol error", async () => {
-    // handleToolError maps HTTP 405 to ProtocolErrorCode.MethodNotFound. A registered
-    // tool that gets a 405 is still a tool failure, so it must reach the agent as an
-    // isError result, not a throw.
-    mockHttp.onGet(/\/tables\/t1$/).reply(405, { code: "METHOD_NOT_ALLOWED", message: "Not allowed here" });
+    it('surfaces a backend HTTP 405 as an isError result, not a protocol error', async () => {
+        // handleToolError maps HTTP 405 to ProtocolErrorCode.MethodNotFound. A registered
+        // tool that gets a 405 is still a tool failure, so it must reach the agent as an
+        // isError result, not a throw.
+        mockHttp.onGet(/\/tables\/t1$/).reply(405, { code: 'METHOD_NOT_ALLOWED', message: 'Not allowed here' })
 
-    const result = await client.callTool({
-      name: "openl_get_table",
-      arguments: { projectId: "p1", tableId: "t1" },
-    });
+        const result = await client.callTool({
+            name: 'openl_get_table',
+            arguments: { projectId: 'p1', tableId: 't1' },
+        })
 
-    expect(result.isError).toBe(true);
-    expect(textOf(result)).toContain("405");
-  });
+        expect(result.isError).toBe(true)
+        expect(textOf(result)).toContain('405')
+    })
 
-  it("keeps a genuinely unknown tool a thrown protocol error, not an isError result", async () => {
-    await expect(
-      client.callTool({ name: "openl_does_not_exist", arguments: {} }),
-    ).rejects.toThrow(/Tool openl_\w+ not found/);
-  });
-});
+    it('keeps a genuinely unknown tool a thrown protocol error, not an isError result', async () => {
+        await expect(
+            client.callTool({ name: 'openl_does_not_exist', arguments: {} })
+        ).rejects.toThrow(/Tool openl_\w+ not found/)
+    })
+})
 
-describe("the client a request names in its envelope", () => {
-  it("is read from the envelope of the stateless protocol, and nothing else", () => {
-    const info = "io.modelcontextprotocol/clientInfo";
+describe('the client a request names in its envelope', () => {
+    it('is read from the envelope of the stateless protocol, and nothing else', () => {
+        const info = 'io.modelcontextprotocol/clientInfo'
 
-    expect(clientInfoOf({ [info]: { name: "claude-code", version: "2.1.0" } }))
-      .toEqual({ name: "claude-code", version: "2.1.0" });
-    expect(clientInfoOf({ [info]: { name: "Cursor", version: 3 } })).toEqual({ name: "Cursor", version: undefined });
-    expect(clientInfoOf(undefined)).toBeUndefined();
-    expect(clientInfoOf({})).toBeUndefined();
-    expect(clientInfoOf({ [info]: { version: "1" } })).toBeUndefined();
-    expect(clientInfoOf({ [info]: "claude-code" })).toBeUndefined();
-  });
-});
+        expect(clientInfoOf({ [info]: { name: 'claude-code', version: '2.1.0' } }))
+            .toEqual({ name: 'claude-code', version: '2.1.0' })
+        expect(clientInfoOf({ [info]: { name: 'Cursor', version: 3 } })).toEqual({ name: 'Cursor', version: undefined })
+        expect(clientInfoOf(undefined)).toBeUndefined()
+        expect(clientInfoOf({})).toBeUndefined()
+        expect(clientInfoOf({ [info]: { version: '1' } })).toBeUndefined()
+        expect(clientInfoOf({ [info]: 'claude-code' })).toBeUndefined()
+    })
+})

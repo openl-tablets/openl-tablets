@@ -3,288 +3,428 @@
  * sends to `/tables/{id}/actions`, the validation before it, and the id of the table after the edit.
  */
 
-import { describe, it, expect } from "vitest";
-import { executeTool } from "./index.js";
-import { bodyOf } from "../testing/mock-http.js";
-import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
+import { describe, it, expect } from 'vitest'
+import { executeTool } from './index.js'
+import { bodyOf } from '../testing/mock-http.js'
+import { dataOf, harness, textOf, useToolHarness } from '../testing/harness.js'
 
-useToolHarness();
+useToolHarness()
 
-const tablePath = "/projects/p1/tables/t1";
+const tablePath = '/projects/p1/tables/t1'
 // A line of the edit holds values, which Studio takes as cells
-const a = { value: "a" };
-const b = { value: "b" };
+const a = { value: 'a' }
+const b = { value: 'b' }
 
-describe("names agents give the arguments of an edit", () => {
-  it("takes op, type and col for action and column, in the tool and in each of its actions", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204);
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, { id: "t1", name: "T", tableType: "RawSource", kind: "Other", source: [] });
+describe('names agents give the arguments of an edit', () => {
+    it('takes op, type and col for action and column, in the tool and in each of its actions', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204)
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, { id: 't1', name: 'T', tableType: 'RawSource', kind: 'Other', source: [] })
 
-    await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", op: "update_cell", row: 1, col: 2, value: "a" }, harness.client);
-    await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1",
-      actions: [{ type: "update_cell", row: 1, col: 2, value: "a" }, { op: "delete_rows", position: 3 }] }, harness.client);
+        await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            op: 'update_cell',
+            row: 1,
+            col: 2,
+            value: 'a'
+        }, harness.client)
+        await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            actions: [{ type: 'update_cell', row: 1, col: 2, value: 'a' }, { op: 'delete_rows', position: 3 }]
+        }, harness.client)
 
-    const cell = { operation: "update", target: { type: "cell", row: 1, column: 2, value: "a" } };
-    expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([
-      cell, { actions: [cell, { operation: "delete", target: { type: "rows", position: 3, count: 1 } }] },
-    ]);
-  });
+        const cell = { operation: 'update', target: { type: 'cell', row: 1, column: 2, value: 'a' } }
+        expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([
+            cell,
+            { actions: [cell, { operation: 'delete', target: { type: 'rows', position: 3, count: 1 } }] },
+        ])
+    })
 
-  it("refuses find, which names cells by their text, with the read that finds them", async () => {
-    await expect(executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", action: "update_cell", find: "900", column: 2, value: 1 }, harness.client))
-      .rejects.toThrow(/read the rows holding a value with openl_get_table find, then edit them/);
-  });
-});
+    it('refuses find, which names cells by their text, with the read that finds them', async () => {
+        await expect(executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            action: 'update_cell',
+            find: '900',
+            column: 2,
+            value: 1
+        }, harness.client))
+            .rejects.toThrow(/read the rows holding a value with openl_get_table find, then edit them/)
+    })
+})
 
-describe("raw table-source edits", () => {
-  it.each([
-    ["append_rows", { cells: [["a", "b"]] }, { operation: "append", target: { type: "rows", cells: [[a, b]] } }],
-    ["append_columns", { cells: [["a", "b"]] }, { operation: "append", target: { type: "columns", cells: [[a, b]] } }],
-    // The studio has only a `rows` block target — one row is a one-element block.
-    ["insert_rows", { position: 3, cells: [["a", "b"]] },
-      { operation: "insert", target: { type: "rows", position: 3, cells: [[a, b]] } }],
-    ["insert_rows", { position: 2, cells: [["a"], ["b"]] },
-      { operation: "insert", target: { type: "rows", position: 2, cells: [[a], [b]] } }],
-    ["insert_columns", { position: 1, cells: [["a", "b"]] },
-      { operation: "insert", target: { type: "columns", position: 1, cells: [[a, b]] } }],
-    // count omitted → defaults to 1 on the `rows` block target.
-    ["delete_rows", { position: 4 }, { operation: "delete", target: { type: "rows", position: 4, count: 1 } }],
-    ["delete_rows", { position: 3, count: 4 }, { operation: "delete", target: { type: "rows", position: 3, count: 4 } }],
-    ["delete_columns", { position: 2, count: 2 },
-      { operation: "delete", target: { type: "columns", position: 2, count: 2 } }],
-    ["update_row", { position: 1, cells: [["a", "b"]] }, { operation: "update", target: { type: "row", position: 1, cells: [a, b] } }],
-    ["update_column", { position: 2, cells: [["a", "b"]] },
-      { operation: "update", target: { type: "column", position: 2, cells: [a, b] } }],
-    // An explicit null clears the cell.
-    ["update_cell", { row: 2, column: 1, value: null },
-      { operation: "update", target: { type: "cell", row: 2, column: 1, value: null } }],
-    ["update_cell", { row: 3, column: 0, value: ["MA2", "FA+", "SPA"] },
-      { operation: "update", target: { type: "cell", row: 3, column: 0, value: ["MA2", "FA+", "SPA"] } }],
-    // An Excel formula is sent alone, without a value.
-    ["update_cell", { row: 2, column: 1, formula: "=B2*2" },
-      { operation: "update", target: { type: "cell", row: 2, column: 1, formula: "=B2*2" } }],
-    // A null clears a cell no merged cell covers
-    ["update_row", { position: 1, cells: [["a", null]] },
-      { operation: "update", target: { type: "row", position: 1, cells: [{ value: "a" }, { value: null }] } }],
-    ["merge", { row: 1, column: 0, rowspan: 2, colspan: 3 },
-      { operation: "merge", target: { type: "cells", row: 1, column: 0, rowspan: 2, colspan: 3 } }],
-    ["unmerge", { row: 1, column: 0 }, { operation: "unmerge", target: { type: "cells", row: 1, column: 0 } }],
-    ["update_range", { row: 1, column: 2, cells: [["a", "b"]] },
-      { operation: "update", target: { type: "range", row: 1, column: 2, cells: [[a, b]] } }],
-  ])("%s %j posts its action and reads the table back", async (editAction, args, action) => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, { id: "t1", name: "T", tableType: "RawSource", kind: "Other", source: [] });
+describe('raw table-source edits', () => {
+    it.each([
+        ['append_rows', { cells: [['a', 'b']] }, { operation: 'append', target: { type: 'rows', cells: [[a, b]] } }],
+        ['append_columns', { cells: [['a', 'b']] }, { operation: 'append', target: { type: 'columns', cells: [[a, b]] } }],
+        // The studio has only a `rows` block target — one row is a one-element block.
+        [
+            'insert_rows',
+            { position: 3, cells: [['a', 'b']] },
+            { operation: 'insert', target: { type: 'rows', position: 3, cells: [[a, b]] } }
+        ],
+        [
+            'insert_rows',
+            { position: 2, cells: [['a'], ['b']] },
+            { operation: 'insert', target: { type: 'rows', position: 2, cells: [[a], [b]] } }
+        ],
+        [
+            'insert_columns',
+            { position: 1, cells: [['a', 'b']] },
+            { operation: 'insert', target: { type: 'columns', position: 1, cells: [[a, b]] } }
+        ],
+        // count omitted → defaults to 1 on the `rows` block target.
+        ['delete_rows', { position: 4 }, { operation: 'delete', target: { type: 'rows', position: 4, count: 1 } }],
+        ['delete_rows', { position: 3, count: 4 }, { operation: 'delete', target: { type: 'rows', position: 3, count: 4 } }],
+        [
+            'delete_columns',
+            { position: 2, count: 2 },
+            { operation: 'delete', target: { type: 'columns', position: 2, count: 2 } }
+        ],
+        ['update_row', { position: 1, cells: [['a', 'b']] }, { operation: 'update', target: { type: 'row', position: 1, cells: [a, b] } }],
+        [
+            'update_column',
+            { position: 2, cells: [['a', 'b']] },
+            { operation: 'update', target: { type: 'column', position: 2, cells: [a, b] } }
+        ],
+        // An explicit null clears the cell.
+        [
+            'update_cell',
+            { row: 2, column: 1, value: null },
+            { operation: 'update', target: { type: 'cell', row: 2, column: 1, value: null } }
+        ],
+        [
+            'update_cell',
+            { row: 3, column: 0, value: ['MA2', 'FA+', 'SPA'] },
+            { operation: 'update', target: { type: 'cell', row: 3, column: 0, value: ['MA2', 'FA+', 'SPA'] } }
+        ],
+        // An Excel formula is sent alone, without a value.
+        [
+            'update_cell',
+            { row: 2, column: 1, formula: '=B2*2' },
+            { operation: 'update', target: { type: 'cell', row: 2, column: 1, formula: '=B2*2' } }
+        ],
+        // A null clears a cell no merged cell covers
+        [
+            'update_row',
+            { position: 1, cells: [['a', null]] },
+            { operation: 'update', target: { type: 'row', position: 1, cells: [{ value: 'a' }, { value: null }] } }
+        ],
+        [
+            'merge',
+            { row: 1, column: 0, rowspan: 2, colspan: 3 },
+            { operation: 'merge', target: { type: 'cells', row: 1, column: 0, rowspan: 2, colspan: 3 } }
+        ],
+        ['unmerge', { row: 1, column: 0 }, { operation: 'unmerge', target: { type: 'cells', row: 1, column: 0 } }],
+        [
+            'update_range',
+            { row: 1, column: 2, cells: [['a', 'b']] },
+            { operation: 'update', target: { type: 'range', row: 1, column: 2, cells: [[a, b]] } }
+        ],
+    ])('%s %j posts its action and reads the table back', async (editAction, args, action) => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, { id: 't1', name: 'T', tableType: 'RawSource', kind: 'Other', source: [] })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", action: editAction, ...args, }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            action: editAction,
+            ...args
+        }, harness.client)
 
-    expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([action]);
-    expect(dataOf(result)).toEqual({ tableId: "t1" });
-  });
+        expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([action])
+        expect(dataOf(result)).toEqual({ tableId: 't1' })
+    })
 
-  it.each([
-    ["update_row", { position: 0, cells: [["Rules void calc()", null, null]] }, [[0, 1], [0, 2]]],
-    ["update_column", { position: 2, cells: [[null, "x"]] }, [[0, 2]]],
-    ["update_range", { row: 0, column: 1, cells: [[null], ["y"]] }, [[0, 1]]],
-  ])("%s keeps covered a cell a merged cell covers, where it writes a null", async (action, args, covered) => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, {
-      id: "t1", name: "T", tableType: "RawSource", pos: "B2:D3", source: [
-        [{ value: "Rules void calc()", colspan: 3 }, { covered: true }, { covered: true }],
-        [{ value: "a" }, { value: 1 }, { value: 2 }],
-      ],
-    });
+    it.each([
+        ['update_row', { position: 0, cells: [['Rules void calc()', null, null]] }, [[0, 1], [0, 2]]],
+        ['update_column', { position: 2, cells: [[null, 'x']] }, [[0, 2]]],
+        ['update_range', { row: 0, column: 1, cells: [[null], ['y']] }, [[0, 1]]],
+    ])('%s keeps covered a cell a merged cell covers, where it writes a null', async (action, args, covered) => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, {
+            id: 't1',
+            name: 'T',
+            tableType: 'RawSource',
+            pos: 'B2:D3',
+            source: [
+                [{ value: 'Rules void calc()', colspan: 3 }, { covered: true }, { covered: true }],
+                [{ value: 'a' }, { value: 1 }, { value: 2 }],
+            ],
+        })
 
-    await executeTool("edit_table", { projectId: "p1", tableId: "t1", version: "v1", action, ...args }, harness.client);
+        await executeTool('edit_table', { projectId: 'p1', tableId: 't1', version: 'v1', action, ...args }, harness.client)
 
-    const sent = bodyOf(harness.mockHttp.history.post[0]).target.cells;
-    const cells: Array<{ covered?: boolean }> = Array.isArray(sent[0]) ? sent.flat() : sent;
-    expect(cells.filter((cell) => cell.covered)).toHaveLength(covered.length);
-  });
+        const sent = bodyOf(harness.mockHttp.history.post[0]).target.cells
+        const cells: Array<{ covered?: boolean }> = Array.isArray(sent[0]) ? sent.flat() : sent
+        expect(cells.filter((cell) => cell.covered)).toHaveLength(covered.length)
+    })
 
-  it("keeps covered the cells of a batch the merges cover until an edit moves cells", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, {
-      id: "t1", name: "T", tableType: "RawSource", pos: "B2:C3", source: [
-        [{ value: "Rules void calc()", colspan: 2 }, { covered: true }],
-        [{ value: "a" }, { value: 1 }],
-      ],
-    });
+    it('keeps covered the cells of a batch the merges cover until an edit moves cells', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, {
+            id: 't1',
+            name: 'T',
+            tableType: 'RawSource',
+            pos: 'B2:C3',
+            source: [
+                [{ value: 'Rules void calc()', colspan: 2 }, { covered: true }],
+                [{ value: 'a' }, { value: 1 }],
+            ],
+        })
 
-    await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", actions: [
-        { action: "update_row", position: 0, cells: [["Rules void calc()", null]] },
-        { action: "insert_columns", position: 1, cells: [["x", "y"]] },
-        { action: "update_row", position: 0, cells: [["Rules void calc()", null]] },
-      ],
-    }, harness.client);
+        await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            actions: [
+                { action: 'update_row', position: 0, cells: [['Rules void calc()', null]] },
+                { action: 'insert_columns', position: 1, cells: [['x', 'y']] },
+                { action: 'update_row', position: 0, cells: [['Rules void calc()', null]] },
+            ],
+        }, harness.client)
 
-    const [first, , last] = bodyOf(harness.mockHttp.history.post[0]).actions;
-    expect(first.target.cells[1]).toEqual({ covered: true });
-    expect(last.target.cells[1]).toEqual({ value: null });
-  });
+        const [first, , last] = bodyOf(harness.mockHttp.history.post[0]).actions
+        expect(first.target.cells[1]).toEqual({ covered: true })
+        expect(last.target.cells[1]).toEqual({ value: null })
+    })
 
-  it("makes several edits as one change at the batch endpoint, in their order", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, { id: "t1", name: "T", tableType: "RawSource", version: "v2" });
+    it('makes several edits as one change at the batch endpoint, in their order', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, { id: 't1', name: 'T', tableType: 'RawSource', version: 'v2' })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", actions: [
-        { action: "update_cell", row: 840, column: 1, value: 1 },
-        { action: "update_cell", row: 850, column: 1, formula: "=B2*2" },
-        { action: "delete_rows", position: 860 },
-      ],
-    }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            actions: [
+                { action: 'update_cell', row: 840, column: 1, value: 1 },
+                { action: 'update_cell', row: 850, column: 1, formula: '=B2*2' },
+                { action: 'delete_rows', position: 860 },
+            ],
+        }, harness.client)
 
-    expect(harness.mockHttp.history.post[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
-    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ actions: [
-      { operation: "update", target: { type: "cell", row: 840, column: 1, value: 1 } },
-      { operation: "update", target: { type: "cell", row: 850, column: 1, formula: "=B2*2" } },
-      { operation: "delete", target: { type: "rows", position: 860, count: 1 } },
-    ] });
-    expect(dataOf(result)).toEqual({ tableId: "t1", version: "v2" });
-  });
+        expect(harness.mockHttp.history.post[0].headers).toMatchObject({ 'If-Match': '"v1"' })
+        expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ actions: [
+            { operation: 'update', target: { type: 'cell', row: 840, column: 1, value: 1 } },
+            { operation: 'update', target: { type: 'cell', row: 850, column: 1, formula: '=B2*2' } },
+            { operation: 'delete', target: { type: 'rows', position: 860, count: 1 } },
+        ] })
+        expect(dataOf(result)).toEqual({ tableId: 't1', version: 'v2' })
+    })
 
-  it.each([
-    ["no action", {}, /names an 'action', or several in 'actions'/],
-    ["an action beside the actions", { action: "delete_rows", actions: [{ action: "delete_rows", position: 1 }] },
-      /give no 'action' or edit argument beside it/],
-    ["an edit argument beside the actions", { position: 1, actions: [{ action: "delete_rows", position: 1 }] },
-      /give no 'action' or edit argument beside it/],
-    ["an edit of the actions without the argument its action needs", { actions: [{ action: "insert_rows", cells: [["a"]] }] },
-      /'insert_rows' needs 'position'/],
-    ["no actions", { actions: [] }, /actions/],
-  ])("refuses %s before reaching the backend", async (_case, args, message) => {
-    await expect(executeTool("edit_table", { projectId: "p1", tableId: "t1", version: "v1", ...args }, harness.client))
-      .rejects.toThrow(message);
-    expect(harness.mockHttp.history.post).toHaveLength(0);
-  });
+    it.each([
+        ['no action', {}, /names an 'action', or several in 'actions'/],
+        [
+            'an action beside the actions',
+            { action: 'delete_rows', actions: [{ action: 'delete_rows', position: 1 }] },
+            /give no 'action' or edit argument beside it/
+        ],
+        [
+            'an edit argument beside the actions',
+            { position: 1, actions: [{ action: 'delete_rows', position: 1 }] },
+            /give no 'action' or edit argument beside it/
+        ],
+        [
+            'an edit of the actions without the argument its action needs',
+            { actions: [{ action: 'insert_rows', cells: [['a']] }] },
+            /'insert_rows' needs 'position'/
+        ],
+        ['no actions', { actions: [] }, /actions/],
+    ])('refuses %s before reaching the backend', async (_case, args, message) => {
+        await expect(executeTool('edit_table', { projectId: 'p1', tableId: 't1', version: 'v1', ...args }, harness.client))
+            .rejects.toThrow(message)
+        expect(harness.mockHttp.history.post).toHaveLength(0)
+    })
 
-  it("edits the version of the table it names, and answers the version the edit left", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, {
-      id: "t1", name: "T", tableType: "RawSource", kind: "Other", source: [], version: "v2",
-    });
+    it('edits the version of the table it names, and answers the version the edit left', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, {
+            id: 't1',
+            name: 'T',
+            tableType: 'RawSource',
+            kind: 'Other',
+            source: [],
+            version: 'v2',
+        })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", action: "update_cell", row: 1, column: 1, value: "x", version: "v1", }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            action: 'update_cell',
+            row: 1,
+            column: 1,
+            value: 'x',
+            version: 'v1',
+        }, harness.client)
 
-    expect(harness.mockHttp.history.post[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
-    expect(dataOf(result)).toMatchObject({ version: "v2" });
-  });
+        expect(harness.mockHttp.history.post[0].headers).toMatchObject({ 'If-Match': '"v1"' })
+        expect(dataOf(result)).toMatchObject({ version: 'v2' })
+    })
 
-  it("refuses an edit of a table changed since it was read with its version and the cells the edit names now", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(412, { message: "The table changed since it was read." });
-    harness.mockHttp.onGet(tablePath).reply(200, {
-      id: "t1", name: "T", tableType: "RawSource", version: "v3", pos: "B2:C4", source: [
-        [{ value: "Rules void calc()", colspan: 2 }, { covered: true }],
-        [{ value: "a" }, { value: 1 }],
-        [{ value: "b" }, { value: 2 }],
-      ],
-    });
+    it('refuses an edit of a table changed since it was read with its version and the cells the edit names now', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions/batch`).reply(412, { message: 'The table changed since it was read.' })
+        harness.mockHttp.onGet(tablePath).reply(200, {
+            id: 't1',
+            name: 'T',
+            tableType: 'RawSource',
+            version: 'v3',
+            pos: 'B2:C4',
+            source: [
+                [{ value: 'Rules void calc()', colspan: 2 }, { covered: true }],
+                [{ value: 'a' }, { value: 1 }],
+                [{ value: 'b' }, { value: 2 }],
+            ],
+        })
 
-    await expect(executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", actions: [
-        { action: "update_cell", row: 1, column: 1, value: 5 },
-        { action: "update_row", position: 2, cells: [["c", 3]] },
-        { action: "delete_rows", position: 1 },
-        { action: "update_cell", row: 1, column: 0, value: "d" },
-      ],
-    }, harness.client)).rejects.toThrow("The table changed since it was read, on disk or through another client, and "
-      + "nothing was written. Its version now is 'v3', and the cells the edit names hold [1, 1] 1, [2, 0] \"b\", [2, 1] 2: "
-      + "they are not all the edit changes, and rows or columns may have moved: read the table again before repeating "
-      + "the edit.");
-  });
+        await expect(executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            actions: [
+                { action: 'update_cell', row: 1, column: 1, value: 5 },
+                { action: 'update_row', position: 2, cells: [['c', 3]] },
+                { action: 'delete_rows', position: 1 },
+                { action: 'update_cell', row: 1, column: 0, value: 'd' },
+            ],
+        }, harness.client)).rejects.toThrow('The table changed since it was read, on disk or through another client, and '
+            + "nothing was written. Its version now is 'v3', and the cells the edit names hold [1, 1] 1, [2, 0] \"b\", [2, 1] 2: "
+            + 'they are not all the edit changes, and rows or columns may have moved: read the table again before repeating '
+            + 'the edit.')
+    })
 
-  it("refuses an edit that names no version of the table before reaching the backend", async () => {
-    await expect(executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", action: "update_cell", row: 1, column: 1, value: "x",
-    }, harness.client)).rejects.toThrow(/Invalid arguments for edit_table/);
-    expect(harness.mockHttp.history.post).toHaveLength(0);
-  });
+    it('refuses an edit that names no version of the table before reaching the backend', async () => {
+        await expect(executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            action: 'update_cell',
+            row: 1,
+            column: 1,
+            value: 'x',
+        }, harness.client)).rejects.toThrow(/Invalid arguments for edit_table/)
+        expect(harness.mockHttp.history.post).toHaveLength(0)
+    })
 
-  it("tells an applied edit after which the table does not compile, with its errors (EPBDS-16804)", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, {
-      id: "t1", name: "PolicyPremiumCalculation", tableType: "RawSource", kind: "Test", source: [],
-      messages: [
-        { severity: "ERROR", summary: "Expected one of the parameters of the method, but found 'P5'.", location: { cell: "C7" } },
-        { severity: "WARN", summary: "A warning that does not stop the compilation." },
-        { severity: "ERROR", summary: "Table '3229' is not found." },
-      ],
-    });
+    it('tells an applied edit after which the table does not compile, with its errors (EPBDS-16804)', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, {
+            id: 't1',
+            name: 'PolicyPremiumCalculation',
+            tableType: 'RawSource',
+            kind: 'Test',
+            source: [],
+            messages: [
+                { severity: 'ERROR', summary: "Expected one of the parameters of the method, but found 'P5'.", location: { cell: 'C7' } },
+                { severity: 'WARN', summary: 'A warning that does not stop the compilation.' },
+                { severity: 'ERROR', summary: "Table '3229' is not found." },
+            ],
+        })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [["a", "b"]], }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            action: 'append_rows',
+            cells: [['a', 'b']]
+        }, harness.client)
 
-    expect(dataOf(result)).not.toHaveProperty("recompileTriggered");
-    expect(dataOf(result)).toMatchObject({
-      compiles: false,
-      errors: ["C7: Expected one of the parameters of the method, but found 'P5'.", "Table '3229' is not found."],
-    });
-    expect(dataOf(result).note).toContain("The table does NOT compile after the edit, which WAS applied");
-  });
+        expect(dataOf(result)).not.toHaveProperty('recompileTriggered')
+        expect(dataOf(result)).toMatchObject({
+            compiles: false,
+            errors: ["C7: Expected one of the parameters of the method, but found 'P5'.", "Table '3229' is not found."],
+        })
+        expect(dataOf(result).note).toContain('The table does NOT compile after the edit, which WAS applied')
+    })
 
-  it("names the table type of a lookup of one input when Studio refuses a SmartLookup without a horizontal input", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(200, {
-      id: "t1", name: "StateFactor", tableType: "RawSource", kind: "Rules", source: [],
-      messages: [{ severity: "ERROR", summary: "No input parameter found for horizontal condition.", location: { cell: "B2" } }],
-    });
+    it('names the table type of a lookup of one input when Studio refuses a SmartLookup without a horizontal input', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(200, {
+            id: 't1',
+            name: 'StateFactor',
+            tableType: 'RawSource',
+            kind: 'Rules',
+            source: [],
+            messages: [{ severity: 'ERROR', summary: 'No input parameter found for horizontal condition.', location: { cell: 'B2' } }],
+        })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [["NY", 1.2]], }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            action: 'append_rows',
+            cells: [['NY', 1.2]]
+        }, harness.client)
 
-    expect(dataOf(result).note).toContain("a lookup of one input, or of vertical inputs only, is a SmartRules or SimpleRules table");
-  });
+        expect(dataOf(result).note).toContain('a lookup of one input, or of vertical inputs only, is a SmartRules or SimpleRules table')
+    })
 
-  it("reports the new table id and previousTableId when Studio answers a new id for the table", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(200, { id: "t1_renamed" });
-    harness.mockHttp.onGet("/projects/p1/tables/t1_renamed").reply(200, { id: "t1_renamed", name: "T", tableType: "RawSource" });
+    it('reports the new table id and previousTableId when Studio answers a new id for the table', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(200, { id: 't1_renamed' })
+        harness.mockHttp.onGet('/projects/p1/tables/t1_renamed').reply(200, { id: 't1_renamed', name: 'T', tableType: 'RawSource' })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", action: "delete_rows", position: 5, }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            action: 'delete_rows',
+            position: 5
+        }, harness.client)
 
-    expect(dataOf(result)).toMatchObject({ tableId: "t1_renamed", previousTableId: "t1" });
-    expect(textOf(result)).toContain("now known by the id 't1_renamed'");
-  });
+        expect(dataOf(result)).toMatchObject({ tableId: 't1_renamed', previousTableId: 't1' })
+        expect(textOf(result)).toContain("now known by the id 't1_renamed'")
+    })
 
-  it("tells an applied edit whose table cannot be read back", async () => {
-    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
-    harness.mockHttp.onGet(tablePath).reply(503, { message: "Compilation model is unavailable" });
+    it('tells an applied edit whose table cannot be read back', async () => {
+        harness.mockHttp.onPost(`${tablePath}/actions`).reply(204)
+        harness.mockHttp.onGet(tablePath).reply(503, { message: 'Compilation model is unavailable' })
 
-    const result = await executeTool("edit_table", {
-      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [["a", "b"]], }, harness.client);
+        const result = await executeTool('edit_table', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            action: 'append_rows',
+            cells: [['a', 'b']]
+        }, harness.client)
 
-    expect(dataOf(result)).toMatchObject({ recompileTriggered: false });
-    expect(dataOf(result).note).toContain("the edit WAS applied");
-  });
+        expect(dataOf(result)).toMatchObject({ recompileTriggered: false })
+        expect(dataOf(result).note).toContain('the edit WAS applied')
+    })
 
-  it.each([
-    ["append_columns", "without cells", {}, /'append_columns' needs 'cells'/],
-    ["append_rows", "of cell objects", { cells: [[{ value: "a" }]] }, /Cell value must be/],
-    ["insert_rows", "without a position", { cells: [["a"]] }, /'insert_rows' needs 'position'/],
-    ["delete_rows", "at a negative position", { position: -1 }, /position/],
-    ["delete_rows", "of the header row", { position: 0 }, /'position' starts at 1/],
-    ["insert_columns", "before the label column", { position: 0, cells: [["a"]] }, /'position' starts at 1/],
-    ["delete_rows", "with cells it does not take", { position: 1, cells: [["a"]] }, /'delete_rows' does not take 'cells'/],
-    ["insert_rows", "with the count a delete takes", { position: 1, count: 1, cells: [["a"]] },
-      /'insert_rows' does not take 'count': it inserts the lines of 'cells', each with a value, as Studio refuses an empty line/],
-    ["update_row", "of two lines", { position: 1, cells: [["a"], ["b"]] }, /'update_row' takes one line of cells/],
-    ["update_cell", "without a value", { row: 2, column: 1 }, /'update_cell' needs 'value'/],
-    ["update_cell", "with both a value and a formula", { row: 2, column: 1, value: 4, formula: "=B2*2" },
-      /either 'value' or 'formula'/],
-    ["delete_rows", "with a formula it does not take", { position: 1, formula: "=B2*2" }, /'delete_rows' does not take 'formula'/],
-    ["merge", "of one cell", { row: 0, column: 0, rowspan: 1, colspan: 1 }, /more than one cell/],
-    ["update_range", "of one cell", { row: 0, column: 0, cells: [["x"]] }, /more than one cell/],
-    ["rename", "of an unknown action", {}, /action/],
-  ])("%s refuses an edit %s before reaching the backend", async (action, _case, args, message) => {
-    await expect(executeTool("edit_table", { projectId: "p1", tableId: "t1", version: "v1", action, ...args },
-      harness.client)).rejects.toThrow(message);
-    expect(harness.mockHttp.history.post).toHaveLength(0);
-  });
-});
+    it.each([
+        ['append_columns', 'without cells', {}, /'append_columns' needs 'cells'/],
+        ['append_rows', 'of cell objects', { cells: [[{ value: 'a' }]] }, /Cell value must be/],
+        ['insert_rows', 'without a position', { cells: [['a']] }, /'insert_rows' needs 'position'/],
+        ['delete_rows', 'at a negative position', { position: -1 }, /position/],
+        ['delete_rows', 'of the header row', { position: 0 }, /'position' starts at 1/],
+        ['insert_columns', 'before the label column', { position: 0, cells: [['a']] }, /'position' starts at 1/],
+        ['delete_rows', 'with cells it does not take', { position: 1, cells: [['a']] }, /'delete_rows' does not take 'cells'/],
+        [
+            'insert_rows',
+            'with the count a delete takes',
+            { position: 1, count: 1, cells: [['a']] },
+            /'insert_rows' does not take 'count': it inserts the lines of 'cells', each with a value, as Studio refuses an empty line/
+        ],
+        ['update_row', 'of two lines', { position: 1, cells: [['a'], ['b']] }, /'update_row' takes one line of cells/],
+        ['update_cell', 'without a value', { row: 2, column: 1 }, /'update_cell' needs 'value'/],
+        [
+            'update_cell',
+            'with both a value and a formula',
+            { row: 2, column: 1, value: 4, formula: '=B2*2' },
+            /either 'value' or 'formula'/
+        ],
+        ['delete_rows', 'with a formula it does not take', { position: 1, formula: '=B2*2' }, /'delete_rows' does not take 'formula'/],
+        ['merge', 'of one cell', { row: 0, column: 0, rowspan: 1, colspan: 1 }, /more than one cell/],
+        ['update_range', 'of one cell', { row: 0, column: 0, cells: [['x']] }, /more than one cell/],
+        ['rename', 'of an unknown action', {}, /action/],
+    ])('%s refuses an edit %s before reaching the backend', async (action, _case, args, message) => {
+        await expect(executeTool('edit_table', { projectId: 'p1', tableId: 't1', version: 'v1', action, ...args },
+            harness.client)).rejects.toThrow(message)
+        expect(harness.mockHttp.history.post).toHaveLength(0)
+    })
+})
