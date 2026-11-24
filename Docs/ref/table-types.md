@@ -115,7 +115,7 @@ Evaluates multiple conditions and returns a result. The most common table type.
 - **Return column:** `RET` — the return value
 - **Action columns:** `A1`, `A2`, ... — side-effect actions (no return)
 - **Horizontal conditions:** `HC1`, `HC2`, ... — conditions along the column axis (lookup-style), after at least one
-  vertical condition
+  vertical condition; an `HC` header takes one column
 - A lookup returns all the values under an `HC` value merged across columns as one array when its `RET` column is one
   column wide and declares an array parameter, or has none and no expression in a table returning an array
 - Supports merged cells for multi-row grouping

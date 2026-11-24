@@ -489,7 +489,7 @@ public class DecisionTableLookupConvertor {
             headerStr = headerStr.toUpperCase();
 
             if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
-                if (hTable.getWidth() != 1) {
+                if (hTable.getCell(0, 0).getWidth() != 1) {
                     throw new OpenLCompilationException("Column HC must have width = 1.");
                 }
                 hcHeaders.add(hTable);
