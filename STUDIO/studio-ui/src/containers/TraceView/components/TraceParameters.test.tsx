@@ -174,7 +174,11 @@ describe('TraceParameters', () => {
         it('starts over when the line comes to stand for another value', async () => {
             getParameterValue.mockResolvedValue({ name: 'big', description: 'Double', lazy: false, value: 99 })
             const lazy = (parameterId: number) => param({
-                name: 'big', description: 'Double', lazy: true, parameterId, value: undefined,
+                name: 'big',
+                description: 'Double',
+                lazy: true,
+                parameterId,
+                value: undefined,
             })
             const { rerender } = render(<ParameterTree param={lazy(5)} paramKey="k" />)
 

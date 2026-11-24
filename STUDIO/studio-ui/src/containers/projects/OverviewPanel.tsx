@@ -934,9 +934,20 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     // Refused only where the edit makes the names one, as the server refuses them: names saved so stay editable.
     const editor: DescriptorEditor = { editing, shown, namesClash: makesOneModule(rules.openapi, shown.openapi), editDraft }
     return {
-        state, refreshing, editing, saving, fileExists, files, projectNames, declaredModules, editor,
-        startEditing, cancelEditing: endEditing, saveEditing,
-        staged: stagedUpload, stageUpload: (file: File) => setStagedUpload(file),
+        state,
+        refreshing,
+        editing,
+        saving,
+        fileExists,
+        files,
+        projectNames,
+        declaredModules,
+        editor,
+        startEditing,
+        cancelEditing: endEditing,
+        saveEditing,
+        staged: stagedUpload,
+        stageUpload: (file: File) => setStagedUpload(file),
     }
 }
 

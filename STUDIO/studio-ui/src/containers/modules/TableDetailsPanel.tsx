@@ -306,7 +306,7 @@ export const TableDetailsPanel = ({
             if (group) {
                 group.properties.push(row)
             } else {
-                shown.push({ name: definition.group, properties: [row]})
+                shown.push({ name: definition.group, properties: [row] })
             }
         }
         return shown

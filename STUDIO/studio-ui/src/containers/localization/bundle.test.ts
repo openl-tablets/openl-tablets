@@ -11,7 +11,12 @@ import {
 } from './bundle'
 
 const NAMES: Record<string, string> = {
-    de: 'German', de_AT: 'German (Austria)', de_LU: 'German (Luxembourg)', fr: 'French', zh_TW: 'Chinese (Taiwan)', zh: 'Chinese',
+    de: 'German',
+    de_AT: 'German (Austria)',
+    de_LU: 'German (Luxembourg)',
+    fr: 'French',
+    zh_TW: 'Chinese (Taiwan)',
+    zh: 'Chinese',
 }
 const nameOf = (tag: string) => NAMES[tag] ?? tag
 const [defaultLanguage, , german, germanOfLuxembourg] = languagesOf(
@@ -48,8 +53,8 @@ describe('bundle', () => {
 
     it('holds a key as the server answers it, and one the reader added', () => {
         expect(keyRowOf({ key: 'total', values: { '': 'Total' } }))
-            .toEqual({ key: 'total', base: { '': 'Total' }, shared: {}, warnings: []})
-        expect(addedKeyRow('note')).toEqual({ key: 'note', base: null, shared: {}, warnings: []})
+            .toEqual({ key: 'total', base: { '': 'Total' }, shared: {}, warnings: [] })
+        expect(addedKeyRow('note')).toEqual({ key: 'note', base: null, shared: {}, warnings: [] })
     })
 
     describe('cellOf', () => {

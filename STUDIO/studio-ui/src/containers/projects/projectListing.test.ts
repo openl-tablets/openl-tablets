@@ -191,7 +191,7 @@ describe('countFacets', () => {
                 { id: 'Claims', name: 'Claims', count: 1 },
                 { id: 'Policy', name: 'Policy', count: 1 },
             ]},
-            { type: 'LOB', values: [{ id: 'Auto', name: 'Auto', count: 1 }]},
+            { type: 'LOB', values: [{ id: 'Auto', name: 'Auto', count: 1 }] },
         ])
     })
 

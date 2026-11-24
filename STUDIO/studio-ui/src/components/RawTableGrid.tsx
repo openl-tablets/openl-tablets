@@ -27,7 +27,14 @@ import { cached } from '../utils/cached'
 import { joinClasses } from '../utils/joinClasses'
 import { formatLocalDateTime, useDateFormats } from '../utils/dateFormat'
 import {
-    type CellRole, cellRoleOf, columnLettersOf, holdsCode, onPaper, placeOf, roleLinesOf, type RoleLines,
+    type CellRole,
+    cellRoleOf,
+    columnLettersOf,
+    holdsCode,
+    onPaper,
+    placeOf,
+    roleLinesOf,
+    type RoleLines,
     type TableRoles,
 } from './tableRoles'
 
@@ -657,8 +664,20 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     // or with the Excel Formatting of the theme menu on, keeps the formatting of its workbook.
     const studio = !onPaper(roles, excelFormatting)
     const {
-        colorBgContainer, colorText, colorFillTertiary, colorLink, colorLinkHover, colorError, colorTextSecondary,
-        colorBorder, colorPrimary, colorTextBase, colorErrorText, colorWarningText, colorSuccessText, colorInfoText,
+        colorBgContainer,
+        colorText,
+        colorFillTertiary,
+        colorLink,
+        colorLinkHover,
+        colorError,
+        colorTextSecondary,
+        colorBorder,
+        colorPrimary,
+        colorTextBase,
+        colorErrorText,
+        colorWarningText,
+        colorSuccessText,
+        colorInfoText,
     } = token
     // The marks read on every fill a role draws, in every theme.
     const inks = React.useMemo(() => {
@@ -666,12 +685,28 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
         const grounds = [colorBgContainer, roles.inputTitleFill, roles.outputTitleFill, roles.outputFill]
             .map(fill => opaque(fill, colorBgContainer))
         return markInksOf({ colorErrorText, colorWarningText, colorSuccessText, colorInfoText }, grounds)
-    }, [colorBgContainer, colorErrorText, colorFillTertiary, colorInfoText, colorPrimary, colorSuccessText, colorText,
-        colorTextSecondary, colorWarningText])
+    }, [
+        colorBgContainer,
+        colorErrorText,
+        colorFillTertiary,
+        colorInfoText,
+        colorPrimary,
+        colorSuccessText,
+        colorText,
+        colorTextSecondary,
+        colorWarningText
+    ])
     // The paper and the lines of the theme, worked out again only when a colour of them changes.
     const look = React.useMemo(() => ({
-        paper: themePaper({ colorBgContainer, colorText, colorFillTertiary, colorBorder, colorLink, colorLinkHover,
-            colorError }),
+        paper: themePaper({
+            colorBgContainer,
+            colorText,
+            colorFillTertiary,
+            colorBorder,
+            colorLink,
+            colorLinkHover,
+            colorError
+        }),
         faint: roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary }).faint,
         lines: {
             // Every line in the base text colour, so the parts of a table stand apart at a glance. A group line is
@@ -680,8 +715,18 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             group: { color: colorTextBase, style: 'dotted', width: 1 },
             resultBelow: { color: colorTextBase, style: 'double', width: 3 },
         } satisfies RoleLines,
-    }), [colorBgContainer, colorBorder, colorError, colorFillTertiary, colorLink, colorLinkHover,
-        colorPrimary, colorText, colorTextBase, colorTextSecondary])
+    }), [
+        colorBgContainer,
+        colorBorder,
+        colorError,
+        colorFillTertiary,
+        colorLink,
+        colorLinkHover,
+        colorPrimary,
+        colorText,
+        colorTextBase,
+        colorTextSecondary
+    ])
     const laidOn = studio ? look.paper : workbookPaper()
     const { styles, cx } = useStyles(laidOn)
     // What each cell is, found by its address in the table. Either look writes a date in the formats of the reader;
@@ -699,8 +744,14 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const codeRuns = React.useMemo(() => (cellRoles === undefined || roles === undefined || highlighter === undefined
         ? undefined
         : rows.map((row, rowIndex) => row.map((cell, column) => codeRunsOf(cell, cellRoles[rowIndex]?.[column], roles,
-            highlighter, { name: themeName, dark: isDarkMode })))), [cellRoles, highlighter, isDarkMode, roles, rows,
-        themeName])
+            highlighter, { name: themeName, dark: isDarkMode })))), [
+        cellRoles,
+        highlighter,
+        isDarkMode,
+        roles,
+        rows,
+        themeName
+    ])
     // Each line two cells share is drawn once, by the cell above or on the left: in the Studio look the lines of the
     // roles, in the formatting of the workbook the borders of the cells.
     const borderLines = React.useMemo(() => collapsedBorders(rows, cellRoles === undefined || roles === undefined
@@ -984,9 +1035,31 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const drawing: BlockDrawing = {
         draw: (from, to) => rows.slice(from, to).map((row, index) => drawRow(row, from + index)),
         // The look of the cells follows the theme, its appearance and its density, which the styles are read in.
-        inputs: [rows, decorate, formulas, onOpenUsage, onPickCell, onOpenCell, roles, layout, headings, studio,
-            laidOn, look, inks, cellRoles, typedRoles, codeRuns, borderLines, caseNumbers, columns, dateFormats,
-            compact, themeName, isDarkMode],
+        inputs: [
+            rows,
+            decorate,
+            formulas,
+            onOpenUsage,
+            onPickCell,
+            onOpenCell,
+            roles,
+            layout,
+            headings,
+            studio,
+            laidOn,
+            look,
+            inks,
+            cellRoles,
+            typedRoles,
+            codeRuns,
+            borderLines,
+            caseNumbers,
+            columns,
+            dateFormats,
+            compact,
+            themeName,
+            isDarkMode
+        ],
     }
     /** The room of rows not drawn, before, between or after the blocks that are. */
     const room = (key: string, height: number, first = false) => (

@@ -60,7 +60,9 @@ const MainMenu: React.FC = () => {
     }, [location.pathname])
 
     const item = (key: string, icon: React.ReactNode, label: string): MenuItem => ({
-        key, icon, label: t(`common:menu.${label}`),
+        key,
+        icon,
+        label: t(`common:menu.${label}`),
     })
     const items: MenuItem[] = [
         item(MenuItems.userProfile, <UserOutlined />, 'my_profile'),

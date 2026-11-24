@@ -5,7 +5,7 @@ import { getProjects } from './repositories'
 
 vi.mock('./repositories', () => ({ getProjects: vi.fn() }))
 
-const page = (...names: string[]) => ({ content: names.map(name => ({ id: name, name })), statuses: []})
+const page = (...names: string[]) => ({ content: names.map(name => ({ id: name, name })), statuses: [] })
 
 describe('the projects snapshot', () => {
     beforeEach(() => {
@@ -84,7 +84,7 @@ describe('the projects snapshot', () => {
         vi.mocked(getProjects).mockRejectedValueOnce(new Error('offline'))
 
         await expect(getProjectIndex()).rejects.toThrow('offline')
-        await expect(getProjectIndex()).resolves.toMatchObject({ projects: [{ name: 'Alpha' }]})
+        await expect(getProjectIndex()).resolves.toMatchObject({ projects: [{ name: 'Alpha' }] })
     })
 
     describe('the staleness policy', () => {

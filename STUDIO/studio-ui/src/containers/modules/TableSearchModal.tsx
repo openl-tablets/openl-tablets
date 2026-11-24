@@ -39,8 +39,22 @@ const URI_TOO_LONG = 414
 
 /** The families of table the search can narrow to, as the Tables API names them. */
 const KINDS = [
-    'Rules', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'TBasic', 'Column Match', 'Method', 'Run',
-    'Constants', 'Conditions', 'Actions', 'Returns', 'Environment', 'Properties', 'Other',
+    'Rules',
+    'Spreadsheet',
+    'Datatype',
+    'Data',
+    'Test',
+    'TBasic',
+    'Column Match',
+    'Method',
+    'Run',
+    'Constants',
+    'Conditions',
+    'Actions',
+    'Returns',
+    'Environment',
+    'Properties',
+    'Other',
 ]
 
 /**

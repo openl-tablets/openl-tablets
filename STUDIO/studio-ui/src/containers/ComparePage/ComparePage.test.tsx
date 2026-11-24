@@ -252,9 +252,9 @@ const CONFLICT_TABLE: ConflictComparisonTable = {
     status: 'changed',
     yoursStatus: 'changed',
     theirsStatus: 'changed',
-    base: { source: [[{ cell: 'A1', value: 'int' }]]},
-    yours: { source: [[{ cell: 'A1', value: 'double' }]], changedCells: ['A1']},
-    theirs: { source: [[{ cell: 'A1', value: 'int' }], [{ cell: 'A2', value: 'name' }]]},
+    base: { source: [[{ cell: 'A1', value: 'int' }]] },
+    yours: { source: [[{ cell: 'A1', value: 'double' }]], changedCells: ['A1'] },
+    theirs: { source: [[{ cell: 'A1', value: 'int' }], [{ cell: 'A2', value: 'name' }]] },
     rows: [
         { base: 0, yours: 0, theirs: 0, yoursStatus: 'changed', theirsStatus: 'equal' },
         { theirs: 1, yoursStatus: 'equal', theirsStatus: 'added' },
@@ -301,7 +301,7 @@ const push = (body: string) => {
 
 const pickFiles = () => {
     fireEvent.change(screen.getByTestId('compare-files'), {
-        target: { files: [new File(['a'], 'first.xlsx'), new File(['b'], 'second.xlsx')]},
+        target: { files: [new File(['a'], 'first.xlsx'), new File(['b'], 'second.xlsx')] },
     })
 }
 
@@ -488,7 +488,12 @@ describe('ComparePage', () => {
 
     it('compares a workbook a revision deleted with an empty one after it', async () => {
         searchParams = new URLSearchParams({
-            projectId: 'p1', file: 'rules/Old.xlsx', branch: 'main', before: 'b1', after: 'a1', change: 'deleted',
+            projectId: 'p1',
+            file: 'rules/Old.xlsx',
+            branch: 'main',
+            before: 'b1',
+            after: 'a1',
+            change: 'deleted',
         })
         vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
 
@@ -536,7 +541,7 @@ describe('ComparePage', () => {
 
     it('says when two revisions changed no file, and when their files could not be read', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1' })
-        vi.mocked(getRevisionChanges).mockResolvedValueOnce({ base: revisionOf('b1'), revision: revisionOf('a1'), common: null, files: [], conflicts: []})
+        vi.mocked(getRevisionChanges).mockResolvedValueOnce({ base: revisionOf('b1'), revision: revisionOf('a1'), common: null, files: [], conflicts: [] })
         const { unmount } = openPage()
         expect(await screen.findByText('repository:browser.history.no_changes_between')).toBeInTheDocument()
         unmount()
@@ -562,7 +567,11 @@ describe('ComparePage', () => {
     it('compares a file of two revisions as the earlier against the later one, with the way back to the files',
         async () => {
             searchParams = new URLSearchParams({
-                projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'rules/Main.xlsx',
+                projectId: 'p1',
+                branch: 'main',
+                base: 'b1',
+                revision: 'a1',
+                file: 'rules/Main.xlsx',
             })
             vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
 
@@ -589,7 +598,12 @@ describe('ComparePage', () => {
     it('takes a file the list does not hold for a modified one, unless the address tells it was added or deleted',
         async () => {
             searchParams = new URLSearchParams({
-                projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'other.txt', change: 'renamed',
+                projectId: 'p1',
+                branch: 'main',
+                base: 'b1',
+                revision: 'a1',
+                file: 'other.txt',
+                change: 'renamed',
             })
 
             openPage()
@@ -600,7 +614,12 @@ describe('ComparePage', () => {
 
     it('steps to the neighbours of a compared file in its place', async () => {
         searchParams = new URLSearchParams({
-            projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'notes.txt', change: 'added',
+            projectId: 'p1',
+            branch: 'main',
+            base: 'b1',
+            revision: 'a1',
+            file: 'notes.txt',
+            change: 'added',
         })
 
         openPage()
@@ -734,7 +753,11 @@ describe('ComparePage', () => {
 
         const [next] = setSearchParams.mock.calls.at(-1)!
         expect(Object.fromEntries(next)).toEqual({
-            projectId: 'p1', branch: 'feature', base: 't1', file: 'rules/Main.xlsx', common: 'c1',
+            projectId: 'p1',
+            branch: 'feature',
+            base: 't1',
+            file: 'rules/Main.xlsx',
+            common: 'c1',
         })
     })
 
@@ -756,7 +779,11 @@ describe('ComparePage', () => {
 
     it('compares a workbook of the working copy with a revision of another branch as a pull request does', async () => {
         searchParams = new URLSearchParams({
-            projectId: 'p1', branch: 'feature', base: 't1', common: 'c1', file: 'rules/Main.xlsx',
+            projectId: 'p1',
+            branch: 'feature',
+            base: 't1',
+            common: 'c1',
+            file: 'rules/Main.xlsx',
         })
         vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
         vi.mocked(getRevisionChanges).mockResolvedValueOnce({
@@ -785,7 +812,11 @@ describe('ComparePage', () => {
         // Sync names the branches: the other one as the base, yours as the later revision; the changes tell their
         // last revisions and the one both parted at.
             searchParams = new URLSearchParams({
-                projectId: 'p1', branch: 'main', base: 'feature', revision: 'main', file: 'rules/Main.xlsx',
+                projectId: 'p1',
+                branch: 'main',
+                base: 'feature',
+                revision: 'main',
+                file: 'rules/Main.xlsx',
             })
             vi.mocked(getRevisionChanges).mockResolvedValueOnce({
                 base: revisionOf('t1'),
@@ -814,7 +845,11 @@ describe('ComparePage', () => {
     it('compares a workbook their branch brings into yours with your version, the earlier side, first', async () => {
         // Sync receiving names your branch as the base and theirs as the later revision.
         searchParams = new URLSearchParams({
-            projectId: 'p1', branch: 'feature', base: 'main', revision: 'feature', file: 'rules/Main.xlsx',
+            projectId: 'p1',
+            branch: 'feature',
+            base: 'main',
+            revision: 'feature',
+            file: 'rules/Main.xlsx',
             yours: 'earlier',
         })
         vi.mocked(getRevisionChanges).mockResolvedValueOnce({
@@ -837,7 +872,11 @@ describe('ComparePage', () => {
     it('reads a workbook the address names without its change as the changes tell what became of it', async () => {
         // Sync names no change: the workbook the later side deleted is read as absent there, not at that revision.
         searchParams = new URLSearchParams({
-            projectId: 'p1', branch: 'main', base: 'feature', revision: 'main', file: 'rules/Old.xlsx',
+            projectId: 'p1',
+            branch: 'main',
+            base: 'feature',
+            revision: 'main',
+            file: 'rules/Old.xlsx',
         })
         vi.mocked(getRevisionChanges).mockResolvedValueOnce({
             base: revisionOf('t1'),
@@ -858,7 +897,12 @@ describe('ComparePage', () => {
 
     it('reads a workbook the revision both histories parted at does not hold as an added one', async () => {
         searchParams = new URLSearchParams({
-            projectId: 'p1', branch: 'feature', base: 't1', common: 'c1', file: 'rules/New.xlsx', change: 'added',
+            projectId: 'p1',
+            branch: 'feature',
+            base: 't1',
+            common: 'c1',
+            file: 'rules/New.xlsx',
+            change: 'added',
         })
         vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
 
@@ -871,7 +915,11 @@ describe('ComparePage', () => {
 
     it('reads a text of another branch from the revision both histories parted at', async () => {
         searchParams = new URLSearchParams({
-            projectId: 'p1', branch: 'feature', base: 't1', common: 'c1', file: 'rules.xml',
+            projectId: 'p1',
+            branch: 'feature',
+            base: 't1',
+            common: 'c1',
+            file: 'rules.xml',
         })
 
         openPage()
@@ -898,8 +946,12 @@ describe('ComparePage', () => {
         expect(screen.queryByTestId('compare-files')).toBeNull()
         expect([...screen.getByTestId('compare-conflict-view').querySelectorAll('button')]
             .map(button => [button.textContent, button.getAttribute('aria-pressed')]))
-            .toEqual([['view_all_versions', 'true'], ['view_your_changes', 'false'], ['view_their_changes', 'false'],
-                ['view_versions', 'false']])
+            .toEqual([
+                ['view_all_versions', 'true'],
+                ['view_your_changes', 'false'],
+                ['view_their_changes', 'false'],
+                ['view_versions', 'false']
+            ])
         expect(document.title).toBe('file_title')
 
         await userEvent.click(screen.getByText('view_their_changes'))

@@ -143,7 +143,7 @@ const LocalizationScreen = () => {
     // so the plain address of the screen does not keep narrowing the keys down.
     useEffect(() => {
         if (untranslated !== null) {
-            setFilter({ ...NO_FILTER, notTranslatedInto: [untranslated]})
+            setFilter({ ...NO_FILTER, notTranslatedInto: [untranslated] })
             setSearch(Object.fromEntries([...search].filter(([name]) => name !== 'untranslated')), { replace: true })
         }
     }, [untranslated, search, setSearch])
@@ -157,7 +157,7 @@ const LocalizationScreen = () => {
         setProject(null)
         setLinkProblem(false)
         const startedAt = Date.now()
-        getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+        getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
                 if (current) {
                     setProject(loaded)
@@ -302,7 +302,7 @@ const LocalizationScreen = () => {
         clear()
         reread()
         // The messages are read again whether or not the project is: a failed read of the project is told.
-        void getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+        void getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
             .then(setProject)
             .catch((error: unknown) => notification.error({ title: t('load_failed'), description: errorMessage(error) }))
     }, [clear, projectId, reread, notification, t])
@@ -330,7 +330,7 @@ const LocalizationScreen = () => {
             notification.success({ title: t('saved') })
             // A write takes the project up for editing, which the project read before does not know. The messages are
             // saved whether or not the project is read again.
-            void getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS).then(setProject).catch(() => undefined)
+            void getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS).then(setProject).catch(() => undefined)
             return true
         } catch (error) {
             notification.error({ title: t('save_failed'), description: errorMessage(error) })

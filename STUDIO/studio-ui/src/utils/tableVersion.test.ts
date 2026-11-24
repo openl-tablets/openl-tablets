@@ -10,7 +10,7 @@ describe('tableVersion', () => {
     it('names a version by the dimensions that tell it from the others, in the order they are given', () => {
         const effective = '2020-07-01T10:30:00.000'
 
-        expect(versionLabel('carPrice', { effectiveDate: effective, state: ['AR']}))
+        expect(versionLabel('carPrice', { effectiveDate: effective, state: ['AR'] }))
             .toBe(`carPrice [effectiveDate=${formatLocalDateTime(effective)}, state=AR]`)
     })
 

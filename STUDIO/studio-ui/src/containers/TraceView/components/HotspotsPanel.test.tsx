@@ -11,8 +11,8 @@ vi.mock('services/traceService', () => ({
         resume: vi.fn().mockResolvedValue(undefined),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
         getStack: vi.fn().mockRejectedValue(new Error('no session')),
-        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
-        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: [] }),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: [] }),
     },
 }))
 

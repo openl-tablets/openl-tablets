@@ -9,9 +9,9 @@ vi.mock('services/traceService', () => ({
     default: {
         setBreakpoints: vi.fn().mockResolvedValue(undefined),
         resume: vi.fn().mockResolvedValue(undefined),
-        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: [] }),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
-        getStack: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
+        getStack: vi.fn().mockResolvedValue({ status: 'suspended', frames: [] }),
         getTreeChildren: vi.fn().mockResolvedValue({ children: [], total: 0 }),
     },
 }))
@@ -95,9 +95,11 @@ describe('TraceTree', () => {
         const deep = Array.from({ length: 300 }, (_, i) => frame(i, {
             name: `Frame${i}`,
             active: i === 299,
-            dispatch: { candidates: [{ label: 'v1', chosen: true }, { label: 'v2', chosen: false }]},
-            steps: [{ ref: 'C1', label: 'condition', status: 'executed', decision: 'matched' },
-                step('R1', i === 299 ? 'current' : 'executed')],
+            dispatch: { candidates: [{ label: 'v1', chosen: true }, { label: 'v2', chosen: false }] },
+            steps: [
+                { ref: 'C1', label: 'condition', status: 'executed', decision: 'matched' },
+                step('R1', i === 299 ? 'current' : 'executed')
+            ],
         }))
         useTraceStore.setState({ status: 'suspended', frames: deep, selectedFrameIndex: 299 })
         stylesReads.count = 0
@@ -136,8 +138,8 @@ describe('TraceTree', () => {
             projectId: 'p1',
             status: 'suspended',
             frames: [
-                frame(0, { name: 'ROOT', steps: [step('R0C0', 'current', '$Call')]}),
-                frame(1, { name: 'Child', active: true, steps: [step('R1C0', 'pending', '$Next')]}),
+                frame(0, { name: 'ROOT', steps: [step('R0C0', 'current', '$Call')] }),
+                frame(1, { name: 'Child', active: true, steps: [step('R1C0', 'pending', '$Next')] }),
             ],
             selectedFrameIndex: 1,
         })
@@ -160,8 +162,13 @@ describe('TraceTree', () => {
 
     it('starts a new run fully collapsed instead of inheriting stale expansions', async () => {
         const child: CallNodeView = {
-            uri: 'cu', name: 'ChildTable', instance: 0, kind: 'spreadsheet',
-            durationMillis: 1, selfMillis: 1, steps: [],
+            uri: 'cu',
+            name: 'ChildTable',
+            instance: 0,
+            kind: 'spreadsheet',
+            durationMillis: 1,
+            selfMillis: 1,
+            steps: [],
         }
         useTraceStore.setState({
             status: 'suspended',
@@ -192,7 +199,7 @@ describe('TraceTree', () => {
     it('badges a looped frame with its execution pass so stepping through a loop visibly advances', () => {
         useTraceStore.setState({
             status: 'suspended',
-            frames: [frame(0, { name: 'ClaimCost', active: true, instance: 4, steps: [step('R0C0', 'current')]})],
+            frames: [frame(0, { name: 'ClaimCost', active: true, instance: 4, steps: [step('R0C0', 'current')] })],
             selectedFrameIndex: 0,
         })
 
@@ -215,12 +222,19 @@ describe('TraceTree', () => {
         // The server caps inline children at its page size and reports the true total in childrenTotal; the
         // client renders what it received and shows a single "+N more" for what the server left out.
         const children = Array.from({ length: 100 }, (_, i) => ({
-            uri: `uc${i}`, name: `Call${i}`, instance: i, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
+            uri: `uc${i}`,
+            name: `Call${i}`,
+            instance: i,
+            kind: 'spreadsheet' as const,
+            durationMillis: 1,
+            selfMillis: 1,
+            steps: [],
         }))
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame(0, {
-                name: 'ROOT', active: true,
+                name: 'ROOT',
+                active: true,
                 steps: [{ ...step('R0C0', 'executed', '$Loop'), children, childrenTotal: 150 }],
             })],
             selectedFrameIndex: 0,
@@ -263,7 +277,7 @@ describe('TraceTree', () => {
         useTraceStore.setState({
             projectId: 'p1',
             status: 'suspended',
-            frames: [frame(0, { name: 'ROOT', active: true, steps: [step('R0C0', 'executed', '$Step1')]})],
+            frames: [frame(0, { name: 'ROOT', active: true, steps: [step('R0C0', 'executed', '$Step1')] })],
             selectedFrameIndex: null,
         })
 
@@ -312,7 +326,7 @@ describe('TraceTree', () => {
             status: 'completed',
             profiling: true,
             frames: [],
-            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 42, selfMillis: 12, steps: []},
+            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 42, selfMillis: 12, steps: [] },
         })
         render(<TraceTree />)
         // The empty live stack does not hide the tree; total time shows by default.
@@ -328,8 +342,16 @@ describe('TraceTree', () => {
         useTraceStore.setState({
             status: 'completed',
             frames: [],
-            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
-                durationMillis: 42, selfMillis: 12, steps: [], notRetained: 128 },
+            tree: {
+                uri: 'uRoot',
+                name: 'ROOT',
+                instance: 0,
+                kind: 'spreadsheet',
+                durationMillis: 42,
+                selfMillis: 12,
+                steps: [],
+                notRetained: 128
+            },
         })
         render(<TraceTree />)
         // The gap is shown, not hidden — the analyst sees this node's children are incomplete, not absent.
@@ -340,8 +362,15 @@ describe('TraceTree', () => {
         useTraceStore.setState({
             status: 'completed',
             frames: [],
-            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
-                durationMillis: 42, selfMillis: 12, steps: []},
+            tree: {
+                uri: 'uRoot',
+                name: 'ROOT',
+                instance: 0,
+                kind: 'spreadsheet',
+                durationMillis: 42,
+                selfMillis: 12,
+                steps: []
+            },
         })
         render(<TraceTree />)
         expect(screen.queryByTestId('tree-not-retained-tree/notRetained')).toBeNull()
@@ -353,7 +382,7 @@ describe('TraceTree', () => {
             tableId: 'tRoot',
             status: 'completed',
             frames: [],
-            tree: { uri: 'uRoot', name: 'ROOT', instance: 3, kind: 'spreadsheet', durationMillis: 42, selfMillis: 42, steps: []},
+            tree: { uri: 'uRoot', name: 'ROOT', instance: 3, kind: 'spreadsheet', durationMillis: 42, selfMillis: 42, steps: [] },
         })
         render(<TraceTree />)
         await userEvent.click(screen.getByTestId('tree-replay-uRoot'))
@@ -377,10 +406,25 @@ describe('TraceTree', () => {
                         {
                             ...step('R2C0', 'executed', '$Value'),
                             children: [
-                                { uri: 'u0', name: '$Term', instance: 0, kind: 'stepRef', durationMillis: 0, selfMillis: 0,
-                                    steps: [], refStep: 'R0C0' },
-                                { uri: 'u9', name: 'SubPremium', instance: 0, kind: 'spreadsheet', durationMillis: 3,
-                                    selfMillis: 3, steps: []},
+                                {
+                                    uri: 'u0',
+                                    name: '$Term',
+                                    instance: 0,
+                                    kind: 'stepRef',
+                                    durationMillis: 0,
+                                    selfMillis: 0,
+                                    steps: [],
+                                    refStep: 'R0C0'
+                                },
+                                {
+                                    uri: 'u9',
+                                    name: 'SubPremium',
+                                    instance: 0,
+                                    kind: 'spreadsheet',
+                                    durationMillis: 3,
+                                    selfMillis: 3,
+                                    steps: []
+                                },
                             ],
                         },
                     ],
@@ -436,8 +480,13 @@ describe('TraceTree', () => {
             profiling: true,
             frames: [],
             tree: {
-                uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 20, selfMillis: 8,
-                steps: [{ ref: 'R0C0', label: '$Slow', status: 'executed', durationMillis: 12, selfMillis: 12, children: []}],
+                uri: 'uRoot',
+                name: 'ROOT',
+                instance: 0,
+                kind: 'spreadsheet',
+                durationMillis: 20,
+                selfMillis: 8,
+                steps: [{ ref: 'R0C0', label: '$Slow', status: 'executed', durationMillis: 12, selfMillis: 12, children: [] }],
             },
         })
         render(<TraceTree />)
@@ -492,11 +541,22 @@ describe('TraceTree', () => {
     const getTreeChildren = traceService.getTreeChildren as ReturnType<typeof vi.fn>
 
     const childNode = (name: string, instance: number) => ({
-        uri: `u${name}`, name, instance, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
+        uri: `u${name}`,
+        name,
+        instance,
+        kind: 'spreadsheet' as const,
+        durationMillis: 1,
+        selfMillis: 1,
+        steps: [],
     })
 
     const lazyTree = (childrenTotal: number) => ({
-        uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet' as const, durationMillis: 10, selfMillis: 5,
+        uri: 'uRoot',
+        name: 'ROOT',
+        instance: 0,
+        kind: 'spreadsheet' as const,
+        durationMillis: 10,
+        selfMillis: 5,
         steps: [{ ref: 'R0C0', label: '$Calc', status: 'executed' as const, childrenTotal }],
     })
 
@@ -529,7 +589,12 @@ describe('TraceTree', () => {
 
     // A decision-table node whose executed tree carries the legacy per-condition breakdown.
     const decisionTree = (): CallNodeView => ({
-        uri: 'uDT', name: 'NonZeroValues', instance: 0, kind: 'decisionTable', durationMillis: 1, selfMillis: 1,
+        uri: 'uDT',
+        name: 'NonZeroValues',
+        instance: 0,
+        kind: 'decisionTable',
+        durationMillis: 1,
+        selfMillis: 1,
         steps: [
             { ref: 'c0', label: 'Condition: MC1, Rules: [R1]', status: 'executed', decision: 'unmatched' },
             { ref: 'c1', label: 'Condition: MC1, Rules: [R2]', status: 'executed', decision: 'matched' },
@@ -539,7 +604,11 @@ describe('TraceTree', () => {
 
     it('breaks a decision table into its conditions and returned rule, like the legacy detailed trace', () => {
         useTraceStore.setState({
-            status: 'completed', profiling: true, showDetailed: true, frames: [], tree: decisionTree(),
+            status: 'completed',
+            profiling: true,
+            showDetailed: true,
+            frames: [],
+            tree: decisionTree(),
         })
         render(<TraceTree />)
 

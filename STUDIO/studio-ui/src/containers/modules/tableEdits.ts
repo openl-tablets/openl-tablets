@@ -2,7 +2,12 @@ import { hexOf } from 'styles/excelColours'
 import type { CellPlace } from 'components/RawTableGrid'
 import { MARK_RGB, markedRuns, marksOf, sameMarks } from 'components/textMarks'
 import type {
-    RawCellStyleInput, RawTableCell, RawTableCellStyle, RawTableCellInput, RawTextMark, TableEdit,
+    RawCellStyleInput,
+    RawTableCell,
+    RawTableCellStyle,
+    RawTableCellInput,
+    RawTextMark,
+    TableEdit,
 } from 'types/tables'
 
 /** Where a cell sits in the table, as it stands on screen. */
@@ -35,7 +40,7 @@ interface EditBuffer {
     undone: EditStep[]
 }
 
-export const NO_EDITS: EditBuffer = { steps: [], undone: []}
+export const NO_EDITS: EditBuffer = { steps: [], undone: [] }
 
 /** Whether the two positions name the same cell. */
 export const sameCell = (one: CellAt | null, other: CellAt | null): boolean =>
@@ -262,7 +267,9 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
                         row[step.at.column] = { ...kept, value: step.value }
                     } else {
                         row[step.at.column] = {
-                            ...kept, value: step.value, runs: markedRuns(step.value, undefined, step.marks, MARK_RGB),
+                            ...kept,
+                            value: step.value,
+                            runs: markedRuns(step.value, undefined, step.marks, MARK_RGB),
                         }
                     }
                     state.touched.add(key)
@@ -474,7 +481,7 @@ export const undo = (buffer: EditBuffer): EditBuffer => {
     const last = buffer.steps.at(-1)
     return last === undefined
         ? buffer
-        : { steps: buffer.steps.slice(0, -1), undone: [last, ...buffer.undone]}
+        : { steps: buffer.steps.slice(0, -1), undone: [last, ...buffer.undone] }
 }
 
 /** The buffer with the step that was last taken back put again. */
@@ -543,7 +550,7 @@ const columnInserts = (state: EditedTable): TableEdit[] => {
             const cells = state.rows
                 .filter((_, row) => readAt(state.rowIds[row] ?? '') !== null)
                 .map(row => written(row[column]))
-            edits.push({ operation: 'insert', target: { type: 'columns', position: column, cells: [cells]} })
+            edits.push({ operation: 'insert', target: { type: 'columns', position: column, cells: [cells] } })
         }
     })
     return edits
@@ -556,7 +563,7 @@ const rowInserts = (state: EditedTable): TableEdit[] => {
         if (readAt(id) === null) {
             edits.push({
                 operation: 'insert',
-                target: { type: 'rows', position: row, cells: [(state.rows[row] ?? []).map(written)]},
+                target: { type: 'rows', position: row, cells: [(state.rows[row] ?? []).map(written)] },
             })
         }
     })
@@ -641,7 +648,11 @@ const mergeEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[]
         }
     }
     return [...clears, { operation: 'merge' as const, target: {
-        type: 'cells' as const, row, column, rowspan: lastRow - row + 1, colspan: lastColumn - column + 1,
+        type: 'cells' as const,
+        row,
+        column,
+        rowspan: lastRow - row + 1,
+        colspan: lastColumn - column + 1,
     } }]
 })
 

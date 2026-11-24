@@ -273,7 +273,7 @@ describe('MergeModal', () => {
     it('shows ConflictResolutionStep when existing conflicts found', async () => {
         mockApiCall.mockResolvedValue({
             conflictGroups: [
-                { projectName: 'MyProject', projectPath: 'test', files: ['Main.xlsx']},
+                { projectName: 'MyProject', projectPath: 'test', files: ['Main.xlsx'] },
             ],
         })
 
@@ -288,7 +288,7 @@ describe('MergeModal', () => {
 
     it('shows conflicts title when in conflict step', async () => {
         mockApiCall.mockResolvedValue({
-            conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
+            conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
         })
 
         render(<MergeModal />)
@@ -312,7 +312,7 @@ describe('MergeModal', () => {
     })
 
     it('stays on branches step when conflict check returns empty groups', async () => {
-        mockApiCall.mockResolvedValue({ conflictGroups: []})
+        mockApiCall.mockResolvedValue({ conflictGroups: [] })
 
         render(<MergeModal />)
         await dispatchOpenModal(createDetail())
@@ -346,7 +346,7 @@ describe('MergeModal', () => {
             act(() => {
                 onMergeConflicts({
                     status: 'conflicts',
-                    conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['a.xlsx']}],
+                    conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['a.xlsx'] }],
                 })
             })
 
@@ -540,7 +540,7 @@ describe('MergeModal', () => {
     describe('conflict resolution callbacks', () => {
         const openWithConflicts = async (detail = createDetail()) => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
             })
             render(<MergeModal />)
             await dispatchOpenModal(detail)
@@ -676,7 +676,7 @@ describe('MergeModal', () => {
         it('resets to branches step when reopened without initialStep', async () => {
             // First open: go to conflicts
             mockApiCall.mockResolvedValueOnce({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
             })
 
             render(<MergeModal />)
@@ -702,7 +702,7 @@ describe('MergeModal', () => {
     describe('initialStep support (save merge conflicts)', () => {
         it('opens directly in conflicts step when initialStep is conflicts', async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx']}],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
             })
 
             render(<MergeModal />)
@@ -716,7 +716,7 @@ describe('MergeModal', () => {
 
         it('shows conflicts title when opened with initialStep conflicts', async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx']}],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
             })
 
             render(<MergeModal />)
@@ -741,7 +741,7 @@ describe('MergeModal', () => {
 
         it('passes conflict groups to ConflictResolutionStep when opened with initialStep', async () => {
             const conflictGroups = [
-                { projectName: 'MyProject', projectPath: 'test', files: ['Bank Rating.xlsx']},
+                { projectName: 'MyProject', projectPath: 'test', files: ['Bank Rating.xlsx'] },
             ]
             mockApiCall.mockResolvedValue({ conflictGroups })
 
@@ -759,11 +759,11 @@ describe('MergeModal', () => {
 
         it('opens with empty branches array for save conflicts', async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx']}],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
             })
 
             render(<MergeModal />)
-            await dispatchOpenModal(createDetail({ initialStep: 'conflicts', branches: []}))
+            await dispatchOpenModal(createDetail({ initialStep: 'conflicts', branches: [] }))
 
             await waitFor(() => {
                 expect(screen.getByTestId('conflict-resolution-step')).toBeInTheDocument()

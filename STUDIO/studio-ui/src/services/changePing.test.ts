@@ -4,12 +4,12 @@ import { CLIENT_ID } from './clientId'
 
 describe('parseChangePing', () => {
     it('reads the files and the origins the backend named', () => {
-        expect(parseChangePing(JSON.stringify({ files: ['rules/A.xlsx'], origins: ['tab-1']}), 'project'))
+        expect(parseChangePing(JSON.stringify({ files: ['rules/A.xlsx'], origins: ['tab-1'] }), 'project'))
             .toEqual({ files: ['rules/A.xlsx'], origins: ['tab-1'], scope: 'project' })
     })
 
     it('reads a ping that carries origins alone — the workspace ping and the broadcast', () => {
-        expect(parseChangePing(JSON.stringify({ origins: ['tab-1']}), 'workspace'))
+        expect(parseChangePing(JSON.stringify({ origins: ['tab-1'] }), 'workspace'))
             .toEqual({ files: [], origins: ['tab-1'], scope: 'workspace' })
     })
 

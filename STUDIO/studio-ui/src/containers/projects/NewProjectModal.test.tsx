@@ -191,7 +191,19 @@ vi.mock('antd', async () => {
         },
     }
     return withStaticApp({
-        Modal, Button, Checkbox, Input, Upload, Alert, Segmented, Select, Space, Tooltip, TreeSelect, Typography, notification,
+        Modal,
+        Button,
+        Checkbox,
+        Input,
+        Upload,
+        Alert,
+        Segmented,
+        Select,
+        Space,
+        Tooltip,
+        TreeSelect,
+        Typography,
+        notification,
     })
 })
 
@@ -242,7 +254,7 @@ describe('NewProjectModal', () => {
         vi.mocked(copyProject).mockResolvedValue('sZIiCSgPtIfe')
         vi.mocked(createProject).mockResolvedValue('sZIiCSgPtIfe')
         vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 })
-        vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
+        vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example'] }])
         vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: {} })
         vi.mocked(getDesignRepositoryBranches).mockResolvedValue(['main', 'feature/rates'])
@@ -304,7 +316,10 @@ describe('NewProjectModal', () => {
 
     it('creates in a file repository without a comment field or comment', async () => {
         const fileRepositories = [{
-            id: 'file', name: 'File', aclId: 'a', capabilities: { canCreateProject: true },
+            id: 'file',
+            name: 'File',
+            aclId: 'a',
+            capabilities: { canCreateProject: true },
             features: { branches: false, searchable: false, mappedFolders: true, comments: false },
         }]
         renderWizard({ repositories: fileRepositories })

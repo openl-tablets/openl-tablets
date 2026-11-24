@@ -32,8 +32,16 @@ vi.mock('antd', () => ({
     Alert: ({ title, showIcon: _showIcon, type: _type, ...rest }: any) => (
         <div role="alert" {...rest}>{title}</div>
     ),
-    Select: ({ onChange, options, value, loading: _loading, popupMatchSelectWidth: _width,
-        notFoundContent: _notFound, placeholder, ...rest }: any) => (
+    Select: ({
+        onChange,
+        options,
+        value,
+        loading: _loading,
+        popupMatchSelectWidth: _width,
+        notFoundContent: _notFound,
+        placeholder,
+        ...rest
+    }: any) => (
         <select
             {...rest}
             data-placeholder={placeholder}

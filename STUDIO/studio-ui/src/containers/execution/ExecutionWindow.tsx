@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Empty, Result } from 'antd'
 import { useTranslation } from 'react-i18next'
 import {
-    currentExecution, EXECUTION_EDITOR_NAVIGATION, EXECUTION_WINDOW_KEY, type ExecutionWindowRequest,
+    currentExecution,
+    EXECUTION_EDITOR_NAVIGATION,
+    EXECUTION_WINDOW_KEY,
+    type ExecutionWindowRequest,
 } from 'services/executionWindow'
 import { RunningCard } from 'components/RunningCard'
 import { useStyles } from './ExecutionScreen.styles'

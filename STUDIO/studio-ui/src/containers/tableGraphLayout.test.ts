@@ -29,9 +29,9 @@ describe('tableGraph dagre layout', () => {
     it('lays out a project dependency graph with the real dagre engine', () => {
         // the shape of a real project graph: spreadsheets calling shared rule tables, plus an unused table
         const cy = expectLaidOut([
-            { id: 'policy', name: 'DeterminePolicyPremium', kind: 'Spreadsheet', dependencies: ['driver', 'vehicle', 'discount']},
-            { id: 'driver', name: 'DetermineDriverPremium', kind: 'Spreadsheet', dependencies: ['risk', 'premium']},
-            { id: 'vehicle', name: 'DetermineVehiclePremium', kind: 'Spreadsheet', dependencies: ['premium', 'surcharge']},
+            { id: 'policy', name: 'DeterminePolicyPremium', kind: 'Spreadsheet', dependencies: ['driver', 'vehicle', 'discount'] },
+            { id: 'driver', name: 'DetermineDriverPremium', kind: 'Spreadsheet', dependencies: ['risk', 'premium'] },
+            { id: 'vehicle', name: 'DetermineVehiclePremium', kind: 'Spreadsheet', dependencies: ['premium', 'surcharge'] },
             { id: 'risk', name: 'DriverRisk', kind: 'Rules' },
             { id: 'premium', name: 'BasePremium', kind: 'Rules' },
             { id: 'surcharge', name: 'AgeSurcharge', kind: 'Rules' },
@@ -45,17 +45,17 @@ describe('tableGraph dagre layout', () => {
 
     it('lays out a recursive table drawn as a self-loop', () => {
         expectLaidOut([
-            { id: 'a', name: 'A', dependencies: ['a', 'b']},
+            { id: 'a', name: 'A', dependencies: ['a', 'b'] },
             { id: 'b', name: 'B' },
         ])
     })
 
     it('lays out call cycles between tables', () => {
         expectLaidOut([
-            { id: 'a', name: 'A', dependencies: ['b']},
-            { id: 'b', name: 'B', dependencies: ['c']},
-            { id: 'c', name: 'C', dependencies: ['a', 'd']},
-            { id: 'd', name: 'D', dependencies: ['c']},
+            { id: 'a', name: 'A', dependencies: ['b'] },
+            { id: 'b', name: 'B', dependencies: ['c'] },
+            { id: 'c', name: 'C', dependencies: ['a', 'd'] },
+            { id: 'd', name: 'D', dependencies: ['c'] },
         ])
     })
 

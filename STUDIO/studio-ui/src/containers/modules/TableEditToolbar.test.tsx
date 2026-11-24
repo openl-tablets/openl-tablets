@@ -11,12 +11,22 @@ vi.mock('react-i18next', () => {
 
 /** The actions that change the table, after the ones that save it and take steps back or forth. */
 const CHANGING = [
-    'insert_row', 'remove_row', 'insert_column', 'remove_column',
-    'merge', 'unmerge',
-    'align_left', 'align_center', 'align_right',
-    'bold', 'italic', 'underline',
-    'fill_colour', 'font_colour',
-    'outdent', 'indent',
+    'insert_row',
+    'remove_row',
+    'insert_column',
+    'remove_column',
+    'merge',
+    'unmerge',
+    'align_left',
+    'align_center',
+    'align_right',
+    'bold',
+    'italic',
+    'underline',
+    'fill_colour',
+    'font_colour',
+    'outdent',
+    'indent',
 ]
 
 const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
@@ -119,8 +129,18 @@ describe('TableEditToolbar', () => {
         draw({ formatting: false, indenting: false })
 
         // A save that formats the table writes over the look, and the Studio look does not show it.
-        const look = ['align_left', 'align_center', 'align_right', 'bold', 'italic', 'underline',
-            'fill_colour', 'font_colour', 'outdent', 'indent']
+        const look = [
+            'align_left',
+            'align_center',
+            'align_right',
+            'bold',
+            'italic',
+            'underline',
+            'fill_colour',
+            'font_colour',
+            'outdent',
+            'indent'
+        ]
         look.forEach(action => expect(screen.queryByTestId(`table-edit-${action}`)).not.toBeInTheDocument())
         // What changes the table itself stays.
         expect(screen.getByTestId('table-edit-insert_row')).toBeInTheDocument()

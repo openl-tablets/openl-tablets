@@ -573,7 +573,12 @@ export const ProjectsHome = () => {
     // Compilation health of the projects the server reported a live state for (the active workspace).
     const compileTally = useMemo(() => {
         const tally: Record<ProjectCompileState, number> = {
-            idle: 0, compiling: 0, ok: 0, warnings: 0, errors: 0, cancelled: 0,
+            idle: 0,
+            compiling: 0,
+            ok: 0,
+            warnings: 0,
+            errors: 0,
+            cancelled: 0,
         }
         for (const status of compileStatuses) {
             tally[status.compileState] += 1
@@ -741,7 +746,7 @@ export const ProjectsHome = () => {
     const handlers: ProjectListHandlers = useMemo(() => ({
         // The list response carries the dependencies, so the dialog never reads them again.
         onOpen: project => openProjectDialog(
-            { ...project, dependencies: project.dependencies ?? []},
+            { ...project, dependencies: project.dependencies ?? [] },
             options => runAction(
                 project,
                 'open',

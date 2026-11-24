@@ -166,7 +166,7 @@ interface HeaderBand {
     hints: string[]
 }
 
-const NO_BAND: HeaderBand = { rows: 0, keys: 0, titles: [], hints: []}
+const NO_BAND: HeaderBand = { rows: 0, keys: 0, titles: [], hints: [] }
 
 /**
  * The table type whose *layout* the preset takes.
@@ -894,11 +894,20 @@ export const buildTableRegions = (
     const geometry = geometryOf(forPreset, context)
     switch (geometry) {
         case 'datatype':
-            return [...header, ...area('inputTitle', 1, 0, 1, right), ...area('fieldType', 2, 0, last, 0),
-                ...area('output', 2, 1, last, 1), ...area('value', 2, 2, last, right)]
+            return [
+                ...header,
+                ...area('inputTitle', 1, 0, 1, right),
+                ...area('fieldType', 2, 0, last, 0),
+                ...area('output', 2, 1, last, 1),
+                ...area('value', 2, 2, last, right)
+            ]
         case 'constants':
-            return [...header, ...area('fieldType', 1, 0, last, 0), ...area('output', 1, 1, last, 1),
-                ...area('value', 1, 2, last, right)]
+            return [
+                ...header,
+                ...area('fieldType', 1, 0, last, 0),
+                ...area('output', 1, 1, last, 1),
+                ...area('value', 1, 2, last, right)
+            ]
         case 'vocabulary':
             return [...header, ...area('value', 1, 0, last, right)]
         case 'environment':
@@ -909,22 +918,37 @@ export const buildTableRegions = (
             const resultType = context.resultType.trim()
             const single = resultType !== '' && resultType !== 'SpreadsheetResult' && resultType !== 'void'
             const steps = single ? last - 1 : last
-            return [...header, ...area('inputTitle', 1, 0, 1, 0), ...area('outputTitle', 1, 1, 1, right),
-                ...area('value', 2, 0, steps, 0), ...area('output', 2, 1, steps, right),
-                ...(single ? area('result', Math.max(last, 2), 0, last, right) : [])]
+            return [
+                ...header,
+                ...area('inputTitle', 1, 0, 1, 0),
+                ...area('outputTitle', 1, 1, 1, right),
+                ...area('value', 2, 0, steps, 0),
+                ...area('output', 2, 1, steps, right),
+                ...(single ? area('result', Math.max(last, 2), 0, last, right) : [])
+            ]
         }
         case 'rules':
-            return [...header, ...area('code', 1, 0, 3, right), ...area('inputTitle', 4, 0, 4, 0),
-                ...area('outputTitle', 4, 1, 4, right), ...area('value', 5, 0, last, 0),
-                ...area('output', 5, 1, last, right)]
+            return [
+                ...header,
+                ...area('code', 1, 0, 3, right),
+                ...area('inputTitle', 4, 0, 4, 0),
+                ...area('outputTitle', 4, 1, 4, right),
+                ...area('value', 5, 0, last, 0),
+                ...area('output', 5, 1, last, right)
+            ]
         case 'smartLookup':
         case 'simpleLookup': {
             const { rows, keys } = headerBand(geometry, context)
             // The titles of the vertical conditions stand in the corner; the horizontal values title the grid returned,
             // each row of them a region of its own, as the server lays a lookup out.
             const horizontals = Array.from({ length: rows }, (_, at) => area('outputTitle', at + 1, keys, at + 1, right))
-            return [...header, ...area('inputTitle', 1, 0, rows, keys - 1), ...horizontals.flat(),
-                ...area('value', rows + 1, 0, last, keys - 1), ...area('output', rows + 1, keys, last, right)]
+            return [
+                ...header,
+                ...area('inputTitle', 1, 0, rows, keys - 1),
+                ...horizontals.flat(),
+                ...area('value', rows + 1, 0, last, keys - 1),
+                ...area('output', rows + 1, keys, last, right)
+            ]
         }
         case 'smartRules':
         case 'simpleRules': {
@@ -932,9 +956,12 @@ export const buildTableRegions = (
             // A lookup of one argument opens with a rule, not with titles: its geometry is the one of a rules table.
             const titled = !isLookup(forPreset)
             const first = titled ? 2 : 1
-            return [...header,
+            return [
+                ...header,
                 ...(titled ? [...area('inputTitle', 1, 0, 1, inputs - 1), ...area('outputTitle', 1, inputs, 1, right)] : []),
-                ...area('value', first, 0, last, inputs - 1), ...area('output', first, inputs, last, right)]
+                ...area('value', first, 0, last, inputs - 1),
+                ...area('output', first, inputs, last, right)
+            ]
         }
         case 'test':
         case 'run':

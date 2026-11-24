@@ -281,8 +281,24 @@ vi.mock('antd', async () => {
     const { withStaticApp } = await import('testing/staticAntdApp')
 
     return withStaticApp({
-        Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Spin, Modal, Tabs, Tree, Descriptions,
-        Alert, Typography, Space, Divider, notification
+        Button,
+        Input,
+        Dropdown,
+        Popconfirm,
+        Tag,
+        Tooltip,
+        Empty,
+        Skeleton,
+        Spin,
+        Modal,
+        Tabs,
+        Tree,
+        Descriptions,
+        Alert,
+        Typography,
+        Space,
+        Divider,
+        notification
     })
 })
 
@@ -352,7 +368,7 @@ describe('ProjectWorkspace', () => {
         expect(getDesignRepositories).not.toHaveBeenCalled()
         expect(getProject).toHaveBeenCalledWith(
             'p1',
-            { includes: ['status', 'descriptor']},
+            { includes: ['status', 'descriptor'] },
             { throwError: true, suppressErrorPages: true }
         )
         // The breadcrumb links back to the Projects home.
@@ -917,7 +933,7 @@ describe('ProjectWorkspace', () => {
             compileStatus: {
                 projectId: 'p1',
                 compileState: 'ok',
-                pendingChanges: { total: 1, files: [{ path: 'rules/Main.xlsx', type: 'modified' }]},
+                pendingChanges: { total: 1, files: [{ path: 'rules/Main.xlsx', type: 'modified' }] },
             },
         }) as never)
         await renderWorkspace()
@@ -1028,7 +1044,7 @@ describe('ProjectWorkspace', () => {
 
         await renderWorkspace()
 
-        expect(getProject).toHaveBeenCalledWith(maven, { includes: ['status', 'descriptor']}, expect.anything())
+        expect(getProject).toHaveBeenCalledWith(maven, { includes: ['status', 'descriptor'] }, expect.anything())
         expect(lastRail()).toMatchObject({ address: maven, currentProjectId: maven })
         // The usual screen of a project: the repository it comes from, its version and the mark that it is read-only.
         expect(screen.getByText('Maven')).toBeInTheDocument()

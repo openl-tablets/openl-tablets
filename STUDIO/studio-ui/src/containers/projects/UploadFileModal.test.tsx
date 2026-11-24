@@ -77,7 +77,7 @@ const props = {
 }
 
 const pick = (name: string) => fireEvent.change(screen.getByTestId('files-upload-dragger'), {
-    target: { files: [new File(['x'], name)]},
+    target: { files: [new File(['x'], name)] },
 })
 
 describe('UploadFileModal', () => {
@@ -117,7 +117,7 @@ describe('UploadFileModal', () => {
         render(<UploadFileModal {...props} />)
 
         fireEvent.change(screen.getByTestId('files-upload-dragger'), {
-            target: { files: [new File(['x'], 'A.xlsx'), new File(['y'], 'B.xlsx')]},
+            target: { files: [new File(['x'], 'A.xlsx'), new File(['y'], 'B.xlsx')] },
         })
         // A batch has no single name to rename, so the name field steps aside.
         await waitFor(() => expect(screen.queryByTestId('files-upload-name')).toBeNull())

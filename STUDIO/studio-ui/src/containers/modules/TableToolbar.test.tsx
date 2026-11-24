@@ -422,8 +422,8 @@ describe('TableToolbar', () => {
 
     it('names the first table a test exercises and keeps the rest behind a caret', async () => {
         vi.mocked(getTableTargets).mockResolvedValue([
-            { id: 'rules-1', name: 'BankRating', dimensions: { lob: ['Banking']} },
-            { id: 'rules-2', name: 'BankRating', dimensions: { lob: ['Insurance']} },
+            { id: 'rules-1', name: 'BankRating', dimensions: { lob: ['Banking'] } },
+            { id: 'rules-2', name: 'BankRating', dimensions: { lob: ['Insurance'] } },
         ])
         await draw({ table: table('Run') })
 
@@ -439,8 +439,8 @@ describe('TableToolbar', () => {
 
     it('tells the whole name of a table a test exercises on hover, where the band cuts it short', async () => {
         vi.mocked(getTableTargets).mockResolvedValue([
-            { id: 'rules-1', name: 'CarPrice', dimensions: { lob: ['Auto']} },
-            { id: 'rules-2', name: 'CarPrice', dimensions: { lob: ['Home']} },
+            { id: 'rules-1', name: 'CarPrice', dimensions: { lob: ['Auto'] } },
+            { id: 'rules-2', name: 'CarPrice', dimensions: { lob: ['Home'] } },
         ])
         await draw({ table: table('Test') })
 

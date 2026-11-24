@@ -55,8 +55,13 @@ vi.mock('antd', () => {
     const passthrough = ({ children }: { children?: unknown }) => <div>{children as never}</div>
     const Alert = ({ title }: { title?: unknown }) => <div data-testid="notification">{title as never}</div>
     return {
-        Alert, Avatar: passthrough, Col: passthrough, Layout, Menu,
-        Row: passthrough, Space: passthrough,
+        Alert,
+        Avatar: passthrough,
+        Col: passthrough,
+        Layout,
+        Menu,
+        Row: passthrough,
+        Space: passthrough,
     }
 })
 

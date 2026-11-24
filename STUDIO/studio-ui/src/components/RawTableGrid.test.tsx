@@ -102,7 +102,7 @@ describe('RawTableGrid', () => {
             [{ cell: 'A5', value: 'P2' }, { cell: 'B5', value: 'C' }],
         ]
 
-        render(<RawTableGrid layout={{ firstDataLine: 2, caseLines: [2, 1]}} rows={table} testId="grid" />)
+        render(<RawTableGrid layout={{ firstDataLine: 2, caseLines: [2, 1] }} rows={table} testId="grid" />)
 
         const numbers = screen.getAllByTestId('table-line-number')
         expect(numbers.map(cell => cell.textContent)).toEqual(['1', '2'])
@@ -112,14 +112,22 @@ describe('RawTableGrid', () => {
     it('numbers a case once above all the columns it takes', () => {
         const table: RawTableCell[][] = [
             [{ cell: 'A1', value: 'Test count countTest' }, { covered: true }, { covered: true }, { covered: true }],
-            [{ cell: 'A2', value: 'pol.name' }, { cell: 'B2', value: 'P1', colspan: 2 }, { covered: true },
-                { cell: 'D2', value: 'P2' }],
-            [{ cell: 'A3', value: 'pol.vehicles.name' }, { cell: 'B3', value: 'A' }, { cell: 'C3', value: 'B' },
-                { cell: 'D3', value: 'C' }],
+            [
+                { cell: 'A2', value: 'pol.name' },
+                { cell: 'B2', value: 'P1', colspan: 2 },
+                { covered: true },
+                { cell: 'D2', value: 'P2' }
+            ],
+            [
+                { cell: 'A3', value: 'pol.vehicles.name' },
+                { cell: 'B3', value: 'A' },
+                { cell: 'C3', value: 'B' },
+                { cell: 'D3', value: 'C' }
+            ],
         ]
 
         render(<RawTableGrid
-            layout={{ firstDataLine: 1, transposed: true, caseLines: [2, 1]}}
+            layout={{ firstDataLine: 1, transposed: true, caseLines: [2, 1] }}
             rows={table}
             testId="grid"
         />)
@@ -139,7 +147,7 @@ describe('RawTableGrid', () => {
             [{ cell: 'A5', value: 'Ann' }, { cell: 'B5', value: 'Hi, Ann' }],
         ]
 
-        render(<RawTableGrid layout={{ firstDataLine: 2, caseLines: [2]}} rows={table} testId="grid" />)
+        render(<RawTableGrid layout={{ firstDataLine: 2, caseLines: [2] }} rows={table} testId="grid" />)
 
         expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2', '3'])
     })
@@ -231,7 +239,7 @@ describe('RawTableGrid', () => {
     it('keeps the mark of the cell a table returns on a date it writes in the formats of the reader', () => {
         const table: RawTableCell[][] = [
             [{ cell: 'B2', value: 'Rules Date due()', colspan: 1 }],
-            [{ cell: 'B3', value: '2026-10-30', metaInfo: { returnCell: true, usages: [{ start: 0, end: 4, description: 'Rules due', kind: 'rule' }]} }],
+            [{ cell: 'B3', value: '2026-10-30', metaInfo: { returnCell: true, usages: [{ start: 0, end: 4, description: 'Rules due', kind: 'rule' }] } }],
         ]
         const roles = rolesOf({
             pos: 'B2:B3',
@@ -470,8 +478,10 @@ describe('RawTableGrid', () => {
     describe('in the Studio look', () => {
         // A rule of one condition: its header, the titles of what it takes and gives, and a line of each.
         const rule: RawTableCell[][] = [
-            [{ cell: 'B2', value: 'Rules Double Rate(Integer age)', colspan: 2, style: { background: '#ff0000' } },
-                { covered: true }],
+            [
+                { cell: 'B2', value: 'Rules Double Rate(Integer age)', colspan: 2, style: { background: '#ff0000' } },
+                { covered: true }
+            ],
             [{ cell: 'B3', value: 'Age' }, { cell: 'C3', value: 'Rate' }],
             [{ cell: 'B4', value: '18', style: { indent: 2 } }, { cell: 'C4', value: 0.5, type: 'number' }],
             [{ cell: 'B5', value: '65' }, { cell: 'C5', value: 0.25 }],
@@ -485,7 +495,7 @@ describe('RawTableGrid', () => {
                 { role: 'value', type: 'string', top: 2, left: 0, bottom: 3, right: 0 },
                 { role: 'output', type: 'string', top: 2, left: 1, bottom: 3, right: 1 },
             ],
-            groups: { rows: [3], columns: []},
+            groups: { rows: [3], columns: [] },
             signature: [
                 { part: 'keyword', to: 5 },
                 { part: 'type', to: 12 },
@@ -558,8 +568,11 @@ describe('RawTableGrid', () => {
             expect(cellAt('B4')).toHaveAttribute('data-role', 'value')
             expect(cellAt('B4')).toHaveStyle({ fontStyle: 'italic', color: colours.faint })
             expect(cellAt('C4')).toHaveAttribute('data-role', 'output')
-            expect(cellAt('C4')).toHaveStyle({ backgroundColor: colours.outputFill, fontStyle: 'italic',
-                color: colours.faint })
+            expect(cellAt('C4')).toHaveStyle({
+                backgroundColor: colours.outputFill,
+                fontStyle: 'italic',
+                color: colours.faint
+            })
             expect(cellAt('C4')).not.toHaveStyle({ fontWeight: '600' })
             expect(cellAt('C5')).not.toHaveStyle({ fontStyle: 'italic' })
             expect(cellAt('C5')).not.toHaveStyle({ color: colours.faint })
@@ -711,13 +724,27 @@ describe('RawTableGrid', () => {
     describe('code and values in the Studio look', () => {
         // A Spreadsheet step of a formula, a TBasic-free table: the values of each type and a formula.
         const steps: RawTableCell[][] = [
-            [{ cell: 'A1', value: 'Spreadsheet Double Plan()', colspan: 5 }, { covered: true }, { covered: true },
-                { covered: true }, { covered: true }],
-            [{ cell: 'A2', value: 'Total' }, { cell: 'B2', value: 1200, type: 'number' },
-                { cell: 'C2', value: '2026-10-15', type: 'date' }, { cell: 'D2', value: true, type: 'boolean' },
-                { cell: 'E2', value: '= $Rate * 18', type: 'code' }],
-            [{ cell: 'A3', value: 'C1' }, { cell: 'B3', value: 'North' }, { cell: 'C3', value: 'x', formula: '=1+2' },
-                { cell: 'D3', value: 'y' }, { cell: 'E3', value: 'z' }],
+            [
+                { cell: 'A1', value: 'Spreadsheet Double Plan()', colspan: 5 },
+                { covered: true },
+                { covered: true },
+                { covered: true },
+                { covered: true }
+            ],
+            [
+                { cell: 'A2', value: 'Total' },
+                { cell: 'B2', value: 1200, type: 'number' },
+                { cell: 'C2', value: '2026-10-15', type: 'date' },
+                { cell: 'D2', value: true, type: 'boolean' },
+                { cell: 'E2', value: '= $Rate * 18', type: 'code' }
+            ],
+            [
+                { cell: 'A3', value: 'C1' },
+                { cell: 'B3', value: 'North' },
+                { cell: 'C3', value: 'x', formula: '=1+2' },
+                { cell: 'D3', value: 'y' },
+                { cell: 'E3', value: 'z' }
+            ],
         ]
         const rolesOfKind = (kind?: string) => rolesOf({
             ...(kind !== undefined && { kind }),
@@ -781,10 +808,12 @@ describe('RawTableGrid', () => {
                 testId="grid"
                 roles={rolesOf({
                     pos: 'A1:B3',
-                    regions: [{ role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
+                    regions: [
+                        { role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
                         { role: 'code', top: 1, left: 0, bottom: 1, right: 0 },
                         { role: 'fieldType', top: 2, left: 0, bottom: 2, right: 0 },
-                        { role: 'output', top: 1, left: 1, bottom: 2, right: 1 }],
+                        { role: 'output', top: 1, left: 1, bottom: 2, right: 1 }
+                    ],
                 })}
             />, { theme: 'standard', mode: 'light' })
 
@@ -806,8 +835,10 @@ describe('RawTableGrid', () => {
                 roles={rolesOf({
                     kind: 'TBasic',
                     pos: 'A1:A2',
-                    regions: [{ role: 'signature', top: 0, left: 0, bottom: 0, right: 0 },
-                        { role: 'value', type: 'code', top: 1, left: 0, bottom: 1, right: 0 }],
+                    regions: [
+                        { role: 'signature', top: 0, left: 0, bottom: 0, right: 0 },
+                        { role: 'value', type: 'code', top: 1, left: 0, bottom: 1, right: 0 }
+                    ],
                 })}
             />, { theme: 'standard', mode: 'light' })
 
@@ -909,7 +940,7 @@ describe('RawTableGrid', () => {
             cell: 'A1',
             value: 'Premium',
             formula: '=B1&C1',
-            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }]},
+            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }] },
         }]]
 
         const { rerender } = render(<RawTableGrid rows={marked} testId="grid" />)

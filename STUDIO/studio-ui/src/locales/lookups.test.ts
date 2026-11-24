@@ -40,7 +40,7 @@ const lookupsIn = (file: string, allNamespaces: string[]): Lookup[] => {
     const declared = captures(source, DECLARED_NS, 1)
     const ns = declared.length > 0 ? declared : allNamespaces
     return [
-        ...captures(source, QUALIFIED, 2).map(key => ({ file, key, ns: []})),
+        ...captures(source, QUALIFIED, 2).map(key => ({ file, key, ns: [] })),
         ...captures(source, UNQUALIFIED, 2).map(key => ({ file, key, ns })),
     ]
 }

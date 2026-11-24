@@ -9,12 +9,12 @@ vi.mock('services/traceService', () => ({
     default: {
         setWatches: vi.fn().mockResolvedValue(undefined),
         getWatch: vi.fn(),
-        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: [{ index: 0, uri: 'uCov', name: 'CoveragePremium', active: true, depth: 1, kind: 'spreadsheet', completed: false, error: false, steps: []}]}),
+        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: [{ index: 0, uri: 'uCov', name: 'CoveragePremium', active: true, depth: 1, kind: 'spreadsheet', completed: false, error: false, steps: [] }] }),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
         getStack: vi.fn().mockRejectedValue(new Error('no session')),
         setBreakpoints: vi.fn().mockResolvedValue(undefined),
         resume: vi.fn().mockResolvedValue(undefined),
-        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: [] }),
     },
 }))
 
@@ -72,7 +72,10 @@ describe('WatchPanel', () => {
         const capped: WatchView = {
             truncated: false,
             series: [{
-                name: '$Loop', table: 'Rate', tableUri: 'uR', total: 6400,
+                name: '$Loop',
+                table: 'Rate',
+                tableUri: 'uR',
+                total: 6400,
                 points: [{ instance: 0, label: 'Rate #1', path: ['Rate'], ref: 'uR#R0C0', value: scalar(1) }],
             }],
         }
@@ -87,12 +90,14 @@ describe('WatchPanel', () => {
         const onePoint: WatchView = {
             truncated: false,
             series: [{
-                name: '$VehiclePriceFactor', table: 'CoveragePremium', tableUri: 'uCov',
+                name: '$VehiclePriceFactor',
+                table: 'CoveragePremium',
+                tableUri: 'uCov',
                 points: [{ instance: 0, label: 'CoveragePremium #1', path: ['Root'], ref: 'uCov#R2C0', value: scalar(1.0) }],
                 total: 1,
             }],
         }
-        useTraceStore.setState({ watch: onePoint, watches: ['$VehiclePriceFactor']})
+        useTraceStore.setState({ watch: onePoint, watches: ['$VehiclePriceFactor'] })
         render(<WatchPanel />)
 
         await userEvent.click(screen.getByTestId('watch-replay'))
@@ -116,7 +121,7 @@ describe('WatchPanel', () => {
 
     it('collects the series by running the trace to completion', async () => {
         getWatch.mockResolvedValue(series)
-        useTraceStore.setState({ watches: ['$VehiclePriceFactor']})
+        useTraceStore.setState({ watches: ['$VehiclePriceFactor'] })
         render(<WatchPanel />)
 
         await userEvent.click(screen.getByTestId('watch-collect'))

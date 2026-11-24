@@ -13,7 +13,7 @@ vi.mock('../../services/tables', () => ({ formatProject: vi.fn() }))
 
 describe('ReformatExcelFilesModal', () => {
     beforeEach(() => {
-        vi.mocked(formatProject).mockReset().mockResolvedValue({ formatted: ['t1'], skipped: []})
+        vi.mocked(formatProject).mockReset().mockResolvedValue({ formatted: ['t1'], skipped: [] })
     })
 
     const draw = () => {

@@ -33,7 +33,7 @@ describe('RawTableCellText', () => {
     })
 
     it('formats the pieces of the text in their fonts, a piece the compiler resolved included', () => {
-        const parent = metaInfo({ usages: [{ start: 23, end: 29, description: 'Datatype Parent', kind: 'datatype' }]})
+        const parent = metaInfo({ usages: [{ start: 23, end: 29, description: 'Datatype Parent', kind: 'datatype' }] })
         render(
             <RawTableCellText
                 ink={INK}
@@ -57,9 +57,15 @@ describe('RawTableCellText', () => {
     })
 
     it('draws a piece leading to a table as a link, whatever colour the workbook gives its text', () => {
-        const child = { start: 9, end: 14, description: 'Datatype Child', tableId: 't-2', module: 'Claims',
-            kind: 'datatype' as const }
-        const type = metaInfo({ usages: [child]})
+        const child = {
+            start: 9,
+            end: 14,
+            description: 'Datatype Child',
+            tableId: 't-2',
+            module: 'Claims',
+            kind: 'datatype' as const
+        }
+        const type = metaInfo({ usages: [child] })
         render(
             <RawTableCellText
                 ink={INK}
@@ -80,12 +86,18 @@ describe('RawTableCellText', () => {
     })
 
     it('keeps the colour of a mark on a piece leading to a table', () => {
-        const child = { start: 9, end: 14, description: 'Datatype Child', tableId: 't-2', module: 'Claims',
-            kind: 'datatype' as const }
+        const child = {
+            start: 9,
+            end: 14,
+            description: 'Datatype Child',
+            tableId: 't-2',
+            module: 'Claims',
+            kind: 'datatype' as const
+        }
         render(
             <RawTableCellText
                 ink={INK}
-                metaInfo={metaInfo({ usages: [child]})}
+                metaInfo={metaInfo({ usages: [child] })}
                 onOpenUsage={vi.fn()}
                 runs={[{ text: 'Datatype ' }, { text: 'Child', style: { bold: true, color: '#ff0000' } }]}
                 styles={styles}

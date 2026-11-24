@@ -336,7 +336,7 @@ describe('apiCall', () => {
         fetchMock.mockResolvedValueOnce(
             mockResponse({
                 status: 400,
-                jsonData: { fields: [{ field: 'name', message: 'Name is required' }]},
+                jsonData: { fields: [{ field: 'name', message: 'Name is required' }] },
             })
         )
 
@@ -371,7 +371,7 @@ describe('apiCall', () => {
         expect(changed).toHaveBeenCalledTimes(1)
 
         // A read changes nothing, and a rejected write changed nothing either.
-        fetchMock.mockResolvedValueOnce(mockResponse({ status: 200, jsonData: { content: []} }))
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 200, jsonData: { content: [] } }))
         await apiCall('/projects', undefined, { throwError: true })
         fetchMock.mockResolvedValueOnce(mockResponse({ status: 409, jsonData: { message: 'nope' } }))
         await apiCall('/projects/p1', { method: 'DELETE' }).catch(() => {})

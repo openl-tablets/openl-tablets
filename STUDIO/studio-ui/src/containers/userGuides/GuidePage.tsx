@@ -34,7 +34,7 @@ export const outlineOf = (article: HTMLElement | null, page: string): OutlineIte
     headings.forEach((heading, i) => {
         const item = { key: heading.id, href: `${page}#${heading.id}`, title: heading.textContent ?? '' }
         if (levels[i] === first) {
-            outline.push({ ...item, children: []})
+            outline.push({ ...item, children: [] })
         } else if (levels[i] === first + 1 && outline.length > 0) {
             outline.at(-1)?.children?.push(item)
         }

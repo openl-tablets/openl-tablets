@@ -82,7 +82,7 @@ describe('ParametersInput', () => {
 
     it('shows the names of the codes the context takes and sends the code', async () => {
         const onChange = vi.fn()
-        const context = { ...runtimeContext, schema: { type: 'object', properties: { caRegion: { type: 'string', enum: ['QC', 'HQ']} } } }
+        const context = { ...runtimeContext, schema: { type: 'object', properties: { caRegion: { type: 'string', enum: ['QC', 'HQ'] } } } }
         render(<ParametersInput onChange={onChange} parameters={[]} runtimeContext={context} />)
 
         await openNode('runtime-context')
@@ -152,8 +152,12 @@ describe('ParametersInput', () => {
     })
     it('reads the value of the only parameter pasted as it is, the way the run reads it', async () => {
         const onChange = vi.fn()
-        const schedule = [{ name: 'scheduleInput', description: 'Schedule', lazy: false,
-            schema: { type: 'object', properties: { amount: { type: 'number' }, days: { type: 'array', items: { type: 'string' } } } } }]
+        const schedule = [{
+            name: 'scheduleInput',
+            description: 'Schedule',
+            lazy: false,
+            schema: { type: 'object', properties: { amount: { type: 'number' }, days: { type: 'array', items: { type: 'string' } } } }
+        }]
         render(<ParametersInput onChange={onChange} parameters={schedule} />)
         await userEvent.click(screen.getByText('input.json'))
         const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
@@ -163,17 +167,21 @@ describe('ParametersInput', () => {
         await userEvent.type(text, '{{"amount": 110.42, "days": [["Last"]}')
         await userEvent.click(screen.getByText('input.form'))
 
-        expect(parsed(onChange)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last']} } })
+        expect(parsed(onChange)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last'] } } })
         await userEvent.click(screen.getByText('input.json'))
         const shown = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
-        expect(JSON.parse(shown.value)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last']} } })
+        expect(JSON.parse(shown.value)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last'] } } })
     })
 
     it('reads an empty object as no values and a plain value as the value of the only parameter', async () => {
         const onChange = vi.fn()
         const greet = [{ name: 'name', description: 'String', lazy: false, schema: { type: 'string' } }]
-        const names = [{ name: 'names', description: 'String[]', lazy: false,
-            schema: { type: ['array', 'null'], items: { type: 'string' } } }]
+        const names = [{
+            name: 'names',
+            description: 'String[]',
+            lazy: false,
+            schema: { type: ['array', 'null'], items: { type: 'string' } }
+        }]
         const { rerender } = render(<ParametersInput onChange={onChange} parameters={greet} />)
         const readBack = async (json: string) => {
             await userEvent.click(screen.getByText('input.json'))
@@ -188,7 +196,7 @@ describe('ParametersInput', () => {
         expect(await readBack('"Sara"')).toEqual({ params: { name: 'Sara' } })
         // A list declared nullable is still a list: the whole of it is the value of the only parameter.
         rerender(<ParametersInput onChange={onChange} parameters={names} />)
-        expect(await readBack('["a", "b"]')).toEqual({ params: { names: ['a', 'b']} })
+        expect(await readBack('["a", "b"]')).toEqual({ params: { names: ['a', 'b'] } })
     })
 
     it('keeps a list with more values than the table takes as JSON, as the run refuses it', async () => {

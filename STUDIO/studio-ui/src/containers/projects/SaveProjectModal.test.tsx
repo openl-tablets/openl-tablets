@@ -240,7 +240,7 @@ describe('SaveProjectModal', () => {
 
         await waitFor(() => expect(screen.getByTestId('save-project-changes')).toHaveTextContent(
             'Alpha browser.save_changes'))
-        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status']}, expect.anything())
+        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status'] }, expect.anything())
         // The files are folded away until the user asks for them.
         expect(collapseProps).toHaveBeenLastCalledWith({ activeKey: undefined, defaultActiveKey: undefined })
         const props = changedFileListProps.mock.calls.at(-1)![0] as {
@@ -288,7 +288,7 @@ describe('SaveProjectModal', () => {
                 displayName: 'Jane Doe',
                 email: 'jane@x.io',
             })
-            .mockResolvedValueOnce({ conflictGroups: [{ projectName: 'Alpha' }]})
+            .mockResolvedValueOnce({ conflictGroups: [{ projectName: 'Alpha' }] })
 
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
         await userEvent.click(screen.getByTestId('save-project-submit'))

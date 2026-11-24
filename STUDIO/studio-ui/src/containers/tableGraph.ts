@@ -480,7 +480,7 @@ export const findCycles = (dependencies: Map<string, string[]>, minNodes = 2, li
         steps += 1
         ;(dependencies.get(current) ?? []).forEach(next => {
             if (next === start && path.length >= minNodes && cycles.length < limit) {
-                cycles.push({ id: path.join('>'), nodes: [...path]})
+                cycles.push({ id: path.join('>'), nodes: [...path] })
             } else if (next > start && !onPath.has(next)) {
                 onPath.add(next)
                 path.push(next)

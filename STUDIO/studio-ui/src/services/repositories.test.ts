@@ -86,7 +86,7 @@ describe('getProjects', () => {
     it('requests one project with optional compilation status', async () => {
         vi.mocked(apiCall).mockResolvedValue({ id: 'abc' })
 
-        await getProject('abc=', { includes: ['status', 'descriptor']})
+        await getProject('abc=', { includes: ['status', 'descriptor'] })
 
         expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=status&include=descriptor', undefined, { throwError: true })
     })
@@ -104,7 +104,11 @@ describe('getProjects', () => {
         const revision = { revisionNo: 'a1', fullComment: 'After' }
         const common = { revisionNo: 'c1', fullComment: 'Parted' }
         vi.mocked(apiCall).mockResolvedValueOnce({
-            base, revision, common, files: [{ path: 'rules.xml', type: 'modified' }], conflicts: ['rules.xml'],
+            base,
+            revision,
+            common,
+            files: [{ path: 'rules.xml', type: 'modified' }],
+            conflicts: ['rules.xml'],
         })
             .mockResolvedValueOnce({ revision })
 
@@ -121,12 +125,12 @@ describe('getProjects', () => {
         // The first revision of a project has nothing before it, and an answer that lists no file changed none. A
         // revision of the same history has no revision to part at, and so no conflict.
         await expect(getRevisionChanges('p', 'a1'))
-            .resolves.toEqual({ base: null, revision, common: null, files: [], conflicts: []})
+            .resolves.toEqual({ base: null, revision, common: null, files: [], conflicts: [] })
     })
 
     it('passes local error-page handling options to project list and detail calls', async () => {
         const apiOptions = { throwError: true, suppressErrorPages: true }
-        vi.mocked(apiCall).mockResolvedValue({ content: []})
+        vi.mocked(apiCall).mockResolvedValue({ content: [] })
 
         await getDesignRepositories(apiOptions)
         expect(apiCall).toHaveBeenLastCalledWith('/repos', undefined, apiOptions)
@@ -372,8 +376,8 @@ describe('getProjects', () => {
             { throwError: true }
         )
 
-        vi.mocked(apiCall).mockResolvedValue([{ name: 'Team', extensible: true, nullable: false, values: []}])
-        await expect(getTagTypes()).resolves.toEqual([{ name: 'Team', extensible: true, nullable: false, values: []}])
+        vi.mocked(apiCall).mockResolvedValue([{ name: 'Team', extensible: true, nullable: false, values: [] }])
+        await expect(getTagTypes()).resolves.toEqual([{ name: 'Team', extensible: true, nullable: false, values: [] }])
     })
 
     it('lists actual design-repository branches', async () => {

@@ -42,7 +42,8 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
                         label: repositoryLabel,
                         title: project.repository,
                         value: null,
-                        options: [] as SelectOption[] }) - 1
+                        options: [] as SelectOption[]
+                    }) - 1
                 }
                 if (indexOfOption !== -1) {
                     acc[indexOfOption]!['options'].push({ label: project.name, value: project.id })

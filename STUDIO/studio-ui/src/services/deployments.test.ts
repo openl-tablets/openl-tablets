@@ -28,7 +28,7 @@ describe('deployments service', () => {
     })
 
     it('loads deployments filtered by deployed project', async () => {
-        const deployments = [{ id: 'd1', name: 'Service', repository: 'prod', items: []}]
+        const deployments = [{ id: 'd1', name: 'Service', repository: 'prod', items: [] }]
         vi.mocked(apiCall).mockResolvedValue(deployments)
 
         await expect(getProjectDeployments('prod repo', 'Alpha Project')).resolves.toBe(deployments)
@@ -41,7 +41,7 @@ describe('deployments service', () => {
     })
 
     it('loads a single deployment with its items', async () => {
-        const deployment = { id: 'd1', name: 'Service', repository: 'prod', items: []}
+        const deployment = { id: 'd1', name: 'Service', repository: 'prod', items: [] }
         vi.mocked(apiCall).mockResolvedValue(deployment)
 
         await expect(getDeployment('d 1')).resolves.toBe(deployment)

@@ -157,7 +157,11 @@ describe('files service', () => {
     // A sibling of the files API, so a project folder named "history" keeps its own address.
     it('reads the revision history of a single file', async () => {
         vi.mocked(apiCall).mockResolvedValue({
-            content: [{ revisionNo: 'r1' }], pageNumber: 0, pageSize: 20, numberOfElements: 1, total: 1,
+            content: [{ revisionNo: 'r1' }],
+            pageNumber: 0,
+            pageSize: 20,
+            numberOfElements: 1,
+            total: 1,
         })
 
         const page = await getFileRevisions('project', 'history/Main.xlsx', { size: 20 })

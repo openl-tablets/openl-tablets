@@ -170,7 +170,13 @@ const casesWithin = (caseLines: number[], lines: number): number[] => {
 
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
 const DRAWN: ReadonlySet<string> = new Set([
-    'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
+    'combo',
+    'multiselect',
+    'numeric',
+    'date',
+    'boolean',
+    'array',
+    'range',
 ])
 
 /** What a write of the pending cells came to. */
@@ -618,8 +624,13 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         setPicked({ row, column })
         // Measured while the cell still shows what it holds: once it is open, the field is what stands there.
         const from = typed ?? heldBy(cell)
-        setOpen({ row, column, from, several: takesSeveralLines(cell.cell, from),
-            marks: typed === undefined ? marksOf(cell.runs) : []})
+        setOpen({
+            row,
+            column,
+            from,
+            several: takesSeveralLines(cell.cell, from),
+            marks: typed === undefined ? marksOf(cell.runs) : []
+        })
         onEditingChange(true)
     }, [onEditingChange, written])
 
@@ -919,8 +930,12 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     whole={whole}
                     onMerge={() => {
                         if (block !== null) {
-                            step({ kind: 'merge', at: { row: block.row, column: block.column },
-                                rows: block.rows, columns: block.columns })
+                            step({
+                                kind: 'merge',
+                                at: { row: block.row, column: block.column },
+                                rows: block.rows,
+                                columns: block.columns
+                            })
                             pick(block.row, block.column)
                         }
                     }}

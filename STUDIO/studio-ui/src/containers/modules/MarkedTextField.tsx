@@ -153,7 +153,17 @@ const insertText = (text: string) => {
  * the keys that format a text elsewhere format nothing here.
  */
 export const MarkedTextField: React.FC<MarkedTextFieldProps> = ({
-    value, marks, multiline, inks, selection, onChange, onCommit, onCancel, onSwitch, className, fieldRef,
+    value,
+    marks,
+    multiline,
+    inks,
+    selection,
+    onChange,
+    onCommit,
+    onCancel,
+    onSwitch,
+    className,
+    fieldRef,
 }) => {
     // What the field reported last, which it shows already: only marks changed from outside are drawn again.
     const reported = useRef<{ value: string, marks: RawTextMark[] } | null>(null)

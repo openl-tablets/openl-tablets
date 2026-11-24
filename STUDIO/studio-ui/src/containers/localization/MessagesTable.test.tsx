@@ -145,6 +145,6 @@ describe('MessagesTable', () => {
         await userEvent.click(within(dropdown).getByText('not_translated'))
         await userEvent.click(document.querySelector('.ant-table-filter-dropdown-btns .ant-btn-primary')!)
 
-        await waitFor(() => expect(filtered).toHaveBeenLastCalledWith({ ...NO_FILTER, notTranslatedInto: ['de']}))
+        await waitFor(() => expect(filtered).toHaveBeenLastCalledWith({ ...NO_FILTER, notTranslatedInto: ['de'] }))
     })
 })

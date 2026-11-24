@@ -270,7 +270,7 @@ describe('DeployModal', () => {
     it('lets a project with a Maven dependency take its dependencies from the Maven repository', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
         renderDeployModal()
-        await openModal({ ...defaultDetail, dependencies: [{ mavenArtifact: 'com.example:domain:1.0.0' }]})
+        await openModal({ ...defaultDetail, dependencies: [{ mavenArtifact: 'com.example:domain:1.0.0' }] })
 
         await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/production-repos'))
         expect(screen.getByRole('radio', { name: 'deploy:dependency_source.repository' })).toBeChecked()
@@ -294,7 +294,7 @@ describe('DeployModal', () => {
         renderDeployModal()
         await openModal({
             ...defaultDetail,
-            dependencies: [{ name: 'Domain', mavenArtifact: 'com.example:domain:1.0.0', conflicts: [{ requestedBy: 'CustomDomain' }]}],
+            dependencies: [{ name: 'Domain', mavenArtifact: 'com.example:domain:1.0.0', conflicts: [{ requestedBy: 'CustomDomain' }] }],
         })
 
         expect(await screen.findByTestId('deploy-version-conflict')).toHaveTextContent('deploy:notifications.version_conflict')
@@ -302,7 +302,7 @@ describe('DeployModal', () => {
 
     it('offers no choice of dependencies to a project without a Maven dependency', async () => {
         renderDeployModal()
-        await openModal({ ...defaultDetail, dependencies: [{ name: 'Common' }]})
+        await openModal({ ...defaultDetail, dependencies: [{ name: 'Common' }] })
 
         await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/production-repos'))
         expect(screen.queryByRole('radio')).not.toBeInTheDocument()

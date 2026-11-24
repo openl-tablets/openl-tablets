@@ -9,8 +9,8 @@ vi.mock('react-i18next', () => {
 })
 
 const testCases: TableInputTestCase[] = [
-    { id: '1', description: 'Young', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }, { name: 'car', description: 'Car', lazy: true, type: 'Car', key: 'VIN-1' }]},
-    { id: '2', description: 'Senior', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }, { name: 'car', description: 'Car', lazy: false, value: null }]},
+    { id: '1', description: 'Young', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }, { name: 'car', description: 'Car', lazy: true, type: 'Car', key: 'VIN-1' }] },
+    { id: '2', description: 'Senior', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }, { name: 'car', description: 'Car', lazy: false, value: null }] },
 ]
 
 const loadCase = vi.fn()
@@ -72,7 +72,7 @@ describe('TestCaseSelector', () => {
 
     it('picks every case of the table by the box in the header, and clears them the same way', async () => {
         const onChange = vi.fn()
-        const { unmount } = renderSelector({ onChange, selection: 'multiple', value: []})
+        const { unmount } = renderSelector({ onChange, selection: 'multiple', value: [] })
 
         await userEvent.click(screen.getByTestId('pick-all-cases'))
         expect(onChange).toHaveBeenLastCalledWith(EVERY_CASE)
@@ -92,10 +92,10 @@ describe('TestCaseSelector', () => {
         const { unmount } = renderSelector({ onChange, selection: 'multiple', value: EVERY_CASE })
 
         await userEvent.click(screen.getByTestId('pick-case-2'))
-        expect(onChange).toHaveBeenLastCalledWith({ except: ['2']})
+        expect(onChange).toHaveBeenLastCalledWith({ except: ['2'] })
         unmount()
 
-        renderSelector({ onChange, selection: 'multiple', value: { except: ['2']} })
+        renderSelector({ onChange, selection: 'multiple', value: { except: ['2'] } })
         // The rest stay picked, so the box in the header is neither clear nor fully ticked.
         expect(screen.getByTestId('pick-case-1')).toBeChecked()
         expect(screen.getByTestId('pick-case-2')).not.toBeChecked()
@@ -106,7 +106,7 @@ describe('TestCaseSelector', () => {
     })
 
     it('reads as no case at all once every case is left out one by one', () => {
-        renderSelector({ selection: 'multiple', value: { except: ['1', '2']} })
+        renderSelector({ selection: 'multiple', value: { except: ['1', '2'] } })
 
         expect(screen.getByTestId('pick-all-cases')).not.toBeChecked()
         expect(screen.getByTestId('pick-all-cases')).toHaveProperty('indeterminate', false)
@@ -114,9 +114,9 @@ describe('TestCaseSelector', () => {
 
     it('does not pick a case when a value of it is read or opened', async () => {
         const onChange = vi.fn()
-        loadCase.mockResolvedValue({ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: false, value: { vin: 'X' } }]})
+        loadCase.mockResolvedValue({ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: false, value: { vin: 'X' } }] })
         // The second case is the one picked, so a leaked click would show as a pick of the first.
-        renderSelector({ onChange, value: ['2']})
+        renderSelector({ onChange, value: ['2'] })
 
         await userEvent.click(screen.getByTestId('load-case-1-1'))
 
@@ -174,7 +174,7 @@ describe('TestCaseSelector', () => {
 
     it('lists the cases of a rule without parameters, which come without values', async () => {
         const onChange = vi.fn()
-        renderSelector({ onChange, testCases: [{ id: '1', description: 'result' }], total: 1, value: []})
+        renderSelector({ onChange, testCases: [{ id: '1', description: 'result' }], total: 1, value: [] })
 
         expect(screen.getByText('result')).toBeInTheDocument()
         await userEvent.click(screen.getByTestId('pick-case-1'))

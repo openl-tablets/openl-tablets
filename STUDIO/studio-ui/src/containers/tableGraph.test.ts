@@ -4,7 +4,7 @@ const edge = (model: ReturnType<typeof buildGraphModel>, id: string) => model.el
 
 describe('buildGraphModel', () => {
     it('draws a recursive table as a red self-loop and keeps it out of the counters', () => {
-        const model = buildGraphModel([{ id: 'a', name: 'A', dependencies: ['a']}])
+        const model = buildGraphModel([{ id: 'a', name: 'A', dependencies: ['a'] }])
 
         const selfLoop = edge(model, 'a->a')
         expect(selfLoop?.data.source).toBe('a')
@@ -18,8 +18,8 @@ describe('buildGraphModel', () => {
 
     it('marks the edges of a cross-table cycle as cyclic', () => {
         const model = buildGraphModel([
-            { id: 'a', name: 'A', dependencies: ['b']},
-            { id: 'b', name: 'B', dependencies: ['a']},
+            { id: 'a', name: 'A', dependencies: ['b'] },
+            { id: 'b', name: 'B', dependencies: ['a'] },
         ])
 
         expect(edge(model, 'a->b')?.classes).toBe('cycle')
@@ -29,7 +29,7 @@ describe('buildGraphModel', () => {
 
     it('tags the dispatcher node with a class so the UI can style it apart', () => {
         const model = buildGraphModel([
-            { id: 'd', name: 'mySPR(int)', kind: DISPATCHER_KIND, dependencies: ['a', 'b']},
+            { id: 'd', name: 'mySPR(int)', kind: DISPATCHER_KIND, dependencies: ['a', 'b'] },
             { id: 'a', name: 'AR' },
             { id: 'b', name: 'AZ' },
         ])
@@ -85,8 +85,8 @@ describe('buildGraphModel', () => {
     it('keeps the data model out of the call-graph problem markers', () => {
         const model = buildGraphModel([
             // two datatypes referring to each other by a field, and a datatype nothing else is built from
-            { id: 'policy', name: 'Policy', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'driver', type: 'Driver', ref: 'driver' }]},
-            { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['policy'], fields: [{ name: 'policy', type: 'Policy', ref: 'policy' }]},
+            { id: 'policy', name: 'Policy', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'driver', type: 'Driver', ref: 'driver' }] },
+            { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['policy'], fields: [{ name: 'policy', type: 'Policy', ref: 'policy' }] },
             { id: 'flat', name: 'Request', kind: 'Datatype' },
         ])
 
@@ -101,7 +101,7 @@ describe('buildGraphModel', () => {
 
     it('draws a datatype field of its own type as a self-association, not as recursion', () => {
         const model = buildGraphModel([
-            { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'mentor', type: 'Driver', ref: 'driver' }]},
+            { id: 'driver', name: 'Driver', kind: 'Datatype', dependencies: ['driver'], fields: [{ name: 'mentor', type: 'Driver', ref: 'driver' }] },
         ])
 
         expect(edge(model, 'driver->driver')?.classes).toBe('field one')
@@ -109,7 +109,7 @@ describe('buildGraphModel', () => {
 
     it('leaves a plain call between tables unclassified', () => {
         const model = buildGraphModel([
-            { id: 'a', name: 'A', kind: 'Rules', dependencies: ['b']},
+            { id: 'a', name: 'A', kind: 'Rules', dependencies: ['b'] },
             { id: 'b', name: 'B', kind: 'Rules' },
         ])
 
@@ -118,7 +118,7 @@ describe('buildGraphModel', () => {
 
     it('flags isolated tables and computes reverse adjacency', () => {
         const model = buildGraphModel([
-            { id: 'a', name: 'A', dependencies: ['b']},
+            { id: 'a', name: 'A', dependencies: ['b'] },
             { id: 'b', name: 'B' },
             { id: 'c', name: 'C' },
         ])

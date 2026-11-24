@@ -37,7 +37,7 @@ export const withStep = (buffer: MessageEditBuffer, step: MessageStep, base: Key
 /** Takes the last step back. */
 export const undoStep = (buffer: MessageEditBuffer): MessageEditBuffer => {
     const last = buffer.steps.at(-1)
-    return last === undefined ? buffer : { ...buffer, steps: buffer.steps.slice(0, -1), undone: [...buffer.undone, last]}
+    return last === undefined ? buffer : { ...buffer, steps: buffer.steps.slice(0, -1), undone: [...buffer.undone, last] }
 }
 
 /** Does the last step taken back again. */

@@ -767,7 +767,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         // one up with the author's trailing space would find no fields and collapse the grid to its one fallback
         // column, discarding whatever was typed in the others.
         const declared = value.trim()
-        resizeRows(preset, { ...context, resultType: declared, resultFields: typeIndex.fieldsOf(declared) ?? []})
+        resizeRows(preset, { ...context, resultType: declared, resultFields: typeIndex.fieldsOf(declared) ?? [] })
     }
 
     /**
@@ -855,7 +855,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     const handleDatatypeChange = (value: string) => {
         setDatatypeName(value)
-        resizeRows('data', { ...context, datatypeName: value, dataFields: typeIndex.fieldsOf(value) ?? []}, [])
+        resizeRows('data', { ...context, datatypeName: value, dataFields: typeIndex.fieldsOf(value) ?? [] }, [])
     }
 
     const handleVocabularyTypeChange = (value: string) => {

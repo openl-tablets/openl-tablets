@@ -39,7 +39,10 @@ vi.mock('../components', () => ({
         </label>
     ),
     Input: ({ label, name, rules, tooltip }: {
-        label: string, name: string | string[], rules?: unknown[], tooltip?: string
+        label: string,
+        name: string | string[],
+        rules?: unknown[],
+        tooltip?: string
     }) => {
         inputRules.set(String(name), rules ?? [])
         return (
@@ -131,8 +134,13 @@ describe('System', () => {
     })
 
     it('offers how long the audit log keeps its events and its copy to the server log where the log is kept', async () => {
-        const context = { isExternalAuthSystem: false, isUserManagementEnabled: true, isGroupsManagementEnabled: true,
-            isPersonalAccessTokenEnabled: true, isAuditLogEnabled: true }
+        const context = {
+            isExternalAuthSystem: false,
+            isUserManagementEnabled: true,
+            isGroupsManagementEnabled: true,
+            isPersonalAccessTokenEnabled: true,
+            isAuditLogEnabled: true
+        }
         render(<SystemContext.Provider value={context}><System /></SystemContext.Provider>)
 
         const retention = await screen.findByRole('textbox', { name: 'system:audit_retention' })
@@ -190,9 +198,20 @@ describe('THREAD_COUNT_RULE', () => {
 
     // The stored count arrives as a number; a typed one is text, which the field keeps as it is.
     it.each<[number | string, boolean]>([
-        [4, true], ['4', true], ['1', true], ['12', true], ['999999999', true],
-        ['0', false], ['-5', false], ['1.1', false], ['aaa', false], ['#%', false], ['', false], [' 2', false],
-        ['1000000000', false], ['9'.repeat(400), false],
+        [4, true],
+        ['4', true],
+        ['1', true],
+        ['12', true],
+        ['999999999', true],
+        ['0', false],
+        ['-5', false],
+        ['1.1', false],
+        ['aaa', false],
+        ['#%', false],
+        ['', false],
+        [' 2', false],
+        ['1000000000', false],
+        ['9'.repeat(400), false],
     ])(
         'judges %s threads valid: %s',
         async (threads, valid) => {
@@ -225,9 +244,23 @@ describe('PERIOD_RULE', () => {
 
     // A bare number names no unit: it is refused rather than read as days, months or years.
     it.each<[string | undefined, boolean]>([
-        [undefined, true], ['', true], ['  ', true], ['90d', true], ['2W', true], ['6m', true], ['1y', true],
-        ['P1Y6M', true], ['p10d', true], [' 1y ', true],
-        ['90', false], ['0d', false], ['P', false], ['-1d', false], ['1 year', false], ['1d2y', false], ['abc', false],
+        [undefined, true],
+        ['', true],
+        ['  ', true],
+        ['90d', true],
+        ['2W', true],
+        ['6m', true],
+        ['1y', true],
+        ['P1Y6M', true],
+        ['p10d', true],
+        [' 1y ', true],
+        ['90', false],
+        ['0d', false],
+        ['P', false],
+        ['-1d', false],
+        ['1 year', false],
+        ['1d2y', false],
+        ['abc', false],
     ])(
         'judges a retention of %s valid: %s',
         async (retention, valid) => {

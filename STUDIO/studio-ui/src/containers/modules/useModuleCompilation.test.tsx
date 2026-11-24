@@ -104,7 +104,7 @@ describe('useModuleCompilation', () => {
             projectId: 'p1',
             branch: 'main',
             compileState: 'ok',
-            compilation: { modules: { compiled: 2, total: 2, compiledModules: ['Claims']}, tests: { total: 7 } },
+            compilation: { modules: { compiled: 2, total: 2, compiledModules: ['Claims'] }, tests: { total: 7 } },
         })
         expect(getByTestId('state')).toHaveTextContent('tests:7')
 

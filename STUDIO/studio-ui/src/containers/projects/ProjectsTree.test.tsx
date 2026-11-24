@@ -149,8 +149,17 @@ vi.mock('antd', () => {
             (ref as { current: unknown }).current = { scrollTo: treeScrollTo }
         }
         const {
-            blockNode, className, loadedKeys, motion, selectedKeys, showIcon, expandAction, height, itemHeight,
-            scrollWidth, ...dom
+            blockNode,
+            className,
+            loadedKeys,
+            motion,
+            selectedKeys,
+            showIcon,
+            expandAction,
+            height,
+            itemHeight,
+            scrollWidth,
+            ...dom
         } = rest
         void blockNode; void className; void motion; void showIcon; void expandAction; void itemHeight
         treeSizes.push({ height, scrollWidth })
@@ -277,7 +286,7 @@ describe('ProjectsTree', () => {
             { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file', size: 12_800 },
             { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file', size: 1536 },
         ])
-        vi.mocked(getProject).mockResolvedValue({ id: 'p1', name: 'Alpha', compileStatus: { pendingChanges: { files: []} } } as never)
+        vi.mocked(getProject).mockResolvedValue({ id: 'p1', name: 'Alpha', compileStatus: { pendingChanges: { files: [] } } } as never)
     })
 
     it('reads the projects once and groups them by repository by default', async () => {
@@ -345,7 +354,10 @@ describe('ProjectsTree', () => {
         vi.mocked(getProjectIndex).mockResolvedValue({
             projects: [
                 {
-                    id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Closed,
+                    id: 'p1',
+                    name: 'Alpha',
+                    repository: 'design',
+                    status: ProjectStatus.Closed,
                     repositoryInfo: { id: 'design', name: 'Design', type: 'repo-jdbc' },
                 },
             ] as unknown as Project[],
@@ -797,7 +809,7 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
-        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status']}, expect.anything())
+        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status'] }, expect.anything())
         expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'modified')
         expect(screen.getByTestId('tree-file-p1-old.txt')).toHaveAttribute('data-change', 'deleted')
     })
@@ -873,7 +885,7 @@ describe('ProjectsTree', () => {
 
     it('lists the empty folders added to the current project until a file lands in them', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
-        await renderTree({ currentProjectId: 'p1', currentFolders: ['drafts/wip']})
+        await renderTree({ currentProjectId: 'p1', currentFolders: ['drafts/wip'] })
 
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
@@ -1034,7 +1046,7 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByText('Design'))
 
         // Picking a group asks the screen for its projects and leaves the tree as it was.
-        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: ['design'], branches: [], tags: []})
+        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: ['design'], branches: [], tags: [] })
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
 
         // Unfolding is what the caret is for.
@@ -1059,7 +1071,7 @@ describe('ProjectsTree', () => {
 
         await userEvent.click(screen.getByText('main'))
 
-        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: [], branches: ['main'], tags: []})
+        expect(onOpenGroup).toHaveBeenCalledWith({ repositories: [], branches: ['main'], tags: [] })
     })
 
     it('marks a branch group from its own projects, so a same-named branch in another repository stays unmarked', async () => {
@@ -1498,7 +1510,7 @@ describe('ProjectsTree', () => {
         await renderTree()
 
         // Every tag key found on the projects, deduplicated and sorted — the same set the filters count.
-        expect(groupModalMock).toHaveBeenCalledWith(expect.objectContaining({ tagTypes: ['Domain', 'lob']}))
+        expect(groupModalMock).toHaveBeenCalledWith(expect.objectContaining({ tagTypes: ['Domain', 'lob'] }))
     })
 
     it('offers no tag that only a project the tree hides carries', async () => {
@@ -1511,6 +1523,6 @@ describe('ProjectsTree', () => {
         await renderTree({ projects: branched, onRefresh: vi.fn() })
 
         // Gamma is left in a branch the tree does not show, so its tag would group nothing (EPBDS-16952).
-        expect(groupModalMock).toHaveBeenLastCalledWith(expect.objectContaining({ tagTypes: ['Domain']}))
+        expect(groupModalMock).toHaveBeenLastCalledWith(expect.objectContaining({ tagTypes: ['Domain'] }))
     })
 })

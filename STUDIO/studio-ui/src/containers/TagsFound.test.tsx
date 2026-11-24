@@ -35,13 +35,13 @@ describe('Tags found in projects', () => {
         vi.clearAllMocks()
         mockApiCall.mockImplementation(async url => {
             if (url === typesUrl) {
-                return [{ id: 1, name: 'BLOB', extensible: false, nullable: true, tags: []}]
+                return [{ id: 1, name: 'BLOB', extensible: false, nullable: true, tags: [] }]
             }
             return url === '/admin/tag-config/templates' ? [] : undefined
         })
         vi.mocked(getProjectTagCounts).mockResolvedValue([
-            { type: 'BLOB', values: [{ id: 'Banking', name: 'Banking', count: 2 }]},
-            { type: 'Region', values: [{ id: 'EU', name: 'EU', count: 3 }, { id: 'US', name: 'US', count: 1 }]},
+            { type: 'BLOB', values: [{ id: 'Banking', name: 'Banking', count: 2 }] },
+            { type: 'Region', values: [{ id: 'EU', name: 'EU', count: 3 }, { id: 'US', name: 'US', count: 1 }] },
         ])
         vi.mocked(defineTags).mockResolvedValue(undefined)
     })
@@ -72,7 +72,7 @@ describe('Tags found in projects', () => {
 
         await userEvent.click(await screen.findByTestId('found-type-add-Region'))
 
-        expect(defineTags).toHaveBeenCalledWith({ Region: ['EU', 'US']})
+        expect(defineTags).toHaveBeenCalledWith({ Region: ['EU', 'US'] })
         await waitFor(() => expect(mockApiCall.mock.calls.filter(([url]) => url === typesUrl)).toHaveLength(2))
     })
 

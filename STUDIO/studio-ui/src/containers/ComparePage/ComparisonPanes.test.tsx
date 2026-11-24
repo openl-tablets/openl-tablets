@@ -145,7 +145,7 @@ describe('ComparisonPanes', () => {
     it('frames changed cells next to each other with one frame', () => {
         const twoChanged: ComparisonTable = {
             ...TABLE,
-            first: { ...TABLE.first!, changedCells: ['A2', 'A3']},
+            first: { ...TABLE.first!, changedCells: ['A2', 'A3'] },
             second: {
                 source: [
                     [{ cell: 'A1', value: 'Datatype Person' }],
@@ -262,8 +262,8 @@ describe('ComparisonPanes', () => {
     it('keeps the colours of a table that differs in nothing', () => {
         const equal: ComparisonTable = {
             ...TABLE,
-            first: { source: [[{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }]]},
-            second: { source: [[{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }]]},
+            first: { source: [[{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }]] },
+            second: { source: [[{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }]] },
         }
 
         render(<ComparisonPanes showEqualRows error={null} loading={false} table={equal} />)
@@ -321,7 +321,7 @@ describe('ComparisonPanes', () => {
         const oneSided: ComparisonTable = {
             ...LONG,
             first: { source: LONG.first!.source },
-            second: { ...LONG.second!, changedCells: ['A5']},
+            second: { ...LONG.second!, changedCells: ['A5'] },
         }
 
         render(<ComparisonPanes error={null} loading={false} showEqualRows={false} table={oneSided} />)

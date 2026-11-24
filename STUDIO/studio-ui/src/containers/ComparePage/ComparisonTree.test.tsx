@@ -33,7 +33,7 @@ vi.mock('antd', () => {
                 {treeData.map((node: any) => (
                     <Node
                         key={node.key}
-                        node={expandedKeys?.includes(node.key) === false ? { ...node, children: []} : node}
+                        node={expandedKeys?.includes(node.key) === false ? { ...node, children: [] } : node}
                         onExpand={onExpand}
                         onSelect={onSelect}
                     />
@@ -148,7 +148,7 @@ describe('ComparisonTree', () => {
     it('marks an element the second file adds', () => {
         const added: Comparison = {
             ...COMPARISON,
-            sheets: [{ ...COMPARISON.sheets[0]!, children: [{ id: '0-3', name: 'New', type: 'table', status: 'added' }]}],
+            sheets: [{ ...COMPARISON.sheets[0]!, children: [{ id: '0-3', name: 'New', type: 'table', status: 'added' }] }],
         }
 
         const { container } = render(<ComparisonTree comparison={added} onSelect={vi.fn()} showEqualElements={false} />)
@@ -187,7 +187,7 @@ describe('ComparisonTree', () => {
     it('says that there is nothing to compare when every element is equal', () => {
         render(
             <ComparisonTree
-                comparison={{ ...COMPARISON, sheets: [COMPARISON.sheets[1]!]}}
+                comparison={{ ...COMPARISON, sheets: [COMPARISON.sheets[1]!] }}
                 onSelect={vi.fn()}
                 showEqualElements={false}
             />
@@ -275,17 +275,17 @@ describe('ComparisonTree', () => {
         })
 
         it('is all that differs only when nothing else does', () => {
-            const only: Comparison = { ...restyled, sheets: [restyled.sheets[1]!]}
+            const only: Comparison = { ...restyled, sheets: [restyled.sheets[1]!] }
 
             expect(onlyFormattingDiffers(only, false)).toBe(true)
             // Another table reads differently, and one was moved.
             expect(onlyFormattingDiffers(restyled, false)).toBe(false)
             // Nothing differs at all.
-            expect(onlyFormattingDiffers({ ...COMPARISON, sheets: [COMPARISON.sheets[1]!]}, false)).toBe(false)
+            expect(onlyFormattingDiffers({ ...COMPARISON, sheets: [COMPARISON.sheets[1]!] }, false)).toBe(false)
             // A sheet only one file holds differs, whatever its tables.
             expect(onlyFormattingDiffers({
                 ...only,
-                sheets: [...only.sheets, { id: '2', name: 'New', type: 'sheet', status: 'added', children: []}],
+                sheets: [...only.sheets, { id: '2', name: 'New', type: 'sheet', status: 'added', children: [] }],
             }, false)).toBe(false)
         })
 
@@ -295,14 +295,14 @@ describe('ComparisonTree', () => {
             // A restyled note alone: showing the changes of formatting would list nothing without the other tables.
             const restyledNote: Comparison = {
                 ...restyled,
-                sheets: [{ ...sheet, children: [{ ...note, status: 'changed', formattingOnly: true }]}],
+                sheets: [{ ...sheet, children: [{ ...note, status: 'changed', formattingOnly: true }] }],
             }
             expect(onlyFormattingDiffers(restyledNote, false)).toBe(false)
             expect(onlyFormattingDiffers(restyledNote, true)).toBe(true)
             // A note that reads differently is not listed either, so the restyled table is all there is to show.
             const changedNote: Comparison = {
                 ...restyled,
-                sheets: [{ ...sheet, children: [...sheet.children!, { ...note, status: 'changed' }]}],
+                sheets: [{ ...sheet, children: [...sheet.children!, { ...note, status: 'changed' }] }],
             }
             expect(onlyFormattingDiffers(changedNote, false)).toBe(true)
             expect(onlyFormattingDiffers(changedNote, true)).toBe(false)

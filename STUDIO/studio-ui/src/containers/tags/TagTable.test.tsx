@@ -21,7 +21,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-const tagType = (id: number, name: string): TagType => ({ id, name, extensible: false, nullable: true, tags: []})
+const tagType = (id: number, name: string): TagType => ({ id, name, extensible: false, nullable: true, tags: [] })
 
 const types = [tagType(1, 'Domain'), tagType(2, 'LOB'), tagType(3, 'Region')]
 

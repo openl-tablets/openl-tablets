@@ -163,8 +163,13 @@ const flattenSimple = (
                 unloaded.push(branch)
             }
             const canShowMore = visible < kids.length || branch !== undefined
-            rows.push({ type: 'more', key: `${path}/more`, depth, count: total - visible,
-                ...(canShowMore ? { more: { path, shown: visible, loaded: kids.length, ...(branch ? { branch } : {}) } } : {}) })
+            rows.push({
+                type: 'more',
+                key: `${path}/more`,
+                depth,
+                count: total - visible,
+                ...(canShowMore ? { more: { path, shown: visible, loaded: kids.length, ...(branch ? { branch } : {}) } } : {})
+            })
         })
     }
     /** Whether a step has calls to expand: here, or reported by the first view and kept by the server. */
@@ -184,11 +189,18 @@ const flattenSimple = (
         }
         const kids = original.children
             ?? children[treeChildKey(refOwner.uri, refOwner.instance, original.ref)] ?? []
-        rows.push({ type: 'step', key: path, depth, step: original, owner: refOwner, isRef: true,
+        rows.push({
+            type: 'step',
+            key: path,
+            depth,
+            step: original,
+            owner: refOwner,
+            isRef: true,
             // Run to the original step to read its inputs/result; the row's own path keeps the highlight
             // here rather than lighting up the original occurrence elsewhere too.
             target: { ...stepTarget(refOwner, original), selectionKey: path },
-            ...(hasCalls(original, kids) ? { expandKey: path } : {}) })
+            ...(hasCalls(original, kids) ? { expandKey: path } : {})
+        })
         if (expanded.has(path)) {
             walkCalls(refOwner, original, kids, path, depth + 1,
                 (kid, kidPath) => walkNode(kid, depth + 1, kidPath, refOwner))
@@ -209,8 +221,15 @@ const flattenSimple = (
         const target = node.kind === 'decisionTable'
             ? { ...nodeTarget(node), selectionKey: stepPath }
             : stepTarget(node, step)
-        rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
-            target, ...(hasCalls(step, kids) ? { expandKey: stepPath } : {}) })
+        rows.push({
+            type: 'step',
+            key: stepPath,
+            depth: depth + 1,
+            step,
+            owner: node,
+            target,
+            ...(hasCalls(step, kids) ? { expandKey: stepPath } : {})
+        })
         if (expanded.has(stepPath)) {
             walkCalls(node, step, kids, stepPath, depth + 2, (kid, kidPath) => walkNode(kid, depth + 2, kidPath, node))
         }
@@ -221,8 +240,14 @@ const flattenSimple = (
             walkRef(node, depth, path, refOwner)
             return
         }
-        rows.push({ type: 'node', key: path, depth, node, target: nodeTarget(node),
-            ...(node.steps.length > 0 ? { expandKey: path } : {}) })
+        rows.push({
+            type: 'node',
+            key: path,
+            depth,
+            node,
+            target: nodeTarget(node),
+            ...(node.steps.length > 0 ? { expandKey: path } : {})
+        })
         if (!expanded.has(path)) {
             return
         }
@@ -232,8 +257,12 @@ const flattenSimple = (
             ...displaySteps(node.steps, showDetailed).map(step => () => walkStep(node, step, depth, path)),
             () => {
                 if ((node.notRetained ?? 0) > 0) {
-                    rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1,
-                        count: node.notRetained ?? 0 })
+                    rows.push({
+                        type: 'notRetained',
+                        key: `${path}/notRetained`,
+                        depth: depth + 1,
+                        count: node.notRetained ?? 0
+                    })
                 }
             }
         )
@@ -390,7 +419,7 @@ const SimpleTraceTree: React.FC = () => {
     const { rows, unloaded } = useMemo<Flattened>(
         () => (tree && ready
             ? flattenSimple(tree, children, { state: branchState, released: treeReleased }, expanded, shown, showDetailed)
-            : { rows: [], unloaded: []}),
+            : { rows: [], unloaded: [] }),
         [tree, ready, children, branchState, treeReleased, expanded, shown, showDetailed]
     )
 

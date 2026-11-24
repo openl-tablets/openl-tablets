@@ -59,8 +59,13 @@ describe('listPageTheme', () => {
     })
 
     it.each(VARIANTS)('fills the solid badges of $name $appearance deep enough for white text', ({ palette }) => {
-        const fills = [palette.statusNeutral, palette.statusRunning, palette.statusPaused, palette.statusFinished,
-            palette.statusFailed]
+        const fills = [
+            palette.statusNeutral,
+            palette.statusRunning,
+            palette.statusPaused,
+            palette.statusFinished,
+            palette.statusFailed
+        ]
 
         fills.forEach(fill => expect(contrastRatio('#ffffff', fill)).toBeGreaterThanOrEqual(4.5))
     })

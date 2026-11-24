@@ -27,12 +27,14 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const { modal } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
-    const { isLoading: isConfigurationLoading,
+    const {
+        isLoading: isConfigurationLoading,
         configuration: initialConfiguration = [],
         fetchRepositoryConfigurationTemplate,
         deleteRepositoryConfiguration,
         updateRepositoryConfiguration,
-        setURLSearchParam } = useRepositoryConfiguration(repositoryDataType)
+        setURLSearchParam
+    } = useRepositoryConfiguration(repositoryDataType)
     const [configuration, setConfiguration] = React.useState<RepositoryResponse[]>(initialConfiguration as RepositoryResponse[])
     const [activeRepository, setActiveRepository] = React.useState<RepositoryResponse | null>(null)
     const [activeKey, setActiveKey] = React.useState(() => {

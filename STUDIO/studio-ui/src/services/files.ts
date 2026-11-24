@@ -7,8 +7,32 @@ import { triggerDownload } from '../utils/download'
 
 /** Text file extensions the generic editor can open. Files with no extension are also treated as text. */
 const TEXT_EXTENSIONS = new Set([
-    'txt', 'md', 'xml', 'json', 'yaml', 'yml', 'properties', 'groovy', 'java', 'js', 'jsx', 'ts', 'tsx',
-    'css', 'scss', 'less', 'html', 'htm', 'csv', 'sql', 'sh', 'bat', 'conf', 'ini', 'log', 'gitignore',
+    'txt',
+    'md',
+    'xml',
+    'json',
+    'yaml',
+    'yml',
+    'properties',
+    'groovy',
+    'java',
+    'js',
+    'jsx',
+    'ts',
+    'tsx',
+    'css',
+    'scss',
+    'less',
+    'html',
+    'htm',
+    'csv',
+    'sql',
+    'sh',
+    'bat',
+    'conf',
+    'ini',
+    'log',
+    'gitignore',
 ])
 
 /** Whether a file can be opened in the generic text editor (as opposed to Excel/binary content). */

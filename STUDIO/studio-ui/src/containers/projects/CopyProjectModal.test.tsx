@@ -226,7 +226,8 @@ describe('CopyProjectModal', () => {
 
     it('copies into a file repository without a comment field or comment', async () => {
         const fileRepositories = [{
-            id: 'file', name: 'File',
+            id: 'file',
+            name: 'File',
             features: { branches: false, searchable: false, mappedFolders: true, comments: false },
         }] as unknown as Repository[]
         await renderModal({ repositories: fileRepositories })

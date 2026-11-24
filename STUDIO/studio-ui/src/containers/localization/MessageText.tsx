@@ -38,7 +38,7 @@ const spotsOf = (warnings: readonly MessageWarning[], length: number): MarkedSpo
                 last.warnings.push(warning)
             }
         } else {
-            joined.push({ start, end, warnings: [warning]})
+            joined.push({ start, end, warnings: [warning] })
         }
     }
     return joined

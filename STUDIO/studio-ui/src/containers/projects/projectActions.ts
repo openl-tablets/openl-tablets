@@ -36,23 +36,23 @@ interface ProjectActionMeta {
  * it from raw permissions.
  */
 export const PROJECT_ACTIONS: Record<ActionId, ProjectActionMeta> = {
-    save: { labelKey: 'browser.save', caps: ['canSave']},
-    open: { labelKey: 'browser.open', caps: ['canOpen']},
-    close: { labelKey: 'browser.close', caps: ['canClose']},
+    save: { labelKey: 'browser.save', caps: ['canSave'] },
+    open: { labelKey: 'browser.open', caps: ['canOpen'] },
+    close: { labelKey: 'browser.close', caps: ['canClose'] },
     // Copy covers both branching the project and copying it into a new one; the two are granted separately.
-    copy: { labelKey: 'browser.copy', caps: ['canCopy', 'canManageBranches']},
+    copy: { labelKey: 'browser.copy', caps: ['canCopy', 'canManageBranches'] },
     // The server decides: the main branch, a protected branch without the bypass right, and the last branch
     // holding the project are all refused when the deletion runs. The last of these would delete the project
     // itself, which the delete permission — not branch management — guards.
-    deleteBranch: { labelKey: 'browser.delete_branch_action', caps: ['canDeleteBranch']},
+    deleteBranch: { labelKey: 'browser.delete_branch_action', caps: ['canDeleteBranch'] },
     // Reading the project is enough to open any of its revisions.
-    openRevision: { labelKey: 'browser.open_revision', caps: ['canViewHistory']},
+    openRevision: { labelKey: 'browser.open_revision', caps: ['canViewHistory'] },
     // A merge writes over the working copy, so the server withholds it from a project whose own changes
     // are not saved yet — the same rule the merge is refused by.
-    sync: { labelKey: 'browser.sync', caps: ['canMerge']},
-    deploy: { labelKey: 'browser.deploy', caps: ['canDeploy']},
-    compare: { labelKey: 'browser.compare', caps: ['canCompare']},
-    export: { labelKey: 'browser.export', caps: ['canExport']},
+    sync: { labelKey: 'browser.sync', caps: ['canMerge'] },
+    deploy: { labelKey: 'browser.deploy', caps: ['canDeploy'] },
+    compare: { labelKey: 'browser.compare', caps: ['canCompare'] },
+    export: { labelKey: 'browser.export', caps: ['canExport'] },
     delete: { labelKey: 'browser.delete', caps: ['canDelete'], danger: true },
     unlock: { labelKey: 'browser.unlock', caps: ['canUnlock'], danger: true },
 }

@@ -97,7 +97,7 @@ describe('serializeDeployConfig', () => {
     })
 
     it('writes a fresh descriptor from an empty config', () => {
-        const config = { ...EMPTY_DEPLOY_CONFIG, serviceName: 'new-svc', provideRuntimeContext: true, publishers: ['KAFKA']}
+        const config = { ...EMPTY_DEPLOY_CONFIG, serviceName: 'new-svc', provideRuntimeContext: true, publishers: ['KAFKA'] }
         const out = serializeDeployConfig(config)
         expect(out).toContain('<rules-deploy>')
         expect(out).toContain('<serviceName>new-svc</serviceName>')

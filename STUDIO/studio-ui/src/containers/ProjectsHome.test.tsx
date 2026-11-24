@@ -344,8 +344,23 @@ vi.mock('antd', async () => {
     const ConfigProvider = ({ children }: { children?: unknown }) => children as never
 
     return withStaticApp({
-        Button, Input, Select, Segmented, Dropdown, Checkbox, ConfigProvider, Empty, Tag, Tooltip, Skeleton, Spin,
-        Alert, Typography, Modal, notification, Pagination
+        Button,
+        Input,
+        Select,
+        Segmented,
+        Dropdown,
+        Checkbox,
+        ConfigProvider,
+        Empty,
+        Tag,
+        Tooltip,
+        Skeleton,
+        Spin,
+        Alert,
+        Typography,
+        Modal,
+        notification,
+        Pagination
     })
 })
 
@@ -918,7 +933,7 @@ describe('ProjectsHome', () => {
                 onOpenGroup: (filters: { repositories: string[], branches: string[], tags: string[] }) => void
             }
 
-            await act(async () => before.onOpenGroup({ repositories: ['rw'], branches: [], tags: []}))
+            await act(async () => before.onOpenGroup({ repositories: ['rw'], branches: [], tags: [] }))
 
             const grouped = treeMock.mock.lastCall![0] as {
                 filters: { repositories: Set<string> }
@@ -933,7 +948,7 @@ describe('ProjectsHome', () => {
             address.deferred = true
             const rendersBefore = treeMock.mock.calls.length
             // The pick renders first, the address the router changes after it.
-            await act(async () => grouped.onOpenGroup({ repositories: ['ro', 'rw'], branches: [], tags: []}))
+            await act(async () => grouped.onOpenGroup({ repositories: ['ro', 'rw'], branches: [], tags: [] }))
             await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
             address.deferred = false
             const narrowings = treeMock.mock.calls.slice(rendersBefore)
@@ -1033,7 +1048,7 @@ describe('ProjectsHome', () => {
                 const { report, reloaded } = shown.rail!
                 const tokenBefore = (treeMock.mock.lastCall![0] as { reloadToken: number }).reloadToken
 
-                await act(async () => report({ address: 'p1', currentProjectId: 'p1', currentFolders: ['drafts']}))
+                await act(async () => report({ address: 'p1', currentProjectId: 'p1', currentFolders: ['drafts'] }))
                 expect(getProjects).toHaveBeenCalledTimes(1)
                 await act(async () => reloaded())
                 // An action of the page changed the project the list holds, which reads the projects again quietly.
@@ -1068,7 +1083,7 @@ describe('ProjectsHome', () => {
                 }
                 expect([...props.filters.repositories]).toEqual(['ro'])
 
-                await act(async () => props.onOpenGroup({ repositories: ['rw'], branches: [], tags: []}))
+                await act(async () => props.onOpenGroup({ repositories: ['rw'], branches: [], tags: [] }))
 
                 expect(saveProjectFilters).toHaveBeenCalledWith(new URLSearchParams('q=rates&repo=rw'))
                 expect(navigateMock).toHaveBeenCalledWith('/projects?q=rates&repo=rw')
@@ -1249,7 +1264,7 @@ describe('ProjectsHome', () => {
         vi.mocked(getProjects).mockResolvedValue({
             ...projectsPage([]),
             projectIndexHealth: {
-                design: { state: 'indexing', failedBranches: []},
+                design: { state: 'indexing', failedBranches: [] },
             },
         })
         await renderHome()
@@ -1262,7 +1277,7 @@ describe('ProjectsHome', () => {
         vi.mocked(getProjects).mockResolvedValue({
             ...projectsPage(projects, projects.length, false),
             projectIndexHealth: {
-                design: { state: 'indexing', failedBranches: []},
+                design: { state: 'indexing', failedBranches: [] },
             },
         })
         await renderHome()
@@ -1282,7 +1297,7 @@ describe('ProjectsHome', () => {
         vi.mocked(getProjects).mockResolvedValue({
             ...projectsPage(projects, projects.length, false),
             projectIndexHealth: {
-                design: { state: 'indexing', failedBranches: []},
+                design: { state: 'indexing', failedBranches: [] },
             },
         })
         await renderHome()
@@ -1299,7 +1314,7 @@ describe('ProjectsHome', () => {
         vi.mocked(getProjects).mockResolvedValue({
             ...projectsPage(projects, projects.length, false),
             projectIndexHealth: {
-                design: { state: 'ready', failedBranches: []},
+                design: { state: 'ready', failedBranches: [] },
             },
         })
         await renderHome()

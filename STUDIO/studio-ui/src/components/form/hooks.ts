@@ -4,7 +4,7 @@ import type { FormRule } from 'antd'
 
 const isRequired = (rule: FormRule) => typeof rule !== 'function' && rule.required
 
-export const useRules = ({ required, rules = []}: { required?: boolean | undefined, rules: FormRule[] }) => {
+export const useRules = ({ required, rules = [] }: { required?: boolean | undefined, rules: FormRule[] }) => {
     const { t } = useTranslation()
     const [additionalRules, setAdditionalRules] = useState<FormRule[]>([])
 
@@ -29,7 +29,7 @@ export const useRules = ({ required, rules = []}: { required?: boolean | undefin
     return { allRules }
 }
 
-export const usePasswordRules = ({ required, isSecret, rules = []}: { required?: boolean | undefined, isSecret: boolean, rules: FormRule[] }) => {
+export const usePasswordRules = ({ required, isSecret, rules = [] }: { required?: boolean | undefined, isSecret: boolean, rules: FormRule[] }) => {
     const { t } = useTranslation()
     const [additionalRules, setAdditionalRules] = useState<FormRule[]>([])
 

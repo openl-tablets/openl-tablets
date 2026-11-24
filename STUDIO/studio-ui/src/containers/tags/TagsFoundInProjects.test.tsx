@@ -15,8 +15,8 @@ vi.mock('react-i18next', () => {
 const styles = new Proxy({}, { get: (_, name) => String(name) }) as never
 
 const found: FoundTagType[] = [
-    { type: 'Region', defined: true, values: [{ value: 'Asia', projects: 2 }]},
-    { type: 'Product', defined: false, values: [{ value: 'Auto', projects: 1 }, { value: 'Home', projects: 3 }]},
+    { type: 'Region', defined: true, values: [{ value: 'Asia', projects: 2 }] },
+    { type: 'Product', defined: false, values: [{ value: 'Auto', projects: 1 }, { value: 'Home', projects: 3 }] },
 ]
 
 const renderFound = (types = found) => {

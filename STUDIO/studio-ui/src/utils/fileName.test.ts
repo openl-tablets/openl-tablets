@@ -6,8 +6,25 @@ describe('isValidFileName', () => {
         expect(isValidFileName(name)).toBe(true)
     })
 
-    it.each(['a\\b', 'a/b', 'a:b', 'a;b', 'a<b', 'a>b', 'a?b', 'a*b', 'a%b', "a'b", 'a[b', 'a]b', 'a|b', 'a"b',
-        ' a', 'a ', 'a.'])('refuses %j', name => {
+    it.each([
+        'a\\b',
+        'a/b',
+        'a:b',
+        'a;b',
+        'a<b',
+        'a>b',
+        'a?b',
+        'a*b',
+        'a%b',
+        "a'b",
+        'a[b',
+        'a]b',
+        'a|b',
+        'a"b',
+        ' a',
+        'a ',
+        'a.'
+    ])('refuses %j', name => {
         expect(isValidFileName(name)).toBe(false)
     })
 })

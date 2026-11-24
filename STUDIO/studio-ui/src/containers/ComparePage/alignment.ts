@@ -20,7 +20,7 @@ const withoutSpans = ({ rowspan: _rows, colspan: _columns, ...rest }: RawTableCe
  * @return the alignment, or null for a table only one file holds
  */
 export const alignmentOf = (table: ComparisonTable): Alignment | null => (table.first && table.second
-    ? { rows: table.rows ?? [], columns: table.columns ?? []}
+    ? { rows: table.rows ?? [], columns: table.columns ?? [] }
     : null)
 
 /** The place of each line of a file among the lines lined up, by the line of the file. */

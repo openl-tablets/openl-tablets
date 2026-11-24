@@ -77,7 +77,7 @@ export const useSearchStore = create<SearchStore>(set => ({
     mount: scope => set((state) => {
         const known = state.scopes.find(mounted => mounted.id === scope.id)
         if (!known) {
-            return { scopes: [...state.scopes, scope]}
+            return { scopes: [...state.scopes, scope] }
         }
         if (drawnAlike(known, scope)) {
             return state

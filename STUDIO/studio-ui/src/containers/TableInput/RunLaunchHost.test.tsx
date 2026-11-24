@@ -120,8 +120,8 @@ describe('RunLaunchHost', () => {
         casesRead.mockResolvedValue({
             total: 2,
             content: [
-                { id: '1', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }]},
-                { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }]},
+                { id: '1', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }] },
+                { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }] },
             ],
         })
         localStorage.clear()
@@ -199,7 +199,7 @@ describe('RunLaunchHost', () => {
         // left out, before the run is asked for, so the results window opens at the click.
         casesRead.mockResolvedValue({
             total: 4,
-            content: [{ id: '1', parameters: []}, { id: '2', parameters: []}],
+            content: [{ id: '1', parameters: [] }, { id: '2', parameters: [] }],
         })
         render(<RunLaunchHost />)
 
@@ -207,7 +207,7 @@ describe('RunLaunchHost', () => {
         await screen.findByTestId('pick-case-2')
         casesRead.mockResolvedValueOnce({
             total: 4,
-            content: ['1', '2', '3', '4'].map(id => ({ id, parameters: []})),
+            content: ['1', '2', '3', '4'].map(id => ({ id, parameters: [] })),
         })
         await userEvent.click(screen.getByTestId('pick-case-2'))
         await waitFor(() => expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 0, size: 4 }))
@@ -227,7 +227,7 @@ describe('RunLaunchHost', () => {
             const ids = Array.from({ length: total }, (_, index) => String(index + 1))
             return Promise.resolve({
                 total,
-                content: ids.slice(0, options.size === total ? total : 2).map(id => ({ id, parameters: []})),
+                content: ids.slice(0, options.size === total ? total : 2).map(id => ({ id, parameters: [] })),
             })
         })
         render(<RunLaunchHost />)
@@ -244,7 +244,7 @@ describe('RunLaunchHost', () => {
 
     it('starts the run once however often it is asked for while the rest of the cases are read', async () => {
         inputRead.mockResolvedValue(testTable)
-        casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: []}, { id: '2', parameters: []}]})
+        casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: [] }, { id: '2', parameters: [] }] })
         render(<RunLaunchHost />)
 
         await open({ kind: 'Test' })
@@ -260,7 +260,7 @@ describe('RunLaunchHost', () => {
         expect(screen.getByTestId('launch-actions')).toHaveAttribute('aria-busy', 'true')
         fireEvent.click(screen.getByTestId('run-start'))
         await act(async () => {
-            releaseRest({ total: 3, content: ['1', '2', '3'].map(id => ({ id, parameters: []})) })
+            releaseRest({ total: 3, content: ['1', '2', '3'].map(id => ({ id, parameters: [] })) })
         })
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '1,3' }))
@@ -269,7 +269,7 @@ describe('RunLaunchHost', () => {
 
     it('says why the rest of the cases could not be read, and runs nothing', async () => {
         inputRead.mockResolvedValue(testTable)
-        casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: []}, { id: '2', parameters: []}]})
+        casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: [] }, { id: '2', parameters: [] }] })
         render(<RunLaunchHost />)
 
         await open({ kind: 'Test' })

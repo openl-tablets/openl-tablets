@@ -12,9 +12,9 @@ import {
 import { startsWithHeading, withoutFrontMatter } from './frontMatter'
 
 const editor: GuideEntry = { title: 'Using Rules Editor', file: 'openl-studio/rules-editor.md' }
-const appendices: GuideEntry = { title: 'Appendices', children: [{ title: 'Error Pages', file: 'openl-studio/appendices/error-pages.md' }]}
-const studio: GuideEntry = { title: 'OpenL Studio User Guide', file: 'openl-studio/index.md', children: [editor, appendices]}
-const contents: GuideEntry = { title: 'User Guides', file: 'index.md', children: [studio]}
+const appendices: GuideEntry = { title: 'Appendices', children: [{ title: 'Error Pages', file: 'openl-studio/appendices/error-pages.md' }] }
+const studio: GuideEntry = { title: 'OpenL Studio User Guide', file: 'openl-studio/index.md', children: [editor, appendices] }
+const contents: GuideEntry = { title: 'User Guides', file: 'index.md', children: [studio] }
 
 describe('guidePaths', () => {
     it('addresses a page the way the documentation site does', () => {

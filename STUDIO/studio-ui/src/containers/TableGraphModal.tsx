@@ -937,9 +937,18 @@ export const TableGraphModal: React.FC = () => {
             <div
                 data-testid="table-graph-legend"
                 style={{
-                    position: 'absolute', top: 8, left: 8, zIndex: 2, width: 210, maxHeight: 'calc(100% - 16px)',
-                    overflowY: 'auto', background: palette.panelBg, border: `1px solid ${palette.hairline}`, borderRadius: 8,
-                    boxShadow: palette.panelShadow, padding: '8px 10px',
+                    position: 'absolute',
+                    top: 8,
+                    left: 8,
+                    zIndex: 2,
+                    width: 210,
+                    maxHeight: 'calc(100% - 16px)',
+                    overflowY: 'auto',
+                    background: palette.panelBg,
+                    border: `1px solid ${palette.hairline}`,
+                    borderRadius: 8,
+                    boxShadow: palette.panelShadow,
+                    padding: '8px 10px',
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -957,8 +966,18 @@ export const TableGraphModal: React.FC = () => {
                                 onClick={() => toggleKind(kind)}
                                 type="button"
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', opacity: hidden ? 0.4 : 1,
-                                    userSelect: 'none', width: '100%', border: 'none', background: 'none', padding: 0, font: 'inherit', textAlign: 'left',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    cursor: 'pointer',
+                                    opacity: hidden ? 0.4 : 1,
+                                    userSelect: 'none',
+                                    width: '100%',
+                                    border: 'none',
+                                    background: 'none',
+                                    padding: 0,
+                                    font: 'inherit',
+                                    textAlign: 'left',
                                 }}
                             >
                                 <span style={{ width: 12, height: 12, borderRadius: 3, background: kindColor(token, kind), flex: '0 0 auto' }} />
@@ -984,13 +1003,19 @@ export const TableGraphModal: React.FC = () => {
                             {marker(
                                 <span
                                     style={{
-                                        width: 13, height: 11, background: palette.entityBg, position: 'relative',
+                                        width: 13,
+                                        height: 11,
+                                        background: palette.entityBg,
+                                        position: 'relative',
                                         border: `1px solid ${palette.dataModel}`,
                                     }}
                                 >
                                     <span
                                         style={{
-                                            position: 'absolute', top: 3, left: 0, right: 0,
+                                            position: 'absolute',
+                                            top: 3,
+                                            left: 0,
+                                            right: 0,
                                             borderTop: `1px solid ${palette.dataModel}`,
                                         }}
                                     />
@@ -1000,7 +1025,10 @@ export const TableGraphModal: React.FC = () => {
                             {marker(
                                 <span
                                     style={{
-                                        width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+                                        width: 0,
+                                        height: 0,
+                                        borderLeft: '5px solid transparent',
+                                        borderRight: '5px solid transparent',
                                         borderBottom: `8px solid ${palette.dataModel}`,
                                     }}
                                 />,
@@ -1127,11 +1155,16 @@ export const TableGraphModal: React.FC = () => {
                                     ref={containerRef}
                                     data-testid="table-graph"
                                     style={{
-                                        width: '100%', height: '100%', border: `1px solid ${palette.hairline}`, borderRadius: 8,
+                                        width: '100%',
+                                        height: '100%',
+                                        border: `1px solid ${palette.hairline}`,
+                                        borderRadius: 8,
                                         // The colour is the longhand on purpose: the `background` shorthand resets the
                                         // image and its size, and a theme switch rewrites the colour alone, which would
                                         // leave the board without its dot grid.
-                                        backgroundColor: palette.canvas, backgroundImage: dotGrid(palette.dot), backgroundSize: '18px 18px',
+                                        backgroundColor: palette.canvas,
+                                        backgroundImage: dotGrid(palette.dot),
+                                        backgroundSize: '18px 18px',
                                     }}
                                 />
                                 {legendOpen && renderLegend()}

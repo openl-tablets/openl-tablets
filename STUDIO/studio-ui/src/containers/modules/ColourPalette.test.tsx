@@ -8,8 +8,18 @@ import { hex, renderInTheme } from '../../testing/theme'
 import { ColourPalette } from './ColourPalette'
 
 /** The theme colours as Excel lays them out in the columns of its palette. */
-const COLUMNS = ['Background 1', 'Text 1', 'Background 2', 'Text 2',
-    'Accent 1', 'Accent 2', 'Accent 3', 'Accent 4', 'Accent 5', 'Accent 6']
+const COLUMNS = [
+    'Background 1',
+    'Text 1',
+    'Background 2',
+    'Text 2',
+    'Accent 1',
+    'Accent 2',
+    'Accent 3',
+    'Accent 4',
+    'Accent 5',
+    'Accent 6'
+]
 
 const draw = (look: Parameters<typeof renderInTheme>[1] = {}) => {
     const acted = { onPick: vi.fn(), onPreview: vi.fn() }
@@ -30,10 +40,25 @@ describe('ColourPalette', () => {
         expect(swatches).toHaveLength(70)
         expect(swatches.slice(0, 10).map(each => each.title)).toEqual(COLUMNS)
         expect(swatches.slice(0, 60).filter((_, at) => at % 10 === 4).map(each => each.title)).toEqual([
-            'Accent 1', 'Accent 1, Lighter 80%', 'Accent 1, Lighter 60%', 'Accent 1, Lighter 40%',
-            'Accent 1, Darker 25%', 'Accent 1, Darker 50%'])
-        expect(swatches.slice(60).map(each => each.title)).toEqual(['Dark Red', 'Red', 'Orange', 'Yellow',
-            'Light Green', 'Green', 'Light Blue', 'Blue', 'Dark Blue', 'Purple'])
+            'Accent 1',
+            'Accent 1, Lighter 80%',
+            'Accent 1, Lighter 60%',
+            'Accent 1, Lighter 40%',
+            'Accent 1, Darker 25%',
+            'Accent 1, Darker 50%'
+        ])
+        expect(swatches.slice(60).map(each => each.title)).toEqual([
+            'Dark Red',
+            'Red',
+            'Orange',
+            'Yellow',
+            'Light Green',
+            'Green',
+            'Light Blue',
+            'Blue',
+            'Dark Blue',
+            'Purple'
+        ])
     })
 
     it('offers the shades Excel offers for white, black and a light grey', () => {

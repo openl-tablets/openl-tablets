@@ -61,8 +61,20 @@ type BarActionId = ActionId | 'addFiles'
  * operations. Opening an earlier revision is not a button of its own: it hangs off Open while the project
  * can still be opened, and replaces it once it is already open.
  */
-const ORDER: BarActionId[] = ['save', 'open', 'close', 'addFiles', 'sync', 'copy', 'deleteBranch', 'delete', 'deploy',
-    'compare', 'export', 'unlock']
+const ORDER: BarActionId[] = [
+    'save',
+    'open',
+    'close',
+    'addFiles',
+    'sync',
+    'copy',
+    'deleteBranch',
+    'delete',
+    'deploy',
+    'compare',
+    'export',
+    'unlock'
+]
 
 /**
  * The first available of these becomes the single primary button. Opening a revision is never it: on an

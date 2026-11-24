@@ -130,7 +130,14 @@ interface TagTableProps extends TagActions, TagTypeActions {
  * while the table is loading.
  */
 export const TagTable: FC<TagTableProps> = ({
-    tagTypes, createTag, updateTag, deleteTag, deleteTagType, updateTagType, reorderTagTypes, isLoading,
+    tagTypes,
+    createTag,
+    updateTag,
+    deleteTag,
+    deleteTagType,
+    updateTagType,
+    reorderTagTypes,
+    isLoading,
 }) => {
     const { t } = useTranslation()
     const { styles } = useStyles()

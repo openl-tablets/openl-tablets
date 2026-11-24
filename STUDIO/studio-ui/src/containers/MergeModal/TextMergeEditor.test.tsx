@@ -193,11 +193,21 @@ describe('TextMergeEditor', () => {
         expect(screen.getByText('merge:editor.taken_from_theirs')).toBeInTheDocument()
         expect(screen.getByText('merge:editor.changed_alike')).toBeInTheDocument()
         expect(shownLines()).toEqual([
-            'a=ours', 'a=ours', 'a=1',
-            'b=2', 'b=2', 'b=2',
-            'c=3', 'c=theirs', 'c=theirs',
-            'd=4', 'd=4', 'd=4',
-            'e=both', 'e=both', 'e=both',
+            'a=ours',
+            'a=ours',
+            'a=1',
+            'b=2',
+            'b=2',
+            'b=2',
+            'c=3',
+            'c=theirs',
+            'c=theirs',
+            'd=4',
+            'd=4',
+            'd=4',
+            'e=both',
+            'e=both',
+            'e=both',
         ])
         // A file with no conflict is merged as it stands.
         expect(screen.getByTestId('text-merge-apply')).toBeEnabled()

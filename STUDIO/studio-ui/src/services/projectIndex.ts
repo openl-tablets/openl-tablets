@@ -62,7 +62,7 @@ const read = (): Promise<ProjectIndex> => {
         // Deleted projects come along so the status facet can show them without another read. The
         // compile states come along too: the server reads them from its compilation registry without
         // compiling anything, and only a project that is open has one.
-        { unpaged: true, sort: 'name', includes: ['deleted', 'status']},
+        { unpaged: true, sort: 'name', includes: ['deleted', 'status'] },
         { throwError: true, suppressErrorPages: true }
     ).then(page => ({
         projects: page.content,

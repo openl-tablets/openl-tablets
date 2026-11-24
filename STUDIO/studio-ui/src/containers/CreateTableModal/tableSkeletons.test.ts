@@ -42,7 +42,7 @@ const context = (overrides: Partial<TableBuildContext> = {}): TableBuildContext 
         { name: 'age', title: 'Age', type: 'Integer' },
         { name: '_res_', title: 'Result', type: 'Boolean' },
     ],
-    vocabularyValues: { Country: ['USA', 'Canada']},
+    vocabularyValues: { Country: ['USA', 'Canada'] },
     ...overrides,
 })
 
@@ -390,7 +390,7 @@ describe('tableSkeletons', () => {
     })
 
     it('tells a condition cell from a value cell in every shape that conditions', () => {
-        const rules = context({ arguments: [{ type: 'Integer', name: 'age' }]})
+        const rules = context({ arguments: [{ type: 'Integer', name: 'age' }] })
         expect(cellHoldsCondition('simpleRules', rules, 0, 0)).toBe(true)
         expect(cellHoldsCondition('simpleRules', rules, 0, 1)).toBe(false)
         expect(cellHoldsCondition('rules', context(), 0, 0)).toBe(true)
@@ -420,9 +420,9 @@ describe('tableSkeletons', () => {
 
     it('omits the input column when the signature declares no parameter', () => {
         // A placeholder input column has no parameter to match and would bind as a second return instead.
-        expect(buildTableColumns('smartRules', context({ arguments: []})).map(column => column.label))
+        expect(buildTableColumns('smartRules', context({ arguments: [] })).map(column => column.label))
             .toEqual(['Output'])
-        expect(buildTableColumns('simpleRules', context({ arguments: [{ type: 'String', name: 'id' }]}))
+        expect(buildTableColumns('simpleRules', context({ arguments: [{ type: 'String', name: 'id' }] }))
             .map(column => column.label)).toEqual(['id', 'Output'])
     })
 

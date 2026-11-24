@@ -27,5 +27,5 @@ export const warningKeys = (warnings: readonly MessageWarning[]): string[] => {
 /** The warnings of a key about its text in a language. */
 export const warningsAt = (warnings: readonly MessageRowWarning[] | undefined, tag: string): readonly MessageWarning[] => {
     const found = (warnings ?? []).filter(warning => warning.language === tag)
-    return found.length === 0 ? NONE : found.map(warning => ({ summary: warning.summary, spots: warning.spots ?? []}))
+    return found.length === 0 ? NONE : found.map(warning => ({ summary: warning.summary, spots: warning.spots ?? [] }))
 }

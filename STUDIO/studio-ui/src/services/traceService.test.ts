@@ -31,13 +31,13 @@ describe('traceService retry behavior', () => {
     it('retries transient ApiHttpError (503) and succeeds', async () => {
         mockApiCall
             .mockRejectedValueOnce(new ApiHttpError(503, 'Service unavailable'))
-            .mockResolvedValueOnce({ status: 'suspended', frames: []} as any)
+            .mockResolvedValueOnce({ status: 'suspended', frames: [] } as any)
 
         const promise = traceService.getStack('project-1')
         await vi.advanceTimersByTimeAsync(600)
         const result = await promise
 
-        expect(result).toEqual({ status: 'suspended', frames: []})
+        expect(result).toEqual({ status: 'suspended', frames: [] })
         expect(mockApiCall).toHaveBeenCalledTimes(2)
     })
 
@@ -56,7 +56,7 @@ describe('traceService endpoints', () => {
     beforeEach(() => vi.clearAllMocks())
 
     it('issues a step command with the step type', async () => {
-        mockApiCall.mockResolvedValue({ status: 'suspended', frames: []} as any)
+        mockApiCall.mockResolvedValue({ status: 'suspended', frames: [] } as any)
         await traceService.step('p', 'into')
         expect(mockApiCall).toHaveBeenLastCalledWith(
             '/projects/p/trace/step?type=into',
@@ -70,13 +70,13 @@ describe('traceService endpoints', () => {
         await traceService.setBreakpoints('p', ['u1', 'u2'])
         expect(mockApiCall).toHaveBeenLastCalledWith(
             '/projects/p/trace/breakpoints',
-            expect.objectContaining({ method: 'PUT', body: JSON.stringify({ uris: ['u1', 'u2']}) }),
+            expect.objectContaining({ method: 'PUT', body: JSON.stringify({ uris: ['u1', 'u2'] }) }),
             expect.anything()
         )
     })
 
     it('starts a session with stopAtEntry', async () => {
-        mockApiCall.mockResolvedValue({ status: 'suspended', frames: []} as any)
+        mockApiCall.mockResolvedValue({ status: 'suspended', frames: [] } as any)
         await traceService.startTrace('p', { tableId: 't1', stopAtEntry: true })
         const lastCall = mockApiCall.mock.lastCall
         expect(lastCall).toBeDefined()
@@ -110,7 +110,7 @@ describe('traceService endpoints', () => {
     })
 
     it('loads the calls below a step of the kept tree by its run, node, step and the calls already loaded', async () => {
-        mockApiCall.mockResolvedValue({ nodes: []} as any)
+        mockApiCall.mockResolvedValue({ nodes: [] } as any)
         await traceService.getTreeNode('p', 'run-1', 'u/A?x=1', 2, 'R0C0', 100)
         expect(mockApiCall).toHaveBeenLastCalledWith(
             '/projects/p/trace/tree/node?run=run-1&uri=u%2FA%3Fx%3D1&instance=2&step=R0C0&offset=100',

@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import type { RawTableCellBorderSide, RawTableRegion } from 'types/tables'
 import {
-    cellRoleOf, columnLettersOf, holdsCode, onPaper, placeOf, regionAt, roleLinesOf, rolesOf, type RoleLines,
+    cellRoleOf,
+    columnLettersOf,
+    holdsCode,
+    onPaper,
+    placeOf,
+    regionAt,
+    roleLinesOf,
+    rolesOf,
+    type RoleLines,
     tablePlaceOf,
 } from './tableRoles'
 
@@ -23,7 +31,7 @@ const REGIONS: RawTableRegion[] = [
     { role: 'result', type: 'number', top: 5, left: 1, bottom: 5, right: 1 },
 ]
 
-const spreadsheet = rolesOf({ pos: 'C3:D8', regions: REGIONS, groups: { rows: [5], columns: [1]} })
+const spreadsheet = rolesOf({ pos: 'C3:D8', regions: REGIONS, groups: { rows: [5], columns: [1] } })
 
 describe('tableRoles', () => {
     it('reads a cell named in A1 notation, and nothing else', () => {
@@ -41,7 +49,7 @@ describe('tableRoles', () => {
 
     it('reads no roles for a table read with none, or with no place on its sheet', () => {
         expect(rolesOf({ pos: 'C3:D8' })).toBeUndefined()
-        expect(rolesOf({ pos: 'C3:D8', regions: []})).toBeUndefined()
+        expect(rolesOf({ pos: 'C3:D8', regions: [] })).toBeUndefined()
         expect(rolesOf({ regions: REGIONS })).toBeUndefined()
     })
 

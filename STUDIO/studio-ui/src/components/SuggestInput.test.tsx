@@ -71,7 +71,7 @@ describe('SuggestInput', () => {
         act(() => search().onSearch?.('es'))
 
         const filter = search().filterOption as (input: string, option?: Record<string, unknown>) => boolean
-        const group = { label: 'Simple Types', options: [{ label: 'String', value: 'String' }]}
+        const group = { label: 'Simple Types', options: [{ label: 'String', value: 'String' }] }
         // A matching heading makes Ant Design take the whole group, so the heading must not match.
         expect(filter('es', group)).toBe(false)
         expect(filter('es', { label: 'Test', value: 'Test' })).toBe(true)

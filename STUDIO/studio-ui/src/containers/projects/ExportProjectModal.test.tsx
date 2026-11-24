@@ -264,7 +264,11 @@ describe('ExportProjectModal', () => {
     it('exports the workspace copy of a local project, which has no revisions', async () => {
         // Never published, so the history answers with nothing; the workspace copy is the one entry left.
         vi.mocked(getProjectRevisions).mockResolvedValue({
-            content: [], pageNumber: 0, pageSize: 50, numberOfElements: 0, total: 0,
+            content: [],
+            pageNumber: 0,
+            pageSize: 50,
+            numberOfElements: 0,
+            total: 0,
         })
         render(<ExportProjectModal open onClose={vi.fn()} project={{ ...project, status: ProjectStatus.Local }} />)
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())

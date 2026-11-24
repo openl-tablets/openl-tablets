@@ -175,7 +175,7 @@ describe('ModuleTablesTree', () => {
         const broken = { ...tables[0], id: 'bad', name: 'Broken', errors: 3 } as ModuleTable
         const covered = { ...tables[0], id: 'ok', name: 'Covered', hasTests: true } as ModuleTable
 
-        rail({ selectedTableId: 'bad', tables: [...tables, broken, covered]})
+        rail({ selectedTableId: 'bad', tables: [...tables, broken, covered] })
 
         // The broken table says three, and the sheet it is written on says three for it — the tables that
         // compiled say nothing. Only the table a test exercises is marked.
@@ -187,7 +187,7 @@ describe('ModuleTablesTree', () => {
         const here = { ...tables[0], id: 'bad', name: 'Broken', sheet: 'Claims', errors: 3 } as ModuleTable
         const alsoHere = { ...tables[0], id: 'worse', name: 'Worse', sheet: 'Claims', errors: 4 } as ModuleTable
 
-        rail({ selectedTableId: 'bad', tables: [...tables, here, alsoHere]})
+        rail({ selectedTableId: 'bad', tables: [...tables, here, alsoHere] })
 
         // The sheet holding both stands for seven; the sheet holding the table that compiled stands for none.
         expect(screen.getAllByTestId('module-table-errors').map(badge => badge.textContent)).toEqual(['7', '3', '4'])
@@ -196,7 +196,7 @@ describe('ModuleTablesTree', () => {
     it('shows what a table is, in full, on the name the tree cuts short', async () => {
         const named = { ...tables[0], id: 'sig', name: 'Region', signature: 'Region (String state)' } as ModuleTable
 
-        rail({ selectedTableId: 'sig', tables: [named]})
+        rail({ selectedTableId: 'sig', tables: [named] })
 
         await userEvent.hover(screen.getByText('Region'))
 
@@ -206,7 +206,7 @@ describe('ModuleTablesTree', () => {
     it('draws a table that takes no part in the rules apart from the others', () => {
         const switchedOff = { ...tables[0], id: 'off', name: 'Retired', active: false } as ModuleTable
 
-        rail({ selectedTableId: 'off', tables: [...tables, switchedOff]})
+        rail({ selectedTableId: 'off', tables: [...tables, switchedOff] })
 
         expect(screen.getByTestId('module-table-inactive')).toHaveTextContent('Retired')
         // Only the switched-off table is drawn that way.

@@ -158,7 +158,11 @@ describe('TableDetailsPanel', () => {
 
     it('says so when the table declares no properties at all', async () => {
         vi.mocked(getTableDetails).mockResolvedValue({
-            name: 'Greeting', kind: 'Rules', groups: [], canEditProperties: true, available: [],
+            name: 'Greeting',
+            kind: 'Rules',
+            groups: [],
+            canEditProperties: true,
+            available: [],
         })
         await draw()
 
@@ -187,7 +191,11 @@ describe('TableDetailsPanel', () => {
     it('keeps its own name for a table that carries none', async () => {
         // A properties table has no name of its own, and a bare panel head would name nothing at all.
         vi.mocked(getTableDetails).mockResolvedValue({
-            name: '', kind: 'Other', groups: [], canEditProperties: false, available: [],
+            name: '',
+            kind: 'Other',
+            groups: [],
+            canEditProperties: false,
+            available: [],
         })
         await draw()
 
@@ -209,7 +217,11 @@ describe('TableDetailsPanel', () => {
 
     it('offers no writing on a table that carries no properties at all', async () => {
         vi.mocked(getTableDetails).mockResolvedValue({
-            name: 'Environment', kind: 'Environment', groups: [], canEditProperties: false, available: [],
+            name: 'Environment',
+            kind: 'Environment',
+            groups: [],
+            canEditProperties: false,
+            available: [],
         })
         await draw({ canWrite: true })
 
@@ -353,9 +365,11 @@ describe('TableDetailsPanel', () => {
     })
 
     it('finds a property by the name the list shows it under', async () => {
-        vi.mocked(getTableDetails).mockResolvedValue({ ...DETAILS, available: [...DETAILS.available, 'effectiveDate']})
-        vi.mocked(getProjectProperties).mockResolvedValue([...DICTIONARY,
-            property({ name: 'effectiveDate', displayName: 'Effective Date', group: 'Business Dimension' })])
+        vi.mocked(getTableDetails).mockResolvedValue({ ...DETAILS, available: [...DETAILS.available, 'effectiveDate'] })
+        vi.mocked(getProjectProperties).mockResolvedValue([
+            ...DICTIONARY,
+            property({ name: 'effectiveDate', displayName: 'Effective Date', group: 'Business Dimension' })
+        ])
         await edit()
 
         await userEvent.click(screen.getByTestId('table-details-add'))
@@ -482,7 +496,7 @@ describe('TableDetailsPanel', () => {
         // Read again: the table now says what was written on it.
         vi.mocked(getTableDetails).mockResolvedValue({
             ...DETAILS,
-            groups: [{ name: 'Info', properties: [{ name: 'description', displayName: 'Description', value: 'Waves' }]}],
+            groups: [{ name: 'Info', properties: [{ name: 'description', displayName: 'Description', value: 'Waves' }] }],
         })
         view.rerender(panel({ listed: true }))
         expect(await screen.findByText('Waves')).toBeInTheDocument()

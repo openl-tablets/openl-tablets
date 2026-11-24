@@ -4,8 +4,20 @@ import { createStyles } from 'antd-style'
 
 /** The property names a module-level pattern may carry, as the engine reads them. */
 const PROPERTY_NAMES = [
-    'effectiveDate', 'expirationDate', 'startRequestDate', 'endRequestDate', 'lob', 'usregion',
-    'country', 'currency', 'lang', 'state', 'region', 'origin', 'caProvinces', 'caRegions',
+    'effectiveDate',
+    'expirationDate',
+    'startRequestDate',
+    'endRequestDate',
+    'lob',
+    'usregion',
+    'country',
+    'currency',
+    'lang',
+    'state',
+    'region',
+    'origin',
+    'caProvinces',
+    'caRegions',
 ]
 
 const DATE_FORMAT_URL = 'https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html'

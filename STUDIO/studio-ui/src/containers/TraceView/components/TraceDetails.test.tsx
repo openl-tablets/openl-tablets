@@ -7,7 +7,7 @@ import TraceDetails from 'containers/TraceView/components/TraceDetails'
 vi.mock('services/traceService', () => ({
     __esModule: true,
     default: {
-        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: [] }),
         getFrameHighlights: vi.fn().mockResolvedValue([]),
         getStepInputs: vi.fn().mockResolvedValue({ inputs: [], result: null, cell: null }),
     },
@@ -121,7 +121,7 @@ describe('TraceDetails', () => {
             status: 'suspended',
             frames: [frame({ kind: 'spreadsheet', uri: 'uSpread' })],
             selectedFrameIndex: 0,
-            variables: variables({ gridColumns: ['Formula'], gridRows: ['Base']}),
+            variables: variables({ gridColumns: ['Formula'], gridRows: ['Base'] }),
             variablesLoading: false,
             advanced: true,
         })
@@ -136,7 +136,7 @@ describe('TraceDetails', () => {
             status: 'suspended',
             frames: [frame({ kind: 'decisionTable', name: 'CalcRate' })],
             selectedFrameIndex: 0,
-            variables: variables({ decision: { firedRules: ['Standard'], conditions: []} }),
+            variables: variables({ decision: { firedRules: ['Standard'], conditions: [] } }),
             variablesLoading: false,
             advanced: true,
         })
@@ -153,7 +153,7 @@ describe('TraceDetails', () => {
             status: 'suspended',
             frames: [frame({ kind: 'spreadsheet', uri: 'uSpread' })],
             selectedFrameIndex: 0,
-            variables: variables({ gridColumns: ['Formula'], gridRows: ['Base']}),
+            variables: variables({ gridColumns: ['Formula'], gridRows: ['Base'] }),
             variablesLoading: false,
             advanced: false,
         })
@@ -165,7 +165,7 @@ describe('TraceDetails', () => {
             status: 'suspended',
             frames: [frame({ kind: 'decisionTable', name: 'CalcRate' })],
             selectedFrameIndex: 0,
-            variables: variables({ decision: { firedRules: ['Standard'], conditions: []} }),
+            variables: variables({ decision: { firedRules: ['Standard'], conditions: [] } }),
             variablesLoading: false,
             advanced: false,
         })
@@ -205,8 +205,11 @@ describe('TraceDetails', () => {
         })
         useTraceStore.setState({
             status: 'suspended',
-            frames: [frame({ uri: 'uOwner', name: 'BankRatingCalculation',
-                steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'executed' }]})],
+            frames: [frame({
+                uri: 'uOwner',
+                name: 'BankRatingCalculation',
+                steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'executed' }]
+            })],
             selectedFrameIndex: 0,
             variables: variables(),
             variablesLoading: false,
@@ -244,7 +247,7 @@ describe('TraceDetails', () => {
         })
         useTraceStore.setState({
             status: 'suspended',
-            frames: [frame({ uri: 'uOwner', steps: [{ ref: 'S7', label: '$Description', status: 'executed' }]})],
+            frames: [frame({ uri: 'uOwner', steps: [{ ref: 'S7', label: '$Description', status: 'executed' }] })],
             selectedFrameIndex: 0,
             variables: null,
             variablesLoading: false,
@@ -296,8 +299,10 @@ describe('TraceDetails', () => {
         getStepInputs.mockResolvedValue({ inputs: [], result: null, cell: null })
         useTraceStore.setState({
             status: 'suspended',
-            frames: [frame({ uri: 'uOwner',
-                steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'pending' }]})],
+            frames: [frame({
+                uri: 'uOwner',
+                steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'pending' }]
+            })],
             selectedFrameIndex: 0,
             variables: null,
             variablesLoading: false,
@@ -354,7 +359,7 @@ describe('TraceDetails', () => {
             selectedFrameIndex: 0,
             simpleUnreached: true,
             simpleFocus: { ref: 'R0C0', label: '$Next', ownerUri: 'u0', ownerInstance: 7 },
-            variables: variables({ errors: [{ severity: 'ERROR', summary: 'StackOverflowError' }]}),
+            variables: variables({ errors: [{ severity: 'ERROR', summary: 'StackOverflowError' }] }),
             variablesLoading: false,
         })
         render(<TraceDetails />)
@@ -382,15 +387,18 @@ describe('TraceDetails', () => {
         // Errors sit where Result would, above the traced table.
         const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
         getStepInputs.mockResolvedValue({
-            inputs: [{ name: '$AllEmployeesWithSelectedClass', description: 'Employee[]', lazy: false, value: []}],
+            inputs: [{ name: '$AllEmployeesWithSelectedClass', description: 'Employee[]', lazy: false, value: [] }],
             result: null,
             cell: 'C9',
             errors: [{ severity: 'ERROR', summary: 'There are no employee records' }],
         })
         useTraceStore.setState({
             status: 'suspended',
-            frames: [frame({ uri: 'uOwner', name: 'ValidatePlanNumberForSuppCoverage',
-                steps: [{ ref: 'S3', label: '$Validation', cell: 'C9', status: 'executed' }]})],
+            frames: [frame({
+                uri: 'uOwner',
+                name: 'ValidatePlanNumberForSuppCoverage',
+                steps: [{ ref: 'S3', label: '$Validation', cell: 'C9', status: 'executed' }]
+            })],
             selectedFrameIndex: 0,
             variables: variables(),
             variablesLoading: false,

@@ -396,7 +396,7 @@ describe('AuditLog', () => {
             outcome: 'success',
             targetType: 'group',
             target: 'Analysts',
-            details: { added: ['VIEW_PROJECTS', 'DEPLOY_PROJECTS'], removed: ['EDIT_PROJECTS']},
+            details: { added: ['VIEW_PROJECTS', 'DEPLOY_PROJECTS'], removed: ['EDIT_PROJECTS'] },
         }
         mockGetEvents.mockResolvedValue({ content: [privileges], pageNumber: 0, pageSize: 50, total: 1 })
 
@@ -619,10 +619,10 @@ describe('AuditLog', () => {
         await loaded()
 
         await pick('action', 'audit:categories.authentication')
-        await lastQuery({ actions: ['signIn', 'signOut', 'sessionStarted', 'sessionEnded']})
+        await lastQuery({ actions: ['signIn', 'signOut', 'sessionStarted', 'sessionEnded'] })
         await pick('action', 'audit:actions.auditLogRead')
 
-        await lastQuery({ actions: ['auditLogRead']})
+        await lastQuery({ actions: ['auditLogRead'] })
     })
 
     it('filters by the starts, restarts and stops of OpenL Studio, and names a session a restart ended', async () => {
@@ -644,7 +644,7 @@ describe('AuditLog', () => {
         expect(rows.getByText('audit:actions.sessionEnded')).toBeInTheDocument()
         expect(rows.getByText('audit:reasons.restarted')).toBeInTheDocument()
         await pick('action', 'audit:categories.application')
-        await lastQuery({ actions: ['applicationStarted', 'applicationRestarted', 'applicationStopped']})
+        await lastQuery({ actions: ['applicationStarted', 'applicationRestarted', 'applicationStopped'] })
     })
 
     it('filters by the outcome and by how the users signed in', async () => {

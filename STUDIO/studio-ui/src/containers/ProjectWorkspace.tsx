@@ -203,7 +203,7 @@ export const ProjectWorkspace = () => {
             setLoading(true)
         }
         try {
-            const loaded = await getProject(projectId, { includes: ['status', 'descriptor']}, LOCAL_LOAD_API_OPTIONS)
+            const loaded = await getProject(projectId, { includes: ['status', 'descriptor'] }, LOCAL_LOAD_API_OPTIONS)
             if (!loads.isLatest(generation)) {
                 return null
             }
@@ -408,7 +408,7 @@ export const ProjectWorkspace = () => {
         return {
             // The detail response is already loaded, so the dialog never reads the dependencies again.
             open: () => openProjectDialog(
-                { ...project, dependencies: project.dependencies ?? []},
+                { ...project, dependencies: project.dependencies ?? [] },
                 options => runAction(
                     'open',
                     () => setProjectStatus(project.id, 'OPENED', options),

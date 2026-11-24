@@ -33,7 +33,7 @@ const sheet = (name: string, overrides: Partial<ConflictSheet> = {}): ConflictSh
     ...overrides,
 })
 
-const RULES = sheet('Rules', { tables: [table('Rules/A1:B6'), table('Rules/A9:C12')]})
+const RULES = sheet('Rules', { tables: [table('Rules/A1:B6'), table('Rules/A9:C12')] })
 const REMOVED = sheet('Removed', { reason: 'removedAndChanged', theirs: false })
 const RATES = sheet('Rates', { status: 'theirs' })
 
@@ -62,7 +62,7 @@ describe('workbookMerge', () => {
         expect(decisionOf(Object.fromEntries([['constructor', 'ours' as const]]), 'constructor')).toBe('ours')
         expect(progressOf(workbook, {}, {})).toEqual({ resolved: 0, count: 1 })
         expect(decisionsOf(workbook, {}, {})).toEqual({ whole: {}, byCells: {} })
-        expect(resolvedOf(sheet('toString', { tables: [table('toString/A1:B2')]}), {}, {})).toBe(0)
+        expect(resolvedOf(sheet('toString', { tables: [table('toString/A1:B2')] }), {}, {})).toBe(0)
     })
 
     it('shows the rows around the conflicting cells, the same in every version of a table', () => {
@@ -89,8 +89,14 @@ describe('workbookMerge', () => {
             { cell?: string; value: number | null; rowspan?: number; covered?: boolean }[][]
         cells[2] = [{ cell: 'A3', value: 2, rowspan: 2 }]
         cells[3] = [{ covered: true, value: null }]
-        const version = { range: 'A1:A12', cells, rows: 12, changedCells: [], formattingChanged: false,
-            conflictCells: ['A6']}
+        const version = {
+            range: 'A1:A12',
+            cells,
+            rows: 12,
+            changedCells: [],
+            formattingChanged: false,
+            conflictCells: ['A6']
+        }
 
         expect(conflictWindowOf({ ...table('Rules/A1:A12'), ours: version })).toEqual({ from: 2, to: 7 })
     })
@@ -135,14 +141,28 @@ describe('workbookMerge', () => {
             rows: 3,
             changedCells: [],
             conflicts: [
-                { row: 1, column: 1, cell: 'B2', ourCell: 'B2', theirCell: 'B2',
-                    ours: { cell: 'B2', value: 1.4 }, theirs: { cell: 'B2', value: 1.5 } },
-                { row: 2, column: 1, cell: 'B3', ourCell: 'B3', theirCell: 'B3',
-                    ours: { cell: 'B3', value: 2.4 }, theirs: { cell: 'B3', value: 2.5 } },
+                {
+                    row: 1,
+                    column: 1,
+                    cell: 'B2',
+                    ourCell: 'B2',
+                    theirCell: 'B2',
+                    ours: { cell: 'B2', value: 1.4 },
+                    theirs: { cell: 'B2', value: 1.5 }
+                },
+                {
+                    row: 2,
+                    column: 1,
+                    cell: 'B3',
+                    ourCell: 'B3',
+                    theirCell: 'B3',
+                    ours: { cell: 'B3', value: 2.4 },
+                    theirs: { cell: 'B3', value: 2.5 }
+                },
             ],
         }
         const rates: ConflictTable = { ...table('Rules/A1:B3'), merged }
-        const rules = sheet('Rules', { tables: [rates, table('Rules/A9:C12')]})
+        const rules = sheet('Rules', { tables: [rates, table('Rules/A9:C12')] })
         const choices = (overrides: Partial<CellChoices>): CellChoices => ({ ...NO_CHOICES, ...overrides })
 
         it('takes the version of a cell, else of the table', () => {
@@ -244,8 +264,13 @@ describe('workbookMerge', () => {
                 ...table('Rules/A1:A10'),
                 ours: version(10),
                 base: version(10),
-                merged: { range: 'A1:A10', cells: cells.slice(0, mergedRows), rows: mergedRows, changedCells: [],
-                    conflicts: [{ row: 5, column: 0, cell: 'A6', ourCell: 'A6', theirCell: 'A6', ours: {}, theirs: {} }]},
+                merged: {
+                    range: 'A1:A10',
+                    cells: cells.slice(0, mergedRows),
+                    rows: mergedRows,
+                    changedCells: [],
+                    conflicts: [{ row: 5, column: 0, cell: 'A6', ourCell: 'A6', theirCell: 'A6', ours: {}, theirs: {} }]
+                },
             })
 
             expect(conflictWindowOf(tall(10))).toEqual({ from: 3, to: 7 })

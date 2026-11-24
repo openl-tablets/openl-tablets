@@ -133,8 +133,10 @@ describe('TraceTableView', () => {
             name: 'T',
             pos: 'A2:B2',
             source: [[{ cell: 'A2', value: 'Step' }, { cell: 'B2', value: '= x' }]],
-            regions: [{ role: 'key', top: 0, left: 0, bottom: 0, right: 0 },
-                { role: 'value', top: 0, left: 1, bottom: 0, right: 1 }],
+            regions: [
+                { role: 'key', top: 0, left: 0, bottom: 0, right: 0 },
+                { role: 'value', top: 0, left: 1, bottom: 0, right: 1 }
+            ],
         })
 
         renderInTheme(<TraceTableView frameIndex={0} />, { theme: 'dracula', mode: 'dark' })
@@ -271,7 +273,7 @@ describe('TraceTableView', () => {
 
     it('still renders the table when the highlights fetch fails', async () => {
         getFrameHighlights.mockRejectedValue(new Error('no highlights'))
-        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]] })
 
         render(<TraceTableView frameIndex={0} />)
         await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
@@ -280,7 +282,7 @@ describe('TraceTableView', () => {
     })
 
     it('skips the highlights fetch when there is no open project', async () => {
-        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]] })
         useTraceStore.setState({ projectId: null })
 
         render(<TraceTableView frameIndex={0} />)
@@ -296,7 +298,8 @@ describe('TraceTableView', () => {
             { cell: 'B1', state: 'result' },
         ])
         cacheTable('tbl', {
-            id: 'tbl', name: 'T',
+            id: 'tbl',
+            name: 'T',
             source: [[{ cell: 'A1', value: 'c1' }, { cell: 'B1', value: 'r' }], [{ cell: 'A2', value: 'c2' }]],
         })
 
@@ -312,7 +315,7 @@ describe('TraceTableView', () => {
 
     it('shows no legend at all when the table paints no highlights', async () => {
         getFrameHighlights.mockResolvedValue([])
-        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]]})
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'v' }]] })
 
         render(<TraceTableView frameIndex={0} />)
         await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
@@ -322,7 +325,7 @@ describe('TraceTableView', () => {
 
     it('hides the legend in the business view when only the current cell is highlighted — it is suppressed there', async () => {
         getFrameHighlights.mockResolvedValue([{ cell: 'B1', state: 'current' }])
-        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]]})
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]] })
 
         render(<TraceTableView dimOthers frameIndex={0} />)
         await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
@@ -333,7 +336,7 @@ describe('TraceTableView', () => {
 
     it('keys the current-step entry in the advanced view, where the current cell is painted', async () => {
         getFrameHighlights.mockResolvedValue([{ cell: 'B1', state: 'current' }])
-        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]]})
+        cacheTable('tbl', { id: 'tbl', name: 'T', source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]] })
 
         render(<TraceTableView frameIndex={0} />)
         await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())

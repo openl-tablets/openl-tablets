@@ -265,7 +265,7 @@ export const ModuleWorkspace = () => {
             return
         }
         const { generation, startedAt } = projectLoads.start(true)
-        getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+        getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
                 // An older read may be for an address the screen has left.
                 if (!projectLoads.isLatest(generation)) {
@@ -384,8 +384,21 @@ export const ModuleWorkspace = () => {
                     reading.current = null
                 }
             })
-    }, [here, projectId, moduleName, compilation.ready, tables, tablesReloading, reloadToken, showOther, chooseOther, t,
-        leaveGoneModule, loaded?.round, round])
+    }, [
+        here,
+        projectId,
+        moduleName,
+        compilation.ready,
+        tables,
+        tablesReloading,
+        reloadToken,
+        showOther,
+        chooseOther,
+        t,
+        leaveGoneModule,
+        loaded?.round,
+        round
+    ])
 
     useEffect(() => {
         if (refreshed.current === 'asked' && compilation.state === 'compiling') {

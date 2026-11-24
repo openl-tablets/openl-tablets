@@ -427,7 +427,14 @@ interface SheetTablesProps {
 
 /** The conflicting tables of a sheet, one at a time, with the way to the others when the sheet has more than one. */
 const SheetTables: React.FC<SheetTablesProps> = ({
-    sheet, index, onGo, decisions, cellDecisions, onDecide, onChooseCells, marks,
+    sheet,
+    index,
+    onGo,
+    decisions,
+    cellDecisions,
+    onDecide,
+    onChooseCells,
+    marks,
 }) => {
     const table = sheet.tables[index]
     const count = sheet.tables.length
@@ -495,7 +502,12 @@ const ChoiceButtons: React.FC<ChoiceButtonsProps> = props => (
 
 /** The button that takes a conflict from one version; none for the base version of a conflict that offers none. */
 const ChoiceButton: React.FC<ChoiceButtonsProps & { side: ConflictSide }> = ({
-    side, decision, hint, labels, onDecide, testId,
+    side,
+    decision,
+    hint,
+    labels,
+    onDecide,
+    testId,
 }) => {
     const { t } = useTranslation()
     if (side === 'base') {

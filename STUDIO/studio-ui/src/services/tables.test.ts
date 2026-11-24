@@ -119,7 +119,7 @@ describe('getProjectTables', () => {
     })
 
     it('asks for every table of the given kinds at once, not for a page of them', async () => {
-        mockApiCall.mockResolvedValueOnce({ content: [{ id: 'table-id', tableType: 'Datatype', name: 'Customer' }]})
+        mockApiCall.mockResolvedValueOnce({ content: [{ id: 'table-id', tableType: 'Datatype', name: 'Customer' }] })
 
         await expect(getProjectTables('project-id', ['Datatype'])).resolves
             .toEqual([{ id: 'table-id', tableType: 'Datatype', name: 'Customer' }])
@@ -128,7 +128,7 @@ describe('getProjectTables', () => {
     })
 
     it('asks for several kinds in one query', async () => {
-        mockApiCall.mockResolvedValueOnce({ content: []})
+        mockApiCall.mockResolvedValueOnce({ content: [] })
 
         await getProjectTables('project-id', ['Rules', 'Column Match'])
 
@@ -246,9 +246,9 @@ describe('reformat Excel files', () => {
     })
 
     it('says how many tables of the project were formatted and how many were left as they are', async () => {
-        mockApiCall.mockResolvedValueOnce({ formatted: ['a', 'b'], skipped: ['c']})
+        mockApiCall.mockResolvedValueOnce({ formatted: ['a', 'b'], skipped: ['c'] })
 
-        await expect(formatProject('project-id')).resolves.toEqual({ formatted: ['a', 'b'], skipped: ['c']})
+        await expect(formatProject('project-id')).resolves.toEqual({ formatted: ['a', 'b'], skipped: ['c'] })
 
         expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/format', { method: 'POST' },
             { throwError: true, suppressErrorPages: true })
