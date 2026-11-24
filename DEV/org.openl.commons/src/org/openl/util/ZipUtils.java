@@ -22,6 +22,7 @@ import java.util.zip.ZipInputStream;
  */
 public final class ZipUtils {
     private static final int BUFFER_SIZE = 64 * 1024;
+    private static final String ZIP_FILE_SYSTEM = "jar";
 
     private ZipUtils() {
         throw new IllegalStateException("Utility class");
@@ -96,6 +97,24 @@ public final class ZipUtils {
         try (var fos = Files.newOutputStream(targetFile)) {
             IOUtils.copy(zis, fos, buffer);
         }
+    }
+
+    /**
+     * Verifies if the file is a zip archive to read as a folder, by its signature.
+     *
+     * <p>An entry of a zip archive is never one: an archive inside an archive is read as a file. A workbook is never
+     * one either. An archive nested into a Spring Boot executable jar is one, through the file system Spring Boot
+     * provides for it.
+     *
+     * @param path the file to check, in any file system
+     * @return {@code true} if it's archive, otherwise {@code false}
+     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
+     */
+    public static boolean isArchive(Path path) {
+        return !ZIP_FILE_SYSTEM.equals(path.getFileSystem().provider().getScheme())
+                && Files.isRegularFile(path)
+                && !FileTypeHelper.isExcelFile(path.getFileName().toString())
+                && FileSignatureHelper.isArchiveSign(FileSignatureHelper.readSignature(path));
     }
 
     /**

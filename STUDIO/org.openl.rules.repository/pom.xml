@@ -32,5 +32,11 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- The file system of the nested jars of a Spring Boot executable jar -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,11 +48,7 @@ class ZippedLocalRepositoryTest {
     }
 
     private void configureZipRepository(String... archives) {
-        var zipRepository = new ZippedLocalRepository();
-        zipRepository.setUri(repositoryRoot.getPath());
-        zipRepository.setArchives(archives);
-        zipRepository.initialize();
-        this.repository = zipRepository;
+        this.repository = new ZippedLocalRepository(repositoryRoot.getPath(), archives);
     }
 
     private void setUpZipRepository() throws IOException {
@@ -234,10 +231,53 @@ class ZippedLocalRepositoryTest {
     }
 
     @Test
+    void pathNeverLeavesItsFolder() {
+        var e = assertThrows(IOException.class,
+                () -> repository.read("/singleDeployment/../multiDeployment/project1/rules.xml"));
+        assertEquals("Unable to resolve the path [/singleDeployment/../multiDeployment/project1/rules.xml].",
+                e.getMessage());
+        assertThrows(IOException.class, () -> repository.list("/multiDeployment/./project1"));
+    }
+
+    @Test
+    void archiveInsideArchiveIsAFile() throws IOException {
+        var inner = new ByteArrayOutputStream();
+        try (var zos = new ZipOutputStream(inner)) {
+            zos.putNextEntry(new ZipEntry("rules.xml"));
+            zos.write("inner".getBytes());
+            zos.closeEntry();
+        }
+        generateZipFile("",
+                "withInnerZip.zip",
+                Map.of("project/rules.xml", "foo".getBytes(), "docs.zip", inner.toByteArray()));
+        configureZipRepository("withInnerZip.zip");
+
+        var folders = flatMap(repository.listFolders("/withInnerZip"), FileData::getName);
+        assertEquals(List.of("withInnerZip/project"), List.copyOf(folders.keySet()));
+        var files = flatMap(repository.list("/withInnerZip"), FileData::getName);
+        assertExistsFileData(files.get("withInnerZip/docs.zip"));
+        assertArrayEquals(inner.toByteArray(), read(repository.read("/withInnerZip/docs.zip").getStream()));
+    }
+
+    @Test
+    void factoryReadsTheSettings() throws IOException {
+        var settings = Map.of("uri", repositoryRoot.getPath(), "archives", " multiDeployment.zip , ", "id", "zipped");
+        try (var zipRepository = (ZippedLocalRepository) new ZipRepositoryFactory().create(settings::get)) {
+            assertEquals("zipped", zipRepository.getId());
+            var folders = zipRepository.listFolders("/");
+            assertEquals(1, folders.size());
+            assertEquals("multiDeployment", folders.getFirst().getName());
+        }
+    }
+
+    @Test
     void testNoUri() throws IOException {
-        var noUriRepository = new ZippedLocalRepository();
-        noUriRepository.initialize();
-        assertEquals(0, noUriRepository.list("/").size());
+        try (var noUriRepository = new ZippedLocalRepository(null)) {
+            assertEquals(0, noUriRepository.list("/").size());
+            assertEquals(0, noUriRepository.listFolders("").size());
+            assertNull(noUriRepository.check("/"));
+            assertNull(noUriRepository.read(""));
+        }
     }
 
     private void assertSingleDeployment(String repositoryPath, String name) throws IOException {
