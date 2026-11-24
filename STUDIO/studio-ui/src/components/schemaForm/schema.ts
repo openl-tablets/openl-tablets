@@ -16,6 +16,8 @@ export interface JsonSchema {
     allOf?: JsonSchema[]
     /** The value a field starts with, as its datatype declares it. */
     default?: unknown
+    /** The one value a field takes, such as the type property of a datatype that has a parent or children. */
+    const?: unknown
 }
 
 /** What kind of editor a schema calls for. */
@@ -168,17 +170,47 @@ export const clearedValue = (schema: JsonSchema, root: JsonSchema): unknown =>
     (acceptsNull(schema) ? null : resolveSchema(schema, root).default)
 
 /**
+ * Whether a field takes one value only, its `const`.
+ *
+ * Nothing is entered into such a field. The form writes its value into the object it creates and does not show it.
+ * The type property of a datatype that has a parent or children is one: the run reads the datatype by it.
+ */
+export const isFixed = (schema: JsonSchema, root: JsonSchema): boolean =>
+    resolveSchema(schema, root).const !== undefined
+
+/**
+ * The fields of an object the form shows. A field that takes one value only is left out, see `isFixed`. A field the
+ * schema does not describe stays.
+ */
+export const shownFields = (
+    record: Record<string, unknown>,
+    schema: JsonSchema,
+    root: JsonSchema
+): Record<string, unknown> =>
+    Object.fromEntries(Object.entries(record)
+        .filter(([name]) => {
+            const property = schema.properties?.[name]
+            return property === undefined || !isFixed(property, root)
+        }))
+
+/** The value a field of a new object starts with: its one value, or the default its datatype declares. */
+const startingValue = (schema: JsonSchema, root: JsonSchema): unknown => {
+    const resolved = resolveSchema(schema, root)
+    return resolved.const ?? resolved.default
+}
+
+/**
  * The value a field starts with when it is created.
  *
- * An object starts with the defaults its datatype declares. A map and a list start empty. A plain value starts
- * with nothing.
+ * An object starts with the defaults its datatype declares, and with the one value of each field that takes one
+ * value only, see `isFixed`. A map and a list start empty. A plain value starts with nothing.
  */
 export const createValue = (schema: JsonSchema, root: JsonSchema): unknown => {
     const resolved = resolveSchema(schema, root)
     switch (fieldKind(resolved)) {
         case 'object':
             return Object.fromEntries(Object.entries(resolved.properties ?? {})
-                .map(([name, property]) => [name, resolveSchema(property, root).default])
+                .map(([name, property]) => [name, startingValue(property, root)])
                 .filter(([, value]) => value !== undefined && value !== null))
         case 'map':
             return {}

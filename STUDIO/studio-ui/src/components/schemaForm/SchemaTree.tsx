@@ -11,9 +11,11 @@ import {
     clearedValue,
     createValue,
     fieldKind,
+    isFixed,
     isRecord,
     mapValueSchema,
     resolveSchema,
+    shownFields,
     type FieldKind,
     type JsonSchema,
 } from './schema'
@@ -318,6 +320,8 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
     // The tree must not see the focus of an inline editor. It would scroll to the node, which fails before the
     // list is measured.
     const keepFocus = (event: React.FocusEvent) => event.stopPropagation()
+    // An object is summed up by the fields it shows: the one the form fills in itself is not counted.
+    const shown = kind === 'object' && isRecord(value) ? shownFields(value, resolved, context.root) : value
     return (
         <Space wrap onBlur={keepFocus} onFocus={keepFocus} size={4}>
             {onRename
@@ -337,7 +341,7 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
                         value={value}
                     />
                 )
-                : <ValueText kind={kind} labels={labels} path={path} value={value} />}
+                : <ValueText kind={kind} labels={labels} path={path} value={shown} />}
             {actions}
             {!editing && isRounded(kind, resolved, value) && (
                 <Text data-testid={`rounded-${path}`} type="warning">
@@ -351,8 +355,9 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
 /**
  * One node of the parameter tree with its children.
  *
- * A created object lists the fields of its schema, so an unset field shows as `null`. A created list shows its
- * elements, a created map its entries.
+ * A created object lists the fields of its schema, so an unset field shows as `null`. A field that takes one value
+ * only, such as the type property of a datatype, is not listed. A created list shows its elements, a created map
+ * its entries.
  *
  * A cleared field of an object becomes `null` when it accepts `null`, and otherwise goes back to its default.
  */
@@ -370,18 +375,21 @@ export const buildNode = (spec: NodeSpec): TreeDataNode => {
     let children: TreeDataNode[] = []
     if (!isUnset(value) && kind === 'object') {
         const record = asRecord(value)
-        children = Object.entries(resolved.properties ?? {}).map(([field, fieldSchema]) => {
-            const clearsTo = clearedValue(fieldSchema, context.root)
-            return buildNode({
-                name: field,
-                schema: fieldSchema,
-                value: record[field],
-                path: `${path}.${field}`,
-                clearsTo,
-                onChange: next => onChange(withField(record, field, next === undefined ? clearsTo : next)),
-                context,
+        // A field that takes one value only has nothing to enter, and keeps the value the object was created with.
+        children = Object.entries(resolved.properties ?? {})
+            .filter(([, fieldSchema]) => !isFixed(fieldSchema, context.root))
+            .map(([field, fieldSchema]) => {
+                const clearsTo = clearedValue(fieldSchema, context.root)
+                return buildNode({
+                    name: field,
+                    schema: fieldSchema,
+                    value: record[field],
+                    path: `${path}.${field}`,
+                    clearsTo,
+                    onChange: next => onChange(withField(record, field, next === undefined ? clearsTo : next)),
+                    context,
+                })
             })
-        })
     } else if (!isUnset(value) && kind === 'array') {
         const list = asList(value)
         const itemSchema = resolved.items ?? {}

@@ -37,7 +37,8 @@ import org.springframework.context.annotation.Scope;
  * Two generators are offered. {@link #schemaGenerator} describes the values the run, tests and trace APIs
  * publish. {@link #inputSchemaGenerator} describes the input a table takes and also records the defaults a
  * datatype declares, see {@link DeclaredDefaultsAttributeOverride}. A field whose default can be replaced by null
- * accepts null in that schema.
+ * accepts null in that schema. A type read by its type property requires it there, see
+ * {@link TypePropertyAttributeOverride}.
  * <p>
  * Both describe a {@link Locale} as text, the way it is written in JSON and the way the OpenAPI schema of
  * OpenL Rule Services describes it.
@@ -72,6 +73,11 @@ public class ObjectSchemaGeneratorConfiguration {
      * A field with such a default that is not a primitive accepts {@code null}. A missing field takes the default,
      * so {@code null} is how a caller asks for no value there.
      * <p>
+     * A type the object mapper writes with a type property, such as a datatype with a parent or children, requires
+     * that property, with the one value the type is written with as its {@code const}. It is the only {@code const}
+     * of the schema: a field that allows one value only, such as an enumeration of one constant, lists it in its
+     * {@code enum}, as a choice is.
+     * <p>
      * This is a prototype bean - a new instance is created for each injection/lookup.
      *
      * @param objectMapper the ObjectMapper to use for introspection and to write the defaults
@@ -80,9 +86,10 @@ public class ObjectSchemaGeneratorConfiguration {
     @Bean
     @Scope("prototype")
     public SchemaGenerator inputSchemaGenerator(ObjectMapper objectMapper) {
-        var configBuilder = configBuilder(objectMapper);
+        var configBuilder = configBuilder(objectMapper).with(Option.ENUM_KEYWORD_FOR_SINGLE_VALUES);
         configBuilder.forTypesInGeneral()
-                .withTypeAttributeOverride(new DeclaredDefaultsAttributeOverride(objectMapper));
+                .withTypeAttributeOverride(new DeclaredDefaultsAttributeOverride(objectMapper))
+                .withTypeAttributeOverride(new TypePropertyAttributeOverride(objectMapper));
         configBuilder.forFields()
                 .withNullableCheck(ObjectSchemaGeneratorConfiguration::isNillable);
         return new SchemaGenerator(configBuilder.build());

@@ -123,6 +123,25 @@ class ObjectSchemaGeneratorConfigurationTest {
         assertEquals("decimal", discount.path("format").asText());
     }
 
+    /** An enumeration of one constant, as a vocabulary that allows one value. */
+    public enum OnlyUs {
+        US
+    }
+
+    public static class Address {
+        public OnlyUs country;
+    }
+
+    @Test
+    void a_field_of_one_allowed_value_lists_it_as_a_choice() throws Exception {
+        // The input schema keeps `const` for the type property a datatype is read by, which a form fills in itself.
+        var country = configuration.inputSchemaGenerator(objectMapper).generateSchema(Address.class)
+                .at("/properties/country");
+
+        assertEquals(objectMapper.readTree("[\"US\"]"), country.get("enum"));
+        assertFalse(country.has("const"));
+    }
+
     @ParameterizedTest
     @MethodSource("generators")
     void a_decimal_of_a_spreadsheet_result_bean_says_it_too(

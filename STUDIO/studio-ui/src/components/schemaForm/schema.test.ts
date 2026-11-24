@@ -2,6 +2,7 @@ import {
     clearedValue,
     createValue,
     fieldKind,
+    isFixed,
     mapValueSchema,
     primaryType,
     resolveRef,
@@ -143,5 +144,17 @@ describe('primaryType / mapValueSchema / createValue', () => {
             },
         }
         expect(createValue(schema, root)).toEqual({ home: { city: 'Riga' } })
+    })
+
+    it('creates an object with the type its datatype is read by', () => {
+        // A datatype with a parent or children is read by its type property, which takes one value only.
+        const schema = {
+            type: 'object',
+            properties: { code: { type: 'string' }, '@class': { const: 'Base' } },
+            required: ['@class'],
+        }
+        expect(createValue(schema, {})).toEqual({ '@class': 'Base' })
+        expect(isFixed(schema.properties['@class'], {})).toBe(true)
+        expect(isFixed(schema.properties.code, {})).toBe(false)
     })
 })
