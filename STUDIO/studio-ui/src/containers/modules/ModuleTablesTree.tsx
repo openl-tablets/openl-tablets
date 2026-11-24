@@ -39,7 +39,7 @@ const useStyles = createStyles(({ css, token }) => ({
         opacity: 0.45;
     `,
     state: css`
-        padding: 12px 16px;
+        padding: ${token.paddingSM}px ${token.padding}px;
     `,
     /** The note telling how many tables the type filter hides from the search. */
     hidden: css`

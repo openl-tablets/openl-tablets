@@ -46,10 +46,6 @@ const useStyles = createStyles(({ css, token }) => ({
         border-left: 1px solid ${token.colorBorderSecondary};
         background: ${token.colorBgContainer};
     `,
-    /** Folded away, the panel keeps only the handle that opens it again. */
-    folded: css`
-        width: auto;
-    `,
     header: css`
         display: flex;
         flex: none;
@@ -182,7 +178,7 @@ export const TableDetailsPanel = ({
 }: TableDetailsPanelProps) => {
     useDateFormats()
     const { t } = useTranslation('repository')
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
     const theme = useTheme()
     const [open, setOpen] = useStoredSetting(openSetting)
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'left', WIDTH)
@@ -400,7 +396,7 @@ export const TableDetailsPanel = ({
 
     if (!open) {
         return (
-            <aside className={cx(styles.panel, styles.folded)} data-testid="table-details">
+            <aside className={styles.panel} data-testid="table-details">
                 <div className={styles.header}>
                     <ProfileOutlined className={styles.inherited} />
                     {toggle}

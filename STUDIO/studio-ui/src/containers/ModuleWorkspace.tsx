@@ -75,14 +75,14 @@ const useStyles = createStyles(({ css, token }) => ({
         min-width: 0;
         min-height: 0;
         overflow: auto;
-        padding: 16px;
+        padding: ${token.padding}px;
         background: ${token.colorBgBase};
     `,
     /** The invitation to read further, under the rows already drawn. */
     more: css`
         display: flex;
         justify-content: center;
-        padding: 12px 0;
+        padding: ${token.paddingSM}px 0;
     `,
 }))
 

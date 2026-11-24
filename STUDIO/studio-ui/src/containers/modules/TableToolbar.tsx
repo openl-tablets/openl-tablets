@@ -61,7 +61,6 @@ const useStyles = createStyles(({ css, token }) => ({
         height: auto;
         padding: 0;
         font-size: ${token.fontSizeSM}px;
-        text-align: left;
         & > span {
             overflow: hidden;
             text-overflow: ellipsis;

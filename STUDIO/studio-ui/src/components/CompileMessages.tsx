@@ -23,15 +23,15 @@ const TRACE_LINES = 16
 export const useCompileMessageStyles = createStyles(({ css, token }) => ({
     list: css`
         list-style: none;
-        margin: 12px 0 0;
+        margin: ${token.marginSM}px 0 0;
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: ${token.marginXS}px;
     `,
     /** One message, marked by the colour stripe of its severity — the way the legacy editor listed them. */
     message: css`
-        padding: 4px 8px;
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
         border-left: 3px solid transparent;
         white-space: pre-wrap;
         word-break: break-word;
@@ -105,8 +105,7 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
      * is scrolled by the page itself, which then redraws the whole trace on every frame of a drag.
      */
     stacktrace: css`
-        display: block;
-        margin-top: 4px;
+        margin-top: ${token.marginXXS}px;
         font-family: ${token.fontFamilyCode};
         font-size: 12px;
         white-space: pre-wrap;
@@ -115,8 +114,8 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
     `,
     pager: css`
         display: flex;
-        gap: 8px;
-        margin-top: 8px;
+        gap: ${token.marginXS}px;
+        margin-top: ${token.marginXS}px;
     `,
 }))
 
@@ -195,11 +194,11 @@ export const MessageCode = ({
     const { styles } = useCompileMessageStyles()
     return (
         <span className={styles.code} data-testid={testId}>
-            <span>{text.slice(0, start)}</span>
+            {text.slice(0, start)}
             <span className={styles.marked} data-testid={`${testId}-marked`}>
                 {text.slice(start, end)}
             </span>
-            <span>{text.slice(end)}</span>
+            {text.slice(end)}
         </span>
     )
 }

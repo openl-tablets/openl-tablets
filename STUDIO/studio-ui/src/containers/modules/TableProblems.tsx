@@ -35,7 +35,6 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: ${token.paddingXXS}px ${token.padding}px;
         border: none;
         background: none;
-        text-align: left;
         cursor: pointer;
         user-select: none;
     `,
@@ -52,7 +51,7 @@ const useStyles = createStyles(({ css, token }) => ({
     count: css`
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
         font-size: ${token.fontSizeSM}px;
         color: ${token.colorTextSecondary};
     `,
