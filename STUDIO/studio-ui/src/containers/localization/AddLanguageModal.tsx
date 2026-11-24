@@ -42,6 +42,8 @@ const namedCodes = (type: 'language' | 'region', uiLocale: string) => {
  *
  * <p>The languages and the countries are listed by name and found by name or by code. A language the messages have
  * already cannot be added again.
+ *
+ * <p>Each time the dialog opens, it asks anew: the language and the country picked before are not kept.
  */
 export const AddLanguageModal = ({ open, tags, onAdd, onClose }: AddLanguageModalProps) => {
     const { t, i18n } = useTranslation('localization')
@@ -57,12 +59,23 @@ export const AddLanguageModal = ({ open, tags, onAdd, onClose }: AddLanguageModa
             cancelText={t('common:btn.cancel')}
             okButtonProps={{ 'data-testid': 'localization-add-language-ok' }}
             okText={t('add_language')}
-            onCancel={onClose}
             onOk={() => form.submit()}
             open={open}
             title={t('add_language')}
+            onCancel={() => {
+                // The values outlive the form, which the dialog takes away: they are cleared for the next language.
+                form.resetFields()
+                onClose()
+            }}
         >
-            <Form<AddLanguageForm> form={form} layout="vertical" onFinish={values => onAdd(tagOf(values))}>
+            <Form<AddLanguageForm>
+                form={form}
+                layout="vertical"
+                onFinish={values => {
+                    onAdd(tagOf(values))
+                    form.resetFields()
+                }}
+            >
                 <Form.Item
                     label={t('language')}
                     name="language"
