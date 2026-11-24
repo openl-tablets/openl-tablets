@@ -68,7 +68,7 @@ A lock icon after the project name means that another user edits the project. Th
 
 The page of a project shows everything about one project. Its title row carries the following:
 
--   The path **Projects / Design / master**, where the repository and the branch the project is on follow the **Projects** link. The branch is a switcher, as described in [Working with Project Branches](project-branches.md#working-with-branches).
+-   The path **Projects / Design / master /**, where the repository and the branch the project is on follow the **Projects** link, and the closing slash leads to the project name below. The repository name opens the **Projects** list filtered by the repository. The branch is a switcher, as described in [Working with Project Branches](project-branches.md#working-with-branches).
 -   The project name, preceded by the status icon when the project is in editing or opened on an earlier revision.
 -   The actions of the project, listed in the table below.
 

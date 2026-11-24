@@ -8,6 +8,7 @@ import {
     listingScope,
     pickedIn,
     refineProjects,
+    repositoryListPath,
     searchProjects,
     selectProjects,
     sortProjects,
@@ -44,6 +45,15 @@ describe('searchProjects', () => {
         expect(searchProjects(all, 'a').map(p => p.id)).toEqual(['p1', 'p2', 'p3', 'p4'])
         expect(searchProjects(all, '  ').map(p => p.id)).toEqual(['p1', 'p2', 'p3', 'p4'])
         expect(searchProjects(all, 'nowhere')).toEqual([])
+    })
+})
+
+describe('repositoryListPath', () => {
+    it('narrows the list to the repository facet the project counts under', () => {
+        expect(repositoryListPath(alpha)).toBe('/projects?repo=design')
+        expect(repositoryListPath(beta)).toBe('/projects?repo=flat')
+        // A local project lists under the Local facet, not under the repository it was checked out from.
+        expect(repositoryListPath(local)).toBe('/projects?repo=__local__')
     })
 })
 

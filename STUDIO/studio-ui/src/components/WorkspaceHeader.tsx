@@ -15,12 +15,14 @@ const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextTertiary};
         font-size: 14px;
 
-        a {
+        /* Every step that leads somewhere reads alike: a link, or a switcher's trigger. */
+        a,
+        button {
             color: ${token.colorTextSecondary};
+        }
 
-            &:hover {
-                color: ${token.colorPrimary};
-            }
+        a:hover {
+            color: ${token.colorPrimary};
         }
     `,
     titleRow: css`
@@ -53,7 +55,10 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 interface WorkspaceHeaderProps {
-    /** The trail above the title: where the thing on screen sits, each step linking back to it. */
+    /**
+     * The trail above the title: where the thing on screen sits, each step linking back to it. A separator closes
+     * it, so the title reads as its next step.
+     */
     crumbs: ReactNode
     /**
      * What the screen is about — the name of the project, or of the module opened from it.
@@ -91,7 +96,10 @@ export const WorkspaceHeader = ({
     const { styles, cx } = useStyles()
     return (
         <div className={styles.header} data-testid={testId}>
-            <div className={styles.crumb}>{crumbs}</div>
+            <div className={styles.crumb}>
+                {crumbs}
+                <span aria-hidden>/</span>
+            </div>
             <div className={styles.titleRow}>
                 <div className={styles.titleLeft}>
                     {titleBefore}

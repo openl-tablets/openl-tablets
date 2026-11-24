@@ -5,6 +5,7 @@ import { errorMessage } from '../../utils/errorMessage'
 import { getProjects } from '../../services/repositories'
 import type { Project } from '../../types/projects'
 import { ValueText } from './ValueText'
+import { useSharedStyles } from './sharedStyles'
 import { CrumbSwitcher } from './CrumbSwitcher'
 
 /** What the list asks the server for: the names to choose from, and nothing that costs time to work out. */
@@ -39,6 +40,7 @@ export const ProjectSwitcher = ({
     testId = 'project-switcher',
 }: ProjectSwitcherProps) => {
     const { notification } = App.useApp()
+    const { styles: shared } = useSharedStyles()
     const { t } = useTranslation('repository')
     const [projects, setProjects] = useState<Project[] | null>(null)
     const [loading, setLoading] = useState(false)
@@ -91,7 +93,7 @@ export const ProjectSwitcher = ({
     return (
         <CrumbSwitcher
             busy={switching}
-            current={<ValueText ellipsis data-testid={testId}>{currentName}</ValueText>}
+            current={<span className={shared.ellipsis} data-testid={testId}>{currentName}</span>}
             disabled={disabled}
             emptyText={t('browser.module.project_no_match')}
             items={items}
