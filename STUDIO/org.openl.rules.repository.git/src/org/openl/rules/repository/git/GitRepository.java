@@ -18,6 +18,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,6 +73,8 @@ import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.hooks.PrePushHook;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.internal.storage.file.GC;
 import org.eclipse.jgit.internal.storage.file.LockFile;
 import org.eclipse.jgit.lfs.BuiltinLFS;
 import org.eclipse.jgit.lfs.LfsBlobFilter;
@@ -3103,10 +3106,15 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
      *
      * <p>Required in local mode only: in remote mode Git collects garbage on each fetch or merge, and that
      * automatic collection does not help a local repository.
+     *
+     * <p>The packs replaced by the new one are deleted at once. Git keeps them for an hour by default, so the
+     * saves within an hour would keep a full copy of the repository each and fill the disk.
      */
     private void collectGarbage() {
         try {
-            git().gc().call();
+            var gc = new GC((FileRepository) git().getRepository());
+            gc.setPackExpire(Instant.now());
+            gc.gc().join();
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
         }
