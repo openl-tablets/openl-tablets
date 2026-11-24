@@ -4,10 +4,11 @@ import { useSharedStyles } from './sharedStyles'
 import { renderInTheme, tokenFor } from '../../testing/theme'
 
 const Frame = () => {
-    const { styles } = useSharedStyles()
+    const { styles, cx } = useSharedStyles()
     return (
         <div className={styles.page} data-testid="page">
             <div className={styles.rail} data-testid="rail" />
+            <table className={cx(styles.listTable, styles.flushTable)} data-testid="list" />
         </div>
     )
 }
@@ -19,5 +20,12 @@ describe('useSharedStyles', () => {
 
         expect(screen.getByTestId('page')).toHaveStyle({ backgroundColor: token.colorBgContainer })
         expect(screen.getByTestId('rail')).toHaveStyle({ backgroundColor: token.colorBgLayout })
+    })
+
+    it('lays the list of a list page from edge to edge of it, not as a card inset in it', () => {
+        renderInTheme(<Frame />)
+
+        expect(screen.getByTestId('list')).toHaveStyle({ marginLeft: '0px', marginTop: '0px', width: '100%', borderRadius: '0px' })
+        expect(getComputedStyle(screen.getByTestId('list')).borderLeftStyle).not.toBe('solid')
     })
 })

@@ -85,6 +85,16 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
            was the box a sticky head stuck to, and the head scrolled away with the rows. */
         overflow: clip;
     `,
+    /**
+     * A list that is the page itself, laid from edge to edge of it rather than inset in it as a card: its text starts
+     * as far from the rail beside it as the rail's own text starts from its edge.
+     */
+    flushTable: css`
+        width: 100%;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+    `,
     listHead: css`
         background: ${token.colorBgContainer};
 

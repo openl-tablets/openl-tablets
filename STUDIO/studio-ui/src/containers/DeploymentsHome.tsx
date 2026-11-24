@@ -211,7 +211,7 @@ export const DeploymentsHome = () => {
             )
         }
         return (
-            <table className={shared.listTable} data-testid="deployments-table">
+            <table className={cx(shared.listTable, shared.flushTable)} data-testid="deployments-table">
                 <thead className={cx(shared.listHead, shared.microLabel)}>
                     <tr>
                         <th>{t('deployments.col_deployment')}</th>
