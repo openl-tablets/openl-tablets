@@ -4,7 +4,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     trigger: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         /* Never wider than the place it is put in: the name truncates instead. */
         max-width: 100%;
         min-width: 0;

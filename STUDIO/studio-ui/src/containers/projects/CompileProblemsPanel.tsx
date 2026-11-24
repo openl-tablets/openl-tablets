@@ -54,7 +54,7 @@ const useStyles = createStyles(({ css, token }) => ({
     count: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         font-variant-numeric: tabular-nums;
         font-weight: 600;
     `,

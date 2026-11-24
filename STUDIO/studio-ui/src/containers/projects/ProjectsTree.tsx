@@ -332,7 +332,7 @@ const useStyles = createStyles(({ css, token }) => ({
     node: css`
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
         white-space: nowrap;
 

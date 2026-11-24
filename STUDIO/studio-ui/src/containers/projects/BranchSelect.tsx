@@ -6,12 +6,12 @@ import { createStyles } from 'antd-style'
 import { ListLoading } from './ListLoading'
 import { BranchMarks } from './BranchMarks'
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, token }) => ({
     /** The branch reads in the select's own text; only the marks are borrowed. */
     option: css`
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         width: 100%;
         min-width: 0;
     `,

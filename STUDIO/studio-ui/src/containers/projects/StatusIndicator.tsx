@@ -16,7 +16,7 @@ const useStyles = createStyles(({ css, token }) => ({
     pill: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         padding: 1px 8px;
         border: 1px solid ${token.colorBorderSecondary};
         border-radius: ${token.borderRadiusSM}px;

@@ -7,7 +7,7 @@ const useStyles = createStyles(({ css, token }) => ({
     label: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
         max-width: 100%;
         color: ${token.colorTextTertiary};
