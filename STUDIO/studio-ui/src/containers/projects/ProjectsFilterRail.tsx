@@ -38,7 +38,7 @@ import type { FacetCount, ProjectStatusSummary, TagFacetSummary } from '../../ty
 import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
 import { RepoBadge } from './RepoBadge'
-import { BranchMarks } from './BranchMarks'
+import { BranchMarks, useBranchColor } from './BranchMarks'
 import { TagTypeMark } from '../tags/tagColor'
 import {
     BRANCH_GROUP,
@@ -218,6 +218,7 @@ export const ProjectsFilterRail = ({
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
+    const branchColor = useBranchColor()
     const [layout, apply] = useStoredSetting(filterLayoutSetting)
     const [arranging, setArranging] = useState(false)
     const sensors = useSensors(
@@ -290,7 +291,7 @@ export const ProjectsFilterRail = ({
                 value: id,
                 label: (
                     <span className={styles.branchFacet}>
-                        <span className={shared.ellipsis}>{id}</span>
+                        <span className={cx(shared.ellipsis, branchColor({ isDefault, isProtected }))}>{id}</span>
                         <BranchMarks isDefault={isDefault} isProtected={isProtected} testId={`filter-branch-label-${id}`} />
                     </span>
                 ),

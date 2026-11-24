@@ -794,7 +794,7 @@ i18next.addResourceBundle('en', 'repository', {
             switch_failed: 'Failed to switch branch',
             filter: 'Filter branches',
             no_match: 'No branches match',
-            default_tag: 'Default',
+            default_tag: 'Default branch',
             protected_tag: 'Protected branch — direct commits and deletion are restricted; changes must go through a merge, and only a manager who can bypass protection may delete it.',
             load_failed: 'Failed to load branches',
         },

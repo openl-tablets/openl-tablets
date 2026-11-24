@@ -4,7 +4,7 @@ import { Select } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { ListLoading } from './ListLoading'
-import { BranchMarks } from './BranchMarks'
+import { BranchMarks, useBranchColor } from './BranchMarks'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The branch reads in the select's own text; only the marks are borrowed. */
@@ -76,7 +76,8 @@ export const BranchSelect = ({
     disabled,
     ...rest
 }: BranchSelectProps) => {
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
+    const branchColor = useBranchColor()
     const [search, setSearch] = useState('')
 
     // The offered branches, plus — while a new name may be entered — the typed name and the current one, so
@@ -99,7 +100,7 @@ export const BranchSelect = ({
         value: name,
         label: (
             <span className={styles.option}>
-                <span className={styles.name} title={name}>{name}</span>
+                <span className={cx(styles.name, branchColor(marksOf?.(name) ?? {}))} title={name}>{name}</span>
                 <span className={styles.marks}>
                     <BranchMarks {...marksOf?.(name)} testId={`branch-option-${name}`} />
                 </span>
