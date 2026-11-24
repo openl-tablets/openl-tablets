@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -32,6 +34,8 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.info.OpenLVersion;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.CollectionUtils;
 import org.openl.util.ProjectPackager;
@@ -274,11 +278,13 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
 
         final var includedFiles = scanFiles(openLSourceDir, includes, getExcludes());
+        final var descriptor = descriptorWithoutTests(openLSourceDir.toPath());
 
         for (String type : types) {
             var outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
-            writeArchive(outputFile, openLSourceDir, includedFiles, dependencyLib, dependencies, openLJarPackaging);
+            writeArchive(outputFile, openLSourceDir, includedFiles, descriptor, dependencyLib, dependencies,
+                    openLJarPackaging);
 
             if (mainArtifactExists || StringUtils.isNotBlank(classifier)) {
                 info("Attaching the supplemental artifact '", outputFile, ",");
@@ -327,6 +333,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     private void writeArchive(File outputFile,
                               File openLSourceDir,
                               String[] includedFiles,
+                              @Nullable ProjectDescriptor descriptor,
                               @Nullable File dependencyLib,
                               Set<Artifact> dependencies,
                               boolean openLJarPackaging) throws IOException {
@@ -339,7 +346,8 @@ public final class PackageMojo extends BaseOpenLMojo {
                 ProjectPackager.addOpenLProject(classesDirectory, arch);
             }
 
-            ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
+            var descriptorBytes = descriptor == null ? null : descriptor.toBytes();
+            ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, descriptorBytes, arch);
 
             if (dependencyLib != null && dependencyLib.isFile() && !itselfLink) {
                 arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
@@ -348,6 +356,100 @@ public final class PackageMojo extends BaseOpenLMojo {
                 var file = artifact.getFile();
                 arch.addFile(file, classpathFolder + file.getName());
             }
+        }
+    }
+
+    /**
+     * Returns {@code rules.xml} of the main archive, the descriptor of the project without the modules of the
+     * {@link #TESTS_FOLDER}, whose files go to the {@code tests} artifact instead.
+     * <p>
+     * A module is left out whatever it is written in: a workbook or a folder of Markdown files. A path pattern of the
+     * folder is kept: it finds no file in the archive. When no other module is left, the pattern of every file of the
+     * folder takes the place of the modules left out, a module without a path not counted. A descriptor without
+     * modules would declare the default ones instead.
+     * <p>
+     * Returns {@code null} when the descriptor names no module of the folder, or the project has no descriptor:
+     * the file is packaged as it is.
+     */
+    @Nullable
+    ProjectDescriptor descriptorWithoutTests(Path projectFolder) {
+        var descriptor = ProjectDescriptor.read(projectFolder);
+        if (descriptor == null) {
+            return null;
+        }
+        var removed = leaveTestsModulesOut(descriptor);
+        if (removed == 0) {
+            return null;
+        }
+        info("The modules of the '", TESTS_FOLDER, "' folder are left out of '", ProjectDescriptor.FILE_NAME,
+                "' of the archive: ", removed);
+        var kept = new ArrayList<>(descriptor.getModules());
+        if (kept.stream().allMatch(module -> StringUtils.isBlank(module.getRulesRootPath()))) {
+            var testsFiles = new Module();
+            testsFiles.setRulesRootPath(TESTS_FILES);
+            kept.add(testsFiles);
+            descriptor.setModules(kept);
+        }
+        return descriptor;
+    }
+
+    /**
+     * Removes the modules of the {@link #TESTS_FOLDER} from the descriptor and returns how many it removed.
+     * <p>
+     * A descriptor without such modules is not changed.
+     */
+    static int leaveTestsModulesOut(ProjectDescriptor descriptor) {
+        var projectFolder = descriptor.getProjectFolder();
+        var kept = new ArrayList<>(descriptor.getModules());
+        if (!kept.removeIf(module -> isInTestsFolder(projectFolder, module))) {
+            return 0;
+        }
+        var removed = descriptor.getModules().size() - kept.size();
+        descriptor.setModules(kept);
+        return removed;
+    }
+
+    /**
+     * Checks whether the file of the module lies in the {@link #TESTS_FOLDER} of the project.
+     * <p>
+     * The folder is the one the archive leaves out: the folder named {@code tests} on disk. Where file names ignore
+     * case, a path written {@code Tests/} names it too, and a folder named {@code Tests} on disk is no tests folder.
+     * <p>
+     * A module without a path, with a path pattern, or with a path the file system cannot hold lies in no folder, nor
+     * does a module of the whole project folder, even one named {@code tests}. A module a pattern found is checked by
+     * its own path, even when its file name holds {@code *} or {@code ?}.
+     */
+    private static boolean isInTestsFolder(Path projectFolder, Module module) {
+        var folder = firstFolder(projectFolder.toAbsolutePath().normalize(), module);
+        return folder != null && TESTS_FOLDER.equals(nameOnDisk(folder));
+    }
+
+    /**
+     * Returns the first folder of the path of the module, or {@code null} when the path names no file of the project.
+     */
+    private static @Nullable Path firstFolder(Path root, Module module) {
+        var path = module.getRulesRootPath();
+        var declaredPattern = module.isModuleWithWildcard() && module.getWildcardRulesRootPath() == null;
+        if (path == null || declaredPattern) {
+            return null;
+        }
+        try {
+            var file = root.resolve(path).normalize();
+            var inProject = file.startsWith(root) && !file.equals(root);
+            return inProject ? root.resolve(root.relativize(file).getName(0)) : null;
+        } catch (InvalidPathException e) {
+            // Such a file cannot exist, so it is in no folder
+            return null;
+        }
+    }
+
+    /** Returns the name of the folder on disk, which differs from the written one where file names ignore case. */
+    private static String nameOnDisk(Path folder) {
+        try {
+            return folder.toRealPath(LinkOption.NOFOLLOW_LINKS).getFileName().toString();
+        } catch (IOException e) {
+            // A folder that is not on disk keeps the name it is written with
+            return folder.getFileName().toString();
         }
     }
 

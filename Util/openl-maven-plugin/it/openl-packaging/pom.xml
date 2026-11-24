@@ -15,5 +15,6 @@
         <module>openl-markdown-package</module>
         <module>openl-no-xlsx</module>
         <module>openl-package-tests-classifier</module>
+        <module>openl-package-tests-module</module>
     </modules>
 </project>

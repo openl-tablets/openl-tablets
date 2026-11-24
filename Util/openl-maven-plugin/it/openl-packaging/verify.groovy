@@ -32,6 +32,9 @@ try {
             'Markdown Packaging',
             'Projects without Excel files',
             'Package tests classifier',
+            'Package tests modules',
+            'Tested',
+            'Consumer',
     ].each { name ->
         assert lines.any { it =~ /^\[INFO\] ${Pattern.quote(name)} \.+ SUCCESS/ }, "Module '${name}' must pass"
     }
@@ -228,6 +231,35 @@ try {
         assert fileNames.contains('META-INF/MANIFEST.MF')
         assert fileNames.contains('tests/MyTests.xlsx')
         assert zf.entries().findAll { !it.directory }.size() == 2
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // openl-package-tests-module: rules.xml names a module of the tests/ folder. The main archive
+    // leaves it out of its rules.xml, so the archive deploys and a dependent project compiles.
+    // ---------------------------------------------------------------------------------------
+    def tested = sections['tested']
+    assert tested.any { it.contains("Running 'SeparateGreetingTest' from module 'MyTests'...") }
+    assert tested.any {
+        it.contains("The modules of the 'tests' folder are left out of 'rules.xml' of the archive: 1")
+    }
+    assert tested.any {
+        it.contains("Verification is passed for 'org.openl.internal.tests-module:tested' artifact.")
+    }
+    def testedZipFile = new File(folder, 'openl-package-tests-module/tested/target/tested-0.0.0.zip')
+    new ZipFile(testedZipFile).withCloseable { closeable ->
+        ZipFile zf = closeable as ZipFile
+        assert !zf.entries().any { it.name.startsWith('tests/') }
+        def rulesXml = zf.getInputStream(zf.getEntry('rules.xml')).text
+        assert rulesXml.contains('<name>Tested Project</name>')
+        assert rulesXml.contains('rules/SimpleRules.xlsx')
+        assert !rulesXml.contains('MyTests')
+    }
+    def consumer = sections['consumer']
+    assert consumer.any {
+        it.contains("SUCCESS COMPILATION - Module 'ConsumerTests',  project 'Consumer Project'")
+    }
+    assert consumer.any {
+        it.contains("Verification is passed for 'org.openl.internal.tests-module:consumer' artifact.")
     }
 
     // ---------------------------------------------------------------------------------------

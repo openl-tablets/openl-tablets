@@ -1,0 +1,11 @@
+<project>
+    <name>Tested Project</name>
+    <modules>
+        <module>
+            <rules-root path="rules/SimpleRules.xlsx"/>
+        </module>
+        <module>
+            <rules-root path="tests/MyTests.xlsx"/>
+        </module>
+    </modules>
+</project>
