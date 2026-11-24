@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.maven.model.building.ModelSource2;
@@ -21,8 +22,11 @@ import org.openl.util.formatters.FileNameFormatter;
  * by default, beside the {@code pom.xml}, before the Maven repository. A project of a design repository reads it from
  * the repository at the version of the project; a project on disk, from the disk.
  *
- * <p>Two of them are one when their text and their path are, the place they come from included: what is read from them
- * is kept in memory by them.
+ * <p>A project without a {@code pom.xml}, a pom-less one, has the one the OpenL Maven Plugin builds it with, whose
+ * parent is its anchor ({@link PomlessPom}).
+ *
+ * <p>Two of them are one when their text and their path are, the place they come from and the projects they name
+ * included: what is read from them is kept in memory by them.
  *
  * @author Yury Molchan
  */
@@ -35,6 +39,7 @@ public final class ProjectPom {
     private final String path;
     private final String origin;
     private final Reader reader;
+    private final Map<String, String> projects;
 
     /**
      * Reads a file by its path, as the {@code pom.xml} names it relative to its own.
@@ -55,10 +60,19 @@ public final class ProjectPom {
      * @param reader reads the files the {@code pom.xml} names by a path relative to its own
      */
     ProjectPom(String text, String path, String origin, Reader reader) {
+        this(text, path, origin, reader, Map.of());
+    }
+
+    /**
+     * @param projects the OpenL projects the {@code rules.xml} of a pom-less project names by Maven coordinates, by
+     *                 their names, whose versions the dependency management of the {@code pom.xml} sets
+     */
+    ProjectPom(String text, String path, String origin, Reader reader, Map<String, String> projects) {
         this.text = text;
         this.path = path;
         this.origin = origin;
         this.reader = reader;
+        this.projects = Map.copyOf(projects);
     }
 
     /** A {@code pom.xml} read alone, which finds every POM it names in the Maven repository. */
@@ -73,6 +87,14 @@ public final class ProjectPom {
     /** Its path, with {@code /} separators, which the paths it names are relative to. */
     String path() {
         return path;
+    }
+
+    /**
+     * The OpenL projects the {@code rules.xml} of a pom-less project names by Maven coordinates, by their names: the
+     * dependency management of the {@code pom.xml} sets their versions, as the OpenL Maven Plugin sets them.
+     */
+    Map<String, String> projects() {
+        return projects;
     }
 
     /** A POM read beside it, which reads the files it names as this one does. */
@@ -112,12 +134,12 @@ public final class ProjectPom {
     @Override
     public boolean equals(Object o) {
         return o instanceof ProjectPom other && text.equals(other.text) && path.equals(other.path)
-                && origin.equals(other.origin);
+                && origin.equals(other.origin) && projects.equals(other.projects);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(text, path, origin);
+        return Objects.hash(text, path, origin, projects);
     }
 
     @Override

@@ -53,8 +53,8 @@ downloaded for them. A part is never `.` or `..`, so coordinates name no file ou
 ## The pom.xml of a Project
 
 A project built by Maven before pom-less projects keeps its libraries in a `pom.xml` beside `rules.xml`: the OpenL
-Maven Plugin packs them into `lib/` of the archive, and `rules.xml` does not name them. Studio reads the `pom.xml` as
-the plugin's build does:
+Maven Plugin packs them into `lib/` of the archive, and `rules.xml` does not name them. A pom-less project inherits
+them from its anchor. Studio reads the `pom.xml` as the plugin's build does:
 
 - **Where it is read** — `pom.xml` is a protected file: listed and edited, hidden from business users unless **Show
   Hidden Files** is on, and never deployed ([Ignored, Protected and Hidden Files](ignored-paths.md)). A compilation
@@ -110,6 +110,18 @@ the plugin's build does:
   `groupId`, `artifactId` and version, inherited from its parent when it does not say them and with the properties
   of the build put in, such as the `${revision}` of a CI-friendly version; the modules of a build
   are read once in five minutes, whichever `pom.xml` of the build asks.
+- **A pom-less project** — a project without a `pom.xml` below an anchor: the nearest `pom.xml` in a folder above it,
+  when that one declares `openl-maven-plugin` in its own `<build><plugins>` and is not of the `openl` or `openl-jar`
+  packaging, as the plugin finds anchors. A nearest `pom.xml` that is no anchor gives none, since the plugin's scan of a
+  higher anchor stops at its folder, and so does a project the scan does not reach: below a folder named `target` or
+  starting with a dot, or inside the folder of another OpenL project. Studio reads the `pom.xml` the plugin builds such
+  a project with, whose parent is the anchor by its relative path (`PomlessPom`): the dependencies, the dependency
+  management and the properties of the anchor and of its parents apply as to a `pom.xml` of the project. The management
+  sets the version of an OpenL project the `rules.xml` names by `<mavenArtifact>` too, as the plugin sets it, so the
+  project takes those coordinates by its name; one the management leaves alone keeps its own. A pom-less sibling under
+  the same anchor is no module the build lists: it is the project of its name in the workspace, or a download at its
+  coordinates while it is closed, not the reactor version the plugin gives it. A project of no design repository finds
+  no anchor outside its folder.
 - **A model that cannot be built** — such as one whose parent the repository lacks — is an error of the project,
   `Cannot read the pom.xml of the project:` with the problems; the `rules.xml` libraries are downloaded still.
 - **A downloaded project** — its `pom.xml` is not read: its archive holds its libraries in `lib/` already.
@@ -451,6 +463,7 @@ OpenL Studio downloaded or used — so a local repository shared with Maven keep
   in-memory answers, the unpacking.
 - **`ProjectPoms`**, **`WebStudio.pomOf`** — the `pom.xml` of a project; **`ProjectPom`** — the POMs it names by a
   relative path, read beside it, in the design repository of a project of the workspace.
+- **`PomlessPom`** — the `pom.xml` of a pom-less project, with its anchor as the parent.
 - **`EffectivePom`**, **`PomModelResolver`** — the effective model of the `pom.xml` of a project, with its parents and
   BOMs read from the Maven repository; `MavenDependencyResolver.projectsOfPom` — the OpenL projects it depends on;
   **`PomReactor`** — the modules of the build it belongs to.

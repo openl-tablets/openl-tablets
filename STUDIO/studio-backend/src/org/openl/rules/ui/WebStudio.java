@@ -310,7 +310,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     /**
      * The {@code pom.xml} of the project, whose dependencies a compilation of it takes into account: the one its folder
      * holds, with the changes not saved yet. A project of the workspace reads the POMs it names by a relative path,
-     * such as a parent of a build of several modules, from its design repository; another one, from its folder.
+     * such as a parent of a build of several modules, from its design repository; another one, from its folder. A
+     * project without one below an anchor has the one the OpenL Maven Plugin builds it with ({@link ProjectPoms}).
      *
      * @return the {@code pom.xml}, or {@code null} when the project has none, when no Maven repository is set, or when
      *         it is downloaded from the Maven repository and carries its libraries
@@ -323,7 +324,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
         try {
             var project = projectOf(descriptor);
-            return project == null ? ProjectPoms.inFolder(folder, folder) : ProjectPoms.inRepository(project, folder);
+            return project == null
+                    ? ProjectPoms.inFolder(folder, folder)
+                    : ProjectPoms.inRepository(project, folder, descriptor.getDependencies());
         } catch (IOException e) {
             log.warn("Cannot read the pom.xml of the project '{}'.", descriptor.getName(), e);
             return null;

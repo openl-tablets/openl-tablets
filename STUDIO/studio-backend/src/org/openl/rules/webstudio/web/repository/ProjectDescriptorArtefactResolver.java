@@ -87,14 +87,15 @@ public class ProjectDescriptorArtefactResolver {
      * The {@code pom.xml} of the project, as the revision of the project holds it.
      *
      * <p>A project of a design repository reads the POMs it names by a relative path, such as a parent of a build of
-     * several modules, from the repository at the same revision ({@link ProjectPoms}). Another project reads its
-     * {@code pom.xml} as any of its files, and every other POM from the Maven repository.
+     * several modules, from the repository at the same revision ({@link ProjectPoms}); one without a {@code pom.xml}
+     * below an anchor has the one the OpenL Maven Plugin builds it with. Another project reads its {@code pom.xml} as
+     * any of its files, and every other POM from the Maven repository.
      *
-     * @return the {@code pom.xml}, or {@code null} when the project has none
+     * @return the {@code pom.xml}, or {@code null} when the project has none and no anchor is above it
      */
     public @Nullable ProjectPom getPom(AProject project) throws ProjectException, IOException {
         return project instanceof RulesProject rulesProject && !rulesProject.isLocalOnly()
-                ? ProjectPoms.inRepository(rulesProject, null)
+                ? ProjectPoms.inRepository(rulesProject, null, getDependencies(project))
                 : ProjectPoms.inArchive(project);
     }
 

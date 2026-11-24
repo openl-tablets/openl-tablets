@@ -165,6 +165,9 @@ exists only since 1.6.0, so an older inherited version is bumped to it for the i
 
 Installed pom strips `<parent>` and `<build>` → flat artefact pom, no anchor lineage.
 
+OpenL Studio reads a pom-less project the same way: with the anchor as its parent, the anchor's dependency management
+setting the `<mavenArtifact>` versions (see [rules.xml](rules.xml.md#maven-dependencies-in-openl-studio)).
+
 ### Cross-project dependencies
 
 A `rules.xml` `<dependency>` becomes a Maven dependency:

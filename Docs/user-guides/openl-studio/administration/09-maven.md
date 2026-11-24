@@ -3,8 +3,10 @@
 A `rules.xml` can name its dependencies by Maven coordinates in `<mavenArtifact>`: a library, such as a jar with Java
 classes the rules call, and an OpenL project. A project built by Maven has a `pom.xml` beside `rules.xml`, whose
 dependencies are libraries of the project too, and whose `zip` dependencies are the OpenL projects `rules.xml` names
-by name. OpenL Studio downloads them from a Maven repository, such as Maven
-Central or a Nexus or Artifactory server of the company, to compile the project and run its tests.
+by name. A pom-less project takes them from the `pom.xml` of the folder above it that builds it with the OpenL Maven
+Plugin, which also sets the versions of the coordinates its `rules.xml` names. OpenL Studio downloads them from a
+Maven repository, such as Maven Central or a Nexus or Artifactory server of the company, to compile the project and
+run its tests.
 
 To set the Maven repository, proceed as follows:
 
