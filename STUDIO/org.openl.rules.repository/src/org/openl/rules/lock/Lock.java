@@ -3,6 +3,7 @@ package org.openl.rules.lock;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
@@ -60,19 +61,22 @@ public class Lock {
         return lockPath;
     }
 
+    /**
+     * Takes the lock for the user unless another user holds it.
+     *
+     * @return whether the user holds the lock
+     * @throws UncheckedIOException if the lock file cannot be written, for example when the disk is full
+     */
     public boolean tryLock(String lockedBy) {
         var info = getInfo();
         if (info.isLocked()) {
             // If lockedBy is empty, will return false. Cannot lock second time with empty user.
             return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
         }
+        var prepareLock = createLockFile(lockedBy);
         var lockAcquired = false;
-        Path prepareLock = null;
         try {
-            prepareLock = createLockFile(lockedBy);
-            if (prepareLock != null) {
-                lockAcquired = finishLockCreating(prepareLock);
-            }
+            lockAcquired = prepareLock != null && finishLockCreating(prepareLock);
         } catch (Exception e) {
             log.info("Failure to create a lock file '{}'. Because of {} : {}",
                     lockPath,
@@ -186,8 +190,14 @@ public class Lock {
         }
     }
 
-    Path createLockFile(String userName) {
-        String userNameHash = Integer.toString(userName.hashCode(), 24);
+    /**
+     * Writes the lock file of the user, which the user then competes with.
+     *
+     * @return the lock file, or {@code null} when another thread holds or removes the lock at the same time
+     * @throws UncheckedIOException if the lock file cannot be written, for example when the disk is full
+     */
+    @Nullable Path createLockFile(String userName) {
+        var lock = lockPath.resolve(Integer.toString(userName.hashCode(), 24) + ".lock");
         try {
             var folder = Files.createDirectories(lockPath);
             // A lock id that stays inside the locks folder can still be led out of it by a link on the way,
@@ -196,28 +206,26 @@ public class Lock {
                 log.warn("A lock folder is led outside of the locks folder by a link.");
                 return null;
             }
-            var lock = lockPath.resolve(userNameHash + ".lock");
-            return writeLockFile(lock, userName);
-        } catch (Exception e) {
+            writeLockFile(lock, userName);
+            return lock;
+        } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
+            // Another thread of the same user holds the lock file, or another thread removes the folder of the lock
+            // while unlocking.
             return null;
+        } catch (IOException e) {
+            // The lock file can be created but not written completely.
+            FileUtils.deleteQuietly(lock);
+            deleteEmptyParentFolders();
+            throw new UncheckedIOException("Cannot create a lock: " + e.getMessage(), e);
         }
     }
 
-    private @Nullable Path writeLockFile(Path lock, String userName) {
+    private static void writeLockFile(Path lock, String userName) throws IOException {
         try (Writer os = Files.newBufferedWriter(lock, StandardOpenOption.CREATE_NEW)) {
             os.write("#Lock info\n");
             os.append("user=").append(userName).write('\n');
             os.append("date=").append(Instant.now().toString()).write('\n');
-        } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
-            // Cannot create lock file
-            return null;
-        } catch (Exception e) {
-            // Lock file is created but with error. So delete it.
-            log.info("Lock file '{}' is created with errors. Lock file is deleted.", lock);
-            deleteLockAndFolders(lock);
-            return null;
         }
-        return lock;
     }
 
     // Two lockers that both pass need an atomic lock protocol on the file system to tell them apart.

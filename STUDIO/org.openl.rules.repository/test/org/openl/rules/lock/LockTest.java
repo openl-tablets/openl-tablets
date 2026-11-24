@@ -2,10 +2,14 @@ package org.openl.rules.lock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileSystemException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 class LockTest {
@@ -207,5 +213,36 @@ class LockTest {
         lock.unlock();
         var lockInfo = lock.info();
         assertFalse(lockInfo.isLocked());
+    }
+
+    /**
+     * A lock file that another thread of the same user is still creating keeps the lock untaken. The attempt does not
+     * fail and leaves that lock file in place.
+     */
+    @Test
+    void lockFileOfTheSameUserInProgressLeavesTheLockUntaken() throws IOException {
+        var lockFolder = Files.createDirectories(tempDirectoryPath.resolve("my/lock/id"));
+        var inProgress = Files.createFile(lockFolder.resolve(Integer.toString("user1".hashCode(), 24) + ".lock"));
+
+        assertFalse(lock.tryLock("user1"));
+
+        assertTrue(Files.exists(inProgress));
+        assertFalse(lock.info().isLocked());
+    }
+
+    /**
+     * A lock file that cannot be written, as on a full disk, fails the lock at once with its cause instead of
+     * waiting for the timeout as if another user held it.
+     */
+    @Test
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Windows reports a file on the way of a folder as a missing folder")
+    void lockFileThatCannotBeWrittenFailsWithItsCause() throws IOException {
+        Files.writeString(tempDirectoryPath.resolve("my"), "a file in place of the lock folder");
+
+        var error = assertThrows(UncheckedIOException.class, () -> lock.tryLock("user1", 1, TimeUnit.MINUTES));
+
+        assertTrue(error.getMessage().startsWith("Cannot create a lock: "), error.getMessage());
+        assertInstanceOf(FileSystemException.class, error.getCause());
+        assertFalse(lock.info().isLocked());
     }
 }

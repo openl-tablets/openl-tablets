@@ -140,6 +140,30 @@ class LocalGitRepositoryTest {
         assertTrue(packDirectory.exists());
     }
 
+    /**
+     * Each save of a folder packs the repository into a new pack. The packs it replaces do not stay on disk, so the
+     * repository does not grow by a full copy of itself on every save.
+     */
+    @Test
+    void folderSavesKeepOnlyTheLatestPack() throws IOException {
+        for (var i = 1; i <= 3; i++) {
+            var folderData = new FileData();
+            folderData.setName("rules/project" + i);
+            folderData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
+            var changes = List.of(new FileItem("rules/project" + i + "/file1", IOUtils.toInputStream("Project " + i)));
+            repo.save(folderData, changes, ChangesetType.FULL);
+        }
+
+        File packDirectory;
+        try (var git = repo.getClosableGit()) {
+            packDirectory = ((ObjectDirectory) git.getRepository().getObjectDatabase()).getPackDirectory();
+        }
+        var packs = packDirectory.list((folder, name) -> name.endsWith(".pack"));
+        assertNotNull(packs);
+        assertEquals(1, packs.length);
+        assertEquals("Project 1", GitRepositoryTest.readText(repo.read("rules/project1/file1")));
+    }
+
     @Test
     void testBranches() throws IOException {
         var baseBranch = repo.getBranch();
