@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { App, Modal, Typography } from 'antd'
+import { App, Flex, Modal, Typography } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../../hooks'
@@ -201,12 +201,12 @@ export const MergeModal: React.FC = () => {
                 open={visible}
                 width={modalWidth}
                 title={
-                    <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
-                        <BranchesOutlined style={{ marginRight: 8, flexShrink: 0 }} />
+                    <Flex align="center" gap="small" style={{ minWidth: 0 }}>
+                        <BranchesOutlined style={{ flexShrink: 0 }} />
                         <Typography.Text ellipsis={{ tooltip: modalTitle }}>
                             {modalTitle}
                         </Typography.Text>
-                    </div>
+                    </Flex>
                 }
             >
                 {detail && step === 'branches' && (
