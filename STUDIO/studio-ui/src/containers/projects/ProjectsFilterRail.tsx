@@ -540,20 +540,20 @@ interface PickAllBoxProps {
  */
 const PickAllBox = ({ className, group: { id, title, param, picked, values }, onPick }: PickAllBoxProps) => {
     const { t } = useTranslation('repository')
-    const { controlInteractiveSize, openl } = useTheme()
-    // Ant Design derives its palettes from a colour, so the tokens take the colours of the palette in force.
+    const { controlInteractiveSize, colorTextQuaternary, colorTextSecondary, colorTextTertiary } = useTheme()
+    // The check box takes the greys of the text in force instead of the accent.
     const theme = useMemo<ThemeConfig>(() => ({
         components: {
             Checkbox: {
                 controlInteractiveSize: controlInteractiveSize - 4,
                 // The dash of a partly picked group is half as wide as this.
                 fontSizeLG: controlInteractiveSize - 4,
-                colorPrimary: openl.textTertiary,
-                colorPrimaryHover: openl.textSecondary,
-                colorBorder: openl.textQuaternary,
+                colorPrimary: colorTextTertiary,
+                colorPrimaryHover: colorTextSecondary,
+                colorBorder: colorTextQuaternary,
             },
         },
-    }), [controlInteractiveSize, openl])
+    }), [colorTextQuaternary, colorTextSecondary, colorTextTertiary, controlInteractiveSize])
     const pickedCount = values.filter(({ value }) => picked.has(value)).length
     const allPicked = pickedCount > 0 && pickedCount === values.length
     const label = t(allPicked ? 'home.filter_group.deselect_all' : 'home.filter_group.select_all', { name: title })

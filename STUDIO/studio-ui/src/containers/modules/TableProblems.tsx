@@ -6,7 +6,7 @@ import type { ProjectStatusDetailedMessage } from '../../services/projectStatus'
 import { booleanText, storedSetting } from '../../utils/localStore'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
-import { COMPILE_COLORS } from '../projects/projectsTheme'
+import { compileColorsOf } from '../projects/projectsTheme'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 /** Whether the section stands open, kept so a reader who folds it away keeps it folded. */
@@ -57,10 +57,10 @@ const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextSecondary};
     `,
     errorMark: css`
-        color: ${COMPILE_COLORS.errors};
+        color: ${compileColorsOf(token).errors};
     `,
     warningMark: css`
-        color: ${COMPILE_COLORS.warnings};
+        color: ${compileColorsOf(token).warnings};
     `,
     /** The notice on a table nothing here can write — the one the Editor put at the top of its Problems. */
     partial: css`

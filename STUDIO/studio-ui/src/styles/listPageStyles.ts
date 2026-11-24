@@ -1,5 +1,4 @@
 import { createStyles } from 'antd-style'
-import { LIST_PAGE_COLORS } from './listPageTheme'
 
 /** The smallest type the screens use; a caption never shrinks past it, whatever the density asks for. */
 const CAPTION_FLOOR = 10
@@ -17,7 +16,7 @@ export const captionSize = (fontSizeSM: number): number => Math.max(fontSizeSM -
 export const useListPageStyles = createStyles(({ css, token }) => ({
     /** Resets inherited legacy-page typography without requiring a theme provider around an embedded fragment. */
     listPageRoot: css`
-        color: ${LIST_PAGE_COLORS.text};
+        color: ${token.colorText};
         font-family: ${token.fontFamily};
         font-size: ${token.fontSize}px;
         line-height: ${token.lineHeight};
@@ -29,7 +28,7 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
      * stops at {@link CAPTION_FLOOR} rather than following the tokens all the way down to illegibility.
      */
     microLabel: css`
-        color: ${LIST_PAGE_COLORS.textTertiary};
+        color: ${token.colorTextTertiary};
         font-size: ${captionSize(token.fontSizeSM)}px;
         font-weight: 500;
         line-height: ${captionSize(token.fontSizeSM) + 5}px;
@@ -39,12 +38,12 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
     /** The band at the top of a screen, above its content. */
     header: css`
         padding: ${token.paddingSM}px ${token.padding}px;
-        border-bottom: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
-        background: ${LIST_PAGE_COLORS.containerBg};
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+        background: ${token.colorBgContainer};
     `,
     pageTitle: css`
         margin: 0;
-        color: ${LIST_PAGE_COLORS.text};
+        color: ${token.colorText};
         font-family: ${token.fontFamily};
         font-size: ${token.fontSizeXL}px;
         font-weight: 600;
@@ -53,7 +52,7 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
     `,
     subtitle: css`
         margin-top: ${token.marginXXS}px;
-        color: ${LIST_PAGE_COLORS.textTertiary};
+        color: ${token.colorTextTertiary};
         font-size: ${token.fontSizeSM}px;
     `,
     content: css`
@@ -64,9 +63,9 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
     stateBox: css`
         margin: ${token.marginLG}px;
         padding: ${token.paddingLG * 2}px;
-        border: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
+        border: 1px solid ${token.colorBorderSecondary};
         border-radius: ${token.borderRadiusLG}px;
-        background: ${LIST_PAGE_COLORS.containerBg};
+        background: ${token.colorBgContainer};
     `,
     loading: css`
         padding: ${token.paddingLG}px;
@@ -76,10 +75,10 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         border-collapse: separate;
         border-spacing: 0;
         margin: ${token.margin}px;
-        border: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
+        border: 1px solid ${token.colorBorderSecondary};
         border-radius: ${token.borderRadiusLG}px;
-        background: ${LIST_PAGE_COLORS.containerBg};
-        color: ${LIST_PAGE_COLORS.text};
+        background: ${token.colorBgContainer};
+        color: ${token.colorText};
         font-family: ${token.fontFamily};
         font-size: ${token.fontSize}px;
         /* Clips the rounded corners without making the table a box that scrolls: clipped as "hidden" does, the table
@@ -87,11 +86,11 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         overflow: clip;
     `,
     listHead: css`
-        background: ${LIST_PAGE_COLORS.containerBg};
+        background: ${token.colorBgContainer};
 
         th {
             padding: ${token.paddingXS}px ${token.paddingSM}px;
-            border-bottom: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
+            border-bottom: 1px solid ${token.colorBorderSecondary};
             text-align: left;
             white-space: nowrap;
         }
@@ -101,11 +100,11 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         }
     `,
     listRow: css`
-        background: ${LIST_PAGE_COLORS.containerBg};
+        background: ${token.colorBgContainer};
 
         td {
             padding: ${token.paddingSM}px;
-            border-bottom: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
+            border-bottom: 1px solid ${token.colorBorderSecondary};
             vertical-align: middle;
         }
 
@@ -114,7 +113,7 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         }
 
         &:hover td {
-            background: ${LIST_PAGE_COLORS.pageBg};
+            background: ${token.colorBgLayout};
         }
 
         &:last-of-type td {

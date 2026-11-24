@@ -2,13 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { theme as antdTheme } from 'antd'
 import { contrastRatio, opaque } from './colorMath'
 import { LIST_PAGE_COLORS, paletteVariables } from './listPageTheme'
-import { paletteFor } from '../testing/theme'
+import { paletteFor, tokenFor } from '../testing/theme'
 import { THEME_ORDER } from './themes'
 
 const VARIANTS = THEME_ORDER.flatMap(name => [false, true].map(isDarkMode => ({
     name,
     appearance: isDarkMode ? 'dark' : 'light',
     palette: paletteFor(name, isDarkMode),
+    token: tokenFor(name, isDarkMode),
 })))
 
 /** The contrast of a colour, translucent or not, against the surface it is drawn on. */
@@ -19,43 +20,46 @@ describe('listPageTheme', () => {
         const light = antdTheme.getDesignToken()
         const dark = antdTheme.getDesignToken({ algorithm: antdTheme.darkAlgorithm })
 
-        expect(paletteFor('standard', false)).toMatchObject({
-            primary: '#1677ff',
-            pageBg: light.colorBgLayout,
-            containerBg: light.colorBgContainer,
-            text: light.colorText,
-            border: light.colorBorder,
+        expect(tokenFor('standard', false)).toMatchObject({
+            colorPrimary: '#1677ff',
+            colorBgLayout: light.colorBgLayout,
+            colorBgContainer: light.colorBgContainer,
+            colorText: light.colorText,
+            colorBorder: light.colorBorder,
         })
-        expect(paletteFor('standard', true)).toMatchObject({
-            primary: dark.colorPrimary,
-            pageBg: dark.colorBgLayout,
-            containerBg: dark.colorBgContainer,
-            text: dark.colorText,
-            border: dark.colorBorder,
+        expect(tokenFor('standard', true)).toMatchObject({
+            colorPrimary: dark.colorPrimary,
+            colorBgLayout: dark.colorBgLayout,
+            colorBgContainer: dark.colorBgContainer,
+            colorText: dark.colorText,
+            colorBorder: dark.colorBorder,
         })
+        // The brand is the primary one step towards the text: the shade Ant Design presses a primary in.
+        expect(paletteFor('standard', false).brand).toBe(light.colorPrimaryActive)
+        expect(paletteFor('standard', true).brand).toBe(dark.colorPrimaryHover)
     })
 
     it('lays the containers of a theme drawn from a code editor on the background of the editor', () => {
-        expect(paletteFor('dracula', true).containerBg).toBe('#282a36')
-        expect(paletteFor('dracula', false).containerBg).toBe('#fffbeb')
-        expect(paletteFor('solarized', false).pageBg).not.toBe(paletteFor('solarized', false).containerBg)
+        expect(tokenFor('dracula', true).colorBgContainer).toBe('#282a36')
+        expect(tokenFor('dracula', false).colorBgContainer).toBe('#fffbeb')
+        expect(tokenFor('solarized', false).colorBgLayout).not.toBe(tokenFor('solarized', false).colorBgContainer)
     })
 
     it('reads the palette of the theme and the appearance asked for', () => {
-        expect(paletteFor('nord', true).primary).not.toBe(paletteFor('nord', false).primary)
-        expect(paletteFor('nord', true).primary).not.toBe(paletteFor('standard', true).primary)
+        expect(paletteFor('nord', true).brand).not.toBe(paletteFor('nord', false).brand)
+        expect(paletteFor('nord', true).brand).not.toBe(paletteFor('standard', true).brand)
     })
 
-    it.each(VARIANTS)('keeps the text of $name $appearance readable on every surface', ({ palette }) => {
-        [palette.containerBg, palette.pageBg].forEach(surface => {
-            expect(contrastOn(palette.text, surface)).toBeGreaterThanOrEqual(4.5)
+    it.each(VARIANTS)('keeps the text of $name $appearance readable on every surface', ({ token }) => {
+        [token.colorBgContainer, token.colorBgLayout].forEach(surface => {
+            expect(contrastOn(token.colorText, surface)).toBeGreaterThanOrEqual(4.5)
         })
-        expect(contrastOn(palette.textSecondary, palette.containerBg)).toBeGreaterThanOrEqual(3)
+        expect(contrastOn(token.colorTextSecondary, token.colorBgContainer)).toBeGreaterThanOrEqual(3)
     })
 
-    it.each(VARIANTS)('keeps the links and the primary buttons of $name $appearance legible', ({ palette }) => {
-        expect(contrastRatio(palette.primary, palette.containerBg)).toBeGreaterThanOrEqual(3)
-        expect(contrastRatio(palette.primaryFg, palette.primary)).toBeGreaterThanOrEqual(3)
+    it.each(VARIANTS)('keeps the links and the primary buttons of $name $appearance legible', ({ token }) => {
+        expect(contrastRatio(token.colorPrimary, token.colorBgContainer)).toBeGreaterThanOrEqual(3)
+        expect(contrastRatio(token.colorTextLightSolid, token.colorPrimary)).toBeGreaterThanOrEqual(3)
     })
 
     it.each(VARIANTS)('fills the solid badges of $name $appearance deep enough for white text', ({ palette }) => {
@@ -80,20 +84,22 @@ describe('listPageTheme', () => {
         // Dracula writes numbers in its plain text colour, and so does the value.
         expect(paletteFor('dracula', true).syntaxNumber).toBe('#f8f8f2')
         // So does CodeMirror's own light theme a property name, whose plain text is the text of the page.
-        expect(paletteFor('standard', false).syntaxName).toBe(paletteFor('standard', false).text)
+        expect(paletteFor('standard', false).syntaxName).toBe(tokenFor('standard', false).colorText)
     })
 
     it('hands styles a custom property rather than a fixed colour', () => {
-        expect(LIST_PAGE_COLORS.primary).toBe('var(--openl-primary)')
-        expect(LIST_PAGE_COLORS.textSecondary).toBe('var(--openl-text-secondary)')
+        expect(LIST_PAGE_COLORS.brand).toBe('var(--openl-brand)')
+        expect(LIST_PAGE_COLORS.secondaryBg).toBe('var(--openl-secondary-bg)')
     })
 
     it('publishes the palette of the appearance it is given', () => {
         const dark = paletteFor('standard', true)
         const light = paletteFor('standard', false)
 
-        expect(paletteVariables(dark)).toContain(`--openl-primary: ${dark.primary};`)
-        expect(paletteVariables(dark)).toContain(`--openl-page-bg: ${dark.pageBg};`)
-        expect(paletteVariables(light)).toContain(`--openl-page-bg: ${light.pageBg};`)
+        expect(paletteVariables(dark)).toContain(`--openl-brand: ${dark.brand};`)
+        expect(paletteVariables(dark)).toContain(`--openl-secondary-bg: ${dark.secondaryBg};`)
+        expect(paletteVariables(light)).toContain(`--openl-secondary-bg: ${light.secondaryBg};`)
+        // A colour Ant Design has a token for is not published again.
+        expect(paletteVariables(light)).not.toContain('--openl-page-bg')
     })
 })

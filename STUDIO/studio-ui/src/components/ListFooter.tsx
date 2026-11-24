@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { Pagination } from 'antd'
 import { createStyles } from 'antd-style'
 import { PAGE_SIZE_OPTIONS } from '../constants/ui'
-import { LIST_PAGE_COLORS } from '../styles/listPageTheme'
 
 const useStyles = createStyles(({ css, token }) => ({
     footer: css`
@@ -15,9 +14,9 @@ const useStyles = createStyles(({ css, token }) => ({
         box-sizing: border-box;
         min-height: ${token.controlHeight + token.paddingXS * 2 + 1}px;
         padding: ${token.paddingXS}px ${token.padding}px;
-        border-top: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
-        background: ${LIST_PAGE_COLORS.containerBg};
-        color: ${LIST_PAGE_COLORS.textTertiary};
+        border-top: 1px solid ${token.colorBorderSecondary};
+        background: ${token.colorBgContainer};
+        color: ${token.colorTextTertiary};
         font-size: ${token.fontSizeSM}px;
     `,
 }))

@@ -4,7 +4,7 @@ import { theme as antdTheme } from 'antd'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ProjectsThemeProvider } from './ProjectsThemeProvider'
 import { AppThemeProvider } from '../../providers/AppThemeProvider'
-import { paletteFor } from '../../testing/theme'
+import { tokenFor } from '../../testing/theme'
 import { THEME_COMPACT_KEY, THEME_MODE_KEY, THEME_NAME_KEY } from '../../utils/themeMode'
 
 // A co-located style, the way every Projects component writes one — it must see the scoped token.
@@ -46,7 +46,7 @@ describe('ProjectsThemeProvider', () => {
     it('hands co-located styles the scoped token, in the colours of the application', () => {
         renderScoped()
 
-        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', false).pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(tokenFor('standard', false).colorBgLayout)
     })
 
     it('turns dark with the rest of the application', () => {
@@ -54,7 +54,7 @@ describe('ProjectsThemeProvider', () => {
 
         renderScoped()
 
-        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', true).pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(tokenFor('standard', true).colorBgLayout)
     })
 
     it('wears the theme picked for the application', () => {
@@ -63,7 +63,7 @@ describe('ProjectsThemeProvider', () => {
 
         renderScoped()
 
-        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('gruvbox', true).pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(tokenFor('gruvbox', true).colorBgLayout)
     })
 
     it('stays dark at the compact density, because a density is added to the appearance and not put in its place', () => {
@@ -74,7 +74,7 @@ describe('ProjectsThemeProvider', () => {
         renderScoped()
 
         expect(screen.getByTestId('elevated').textContent).toBe(dark.colorBgElevated)
-        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', true).pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(tokenFor('standard', true).colorBgLayout)
         expect(Number(screen.getByTestId('padding').textContent)).toBeLessThan(dark.padding)
     })
 
@@ -87,6 +87,6 @@ describe('ProjectsThemeProvider', () => {
         renderScoped()
 
         expect(Number(screen.getByTestId('padding').textContent)).toBeLessThan(comfortable)
-        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', false).pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(tokenFor('standard', false).colorBgLayout)
     })
 })

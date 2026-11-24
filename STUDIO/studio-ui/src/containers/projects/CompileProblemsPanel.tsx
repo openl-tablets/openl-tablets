@@ -16,7 +16,7 @@ import { booleanText, storedSetting } from '../../utils/localStore'
 import { localizationRoute, moduleRoute, projectFileRoute, untranslatedRoute } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
-import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
+import { compileColorsOf } from './projectsTheme'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 
@@ -36,7 +36,7 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
         border-top: 1px solid ${token.colorBorderSecondary};
-        background: ${MOCKUP.pageBg};
+        background: ${token.colorBgLayout};
     `,
     /** The whole header folds the panel; the counts stay in view either way. */
     header: css`
@@ -60,10 +60,10 @@ const useStyles = createStyles(({ css, token }) => ({
         font-weight: 600;
     `,
     errorIcon: css`
-        color: ${COMPILE_COLORS.errors};
+        color: ${compileColorsOf(token).errors};
     `,
     warningIcon: css`
-        color: ${COMPILE_COLORS.warnings};
+        color: ${compileColorsOf(token).warnings};
     `,
     toggle: css`
         margin-left: auto;

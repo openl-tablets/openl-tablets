@@ -1,5 +1,4 @@
 import { createStyles } from 'antd-style'
-import { LIST_PAGE_COLORS } from './listPageTheme'
 
 /**
  * The centred card the application shows when there is no shell around it — the login page, the
@@ -16,7 +15,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(135deg, ${LIST_PAGE_COLORS.pageBg} 0%, ${LIST_PAGE_COLORS.accent} 100%);
+        background: linear-gradient(135deg, ${token.colorBgLayout} 0%, ${token.colorPrimaryBg} 100%);
     `,
     card: css`
         background: ${token.colorBgContainer};

@@ -18,7 +18,6 @@ import { iconFor } from './fileIcons'
 import type { Repository } from '../../types/repositories'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import { useSharedStyles } from './sharedStyles'
-import { MOCKUP } from './projectsTheme'
 import { RepoIcon } from './RepoBadge'
 import { BranchMarks } from './BranchMarks'
 import { TagTypeMark } from '../tags/tagColor'
@@ -380,7 +379,7 @@ const useStyles = createStyles(({ css, token }) => ({
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        box-shadow: 0 0 0 1px ${MOCKUP.pageBg};
+        box-shadow: 0 0 0 1px ${token.colorBgLayout};
     `,
     addedDot: css`
         background: ${token.colorSuccess};
@@ -419,15 +418,15 @@ const useStyles = createStyles(({ css, token }) => ({
         /* Over the padding of the body, up to the edge of the rail: a name running under the size never shows past it. */
         right: -${BODY_SIDE_PADDING}px;
         padding: 0 ${BODY_SIDE_PADDING}px 0 ${token.paddingXS}px;
-        background: ${MOCKUP.pageBg};
+        background: ${token.colorBgLayout};
         color: ${token.colorTextTertiary};
 
         .ant-tree-node-content-wrapper:hover & {
-            background: linear-gradient(${token.controlItemBgHover}, ${token.controlItemBgHover}), ${MOCKUP.pageBg};
+            background: linear-gradient(${token.controlItemBgHover}, ${token.controlItemBgHover}), ${token.colorBgLayout};
         }
 
         .ant-tree-node-selected & {
-            background: linear-gradient(${token.controlItemBgActive}, ${token.controlItemBgActive}), ${MOCKUP.pageBg};
+            background: linear-gradient(${token.controlItemBgActive}, ${token.controlItemBgActive}), ${token.colorBgLayout};
         }
         font-size: ${token.fontSizeSM}px;
     `,

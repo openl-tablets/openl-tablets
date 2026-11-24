@@ -12,7 +12,7 @@ import { json } from '@codemirror/lang-json'
 import { yaml } from '@codemirror/lang-yaml'
 import { lintGutter, setDiagnostics, type Diagnostic } from '@codemirror/lint'
 import { createStyles, useThemeMode } from 'antd-style'
-import { MOCKUP } from './projectsTheme'
+import { FONT_MONO } from './projectsTheme'
 import { useAppTheme } from '../../providers/AppThemeProvider'
 import { editorTheme } from '../../styles/codeMirrorThemes'
 import { groovyLanguage, javaLanguage, propertiesLanguage } from '../../utils/codeHighlight'
@@ -23,7 +23,7 @@ const useStyles = createStyles(({ css, token }) => ({
 
         .cm-editor {
             height: 100%;
-            font-family: ${MOCKUP.fontMono};
+            font-family: ${FONT_MONO};
             font-size: 13px;
         }
 
@@ -32,7 +32,7 @@ const useStyles = createStyles(({ css, token }) => ({
         }
 
         .cm-scroller {
-            font-family: ${MOCKUP.fontMono};
+            font-family: ${FONT_MONO};
         }
     `,
     /** The surfaces of the page, laid over CodeMirror's own light theme and One Dark for the standard theme. */

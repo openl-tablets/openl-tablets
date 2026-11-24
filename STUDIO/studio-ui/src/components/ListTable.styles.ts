@@ -1,5 +1,4 @@
 import { createStyles } from 'antd-style'
-import { LIST_PAGE_COLORS } from 'styles/listPageTheme'
 
 /** How wide a name of a transposed list grows before it wraps, in the size of its own letters. */
 const LINE_NAME_WIDTH = '24em'
@@ -20,7 +19,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             position: sticky;
             top: 0;
             z-index: 1;
-            background: ${LIST_PAGE_COLORS.containerBg};
+            background: ${token.colorBgContainer};
         }
     `,
     /**
@@ -32,8 +31,8 @@ export const useStyles = createStyles(({ css, token }) => ({
         left: 0;
         z-index: 1;
         padding: ${token.paddingSM}px ${token.paddingSM}px ${token.paddingSM}px ${token.padding}px;
-        border-bottom: 1px solid ${LIST_PAGE_COLORS.borderSecondary};
-        background: ${LIST_PAGE_COLORS.containerBg};
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+        background: ${token.colorBgContainer};
         text-align: left;
         vertical-align: middle;
 
@@ -81,16 +80,16 @@ export const useStyles = createStyles(({ css, token }) => ({
     /** A list that is only read gets no pointer tint: nothing happens when a row is clicked. */
     noHover: css`
         &:hover td {
-            background: ${LIST_PAGE_COLORS.containerBg};
+            background: ${token.colorBgContainer};
         }
     `,
     selectedRow: css`
         td {
-            background: ${LIST_PAGE_COLORS.accent};
+            background: ${token.colorPrimaryBg};
         }
 
         &:hover td {
-            background: ${LIST_PAGE_COLORS.accent};
+            background: ${token.colorPrimaryBg};
         }
     `,
 }))
