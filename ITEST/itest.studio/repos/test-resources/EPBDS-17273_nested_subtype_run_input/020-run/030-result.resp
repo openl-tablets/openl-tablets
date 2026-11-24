@@ -1,0 +1,38 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "checkHolder",
+  "tableId": "***",
+  "executionTimeMs": "##.##",
+  "result": "ok",
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  },
+  "parameters": [
+    {
+      "name": "h",
+      "description": "h",
+      "value": {
+        "base": {
+          "@class": "Base"
+        }
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "object",
+            "properties": {
+              "field1": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableId": "***",
+  "name": "checkHolder",
+  "parameters": [
+    {
+      "name": "h",
+      "description": "Holder",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "object",
+            "properties": {
+              "field1": {
+                "type": "string"
+              },
+              "@class": {
+                "const": "Base"
+              }
+            },
+            "required": [
+              "@class"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

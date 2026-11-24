@@ -264,6 +264,38 @@ describe('SchemaForm', () => {
         expect(screen.getByTestId('create-policy.owner')).toBeInTheDocument()
     })
 
+    it('creates a nested datatype with the type it is read by, and does not show the type', async () => {
+        // A datatype with a parent or children is read by its type property, which its schema gives one value.
+        const holder: SchemaFormParameter = {
+            name: 'h',
+            type: 'Holder',
+            schema: {
+                type: 'object',
+                properties: { base: { $ref: '#/$defs/Base' } },
+                $defs: {
+                    Base: {
+                        type: 'object',
+                        properties: { code: { type: 'string' }, '@class': { const: 'Base' } },
+                        required: ['@class'],
+                    },
+                },
+            },
+        }
+        const onChange = vi.fn()
+        render(<Harness onChange={onChange} parameters={[holder]} />)
+
+        await open('h')
+        await userEvent.click(screen.getByTestId('create-h.base'))
+        expect(onChange).toHaveBeenLastCalledWith({ h: { base: { '@class': 'Base' } } })
+        expect(screen.getByTestId('value-h.base')).toHaveTextContent('{0 fields}')
+        expect(screen.getByTestId('value-h.base.code')).toHaveTextContent('null')
+        expect(screen.queryByTestId('value-h.base.@class')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('edit-h.base.code'))
+        await userEvent.type(screen.getByTestId('input-h.base.code'), 'B-1{enter}')
+        expect(onChange).toHaveBeenLastCalledWith({ h: { base: { '@class': 'Base', code: 'B-1' } } })
+    })
+
     it('grows a list with null slots, initialises an element on request and removes one', async () => {
         const onChange = vi.fn()
         render(<Harness onChange={onChange} parameters={[policy]} />)
