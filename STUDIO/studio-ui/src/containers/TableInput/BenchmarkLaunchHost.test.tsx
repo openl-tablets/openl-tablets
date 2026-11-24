@@ -53,8 +53,8 @@ describe('BenchmarkLaunchHost', () => {
         casesRead.mockResolvedValue({
             total: 2,
             content: [
-                { id: '1', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }]},
-                { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }]},
+                { id: '1', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }] },
+                { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }] },
             ],
         })
         localStorage.clear()

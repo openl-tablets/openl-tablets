@@ -169,12 +169,12 @@ const resolvedForm = () => mockApiCall.mock.calls
     .find(call => call[0] === '/projects/proj-1/merge/conflicts/resolve')![1]!.body as FormData
 
 const conflictGroups: ConflictGroup[] = [
-    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx']},
+    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx'] },
 ]
 
 const multiFileGroups: ConflictGroup[] = [
-    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx', 'rules/Helper.xlsx']},
-    { projectName: 'Project B', projectPath: 'projectB', files: ['config/Settings.xml']},
+    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx', 'rules/Helper.xlsx'] },
+    { projectName: 'Project B', projectPath: 'projectB', files: ['config/Settings.xml'] },
 ]
 
 const conflictDetails: ConflictDetails = {
@@ -652,12 +652,12 @@ describe('ConflictResolutionStep', () => {
         const MESSAGES = 'projectA/i18n/message.properties'
         const textDetails = (availability = { ours: true, theirs: true, base: true, text: true }): ConflictDetails => ({
             ...conflictDetails,
-            conflictGroups: [{ projectName: 'Project A', projectPath: 'projectA', files: [MESSAGES]}],
+            conflictGroups: [{ projectName: 'Project A', projectPath: 'projectA', files: [MESSAGES] }],
             fileAvailability: { [MESSAGES]: availability },
         })
         const textProps = () => ({
             ...defaultProps(),
-            conflictGroups: [{ projectName: 'Project A', projectPath: 'projectA', files: [MESSAGES]}],
+            conflictGroups: [{ projectName: 'Project A', projectPath: 'projectA', files: [MESSAGES] }],
         })
 
         /** Picks merging the file line by line and applies what the editor merged. */

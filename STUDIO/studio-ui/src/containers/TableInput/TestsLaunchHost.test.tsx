@@ -112,7 +112,9 @@ describe('TestsLaunchHost', () => {
         // What an earlier run reported must not be taken for the end of this one.
         expect(reset).toHaveBeenCalled()
         expect(currentExecution()).toEqual(expect.objectContaining({
-            kind: 'tests', projectId: 'real-p1', tableId: 't1',
+            kind: 'tests',
+            projectId: 'real-p1',
+            tableId: 't1',
         }))
     })
 
@@ -127,7 +129,9 @@ describe('TestsLaunchHost', () => {
         expect(window.open).toHaveBeenCalledWith('', 'execution_results', expect.any(String))
         expect(vi.mocked(window.open).mock.invocationCallOrder[0]).toBeLessThan(tests.mock.invocationCallOrder[0]!)
         await waitFor(() => expect(currentExecution()).toEqual(expect.objectContaining({
-            kind: 'tests', projectId: 'real-p1', tableId: 't1',
+            kind: 'tests',
+            projectId: 'real-p1',
+            tableId: 't1',
         })))
         await waitFor(() => expect(screen.queryByTestId('tests-start')).toBeNull())
     })

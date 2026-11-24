@@ -47,7 +47,10 @@ describe('launchTrace', () => {
         await launchTrace({ ...request, inputJson: '{}', fromModule: 'Main' })
 
         expect(startTrace).toHaveBeenCalledWith('p1', {
-            tableId: 't1', inputJson: '{}', fromModule: 'Main', stopAtEntry: true,
+            tableId: 't1',
+            inputJson: '{}',
+            fromModule: 'Main',
+            stopAtEntry: true,
         })
         expect(openSpy).toHaveBeenCalledTimes(1)
         const url = String(openSpy.mock.calls[0][0])

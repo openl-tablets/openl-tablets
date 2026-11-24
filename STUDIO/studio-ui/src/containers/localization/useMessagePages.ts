@@ -31,7 +31,11 @@ export interface MessagePages {
  */
 export const useMessagePages = (projectId: string, query: MessageQuery, token: number, enabled: boolean): MessagePages => {
     const [state, setState] = useState<Omit<MessagePages, 'loadMore'>>({
-        languages: null, rows: [], total: 0, loading: false, failure: null,
+        languages: null,
+        rows: [],
+        total: 0,
+        loading: false,
+        failure: null,
     })
     // Bumped by every new read from the first page, so a page of an older one is dropped when it comes.
     const generation = useRef(0)
@@ -98,7 +102,10 @@ export interface MessageKeyPage {
 /** Reads one key of the messages, again whenever the token is bumped. */
 export const useMessageKey = (projectId: string, key: string | null, token: number, enabled: boolean): MessageKeyPage => {
     const [state, setState] = useState<MessageKeyPage & { of: string | null }>({
-        of: null, languages: null, row: undefined, failure: null,
+        of: null,
+        languages: null,
+        row: undefined,
+        failure: null,
     })
     useEffect(() => {
         if (!enabled || key === null) {

@@ -34,7 +34,14 @@ interface TableInputPopoverProps {
  * rectangle. An outside click closes it, as the legacy drop-downs did.
  */
 export const TableInputPopover: React.FC<TableInputPopoverProps> = ({
-    open, anchor, width, busy, collecting, onClose, footer, children,
+    open,
+    anchor,
+    width,
+    busy,
+    collecting,
+    onClose,
+    footer,
+    children,
 }) => (
     <Popover
         destroyOnHidden

@@ -178,7 +178,17 @@ vi.mock('antd', async () => {
     const notification = { error: vi.fn(), info: vi.fn() }
     const { withStaticApp } = await import('testing/staticAntdApp')
     return withStaticApp({
-        Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip
+        Alert,
+        Button,
+        Dropdown,
+        Input,
+        Modal,
+        notification,
+        Popconfirm,
+        Skeleton,
+        Space,
+        Tag,
+        Tooltip
     })
 })
 
@@ -270,7 +280,7 @@ describe('FilePreviewPane', () => {
                 id: 2,
                 summary: 'Full-width comma',
                 severity: 'WARN',
-                location: { ...location, line: 2, places: [{ line: 2, column: 4, endLine: 2, endColumn: 5 }]},
+                location: { ...location, line: 2, places: [{ line: 2, column: 4, endLine: 2, endColumn: 5 }] },
             },
         ])
         render(<FilePreviewPane {...baseProps} path="i18n/message_fr.properties" reloadToken={0} />)
@@ -304,12 +314,18 @@ describe('FilePreviewPane', () => {
                 path="rules/Rating/rate.md"
                 compileStatus={compiled('errors', ['Rating'], [
                     error(1, "'license' is not a key of the front matter",
-                        { type: 'module', name: 'Rating', path: 'rules/Rating/rate.md', line: 4, places: [place]}),
+                        { type: 'module', name: 'Rating', path: 'rules/Rating/rate.md', line: 4, places: [place] }),
                     error(2, 'The row has more cells than the first row of the table',
-                        { type: 'table', id: 't1', cell: 'B3', path: 'rules/Rating/rate.md', line: 9,
-                            places: [cellPlace]}),
+                        {
+                            type: 'table',
+                            id: 't1',
+                            cell: 'B3',
+                            path: 'rules/Rating/rate.md',
+                            line: 9,
+                            places: [cellPlace]
+                        }),
                     error(3, 'Another file',
-                        { type: 'module', name: 'Rating', path: 'rules/Rating/other.md', line: 1, places: [place]}),
+                        { type: 'module', name: 'Rating', path: 'rules/Rating/other.md', line: 1, places: [place] }),
                 ])}
             />
         )
@@ -545,11 +561,17 @@ describe('FilePreviewPane', () => {
     it('opens in the editor the table a Markdown file of a module folder holds', async () => {
         vi.mocked(searchTables).mockResolvedValue([
             {
-                file: 'Project/rules/Rating/Factors/baseRate.md', id: 't1', kind: 'Rules', name: 'baseRate',
+                file: 'Project/rules/Rating/Factors/baseRate.md',
+                id: 't1',
+                kind: 'Rules',
+                name: 'baseRate',
                 tableType: 'SmartRules',
             },
             {
-                file: 'Project/rules/Rating/Factors/rate.md', id: 't2', kind: 'Rules', name: 'rate',
+                file: 'Project/rules/Rating/Factors/rate.md',
+                id: 't2',
+                kind: 'Rules',
+                name: 'rate',
                 tableType: 'SmartRules',
             },
         ])

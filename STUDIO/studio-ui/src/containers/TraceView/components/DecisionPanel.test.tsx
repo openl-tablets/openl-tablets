@@ -76,7 +76,7 @@ describe('DecisionPanel', () => {
     })
 
     it('reports when no rule fired', () => {
-        render(<DecisionPanel decision={{ firedRules: [], conditions: []}} frameName="DT" frameUri="dt/uri" />)
+        render(<DecisionPanel decision={{ firedRules: [], conditions: [] }} frameName="DT" frameUri="dt/uri" />)
         expect(screen.getByText('decision.noneFired')).toBeInTheDocument()
     })
 

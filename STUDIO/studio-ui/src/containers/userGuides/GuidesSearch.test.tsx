@@ -14,8 +14,8 @@ vi.mock('react-i18next', () => {
 vi.mock('./guideSearchClient', () => ({ startGuideSearch: vi.fn() }))
 
 const editor: GuideEntry = { title: 'Using Rules Editor', file: 'openl-studio/rules-editor.md' }
-const studio: GuideEntry = { title: 'OpenL Studio User Guide', file: 'openl-studio/index.md', children: [editor]}
-const CONTENTS: GuideEntry = { title: 'User Guides', file: 'index.md', children: [studio]}
+const studio: GuideEntry = { title: 'OpenL Studio User Guide', file: 'openl-studio/index.md', children: [editor] }
+const CONTENTS: GuideEntry = { title: 'User Guides', file: 'index.md', children: [studio] }
 
 const RESULT: GuideSearchResult = {
     file: 'openl-studio/rules-editor.md',
@@ -125,7 +125,7 @@ describe('GuidesSearch', () => {
 describe('scopesOf', () => {
     it('offers every folder above a page, the outermost first', () => {
         const appendix: GuideEntry = { title: 'Error Pages', file: 'openl-studio/appendices/error-pages.md' }
-        const appendices: GuideEntry = { title: 'Appendices', children: [appendix]}
+        const appendices: GuideEntry = { title: 'Appendices', children: [appendix] }
 
         expect(scopesOf([CONTENTS, studio, appendices, appendix], appendix.file)).toEqual([
             { value: 'openl-studio/', label: 'OpenL Studio User Guide' },

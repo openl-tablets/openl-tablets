@@ -79,7 +79,7 @@ describe('buildTableRegions', () => {
     })
 
     it('lays out a lookup of one argument as a rules table that opens with a rule', () => {
-        const { regions } = built('smartLookup', { arguments: [{ type: 'Integer', name: 'age' }]})
+        const { regions } = built('smartLookup', { arguments: [{ type: 'Integer', name: 'age' }] })
 
         expect(roleAt(regions, 1, 0)).toBe('value')
         expect(roleAt(regions, 1, 1)).toBe('output')
@@ -96,8 +96,10 @@ describe('buildTableRegions', () => {
 
     it('gives each row of the horizontal values of a lookup a region of its own', () => {
         const { regions } = built('simpleLookup', { arguments: [
-            { type: 'String', name: 'plan' }, { type: 'String', name: 'term' },
-            { type: 'String', name: 'size' }, { type: 'String', name: 'region' },
+            { type: 'String', name: 'plan' },
+            { type: 'String', name: 'term' },
+            { type: 'String', name: 'size' },
+            { type: 'String', name: 'region' },
         ]})
 
         const titles = regions.filter(region => region.role === 'outputTitle')

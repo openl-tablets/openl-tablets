@@ -40,7 +40,7 @@ const groupByRule = (decision: DecisionView): RuleGroup[] => {
     decision.conditions.forEach(({ condition, rule, matched }) => {
         let group = byRule.get(rule)
         if (!group) {
-            group = { rule, conditions: []}
+            group = { rule, conditions: [] }
             byRule.set(rule, group)
             order.push(group)
         }

@@ -19,7 +19,7 @@ describe('ProjectFolderPicker', () => {
         expect(screen.getByTestId('folder-picker-dialog')).toBeInTheDocument()
         expect(dialogProps.mock.calls[0]![0].treeData).toEqual([
             { key: 'deploy', title: 'deploy' },
-            { key: 'rules', title: 'rules', children: [{ key: 'rules/nested', title: 'nested' }]},
+            { key: 'rules', title: 'rules', children: [{ key: 'rules/nested', title: 'nested' }] },
         ])
     })
 })

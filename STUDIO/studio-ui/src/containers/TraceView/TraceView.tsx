@@ -137,8 +137,18 @@ const TraceView: React.FC = () => {
             }
         }
         return () => reset()
-    }, [projectId, tableId, fromModule, testRanges, advancedLaunch,
-        setRouteParams, loadBreakpoints, start, simpleRun, reset])
+    }, [
+        projectId,
+        tableId,
+        fromModule,
+        testRanges,
+        advancedLaunch,
+        setRouteParams,
+        loadBreakpoints,
+        start,
+        simpleRun,
+        reset
+    ])
 
     const handlePointerDown = useCallback((e: React.PointerEvent) => {
         e.preventDefault()

@@ -76,8 +76,16 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         isAuditLogEnabled,
         openlInfo,
         appVersion,
-    }), [systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled,
-        isPersonalAccessTokenEnabled, isAuditLogEnabled, openlInfo, appVersion])
+    }), [
+        systemSettings,
+        isExternalAuthSystem,
+        isUserManagementEnabled,
+        isGroupsManagementEnabled,
+        isPersonalAccessTokenEnabled,
+        isAuditLogEnabled,
+        openlInfo,
+        appVersion
+    ])
 
     const permission = useMemo(() => ({ hasAdminPermission }), [hasAdminPermission])
 

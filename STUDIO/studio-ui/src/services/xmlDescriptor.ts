@@ -148,10 +148,10 @@ interface ObjectsField<V> extends FieldMarks {
 type XmlFieldOf<V> =
     [V] extends [boolean] ? FlagField
         : [V] extends [string] ? TextField | ChoiceField<V> | XmlField
-            : [V] extends [readonly string[]] ? ListField | RestField
-                : [V] extends [readonly (infer I)[]] ? ObjectsField<I>
-                    : [V] extends [object] ? ObjectField<V>
-                        : never
+        : [V] extends [readonly string[]] ? ListField | RestField
+        : [V] extends [readonly (infer I)[]] ? ObjectsField<I>
+        : [V] extends [object] ? ObjectField<V>
+        : never
 
 /** How every field of a model is kept in its element, in the order the elements are written. */
 type XmlFields<T> = {

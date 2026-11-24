@@ -35,14 +35,14 @@ describe('parseRulesDescriptor', () => {
         expect(descriptor.description).toBe('A pricing ruleset')
         expect(descriptor.versionPatterns).toEqual(['%lob%-%state%', 'Tests-*'])
         expect(descriptor.propertiesFileNameProcessor).toBe('com.acme.Processor')
-        expect(descriptor.exposedMethods).toEqual({ includes: ['SayHello'], excludes: ['secret*']})
+        expect(descriptor.exposedMethods).toEqual({ includes: ['SayHello'], excludes: ['secret*'] })
         expect(descriptor.openapi).toEqual({ path: 'openapi.json', mode: 'GENERATION', modelModuleName: 'Model', algorithmModuleName: 'Algo' })
         // Each declared module carries its own method filter.
         expect(descriptor.moduleDeclarations).toEqual([
             {
                 name: '',
                 path: 'rules/*.xlsx',
-                methodFilter: { includes: ['calc*', 'rate*'], excludes: ['debug*']},
+                methodFilter: { includes: ['calc*', 'rate*'], excludes: ['debug*'] },
                 preserved: [],
             },
         ])
@@ -87,7 +87,7 @@ describe('parseRulesDescriptor', () => {
                 webstudioConfiguration: { compileThisModuleOnly: true },
                 preserved: [],
             },
-            { name: 'Main', path: 'rules/Main.xlsx', preserved: []},
+            { name: 'Main', path: 'rules/Main.xlsx', preserved: [] },
         ])
     })
 
@@ -152,7 +152,7 @@ describe('serializeRulesDescriptor', () => {
             versionPatterns: ['%lob%-%state%', 'Tests-*'],
             sources: ['groovy/', 'lib/*.jar'],
             dependencies: [{ name: 'Common', autoIncluded: true }],
-            exposedMethods: { includes: ['calc*'], excludes: ['debug*']},
+            exposedMethods: { includes: ['calc*'], excludes: ['debug*'] },
         })
 
         // Managed elements reflect the edit.
@@ -178,7 +178,7 @@ describe('serializeRulesDescriptor', () => {
         expect(reparsed.versionPatterns).toEqual(['%lob%-%state%', 'Tests-*'])
         expect(reparsed.sources).toEqual(['groovy/', 'lib/*.jar'])
         expect(reparsed.dependencies).toEqual([{ name: 'Common', autoIncluded: true, mavenArtifact: '' }])
-        expect(reparsed.exposedMethods).toEqual({ includes: ['calc*'], excludes: ['debug*']})
+        expect(reparsed.exposedMethods).toEqual({ includes: ['calc*'], excludes: ['debug*'] })
     })
 
     it('rewrites the declared modules and keeps each module method filter', () => {
@@ -186,7 +186,7 @@ describe('serializeRulesDescriptor', () => {
             ...EMPTY_RULES_DESCRIPTOR,
             moduleDeclarations: [
                 { name: 'Main', path: 'rules/Main.xlsx' },
-                { name: 'Rules', path: 'rules/**/*.xlsx', methodFilter: { includes: ['calc*'], excludes: []} },
+                { name: 'Rules', path: 'rules/**/*.xlsx', methodFilter: { includes: ['calc*'], excludes: [] } },
                 // A row the user added, ticked and left empty names no module, so it is not written.
                 { name: '', path: '', webstudioConfiguration: { compileThisModuleOnly: true } },
             ],
@@ -200,11 +200,11 @@ describe('serializeRulesDescriptor', () => {
 
         const reparsed = parseRulesDescriptor(out)
         expect(reparsed.moduleDeclarations).toEqual([
-            { name: 'Main', path: 'rules/Main.xlsx', preserved: []},
+            { name: 'Main', path: 'rules/Main.xlsx', preserved: [] },
             {
                 name: 'Rules',
                 path: 'rules/**/*.xlsx',
-                methodFilter: { includes: ['calc*'], excludes: []},
+                methodFilter: { includes: ['calc*'], excludes: [] },
                 preserved: [],
             },
         ])

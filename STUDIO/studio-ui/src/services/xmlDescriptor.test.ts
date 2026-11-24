@@ -13,7 +13,7 @@ const MAPPING: XmlMapping<Sample> = {
     root: 'sample',
     fields: {
         enabled: { kind: 'flag', tag: 'enabled' },
-        name: { kind: 'text', tag: 'name', formerly: ['title']},
+        name: { kind: 'text', tag: 'name', formerly: ['title'] },
         tags: { kind: 'list', wrapper: 'tags', item: 'tag' },
         extra: { kind: 'xml', tag: 'extra' },
         rest: { kind: 'rest' },
@@ -31,11 +31,11 @@ describe('readXml', () => {
             <extra><entry key="x"/></extra>
         </sample>`))
 
-        expect(model).toEqual({ name: 'Pricing', enabled: true, tags: ['a', 'b'], extra: '<entry key="x"/>', rest: []})
+        expect(model).toEqual({ name: 'Pricing', enabled: true, tags: ['a', 'b'], extra: '<entry key="x"/>', rest: [] })
     })
 
     it('reads nothing as blank, off and empty — the model a blank descriptor is', () => {
-        const empty = { name: '', enabled: false, tags: [], extra: '', rest: []}
+        const empty = { name: '', enabled: false, tags: [], extra: '', rest: [] }
 
         expect(readXml(MAPPING, rootOf(MAPPING, '<sample/>'))).toEqual(empty)
         expect(emptyOf(MAPPING)).toEqual(empty)
@@ -51,7 +51,7 @@ describe('readXml', () => {
 
 describe('writeXml', () => {
     it('writes the elements in the order of the mapping, one per line', () => {
-        const model = { name: 'Pricing', enabled: true, tags: ['a', 'b'], extra: '<entry key="x"/>', rest: []}
+        const model = { name: 'Pricing', enabled: true, tags: ['a', 'b'], extra: '<entry key="x"/>', rest: [] }
 
         const xml = writeXml(MAPPING, model)
 
@@ -70,7 +70,7 @@ describe('writeXml', () => {
     })
 
     it('leaves out what has nothing to say: a blank text, a flag that is off, an empty list', () => {
-        expect(writeXml(MAPPING, { name: ' ', enabled: false, tags: [' '], extra: '', rest: []})).toBe('<sample/>\n')
+        expect(writeXml(MAPPING, { name: ' ', enabled: false, tags: [' '], extra: '', rest: [] })).toBe('<sample/>\n')
     })
 
     it('escapes the text through the serializer', () => {
@@ -148,7 +148,7 @@ interface Nested {
 const NESTED: XmlMapping<Nested> = {
     root: 'nested',
     fields: {
-        kind: { kind: 'choice', tag: 'kind', values: ['ALPHA', 'BETA']},
+        kind: { kind: 'choice', tag: 'kind', values: ['ALPHA', 'BETA'] },
         entries: { kind: 'list', wrapper: 'entries', item: 'entry', attribute: 'path' },
         words: { kind: 'list', item: 'word' },
         items: {
@@ -188,8 +188,8 @@ describe('readXml of nested fields', () => {
             entries: ['a/', 'b/'],
             words: ['x', 'y'],
             items: [
-                { name: 'One', path: 'one/*.xlsx', on: { flag: true }, rest: ['<extra a="1"/>']},
-                { name: '', path: 'two/*.xlsx', on: undefined, rest: []},
+                { name: 'One', path: 'one/*.xlsx', on: { flag: true }, rest: ['<extra a="1"/>'] },
+                { name: '', path: 'two/*.xlsx', on: undefined, rest: [] },
             ],
             inner: { first: 'f', second: 's' },
         })
@@ -213,7 +213,7 @@ describe('writeXml of nested fields', () => {
             entries: ['a/', ' '],
             words: ['x', 'y'],
             items: [
-                { name: 'One', path: 'one/*.xlsx', on: { flag: true }, rest: ['<extra a="1"><deep/></extra>']},
+                { name: 'One', path: 'one/*.xlsx', on: { flag: true }, rest: ['<extra a="1"><deep/></extra>'] },
                 { name: '', path: 'two/*.xlsx', on: { flag: false } },
                 // A row with nothing but a secondary value names no item, so it is not written.
                 { name: '', path: '', on: { flag: true } },
@@ -262,7 +262,9 @@ describe('writeXml of nested fields', () => {
 
     it('refuses a carried-over element that does not parse', () => {
         expect(() => writeXml(NESTED, {
-            entries: [], words: [], items: [{ name: 'One', path: '', rest: ['<broken']}],
+            entries: [],
+            words: [],
+            items: [{ name: 'One', path: '', rest: ['<broken'] }],
         })).toThrow(MalformedXmlError)
     })
 })

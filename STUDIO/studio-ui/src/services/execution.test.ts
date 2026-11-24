@@ -83,7 +83,7 @@ describe('execution service', () => {
     })
 
     it('asks for every failure of a test table when the screen offers no count', async () => {
-        read.mockResolvedValue(jsonResponse({ testCases: []}))
+        read.mockResolvedValue(jsonResponse({ testCases: [] }))
 
         await getTestsSummary('p1', { failuresOnly: true, failures: ALL_FAILURES })
 
@@ -94,7 +94,7 @@ describe('execution service', () => {
     })
 
     it('asks for every test table at once when no page size is set', async () => {
-        read.mockResolvedValue(jsonResponse({ testCases: []}))
+        read.mockResolvedValue(jsonResponse({ testCases: [] }))
 
         await getTestsSummary('p1', { size: -1 })
 

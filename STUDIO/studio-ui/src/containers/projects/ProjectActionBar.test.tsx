@@ -134,7 +134,10 @@ describe('ProjectActionBar', () => {
             handlers={noHandlers}
             pendingId={null}
             project={project({
-                canClose: true, canSync: true, canCopy: true, canExport: true,
+                canClose: true,
+                canSync: true,
+                canCopy: true,
+                canExport: true,
             } as Project['capabilities'])}
         />)
 
@@ -148,7 +151,8 @@ describe('ProjectActionBar', () => {
             handlers={noHandlers}
             pendingId={null}
             project={project({
-                canClose: true, canExport: true,
+                canClose: true,
+                canExport: true,
             })}
         />)
 
@@ -162,7 +166,10 @@ describe('ProjectActionBar', () => {
             handlers={noHandlers}
             pendingId={null}
             project={project({
-                canClose: true, canSync: true, canCopy: true, canExport: true,
+                canClose: true,
+                canSync: true,
+                canCopy: true,
+                canExport: true,
             } as Project['capabilities'])}
         />)
 

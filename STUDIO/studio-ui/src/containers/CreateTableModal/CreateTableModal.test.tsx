@@ -184,11 +184,11 @@ vi.mock('react-i18next', () => {
 const field = (name: string, type: string, collection = false) => ({ name, type, collection })
 
 const datatype = (name: string, fields: ProjectType['fields'], project = 'Project'): ProjectType =>
-    ({ name, kind: 'datatype', project, fields, values: []})
+    ({ name, kind: 'datatype', project, fields, values: [] })
 
 // What the compiler made of the project: a vocabulary and a datatype, each with everything it declares.
 const projectTypes: ProjectType[] = [
-    { name: 'Country', kind: 'vocabulary', project: 'Project', fields: [], values: ['USA', 'Canada']},
+    { name: 'Country', kind: 'vocabulary', project: 'Project', fields: [], values: ['USA', 'Canada'] },
     datatype('Customer', [field('name', 'String'), field('age', 'Integer')]),
 ]
 
@@ -592,8 +592,10 @@ describe('CreateTableModal', () => {
 
         await waitFor(() => expect(mockCreateTable).toHaveBeenCalledTimes(1))
         expect(mockCreateTable.mock.calls[0]![1].table.source).toEqual([
-            [{ value: 'SimpleLookup Integer NewTable(String make, String year, String area)', colspan: 2 },
-                { value: null, covered: true }],
+            [
+                { value: 'SimpleLookup Integer NewTable(String make, String year, String area)', colspan: 2 },
+                { value: null, covered: true }
+            ],
             // The title is merged down the whole band, which is how OpenL counts the arguments across the top.
             [{ value: 'make', rowspan: 2 }, { value: '2024' }],
             [{ value: null, covered: true }, { value: 'North' }],

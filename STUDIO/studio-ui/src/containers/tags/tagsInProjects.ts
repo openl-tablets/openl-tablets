@@ -40,4 +40,4 @@ export const tagsInProjects = (tagTypes: TagType[], carried: TagFacetSummary[]):
 
 /** The address of the projects list showing the projects that carry the tag. */
 export const projectsWithTag = (type: string, value: string): string =>
-    '/projects?' + groupQuery({ repositories: [], branches: [], tags: [type + ':' + value]})
+    '/projects?' + groupQuery({ repositories: [], branches: [], tags: [type + ':' + value] })

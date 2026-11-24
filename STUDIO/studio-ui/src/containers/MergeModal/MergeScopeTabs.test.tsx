@@ -110,7 +110,7 @@ describe('MergeScopeTabs', () => {
     })
 
     it('tells a merge free of conflicts only when it reaches no project the user may not read', () => {
-        const clean: MergeScope = { projects: [{ ...receiveScope.projects[0]!, conflicts: []}], hiddenProjects: 0 }
+        const clean: MergeScope = { projects: [{ ...receiveScope.projects[0]!, conflicts: [] }], hiddenProjects: 0 }
         const { rerender } = render(<MergeScopeTabs receive={checked(clean)} send={checked()} />)
 
         expect(screen.getByTestId('merge-scope-no-conflicts')).toBeInTheDocument()

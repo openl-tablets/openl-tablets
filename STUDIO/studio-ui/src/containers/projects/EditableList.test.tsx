@@ -27,8 +27,11 @@ vi.mock('antd', () => ({
 // The drag wiring is exercised in the browser; here the rows render as plain items.
 vi.mock('@dnd-kit/core', () => ({
     DndContext: ({ children }: Record<string, unknown>) => <>{children as never}</>,
-    closestCenter: {}, KeyboardSensor: {}, PointerSensor: {},
-    useSensor: () => ({}), useSensors: () => [],
+    closestCenter: {},
+    KeyboardSensor: {},
+    PointerSensor: {},
+    useSensor: () => ({}),
+    useSensors: () => [],
 }))
 vi.mock('@dnd-kit/modifiers', () => ({ restrictToParentElement: {}, restrictToVerticalAxis: {} }))
 vi.mock('@dnd-kit/sortable', () => ({

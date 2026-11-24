@@ -7,7 +7,7 @@ import DebugCallStack from 'containers/TraceView/components/DebugCallStack'
 vi.mock('services/traceService', () => ({
     __esModule: true,
     default: {
-        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: [] }),
     },
 }))
 
@@ -43,7 +43,7 @@ describe('DebugCallStack', () => {
     })
 
     it('shows the empty state when there is no live stack', () => {
-        useTraceStore.setState({ frames: []})
+        useTraceStore.setState({ frames: [] })
         render(<DebugCallStack />)
         expect(screen.getByText('debug.notSuspended')).toBeInTheDocument()
         expect(screen.queryByTestId('debug-callstack')).toBeNull()

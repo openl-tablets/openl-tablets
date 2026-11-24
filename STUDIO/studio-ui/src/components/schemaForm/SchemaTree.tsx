@@ -103,7 +103,11 @@ interface NodeSpec {
 }
 
 const ActionButton: React.FC<{ icon: React.ReactNode, label: string, testId: string, onClick: () => void, danger?: boolean }> = ({
-    icon, label, testId, onClick, danger,
+    icon,
+    label,
+    testId,
+    onClick,
+    danger,
 }) => (
     <Button
         aria-label={label}
@@ -273,7 +277,20 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
     /** The keys of a map's entries as its rows are drawn; empty for anything else. */
     entries: string[]
 }> = ({
-    name, label, type, kind, resolved, entries, value, path, onChange, clearsTo, onRemove, onRename, takenKeys, context,
+    name,
+    label,
+    type,
+    kind,
+    resolved,
+    entries,
+    value,
+    path,
+    onChange,
+    clearsTo,
+    onRemove,
+    onRename,
+    takenKeys,
+    context,
 }) => {
     const { t } = useTranslation('execution')
     const editing = context.editing === path
@@ -287,8 +304,12 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
         ...(isStructure(kind)
             ? structureActions({ kind, unset, path, value, entries, onChange, create, context, t })
             : valueActions({
-                editing, clearable: !unset && !sameValue(value, clearsTo), path, onChange,
-                setEditing: context.setEditing, t,
+                editing,
+                clearable: !unset && !sameValue(value, clearsTo),
+                path,
+                onChange,
+                setEditing: context.setEditing,
+                t,
             })),
         ...(onRemove
             ? [<ActionButton key="remove" danger icon={<MinusOutlined />} label={t('input.remove')} onClick={onRemove} testId={`remove-${path}`} />]

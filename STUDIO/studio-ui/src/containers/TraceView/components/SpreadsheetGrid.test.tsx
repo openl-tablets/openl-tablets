@@ -147,7 +147,7 @@ describe('SpreadsheetGrid', () => {
     })
 
     it('marks an armed gutter as active', () => {
-        useTraceStore.setState({ breakpoints: ['u0#R0C0']})
+        useTraceStore.setState({ breakpoints: ['u0#R0C0'] })
         render(
             <SpreadsheetGrid
                 columns={['Formula']}

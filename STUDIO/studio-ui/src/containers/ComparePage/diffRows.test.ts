@@ -19,9 +19,12 @@ describe('rowsToShow', () => {
         expect(rowsToShow(alignment, false)).toEqual([
             { line: 0 },
             { gap: 2 },
-            { line: 3 }, { line: 4 }, { line: 5 },
+            { line: 3 },
+            { line: 4 },
+            { line: 5 },
             { gap: 2 },
-            { line: 8 }, { line: 9 },
+            { line: 8 },
+            { line: 9 },
         ])
     })
 
@@ -42,7 +45,7 @@ describe('rowsToShow', () => {
         const alignment = alignmentOf(EQUAL, 'changed', EQUAL, EQUAL, EQUAL)
 
         expect(rowsToShow(alignment, true)).toBeNull()
-        expect(rowsToShow({ ...alignment, columns: [{ first: 0, status: 'removed' }]}, false)).toBeNull()
+        expect(rowsToShow({ ...alignment, columns: [{ first: 0, status: 'removed' }] }, false)).toBeNull()
         expect(rowsToShow(alignmentOf(EQUAL, EQUAL), false)).toBeNull()
         expect(rowsToShow(null, false)).toBeNull()
     })

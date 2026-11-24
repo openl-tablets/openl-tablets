@@ -631,7 +631,7 @@ describe('ProjectDetail', () => {
         // pane). A folder created in the UI shows folder actions instead, so nothing is fetched for a
         // folder that does not exist server-side (which would 404).
         setParams('file=drafts/wip')
-        renderProjectDetail({ virtualFolders: ['drafts/wip']})
+        renderProjectDetail({ virtualFolders: ['drafts/wip'] })
 
         expect(screen.getByTestId('folder-actions').getAttribute('data-virtual')).toBe('true')
         expect(screen.queryByTestId('file-preview')).toBeNull()
@@ -644,7 +644,11 @@ describe('ProjectDetail', () => {
             project: {
                 ...PROJECT,
                 descriptor: { modules: [
-                    { name: 'Rules', path: 'rules/**/*.xlsx', modules: [{ name: 'Nested', path: 'rules/Nested.xlsx' }]},
+                    {
+                        name: 'Rules',
+                        path: 'rules/**/*.xlsx',
+                        modules: [{ name: 'Nested', path: 'rules/Nested.xlsx' }],
+                    },
                     { name: 'Standalone', path: 'rules.xlsx' },
                 ]},
             },
@@ -730,16 +734,16 @@ describe('ProjectDetail', () => {
 
         // The reload behind the move brings files that hold the new path, and it stays selected.
         const moved: FsNode = { basePath: 'rules', name: 'Moved.xlsx', path: 'rules/Moved.xlsx', type: 'file' }
-        rerender(projectDetailElement({ files: [...FILES, moved]}))
+        rerender(projectDetailElement({ files: [...FILES, moved] }))
 
         expect(searchParamsMock.get('file')).toBe('rules/Moved.xlsx')
     })
 
     it('keeps an empty folder selection when the files reload without it', () => {
         setParams('file=drafts/wip')
-        const { rerender } = renderProjectDetail({ virtualFolders: ['drafts/wip']})
+        const { rerender } = renderProjectDetail({ virtualFolders: ['drafts/wip'] })
 
-        rerender(projectDetailElement({ files: FILES.slice(), virtualFolders: ['drafts/wip']}))
+        rerender(projectDetailElement({ files: FILES.slice(), virtualFolders: ['drafts/wip'] }))
 
         expect(searchParamsMock.get('file')).toBe('drafts/wip')
         expect(screen.getByTestId('folder-actions')).toBeTruthy()

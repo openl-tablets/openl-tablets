@@ -63,16 +63,29 @@ const flatten = (
     // `refBase` is the key namespace of the branch the node hangs off, so a step-reference node can point
     // back at the original step row (`${refBase}/${refStep}`) of the frame or table that owns both.
     const walkNode = (node: CallNodeView, depth: number, path: string, refBase?: string): void => {
-        rows.push({ type: 'callNode', key: path, depth, node,
-            ...(node.refStep && refBase ? { refTargetKey: `${refBase}/${node.refStep}` } : {}) })
+        rows.push({
+            type: 'callNode',
+            key: path,
+            depth,
+            node,
+            ...(node.refStep && refBase ? { refTargetKey: `${refBase}/${node.refStep}` } : {})
+        })
         // Off the "Show detailed trace" toggle, a decision table shows only its returned rule, not the
         // per-condition breakdown — matching the legacy trace.
         const steps = displaySteps(node.steps, showDetailed)
         for (const step of steps) {
             const stepKey = `${path}/${step.ref}`
             const open = hasChildren(step)
-            rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
-                nodeInstance: node.instance, nodeKind: node.kind, ...(open ? { expandKey: stepKey } : {}) })
+            rows.push({
+                type: 'callStep',
+                key: stepKey,
+                depth: depth + 1,
+                step,
+                nodeUri: node.uri,
+                nodeInstance: node.instance,
+                nodeKind: node.kind,
+                ...(open ? { expandKey: stepKey } : {})
+            })
             if (open && expanded.has(stepKey)) {
                 walkChildren(node.uri, node.instance, step, depth + 2, stepKey, path)
             }
@@ -104,8 +117,15 @@ const flatten = (
             loaded.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
             const total = step.childrenTotal ?? loaded.length
             if (total > loaded.length) {
-                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - loaded.length,
-                    nodeUri, nodeInstance, step })
+                rows.push({
+                    type: 'more',
+                    key: `${keyBase}/more`,
+                    depth,
+                    moreCount: total - loaded.length,
+                    nodeUri,
+                    nodeInstance,
+                    step
+                })
             }
         }
         if (treeLoading[key]) {
@@ -123,8 +143,15 @@ const flatten = (
         for (const step of frame.steps ?? []) {
             const stepKey = `f${i}/${step.ref}`
             const open = hasChildren(step)
-            rows.push({ type: 'liveStep', key: stepKey, depth: depth + 1, frameIndex: i, frame, step,
-                ...(open ? { expandKey: stepKey } : {}) })
+            rows.push({
+                type: 'liveStep',
+                key: stepKey,
+                depth: depth + 1,
+                frameIndex: i,
+                frame,
+                step,
+                ...(open ? { expandKey: stepKey } : {})
+            })
             if (open && expanded.has(stepKey)) {
                 walkChildren(frame.uri, frame.instance, step, depth + 2, stepKey, `f${i}`)
             }

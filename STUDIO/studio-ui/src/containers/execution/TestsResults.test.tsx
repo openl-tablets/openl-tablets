@@ -4,7 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { onTestFinished } from 'vitest'
 import { layOut } from 'testing/layOut'
 import {
-    getTestCaseLines, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary, stopExecution,
+    getTestCaseLines,
+    getTestsSummary,
+    getTestsSummaryWorkbook,
+    readTestsSummary,
+    stopExecution,
 } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
@@ -304,7 +308,7 @@ describe('TestsResults', () => {
         it('offers no turn for a table that lists no cases', async () => {
             readSummary.mockResolvedValue({
                 ...summary,
-                testCases: [{ ...summary.testCases[0], testUnits: []}],
+                testCases: [{ ...summary.testCases[0], testUnits: [] }],
             })
             await show()
 
@@ -437,7 +441,7 @@ describe('TestsResults', () => {
                 }],
             }],
         })
-        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 20.759999999999998 }]})
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 20.759999999999998 }] })
 
         await show()
         await userEvent.click(await screen.findByTestId('load-tt1-out-2-0'))
@@ -459,7 +463,7 @@ describe('TestsResults', () => {
                 }],
             }],
         })
-        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 20.759999999999998 }]})
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 20.759999999999998 }] })
 
         await show()
         await userEvent.click(await screen.findByTestId('load-tt1-out-1-0'))
@@ -487,7 +491,7 @@ describe('TestsResults', () => {
     it('shows only the name of a table the screen is set to leave out', async () => {
         readSummary.mockResolvedValue({
             ...summary,
-            testCases: [{ ...summary.testCases[0], numberOfFailures: 0, testUnits: []}],
+            testCases: [{ ...summary.testCases[0], numberOfFailures: 0, testUnits: [] }],
         })
 
         await show()
@@ -574,7 +578,7 @@ describe('TestsResults', () => {
 
     it('writes a table whose module is unknown as its name alone', async () => {
         const { module: _module, ...withoutModule } = summary.testCases[0] as { module?: string }
-        readSummary.mockResolvedValue({ ...summary, testCases: [withoutModule]})
+        readSummary.mockResolvedValue({ ...summary, testCases: [withoutModule] })
         await show()
 
         // There is no screen to open it with, so the name is not offered as a way in.
@@ -732,7 +736,7 @@ describe('TestsResults', () => {
                 }],
             }],
         })
-        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 100 }]})
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 100 }] })
 
         await show()
         await userEvent.click(screen.getByTestId('tests-compound-result'))
@@ -753,7 +757,7 @@ describe('TestsResults', () => {
                 }],
             }],
         })
-        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 100 }]})
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 100 }] })
 
         await show()
         await userEvent.click(await screen.findByTestId('load-tt1-out-1-0'))
@@ -776,7 +780,7 @@ describe('TestsResults', () => {
                 }],
             }],
         })
-        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 200 }]})
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 200 }] })
 
         await show()
         await userEvent.click(await screen.findByTestId('load-tt1-exp-2-0'))

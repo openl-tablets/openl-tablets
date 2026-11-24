@@ -28,7 +28,7 @@ describe('guideSearch.worker', () => {
     it('reads the pages once and searches them', async () => {
         vi.stubGlobal('fetch', vi.fn(async () => new Response('# Decision Tables\n\nA decision table.', { status: 200 })))
 
-        send({ type: 'index', pages: [{ file: 'decision.md', title: 'Decision Tables', url: 'http://host/docs/decision.md' }]})
+        send({ type: 'index', pages: [{ file: 'decision.md', title: 'Decision Tables', url: 'http://host/docs/decision.md' }] })
         send({ type: 'search', id: 2, query: 'decision', scope: '' })
 
         await vi.waitFor(() => expect(posted).toHaveBeenCalledWith({

@@ -59,8 +59,8 @@ const testTable: TableInput = {
 const casesPage = {
     total: 2,
     content: [
-        { id: '1', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }]},
-        { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }]},
+        { id: '1', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }] },
+        { id: '2', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }] },
     ],
 }
 
@@ -161,7 +161,7 @@ describe('TraceLaunchHost', () => {
 
     it('asks for a case when the table has none to pick', async () => {
         inputRead.mockResolvedValue(testTable)
-        casesRead.mockResolvedValue({ total: 0, content: []})
+        casesRead.mockResolvedValue({ total: 0, content: [] })
         render(<TraceLaunchHost />)
 
         await open({ kind: 'Test' })
@@ -172,9 +172,9 @@ describe('TraceLaunchHost', () => {
     })
 
     it('reads the values a page leaves out within the module the table was read in', async () => {
-        caseRead.mockResolvedValue({ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: false, value: { vin: 'X' } }]})
+        caseRead.mockResolvedValue({ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: false, value: { vin: 'X' } }] })
         inputRead.mockResolvedValue(testTable)
-        casesRead.mockResolvedValue({ total: 1, content: [{ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: true }]}]})
+        casesRead.mockResolvedValue({ total: 1, content: [{ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: true }] }] })
         render(<TraceLaunchHost />)
 
         await open({ kind: 'Test', moduleOnlyLocked: true })

@@ -25,7 +25,7 @@ export const useOpenProject = (
         if (!project) {
             return
         }
-        openProjectDialog({ ...project, dependencies: project.dependencies ?? []}, options => {
+        openProjectDialog({ ...project, dependencies: project.dependencies ?? [] }, options => {
             setOpening(true)
             setProjectStatus(project.id, 'OPENED', options)
                 .then(onOpened)

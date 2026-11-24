@@ -40,8 +40,9 @@ export default [
             '@stylistic/indent': ['error', 4, { 'SwitchCase': 1 }],
             '@stylistic/quotes': ['error', 'single', { 'avoidEscape': true }],
             '@stylistic/jsx-quotes': ['error', 'prefer-double'],
-            '@stylistic/object-curly-spacing': ['error', 'always', { 'arraysInObjects': false, 'objectsInObjects': true }],
-            '@stylistic/array-bracket-spacing': ['error', 'never', { 'arraysInArrays': false, 'objectsInArrays': false }],
+            // `{ a }` and `[a]` on one line; a list that wraps puts each item on a line of its own.
+            // Parentheses and angle brackets are left as written.
+            '@stylistic/list-style': ['error', { 'overrides': { '()': 'off', '<>': 'off' } }],
             '@stylistic/computed-property-spacing': ['error', 'never'],
             '@stylistic/no-extra-semi': 'error',
             '@stylistic/semi-spacing': 'error',

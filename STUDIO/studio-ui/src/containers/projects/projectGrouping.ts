@@ -55,7 +55,7 @@ export interface NodeFilters {
     tags: string[]
 }
 
-const EMPTY_FILTERS: NodeFilters = { repositories: [], branches: [], tags: []}
+const EMPTY_FILTERS: NodeFilters = { repositories: [], branches: [], tags: [] }
 
 /** One node of the tree: a group of projects, or a project itself. */
 export interface GroupNode {
@@ -98,12 +98,12 @@ const valueOf = (
 
 const withLevel = (filters: NodeFilters, level: string, value: string): NodeFilters => {
     if (level === GROUP_BY_REPOSITORY) {
-        return { ...filters, repositories: [...filters.repositories, value]}
+        return { ...filters, repositories: [...filters.repositories, value] }
     }
     if (level === GROUP_BY_BRANCH) {
-        return { ...filters, branches: [...filters.branches, value]}
+        return { ...filters, branches: [...filters.branches, value] }
     }
-    return { ...filters, tags: [...filters.tags, `${level}:${value}`]}
+    return { ...filters, tags: [...filters.tags, `${level}:${value}`] }
 }
 
 /**
@@ -137,7 +137,7 @@ export const buildGroupTree = (
         if (group) {
             group.projects.push(project)
         } else {
-            groups.set(value.key, { label: value.label, projects: [project]})
+            groups.set(value.key, { label: value.label, projects: [project] })
         }
     }
     const nodes: GroupNode[] = [...groups.entries()]

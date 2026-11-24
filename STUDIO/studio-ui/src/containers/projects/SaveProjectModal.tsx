@@ -62,7 +62,7 @@ const usePendingSave = (open: boolean, projectId: string | undefined): PendingSa
             return
         }
         let cancelled = false
-        getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+        getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
                 if (!cancelled) {
                     const status = loaded.compileStatus

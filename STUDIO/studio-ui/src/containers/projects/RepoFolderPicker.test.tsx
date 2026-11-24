@@ -107,7 +107,7 @@ describe('RepoFolderPicker', () => {
 
 describe('attachChildren', () => {
     it('attaches children to a nested node by key', () => {
-        const tree: TreeDataNode[] = [{ key: 'a', title: 'a', children: [{ key: 'a/b', title: 'b' }]}]
+        const tree: TreeDataNode[] = [{ key: 'a', title: 'a', children: [{ key: 'a/b', title: 'b' }] }]
         const next = attachChildren(tree, 'a/b', [{ key: 'a/b/c', title: 'c' }])
 
         expect(next[0]!.children![0]!.children).toEqual([{ key: 'a/b/c', title: 'c' }])

@@ -3,7 +3,12 @@ import { jsonLanguage } from '@codemirror/lang-json'
 import { xmlLanguage } from '@codemirror/lang-xml'
 import { yamlLanguage } from '@codemirror/lang-yaml'
 import {
-    type HighlightStyle, type Language, StreamLanguage, type StreamParser, type StringStream, type TagStyle,
+    type HighlightStyle,
+    type Language,
+    StreamLanguage,
+    type StreamParser,
+    type StringStream,
+    type TagStyle,
 } from '@codemirror/language'
 import { clike, java } from '@codemirror/legacy-modes/mode/clike'
 import { groovy } from '@codemirror/legacy-modes/mode/groovy'

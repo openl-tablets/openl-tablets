@@ -19,7 +19,7 @@ const policy: SchemaFormParameter = {
         properties: {
             number: { type: 'string' },
             age: { type: 'integer' },
-            state: { type: 'string', enum: ['AL', 'NY']},
+            state: { type: 'string', enum: ['AL', 'NY'] },
             active: { type: 'boolean' },
             since: { type: 'string', format: 'date' },
             drivers: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' } } } },
@@ -53,7 +53,7 @@ const nested: SchemaFormParameter = {
 /** A field of codes with names listed for some of them. */
 const region: SchemaFormParameter = {
     name: 'region',
-    schema: { type: 'object', properties: { code: { type: 'string', enum: ['QC', 'HQ', 'constructor']} } },
+    schema: { type: 'object', properties: { code: { type: 'string', enum: ['QC', 'HQ', 'constructor'] } } },
     labels: { code: { QC: 'Québec', HQ: 'Hors Québec' } },
 }
 
@@ -215,7 +215,7 @@ describe('SchemaForm', () => {
     it('shows the name of a code written as a number', async () => {
         const tier: SchemaFormParameter = {
             name: 'tier',
-            schema: { type: 'object', properties: { grade: { type: 'integer', enum: [1, 2]} } },
+            schema: { type: 'object', properties: { grade: { type: 'integer', enum: [1, 2] } } },
             labels: { grade: { 1: 'Gold', 2: 'Silver' } },
         }
         render(<Harness initial={{ tier: { grade: 2 } }} onChange={vi.fn()} parameters={[tier]} />)
@@ -272,15 +272,15 @@ describe('SchemaForm', () => {
         await userEvent.click(screen.getByTestId('create-policy.drivers'))
         await userEvent.click(screen.getByTestId('add-policy.drivers'))
         await userEvent.click(screen.getByTestId('add-policy.drivers'))
-        expect(onChange).toHaveBeenLastCalledWith({ policy: { drivers: [null, null]} })
+        expect(onChange).toHaveBeenLastCalledWith({ policy: { drivers: [null, null] } })
 
         await userEvent.click(screen.getByTestId('create-policy.drivers[1]'))
         await userEvent.click(screen.getByTestId('edit-policy.drivers[1].name'))
         await userEvent.type(screen.getByTestId('input-policy.drivers[1].name'), 'Bob{enter}')
-        expect(onChange).toHaveBeenLastCalledWith({ policy: { drivers: [null, { name: 'Bob' }]} })
+        expect(onChange).toHaveBeenLastCalledWith({ policy: { drivers: [null, { name: 'Bob' }] } })
 
         await userEvent.click(screen.getByTestId('remove-policy.drivers[0]'))
-        expect(onChange).toHaveBeenLastCalledWith({ policy: { drivers: [{ name: 'Bob' }]} })
+        expect(onChange).toHaveBeenLastCalledWith({ policy: { drivers: [{ name: 'Bob' }] } })
         // The element that moved up keeps its fields in view, under the position it holds now.
         expect(screen.getByTestId('value-policy.drivers[0].name')).toHaveTextContent('"Bob"')
     })

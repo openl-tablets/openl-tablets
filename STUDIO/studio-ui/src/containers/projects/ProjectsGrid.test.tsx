@@ -70,9 +70,17 @@ describe('ProjectsGrid', () => {
     it('opens a project from click and keyboard activation', async () => {
         const onOpen = vi.fn()
         const handlers = {
-            onOpen: vi.fn(), onClose: vi.fn(), onSave: vi.fn(),
-            onCopy: vi.fn(), onDelete: vi.fn(), onDeleteBranch: vi.fn(), onDeploy: vi.fn(),
-            onExport: vi.fn(), onOpenRevision: vi.fn(), onSync: vi.fn(), onCompare: vi.fn(),
+            onOpen: vi.fn(),
+            onClose: vi.fn(),
+            onSave: vi.fn(),
+            onCopy: vi.fn(),
+            onDelete: vi.fn(),
+            onDeleteBranch: vi.fn(),
+            onDeploy: vi.fn(),
+            onExport: vi.fn(),
+            onOpenRevision: vi.fn(),
+            onSync: vi.fn(),
+            onCompare: vi.fn(),
         }
 
         render(
@@ -105,9 +113,17 @@ describe('ProjectsGrid', () => {
     it('offers the branch switcher on a card without opening the project', async () => {
         const onOpen = vi.fn()
         const handlers = {
-            onOpen: vi.fn(), onClose: vi.fn(), onSave: vi.fn(),
-            onCopy: vi.fn(), onDelete: vi.fn(), onDeleteBranch: vi.fn(), onDeploy: vi.fn(),
-            onExport: vi.fn(), onOpenRevision: vi.fn(), onSync: vi.fn(), onCompare: vi.fn(),
+            onOpen: vi.fn(),
+            onClose: vi.fn(),
+            onSave: vi.fn(),
+            onCopy: vi.fn(),
+            onDelete: vi.fn(),
+            onDeleteBranch: vi.fn(),
+            onDeploy: vi.fn(),
+            onExport: vi.fn(),
+            onOpenRevision: vi.fn(),
+            onSync: vi.fn(),
+            onCompare: vi.fn(),
         }
 
         render(

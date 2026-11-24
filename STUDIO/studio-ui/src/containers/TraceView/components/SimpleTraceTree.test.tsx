@@ -114,8 +114,12 @@ describe('SimpleTraceTree', () => {
         let deepest = callNode('uR', 2000, [{ ref: 'S1', label: '$Next = ERROR', status: 'executed' }],
             { name: 'R = ERROR' })
         for (let i = 1999; i >= 0; i--) {
-            deepest = callNode('uR', i, [{ ref: 'S1', label: '$Next = ERROR', status: 'executed', children: [deepest]}],
-                { name: 'R = ERROR' })
+            deepest = callNode('uR', i, [{
+                ref: 'S1',
+                label: '$Next = ERROR',
+                status: 'executed',
+                children: [deepest],
+            }], { name: 'R = ERROR' })
         }
         setStore({ simpleTree: deepest, simpleChildren: {}, status: 'error' })
         render(<SimpleTraceTree />)
@@ -311,7 +315,7 @@ describe('SimpleTraceTree', () => {
             { ref: 'c0', label: 'Condition: MC1, Rules: [R1]', status: 'executed', decision: 'unmatched' },
             { ref: 'R2', label: 'Returned rule: [R2]', status: 'executed', decision: 'returned' },
         ], { kind: 'decisionTable' })
-        return callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed', children: [dt]}])
+        return callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed', children: [dt] }])
     }
 
     const expandDecisionTable = async (): Promise<void> => {
@@ -403,8 +407,16 @@ describe('SimpleTraceTree', () => {
     const referencingTree = () => callNode('uR', 0, [
         { ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 2 }, // original, called uA twice
         { ref: 'S2', label: '$Value$S2', status: 'executed', children: [
-            { uri: 'uR', name: '$Value$S1', instance: 0, kind: 'stepRef',
-                durationMillis: 0, selfMillis: 0, steps: [], refStep: 'S1' }, // reuses S1
+            {
+                uri: 'uR',
+                name: '$Value$S1',
+                instance: 0,
+                kind: 'stepRef',
+                durationMillis: 0,
+                selfMillis: 0,
+                steps: [],
+                refStep: 'S1'
+            }, // reuses S1
         ]},
     ])
 

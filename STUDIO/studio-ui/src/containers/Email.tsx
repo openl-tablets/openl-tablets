@@ -62,7 +62,7 @@ export const Email: React.FC = () => {
         modal.confirm({
             title: t('email:confirm_change_email_settings'),
             content: t('email:confirm_change_email_settings_message'),
-            onOk:  () => {
+            onOk: () => {
                 form.submit()
             }
         })

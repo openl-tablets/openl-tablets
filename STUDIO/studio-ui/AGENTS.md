@@ -23,6 +23,9 @@ Use almost the latest versions when possible.
 - **@stomp/stompjs** for WebSocket notifications (reconnecting singleton)
 - **Vite** + `@vitejs/plugin-react` (`vite.config.ts`)
 - **ESLint** (flat config: `eslint.config.js`) — formatting through `@stylistic`, JSX props sorted by `perfectionist`:
+    - `@stylistic/list-style` lays out the items of `{}` and `[]`: `{ a, b }` and `[a, b]` on one line, or, once a
+      list wraps, every item on a line of its own between brackets on lines of their own. Parentheses and angle
+      brackets are left as written.
     - `eslint-plugin-react-hooks`: the Rules of Hooks and a pure render (`static-components`, `immutability`,
       `purity`) as errors, missing hook dependencies as warnings.
     - `typescript-eslint`: no unused name, no needless type assertion, and no explicit `any` outside the tests.

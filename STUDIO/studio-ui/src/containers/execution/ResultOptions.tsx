@@ -24,7 +24,13 @@ interface CountSelectProps {
  * <p>How many failures of one test table to list, and how many test tables to a page, are both read this way.
  */
 export const CountSelect: React.FC<CountSelectProps> = ({
-    label, value, counts, allValue, onChange, disabled, 'data-testid': testId,
+    label,
+    value,
+    counts,
+    allValue,
+    onChange,
+    disabled,
+    'data-testid': testId,
 }) => {
     const { t } = useTranslation('execution')
     return (

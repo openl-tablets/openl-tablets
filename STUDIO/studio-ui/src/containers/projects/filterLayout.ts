@@ -19,7 +19,7 @@ export interface FilterLayout {
     collapsed: string[]
 }
 
-export const EMPTY_LAYOUT: FilterLayout = { order: [], hidden: [], collapsed: []}
+export const EMPTY_LAYOUT: FilterLayout = { order: [], hidden: [], collapsed: [] }
 
 const STORAGE_KEY = 'openl.projects.filters.layout'
 

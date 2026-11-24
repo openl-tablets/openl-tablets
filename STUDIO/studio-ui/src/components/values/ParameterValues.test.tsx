@@ -90,7 +90,7 @@ describe('ValueCell', () => {
     it('reads more lines of a level when the reader asks for them', async () => {
         const readLines = vi.fn((path: readonly string[], offset: number) => Promise.resolve(offset === 0
             ? LEVELS['[]']!
-            : { total: 3, lines: [{ name: 'age', segment: 'age', value: 25 }]}))
+            : { total: 3, lines: [{ name: 'age', segment: 'age', value: 25 }] }))
         const { container } = render(<Values lazy readLines={readLines} values={[null]} />)
         await userEvent.click(screen.getByTestId('load-value-0'))
         await screen.findByText('{3 fields}')
@@ -138,7 +138,7 @@ describe('ValueCell', () => {
     })
 
     it('draws a large value only as far as it is opened', async () => {
-        const policies = Array.from({ length: 500 }, (_, index) => ({ id: index, drivers: [{ age: 20 + index }]}))
+        const policies = Array.from({ length: 500 }, (_, index) => ({ id: index, drivers: [{ age: 20 + index }] }))
         const { container } = render(<Values values={[{ policies, total: 500 }]} />)
         const drawn = () => linesIn(container).length
         const open = async (line: number) =>

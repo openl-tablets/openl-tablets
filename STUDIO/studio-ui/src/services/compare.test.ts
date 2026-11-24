@@ -79,7 +79,7 @@ describe('compare service', () => {
     })
 
     it('reads what the comparison found, once the comparison has ended', async () => {
-        vi.mocked(readTaskResult).mockResolvedValue(jsonResponse({ id: 'cmp 1', identical: true, sheets: []}))
+        vi.mocked(readTaskResult).mockResolvedValue(jsonResponse({ id: 'cmp 1', identical: true, sheets: [] }))
 
         const comparison = await getComparison('cmp 1')
 
@@ -101,12 +101,12 @@ describe('compare service', () => {
             id: '0-1',
             name: 'Rules',
             status: 'changed',
-            first: { source: [[{ cell: 'B2', style: 0, value: 'x' }]], styles: [{ bold: true }], changedCells: ['B2']},
+            first: { source: [[{ cell: 'B2', style: 0, value: 'x' }]], styles: [{ bold: true }], changedCells: ['B2'] },
         }))
 
         const table = await getComparisonTable('cmp-1', '0-1')
 
-        expect(table.first).toEqual({ source: [[{ cell: 'B2', style: { bold: true }, value: 'x' }]], changedCells: ['B2']})
+        expect(table.first).toEqual({ source: [[{ cell: 'B2', style: { bold: true }, value: 'x' }]], changedCells: ['B2'] })
         expect(table).not.toHaveProperty('second')
     })
 
@@ -225,7 +225,7 @@ describe('compare service', () => {
             'Rules/A1:B6': 'theirs',
             'Notes': 'base',
         }, {
-            'Rules/A9:C12': { side: 'ours', cells: [{ row: 2, column: 1, value: '1.45' }]},
+            'Rules/A9:C12': { side: 'ours', cells: [{ row: 2, column: 1, value: '1.45' }] },
         })).resolves.toBe(merged)
 
         expect(apiCall).toHaveBeenCalledWith(
@@ -237,7 +237,7 @@ describe('compare service', () => {
                     decisions: [
                         { id: 'Rules/A1:B6', side: 'theirs' },
                         { id: 'Notes', side: 'base' },
-                        { id: 'Rules/A9:C12', cells: { side: 'ours', cells: [{ row: 2, column: 1, value: '1.45' }]} },
+                        { id: 'Rules/A9:C12', cells: { side: 'ours', cells: [{ row: 2, column: 1, value: '1.45' }] } },
                     ],
                 }),
             },

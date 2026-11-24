@@ -123,8 +123,9 @@ describe('group filters', () => {
         const tree = buildGroupTree(projects, [GROUP_BY_REPOSITORY, 'Domain'], repositoryName)
 
         const design = tree.find(node => node.title === 'Design')
-        expect(design?.filters).toEqual({ repositories: ['design'], branches: [], tags: []})
-        expect(design?.children[0]?.filters).toEqual({ repositories: ['design'], branches: [], tags: ['Domain:Policy']})
+        expect(design?.filters).toEqual({ repositories: ['design'], branches: [], tags: [] })
+        expect(design?.children[0]?.filters)
+            .toEqual({ repositories: ['design'], branches: [], tags: ['Domain:Policy'] })
     })
 
     it('carries the branch a group is grouped by', () => {
@@ -134,7 +135,7 @@ describe('group filters', () => {
         ] as unknown as Project[]
         const tree = buildGroupTree(branched, [GROUP_BY_BRANCH], repositoryName)
 
-        expect(tree[0]?.filters).toEqual({ repositories: [], branches: ['main'], tags: []})
+        expect(tree[0]?.filters).toEqual({ repositories: [], branches: ['main'], tags: [] })
     })
 })
 

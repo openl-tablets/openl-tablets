@@ -5,8 +5,18 @@ import type { ExcelThemeColorName, RawCellColor } from 'types/tables'
 import { useStyles } from './ColourPalette.styles'
 
 /** The theme colours in the columns of the palette of Excel: the backgrounds and the texts, then the accents. */
-const COLUMNS: readonly ExcelThemeColorName[] = ['lt1', 'dk1', 'lt2', 'dk2',
-    'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6']
+const COLUMNS: readonly ExcelThemeColorName[] = [
+    'lt1',
+    'dk1',
+    'lt2',
+    'dk2',
+    'accent1',
+    'accent2',
+    'accent3',
+    'accent4',
+    'accent5',
+    'accent6'
+]
 
 /** The shades Excel offers under a theme colour of middle lightness, from the top: lighter, then darker. */
 const MIDDLE_SHADES = [0.8, 0.6, 0.4, -0.25, -0.5]

@@ -25,7 +25,7 @@ const CONTENTS: GuideEntry = {
             file: 'openl-studio/index.md',
             children: [
                 { title: 'Using Rules Editor', file: 'openl-studio/rules-editor.md' },
-                { title: 'Appendices', children: [{ title: 'Error Pages', file: 'openl-studio/appendices/error-pages.md' }]},
+                { title: 'Appendices', children: [{ title: 'Error Pages', file: 'openl-studio/appendices/error-pages.md' }] },
             ],
         },
     ],

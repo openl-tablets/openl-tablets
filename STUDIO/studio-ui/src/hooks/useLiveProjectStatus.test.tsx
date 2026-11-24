@@ -36,7 +36,7 @@ const status = (compileState: ProjectStatusUpdate['compileState'], message?: str
     compileState,
     ...(message === undefined ? {} : {
         compilation: {
-            messages: { total: 1, errors: 1, warnings: 0, items: [{ id: 1, summary: message, severity: 'ERROR', stacktrace: false }]},
+            messages: { total: 1, errors: 1, warnings: 0, items: [{ id: 1, summary: message, severity: 'ERROR', stacktrace: false }] },
         },
     }),
 })

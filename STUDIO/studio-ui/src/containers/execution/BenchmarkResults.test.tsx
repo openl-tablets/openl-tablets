@@ -98,7 +98,7 @@ describe('BenchmarkResults', () => {
 
     it('shows the input of a measured test case', async () => {
         const driver = { name: 'driver', description: 'Driver', lazy: false, value: 'Sara' }
-        await show([measurement({ parameters: [driver]})])
+        await show([measurement({ parameters: [driver] })])
 
         expect(screen.getByTestId('benchmark-table')).toHaveTextContent('Driver')
         // The measured table is opened where it is read: in its module, in the editor.

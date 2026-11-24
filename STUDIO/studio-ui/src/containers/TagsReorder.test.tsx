@@ -36,7 +36,7 @@ vi.mock('containers/tags/FillTagsModal', () => ({ FillTagsModal: () => null }))
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
-const tagType = (id: number, name: string): TagType => ({ id, name, extensible: false, nullable: true, tags: []})
+const tagType = (id: number, name: string): TagType => ({ id, name, extensible: false, nullable: true, tags: [] })
 
 describe('Tags reordering', () => {
     beforeEach(() => {

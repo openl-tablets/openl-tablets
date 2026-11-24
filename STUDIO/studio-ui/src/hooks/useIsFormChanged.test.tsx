@@ -30,8 +30,8 @@ const changed = () => screen.getByTestId('changed')
 
 describe('useIsFormChanged', () => {
     it.each([
-        ['an item of a list', { ...saved, tags: ['a', 'c']}],
-        ['the length of a list', { ...saved, tags: ['a']}],
+        ['an item of a list', { ...saved, tags: ['a', 'c'] }],
+        ['the length of a list', { ...saved, tags: ['a'] }],
         ['a nested field', { ...saved, settings: { url: 'http://other' } }],
     ])('tells a change of %s', async (_, values) => {
         render(<Probe initialValues={saved} values={values} />)
@@ -40,11 +40,11 @@ describe('useIsFormChanged', () => {
     })
 
     it('tells the form unchanged once the saved values equal it again', async () => {
-        const values = { ...saved, tags: ['a', 'c']}
+        const values = { ...saved, tags: ['a', 'c'] }
         const { rerender } = render(<Probe initialValues={saved} values={values} />)
         await waitFor(() => expect(changed()).toHaveTextContent('true'))
 
-        rerender(<Probe initialValues={{ ...saved, tags: ['a', 'c']}} values={values} />)
+        rerender(<Probe initialValues={{ ...saved, tags: ['a', 'c'] }} values={values} />)
 
         await waitFor(() => expect(changed()).toHaveTextContent('false'))
     })

@@ -47,7 +47,7 @@ const tallRates = (rate: number, conflict: boolean): ConflictTableVersion => ({
 
 const WORKBOOK: ConflictWorkbook = {
     sheets: [
-        { name: 'Rates', status: 'theirs', ours: true, base: true, theirs: true, tables: []},
+        { name: 'Rates', status: 'theirs', ours: true, base: true, theirs: true, tables: [] },
         {
             name: 'Rules',
             status: 'conflict',
@@ -72,8 +72,15 @@ const WORKBOOK: ConflictWorkbook = {
                 },
             ],
         },
-        { name: 'Extra', status: 'conflict', reason: 'removedAndChanged', ours: true, base: true, theirs: false,
-            tables: []},
+        {
+            name: 'Extra',
+            status: 'conflict',
+            reason: 'removedAndChanged',
+            ours: true,
+            base: true,
+            theirs: false,
+            tables: []
+        },
     ],
     palette: false,
 }
@@ -221,7 +228,7 @@ describe('WorkbookMergeEditor', () => {
             name: 'R1',
             reason: 'cells' as const,
             ours: tallRates(100, true),
-            base: { ...tallRates(9, true), changedCells: []},
+            base: { ...tallRates(9, true), changedCells: [] },
             theirs: tallRates(200, true),
         }
         renderEditor({
@@ -229,8 +236,10 @@ describe('WorkbookMergeEditor', () => {
                 file: FILE,
                 decisions: {},
                 cellDecisions: {},
-                workbook: { sheets: [{ ...WORKBOOK.sheets[1]!, tables: [tall, WORKBOOK.sheets[1]!.tables[0]!]}],
-                    palette: false },
+                workbook: {
+                    sheets: [{ ...WORKBOOK.sheets[1]!, tables: [tall, WORKBOOK.sheets[1]!.tables[0]!] }],
+                    palette: false
+                },
             },
         })
 
@@ -270,7 +279,7 @@ describe('WorkbookMergeEditor', () => {
             name: 'R1',
             reason: 'cells' as const,
             ours: tallRates(100, true),
-            base: { ...tallRates(9, true), changedCells: []},
+            base: { ...tallRates(9, true), changedCells: [] },
             theirs: tallRates(200, true),
         }
         renderEditor({
@@ -278,7 +287,7 @@ describe('WorkbookMergeEditor', () => {
                 file: FILE,
                 decisions: {},
                 cellDecisions: {},
-                workbook: { sheets: [{ ...WORKBOOK.sheets[1]!, tables: [table]}], palette: false },
+                workbook: { sheets: [{ ...WORKBOOK.sheets[1]!, tables: [table] }], palette: false },
             },
         })
 
@@ -329,7 +338,7 @@ describe('WorkbookMergeEditor', () => {
     it('frames the changed cells of a version next to each other with one frame', async () => {
         const table = WORKBOOK.sheets[1]!.tables[0]!
         vi.mocked(getConflictWorkbook).mockResolvedValue({
-            sheets: [{ ...WORKBOOK.sheets[1]!, tables: [{ ...table, ours: rates(10, ['A2', 'B2']) }]}],
+            sheets: [{ ...WORKBOOK.sheets[1]!, tables: [{ ...table, ours: rates(10, ['A2', 'B2']) }] }],
             palette: false,
         })
         renderEditor()
@@ -434,7 +443,13 @@ describe('WorkbookMergeEditor', () => {
             ours: number | string,
             theirs: number | string
         ): ConflictCell => ({
-            row, column, cell, ourCell: cell, theirCell: cell, ours: { cell, value: ours }, theirs: { cell, value: theirs },
+            row,
+            column,
+            cell,
+            ourCell: cell,
+            theirCell: cell,
+            ours: { cell, value: ours },
+            theirs: { cell, value: theirs },
         })
         const RATE = conflictAt(1, 1, 'B2', 10, 20)
         const workbookOf = (merged: ConflictTableMerge): ConflictWorkbook => ({
@@ -514,7 +529,7 @@ describe('WorkbookMergeEditor', () => {
                 workbook: BY_CELLS,
             }))
             expect(mergeConflictWorkbook).toHaveBeenCalledWith('p1', 'Project/rules/Rates.xlsx', {}, {
-                'Rules/A1:B2': { cells: [{ row: 1, column: 1, side: 'theirs' }]},
+                'Rules/A1:B2': { cells: [{ row: 1, column: 1, side: 'theirs' }] },
             })
         })
 
@@ -545,7 +560,7 @@ describe('WorkbookMergeEditor', () => {
             await userEvent.click(screen.getByTestId('workbook-merge-apply'))
 
             expect(mergeConflictWorkbook).toHaveBeenCalledWith('p1', 'Project/rules/Rates.xlsx', {}, {
-                'Rules/A1:B2': { side: 'ours', cells: []},
+                'Rules/A1:B2': { side: 'ours', cells: [] },
             })
         })
 
@@ -651,7 +666,7 @@ describe('WorkbookMergeEditor', () => {
             expect(screen.getByTestId('workbook-merge-table-1')).toHaveTextContent('merge:workbook.status_all_resolved')
             await userEvent.click(screen.getByTestId('workbook-merge-apply'))
             expect(mergeConflictWorkbook).toHaveBeenCalledWith('p1', 'Project/rules/Rates.xlsx', {}, {
-                'Rules/A1:B2': { cells: [{ row: 1, column: 1, value: '1' }]},
+                'Rules/A1:B2': { cells: [{ row: 1, column: 1, value: '1' }] },
             })
         })
 

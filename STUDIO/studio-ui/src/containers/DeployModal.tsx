@@ -92,7 +92,7 @@ export const DeployModal: React.FC = () => {
                 { throwError: true, suppressErrorPages: true }
             )
             setDeploymentNames(response)
-            form.setFields([{ name: 'repository', errors: []}])
+            form.setFields([{ name: 'repository', errors: [] }])
         } catch (error) {
             if (error instanceof ForbiddenError) {
                 setDeploymentNames([])
@@ -310,7 +310,7 @@ export const DeployModal: React.FC = () => {
     // What the server said about a name is about that name: editing it takes the refusal away.
     const forgetRefusedName = () => {
         if (form.getFieldError('deploymentName').length > 0) {
-            form.setFields([{ name: 'deploymentName', errors: []}])
+            form.setFields([{ name: 'deploymentName', errors: [] }])
         }
     }
 

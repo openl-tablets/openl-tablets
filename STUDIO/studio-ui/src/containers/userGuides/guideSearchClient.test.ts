@@ -4,7 +4,7 @@ import { startGuideSearch } from './guideSearchClient'
 const CONTENTS: GuideEntry = {
     title: 'User Guides',
     file: 'index.md',
-    children: [{ title: 'Appendices', children: [{ title: 'Error Pages', file: 'appendices/error-pages.md' }]}],
+    children: [{ title: 'Appendices', children: [{ title: 'Error Pages', file: 'appendices/error-pages.md' }] }],
 }
 
 /** A worker standing in for the real one: it keeps what it is sent and answers when the test says so. */
@@ -54,7 +54,7 @@ describe('startGuideSearch', () => {
         const search = startGuideSearch(CONTENTS)
         const found = search.search('error', 'appendices/')
         const worker = FakeWorker.last as FakeWorker
-        worker.answer({ id: 1, results: [{ file: 'appendices/error-pages.md', title: 'Error Pages', heading: '', anchor: '', snippet: []}]})
+        worker.answer({ id: 1, results: [{ file: 'appendices/error-pages.md', title: 'Error Pages', heading: '', anchor: '', snippet: [] }] })
 
         expect(await found).toEqual([expect.objectContaining({ file: 'appendices/error-pages.md' })])
         expect(worker.options).toEqual({ type: 'module' })

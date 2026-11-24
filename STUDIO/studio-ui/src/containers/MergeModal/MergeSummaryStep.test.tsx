@@ -121,7 +121,7 @@ describe('MergeSummaryStep', () => {
     })
 
     it('says the merge changed only projects the user cannot read, in one sentence', () => {
-        render(<MergeSummaryStep onClose={vi.fn()} resolved={false} summary={{ ...summary, projects: []}} />)
+        render(<MergeSummaryStep onClose={vi.fn()} resolved={false} summary={{ ...summary, projects: [] }} />)
 
         expect(screen.getByText('merge:summary.hidden_only:{"count":2}')).toBeInTheDocument()
         expect(screen.queryByText('merge:summary.nothing')).not.toBeInTheDocument()

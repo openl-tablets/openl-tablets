@@ -20,7 +20,7 @@ const mockApiCall = vi.mocked(apiCall)
 const mockReadTaskResult = vi.mocked(readTaskResult)
 const mockSubscribeTopic = vi.mocked(subscribeTopic)
 
-const SUCCESS: MergeResultResponse = { status: 'success', conflictGroups: []}
+const SUCCESS: MergeResultResponse = { status: 'success', conflictGroups: [] }
 
 describe('mergeBranches', () => {
     let report: (body: string) => void
@@ -68,7 +68,7 @@ describe('mergeBranches', () => {
     it('reads the result again once the merge reports its end', async () => {
         const conflicts: MergeResultResponse = {
             status: 'conflicts',
-            conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['Main.xlsx']}],
+            conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['Main.xlsx'] }],
         }
         mockReadTaskResult
             .mockRejectedValueOnce(new ResultNotReadyError())

@@ -377,7 +377,7 @@ export const ProjectsFilterRail = ({
                                     collapsed={layout.collapsed.includes(group.id)}
                                     first={index === 0}
                                     group={group}
-                                    onHide={() => apply({ ...layout, hidden: [...layout.hidden, group.id]})}
+                                    onHide={() => apply({ ...layout, hidden: [...layout.hidden, group.id] })}
                                     onPick={onPick}
                                     onToggle={() => apply({
                                         ...layout,

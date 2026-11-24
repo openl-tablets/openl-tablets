@@ -26,6 +26,6 @@ describe('buildFileNodes', () => {
         const nodes = buildFileNodes([], ['drafts/wip'])
 
         expect(nodes[0]?.path).toBe('drafts')
-        expect(nodes[0]?.children).toEqual([{ path: 'drafts/wip', name: 'wip', isFile: false, children: []}])
+        expect(nodes[0]?.children).toEqual([{ path: 'drafts/wip', name: 'wip', isFile: false, children: [] }])
     })
 })

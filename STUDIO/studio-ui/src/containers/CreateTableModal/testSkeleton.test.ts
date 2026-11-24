@@ -69,8 +69,12 @@ describe('expandArguments', () => {
         // Only a datatype already on the path stops the walk: another argument of the same type has columns of its own.
         expect(expandArguments(parseArguments('Premium(Policy first, Policy second)'), fieldsOf)
             .map(column => column.name)).toEqual([
-            'first.number', 'first.mainDriver.age', 'first.mainDriver.policy',
-            'second.number', 'second.mainDriver.age', 'second.mainDriver.policy',
+            'first.number',
+            'first.mainDriver.age',
+            'first.mainDriver.policy',
+            'second.number',
+            'second.mainDriver.age',
+            'second.mainDriver.policy',
         ])
     })
 })

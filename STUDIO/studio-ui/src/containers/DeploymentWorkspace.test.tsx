@@ -113,14 +113,14 @@ describe('DeploymentWorkspace', () => {
     it('explains the missing design revision when no design revision matches the deployed content', async () => {
         const { designRevision, ...withoutRevision } = deployment.items[0]!
         void designRevision
-        vi.mocked(getDeployment).mockResolvedValue({ ...deployment, items: [withoutRevision]})
+        vi.mocked(getDeployment).mockResolvedValue({ ...deployment, items: [withoutRevision] })
         await renderPage()
 
         expect(screen.getByTitle('deployments.revision_unknown')).toHaveTextContent('—')
     })
 
     it('says so when the deployment carries no project', async () => {
-        vi.mocked(getDeployment).mockResolvedValue({ ...deployment, items: []})
+        vi.mocked(getDeployment).mockResolvedValue({ ...deployment, items: [] })
         await renderPage()
 
         expect(screen.getByTestId('deployment-no-projects')).toBeInTheDocument()

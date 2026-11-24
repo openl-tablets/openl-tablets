@@ -28,12 +28,12 @@ describe('resolveRef', () => {
 describe('resolveSchema', () => {
     it('collapses a nullable union to its real branch and follows a reference', () => {
         const root = { $defs: { Age: { type: 'integer' } } }
-        expect(resolveSchema({ anyOf: [{ type: 'null' }, { $ref: '#/$defs/Age' }]}, root)).toEqual({ type: 'integer' })
+        expect(resolveSchema({ anyOf: [{ type: 'null' }, { $ref: '#/$defs/Age' }] }, root)).toEqual({ type: 'integer' })
         expect(resolveSchema({ allOf: [{ type: 'string' }], format: 'date' }, root)).toEqual({ type: 'string', format: 'date' })
     })
 
     it('leaves a real union and a dangling reference alone', () => {
-        const union = { oneOf: [{ type: 'string' }, { type: 'integer' }]}
+        const union = { oneOf: [{ type: 'string' }, { type: 'integer' }] }
         expect(resolveSchema(union, {})).toBe(union)
         expect(resolveSchema({ $ref: '#/$defs/Missing' }, {})).toEqual({})
         // A reference naming nothing says nothing about the field; what the field says about itself is
@@ -49,7 +49,7 @@ describe('resolveSchema', () => {
         // throw the default away.
         expect(resolveSchema({ default: 'DE', $ref: '#/$defs/Code' }, root))
             .toEqual({ type: 'string', default: 'DE' })
-        expect(resolveSchema({ default: 'DE', anyOf: [{ $ref: '#/$defs/Code' }, { type: 'null' }]}, root))
+        expect(resolveSchema({ default: 'DE', anyOf: [{ $ref: '#/$defs/Code' }, { type: 'null' }] }, root))
             .toEqual({ type: 'string', default: 'DE' })
     })
 
@@ -59,9 +59,9 @@ describe('resolveSchema', () => {
         const root = { $defs: { Code: { type: 'string', default: 'US' } } }
         expect(resolveSchema({ default: 'DE', $ref: '#/$defs/Code' }, root))
             .toEqual({ type: 'string', default: 'DE' })
-        expect(resolveSchema({ default: 'DE', allOf: [{ $ref: '#/$defs/Code' }]}, root))
+        expect(resolveSchema({ default: 'DE', allOf: [{ $ref: '#/$defs/Code' }] }, root))
             .toEqual({ type: 'string', default: 'DE' })
-        expect(resolveSchema({ default: 'DE', anyOf: [{ $ref: '#/$defs/Code' }, { type: 'null' }]}, root))
+        expect(resolveSchema({ default: 'DE', anyOf: [{ $ref: '#/$defs/Code' }, { type: 'null' }] }, root))
             .toEqual({ type: 'string', default: 'DE' })
     })
 
@@ -73,7 +73,7 @@ describe('resolveSchema', () => {
 
 describe('fieldKind', () => {
     it('maps every schema shape the generator emits to an editor', () => {
-        expect(fieldKind({ type: 'string', enum: ['A', 'B']})).toBe('enum')
+        expect(fieldKind({ type: 'string', enum: ['A', 'B'] })).toBe('enum')
         expect(fieldKind({ type: 'object', properties: { a: {} } })).toBe('object')
         expect(fieldKind({ type: 'object', additionalProperties: { type: 'string' } })).toBe('map')
         expect(fieldKind({ type: 'object' })).toBe('unknown')
@@ -83,15 +83,15 @@ describe('fieldKind', () => {
         expect(fieldKind({ type: 'number' })).toBe('number')
         expect(fieldKind({ type: 'string', format: 'date' })).toBe('date')
         expect(fieldKind({ type: 'string', format: 'date-time' })).toBe('datetime')
-        expect(fieldKind({ type: ['string', 'null']})).toBe('string')
+        expect(fieldKind({ type: ['string', 'null'] })).toBe('string')
         expect(fieldKind({})).toBe('unknown')
     })
 })
 
 describe('withoutNulls', () => {
     it('drops null fields but keeps null list slots', () => {
-        expect(withoutNulls({ code: 'DE', name: null, ratings: [null, { agency: null, rating: 'A' }]}))
-            .toEqual({ code: 'DE', ratings: [null, { rating: 'A' }]})
+        expect(withoutNulls({ code: 'DE', name: null, ratings: [null, { agency: null, rating: 'A' }] }))
+            .toEqual({ code: 'DE', ratings: [null, { rating: 'A' }] })
         expect(withoutNulls(5)).toBe(5)
     })
 
@@ -117,7 +117,7 @@ describe('clearedValue', () => {
 
 describe('primaryType / mapValueSchema / createValue', () => {
     it('sets null aside, reads map values and starts structures empty', () => {
-        expect(primaryType({ type: ['null', 'number']})).toBe('number')
+        expect(primaryType({ type: ['null', 'number'] })).toBe('number')
         expect(primaryType({})).toBeUndefined()
         expect(mapValueSchema({ additionalProperties: { type: 'integer' } })).toEqual({ type: 'integer' })
         expect(mapValueSchema({ additionalProperties: true })).toEqual({})
@@ -139,7 +139,7 @@ describe('primaryType / mapValueSchema / createValue', () => {
         const schema = {
             type: 'object',
             properties: {
-                home: { default: { city: 'Riga' }, anyOf: [{ $ref: '#/$defs/Address' }, { type: 'null' }]},
+                home: { default: { city: 'Riga' }, anyOf: [{ $ref: '#/$defs/Address' }, { type: 'null' }] },
             },
         }
         expect(createValue(schema, root)).toEqual({ home: { city: 'Riga' } })

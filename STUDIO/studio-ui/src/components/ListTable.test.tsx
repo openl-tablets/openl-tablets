@@ -83,7 +83,7 @@ describe('ListTable', () => {
     })
 
     it('shows no rows and only the header while there is nothing to list', () => {
-        renderTable({ rows: []})
+        renderTable({ rows: [] })
 
         const table = screen.getByTestId('rows')
         expect(table.querySelectorAll('thead th')).toHaveLength(2)
@@ -110,7 +110,7 @@ describe('ListTable', () => {
                 render: row => <button onClick={onClick} type="button">{`note ${row.id}`}</button>,
             }
             const parent = vi.fn()
-            renderTable({ transposed: true, columns: [...columns, own]})
+            renderTable({ transposed: true, columns: [...columns, own] })
             // React handles the click on the element it renders into, so the page above it hears what is not kept.
             document.body.addEventListener('click', parent)
             onTestFinished(() => document.body.removeEventListener('click', parent))
@@ -131,7 +131,7 @@ describe('ListTable', () => {
         })
 
         it('shows only the head while there are no other columns', () => {
-            renderTable({ transposed: true, columns: [columns[0]!]})
+            renderTable({ transposed: true, columns: [columns[0]!] })
 
             const table = screen.getByTestId('rows')
             expect(table.querySelectorAll('thead th')).toHaveLength(3)
@@ -212,7 +212,7 @@ describe('ListTable', () => {
                  */
                 const measured = () => {
                     /** How wide the box is, and how wide what each cell of the head holds is, the names first. */
-                    const drawn = { box: 800, head: [0, 0, 0]}
+                    const drawn = { box: 800, head: [0, 0, 0] }
                     laidOut()
                     layOut(HTMLDivElement.prototype, 'clientWidth', () => drawn.box)
                     layOut(HTMLTableCellElement.prototype, 'getBoundingClientRect', function () {

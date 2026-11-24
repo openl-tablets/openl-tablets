@@ -167,7 +167,7 @@ const sourceInfo: TableCopyInfo = {
         { name: 'version', value: '1.2.3' },
         { name: 'lob', value: 'Auto' },
     ],
-    versions: { current: '1.2.3', next: '1.2.4', taken: ['1.2.2', '1.2.3']},
+    versions: { current: '1.2.3', next: '1.2.4', taken: ['1.2.2', '1.2.3'] },
 }
 
 const mockGetInfo = getTableCopyInfo as MockedFunction<typeof getTableCopyInfo>
@@ -332,7 +332,7 @@ describe('CopyTableModal', () => {
 
     it('copies a Test table without a name, its header naming only the table it calls', async () => {
         const user = userEvent.setup({ delay: null })
-        mockGetInfo.mockResolvedValue({ kind: 'Test', properties: [{ name: 'lob', value: 'Auto' }]})
+        mockGetInfo.mockResolvedValue({ kind: 'Test', properties: [{ name: 'lob', value: 'Auto' }] })
         mockGetSheets.mockResolvedValue([])
         render(<CopyTableModal />)
         await openModal({ currentModuleName: 'Pricing' })
@@ -382,7 +382,7 @@ describe('CopyTableModal', () => {
 
     it('copies a Properties table as it stands, with no properties to give', async () => {
         const user = userEvent.setup({ delay: null })
-        mockGetInfo.mockResolvedValue({ kind: 'Properties', properties: [{ name: 'lob', value: 'Auto' }]})
+        mockGetInfo.mockResolvedValue({ kind: 'Properties', properties: [{ name: 'lob', value: 'Auto' }] })
         render(<CopyTableModal />)
         await openModal({ currentSheetName: 'Rules' })
 
@@ -737,7 +737,7 @@ describe('CopyTableModal', () => {
             name: 'Eligibility',
             kind: 'Rules',
             properties: [{ name: 'version', value: '1.0' }],
-            versions: { current: '1.0', next: '0.0.1', taken: ['1.0']},
+            versions: { current: '1.0', next: '0.0.1', taken: ['1.0'] },
         })
         render(<CopyTableModal />)
         await openModal()

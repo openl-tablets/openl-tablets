@@ -75,7 +75,7 @@ vi.mock('antd', () => ({
     ),
 }))
 
-const vocabularies = { Country: ['USA', 'Canada']}
+const vocabularies = { Country: ['USA', 'Canada'] }
 
 const renderValue = (
     type: string,

@@ -51,10 +51,10 @@ export interface KeyRow {
 
 /** A key as the server answers it. */
 export const keyRowOf = (row: MessageRow): KeyRow =>
-    ({ key: row.key, base: row.values, shared: row.shared ?? {}, warnings: row.warnings ?? []})
+    ({ key: row.key, base: row.values, shared: row.shared ?? {}, warnings: row.warnings ?? [] })
 
 /** A key the reader added and has not saved. */
-export const addedKeyRow = (key: string): KeyRow => ({ key, base: null, shared: {}, warnings: []})
+export const addedKeyRow = (key: string): KeyRow => ({ key, base: null, shared: {}, warnings: [] })
 
 /** What a cell of the localization table holds for a key in a language. */
 export type MessageCell =

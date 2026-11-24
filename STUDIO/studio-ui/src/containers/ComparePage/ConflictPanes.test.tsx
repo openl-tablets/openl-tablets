@@ -91,7 +91,7 @@ describe('ConflictPanes', () => {
     it('frames a row one version removed while the other one changed it as a conflict', () => {
         const removedByYours: ConflictComparisonTable = {
             ...GREETING,
-            yours: { source: GREETING.yours!.source.slice(0, 2), changedCells: ['B2'], conflictCells: ['B2']},
+            yours: { source: GREETING.yours!.source.slice(0, 2), changedCells: ['B2'], conflictCells: ['B2'] },
             rows: [
                 GREETING.rows![0]!,
                 GREETING.rows![1]!,

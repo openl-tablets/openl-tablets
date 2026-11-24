@@ -4,7 +4,15 @@ import type { Project } from '../../types/projects'
 import { qualifiersOf } from './projectQualifiers'
 
 const project = (id: string, name: string, repository: string, path = name): Project => ({
-    id, name, repository, path, branch: '', comment: '', modifiedAt: '', modifiedBy: '', revision: '',
+    id,
+    name,
+    repository,
+    path,
+    branch: '',
+    comment: '',
+    modifiedAt: '',
+    modifiedBy: '',
+    revision: '',
     status: ProjectStatus.Opened,
 })
 

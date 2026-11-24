@@ -44,7 +44,7 @@ export const useDesignRepositoryBranches = (repositoryId: string | null): Design
                 // repository that cannot be read is worth keeping for support rather than losing in silence.
                 errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
                 if (current) {
-                    setRead({ repositoryId, branches: []})
+                    setRead({ repositoryId, branches: [] })
                 }
             })
         return () => {

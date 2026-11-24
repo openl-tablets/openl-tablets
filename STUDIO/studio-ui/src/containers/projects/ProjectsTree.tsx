@@ -133,7 +133,7 @@ const readContents = async (
         ),
         // Only a project being edited has changes to mark; they come with its status.
         project.status === ProjectStatus.Editing && !knownChanges
-            ? getProject(project.id, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+            ? getProject(project.id, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
                 .then(read => buildFileChangeMap(read.compileStatus?.pendingChanges?.files ?? [], read.path, read.name))
                 .catch(() => undefined)
             : knownChanges,

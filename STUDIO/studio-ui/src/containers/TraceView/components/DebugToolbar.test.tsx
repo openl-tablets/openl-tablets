@@ -6,14 +6,14 @@ import DebugToolbar from 'containers/TraceView/components/DebugToolbar'
 vi.mock('services/traceService', () => ({
     __esModule: true,
     default: {
-        step: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
+        step: vi.fn().mockResolvedValue({ status: 'suspended', frames: [] }),
         resume: vi.fn().mockResolvedValue(undefined),
         pause: vi.fn().mockResolvedValue(undefined),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
         getStack: vi.fn().mockRejectedValue(new Error('no session')),
-        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
+        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: [] }),
         setBreakpoints: vi.fn().mockResolvedValue(undefined),
-        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: [] }),
     },
 }))
 

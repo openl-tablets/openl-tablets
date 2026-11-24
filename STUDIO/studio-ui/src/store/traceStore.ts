@@ -1019,7 +1019,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const clearInspectLoading = (): void => {
                 awaitingRow = false
                 set({
-                    variablesLoading: false, simpleSelectedKey: null, simpleInspectFrame: null, simpleFocus: null,
+                    variablesLoading: false,
+                    simpleSelectedKey: null,
+                    simpleInspectFrame: null,
+                    simpleFocus: null,
                     simpleUnreached: false,
                 })
             }
@@ -1033,9 +1036,16 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // Drop the previous frame from the panel immediately: restartQuietly keeps the last table on
                 // purpose to avoid flashing the root, but when that last table is the throwing child, holding
                 // it until settle looks like a flicker of the error table before the clicked ancestor appears.
-                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order ? key : null, simpleFocus: focus ?? null,
+                set({
+                    simpleSelectedKey: clickedKey,
+                    simpleLastInspected: order ? key : null,
+                    simpleFocus: focus ?? null,
                     simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance },
-                    simpleUnreached: false, selectedFrameIndex: null, variables: null, variablesLoading: true })
+                    simpleUnreached: false,
+                    selectedFrameIndex: null,
+                    variables: null,
+                    variablesLoading: true
+                })
                 // Execution can only move forward: a row is still reachable by resuming when it starts after
                 // everything the previous inspection already ran — its own subtree included. Anything else
                 // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
@@ -1098,7 +1108,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 }
                 const calls = callsFromNodes(branch.nodes, branch.dispatches)
                 set(s => ({
-                    simpleChildren: { ...s.simpleChildren, [key]: [...(s.simpleChildren[key] ?? []), ...calls]},
+                    simpleChildren: { ...s.simpleChildren, [key]: [...(s.simpleChildren[key] ?? []), ...calls] },
                     // A loaded branch adds rows to the execution order, numbered again on the next click.
                     simpleOrder: null,
                     // A step the tree sent no calls of has no more: asking again would bring nothing.
@@ -1134,7 +1144,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     return
                 }
                 set(s => ({
-                    treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])]},
+                    treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])] },
                     treeLoading: { ...s.treeLoading, [key]: false },
                 }))
             } catch (error) {

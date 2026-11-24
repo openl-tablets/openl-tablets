@@ -401,7 +401,7 @@ describe('MergeBranchesStep', () => {
 
             await waitFor(() => expect(props.onMergingChange).toHaveBeenLastCalledWith(true))
 
-            await end({ status: 'success', conflictGroups: []})
+            await end({ status: 'success', conflictGroups: [] })
 
             expect(props.onMergingChange).toHaveBeenLastCalledWith(false)
         })
@@ -421,7 +421,7 @@ describe('MergeBranchesStep', () => {
             expect(getButton(/merge:actions.receive/i)).toBeDisabled()
             expect(screen.queryByTestId('merge-cancel')).not.toBeInTheDocument()
 
-            await end({ status: 'success', conflictGroups: []})
+            await end({ status: 'success', conflictGroups: [] })
         })
 
         it('asks the running merge to stop and tells that it was cancelled', async () => {
@@ -437,7 +437,7 @@ describe('MergeBranchesStep', () => {
                 expect.objectContaining({ throwError: true }))
             expect(screen.getByTestId('merge-cancel')).toBeDisabled()
 
-            await end({ status: 'cancelled', conflictGroups: []})
+            await end({ status: 'cancelled', conflictGroups: [] })
 
             await waitFor(() => expect(vi.mocked(notification.info)).toHaveBeenCalledWith(expect.objectContaining({
                 title: 'merge:notifications.merge_cancelled',
@@ -449,7 +449,7 @@ describe('MergeBranchesStep', () => {
 
         it('tells a merge cancelled elsewhere that it was cancelled', async () => {
             const props = await startReceive()
-            mockMergeBranches.mockResolvedValueOnce({ status: 'cancelled', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'cancelled', conflictGroups: [] })
 
             await userEvent.click(getButton(/merge:actions.receive/i))
 
@@ -467,7 +467,7 @@ describe('MergeBranchesStep', () => {
             mockApiCall.mockResolvedValueOnce(undefined)
             await end({
                 status: 'conflicts',
-                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
+                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx'] }],
             })
 
             await waitFor(() => expect(vi.mocked(notification.info)).toHaveBeenCalled())
@@ -511,7 +511,7 @@ describe('MergeBranchesStep', () => {
             mockApiCall.mockResolvedValueOnce(undefined)
             await userEvent.click(await screen.findByTestId('merge-cancel'))
 
-            await end({ status: 'success', conflictGroups: []})
+            await end({ status: 'success', conflictGroups: [] })
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
             expect(vi.mocked(notification.info)).not.toHaveBeenCalled()
@@ -529,7 +529,7 @@ describe('MergeBranchesStep', () => {
             expect(await screen.findByText('The repository is not available')).toBeInTheDocument()
             expect(screen.getByTestId('merge-cancel')).not.toBeDisabled()
 
-            await end({ status: 'success', conflictGroups: []})
+            await end({ status: 'success', conflictGroups: [] })
         })
 
         it('shows the conflicts the cancel could not drop for resolution', async () => {
@@ -543,7 +543,7 @@ describe('MergeBranchesStep', () => {
             mockApiCall.mockRejectedValueOnce(createApiError(500, 'The session is gone'))
             const conflicts: MergeResultResponse = {
                 status: 'conflicts',
-                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
+                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx'] }],
             }
             await end(conflicts)
 
@@ -563,7 +563,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
@@ -605,7 +605,7 @@ describe('MergeBranchesStep', () => {
 
             const conflictResponse: MergeResultResponse = {
                 status: 'conflicts',
-                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
+                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx'] }],
             }
             mockMergeBranches.mockResolvedValueOnce(conflictResponse)
             await userEvent.click(getButton(/merge:actions.send/i))
@@ -657,7 +657,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onCheckCommitInfo).toHaveBeenCalled())
@@ -674,7 +674,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
@@ -762,7 +762,7 @@ describe('MergeBranchesStep', () => {
             expect(confirmConfig.okButtonProps).toEqual({ danger: true })
 
             // Confirming retries the merge with force=true
-            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
             await act(async () => {
                 await confirmConfig.onOk?.()
             })

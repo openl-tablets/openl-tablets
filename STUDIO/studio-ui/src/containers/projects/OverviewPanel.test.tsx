@@ -64,12 +64,12 @@ vi.mock('../../services/projectIndex', () => ({
 
 vi.mock('../../services/migration', () => ({
     getProjectMigration: vi.fn().mockResolvedValue({
-        rulesXml: { movableRootModules: [], migratable: false, newModules: []},
+        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
         rulesDeploy: { migratable: false },
     }),
     migrateProject: vi.fn().mockResolvedValue(undefined),
     EMPTY_MIGRATION: {
-        rulesXml: { movableRootModules: [], migratable: false, newModules: []},
+        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
         rulesDeploy: { migratable: false },
     },
 }))
@@ -235,7 +235,7 @@ describe('OverviewPanel', () => {
         await renderPanel({
             ...base,
             tags: { Region: 'EU' },
-            descriptor: { modules: [{ name: 'Pricing', path: 'rules/Pricing.xlsx' }]},
+            descriptor: { modules: [{ name: 'Pricing', path: 'rules/Pricing.xlsx' }] },
         })
         const left = within(screen.getByTestId('overview-left'))
         const right = within(screen.getByTestId('overview-right'))
@@ -262,7 +262,7 @@ describe('OverviewPanel', () => {
                     { name: 'Auto', path: 'rules/Auto.xlsx' },
                     { name: 'Home', path: 'rules/Home.xlsx' },
                 ]},
-                { name: 'Tests', path: 'tests/**/*.xlsx', modules: []},
+                { name: 'Tests', path: 'tests/**/*.xlsx', modules: [] },
             ]},
         })
 
@@ -302,7 +302,11 @@ describe('OverviewPanel', () => {
         await renderPanel({
             ...base,
             descriptor: { modules: [
-                { name: 'Tests', path: 'tests/**/*.xlsx', modules: [{ name: 'ClaimTests', path: 'tests/ClaimTests.xlsx' }]},
+                {
+                    name: 'Tests',
+                    path: 'tests/**/*.xlsx',
+                    modules: [{ name: 'ClaimTests', path: 'tests/ClaimTests.xlsx' }],
+                },
                 { name: 'Main', path: 'rules/Main.xlsx' },
             ]},
         })
@@ -344,7 +348,9 @@ describe('OverviewPanel', () => {
     it('reads a pattern that names no module of its own by what it stands for', async () => {
         await renderPanel({
             ...base,
-            descriptor: { modules: [{ path: 'rules/**/*.xlsx', modules: [{ name: 'Auto', path: 'rules/Auto.xlsx' }]}]},
+            descriptor: {
+                modules: [{ path: 'rules/**/*.xlsx', modules: [{ name: 'Auto', path: 'rules/Auto.xlsx' }] }],
+            },
         })
 
         expect(screen.getByText('browser.overview.modules_pattern')).toBeInTheDocument()
@@ -355,8 +361,8 @@ describe('OverviewPanel', () => {
             ...base,
             descriptor: {
                 modules: [
-                    { path: 'rules/**/*.xlsx', modules: [{ name: 'Pricing', path: 'rules/Pricing.xlsx' }]},
-                    { path: 'tests/**/*.xlsx', modules: [{ name: 'PricingTest', path: 'tests/PricingTest.xlsx' }]},
+                    { path: 'rules/**/*.xlsx', modules: [{ name: 'Pricing', path: 'rules/Pricing.xlsx' }] },
+                    { path: 'tests/**/*.xlsx', modules: [{ name: 'PricingTest', path: 'tests/PricingTest.xlsx' }] },
                 ],
                 modulesDefault: true,
                 sources: ['groovy/', 'lib/*.jar'],
@@ -381,7 +387,7 @@ describe('OverviewPanel', () => {
     })
 
     it('disables the migrate when a rewrite would turn undeclared workbooks into modules', async () => {
-        setMigration({ movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx']})
+        setMigration({ movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx'] })
 
         await renderPanel({ ...base, capabilities: { canWrite: true } })
 
@@ -436,7 +442,7 @@ describe('OverviewPanel', () => {
             ...base,
             capabilities: { canWrite: true },
             descriptor: {
-                modules: [{ path: 'rules/**/*.xlsx', modules: [{ name: 'Auto', path: 'rules/Auto.xlsx' }]}],
+                modules: [{ path: 'rules/**/*.xlsx', modules: [{ name: 'Auto', path: 'rules/Auto.xlsx' }] }],
                 modulesDefault: true,
                 sources: ['groovy/', 'lib/*.jar'],
                 sourcesDefault: true,

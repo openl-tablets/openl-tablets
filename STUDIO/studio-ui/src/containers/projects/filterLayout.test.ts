@@ -58,9 +58,9 @@ describe('the stored arrangement', () => {
     beforeEach(stubStorage)
 
     it('comes back as it was left', () => {
-        filterLayoutSetting.write({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository']})
+        filterLayoutSetting.write({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository'] })
 
-        expect(filterLayoutSetting.read()).toEqual({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository']})
+        expect(filterLayoutSetting.read()).toEqual({ order: ['status'], hidden: ['tag:Domain'], collapsed: ['repository'] })
     })
 
     it('is empty when nothing was stored, or what was stored cannot be read', () => {

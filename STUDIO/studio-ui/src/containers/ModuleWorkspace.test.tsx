@@ -189,8 +189,19 @@ vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
         TableEditor: ({
-            ref, testId, rows, hiddenRows, editing, canWrite, roles, onEditingChange, onOpenUsage, onSaved,
-            children, canvasClassName, openAt,
+            ref,
+            testId,
+            rows,
+            hiddenRows,
+            editing,
+            canWrite,
+            roles,
+            onEditingChange,
+            onOpenUsage,
+            onSaved,
+            children,
+            canvasClassName,
+            openAt,
         }: {
             ref?: Ref<unknown>
             canvasClassName?: string
@@ -671,7 +682,8 @@ describe('ModuleWorkspace', () => {
     it('opens another module of the project from the name in the header', async () => {
         workspace.opened = true
         vi.mocked(listModules).mockResolvedValue([
-            { name: 'Bank Rating' }, { name: 'Pricing' },
+            { name: 'Bank Rating' },
+            { name: 'Pricing' },
         ] as never)
         render(<ModuleWorkspace />)
         await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
@@ -978,7 +990,7 @@ describe('ModuleWorkspace', () => {
         vi.mocked(getModuleTables).mockImplementation((_projectId, _module, options) =>
             Promise.resolve(workspace.branch === 'feature' && options?.includeOther ? [bankRating, notes] : [bankRating]))
         vi.mocked(getRawTable).mockImplementation(() => workspace.branch === 'feature'
-            ? Promise.resolve({ id: 't-9', name: 'Notes', source: []} as never)
+            ? Promise.resolve({ id: 't-9', name: 'Notes', source: [] } as never)
             : Promise.reject(tableNotFound()))
         searchParams.set('table', 't-9')
         render(<ModuleWorkspace />)
@@ -1056,12 +1068,15 @@ describe('ModuleWorkspace', () => {
         let releaseMore!: (read: unknown) => void
         vi.mocked(getRawTable)
             .mockResolvedValueOnce({
-                id: 't-1', name: 'BankRating', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+                id: 't-1',
+                name: 'BankRating',
+                source: [[{ cell: 'A1', value: '1' }]],
+                totalRows: 3,
             })
             .mockImplementationOnce(() => new Promise(resolve => {
                 releaseMore = resolve
             }) as never)
-            .mockResolvedValue({ id: 't-2', name: 'Limit', source: [[{ cell: 'A1', value: '2' }]]})
+            .mockResolvedValue({ id: 't-2', name: 'Limit', source: [[{ cell: 'A1', value: '2' }]] })
         const { rerender } = render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
 
@@ -1071,7 +1086,7 @@ describe('ModuleWorkspace', () => {
         await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
 
         await act(async () => {
-            releaseMore({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A2', value: '1b' }]]})
+            releaseMore({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A2', value: '1b' }]] })
         })
 
         // Still the one row of the table on screen: the other table's rows were not added to it.
@@ -1087,7 +1102,11 @@ describe('ModuleWorkspace', () => {
         let releaseMore!: (read: unknown) => void
         vi.mocked(getRawTable)
             .mockResolvedValueOnce({
-                id: 't-1', name: 'BankRating', pos: 'A1:A3', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+                id: 't-1',
+                name: 'BankRating',
+                pos: 'A1:A3',
+                source: [[{ cell: 'A1', value: '1' }]],
+                totalRows: 3,
             })
             .mockImplementationOnce(() => new Promise(resolve => {
                 releaseMore = resolve
@@ -1102,7 +1121,7 @@ describe('ModuleWorkspace', () => {
             expect.objectContaining({ startRow: 1, maxRows: 2 })))
         expect(screen.getByTestId('module-table')).toHaveAttribute('data-open-at', '')
         await act(async () => {
-            releaseMore({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A2', value: '2' }], [{ cell: 'A3', value: '3' }]]})
+            releaseMore({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A2', value: '2' }], [{ cell: 'A3', value: '3' }]] })
         })
 
         expect(screen.getByTestId('module-table')).toHaveTextContent('rows:3')
@@ -1115,7 +1134,11 @@ describe('ModuleWorkspace', () => {
             Promise.resolve({ ...project('OPENED'), capabilities: { canWrite: true } } as never))
         vi.mocked(getRawTable)
             .mockResolvedValueOnce({
-                id: 't-1', name: 'BankRating', pos: 'A1:A3', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+                id: 't-1',
+                name: 'BankRating',
+                pos: 'A1:A3',
+                source: [[{ cell: 'A1', value: '1' }]],
+                totalRows: 3,
             })
             .mockRejectedValue(new Error('The server is down.'))
         render(<ModuleWorkspace />)
@@ -1139,10 +1162,17 @@ describe('ModuleWorkspace', () => {
         ] as never)
         vi.mocked(getRawTable)
             .mockResolvedValueOnce({
-                id: 't-1', name: 'BankRating', pos: 'A1:A3', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+                id: 't-1',
+                name: 'BankRating',
+                pos: 'A1:A3',
+                source: [[{ cell: 'A1', value: '1' }]],
+                totalRows: 3,
             })
             .mockResolvedValueOnce({
-                id: 't-2', name: 'Limit', pos: 'A1:A3', totalRows: 3,
+                id: 't-2',
+                name: 'Limit',
+                pos: 'A1:A3',
+                totalRows: 3,
                 source: [[{ cell: 'A1', value: '1' }], [{ cell: 'A2', value: '2' }], [{ cell: 'A3', value: '3' }]],
             })
         const { rerender } = render(<ModuleWorkspace />)
@@ -1240,7 +1270,10 @@ describe('ModuleWorkspace', () => {
         await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true'))
         await act(async () => {
             releaseTable({
-                id: 't-1', name: 'BankRating', source: [[{ cell: 'A1', value: 'Bank' }]], runState: 'can-run-module',
+                id: 't-1',
+                name: 'BankRating',
+                source: [[{ cell: 'A1', value: 'Bank' }]],
+                runState: 'can-run-module',
             })
         })
 

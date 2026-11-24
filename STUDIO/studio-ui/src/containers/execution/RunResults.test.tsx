@@ -134,7 +134,7 @@ describe('RunResults', () => {
 
     it('shows a null result and a null input as null, not as undefined', async () => {
         // The API leaves a null value out of the result.
-        await show({ ...value, parameters: [{ name: 'name', description: 'String', lazy: false }]})
+        await show({ ...value, parameters: [{ name: 'name', description: 'String', lazy: false }] })
 
         const table = screen.getByTestId('run-result-table')
         expect([...table.querySelectorAll('td')].map(cell => cell.textContent)).toEqual(['null', 'null'])
@@ -186,7 +186,7 @@ describe('RunResults', () => {
         await show({
             ...value,
             result: { Value_Premium: 20.759999999999998 },
-            resultSpreadsheet: { columns: ['Value'], rows: ['Premium'], cells: [[20.759999999999998]]},
+            resultSpreadsheet: { columns: ['Value'], rows: ['Premium'], cells: [[20.759999999999998]] },
         })
 
         expect(screen.getByTestId('spreadsheet-run-result')).toHaveTextContent('20.759999999999998')

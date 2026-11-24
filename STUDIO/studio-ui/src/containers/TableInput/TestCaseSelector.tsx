@@ -36,7 +36,7 @@ export interface TestCaseSelectorProps {
 export type CaseSelection = { except: string[] } | string[]
 
 /** Every case of the table. */
-export const EVERY_CASE: CaseSelection = { except: []}
+export const EVERY_CASE: CaseSelection = { except: [] }
 
 /** Whether the selection stands for every case of the table, less the ones left out. */
 export const isEveryCase = (selection: CaseSelection): selection is { except: string[] } => !Array.isArray(selection)

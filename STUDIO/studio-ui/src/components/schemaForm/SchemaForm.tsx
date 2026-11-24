@@ -146,7 +146,15 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onCha
         const labels = Object.fromEntries(Object.entries(parameter.labels ?? {})
             .map(([field, names]) => [`${parameter.name}.${field}`, names]))
         const context: TreeContext = {
-            root, labels, editing, setEditing, expand, afterRemove, nodeMoved, entryOrder, entriesReordered,
+            root,
+            labels,
+            editing,
+            setEditing,
+            expand,
+            afterRemove,
+            nodeMoved,
+            entryOrder,
+            entriesReordered,
         }
         return buildNode({
             name: parameter.name,

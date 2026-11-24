@@ -25,7 +25,7 @@ describe('MarkedTextField', () => {
         const marked = field.querySelector<HTMLElement>('[data-mark="warning"]')
         expect(marked?.style.fontWeight).toBe('bold')
         expect(marked).toHaveStyle({ color: '#8a5a00' })
-        expect(readField(field)).toEqual({ value: 'Good Morning', marks: [{ from: 5, to: 12, color: 'warning' }]})
+        expect(readField(field)).toEqual({ value: 'Good Morning', marks: [{ from: 5, to: 12, color: 'warning' }] })
     })
 
     it('reads a line break as a line of the text', () => {
@@ -39,7 +39,7 @@ describe('MarkedTextField', () => {
         const field = drawn('one', [{ from: 0, to: 3, color: 'info' }])
         field.querySelector('span')?.append(document.createElement('br'))
 
-        expect(readField(field)).toEqual({ value: 'one', marks: [{ from: 0, to: 3, color: 'info' }]})
+        expect(readField(field)).toEqual({ value: 'one', marks: [{ from: 0, to: 3, color: 'info' }] })
     })
 
     it('puts the selection over a piece of the text and reads where it stands', () => {

@@ -48,7 +48,7 @@ export const useDescriptorMigration = (
             setMigration(current => ({
                 ...current,
                 [scope]: scope === 'rulesXml'
-                    ? { movableRootModules: [], migratable: false, newModules: []}
+                    ? { movableRootModules: [], migratable: false, newModules: [] }
                     : { migratable: false },
             }))
             onMigrated()

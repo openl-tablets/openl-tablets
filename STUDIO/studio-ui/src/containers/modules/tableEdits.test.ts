@@ -239,7 +239,7 @@ describe('tableEdits', () => {
 
             expect(sent(...steps)).toEqual([{
                 operation: 'insert',
-                target: { type: 'rows', position: 1, cells: [[{ value: '6' }, { formula: '=A2*2' }]]},
+                target: { type: 'rows', position: 1, cells: [[{ value: '6' }, { formula: '=A2*2' }]] },
             }])
         })
 
@@ -498,8 +498,13 @@ describe('tableEdits', () => {
         })
 
         it('moves a merge along with the rows laid down before it', () => {
-            const steps = [write(2, 0, ''), merge(1, 0, 2, 1), { kind: 'insertRow', at: 1 } as EditStep,
-                write(1, 0, '6'), write(1, 1, 'Early')]
+            const steps = [
+                write(2, 0, ''),
+                merge(1, 0, 2, 1),
+                { kind: 'insertRow', at: 1 } as EditStep,
+                write(1, 0, '6'),
+                write(1, 1, 'Early')
+            ]
 
             expect(sent(...steps).filter(edit => edit.operation === 'merge')).toEqual([
                 { operation: 'merge', target: { type: 'cells', row: 2, column: 0, rowspan: 2, colspan: 1 } },
@@ -549,7 +554,7 @@ describe('marks', () => {
     it('writes a text with its marks', () => {
         expect(sent(marked(1, 1, 'Good Morning', [{ from: 0, to: 4, color: 'error' }]))).toEqual([{
             operation: 'update',
-            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [{ from: 0, to: 4, color: 'error' }]},
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [{ from: 0, to: 4, color: 'error' }] },
         }])
     })
 

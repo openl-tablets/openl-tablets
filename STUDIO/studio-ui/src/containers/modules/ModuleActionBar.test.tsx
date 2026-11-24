@@ -332,7 +332,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('reformats the Excel files of the project once the reader confirms, and reads the project back', async () => {
-        formatProject.mockResolvedValue({ formatted: ['t1'], skipped: []})
+        formatProject.mockResolvedValue({ formatted: ['t1'], skipped: [] })
         const changed = vi.fn()
         render(
             <App>

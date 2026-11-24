@@ -7,7 +7,7 @@ describe('openProjectDialog', () => {
         const run = vi.fn()
         const dispatch = vi.spyOn(window, 'dispatchEvent')
 
-        openProjectDialog({ ...project, dependencies: []}, run)
+        openProjectDialog({ ...project, dependencies: [] }, run)
 
         expect(run).toHaveBeenCalledWith({ openDependencies: true, switchDependencies: true })
         expect(dispatch).not.toHaveBeenCalled()
@@ -21,7 +21,7 @@ describe('openProjectDialog', () => {
         window.addEventListener('openProjectModal', listener)
 
         try {
-            openProjectDialog({ ...project, dependencies: [{ name: 'Provider' }]}, run)
+            openProjectDialog({ ...project, dependencies: [{ name: 'Provider' }] }, run)
         } finally {
             window.removeEventListener('openProjectModal', listener)
         }

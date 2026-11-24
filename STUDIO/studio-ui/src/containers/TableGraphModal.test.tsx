@@ -161,7 +161,7 @@ describe('TableGraphModal', () => {
     it('loads the project graph and renders it with cytoscape', async () => {
         mockApiCall.mockResolvedValueOnce([
             { id: 'a', name: 'A' },
-            { id: 'b', name: 'B', dependencies: ['a']},
+            { id: 'b', name: 'B', dependencies: ['a'] },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
@@ -226,7 +226,7 @@ describe('TableGraphModal', () => {
     it('highlights and centers the table picked from the search box', async () => {
         mockApiCall.mockResolvedValueOnce([
             { id: 'a', name: 'Alpha' },
-            { id: 'b', name: 'Beta', dependencies: ['a']},
+            { id: 'b', name: 'Beta', dependencies: ['a'] },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
@@ -266,9 +266,9 @@ describe('TableGraphModal', () => {
 
     it('treats a dispatcher as technical: no editor link, offers version paths instead', async () => {
         mockApiCall.mockResolvedValueOnce([
-            { id: 'd', name: 'mySPR', kind: 'Dispatcher', dependencies: ['a', 'b']},
-            { id: 'a', name: 'mySPR', dimensions: { state: ['AR']} },
-            { id: 'b', name: 'mySPR', dimensions: { state: ['AZ']} },
+            { id: 'd', name: 'mySPR', kind: 'Dispatcher', dependencies: ['a', 'b'] },
+            { id: 'a', name: 'mySPR', dimensions: { state: ['AR'] } },
+            { id: 'b', name: 'mySPR', dimensions: { state: ['AZ'] } },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
@@ -289,9 +289,9 @@ describe('TableGraphModal', () => {
 
     it('finds call cycles and highlights the one picked from the list', async () => {
         mockApiCall.mockResolvedValueOnce([
-            { id: 'a', name: 'A', dependencies: ['b']},
-            { id: 'b', name: 'B', dependencies: ['c']},
-            { id: 'c', name: 'C', dependencies: ['a']},
+            { id: 'a', name: 'A', dependencies: ['b'] },
+            { id: 'b', name: 'B', dependencies: ['c'] },
+            { id: 'c', name: 'C', dependencies: ['a'] },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
@@ -434,7 +434,7 @@ describe('TableGraphModal', () => {
         window.location.hash = '#repo/proj/module/table?id=a'
         mockApiCall.mockResolvedValueOnce([
             { id: 'a', name: 'Alpha' },
-            { id: 'b', name: 'Beta', dependencies: ['a']},
+            { id: 'b', name: 'Beta', dependencies: ['a'] },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
@@ -507,7 +507,7 @@ describe('TableGraphModal', () => {
         localStorage.clear()
         mockApiCall.mockResolvedValueOnce([
             { id: 'a', name: 'Alpha' },
-            { id: 'b', name: 'Beta', dependencies: ['a']},
+            { id: 'b', name: 'Beta', dependencies: ['a'] },
         ] as never)
 
         render(

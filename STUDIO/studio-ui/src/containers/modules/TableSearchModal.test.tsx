@@ -220,8 +220,12 @@ describe('TableSearchModal', () => {
     it('reads a table that is no method by its own header, and one named after its type just once', async () => {
         vi.mocked(searchTables).mockResolvedValue([
             found({ id: 'datatype-1', kind: 'Datatype', name: 'Driver', signature: 'Driver' }),
-            found({ id: 'test-1', kind: 'Test', name: 'DriverPremiumTest',
-                signature: 'DetermineDriverPremium DriverPremiumTest' }),
+            found({
+                id: 'test-1',
+                kind: 'Test',
+                name: 'DriverPremiumTest',
+                signature: 'DetermineDriverPremium DriverPremiumTest'
+            }),
             found({ id: 'env-1', kind: 'Environment', name: 'Environment' }),
         ])
         open()

@@ -490,14 +490,17 @@ describe('TableEditor', () => {
         const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
         expect(actions).toEqual([{
             operation: 'insert',
-            target: { type: 'rows', position: 2, cells: [[{ value: '12' }, { value: '' }]]},
+            target: { type: 'rows', position: 2, cells: [[{ value: '12' }, { value: '' }]] },
         }])
     })
 
     describe('where the reader stands once a line is taken away', () => {
         const rules: RawTableCell[][] = [
-            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 3 },
-                { covered: true }, { covered: true }],
+            [
+                { cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 3 },
+                { covered: true },
+                { covered: true }
+            ],
             [{ cell: 'B5', value: 'R1' }, { cell: 'C5', value: 0 }, { cell: 'D5', value: 'Good Morning' }],
             [{ cell: 'B6', value: 'R2' }, { cell: 'C6', value: 12 }, { cell: 'D6', value: 'Good Afternoon' }],
             [{ cell: 'B7', value: 'R3' }, { cell: 'C7', value: 18 }, { cell: 'D7', value: 'Good Evening' }],
@@ -516,8 +519,12 @@ describe('TableEditor', () => {
         }
 
         it.each([
-            ['the row that moves up into the place of the one taken away', 'Good Morning', 'remove_row',
-                'Good Afternoon'],
+            [
+                'the row that moves up into the place of the one taken away',
+                'Good Morning',
+                'remove_row',
+                'Good Afternoon'
+            ],
             ['the new last row when the last one is taken away', 'Good Evening', 'remove_row', 'Good Afternoon'],
             ['the column that moves along into the place of the one taken away', 'R2', 'remove_column', '12'],
             ['the new last column when the last one is taken away', 'Good Evening', 'remove_column', '18'],
@@ -715,7 +722,8 @@ describe('TableEditor', () => {
             await waitFor(() => expect(applyTableActions).toHaveBeenCalled())
             const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
             expect(actions).toContainEqual({
-                operation: 'update', target: { type: 'cell', row: 3, column: 2, value: '0.75' },
+                operation: 'update',
+                target: { type: 'cell', row: 3, column: 2, value: '0.75' },
             })
         })
 
@@ -809,8 +817,11 @@ describe('TableEditor', () => {
         // A lookup as Tutorial 1 has it: the rules run down one condition and across another, and what they
         // meet in is the return.
         const lookup: RawTableCell[][] = [
-            [{ cell: 'B4', value: 'Rules Double Premium(String age, String status)', colspan: 3 },
-                { covered: true }, { covered: true }],
+            [
+                { cell: 'B4', value: 'Rules Double Premium(String age, String status)', colspan: 3 },
+                { covered: true },
+                { covered: true }
+            ],
             [{ cell: 'B5', value: 'C1' }, { cell: 'C5', value: 'HC1' }, { cell: 'D5', value: 'RET1' }],
             [{ cell: 'B6', value: 'age' }, { cell: 'C6', value: 'status' }, { cell: 'D6', value: '' }],
             [{ cell: 'B7', value: 'String' }, { cell: 'C7', value: 'String' }, { cell: 'D7', value: '' }],
@@ -827,7 +838,7 @@ describe('TableEditor', () => {
                     { row: 5, column: 1, rows: null, columns: null, editor: 1 },
                 ],
                 cells: [],
-                editors: [{ editor: 'combo', choices: ['Married', 'Single']}, { editor: 'numeric' }],
+                editors: [{ editor: 'combo', choices: ['Married', 'Single'] }, { editor: 'numeric' }],
                 kind: 'declared',
             })
             return draw({ rows: lookup })
@@ -978,7 +989,7 @@ describe('TableEditor', () => {
                 [{ cell: 'B2', value: 'Test premium premiumTest' }],
                 ...['B3', 'B4', 'B5', 'B6', 'B7'].map(cell => [{ cell, value: cell }]),
             ]
-            draw({ rows: tests, whole: false, layout: { firstDataLine: 1, caseLines: [2, 2, 2]} })
+            draw({ rows: tests, whole: false, layout: { firstDataLine: 1, caseLines: [2, 2, 2] } })
             await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
             expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2', '3'])
@@ -998,10 +1009,16 @@ describe('TableEditor', () => {
     it('lays a row down inside a merged group without pushing its cells out of their columns', async () => {
         // The group `Young Driver` is one cell over the two rules under it, the way a rules table is written.
         const grouped: RawTableCell[][] = [
-            [{ cell: 'B4', value: 'Rules String Premium(String age, String status)', colspan: 3 },
-                { covered: true }, { covered: true }],
-            [{ cell: 'B5', value: 'R1' }, { cell: 'C5', value: 'Young Driver', rowspan: 2 },
-                { cell: 'D5', value: 'Married' }],
+            [
+                { cell: 'B4', value: 'Rules String Premium(String age, String status)', colspan: 3 },
+                { covered: true },
+                { covered: true }
+            ],
+            [
+                { cell: 'B5', value: 'R1' },
+                { cell: 'C5', value: 'Young Driver', rowspan: 2 },
+                { cell: 'D5', value: 'Married' }
+            ],
             [{ cell: 'B6', value: 'R2' }, { covered: true }, { cell: 'D6', value: 'Single' }],
         ]
         draw({ rows: grouped })
@@ -1311,8 +1328,14 @@ describe('TableEditor', () => {
 
             await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [{
                 operation: 'style',
-                target: { type: 'cells', row: 1, column: 1, rowspan: 1, colspan: 1,
-                    style: { background: { theme: 'dk1', tint: 0.5 } } },
+                target: {
+                    type: 'cells',
+                    row: 1,
+                    column: 1,
+                    rowspan: 1,
+                    colspan: 1,
+                    style: { background: { theme: 'dk1', tint: 0.5 } }
+                },
             }], 'Claims', undefined))
         })
 
@@ -1448,12 +1471,20 @@ describe('TableEditor', () => {
     it.each([
         ['moves between cells with the arrows, and opens one with Enter', '0', '{ArrowRight}{Enter}', 'Good Morning'],
         // The header spans both columns, so moving up from either of them lands on the header itself.
-        ['lands on the cell that owns the place a move reached',
-            'Good Morning', '{ArrowUp}{Enter}', 'Rules String Greeting(Integer hour)'],
+        [
+            'lands on the cell that owns the place a move reached',
+            'Good Morning',
+            '{ArrowUp}{Enter}',
+            'Rules String Greeting(Integer hour)'
+        ],
         // Up from the second column lands on the header, which spans both; coming back must return to the
         // cell that was left, not to the first column the header begins in.
-        ['turns back to the cell it came from rather than to the neighbour',
-            'Good Morning', '{ArrowUp}{ArrowDown}{Enter}', 'Good Morning'],
+        [
+            'turns back to the cell it came from rather than to the neighbour',
+            'Good Morning',
+            '{ArrowUp}{ArrowDown}{Enter}',
+            'Good Morning'
+        ],
         ['opens a cell on the character the reader types, and takes it as the value', 'Good Morning', 'N', 'N'],
     ])('%s', async (_behaviour, from, keys, opened) => {
         draw({ editing: false })
@@ -1565,7 +1596,7 @@ describe('TableEditor', () => {
     it('opens a cell on its field alone, with nothing dropped under it unasked', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             ...NO_EDITORS,
-            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
+            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2'] }],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
         draw()
@@ -1611,7 +1642,7 @@ describe('TableEditor', () => {
     it('offers a choice standing for none of them, which is how a cell is emptied', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             ...NO_EDITORS,
-            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
+            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2'] }],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
         draw()
@@ -1630,7 +1661,7 @@ describe('TableEditor', () => {
     it('offers the values a cell is chosen from, as the table said when editing started', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             ...NO_EDITORS,
-            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
+            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2'] }],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
         draw()
@@ -1674,9 +1705,15 @@ describe('TableEditor', () => {
         return draw({ rows: [
             [{ cell: 'C3', value: 'SmartLookup Integer quote(Integer units)', colspan: 2 }, { covered: true }],
             [{ cell: 'C4', value: 'units' }, { cell: 'D4', value: '1…50', metaInfo: {
-                type: 'IntRange', editor: 'range',
-                usages: [{ start: 0, end: 4, description: 'Condition: HC1', kind: 'other',
-                    ...(linked ? { tableId: 'condition', module: 'Ranges' } : {}) }],
+                type: 'IntRange',
+                editor: 'range',
+                usages: [{
+                    start: 0,
+                    end: 4,
+                    description: 'Condition: HC1',
+                    kind: 'other',
+                    ...(linked ? { tableId: 'condition', module: 'Ranges' } : {})
+                }],
             } }],
         ], ...over })
     }
@@ -1856,7 +1893,7 @@ describe('TableEditor', () => {
 
     it('opens a cell that takes more than one line over several lines at once', async () => {
         const long = 'A value long enough that the cell it sits in wraps it onto more than one line.'
-        draw({ rows: [[{ cell: 'B4', value: long }]]})
+        draw({ rows: [[{ cell: 'B4', value: long }]] })
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText(long))
@@ -2001,7 +2038,7 @@ describe('TableEditor marks', () => {
 
         expect(await saved()).toEqual([{
             operation: 'update',
-            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [{ from: 5, to: 12, color: 'error' }]},
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [{ from: 5, to: 12, color: 'error' }] },
         }])
     })
 
@@ -2028,7 +2065,7 @@ describe('TableEditor marks', () => {
 
         expect(await saved()).toEqual([{
             operation: 'update',
-            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: []},
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [] },
         }])
     })
 
