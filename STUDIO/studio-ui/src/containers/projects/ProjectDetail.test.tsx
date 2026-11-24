@@ -69,6 +69,7 @@ vi.mock('@ant-design/icons', () => ({
     ProfileOutlined: () => null,
     RocketOutlined: () => null,
     SafetyOutlined: () => null,
+    HomeOutlined: () => null,
     TeamOutlined: () => null,
 }))
 

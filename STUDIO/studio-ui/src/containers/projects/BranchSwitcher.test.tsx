@@ -36,6 +36,9 @@ vi.mock('@ant-design/icons', () => ({
     DownOutlined: () => null,
     LoadingOutlined: (props: Record<string, unknown>) => <i data-testid={props['data-testid'] as string} />,
     SafetyOutlined: (props: Record<string, unknown>) => <i data-testid={props['data-testid'] as string} />,
+    HomeOutlined: (props: Record<string, unknown>) => (
+        <i aria-label={props['aria-label'] as string} data-testid={props['data-testid'] as string} />
+    ),
 }))
 
 vi.mock('antd', async () => {
@@ -210,7 +213,8 @@ describe('BranchSwitcher', () => {
 
         await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
 
-        await waitFor(() => expect(within(screen.getByTestId('option-main')).getByText('browser.branch.default_tag'))
+        // The default branch wears the house, named for a screen reader as the Default branch.
+        await waitFor(() => expect(within(screen.getByTestId('option-main')).getByLabelText('browser.branch.default_tag'))
             .toBeInTheDocument())
     })
 

@@ -35,10 +35,14 @@ vi.mock('antd', () => ({
 vi.mock('@ant-design/icons', () => ({ BranchesOutlined: () => <span data-testid="branch-icon" /> }))
 
 vi.mock('antd-style', () => ({
-    createStyles: () => () => ({ styles: new Proxy({}, { get: (_target, name) => String(name) }) }),
+    createStyles: () => () => ({
+        styles: new Proxy({}, { get: (_target, name) => String(name) }),
+        cx: (...names: unknown[]) => names.filter(Boolean).join(' '),
+    }),
 }))
 
 vi.mock('./BranchMarks', () => ({
+    useBranchColor: () => () => undefined,
     BranchMarks: ({ isDefault, isProtected }: { isDefault?: boolean, isProtected?: boolean }) => (
         <span data-default={String(!!isDefault)} data-protected={String(!!isProtected)} data-testid="marks" />
     ),

@@ -78,6 +78,7 @@ vi.mock('@ant-design/icons', () => {
         BranchesOutlined: icon('branches'),
         ClearOutlined: icon('clear'),
         SafetyOutlined: icon('safety'),
+        HomeOutlined: icon('home'),
         CloudDownloadOutlined: icon('cloud-download'),
         CloudUploadOutlined: icon('cloud-upload'),
         DatabaseOutlined: icon('database'),

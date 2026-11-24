@@ -1,7 +1,7 @@
 import { BranchesOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { ValueText } from './ValueText'
-import { BranchMarks } from './BranchMarks'
+import { BranchMarks, useBranchColor } from './BranchMarks'
 
 const useStyles = createStyles(({ css, token }) => ({
     label: css`
@@ -84,9 +84,11 @@ export const BranchLabel = ({
     className,
 }: BranchLabelProps) => {
     const { styles, cx } = useStyles()
+    const branchColor = useBranchColor()
     const secondary = !prominent && tone === 'secondary'
     const toneClassName = secondary ? styles.secondary : undefined
-    const nameClassName = prominent ? styles.prominentName : toneClassName
+    // The default and the protected branch read in their own colour wherever they stand.
+    const nameClassName = cx(prominent ? styles.prominentName : toneClassName, branchColor({ isDefault, isProtected }))
     return (
         <span
             data-testid={testId}

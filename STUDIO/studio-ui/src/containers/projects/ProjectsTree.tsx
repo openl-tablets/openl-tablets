@@ -19,7 +19,7 @@ import type { Repository } from '../../types/repositories'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import { useSharedStyles } from './sharedStyles'
 import { RepoIcon } from './RepoBadge'
-import { BranchMarks } from './BranchMarks'
+import { BranchMarks, useBranchColor } from './BranchMarks'
 import { TagTypeMark } from '../tags/tagColor'
 import { inTagTypeThenNameOrder, useTagTypeOrder } from '../tags/tagOrder'
 import { useSearchScope } from '../../hooks/useSearchScope'
@@ -527,6 +527,7 @@ export const ProjectsTree = ({
     const locale = i18n.resolvedLanguage ?? i18n.language
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
+    const branchColor = useBranchColor()
     const token = useTheme()
     // The room the rail has for the tree, inside its padding: a tree of thousands of files draws the rows that fit and
     // no more.
@@ -1016,7 +1017,7 @@ export const ProjectsTree = ({
     // A branch group reads as its plain name in the tree's own style, with the same Default and protected
     // marks it wears on a project row; every other group is just its name.
     function groupTitle(node: GroupNode, marks: { isDefault: boolean, isProtected: boolean } | null): ReactNode {
-        const name = <span className={styles.label} title={node.title}>{node.title}</span>
+        const name = <span className={cx(styles.label, marks ? branchColor(marks) : undefined)} title={node.title}>{node.title}</span>
         if (marks) {
             return (
                 <>
