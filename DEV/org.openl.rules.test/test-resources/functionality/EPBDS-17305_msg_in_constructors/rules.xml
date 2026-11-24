@@ -1,0 +1,9 @@
+<project>
+    <name>EPBDS-16933-duplicate-warnings</name>
+    <modules>
+        <module>
+            <name>Rules</name>
+            <rules-root path="Rules.xlsx"/>
+        </module>
+    </modules>
+</project>

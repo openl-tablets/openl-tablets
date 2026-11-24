@@ -23,8 +23,10 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
 - **org.openl.rules.project** — Project model, instantiation strategies, resource resolution
 - **org.openl.rules.test** — Functional test framework (test table implementations). Its
   `test-resources/functionality` holds what a user showcase cannot: regressions of specific defects, expected
-  compilation errors and warnings (`.msg.txt`), Java and Groovy interop, engine internals. A behavior users see is
-  shown and tested once, in `Example-4-Reference-Guide` of `org.openl.rules.demo`, never again here
+  compilation errors and warnings (`.msg.txt`), Java and Groovy interop, engine internals. The warnings of a source
+  include those OpenL Studio adds about its calls of `msg` (`MessageCallCheck`), checked against the messages of the
+  project. A behavior users see is shown and tested once, in `Example-4-Reference-Guide` of `org.openl.rules.demo`,
+  never again here
 - **org.openl.rules.demo** — Demo projects OpenL Studio offers as templates, examples and tutorials. The jar ships
   inside the OpenL Studio war only: it is installed into the local repository but never deployed.
   `DemoProjectsTest` compiles every project and runs its test tables during the build, with dispatching validation

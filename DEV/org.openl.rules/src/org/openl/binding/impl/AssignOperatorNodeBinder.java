@@ -25,30 +25,43 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
      */
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
-        return bind(node, bindingContext, bindingContext);
-    }
-
-    /**
-     * Binds an assignment whose target and value are resolved in different binding contexts.
-     *
-     * <p>A named argument of a constructor, as in {@code new Customer(name = name)}, assigns a field of the new
-     * object. Its target is a field of that object. Its value is an expression of the caller: {@code name} on the
-     * right is the parameter or variable of the caller, not the field of the new object.
-     *
-     * @param targetContext  the context the target is resolved in
-     * @param bindingContext the context the value is resolved in, which also receives the errors
-     */
-    static IBoundNode bind(ISyntaxNode node, IBindingContext targetContext, IBindingContext bindingContext) {
-
         if (node.getNumberOfChildren() != 2) {
             return makeErrorNode("Expected two child nodes in assign node.", node, bindingContext);
         }
+        var target = bindChildNode(node.getChild(0), bindingContext);
+        var source = bindChildNode(node.getChild(1), bindingContext);
+        return assign(node, target, source, bindingContext);
+    }
 
+    /**
+     * Binds an assignment of a value bound already, whose target is resolved in another binding context.
+     *
+     * <p>A named argument of a constructor, as in {@code new Customer(name = name)}, assigns a field of the new
+     * object. Its target is a field of that object. Its value is an expression of the caller: {@code name} on the
+     * right is the parameter or variable of the caller, not the field of the new object. The value is bound once,
+     * whatever it is assigned to.
+     *
+     * @param targetContext  the context the target is resolved in
+     * @param source         the value, bound in the context of the caller
+     * @param bindingContext the context that receives the errors
+     */
+    static IBoundNode bind(ISyntaxNode node,
+                           IBindingContext targetContext,
+                           IBoundNode source,
+                           IBindingContext bindingContext) {
+        if (node.getNumberOfChildren() != 2) {
+            return makeErrorNode("Expected two child nodes in assign node.", node, bindingContext);
+        }
+        return assign(node, bindChildNode(node.getChild(0), targetContext), source, bindingContext);
+    }
+
+    private static IBoundNode assign(ISyntaxNode node,
+                                     IBoundNode target,
+                                     IBoundNode source,
+                                     IBindingContext bindingContext) {
         var index = node.getType().lastIndexOf('.');
         var methodName = node.getType().substring(index + 1);
 
-        var target = bindChildNode(node.getChild(0), targetContext);
-        var source = bindChildNode(node.getChild(1), bindingContext);
         if (!target.isLvalue()) {
             return makeErrorNode("Impossible to assign value.", node, bindingContext);
         }

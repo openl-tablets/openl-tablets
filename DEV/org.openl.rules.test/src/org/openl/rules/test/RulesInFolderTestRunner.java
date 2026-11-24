@@ -25,6 +25,8 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.validation.MessageCallCheck;
+import org.openl.rules.validation.ValidationUtils;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -156,7 +158,7 @@ public class RulesInFolderTestRunner {
 
             Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
             List<String> restMessages = new ArrayList<>(expectedMessages);
-            for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
+            for (OpenLMessage msg : messagesOf(compiledOpenClass)) {
                 String actual = msg.getSeverity() + ": " + msg.getSummary();
                 if (msg.getSeverity().equals(Severity.ERROR)) {
                     success = false;
@@ -180,6 +182,21 @@ public class RulesInFolderTestRunner {
                 }
             }
             return success;
+        }
+
+        /**
+         * The messages of the compilation, and the warnings OpenL Studio adds about the calls of {@code msg} of the
+         * module and of the modules it uses, checked against the messages of the module.
+         */
+        private static List<OpenLMessage> messagesOf(CompiledOpenClass compiledOpenClass) {
+            var messages = new ArrayList<OpenLMessage>(compiledOpenClass.getAllMessages());
+            var module = ValidationUtils.moduleOf(compiledOpenClass);
+            if (module != null) {
+                var source = module.getMessageSource();
+                ValidationUtils.modulesOf(module)
+                        .forEach(checked -> messages.addAll(MessageCallCheck.checkModule(checked, source)));
+            }
+            return messages;
         }
 
         private List<String> readExpectedMessages(File msgFile) {
