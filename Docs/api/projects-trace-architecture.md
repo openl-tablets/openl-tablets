@@ -266,9 +266,10 @@ the slowest tables aggregated by own time, constant-sized regardless of run size
 returns only that, and `view=compact` drops the non-active frames' step lists — both keep a large run's
 responses small (mainly for agents/MCP with bounded context).
 
-Off by default: a non-profiling session keeps only the live stack. The retained tree is capped at a fixed
-node count so one enormous run cannot balloon the heap; once the cap is hit, further nodes are dropped and
-`profile.truncated` is set, so the overview reports itself incomplete rather than exhausting memory.
+Off by default: a non-profiling session keeps only the live stack. The retained tree keeps every call and every
+step reference of the run, however many there are: a node takes about 200 bytes of heap, so a run of half a million
+calls (about three million nodes with their step references) keeps about 600 MB until its session or kept tree is
+released.
 
 ## Breakpoints
 

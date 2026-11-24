@@ -115,7 +115,7 @@ class DebugSessionRegistryTest {
         var registry = registry();
         var tree = tree();
         registry.start(session(projectId("A")));
-        registry.keepTree(new TraceTreeSnapshot("run-1", projectId("A"), tree, 1));
+        registry.keepTree(new TraceTreeSnapshot("run-1", projectId("A"), tree));
 
         // A click on a row cancels the session and starts another; the tree of the run stays.
         registry.clear();
@@ -129,9 +129,9 @@ class DebugSessionRegistryTest {
     @Test
     void keepsATreeForEveryRunSoEveryWindowBrowsesItsOwn() {
         var registry = registry();
-        var first = new TraceTreeSnapshot("run-1", projectId("A"), tree(), 1);
+        var first = new TraceTreeSnapshot("run-1", projectId("A"), tree());
         registry.keepTree(first);
-        registry.keepTree(new TraceTreeSnapshot("run-2", projectId("A"), tree(), 1));
+        registry.keepTree(new TraceTreeSnapshot("run-2", projectId("A"), tree()));
 
         assertNotNull(registry.tree(projectId("A"), "run-1"), "a run in another window keeps the first tree");
         assertNotNull(registry.tree(projectId("A"), "run-2"));
@@ -145,13 +145,13 @@ class DebugSessionRegistryTest {
     @Test
     void releaseOfEveryTreeAndWorkspaceResetDropTheKeptTrees() {
         var registry = registry();
-        registry.keepTree(new TraceTreeSnapshot("run-1", projectId("A"), tree(), 1));
-        registry.keepTree(new TraceTreeSnapshot("run-2", projectId("A"), tree(), 1));
+        registry.keepTree(new TraceTreeSnapshot("run-1", projectId("A"), tree()));
+        registry.keepTree(new TraceTreeSnapshot("run-2", projectId("A"), tree()));
         registry.releaseTrees();
         assertNull(registry.tree(projectId("A"), "run-1"));
         assertNull(registry.tree(projectId("A"), "run-2"));
 
-        registry.keepTree(new TraceTreeSnapshot("run-3", projectId("A"), tree(), 1));
+        registry.keepTree(new TraceTreeSnapshot("run-3", projectId("A"), tree()));
         registry.onWorkspaceReset(new WorkspaceResetEvent(this, null));
         assertNull(registry.tree(projectId("A"), "run-3"));
     }
@@ -159,7 +159,7 @@ class DebugSessionRegistryTest {
     @Test
     void aTraceRequestOfTheClientKeepsItsTreesFromIdling() {
         var registry = registry();
-        var kept = spy(new TraceTreeSnapshot("run-1", projectId("A"), tree(), 1));
+        var kept = spy(new TraceTreeSnapshot("run-1", projectId("A"), tree()));
         registry.keepTree(kept);
         clearInvocations(kept);
 

@@ -1337,12 +1337,6 @@ export interface CallNodeView {
     dispatch?: DispatchInfo
     /** For kind=stepRef: the ref of the original step this node points at. */
     refStep?: string
-    /**
-   * Sub-calls this node made that ran but were dropped from the retained tree
-   * once it hit its size limit — absent when every sub-call was kept. Surface as
-   * "+N not retained (tree too large)".
-   */
-    notRetained?: number
 }
 
 /** What a trace stack read adds to the stack of a profiling run: its root `tree` and the size of its `profile`. */
@@ -1423,8 +1417,6 @@ export interface ProfileSummaryView {
     nodeCount: number
     /** Wall-clock of the whole run. */
     totalMillis: number
-    /** true when the retained call tree reached its node limit; the hotspots still count every call. */
-    truncated: boolean
 }
 
 /** The live execution stack — returned by start / step / stack reads. */

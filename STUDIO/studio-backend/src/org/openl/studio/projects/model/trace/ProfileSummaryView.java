@@ -19,8 +19,6 @@ import lombok.Builder;
  * @param distinctTables number of distinct tables that ran (may exceed the number of hotspots returned)
  * @param nodeCount      total number of table invocations in the run (the size of the full tree)
  * @param totalMillis    wall-clock execution time of the whole run, in milliseconds, excluding parked time
- * @param truncated      whether the profile is incomplete: more distinct tables ran than the returned hotspots, or
- *                       the executed tree hit its node cap
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -36,9 +34,6 @@ public record ProfileSummaryView(
         int nodeCount,
 
         @Schema(description = "trace.field.profile.total.desc")
-        double totalMillis,
-
-        @Schema(description = "trace.field.profile.truncated.desc")
-        boolean truncated
+        double totalMillis
 ) {
 }

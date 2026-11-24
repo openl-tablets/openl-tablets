@@ -348,7 +348,6 @@ class TraceDebuggerIntegrationTest {
                 .filter(step -> "R0C0".equals(step.ref())).findFirst().orElseThrow();
         assertEquals(List.of("T1"), caller.children().stream().map(CallNode::name).toList());
         assertTrue(tree.durationNanos() >= 0, "the root carries its measured execution time");
-        assertFalse(debugger.isTreeTruncated(), "a small run stays well under the node cap");
     }
 
     @Test
@@ -367,7 +366,6 @@ class TraceDebuggerIntegrationTest {
         assertEquals(2, calls.size());
         assertNotNull(calls.getFirst().dispatch());
         assertSame(calls.getFirst().dispatch(), calls.get(1).dispatch(), "the run keeps one copy of each choice");
-        assertEquals(3, debugger.recordedNodes(), "T0 and both calls of T1");
     }
 
     @Test
@@ -376,6 +374,17 @@ class TraceDebuggerIntegrationTest {
         debugger.start("plain-completion-worker", null, false, program(debugger));
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
         assertNull(debugger.completedTree(), "off by default: nothing is kept after completion");
+    }
+
+    @Test
+    void outOfMemoryOutsideATracedRuleEndsInError() {
+        var debugger = new TraceDebugger(CLASSIFIER);
+        var outOfMemory = new OutOfMemoryError("Java heap space");
+        debugger.start("out-of-memory-worker", null, false, () -> {
+            throw outOfMemory;
+        });
+        assertEquals(DebugStatus.ERROR, debugger.awaitInitialHalt(TIMEOUT));
+        assertSame(outOfMemory, debugger.error(), "the session reports the error that ended it");
     }
 
     @Test

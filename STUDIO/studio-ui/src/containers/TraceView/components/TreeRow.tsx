@@ -7,9 +7,9 @@ import type { TraceTreeStyles } from './TraceTree.styles'
 
 /**
  * Row primitives shared by the advanced ({@link TraceTree}) and business ({@link SimpleTraceTree}) trees:
- * indentation, the expand/collapse chevron, the expand-set updater, and the "more", "loading" and "not retained"
- * markers. Each tree keeps its own expansion state and toggle behaviour (both lazily fetch sub-calls) and passes
- * them in, so only the shared markup lives here.
+ * indentation, the expand/collapse chevron, the expand-set updater, and the "more" and "loading" markers. Each tree
+ * keeps its own expansion state and toggle behaviour (both lazily fetch sub-calls) and passes them in, so only the
+ * shared markup lives here.
  */
 
 /** Indentation for a tree row at the given depth. */
@@ -110,24 +110,6 @@ export const LoadingRow: React.FC<{
             <span className={styles.chevronSlot} />
             <Spin size="small" />
             <span className={styles.leafLabel}>{t('tree.loading')}</span>
-        </div>
-    )
-}
-
-/** The "+N sub-calls not retained" info row shown where the executed tree hit its size cap. */
-export const NotRetainedRow: React.FC<{
-    depth: number
-    count: number
-    testId?: string
-    /** The tree's styles, read once by the tree: a row reads none of its own. */
-    treeStyles: TraceTreeStyles
-}> = ({ depth, count, testId, treeStyles }) => {
-    const { styles, cx } = treeStyles
-    const { t } = useTranslation('trace')
-    return (
-        <div className={cx(styles.row, styles.inactive, styles.notRetained)} data-testid={testId} style={treeIndent(depth)}>
-            <span className={styles.chevronSlot} />
-            <span className={styles.leafLabel}>{t('tree.notRetained', { count })}</span>
         </div>
     )
 }

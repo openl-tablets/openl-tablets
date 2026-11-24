@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.ToLongFunction;
 import jakarta.annotation.PostConstruct;
@@ -36,8 +35,7 @@ import org.springframework.stereotype.Component;
  * a new session pushes the count over the limit, the least-recently-accessed session is reclaimed first.
  *
  * <p>The executed trees the business view keeps after a run ({@link TraceTreeSnapshot}) are released once idle for
- * the same timeout. Together they hold at most as many nodes as one run may record: when a new tree pushes the total
- * over that budget, the least-recently-read trees are released first.
+ * the same timeout. A tree keeps every call of its run and is never released to make room for another one.
  */
 @Slf4j
 @Component
@@ -47,18 +45,16 @@ public class DebugSessionReaper {
     private static final long IDLE_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(10);
     private static final long SWEEP_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(1);
     private static final int MAX_ACTIVE_SESSIONS = 16;
-    private static final long MAX_KEPT_TREE_NODES = DebugHookImpl.MAX_TREE_NODES;
 
     private final Set<DebugSession> sessions = ConcurrentHashMap.newKeySet();
     private final Set<TraceTreeSnapshot> trees = ConcurrentHashMap.newKeySet();
     private final long idleTimeoutMillis;
     private final long sweepIntervalMillis;
     private final int maxActiveSessions;
-    private final long maxKeptTreeNodes;
     private @Nullable ScheduledExecutorService scheduler;
 
     public DebugSessionReaper() {
-        this(IDLE_TIMEOUT_MILLIS, SWEEP_INTERVAL_MILLIS, MAX_ACTIVE_SESSIONS, MAX_KEPT_TREE_NODES);
+        this(IDLE_TIMEOUT_MILLIS, SWEEP_INTERVAL_MILLIS, MAX_ACTIVE_SESSIONS);
     }
 
     @PostConstruct
@@ -76,10 +72,9 @@ public class DebugSessionReaper {
         enforceCapacity();
     }
 
-    /** Start tracking a kept tree so it is released once idle, releasing the oldest if the node budget is exceeded. */
+    /** Start tracking a kept tree so it is released once idle. */
     public void register(TraceTreeSnapshot tree) {
         trees.add(tree);
-        enforceTreeBudget();
     }
 
     /**
@@ -91,33 +86,12 @@ public class DebugSessionReaper {
      * the cap, so an actively used session survives while stale or abandoned ones are dropped first.
      */
     private void enforceCapacity() {
-        releaseOldest(sessions, DebugSession::getLastAccessMillis, () -> sessions.size() > maxActiveSessions,
-                session -> reap(session, "active session limit " + maxActiveSessions + " exceeded"));
-    }
-
-    /**
-     * Bound the nodes the kept trees hold across the whole application. A tree is as large as its run, up to the
-     * millions of nodes one run may record, so the trees are limited by their size rather than by their number.
-     * The least-recently-read trees are released first, so the tree a user is browsing survives.
-     */
-    private void enforceTreeBudget() {
-        releaseOldest(trees, TraceTreeSnapshot::getLastAccessMillis,
-                () -> trees.stream().mapToLong(TraceTreeSnapshot::getNodeCount).sum() > maxKeptTreeNodes, tree -> {
-                    log.warn("Releasing the kept trace tree of {} nodes: kept trees exceed {} nodes",
-                            tree.getNodeCount(), maxKeptTreeNodes);
-                    release(tree);
-                });
-    }
-
-    /** Release the least-recently-accessed of the tracked while {@code over} holds; {@code release} untracks it. */
-    private static <T> void releaseOldest(Set<T> tracked, ToLongFunction<T> lastAccess, BooleanSupplier over,
-                                          Consumer<T> release) {
-        while (over.getAsBoolean()) {
-            var oldest = tracked.stream().min(Comparator.comparingLong(lastAccess));
+        while (sessions.size() > maxActiveSessions) {
+            var oldest = sessions.stream().min(Comparator.comparingLong(DebugSession::getLastAccessMillis));
             if (oldest.isEmpty()) {
                 return;
             }
-            release.accept(oldest.get());
+            reap(oldest.get(), "active session limit " + maxActiveSessions + " exceeded");
         }
     }
 

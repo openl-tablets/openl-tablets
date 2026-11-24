@@ -87,16 +87,6 @@ public final class TraceDebugger {
         return hook.isWatchTruncated();
     }
 
-    /** Whether the executed tree hit the node cap, so the profile overview is incomplete. */
-    public boolean isTreeTruncated() {
-        return hook.isTreeTruncated();
-    }
-
-    /** Lower the retained-tree node cap. Test seam only: exercise truncation without a huge profiled run. */
-    void setMaxTreeNodes(int maxTreeNodes) {
-        hook.setMaxTreeNodes(maxTreeNodes);
-    }
-
     /**
      * Start execution on a fresh virtual thread.
      *
@@ -151,13 +141,25 @@ public final class TraceDebugger {
             terminal = DebugStatus.TERMINATED;
         } catch (Throwable t) {
             error.set(t);
-            log.debug("Debug session failed", t);
             channel.markError();
             terminal = DebugStatus.ERROR;
         } finally {
             current.setContextClassLoader(previous);
         }
         listener.onStatusChanged(terminal);
+        // Logged last: logging allocates and can fail again while the heap is still full, and the session must
+        // reach its terminal status first.
+        logFailure(error.get());
+    }
+
+    private static void logFailure(@Nullable Throwable t) {
+        if (t instanceof OutOfMemoryError) {
+            // The executed tree keeps every call of a profiled run, so a huge run can fill the heap: the
+            // operator must see that the trace, not a rule, used it up.
+            log.error("Debug session ran out of memory: the run is too large for the heap", t);
+        } else if (t != null) {
+            log.debug("Debug session failed", t);
+        }
     }
 
     public DebugStatus status() {
@@ -182,12 +184,7 @@ public final class TraceDebugger {
         return hook.completedTree();
     }
 
-    /** How many nodes the executed tree holds; complete once {@link #completedTree()} is set. */
-    public int recordedNodes() {
-        return hook.recordedNodes();
-    }
-
-    /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
+    /** Per-table profiling stats accumulated over the run, for the hotspots overview. */
     public List<TableProfile> profileStats() {
         return hook.profileStats();
     }

@@ -151,7 +151,6 @@ class ProjectsTraceDebugControllerTreeTest {
         var debugger = mock(TraceDebugger.class);
         when(debugger.status()).thenReturn(DebugStatus.COMPLETED);
         when(debugger.completedTree()).thenReturn(completed);
-        when(debugger.recordedNodes()).thenReturn(3);
         var session = new DebugSession(projectId, TABLE_ID, debugger, null, null, Map.of(), runId);
         when(traceDebugService.startSession(any())).thenReturn(session);
     }

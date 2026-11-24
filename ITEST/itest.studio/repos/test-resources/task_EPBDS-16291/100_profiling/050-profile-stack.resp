@@ -38,8 +38,7 @@ Content-Type: application/json
     "distinctTables": 2,
     "hotspots": "*",
     "nodeCount": 4,
-    "totalMillis": "*",
-    "truncated": false
+    "totalMillis": "*"
   },
   "status": "completed",
   "tree": {

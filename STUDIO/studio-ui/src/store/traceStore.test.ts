@@ -91,7 +91,7 @@ describe('traceStore race hardening', () => {
     })
 
     it('loads the executed tree and hot-spots profile when a profiling run completes', async () => {
-        const profile = { hotspots: [], distinctTables: 2, nodeCount: 100, totalMillis: 8, truncated: false } as any
+        const profile = { hotspots: [], distinctTables: 2, nodeCount: 100, totalMillis: 8 } as any
         getStack.mockResolvedValue({ status: 'completed', frames: [], tree: null, profile } as any)
 
         useTraceStore.setState({ profiling: true })

@@ -103,7 +103,7 @@ public class TraceDebugMapper {
 
     /** Map the live stack (root to current frame) to a stack view with default full rendering. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
-        return toStackView(status, frames, error, null, List.of(), StackRenderOptions.FULL, false);
+        return toStackView(status, frames, error, null, List.of(), StackRenderOptions.FULL);
     }
 
     /**
@@ -111,11 +111,11 @@ public class TraceDebugMapper {
      * profiling mode the completed tree is available; {@code includeTree} embeds it in full, and a bounded
      * profile overview (the slowest tables) is always attached so a large run can be understood without it.
      * In {@code compact} mode only the active frame carries its sub-steps, so a step no longer re-sends
-     * every frame's steps. {@code treeTruncated} marks the profile incomplete when the tree hit the node cap.
+     * every frame's steps.
      */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
                                              @Nullable CallNode completedTree, List<TableProfile> profileStats,
-                                             StackRenderOptions options, boolean treeTruncated) {
+                                             StackRenderOptions options) {
         var views = new ArrayList<DebugFrameView>(frames.size());
         for (var i = 0; i < frames.size(); i++) {
             var frame = frames.get(i);
@@ -145,8 +145,7 @@ public class TraceDebugMapper {
                 .frames(views)
                 .error(buildStackError(frames, error));
         if (completedTree != null) {
-            view.profile(buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
-                    treeTruncated));
+            view.profile(buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos()));
             if (options.includeTree() && options.fullTree()) {
                 var flat = toFlatTree(completedTree);
                 view.treeNodes(flat.nodes()).treeDispatches(flat.dispatches());
@@ -212,13 +211,8 @@ public class TraceDebugMapper {
     /**
      * Shape the per-table stats gathered on the fly into a bounded hotspots overview: keep only the slowest
      * {@code top} tables by own time. Constant-sized regardless of run size.
-     *
-     * <p>The stats count every invocation the run made, so the overview stays accurate even when the executed
-     * tree was truncated for size — {@code treeTruncated} then flags only that the tree is incomplete, not the
-     * hotspots.
      */
-    static ProfileSummaryView buildProfileSummary(List<TableProfile> stats, int top, long rootNanos,
-                                                  boolean treeTruncated) {
+    static ProfileSummaryView buildProfileSummary(List<TableProfile> stats, int top, long rootNanos) {
         List<ProfileHotspotView> hotspots = stats.stream()
                 .sorted(Comparator.comparingLong(TableProfile::selfNanos).reversed())
                 .limit(Math.max(1, top))
@@ -230,7 +224,6 @@ public class TraceDebugMapper {
                 .distinctTables(stats.size())
                 .nodeCount(invocations)
                 .totalMillis(toMillis(rootNanos))
-                .truncated(treeTruncated)
                 .build();
     }
 
@@ -558,13 +551,9 @@ public class TraceDebugMapper {
      * Build a node view from its identity, timings, and an already-serialized step list — the part shared by
      * the shallow node and the flat list, so they never drift in the node metadata they
      * report. Self time is the node's own work: its total minus the time spent in the tables it called.
-     * {@code childNanos} counts every sub-call it made — including ones the node cap dropped — so a truncated
-     * node does not report the dropped children's time as its own Self; it falls back to summing the retained
-     * children only for a node that carries no recorded {@code childNanos} (for example one synthesized in a test).
      */
     private static CallNodeView.CallNodeViewBuilder nodeViewBase(CallNode node, List<StepValueView> steps) {
-        long childrenNanos = node.childNanos() > 0 ? node.childNanos()
-                : sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
         return CallNodeView.builder()
                 .uri(node.uri())
                 .name(node.name())
@@ -574,8 +563,7 @@ public class TraceDebugMapper {
                 .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
                 .steps(steps)
                 .dispatch(node.dispatch())
-                .refStep(node.refStep())
-                .notRetained(node.notRetained() > 0 ? node.notRetained() : null);
+                .refStep(node.refStep());
     }
 
     private static StepValueView toStepView(CallNode.Step step, boolean shallow) {

@@ -141,7 +141,6 @@ describe('trace tools', () => {
                 distinctTables: 42,
                 nodeCount: 3571,
                 totalMillis: 128.4,
-                truncated: true,
             },
         })
 
@@ -153,8 +152,8 @@ describe('trace tools', () => {
 
         expect(queryOf(harness.mockHttp.history.post[0]).includeTree).toBe('false') // never pull the >1MB tree by default
         expect(queryOf(harness.mockHttp.history.post[0]).profileTop).toBe('30')
-        expect(textOf(result)).toBe('Status: completed.\n\nProfile: 128.4 ms, 3571 calls of 42 tables, the call tree cut at its size '
-            + 'limit; the slowest by own time:\n- VehiclePriceFactor (spreadsheet) own 83.4 ms, total 120.1 ms, 6 calls')
+        expect(textOf(result)).toBe('Status: completed.\n\nProfile: 128.4 ms, 3571 calls of 42 tables; the slowest by own time:\n'
+            + '- VehiclePriceFactor (spreadsheet) own 83.4 ms, total 120.1 ms, 6 calls')
     })
 
     it('openl_start_trace cuts the steps of a large call tree to the size of an answer, keeping the uri its expansion takes', async () => {
@@ -195,7 +194,7 @@ describe('trace tools', () => {
         harness.mockHttp.onGet(`${projectPath}/trace/tree/children`).reply(200, {
             children: [
                 { uri: 'u1', name: 'AgeFactor', kind: 'decisionTable', instance: 0, durationMillis: 1, selfMillis: 1, steps: [{ ref: 'R1C0', status: 'executed', childrenTotal: 0 }] },
-                { uri: 'u2', name: 'AgeFactor', kind: 'decisionTable', instance: 1, durationMillis: 1, selfMillis: 1, steps: [{ ref: 'R1C0', status: 'executed', childrenTotal: 2 }], notRetained: 7 },
+                { uri: 'u2', name: 'AgeFactor', kind: 'decisionTable', instance: 1, durationMillis: 1, selfMillis: 1, steps: [{ ref: 'R1C0', status: 'executed', childrenTotal: 2 }] },
             ],
             total: 4,
         })
@@ -214,7 +213,6 @@ describe('trace tools', () => {
         // total 4 > offset 0 + 2 returned → more pages, with the next offset computed.
         expect(parsed.hasMore).toBe(true)
         expect(parsed.nextOffset).toBe(2)
-        expect(parsed.children[1].notRetained).toBe(7)
     })
 
     it('openl_expand_trace_tree does not flag hasMore when the page is the last', async () => {

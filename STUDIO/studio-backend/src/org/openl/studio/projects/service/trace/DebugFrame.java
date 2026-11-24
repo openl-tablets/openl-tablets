@@ -53,9 +53,6 @@ public final class DebugFrame {
     public record ExecutedStep(String ref, @Nullable String label, @Nullable Object value, long durationNanos) {
     }
 
-    /** Upper bound on recorded sub-steps and condition checks, so a long loop or huge table cannot grow unbounded. */
-    private static final int MAX_RECORDED_PER_FRAME = 5000;
-
     private final FrameKind kind;
     private final Object source;
     private final String uri;
@@ -90,11 +87,6 @@ public final class DebugFrame {
     private long durationNanos;
     /** Sum of the durations of this frame's direct sub-call frames, so its own time is {@code duration - childNanos}. */
     private long childNanos;
-    /** Remaining nodes this frame's subtree may still retain, so one big branch cannot starve its siblings. */
-    @Setter(AccessLevel.PACKAGE)
-    private long budget;
-    /** Direct sub-calls this frame made that ran but were dropped once the tree hit its size limit. */
-    private long notRetained;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
     @Setter(AccessLevel.PACKAGE)
     private @Nullable DispatchInfo dispatch;
@@ -102,8 +94,6 @@ public final class DebugFrame {
     private @Nullable DebugFrame caller;
     /** The step of the caller that made the call, or {@code null}. */
     private @Nullable String callerRef;
-    /** Whether the executed tree admitted this frame. */
-    private boolean recorded;
 
     public DebugFrame(SourceClassifier.FrameDescriptor descriptor,
                       Object source,
@@ -123,19 +113,16 @@ public final class DebugFrame {
     }
 
     /** Remember where this frame was called from, so it can be recorded after it unwound. */
-    void calledBy(@Nullable DebugFrame caller, @Nullable String callerRef, boolean recorded) {
+    void calledBy(@Nullable DebugFrame caller, @Nullable String callerRef) {
         this.caller = caller;
         this.callerRef = callerRef;
-        this.recorded = recorded;
     }
 
     void recordExecutedStep(Object executor, String ref, @Nullable String label, @Nullable Object value,
                             long durationNanos) {
-        if (executedSteps.size() < MAX_RECORDED_PER_FRAME) {
-            var step = new ExecutedStep(ref, label, value, durationNanos);
-            executedSteps.add(step);
-            executedByExecutor.putIfAbsent(executor, step);
-        }
+        var step = new ExecutedStep(ref, label, value, durationNanos);
+        executedSteps.add(step);
+        executedByExecutor.putIfAbsent(executor, step);
     }
 
     /** The already-executed step run by the given executor, or {@code null} if it has not run in this frame. */
@@ -145,9 +132,7 @@ public final class DebugFrame {
     }
 
     void recordConditionCheck(ConditionCheck check) {
-        if (conditionChecks.size() < MAX_RECORDED_PER_FRAME) {
-            conditionChecks.add(check);
-        }
+        conditionChecks.add(check);
     }
 
     /** Remember a fired decision-table rule, so the returned rule and its result can be highlighted later. */
@@ -157,11 +142,7 @@ public final class DebugFrame {
         }
     }
 
-    /**
-     * Record a returned sub-call's structure under the step that made it (profiling mode only). Retention is
-     * bounded solely by the node cap in {@code admitNode}, which the caller checks before recording; there is
-     * no separate per-frame breadth cap here, so an admitted sub-call is never silently dropped afterwards.
-     */
+    /** Record a returned sub-call's structure under the step that made it (profiling mode only). Every one is kept. */
     void recordExecutedChild(@Nullable String callerRef, CallNode child) {
         executedChildren.computeIfAbsent(callerRef == null ? "" : callerRef, key -> new ArrayList<>()).add(child);
     }
@@ -187,7 +168,7 @@ public final class DebugFrame {
                 ? decisionSteps(decisionTable, intern)
                 : cellSteps(intern, detailedTitles);
         return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
-                steps, dispatch, null, notRetained, childNanos);
+                steps, dispatch, null);
     }
 
     /**
@@ -453,15 +434,5 @@ public final class DebugFrame {
     /** Add a completed direct sub-call's time, so this frame's own time excludes the tables it called. */
     void addChildNanos(long nanos) {
         this.childNanos += nanos;
-    }
-
-    /** Consume one node from this frame's subtree budget as a descendant is retained under it. */
-    void decrementBudget() {
-        this.budget--;
-    }
-
-    /** Record that one direct sub-call of this frame ran but was dropped from the tree once it hit its limit. */
-    void incrementNotRetained() {
-        this.notRetained++;
     }
 }

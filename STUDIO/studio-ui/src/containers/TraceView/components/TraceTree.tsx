@@ -15,13 +15,13 @@ import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from 'utils/keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
-import { LoadingRow, MoreRow, NotRetainedRow, treeIndent, treeItem, toggleKey, Twisty } from './TreeRow'
+import { LoadingRow, MoreRow, treeIndent, treeItem, toggleKey, Twisty } from './TreeRow'
 import { useFlashJump } from './useFlashJump'
 import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
 interface TreeRow {
-    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more' | 'loading' | 'notRetained'
+    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more' | 'loading'
     key: string
     depth: number
     frame?: DebugFrameView
@@ -89,11 +89,6 @@ const flatten = (
             if (open && expanded.has(stepKey)) {
                 walkChildren(node.uri, node.instance, step, depth + 2, stepKey, path)
             }
-        }
-        // A branch that outgrew the tree's size limit honestly reports how many of its sub-calls were dropped,
-        // so an analyst reading Hot Spots knows this node's children are incomplete rather than absent.
-        if ((node.notRetained ?? 0) > 0) {
-            rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1, moreCount: node.notRetained ?? 0 })
         }
     }
 
@@ -213,7 +208,6 @@ const TraceTree: React.FC = () => {
     const runTo = useTraceStore(s => s.runTo)
     const replayNode = useTraceStore(s => s.replayNode)
     const status = useTraceStore(s => s.status)
-    const truncated = useTraceStore(s => s.profile?.truncated ?? false)
     const treeChildren = useTraceStore(s => s.treeChildren)
     const treeLoading = useTraceStore(s => s.treeLoading)
     const fetchTreeChildren = useTraceStore(s => s.fetchTreeChildren)
@@ -521,17 +515,6 @@ const TraceTree: React.FC = () => {
     const renderLoading = (row: TreeRow): React.ReactNode =>
         <LoadingRow key={row.key} depth={row.depth} treeStyles={treeStyles} />
 
-    // A node whose sub-calls overflowed the tree's size limit: label how many were dropped, so the gap is
-    // visible instead of silently missing. Not clickable — the dropped branches were never retained to load.
-    const renderNotRetained = (row: TreeRow): React.ReactNode =>
-        (<NotRetainedRow
-            key={row.key}
-            count={row.moreCount ?? 0}
-            depth={row.depth}
-            testId={`tree-not-retained-${row.key}`}
-            treeStyles={treeStyles}
-        />)
-
     const render = (row: TreeRow): React.ReactNode => {
         switch (row.type) {
             case 'frame': return renderFrame(row)
@@ -539,7 +522,6 @@ const TraceTree: React.FC = () => {
             case 'callNode': return renderCallNode(row)
             case 'more': return renderMore(row)
             case 'loading': return renderLoading(row)
-            case 'notRetained': return renderNotRetained(row)
             default: return renderCallStep(row)
         }
     }
@@ -564,9 +546,6 @@ const TraceTree: React.FC = () => {
                     )}
                 </span>
             </div>
-            {truncated && (
-                <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>
-            )}
             <div aria-label={t('tree.title')} className={styles.rows} role="tree">
                 {rows.map(render)}
             </div>

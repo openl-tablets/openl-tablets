@@ -18,8 +18,7 @@ Content-Type: application/json
     ],
     "distinctTables": 1,
     "nodeCount": "#",
-    "totalMillis": "*",
-    "truncated": false
+    "totalMillis": "*"
   },
   "sessionId": "***"
 }

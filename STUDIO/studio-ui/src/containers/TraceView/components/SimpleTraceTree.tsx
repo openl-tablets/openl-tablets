@@ -12,7 +12,7 @@ import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from 'utils/keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
-import { LoadingRow, MoreRow, NotRetainedRow, treeIndent, toggleKey, Twisty } from './TreeRow'
+import { LoadingRow, MoreRow, treeIndent, toggleKey, Twisty } from './TreeRow'
 import { useStyles } from './TraceTree.styles'
 
 /** How many calls of an expanded step the tree shows at first, and how many more each "more" row shows. */
@@ -40,7 +40,7 @@ interface MoreCalls {
 
 /** One row of the flattened simple tree: a rule call, one of its steps, a step reference, or a marker. */
 interface SimpleRow {
-    type: 'node' | 'step' | 'condition' | 'ref' | 'notRetained' | 'more' | 'loading'
+    type: 'node' | 'step' | 'condition' | 'ref' | 'more' | 'loading'
     key: string
     depth: number
     node?: CallNodeView
@@ -53,7 +53,7 @@ interface SimpleRow {
     target?: SimpleInspectTarget
     /** True when a step row is a reference rendered inline (the same step used again elsewhere). */
     isRef?: boolean
-    /** For a capped-branch note, how many sub-calls were dropped; for a "more" row, how many are not shown. */
+    /** For a "more" row, how many calls are not shown. */
     count?: number
     /** For a "more" row, what a click shows next; absent when nothing more can be shown. */
     more?: MoreCalls
@@ -253,19 +253,7 @@ const flattenSimple = (
         }
         // The business view stays plain by default: a decision table shows only its returned rule, unless
         // "Show detailed trace" is on, which reveals the per-condition breakdown like the classic trace.
-        later(
-            ...displaySteps(node.steps, showDetailed).map(step => () => walkStep(node, step, depth, path)),
-            () => {
-                if ((node.notRetained ?? 0) > 0) {
-                    rows.push({
-                        type: 'notRetained',
-                        key: `${path}/notRetained`,
-                        depth: depth + 1,
-                        count: node.notRetained ?? 0
-                    })
-                }
-            }
-        )
+        later(...displaySteps(node.steps, showDetailed).map(step => () => walkStep(node, step, depth, path)))
     }
     walkDepthFirst(queue => {
         later = queue
@@ -584,9 +572,6 @@ const SimpleTraceTree: React.FC = () => {
         )
     }
 
-    const renderNotRetained = (row: SimpleRow): React.ReactNode =>
-        <NotRetainedRow key={row.key} count={row.count ?? 0} depth={row.depth} treeStyles={treeStyles} />
-
     const renderMore = (row: SimpleRow): React.ReactNode => {
         const { more } = row
         return (
@@ -610,7 +595,6 @@ const SimpleTraceTree: React.FC = () => {
             case 'more': return renderMore(row)
             case 'loading':
                 return <LoadingRow key={row.key} depth={row.depth} testId={`simple-loading-${row.key}`} treeStyles={treeStyles} />
-            default: return renderNotRetained(row)
         }
     }
 
