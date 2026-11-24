@@ -29,7 +29,6 @@ export const useStyles = createStyles(({ css, token }) => ({
     // come from the palette, which deepens them so that white text clears WCAG AA (≥4.5:1) in either theme.
     statusTag: css`
         flex: 0 0 auto;
-        margin-inline-end: 0;
         padding-inline: ${token.paddingSM}px;
         font-size: ${token.fontSize}px;
         font-weight: 600;
