@@ -1,5 +1,5 @@
 import { FC, lazy, Suspense, useContext, useState } from 'react'
-import { Avatar, Col, Drawer, Menu, type MenuProps, Row, Typography } from 'antd'
+import { Avatar, Drawer, Flex, Menu, type MenuProps, Typography } from 'antd'
 import { useStyles } from './UserMenu.styles'
 import {
     InfoCircleOutlined,
@@ -36,23 +36,15 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const [isAboutOpen, setIsAboutOpen] = useState<boolean>()
 
     const Title = (
-        <Row align="middle">
-            <Col style={{ marginRight: '10px' }}>
-                <Avatar icon={<UserOutlined />} />
-            </Col>
-            <Col>
-                <div className="user-menu-title">
-                    <div className="user-menu-title-username">
-                        {userProfile?.username}
-                    </div>
-                    <div className="user-menu-title-email">
-                        <Typography.Text style={{ fontWeight: 500 }} type="secondary">
-                            {userProfile?.email}
-                        </Typography.Text>
-                    </div>
-                </div>
-            </Col>
-        </Row>
+        <Flex align="center" gap="small">
+            <Avatar icon={<UserOutlined />} />
+            <div>
+                <div>{userProfile?.username}</div>
+                <Typography.Text style={{ fontWeight: 500 }} type="secondary">
+                    {userProfile?.email}
+                </Typography.Text>
+            </div>
+        </Flex>
     )
 
     const items: MenuProps['items'] = [
@@ -95,11 +87,11 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                 placement="right"
                 title={Title}
                 footer={(
-                    <Row justify="end">
+                    <Flex justify="end">
                         <Typography.Text type="secondary">
                             {t('common:user_menu.version', { version: appVersion })}
                         </Typography.Text>
-                    </Row>
+                    </Flex>
                 )}
             >
                 <Menu items={items} onClick={onClick} selectedKeys={[]} />
