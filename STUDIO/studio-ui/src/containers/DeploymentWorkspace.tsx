@@ -13,7 +13,7 @@ import { AuthorDate } from './projects/AuthorDate'
 
 const useStyles = createStyles(({ css, token }) => ({
     header: css`
-        padding: 12px 16px;
+        padding: ${token.paddingSM}px ${token.padding}px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     crumb: css`
@@ -34,12 +34,14 @@ const useStyles = createStyles(({ css, token }) => ({
     titleRow: css`
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: ${token.marginSM}px;
         min-width: 0;
-        margin-top: 8px;
+        margin-top: ${token.marginXS}px;
     `,
     title: css`
-        margin: 0 !important;
+        && {
+            margin: 0;
+        }
         min-width: 0;
         font-size: 22px;
         font-weight: 600;
@@ -53,7 +55,7 @@ const useStyles = createStyles(({ css, token }) => ({
 
         .ant-tabs-nav {
             flex: none;
-            padding: 0 16px;
+            padding: 0 ${token.padding}px;
             margin: 0;
         }
 
@@ -77,10 +79,8 @@ const useStyles = createStyles(({ css, token }) => ({
         max-width: 460px;
         font-weight: 500;
     `,
-    paginationBar: css`
-        display: flex;
-        justify-content: flex-end;
-        padding: 0 16px 16px;
+    pagination: css`
+        padding: 0 ${token.padding}px ${token.padding}px;
     `,
     centered: css`
         display: flex;
@@ -189,20 +189,20 @@ export const DeploymentWorkspace = () => {
     }
 
     const pagination = () => items.length > pageSize && (
-        <div className={styles.paginationBar}>
-            <Pagination
-                showSizeChanger
-                current={page}
-                data-testid="deployment-projects-pagination"
-                pageSize={pageSize}
-                pageSizeOptions={PAGE_SIZE_OPTIONS}
-                total={items.length}
-                onChange={(nextPage, nextSize) => {
-                    setPage(nextPage)
-                    setPageSize(nextSize)
-                }}
-            />
-        </div>
+        <Pagination
+            showSizeChanger
+            align="end"
+            className={styles.pagination}
+            current={page}
+            data-testid="deployment-projects-pagination"
+            pageSize={pageSize}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            total={items.length}
+            onChange={(nextPage, nextSize) => {
+                setPage(nextPage)
+                setPageSize(nextSize)
+            }}
+        />
     )
 
     if (loading) {

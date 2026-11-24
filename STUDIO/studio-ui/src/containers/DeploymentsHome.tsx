@@ -34,10 +34,9 @@ const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         width: 100%;
         min-height: 46px;
-        padding: 12px 16px;
+        padding: ${token.paddingSM}px ${token.padding}px;
         border: none;
         background: none;
-        text-align: left;
         cursor: pointer;
         color: inherit;
 
