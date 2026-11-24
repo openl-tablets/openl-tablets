@@ -25,8 +25,11 @@ const useStyles = createStyles(({ css, token }) => ({
     branchCell: css`
         max-width: 280px;
         overflow: hidden;
-        vertical-align: middle !important;
         font-size: 12px;
+
+        && {
+            vertical-align: middle;
+        }
     `,
     fit: css`
         width: 1px;
@@ -71,9 +74,6 @@ const useStyles = createStyles(({ css, token }) => ({
             transition: none;
         }
     `,
-    projectText: css`
-        min-width: 0;
-    `,
     nameRow: css`
         display: flex;
         align-items: center;
@@ -94,11 +94,7 @@ const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorWarning};
     `,
     subRow: css`
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 4px 8px;
-        margin-top: 4px;
+        margin-top: ${token.marginXXS}px;
     `,
     modAuthor: css`
         max-width: ${MODIFIED_MAX_WIDTH}px;
@@ -111,14 +107,6 @@ const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextTertiary};
         font-size: 12px;
         white-space: nowrap;
-    `,
-    actionsCell: css`
-        text-align: right;
-    `,
-    actionsWrap: css`
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
     `,
 }))
 
@@ -214,28 +202,26 @@ export const ProjectsTable = ({
                             tabIndex={0}
                         >
                             <td>
-                                <div className={styles.projectText}>
-                                    <div className={styles.nameRow}>
-                                        <StatusMark status={project.status} testId={`status-${project.id}`} />
-                                        <Typography.Text
-                                            className={cx(styles.name, muted && styles.nameMuted)}
-                                            ellipsis={{ tooltip: project.name }}
-                                        >
-                                            {project.name}
-                                        </Typography.Text>
-                                        {lockLabel && (
-                                            <Tooltip title={lockLabel}>
-                                                <LockOutlined aria-label={lockLabel} className={styles.lock} />
-                                            </Tooltip>
-                                        )}
-                                        <RowCompileDot
-                                            compileStatus={compileStatusByProject.get(project.id)}
-                                            status={project.status}
-                                        />
-                                    </div>
-                                    <div className={styles.subRow}>
-                                        <ProjectTags tags={tags} />
-                                    </div>
+                                <div className={styles.nameRow}>
+                                    <StatusMark status={project.status} testId={`status-${project.id}`} />
+                                    <Typography.Text
+                                        className={cx(styles.name, muted && styles.nameMuted)}
+                                        ellipsis={{ tooltip: project.name }}
+                                    >
+                                        {project.name}
+                                    </Typography.Text>
+                                    {lockLabel && (
+                                        <Tooltip title={lockLabel}>
+                                            <LockOutlined aria-label={lockLabel} className={styles.lock} />
+                                        </Tooltip>
+                                    )}
+                                    <RowCompileDot
+                                        compileStatus={compileStatusByProject.get(project.id)}
+                                        status={project.status}
+                                    />
+                                </div>
+                                <div className={styles.subRow}>
+                                    <ProjectTags tags={tags} />
                                 </div>
                             </td>
                             {/* Switching a branch is a row action of its own: it must not open the project. */}
@@ -254,10 +240,8 @@ export const ProjectsTable = ({
                                 <div className={styles.modAuthor}>{project.modifiedBy || '—'}</div>
                                 {date && <div className={styles.modDate}>{date}</div>}
                             </td>
-                            <td className={cx(styles.fit, styles.actionsCell)}>
-                                <div className={styles.actionsWrap}>
-                                    <ProjectRowActions handlers={handlers} pendingActionId={pendingActionId} project={project} />
-                                </div>
+                            <td className={styles.fit}>
+                                <ProjectRowActions handlers={handlers} pendingActionId={pendingActionId} project={project} />
                             </td>
                         </tr>
                     )

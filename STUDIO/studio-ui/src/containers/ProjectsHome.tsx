@@ -101,7 +101,7 @@ const useStyles = createStyles(({ css, token }) => ({
         display: inline-flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: ${token.marginXXS}px ${token.margin - 2}px;
+        gap: ${token.marginXXS}px ${token.marginSM}px;
     `,
     compileItem: css`
         display: inline-flex;
