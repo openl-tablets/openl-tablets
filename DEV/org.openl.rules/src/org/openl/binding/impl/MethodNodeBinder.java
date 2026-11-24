@@ -1,7 +1,6 @@
 package org.openl.binding.impl;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -9,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.binding.impl.method.MultiCallOpenMethod;
@@ -55,17 +55,71 @@ public class MethodNodeBinder extends ANodeBinder {
             return errorNode;
         }
 
-        var childrenCount = node.getNumberOfChildren();
+        var methodName = ((IdentifierNode) node.getChild(node.getNumberOfChildren() - 1)).getIdentifier();
+        var namedArguments = namedArgumentsOf(node);
+        if (namedArguments == null) {
+            return bindCall(node, methodName, null, null, bindingContext);
+        }
+        // The values of named arguments are bound once, for a rule that takes them or for the constructor of a type
+        var type = typeToCreate(methodName, bindingContext);
+        try (var namedValues = ConstructorSugarSupport.NamedValues.bind(namedArguments, type, bindingContext)) {
+            return bindCall(node, methodName, type, namedValues, bindingContext);
+        }
+    }
 
+    /**
+     * The arguments of a call when each names a field of a new object, as {@code Type(field = value)}, or
+     * {@code null} for other arguments or none. Few calls have named arguments: the arguments are collected only for
+     * a call whose first argument names a field.
+     */
+    private static ISyntaxNode @Nullable [] namedArgumentsOf(ISyntaxNode node) {
+        if (node.getNumberOfChildren() < 2 || !ConstructorSugarSupport.isAssignment(node.getChild(0))) {
+            return null;
+        }
+        var arguments = argumentNodes(node);
+        return ConstructorSugarSupport.isNamedArguments(arguments) ? arguments : null;
+    }
+
+    /**
+     * The type a call with named arguments creates when no rule takes them, or {@code null} when none is known. A name
+     * of several types is reported when the type is looked up for the constructor, after the rules.
+     */
+    private static @Nullable IOpenClass typeToCreate(String name, IBindingContext bindingContext) {
+        try {
+            return bindingContext.findType(name);
+        } catch (AmbiguousTypeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Binds a call as the call of a rule, as an access to a field of its argument, or as the creation of an object of
+     * the type it names.
+     *
+     * @param namedType   the type the named arguments are bound for, or {@code null} to look it up
+     * @param namedValues the values of the named arguments, bound already, or {@code null} for other arguments
+     */
+    private IBoundNode bindCall(ISyntaxNode node,
+                                String methodName,
+                                @Nullable IOpenClass namedType,
+                                ConstructorSugarSupport.@Nullable NamedValues namedValues,
+                                IBindingContext bindingContext) throws Exception {
+        var childrenCount = node.getNumberOfChildren();
         var funcNode = node.getChild(childrenCount - 1);
-        var methodName = ((IdentifierNode) funcNode).getIdentifier();
         var argumentTypes = IOpenClass.EMPTY;
 
         bindingContext.pushErrors();
         bindingContext.pushMessages();
         var errorsAndMessagesPopped = false;
         try {
-            var children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+            IBoundNode[] children;
+            if (namedValues == null) {
+                children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+            } else {
+                // what binding the values reported counts as reported here, as if they were bound here
+                namedValues.report();
+                children = namedValues.assignments(bindingContext);
+            }
             var syntaxNodeExceptions = bindingContext.popErrors();
             var openLMessages = bindingContext.popMessages();
             errorsAndMessagesPopped = true;
@@ -98,15 +152,18 @@ public class MethodNodeBinder extends ANodeBinder {
                 }
             }
 
-            var type = bindingContext.findType(methodName);
-            var childNodes = new ISyntaxNode[node.getNumberOfChildren() - 1];
-            for (var i = 0; i < childNodes.length; i++) {
-                childNodes[i] = node.getChild(i);
+            var type = namedType != null ? namedType : bindingContext.findType(methodName);
+            if (type != null && namedValues != null) {
+                // The names are the fields of the type, not the variables of the caller
+                return ConstructorSugarSupport.makeNamedConstructor(node, namedValues, type, funcNode);
             }
-            var iBoundNode = Optional.ofNullable(type)
-                    .map(t -> ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, t, funcNode));
-            if (iBoundNode.isPresent()) {
-                return iBoundNode.get();
+            var constructor = type == null ? null
+                    : ConstructorSugarSupport
+                            .makeConstructor(node, argumentNodes(node), children, bindingContext, type, funcNode);
+            if (constructor != null) {
+                bindingContext.addMessages(openLMessages);
+                syntaxNodeExceptions.forEach(bindingContext::addError);
+                return constructor;
             }
 
             bindingContext.addMessages(openLMessages);
@@ -122,6 +179,15 @@ public class MethodNodeBinder extends ANodeBinder {
                 bindingContext.popMessages();
             }
         }
+    }
+
+    /** The arguments of a call, the name of the called method left aside. */
+    private static ISyntaxNode[] argumentNodes(ISyntaxNode node) {
+        var argumentNodes = new ISyntaxNode[node.getNumberOfChildren() - 1];
+        for (var i = 0; i < argumentNodes.length; i++) {
+            argumentNodes[i] = node.getChild(i);
+        }
+        return argumentNodes;
     }
 
     /**
@@ -260,20 +326,19 @@ public class MethodNodeBinder extends ANodeBinder {
         var methodName = ((IdentifierNode) lastNode).getIdentifier();
 
         var type = target.getType();
-        var argumentNodes = new ISyntaxNode[childrenCount - 1];
-        for (var i = 0; i < argumentNodes.length; i++) {
-            argumentNodes[i] = node.getChild(i);
-        }
+        var argumentNodes = argumentNodes(node);
         // `Dependency`.Type(field = value, ...) builds the type of the dependency, as Type(...) does in the module.
-        // The named arguments are the fields of the type, so they are bound for it when no rule of the dependency
-        // takes them: a matching rule comes first, as it does in the module.
+        // The named arguments are the fields of the type when no rule of the dependency takes them: a matching rule
+        // comes first, as it does in the module. Their values are bound once, for either.
         if (ConstructorSugarSupport.isNamedArguments(argumentNodes)) {
             var constructedType = dependencyType(type, methodName, bindingContext);
             if (constructedType != null) {
-                var ruleCall = matchingRuleCall(node, bindingContext, target, methodName);
-                return ruleCall != null ? ruleCall
-                        : ConstructorSugarSupport
-                                .makeSugarConstructor(node, argumentNodes, bindingContext, constructedType, lastNode);
+                try (var values = ConstructorSugarSupport.NamedValues
+                        .bind(argumentNodes, constructedType, bindingContext)) {
+                    var ruleCall = matchingRuleCall(node, values, target, methodName);
+                    return ruleCall != null ? ruleCall
+                            : ConstructorSugarSupport.makeNamedConstructor(node, values, constructedType, lastNode);
+                }
             }
         }
 
@@ -296,20 +361,24 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     /**
-     * The call of the rule of the target that takes the arguments as the caller binds them, or {@code null} when no
-     * rule takes them. Nothing is reported for arguments that no rule takes.
+     * The call of the rule of the target that takes the named arguments as the caller binds them, or {@code null}
+     * when no rule takes them. Nothing is reported for arguments that no rule takes.
+     *
+     * @param values the values of the arguments, bound already
      */
     private @Nullable IBoundNode matchingRuleCall(ISyntaxNode node,
-                                                  IBindingContext bindingContext,
+                                                  ConstructorSugarSupport.NamedValues values,
                                                   IBoundNode target,
                                                   String methodName) {
         var type = target.getType();
         if (!type.methods(methodName).iterator().hasNext()) {
             return null;
         }
+        var bindingContext = values.bindingContext();
         bindingContext.pushErrors();
         bindingContext.pushMessages();
-        var children = bindChildren(node, bindingContext, 0, node.getNumberOfChildren() - 1);
+        values.report();
+        var children = values.assignments(bindingContext);
         var errors = bindingContext.popErrors();
         var messages = bindingContext.popMessages();
         var methodCaller = errors.isEmpty()

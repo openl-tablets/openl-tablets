@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -50,12 +49,11 @@ public class NewNodeBinder extends ANodeBinder {
         }
         if (ConstructorSugarSupport.isNamedArguments(childNodes)) {
             // Not assignments to the variables of the caller, even when they have the names of the fields
-            return ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, type, typeNode);
+            return ConstructorSugarSupport.makeNamedConstructor(node, childNodes, bindingContext, type, typeNode);
         }
         bindingContext.pushErrors();
         bindingContext.pushMessages();
         var errorsAndMessagesPopped = false;
-        var sugarConstructor = false;
         List<SyntaxNodeException> syntaxNodeExceptions = List.of();
         Collection<OpenLMessage> openLMessages = List.of();
         try {
@@ -64,25 +62,18 @@ public class NewNodeBinder extends ANodeBinder {
             openLMessages = bindingContext.popMessages();
             errorsAndMessagesPopped = true;
             if (hasErrorBoundNode(children)) {
-                var iBoundNode = Optional.of(type)
-                        .map(t -> ConstructorSugarSupport
-                                .makeSugarConstructor(node, childNodes, bindingContext, t, node.getChild(childrenCount - 1)));
-                if (iBoundNode.isPresent()) {
-                    sugarConstructor = true;
-                    return iBoundNode.get();
-                }
-                return new ErrorBoundNode(node);
+                var created = ConstructorSugarSupport
+                        .makeConstructor(node, childNodes, children, bindingContext, type, typeNode);
+                return created != null ? created : new ErrorBoundNode(node);
             }
             var paramTypes = getTypes(children);
             var methodCaller = ModuleSpecificOpenMethod.findConstructorCaller(type, paramTypes, bindingContext);
             BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
             if (methodCaller == null) {
-                var iBoundNode = Optional.of(type)
-                        .map(t -> ConstructorSugarSupport
-                                .makeSugarConstructor(node, childNodes, bindingContext, t, node.getChild(childrenCount - 1)));
-                if (iBoundNode.isPresent()) {
-                    sugarConstructor = true;
-                    return iBoundNode.get();
+                var created = ConstructorSugarSupport
+                        .makeConstructor(node, childNodes, children, bindingContext, type, typeNode);
+                if (created != null) {
+                    return created;
                 }
                 var constructor = MethodUtil.printMethod(type.getName(), paramTypes);
                 return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
@@ -93,10 +84,8 @@ public class NewNodeBinder extends ANodeBinder {
             }
             return new ConstructorParamsNode(new MethodBoundNode(typeNode, methodCaller, children));
         } finally {
-            if (!sugarConstructor) {
-                bindingContext.addMessages(openLMessages);
-                syntaxNodeExceptions.forEach(bindingContext::addError);
-            }
+            bindingContext.addMessages(openLMessages);
+            syntaxNodeExceptions.forEach(bindingContext::addError);
             if (!errorsAndMessagesPopped) {
                 bindingContext.popErrors();
                 bindingContext.popMessages();

@@ -1,0 +1,12 @@
+WARN: Key 'Missing.NoReferences' has no default text: a language without a text of its own returns the key.
+WARN: 'Hello.NoReferences' has 0 placeholders, but 2 values are passed.
+WARN: Key 'Missing.RefersToSteps' has no default text: a language without a text of its own returns the key.
+WARN: 'Hello.RefersToSteps' has 0 placeholders, but 2 values are passed.
+WARN: Key 'Missing.Referenced' has no default text: a language without a text of its own returns the key.
+WARN: 'Hello.Referenced' has 0 placeholders, but 2 values are passed.
+WARN: Key 'Missing.Named' has no default text: a language without a text of its own returns the key.
+WARN: 'Hello.Named' has 0 placeholders, but 2 values are passed.
+WARN: Key 'Missing.Positional' has no default text: a language without a text of its own returns the key.
+WARN: 'Hello.Positional' has 0 placeholders, but 2 values are passed.
+WARN: Key 'Missing.Method' has no default text: a language without a text of its own returns the key.
+WARN: 'Hello.Method' has 0 placeholders, but 2 values are passed.
