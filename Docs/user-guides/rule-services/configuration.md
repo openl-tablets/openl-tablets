@@ -89,14 +89,16 @@ The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the 
 
 This is the default data source: `production-repository.$ref = repo-jar`. It reads the rule projects that are packed into the JAR files in the classpath of the application. A JAR file is an OpenL project if it contains `rules.xml`, `deployment.xml`, or `deployment.yaml` in its root, and a ZIP archive in the first `/openl/` folder of the classpath, such as `WEB-INF/classes/openl/`, is a project as well.
 
-This data source also reads the projects of an executable Spring Boot JAR: the JAR files in `BOOT-INF/lib` and the ZIP archives in the `BOOT-INF/classes/openl/` folder. Such a nested archive is read in place, so the executable JAR is built by the Spring Boot plugin of Maven or Gradle, 3.2 or later, with its default loader, which stores the nested archives uncompressed. An archive that cannot be read in place is skipped with a warning in the log: an archive of the classic loader of Spring Boot, an archive compressed inside the executable JAR, or a ZIP archive inside another JAR file. A descriptor among the classes of the application itself, in `BOOT-INF/classes`, is skipped with a warning in the log.
+This data source also reads the projects of an executable Spring Boot JAR: the JAR files in `BOOT-INF/lib` and the ZIP archives in the `BOOT-INF/classes/openl/` folder. Such a nested archive is read in place, so the executable JAR is built by the Spring Boot plugin of Maven or Gradle, 3.2 or later, with its default loader, which stores the nested archives uncompressed. An archive that cannot be read in place is skipped with a warning in the log: an archive of the classic loader of Spring Boot, an archive compressed inside the executable JAR, or a ZIP archive inside another JAR file. A descriptor that is not inside an archive, such as one among the classes of the application itself in `BOOT-INF/classes` or in a folder of the classpath, is skipped with a warning in the log.
 
 To deploy such projects to another configured data source at the application launch, proceed as follows:
 
-1.  Put the JAR file with the project to the `WEB-INF/lib` folder of the application.
+1.  Put the JAR file with the project to the `WEB-INF/lib` folder of the application, or make it a dependency of an executable Spring Boot JAR.
 2.  In the `application.properties` file, set up the `ruleservice.datasource.deploy.classpath.jars = IF_ABSENT`.
 
 By default, this property is set to `NEVER`. The `ALWAYS` value deploys the projects even if they were already deployed.
+
+The projects are found the same way as by the Classpath JAR data source, the projects of an executable Spring Boot JAR included, and each project is deployed once. The data source must be writable: the [ZIP Archives](#zip-archives) data source is read-only, so no project is deployed to it. A project the data source rejects as invalid, such as an empty archive, is skipped with an error in the log, and the other projects are deployed.
 
 **Note:** With `IF_ABSENT`, project deployment is skipped if the data source already contains the project with the same name.
 

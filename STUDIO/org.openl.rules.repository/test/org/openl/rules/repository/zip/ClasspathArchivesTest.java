@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +28,8 @@ import java.util.zip.ZipOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import org.openl.rules.repository.api.FileData;
 
@@ -142,6 +147,14 @@ class ClasspathArchivesTest {
     }
 
     @Test
+    void descriptorInFolderOfTheClasspathIsSkipped() throws IOException {
+        var descriptor = Files.writeString(Files.createDirectories(tempDir.resolve("classes")).resolve("rules.xml"),
+                "<project/>");
+
+        assertNull(archives.toPath(descriptor.toUri(), true));
+    }
+
+    @Test
     void archiveInJarOfTheFileSystemIsSkipped() throws IOException {
         var jar = Files.write(tempDir.resolve("lib.jar"), zip(Map.of("openl/sample.zip", sampleZip), false));
 
@@ -216,6 +229,69 @@ class ClasspathArchivesTest {
         var encodedTwice = jar.toUri().toString().replace("%20", "%2520");
 
         assertEquals(jar, archives.toPath(URI.create("jar:" + encodedTwice + "!/rules.xml"), true));
+    }
+
+    @Test
+    void archivesAreListedOnceAndUnreadableOnesSkipped() throws Exception {
+        var jar = Files.write(tempDir.resolve("rules.jar"), rulesJar);
+        var descriptor = resource(URI.create("jar:" + jar.toUri() + "!/rules.xml"));
+        var unknown = unknownResource();
+        var resolver = mock(ResourcePatternResolver.class);
+        when(resolver.getResources(any(String.class))).thenReturn(new Resource[]{descriptor, unknown},
+                new Resource[]{descriptor},
+                new Resource[0]);
+
+        assertEquals(List.of(jar), new ClasspathArchives(resolver).archives());
+    }
+
+    @Test
+    void repositoryFailsOnUnreadableResource() throws Exception {
+        var unknown = unknownResource();
+        var resolver = mock(ResourcePatternResolver.class);
+        when(resolver.getResources(any(String.class))).thenReturn(new Resource[]{unknown});
+
+        assertThrows(IllegalArgumentException.class, new ClasspathArchives(resolver)::find);
+    }
+
+    @Test
+    void failedLookupSkipsOnlyItsOwnResources() throws Exception {
+        var jar = Files.write(tempDir.resolve("rules.jar"), rulesJar);
+        var descriptor = resource(URI.create("jar:" + jar.toUri() + "!/rules.xml"));
+        var resolver = mock(ResourcePatternResolver.class);
+        when(resolver.getResources(any(String.class))).thenReturn(new Resource[]{descriptor})
+                .thenThrow(new IllegalStateException("A class loader failed"))
+                .thenReturn(new Resource[0]);
+
+        assertEquals(List.of(jar), new ClasspathArchives(resolver).archives());
+    }
+
+    @Test
+    void repositoryFailsOnFailedLookup() throws Exception {
+        var resolver = mock(ResourcePatternResolver.class);
+        when(resolver.getResources(any(String.class))).thenThrow(new IllegalStateException("A class loader failed"));
+
+        assertThrows(IllegalStateException.class, new ClasspathArchives(resolver)::find);
+    }
+
+    @Test
+    void unreadableClasspathListsNothing() throws Exception {
+        var resolver = mock(ResourcePatternResolver.class);
+        when(resolver.getResources(any(String.class))).thenThrow(new IOException("The classpath cannot be read"));
+
+        assertEquals(List.of(), new ClasspathArchives(resolver).archives());
+    }
+
+    /**
+     * A resource of a class loader handing out URIs of a scheme no file system reads.
+     */
+    private static Resource unknownResource() throws IOException {
+        return resource(URI.create("vfs:/content/rules.jar/rules.xml"));
+    }
+
+    private static Resource resource(URI uri) throws IOException {
+        var resource = mock(Resource.class);
+        when(resource.getURI()).thenReturn(uri);
+        return resource;
     }
 
     /**

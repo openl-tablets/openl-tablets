@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.deployer;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -125,8 +126,24 @@ public class RulesDeployerService implements Closeable {
         deploy(null, in, ignoreIfExists);
     }
 
+    /**
+     * Deploys an archive of a file system.
+     *
+     * <p>An archive of another file system than the default one, such as an archive nested into a Spring Boot
+     * executable jar, is deployed from its content under the name of its file.
+     *
+     * @param path           the archive
+     * @param ignoreIfExists if deployment was exist before and overridable is false, it will not be deployed, if true,
+     *                       it will be overridden.
+     */
     public void deploy(Path path, boolean ignoreIfExists) throws IOException {
-        deployInternal(null, path, ignoreIfExists);
+        if (path.getFileSystem() == FileSystems.getDefault()) {
+            deployInternal(null, path, ignoreIfExists);
+        } else {
+            var name = FileUtils.getBaseName(path.getFileName().toString());
+            // Read at once: a stream of Spring Boot reads no bytes into a buffer larger than the rest of the archive
+            deploy(name, new ByteArrayInputStream(Files.readAllBytes(path)), ignoreIfExists);
+        }
     }
 
     public boolean isReady() {

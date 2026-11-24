@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,6 +25,7 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import org.openl.rules.repository.zip.ClasspathArchives;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
 class DeployClasspathJarsBeanTest {
@@ -55,10 +57,17 @@ class DeployClasspathJarsBeanTest {
         var classpathDeployer = new DeployClasspathJarsBean(unstableDeployerService,
                 DeployStrategy.ALWAYS,
                 0);
-        classpathDeployer.resourceResolver = mock(PathMatchingResourcePatternResolver.class);
-        var resource = mock(Resource.class);
-        when(resource.getURL()).thenReturn(new File(".").toURI().toURL());
-        when(classpathDeployer.resourceResolver.getResources(any(String.class))).thenReturn(new Resource[0], new Resource[0], new Resource[0], new Resource[]{resource, resource});
+        var resourceResolver = mock(PathMatchingResourcePatternResolver.class);
+        classpathDeployer.archives = new ClasspathArchives(resourceResolver);
+        var first = mock(Resource.class);
+        when(first.getURI()).thenReturn(new File("first.zip").toURI());
+        var second = mock(Resource.class);
+        when(second.getURI()).thenReturn(new File("second.zip").toURI());
+        // The same archive found twice is deployed once
+        when(resourceResolver.getResources(any(String.class))).thenReturn(new Resource[0],
+                new Resource[0],
+                new Resource[0],
+                new Resource[]{first, second, first});
 
         // Iterations:
         // 1. Deployer service is unavailable
@@ -94,5 +103,36 @@ class DeployClasspathJarsBeanTest {
 
         verify(unstableDeployerService, times(4)).isReady();
         verify(unstableDeployerService, times(3)).deploy(any(Path.class), anyBoolean());
+    }
+
+    @Test
+    void invalidArchiveIsNotRetried() throws Exception {
+        var deployerService = mock(RulesDeployerService.class);
+        when(deployerService.isReady()).thenReturn(true);
+        var invalid = Path.of("empty.zip").toAbsolutePath();
+        var valid = Path.of("rules.zip").toAbsolutePath();
+        doThrow(new IllegalArgumentException("Zip file is empty.")).when(deployerService).deploy(invalid, false);
+        var deployed = new CountDownLatch(1);
+        doAnswer(invocation -> {
+            deployed.countDown();
+            return null;
+        }).when(deployerService).deploy(valid, false);
+        var invalidResource = mock(Resource.class);
+        when(invalidResource.getURI()).thenReturn(invalid.toUri());
+        var validResource = mock(Resource.class);
+        when(validResource.getURI()).thenReturn(valid.toUri());
+        var resourceResolver = mock(PathMatchingResourcePatternResolver.class);
+        when(resourceResolver.getResources(any(String.class))).thenReturn(new Resource[0],
+                new Resource[0],
+                new Resource[0],
+                new Resource[]{invalidResource, validResource});
+        var classpathDeployer = new DeployClasspathJarsBean(deployerService, DeployStrategy.IF_ABSENT, 60);
+        classpathDeployer.archives = new ClasspathArchives(resourceResolver);
+
+        classpathDeployer.start();
+
+        assertTrue(deployed.await(10, TimeUnit.SECONDS), "The archive behind the invalid one is deployed");
+        verify(deployerService, times(1)).deploy(invalid, false);
+        classpathDeployer.destroy();
     }
 }
