@@ -26,6 +26,8 @@ The first cell of column titles must be merged on all rows that contain horizont
 
 A horizontal condition value merged across several columns returns the values of all these columns as one array when the RET column is one column wide and either its parameter is declared as an array, or it has neither a parameter nor an expression and the table returns an array. A CRET column, which collects the results, keeps a rule for each column. For more information, see [Merged Horizontal Condition Values](08-lookup-tables-overview.md#merged-horizontal-condition-values).
 
+If the RET column is merged over several columns, each rule takes as many columns of values as the RET column. The values under the horizontal conditions must fill whole groups of such columns: when the last group is narrower, OpenL Tablets reports the table as an error. Columns empty in every row at the end of the values are left out.
+
 A title cell of a vertical condition must not be merged into the horizontal conditions part. OpenL Tablets reports such a cell as an error, names the vertical condition and the horizontal condition it spans, and points to the cell. This error also appears when a row that belongs elsewhere, such as the properties row, is placed in the titles row.
 
 To use multiple column parameters for a condition, return, or action, merge the column header and expression cells. Use this approach if a condition cannot be presented as a simple AND combination of one-parameter conditions.
