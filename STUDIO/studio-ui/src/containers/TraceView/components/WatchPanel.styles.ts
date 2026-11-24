@@ -4,27 +4,27 @@ export const useStyles = createStyles(({ css, token }) => ({
     panel: css`
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        padding: 8px;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingXS}px;
         min-height: 0;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     seriesList: css`
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: ${token.marginXS}px;
         min-height: 0;
         max-height: 40vh;
         overflow-y: auto;
     `,
     addRow: css`
         display: flex;
-        gap: 6px;
+        gap: ${token.marginXS}px;
     `,
     chips: css`
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
     `,
     hint: css`
         font-size: 12px;
@@ -51,7 +51,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     point: css`
         display: flex;
         align-items: flex-start;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
         padding: 1px 2px;
         border-radius: 3px;
 
