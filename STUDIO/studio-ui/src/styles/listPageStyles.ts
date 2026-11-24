@@ -115,7 +115,6 @@ export const useListPageStyles = createStyles(({ css, token }) => ({
         td {
             padding: ${token.paddingSM}px;
             border-bottom: 1px solid ${token.colorBorderSecondary};
-            vertical-align: middle;
         }
 
         td:first-of-type {
