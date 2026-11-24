@@ -36,7 +36,7 @@ To create project tags, proceed as follows:
 
 5.  To change the order of tag types, drag a tag type row by the handle at the start of the row and drop it at the new place. To move it with the keyboard, focus the handle, press Space, move the row with the arrow keys, and press Space again.
 
-    The tags of a project are shown in this order on its **Overview** tab. Tag types that were never moved, a new one among them, follow the arranged ones in alphabetical order.
+    The tags of a project are shown in this order on its **Overview** tab and in the project list, and the **Filters** view and **Group projects** list the tag types in it too. The tag types take their colors by their place in this order, so moving a tag type changes the colors. Tag types that were never moved, a new one among them, follow the arranged ones in alphabetical order.
 
 6.  To add a tag value, in the **Tags** column of the tag type row, click **+ Add Tag**, enter the tag name, and press **Enter** or click outside the field.
 

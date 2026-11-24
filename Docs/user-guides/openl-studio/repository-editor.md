@@ -128,7 +128,8 @@ more branches shows the projects on these branches instead.
 #### Filtering Projects
 
 The **Filters** view lists the filter values in groups: **Repository**, **Branch**, one group per tag type, and
-**Status**. Each value shows how many projects it covers.
+**Status**. Each value shows how many projects it covers. The tag groups come in the order an administrator arranged
+the tag types in, each marked with the tag icon in the color of its type.
 
 -   Several values of one group show the projects that match any of them.
 -   The small grey check box before the title of a group selects all values of the group at once. When all of them
@@ -680,7 +681,12 @@ Project tags classify projects, for example, by business domain or line of busin
 
 The tags of a project are stored in the `tags.properties` file located in the root directory of the project, one `<type>=<value>` line per tag. OpenL Studio does not ask for tags when a project is created. A project has the tags that its files carry, for instance, when it is created from a ZIP archive or copied from another project.
 
-Tags are shown in the **Tags** section of the **Overview** tab and in the project list, and they can be used for filtering and grouping projects. The **Tags** section lists the tags in the order an administrator arranged the tag types in, as described in [Managing Tags](administration/06-tags.md#managing-tags), followed by the tags of types not defined in OpenL Studio. The editor starts in the same order, so saving the tags writes the `tags.properties` file in it. To tag a project, proceed as follows:
+Tags are shown in the **Tags** section of the **Overview** tab and in the project list, and they can be used for filtering and grouping projects:
+
+-   Each tag type defined in OpenL Studio has a color of its own, taken by its place in the order an administrator arranged the tag types in. A tag type that is not defined in OpenL Studio is gray. A tag value is shown as a chip in the color of its type, and the tag icon of the type is in the same color in the **Filters** and **Tree** views. In the project list, a chip shows the value alone, and pointing to it shows the type.
+-   The tags, the tag groups of the **Filters** view and the tag types offered by **Group projects** follow the order an administrator arranged the tag types in, as described in [Managing Tags](administration/06-tags.md#managing-tags). The tag types not defined in OpenL Studio follow them.
+
+The **Tags** section lists the tags in this order, followed by the tags of types not defined in OpenL Studio. The editor starts in the same order, so saving the tags writes the `tags.properties` file in it. To tag a project, proceed as follows:
 
 1.  Open the project and its **Overview** tab.
 1.  Click the pencil icon **Edit tags** next to **Tags**. The icon is shown only while the project can be modified.

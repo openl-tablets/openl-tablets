@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { deriveProjectRow, ProjectBranch, ProjectBranchSwitch } from './projectRow'
+import { deriveProjectRow, ProjectBranch, ProjectBranchSwitch, ProjectTags } from './projectRow'
+import { tagColorsOf } from '../tags/tagColor'
+import { TagTypeOrder } from '../tags/tagOrder'
 import { formatDateTime } from '../../utils/dateFormat'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
@@ -72,6 +74,59 @@ describe('deriveProjectRow', () => {
         // A lock used to carry the raw timestamp while the row beside it was formatted.
         expect(row.lockLabel).toContain(formatDateTime('2026-07-09T11:45:00Z') as string)
         expect(row.lockLabel).not.toContain('2026-07-09T11:45:00Z')
+    })
+
+    it('keeps each tag value by its type, and no tags for a project without any', () => {
+        expect(deriveProjectRow({ ...project, tags: { Domain: 'Policy' } }, repoInfoOf, t).tags).toEqual({ Domain: 'Policy' })
+        expect(deriveProjectRow(project, repoInfoOf, t).tags).toEqual({})
+    })
+})
+
+describe('ProjectTags', () => {
+    it('shows each value in the color of its tag type, naming the type in the tooltip', () => {
+        render(
+            <TagTypeOrder value={['Domain', 'LOB']}>
+                <ProjectTags tags={{ Domain: 'Policy', LOB: 'Auto' }} />
+            </TagTypeOrder>
+        )
+
+        const chip = screen.getByTestId('project-tag-Domain')
+        expect(chip).toHaveTextContent('Policy')
+        expect(chip).toHaveAttribute('title', 'Domain: Policy')
+        expect(chip.className).toContain(`ant-tag-${tagColorsOf(['Domain', 'LOB'])('Domain')}`)
+        expect(screen.getByTestId('project-tag-LOB').className).toContain(`ant-tag-${tagColorsOf(['Domain', 'LOB'])('LOB')}`)
+    })
+
+    it('lists the tags in the order an administrator arranged the tag types in, then the others by name', () => {
+        render(
+            <TagTypeOrder value={['LOB', 'Domain']}>
+                <ProjectTags tags={{ Zone: 'North', Domain: 'Policy', area: 'West', LOB: 'Auto' }} />
+            </TagTypeOrder>
+        )
+
+        expect(screen.getAllByTestId(/^project-tag-/).map(chip => chip.textContent)).toEqual(['Auto', 'Policy', 'West', 'North'])
+    })
+
+    it('shows a tag of a type that is not configured in gray', () => {
+        render(
+            <TagTypeOrder value={['Domain']}>
+                <ProjectTags tags={{ Domain: 'Policy', Region: 'EU' }} />
+            </TagTypeOrder>
+        )
+
+        expect(screen.getByTestId('project-tag-Region').className).toContain('ant-tag-default')
+        expect(screen.getByTestId('project-tag-Domain').className).not.toContain('ant-tag-default')
+    })
+
+    it('collapses the tags past the fourth into a count', () => {
+        render(<ProjectTags tags={{ A: '1', B: '2', C: '3', D: '4', E: '5', F: '6' }} />)
+
+        expect(screen.queryByTestId('project-tag-E')).toBeNull()
+        expect(screen.getByText('+2')).toBeInTheDocument()
+    })
+
+    it('shows nothing for a project without tags', () => {
+        expect(render(<ProjectTags tags={{}} />).container.textContent).toBe('')
     })
 })
 

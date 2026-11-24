@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Tooltip, Typography } from 'antd'
+import { Alert, Button, Tag, Tooltip, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
@@ -10,6 +10,8 @@ import { serializeTagsProperties, TAGS_FILE_NAME, type TagEntry } from '../../se
 import { SuggestInput } from '../../components/SuggestInput'
 import { EditableList } from './EditableList'
 import { nameKey, sameName } from '../tags/tagNames'
+import { tagColorsOf, type TagColor } from '../tags/tagColor'
+import { inTagTypeOrder, PublishTagTypes, TagTypeOrder } from '../tags/tagOrder'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The tags read as a table: the type on the left, what the project is tagged with on the right. */
@@ -34,6 +36,12 @@ const useStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    `,
+    /** A tag value is a chip in the color of its type, as in the project list; a long one is cut off. */
+    chip: css`
+        align-self: flex-start;
+        max-width: 100%;
+        margin: 0;
     `,
     unset: css`
         color: ${token.colorTextQuaternary};
@@ -100,16 +108,6 @@ const typeOf = (types: TagType[], key: string): TagType | undefined => types.fin
 const isNotAllowed = (type: TagType | undefined, value: string): boolean => !!type && !type.extensible
     && value.trim() !== '' && !(type.values ?? []).some(allowed => sameName(allowed, value))
 
-/**
- * The tags in the order an administrator arranged the tag types in. The tags of types that are not configured
- * follow, in the order the file names them.
- */
-const inTypeOrder = (types: TagType[], entries: TagEntry[]): TagEntry[] => {
-    const ranks = new Map(types.map((type, index) => [nameKey(type.name), index]))
-    const rank = (entry: TagEntry) => ranks.get(nameKey(entry.key)) ?? types.length
-    return entries.toSorted((one, other) => rank(one) - rank(other))
-}
-
 /** Whether a key names a tag type that is not configured. Nothing is, while the configured types are unknown. */
 const isUnconfigured = (types: TagType[] | null, key: string): boolean =>
     types !== null && key.trim() !== '' && !typeOf(types, key)
@@ -161,7 +159,14 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     const [error, setError] = useState<string | null>(null)
 
     const types = tagTypes ?? []
-    const assigned = inTypeOrder(types, Object.entries(tags).map(([key, value]) => ({ key, value })))
+    // On the projects screen the tags follow the order the whole screen shares, so a refresh of the list reaches them
+    // too; elsewhere they follow the read of this section.
+    const shared = useContext(TagTypeOrder)
+    const typeNames = useMemo(() => shared ?? (tagTypes ?? []).map(type => type.name), [shared, tagTypes])
+    const colorOf = useMemo(() => tagColorsOf(typeNames), [typeNames])
+    // The tags in the order an administrator arranged the tag types in. The tags of types that are not configured
+    // follow, in the order the file names them.
+    const assigned = inTagTypeOrder(typeNames, Object.entries(tags).map(([key, value]) => ({ key, value })), entry => entry.key)
     // A repeated key cannot be written to the properties file, so saving waits until it is resolved.
     const duplicates = editing ? duplicateKeys(entries) : new Set<string>()
     // The warnings follow what is on the screen: the edited tags while editing, so a fix clears them at once.
@@ -172,13 +177,20 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     // The configured tag types feed the checks and the suggestions. They are read again whenever the editing
     // starts or ends, so a change an administrator made meanwhile shows. A failed read keeps what was read
     // before, or checks and suggests nothing when nothing was, and the tags are still shown and edited.
+    // What is read is handed to the projects screen too, so its list, rail and tree follow the same order and colours.
+    const publish = useContext(PublishTagTypes)
     useEffect(() => {
         let cancelled = false
         getTagTypes()
-            .then(read => !cancelled && setTagTypes(read))
+            .then(read => {
+                if (!cancelled) {
+                    setTagTypes(read)
+                    publish(read.map(type => type.name))
+                }
+            })
             .catch(() => undefined)
         return () => { cancelled = true }
-    }, [editing])
+    }, [editing, publish])
 
     const startEditing = () => {
         setError(null)
@@ -253,6 +265,7 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
             {assigned.map(({ key, value }) => (
                 <TagRow
                     key={key}
+                    color={colorOf(key)}
                     notAllowed={isNotAllowed(typeOf(types, key), value)}
                     type={key}
                     ui={ui}
@@ -329,12 +342,14 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
 }
 
 /**
- * One line of the table: the tag type, and what the project carries for it. A type that is not configured
- * is marked, and a value the type does not take is followed by the warning about it.
+ * One line of the table: the tag type, and what the project carries for it, as a chip in the color of the
+ * type. A type that is not configured is marked, and a value the type does not take is followed by the warning
+ * about it.
  */
-const TagRow = ({ ui, type, value, notAllowed, unconfigured }: {
+const TagRow = ({ ui, type, color, value, notAllowed, unconfigured }: {
     ui: TagStyles
     type: string
+    color: TagColor
     value: string
     notAllowed: boolean
     unconfigured: boolean
@@ -351,7 +366,9 @@ const TagRow = ({ ui, type, value, notAllowed, unconfigured }: {
                 </Tooltip>
             ) : <span className={styles.type}>{type}</span>}
             <span className={styles.flagged}>
-                <span className={styles.value}>{value}</span>
+                <Tag className={cx(styles.value, styles.chip)} color={color} data-testid={`tag-value-${type}`}>
+                    {value}
+                </Tag>
                 {notAllowed && <NotAllowedWarning className={styles.warning} type={type} value={value} />}
             </span>
         </>

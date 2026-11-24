@@ -3,6 +3,8 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProjectTags } from './useProjectTags'
+import { tagColorsOf } from '../tags/tagColor'
+import { PublishTagTypes, TagTypeOrder } from '../tags/tagOrder'
 import { getTagTypes } from '../../services/repositories'
 import { deleteFile, rootFileExists, writeRootFile } from '../../services/files'
 
@@ -52,6 +54,8 @@ describe('useProjectTags', () => {
 
         expect(screen.getByText('Region')).toBeInTheDocument()
         expect(screen.getByText('EU')).toBeInTheDocument()
+        // The value is a chip in the color of its type, as in the project list.
+        expect(screen.getByTestId('tag-value-Region').className).toContain(`ant-tag-${tagColorsOf(['Region'])('Region')}`)
         expect(screen.queryByTestId('project-tags-editor')).toBeNull()
     })
 
@@ -63,6 +67,9 @@ describe('useProjectTags', () => {
         expect(screen.getByText('anything')).toBeInTheDocument()
         expect(screen.getByTestId('tag-unconfigured-Home-made')).toBeInTheDocument()
         expect(screen.queryByTestId('tag-unconfigured-Region')).toBeNull()
+        // The value of a type that is not configured is gray, the same moment the type is marked.
+        expect(screen.getByTestId('tag-value-Home-made').className).toContain('ant-tag-default')
+        expect(screen.getByTestId('tag-value-Region').className).not.toContain('ant-tag-default')
         expect(screen.getByTestId('tags-unconfigured'))
             .toHaveTextContent('browser.tags.unconfigured {"types":"Home-made"}')
     })
@@ -320,6 +327,43 @@ describe('useProjectTags', () => {
 
         await waitFor(() => expect(screen.queryByTestId('tag-not-allowed-Region')).toBeNull())
         expect(getTagTypes).toHaveBeenCalledTimes(2)
+    })
+
+    it('hands the projects screen every order it reads, so a reorder reaches the rail on editing and cancelling', async () => {
+        const publish = vi.fn()
+        await renderRead(<PublishTagTypes value={publish}><Host tags={{ Region: 'EU' }} /></PublishTagTypes>)
+        expect(publish).toHaveBeenLastCalledWith(['Region'])
+
+        // An administrator reordered the tag types meanwhile, and no project was read again.
+        vi.mocked(getTagTypes).mockResolvedValue([
+            { name: 'Domain', values: [], nullable: true, extensible: true },
+            { name: 'Region', values: ['EU'], nullable: true, extensible: false },
+        ] as never)
+        await userEvent.click(screen.getByTestId('edit-tags'))
+        await waitFor(() => expect(publish).toHaveBeenLastCalledWith(['Domain', 'Region']))
+
+        vi.mocked(getTagTypes).mockResolvedValue([
+            { name: 'Region', values: ['EU'], nullable: true, extensible: false },
+            { name: 'Domain', values: [], nullable: true, extensible: true },
+        ] as never)
+        await userEvent.click(screen.getByTestId('tags-cancel'))
+        await waitFor(() => expect(publish).toHaveBeenLastCalledWith(['Region', 'Domain']))
+    })
+
+    it('follows the order the projects screen shares, when the screen refreshes it while the tags are shown', async () => {
+        const shown = (order: string[]) => (
+            <TagTypeOrder value={order}><Host tags={{ Domain: 'Policy', Region: 'EU' }} /></TagTypeOrder>
+        )
+        const { rerender } = render(shown(['Region', 'Domain']))
+        await act(async () => {})
+        expect(screen.getByTestId('project-tags')).toHaveTextContent(/^RegionEUDomainPolicy/)
+
+        // The list was read again and the order reordered: the tags shown follow without a read of their own.
+        rerender(shown(['Domain', 'Region']))
+
+        expect(screen.getByTestId('project-tags')).toHaveTextContent(/^DomainPolicyRegionEU/)
+        expect(screen.getByTestId('tag-value-Domain').className)
+            .toContain(`ant-tag-${tagColorsOf(['Domain', 'Region'])('Domain')}`)
     })
 
     it('saves the tags in spite of a warning', async () => {

@@ -13,7 +13,7 @@ i18next.addResourceBundle('en', 'tags', {
     tag_type_instruction_p1: 'To add a tag type, in the <0>New Tag Type field</0>, enter the tag type name and press <0>Enter</0> or <0>Tab</0>. The tag type is added, and fields for tag values appear',
     tag_type_instruction_p2: 'To add a tag value, in the <0>New Tag</0> field, enter the tag name and press <0>Enter</0>',
     tag_type_auto_save_notice: 'All created tag types and values are saved automatically',
-    tag_type_order_notice: 'Drag a tag type by its handle to change the order the tags are shown in on the Overview tab of a project',
+    tag_type_order_notice: 'Drag a tag type by its handle to change the order the tags of the projects are shown in',
     reorder: 'Move the {{name}} tag type',
     reorder_error: 'Failed to change the order of the tag types',
     tag_found_notice: 'The table lists only what is defined here. The tags found in projects but not defined here are listed below the table',
