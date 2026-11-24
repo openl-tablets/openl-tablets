@@ -8,7 +8,7 @@ const useStyles = createStyles(({ css, token }) => ({
     marks: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
 
         .anticon {
             flex: none;

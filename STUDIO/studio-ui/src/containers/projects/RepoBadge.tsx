@@ -14,11 +14,11 @@ const ICONS = {
     maven: CloudDownloadOutlined,
 }
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, token }) => ({
     badge: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
 
         .anticon {

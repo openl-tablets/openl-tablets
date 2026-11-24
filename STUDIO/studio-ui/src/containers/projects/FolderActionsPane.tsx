@@ -14,7 +14,7 @@ const useStyles = createStyles(({ css, token }) => ({
     path: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
 
         .anticon {

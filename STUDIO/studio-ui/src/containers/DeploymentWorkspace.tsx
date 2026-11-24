@@ -19,7 +19,7 @@ const useStyles = createStyles(({ css, token }) => ({
     crumb: css`
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         color: ${token.colorTextTertiary};
         font-size: 14px;
 

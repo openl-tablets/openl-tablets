@@ -12,7 +12,7 @@ import { projectCoordinatesOf } from '../../services/projectId'
 const useStyles = createStyles(({ css, token }) => ({
     /** The rows step in from the heading they belong to, like every other list on the tab. */
     indent: css`
-        margin-left: 18px;
+        margin-left: ${12 + token.marginXS}px;
     `,
     /** The name keeps room for a few letters however many marks follow it, and is cut short past that. */
     rowName: css`

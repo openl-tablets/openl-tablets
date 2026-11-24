@@ -107,7 +107,7 @@ const useStyles = createStyles(({ css, token }) => ({
     sectionTitleText: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
 
         .anticon {
@@ -294,13 +294,13 @@ const useStyles = createStyles(({ css, token }) => ({
     dependencyColumn: css`
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
     `,
     dependencyLabel: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
 
         .anticon {
             font-size: 12px;
@@ -334,7 +334,7 @@ const useStyles = createStyles(({ css, token }) => ({
     filterEditLabel: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         margin-bottom: 4px;
         color: ${token.colorTextTertiary};
         font-size: 12px;
@@ -352,7 +352,7 @@ const useStyles = createStyles(({ css, token }) => ({
     /** Values of a labelled column (include/exclude, depends-on, used-by) step in under their label,
      * so the line sits under the label text — past its icon — rather than directly under the icon. */
     filterValues: css`
-        margin-left: 18px;
+        margin-left: ${12 + token.marginXS}px;
     `,
     moduleFilter: css`
         display: flex;
@@ -389,7 +389,7 @@ const useStyles = createStyles(({ css, token }) => ({
     openapiModeOption: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
     `,
     /** In the editing view the label and its field share one line. */
     openapiEditRow: css`

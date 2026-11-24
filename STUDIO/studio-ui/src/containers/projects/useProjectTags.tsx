@@ -21,7 +21,7 @@ const useStyles = createStyles(({ css, token }) => ({
         /* A warning below a value adds a line, so the type keeps to the first one. */
         align-items: baseline;
         column-gap: 12px;
-        row-gap: 6px;
+        row-gap: ${token.marginXS}px;
     `,
     type: css`
         color: ${token.colorTextTertiary};
@@ -55,7 +55,7 @@ const useStyles = createStyles(({ css, token }) => ({
     entry: css`
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
     `,
     entryKey: css`

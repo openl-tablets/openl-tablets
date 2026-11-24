@@ -23,16 +23,16 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useSharedStyles } from './sharedStyles'
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, token }) => ({
     list: css`
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: ${token.marginXS}px;
     `,
     item: css`
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         min-width: 0;
     `,
     field: css`
