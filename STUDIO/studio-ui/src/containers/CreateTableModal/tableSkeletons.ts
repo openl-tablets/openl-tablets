@@ -183,9 +183,9 @@ const geometryOf = (preset: TablePreset, context: TableBuildContext): TablePrese
  * The rows at the top of the body that belong to the table type rather than to the author.
  *
  * <p>A lookup opens with one row for each argument running across the top, titled down the left by the arguments
- * running down it. The leading arguments take the columns, the trailing ones the rows. OpenL reads the number of
- * horizontal arguments off the height of the top-left cell and takes the columns left of it as the vertical ones,
- * so the corner spans `rows` rows and `keys` columns and the two always add up to the signature. That corner is
+ * running down it. The leading arguments take the columns, the trailing ones the rows. OpenL reads the horizontal
+ * arguments off the rows of the top-left cell, one row each here, and takes the columns left of it as the vertical
+ * ones, so the corner spans `rows` rows and `keys` columns and the two always add up to the signature. That corner is
  * kept as square as it can be, gaining a row before a column: two arguments give 1x1, three 2x1, five 3x2.
  *
  * <p>One argument has no second axis to spread over, so such a lookup opens with no band at all and is laid out

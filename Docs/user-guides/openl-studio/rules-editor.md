@@ -967,7 +967,7 @@ To create a table:
      leading arguments run down the left, one column each, and the trailing ones across the top, one row each. The
      corner where the two meet is kept as square as it can be and gains a row before a column: two arguments give
      one of each, three give two rows and one column, five give three and two. That corner is written as a merged
-     cell, because its height is what tells OpenL how many arguments run across the top.
+     cell over the rows of the arguments across the top, one row each, which is how OpenL tells how many there are.
 
      A lookup of one argument has no second axis to spread over, so it is laid out exactly like a Simple Rules
      table — the argument down the left, the result beside it, and no corner at all. Every row is a rule from

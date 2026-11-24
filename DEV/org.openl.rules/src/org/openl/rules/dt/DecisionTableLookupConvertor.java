@@ -1,14 +1,18 @@
 package org.openl.rules.dt;
 
+import static org.openl.rules.table.GridTableUtils.isSameMergedCell;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.table.CoordinatesTransformer;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
@@ -16,6 +20,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.util.ParserUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup tables to create a single-column return
@@ -37,6 +42,9 @@ import org.openl.util.ParserUtils;
  * <p>
  * The Horizontal Conditions will be marked <b>HC1</b>, <b>HC2</b> etc. The first HC column or RET column will mark the
  * starting column of the lookup matrix
+ * <p>
+ * Each horizontal condition takes one row of the horizontal keys, or the rows its keys are merged down over. A key
+ * merged across several columns applies to each of them.
  */
 
 @RequiredArgsConstructor
@@ -50,8 +58,8 @@ public class DecisionTableLookupConvertor {
      * mistake of the user. Generated headers of Smart and Simple tables report a mismatch of titles instead.
      */
     private final boolean explicitHeaders;
-    private final List<IGridTable> hcHeaders = new ArrayList<>();
-    private IGridTable retTable;
+    private final @NonNull List<@NonNull IGridTable> hcHeaders = new ArrayList<>();
+    private @Nullable IGridTable retTable;
     @Getter
     private DTScale scale;
 
@@ -59,10 +67,15 @@ public class DecisionTableLookupConvertor {
         var headerRow = table.getRow(HEADER_ROW);
 
         var firstLookupColumn = findFirstLookupColumn(headerRow);
+        if (explicitHeaders && firstLookupColumn == 0) {
+            // The title of the first column tells the rows of the horizontal keys
+            throw new OpenLCompilationException("Vertical condition is mandatory for Lookup table.");
+        }
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
         validateLookupSection();
 
-        processHorizConditionsHeaders(table, firstLookupColumn);
+        var keys = processHorizConditionsHeaders(table, firstLookupColumn);
+        var hConditionRows = findHConditionRows(keys, hcHeaders.size());
 
         var lookupValuesTable = getLookupValuesTable(table, firstLookupColumn).getSource();
 
@@ -72,6 +85,7 @@ public class DecisionTableLookupConvertor {
 
         var transformer = getTransformer(table,
                 headerRow,
+                hConditionRows,
                 lookupValuesTable,
                 lookupValuesTableHeight);
 
@@ -80,6 +94,7 @@ public class DecisionTableLookupConvertor {
 
     private CoordinatesTransformer getTransformer(ILogicalTable table,
                                                   ILogicalTable headerRow,
+                                                  int @NonNull [] hConditionRows,
                                                   IGridTable lookupValuesTable,
                                                   Integer lookupValuesTableHeight) throws OpenLCompilationException {
         validateRetColumn(headerRow);
@@ -94,6 +109,7 @@ public class DecisionTableLookupConvertor {
         return new LookupHeadersTransformer(table.getSource(),
                 lookupValuesTable,
                 retTableWidth,
+                hConditionRows,
                 firstVerticalColumn(headerRow),
                 buildHorizontalHeaderOffsets(headerRow));
     }
@@ -149,8 +165,13 @@ public class DecisionTableLookupConvertor {
         throw new OpenLCompilationException("RET or CRET column is mandatory for Lookup table.");
     }
 
-    private void processHorizConditionsHeaders(ILogicalTable originalTable,
-                                               int firstLookupColumn) throws OpenLCompilationException {
+    /**
+     * Finds the horizontal keys: the rows under the headers in the columns of the horizontal conditions.
+     *
+     * <p>A table with explicit headers is checked for a title cell that spans both vertical and horizontal conditions.
+     */
+    private @NonNull IGridTable processHorizConditionsHeaders(@NonNull ILogicalTable originalTable,
+                                                              int firstLookupColumn) throws OpenLCompilationException {
         var hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
         if (explicitHeaders) {
             validateTitleCells(originalTable.getRow(HEADER_ROW).getSource(), hcRowTable.getSource(), firstLookupColumn);
@@ -162,7 +183,10 @@ public class DecisionTableLookupConvertor {
             c++;
         }
         var hcHeaderTable = hcRowTable.getSubtable(c, 0, hcRowTable.getWidth() - c, hcRowTable.getHeight());
-        validateHCHeaders(hcHeaderTable);
+        if (hcHeaderTable == null) {
+            throw keysHeightError();
+        }
+        return hcHeaderTable.getSource();
     }
 
     /**
@@ -206,14 +230,6 @@ public class DecisionTableLookupConvertor {
         var cell = headers.getCell(column, 0);
         var topLeft = cell.getTopLeftCellFromRegion();
         return (topLeft == null ? cell : topLeft).getStringValue();
-    }
-
-    private static boolean isSameMergedCell(ICell left, ICell right) {
-        var leftRegion = left.getRegion();
-        var rightRegion = right.getRegion();
-        return leftRegion != null && rightRegion != null
-                && leftRegion.getTop() == rightRegion.getTop()
-                && leftRegion.getLeft() == rightRegion.getLeft();
     }
 
     private ILogicalTable getLookupValuesTable(ILogicalTable originalTable, int firstLookupColumn) {
@@ -277,11 +293,50 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
-        if (hcHeaderTable == null || hcHeaders.size() != hcHeaderTable.getSource().getHeight()) {
-            throw new OpenLCompilationException(
-                    "The height of the horizontal keys must be equal to the number of the horizontal headers.");
+    /**
+     * Finds the row of the horizontal keys each horizontal condition starts at.
+     *
+     * <p>A horizontal condition takes one row of the keys, or several rows when every key of it is merged down over
+     * them; a column empty in every row of the keys is left aside. A row where a key is not merged with the key above
+     * it starts a condition of its own, as without a merge.
+     *
+     * <p>Keys that take as many rows as there are horizontal conditions give each row to a condition of its own,
+     * whatever is merged down, as they did before merged keys took several rows.
+     *
+     * @return the row each horizontal condition starts at
+     * @throws OpenLCompilationException when the keys make more or fewer rows than there are horizontal conditions
+     */
+    private static int @NonNull [] findHConditionRows(@NonNull IGridTable keys, int hConditions)
+            throws OpenLCompilationException {
+        var rows = IntStream.range(0, keys.getHeight())
+                .filter(row -> row == 0 || !continuesRowAbove(keys, row))
+                .toArray();
+        if (rows.length == hConditions) {
+            return rows;
+        } else if (keys.getHeight() == hConditions) {
+            return IntStream.range(0, hConditions).toArray();
         }
+        throw keysHeightError();
+    }
+
+    /**
+     * Whether the row of the keys belongs to the horizontal condition above it: every key of the row is merged with
+     * the key above it, a column empty in every row of the keys aside.
+     */
+    private static boolean continuesRowAbove(@NonNull IGridTable keys, int row) {
+        return IntStream.range(0, keys.getWidth())
+                .allMatch(column -> isSameMergedCell(keys.getCell(column, row - 1), keys.getCell(column, row))
+                        || isEmptyColumn(keys, column));
+    }
+
+    private static boolean isEmptyColumn(@NonNull IGridTable keys, int column) {
+        return IntStream.range(0, keys.getHeight())
+                .allMatch(row -> StringUtils.isBlank(keys.getCell(column, row).getStringValue()));
+    }
+
+    private static @NonNull OpenLCompilationException keysHeightError() {
+        return new OpenLCompilationException(
+                "The height of the horizontal keys must be equal to the number of the horizontal headers.");
     }
 
     /**

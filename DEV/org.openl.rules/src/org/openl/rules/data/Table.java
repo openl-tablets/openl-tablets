@@ -1,5 +1,7 @@
 package org.openl.rules.data;
 
+import static org.openl.rules.table.GridTableUtils.isSameMergedCell;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +30,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -812,14 +813,6 @@ public class Table implements ITable {
             System.arraycopy(array, kept[i], result, i, 1);
         }
         return result;
-    }
-
-    private static boolean isSameMergedCell(ICell cell, ICell other) {
-        var region = cell.getRegion();
-        var otherRegion = other.getRegion();
-        return region != null && otherRegion != null
-                && region.getTop() == otherRegion.getTop()
-                && region.getLeft() == otherRegion.getLeft();
     }
 
     /**

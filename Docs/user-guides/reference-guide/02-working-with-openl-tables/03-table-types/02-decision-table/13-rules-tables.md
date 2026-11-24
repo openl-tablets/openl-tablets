@@ -22,7 +22,7 @@ The horizontal conditions are marked as HC1, HC2 and so on. Every lookup matrix 
 
 *A lookup table example*
 
-The first cell of column titles must be merged on all rows that contain horizontal condition values. The height of the titles row is determined by the first cell in the row. For example, see the **Country** cell in the previous example.
+The first cell of column titles must be merged on all rows that contain horizontal condition values. The height of the titles row is determined by the first cell in the row. For example, see the **Country** cell in the previous example. Each horizontal condition takes one of these rows, or several rows when its values are merged down. A table that declares as many HC columns as there are rows of horizontal condition values reads each row as a horizontal condition of its own, whatever values are merged down. For more information, see [Merged Horizontal Condition Values](08-lookup-tables-overview.md#merged-horizontal-condition-values).
 
 A title cell of a vertical condition must not be merged into the horizontal conditions part. OpenL Tablets reports such a cell as an error, names the vertical condition and the horizontal condition it spans, and points to the cell. This error also appears when a row that belongs elsewhere, such as the properties row, is placed in the titles row.
 

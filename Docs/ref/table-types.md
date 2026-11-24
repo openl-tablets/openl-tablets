@@ -22,8 +22,8 @@ A table is a rectangular block of cells on a worksheet. Rows are read top to bot
   It compiles to nothing.
 - **Merged cells carry meaning**, not just formatting. Merged down rows, a cell groups the rows it spans; merged
   across columns, it declares one condition over several columns — a range, or a group of columns beneath one
-  title. In a lookup the two directions say different things: the top-left cell's **height** is the number of
-  arguments written across the top, its **width** the number written down the left.
+  title. In a lookup the two directions say different things: the top-left cell's **height** covers the rows of the
+  arguments written across the top, its **width** the arguments written down the left.
 - **A cell starting with `=` is an expression**, evaluated against the table's parameters and the module's rules.
 
 ### Reading the Examples
@@ -114,7 +114,8 @@ Evaluates multiple conditions and returns a result. The most common table type.
 - **Condition columns:** `C1`, `C2`, ... — each maps to an input parameter expression
 - **Return column:** `RET` — the return value
 - **Action columns:** `A1`, `A2`, ... — side-effect actions (no return)
-- **Horizontal conditions:** `HC1`, `HC2`, ... — conditions along the column axis (lookup-style)
+- **Horizontal conditions:** `HC1`, `HC2`, ... — conditions along the column axis (lookup-style), after at least one
+  vertical condition
 - Supports merged cells for multi-row grouping
 - Supports `Collect` keyword to collect all matching results into an array
 
@@ -172,6 +173,8 @@ Decision table with both vertical (left) and horizontal (top) conditions.
 - Left columns: vertical conditions (like `C1`, `C2`)
 - Top row(s): horizontal conditions (like `HC1`)
 - Intersection cell: the return value
+- An argument across the top takes one row, or the rows its values are merged down over; merge the values of every
+  column the same way, as OpenL counts the arguments down the last column
 - **One argument has no second axis, so the table carries no title row**: every row from the first is a rule,
   the argument value on the left and the result beside it. A title row written above them is read as a rule too.
 
@@ -194,8 +197,10 @@ Same as Simple Lookup but with smart condition matching (ranges, wildcards, coll
 
 - **Header:** `SmartLookup Double getRate(String country, String currency)`
 - Leading arguments run down the left, trailing ones across the top
-- The top-left cell spans as many rows as there are arguments across the top, and as many columns as there are
-  down the left — its height is how OpenL counts them
+- The top-left cell spans the rows of the arguments across the top, and as many columns as there are arguments down
+  the left
+- OpenL counts the arguments across the top by the values down the last column under the corner; a merged one
+  counts once
 - **How the arguments split between the two axes is the author's**: OpenL reads the split off that corner, so
   three arguments work as one down and two across, or as two down and one across
 - A corner title of the form `<vertical>/<horizontal>` names both axes in one cell
@@ -206,6 +211,15 @@ Same as Simple Lookup but with smart condition matching (ranges, wildcards, coll
 | ↑             | ↑        | Low   | High     | Low   | High     |  <- area; the two titles reach down to here
 | Basic         | 100      | 20    | 30       | 30    | 66       |
 | Basic         | >= 500.0 | 35    | 60       | 60    | 99       |
+```
+
+```
+| SmartLookup Double Deductible(String coverage, String region, String tier) |
+| Coverage      | North | ←       | South | ←       |  <- region, merged down over two rows
+| ↑             | ↑     | ↑       | ↑     | ↑       |
+| ↑             | Basic | Premium | Basic | Premium |  <- tier
+| Collision     | 500   | 250     | 1000  | 500     |
+| Comprehensive | 250   | 100     | 500   | 250     |
 ```
 
 ### Spreadsheet (`Spreadsheet` / `Calc`)
