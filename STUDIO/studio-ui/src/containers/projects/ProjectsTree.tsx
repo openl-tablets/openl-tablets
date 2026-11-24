@@ -45,7 +45,6 @@ import { ClearFiltersButton } from './ClearFiltersButton'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 import { useWorkspaceChanges } from '../../hooks/useWorkspaceChanges'
 import { useElementSize } from '../../hooks/useElementSize'
-import { RAIL_INDENT, railRowWidth } from './railRowWidth'
 import { formatFileSize } from '../../utils/fileSize'
 import { joinClasses } from '../../utils/joinClasses'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
@@ -112,10 +111,6 @@ interface FileRows {
 
 /** The space between the rows and the sides of the panel. */
 const BODY_SIDE_PADDING = 8
-/** What the size of a file takes beside its name besides its text: the gap before it and its padding. */
-const SIZE_CHROME = 24
-/** What the Default badge and the shield of a branch group take beside its name. */
-const BRANCH_MARKS_WIDTH = 96
 
 /**
  * Reads the files of a project and, for a project being edited, its changes.
@@ -214,14 +209,6 @@ const samePaths = (left: string[] | undefined, right: string[] | undefined): boo
 const projectIdsOf = (nodes: GroupNode[]): string[] =>
     nodes.flatMap(node => (node.project ? [node.project.id] : projectIdsOf(node.children)))
 
-/** How wide the widest row in sight is: the rows of the tree, and the rows under those that are open. */
-const widestRow = (nodes: TreeNodeData[], open: ReadonlySet<string>, depth = 0): number =>
-    nodes.reduce((widest, node) => Math.max(
-        widest,
-        depth * RAIL_INDENT + node.rowWidth,
-        node.children && open.has(node.key) ? widestRow(node.children, open, depth + 1) : 0
-    ), 0)
-
 /** The open rows with the keys added; the same list when they are all open already, so nothing is drawn again. */
 const openAlso = (open: string[], keys: string[]): string[] => {
     const added = keys.filter(key => !open.includes(key))
@@ -311,39 +298,56 @@ const treeProjects = (projects: Project[], filters: ListingQuery, currentProject
 
 const useStyles = createStyles(({ css, token }) => ({
     /**
-     * The tree scrolls sideways instead of squeezing the names: a project is recognised by its full
-     * name, and a wrapped or clipped one is neither readable nor comparable to the row above it.
+     * The tree keeps to the width of the rail: a name too long for it ends in an ellipsis, and names itself in full in
+     * its tooltip. The rail is widened to read more of it.
      */
     body: css`
         box-sizing: border-box;
         /* The room of the rail, which the tree is drawn a screenful at a time in. */
         height: 100%;
         padding: 4px ${BODY_SIDE_PADDING}px 12px;
-        overflow-x: auto;
-
-        .ant-tree-list-holder-inner,
-        .ant-tree-list {
-            min-width: max-content;
-        }
+        overflow-x: hidden;
     `,
-    /** The tree is laid out at the width its names need; the body around it is what scrolls. */
+    /** A row takes the whole width of the tree, so the size of a file keeps to the right and a long name gives way. */
     tree: css`
-        width: max-content;
-        min-width: 100%;
+        width: 100%;
 
-        /* A row takes the whole width of the tree, so the size of a file can keep to the right. */
-        .ant-tree-node-content-wrapper {
+        && .ant-tree-node-content-wrapper {
             flex: auto;
+            min-width: 0;
+            overflow: hidden;
         }
 
-        .ant-tree-title {
+        && .ant-tree-title {
             flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .ant-tree-iconEle {
+            flex: none;
         }
     `,
+    /** A group or a project row: its name gives way first, what follows it keeps its width. */
     node: css`
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 6px;
+        min-width: 0;
+        white-space: nowrap;
+
+        & > * {
+            flex: none;
+        }
+    `,
+    /** A name that ends in an ellipsis where the rail ends. */
+    label: css`
+        && {
+            flex: 0 1 auto;
+        }
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
     `,
     current: css`
@@ -355,10 +359,14 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         align-items: baseline;
         gap: ${token.marginXS}px;
+        min-width: 0;
         white-space: nowrap;
     `,
     fileName: css`
         flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     `,
     /** A file added or modified and not saved yet: its name in the colour of the change. */
     added: css`
@@ -398,36 +406,17 @@ const useStyles = createStyles(({ css, token }) => ({
     deletedDot: css`
         background: ${token.colorError};
     `,
-    /**
-     * The tree is as wide as its widest row and may run past the rail, so the size keeps to the right edge of what
-     * the rail shows rather than to the end of the row. A long name then runs under it, so the size wears the
-     * colour of its row: the rail, and the tint of a row pointed at or picked over it.
-     *
-     * A tree drawn a screenful at a time scrolls sideways within its own box and cuts its rows at the edge of it, the
-     * padding of the size included: the size stands where it does in a tree drawn whole.
-     */
     /** What tells a project from another of its name: secondary to the name it follows. */
     qualifier: css`
         margin-left: ${token.marginXS}px;
         color: ${token.colorTextTertiary};
         font-weight: normal;
     `,
+    /** The size of a file, at the right end of its row: the name gives way to it. */
     size: css`
         flex: none;
-        position: sticky;
-        /* Over the padding of the body, up to the edge of the rail: a name running under the size never shows past it. */
-        right: -${BODY_SIDE_PADDING}px;
-        padding: 0 ${BODY_SIDE_PADDING}px 0 ${token.paddingXS}px;
-        background: ${token.colorBgLayout};
+        padding-right: ${token.paddingXXS}px;
         color: ${token.colorTextTertiary};
-
-        .ant-tree-node-content-wrapper:hover & {
-            background: linear-gradient(${token.controlItemBgHover}, ${token.controlItemBgHover}), ${token.colorBgLayout};
-        }
-
-        .ant-tree-node-selected & {
-            background: linear-gradient(${token.controlItemBgActive}, ${token.controlItemBgActive}), ${token.colorBgLayout};
-        }
         font-size: ${token.fontSizeSM}px;
     `,
     state: css`
@@ -877,10 +866,6 @@ export const ProjectsTree = ({
         () => nodes.map(node => toTreeNode(node)),
         [changesOf, contents, currentProjectId, foldersOf, foundIn, look, nodes, repoMeta]
     )
-    // How far the tree scrolls sideways: as far as the widest row in sight reaches, and never less than the rail is
-    // wide — a narrower width leaves the rows pushed to the right of an empty rail.
-    const widest = useMemo(() => Math.ceil(widestRow(treeData, new Set(openKeys))), [openKeys, treeData])
-    const scrollWidth = Math.max(widest, room.width)
 
     // Which rows have been read is told to the tree rather than left to it: a row counts as read while the files of
     // its project are.
@@ -919,7 +904,7 @@ export const ProjectsTree = ({
                     data-change={mark ?? undefined}
                     data-testid={`tree-${file.isFile ? 'file' : 'folder'}-${project.id}-${file.path}`}
                 >
-                    <span className={joinClasses(styles.fileName, mark && mark !== 'folder' && styles[mark])}>
+                    <span className={joinClasses(styles.fileName, mark && mark !== 'folder' && styles[mark])} title={file.name}>
                         {file.name}
                     </span>
                     {size !== null && <span className={styles.size}>{size}</span>}
@@ -927,7 +912,6 @@ export const ProjectsTree = ({
             )
             return {
                 key: fileKey(project.id, file.path, file.isFile),
-                rowWidth: size === null ? railRowWidth(file.name) : railRowWidth(file.name + size, SIZE_CHROME),
                 // An empty folder, added in the browser, has nothing to unfold. Given an arrow, the tree would ask to
                 // read it as long as it stands open, and the arrow would flicker between that and a spinner.
                 isLeaf: file.isFile || file.children?.length === 0,
@@ -956,13 +940,13 @@ export const ProjectsTree = ({
             // A failed read stays as it is until it is read again: the row offers that, for this project alone.
             return [{
                 key: `error:${project.id}`,
-                rowWidth: railRowWidth(`${read.error} ${t('home.retry')}`),
                 isLeaf: true,
                 selectable: false,
                 icon: null,
                 title: (
                     <span className={styles.node} data-testid={`tree-files-error-${project.id}`}>
-                        {read.error}
+                        {/* A long error gives way to the way back, so Retry stays in the rail. */}
+                        <span className={styles.label} title={read.error}>{read.error}</span>
                         <Button
                             data-testid={`tree-files-retry-${project.id}`}
                             size="small"
@@ -1032,10 +1016,11 @@ export const ProjectsTree = ({
     // A branch group reads as its plain name in the tree's own style, with the same Default and protected
     // marks it wears on a project row; every other group is just its name.
     function groupTitle(node: GroupNode, marks: { isDefault: boolean, isProtected: boolean } | null): ReactNode {
+        const name = <span className={styles.label} title={node.title}>{node.title}</span>
         if (marks) {
             return (
                 <>
-                    {node.title}
+                    {name}
                     <BranchMarks
                         isDefault={marks.isDefault}
                         isProtected={marks.isProtected}
@@ -1044,7 +1029,7 @@ export const ProjectsTree = ({
                 </>
             )
         }
-        return node.title
+        return name
     }
 
     function toTreeNode(node: GroupNode): TreeNodeData {
@@ -1058,7 +1043,6 @@ export const ProjectsTree = ({
             const qualifier = qualifiers.get(project.id)
             return {
                 key: node.key,
-                rowWidth: railRowWidth(qualifier ? `${project.name} ${qualifier}` : project.name),
                 // The row opens into the files of the project, read when it is first opened. A project
                 // that turned out to hold none has nothing to open into.
                 isLeaf: held?.length === 0,
@@ -1077,7 +1061,7 @@ export const ProjectsTree = ({
                 ),
                 title: (
                     <span className={cx(styles.node, current && styles.current)} data-testid={`tree-project-${project.id}`}>
-                        {project.name}
+                        <span className={styles.label} title={project.name}>{project.name}</span>
                         {qualifier && (
                             <span className={styles.qualifier} data-testid={`tree-project-qualifier-${project.id}`}>
                                 {qualifier}
@@ -1090,7 +1074,6 @@ export const ProjectsTree = ({
         const marks = node.groupedBy === GROUP_BY_BRANCH ? branchMarksOf(node) : null
         return {
             key: node.key,
-            rowWidth: railRowWidth(node.title, marks?.isDefault || marks?.isProtected ? BRANCH_MARKS_WIDTH : 0),
             icon: groupIcon(node),
             title: (
                 <span className={styles.node} data-testid={`tree-group-${node.key}`}>{groupTitle(node, marks)}</span>
@@ -1190,7 +1173,7 @@ export const ProjectsTree = ({
                     // A screenful of rows at a time, once the rail is laid out: a tree drawn whole — in a test, or for
                     // the moment before the rail is measured — has no height to fit. A branch opens at once: the
                     // height the rows slide down with is painted by the page.
-                    {...(room.height > 0 ? { height: room.height, scrollWidth } : {})}
+                    {...(room.height > 0 ? { height: room.height } : {})}
                     itemHeight={token.controlHeightSM}
                     motion={false}
                     onExpand={keys => setExpanded(keys as string[])}
@@ -1265,8 +1248,6 @@ export const ProjectsTree = ({
 
 interface TreeNodeData {
     key: string
-    /** How wide the row is, its indent left out: a virtualised tree is told how far it scrolls sideways. */
-    rowWidth: number
     title: ReactNode
     icon: ReactNode
     isLeaf?: boolean

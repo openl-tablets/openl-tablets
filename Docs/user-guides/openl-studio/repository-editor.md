@@ -172,6 +172,8 @@ the projects expanded in it by their path, opening the folders that hold them.
     project is saved, struck through with a red dot, and opens nothing; so does a folder whose files are all deleted.
     A folder whose files are all added is marked as added, and any other folder holding a changed file has an orange
     dot. Pointing at a marked row tells what changed.
+-   A name too long for the panel ends in an ellipsis, and pointing at it shows it in full. The size of a file stays at
+    the right end of its row. To read more of the names, drag the right edge of the panel to widen it.
 -   On a project page, the panel keeps both views. The tree applies the filters last used on the Projects list and
     always shows the project being viewed, even when those filters leave it out; picking a filter or a group there
     shows the list again. To search the tree,
