@@ -55,7 +55,7 @@ import {
     type BranchFacetCount,
     type FilterParam,
 } from './projectListing'
-import { ClearFiltersRow } from './ClearFiltersRow'
+import { ClearFiltersButton } from './ClearFiltersButton'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 
 const STATUS_ORDER: ProjectStatus[] = [
@@ -122,8 +122,6 @@ const useStyles = createStyles(({ css, token }) => ({
         border-top: 1px solid ${token.colorBorderSecondary};
     `,
     headActions: css`
-        display: inline-flex;
-        align-items: center;
         gap: ${token.marginXXS}px;
     `,
     hidden: css`
@@ -194,6 +192,8 @@ interface FilterGroup {
  * Every group folds on its own. Rearranging the rail — dragging a group elsewhere, putting one away or
  * bringing it back — is a mode of its own, entered from the head of the rail, so the plain rail stays
  * free of controls. How the user leaves the rail is how they find it next time.
+ *
+ * The header row has no title: while a value is picked, it starts with the button that clears the filters.
  */
 export const ProjectsFilterRail = ({
     repositories,
@@ -332,8 +332,10 @@ export const ProjectsFilterRail = ({
     return (
         <>
             <div className={shared.railHead}>
-                <span>{t('home.filters')}</span>
-                <span className={styles.headActions}>
+                {hasFilters && !arranging && (
+                    <ClearFiltersButton data-testid="projects-filter-clear" onClick={onClearFilters} />
+                )}
+                <span className={cx(shared.railHeadEnd, styles.headActions)}>
                     {arranging ? (
                         <Button
                             data-testid="projects-filter-arrange-done"
@@ -355,9 +357,6 @@ export const ProjectsFilterRail = ({
                     {headerActions}
                 </span>
             </div>
-            {hasFilters && !arranging && (
-                <ClearFiltersRow data-testid="projects-filter-clear" onClick={onClearFilters} />
-            )}
             <div className={shared.railScroll} data-testid="projects-filter-scroll">
                 {/* A dragged group stays within the list of groups, however little of it the rail shows, and lands
                     by its centre: a group reaches any place only while all of them are short, so an arranged group

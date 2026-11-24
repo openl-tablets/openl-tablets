@@ -853,7 +853,6 @@ export const ProjectsHome = () => {
                 onOpenGroup={openGroup}
                 onOpenProject={openProject}
                 onRefresh={() => void load(true)}
-                onShowAll={resetFilters}
                 // Hand the tree the snapshot the list already read, so the list screen reads /projects once,
                 // not once for the list and again for the tree. `null` while the first read is still running.
                 projects={loading && allProjects.length === 0 ? null : allProjects}

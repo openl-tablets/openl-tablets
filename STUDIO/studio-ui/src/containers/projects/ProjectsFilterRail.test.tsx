@@ -38,11 +38,14 @@ const tagCounts: TagFacetSummary[] = [{ type: 'Domain', values: [{ id: 'Policy',
 
 const statusCounts: ProjectStatusSummary = { local: 0, opened: 1, viewingVersion: 0, editing: 0, closed: 3, deleted: 0 }
 
-const renderRail = (tags = tagCounts, { picked = [] as string[], onPick = vi.fn() } = {}) => render(
+const renderRail = (
+    tags = tagCounts,
+    { picked = [] as string[], onPick = vi.fn(), onClearFilters = vi.fn() } = {}
+) => render(
     <ProjectsFilterRail
         branchCounts={branchCounts}
         branches={new Set(picked)}
-        onClearFilters={vi.fn()}
+        onClearFilters={onClearFilters}
         onPick={onPick}
         repos={new Set()}
         repositories={repositories}
@@ -166,6 +169,29 @@ describe('ProjectsFilterRail', () => {
 
         expect(screen.getByTestId('filter-all-tag:Empty')).toBeDisabled()
         expect(screen.getByTestId('filter-all-tag:Domain')).toBeChecked()
+    })
+
+    it('starts its header row with the button that clears the filters, only while a value is picked', async () => {
+        const onClearFilters = vi.fn()
+        renderRail(tagCounts, { picked: ['main'], onClearFilters })
+
+        const clear = screen.getByTestId('projects-filter-clear')
+        expect(clear.parentElement?.firstElementChild).toBe(clear)
+        expect(clear.parentElement).toContainElement(screen.getByTestId('projects-filter-arrange'))
+        expect(clear.parentElement).not.toHaveTextContent('home.filters')
+
+        await userEvent.click(clear)
+        expect(onClearFilters).toHaveBeenCalledTimes(1)
+
+        // Arranging the groups is no time to clear what they pick.
+        await userEvent.click(screen.getByTestId('projects-filter-arrange'))
+        expect(screen.queryByTestId('projects-filter-clear')).toBeNull()
+    })
+
+    it('offers no clearing while no value is picked', () => {
+        renderRail()
+
+        expect(screen.queryByTestId('projects-filter-clear')).toBeNull()
     })
 
     it('lists no values while the filters are arranged, and shows them again folded as before', async () => {

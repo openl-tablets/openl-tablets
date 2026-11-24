@@ -77,7 +77,6 @@ const rail = (onClearFilters = vi.fn(), currentProjectId?: string) => (
         onClearFilters={onClearFilters}
         onOpenGroup={vi.fn()}
         onOpenProject={vi.fn()}
-        onShowAll={vi.fn()}
         repositories={repositories}
     />
 )
@@ -159,7 +158,6 @@ describe('ProjectsRail', () => {
                 onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
-                onShowAll={vi.fn()}
                 repositories={repositories}
             />
         )

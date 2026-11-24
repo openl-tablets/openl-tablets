@@ -137,7 +137,7 @@ The **Filters** view lists the filter values in groups: **Repository**, **Branch
 -   The **Branch** group lists every branch with its count, including a branch whose projects the default view hides.
     While no branch is picked, the counts of the other groups cover only the projects the default view shows.
 
-![The Filters view with a tag value picked, a dash in the check box of its group, and Clear filters under its title](images/projects-filters-view.png "Filtering projects in the Filters view")
+![The Filters view with a tag value picked, a dash in the check box of its group, and Clear filters in its header](images/projects-filters-view.png "Filtering projects in the Filters view")
 
 To reorder the groups or hide some of them, click **Arrange the filters**, the gear icon in the header of the view.
 While the filters are arranged, each group shows only its title:
@@ -189,14 +189,14 @@ definition for a project, see [Managing Tags](administration/06-tags.md#managing
 
 #### Clearing Filters
 
-While any filter is picked, the **Filters** and **Tree** views show **Clear filters** at their top, under the title.
-In the **Tree** view, the button also tells that the list is filtered.
+While any filter is picked, the **Filters** and **Tree** views show **Clear filters** at the start of their header,
+before its icons. In the **Tree** view, the button also tells that the list is filtered.
 
 -   **Clear filters** removes the status, repository, branch and tag picks and forgets the group selected in the tree,
     returning both views to the default-branch view. The search field keeps its text.
 -   When the filters hide every project, the list offers **Clear all filters**, which clears the search as well.
 
-![The Tree view narrowed to the projects the Filters view picks, with Clear filters under its title](images/projects-tree-filtered.png "Clearing the filters of the project tree")
+![The Tree view narrowed to the projects the Filters view picks, with Clear filters in its header](images/projects-tree-filtered.png "Clearing the filters of the project tree")
 
 ### Creating Projects in Design Repository
 
