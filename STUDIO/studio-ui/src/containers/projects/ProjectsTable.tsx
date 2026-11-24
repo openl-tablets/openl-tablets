@@ -190,7 +190,7 @@ export const ProjectsTable = ({
     )
 
     return (
-        <table className={cx(shared.listTable, styles.table)} data-testid="projects-table">
+        <table className={cx(shared.listTable, shared.flushTable, styles.table)} data-testid="projects-table">
             <thead className={cx(shared.listHead, shared.microLabel)}>
                 <tr>
                     <th>{sortHeader('name', t('home.col_project'))}</th>
