@@ -1,4 +1,4 @@
-import { App, Input, Divider, Button, Row, Typography } from 'antd'
+import { App, Input, Divider, Button, Flex, Row, Typography, theme } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -16,6 +16,7 @@ import { tagsInProjects } from './tags/tagsInProjects'
 export const Tags: React.FC = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const [tagTypes, setTagTypes] = useState<TagType[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [newTagTypeName, setNewTagTypeName] = useState('')
@@ -318,22 +319,14 @@ export const Tags: React.FC = () => {
                     value={templates}
                 />
             </Row>
-            <Row justify="end">
-                <Button
-                    loading={isSavingTemplates}
-                    onClick={onSaveTemplates}
-                    style={{ marginTop: 20, marginRight: 15 }}
-                >
+            <Flex gap="small" justify="end" style={{ marginTop: token.marginMD }}>
+                <Button loading={isSavingTemplates} onClick={onSaveTemplates}>
                     {t('tags:save_templates')}
                 </Button>
-                <Button
-                    loading={isFillingTags}
-                    onClick={onFillTagsForProject}
-                    style={{ marginTop: 20, marginRight: 15 }}
-                >
+                <Button loading={isFillingTags} onClick={onFillTagsForProject}>
                     {t('tags:fill_tags_for_project')}
                 </Button>
-            </Row>
+            </Flex>
             {/* Filling may create tag values, so the catalog is read again. */}
             <FillTagsModal
                 onClose={() => setIsPreviewOpen(false)}

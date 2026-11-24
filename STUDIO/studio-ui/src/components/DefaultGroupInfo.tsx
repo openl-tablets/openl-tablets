@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Flex, Tag, Tooltip, Typography } from 'antd'
+import { Flex, Tag, Tooltip, Typography, theme } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
@@ -26,6 +26,7 @@ const tagColorOf = (groupsLoading: boolean, groupNotFound: boolean, isAdminGroup
  */
 export const DefaultGroupInfo: React.FC = () => {
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const { systemSettings, isGroupsManagementEnabled } = useContext(SystemContext)
     const { defaultGroupName, loading } = useDefaultGroup(systemSettings)
     const { groups, loading: groupsLoading } = useGroups()
@@ -53,10 +54,10 @@ export const DefaultGroupInfo: React.FC = () => {
             align="center"
             gap="middle"
             style={{
-                marginBottom: 16,
-                padding: '10px 14px',
-                background: 'var(--ant-color-fill-quaternary)',
-                borderRadius: 8,
+                marginBottom: token.margin,
+                padding: `${token.paddingXS}px ${token.paddingSM}px`,
+                background: token.colorFillQuaternary,
+                borderRadius: token.borderRadiusLG,
             }}
         >
             <Typography.Text type="secondary">

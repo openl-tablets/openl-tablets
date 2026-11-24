@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Card, Col, Row, Typography } from 'antd'
+import { Card, Col, Row, Typography, theme } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
 import { Link } from 'react-router'
@@ -17,6 +17,7 @@ const documentationItems = [
 
 export const Help: React.FC = () => {
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const { openlInfo } = useContext(SystemContext)
 
     const openlUrl = openlInfo?.['openl.site'] || 'https://openl-tablets.org'
@@ -33,13 +34,13 @@ export const Help: React.FC = () => {
                     <Typography.Title level={4} type="secondary">{t('common:help.openl_tablets_help_description')}</Typography.Title>
                 </Col>
             </Row>
-            <Row data-testid="help-cards" gutter={[24, 24]} style={{ padding: '24px 38px', marginInline: 0 }}>
+            <Row data-testid="help-cards" gutter={[24, 24]} style={{ padding: `${token.paddingLG}px ${token.paddingXL}px`, marginInline: 0 }}>
                 <Col md={8} sm={12} xs={24}>
                     <Card
                         variant="outlined"
                         title={(
                             <>
-                                <FileTextOutlined style={{ marginRight: 10 }} />
+                                <FileTextOutlined style={{ marginInlineEnd: token.marginXS }} />
                                 {t('common:help.documentation')}
                             </>
                         )}
@@ -57,7 +58,7 @@ export const Help: React.FC = () => {
                         variant="outlined"
                         title={(
                             <>
-                                <CompressOutlined style={{ marginRight: 10 }} />
+                                <CompressOutlined style={{ marginInlineEnd: token.marginXS }} />
                                 {t('common:help.additional_information')}
                             </>
                         )}
@@ -72,7 +73,7 @@ export const Help: React.FC = () => {
                         variant="outlined"
                         title={(
                             <>
-                                <QuestionCircleOutlined style={{ marginRight: 10 }} />
+                                <QuestionCircleOutlined style={{ marginInlineEnd: token.marginXS }} />
                                 {t('common:help.support')}
                             </>
                         )}
@@ -87,7 +88,7 @@ export const Help: React.FC = () => {
                         variant="outlined"
                         title={(
                             <>
-                                <GlobalOutlined style={{ marginRight: 10 }} />
+                                <GlobalOutlined style={{ marginInlineEnd: token.marginXS }} />
                                 {t('common:help.on_the_internet')}
                             </>
                         )}

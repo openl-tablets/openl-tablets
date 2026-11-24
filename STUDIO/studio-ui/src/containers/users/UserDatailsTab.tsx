@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { App, Divider, Form, Space, Button, Row, Col, Input as AntInput, theme } from 'antd'
+import { App, Divider, Form, Space, Button, Flex, Input as AntInput, theme } from 'antd'
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
@@ -8,7 +8,6 @@ import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
 import { apiCall } from '../../services'
 import { errorHandler } from '../../utils/errorHandling'
-import { useStyles } from './UserDetailsTab.styles'
 
 interface UserDetailsTabProps {
     isNewUser?: boolean | undefined
@@ -36,7 +35,6 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
     const { notification } = App.useApp()
     const { t } = useTranslation()
     const { token } = theme.useToken()
-    const { styles } = useStyles()
     const form = Form.useFormInstance()
     // A detail an external system manages cannot be edited here, so it cannot be required either.
     const requireEmail = requireEmailAndDisplayName && !externalFlags?.emailExternal
@@ -142,10 +140,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
             <Form.Item
                 label={t('users:edit_modal.email')}
                 required={requireEmail}
-                style={displayPasswordField ? { marginBottom: 24 } : {}}
             >
-                <Row align="top" className={styles.emailRow} gutter={8} style={{ width: '100%', height: 32 }}>
-                    <Col className={isResendVerificationButtonVisible ? styles.emailInput : ''} flex="auto">
+                <Flex align="flex-start" gap={token.marginSM} style={{ height: 32 }}>
+                    <div style={{ flex: 'auto' }}>
                         <Form.Item
                             noStyle
                             name="email"
@@ -171,9 +168,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
                                 type="email"
                             />
                         </Form.Item>
-                    </Col>
+                    </div>
                     {isResendVerificationButtonVisible && (
-                        <Col>
+                        <div>
                             <Button
                                 disabled={cooldownToUse > 0 || isEmailChanged}
                                 loading={resendLoadingToUse}
@@ -187,9 +184,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
                                     {t('users:resend_verification_email_timer', { seconds: cooldownToUse })}
                                 </div>
                             )}
-                        </Col>
+                        </div>
                     )}
-                </Row>
+                </Flex>
             </Form.Item>
             {displayPasswordField && !isExternalAuthSystem && (
                 <InputPassword

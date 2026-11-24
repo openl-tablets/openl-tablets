@@ -104,7 +104,7 @@ export const Users: React.FC = () => {
                     if (unsafePassword) {
                         userNameComponent.push(
                             <Tooltip key="unsafe-password" title={t('users:unsafe_default_password')}>
-                                <ExclamationCircleOutlined style={{ color: token.colorError, marginLeft: 6 }} />
+                                <ExclamationCircleOutlined style={{ color: token.colorError, marginInlineStart: token.marginXXS }} />
                             </Tooltip>
                         )
                     }

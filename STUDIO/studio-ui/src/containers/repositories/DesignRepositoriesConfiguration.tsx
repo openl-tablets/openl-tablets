@@ -414,7 +414,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const hasRepositories = initialConfiguration && Array.isArray(initialConfiguration) && initialConfiguration.length > 0
 
     if (isConfigurationLoading) {
-        return <Spin spinning={true} style={{ margin: 'auto', width: '100%' }} />
+        return <Spin spinning style={{ width: '100%' }} />
     }
 
     // If there are no repositories and no configuration in state, show a message

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Input, Button, Typography, Row, InputRef } from 'antd'
+import { Input, Button, Flex, Typography, InputRef, theme } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useNotificationStore } from 'store'
 
@@ -9,6 +9,7 @@ export const Notification: React.FC = () => {
     const { notification, setNotification } = useNotificationStore()
     const inputRef = React.useRef<InputRef>(null)
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const [text, setText] = useState('')
     const [focused, setFocused] = React.useState(false)
 
@@ -47,14 +48,14 @@ export const Notification: React.FC = () => {
                 { t('notification:message') }
             </Typography>
             <TextArea ref={inputRef} onBlur={onBlur} onChange={handleChange} onFocus={onFocus} value={text} />
-            <Row align="bottom" justify="end">
-                <Button onClick={handleClear} style={{ marginTop: 20, marginRight: 20 }}>
+            <Flex gap="small" justify="end" style={{ marginTop: token.marginMD }}>
+                <Button onClick={handleClear}>
                     { t('notification:clear') }
                 </Button>
                 <Button onClick={handleNotify} type="primary">
                     { t('notification:notify') }
                 </Button>
-            </Row>
+            </Flex>
         </>
     )
 }

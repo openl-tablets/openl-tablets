@@ -3,7 +3,7 @@ import { createStyles } from 'antd-style'
 export const useStyles = createStyles(({ css, token }) => ({
     table: css`
         tbody .editable-cell-wrap {
-            padding: 5px 12px;
+            padding: 5px 24px 5px 12px;
             cursor: pointer;
             /* The cell opens its field from the keyboard, so it is a real button; these undo what that brings with it. */
             display: block;
@@ -70,8 +70,8 @@ export const useStyles = createStyles(({ css, token }) => ({
         display: grid;
         grid-template-columns: minmax(120px, 240px) minmax(0, 1fr);
         align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
+        gap: ${token.marginSM}px;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
         border-top: 1px solid ${token.colorBorderSecondary};
 
         &:last-child {
