@@ -82,6 +82,18 @@ own project only, as listed for the developers.
   a lookup of the band `30 - 34` found no element, and the values of the band `18 - 24` were counted twice. Update the
   expected values of the tests that were set on the copied element.
 
+* **A lookup that returns an array returns all the values under a merged horizontal value.** In a Simple Lookup or a
+  Smart Lookup table that returns an array, and in a Rules table whose RET column is one column wide and either
+  declares an array parameter or has neither a parameter nor an expression in a table returning an array, a horizontal
+  value merged across several columns returns the values of all these columns as one array, such as `853, 6556`.
+  Before, each column was a rule of its own, so the table returned the value of the first column only, `853`, and the
+  other columns were never reached. A table that collects its results, with the `Collect` keyword or a CRET column,
+  and a Rules table whose RET parameter is not an array, keep a rule for each column. Each of the merged columns holds
+  one element: a list written with commas in one of their cells is no longer split, so a list of numbers stops the
+  table with `Cannot parse cell value '1, 2'. Expected value of type 'Double'.`, and a text keeps its commas. Update
+  the expected values of the tests that check such a result; to return one value per column, unmerge the horizontal
+  value.
+
 ## Administrators
 
 * **`pom.xml` is protected rather than ignored, and the system and temporary files are ignored.** The default of

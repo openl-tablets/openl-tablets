@@ -116,6 +116,8 @@ Evaluates multiple conditions and returns a result. The most common table type.
 - **Action columns:** `A1`, `A2`, ... — side-effect actions (no return)
 - **Horizontal conditions:** `HC1`, `HC2`, ... — conditions along the column axis (lookup-style), after at least one
   vertical condition
+- A lookup returns all the values under an `HC` value merged across columns as one array when its `RET` column is one
+  column wide and declares an array parameter, or has none and no expression in a table returning an array
 - Supports merged cells for multi-row grouping
 - Supports `Collect` keyword to collect all matching results into an array
 
@@ -175,6 +177,10 @@ Decision table with both vertical (left) and horizontal (top) conditions.
 - Intersection cell: the return value
 - An argument across the top takes one row, or the rows its values are merged down over; merge the values of every
   column the same way, as OpenL counts the arguments down the last column
+- A value across the top merged over several columns applies to each of them
+- In a table that returns an array from one column and does not collect, it returns all those columns' values as one
+  array, left to right, without the empty cells at its end
+- Each of those columns holds one element: commas in its cell separate no values, so `1, 2` is no `Double`
 - **One argument has no second axis, so the table carries no title row**: every row from the first is a rule,
   the argument value on the left and the result beside it. A title row written above them is read as a rule too.
 
@@ -220,6 +226,15 @@ Same as Simple Lookup but with smart condition matching (ranges, wildcards, coll
 | ↑             | Basic | Premium | Basic | Premium |  <- tier
 | Collision     | 500   | 250     | 1000  | 500     |
 | Comprehensive | 250   | 100     | 500   | 250     |
+```
+
+```
+| SmartLookup Double[] DeductibleOptions(String coverage, String region, String tier) |
+| Coverage      | North | ←   | ←    | ←       | South | ←    | ←       |  <- region, merged down over two rows
+| ↑             | ↑     | ↑   | ↑    | ↑       | ↑     | ↑    | ↑       |
+| ↑             | Basic | ←   | ←    | Premium | Basic | ←    | Premium |  <- tier, over the values it returns
+| Collision     | 250   | 500 | 1000 | 100     | 500   | 1000 | 250     |  <- North, Basic: [250, 500, 1000]
+| Comprehensive | 100   | 250 | 500  | 50      | 250   | 500  | 100     |  <- South, Basic: [250, 500]
 ```
 
 ### Spreadsheet (`Spreadsheet` / `Calc`)

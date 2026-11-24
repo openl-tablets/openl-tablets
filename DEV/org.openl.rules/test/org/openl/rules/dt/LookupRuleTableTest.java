@@ -35,6 +35,22 @@ class LookupRuleTableTest {
         assertEquals(List.of("B6", "F3", "F4", "F6"), cellsOf(price, 7));
     }
 
+    @Test
+    void aRuleReturningAnArrayHasAllTheValuesUnderItsKey() {
+        var module = new RulesEngineFactory<>("test/rules/dt/EPBDS-11350_Array_Under_Merged_Key.xlsx")
+                .getCompiledOpenClass()
+                .getOpenClass();
+        var rates = (IDecisionTable) module.getMethods().stream()
+                .filter(method -> "rates".equals(method.getName()))
+                .findFirst()
+                .orElseThrow();
+
+        // Low is merged over C3:D3, so the rule of Basic and Low returns the two values under it
+        assertEquals(List.of("B4", "C3:D3", "C4", "D4"), cellsOf(rates, 0));
+        // High takes one column: the rule returns its one value, and the column it lacks adds no other cell
+        assertEquals(List.of("B5", "E3", "E5"), cellsOf(rates, 3));
+    }
+
     private static List<String> cellsOf(IDecisionTable table, int rule) {
         return GridTableUtils.getGridRegions(table.getRuleTable(rule))
                 .stream()

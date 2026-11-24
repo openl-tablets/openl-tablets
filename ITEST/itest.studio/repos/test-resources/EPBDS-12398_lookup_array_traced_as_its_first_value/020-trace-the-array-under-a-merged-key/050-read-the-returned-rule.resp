@@ -1,0 +1,42 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "cell": "C120",
+    "state": "conditionFalse"
+  },
+  {
+    "cell": "D120",
+    "state": "conditionFalse"
+  },
+  {
+    "cell": "H119",
+    "state": "result"
+  },
+  {
+    "cell": "I119",
+    "state": "result"
+  },
+  {
+    "cell": "C121",
+    "state": "result"
+  },
+  {
+    "cell": "D121",
+    "state": "result"
+  },
+  {
+    "cell": "E121",
+    "state": "result"
+  },
+  {
+    "cell": "H121",
+    "state": "result"
+  },
+  {
+    "cell": "I121",
+    "state": "result"
+  }
+]
+

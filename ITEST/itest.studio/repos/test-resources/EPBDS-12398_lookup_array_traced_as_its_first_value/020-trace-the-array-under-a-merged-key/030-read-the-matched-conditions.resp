@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "cell": "C120",
+    "state": "conditionFalse"
+  },
+  {
+    "cell": "D120",
+    "state": "conditionFalse"
+  },
+  {
+    "cell": "H119",
+    "state": "conditionTrue"
+  },
+  {
+    "cell": "I119",
+    "state": "conditionTrue"
+  },
+  {
+    "cell": "C121",
+    "state": "conditionTrue"
+  },
+  {
+    "cell": "D121",
+    "state": "conditionTrue"
+  },
+  {
+    "cell": "E121",
+    "state": "conditionTrue"
+  }
+]
+

@@ -24,8 +24,11 @@ Values of horizontal conditions can be merged instead of being repeated:
 
 -   A value merged across several columns applies to each of these columns.
 -   A value merged down over several rows makes its horizontal condition take all these rows, as long as every other value in these rows is merged down the same way. A column empty in all these rows does not count. A simple or smart lookup table counts its horizontal conditions by the values down its last column, so merge the values of every column the same way. In a rules table, rows whose values are merged differently are horizontal conditions of their own, and the merged value applies to each of them.
+-   If the table returns an array, does not use the `Collect` keyword, and its return takes one column, a value merged across several columns returns the values of all these columns as one array, from left to right. In a rules table, the RET column decides: it returns the array when its parameter is declared as an array, such as `Double[] rates`, or when it has neither a parameter nor an expression and the table returns an array. A RET column with any other parameter, or with an expression and no parameter, keeps a rule for each column. Empty cells at the end of the array are dropped, so values merged over a different number of columns return arrays of different sizes. Each of these columns holds one element of the array: a list written with commas in one of their cells is not split, so a list of numbers is reported as an error and a text keeps its commas. A value over one column is still read as a list.
 
 For example, in the smart lookup table `SmartLookup Double Deductible(String coverage, String region, String tier)`, each region value is merged down over two rows, and the tier values are written in the third row. The title `Coverage` of the first column is merged over all three rows.
+
+In the smart lookup table `SmartLookup Double[] DeductibleOptions(String coverage, String region, String tier)`, the region value `North` is merged down over two rows and across four columns, and the tier value `Basic` under it is merged across three of these columns. For the `Collision` coverage in the `North` region, the table returns the three values under `Basic`, `[250, 500, 1000]`, and the one value under `Premium`, `[100]`.
 
 ###### Lookup Tables Implementation Details
 

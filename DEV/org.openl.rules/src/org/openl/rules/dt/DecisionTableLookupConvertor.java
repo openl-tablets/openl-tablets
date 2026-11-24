@@ -45,12 +45,18 @@ import org.openl.util.StringUtils;
  * <p>
  * Each horizontal condition takes one row of the horizontal keys, or the rows its keys are merged down over. A key
  * merged across several columns applies to each of them.
+ * <p>
+ * A table that returns an array, rather than collects one, from a one-column <b>RET</b> returns the values under a key
+ * as one array: a key merged across several columns returns the values of all of them. Keys of different widths
+ * return arrays of different sizes.
  */
 
 @RequiredArgsConstructor
 public class DecisionTableLookupConvertor {
 
     private static final int HEADER_ROW = 0;
+    private static final int CODE_ROW = 1;
+    private static final int PARAMETER_ROW = 2;
     private static final int DISPLAY_ROW = 3;
 
     /**
@@ -58,8 +64,14 @@ public class DecisionTableLookupConvertor {
      * mistake of the user. Generated headers of Smart and Simple tables report a mismatch of titles instead.
      */
     private final boolean explicitHeaders;
+    /** Whether the table returns an array: a return written with neither a parameter nor an expression takes it. */
+    private final boolean tableReturnsArray;
     private final @NonNull List<@NonNull IGridTable> hcHeaders = new ArrayList<>();
     private @Nullable IGridTable retTable;
+    /** The column of the return header. */
+    private int retColumn;
+    /** Whether the return header collects what the rules return, as a CRET column does. */
+    private boolean retCollects;
     @Getter
     private DTScale scale;
 
@@ -85,6 +97,7 @@ public class DecisionTableLookupConvertor {
 
         var transformer = getTransformer(table,
                 headerRow,
+                keys,
                 hConditionRows,
                 lookupValuesTable,
                 lookupValuesTableHeight);
@@ -92,11 +105,13 @@ public class DecisionTableLookupConvertor {
         return new TransformedGridTable(table.getSource(), transformer);
     }
 
-    private CoordinatesTransformer getTransformer(ILogicalTable table,
-                                                  ILogicalTable headerRow,
-                                                  int @NonNull [] hConditionRows,
-                                                  IGridTable lookupValuesTable,
-                                                  Integer lookupValuesTableHeight) throws OpenLCompilationException {
+    private @NonNull CoordinatesTransformer getTransformer(@NonNull ILogicalTable table,
+                                                           @NonNull ILogicalTable headerRow,
+                                                           @NonNull IGridTable keys,
+                                                           int @NonNull [] hConditionRows,
+                                                           @NonNull IGridTable lookupValuesTable,
+                                                           @Nullable Integer lookupValuesTableHeight)
+            throws OpenLCompilationException {
         validateRetColumn(headerRow);
         var retTableWidth = retTable.getCell(0, 0).getWidth();
 
@@ -104,14 +119,76 @@ public class DecisionTableLookupConvertor {
             lookupValuesTableHeight = lookupValuesTable.getHeight();
         }
 
-        this.scale = new DTScale(lookupValuesTableHeight, lookupValuesTable.getWidth() / retTableWidth);
+        var groupStarts = retTableWidth == 1 && returnsArray(table.getSource())
+                ? keyGroupStarts(keys, hConditionRows)
+                : fixedGroupStarts(lookupValuesTable.getWidth(), retTableWidth);
+        this.scale = new DTScale(lookupValuesTableHeight, groupStarts.length - 1);
 
         return new LookupHeadersTransformer(table.getSource(),
                 lookupValuesTable,
                 retTableWidth,
                 hConditionRows,
+                groupStarts,
                 firstVerticalColumn(headerRow),
                 buildHorizontalHeaderOffsets(headerRow));
+    }
+
+    /**
+     * Whether the return takes an array: its parameter is declared as an array, or, with neither a parameter nor an
+     * expression written, the table returns one.
+     *
+     * <p>A return that collects, a CRET column, keeps the columns apart, and so does a return with an expression and no
+     * parameter: the type of its value is not known yet.
+     */
+    private boolean returnsArray(@NonNull IGridTable source) {
+        if (retCollects) {
+            return false;
+        }
+        var parameter = source.getCell(retColumn, PARAMETER_ROW).getStringValue();
+        if (StringUtils.isNotBlank(parameter)) {
+            return declaresArray(parameter);
+        }
+        return tableReturnsArray && StringUtils.isBlank(source.getCell(retColumn, CODE_ROW).getStringValue());
+    }
+
+    /**
+     * Whether a parameter declaration, such as {@code Double[] rates}, declares an array.
+     *
+     * <p>The brackets of the generic arguments of the type, such as in {@code List<Double[]> rates}, do not count.
+     */
+    private static boolean declaresArray(@NonNull String declaration) {
+        var type = declaration.replaceAll("\\s", "");
+        return type.substring(type.lastIndexOf('>') + 1).contains("[]");
+    }
+
+    /**
+     * Splits the lookup values into groups as wide as the return header.
+     *
+     * @return the first column of each group, and the end of the last group
+     */
+    private static int @NonNull [] fixedGroupStarts(int width, int retTableWidth) {
+        return IntStream.rangeClosed(0, width / retTableWidth)
+                .map(group -> group * retTableWidth)
+                .toArray();
+    }
+
+    /**
+     * Splits the lookup values into groups under the keys of the horizontal conditions: a group ends where a key of
+     * any horizontal condition ends, so a key merged over several columns makes one group of them.
+     *
+     * @return the first column of each group, and the end of the last group
+     */
+    private static int @NonNull [] keyGroupStarts(@NonNull IGridTable keys, int @NonNull [] hConditionRows) {
+        var width = keys.getWidth();
+        return IntStream.rangeClosed(0, width)
+                .filter(column -> column == 0 || column == width || startsKey(keys, hConditionRows, column))
+                .toArray();
+    }
+
+    /** Whether a key of some horizontal condition starts at the column. */
+    private static boolean startsKey(@NonNull IGridTable keys, int @NonNull [] hConditionRows, int column) {
+        return IntStream.of(hConditionRows)
+                .anyMatch(row -> !isSameMergedCell(keys.getCell(column - 1, row), keys.getCell(column, row)));
     }
 
     private int firstVerticalColumn(ILogicalTable headerRow) {
@@ -390,13 +467,14 @@ public class DecisionTableLookupConvertor {
         while (d < nCol) {
             var hTable = rowHeader.getSource().getColumn(d);
             if (d >= firstLookupColumn) {
-                loadHorizConditionOrReturnColumn(hTable);
+                loadHorizConditionOrReturnColumn(hTable, d);
             }
             d = d + hTable.getCell(0, 0).getWidth();
         }
     }
 
-    private void loadHorizConditionOrReturnColumn(IGridTable hTable) throws OpenLCompilationException {
+    private void loadHorizConditionOrReturnColumn(@NonNull IGridTable hTable,
+                                                  int column) throws OpenLCompilationException {
         var headerStr = hTable.getCell(0, 0).getStringValue();
         if (headerStr != null) {
             headerStr = headerStr.toUpperCase();
@@ -412,6 +490,8 @@ public class DecisionTableLookupConvertor {
                     throw new OpenLCompilationException("Only one RET column is allowed for Lookup table.");
                 }
                 retTable = hTable;
+                retColumn = column;
+                retCollects = DecisionTableHelper.isValidCRetHeader(headerStr);
             } else {
                 throw new OpenLCompilationException(
                         "Lookup Table allows only HC or RET or CRET columns after vertical conditions: " + headerStr);
