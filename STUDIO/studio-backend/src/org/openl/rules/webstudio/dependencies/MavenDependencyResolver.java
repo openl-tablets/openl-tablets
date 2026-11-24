@@ -295,6 +295,9 @@ public class MavenDependencyResolver implements DisposableBean {
      * give. A dependency of the {@code rules.xml} of the project that names only a project is the project of that
      * name.
      *
+     * <p>A pom-less project gives the projects its {@code rules.xml} names by Maven coordinates too, when the
+     * dependency management of its anchor sets another version of them, as the plugin builds it with that version.
+     *
      * <p>A project downloaded from the Maven repository has none to tell: the archive of the project that depends on
      * it named those it depends on in turn.
      *
@@ -676,10 +679,15 @@ public class MavenDependencyResolver implements DisposableBean {
         var collect = new CollectRequest();
         collect.setRepositories(repositories);
         List<ArtifactResult> results;
+        var byName = new LinkedHashMap<String, String>();
         try (var session = newSession()) {
             var model = effectivePom(pom, session, repositories, messages);
-            if (model == null || model.projects().isEmpty()) {
+            if (model == null) {
                 return new PomProjects(Map.of(), messages);
+            }
+            byName.putAll(managedProjects(pom, model));
+            if (model.projects().isEmpty()) {
+                return new PomProjects(byName, messages);
             }
             // A module of the same build is built with it, not downloaded
             var root = PomReactor.rootOf(pom);
@@ -691,12 +699,11 @@ public class MavenDependencyResolver implements DisposableBean {
                     .filter(dependency -> !PomReactor.holds(modules, dependency.getArtifact()))
                     .forEach(collect::addDependency);
             if (collect.getDependencies().isEmpty()) {
-                return new PomProjects(Map.of(), messages);
+                return new PomProjects(byName, messages);
             }
             collect.setManagedDependencies(model.managed());
             results = resolve(session, new DependencyRequest(collect, PROJECTS), messages);
         }
-        var byName = new LinkedHashMap<String, String>();
         for (ArtifactResult result : results) {
             if (result.isResolved()) {
                 var coordinates = coordinatesOf(result.getArtifact());
@@ -710,6 +717,23 @@ public class MavenDependencyResolver implements DisposableBean {
             }
         }
         return new PomProjects(byName, messages);
+    }
+
+    /**
+     * The coordinates of the OpenL projects the {@code rules.xml} of a pom-less project names, by their names, whose
+     * versions the dependency management of its anchor sets, as the OpenL Maven Plugin sets them. A project the
+     * management leaves alone keeps the coordinates of its dependency.
+     */
+    private static Map<String, String> managedProjects(ProjectPom pom, EffectivePom model) {
+        var managed = new LinkedHashMap<String, String>();
+        pom.projects().forEach((name, coordinates) -> {
+            var artifact = artifactOf(coordinates);
+            var version = artifact == null ? null : model.managedVersionOf(artifact).getVersion();
+            if (version != null && !version.equals(artifact.getVersion())) {
+                managed.put(name, coordinatesOf(artifact.setVersion(version)));
+            }
+        });
+        return managed;
     }
 
     /**

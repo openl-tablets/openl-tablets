@@ -155,6 +155,9 @@ the administration, to compile a project and run its tests:
   reads them, a parent by `relativePath` first, BOMs included
 - **`provided` dependencies** — of the `pom.xml`, downloaded unless OpenL Studio ships them, and read by one class
   loader shared by every project, behind OpenL Studio's own, as OpenL Rule Services embed them; never deployed
+- **A pom-less project** — one without a `pom.xml` takes its anchor, the nearest `pom.xml` above it declaring
+  `openl-maven-plugin`, as its parent, as the plugin builds it: the anchor's dependencies are libraries too, and its
+  `dependencyManagement` sets the version of every `<mavenArtifact>`, of a library and of an OpenL project alike
 - **The `pom.xml` wins** — for a library both name, and its `dependencyManagement` sets the version of a `rules.xml`
   library
 - **Left out of the libraries** — `zip` archives of OpenL projects and what they need, and the `org.openl.rules`,

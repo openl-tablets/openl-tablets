@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
@@ -11,6 +12,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -23,6 +25,9 @@ import org.openl.util.formatters.FileNameFormatter;
  * project holds the project alone, so the POMs the {@code pom.xml} names by a relative path are read from where the
  * project is kept: its design repository, at the head of its branch, as a build of the branch reads them, or at the
  * revision opened when it is an older one. A repository keeping each project as one archive holds no POM beside it.
+ *
+ * <p>A project of a design repository without a {@code pom.xml} below an anchor, a {@code pom.xml} above it declaring
+ * the OpenL Maven Plugin, has the one the plugin builds it with, whose parent is the anchor ({@link PomlessPom}).
  *
  * <p>A POM on disk is read only inside the folder it is given, so a relative path cannot reach another file of the
  * server, such as a project of another user.
@@ -64,12 +69,16 @@ public final class ProjectPoms {
      * in a database or AWS S3, has its {@code pom.xml} read from the archive and no POM beside it; a project of no
      * design repository finds the POMs inside its folder on disk.
      *
-     * @param project the project
-     * @param folder  the folder of the project on disk, or {@code null} to read the {@code pom.xml} as the repository
-     *                holds it
-     * @return the {@code pom.xml}, or {@code null} when the project has none
+     * @param project      the project
+     * @param folder       the folder of the project on disk, or {@code null} to read the {@code pom.xml} as the
+     *                     repository holds it
+     * @param dependencies the dependencies the {@code rules.xml} of the project declares, or {@code null}
+     * @return the {@code pom.xml}, or {@code null} when the project has none and no anchor is above it
      */
-    public static @Nullable ProjectPom inRepository(RulesProject project, @Nullable Path folder) throws IOException {
+    public static @Nullable ProjectPom inRepository(RulesProject project,
+                                                    @Nullable Path folder,
+                                                    @Nullable Collection<ProjectDependencyDescriptor> dependencies)
+            throws IOException {
         if (project.isLocalOnly()) {
             return folder == null ? null : inFolder(folder, folder);
         }
@@ -85,7 +94,9 @@ public final class ProjectPoms {
         var path = project.getRealPath() + "/" + ProjectPom.FILE_NAME;
         var text = saved != null ? saved : reader.read(path);
         var origin = repository.getId() + "@" + (version == null ? "head" : version);
-        return text == null ? null : new ProjectPom(text, path, origin, reader);
+        return text != null
+                ? new ProjectPom(text, path, origin, reader)
+                : PomlessPom.of(project.getRealPath(), origin, reader, dependencies);
     }
 
     /**

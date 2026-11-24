@@ -36,6 +36,7 @@ import org.openl.message.Severity;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.studio.dependencies.service.MavenCoordinates;
+import org.openl.util.formatters.FileNameFormatter;
 
 class MavenDependencyResolverTest {
 
@@ -438,6 +439,71 @@ class MavenDependencyResolverTest {
 
         assertEquals(List.of(), libraries.messages(), "the Maven repository has no such parent");
         assertEquals(List.of("lib-1.0.0.jar"), fileNames(libraries.files()));
+    }
+
+    /**
+     * A pom-less project takes its anchor as the parent, as the OpenL Maven Plugin builds it: the libraries the anchor
+     * declares, and the versions its dependency management sets for the libraries and the projects rules.xml names.
+     */
+    @Test
+    void aPomlessProjectTakesWhatItsAnchorManagesAndDeclares() throws Exception {
+        publish("com.example", "lib", "2.0.0", "jar", null);
+        publish("com.example", "shared", "1.0.0", "jar", null);
+        Files.createDirectories(temp.resolve("workspace/Rules"));
+        Files.writeString(temp.resolve("workspace/pom.xml"), """
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>rules-parent</artifactId>
+                    <version>1.0.0</version>
+                    <packaging>pom</packaging>
+                    <dependencyManagement>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.example</groupId>
+                                <artifactId>lib</artifactId>
+                                <version>2.0.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.example</groupId>
+                                <artifactId>common-rules</artifactId>
+                                <version>2.0.0</version>
+                                <type>zip</type>
+                            </dependency>
+                        </dependencies>
+                    </dependencyManagement>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.example</groupId>
+                            <artifactId>shared</artifactId>
+                            <version>1.0.0</version>
+                        </dependency>
+                    </dependencies>
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.openl.rules</groupId>
+                                <artifactId>openl-maven-plugin</artifactId>
+                                <extensions>true</extensions>
+                            </plugin>
+                        </plugins>
+                    </build>
+                </project>
+                """);
+        var rules = project("Rules",
+                library("com.example:lib:jar:1.0.0"),
+                projectDependency("Common", "com.example:common-rules:1.0.0"),
+                projectDependency("Domain", "com.example:domain:1.0.0"));
+        rules.setProjectFolder(temp.resolve("workspace/Rules"));
+
+        var libraries = librariesOf(resolver, rules);
+        var projects = resolver.projectsOfPom(pomOf(rules));
+
+        assertEquals(List.of(), libraries.messages());
+        assertEquals(List.of("lib-2.0.0.jar", "shared-1.0.0.jar"), fileNames(libraries.files()));
+        assertEquals(Map.of("Common", "com.example:common-rules:2.0.0"), projects.coordinatesByName(),
+                "a project the management leaves alone keeps the coordinates of its dependency");
+        assertEquals(List.of(), projects.messages());
     }
 
     /** A module of the same build is built with it, as Maven takes it from the reactor: it is not downloaded. */
@@ -1122,11 +1188,21 @@ class MavenDependencyResolverTest {
         }
     }
 
+    /** The pom.xml of the project its folder holds, or the one of its anchor in the workspace, as a repository has. */
+    private static ProjectPom pomOf(ProjectDescriptor project) throws IOException {
+        var folder = project.getProjectFolder();
+        var pom = ProjectPoms.inFolder(folder, folder.getParent());
+        return pom != null ? pom : PomlessPom.of(FileNameFormatter.normalizePath(folder), "file", path -> {
+            var file = Path.of(path);
+            return Files.isRegularFile(file) ? Files.readString(file) : null;
+        }, project.getDependencies());
+    }
+
     /** The libraries of the project, with those of the pom.xml its folder holds. */
     private static MavenDependencyResolver.Libraries librariesOf(MavenDependencyResolver resolver,
                                                                  ProjectDescriptor project) throws IOException {
         var folder = project.getProjectFolder();
-        return resolver.librariesOf(project, folder == null ? null : ProjectPoms.inFolder(folder, folder.getParent()));
+        return resolver.librariesOf(project, folder == null ? null : pomOf(project));
     }
 
     private static ProjectDescriptor project(String name, ProjectDependencyDescriptor... dependencies) {

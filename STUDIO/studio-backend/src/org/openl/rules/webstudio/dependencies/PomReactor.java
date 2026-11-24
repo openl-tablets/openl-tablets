@@ -132,17 +132,17 @@ final class PomReactor {
         return groupId + ":" + artifactId + ":" + version;
     }
 
-    private static @Nullable String groupIdOf(Model model) {
+    static @Nullable String groupIdOf(Model model) {
         return model.getGroupId() != null || model.getParent() == null ? model.getGroupId()
                 : model.getParent().getGroupId();
     }
 
-    private static @Nullable String versionOf(Model model) {
+    static @Nullable String versionOf(Model model) {
         return model.getVersion() != null || model.getParent() == null ? model.getVersion()
                 : model.getParent().getVersion();
     }
 
-    private static @Nullable Model parse(@Nullable String text) {
+    static @Nullable Model parse(@Nullable String text) {
         if (text == null) {
             return null;
         }
