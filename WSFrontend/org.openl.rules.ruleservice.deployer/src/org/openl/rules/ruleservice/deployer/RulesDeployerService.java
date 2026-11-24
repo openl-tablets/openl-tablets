@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.deployer;
 
 import java.io.Closeable;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -424,20 +423,12 @@ public class RulesDeployerService implements Closeable {
         if (!Files.isRegularFile(path)) {
             throw new IllegalArgumentException("Provided file is not an archive!");
         }
-        var sign = readSignature(path);
+        var sign = FileSignatureHelper.readSignature(path);
         if (!FileSignatureHelper.isArchiveSign(sign)) {
             throw new IllegalArgumentException("Provided file is not an archive!");
         }
         if (FileSignatureHelper.isEmptyArchive(sign)) {
             throw new IllegalArgumentException("Cannot create a project from the given file. Zip file is empty.");
-        }
-    }
-
-    private static int readSignature(Path path) {
-        try (var in = new DataInputStream(Files.newInputStream(path))) {
-            return in.readInt();
-        } catch (IOException ignored) {
-            return -1;
         }
     }
 

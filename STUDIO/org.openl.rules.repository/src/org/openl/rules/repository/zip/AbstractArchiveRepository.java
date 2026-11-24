@@ -4,8 +4,6 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
@@ -15,10 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,7 +22,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -38,83 +33,26 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
-import org.openl.util.FileSignatureHelper;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 
 /**
- * Read only implementation of Local Repository to support deploying of archives as it is from file system without
- * unzipping to temporary directories.</br>
+ * Read only repository of the folders and the archives of the file system, which reads an archive without unzipping it
+ * to a temporary folder.
  *
- * <p>
- * NOTE: This repository type doesn't support write actions!
- * </p>
+ * <p>The top level of the repository lists the folders and the archives it was created with, each under its own
+ * name. The names are case-insensitive. An archive is entered when a path goes into it.
+ *
+ * <p>NOTE: This repository type doesn't support write actions!
  *
  * @author Vladyslav Pikus
  */
 abstract class AbstractArchiveRepository implements Repository, Closeable {
 
     private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
-
-    /**
-     * Verifies if it's an archive
-     *
-     * @param path path to archive
-     * @return {@code true} if it's archive, otherwise {@code false}
-     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
-     */
-    public static boolean zipArchiveFilter(Path path) {
-        if (!Files.isRegularFile(path)) {
-            return false;
-        }
-        if (FileTypeHelper.isExcelFile(path.getFileName().toString())) {
-            return false;
-        }
-        try (var raf = new RandomAccessFile(path.toFile(), "r")) {
-            return FileSignatureHelper.isArchiveSign(raf.readInt());
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    /**
-     * Find a common parent path
-     *
-     * @param paths path list
-     * @return common path or {@code null}
-     */
-    static Path findCommonParentPath(Collection<Path> paths) {
-        Iterator<Path> it = paths.iterator();
-        if (!it.hasNext()) {
-            return null;
-        }
-        var parent = it.next().getParent();
-        if (parent == null) {
-            return null;
-        }
-        while (it.hasNext()) {
-            var p = it.next();
-            if (parent.getNameCount() > p.getNameCount()) {
-                var temp = parent;
-                parent = p.getParent();
-                p = temp;
-            }
-            while (parent != null && !p.startsWith(parent)) {
-                parent = parent.getParent();
-            }
-            if (parent == null) {
-                return null;
-            }
-        }
-        return parent;
-    }
-
-    @Setter(AccessLevel.PACKAGE)
-    private Path root;
-    private Map<String, Path> storage = Map.of();
-    private Map<Path, String> pathAliases = Map.of();
+    private final Map<String, Path> storage;
+    private final Map<Path, String> pathAliases;
     @Getter
     @Setter
     private String id;
@@ -122,11 +60,15 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     @Setter
     private String name;
 
-    void setStorage(Map<String, Path> storage) {
-        final var localStorage = new HashMap<String, Path>();
-        final var localPathAliases = new HashMap<Path, String>();
+    /**
+     * @param storage the folders and the archives of the top level by their names
+     * @throws IllegalStateException when two names differ only in case or two names stand for the same path
+     */
+    AbstractArchiveRepository(Map<String, Path> storage) {
+        var localStorage = new HashMap<String, Path>();
+        var localPathAliases = new HashMap<Path, String>();
         storage.forEach((k, v) -> {
-            if (localStorage.put(k.toLowerCase(Locale.ROOT), v) != null) {
+            if (localStorage.put(keyOf(k), v) != null) {
                 throw new IllegalStateException("The resource with name '%s' already exits.".formatted(k));
             }
             if (localPathAliases.put(v, k) != null) {
@@ -137,6 +79,14 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         this.pathAliases = Collections.unmodifiableMap(localPathAliases);
     }
 
+    /**
+     * The key a name of the top level is looked up by: names differing only in letter case stand for the same folder
+     * or archive.
+     */
+    static String keyOf(String name) {
+        return name.toLowerCase(Locale.ROOT);
+    }
+
     @Override
     public void close() {
         openedFileSystems.values().forEach(IOUtils::closeQuietly);
@@ -145,40 +95,34 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     @Override
     public List<FileData> list(String path) throws IOException {
         var files = new ArrayList<FileData>();
-        var resolvedPath = resolvePath(path);
-        if (zipArchiveFilter(resolvedPath.getPath())) {
-            resolvedPath = new CompoundPath(resolvedPath.getRoot(),
-                    enterZipArchive(resolvedPath.getPath()),
-                    resolvedPath.getPath());
-        }
-        if (!resolvedPath.isDirectory()) {
-            return files;
-        }
-        if (Objects.equals(resolvedPath.getPath(), root)) {
+        if (isTopLevel(path)) {
             for (Path p : storage.values()) {
-                listFiles(files, p.getParent(), null, p);
+                collectFiles(files, p, null, p);
             }
         } else {
-            listFiles(files, resolvedPath.getRoot(), resolvedPath.getPathToArchive(), resolvedPath.getPath());
+            var folder = resolveFolder(path);
+            if (folder != null) {
+                collectFiles(files, folder.getTop(), folder.getPathToArchive(), folder.getPath());
+            }
         }
         return files;
     }
 
-    private void listFiles(List<FileData> files, Path root, Path pathToArchive, Path resolvedPath) throws IOException {
-        Files.walkFileTree(resolvedPath, new SimpleFileVisitor<Path>() {
+    private void collectFiles(List<FileData> files,
+                              Path top,
+                              @Nullable Path pathToArchive,
+                              Path resolvedPath) throws IOException {
+        Files.walkFileTree(resolvedPath, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path p, BasicFileAttributes attr) throws IOException {
-                if (pathToArchive == null && zipArchiveFilter(p)) {
+                if (pathToArchive == null && ZipUtils.isArchive(p)) {
                     try {
-                        var zip = enterZipArchive(p);
-                        listFiles(files, root, p, zip);
+                        collectFiles(files, top, p, enterZipArchive(p));
                     } catch (IOException ignored) {
                         // it's not an archive
                     }
                 } else {
-                    var cp = new CompoundPath(root, p, pathToArchive, attr);
-                    var data = getFileData(cp);
-                    files.add(data);
+                    files.add(getFileData(new CompoundPath(top, p, pathToArchive, attr)));
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -196,43 +140,64 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
-        var files = new ArrayList<FileData>();
-        var resolvedPath = resolvePath(path);
-        if (zipArchiveFilter(resolvedPath.getPath())) {
-            resolvedPath = new CompoundPath(resolvedPath.getRoot(),
-                    enterZipArchive(resolvedPath.getPath()),
-                    resolvedPath.getPath());
+        List<CompoundPath> found;
+        if (isTopLevel(path)) {
+            found = storage.values()
+                    .stream()
+                    .filter(AbstractArchiveRepository::isFolder)
+                    .map(p -> new CompoundPath(p, p, null))
+                    .toList();
+        } else {
+            var folder = resolveFolder(path);
+            if (folder == null) {
+                return List.of();
+            }
+            var walkRoot = folder.getPath();
+            try (Stream<Path> stream = Files.walk(walkRoot, 1)) {
+                found = stream.filter(p -> !walkRoot.equals(p) && isFolder(p))
+                        .map(p -> new CompoundPath(folder.getTop(), p, folder.getPathToArchive()))
+                        .toList();
+            }
         }
-        if (!resolvedPath.isDirectory()) {
-            return files;
-        }
-        final var walkRoot = resolvedPath.getPath();
-        List<Path> found;
-        try (Stream<Path> stream = Objects.equals(walkRoot, root) ? storage.values().stream()
-                : Files.walk(walkRoot, 1).filter(p -> !walkRoot.equals(p))) {
-            found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p)).toList();
-        }
-        for (Path p : found) {
-            var cp = new CompoundPath(Objects.equals(walkRoot, root) ? p.getParent() : resolvedPath.getRoot(),
-                    p,
-                    resolvedPath.getPathToArchive());
+        var folders = new ArrayList<FileData>();
+        for (var cp : found) {
             var data = new FileData();
             data.setName(cp.relativize(pathAliases::get));
             data.setModifiedAt(cp.getModifiedAt());
-            data.setVersion(String.valueOf(getHashVersion(p)));
+            data.setVersion(String.valueOf(getHashVersion(cp.getPath())));
             data.setPath(cp.getPath());
-            files.add(data);
+            folders.add(data);
         }
-        return files;
+        return folders;
+    }
+
+    private static boolean isFolder(Path path) {
+        return Files.isDirectory(path) || ZipUtils.isArchive(path);
+    }
+
+    private static boolean isTopLevel(String path) {
+        return StringUtils.isEmpty(path) || CompoundPath.PATH_SEPARATOR.equals(path);
+    }
+
+    /**
+     * Resolves a path that is not the top level as a folder, entering the archive the path names.
+     *
+     * @return {@code null} when the path names a file
+     */
+    private @Nullable CompoundPath resolveFolder(String path) throws IOException {
+        var resolvedPath = resolvePath(path);
+        if (ZipUtils.isArchive(resolvedPath.getPath())) {
+            resolvedPath = new CompoundPath(resolvedPath.getTop(),
+                    enterZipArchive(resolvedPath.getPath()),
+                    resolvedPath.getPath());
+        }
+        return resolvedPath.isDirectory() ? resolvedPath : null;
     }
 
     private CompoundPath resolvePath(String p) throws IOException {
-        if (StringUtils.isEmpty(p) || CompoundPath.PATH_SEPARATOR.equals(p)) {
-            return new CompoundPath(root, root, null);
-        }
-        var resolvedPath = root;
+        Path resolvedPath = null;
         Path archivePath = null;
-        Path localRoot = null;
+        Path top = null;
         Path path = Path.of(p);
         var i = 0;
         for (Path f : path) {
@@ -240,22 +205,26 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
             if (StringUtils.isEmpty(folderName)) {
                 continue;
             }
-            resolvedPath = i == 0 ? storage.get(folderName.toLowerCase(Locale.ROOT)) : resolvedPath.resolve(folderName);
+            if (".".equals(folderName) || "..".equals(folderName)) {
+                // a path never leaves the folder or the archive it names
+                throw new IOException("Unable to resolve the path [%s].".formatted(p));
+            }
+            resolvedPath = i == 0 ? storage.get(keyOf(folderName)) : resolvedPath.resolve(folderName);
             if (resolvedPath == null) {
                 throw new IOException("Unable to resolve the path [%s].".formatted(p));
             }
             if (i == 0) {
-                localRoot = resolvedPath.getParent();
+                top = resolvedPath;
             }
             // don't enter an archive if it's the last token in the path
-            if (i < path.getNameCount() - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
+            if (i < path.getNameCount() - 1 && archivePath == null && ZipUtils.isArchive(resolvedPath)) {
                 archivePath = resolvedPath;
                 resolvedPath = enterZipArchive(resolvedPath, p);
             }
             i++;
         }
         checkExists(archivePath, resolvedPath, p);
-        return new CompoundPath(localRoot, resolvedPath, archivePath);
+        return new CompoundPath(top, resolvedPath, archivePath);
     }
 
     private static void checkExists(@Nullable Path archivePath,
@@ -280,7 +249,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     }
 
     private synchronized Path enterZipArchive(Path path) throws IOException {
-        URI jarURI = ZipUtils.toJarURI(path);
+        var jarURI = ZipUtils.toJarURI(path);
         FileSystem fs;
         try {
             fs = FileSystems.getFileSystem(jarURI);
@@ -291,9 +260,9 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         return fs.getPath(CompoundPath.PATH_SEPARATOR);
     }
 
-    protected int getHashVersion(Path path) throws IOException {
+    private static int getHashVersion(Path path) throws IOException {
         var hashHolder = new AtomicInteger(1);
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(path, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path p, BasicFileAttributes attr) {
                 var hash = hashHolder.get();
@@ -315,18 +284,24 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileItem read(String name) throws IOException {
+    public @Nullable FileItem read(String name) throws IOException {
+        if (isTopLevel(name)) {
+            return null;
+        }
         var path = resolvePath(name);
         if (!path.isRegularFile()) {
             return null;
         }
         var data = getFileData(path);
-        InputStream is = Files.newInputStream(path.getPath());
+        var is = Files.newInputStream(path.getPath());
         return new FileItem(data, is);
     }
 
     @Override
-    public FileData check(String name) throws IOException {
+    public @Nullable FileData check(String name) throws IOException {
+        if (isTopLevel(name)) {
+            return null;
+        }
         try {
             var path = resolvePath(name);
             if (!path.exists()) {
@@ -339,7 +314,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileData checkHistory(String name, String version) throws IOException {
+    public @Nullable FileData checkHistory(String name, String version) throws IOException {
         if (version == null) {
             return check(name);
         }
@@ -347,7 +322,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileItem readHistory(String name, String version) throws IOException {
+    public @Nullable FileItem readHistory(String name, String version) throws IOException {
         if (version == null) {
             return read(name);
         }
@@ -380,13 +355,13 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     }
 
     @Override
-    public boolean delete(List<FileData> data) throws IOException {
+    public boolean delete(List<FileData> data) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setListener(Listener callback) {
-
+        // nothing changes in a read only repository
     }
 
     @Override

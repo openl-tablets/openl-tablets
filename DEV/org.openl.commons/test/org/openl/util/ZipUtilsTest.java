@@ -11,8 +11,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -25,6 +27,39 @@ class ZipUtilsTest {
 
     @TempDir
     File tempFolder;
+
+    @Test
+    void isArchive() throws IOException {
+        var zip = new File(tempFolder, "archive.zip");
+        var inner = new File(tempFolder, "inner");
+        assertTrue(inner.mkdir());
+        Files.writeString(inner.toPath().resolve("rules.xml"), "<project/>");
+        ZipUtils.archive(inner, zip);
+        var workbook = Files.copy(zip.toPath(), tempFolder.toPath().resolve("Rules.xlsx"));
+        var text = Files.writeString(tempFolder.toPath().resolve("plain.txt"), "plain text");
+
+        assertTrue(ZipUtils.isArchive(zip.toPath()));
+        assertFalse(ZipUtils.isArchive(workbook), "A workbook is not read as a folder");
+        assertFalse(ZipUtils.isArchive(text));
+        assertFalse(ZipUtils.isArchive(inner.toPath()), "A folder is not an archive");
+        assertFalse(ZipUtils.isArchive(tempFolder.toPath().resolve("absent.zip")));
+    }
+
+    @Test
+    void archiveInsideArchiveIsNotArchive() throws IOException {
+        var outer = tempFolder.toPath().resolve("outer.zip");
+        var source = new File(tempFolder, "source");
+        assertTrue(source.mkdir());
+        Files.writeString(source.toPath().resolve("rules.xml"), "<project/>");
+        var inner = new File(tempFolder, "inner.zip");
+        ZipUtils.archive(source, inner);
+        try (var fs = FileSystems.newFileSystem(outer, Map.of("create", "true"))) {
+            Files.copy(inner.toPath(), fs.getPath("/inner.zip"));
+        }
+        try (var fs = FileSystems.newFileSystem(outer)) {
+            assertFalse(ZipUtils.isArchive(fs.getPath("/inner.zip")));
+        }
+    }
 
     @Test
     void testContainsMethodReleasesResources() throws IOException {

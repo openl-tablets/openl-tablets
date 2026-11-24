@@ -1,7 +1,6 @@
 package org.openl.studio.repositories.validator;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -119,7 +118,7 @@ public class ZipArchiveValidator implements Validator {
             errors.reject("zip-archive.invalid.archive.message");
             isValid = false;
         } else {
-            var sign = readSignature(archive);
+            var sign = FileSignatureHelper.readSignature(archive);
             if (!FileSignatureHelper.isArchiveSign(sign)) {
                 errors.reject("zip-archive.invalid.archive.message");
                 isValid = false;
@@ -144,14 +143,6 @@ public class ZipArchiveValidator implements Validator {
             log.debug("The uploaded archive did not pass the integrity check.", e);
             errors.reject("zip-archive.damaged.archive.message", new String[]{e.getMessage()}, e.getMessage());
             return false;
-        }
-    }
-
-    private static int readSignature(Path path) {
-        try (var raf = new RandomAccessFile(path.toFile(), "r")) {
-            return raf.readInt();
-        } catch (IOException ignored) {
-            return -1;
         }
     }
 

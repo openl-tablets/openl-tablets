@@ -1,118 +1,22 @@
 package org.openl.rules.repository.zip;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-
-import org.openl.util.FileUtils;
-import org.openl.util.RuntimeExceptionWrapper;
-
 /**
- * Read only implementation of Jar Repository to support deploying of jars from classpath as it is without
- * unzipping to temporary directories.</br>
+ * Read only repository of the OpenL projects and deployments packed into the archives of the classpath, which reads
+ * an archive without unzipping it to a temporary folder.
  *
- * <p>
- * NOTE: This repository type doesn't support write actions!
- * </p>
+ * <p>The projects are found when the repository is created. Which archives are read, and how a nested one is read in
+ * place, is told by {@link ClasspathArchives}.
+ *
+ * <p>NOTE: This repository type doesn't support write actions!
  *
  * @author Vladyslav Pikus
  */
 public class JarLocalRepository extends AbstractArchiveRepository {
 
-    private static final String PROJECT_DESCRIPTOR_FILE = "rules.xml";
-    private static final String DEPLOYMENT_DESCRIPTOR_XML_FILE = "deployment.xml";
-    private static final String DEPLOYMENT_DESCRIPTOR_YAML_FILE = "deployment.yaml";
-
-    private final PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-
-    public void initialize() {
-        final var localStorage = new HashMap<String, Path>();
-        final Consumer<Resource> collector = res -> {
-            try {
-                final var uri = res.getURI();
-                final Path path = toPath(uri);
-                final String name = FileUtils.getBaseName(path.getFileName().toString());
-                var existed = localStorage.put(name, path);
-                if (existed != null && !existed.equals(path)) {
-                    throw new IllegalStateException("The resources '%s' and '%s' conflict for the same '%s' name.".formatted(existed, path, name));
-                }
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to initialize a repository.", e);
-            }
-        };
-
-        try {
-            getResources(PROJECT_DESCRIPTOR_FILE).forEach(collector);
-            getResources(DEPLOYMENT_DESCRIPTOR_XML_FILE).forEach(collector);
-            getResources(DEPLOYMENT_DESCRIPTOR_YAML_FILE).forEach(collector);
-            getArchives().forEach(collector);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to initialize a repository.", e);
-        }
-
-        Path root = findCommonParentPath(localStorage.values());
-        if (root == null) {
-            root = Path.of(System.getProperty("java.io.tmpdir")); // just a stab to prevent NPE
-        }
-
-        setStorage(localStorage);
-        setRoot(root);
+    /**
+     * @throws IllegalStateException when the classpath cannot be read, or two archives have the same base name
+     */
+    JarLocalRepository() {
+        super(new ClasspathArchives().find());
     }
-
-    private Stream<Resource> getArchives() throws IOException {
-        try {
-            return Stream.of(resourceResolver.getResources("/openl/*.zip"));
-        } catch (FileNotFoundException ignored) {
-            return Stream.empty();// OK
-        }
-    }
-
-    private Stream<Resource> getResources(String fileName) throws IOException {
-        var locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
-        return Stream.of(resourceResolver.getResources(locationPattern));
-    }
-
-    // Whether a class loader still hands out URIs encoded twice is unverified for every runtime Rule Services runs on.
-    @SuppressWarnings("java:S1134")
-    private static Path toPath(URI uri) {
-        if ("jar".equals(uri.getScheme())) {
-            var path = uri.getRawSchemeSpecificPart();
-            var sep = path.indexOf("!/");
-            if (sep > -1) {
-                path = path.substring(0, sep);
-            }
-            try {
-                var uriToZip = new URI(path);
-                if (uriToZip.getSchemeSpecificPart().contains("%")) {
-                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
-                    uriToZip = decodeOnce(uriToZip);
-                }
-                return Path.of(uriToZip);
-            } catch (URISyntaxException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
-            }
-        } else if ("file".equals(uri.getScheme())) {
-            return Path.of(uri);
-        }
-        throw new IllegalArgumentException("Invalid URI scheme.");
-    }
-
-    private static URI decodeOnce(URI uriToZip) {
-        try {
-            return new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
-        } catch (URISyntaxException ignored) {
-            //it's ok
-            return uriToZip;
-        }
-    }
-
 }

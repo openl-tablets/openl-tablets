@@ -5,6 +5,7 @@ import java.util.function.UnaryOperator;
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
+import org.openl.util.StringUtils;
 
 /**
  * Zipped local file system repository factory.
@@ -26,9 +27,11 @@ public class ZipRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(UnaryOperator<String> settings) {
-        var repository = new ZippedLocalRepository();
+        var uri = settings.apply("uri");
+        var archives = settings.apply("archives");
+        var repository = new ZippedLocalRepository(StringUtils.isBlank(uri) ? null : uri,
+                archives == null ? new String[0] : archives.split(","));
         RepositoryInstatiator.setParams(repository, settings);
-        repository.initialize();
         return repository;
     }
 }

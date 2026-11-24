@@ -86,7 +86,9 @@ The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the 
 
 ##### Classpath JAR
 
-This is the default data source: `production-repository.$ref = repo-jar`. It reads the rule projects that are packed into the JAR files in the classpath of the application. A JAR file is an OpenL project if it contains `rules.xml`, `deployment.xml`, or `deployment.yaml` in its root, and a ZIP archive in the `/openl/` folder of a JAR file is a project as well.
+This is the default data source: `production-repository.$ref = repo-jar`. It reads the rule projects that are packed into the JAR files in the classpath of the application. A JAR file is an OpenL project if it contains `rules.xml`, `deployment.xml`, or `deployment.yaml` in its root, and a ZIP archive in the first `/openl/` folder of the classpath, such as `WEB-INF/classes/openl/`, is a project as well.
+
+This data source also reads the projects of an executable Spring Boot JAR: the JAR files in `BOOT-INF/lib` and the ZIP archives in the `BOOT-INF/classes/openl/` folder. Such a nested archive is read in place, so the executable JAR is built by the Spring Boot plugin of Maven or Gradle, 3.2 or later, with its default loader, which stores the nested archives uncompressed. An archive that cannot be read in place is skipped with a warning in the log: an archive of the classic loader of Spring Boot, an archive compressed inside the executable JAR, or a ZIP archive inside another JAR file. A descriptor among the classes of the application itself, in `BOOT-INF/classes`, is skipped with a warning in the log.
 
 To deploy such projects to another configured data source at the application launch, proceed as follows:
 

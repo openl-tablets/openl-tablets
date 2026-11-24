@@ -481,6 +481,12 @@
                 <version>${spring.boot.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-loader</artifactId>
+                <version>${spring.boot.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- Override the micrometer-core that spring-ldap-core requires as a compile-scope dependency,
                  with a newer release fixing CVE-2026-40984. Remove once spring-ldap-core 4.x (requires
                  Spring Framework 7.x) manages a fixed version by default. -->
