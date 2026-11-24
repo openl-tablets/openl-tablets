@@ -773,7 +773,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         // a formula of a condition is computed once in a call of the table: a return value reading the parameter, as
         // $C1.param does, takes the value the condition computed to match the rule. A formula of an action is computed
         // each time it is read, so an action can be run again from the return value.
-        var pool = isCondition() && target instanceof RuleExecutionObject rule ? rule.getPool() : null;
+        var pool = isCondition() ? poolOf(env, target) : null;
         return pool == null
                 ? compute(value, target, tableParams, env)
                 : pool.formulaValue(this, row, ruleN, () -> compute(value, target, tableParams, env));
@@ -789,6 +789,24 @@ public abstract class FunctionalRow implements IDecisionRow {
     static @Nullable DecisionTableRuntimePool poolOf(IRuntimeEnv env) {
         var frame = env.getLocalFrame();
         return frame != null && frame.length > 0 && frame[0] instanceof DecisionTableRuntimePool pool ? pool : null;
+    }
+
+    /**
+     * The pool of the call of the table a value of a rule is read in, or {@code null} outside a call.
+     *
+     * <p>While the table matches its rules, the pool is the one of the environment. The target can then be a rule of
+     * another table: a table called from a formula of a rule gets that rule as its target, and its pool belongs to
+     * the calling table.
+     *
+     * <p>A formula of the table, such as a return value reading {@code $C1.param}, runs in a frame of its own. The
+     * pool is then the one of the rule the formula runs for.
+     */
+    private static @Nullable DecisionTableRuntimePool poolOf(IRuntimeEnv env, Object target) {
+        var pool = poolOf(env);
+        if (pool == null && target instanceof RuleExecutionObject rule) {
+            pool = rule.getPool();
+        }
+        return pool;
     }
 
     @Override
