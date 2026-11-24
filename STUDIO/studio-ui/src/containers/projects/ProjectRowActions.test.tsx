@@ -158,27 +158,18 @@ describe('ProjectRowActions', () => {
         expect(handlers.onDelete).toHaveBeenCalledWith(everything)
     })
 
-    it('folds every action into the menu on a card', () => {
-        render(<ProjectRowActions handlers={makeHandlers()} layout="menu" pendingActionId={null} project={everything} />)
-
-        expect(screen.queryByTestId('project-action-copy-p1')).toBeNull()
-        expect(screen.getByTestId('project-menu-copy-p1')).toBeTruthy()
-        expect(screen.getByTestId('project-menu-close-p1')).toBeTruthy()
-        expect(screen.getByTestId('project-menu-deploy-p1')).toBeTruthy()
-    })
-
     it('disables the other buttons while an action is pending', () => {
         render(<ProjectRowActions handlers={makeHandlers()} pendingActionId="close" project={everything} />)
 
         expect(screen.getByTestId('project-action-copy-p1')).toBeDisabled()
     })
 
-    it('names the running action in the card menu, where one trigger stands for them all', () => {
-        render(<ProjectRowActions handlers={makeHandlers()} layout="menu" pendingActionId="close" project={everything} />)
+    it('names the running action in the menu, where one trigger stands for them all', () => {
+        render(<ProjectRowActions handlers={makeHandlers()} pendingActionId="sync" project={everything} />)
 
-        // The card's single three-dots spinner cannot say which action is running; the menu can.
-        expect(within(screen.getByTestId('project-menu-close-p1')).getByTestId('menu-running')).toBeTruthy()
-        expect(screen.getByTestId('project-menu-copy-p1')).toBeDisabled()
+        // The single three-dots spinner cannot say which action is running; the menu can.
+        expect(within(screen.getByTestId('project-menu-sync-p1')).getByTestId('menu-running')).toBeTruthy()
+        expect(screen.getByTestId('project-menu-export-p1')).toBeDisabled()
     })
 
     it('offers nothing on a row whose project is busy switching branch', () => {

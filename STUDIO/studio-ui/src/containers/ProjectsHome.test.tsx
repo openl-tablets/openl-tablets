@@ -488,13 +488,6 @@ describe('ProjectsHome', () => {
         // The tag value shows up both as a row tag and as a tag facet in the rail.
         expect(screen.getAllByText('Payroll').length).toBeGreaterThan(1)
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
-
-        await userEvent.click(screen.getByText('grid'))
-
-        expect(screen.getByTestId('project-card-p1')).toBeTruthy()
-        // The grid card still carries the repository badge, so it now appears in the rail and the card.
-        expect(screen.getAllByText('Design').length).toBeGreaterThan(1)
-        expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
     })
 
     it('keeps the compile health strip live from the one workspace status stream', async () => {
@@ -630,17 +623,6 @@ describe('ProjectsHome', () => {
         expect(getProjects).toHaveBeenCalledTimes(2)
     })
 
-    it('names the repository of a project the user may read without reading its repository', async () => {
-        // A user granted a single project sees no repositories at all: the badge has to come from the project.
-        vi.mocked(getDesignRepositories).mockResolvedValue([])
-
-        await renderHome()
-
-        await userEvent.click(screen.getByText('grid'))
-
-        expect(screen.getAllByText('Design').length).toBeGreaterThanOrEqual(1)
-    })
-
     it('keeps initial load failures local to the Projects page', async () => {
         await renderHome()
 
@@ -663,19 +645,10 @@ describe('ProjectsHome', () => {
         expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
     })
 
-    it('puts New Project and the view switch in the top bar, and keeps the order of the list in the grid', async () => {
+    it('puts New Project in the top bar', async () => {
         await renderHome()
-        const topBar = screen.getByTestId('header-actions')
 
-        expect(within(topBar).getByTestId('projects-new')).toBeTruthy()
-        expect(within(topBar).getByTestId('projects-view')).toBeTruthy()
-
-        await userEvent.click(screen.getByTestId('projects-sort-updated'))
-        await userEvent.click(screen.getByText('grid'))
-
-        const cards = screen.getAllByTestId(/^project-card-/).map(el => el.getAttribute('data-testid'))
-        expect(cards).toEqual(['project-card-p2', 'project-card-p1'])
-        expect(screen.queryByTestId('projects-sort')).toBeNull()
+        expect(within(screen.getByTestId('header-actions')).getByTestId('projects-new')).toBeTruthy()
     })
 
     it('navigates to the project workspace when a row is clicked', async () => {
