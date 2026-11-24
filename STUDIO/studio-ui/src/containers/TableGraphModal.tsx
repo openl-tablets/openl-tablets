@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
-import { Button, Divider, Empty, Modal, Segmented, Select, Space, Spin, Tag, Tooltip, Typography, theme } from 'antd'
+import { Button, Divider, Empty, Flex, Modal, Segmented, Select, Space, Spin, Tag, Tooltip, Typography, theme } from 'antd'
 import {
     AimOutlined,
     BgColorsOutlined,
@@ -642,7 +642,7 @@ export const TableGraphModal: React.FC = () => {
     const renderIdLinks = (label: string, ids: string[], onPick: (id: string) => void) => (
         ids.length === 0 ? null : (
             <>
-                <Divider style={{ margin: '8px 0' }} />
+                <Divider size="small" />
                 <Typography.Text strong>{label}</Typography.Text>
                 <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                     {ids.map(id => {
@@ -682,7 +682,7 @@ export const TableGraphModal: React.FC = () => {
                                     key={cycle.id}
                                     color={activeCycle?.id === cycle.id ? 'red' : 'default'}
                                     data-testid={`table-graph-cycle-${index}`}
-                                    style={{ cursor: 'pointer', margin: 0, userSelect: 'none' }}
+                                    style={{ cursor: 'pointer', userSelect: 'none' }}
                                     title={cycleTooltip(names)}
                                     onClick={() => {
                                         setActiveCycle(cycle)
@@ -712,7 +712,7 @@ export const TableGraphModal: React.FC = () => {
                             color={selectedId === node.id ? 'blue' : 'default'}
                             data-testid={`table-graph-match-${index}`}
                             onClick={() => setSelectedId(node.id)}
-                            style={{ cursor: 'pointer', margin: 0, maxWidth: 260, userSelect: 'none' }}
+                            style={{ cursor: 'pointer', maxWidth: 260, userSelect: 'none' }}
                         >
                             <Typography.Text ellipsis={{ tooltip: candidateTooltip(node) }} style={{ color: 'inherit', maxWidth: 240 }}>
                                 {candidateLabel(node)}
@@ -738,9 +738,9 @@ export const TableGraphModal: React.FC = () => {
         }
         return (
             <>
-                <Divider style={{ margin: '10px 0' }} />
+                <Divider size="small" />
                 {rows.length > 0 && (
-                    <div style={{ fontSize: 12, display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: 8, rowGap: 3 }}>
+                    <div style={{ fontSize: 12, display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: token.marginXS, rowGap: token.marginXXS }}>
                         {rows.map(([label, value]) => (
                             <React.Fragment key={label}>
                                 <Typography.Text type="secondary">{label}</Typography.Text>
@@ -754,7 +754,7 @@ export const TableGraphModal: React.FC = () => {
                 {properties.length > 0 && (
                     <Space wrap size={4} style={{ marginTop: rows.length > 0 ? 8 : 0 }}>
                         {properties.map(([key, value]) => (
-                            <Tag key={key} style={{ margin: 0, fontFamily: MONO }}>{`${key}: ${String(value)}`}</Tag>
+                            <Tag key={key} style={{ fontFamily: MONO }}>{`${key}: ${String(value)}`}</Tag>
                         ))}
                     </Space>
                 )}
@@ -779,20 +779,20 @@ export const TableGraphModal: React.FC = () => {
         const gap = vocabulary.truncated ? Math.ceil(values.length / 2) : -1
         return (
             <>
-                <Divider style={{ margin: '8px 0' }} />
-                <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Divider size="small" />
+                <Flex align="center" gap="small" justify="space-between">
                     <Typography.Text strong>{t('graph:panel.values')}</Typography.Text>
                     <Typography.Text style={{ fontSize: 11 }} type="secondary">
                         {t('graph:panel.values_summary', { count: vocabulary.valueCount, type: vocabulary.valueType })}
                     </Typography.Text>
-                </Space>
+                </Flex>
                 <Space wrap data-testid="graph-vocabulary-values" size={[4, 4]} style={{ width: '100%', marginTop: 4 }}>
                     {values.map((value, index) => (
                         <React.Fragment key={`${index}:${value}`}>
                             {index === gap && (
                                 <Typography.Text style={{ fontFamily: MONO }} type="secondary">…</Typography.Text>
                             )}
-                            <Tag style={{ margin: 0, fontFamily: MONO }}>{value}</Tag>
+                            <Tag style={{ fontFamily: MONO }}>{value}</Tag>
                         </React.Fragment>
                     ))}
                 </Space>
@@ -815,13 +815,13 @@ export const TableGraphModal: React.FC = () => {
                 {node.vocabulary && renderVocabulary(node.vocabulary)}
                 {fields.length > 0 && (
                     <>
-                        <Divider style={{ margin: '8px 0' }} />
+                        <Divider size="small" />
                         <Typography.Text strong>{t('graph:panel.fields')}</Typography.Text>
                         <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                             {fields.map(field => {
                                 const ref = field.ref
                                 return (
-                                    <div key={field.name} style={{ display: 'flex', gap: 6, fontSize: 12, width: '100%' }}>
+                                    <div key={field.name} style={{ display: 'flex', gap: token.marginXS, fontSize: 12, width: '100%' }}>
                                         <Typography.Text ellipsis={{ tooltip: field.name }} style={{ maxWidth: 130 }}>
                                             {field.name}
                                         </Typography.Text>
@@ -853,7 +853,7 @@ export const TableGraphModal: React.FC = () => {
         const label = labelOf(node)!
         return (
             <>
-                <Typography.Title ellipsis={{ tooltip: label }} level={5} style={{ marginTop: 0, marginBottom: 6 }}>
+                <Typography.Title ellipsis={{ tooltip: label }} level={5} style={{ marginTop: 0, marginBottom: token.marginXS }}>
                     {label}
                 </Typography.Title>
                 <Space wrap size={4} style={{ marginBottom: 8 }}>
@@ -867,7 +867,7 @@ export const TableGraphModal: React.FC = () => {
                         </Typography.Text>
                         <Space wrap size={[4, 4]} style={{ width: '100%' }}>
                             {dims.map(dimension => (
-                                <Tag key={dimension} color="gold" style={{ margin: 0, maxWidth: '100%' }}>
+                                <Tag key={dimension} color="gold" style={{ maxWidth: '100%' }}>
                                     <Typography.Text ellipsis={{ tooltip: dimension }} style={{ color: 'inherit', maxWidth: 220 }}>
                                         {dimension}
                                     </Typography.Text>
@@ -878,7 +878,7 @@ export const TableGraphModal: React.FC = () => {
                 )}
                 {renderMeta(node)}
                 {renderDataModel(node)}
-                <div style={{ marginTop: 10 }}>
+                <div style={{ marginTop: token.marginSM }}>
                     {isDispatcher && (
                         <Typography.Paragraph style={{ marginBottom: 8 }} type="secondary">
                             {t('graph:panel.dispatcher_hint')}
@@ -895,13 +895,13 @@ export const TableGraphModal: React.FC = () => {
                             icon={<ExportOutlined />}
                             onClick={() => openTable(node)}
                             size="small"
-                            style={{ marginBottom: 10 }}
+                            style={{ marginBottom: token.marginXS }}
                             type="primary"
                         >
                             {t('graph:panel.open')}
                         </Button>
                     )}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: token.marginXS }}>
                         <Typography.Text type="secondary">{t('graph:panel.focus')}</Typography.Text>
                         <Space.Compact size="small">
                             <Button onClick={() => setExplore({ id: node.id, direction: 'DEPENDENCIES' })}>
@@ -938,8 +938,8 @@ export const TableGraphModal: React.FC = () => {
                 data-testid="table-graph-legend"
                 style={{
                     position: 'absolute',
-                    top: 8,
-                    left: 8,
+                    top: token.marginXS,
+                    left: token.marginXS,
                     zIndex: 2,
                     width: 210,
                     maxHeight: 'calc(100% - 16px)',
@@ -948,7 +948,7 @@ export const TableGraphModal: React.FC = () => {
                     border: `1px solid ${palette.hairline}`,
                     borderRadius: 8,
                     boxShadow: palette.panelShadow,
-                    padding: '8px 10px',
+                    padding: `${token.paddingXS}px ${token.paddingSM}px`,
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -991,7 +991,7 @@ export const TableGraphModal: React.FC = () => {
                         )
                     })}
                 </Space>
-                <Divider style={{ margin: '8px 0' }} />
+                <Divider size="small" />
                 <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                     {kindCounts.has(DISPATCHER_KIND)
                         && marker(<span style={{ width: 11, height: 11, border: `2px solid ${palette.dispatcher}` }} />, t('graph:legend.dispatcher'))}
@@ -1071,8 +1071,8 @@ export const TableGraphModal: React.FC = () => {
             open={visible}
             width="92vw"
             title={
-                <Space wrap align="center" size={10}>
-                    <Space size={8}>
+                <Space wrap>
+                    <Space>
                         <PartitionOutlined />
                         {t('graph:title')}
                     </Space>
@@ -1085,7 +1085,7 @@ export const TableGraphModal: React.FC = () => {
                     <Empty description={error ? t('graph:load_failed') : t('graph:empty')} />
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '74vh' }}>
-                        <Space wrap align="center" size={12} style={{ marginBottom: 8 }}>
+                        <Space wrap size={12} style={{ marginBottom: 8 }}>
                             <Select
                                 allowClear
                                 data-testid="table-graph-search"
