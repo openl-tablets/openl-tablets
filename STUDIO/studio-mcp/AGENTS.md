@@ -13,7 +13,8 @@ Cursor, VS Code / GitHub Copilot) to the OpenL Studio Business Rules Management
 System (BRMS). Through its tools you can:
 
 - **Get oriented** with the server instructions, which tell how to work, and the OpenL reference docs OpenL Studio serves
-- **Follow OpenL skills** — step-by-step workflows for planning, branching, testing, versioning, tracing and change logs
+- **Follow OpenL skills** — step-by-step workflows for planning, branching, testing, versioning, tracing, change logs
+  and the upkeep of a project's `AGENTS.md`
 - **Discover** repositories, projects, and rules
 - **Read** project structure, table definitions, and rule logic
 - **Modify** rules, tables, and project files
@@ -45,11 +46,14 @@ All tools are prefixed with `openl_` and share the server's version.
 The reference-documentation layer. The server instructions, which a client gives its agent when it connects, tell
 how to work through the tools, in the order a task takes, and name the skills: there is no onboarding tool to call,
 whose answer would be read again on every later turn. Call `openl_get_project_agent_context` before changing a
-project. The documentation tools serve the OpenL Tablets docs **OpenL Studio
+project; before the save of a change the `project-guidance` skill keeps the project's own `AGENTS.md` current, or
+creates it, which the save step of the instructions and the answer for a project without one name: an agent eval
+skipped the file while the pointer said only "once you change it", and recorded changed values until the
+instructions said a changed value changes nothing. The documentation tools serve the OpenL Tablets docs **OpenL Studio
 serves for its own version** at `/docs`: the specifications of `docs/ref`, the Reference Guide of
 `docs/reference-guide` and the migration notes of the releases since 5.25 of `docs/migration-notes` — progressive
 disclosure: the index is metadata-only, bodies are fetched by id on demand.
-- `openl_get_project_agent_context` - Resolve the **AGENTS.md hierarchy** for a project as a **single aggregated markdown document**: walks UP from the project (or an optional `folder`) to the repository root, collects every applicable `AGENTS.md`, and returns them concatenated in one response — ordered from the root folder (lowest priority) down to the project folder (highest priority), later sections winning on conflict. Ends with the ids of the guides the guidance references. Guidance of up to 12,000 characters comes whole; longer guidance comes as the opening of each file and the contents of its sections with their sizes, and `sections` reads the sections a task needs, by their headings, each with its subsections: the whole guidance of a large project would be read again on every turn
+- `openl_get_project_agent_context` - Resolve the **AGENTS.md hierarchy** for a project as a **single aggregated markdown document**: walks UP from the project (or an optional `folder`) to the repository root, collects every applicable `AGENTS.md`, and returns them concatenated in one response — ordered from the root folder (lowest priority) down to the project folder (highest priority), later sections winning on conflict. Ends with the ids of the guides the guidance references, and, for a project without an `AGENTS.md` of its own at its root, which a read of the file's metadata tells even when files above it apply, the `project-guidance` skill that creates one. Guidance of up to 12,000 characters comes whole; longer guidance comes as the opening of each file and the contents of its sections with their sizes, and `sections` reads the sections a task needs, by their headings, each with its subsections: the whole guidance of a large project would be read again on every turn
 - `openl_list_guides` - The canonical index of the docs: **metadata only** (id, title, size), filterable by `type` ('specification', also 'spec' as the ids start, 'guide' or 'migration') and case-insensitive `search` over id+title, paginated; the id starts with its type, and `openl_get_guides` names the path. The migration notes of a release are listed as `migration/<version>` (e.g. `migration/7.0.0`), oldest release first, with the size of their `## Rules Authors` section; a release whose notes have no such section is left out. To migrate a project, an agent reads every release after the version of the project up to the target
 - `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim — of a `migration/` id the `## Rules Authors` section of the notes, under their title, a heading inside a code block left alone: their links and images are relative to the path of the document; unknown ids fail with an actionable error — it never falls back to the index
 
@@ -228,6 +232,8 @@ The server serves the OpenL skills of `skills/` through the MCP skills extension
 - `versioning` — table versions by date, LOB, state or currency, and their tests
 - `trace-investigation` — the root cause of an unexpected rule result over the trace tools
 - `change-log-and-reapply` — a log of the changes of a feature, and reapplying the missing ones
+- `project-guidance` — what a project's `AGENTS.md` holds, creating it when the project has none and keeping it
+  current after every change; the guidance item of each `planning` plan
 
 Every file of a skill is a resource `skill://<skill>/<path>`: read `skill://<skill>/SKILL.md` with `resources/read`
 and resolve its relative links against the folder of that `SKILL.md`. `skills/list` answers every skill — its

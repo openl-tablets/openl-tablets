@@ -315,7 +315,9 @@ What ships inside `WEB-INF/mcp`, and where each part comes from:
   of them in [Working with an AI Agent](../user-guides/mcp-server/working-with-agents.md#openl-skills). The server
   offers no MCP prompts.
 - **Project `AGENTS.md`** — part of each project, read through `openl_get_project_agent_context` from the Studio REST
-  API. It versions with the project, not with the server.
+  API. It versions with the project, not with the server. The agent writes the project's own file with the project
+  file tools, as the `project-guidance` skill tells: it creates the file when the project has none and updates it
+  after every change.
 
 Versioning and build:
 

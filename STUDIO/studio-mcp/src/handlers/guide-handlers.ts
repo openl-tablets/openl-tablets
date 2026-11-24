@@ -5,8 +5,10 @@
  * resolver (openl_get_project_agent_context).
  */
 import { ProtocolError, ProtocolErrorCode } from '@modelcontextprotocol/server'
+import type { OpenLClient } from '../client.js'
 import * as schemas from '../schemas.js'
 import { formatAgentsDocument } from '../formatters.js'
+import { isNotFoundError } from '../http.js'
 import { formatListOf } from '../markdown-list.js'
 import {
     findKnownGuideIds,
@@ -82,7 +84,7 @@ export function registerGuideHandlers(): void {
         name: 'get_project_agent_context',
         title: 'Get Project Agent Context',
         description:
-            'Read the AGENTS.md guidance of a project as one Markdown document, from the repository root down to the project or its folder, a later file overriding an earlier one; none answers a short note. Longer guidance answers the opening of each file and its sections with their sizes, to read with sections. The guide ids it references end it, for openl_get_guides.',
+            'Read the AGENTS.md guidance of a project as one Markdown document, from the repository root down to the project or its folder, a later file overriding an earlier one; a project without a file of its own is told how to create it. Longer guidance answers the opening of each file and its sections with their sizes, to read with sections. The guide ids it references end it, for openl_get_guides.',
         schema: schemas.getProjectAgentContextSchema,
         annotations: {
             readOnlyHint: true,
@@ -96,6 +98,11 @@ export function registerGuideHandlers(): void {
             })
 
             let document = formatAgentsDocument(files, args.sections)
+            // The files found may all belong to folders above the project, which still needs a file of its own
+            if (files.length > 0 && !(await hasOwnGuidance(client, args.projectId, args.branch))) {
+                document += '\nThis project has no AGENTS.md of its own. When you change it, create one before you save, '
+                    + 'as the `project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.\n'
+            }
 
             // Cross-reference the guidance with the documentation: AGENTS.md files
             // reference guides by their stable ids (e.g. 'spec/rules.xml').
@@ -111,4 +118,13 @@ export function registerGuideHandlers(): void {
             return textResult(document)
         },
     })
+}
+
+/**
+ * Whether the project holds an `AGENTS.md` of its own, at its root. An answer other than a missing file counts as
+ * one, so a failed check adds no advice.
+ */
+async function hasOwnGuidance(client: OpenLClient, projectId: string, branch: string | undefined): Promise<boolean> {
+    return client.getProjectFileMeta(projectId, 'AGENTS.md', { branch })
+        .then(() => true, (error: unknown) => !isNotFoundError(error))
 }

@@ -70,6 +70,7 @@ describe('guidance tools', () => {
             { path: 'foo/P1/AGENTS.md', name: 'AGENTS.md', type: 'file', basePath: 'foo/P1', content: 'project guidance' },
             { path: 'foo/AGENTS.md', name: 'AGENTS.md', type: 'file', basePath: 'foo', content: 'root guidance' },
         ])
+        harness.mockHttp.onGet(/\/projects\/design-P1\/files\/AGENTS\.md$/).reply(200, { path: 'AGENTS.md', name: 'AGENTS.md', type: 'file' })
 
         const result = await executeTool('get_project_agent_context', {
             projectId: 'design-P1',
@@ -82,6 +83,22 @@ describe('guidance tools', () => {
         expect(text.indexOf('root guidance')).toBeLessThan(text.indexOf('project guidance'))
         // No guide ids mentioned → no cross-reference section.
         expect(text).not.toContain('### Referenced guides')
+        expect(text).not.toContain('project-guidance')
+    })
+
+    it('openl_get_project_agent_context names the skill that creates the file a project lacks under guidance above it', async () => {
+        harness.mockHttp.onPost(/\/projects\/.*\/file-search/).reply(200, [
+            { path: 'foo/AGENTS.md', name: 'AGENTS.md', type: 'file', basePath: 'foo', content: 'root guidance' },
+        ])
+
+        const result = await executeTool('get_project_agent_context', { projectId: 'design-P1', branch: 'dev' }, harness.client)
+
+        const text = textOf(result)
+        expect(text).toContain('root guidance')
+        expect(text.trimEnd()).toMatch(/no AGENTS\.md of its own\. .*`project-guidance` skill \(`skill:\/\/project-guidance\/SKILL\.md`\) tells\.$/)
+        const [check] = harness.mockHttp.history.get
+        expect(check.url).toMatch(/\/files\/AGENTS\.md$/)
+        expect(check.params).toMatchObject({ view: 'meta', branch: 'dev' })
     })
 
     it('openl_get_project_agent_context lists the guide ids the AGENTS.md files reference', async () => {
@@ -115,6 +132,6 @@ describe('guidance tools', () => {
             projectId: 'design-P2',
         }, harness.client)
 
-        expect(textOf(result)).toBe('No AGENTS.md files apply to this project.')
+        expect(textOf(result)).toBe('No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the `project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.')
     })
 })

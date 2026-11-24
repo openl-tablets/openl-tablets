@@ -59,6 +59,16 @@ project wins.
 To give instructions, add the `AGENTS.md` file to the project, or to a folder above it to cover several projects, in
 the same way as any other project file, and save the project.
 
+The agent keeps the `AGENTS.md` file of a project it changes up to date, so the next task starts from it instead of
+looking through the project again. When the project has none, the agent creates it with what the next agent needs:
+what the project computes, how the rules compute it step by step, the dimension properties in use, the conventions,
+the business terms and the tables that implement them, how the tests are organized, and the pitfalls found while
+working. The file leaves out what the agent can ask OpenL Studio in a call or two, such as the list of modules,
+tables, fields or dependencies. After a change, the agent updates only what the change made out of date and keeps the
+instructions written by people as they are. The file is a plan item of the task, saved with its other changes, and
+the summary says whether the file was created, updated, or left as it was. The agent never changes an `AGENTS.md`
+file of a folder above the project, as it serves other projects too.
+
 ### What the Agent Can Do
 
 The tools of the MCP server have names that start with `openl_` and fall into the following groups:
@@ -164,5 +174,7 @@ release.
   [Investigating a Wrong Result](#investigating-a-wrong-result).
 - **change-log-and-reapply** — a log of every change of a feature, and reapplying the missing changes after a
   conflict or on another branch.
+- **project-guidance** — creating the `AGENTS.md` file of a project and keeping it up to date, as described in
+  [Giving the Agent Project Instructions](#giving-the-agent-project-instructions).
 
 To use a skill, name the task, for example "plan adding the rule for Texas", or ask for the skill by name.

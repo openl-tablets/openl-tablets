@@ -240,11 +240,12 @@ function outlineOf(content: string): string {
  *
  * @param files - The applicable AGENTS.md files, nearest-first.
  * @param titles - The headings of the sections to read, case-insensitive, each part of a heading.
- * @returns A markdown document, or a short note when the project has none.
+ * @returns A markdown document, or, when the project has none, a short note naming the skill that creates one.
  */
 export function formatAgentsDocument(files: Types.AgentsFile[], titles?: string[]): string {
     if (files.length === 0) {
-        return 'No AGENTS.md files apply to this project.'
+        return 'No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the '
+            + '`project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.'
     }
     const body = (part: (content: string) => string): string => files.toReversed().map((file) => {
         const path = file.path.startsWith('/') ? file.path : `/${file.path}`
