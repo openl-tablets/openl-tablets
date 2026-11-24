@@ -6,6 +6,7 @@
 
     <!-- If <name> is not defined the folder name or zip file name or artifactId is used -->
     <!-- If <name> cannot be determined by some reason, an error will occur -->
+    <!-- Spaces around <name> are dropped, whitespace inside collapses to one space: " My  Rules " is "My Rules" -->
     <name>My Rules Project</name>
     <comment>Optional description</comment>
 

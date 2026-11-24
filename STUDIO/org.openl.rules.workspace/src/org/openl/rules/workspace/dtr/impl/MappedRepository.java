@@ -990,12 +990,18 @@ public final class MappedRepository implements BranchRepository, Closeable, Fold
     }
 
 
+    /**
+     * The project name a rules.xml declares, with its whitespace collapsed as {@link ProjectDescriptor} reads it.
+     *
+     * <p>A name written with spaces around it, such as {@code "Claim "}, is the name {@code "Claim"}: the project is
+     * listed, opened and found under the one name its descriptor resolves to.
+     */
     private String getProjectName(InputStream inputStream) {
         try {
             var inputSource = new InputSource(inputStream);
             XPathFactory factory = XPathFactory.newInstance();
             var xPath = factory.newXPath();
-            var xPathExpression = xPath.compile("/project/name");
+            var xPathExpression = xPath.compile("normalize-space(/project/name)");
             return xPathExpression.evaluate(inputSource);
         } catch (XPathExpressionException e) {
             return null;

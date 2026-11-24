@@ -84,6 +84,30 @@ class MappedRepositoryTest {
     }
 
     /**
+     * A project name with whitespace around or inside it is mapped as the engine reads rules.xml: trimmed, with
+     * every run of whitespace collapsed to one space.
+     *
+     * The workspace finds the descriptor of an opened project by this name, so a name kept as written, such as
+     * {@code "Claim PnC Case "}, leaves its modules unreachable.
+     */
+    @Test
+    void rulesXmlNameIsCollapsedAsTheDescriptorReadsIt() throws IOException {
+        writeProject("padded", "<project><name> Claim PnC Case </name></project>");
+        writeProject("spread", "<project><name>Claim\n\t  Auto</name></project>");
+        writeProject("blank", "<project><name>  \n </name></project>");
+
+        var mapped = listMappedFolders("DESIGN/");
+
+        assertEquals(3, mapped.size(), "All projects must be mapped: " + mapped);
+        assertTrue(mapped.stream().anyMatch(name -> name.startsWith("DESIGN/Claim PnC Case:")),
+                "Spaces around the name must be dropped, but was: " + mapped);
+        assertTrue(mapped.stream().anyMatch(name -> name.startsWith("DESIGN/Claim Auto:")),
+                "Whitespace inside the name must collapse to one space, but was: " + mapped);
+        assertTrue(mapped.stream().anyMatch(name -> name.startsWith("DESIGN/blank:")),
+                "A whitespace-only name must fall back to the folder name, but was: " + mapped);
+    }
+
+    /**
      * Two folders may declare the same project name, and both must keep it.
      *
      * A suffix invented to tell them apart shows a project no descriptor declares, and hides which folder that
