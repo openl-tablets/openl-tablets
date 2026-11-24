@@ -38,6 +38,44 @@ describe('AddLanguageModal', () => {
         await waitFor(() => expect(added).toHaveBeenCalledWith('de_LU'))
     })
 
+    it('opens empty again after a language is added or the dialog is cancelled', async () => {
+        const added = vi.fn()
+        const closed = vi.fn()
+        const dialog = (open: boolean) => <AddLanguageModal onAdd={added} onClose={closed} open={open} tags={['']} />
+        const { rerender } = render(dialog(true))
+        // Opened again at once, before its closing ends: the choice is cleared all the same.
+        const reopen = () => {
+            rerender(dialog(false))
+            rerender(dialog(true))
+        }
+
+        await pick('localization-add-language-language', 'Portu', 'Portuguese (pt)')
+        await pick('localization-add-language-country', '(BR)', 'Brazil (BR)')
+        await userEvent.click(screen.getByTestId('localization-add-language-ok'))
+        await waitFor(() => expect(added).toHaveBeenCalledWith('pt_BR'))
+
+        reopen()
+        await pick('localization-add-language-language', 'Germ', 'German (de)')
+        await userEvent.click(screen.getByTestId('localization-add-language-ok'))
+        await waitFor(() => expect(added).toHaveBeenLastCalledWith('de'))
+
+        reopen()
+        await pick('localization-add-language-language', 'Fren', 'French (fr)')
+        await pick('localization-add-language-country', '(BR)', 'Brazil (BR)')
+        await userEvent.click(screen.getByRole('button', { name: 'common:btn.cancel' }))
+        expect(closed).toHaveBeenCalled()
+
+        reopen()
+        await userEvent.click(await screen.findByTestId('localization-add-language-ok'))
+        expect(await screen.findByText('language_required')).toBeInTheDocument()
+        expect(added).toHaveBeenCalledTimes(2)
+
+        await pick('localization-add-language-language', 'Germ', 'German (de)')
+        await userEvent.click(screen.getByTestId('localization-add-language-ok'))
+        await waitFor(() => expect(added).toHaveBeenCalledTimes(3))
+        expect(added).toHaveBeenLastCalledWith('de')
+    })
+
     it('asks for the language, and adds none the messages have already', async () => {
         const added = vi.fn()
         render(<AddLanguageModal open onAdd={added} onClose={vi.fn()} tags={['', 'fr']} />)
