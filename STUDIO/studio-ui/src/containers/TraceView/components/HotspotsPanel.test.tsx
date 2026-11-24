@@ -29,7 +29,6 @@ const profile = (): ProfileSummaryView => ({
     distinctTables: 3,
     nodeCount: 6720,
     totalMillis: 273.8,
-    truncated: false,
     hotspots: [
         { uri: 'uHot', name: 'ClaimCostPerBenefitPerAgeBand', kind: 'spreadsheet', selfMillis: 68.2, totalMillis: 112.4, count: 6400 },
         { uri: 'uMid', name: 'AgeBandRate', kind: 'spreadsheet', selfMillis: 12.1, totalMillis: 40.0, count: 160 },

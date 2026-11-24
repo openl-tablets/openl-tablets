@@ -296,10 +296,9 @@ function frameLine(frame: Types.DebugFrameView): string {
 
 /** The profile of a run: its time and calls, and its slowest tables by their own time. */
 function profileLines(profile: Types.ProfileSummaryView): string[] {
-    const cut = profile.truncated ? ', the call tree cut at its size limit' : ''
     return [
         '',
-        `Profile: ${millis(profile.totalMillis)}, ${formatCount(profile.nodeCount, 'call')} of ${formatCount(profile.distinctTables, 'table')}${cut}; the slowest by own time:`,
+        `Profile: ${millis(profile.totalMillis)}, ${formatCount(profile.nodeCount, 'call')} of ${formatCount(profile.distinctTables, 'table')}; the slowest by own time:`,
         ...profile.hotspots.map((hot) =>
             `- ${tableLabel(hot.name, hot.kind)} own ${millis(hot.selfMillis)}, total ${millis(hot.totalMillis)}, ${formatCount(hot.count, 'call')}`),
     ]
@@ -307,8 +306,7 @@ function profileLines(profile: Types.ProfileSummaryView): string[] {
 
 /** The root of the call tree, by the uri and instance openl_expand_trace_tree takes. */
 function treeLine(tree: Types.CallNodeView): string {
-    const dropped = tree.notRetained ? `; ${tree.notRetained} sub-calls not retained` : ''
-    return `Call tree root: ${tableLabel(tree.name, tree.kind)} in ${millis(tree.durationMillis)}, own ${millis(tree.selfMillis)}${dropped}; ` +
+    return `Call tree root: ${tableLabel(tree.name, tree.kind)} in ${millis(tree.durationMillis)}, own ${millis(tree.selfMillis)}; ` +
         `uri ${tree.uri}, instance ${tree.instance ?? 0}.`
 }
 
@@ -653,7 +651,7 @@ export function registerTraceHandlers(): void {
         name: 'expand_trace_tree',
         title: 'Expand Call-Tree Node',
         description:
-            "Load one level of the call tree of a profiling run, which lives as long as the debug session: the sub-calls one step of a node made, each a node with its uri, instance and steps, and each step counting its own sub-calls in 'childrenTotal'. Start from the call-tree root line of a stack read with includeTree: true. The answer { children, total, hasMore, nextOffset } pages the sub-calls of a loop; 'notRetained' counts the sub-calls dropped at the size limit of the tree. To find what is slow, read the 'profile' instead.",
+            "Load one level of the call tree of a profiling run, which lives as long as the debug session: the sub-calls one step of a node made, each a node with its uri, instance and steps, and each step counting its own sub-calls in 'childrenTotal'. Start from the call-tree root line of a stack read with includeTree: true. The answer { children, total, hasMore, nextOffset } pages the sub-calls of a loop. To find what is slow, read the 'profile' instead.",
         schema: schemas.expandTraceTreeSchema,
         annotations: {
             readOnlyHint: true,

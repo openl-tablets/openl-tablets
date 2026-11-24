@@ -3,8 +3,7 @@ package org.openl.studio.projects.model.trace;
 /**
  * Aggregated profiling time for one table across all its invocations.
  *
- * <p>Accumulated on the fly as frames complete, independent of the retained call tree. It therefore stays
- * accurate even when the tree is truncated for size, counting every execution the run actually made.
+ * <p>Accumulated on the fly as frames complete, counting every execution the run made.
  *
  * @param uri        source URI of the table
  * @param name       display name of the table

@@ -28,7 +28,6 @@ import org.jspecify.annotations.Nullable;
  * @param dispatchIndex  in a flat tree, the position of this table's dispatch in the list of the tree's dispatches,
  *                       otherwise {@code null}
  * @param refStep        for a step-reference node, the reference of the step it points at, otherwise {@code null}
- * @param notRetained    sub-calls this node made that ran but were dropped because the tree hit its size limit, else {@code null}
  * @param parent         in a flat tree, the position of the calling node in the list, else {@code null}; the root
  *                       of a flat tree has none either
  * @param parentStep     in a flat tree, the reference of the calling node's step that made this call, else {@code null}
@@ -66,9 +65,6 @@ public record CallNodeView(
 
         @Schema(description = "trace.field.call-node.ref-step.desc")
         @Nullable String refStep,
-
-        @Schema(description = "trace.field.call-node.not-retained.desc")
-        @Nullable Long notRetained,
 
         @Schema(description = "trace.field.call-node.parent.desc")
         @Nullable Integer parent,

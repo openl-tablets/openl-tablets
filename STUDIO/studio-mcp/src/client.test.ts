@@ -692,7 +692,6 @@ describe('OpenLClient', () => {
                     durationMillis: 2,
                     selfMillis: 2,
                     steps: [{ ref: 'R1C0', label: '$Factor', status: 'executed', childrenTotal: 0 }],
-                    notRetained: 5,
                 }],
                 total: 4,
             }

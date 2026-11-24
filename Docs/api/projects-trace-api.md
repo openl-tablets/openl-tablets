@@ -413,8 +413,11 @@ Every run keeps a tree of its own. A tree is released:
 - by `DELETE /tree` — the business view sends it for its previous run when it runs again, and as its window closes;
 - once the client sent no trace request for ten minutes;
 - when the client changes a workbook, or its workspace is reset;
-- when the client ends — its browser session, or the idle credentials of a stateless client;
-- when the kept trees of all users hold more calls than one run may record — the tree read least recently first.
+- when the client ends — its browser session, or the idle credentials of a stateless client.
+
+A tree keeps every call of its run, however many the run made, and is never released to make room for another one.
+[Profiling: the executed call tree](projects-trace-architecture.md#profiling-the-executed-call-tree) gives the heap it
+takes.
 
 **Query parameters**:
 - `run` (string, required) — the `sessionId` of the business-view run. The calls of another run are not found.
@@ -526,7 +529,6 @@ interface ProfileSummaryView {
   distinctTables: number;         // distinct tables that ran (may exceed hotspots.length)
   nodeCount: number;              // total table invocations in the run (the size of the full tree)
   totalMillis: number;            // wall-clock time of the whole run, excluding parked time
-  truncated: boolean;             // true when more distinct tables ran than were returned
 }
 
 interface ProfileHotspotView {
@@ -627,7 +629,6 @@ interface CallNodeView {
   dispatch?: DispatchInfo;     // set when the table was chosen from overloaded versions (never in a flat list)
   dispatchIndex?: number;      // in a flat list, the position of that dispatch among the list's dispatches
   refStep?: string;            // for a stepRef node, the ref of the original step it points at
-  notRetained?: number;        // sub-calls that ran but were dropped once the tree reached its size limit
   parent?: number;             // in a flat list, the position of the node whose step made this call
   parentStep?: string;         // in a flat list, the ref of that step
 }

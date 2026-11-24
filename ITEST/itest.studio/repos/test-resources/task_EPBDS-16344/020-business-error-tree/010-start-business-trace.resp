@@ -65,8 +65,7 @@ Content-Type: application/json
     "hotspots": "*",
     "distinctTables": 3,
     "nodeCount": 3,
-    "totalMillis": "*",
-    "truncated": false
+    "totalMillis": "*"
   },
   "sessionId": "***"
 }

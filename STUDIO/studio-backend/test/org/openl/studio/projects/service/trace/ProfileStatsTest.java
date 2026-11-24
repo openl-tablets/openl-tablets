@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,33 +17,26 @@ import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.studio.projects.model.trace.TableProfile;
 
 /**
- * Verifies that the profiling hotspots are aggregated on the fly, per table, independent of the retained
- * call tree. The module's {@code Root} calls {@code SubCalc} three times over an array, so the stats must
- * count all three invocations — even when the node cap truncates the tree so only one is kept for display.
+ * Verifies that the profiling hotspots are aggregated on the fly, per table, and that the executed tree keeps
+ * every call. The module's {@code Root} calls {@code SubCalc} three times over an array.
  */
 class ProfileStatsTest {
 
     private static final String SRC = "test/rules/trace-debug/arrayCallProject.xlsx";
 
     @Test
-    @DisplayName("Counts every table invocation even when the tree is truncated for display")
-    void countsEveryInvocationWhenTheTreeTruncates() {
-        // Cap the tree so only the first SubCalc survives, then confirm the stats still counted all three.
-        var debugger = trace(2);
+    @DisplayName("Keeps every table invocation in the tree and in the hotspots")
+    void keepsEveryInvocation() {
+        var debugger = trace();
 
-        assertTrue(debugger.isTreeTruncated(), "the low node cap truncates the tree");
-        assertTrue(subCalcNodesInTree(debugger.completedTree()) < 3,
-                "the display tree drops the invocations past the cap");
-        assertEquals(3, stat(debugger.profileStats(), "SubCalc").count(),
-                "the hotspots count every invocation, not just the ones kept in the tree");
-        assertTrue(debugger.completedTree().notRetained() > 0,
-                "the dropped SubCalc frames are counted as not-retained sub-calls on Root, so the gap is visible");
+        assertEquals(3, subCalcNodesInTree(debugger.completedTree()), "the tree keeps every SubCalc call");
+        assertEquals(3, stat(debugger.profileStats(), "SubCalc").count(), "the hotspots count every SubCalc call");
     }
 
     @Test
     @DisplayName("Aggregates self and total time per table")
     void aggregatesSelfAndTotalPerTable() {
-        var debugger = trace(1000);
+        var debugger = trace();
 
         TableProfile subCalc = stat(debugger.profileStats(), "SubCalc");
         assertEquals(3, subCalc.count());
@@ -58,7 +52,7 @@ class ProfileStatsTest {
     @Test
     @DisplayName("Shares one step-ref instance across a table's repeated invocations")
     void sharesRepeatedStepStringsAcrossInvocations() {
-        var debugger = trace(1000);
+        var debugger = trace();
 
         var subCalls = new ArrayList<CallNode>();
         walk(debugger.completedTree(), node -> {
@@ -75,7 +69,7 @@ class ProfileStatsTest {
         assertSame(ref0, subCalls.get(2).steps().getFirst().ref());
     }
 
-    private TraceDebugger trace(int cap) {
+    private static TraceDebugger trace() {
         var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         assertTrue(compiled.getAllMessages().isEmpty(), () -> "module must compile: " + compiled.getAllMessages());
         var module = compiled.getOpenClass();
@@ -85,7 +79,6 @@ class ProfileStatsTest {
                 .orElseThrow();
 
         var debugger = new TraceDebugger(DebugListener.NOOP);
-        debugger.setMaxTreeNodes(cap);
         debugger.start("profile-stats", compiled.getClassLoader(), false, true, false, () -> {
             var env = new SimpleRulesVM().getRuntimeEnv();
             env.setTracer(debugger.tracer());
@@ -113,7 +106,7 @@ class ProfileStatsTest {
         return count[0];
     }
 
-    private static void walk(CallNode node, java.util.function.Consumer<CallNode> visitor) {
+    private static void walk(CallNode node, Consumer<CallNode> visitor) {
         if (node == null) {
             return;
         }

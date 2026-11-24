@@ -64,31 +64,6 @@ describe('TraceTree', () => {
         useTraceStore.getState().reset()
     })
 
-    const profile = (truncated: boolean) =>
-        ({ hotspots: [], distinctTables: 5, nodeCount: 999_999, totalMillis: 10, truncated })
-
-    it('warns that the tree is truncated so its partial branches are not mistaken for the whole run', () => {
-        useTraceStore.setState({
-            status: 'completed',
-            frames: [frame(0, { name: 'ROOT', active: true })],
-            selectedFrameIndex: 0,
-            profile: profile(true),
-        })
-        render(<TraceTree />)
-        expect(screen.getByTestId('trace-tree-truncated')).toBeInTheDocument()
-    })
-
-    it('shows no truncation banner when the tree is complete', () => {
-        useTraceStore.setState({
-            status: 'completed',
-            frames: [frame(0, { name: 'ROOT', active: true })],
-            selectedFrameIndex: 0,
-            profile: profile(false),
-        })
-        render(<TraceTree />)
-        expect(screen.queryByTestId('trace-tree-truncated')).toBeNull()
-    })
-
     it('reads its styles once however deep the stack is, so a deep recursion does not freeze the tab', () => {
         // A recursion hundreds of tables deep: every frame is a row with a chevron, a dispatch badge and a
         // condition row. Each of them reading the styles copied the whole theme per row.
@@ -336,44 +311,6 @@ describe('TraceTree', () => {
         // Switching to Self time shows the node's own time instead of the inclusive total.
         await userEvent.click(screen.getByText('tree.timeSelf'))
         expect(screen.getByText('12 ms')).toBeInTheDocument()
-    })
-
-    it('labels how many sub-calls a node dropped once the tree outgrew its size limit', () => {
-        useTraceStore.setState({
-            status: 'completed',
-            frames: [],
-            tree: {
-                uri: 'uRoot',
-                name: 'ROOT',
-                instance: 0,
-                kind: 'spreadsheet',
-                durationMillis: 42,
-                selfMillis: 12,
-                steps: [],
-                notRetained: 128
-            },
-        })
-        render(<TraceTree />)
-        // The gap is shown, not hidden — the analyst sees this node's children are incomplete, not absent.
-        expect(screen.getByTestId('tree-not-retained-tree/notRetained')).toBeInTheDocument()
-    })
-
-    it('shows no dropped-sub-calls note when the node retained everything', () => {
-        useTraceStore.setState({
-            status: 'completed',
-            frames: [],
-            tree: {
-                uri: 'uRoot',
-                name: 'ROOT',
-                instance: 0,
-                kind: 'spreadsheet',
-                durationMillis: 42,
-                selfMillis: 12,
-                steps: []
-            },
-        })
-        render(<TraceTree />)
-        expect(screen.queryByTestId('tree-not-retained-tree/notRetained')).toBeNull()
     })
 
     it('replays a returned node by restarting the trace and running to it', async () => {

@@ -26,20 +26,15 @@ public final class TraceTreeSnapshot {
 
     private final ProjectId projectId;
 
-    /** How many nodes the tree holds, so the kept trees of all users can be bounded by their size. */
-    @Getter
-    private final long nodeCount;
-
     private final AtomicReference<@Nullable CallNode> root;
 
     /** Wall-clock of the last access; drives idle release. */
     @Getter
     private volatile long lastAccessMillis = System.currentTimeMillis();
 
-    public TraceTreeSnapshot(String runId, ProjectId projectId, CallNode root, long nodeCount) {
+    public TraceTreeSnapshot(String runId, ProjectId projectId, CallNode root) {
         this.runId = runId;
         this.projectId = projectId;
-        this.nodeCount = nodeCount;
         this.root = new AtomicReference<>(root);
     }
 

@@ -166,8 +166,6 @@ export interface ProfileSummaryView {
     nodeCount: number
     /** Wall-clock execution time of the whole run in milliseconds, excluding parked time. */
     totalMillis: number
-    /** Whether more distinct tables ran than the returned hotspots. */
-    truncated: boolean
 }
 
 /** One table in the profiling hotspots, with its execution time aggregated across the whole run. */
@@ -232,8 +230,6 @@ export interface CallNodeView {
     dispatchIndex?: number | null
     /** For a `stepRef` node, the reference of the already-executed step it points at; absent otherwise. */
     refStep?: string | null
-    /** Sub-calls this node made that ran but were dropped once the tree hit its size limit; absent when all kept. */
-    notRetained?: number | null
     /**
      * In a flat list, the position of the node whose step made this call; absent for the root, and for a call of
      * the step a branch was loaded for.

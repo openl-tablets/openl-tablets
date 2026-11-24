@@ -48,20 +48,6 @@ final class DebugHookImpl implements DebugHook {
     /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
     private static final int MAX_WATCH_CAPTURES = 50_000;
 
-    /**
-     * Default upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. Since
-     * the tree is now serialized lazily (a level at a time), this is a memory bound only, not a response-size
-     * one.
-     */
-    static final int MAX_TREE_NODES = 5_000_000;
-
-    /**
-     * Upper bound on the nodes any single branch may retain in its subtree. It keeps the earliest, deepest
-     * branch from consuming the whole {@link #MAX_TREE_NODES} budget and starving its later siblings, so every
-     * branch stays browsable even when the run as a whole is truncated.
-     */
-    private static final int MAX_BRANCH_NODES = 1_000_000;
-
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
@@ -116,14 +102,7 @@ final class DebugHookImpl implements DebugHook {
     private long nestedStepNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
     private final AtomicReference<@Nullable CallNode> completedTree = new AtomicReference<>();
-    /** Running count of retained tree nodes and the flag set once the node cap stops the tree from growing. */
-    private int recordedNodes;
-    @Getter(AccessLevel.PACKAGE)
-    private volatile boolean treeTruncated;
-    /** Effective node cap; defaults to {@link #MAX_TREE_NODES}, lowered by tests to exercise truncation. */
-    @Setter(AccessLevel.PACKAGE)
-    private int maxTreeNodes = MAX_TREE_NODES;
-    /** Per-table profiling stats, accumulated as frames complete — independent of the retained (capped) tree. */
+    /** Per-table profiling stats, accumulated as frames complete. */
     private final Map<String, TableAccumulator> tableStats = new LinkedHashMap<>();
     /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
     private @Nullable OpenMethodDispatcher pendingDispatch;
@@ -220,7 +199,7 @@ final class DebugHookImpl implements DebugHook {
         }
         if (profiling && enclosing != null) {
             // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
-            recordChild(top, stepRef(enclosing), CallNode.referenceTo(StringPool.intern(top.getUri()),
+            top.recordExecutedChild(stepRef(enclosing), CallNode.referenceTo(StringPool.intern(top.getUri()),
                     StringPool.intern(ref), StringPool.intern(location.label())));
         }
         // This whole step — its own time plus any nested steps — is nested time for the step it ran inside.
@@ -244,7 +223,7 @@ final class DebugHookImpl implements DebugHook {
         // ref-to-node, but only under another step — a top-level re-read adds nothing to the tree.
         var location = top.getLocation();
         if (profiling && location != null && !stepRef(location).equals(original.ref())) {
-            recordChild(top, stepRef(location), CallNode.referenceTo(StringPool.intern(top.getUri()),
+            top.recordExecutedChild(stepRef(location), CallNode.referenceTo(StringPool.intern(top.getUri()),
                     StringPool.intern(original.ref()), StringPool.intern(original.label())));
         }
         return true;
@@ -255,50 +234,6 @@ final class DebugHookImpl implements DebugHook {
             return location.ref();
         }
         return location.label() != null ? location.label() : location.kind().getCode();
-    }
-
-    /**
-     * Attach a leaf reference node to its caller frame while the tree is under the node cap.
-     *
-     * <p>Returned call frames reserve their slot on entry and attach themselves; this handles the reference
-     * leaves a step leaves behind. Once the cap is reached the reference is dropped and the tree is flagged
-     * truncated, so the profile can report that it is incomplete instead of exhausting memory.
-     */
-    private void recordChild(DebugFrame frame, @Nullable String callerRef, CallNode node) {
-        // A reference leaf (a re-read of an already-executed step) is not a sub-call, so a dropped one only
-        // flags the tree truncated (in admitNode) — it must not inflate the frame's not-retained sub-call count.
-        if (admitNode()) {
-            frame.recordExecutedChild(callerRef, node);
-        }
-    }
-
-    /**
-     * Reserve one node in the bounded tree. A node is admitted only while the global cap and the subtree budget
-     * of every branch it hangs under still have room, so a huge run degrades to a truncated tree — fairly across
-     * branches — instead of exhausting memory or letting one branch starve the rest. Flags the tree truncated
-     * whenever a node is dropped.
-     */
-    private boolean admitNode() {
-        if (recordedNodes >= maxTreeNodes) {
-            treeTruncated = true;
-            return false;
-        }
-        for (DebugFrame ancestor : stack) {
-            if (ancestor.getBudget() <= 0) {
-                treeTruncated = true;
-                return false;
-            }
-        }
-        recordedNodes++;
-        for (DebugFrame ancestor : stack) {
-            ancestor.decrementBudget();
-        }
-        return true;
-    }
-
-    /** How many nodes the executed tree holds. Complete once the tree is. */
-    int recordedNodes() {
-        return recordedNodes;
     }
 
     /** Record a watched cell's value if this step is watched (by its name or ref), unless the cap is hit. */
@@ -364,24 +299,7 @@ final class DebugHookImpl implements DebugHook {
             pendingDispatch = null;
             pendingChosen = null;
         }
-        // Reserve this frame's slot in the bounded tree on ENTRY (top-down). A frame admitted here can always be
-        // attached on exit — even after its own descendants have filled the cap. Reserving on attach instead
-        // (bottom-up) drops a node whose subtree reached the cap, orphaning (losing) that whole recorded subtree.
-        var recorded = profiling && admitNode();
-        // Bound this frame's subtree by its parent's remaining budget and the per-branch cap, so a deep branch
-        // entered early cannot use up the whole tree before its siblings run. A frame that was not admitted gets
-        // no budget, so nothing is retained under it either.
-        if (recorded) {
-            frame.setBudget(parent == null ? maxTreeNodes : Math.min(parent.getBudget(), MAX_BRANCH_NODES));
-        } else {
-            frame.setBudget(0);
-        }
-        // A profiled sub-call the tree could not admit is one the caller made but the tree no longer keeps; count
-        // it on the caller so its node can honestly report how many of its sub-calls were dropped.
-        if (profiling && !recorded && parent != null) {
-            parent.incrementNotRetained();
-        }
-        frame.calledBy(parent, callerRef, recorded);
+        frame.calledBy(parent, callerRef);
         stack.push(frame);
         var failed = false;
         try {
@@ -442,30 +360,22 @@ final class DebugHookImpl implements DebugHook {
      */
     private void recordProfile(DebugFrame frame) {
         var parent = frame.getCaller();
-        var callerRef = frame.getCallerRef();
-        var recorded = frame.isRecorded();
         // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
         // misleading zero-time entry in either the hotspots or the tree.
         if (profiling && (frame.isCompleted() || frame.getError() != null)) {
-            // Aggregate this table's time on the fly for EVERY execution — independent of whether the node
-            // is kept in the (capped) tree — so the hotspots overview stays accurate on a truncated run.
+            // Aggregate this table's time on the fly for every execution.
             var selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
             tableStats.computeIfAbsent(frame.getUri(),
                             uri -> new TableAccumulator(uri, frame.getName(), frame.getKind()))
                     .add(frame.getDurationNanos(), selfNanos);
+            // Profiling also keeps the returned frame's structure (no values) so the executed tree survives
+            // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree.
+            var node = frame.toCallNode(StringPool::intern, detailedTitles);
             if (parent != null) {
                 parent.addChildNanos(frame.getDurationNanos());
-            }
-            // Profiling also keeps the returned frame's structure (no values) so the executed tree survives
-            // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
-            // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
-            if (recorded) {
-                var node = frame.toCallNode(StringPool::intern, detailedTitles);
-                if (parent != null) {
-                    parent.recordExecutedChild(callerRef, node);
-                } else {
-                    completedTree.set(node);
-                }
+                parent.recordExecutedChild(frame.getCallerRef(), node);
+            } else {
+                completedTree.set(node);
             }
         }
     }
@@ -568,7 +478,7 @@ final class DebugHookImpl implements DebugHook {
         return completedTree.get();
     }
 
-    /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
+    /** Per-table profiling stats accumulated over the run, for the hotspots overview. */
     List<TableProfile> profileStats() {
         return tableStats.values().stream().map(TableAccumulator::toProfile).toList();
     }

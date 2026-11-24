@@ -266,12 +266,11 @@ class TraceDebugMapperTest {
                 new TableProfile("uB", "B", FrameKind.SPREADSHEET, 2, ms(50), ms(50)),
                 new TableProfile("uC", "C", FrameKind.SPREADSHEET, 1, ms(30), ms(50)));
 
-        var summary = TraceDebugMapper.buildProfileSummary(stats, 10, ms(100), false);
+        var summary = TraceDebugMapper.buildProfileSummary(stats, 10, ms(100));
 
         assertEquals(3, summary.distinctTables(), "A, B, C");
         assertEquals(4, summary.nodeCount(), "every invocation counts: A + B + B + C");
         assertEquals(100.0, summary.totalMillis(), "wall-clock is the passed root duration");
-        assertFalse(summary.truncated(), "the tree was not truncated");
 
         // Sorted by own time: B (50), C (30), A (20).
         assertEquals(List.of("uB", "uC", "uA"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
@@ -284,31 +283,17 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void capsHotspotsToTopWithoutFlaggingTruncation() {
+    void capsHotspotsToTopAndCountsEveryTable() {
         var stats = List.of(
                 new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(10), ms(60)),
                 new TableProfile("uB", "B", FrameKind.SPREADSHEET, 1, ms(30), ms(30)),
                 new TableProfile("uC", "C", FrameKind.SPREADSHEET, 1, ms(20), ms(20)));
 
-        var summary = TraceDebugMapper.buildProfileSummary(stats, 2, ms(60), false);
+        var summary = TraceDebugMapper.buildProfileSummary(stats, 2, ms(60));
 
-        assertEquals(3, summary.distinctTables());
+        assertEquals(3, summary.distinctTables(), "every table that ran is counted");
         assertEquals(2, summary.hotspots().size(), "only the two slowest are returned");
-        assertFalse(summary.truncated(), "top-N is a display limit, not truncation — every table was counted");
         assertEquals(List.of("uB", "uC"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
-    }
-
-    @Test
-    void flagsTruncationWhenTheExecutedTreeHitTheNodeCap() {
-        var stats = List.of(
-                new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(30), ms(60)),
-                new TableProfile("uB", "B", FrameKind.SPREADSHEET, 1, ms(30), ms(30)));
-
-        // The hotspots are complete; only the executed tree hit its node cap.
-        var summary = TraceDebugMapper.buildProfileSummary(stats, 10, ms(60), true);
-
-        assertEquals(2, summary.hotspots().size(), "the hotspots themselves are complete");
-        assertTrue(summary.truncated(), "the tree hit its node cap, so it is flagged incomplete");
     }
 
     @Test
@@ -330,7 +315,7 @@ class TraceDebugMapperTest {
     @Test
     void serializesTheCompletedTreeOneLevelDeepForLazyLoading() {
         var tree = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
-                StackRenderOptions.FULL, false).tree();
+                StackRenderOptions.FULL).tree();
 
         assertNotNull(tree);
         assertEquals("A", tree.name());
@@ -344,7 +329,7 @@ class TraceDebugMapperTest {
         // The business view asks for the full tree: instead of the shallow lazy root, every call of the run comes
         // in one list, so the client browses the whole tree offline without paging.
         var stack = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true), false);
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true));
 
         assertNull(stack.tree(), "the full tree replaces the lazy root");
         var nodes = stack.treeNodes();
@@ -467,7 +452,7 @@ class TraceDebugMapperTest {
                 List.of(new CallNode.Step("R0C0", "$s", ms(1), List.of(dispatched(dispatch)))), null, null);
 
         var stack = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true), false);
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true));
 
         assertEquals(List.of(dispatch), stack.treeDispatches());
         assertEquals(0, stack.treeNodes().get(1).dispatchIndex());
@@ -538,7 +523,7 @@ class TraceDebugMapperTest {
                         new CallNode.Step("R1C0", "$plain", ms(1), List.of())), null, null);
 
         var steps = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
-                StackRenderOptions.FULL, false).tree().steps();
+                StackRenderOptions.FULL).tree().steps();
 
         // A step that made a call: children are lazy, but its count is reported so it shows as expandable.
         assertNull(steps.getFirst().children(), "children are lazy — fetched on expand");
@@ -549,25 +534,11 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void reportsDroppedSubCallsSoTheTruncationGapIsVisible() {
-        var dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42, 0);
-        var kept = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
-
-        assertEquals(42L, treeOf(dropped).notRetained(), "a node reports how many of its sub-calls were dropped");
-        assertNull(treeOf(kept).notRetained(), "a node that kept every sub-call carries no dropped count");
-    }
-
-    private static CallNodeView treeOf(CallNode root) {
-        return TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
-                StackRenderOptions.FULL, false).tree();
-    }
-
-    @Test
     void mapsTheCallNodeExecutionIndexSoALoopIterationCanBeReplayed() {
         var root = new CallNode("uA", "A", 7, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
 
         var view = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
-                StackRenderOptions.FULL, false);
+                StackRenderOptions.FULL);
 
         assertNotNull(view.tree());
         assertEquals(7, view.tree().instance(), "the node carries its execution index so a uri@N replay hits it");
@@ -580,12 +551,12 @@ class TraceDebugMapperTest {
                 debugFrame(FrameKind.SPREADSHEET, "uChild", "Child", 2));
 
         var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
-                StackRenderOptions.FULL, false);
+                StackRenderOptions.FULL);
         assertNotNull(full.frames().getFirst().steps(), "full view keeps every frame's steps");
         assertNotNull(full.frames().get(1).steps());
 
         var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false);
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false));
         assertNull(compact.frames().getFirst().steps(), "compact drops the non-active frame's steps");
         assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
         assertNotNull(compact.frames().get(1).steps(), "the active frame keeps its steps");
@@ -601,12 +572,12 @@ class TraceDebugMapperTest {
         doReturn(new DispatchInfo(List.of(new DispatchInfo.Candidate("state: CA", true)))).when(frame).getDispatch();
 
         var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, List.of(frame), null, null, List.of(),
-                StackRenderOptions.FULL, false).frames().getFirst();
+                StackRenderOptions.FULL).frames().getFirst();
         assertEquals(900, full.steps().size(), "the full view outlines every rule");
         assertNotNull(full.dispatch());
 
         var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, List.of(frame), null, null, List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false).frames().getFirst();
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false)).frames().getFirst();
         assertEquals(List.of(), compact.steps(), "no rule fired yet, so the compact view lists none");
         assertNull(compact.dispatch(), "a dispatch with one candidate made no choice");
     }
@@ -622,7 +593,7 @@ class TraceDebugMapperTest {
         doReturn(Set.of(1, 3)).when(frame).getFiredRules();
 
         var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, List.of(frame), null, null, List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false), false).frames().getFirst();
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true, false)).frames().getFirst();
         assertEquals(List.of("R2", "R4"), compact.steps().stream().map(StepValueView::ref).toList(),
                 "the rules the action fired stay listed after it returned");
         assertTrue(compact.steps().stream().allMatch(step -> step.status() == StepStatus.EXECUTED),

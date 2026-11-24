@@ -221,20 +221,9 @@ describe('SimpleTraceTree', () => {
 
         expect(screen.getByTestId('simple-node-tree/S1#1')).toHaveTextContent('uA')
         expect(loadBranch).not.toHaveBeenCalled() // the calls here are shown; the rest wait for the reader
-        // The calls left out are not lost: they load on a click, unlike the calls the server did not keep.
-        expect(screen.queryByText('tree.notRetained')).not.toBeInTheDocument()
+        // The calls left out are not lost: they load on a click.
         await userEvent.click(screen.getByTestId('simple-more-tree/S1/more'))
         expect(loadBranch).toHaveBeenCalledWith('uR', 0, 'S1')
-    })
-
-    it('marks the calls the server did not keep, which cannot be loaded', async () => {
-        const capped = () => callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed' }],
-            { notRetained: 3 })
-        setStore({ simpleTree: capped(), simpleChildren: {} })
-        render(<SimpleTraceTree />)
-
-        expect(screen.getByText('tree.notRetained')).toBeInTheDocument()
-        expect(screen.queryByTestId('simple-more-tree/S1/more')).not.toBeInTheDocument()
     })
 
     const loop = (count: number, failedAt?: number) => callNode('uR', 0, [

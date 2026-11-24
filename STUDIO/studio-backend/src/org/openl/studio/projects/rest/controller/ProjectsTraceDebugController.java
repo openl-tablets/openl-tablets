@@ -193,8 +193,7 @@ public class ProjectsTraceDebugController {
         var debugger = session.getDebugger();
         var tree = debugger.completedTree();
         if (tree != null) {
-            sessionRegistry.keepTree(new TraceTreeSnapshot(session.getId(), session.getProjectId(), tree,
-                    debugger.recordedNodes()));
+            sessionRegistry.keepTree(new TraceTreeSnapshot(session.getId(), session.getProjectId(), tree));
         }
     }
 
@@ -571,7 +570,7 @@ public class ProjectsTraceDebugController {
     private DebugStackView stackView(DebugSession session, StackRenderOptions options) {
         var debugger = session.getDebugger();
         return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
-                debugger.completedTree(), debugger.profileStats(), options, debugger.isTreeTruncated())
+                debugger.completedTree(), debugger.profileStats(), options)
                 .toBuilder().sessionId(session.getId()).build();
     }
 
