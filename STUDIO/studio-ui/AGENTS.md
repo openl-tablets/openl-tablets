@@ -283,8 +283,8 @@ The build writes two pages (`build.rollupOptions.input`):
   A table of a workbook does too, since its colours come from `paperToken()`.
   A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
   appearance through. Ant Design lays a nested theme's token over the parent's, so the scoped theme inherits the
-  colours of the application and adds only its own shape, drawn in the palette the application's provider carries
-  (`useTheme().openl`). A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
+  colours of the application and adds only its own shape, drawn in the token and the palette the application's
+  provider carries (`useTheme()`). A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
   nearest **antd-style** provider, so a `ConfigProvider` would restyle the Ant Design components and leave the
   co-located styles on the application-wide token.
 - **Density**: the same `ThemeSwitch` offers the compact density, remembered in `localStorage` under
@@ -487,14 +487,16 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   with `useSearchScope` instead of drawing an input. Only a dialog, a dropdown, a popover and a window without the
   header keep a field of their own (`SearchInput`). See **One search, in the header** under Key Patterns.
 - **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token
-  (`createStyles(({ token }) => ...)`), or, for an OpenL hue with no token, `LIST_PAGE_COLORS` from
-  `styles/listPageTheme.ts`. Its values are `var(--openl-*)` custom properties that `AppStyles` republishes when the
-  theme or the appearance changes, so a style that uses them repaints with the theme. A new colour is named in
-  `PALETTE_KEYS` and read off the Ant Design token in `paletteOf`, so every theme and appearance has it. Besides
-  the surfaces and the text, the palette carries the hues of the states, which the compilation states take
-  (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value. Ant Design
-  derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes the
-  palette itself — see `projectsTheme(palette)`.
+  (`createStyles(({ token }) => ...)`, or `useTheme()` for an inline style). A surface, a text, a border, an accent
+  or a state is always a token (`colorBgContainer`, `colorBgLayout`, `colorText…`, `colorBorderSecondary`,
+  `colorPrimaryBg`, `colorSuccess`…); the compilation states take the state hues of the token
+  (`compileColorsOf(token)`). Only an OpenL hue with no token comes from `LIST_PAGE_COLORS` in
+  `styles/listPageTheme.ts`: the brand, the track of a segmented control, the fills of the solid status badges and
+  the syntax hues of a parameter value. Its values are `var(--openl-*)` custom properties that `AppStyles`
+  republishes when the theme or the appearance changes, so a style that uses them repaints with the theme. A new
+  such colour is named in `PALETTE_KEYS` and read off the Ant Design token in `paletteOf`, so every theme and
+  appearance has it. Ant Design derives whole palettes from a colour and cannot read a custom property, so a
+  `ThemeConfig` token takes the token and the palette themselves — see `projectsTheme(token, palette)`.
   A memoised piece of JSX that uses `styles` or the token is rebuilt when the theme or the appearance changes:
   its dependencies name `themeName` from `useAppTheme()` and `isDarkMode` from `useThemeMode()`, or it keeps the
   colours of the theme it was first drawn in (`look`, which `treeData` in `ProjectsTree` depends on). They do not

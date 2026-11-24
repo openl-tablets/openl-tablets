@@ -14,21 +14,21 @@ interface LogoProps {
  * colour, and the edges between the faces are drawn in the colour that reads on the primary one — light in the
  * light appearance, dark in the dark one.
  */
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, token }) => ({
     outline: css`
         stroke: ${LIST_PAGE_COLORS.brand};
     `,
     lit: css`
-        fill: ${LIST_PAGE_COLORS.primary};
+        fill: ${token.colorPrimary};
     `,
     shaded: css`
-        fill: color-mix(in srgb, ${LIST_PAGE_COLORS.primary} 55%, ${LIST_PAGE_COLORS.brand});
+        fill: color-mix(in srgb, ${token.colorPrimary} 55%, ${LIST_PAGE_COLORS.brand});
     `,
     dark: css`
         fill: ${LIST_PAGE_COLORS.brand};
     `,
     edges: css`
-        stroke: ${LIST_PAGE_COLORS.primaryFg};
+        stroke: ${token.colorTextLightSolid};
     `,
 }))
 

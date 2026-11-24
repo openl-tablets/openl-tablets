@@ -5,7 +5,7 @@ import { EditOutlined, FileTextOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { basename } from '../containers/projects/projectPaths'
-import { COMPILE_COLORS } from '../containers/projects/projectsTheme'
+import { compileColorsOf } from '../containers/projects/projectsTheme'
 
 /** How many messages of one severity are listed before the reader asks for more. */
 const PAGE_SIZE = 10
@@ -39,10 +39,10 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
         font-size: 13px;
     `,
     error: css`
-        border-left-color: ${COMPILE_COLORS.errors};
+        border-left-color: ${compileColorsOf(token).errors};
     `,
     warning: css`
-        border-left-color: ${COMPILE_COLORS.warnings};
+        border-left-color: ${compileColorsOf(token).warnings};
     `,
     /** The way straight to the cell a message was raised against, beside the message itself. */
     editCell: css`
@@ -89,7 +89,7 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
     `,
     /** The piece of the rule the message is about, marked so the reader finds it among the rest. */
     marked: css`
-        color: ${COMPILE_COLORS.errors};
+        color: ${compileColorsOf(token).errors};
         font-weight: bold;
     `,
     action: css`

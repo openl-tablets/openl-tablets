@@ -3,7 +3,8 @@ import { contrastRatio, mix, opaque } from './colorMath'
 import { variantOf, type ThemeName } from './themes'
 
 /**
- * The colours OpenL Studio paints itself with, by name — one set of them per theme and appearance.
+ * The colours OpenL Studio paints itself with that Ant Design has no token for, by name — one set of them per theme
+ * and appearance. A colour Ant Design has a token for, such as a surface, a text or a state, is taken from the token.
  *
  * Every palette carries the same names, so a colour has a counterpart in the other appearance and in every
  * other theme. The palette in force is published as CSS custom properties by `AppStyles`, and styles refer
@@ -14,25 +15,11 @@ import { variantOf, type ThemeName } from './themes'
  * calls on Ant Design while it loads.
  */
 const PALETTE_KEYS = [
-    'primary',
     // The wordmark in the header, the shading of the logo, and the text on an accent: the primary one step
     // towards the text.
     'brand',
-    'primaryFg',
-    'pageBg',
-    'containerBg',
-    'text',
-    'textSecondary',
-    'textTertiary',
-    'textQuaternary',
-    'border',
-    'borderSecondary',
+    // The track of a segmented control: the secondary fill laid on the container, so it is opaque.
     'secondaryBg',
-    'accent',
-    'success',
-    'warning',
-    'info',
-    'error',
     // Fills of the solid status badges that carry white text. They are deepened on purpose: a badge is read at a
     // glance, so white on the fill clears WCAG AA (>= 4.5:1) in every theme and appearance.
     'statusNeutral',
@@ -76,23 +63,8 @@ export const paletteOf = (token: GlobalToken, name: ThemeName, isDarkMode: boole
     const strongPrimary = isDarkMode ? token.colorPrimaryHover : token.colorPrimaryActive
     const plainCode = editor?.foreground ?? token.colorText
     return {
-        primary: token.colorPrimary,
         brand: strongPrimary,
-        primaryFg: token.colorTextLightSolid,
-        pageBg: token.colorBgLayout,
-        containerBg: token.colorBgContainer,
-        text: token.colorText,
-        textSecondary: token.colorTextSecondary,
-        textTertiary: token.colorTextTertiary,
-        textQuaternary: token.colorTextQuaternary,
-        border: token.colorBorder,
-        borderSecondary: token.colorBorderSecondary,
         secondaryBg: opaque(token.colorFillSecondary, token.colorBgContainer),
-        accent: token.colorPrimaryBg,
-        success: token.colorSuccess,
-        warning: token.colorWarning,
-        info: token.colorInfo,
-        error: token.colorError,
         statusNeutral: badgeFill(opaque(token.colorTextSecondary, token.colorBgContainer)),
         statusRunning: badgeFill(token.colorInfo),
         statusPaused: badgeFill(token.colorWarning),
@@ -108,7 +80,7 @@ export const paletteOf = (token: GlobalToken, name: ThemeName, isDarkMode: boole
 /** A capital of a camel-case name as a kebab-case name writes it, e.g. `S` → `-s`. */
 const kebabLetter = (letter: string): string => `-${letter.toLowerCase()}`
 
-/** The custom property a colour is published under, e.g. `textSecondary` → `--openl-text-secondary`. */
+/** The custom property a colour is published under, e.g. `secondaryBg` → `--openl-secondary-bg`. */
 const variableName = (key: keyof Palette): string => `--openl-${key.replace(/[A-Z]/g, kebabLetter)}`
 
 /**

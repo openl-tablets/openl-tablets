@@ -4,7 +4,8 @@ import { Button, Checkbox, Empty, Modal, Select, Skeleton, Space, Spin, Tooltip,
 import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
-import { COMPILE_COLORS } from '../projects/projectsTheme'
+import { compileColorsOf } from '../projects/projectsTheme'
+import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizableRail } from '../projects/ResizableRail'
 import { groupIcon, tableIcon } from './tableIcons'
@@ -46,7 +47,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     /** A row with errors under it, named the way the Editor named it: in the error colour. */
     broken: css`
-        color: ${COMPILE_COLORS.errors};
+        color: ${compileColorsOf(token).errors};
     `,
     /** How many errors the row stands for, as the badge the Editor put at the end of the row. */
     errors: css`
@@ -55,7 +56,8 @@ const useStyles = createStyles(({ css, token }) => ({
         margin-left: ${token.marginXS}px;
         padding: 0 ${token.paddingXXS}px;
         border-radius: ${token.borderRadiusSM}px;
-        background: ${COMPILE_COLORS.errors};
+        /* The fill of a solid badge: deepened until its white count reads at 4.5:1 in every theme. */
+        background: ${LIST_PAGE_COLORS.statusFailed};
         color: ${token.colorTextLightSolid};
         font-size: ${token.fontSizeSM}px;
         line-height: ${token.fontSizeSM + 5}px;
@@ -74,7 +76,7 @@ const useStyles = createStyles(({ css, token }) => ({
         position: absolute;
         right: -2px;
         bottom: 0;
-        color: ${COMPILE_COLORS.ok};
+        color: ${compileColorsOf(token).ok};
         font-size: ${token.fontSizeSM - 3}px;
     `,
 }))

@@ -22,9 +22,9 @@ import { densityTheme, useAppTheme } from '../../providers/AppThemeProvider'
 export const ProjectsThemeProvider = ({ children }: PropsWithChildren) => {
     const { themeMode } = useThemeMode()
     const { compact } = useAppTheme()
-    // The palette of the theme and appearance in force, as the application's provider carries it.
-    const { openl } = useTheme()
-    const theme = useMemo(() => ({ ...projectsTheme(openl), ...densityTheme(compact) }), [compact, openl])
+    // The token and the palette of the theme and appearance in force, as the application's provider carries them.
+    const token = useTheme()
+    const theme = useMemo(() => ({ ...projectsTheme(token, token.openl), ...densityTheme(compact) }), [compact, token])
 
     return <ThemeProvider theme={theme} themeMode={themeMode}>{children}</ThemeProvider>
 }

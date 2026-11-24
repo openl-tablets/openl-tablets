@@ -14,7 +14,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { App, Alert, Button, Empty, Skeleton, Spin } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
-import { createStyles } from 'antd-style'
+import { createStyles, useTheme } from 'antd-style'
 import {
     getDesignRepositories,
     getProject,
@@ -64,7 +64,7 @@ import {
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { useSearchScope } from '../hooks/useSearchScope'
-import { COMPILE_COLORS } from './projects/projectsTheme'
+import { compileColorsOf } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { BusyVeil } from './projects/BusyVeil'
 import { NewProjectModal } from './projects/NewProjectModal'
@@ -207,6 +207,7 @@ export const ProjectsHome = () => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
+    const token = useTheme()
     const navigate = useNavigate()
     const [urlParams, setUrlParams] = useSearchParams()
     // The project the address names, shown beside the rail in place of the list. The screen stays while the reader
@@ -962,7 +963,7 @@ export const ProjectsHome = () => {
                             <span className={styles.compileStrip} data-testid="projects-compile-summary">
                                 {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
                                     <span key={state} className={styles.compileItem}>
-                                        <span className={shared.stateDot} style={{ background: COMPILE_COLORS[state] }} />
+                                        <span className={shared.stateDot} style={{ background: compileColorsOf(token)[state] }} />
                                         <span className={styles.compileNum}>{compileTally[state]}</span>
                                         {t(`browser.compile.${state}`)}
                                     </span>

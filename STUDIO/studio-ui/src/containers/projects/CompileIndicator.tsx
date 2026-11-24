@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Tooltip } from 'antd'
-import { createStyles, keyframes } from 'antd-style'
+import { createStyles, keyframes, useTheme } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
-import { COMPILE_COLORS } from './projectsTheme'
+import { compileColorsOf } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 
 /**
@@ -49,14 +49,14 @@ const useStyles = createStyles(({ css, token }) => ({
             position: absolute;
             inset: 0;
             border-radius: 50%;
-            background: ${COMPILE_COLORS.compiling};
+            background: ${compileColorsOf(token).compiling};
             animation: ${pulse} 1.4s ease-out infinite;
             will-change: transform, opacity;
             pointer-events: none;
         }
 
         @media (prefers-reduced-motion: reduce) {
-            box-shadow: 0 0 0 3px color-mix(in srgb, ${COMPILE_COLORS.compiling} 30%, transparent);
+            box-shadow: 0 0 0 3px color-mix(in srgb, ${compileColorsOf(token).compiling} 30%, transparent);
 
             &::after {
                 animation: none;
@@ -105,6 +105,7 @@ export const isNoteworthyCompileState = (state: ProjectCompileState): boolean =>
 export const CompileDot = ({ state, showLabel, testId, tooltip, label: told }: CompileDotProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
+    const token = useTheme()
     const { t } = useTranslation('repository')
     const label = told ?? t(`browser.compile.${state}`)
     const title = tooltip ?? label
@@ -114,7 +115,7 @@ export const CompileDot = ({ state, showLabel, testId, tooltip, label: told }: C
                 <span
                     aria-hidden
                     className={cx(shared.stateDot, state === 'compiling' && styles.dotPulse)}
-                    style={{ background: COMPILE_COLORS[state] }}
+                    style={{ background: compileColorsOf(token)[state] }}
                 />
                 {showLabel && <span>{label}</span>}
             </span>

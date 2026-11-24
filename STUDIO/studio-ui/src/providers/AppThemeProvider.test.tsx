@@ -6,11 +6,11 @@ import { theme as antdTheme } from 'antd'
 import { createStyles } from 'antd-style'
 import { AppThemeProvider, densityTheme, useAppTheme } from './AppThemeProvider'
 import { THEME_COMPACT_KEY, THEME_MODE_KEY, THEME_NAME_KEY } from '../utils/themeMode'
-import { paletteFor } from '../testing/theme'
+import { paletteFor, tokenFor } from '../testing/theme'
 
 // A co-located style, the way every component writes one — it must see the palette in force.
 const usePaletteStyles = createStyles(({ css, token }) => ({
-    probe: css`color: ${token.openl.primary};`,
+    probe: css`color: ${token.openl.brand};`,
 }))
 
 const ThemeProbe = () => {
@@ -24,7 +24,7 @@ const ThemeProbe = () => {
             <span data-testid="dark">{String(isDarkMode)}</span>
             <span data-testid="compact">{String(compact)}</span>
             <span data-testid="theme">{themeName}</span>
-            <span data-testid="palette">{theme.openl.primary}</span>
+            <span data-testid="palette">{theme.openl.brand}</span>
             <span data-testid="primary">{theme.colorPrimary}</span>
             <span data-testid="surface">{theme.colorBgContainer}</span>
             <button onClick={() => setThemeMode('dark')} type="button">go dark</button>
@@ -112,7 +112,7 @@ describe('AppThemeProvider', () => {
         renderProbe()
 
         expect(screen.getByTestId('theme').textContent).toBe('standard')
-        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('standard', false).primary)
+        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('standard', false).brand)
         expect(screen.getByTestId('primary').textContent).toBe(antdTheme.getDesignToken().colorPrimary)
     })
 
@@ -122,8 +122,8 @@ describe('AppThemeProvider', () => {
         await userEvent.click(screen.getByText('go dracula'))
 
         expect(screen.getByTestId('theme').textContent).toBe('dracula')
-        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('dracula', false).primary)
-        expect(screen.getByTestId('primary').textContent).toBe(paletteFor('dracula', false).primary)
+        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('dracula', false).brand)
+        expect(screen.getByTestId('primary').textContent).toBe(tokenFor('dracula', false).colorPrimary)
         expect(screen.getByTestId('surface').textContent).toBe('#fffbeb')
         expect(localStorage.getItem(THEME_NAME_KEY)).toBe('dracula')
     })
@@ -134,7 +134,7 @@ describe('AppThemeProvider', () => {
 
         renderProbe()
 
-        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('dracula', true).primary)
+        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('dracula', true).brand)
         expect(screen.getByTestId('surface').textContent).toBe('#282a36')
     })
 })

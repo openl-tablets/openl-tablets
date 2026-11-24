@@ -1,6 +1,6 @@
 import { createStyles } from 'antd-style'
 import { captionSize, useListPageStyles } from '../../styles/listPageStyles'
-import { MOCKUP } from './projectsTheme'
+import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { APP_HEADER_HEIGHT } from '../../constants/ui'
 
 /**
@@ -146,7 +146,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         width: 256px;
         flex: none;
         border-right: 1px solid ${token.colorBorderSecondary};
-        background: ${MOCKUP.pageBg};
+        background: ${token.colorBgLayout};
         overflow: hidden;
     `,
     /** The rail's own header, above the scrolling facets. */
@@ -190,13 +190,13 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         text-align: left;
 
         &:hover {
-            background: ${MOCKUP.accent};
+            background: ${token.colorPrimaryBg};
         }
     `,
     /** The picked line of the rail. */
     railRowActive: css`
-        background: ${MOCKUP.accent};
-        color: ${MOCKUP.brand};
+        background: ${token.colorPrimaryBg};
+        color: ${LIST_PAGE_COLORS.brand};
     `,
     /**
      * The frame of a workspace screen: a head across the top and, under it, everything the screen shows.

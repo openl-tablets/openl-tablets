@@ -7,7 +7,6 @@ import { createStyles } from 'antd-style'
 import { notifyLoadFailure } from '../../services/apiCall'
 import { getLocalHistory, restoreLocalHistory, type LocalHistoryItem } from '../../services/localHistory'
 import { useListPageStyles } from '../../styles/listPageStyles'
-import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { errorMessage } from '../../utils/errorMessage'
 import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { openVersionsCompareWindow } from './compare'
@@ -45,7 +44,7 @@ const reloadLegacyWorkspace = (): void => {
 const useStyles = createStyles(({ css, token }) => ({
     root: css`
         min-height: 100%;
-        background: ${LIST_PAGE_COLORS.containerBg};
+        background: ${token.colorBgContainer};
     `,
     table: css`
         table-layout: auto;
@@ -64,7 +63,7 @@ const useStyles = createStyles(({ css, token }) => ({
         display: inline-block;
         margin: 0;
         padding: 0;
-        color: ${LIST_PAGE_COLORS.primary};
+        color: ${token.colorPrimary};
         font-family: inherit;
         font-size: 14px;
         font-weight: 400;
@@ -72,11 +71,11 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     selectedRow: css`
         td {
-            background: ${LIST_PAGE_COLORS.accent};
+            background: ${token.colorPrimaryBg};
         }
 
         &:hover td {
-            background: ${LIST_PAGE_COLORS.accent};
+            background: ${token.colorPrimaryBg};
         }
     `,
     actions: css`
