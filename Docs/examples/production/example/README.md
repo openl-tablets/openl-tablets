@@ -49,6 +49,10 @@ This project includes a basic OpenAPI-based client authorization mechanism, impl
 
 For detailed documentation, see [Security Extensions](../../../configuration/security.md).
 
+The application is a Spring Boot application. How it runs OpenL Rule Services, how it is configured and how it
+serves Spring MVC controllers or Actuator beside them is described in
+[OpenL Rule Services in Spring Boot](../../../user-guides/rule-services/spring-boot.md).
+
 ---
 
 ## Use cases

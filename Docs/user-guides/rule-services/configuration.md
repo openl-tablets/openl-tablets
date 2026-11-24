@@ -77,6 +77,7 @@ The system supports the following data source implementations:
 
 -   [Classpath JAR](#classpath-jar)
 -   [File System](#file-system)
+-   [ZIP Archives](#zip-archives)
 -   [Relational Database](#relational-database)
 -   [Amazon AWS S3](#amazon-aws-s3)
 -   [Azure Blob Storage](#azure-blob-storage)
@@ -101,7 +102,22 @@ By default, this property is set to `NEVER`. The `ALWAYS` value deploys the proj
 
 ##### File System
 
-Using a file system as a data source for projects means that projects are stored in a local folder. By default, the configuration folder represents a single deployment containing all the projects and does not support multiple deployments and project versions.
+Using a file system as a data source for projects means that projects are stored in a local folder. Each folder in it is a deployment, and each folder of a deployment is a project of it. Project versions are not supported. For example, the following folder holds two deployments:
+
+```
+deployments/
+├── policy-rules/
+│   └── policy/
+│       ├── rules.xml
+│       ├── rules-deploy.xml
+│       └── Policy.xlsx
+└── claim-rules/
+    └── claim/
+        ├── rules.xml
+        └── Claim.xlsx
+```
+
+A project put right into the folder, with `rules.xml` directly in `deployments/claim/`, is not deployed: its files are read as projects of the `claim` deployment. To keep projects as archives instead, use [ZIP Archives](#zip-archives).
 
 To configure a local file system as a data source, proceed as follows:
 
@@ -109,6 +125,24 @@ To configure a local file system as a data source, proceed as follows:
     <br/>By default, the `${user.home}/.openl/repositories/local` folder is used as a local folder for projects. Set `production-repository.uri` to use another folder.
 
     **Note:** For proper parsing of Java properties file, the path to the folder must be defined with a slash (‘/’) as the folders delimiter. Back slash “\\” is not allowed.
+
+##### ZIP Archives
+
+This data source reads deployments packed into ZIP archives of the file system, as they are, without unpacking them. An archive is a deployment named after its file, without the extension: `policy-rules.zip` is the `policy-rules` deployment.
+
+To configure ZIP archives as a data source, proceed as follows:
+
+1.  In `application.properties`, set `production-repository.factory = repo-zip`.
+2.  Set `production-repository.uri` to the folder with the archives. By default, the `${openl.home}/repositories/zipped` folder is used.
+3.  Optionally, set `production-repository.archives` to a comma-separated list of the archives to deploy. A relative path names an archive in the working folder of the application first, and in the `production-repository.uri` folder only when the working folder has no such archive. Use an absolute path to name exactly one archive. When the list is empty, every archive and every folder directly in the folder is deployed.
+
+An example is as follows:
+
+```properties
+production-repository.factory = repo-zip
+production-repository.uri = /opt/openl/deployments
+production-repository.archives = policy-rules.zip, claim-rules.zip
+```
 
 ##### Relational Database
 
