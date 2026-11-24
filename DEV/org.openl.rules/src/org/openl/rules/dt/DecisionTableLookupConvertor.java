@@ -85,6 +85,7 @@ public class DecisionTableLookupConvertor {
         }
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
         validateLookupSection();
+        var retTableWidth = retTable.getCell(0, 0).getWidth();
 
         var keys = processHorizConditionsHeaders(table, firstLookupColumn);
         var hConditionRows = findHConditionRows(keys, hcHeaders.size());
@@ -93,14 +94,15 @@ public class DecisionTableLookupConvertor {
 
         var lookupValuesTableHeight = getLookupValuesTableHeight(table);
 
-        isMultiplier(lookupValuesTable);
+        isMultiplier(lookupValuesTable, retTableWidth);
 
         var transformer = getTransformer(table,
                 headerRow,
                 keys,
                 hConditionRows,
                 lookupValuesTable,
-                lookupValuesTableHeight);
+                lookupValuesTableHeight,
+                retTableWidth);
 
         return new TransformedGridTable(table.getSource(), transformer);
     }
@@ -110,10 +112,9 @@ public class DecisionTableLookupConvertor {
                                                            @NonNull IGridTable keys,
                                                            int @NonNull [] hConditionRows,
                                                            @NonNull IGridTable lookupValuesTable,
-                                                           @Nullable Integer lookupValuesTableHeight)
-            throws OpenLCompilationException {
+                                                           @Nullable Integer lookupValuesTableHeight,
+                                                           int retTableWidth) throws OpenLCompilationException {
         validateRetColumn(headerRow);
-        var retTableWidth = retTable.getCell(0, 0).getWidth();
 
         if (lookupValuesTableHeight == null) {
             lookupValuesTableHeight = lookupValuesTable.getHeight();
@@ -338,11 +339,12 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    private int getWidthWithIgnoredEmptyCells(IGridTable table) {
+    /** The width of the lookup values without the columns at their end that are empty in every row. */
+    private static int getWidthWithIgnoredEmptyCells(IGridTable table) {
         var width = table.getWidth();
         while (width > 0) {
             for (var i = 0; i < table.getHeight(); i++) {
-                if (table.getCell(width - 1, 0).getStringValue() != null) {
+                if (table.getCell(width - 1, i).getStringValue() != null) {
                     return width;
                 }
             }
@@ -352,8 +354,15 @@ public class DecisionTableLookupConvertor {
         return 0;
     }
 
-    private void isMultiplier(IGridTable lookupValuesTable) throws OpenLCompilationException {
-        var retTableWidth = retTable.getWidth();
+    /**
+     * Checks that the lookup values fill whole groups as wide as the return header.
+     *
+     * <p>Columns at the end of the values that are empty in every row are left out.
+     *
+     * @throws OpenLCompilationException when the last group is narrower than the return header
+     */
+    private static void isMultiplier(@NonNull IGridTable lookupValuesTable, int retTableWidth)
+            throws OpenLCompilationException {
         var lookupTableWidth = lookupValuesTable.getWidth();
 
         var isMultiplier = lookupTableWidth % retTableWidth == 0;

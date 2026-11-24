@@ -1,0 +1,2 @@
+ERROR: The width of the Lookup table(3) is not a multiple of the RET width(2).
+ERROR: The width of the Lookup table(3) is not a multiple of the RET width(2).

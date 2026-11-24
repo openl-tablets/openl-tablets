@@ -103,6 +103,14 @@ own project only, as listed for the developers.
   the expected values of the tests that check such a result; to return one value per column, unmerge the horizontal
   value.
 
+* **A lookup whose values do not fill its return columns does not compile.** In a lookup whose RET column is merged
+  over several columns, the values under the horizontal conditions are read in groups as wide as the RET column. When
+  the last group is narrower, the table stops with
+  `The width of the Lookup table(3) is not a multiple of the RET width(2).` Before, the table compiled and the columns
+  of that last group were dropped: their values were never returned and the horizontal values above them were never
+  checked. Columns empty in every row at the end of the values are still left out. Make the values fill whole groups,
+  or remove the columns no group takes.
+
 ## Administrators
 
 * **`pom.xml` is protected rather than ignored, and the system and temporary files are ignored.** The default of
