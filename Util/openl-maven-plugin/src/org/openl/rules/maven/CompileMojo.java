@@ -1,8 +1,6 @@
 package org.openl.rules.maven;
 
 import java.net.URLClassLoader;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +16,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.markdown.MarkdownProjectWriter;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 
@@ -93,24 +90,11 @@ public final class CompileMojo extends TestsSkippingMojo {
      * The build log tells how many modules are left out. A project without such modules is not changed.
      */
     void leaveTestsOut(ProjectDescriptor descriptor) {
-        var testsFolder = descriptor.getProjectFolder()
-                .resolve(PackageMojo.TESTS_FOLDER)
-                .toAbsolutePath()
-                .normalize();
-        var kept = new ArrayList<>(descriptor.getModules());
-        if (kept.removeIf(module -> isIn(testsFolder, module))) {
+        var removed = PackageMojo.leaveTestsModulesOut(descriptor);
+        if (removed > 0) {
             info("Tests are skipped: the '", PackageMojo.TESTS_FOLDER, "' folder is left out of compilation, modules: ",
-                    descriptor.getModules().size() - kept.size());
-            descriptor.setModules(kept);
+                    removed);
         }
-    }
-
-    /**
-     * Checks whether the file of the module lies inside the folder. A module without a path is in no folder, so the
-     * compilation reports it as usual.
-     */
-    private static boolean isIn(Path folder, Module module) {
-        return module.getRulesRootPath() != null && module.getRulesPath().normalize().startsWith(folder);
     }
 
     /**

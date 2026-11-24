@@ -1,0 +1,9 @@
+<project>
+    <name>Consumer Project</name>
+    <dependencies>
+        <dependency>
+            <name>Tested Project</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

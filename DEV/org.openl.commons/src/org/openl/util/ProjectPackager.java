@@ -12,6 +12,7 @@ import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Pack an OpenL project using {@linkplain ZipArchiver}.
@@ -20,7 +21,8 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProjectPackager implements FileVisitor<Path> {
-    private static final List<String> systems = Arrays.asList("rules.xml", "rules-deploy.xml");
+    private static final String DESCRIPTOR = "rules.xml";
+    private static final List<String> systems = Arrays.asList(DESCRIPTOR, "rules-deploy.xml");
 
     private final Path dir;
     private final ZipArchiver arch;
@@ -28,14 +30,21 @@ public final class ProjectPackager implements FileVisitor<Path> {
 
     /**
      * Pack provided files in a source directory.
+     * <p>
+     * The given descriptor is packed as {@code rules.xml} in place of the file of the directory. Without it, the
+     * file is packed as it is.
      *
-     * @param sourceDir a file or a not empty directory for compressing
-     * @param includes  the array of files to pack
-     * @param arch      a zip archiver.
+     * @param sourceDir  a file or a not empty directory for compressing
+     * @param includes   the array of files to pack
+     * @param descriptor the content of {@code rules.xml} to pack, or {@code null} to pack the file of the directory
+     * @param arch       a zip archiver.
      */
-    public static void addOpenLProject(File sourceDir, String[] includes, ZipArchiver arch) throws IOException {
+    public static void addOpenLProject(File sourceDir,
+                                       String[] includes,
+                                       byte @Nullable [] descriptor,
+                                       ZipArchiver arch) throws IOException {
         var path = sourceDir.toPath();
-        resolveSystemFiles(path, arch);
+        resolveSystemFiles(path, descriptor, arch);
         for (String file : includes) {
             if (!systems.contains(file)) {
                 arch.addEntry(path.resolve(file), file);
@@ -51,7 +60,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
      */
     public static void addOpenLProject(File sourceDir, ZipArchiver arch) throws IOException {
         var path = sourceDir.toPath();
-        resolveSystemFiles(path, arch);
+        resolveSystemFiles(path, null, arch);
 
         Files.walkFileTree(path, new ProjectPackager(path, arch));
     }
@@ -59,13 +68,20 @@ public final class ProjectPackager implements FileVisitor<Path> {
     /**
      * Pack system files in the beginning of the archive
      *
-     * @param sourceDir a file or a not empty directory for compressing
-     * @param arch      a zip archiver.
+     * @param sourceDir  a file or a not empty directory for compressing
+     * @param descriptor the content of {@code rules.xml} to pack, or {@code null} to pack the file of the directory
+     * @param arch       a zip archiver.
      */
-    private static void resolveSystemFiles(Path sourceDir, ZipArchiver arch) throws IOException {
+    private static void resolveSystemFiles(Path sourceDir,
+                                           byte @Nullable [] descriptor,
+                                           ZipArchiver arch) throws IOException {
         for (String item : systems) {
             // Add system files in the beginning of the archive
-            arch.addEntry(sourceDir.resolve(item), item);
+            if (descriptor != null && DESCRIPTOR.equals(item)) {
+                arch.addFile(descriptor, item);
+            } else {
+                arch.addEntry(sourceDir.resolve(item), item);
+            }
         }
     }
 
@@ -81,7 +97,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path file, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Path file, BasicFileAttributes attrs) {
         emptyDir = true;
         return FileVisitResult.CONTINUE;
     }

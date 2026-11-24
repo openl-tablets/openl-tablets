@@ -104,6 +104,9 @@ A build with `-DskipTests` or `-Dmaven.test.skip=true` neither validates nor run
 | `tests`      | The OpenL source folder contains `tests/**`                                 |
 | `deployment` | Depends on other OpenL projects and `rules-deploy.xml` publishers not empty |
 
+- The main archive holds no file of `tests/`, and its `rules.xml` names no file or folder there. A path pattern such
+  as `tests/*.xlsx` stays, as it finds no file.
+- A project whose modules all lie in `tests/` gets the pattern `tests/**` instead, not the default modules.
 - The `classes` jar is also embedded into the zip archive as `lib/<finalName>.jar` (runtime classpath);
   depend on it with `<classifier>classes</classifier>`.
 - Not built when a main jar artifact already exists or for `openl-jar` packaging (classes go to the jar root).

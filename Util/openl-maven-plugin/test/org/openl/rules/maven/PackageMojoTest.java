@@ -1,11 +1,15 @@
 package org.openl.rules.maven;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -33,6 +37,9 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+
 /**
  * Covers the packaging of the project's compiled classes by {@link PackageMojo}. The jar is built from the
  * classes folder as a deterministic {@code <finalName>-classes.jar} file, attached to the project with the
@@ -47,6 +54,11 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>The deployment archive of a project that depends on other OpenL projects is named after the {@code finalName}
  * of the build; the deprecated {@code deploymentName} parameter is ignored with a warning.
+ *
+ * <p>The main archive holds no file of the {@code tests} folder, so its {@code rules.xml} names no module of the
+ * folder: a workbook of any format or a folder of Markdown files, in the sources and in their Markdown copy. A path
+ * pattern of the folder stays, and a project of test modules only keeps the pattern of every file of the folder, not
+ * the default modules. A descriptor without such modules is packaged as it is.
  *
  * @author Yury Molchan
  */
@@ -239,10 +251,8 @@ class PackageMojoTest {
         var deploymentZip = new File(mojo.outputDirectory, FINAL_NAME + "-deployment.zip");
         var helper = (RecordingProjectHelper) mojo.projectHelper;
         assertEquals(List.of(new Attached("zip", "deployment", deploymentZip)), helper.attached);
-        try (var zip = new ZipFile(deploymentZip)) {
-            var yaml = new String(zip.getInputStream(zip.getEntry("deployment.yaml")).readAllBytes(), UTF_8);
-            assertEquals("name: " + FINAL_NAME, yaml.strip());
-        }
+        var yaml = new String(entryBytes(deploymentZip, "deployment.yaml"), UTF_8);
+        assertEquals("name: " + FINAL_NAME, yaml.strip());
         assertEquals(List.of("Parameter 'deploymentName' is deprecated and has no effect. "
                 + "The deployment archive is always named after 'finalName' of the build."), warnings);
     }
@@ -269,6 +279,130 @@ class PackageMojoTest {
         assertTrue(archive.isFile());
         assertEquals(List.of(new Attached("zip", "deployment", archive)),
                 ((RecordingProjectHelper) mojo.projectHelper).attached);
+    }
+
+    @Test
+    void leavesTheTestsModulesOutOfTheDescriptorOfTheArchive(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
+        var sources = openlSources(tmp, """
+                <project>
+                    <name>Explicit</name>
+                    <modules>
+                        <module><rules-root path="rules/Main.xlsx"/></module>
+                        <module><rules-root path="rules/Rates"/></module>
+                        <module><name>MyTests</name><rules-root path="tests/MyTests.xlsx"/></module>
+                        <module><rules-root path="tests/Legacy.xls"/></module>
+                        <module><rules-root path="tests/Cases"/></module>
+                        <module><rules-root path="./tests/../tests/Dotted.xlsm"/></module>
+                        <module><rules-root path="tests/*.xlsx"/></module>
+                        <module><rules-root path="testsuite/Suite.xlsx"/></module>
+                    </modules>
+                </project>
+                """);
+        touch(sources.resolve("rules/Rates/rate.md"));
+        touch(sources.resolve("tests/MyTests.xlsx"));
+        touch(sources.resolve("tests/Cases/case.md"));
+
+        mojo.execute(sources.toString(), false);
+
+        var archive = mojo.project.getArtifact().getFile();
+        assertEquals(Set.of("rules.xml", "rules/Main.xlsx", "rules/Rates/rate.md"), zipEntries(archive));
+        var descriptor = readDescriptor(archive);
+        assertEquals("Explicit", descriptor.getName());
+        assertEquals(List.of("rules/Main.xlsx", "rules/Rates", "tests/*.xlsx", "testsuite/Suite.xlsx"),
+                modulePaths(descriptor));
+        var testsArchive = new File(mojo.outputDirectory, FINAL_NAME + "-tests.zip");
+        assertEquals(Set.of("tests/MyTests.xlsx", "tests/Cases/case.md"), zipEntries(testsArchive));
+    }
+
+    @Test
+    void keepsThePatternOfTheTestsFolderWhenOnlyTestsModulesAreDeclared(@TempDir Path tmp) throws IOException {
+        var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
+        var sources = openlSources(tmp, """
+                <project>
+                    <modules>
+                        <module><name>Without path</name></module>
+                        <module><rules-root path="tests/MyTests.xlsx"/></module>
+                        <module><rules-root path="tests/Cases"/></module>
+                    </modules>
+                </project>
+                """);
+
+        var descriptor = mojo.descriptorWithoutTests(sources);
+
+        assertNotNull(descriptor);
+        var packaged = ProjectDescriptor.read(new ByteArrayInputStream(descriptor.toBytes()));
+        assertNotNull(packaged);
+        assertEquals(List.of("tests/**"), modulePaths(packaged));
+    }
+
+    @Test
+    void leavesTheTestsModulesOutOfTheDescriptorOfTheMarkdownCopy(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
+        mojo.markdown = true;
+        mojo.markdownDirectory = tmp.resolve("target/openl-markdown").toFile();
+        var copy = mojo.markdownDirectory.toPath();
+        touch(copy.resolve("rules/Main/main.md"));
+        touch(copy.resolve("tests/MyTests/test.md"));
+        Files.writeString(copy.resolve(ProjectDescriptor.FILE_NAME), """
+                <project>
+                    <modules>
+                        <module><rules-root path="rules/Main"/></module>
+                        <module><rules-root path="tests/MyTests"/></module>
+                    </modules>
+                </project>
+                """);
+
+        mojo.execute(openlSources(tmp), false);
+
+        var archive = mojo.project.getArtifact().getFile();
+        assertEquals(Set.of("rules.xml", "rules/Main/main.md"), zipEntries(archive));
+        assertEquals(List.of("rules/Main"), modulePaths(readDescriptor(archive)));
+    }
+
+    @Test
+    void packagesTheDescriptorWithoutTestsModulesAsItIs(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
+        var xml = """
+                <project>
+                    <!-- kept as written -->
+                    <modules>
+                        <module><rules-root path="rules/Main.xlsx"/></module>
+                        <module><rules-root path="tests/**/*.xlsx"/></module>
+                    </modules>
+                </project>
+                """;
+        var sources = openlSources(tmp, xml);
+
+        mojo.execute(sources.toString(), false);
+
+        assertArrayEquals(xml.getBytes(UTF_8),
+                entryBytes(mojo.project.getArtifact().getFile(), ProjectDescriptor.FILE_NAME));
+    }
+
+    @Test
+    void packagesNoDescriptorOfAProjectWithoutIt(@TempDir Path tmp) {
+        var mojo = new PackageMojo();
+
+        assertNull(mojo.descriptorWithoutTests(tmp));
+    }
+
+    /** Creates the OpenL source folder with a rules file and the descriptor, and returns its path. */
+    private static Path openlSources(Path tmp, String rulesXml) throws IOException {
+        var sources = Path.of(openlSources(tmp));
+        Files.writeString(sources.resolve(ProjectDescriptor.FILE_NAME), rulesXml);
+        return sources;
+    }
+
+    private static ProjectDescriptor readDescriptor(File archive) throws IOException {
+        var bytes = entryBytes(archive, ProjectDescriptor.FILE_NAME);
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(bytes));
+        assertNotNull(descriptor);
+        return descriptor;
+    }
+
+    static List<String> modulePaths(ProjectDescriptor descriptor) {
+        return descriptor.getModules().stream().map(Module::getRulesRootPath).toList();
     }
 
     // The deprecated parameter is covered until it is removed.
@@ -337,6 +471,12 @@ class PackageMojoTest {
             Files.writeString(path, "stub");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static byte[] entryBytes(File file, String name) throws IOException {
+        try (var zip = new ZipFile(file)) {
+            return zip.getInputStream(zip.getEntry(name)).readAllBytes();
         }
     }
 
