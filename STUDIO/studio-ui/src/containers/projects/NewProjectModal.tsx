@@ -129,8 +129,8 @@ const useStyles = createStyles(({ css, token }) => ({
     configHead: css`
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
+        gap: ${token.marginXS}px;
+        margin-bottom: ${token.marginXXS}px;
         color: ${token.colorPrimary};
 
         .anticon {
@@ -143,7 +143,7 @@ const useStyles = createStyles(({ css, token }) => ({
         font-weight: 600;
     `,
     configDesc: css`
-        margin: -8px 0 12px;
+        margin: 0 0 ${token.marginSM}px;
         color: ${token.colorTextTertiary};
         font-size: 12px;
     `,
@@ -177,7 +177,7 @@ const useStyles = createStyles(({ css, token }) => ({
     backLink: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXS}px;
         margin-bottom: 8px;
         padding: 0;
         border: none;
@@ -197,7 +197,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     footerRight: css`
         display: flex;
-        gap: 8px;
+        gap: ${token.marginXS}px;
     `,
 }))
 
@@ -890,12 +890,7 @@ export const NewProjectModal = ({
         || (mode === 'archive' && archiveSource === 'folder' && folderFiles.length > 0 && !archive)
 
     const footer = step === 'method' ? (
-        <div className={styles.footer}>
-            <span />
-            <div className={styles.footerRight}>
-                <Button data-testid="new-project-cancel" onClick={close}>{t('browser.create.cancel')}</Button>
-            </div>
-        </div>
+        <Button data-testid="new-project-cancel" onClick={close}>{t('browser.create.cancel')}</Button>
     ) : (
         <div className={styles.footer}>
             <Button data-testid="new-project-back" icon={<ArrowLeftOutlined />} onClick={() => setStep('method')} type="text">
