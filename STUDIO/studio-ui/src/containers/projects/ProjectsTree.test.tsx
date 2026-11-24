@@ -211,7 +211,6 @@ const picks = (query = '') => listingQueryOf(new URLSearchParams(query))
 const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {}) => {
     const onOpenProject = vi.fn()
     const onOpenGroup = vi.fn()
-    const onShowAll = vi.fn()
     const onClearFilters = vi.fn()
     const onOpenFile = vi.fn()
     const result = render(
@@ -221,7 +220,6 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
             onOpenFile={onOpenFile}
             onOpenGroup={onOpenGroup}
             onOpenProject={onOpenProject}
-            onShowAll={onShowAll}
             repositories={repositories}
             {...props}
         />
@@ -230,7 +228,7 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     await act(async () => {
         await new Promise(resolve => setTimeout(resolve, 0))
     })
-    return { onOpenProject, onOpenGroup, onShowAll, onClearFilters, onOpenFile, rerender: result.rerender }
+    return { onOpenProject, onOpenGroup, onClearFilters, onOpenFile, rerender: result.rerender }
 }
 
 /** Lets the frame the tree waits for to draw what it unfolded pass. */
@@ -304,7 +302,6 @@ describe('ProjectsTree', () => {
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={onRefresh}
-                onShowAll={vi.fn()}
                 projects={projects}
                 repositories={repositories}
             />
@@ -377,7 +374,6 @@ describe('ProjectsTree', () => {
                 onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={onOpenProject}
-                onShowAll={vi.fn()}
                 repositories={repositories}
             />
         )
@@ -430,7 +426,6 @@ describe('ProjectsTree', () => {
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
             onRefresh: vi.fn(),
-            onShowAll: vi.fn(),
             projects,
             repositories,
             search: 'alpha',
@@ -459,7 +454,6 @@ describe('ProjectsTree', () => {
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
             onRefresh: vi.fn(),
-            onShowAll: vi.fn(),
             projects,
             repositories,
         }
@@ -540,7 +534,6 @@ describe('ProjectsTree', () => {
             onClearFilters: vi.fn(),
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
-            onShowAll: vi.fn(),
             repositories,
         }
         const { rerender } = await renderTree({ currentProjectId: 'p1', currentFile: 'rules/Main.xlsx' })
@@ -746,7 +739,6 @@ describe('ProjectsTree', () => {
                 onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
-                onShowAll={vi.fn()}
                 reloadToken={2}
                 repositories={repositories}
             />
@@ -804,7 +796,6 @@ describe('ProjectsTree', () => {
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={vi.fn()}
-                onShowAll={vi.fn()}
                 projects={saved}
                 repositories={repositories}
             />
@@ -825,7 +816,6 @@ describe('ProjectsTree', () => {
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
             onRefresh: vi.fn(),
-            onShowAll: vi.fn(),
             repositories,
         }
         const { rerender } = await renderTree({ ...shown, projects: onBranch('main') })
@@ -848,7 +838,6 @@ describe('ProjectsTree', () => {
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
             onRefresh: vi.fn(),
-            onShowAll: vi.fn(),
             projects,
             repositories,
         }
@@ -913,7 +902,6 @@ describe('ProjectsTree', () => {
                 onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
-                onShowAll={vi.fn()}
                 reloadToken={2}
                 repositories={repositories}
             />
@@ -947,7 +935,6 @@ describe('ProjectsTree', () => {
                 onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
-                onShowAll={vi.fn()}
                 reloadToken={2}
                 repositories={repositories}
             />
@@ -1087,7 +1074,6 @@ describe('ProjectsTree', () => {
             onClearFilters: vi.fn(),
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
-            onShowAll: vi.fn(),
             projects,
             onRefresh: vi.fn(),
             repositories,
@@ -1115,7 +1101,6 @@ describe('ProjectsTree', () => {
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={vi.fn()}
-                onShowAll={vi.fn()}
                 projects={projects}
                 repositories={repositories}
             />
@@ -1156,7 +1141,6 @@ describe('ProjectsTree', () => {
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={vi.fn()}
-                onShowAll={vi.fn()}
                 projects={branched}
                 repositories={repositories}
             />
@@ -1185,15 +1169,12 @@ describe('ProjectsTree', () => {
         expect(screen.getByTestId('projects-tree-filtered-out')).toHaveTextContent('home.no_match')
     })
 
-    it('leads back to every project by its title, forgetting the pick', async () => {
-        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
-        const { onShowAll } = await renderTree()
+    it('offers to clear the filters in its header row, which has no title', async () => {
+        await renderTree({ filters: picks('status=EDITING') })
 
-        await userEvent.click(screen.getByText('Design'))
-        await userEvent.click(screen.getByTestId('projects-tree-all'))
-
-        expect(onShowAll).toHaveBeenCalled()
-        expect(localStorage.getItem('openl.projects.tree.selected')).toBeNull()
+        const header = screen.getByTestId('projects-tree-refresh').closest('div')
+        expect(header?.firstElementChild).toContainElement(screen.getByTestId('projects-tree-clear-filters'))
+        expect(header).not.toHaveTextContent('home.tree.title')
     })
 
     it('opens the groups holding the project the screen shows', async () => {
@@ -1213,7 +1194,6 @@ describe('ProjectsTree', () => {
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
             onRefresh: vi.fn(),
-            onShowAll: vi.fn(),
             projects,
             repositories,
         }
@@ -1293,7 +1273,6 @@ describe('ProjectsTree', () => {
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={vi.fn()}
-                onShowAll={vi.fn()}
                 projects={projects}
                 repositories={repositories}
             />
@@ -1315,7 +1294,6 @@ describe('ProjectsTree', () => {
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={vi.fn()}
-                onShowAll={vi.fn()}
                 projects={projects}
                 repositories={repositories}
             />
@@ -1359,7 +1337,6 @@ describe('ProjectsTree', () => {
             onClearFilters: vi.fn(),
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
-            onShowAll: vi.fn(),
             repositories,
         }
         const { rerender } = await renderTree({ ...shown, reloadToken: 1 })
@@ -1398,7 +1375,6 @@ describe('ProjectsTree', () => {
             onClearFilters: vi.fn(),
             onOpenGroup: vi.fn(),
             onOpenProject: vi.fn(),
-            onShowAll: vi.fn(),
             repositories,
         }
         const added = new Map([['rules.xml', 'added' as const]])

@@ -36,7 +36,6 @@ i18next.addResourceBundle('en', 'repository', {
     none: 'None',
     home: {
         tree: {
-            title: 'Projects',
             mode_filters: 'Filters',
             mode_tree: 'Tree',
             group: 'Group projects',
@@ -71,7 +70,6 @@ i18next.addResourceBundle('en', 'repository', {
         retry: 'Retry',
         not_found: 'This project does not exist or is not visible to you.',
         back_to_projects: 'Back to projects',
-        filters: 'Filters',
         facet_status: 'Status',
         facet_repository: 'Repository',
         facet_branch: 'Branch',

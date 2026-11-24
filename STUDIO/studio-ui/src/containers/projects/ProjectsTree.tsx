@@ -38,7 +38,7 @@ import {
 } from './projectGrouping'
 import { GroupProjectsModal } from './GroupProjectsModal'
 import { isFiltered, selectProjects, type ListingQuery } from './projectListing'
-import { ClearFiltersRow } from './ClearFiltersRow'
+import { ClearFiltersButton } from './ClearFiltersButton'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 import { useElementSize } from '../../hooks/useElementSize'
 import { RAIL_INDENT, railRowWidth } from './railRowWidth'
@@ -417,14 +417,6 @@ const useStyles = createStyles(({ css, token }) => ({
     state: css`
         padding: 12px 16px;
     `,
-    /** The title leads back to every project, so it reads as the root of the tree. */
-    title: css`
-        padding: 0;
-        height: auto;
-        color: inherit;
-        font-size: 14px;
-        font-weight: 600;
-    `,
 }))
 
 /**
@@ -456,8 +448,6 @@ interface ProjectsTreeBaseProps {
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A group was picked: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
-    /** The title of the tree was picked: show the list without filters. */
-    onShowAll: () => void
     /** The picks the list is filtered by: the tree offers to clear them, and narrows to them unless told otherwise. */
     filters: ListingQuery
     /**
@@ -465,7 +455,7 @@ interface ProjectsTreeBaseProps {
      * not the tree, which keeps the picks it had before.
      */
     narrowBy?: ListingQuery | undefined
-    /** The picks were cleared from the tree. */
+    /** The picks were cleared from the tree, which also forgets the group selected in it. */
     onClearFilters: () => void
     /**
      * Bumped by the screen when it changed the workspace, so the tree reads it again, the files of the current
@@ -503,8 +493,8 @@ const NO_REPOSITORIES: Repository[] = []
  *
  * The tree shows the projects the Filters view selects, the same ones the list shows, without the list's paging.
  * The search of the header narrows it: by the text the list beside it is searched by, or, on a screen whose main
- * part is no list of projects, as a scope of its own. While a value is picked, a row under its title offers to
- * clear the filters.
+ * part is no list of projects, as a scope of its own. While a value is picked, the header row starts with the
+ * button that clears the filters.
  *
  * The tree reads one lightweight list of projects the first time it is opened and groups it in the
  * browser, so expanding a node costs nothing and the screen around it never waits for the tree.
@@ -515,7 +505,6 @@ export const ProjectsTree = ({
     onOpenProject,
     onOpenFile,
     onOpenGroup,
-    onShowAll,
     filters,
     narrowBy = filters,
     onClearFilters,
@@ -1199,20 +1188,14 @@ export const ProjectsTree = ({
     return (
         <>
             <div className={shared.railHead}>
-                <Button
-                    className={styles.title}
-                    data-testid="projects-tree-all"
-                    size="small"
-                    type="link"
-                    onClick={() => {
-                        setSelected([])
-                        selectedNode.write('')
-                        onShowAll()
-                    }}
-                >
-                    {t('home.tree.title')}
-                </Button>
-                <span>
+                {filtered && (
+                    <ClearFiltersButton
+                        data-testid="projects-tree-clear-filters"
+                        hint={t('home.tree.filtered')}
+                        onClick={onClearFilters}
+                    />
+                )}
+                <span className={shared.railHeadEnd}>
                     <Tooltip title={t('home.tree.group')}>
                         <Button
                             aria-label={t('home.tree.group')}
@@ -1236,13 +1219,6 @@ export const ProjectsTree = ({
                     {headerActions}
                 </span>
             </div>
-            {filtered && (
-                <ClearFiltersRow
-                    data-testid="projects-tree-clear-filters"
-                    hint={t('home.tree.filtered')}
-                    onClick={onClearFilters}
-                />
-            )}
             <div className={shared.railScroll}>{body()}</div>
             <GroupProjectsModal
                 levels={levels}

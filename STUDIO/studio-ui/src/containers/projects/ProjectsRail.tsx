@@ -86,8 +86,6 @@ interface ProjectsRailBaseProps {
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A repository or tag group was picked in the tree: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
-    /** The title of the tree was picked: show the list without filters. */
-    onShowAll: () => void
     /** The picks the list is filtered by, which the tree follows. */
     filters: ListingQuery
     /** The picks the tree narrows to, when a group picked in it filtered the list only. */
@@ -126,7 +124,6 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
         onOpenProject,
         onOpenFile,
         onOpenGroup,
-        onShowAll,
         filters,
         narrowBy,
         onClearFilters,
@@ -224,7 +221,6 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
                         onOpenFile={onOpenFile}
                         onOpenGroup={onOpenGroup}
                         onOpenProject={onOpenProject}
-                        onShowAll={onShowAll}
                         reloadToken={reloadToken}
                         repositories={repositories}
                         search={search}

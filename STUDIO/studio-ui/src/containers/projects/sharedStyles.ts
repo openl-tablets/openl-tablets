@@ -153,10 +153,16 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     railHead: css`
         display: flex;
         align-items: center;
-        justify-content: space-between;
         padding: ${token.paddingSM}px ${token.padding}px;
         font-size: ${token.fontSize}px;
         font-weight: 600;
+    `,
+    /** The actions of the rail's header: they keep to its end, also while nothing comes before them. */
+    railHeadEnd: css`
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        margin-left: auto;
     `,
     /** The scrolling body of the rail. */
     railScroll: css`
