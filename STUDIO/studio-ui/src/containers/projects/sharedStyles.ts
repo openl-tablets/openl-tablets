@@ -137,7 +137,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         display: flex;
         height: calc(100vh - ${APP_HEADER_HEIGHT}px);
         overflow: hidden;
-        background: ${token.colorBgLayout};
+        background: ${token.colorBgContainer};
     `,
     /** The left rail carrying the facets of the list — repositories, statuses, tags. */
     rail: css`
