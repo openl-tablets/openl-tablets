@@ -87,8 +87,6 @@ i18next.addResourceBundle('en', 'repository', {
             hidden_one: '{{count}} hidden filter',
             hidden_other: '{{count}} hidden filters',
         },
-        view_list: 'List',
-        view_grid: 'Grid',
         col_project: 'Project',
         col_branch: 'Branch',
         col_modified: 'Modified',

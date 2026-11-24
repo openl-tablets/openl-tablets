@@ -247,7 +247,6 @@ export const ProjectsTable = ({
                                         onSwitching={onBranchSwitching}
                                         project={project}
                                         supportsBranches={supportsBranches}
-                                        testIdPrefix="row"
                                     />
                                 </td>
                             )}

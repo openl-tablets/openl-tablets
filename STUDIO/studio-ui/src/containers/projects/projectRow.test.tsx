@@ -138,7 +138,6 @@ describe('ProjectBranchSwitch', () => {
                 busy={false}
                 onSwitched={vi.fn()}
                 project={{ ...project, ...over }}
-                testIdPrefix="row"
                 {...props}
             />
         )

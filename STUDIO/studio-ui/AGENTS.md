@@ -305,7 +305,7 @@ The build writes two pages (`build.rollupOptions.input`):
   `isPersonalAccessTokenEnabled`, then **Administration** for an administrator, **Help**, **About** and **Sign Out**.
   The side menu of the administration pages lists **My Profile** and **Personal Access Tokens**, never the settings.
 - **The actions of a screen sit in the header**, between the tabs and the settings, not in a band of the screen: the
-  **Projects** tab puts **New Project** and the List / Grid switch there. The screen wraps them in `HeaderActions`
+  **Projects** tab puts **New Project** there. The screen wraps its actions in `HeaderActions`
   (`components/HeaderActions.tsx`), which draws them into the `HeaderActionsSlot` of the header through a portal, so
   they keep the state of the screen and leave the header with it. A test of the screen renders `HeaderActionsSlot`
   beside it, or the actions are not drawn.

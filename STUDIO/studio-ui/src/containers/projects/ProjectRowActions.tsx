@@ -77,33 +77,21 @@ interface ProjectActionsProps {
      * the row, so nothing spins for it, but it gates the row's actions the same way.
      */
     pendingActionId: RowBusyId | null
-    /**
-     * `buttons` keeps the everyday actions in front, as a table row has the width for; `menu` folds every
-     * action away, which is what a card has room for.
-     */
-    layout?: 'buttons' | 'menu'
 }
 
 /**
- * The actions of a project in the list. A table row shows the everyday ones as buttons and keeps the rest
- * behind the overflow menu; a card folds them all into the menu, where they do not crowd the tile. Every
- * action is gated by a server-computed capability, so only what the current user may perform is offered.
+ * The actions of a project in the list. The row shows the everyday ones as buttons and keeps the rest behind
+ * the overflow menu. Every action is gated by a server-computed capability, so only what the current user may
+ * perform is offered.
  */
-export const ProjectRowActions = ({
-    project,
-    handlers,
-    pendingActionId,
-    layout = 'buttons',
-}: ProjectActionsProps) => {
+export const ProjectRowActions = ({ project, handlers, pendingActionId }: ProjectActionsProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const token = useTheme()
     const busy = pendingActionId !== null
 
-    const primary = layout === 'buttons' ? availableActions(project, PRIMARY) : []
-    const overflow = layout === 'buttons'
-        ? availableActions(project, OVERFLOW)
-        : availableActions(project, [...PRIMARY, ...OVERFLOW])
+    const primary = availableActions(project, PRIMARY)
+    const overflow = availableActions(project, OVERFLOW)
     if (primary.length === 0 && overflow.length === 0) {
         return null
     }
@@ -116,8 +104,8 @@ export const ProjectRowActions = ({
         }
         items.push({
             key: id,
-            // A card folds every action into this one menu, so its single trigger spinner cannot say which
-            // one is running: the menu marks it, and offers nothing else until it is over.
+            // The single spinner of the menu trigger cannot say which of its actions is running: the menu marks
+            // it, and offers nothing else until it is over.
             icon: pendingActionId === id ? <LoadingOutlined spin /> : iconOf(id, token.colorSuccess),
             label: t(PROJECT_ACTIONS[id].labelKey),
             disabled: busy,

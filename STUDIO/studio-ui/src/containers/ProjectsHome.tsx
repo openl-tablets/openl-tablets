@@ -41,9 +41,7 @@ import type {
 import { ProjectsFilterRail } from './projects/ProjectsFilterRail'
 import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
-import { ProjectsViewSwitch, type ProjectView } from './projects/ProjectsViewSwitch'
 import { ProjectsTable } from './projects/ProjectsTable'
-import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers } from './projects/ProjectRowActions'
 import type { RowBusyId } from './projects/projectActions'
 import {
@@ -133,9 +131,6 @@ const useStyles = createStyles(({ css, token }) => ({
     scroll: css`
         height: 100%;
         overflow: auto;
-    `,
-    gridPad: css`
-        padding: ${token.padding}px;
     `,
 }))
 
@@ -338,7 +333,6 @@ export const ProjectsHome = () => {
     const sortParam = params.get('sort')
     const sort: ProjectSort | null = sortParam === 'updated' || sortParam === 'branch' || sortParam === 'name' ? sortParam : null
     const direction: SortDirection = params.get('dir') === 'desc' ? 'desc' : 'asc'
-    const view: ProjectView = params.get('view') === 'grid' ? 'grid' : 'list'
     const pageSize = parsePositiveInt(params.get('size'), DEFAULT_PAGE_SIZE)
     const requestedPage = parsePositiveInt(params.get('page'), 1)
     const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS)
@@ -868,20 +862,7 @@ export const ProjectsHome = () => {
                 </div>
             )
         }
-        return view === 'grid' ? (
-            <div className={styles.gridPad}>
-                <ProjectsGrid
-                    compileStatusByProject={compileStatusByProject}
-                    handlers={handlers}
-                    onBranchSwitching={switchingBranch}
-                    onChanged={reloadAll}
-                    onOpen={openProject}
-                    pending={pending}
-                    projects={projects}
-                    repoInfoOf={repoInfoOf}
-                />
-            </div>
-        ) : (
+        return (
             <ProjectsTable
                 compileStatusByProject={compileStatusByProject}
                 direction={direction}
@@ -1019,7 +1000,6 @@ export const ProjectsHome = () => {
                             {t('browser.new_project')}
                         </Button>
                     )}
-                    <ProjectsViewSwitch onView={value => setParam('view', value === 'list' ? null : value)} view={view} />
                 </HeaderActions>
             )}
             <NewProjectModal

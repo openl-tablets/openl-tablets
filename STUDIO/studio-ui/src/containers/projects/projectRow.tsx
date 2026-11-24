@@ -20,8 +20,6 @@ const MAX_TAGS = 4
 
 interface ProjectRowData {
     muted: boolean
-    repoLabel: string
-    repoType: string | undefined
     supportsBranches: boolean
     lockLabel: string | undefined
     /** The tags of the project, each value by its tag type. */
@@ -29,13 +27,11 @@ interface ProjectRowData {
     date: string | null
 }
 
-/** Derive the per-row display values shared by the table and grid views. */
+/** Derive the display values of the row of a project in the list. */
 export function deriveProjectRow(project: Project, repoInfoOf: (project: Project) => RepositoryInfo, t: TFunction): ProjectRowData {
     const repository = repoInfoOf(project)
     return {
         muted: !!STATUS_META[project.status]?.muted,
-        repoLabel: repository.name,
-        repoType: repository.type,
         supportsBranches: supportsBranches(repository),
         lockLabel: project.lockInfo
             ? t('browser.locked_by', {
@@ -112,18 +108,14 @@ export const hasBranch = (project: Project, repository: RepositoryInfo): boolean
     showsBranch(project, supportsBranches(repository))
 
 /**
- * The branch control of a project in the list, in either view: the branch it is on, switchable, and
- * blocked while the project is busy with something else. A project shown without a branch renders none.
- *
- * Both views gate it the same way, so the rule lives here rather than once per view.
+ * The branch control of a project in the list: the branch it is on, switchable, and blocked while the project is
+ * busy with something else. A project shown without a branch renders none.
  */
-export const ProjectBranchSwitch = ({ project, supportsBranches, busy, testIdPrefix, onSwitched, onSwitching }: {
+export const ProjectBranchSwitch = ({ project, supportsBranches, busy, onSwitched, onSwitching }: {
     project: Project
     supportsBranches: boolean
     /** Whether the project is occupied by another operation, which this switch waits for. */
     busy: boolean
-    /** `row` on a table row, `card` on a grid card. */
-    testIdPrefix: 'row' | 'card'
     onSwitched: () => void | Promise<unknown>
     onSwitching?: ((project: Project, busy: boolean) => void) | undefined
 }) => {
@@ -135,7 +127,7 @@ export const ProjectBranchSwitch = ({ project, supportsBranches, busy, testIdPre
             currentBranch={project.branch}
             currentBranchDefault={project.branchDefault}
             currentBranchProtected={project.branchProtected}
-            data-testid={`${testIdPrefix}-branch-${project.id}`}
+            data-testid={`row-branch-${project.id}`}
             disabled={busy}
             onBusyChange={switching => onSwitching?.(project, switching)}
             onSwitched={onSwitched}
