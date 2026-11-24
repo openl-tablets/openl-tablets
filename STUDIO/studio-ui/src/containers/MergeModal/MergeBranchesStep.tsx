@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { App, Alert, Button, Checkbox, Form, Space, Spin, Tooltip } from 'antd'
+import { App, Alert, Button, Checkbox, Flex, Form, Space, Spin, Tooltip } from 'antd'
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
@@ -14,7 +14,7 @@ import { getProjectBranches } from '../../services/repositories'
 
 const BYPASS_REQUIRED_CODE = 'openl.error.409.protected.branch.bypass.required'
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, token }) => ({
     form: css`
         .ant-form-item-row {
             flex-wrap: nowrap;
@@ -33,7 +33,7 @@ const useStyles = createStyles(({ css }) => ({
     branchField: css`
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: ${token.marginXS}px;
         width: 100%;
         min-width: 0;
     `,
@@ -479,7 +479,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     {(checkResultReceive || checkResultSend) && (
                         <MergeScopeTabs receive={checkResultReceive} send={checkResultSend} />
                     )}
-                    <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Flex gap="small" justify="end">
                         {isMergeAccepted && (
                             <Button
                                 data-testid="merge-cancel"
@@ -517,7 +517,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                                 {t('merge:actions.send')}
                             </Button>
                         </Tooltip>
-                    </Space>
+                    </Flex>
                 </Space>
             )}
         </Space>
