@@ -41,7 +41,7 @@ vi.mock('./projectRow', () => ({
         muted: false,
         supportsBranches: project.repository !== 'flat',
         lockLabel: null,
-        tags: [],
+        tags: {},
         date: 'Jan 2, 2024',
     }),
     ProjectTags: () => null,

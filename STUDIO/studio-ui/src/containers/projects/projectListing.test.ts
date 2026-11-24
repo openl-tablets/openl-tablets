@@ -195,6 +195,12 @@ describe('countFacets', () => {
         ])
     })
 
+    it('lists the tag types in the order of the configured ones, then the others by name', () => {
+        const counts = countFacets(all, id => id, ['lob', 'Region'])
+
+        expect(counts.tagCounts.map(facet => facet.type)).toEqual(['LOB', 'Domain'])
+    })
+
     it('counts each branch and carries its default and protected marks', () => {
         expect(countBranches(all)).toEqual([
             { id: 'feature/rates', name: 'feature/rates', count: 1, isDefault: false, isProtected: true },

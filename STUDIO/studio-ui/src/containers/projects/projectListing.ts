@@ -1,6 +1,7 @@
 import { ProjectStatus } from '../../constants/project'
 import { mavenArtifactOf } from '../../services/projectId'
 import type { FacetCount, Project, ProjectStatusSummary, TagFacetSummary } from '../../types/projects'
+import { inTagTypeThenNameOrder } from '../tags/tagOrder'
 
 /** The synthetic repository key a local-only project is filtered and counted under. */
 export const LOCAL_REPO_KEY = '__local__'
@@ -246,8 +247,11 @@ export interface BranchFacetCount extends FacetCount {
 /**
  * The status, repository and tag counts of the rail, counted over the scope and ignoring the picked facets — the
  * same way the API counts, so a multi-select rail does not collapse as values are ticked.
+ *
+ * The tag types follow the order of the configured ones, given by name; the types not configured come after
+ * them in alphabetical order.
  */
-export const countFacets = (scope: Project[], repositoryName: (id: string) => string): {
+export const countFacets = (scope: Project[], repositoryName: (id: string) => string, tagTypes: readonly string[] = []): {
     statusCounts: ProjectStatusSummary
     repositoryCounts: FacetCount[]
     tagCounts: TagFacetSummary[]
@@ -281,8 +285,7 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
     const repositoryCounts = [...repositories.entries()]
         .map(([id, count]) => ({ id, name: id === LOCAL_REPO_KEY ? 'Local' : repositoryName(id), count }))
         .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }))
-    const tagCounts = [...tags.entries()]
-        .sort(([left], [right]) => left.localeCompare(right, undefined, { sensitivity: 'base' }))
+    const tagCounts = inTagTypeThenNameOrder(tagTypes, [...tags.entries()], ([type]) => type)
         .map(([type, values]) => ({
             type,
             values: [...values.entries()]

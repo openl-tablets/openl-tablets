@@ -1,6 +1,7 @@
 import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { TagTypeOrder } from '../tags/tagOrder'
 import { ProjectsTree } from './ProjectsTree'
 import { getProjectIndex } from '../../services/projectIndex'
 import { getProject, getProjectFiles } from '../../services/repositories'
@@ -230,7 +231,7 @@ const deferredFiles = () => {
 /** The picks of the Filters view, written the way the list carries them in its address. */
 const picks = (query = '') => listingQueryOf(new URLSearchParams(query))
 
-const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {}) => {
+const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {}, tagTypeOrder: string[] = []) => {
     const onOpenProject = vi.fn()
     const onOpenGroup = vi.fn()
     const onClearFilters = vi.fn()
@@ -244,7 +245,8 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
             onOpenProject={onOpenProject}
             repositories={repositories}
             {...props}
-        />
+        />,
+        { wrapper: ({ children }) => <TagTypeOrder value={tagTypeOrder}>{children}</TagTypeOrder> }
     )
     // The mount-time loads land asynchronously; flush them before the assertions read the screen.
     await act(async () => {
@@ -1511,6 +1513,12 @@ describe('ProjectsTree', () => {
 
         // Every tag key found on the projects, deduplicated and sorted — the same set the filters count.
         expect(groupModalMock).toHaveBeenCalledWith(expect.objectContaining({ tagTypes: ['Domain', 'lob'] }))
+    })
+
+    it('offers the tag types in the order an administrator arranged them in', async () => {
+        await renderTree({}, ['LOB', 'Domain'])
+
+        expect(groupModalMock).toHaveBeenCalledWith(expect.objectContaining({ tagTypes: ['lob', 'Domain'] }))
     })
 
     it('offers no tag that only a project the tree hides carries', async () => {

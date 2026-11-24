@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
 import { errorMessage } from '../utils/errorMessage'
+import { errorHandler } from '../utils/errorHandling'
 import { creatableRepositories } from '../utils/repositoryFeatures'
 import {
     NavigationType,
@@ -17,6 +18,7 @@ import { createStyles } from 'antd-style'
 import {
     getDesignRepositories,
     getProject,
+    getTagTypes,
     isProjectModifiedConflict,
     setProjectStatus,
 } from '../services/repositories'
@@ -78,6 +80,7 @@ import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage
 import type { ProjectRail, ProjectRailState } from './projects/projectRail'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
+import { PublishTagTypes, TagTypeOrder } from './tags/tagOrder'
 import {
     isPushFresherThanRead,
     subscribeWorkspaceProjectStatuses,
@@ -312,6 +315,8 @@ export const ProjectsHome = () => {
     }, [addressedListed, addressedMaven, allProjects, mavenProjects, shownProjectId])
     const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>([])
     const [projectIndexHealth, setProjectIndexHealth] = useState<Record<string, ProjectIndexHealth>>({})
+    // The configured tag types, in the order an administrator arranged them in: the tags of the projects follow it.
+    const [configuredTagTypes, setConfiguredTagTypes] = useState<string[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [createOpen, setCreateOpen] = useState(false)
@@ -380,8 +385,8 @@ export const ProjectsHome = () => {
     const scope = useMemo(() => listingScope(searched, branches), [branches, searched])
     // What the rail counts: the scope, with the picked facets ignored — the way the API counted it.
     const facets = useMemo<ProjectFacets>(
-        () => ({ ...countFacets(scope, repositoryName), branchCounts: countBranches(searched) }),
-        [repositoryName, scope, searched]
+        () => ({ ...countFacets(scope, repositoryName, configuredTagTypes), branchCounts: countBranches(searched) }),
+        [configuredTagTypes, repositoryName, scope, searched]
     )
     const matched = useMemo(
         () => sortProjects(refineProjects(scope, query), sort ?? 'name', direction),
@@ -445,7 +450,31 @@ export const ProjectsHome = () => {
     // The whole workspace is read once and kept in the browser: filtering, sorting and paging happen
     // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
     // counts — the expensive part of the list response — are counted from the same snapshot.
+    // Read with every load of the projects, so a change an administrator made meanwhile reaches the list, the rail and
+    // the tree together. Kept as it was while the names stay the same, and when they cannot be read.
+    const tagTypeReads = useRef(0)
+    // Names read by a part of the screen, such as the Overview of a project, are the latest read: one of the screen's
+    // own still under way is older, and is dropped when it answers.
+    const publishTagTypes = useCallback((names: readonly string[]) => {
+        tagTypeReads.current++
+        setConfiguredTagTypes(known => (known.join('\n') === names.join('\n') ? known : [...names]))
+    }, [])
+    const readTagTypes = useCallback(() => {
+        const read = ++tagTypeReads.current
+        return getTagTypes()
+            .then(types => {
+                // An earlier read answering after a later one is dropped: the later one holds the configuration.
+                if (read === tagTypeReads.current) {
+                    publishTagTypes(types.map(type => type.name))
+                }
+            })
+            .catch((e: unknown) => errorHandler.logError(e instanceof Error ? e : new Error(errorMessage(e)), {
+                message: 'Could not read the tag types; the names read before are kept',
+            }))
+    }, [publishTagTypes])
+
     const load = useCallback((refresh = false, { silent = false } = {}) => {
+        void readTagTypes()
         const { generation, startedAt } = loads.start(silent)
         if (!silent) {
             setLoading(true)
@@ -886,7 +915,8 @@ export const ProjectsHome = () => {
         )
     }
 
-    return (
+    // The tags of the list, the rail and the project shown follow the configured tag types and take their colors by them.
+    const page = (
         <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail
                 // A link to a file of the project shown opens the tree on it.
@@ -1039,6 +1069,11 @@ export const ProjectsHome = () => {
                 }}
             />
         </div>
+    )
+    return (
+        <TagTypeOrder value={configuredTagTypes}>
+            <PublishTagTypes value={publishTagTypes}>{page}</PublishTagTypes>
+        </TagTypeOrder>
     )
 }
 

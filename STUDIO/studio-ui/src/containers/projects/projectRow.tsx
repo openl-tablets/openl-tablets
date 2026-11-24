@@ -12,6 +12,8 @@ import type { RepositoryInfo } from '../../types/repositories'
 import { supportsBranches } from '../../utils/repositoryFeatures'
 import { BranchLabel } from './BranchLabel'
 import { BranchSwitcher } from './BranchSwitcher'
+import { useTagColor } from '../tags/tagColor'
+import { inTagTypeThenNameOrder, useTagTypeOrder } from '../tags/tagOrder'
 
 /** Tags shown inline on a project row before the rest collapse into a "+N" chip. */
 const MAX_TAGS = 4
@@ -22,7 +24,8 @@ interface ProjectRowData {
     repoType: string | undefined
     supportsBranches: boolean
     lockLabel: string | undefined
-    tags: string[]
+    /** The tags of the project, each value by its tag type. */
+    tags: Record<string, string>
     date: string | null
 }
 
@@ -40,7 +43,7 @@ export function deriveProjectRow(project: Project, repoInfoOf: (project: Project
                 at: formatDateTime(project.lockInfo.lockedAt) ?? project.lockInfo.lockedAt,
             })
             : undefined,
-        tags: Object.values(project.tags ?? {}),
+        tags: project.tags ?? {},
         date: formatDateTime(project.modifiedAt),
     }
 }
@@ -67,20 +70,35 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-/** The project's tags as chips, collapsing everything past {@link MAX_TAGS} into a "+N" indicator. */
-export const ProjectTags = ({ tags }: { tags: string[] }) => {
+/**
+ * The project's tags as chips, collapsing everything past {@link MAX_TAGS} into a "+N" indicator.
+ *
+ * A chip shows the value alone, in the color of its tag type, and names the type in its tooltip. The chips
+ * follow the order an administrator arranged the tag types in; the tags of types not configured come last, by name.
+ */
+export const ProjectTags = ({ tags }: { tags: Record<string, string> }) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    if (tags.length === 0) {
+    const colorOf = useTagColor()
+    const entries = inTagTypeThenNameOrder(useTagTypeOrder(), Object.entries(tags), ([type]) => type)
+    if (entries.length === 0) {
         return null
     }
     return (
         <>
-            {/* One tag per type, so the value itself identifies the chip. */}
-            {tags.slice(0, MAX_TAGS).map(value => (
-                <Tag key={value} className={cx(shared.chipTag, styles.tag)}>{value}</Tag>
+            {/* A project carries one tag per type, so the type identifies the chip. */}
+            {entries.slice(0, MAX_TAGS).map(([type, value]) => (
+                <Tag
+                    key={type}
+                    className={cx(shared.chipTag, styles.tag)}
+                    color={colorOf(type)}
+                    data-testid={`project-tag-${type}`}
+                    title={`${type}: ${value}`}
+                >
+                    {value}
+                </Tag>
             ))}
-            {tags.length > MAX_TAGS && <span className={styles.tagMore}>+{tags.length - MAX_TAGS}</span>}
+            {entries.length > MAX_TAGS && <span className={styles.tagMore}>+{entries.length - MAX_TAGS}</span>}
         </>
     )
 }

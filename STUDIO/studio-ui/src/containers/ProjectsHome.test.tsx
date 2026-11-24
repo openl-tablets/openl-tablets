@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
 import { HeaderActionsSlot } from '../components/HeaderActions'
-import { getDesignRepositories, getProject, getProjectBranches, getProjects, setProjectStatus, switchProjectBranch } from '../services/repositories'
+import { getDesignRepositories, getProject, getProjectBranches, getProjects, getTagTypes, setProjectStatus, switchProjectBranch } from '../services/repositories'
+import { errorHandler } from '../utils/errorHandling'
 import type { Project, ProjectsPage } from '../types/projects'
 import type { ProjectRail } from './projects/projectRail'
 import { ProjectStatus } from '../constants/project'
@@ -110,6 +111,7 @@ vi.mock('../services/repositories', () => ({
     getProjects: vi.fn(),
     getProject: vi.fn(),
     getProjectBranches: vi.fn(),
+    getTagTypes: vi.fn(() => Promise.resolve([])),
     switchProjectBranch: vi.fn(),
     isProjectModifiedConflict: vi.fn(() => false),
     downloadProject: vi.fn(),
@@ -565,6 +567,52 @@ describe('ProjectsHome', () => {
 
         expect(getProjects).toHaveBeenCalledTimes(2)
         expect(notification.info).not.toHaveBeenCalled()
+    })
+
+    it('reads the tag types again with the projects, so an order changed meanwhile reaches the list', async () => {
+        await renderHome()
+        expect(getTagTypes).toHaveBeenCalledTimes(1)
+
+        await act(async () => {
+            liveHandlers.workspaceChange?.()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getTagTypes).toHaveBeenCalledTimes(2)
+    })
+
+    it('keeps the tag types of the latest read when an earlier read answers last', async () => {
+        let answerFirst: (types: never) => void = () => undefined
+        vi.mocked(getTagTypes)
+            .mockImplementationOnce(() => new Promise(resolve => { answerFirst = resolve }))
+            .mockResolvedValueOnce([{ name: 'Category' }] as never)
+        await renderHome()
+        await act(async () => {
+            liveHandlers.workspaceChange?.()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+        const colored = () => screen.getAllByTestId('project-tag-Category')[0]!.className
+
+        // The later read configured the type, so its chips take a colour; the earlier read, answering last, is dropped.
+        expect(colored()).not.toContain('ant-tag-default')
+        await act(async () => {
+            answerFirst([] as never)
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+        expect(colored()).not.toContain('ant-tag-default')
+    })
+
+    it('records a failed read of the tag types and keeps the names read before', async () => {
+        const logged = vi.spyOn(errorHandler, 'logError').mockImplementation(() => undefined)
+        vi.mocked(getTagTypes).mockRejectedValueOnce(new Error('down'))
+
+        await renderHome()
+
+        expect(logged).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'down' }),
+            expect.objectContaining({ message: expect.stringContaining('tag types') })
+        )
+        logged.mockRestore()
     })
 
     it('re-reads a snapshot left by an earlier visit and swaps the fresh answer in', async () => {

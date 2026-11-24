@@ -1,7 +1,7 @@
 import { plainText, storedSetting } from '../../utils/localStore'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Alert, Button, Empty, Skeleton, Tooltip, Tree, type GetRef } from 'antd'
-import { BranchesOutlined, PartitionOutlined, TagOutlined } from '@ant-design/icons'
+import { BranchesOutlined, PartitionOutlined } from '@ant-design/icons'
 import { createStyles, useTheme, useThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
@@ -21,6 +21,8 @@ import { useSharedStyles } from './sharedStyles'
 import { MOCKUP } from './projectsTheme'
 import { RepoIcon } from './RepoBadge'
 import { BranchMarks } from './BranchMarks'
+import { TagTypeMark } from '../tags/tagColor'
+import { inTagTypeThenNameOrder, useTagTypeOrder } from '../tags/tagOrder'
 import { useSearchScope } from '../../hooks/useSearchScope'
 import { useAppTheme } from '../../providers/AppThemeProvider'
 import {
@@ -700,7 +702,9 @@ export const ProjectsTree = ({
 
     // The grouping levels offer every tag the projects the tree shows actually carry, not only the types an
     // administrator configured in the database. A tag only a project the tree hides carries, such as one left in
-    // a branch that is not shown, would group nothing.
+    // a branch that is not shown, would group nothing. They follow the order an administrator arranged the tag types
+    // in, and the types not configured follow them in alphabetical order.
+    const tagTypeOrder = useTagTypeOrder()
     const tagTypes = useMemo(() => {
         const bySpelling = new Map<string, string>()
         for (const project of visible) {
@@ -710,8 +714,8 @@ export const ProjectsTree = ({
                 }
             }
         }
-        return [...bySpelling.values()].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }))
-    }, [visible])
+        return inTagTypeThenNameOrder(tagTypeOrder, [...bySpelling.values()], type => type)
+    }, [tagTypeOrder, visible])
 
     const grouped = useMemo(
         () => buildGroupTree(visible, activeLevels(levels), repositoryName),
@@ -998,7 +1002,7 @@ export const ProjectsTree = ({
     }
 
     // A repository carries its own icon — a branch, a database, a disk — as it does everywhere else, a
-    // branch group carries the branch mark, and a tag value carries the tag it is.
+    // branch group carries the branch mark, and a tag value carries the tag it is, in the color of its type.
     function groupIcon(node: GroupNode): ReactNode {
         if (node.groupedBy === GROUP_BY_REPOSITORY) {
             return <RepoIcon type={repoMeta.get(node.value ?? '')?.type} />
@@ -1006,7 +1010,7 @@ export const ProjectsTree = ({
         if (node.groupedBy === GROUP_BY_BRANCH) {
             return <BranchesOutlined data-testid={`tree-branch-icon-${node.value}`} />
         }
-        return <TagOutlined data-testid={`tree-tag-icon-${node.value}`} />
+        return <TagTypeMark testId={`tree-tag-icon-${node.value}`} type={node.groupedBy ?? ''} />
     }
 
     // The projects a group holds, gathered from its own subtree.
