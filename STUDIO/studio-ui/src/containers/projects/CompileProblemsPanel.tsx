@@ -43,14 +43,13 @@ const useStyles = createStyles(({ css, token }) => ({
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 6px 12px;
+        gap: ${token.marginSM}px;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
         border: 0;
         background: transparent;
         color: ${token.colorText};
         cursor: pointer;
         font: inherit;
-        text-align: left;
     `,
     count: css`
         display: inline-flex;

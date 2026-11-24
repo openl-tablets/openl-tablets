@@ -5,7 +5,7 @@ import { createStyles } from 'antd-style'
 const useStyles = createStyles(({ css, token }) => ({
     header: css`
         min-width: 0;
-        padding: 12px 16px;
+        padding: ${token.paddingSM}px ${token.padding}px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     crumb: css`
@@ -27,22 +27,23 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     titleRow: css`
         display: flex;
-        flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: ${token.marginSM}px;
         min-width: 0;
-        margin-top: 8px;
+        margin-top: ${token.marginXS}px;
     `,
     titleLeft: css`
         display: flex;
         flex: 1 1 auto;
         align-items: center;
-        gap: 12px;
+        gap: ${token.marginSM}px;
         min-width: 0;
     `,
     title: css`
-        margin: 0 !important;
+        && {
+            margin: 0;
+        }
         min-width: 0;
         font-size: 22px;
         font-weight: 600;
