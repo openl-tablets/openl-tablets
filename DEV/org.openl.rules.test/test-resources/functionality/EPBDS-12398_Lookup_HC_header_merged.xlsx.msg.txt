@@ -1,0 +1,1 @@
+ERROR: Column HC must have width = 1.
