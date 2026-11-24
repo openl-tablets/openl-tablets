@@ -87,6 +87,16 @@ class DynamicPropertySourceTest {
         assertNull(settings.getProperty(CLIENT_SECRET));
     }
 
+    @Test
+    void keepsTheSettingsBeforeABrokenUnicodeEscapeAndLogsTheFailure() throws IOException {
+        Files.writeString(home.resolve("webstudio.properties"), "user.mode=multi\npath=C:\\users\n");
+
+        var settings = settings(Map.of());
+
+        assertEquals("multi", settings.getProperty("user.mode"));
+        assertNull(settings.getProperty("path"));
+    }
+
     private DynamicPropertySource settings(Map<String, Object> secret) {
         var properties = new HashMap<>(secret);
         properties.put("openl.home.shared", home.toString());

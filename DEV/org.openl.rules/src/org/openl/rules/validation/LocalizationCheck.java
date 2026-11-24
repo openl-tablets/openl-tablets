@@ -1,8 +1,6 @@
 package org.openl.rules.validation;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,6 +16,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +31,8 @@ import org.openl.util.PropertiesUtils;
  * Checks the localization files of a project: the {@code message*.properties} files of its {@code i18n} folder.
  *
  * <p>Every problem is a warning, as a rule asking for a missing or broken message still runs. A text is reported
- * when its key is written twice in a file, when its pattern is broken, when its placeholders differ from those of
+ * when its key is written twice in a file, when it has a <code>&#92;u</code> not followed by four hexadecimal digits,
+ * which the engine reads as written, when its pattern is broken, when its placeholders differ from those of
  * the default language, and when the default language has no text for its key. A broken pattern is told piece by
  * piece, where each problem is in the text; the same problem with the same piece, such as two full-width commas, is
  * told once, with every place it is in. A language that leaves keys of the
@@ -46,6 +47,7 @@ import org.openl.util.PropertiesUtils;
  * so OpenL Studio checks them before its modules, and again whenever they are written. A key the default files of a
  * dependency or a library hold is not missing, and its translations take their placeholders from that text.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public final class LocalizationCheck {
 
@@ -71,6 +73,9 @@ public final class LocalizationCheck {
 
     /** The name of a localization file: {@code message.properties}, or {@code message_} with a language tag. */
     public static final Pattern FILE = Pattern.compile("message(?:_(" + LANGUAGE_TAG + "))?\\.properties");
+
+    private static final String BROKEN_ESCAPE = """
+            A \\u not followed by four hexadecimal digits is read as written. Write \\\\u for a backslash before u.""";
 
     /**
      * One localization file of the project: its language and what it writes, line by line. A key written on a
@@ -114,9 +119,6 @@ public final class LocalizationCheck {
     public record Result(boolean files, List<OpenLMessage> messages) {
     }
 
-    private LocalizationCheck() {
-    }
-
     /**
      * Checks the localization files of a project.
      *
@@ -127,7 +129,7 @@ public final class LocalizationCheck {
      */
     public static Result check(Path projectFolder, OpenLMessageSource source) {
         var messages = new ArrayList<OpenLMessage>();
-        var languages = read(projectFolder.resolve(OpenLMessageSource.FOLDER), messages);
+        var languages = read(projectFolder.resolve(OpenLMessageSource.FOLDER));
         var defaultLanguage = languages.get("");
         languages.values().forEach(language -> check(language, defaultLanguage, source, messages));
         if (defaultLanguage != null) {
@@ -138,8 +140,8 @@ public final class LocalizationCheck {
         return new Result(!languages.isEmpty(), List.copyOf(messages));
     }
 
-    /** The localization files of the folder by their tags, the default one first; a file not read is told. */
-    private static Map<String, Language> read(Path folder, List<OpenLMessage> messages) {
+    /** The localization files of the folder by their tags, the default one first. */
+    private static Map<String, Language> read(Path folder) {
         var languages = new LinkedHashMap<String, Language>();
         if (!Files.isDirectory(folder)) {
             return languages;
@@ -147,7 +149,7 @@ public final class LocalizationCheck {
         try (Stream<Path> files = Files.list(folder)) {
             files.filter(Files::isRegularFile)
                     .sorted(Comparator.comparing(Path::getFileName))
-                    .forEach(file -> readLanguage(file, messages)
+                    .forEach(file -> readLanguage(file)
                             .ifPresent(language -> languages.put(language.tag(), language)));
         } catch (IOException e) {
             log.warn("Failed to list the localization files of '{}'", folder, e);
@@ -155,30 +157,25 @@ public final class LocalizationCheck {
         return languages;
     }
 
-    private static Optional<Language> readLanguage(Path file, List<OpenLMessage> messages) {
+    private static Optional<Language> readLanguage(Path file) {
         var matcher = FILE.matcher(file.getFileName().toString());
         if (!matcher.matches()) {
             return Optional.empty();
         }
         var tag = matcher.group(1) == null ? "" : matcher.group(1);
         // Read as the engine reads it: in UTF-8, a byte that is not UTF-8 replaced rather than refused.
-        try (var reader = new InputStreamReader(Files.newInputStream(file), StandardCharsets.UTF_8)) {
-            var entries = PropertiesUtils.readEntries(reader, true);
+        try (var input = Files.newInputStream(file)) {
+            var entries = PropertiesUtils.readEntries(input, true);
             var texts = new LinkedHashMap<String, @Nullable String>();
             entries.forEach(entry -> texts.put(entry.key(), entry.value()));
             return Optional.of(new Language(tag, file, entries, texts));
         } catch (IOException e) {
             log.warn("Failed to read the localization file '{}'", file, e);
             return Optional.empty();
-        } catch (IllegalArgumentException e) {
-            // The engine cannot read the file either: a rule finds none of its texts.
-            messages.add(new OpenLFileMessage("A \\u not followed by four hexadecimal digits breaks the file: "
-                    + "none of its texts is read. Write \\\\u for a backslash before u.", file, 1, null, tag));
-            return Optional.empty();
         }
     }
 
-    /** Checks every text of a language: written twice, broken, other placeholders, no default text. */
+    /** Checks every text of a language: written twice, a broken escape, broken, other placeholders, no default text. */
     private static void check(Language language,
                               @Nullable Language defaultLanguage,
                               OpenLMessageSource source,
@@ -190,8 +187,32 @@ public final class LocalizationCheck {
                 messages.add(warn(language, entry, "Written twice, on lines %d and %d: the last text wins."
                         .formatted(first, entry.line())));
             }
+            if (!entry.brokenEscapes().isEmpty()) {
+                messages.add(warnBrokenEscapes(language, entry));
+            }
             checkText(language, entry, defaultLanguage, source, messages);
         }
+    }
+
+    /**
+     * A warning about the broken escapes of a key, which the engine reads as written, the other texts as usual. It
+     * tells every place they are in, and where they are in the text.
+     */
+    private static OpenLMessage warnBrokenEscapes(Language language, PropertiesUtils.Entry entry) {
+        var uri = language.file().toUri().toString();
+        // An escape outside the key is in the text, so the text is there.
+        var text = Objects.requireNonNullElse(entry.value(), "");
+        var pieces = entry.brokenEscapes()
+                .stream()
+                .filter(escape -> !escape.inKey())
+                .map(escape -> new SourceRange(uri, text, escape.start(), escape.end()))
+                .toList();
+        var places = entry.brokenEscapes()
+                .stream()
+                .map(PropertiesUtils.BrokenEscape::place)
+                .toList();
+        return new OpenLFileMessage(BROKEN_ESCAPE, language.file(), entry.line(), entry.key(), language.tag(), pieces,
+                places);
     }
 
     private static void checkText(Language language,

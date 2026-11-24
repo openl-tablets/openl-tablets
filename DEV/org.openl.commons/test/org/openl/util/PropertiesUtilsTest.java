@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -64,17 +64,62 @@ class PropertiesUtilsTest {
     }
 
     @Test
-    void failNotFullUnicode() {
-        assertThrows(EOFException.class, () -> {
-            var result = new ArrayList<String>();
-            PropertiesUtils.load(new StringReader("x=1\n\ry=\\u123"), (k, v) -> result.add(k + "=" + v));
-        });
+    void failsOnATruncatedUnicodeEscapeTellingWhereItIs() {
+        var input = new StringReader("x=1\n\ry=\\u123");
+        var read = new ArrayList<String>();
+        var error = assertThrows(CharConversionException.class,
+                () -> PropertiesUtils.load(input, (k, v) -> read.add(k)));
+        assertEquals(List.of("x"), read);
+        assertEquals("""
+                A \\u not followed by four hexadecimal digits on line 3, column 3. Write \\\\u for a backslash \
+                before u.""", error.getMessage());
     }
 
     @Test
-    void failNotHexUnicode() {
+    void failsOnANotHexUnicodeEscape() {
         var input = new StringReader("x=\\u12G4");
-        assertThrows(NumberFormatException.class, () -> PropertiesUtils.load(input, (k, v) -> fail()));
+        assertThrows(CharConversionException.class, () -> PropertiesUtils.load(input, (k, v) -> fail()));
+    }
+
+    @Test
+    void readsABrokenUnicodeEscapeAsWrittenAndTheOtherPairsAsUsual() throws IOException {
+        var entries = PropertiesUtils.readEntries(new StringReader("x=\\u12G4 broken\ny=\\u0041\nz=\\u123"));
+        assertEquals(List.of("x=\\u12G4 broken", "y=A", "z=\\u123"), textsOf(entries));
+    }
+
+    @Test
+    void readsTheCharacterEndingABrokenUnicodeEscapeAsAnyOther() throws IOException {
+        // A separator, a line break, another escape and the end of a continued line end a broken escape.
+        var entries = PropertiesUtils.readEntries(new StringReader(
+                "a\\u1=b\nc=\\u\nd=\\u12\\u0041\r\ne=\\uXYZ\nf=\\u\\\n  g"));
+        assertEquals(List.of("a\\u1=b", "c=\\u", "d=\\u12A", "e=\\uXYZ", "f=\\ug"), textsOf(entries));
+    }
+
+    private static List<String> textsOf(List<PropertiesUtils.Entry> entries) {
+        return entries.stream().map(entry -> entry.key() + "=" + entry.value()).toList();
+    }
+
+    @Test
+    void tellsWhereEachBrokenUnicodeEscapeIsWritten() throws IOException {
+        // A path written with single backslashes reads "\\users" as a broken escape.
+        var text = "ok = \\u00e9\nbroken = C:\\users\\me \\u12G4\n\\u1 key = x\n";
+
+        var entries = PropertiesUtils.readEntries(new StringReader(text), true);
+
+        assertEquals(List.of(), entries.getFirst().brokenEscapes());
+        var broken = entries.get(1);
+        assertEquals("C:\\usersme \\u12G4", broken.value());
+        // Each escape tells where it is written, and where it is in the value: "\\u" and "\\u12".
+        assertEquals(List.of(new PropertiesUtils.BrokenEscape(new TextRange(2, 11, 2, 13), false, 2, 4),
+                new PropertiesUtils.BrokenEscape(new TextRange(2, 21, 2, 25), false, 11, 15)), broken.brokenEscapes());
+        var inKey = entries.get(2);
+        assertEquals("\\u1 key", inKey.key());
+        assertEquals(List.of(new PropertiesUtils.BrokenEscape(new TextRange(3, 0, 3, 3), true, 0, 3)),
+                inKey.brokenEscapes());
+        // A broken escape is written as it is read: each of its characters takes its own place.
+        assertEquals(new TextRange(2, 11, 2, 13), broken.places().ofValue(2, 4));
+        assertEquals(new TextRange(2, 21, 2, 25), broken.places().ofValue(11, 15));
+        assertEquals(new TextRange(2, 25, 2, 26), broken.places().ofValue(15, 16));
     }
 
     @Test
@@ -240,7 +285,7 @@ class PropertiesUtilsTest {
 
         var entries = PropertiesUtils.readEntries(new StringReader(text), true);
 
-        var greeting = entries.get(0).places();
+        var greeting = entries.getFirst().places();
         assertEquals(new TextRange(1, 0, 1, 8), greeting.ofKey());
         // "{0}" of "Hello, {0}!"
         assertEquals(new TextRange(1, 18, 1, 21), greeting.ofValue(7, 10));

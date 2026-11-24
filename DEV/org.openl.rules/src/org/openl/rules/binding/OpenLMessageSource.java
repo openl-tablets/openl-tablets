@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +75,7 @@ public class OpenLMessageSource {
         var url = classLoader.getResource(propFileName);
         if (url != null) {
             try {
-                PropertiesUtils.load(url, result::put);
+                read(url, result::put);
             } catch (IOException ex) {
                 log.error("Failed to process resource '{}'", url, ex);
             }
@@ -88,7 +89,7 @@ public class OpenLMessageSource {
                 while (urls.hasMoreElements()) {
                     var url1 = urls.nextElement();
                     try {
-                        PropertiesUtils.load(url1, result::putIfAbsent);
+                        read(url1, result::putIfAbsent);
                     } catch (IOException ex) {
                         log.error("Failed to process resource '{}'", url1, ex);
                     }
@@ -96,6 +97,16 @@ public class OpenLMessageSource {
             }
         }
         return result;
+    }
+
+    /**
+     * Reads the messages of a localization file in UTF-8. A <code>&#92;u</code> not followed by four hexadecimal
+     * digits breaks only its own text, which is read as written: the other messages are read as usual.
+     */
+    private static void read(URL url, BiConsumer<String, @Nullable String> into) throws IOException {
+        try (var input = url.openStream()) {
+            PropertiesUtils.readEntries(input, false).forEach(entry -> into.accept(entry.key(), entry.value()));
+        }
     }
 
     /**

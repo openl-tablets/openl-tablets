@@ -78,6 +78,18 @@ class MessageFileTest {
         assertEquals(9, file.messages().getFirst().end());
     }
 
+    @Test
+    void readsABrokenUnicodeEscapeAsWrittenAndTheOtherMessagesAsUsual() {
+        var file = read("greeting = Ciao\nbroken = \\u12G4 broken escape\nend = \\u123", StandardCharsets.UTF_8);
+
+        assertEquals(List.of("greeting", "broken", "end"),
+                file.messages().stream().map(MessageFile.Message::key).toList());
+        assertEquals("Ciao", file.texts().get("greeting"));
+        assertEquals("\\u12G4 broken escape", file.texts().get("broken"));
+        // A truncated escape at the end of the file is read as written too.
+        assertEquals("\\u123", file.texts().get("end"));
+    }
+
     private MessageFile read(String text, Charset charset) {
         try {
             var path = folder.resolve("message.properties");

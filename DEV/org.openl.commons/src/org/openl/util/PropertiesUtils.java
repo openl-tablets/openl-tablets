@@ -1,6 +1,6 @@
 package org.openl.util;
 
-import java.io.EOFException;
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,12 +14,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -40,35 +44,77 @@ public final class PropertiesUtils {
      * " A some key = A some value "   =>   key="A some key" , value="A some value "
      * </code>
      *
+     * <p>A <code>&#92;u</code> not followed by four hexadecimal digits fails the reading, as in
+     * {@link java.util.Properties}: a {@link CharConversionException}, which is an {@link IOException}, tells its
+     * line and column. The pairs before it are sent to the target function. {@link #readEntries(Reader)} reads it as
+     * written instead.
+     *
      * @param input  a reader of properties
      * @param result a target function, where key/value properties pair will be sent
      * @see java.util.Properties
      */
     public static void load(Reader input, BiConsumer<? super String, ? super String> result) throws IOException {
-        new Parser(input, false, (key, value, line, places) -> result.accept(key, value)).parse();
+        new Parser(input, false, entry -> {
+            refuseBrokenEscapes(entry);
+            result.accept(entry.key(), entry.value());
+        }).parse();
+    }
+
+    /**
+     * Fails the reading on a pair with a broken <code>&#92;u</code> escape, telling where the first one is. The
+     * exception passes through the parser to {@link #load(Reader, BiConsumer)}, which declares it.
+     */
+    @SneakyThrows(CharConversionException.class)
+    private static void refuseBrokenEscapes(Entry entry) {
+        if (!entry.brokenEscapes().isEmpty()) {
+            var place = entry.brokenEscapes().getFirst().place();
+            throw new CharConversionException("""
+                    A \\u not followed by four hexadecimal digits on line %d, column %d. Write \\\\u for a \
+                    backslash before u.""".formatted(place.line(), place.column() + 1));
+        }
     }
 
     /**
      * One key/value pair of a properties file and the line it starts on.
      *
-     * @param key    the key, as {@link #load(Reader, BiConsumer)} reads it
-     * @param value  the value, or {@code null} for a line without a separator
-     * @param line   the number of the line the pair starts on, the first line being 1
-     * @param places where the characters of the key and the value are in the text, when they were asked for
+     * @param key           the key, as {@link #load(Reader, BiConsumer)} reads it
+     * @param value         the value, or {@code null} for a line without a separator
+     * @param line          the number of the line the pair starts on, the first line being 1
+     * @param places        where the characters of the key and the value are in the text, when they were asked for
+     * @param brokenEscapes each <code>&#92;u</code> of the pair not followed by four hexadecimal digits, which is
+     *                      read as written
      */
-    public record Entry(String key, @Nullable String value, int line, Places places) {
+    public record Entry(String key,
+                        @Nullable String value,
+                        int line,
+                        Places places,
+                        List<BrokenEscape> brokenEscapes) {
 
         public Entry(String key, @Nullable String value, int line) {
-            this(key, value, line, Places.NONE);
+            this(key, value, line, Places.NONE, List.of());
         }
+    }
+
+    /**
+     * A <code>&#92;u</code> not followed by four hexadecimal digits, which is read as written.
+     *
+     * @param place where it is written in the text read
+     * @param inKey whether it is in the key rather than in the value
+     * @param start the position of its backslash in the key or the value
+     * @param end   the position after its last character there
+     */
+    public record BrokenEscape(TextRange place, boolean inKey, int start, int end) {
     }
 
     /**
      * Where the characters of the key and of the value of a pair are in the text they were read from.
      *
      * <p>An escaped character takes the place of all it is written with, as {@code \=} or {@code \u00e9}, and a
-     * value continued on the next line goes on there. Nothing is known of a pair read without its places.
+     * value continued on the next line goes on there. A <code>&#92;u</code> not followed by four hexadecimal digits
+     * is read as written, so each of its characters takes a place of its own. Nothing is known of a pair read
+     * without its places.
      */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Places {
 
         private static final Places NONE = new Places(new int[0], new int[0]);
@@ -76,11 +122,6 @@ public final class PropertiesUtils {
         /** Four numbers for each character: its line and column, and the line and column after it. */
         private final int[] key;
         private final int[] value;
-
-        private Places(int[] key, int[] value) {
-            this.key = key;
-            this.value = value;
-        }
 
         /** Where the key is written, or {@code null} when its places were not read. */
         public @Nullable TextRange ofKey() {
@@ -110,6 +151,10 @@ public final class PropertiesUtils {
      * Reads every key/value pair of the properties in the order they are written, a key written twice included,
      * each with the line it starts on.
      *
+     * <p>Unlike {@link #load(Reader, BiConsumer)}, it reads a <code>&#92;u</code> not followed by four hexadecimal
+     * digits as written, backslash included, and the other pairs as usual. The pair tells where each such
+     * <code>&#92;u</code> is ({@link Entry#brokenEscapes()}).
+     *
      * @see #load(Reader, BiConsumer)
      */
     public static List<Entry> readEntries(Reader input) throws IOException {
@@ -124,8 +169,16 @@ public final class PropertiesUtils {
      */
     public static List<Entry> readEntries(Reader input, boolean places) throws IOException {
         var entries = new ArrayList<Entry>();
-        new Parser(input, places, (key, value, line, read) -> entries.add(new Entry(key, value, line, read))).parse();
+        new Parser(input, places, entries::add).parse();
         return entries;
+    }
+
+    /**
+     * Reads every key/value pair of the properties from the {@link InputStream} in UTF-8, as
+     * {@link #readEntries(Reader, boolean)} does. A byte that is not UTF-8 is replaced rather than refused.
+     */
+    public static List<Entry> readEntries(InputStream input, boolean places) throws IOException {
+        return readEntries(new InputStreamReader(input, StandardCharsets.UTF_8), places);
     }
 
     /**
@@ -216,12 +269,6 @@ public final class PropertiesUtils {
                 .replace("\n", "\\n");
     }
 
-    /** Receives a key/value pair, the line it starts on, and where its characters are written. */
-    @FunctionalInterface
-    private interface EntryConsumer {
-        void accept(String key, @Nullable String value, int line, Places places);
-    }
-
     /**
      * Reads properties char by char and sends every key/value pair to the target function as soon as its line ends.
      */
@@ -231,7 +278,7 @@ public final class PropertiesUtils {
         private final Reader input;
         /** Whether the places of the characters are read. */
         private final boolean tracked;
-        private final EntryConsumer result;
+        private final Consumer<Entry> result;
         private final StringBuilder str = new StringBuilder();
         private @Nullable String key;
         private boolean newLine = true;
@@ -251,6 +298,8 @@ public final class PropertiesUtils {
         private int[] places = new int[64];
         private int placed;
         private int[] keyPlaces = new int[0];
+        /** Where the broken <code>&#92;u</code> escapes of the pair being read are written. */
+        private final List<BrokenEscape> brokenEscapes = new ArrayList<>();
 
         private void parse() throws IOException {
             for (var ch = input.read(); ch != -1; ch = input.read()) {
@@ -315,15 +364,25 @@ public final class PropertiesUtils {
             if (isLineBreak(ch)) {
                 // The line continues on the next one, without its leading whitespaces
                 skipWhitespaces = true;
+            } else if (ch == 'u') {
+                readUnicode();
             } else {
-                str.append((char) unescape(ch));
-                place(escapeLine, escapeColumn);
-                lastNonWhitespace = str.length();
+                appendEscaped((char) unescape(ch));
             }
+        }
+
+        private void appendEscaped(char ch) {
+            str.append(ch);
+            place(escapeLine, escapeColumn);
+            lastNonWhitespace = str.length();
         }
 
         /** Keeps where the character just added begins, and that it ends where the reading stands now. */
         private void place(int startLine, int startColumn) {
+            place(startLine, startColumn, line, column);
+        }
+
+        private void place(int startLine, int startColumn, int endLine, int endColumn) {
             if (!tracked) {
                 return;
             }
@@ -332,8 +391,8 @@ public final class PropertiesUtils {
             }
             places[placed++] = startLine;
             places[placed++] = startColumn;
-            places[placed++] = line;
-            places[placed++] = column;
+            places[placed++] = endLine;
+            places[placed++] = endColumn;
         }
 
         /** The places of the text taken next, its trailing whitespaces left out as they are left out of the text. */
@@ -343,36 +402,62 @@ public final class PropertiesUtils {
             return taken;
         }
 
-        private int unescape(int ch) throws IOException {
+        private static int unescape(int ch) {
             return switch (ch) {
                 case 't' -> '\t';
                 case 'n' -> '\n';
                 case 'r' -> '\r';
                 case 'f' -> '\f';
-                case 'u' -> readUnicode();
                 // Any other escaped symbol stands for itself.
                 default -> ch;
             };
         }
 
-        private int readUnicode() throws IOException {
-            var hex = new char[4];
-            if (input.read(hex) < 4) {
-                throw new EOFException("End of the data is reached unexpectedly");
+        /**
+         * Reads the four hexadecimal digits of a <code>&#92;u</code> escape. A <code>&#92;u</code> not followed by
+         * them is kept as written, and the character that ends it is read as any other.
+         */
+        private void readUnicode() throws IOException {
+            var written = new StringBuilder("\\u");
+            var next = -1;
+            while (written.length() < 6) {
+                next = input.read();
+                if (!HexFormat.isHexDigit(next)) {
+                    break;
+                }
+                written.append((char) next);
             }
-            column += 4;
-            return Integer.parseInt(String.valueOf(hex), 16);
+            column += written.length() - 2;
+            if (written.length() == 6) {
+                appendEscaped((char) HexFormat.fromHexDigits(written, 2, 6));
+                return;
+            }
+            var start = str.length();
+            str.append(written);
+            for (var i = 0; i < written.length(); i++) {
+                place(escapeLine, escapeColumn + i, escapeLine, escapeColumn + i + 1);
+            }
+            lastNonWhitespace = str.length();
+            brokenEscapes.add(new BrokenEscape(new TextRange(escapeLine, escapeColumn, line, column),
+                    key == null,
+                    start,
+                    str.length()));
+            if (next != -1) {
+                read(next);
+            }
         }
 
         private void endLine() {
             var valuePlaces = takePlaces();
             var value = takeText();
+            var broken = List.copyOf(brokenEscapes);
+            brokenEscapes.clear();
             if (key != null) {
-                result.accept(key, value, entryLine, placesOf(keyPlaces, valuePlaces));
+                result.accept(new Entry(key, value, entryLine, placesOf(keyPlaces, valuePlaces), broken));
                 key = null;
             } else if (!value.isEmpty()) {
                 // A line without a separator is a key alone.
-                result.accept(value, null, entryLine, placesOf(valuePlaces, new int[0]));
+                result.accept(new Entry(value, null, entryLine, placesOf(valuePlaces, new int[0]), broken));
             }
             newLine = true;
             skipWhitespaces = true;
