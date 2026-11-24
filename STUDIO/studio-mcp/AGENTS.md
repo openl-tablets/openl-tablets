@@ -434,6 +434,9 @@ OpenL Studio and where the server keeps its state; the
 - Keep the code clean at all times: no dead code (unused files, exports, functions, variables, or unreachable branches) and no unused dependencies. Remove them as soon as they become orphaned.
 - Add a third-party library only when it brings significant benefit — that is, it substantially reduces the code we would otherwise write and maintain. Prefer reimplementing small or simple functionality over taking on a dependency.
 - `npm run lint` must report no errors.
+- The code is formatted as `studio-ui` formats its own, through `@stylistic`: an indent of 4 spaces, single quotes, no
+  semicolons, the members of a type without delimiters, and `{ a }` and `[a]` on one line or, once a list wraps,
+  every item on a line of its own. `npm run lint -- --fix` applies it.
 - The code is ECMAScript 2025, which every Node.js 24 runs (`engines` of `package.json`): use its built-ins —
   `replaceAll`, `at`, `Object.groupBy`, iterator helpers, `Set` methods, `Promise.withResolvers` — rather than
   hand-written equivalents.

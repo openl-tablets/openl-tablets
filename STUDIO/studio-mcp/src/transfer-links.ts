@@ -7,36 +7,36 @@
  * credential, an upload one used once. In single-user mode, where nobody is authenticated, the link is the address
  * of the REST API itself.
  */
-import { entityTag, type OpenLClient } from "./client.js";
-import { trimChar } from "./text.js";
-import type * as Types from "./types.js";
+import { entityTag, type OpenLClient } from './client.js'
+import { trimChar } from './text.js'
+import type * as Types from './types.js'
 
 /** The most bytes of a text file a tool answers inline; a larger or a binary file is answered with a link. */
-export const INLINE_TEXT_BYTES = 5000;
+export const INLINE_TEXT_BYTES = 5000
 
 /** What a download link moves. */
 type DownloadTarget =
-  | { kind: "download" | "archive"; projectId: string; path: string; branch?: string; version?: string }
-  | {
-    kind: "conflictVersion";
-    projectId: string;
-    /** The path of the conflicted file in the repository, as the merge conflict names it. */
-    path: string;
-    side: "base" | "ours" | "theirs";
-    /** The branch of the side, which holds that version; none for the base. */
-    branch?: string;
-  };
+    | { kind: 'download' | 'archive', projectId: string, path: string, branch?: string, version?: string }
+    | {
+        kind: 'conflictVersion'
+        projectId: string
+        /** The path of the conflicted file in the repository, as the merge conflict names it. */
+        path: string
+        side: 'base' | 'ours' | 'theirs'
+        /** The branch of the side, which holds that version; none for the base. */
+        branch?: string
+    }
 
 /** Where an upload link writes, and what the file must be. */
 interface UploadTarget {
-  projectId: string;
-  path: string;
-  branch?: string;
-  /** The version of the file the upload replaces; none for an upload that creates a file. */
-  version?: string;
-  createFolders: boolean;
-  size?: number;
-  sha256?: string;
+    projectId: string
+    path: string
+    branch?: string
+    /** The version of the file the upload replaces; none for an upload that creates a file. */
+    version?: string
+    createFolders: boolean
+    size?: number
+    sha256?: string
 }
 
 /**
@@ -48,7 +48,7 @@ interface UploadTarget {
  * writing back a text that lost them would change the file.
  */
 export function inlineText(file: Types.ProjectFileResponse): string | undefined {
-  return file.data.length > INLINE_TEXT_BYTES ? undefined : textOf(file);
+    return file.data.length > INLINE_TEXT_BYTES ? undefined : textOf(file)
 }
 
 /**
@@ -56,22 +56,22 @@ export function inlineText(file: Types.ProjectFileResponse): string | undefined 
  * for any other file and for bytes the charset does not decode.
  */
 export function textOf(file: Types.ProjectFileResponse): string | undefined {
-  if (!isTextType(file.contentType)) {
-    return undefined;
-  }
-  const charset = /charset=["']?([\w-]+)/i.exec(file.contentType)?.[1] ?? "utf-8";
-  try {
-    return new TextDecoder(charset, { fatal: true, ignoreBOM: true }).decode(file.data);
-  } catch {
-    // A charset the runtime does not know, or bytes it does not decode
-    return undefined;
-  }
+    if (!isTextType(file.contentType)) {
+        return undefined
+    }
+    const charset = /charset=["']?([\w-]+)/i.exec(file.contentType)?.[1] ?? 'utf-8'
+    try {
+        return new TextDecoder(charset, { fatal: true, ignoreBOM: true }).decode(file.data)
+    } catch {
+        // A charset the runtime does not know, or bytes it does not decode
+        return undefined
+    }
 }
 
 function isTextType(contentType: string): boolean {
-  // The media type without its parameters: `text/plain` of `text/plain; charset=utf-8`
-  const type = contentType.split(";")[0].trim();
-  return type.startsWith("text/") || /^application\/([\w.+-]+\+)?(json|xml|yaml|x-yaml)$/.test(type);
+    // The media type without its parameters: `text/plain` of `text/plain; charset=utf-8`
+    const type = contentType.split(';')[0].trim()
+    return type.startsWith('text/') || /^application\/([\w.+-]+\+)?(json|xml|yaml|x-yaml)$/.test(type)
 }
 
 /**
@@ -79,22 +79,22 @@ function isTextType(contentType: string): boolean {
  * a `curl` command to run.
  */
 export async function downloadLink(
-  client: OpenLClient,
-  target: DownloadTarget,
-  size?: number,
+    client: OpenLClient,
+    target: DownloadTarget,
+    size?: number
 ): Promise<Record<string, unknown>> {
-  const [{ url, expiresAt }, location] = await Promise.all([
-    linkOf(client, target, () => singleUserDownloadUrl(client, target)),
-    locationOf(client, target.projectId, target.path, target.branch, target.kind === "conflictVersion"),
-  ]);
-  // The command names its method, and the description of the tool how long the link works
-  return {
-    url,
-    ...(expiresAt ? { expiresAt } : {}),
-    ...(size === undefined ? {} : { size }),
-    ...location,
-    curl: `curl -fsS -o ${quote(localName(target))} ${quote(url)}`,
-  };
+    const [{ url, expiresAt }, location] = await Promise.all([
+        linkOf(client, target, () => singleUserDownloadUrl(client, target)),
+        locationOf(client, target.projectId, target.path, target.branch, target.kind === 'conflictVersion'),
+    ])
+    // The command names its method, and the description of the tool how long the link works
+    return {
+        url,
+        ...(expiresAt ? { expiresAt } : {}),
+        ...(size === undefined ? {} : { size }),
+        ...location,
+        curl: `curl -fsS -o ${quote(localName(target))} ${quote(url)}`,
+    }
 }
 
 /**
@@ -104,31 +104,31 @@ export async function downloadLink(
  * writes nothing over a file changed since the read, nor over a file the agent did not read.
  */
 export async function uploadLink(client: OpenLClient, target: UploadTarget): Promise<Record<string, unknown>> {
-  const { version, ...where } = target;
-  const local = target.path.split("/").at(-1) ?? target.path;
-  const [{ url, expiresAt }, project] = await Promise.all([
-    linkOf(client, {
-      kind: "upload",
-      ...where,
-      ...(version === undefined ? { conflictPolicy: "FAIL" } : { expectedVersion: version }),
-    }, () => client.projectFileUrl(target.projectId, target.path, version === undefined
-      ? { createFolders: String(target.createFolders), conflictPolicy: "FAIL", branch: target.branch }
-      : { branch: target.branch })),
-    client.getProject(target.projectId),
-  ]);
-  const ifMatch = version === undefined ? undefined : "If-Match: " + entityTag(version);
-  const replacing = ifMatch === undefined ? "" : `-X PUT -H ${quote(ifMatch)} `;
-  // An upload prints the answer of Studio on a failure: why it refused the file, which -f would hide
-  const curl = expiresAt
-    ? `curl -sS --fail-with-body -T ${quote(local)} ${quote(url)}`
-    : `curl -sS --fail-with-body ${replacing}--data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`;
-  // The command names its method, and the description of the tool that the link writes once
-  return {
-    url,
-    ...(expiresAt ? { expiresAt } : {}),
-    ...locationIn(project, target.path, target.branch),
-    curl,
-  };
+    const { version, ...where } = target
+    const local = target.path.split('/').at(-1) ?? target.path
+    const [{ url, expiresAt }, project] = await Promise.all([
+        linkOf(client, {
+            kind: 'upload',
+            ...where,
+            ...(version === undefined ? { conflictPolicy: 'FAIL' } : { expectedVersion: version }),
+        }, () => client.projectFileUrl(target.projectId, target.path, version === undefined
+            ? { createFolders: String(target.createFolders), conflictPolicy: 'FAIL', branch: target.branch }
+            : { branch: target.branch })),
+        client.getProject(target.projectId),
+    ])
+    const ifMatch = version === undefined ? undefined : 'If-Match: ' + entityTag(version)
+    const replacing = ifMatch === undefined ? '' : `-X PUT -H ${quote(ifMatch)} `
+    // An upload prints the answer of Studio on a failure: why it refused the file, which -f would hide
+    const curl = expiresAt
+        ? `curl -sS --fail-with-body -T ${quote(local)} ${quote(url)}`
+        : `curl -sS --fail-with-body ${replacing}--data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`
+    // The command names its method, and the description of the tool that the link writes once
+    return {
+        url,
+        ...(expiresAt ? { expiresAt } : {}),
+        ...locationIn(project, target.path, target.branch),
+        curl,
+    }
 }
 
 /**
@@ -136,26 +136,26 @@ export async function uploadLink(client: OpenLClient, target: UploadTarget): Pro
  * the REST API itself, which never expires, in single-user mode.
  */
 async function linkOf(
-  client: OpenLClient,
-  request: Types.TransferLinkRequest,
-  singleUserUrl: () => string,
-): Promise<{ url: string; expiresAt?: string }> {
-  if (!(await client.getSettings()).userMode) {
-    return { url: singleUserUrl() };
-  }
-  const issued = await client.createTransferLink(request);
-  return { url: new URL(issued.path, client.publicUrl).href, expiresAt: issued.expiresAt };
+    client: OpenLClient,
+    request: Types.TransferLinkRequest,
+    singleUserUrl: () => string
+): Promise<{ url: string, expiresAt?: string }> {
+    if (!(await client.getSettings()).userMode) {
+        return { url: singleUserUrl() }
+    }
+    const issued = await client.createTransferLink(request)
+    return { url: new URL(issued.path, client.publicUrl).href, expiresAt: issued.expiresAt }
 }
 
 function singleUserDownloadUrl(client: OpenLClient, target: DownloadTarget): string {
-  if (target.kind === "conflictVersion") {
-    return client.conflictFileUrl(target.projectId, target.path, target.side);
-  }
-  return client.projectFileUrl(target.projectId, target.path, {
-    branch: target.branch,
-    version: target.version,
-    download: target.kind === "archive" ? "true" : undefined,
-  });
+    if (target.kind === 'conflictVersion') {
+        return client.conflictFileUrl(target.projectId, target.path, target.side)
+    }
+    return client.projectFileUrl(target.projectId, target.path, {
+        branch: target.branch,
+        version: target.version,
+        download: target.kind === 'archive' ? 'true' : undefined,
+    })
 }
 
 /**
@@ -165,50 +165,50 @@ function singleUserDownloadUrl(client: OpenLClient, target: DownloadTarget): str
  * version is on no branch.
  */
 async function locationOf(
-  client: OpenLClient,
-  projectId: string,
-  path: string,
-  branch: string | undefined,
-  inRepository = false,
+    client: OpenLClient,
+    projectId: string,
+    path: string,
+    branch: string | undefined,
+    inRepository = false
 ): Promise<Record<string, unknown>> {
-  return locationIn(await client.getProject(projectId), path, branch, inRepository);
+    return locationIn(await client.getProject(projectId), path, branch, inRepository)
 }
 
 /** Where a file of the given project lives in its repository; see {@link locationOf}. */
 function locationIn(
-  project: Types.ProjectViewModel,
-  path: string,
-  branch: string | undefined,
-  inRepository = false,
+    project: Types.ProjectViewModel,
+    path: string,
+    branch: string | undefined,
+    inRepository = false
 ): Record<string, unknown> {
-  const folder = inRepository ? undefined : project.path && trimChar(project.path, "/", false);
-  // A folder keeps its trailing slash in the repository path
-  const relative = path.replace(/^\/+/, "");
-  let repositoryPath = relative;
-  if (folder) {
-    repositoryPath = relative ? `${folder}/${relative}` : `${folder}/`;
-  }
-  const onBranch = inRepository ? branch : branch ?? project.branch;
-  return {
-    ...(project.repository ? { repositoryId: project.repository } : {}),
-    repositoryPath,
-    ...(onBranch ? { branch: onBranch } : {}),
-  };
+    const folder = inRepository ? undefined : project.path && trimChar(project.path, '/', false)
+    // A folder keeps its trailing slash in the repository path
+    const relative = path.replace(/^\/+/, '')
+    let repositoryPath = relative
+    if (folder) {
+        repositoryPath = relative ? `${folder}/${relative}` : `${folder}/`
+    }
+    const onBranch = inRepository ? branch : branch ?? project.branch
+    return {
+        ...(project.repository ? { repositoryId: project.repository } : {}),
+        repositoryPath,
+        ...(onBranch ? { branch: onBranch } : {}),
+    }
 }
 
 /** The name the downloaded file is saved under: the name of the file, or of the folder with `.zip`. */
 function localName(target: DownloadTarget): string {
-  const name = trimChar(target.path, "/", false).split("/").at(-1) ?? "";
-  if (target.kind === "archive") {
-    return `${name || "project"}.zip`;
-  }
-  return name || "file";
+    const name = trimChar(target.path, '/', false).split('/').at(-1) ?? ''
+    if (target.kind === 'archive') {
+        return `${name || 'project'}.zip`
+    }
+    return name || 'file'
 }
 
 /** A single quote inside a single-quoted word of a POSIX shell: close the quotes, an escaped quote, reopen them. */
-const QUOTED_QUOTE = String.raw`'\''`;
+const QUOTED_QUOTE = String.raw`'\''`
 
 /** A word for a POSIX shell, in single quotes. */
 function quote(word: string): string {
-  return `'${word.replaceAll("'", QUOTED_QUOTE)}'`;
+    return `'${word.replaceAll("'", QUOTED_QUOTE)}'`
 }

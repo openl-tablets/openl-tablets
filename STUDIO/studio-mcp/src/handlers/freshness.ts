@@ -6,15 +6,15 @@
  * (`changedOnDisk`) but compiles nothing again by itself. A tool that works with what Studio compiled has the project
  * compiled again from its files first, so that the agent never reads what the files held before.
  */
-import { setTimeout as sleep } from "node:timers/promises";
+import { setTimeout as sleep } from 'node:timers/promises'
 
-import type { OpenLClient } from "../client.js";
+import type { OpenLClient } from '../client.js'
 
 /** How long a refresh waits for Studio to take the files of the project again. */
-const REFRESH_WAIT_MS = 60_000;
+const REFRESH_WAIT_MS = 60_000
 
-const REFRESH_POLL_MS = 250;
-const REFRESH_POLL_MAX_MS = 2_000;
+const REFRESH_POLL_MS = 250
+const REFRESH_POLL_MAX_MS = 2_000
 
 /**
  * Compiles the project again from its files when another program changed them since Studio compiled it.
@@ -26,12 +26,12 @@ const REFRESH_POLL_MAX_MS = 2_000;
  * @returns whether the project was compiled again
  */
 export async function refreshWhenChangedOnDisk(
-  client: OpenLClient,
-  projectId: string,
-  signal?: AbortSignal,
+    client: OpenLClient,
+    projectId: string,
+    signal?: AbortSignal
 ): Promise<boolean> {
-  return (await client.getProjectStatusSummary(projectId, signal)).changedOnDisk === true
-    && refreshFromDisk(client, projectId, signal);
+    return (await client.getProjectStatusSummary(projectId, signal)).changedOnDisk === true
+        && refreshFromDisk(client, projectId, signal)
 }
 
 /**
@@ -41,18 +41,18 @@ export async function refreshWhenChangedOnDisk(
  * @returns whether the project was compiled again; false for a project with no module to compile
  */
 export async function refreshFromDisk(
-  client: OpenLClient,
-  projectId: string,
-  signal?: AbortSignal,
-  waitMs = REFRESH_WAIT_MS,
+    client: OpenLClient,
+    projectId: string,
+    signal?: AbortSignal,
+    waitMs = REFRESH_WAIT_MS
 ): Promise<boolean> {
-  const module = (await client.listProjectModules(projectId)).find((declared) => declared.name)?.name;
-  if (!module) {
-    return false;
-  }
-  await client.recompileProject(projectId, module);
-  await untilCompiled(client, projectId, Date.now() + waitMs, signal);
-  return true;
+    const module = (await client.listProjectModules(projectId)).find((declared) => declared.name)?.name
+    if (!module) {
+        return false
+    }
+    await client.recompileProject(projectId, module)
+    await untilCompiled(client, projectId, Date.now() + waitMs, signal)
+    return true
 }
 
 /**
@@ -63,18 +63,18 @@ export async function refreshFromDisk(
  * the tables of the other modules of the project come with the end of the compilation.
  */
 export async function untilCompiled(
-  client: OpenLClient,
-  projectId: string,
-  deadline: number,
-  signal?: AbortSignal,
+    client: OpenLClient,
+    projectId: string,
+    deadline: number,
+    signal?: AbortSignal
 ): Promise<void> {
-  // A pause twice as long as the previous one, up to a ceiling: a long compilation is read a few times a minute
-  for (let pauseMs = REFRESH_POLL_MS; Date.now() < deadline; pauseMs = Math.min(pauseMs * 2, REFRESH_POLL_MAX_MS)) {
-    // An unreferenced timer does not keep the process alive; a cancelled call rejects with an AbortError
-    await sleep(Math.min(pauseMs, deadline - Date.now()), undefined, { signal, ref: false });
-    const status = await client.getProjectStatusSummary(projectId, signal);
-    if (status.changedOnDisk !== true && status.compileState !== "compiling") {
-      return;
+    // A pause twice as long as the previous one, up to a ceiling: a long compilation is read a few times a minute
+    for (let pauseMs = REFRESH_POLL_MS; Date.now() < deadline; pauseMs = Math.min(pauseMs * 2, REFRESH_POLL_MAX_MS)) {
+        // An unreferenced timer does not keep the process alive; a cancelled call rejects with an AbortError
+        await sleep(Math.min(pauseMs, deadline - Date.now()), undefined, { signal, ref: false })
+        const status = await client.getProjectStatusSummary(projectId, signal)
+        if (status.changedOnDisk !== true && status.compileState !== 'compiling') {
+            return
+        }
     }
-  }
 }

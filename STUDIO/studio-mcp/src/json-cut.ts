@@ -3,18 +3,18 @@
  * learns from the cuts what it lacks, where a preview of the text cut at the limit would be neither JSON nor complete.
  */
 
-import { formatCount } from "./text.js";
+import { formatCount } from './text.js'
 
 /** The longest text a cut value keeps of a string. */
-const LONGEST_TEXT = 200;
+const LONGEST_TEXT = 200
 
 /** A node of the value with the place it holds: its path, its parent and the key or index it has there. */
 interface Node {
-  path: string;
-  parent: Record<string, unknown> | unknown[];
-  key: string | number;
-  value: unknown;
-  size: number;
+    path: string
+    parent: Record<string, unknown> | unknown[]
+    key: string | number
+    value: unknown
+    size: number
 }
 
 /**
@@ -25,42 +25,42 @@ interface Node {
  * is cut only when nothing else is left to cut: what is left of it would name the values allowed wrong, where the
  * count of the keys of the object holding it names a cut.
  */
-export function cutJson(value: unknown, limit: number): { value: unknown; cuts: string[] } {
-  if (sizeOf(value) <= limit) {
-    return { value, cuts: [] };
-  }
-  const root = { value: structuredClone(value) };
-  const cuts: string[] = [];
-  const shortened = shortenTexts(root, "value");
-  if (shortened > 0) {
-    cuts.push(`${formatCount(shortened, "text")} to ${LONGEST_TEXT} characters`);
-  }
-  // Each pass cuts what one scan found; the next scan measures what is left
-  let scan = nodesOf(root.value);
-  while (scan.size > limit && cutOnce(root, scan, limit, cuts)) {
-    scan = nodesOf(root.value);
-  }
-  return { value: root.value, cuts };
+export function cutJson(value: unknown, limit: number): { value: unknown, cuts: string[] } {
+    if (sizeOf(value) <= limit) {
+        return { value, cuts: [] }
+    }
+    const root = { value: structuredClone(value) }
+    const cuts: string[] = []
+    const shortened = shortenTexts(root, 'value')
+    if (shortened > 0) {
+        cuts.push(`${formatCount(shortened, 'text')} to ${LONGEST_TEXT} characters`)
+    }
+    // Each pass cuts what one scan found; the next scan measures what is left
+    let scan = nodesOf(root.value)
+    while (scan.size > limit && cutOnce(root, scan, limit, cuts)) {
+        scan = nodesOf(root.value)
+    }
+    return { value: root.value, cuts }
 }
 
 /** Make the cuts one scan calls for, in the order {@link cutJson} names; false when nothing was left to cut. */
 function cutOnce(root: { value: unknown }, scan: ReturnType<typeof nodesOf>, limit: number, cuts: string[]): boolean {
-  const middle = (node: Node, size: number): number => cutMiddle(node, size, limit, cuts);
-  const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1);
-  const cuttable = arrays.filter((node) => node.key !== "enum");
-  // An array already down to its first and its last item loses its last one only when no longer array is left
-  const longer = cuttable.filter((node) => (node.value as unknown[]).length > 2);
-  if (cuttable.length > 0) {
-    cutLargest(longer.length > 0 ? longer : cuttable, scan.size, limit, middle);
-  } else if (scan.objects.length > 0) {
-    cutLargest(objectsToCut(scan.objects, scan.size - limit), scan.size, limit, (node) => cutObject(node, cuts));
-  } else if (arrays.length > 0) {
-    cutLargest(arrays, scan.size, limit, middle);
-  } else {
-    summarizeRoot(root, cuts);
-    return false;
-  }
-  return true;
+    const middle = (node: Node, size: number): number => cutMiddle(node, size, limit, cuts)
+    const arrays = scan.arrays.filter((node) => (node.value as unknown[]).length > 1)
+    const cuttable = arrays.filter((node) => node.key !== 'enum')
+    // An array already down to its first and its last item loses its last one only when no longer array is left
+    const longer = cuttable.filter((node) => (node.value as unknown[]).length > 2)
+    if (cuttable.length > 0) {
+        cutLargest(longer.length > 0 ? longer : cuttable, scan.size, limit, middle)
+    } else if (scan.objects.length > 0) {
+        cutLargest(objectsToCut(scan.objects, scan.size - limit), scan.size, limit, (node) => cutObject(node, cuts))
+    } else if (arrays.length > 0) {
+        cutLargest(arrays, scan.size, limit, middle)
+    } else {
+        summarizeRoot(root, cuts)
+        return false
+    }
+    return true
 }
 
 /**
@@ -68,19 +68,19 @@ function cutOnce(root: { value: unknown }, scan: ReturnType<typeof nodesOf>, lim
  * other keys; else all of them, the largest first.
  */
 function objectsToCut(objects: Node[], excess: number): Node[] {
-  const enough = objects.filter((node) => node.size - cutObjectSize(node) >= excess);
-  return enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a), enough[0])] : objects;
+    const enough = objects.filter((node) => node.size - cutObjectSize(node) >= excess)
+    return enough.length > 0 ? [enough.reduce((a, b) => (b.size < a.size ? b : a), enough[0])] : objects
 }
 
 /** Replace a root that has nothing left to cut, such as an enum of one large value, by its count, and name the cut. */
 function summarizeRoot(root: { value: unknown }, cuts: string[]): void {
-  if (root.value === null || typeof root.value !== "object") {
-    return;
-  }
-  const summary = Array.isArray(root.value) ? `[${root.value.length} items cut]`
-    : `{${Object.keys(root.value).length} keys cut}`;
-  cuts.push(`the whole value (${summary.slice(1, -5)})`);
-  root.value = summary;
+    if (root.value === null || typeof root.value !== 'object') {
+        return
+    }
+    const summary = Array.isArray(root.value) ? `[${root.value.length} items cut]`
+        : `{${Object.keys(root.value).length} keys cut}`
+    cuts.push(`the whole value (${summary.slice(1, -5)})`)
+    root.value = summary
 }
 
 /**
@@ -88,33 +88,33 @@ function summarizeRoot(root: { value: unknown }, cuts: string[]): void {
  * scan knows fit the limit. A node inside one already cut waits for the next scan, which measures what is left.
  */
 function cutLargest(nodes: Node[], size: number, limit: number, cut: (node: Node, size: number) => number): void {
-  const cutPaths: string[] = [];
-  for (const node of nodes.toSorted((a, b) => b.size - a.size)) {
-    if (size <= limit) {
-      return;
+    const cutPaths: string[] = []
+    for (const node of nodes.toSorted((a, b) => b.size - a.size)) {
+        if (size <= limit) {
+            return
+        }
+        if (!cutPaths.some((path) => node.path.startsWith(path) && '.['.includes(node.path[path.length]))) {
+            size -= node.size - cut(node, size)
+            cutPaths.push(node.path)
+        }
     }
-    if (!cutPaths.some((path) => node.path.startsWith(path) && ".[".includes(node.path[path.length]))) {
-      size -= node.size - cut(node, size);
-      cutPaths.push(node.path);
-    }
-  }
 }
 
 /** Shorten every string of the value longer than {@link LONGEST_TEXT}, and count them. */
 function shortenTexts(parent: Record<string, unknown> | unknown[], key: string | number): number {
-  const value = (parent as Record<string | number, unknown>)[key];
-  if (typeof value === "string") {
-    if (value.length <= LONGEST_TEXT) {
-      return 0;
+    const value = (parent as Record<string | number, unknown>)[key]
+    if (typeof value === 'string') {
+        if (value.length <= LONGEST_TEXT) {
+            return 0
+        }
+        (parent as Record<string | number, unknown>)[key] = `${value.slice(0, LONGEST_TEXT)}…`
+        return 1
     }
-    (parent as Record<string | number, unknown>)[key] = `${value.slice(0, LONGEST_TEXT)}…`;
-    return 1;
-  }
-  if (value === null || typeof value !== "object") {
-    return 0;
-  }
-  const keys: Array<string | number> = Array.isArray(value) ? [...value.keys()] : Object.keys(value);
-  return keys.reduce<number>((count, child) => count + shortenTexts(value as unknown[], child), 0);
+    if (value === null || typeof value !== 'object') {
+        return 0
+    }
+    const keys: Array<string | number> = Array.isArray(value) ? [...value.keys()] : Object.keys(value)
+    return keys.reduce<number>((count, child) => count + shortenTexts(value as unknown[], child), 0)
 }
 
 /**
@@ -122,67 +122,67 @@ function shortenTexts(parent: Record<string, unknown> | unknown[], key: string |
  * the array has left.
  */
 function cutMiddle(node: Node, size: number, limit: number, cuts: string[]): number {
-  const items = node.value as unknown[];
-  // Keep the share of the items that the limit is of the whole, at most half of them, so a large excess is cut at once;
-  // the first and the last item stay while the array has more than two: the last of a stack is where the run stopped
-  const keep = Math.max(items.length > 2 ? 2 : 1,
-    Math.min(Math.floor(items.length / 2), Math.floor((items.length * limit) / size)));
-  const head = Math.ceil(keep / 2);
-  const kept = [...items.slice(0, head), ...items.slice(items.length - (keep - head))];
-  (node.parent as Record<string | number, unknown>)[node.key] = kept;
-  cuts.push(`${node.path} (${items.length - keep} of ${items.length} items from the middle)`);
-  return sizeOf(kept);
+    const items = node.value as unknown[]
+    // Keep the share of the items that the limit is of the whole, at most half of them, so a large excess is cut at once;
+    // the first and the last item stay while the array has more than two: the last of a stack is where the run stopped
+    const keep = Math.max(items.length > 2 ? 2 : 1,
+        Math.min(Math.floor(items.length / 2), Math.floor((items.length * limit) / size)))
+    const head = Math.ceil(keep / 2)
+    const kept = [...items.slice(0, head), ...items.slice(items.length - (keep - head))];
+    (node.parent as Record<string | number, unknown>)[node.key] = kept
+    cuts.push(`${node.path} (${items.length - keep} of ${items.length} items from the middle)`)
+    return sizeOf(kept)
 }
 
 /** The text that replaces an object: the number of its keys. */
 function objectReplacement(node: Node): string {
-  return `{${Object.keys(node.value as object).length} keys cut}`;
+    return `{${Object.keys(node.value as object).length} keys cut}`
 }
 
 /** The size in JSON of what replaces an object. */
 function cutObjectSize(node: Node): number {
-  return sizeOf(objectReplacement(node));
+    return sizeOf(objectReplacement(node))
 }
 
 /** Replace an object by the number of its keys, name the cut, and answer the size of what replaces it. */
 function cutObject(node: Node, cuts: string[]): number {
-  const keys = Object.keys(node.value as object).length;
-  const replacement = objectReplacement(node);
-  (node.parent as Record<string | number, unknown>)[node.key] = replacement;
-  cuts.push(`${node.path} (${keys} keys)`);
-  return sizeOf(replacement);
+    const keys = Object.keys(node.value as object).length
+    const replacement = objectReplacement(node);
+    (node.parent as Record<string | number, unknown>)[node.key] = replacement
+    cuts.push(`${node.path} (${keys} keys)`)
+    return sizeOf(replacement)
 }
 
 /**
  * The arrays and the objects of a value below its root, each with its path and its size in JSON, and its size. What an
  * `enum` lists is no node: a value it allows is never cut.
  */
-function nodesOf(value: unknown): { arrays: Node[]; objects: Node[]; size: number } {
-  const arrays: Node[] = [];
-  const objects: Node[] = [];
-  const visit = (parent: Record<string, unknown> | unknown[], key: string | number, path: string, inEnum = false): number => {
-    const child = (parent as Record<string | number, unknown>)[key];
-    if (child === null || typeof child !== "object") {
-      // An undefined item of an array is null in JSON
-      return JSON.stringify(child)?.length ?? "null".length;
+function nodesOf(value: unknown): { arrays: Node[], objects: Node[], size: number } {
+    const arrays: Node[] = []
+    const objects: Node[] = []
+    const visit = (parent: Record<string, unknown> | unknown[], key: string | number, path: string, inEnum = false): number => {
+        const child = (parent as Record<string | number, unknown>)[key]
+        if (child === null || typeof child !== 'object') {
+            // An undefined item of an array is null in JSON
+            return JSON.stringify(child)?.length ?? 'null'.length
+        }
+        const entries: Array<[string | number, string]> = Array.isArray(child)
+            ? child.map((_, index) => [index, `${path}[${index}]`])
+        // JSON leaves out a key whose value is undefined
+            : Object.keys(child).filter((name) => (child as Record<string, unknown>)[name] !== undefined)
+                .map((name) => [name, path ? `${path}.${name}` : name])
+        const size = 2 + Math.max(0, entries.length - 1) + entries.reduce((sum, [name, childPath]) =>
+            sum + (Array.isArray(child) ? 0 : JSON.stringify(name).length + 1)
+                + visit(child as object as unknown[], name, childPath, inEnum || (key === 'enum' && Array.isArray(child))), 0)
+        if (path && !inEnum) {
+            (Array.isArray(child) ? arrays : objects).push({ path, parent, key, value: child, size })
+        }
+        return size
     }
-    const entries: Array<[string | number, string]> = Array.isArray(child)
-      ? child.map((_, index) => [index, `${path}[${index}]`])
-      // JSON leaves out a key whose value is undefined
-      : Object.keys(child).filter((name) => (child as Record<string, unknown>)[name] !== undefined)
-        .map((name) => [name, path ? `${path}.${name}` : name]);
-    const size = 2 + Math.max(0, entries.length - 1) + entries.reduce((sum, [name, childPath]) =>
-      sum + (Array.isArray(child) ? 0 : JSON.stringify(name).length + 1)
-        + visit(child as object as unknown[], name, childPath, inEnum || (key === "enum" && Array.isArray(child))), 0);
-    if (path && !inEnum) {
-      (Array.isArray(child) ? arrays : objects).push({ path, parent, key, value: child, size });
-    }
-    return size;
-  };
-  return { arrays, objects, size: visit({ value }, "value", "") };
+    return { arrays, objects, size: visit({ value }, 'value', '') }
 }
 
 /** The length of the value in JSON. */
 function sizeOf(value: unknown): number {
-  return JSON.stringify(value)?.length ?? 0;
+    return JSON.stringify(value)?.length ?? 0
 }

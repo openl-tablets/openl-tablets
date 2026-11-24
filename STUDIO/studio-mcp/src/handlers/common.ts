@@ -7,34 +7,34 @@
  * modules in this directory import from here and never the other way around, so
  * the registry lives in exactly one place.
  */
-import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
-import type { ProgressToken, ServerNotification, ToolAnnotations } from "@modelcontextprotocol/server";
-import { z, type ZodType } from "zod";
+import { ProtocolError, ProtocolErrorCode } from '@modelcontextprotocol/server'
+import type { ProgressToken, ServerNotification, ToolAnnotations } from '@modelcontextprotocol/server'
+import { z, type ZodType } from 'zod'
 
-import type { OpenLClient } from "../client.js";
-import { isPlainObject, sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
-import { isConflictError, isHttpError, type HttpError } from "../http.js";
-import { formatResponse, type FormatOptions } from "../formatters.js";
-import { refreshWhenChangedOnDisk } from "./freshness.js";
+import type { OpenLClient } from '../client.js'
+import { isPlainObject, sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from '../utils.js'
+import { isConflictError, isHttpError, type HttpError } from '../http.js'
+import { formatResponse, type FormatOptions } from '../formatters.js'
+import { refreshWhenChangedOnDisk } from './freshness.js'
 
 /**
  * Tool response structure
  */
 export interface ToolResponse {
-  [key: string]: unknown;
-  // Every OpenL result is text, which every MCP client can read: the answer in the first block, and a fact about a
-  // verbatim answer, such as the version of a file read inline, in a block of its own
-  content: [{ type: "text"; text: string }, ...{ type: "text"; text: string }[]];
+    [key: string]: unknown
+    // Every OpenL result is text, which every MCP client can read: the answer in the first block, and a fact about a
+    // verbatim answer, such as the version of a file read inline, in a block of its own
+    content: [{ type: 'text', text: string }, ...{ type: 'text', text: string }[]]
 }
 
 /** The answer of a tool made of one text block. */
 export function textResult(text: string): ToolResponse {
-  return { content: [{ type: "text", text }] };
+    return { content: [{ type: 'text', text }] }
 }
 
 /** The answer of a tool that renders `data` as JSON, cut to the response limit. */
 export function formatResult(data: unknown, options?: FormatOptions): ToolResponse {
-  return textResult(formatResponse(data, options));
+    return textResult(formatResponse(data, options))
 }
 
 /**
@@ -43,93 +43,93 @@ export function formatResult(data: unknown, options?: FormatOptions): ToolRespon
  * session's transport, and an `AbortSignal` that fires when the client cancels.
  */
 export interface ToolHandlerExtra {
-  signal: AbortSignal;
-  _meta?: { progressToken?: ProgressToken };
-  sendNotification?: (notification: ServerNotification) => Promise<void>;
+    signal: AbortSignal
+    _meta?: { progressToken?: ProgressToken }
+    sendNotification?: (notification: ServerNotification) => Promise<void>
 }
 
 type ToolHandler<TSchema extends ZodType> = (
-  args: z.output<TSchema>,
-  client: OpenLClient,
-  extra?: ToolHandlerExtra,
-) => Promise<ToolResponse>;
+    args: z.output<TSchema>,
+    client: OpenLClient,
+    extra?: ToolHandlerExtra
+) => Promise<ToolResponse>
 
 interface ToolDefinition<TSchema extends ZodType = ZodType> {
-  name: string;
-  title: string;
-  description: string;
-  /**
+    name: string
+    title: string
+    description: string
+    /**
    * Single source of truth for both the JSON Schema advertised over MCP and the
    * arguments accepted at runtime.
    */
-  schema: TSchema;
-  annotations?: ToolAnnotations;
-  /**
+    schema: TSchema
+    annotations?: ToolAnnotations
+    /**
    * Optional pre-schema coercion or domain-specific validation of raw arguments.
    * The returned value is always validated against `schema` before the handler
    * runs. Used by structured-payload table tools for JSON-string coercion and
    * richer discriminator errors.
    */
-  validateArgs?: (args: unknown) => unknown;
-  /**
+    validateArgs?: (args: unknown) => unknown
+    /**
    * The names agents carry over from another tool for an argument of this one, such as 'search' for 'name' of a list
    * filtered by name, which the tool takes for that argument. They stay out of the published schema.
    */
-  aliases?: Readonly<Record<string, string>>;
-  /** The lists of arguments, such as the edits of 'actions', whose objects take the aliases too. */
-  aliasedLists?: readonly string[];
-  /** What to do instead of an argument agents give the tool, which it does not take, named by that argument. */
-  argumentHints?: Readonly<Record<string, string>>;
-  /**
+    aliases?: Readonly<Record<string, string>>
+    /** The lists of arguments, such as the edits of 'actions', whose objects take the aliases too. */
+    aliasedLists?: readonly string[]
+    /** What to do instead of an argument agents give the tool, which it does not take, named by that argument. */
+    argumentHints?: Readonly<Record<string, string>>
+    /**
    * The values agents give an option of this tool for the one it names, such as 'spec' for 'specification', the way
    * the ids of the specifications start, each in small letters and taken in any. Like a value in other letters, they
    * stay out of the published schema.
    */
-  valueAliases?: Readonly<Record<string, string>>;
-  /**
+    valueAliases?: Readonly<Record<string, string>>
+    /**
    * Whether the tool works with what Studio compiled of the project its `projectId` names. When another program
    * changed the files of the project since Studio compiled it, the project is compiled again first, and the tool
    * goes on with the files as they are: an edit of a table changed since the agent read it is refused by the version
    * of the table it names. Left out for a tool that does not work with what was compiled.
    */
-  compiled?: boolean;
-  handler: ToolHandler<TSchema>;
+    compiled?: boolean
+    handler: ToolHandler<TSchema>
 }
 
-const toolHandlers = new Map<string, ToolDefinition>();
+const toolHandlers = new Map<string, ToolDefinition>()
 
 /** The discovery hint for an identifier a caller got wrong, by the argument it names. */
 const IDENTIFIER_HINTS: ReadonlyArray<[string, string]> = [
-  ["projectId", "Use openl_list_projects() to find valid project IDs."],
-  ["tableId", "Use openl_list_tables() to find the name, or the id, of a table."],
-  ["repository", "Use openl_list_repositories() to find valid repositories."],
-];
+    ['projectId', 'Use openl_list_projects() to find valid project IDs.'],
+    ['tableId', 'Use openl_list_tables() to find the name, or the id, of a table.'],
+    ['repository', 'Use openl_list_repositories() to find valid repositories.'],
+]
 
 /**
  * Add discovery hints for identifiers rejected before a handler can run, and the arguments a tool takes when the
  * caller named one it does not.
  */
 export function formatSchemaValidationError(name: string, error: z.ZodError): string {
-  const message = `Invalid arguments for ${name}:\n${z.prettifyError(error)}`;
-  const topLevelFields = new Set(error.issues.map((issue) => issue.path[0]));
-  const hints = IDENTIFIER_HINTS.filter(([field]) => topLevelFields.has(field)).map(([, hint]) => hint);
-  const taken = takenArguments(name, error);
-  if (taken) hints.push(taken);
-  // An argument the tool does not take, at any depth, which its hints name what to do instead of
-  const argumentHints = toolHandlers.get(name)?.argumentHints ?? {};
-  const unknown = error.issues.flatMap((issue) => (issue.code === "unrecognized_keys" ? issue.keys : []));
-  hints.push(...unknown.flatMap((key) => (argumentHints[key] ? [argumentHints[key]] : [])));
-  return hints.length > 0 ? `${message}\n\n${hints.join(" ")}` : message;
+    const message = `Invalid arguments for ${name}:\n${z.prettifyError(error)}`
+    const topLevelFields = new Set(error.issues.map((issue) => issue.path[0]))
+    const hints = IDENTIFIER_HINTS.filter(([field]) => topLevelFields.has(field)).map(([, hint]) => hint)
+    const taken = takenArguments(name, error)
+    if (taken) hints.push(taken)
+    // An argument the tool does not take, at any depth, which its hints name what to do instead of
+    const argumentHints = toolHandlers.get(name)?.argumentHints ?? {}
+    const unknown = error.issues.flatMap((issue) => (issue.code === 'unrecognized_keys' ? issue.keys : []))
+    hints.push(...unknown.flatMap((key) => (argumentHints[key] ? [argumentHints[key]] : [])))
+    return hints.length > 0 ? `${message}\n\n${hints.join(' ')}` : message
 }
 
 /** The arguments of a tool, for a call that named an unknown one; nothing for one unknown inside another argument. */
 function takenArguments(name: string, error: z.ZodError): string | undefined {
-  const tool = toolHandlers.get(name);
-  if (!tool || !error.issues.some((issue) => issue.code === "unrecognized_keys" && issue.path.length === 0)) {
-    return undefined;
-  }
-  const properties = getInputSchema(tool.schema).properties as Record<string, unknown>;
-  return `${name} takes only: ${Object.keys(properties).join(", ")}.`;
+    const tool = toolHandlers.get(name)
+    if (!tool || !error.issues.some((issue) => issue.code === 'unrecognized_keys' && issue.path.length === 0)) {
+        return undefined
+    }
+    const properties = getInputSchema(tool.schema).properties as Record<string, unknown>
+    return `${name} takes only: ${Object.keys(properties).join(', ')}.`
 }
 
 /**
@@ -138,58 +138,58 @@ function takenArguments(name: string, error: z.ZodError): string | undefined {
  * must have. `executeTool` still validates the arguments with the Zod schema.
  */
 function getInputSchema(schema: ZodType): Record<string, unknown> {
-  // The input side: a field with a default may be omitted by the client.
-  const inputSchema = z.toJSONSchema(schema, {
-    io: "input",
-    override: ({ jsonSchema }) => {
-      if (jsonSchema.maximum === Number.MAX_SAFE_INTEGER) delete jsonSchema.maximum;
-      if (jsonSchema.minimum === Number.MIN_SAFE_INTEGER) delete jsonSchema.minimum;
-      if (jsonSchema.minLength === 1) delete jsonSchema.minLength;
-      // Zod names the check of a prefix, which its pattern publishes, by a format no JSON Schema knows
-      if (jsonSchema.format === "starts_with") delete jsonSchema.format;
-    },
-  }) as Record<string, unknown>;
-  delete inputSchema.$schema;
-  // MCP tool input schemas always have an object root. Zod emits object-only
-  // unions as a top-level anyOf without repeating that shared root type.
-  inputSchema.type ??= "object";
-  return inputSchema;
+    // The input side: a field with a default may be omitted by the client.
+    const inputSchema = z.toJSONSchema(schema, {
+        io: 'input',
+        override: ({ jsonSchema }) => {
+            if (jsonSchema.maximum === Number.MAX_SAFE_INTEGER) delete jsonSchema.maximum
+            if (jsonSchema.minimum === Number.MIN_SAFE_INTEGER) delete jsonSchema.minimum
+            if (jsonSchema.minLength === 1) delete jsonSchema.minLength
+            // Zod names the check of a prefix, which its pattern publishes, by a format no JSON Schema knows
+            if (jsonSchema.format === 'starts_with') delete jsonSchema.format
+        },
+    }) as Record<string, unknown>
+    delete inputSchema.$schema
+    // MCP tool input schemas always have an object root. Zod emits object-only
+    // unions as a top-level anyOf without repeating that shared root type.
+    inputSchema.type ??= 'object'
+    return inputSchema
 }
 
 export function registerTool<TSchema extends ZodType>(tool: ToolDefinition<TSchema>): void {
-  // The schema/handler pair is type-checked together at registration. The map
-  // erases that generic relationship, then executeTool restores it by parsing
-  // with the stored schema before invoking the stored handler.
-  toolHandlers.set(tool.name, tool as ToolDefinition);
+    // The schema/handler pair is type-checked together at registration. The map
+    // erases that generic relationship, then executeTool restores it by parsing
+    // with the stored schema before invoking the stored handler.
+    toolHandlers.set(tool.name, tool as ToolDefinition)
 }
 
 /**
  * The name agents give the id of a table after the 'id' openl_list_tables and openl_get_table answer: the table tools
  * take it for their 'tableId'.
  */
-export const TABLE_ID_ALIAS: Readonly<Record<string, string>> = { id: "tableId" };
+export const TABLE_ID_ALIAS: Readonly<Record<string, string>> = { id: 'tableId' }
 
 /**
  * The arguments with each alias of the tool renamed to the argument it stands for, unless that one is given too, in the
  * arguments and in the objects of the lists the tool names, such as the edits of 'actions'.
  */
-function withAliases(args: unknown, { aliases, aliasedLists = [] }: Pick<ToolDefinition, "aliases" | "aliasedLists">): unknown {
-  if (aliases === undefined || !isPlainObject(args)) {
-    return args;
-  }
-  const renamed = (object: Record<string, unknown>): Record<string, unknown> =>
-    Object.fromEntries(Object.entries(object).map(([key, value]) => {
-      const target = aliases[key];
-      return [target !== undefined && !(target in object) ? target : key, value];
-    }));
-  const named = renamed(args);
-  for (const list of aliasedLists) {
-    const items = named[list];
-    if (Array.isArray(items)) {
-      named[list] = items.map((item) => (isPlainObject(item) ? renamed(item) : item));
+function withAliases(args: unknown, { aliases, aliasedLists = [] }: Pick<ToolDefinition, 'aliases' | 'aliasedLists'>): unknown {
+    if (aliases === undefined || !isPlainObject(args)) {
+        return args
     }
-  }
-  return named;
+    const renamed = (object: Record<string, unknown>): Record<string, unknown> =>
+        Object.fromEntries(Object.entries(object).map(([key, value]) => {
+            const target = aliases[key]
+            return [target !== undefined && !(target in object) ? target : key, value]
+        }))
+    const named = renamed(args)
+    for (const list of aliasedLists) {
+        const items = named[list]
+        if (Array.isArray(items)) {
+            named[list] = items.map((item) => (isPlainObject(item) ? renamed(item) : item))
+        }
+    }
+    return named
 }
 
 /**
@@ -198,111 +198,111 @@ function withAliases(args: unknown, { aliases, aliasedLists = [] }: Pick<ToolDef
  * Of a union, the first alternative refused only for such options is taken. Undefined unless every issue is one.
  */
 function withOptionsNamed(
-  args: unknown,
-  issues: readonly z.core.$ZodIssue[],
-  valueAliases: Readonly<Record<string, string>> = {},
+    args: unknown,
+    issues: readonly z.core.$ZodIssue[],
+    valueAliases: Readonly<Record<string, string>> = {}
 ): unknown {
-  const optionsNamed = (list: readonly z.core.$ZodIssue[], at: PropertyKey[]): Array<[PropertyKey[], unknown]> | undefined => {
-    const options: Array<[PropertyKey[], unknown]> = [];
-    for (const issue of list) {
-      const path = [...at, ...issue.path];
-      if (issue.code === "invalid_union") {
-        const alternative = issue.errors.map((errors) => optionsNamed(errors, path)).find((named) => named !== undefined);
-        if (alternative === undefined) return undefined;
-        options.push(...alternative);
-        continue;
-      }
-      const given = issue.code === "invalid_value" ? valueAt(args, path) : undefined;
-      const option = typeof given === "string" && issue.code === "invalid_value"
-        ? issue.values.find((value) => value === valueAliases[given.toLowerCase()] || String(value).toLowerCase() === given.toLowerCase())
-        : undefined;
-      if (option === undefined) return undefined;
-      options.push([path, option]);
+    const optionsNamed = (list: readonly z.core.$ZodIssue[], at: PropertyKey[]): Array<[PropertyKey[], unknown]> | undefined => {
+        const options: Array<[PropertyKey[], unknown]> = []
+        for (const issue of list) {
+            const path = [...at, ...issue.path]
+            if (issue.code === 'invalid_union') {
+                const alternative = issue.errors.map((errors) => optionsNamed(errors, path)).find((named) => named !== undefined)
+                if (alternative === undefined) return undefined
+                options.push(...alternative)
+                continue
+            }
+            const given = issue.code === 'invalid_value' ? valueAt(args, path) : undefined
+            const option = typeof given === 'string' && issue.code === 'invalid_value'
+                ? issue.values.find((value) => value === valueAliases[given.toLowerCase()] || String(value).toLowerCase() === given.toLowerCase())
+                : undefined
+            if (option === undefined) return undefined
+            options.push([path, option])
+        }
+        return options
     }
-    return options;
-  };
-  const options = optionsNamed(issues, []);
-  if (!options?.length) {
-    return undefined;
-  }
-  const named = structuredClone(args);
-  for (const [path, option] of options) {
-    // A path of an issue names the option it refuses, never the arguments themselves
-    const key = path.at(-1) as PropertyKey;
-    (valueAt(named, path.slice(0, -1)) as Record<PropertyKey, unknown>)[key] = option;
-  }
-  return named;
+    const options = optionsNamed(issues, [])
+    if (!options?.length) {
+        return undefined
+    }
+    const named = structuredClone(args)
+    for (const [path, option] of options) {
+        // A path of an issue names the option it refuses, never the arguments themselves
+        const key = path.at(-1) as PropertyKey;
+        (valueAt(named, path.slice(0, -1)) as Record<PropertyKey, unknown>)[key] = option
+    }
+    return named
 }
 
 /** The value at `path` within `value`, undefined where the path leaves it. */
 function valueAt(value: unknown, path: readonly PropertyKey[]): unknown {
-  return path.reduce<unknown>((at, key) => (at as Record<PropertyKey, unknown> | undefined)?.[key], value);
+    return path.reduce<unknown>((at, key) => (at as Record<PropertyKey, unknown> | undefined)?.[key], value)
 }
 
 /** The registered tools as the MCP tool list advertises them. */
 export function getAllTools(): Array<
-  Pick<ToolDefinition, "name" | "title" | "description" | "annotations"> & { inputSchema: Record<string, unknown> }
+    Pick<ToolDefinition, 'name' | 'title' | 'description' | 'annotations'> & { inputSchema: Record<string, unknown> }
 > {
-  return Array.from(toolHandlers.values(), ({ name, title, description, annotations, schema }) => ({
-    name,
-    title,
-    description,
-    annotations,
-    inputSchema: getInputSchema(schema),
-  }));
+    return Array.from(toolHandlers.values(), ({ name, title, description, annotations, schema }) => ({
+        name,
+        title,
+        description,
+        annotations,
+        inputSchema: getInputSchema(schema),
+    }))
 }
 
 export async function executeTool(
-  name: string,
-  args: unknown,
-  client: OpenLClient,
-  extra?: ToolHandlerExtra,
+    name: string,
+    args: unknown,
+    client: OpenLClient,
+    extra?: ToolHandlerExtra
 ): Promise<ToolResponse> {
-  const tool = toolHandlers.get(name);
-  if (!tool) {
-    throw new ProtocolError(ProtocolErrorCode.MethodNotFound, `Unknown tool: ${name}`);
-  }
+    const tool = toolHandlers.get(name)
+    if (!tool) {
+        throw new ProtocolError(ProtocolErrorCode.MethodNotFound, `Unknown tool: ${name}`)
+    }
 
-  try {
-    const rawArgs = withAliases(args ?? {}, tool);
-    const preparedArgs = tool.validateArgs ? tool.validateArgs(rawArgs) : rawArgs;
-    let result = tool.schema.safeParse(preparedArgs);
-    const named = result.success ? undefined : withOptionsNamed(preparedArgs, result.error.issues, tool.valueAliases);
-    if (named !== undefined) {
-      result = tool.schema.safeParse(named);
-    }
-    if (!result.success) {
-      throw new ProtocolError(
-        ProtocolErrorCode.InvalidParams,
-        formatSchemaValidationError(name, result.error),
-      );
-    }
-    await keepCurrent(tool, result.data, client, extra);
     try {
-      return await tool.handler(await withTableId(client, result.data), client, extra);
+        const rawArgs = withAliases(args ?? {}, tool)
+        const preparedArgs = tool.validateArgs ? tool.validateArgs(rawArgs) : rawArgs
+        let result = tool.schema.safeParse(preparedArgs)
+        const named = result.success ? undefined : withOptionsNamed(preparedArgs, result.error.issues, tool.valueAliases)
+        if (named !== undefined) {
+            result = tool.schema.safeParse(named)
+        }
+        if (!result.success) {
+            throw new ProtocolError(
+                ProtocolErrorCode.InvalidParams,
+                formatSchemaValidationError(name, result.error)
+            )
+        }
+        await keepCurrent(tool, result.data, client, extra)
+        try {
+            return await tool.handler(await withTableId(client, result.data), client, extra)
+        } catch (error: unknown) {
+            // A closed project is opened for the call, which an agent made a turn of its own before every first read
+            const { projectId } = result.data as { projectId?: unknown }
+            if (!isConflictOf(error, NOT_OPENED_CODE) || typeof projectId !== 'string') {
+                throw error
+            }
+            // A project that cannot be opened answers why the open was refused, which Studio's refusal of the call does not
+            await client.openProject(projectId).catch((openError: unknown) => {
+                const refusal = handleToolError(openError, name, args)
+                throw new ProtocolError(refusal.code, `${OPEN_FAILED}${refusal.message}`, refusal.data)
+            })
+            const answer = await tool.handler(await withTableId(client, result.data), client, extra)
+            return { ...answer, content: [...answer.content, { type: 'text', text: OPENED_NOTE }] }
+        }
     } catch (error: unknown) {
-      // A closed project is opened for the call, which an agent made a turn of its own before every first read
-      const { projectId } = result.data as { projectId?: unknown };
-      if (!isConflictOf(error, NOT_OPENED_CODE) || typeof projectId !== "string") {
-        throw error;
-      }
-      // A project that cannot be opened answers why the open was refused, which Studio's refusal of the call does not
-      await client.openProject(projectId).catch((openError: unknown) => {
-        const refusal = handleToolError(openError, name, args);
-        throw new ProtocolError(refusal.code, `${OPEN_FAILED}${refusal.message}`, refusal.data);
-      });
-      const answer = await tool.handler(await withTableId(client, result.data), client, extra);
-      return { ...answer, content: [...answer.content, { type: "text", text: OPENED_NOTE }] };
+        throw isConflictOf(error, CHANGED_OUTSIDE_CODE)
+            ? new ProtocolError(ProtocolErrorCode.InvalidRequest, CHANGED_OUTSIDE_MESSAGE)
+            : handleToolError(error, name, args)
     }
-  } catch (error: unknown) {
-    throw isConflictOf(error, CHANGED_OUTSIDE_CODE)
-      ? new ProtocolError(ProtocolErrorCode.InvalidRequest, CHANGED_OUTSIDE_MESSAGE)
-      : handleToolError(error, name, args);
-  }
 }
 
 /** A table id of Studio: 16 upper-case characters of Crockford's Base32, as `TableIds` of org.openl.rules makes it. */
-const TABLE_ID = /^[0-9A-HJKMNP-TV-Z]{16}$/;
+const TABLE_ID = /^[0-9A-HJKMNP-TV-Z]{16}$/
 
 /**
  * The arguments with a tableId that is not an id taken for the name of a table, and replaced by its id when one table
@@ -311,90 +311,90 @@ const TABLE_ID = /^[0-9A-HJKMNP-TV-Z]{16}$/;
  * A value no table is named is passed on as it is, for Studio to refuse.
  */
 async function withTableId<T>(client: OpenLClient, args: T): Promise<T> {
-  const { projectId, tableId } = args as { projectId?: unknown; tableId?: unknown };
-  if (typeof projectId !== "string" || typeof tableId !== "string" || TABLE_ID.test(tableId)) {
-    return args;
-  }
-  // A closed project is opened before the lookup is made again; any other failure leaves the call to refuse the name
-  const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch((error: unknown) => {
-    if (isConflictOf(error, NOT_OPENED_CODE)) {
-      throw error;
+    const { projectId, tableId } = args as { projectId?: unknown, tableId?: unknown }
+    if (typeof projectId !== 'string' || typeof tableId !== 'string' || TABLE_ID.test(tableId)) {
+        return args
     }
-    return undefined;
-  });
-  const named = (page?.items ?? []).filter((table) => table.name === tableId);
-  if (named.length > 1) {
-    const ids = named.map((table) => (table.module ? `${table.id} (${table.module})` : table.id)).join(", ");
-    throw new ProtocolError(
-      ProtocolErrorCode.InvalidParams,
-      `'${tableId}' is the name of ${named.length} tables, not an id: give the id of one of them, ${ids}.`,
-    );
-  }
-  return named.length === 1 ? { ...args, tableId: named[0].id } : args;
+    // A closed project is opened before the lookup is made again; any other failure leaves the call to refuse the name
+    const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch((error: unknown) => {
+        if (isConflictOf(error, NOT_OPENED_CODE)) {
+            throw error
+        }
+        return undefined
+    })
+    const named = (page?.items ?? []).filter((table) => table.name === tableId)
+    if (named.length > 1) {
+        const ids = named.map((table) => (table.module ? `${table.id} (${table.module})` : table.id)).join(', ')
+        throw new ProtocolError(
+            ProtocolErrorCode.InvalidParams,
+            `'${tableId}' is the name of ${named.length} tables, not an id: give the id of one of them, ${ids}.`
+        )
+    }
+    return named.length === 1 ? { ...args, tableId: named[0].id } : args
 }
 
 /** The code OpenL Studio refuses a write with when another program changed the workbook since it was read. */
-const CHANGED_OUTSIDE_CODE = "openl.error.409.workbook.changed.outside.message";
+const CHANGED_OUTSIDE_CODE = 'openl.error.409.workbook.changed.outside.message'
 
 /**
  * What the agent does after such a refusal. Studio asks a person to refresh the project, but an agent has no such
  * call: Studio reads the files again by itself after the refusal.
  */
 const CHANGED_OUTSIDE_MESSAGE =
-  "A workbook of the project changed outside OpenL Studio, such as in Excel, since it was read, and nothing was written. "
-  + "OpenL Studio reads the project files again by itself, so no refresh is needed: read the table again with "
-  + "openl_get_table and repeat the edit on what it holds now.";
+    'A workbook of the project changed outside OpenL Studio, such as in Excel, since it was read, and nothing was written. '
+    + 'OpenL Studio reads the project files again by itself, so no refresh is needed: read the table again with '
+    + 'openl_get_table and repeat the edit on what it holds now.'
 
 /** The code OpenL Studio refuses a call with that needs the project opened. */
-const NOT_OPENED_CODE = "openl.error.409.project.not.opened.message";
+const NOT_OPENED_CODE = 'openl.error.409.project.not.opened.message'
 
 /** What an answer adds when its call opened the project, which stays open until it is closed. */
-const OPENED_NOTE = "Opened the project in OpenL Studio for this call.";
+const OPENED_NOTE = 'Opened the project in OpenL Studio for this call.'
 
 /** What the refusal of the open a call needed starts with: the call itself was refused only as the project is closed. */
-const OPEN_FAILED = "The project is closed, and opening it for this call failed: ";
+const OPEN_FAILED = 'The project is closed, and opening it for this call failed: '
 
 /** Whether Studio refused a call with a 409 of the code given. */
 function isConflictOf(error: unknown, code: string): boolean {
-  return isConflictError(error) && extractApiErrorInfo((error as HttpError).response?.data, 409).code === code;
+    return isConflictError(error) && extractApiErrorInfo((error as HttpError).response?.data, 409).code === code
 }
 
 
 
 /** Compiles the project a tool works with again when its files changed on disk; see {@link ToolDefinition.compiled}. */
 async function keepCurrent(
-  tool: ToolDefinition,
-  args: unknown,
-  client: OpenLClient,
-  extra?: ToolHandlerExtra,
+    tool: ToolDefinition,
+    args: unknown,
+    client: OpenLClient,
+    extra?: ToolHandlerExtra
 ): Promise<void> {
-  const projectId = (args as { projectId?: unknown }).projectId;
-  if (!tool.compiled || typeof projectId !== "string") {
-    return;
-  }
-  await refreshWhenChangedOnDisk(client, projectId, extra?.signal);
+    const projectId = (args as { projectId?: unknown }).projectId
+    if (!tool.compiled || typeof projectId !== 'string') {
+        return
+    }
+    await refreshWhenChangedOnDisk(client, projectId, extra?.signal)
 }
 
 /** Caps how many field/global error lines are folded into one error message. */
-const MAX_ERROR_LINES = 20;
+const MAX_ERROR_LINES = 20
 
 /** Short, single-line preview of a rejected field value for the error message. */
 function previewRejectedValue(value: unknown): string {
-  // `value` always comes from a parsed JSON response (the caller only passes a
-  // defined `rejectedValue`), so JSON.stringify yields a string here.
-  const text = typeof value === "string" ? value : JSON.stringify(value);
-  // Collapse whitespace on a bounded slice so a large rejected value (e.g. a big
-  // cells block echoed back) isn't regex-scanned in full just to keep ~80 chars.
-  const preview = text.slice(0, 80).replace(/\s+/g, " ").trim();
-  return text.length > 80 ? `${preview}…` : preview;
+    // `value` always comes from a parsed JSON response (the caller only passes a
+    // defined `rejectedValue`), so JSON.stringify yields a string here.
+    const text = typeof value === 'string' ? value : JSON.stringify(value)
+    // Collapse whitespace on a bounded slice so a large rejected value (e.g. a big
+    // cells block echoed back) isn't regex-scanned in full just to keep ~80 chars.
+    const preview = text.slice(0, 80).replace(/\s+/g, ' ').trim()
+    return text.length > 80 ? `${preview}…` : preview
 }
 
 /** Cap a list of error lines, appending a "… and N more" line when it overflows. */
 function capErrorLines(lines: string[]): string[] {
-  if (lines.length <= MAX_ERROR_LINES) {
-    return lines;
-  }
-  return [...lines.slice(0, MAX_ERROR_LINES), `  - … and ${lines.length - MAX_ERROR_LINES} more`];
+    if (lines.length <= MAX_ERROR_LINES) {
+        return lines
+    }
+    return [...lines.slice(0, MAX_ERROR_LINES), `  - … and ${lines.length - MAX_ERROR_LINES} more`]
 }
 
 /**
@@ -406,30 +406,30 @@ function capErrorLines(lines: string[]): string[] {
  * can't tell WHICH field failed or why. Returns "" when there is nothing to add.
  */
 function formatApiErrorDetails(info: ExtractedErrorInfo): string {
-  const sections: string[] = [];
+    const sections: string[] = []
 
-  if (info.fields && info.fields.length > 0) {
-    const lines = info.fields.map((f) => {
-      const where = f.field ? `${f.field}: ` : "";
-      const what = f.message || f.code || "invalid value";
-      const rejected =
-        f.rejectedValue !== undefined ? ` (rejected: ${previewRejectedValue(sanitizeJson(f.rejectedValue))})` : "";
-      return `  - ${where}${what}${rejected}`;
-    });
-    sections.push(`Field errors:\n${capErrorLines(lines).join("\n")}`);
-  }
-
-  if (info.errors && info.errors.length > 0) {
-    const lines = info.errors
-      .map((e) => e.message || e.code)
-      .filter((m): m is string => Boolean(m))
-      .map((m) => `  - ${m}`);
-    if (lines.length > 0) {
-      sections.push(`Additional errors:\n${capErrorLines(lines).join("\n")}`);
+    if (info.fields && info.fields.length > 0) {
+        const lines = info.fields.map((f) => {
+            const where = f.field ? `${f.field}: ` : ''
+            const what = f.message || f.code || 'invalid value'
+            const rejected =
+                f.rejectedValue !== undefined ? ` (rejected: ${previewRejectedValue(sanitizeJson(f.rejectedValue))})` : ''
+            return `  - ${where}${what}${rejected}`
+        })
+        sections.push(`Field errors:\n${capErrorLines(lines).join('\n')}`)
     }
-  }
 
-  return sections.join("\n");
+    if (info.errors && info.errors.length > 0) {
+        const lines = info.errors
+            .map((e) => e.message || e.code)
+            .filter((m): m is string => Boolean(m))
+            .map((m) => `  - ${m}`)
+        if (lines.length > 0) {
+            sections.push(`Additional errors:\n${capErrorLines(lines).join('\n')}`)
+        }
+    }
+
+    return sections.join('\n')
 }
 
 /**
@@ -438,51 +438,51 @@ function formatApiErrorDetails(info: ExtractedErrorInfo): string {
  * gets.
  */
 function logToolError(summary: string, details: Record<string, unknown>): void {
-  console.error(`[ERROR] Tool error: ${summary}`, JSON.stringify(details));
+    console.error(`[ERROR] Tool error: ${summary}`, JSON.stringify(details))
 }
 
 /** The protocol error of an HTTP status the agent can act on; any other status is an internal error. */
 const ERROR_CODE_OF_STATUS: ReadonlyMap<number, ProtocolErrorCode> = new Map([
-  [400, ProtocolErrorCode.InvalidParams],
-  // MCP has no error code of its own for authentication
-  [401, ProtocolErrorCode.InvalidRequest],
-  [403, ProtocolErrorCode.InvalidRequest],
-  [404, ProtocolErrorCode.InvalidParams],
-  [405, ProtocolErrorCode.MethodNotFound],
-]);
+    [400, ProtocolErrorCode.InvalidParams],
+    // MCP has no error code of its own for authentication
+    [401, ProtocolErrorCode.InvalidRequest],
+    [403, ProtocolErrorCode.InvalidRequest],
+    [404, ProtocolErrorCode.InvalidParams],
+    [405, ProtocolErrorCode.MethodNotFound],
+])
 
 /** The arguments of a tool for the log, sanitized so that no sensitive value reaches it. */
 function sanitizedArgs(toolArgs: unknown): Record<string, unknown> {
-  return toolArgs === undefined ? {} : { toolArgs: sanitizeJson(toolArgs) };
+    return toolArgs === undefined ? {} : { toolArgs: sanitizeJson(toolArgs) }
 }
 
 /** The details of a failed REST call for the log: where it went, what it sent and what OpenL Studio answered. */
 function httpErrorDetails(
-  error: HttpError,
-  toolName: string,
-  toolArgs: unknown,
-  apiErrorInfo: ExtractedErrorInfo,
+    error: HttpError,
+    toolName: string,
+    toolArgs: unknown,
+    apiErrorInfo: ExtractedErrorInfo
 ): Record<string, unknown> {
-  const { params, data } = error.config;
-  return {
-    status: error.response?.status,
-    endpoint: error.config.url,
-    method: error.config.method.toUpperCase(),
-    tool: toolName,
-    ...sanitizedArgs(toolArgs),
-    // The system error of a failure without an answer, e.g. ECONNREFUSED, ENOTFOUND
-    ...(error.code ? { code: error.code } : {}),
-    ...(params !== undefined && Object.keys(params).length > 0 ? { requestParams: sanitizeJson(params) } : {}),
-    // A JSON body is the tool arguments again; any other body, such as the bytes of a file, is logged by its size
-    ...(data !== undefined && typeof data !== "string" ? { requestData: sanitizeJson(data) } : {}),
-    ...(apiErrorInfo.code ? { apiErrorCode: apiErrorInfo.code } : {}),
-    // The field and global errors, sanitized like the arguments, so that a rejected value OpenL Studio echoes cannot
-    // leak a sensitive value into the log
-    ...(apiErrorInfo.errors?.length ? { errors: sanitizeJson(apiErrorInfo.errors) } : {}),
-    ...(apiErrorInfo.fields?.length ? { fields: sanitizeJson(apiErrorInfo.fields) } : {}),
-    // An answer of an unknown shape
-    ...(apiErrorInfo.rawResponse ? { rawResponse: apiErrorInfo.rawResponse } : {}),
-  };
+    const { params, data } = error.config
+    return {
+        status: error.response?.status,
+        endpoint: error.config.url,
+        method: error.config.method.toUpperCase(),
+        tool: toolName,
+        ...sanitizedArgs(toolArgs),
+        // The system error of a failure without an answer, e.g. ECONNREFUSED, ENOTFOUND
+        ...(error.code ? { code: error.code } : {}),
+        ...(params !== undefined && Object.keys(params).length > 0 ? { requestParams: sanitizeJson(params) } : {}),
+        // A JSON body is the tool arguments again; any other body, such as the bytes of a file, is logged by its size
+        ...(data !== undefined && typeof data !== 'string' ? { requestData: sanitizeJson(data) } : {}),
+        ...(apiErrorInfo.code ? { apiErrorCode: apiErrorInfo.code } : {}),
+        // The field and global errors, sanitized like the arguments, so that a rejected value OpenL Studio echoes cannot
+        // leak a sensitive value into the log
+        ...(apiErrorInfo.errors?.length ? { errors: sanitizeJson(apiErrorInfo.errors) } : {}),
+        ...(apiErrorInfo.fields?.length ? { fields: sanitizeJson(apiErrorInfo.fields) } : {}),
+        // An answer of an unknown shape
+        ...(apiErrorInfo.rawResponse ? { rawResponse: apiErrorInfo.rawResponse } : {}),
+    }
 }
 
 /**
@@ -490,14 +490,18 @@ function httpErrorDetails(
  * terms of its user interface, which has no such calls.
  */
 const NEXT_STEP_OF_CODE = new Map([
-  // The tools open a closed project themselves: this one was closed again before the call was made once more
-  [NOT_OPENED_CODE, "Open it with openl_open_project, and repeat the call."],
-  ["openl.error.409.project.close.modified.message",
-    "Save the changes with openl_save_project, or, once the user agrees, drop them with openl_close_project discardChanges, first."],
-  // HEAD~1 and alike name a commit of the branch the repository is on, not of the branch of the project
-  ["openl.error.404.project.revision.message",
-    "Name a revision by the revisionNo openl_repository_project_revisions lists, or by a branch for its last revision: no expression such as HEAD~1."],
-]);
+    // The tools open a closed project themselves: this one was closed again before the call was made once more
+    [NOT_OPENED_CODE, 'Open it with openl_open_project, and repeat the call.'],
+    [
+        'openl.error.409.project.close.modified.message',
+        'Save the changes with openl_save_project, or, once the user agrees, drop them with openl_close_project discardChanges, first.'
+    ],
+    // HEAD~1 and alike name a commit of the branch the repository is on, not of the branch of the project
+    [
+        'openl.error.404.project.revision.message',
+        'Name a revision by the revisionNo openl_repository_project_revisions lists, or by a branch for its last revision: no expression such as HEAD~1.'
+    ],
+])
 
 /**
  * The message of a failed REST call: the localized message OpenL Studio answered, followed by its field and global
@@ -506,22 +510,22 @@ const NEXT_STEP_OF_CODE = new Map([
  * of a failure without an answer.
  */
 function httpErrorMessage(error: HttpError, apiErrorInfo: ExtractedErrorInfo): string {
-  const nextStep = NEXT_STEP_OF_CODE.get(apiErrorInfo.code ?? "");
-  const answered = [apiErrorInfo.message, nextStep, formatApiErrorDetails(apiErrorInfo)].filter(Boolean).join("\n");
-  if (answered) {
-    return answered;
-  }
-  const sanitized = sanitizeError(error);
-  return error.code ? `${error.code}: ${sanitized}` : sanitized;
+    const nextStep = NEXT_STEP_OF_CODE.get(apiErrorInfo.code ?? '')
+    const answered = [apiErrorInfo.message, nextStep, formatApiErrorDetails(apiErrorInfo)].filter(Boolean).join('\n')
+    if (answered) {
+        return answered
+    }
+    const sanitized = sanitizeError(error)
+    return error.code ? `${error.code}: ${sanitized}` : sanitized
 }
 
 /** The one-line summary a failed REST call is logged with: the tool, the status or the system error, the message. */
 function httpErrorSummary(toolName: string, error: HttpError, message: string): string {
-  const status = error.response?.status;
-  if (status != null) {
-    return `${toolName} (${status}) ${message}`;
-  }
-  return error.code ? `${toolName} [${error.code}] ${message}` : `${toolName} ${message}`;
+    const status = error.response?.status
+    if (status != null) {
+        return `${toolName} (${status}) ${message}`
+    }
+    return error.code ? `${toolName} [${error.code}] ${message}` : `${toolName} ${message}`
 }
 
 /**
@@ -529,40 +533,40 @@ function httpErrorSummary(toolName: string, error: HttpError, message: string): 
  * agent, which acts on tools, not on the REST API of OpenL Studio.
  */
 function httpToolError(error: HttpError, toolName: string, toolArgs: unknown): ProtocolError {
-  const status = error.response?.status;
-  const apiErrorInfo = extractApiErrorInfo(error.response?.data, status);
-  const details = httpErrorDetails(error, toolName, toolArgs, apiErrorInfo);
-  const message = httpErrorMessage(error, apiErrorInfo);
-  logToolError(httpErrorSummary(toolName, error, message), details);
+    const status = error.response?.status
+    const apiErrorInfo = extractApiErrorInfo(error.response?.data, status)
+    const details = httpErrorDetails(error, toolName, toolArgs, apiErrorInfo)
+    const message = httpErrorMessage(error, apiErrorInfo)
+    logToolError(httpErrorSummary(toolName, error, message), details)
 
-  const statusText = status ? ` (${status})` : "";
-  const errorCode = ERROR_CODE_OF_STATUS.get(status ?? 0) ?? ProtocolErrorCode.InternalError;
-  return new ProtocolError(errorCode, `OpenL Studio API error${statusText}: ${message}`, details);
+    const statusText = status ? ` (${status})` : ''
+    const errorCode = ERROR_CODE_OF_STATUS.get(status ?? 0) ?? ProtocolErrorCode.InternalError
+    return new ProtocolError(errorCode, `OpenL Studio API error${statusText}: ${message}`, details)
 }
 
 /** The error a failed tool call reports: a `ProtocolError` with a sanitized message, logged with its details. */
 function handleToolError(error: unknown, toolName: string, toolArgs?: unknown): ProtocolError {
-  if (isHttpError(error)) {
-    return httpToolError(error, toolName, toolArgs);
-  }
+    if (isHttpError(error)) {
+        return httpToolError(error, toolName, toolArgs)
+    }
 
-  // Protocol errors pass as they are.
-  if (error instanceof ProtocolError) {
-    return error;
-  }
+    // Protocol errors pass as they are.
+    if (error instanceof ProtocolError) {
+        return error
+    }
 
-  // Any other error, sanitized
-  const sanitizedMessage = sanitizeError(error);
-  const errorDetails: Record<string, unknown> = {
-    tool: toolName,
-    error: sanitizedMessage,
-    ...sanitizedArgs(toolArgs),
-  };
-  logToolError(`${toolName} ${sanitizedMessage}`, errorDetails);
+    // Any other error, sanitized
+    const sanitizedMessage = sanitizeError(error)
+    const errorDetails: Record<string, unknown> = {
+        tool: toolName,
+        error: sanitizedMessage,
+        ...sanitizedArgs(toolArgs),
+    }
+    logToolError(`${toolName} ${sanitizedMessage}`, errorDetails)
 
-  return new ProtocolError(
-    ProtocolErrorCode.InternalError,
-    `Error executing ${toolName}: ${sanitizedMessage}`,
-    errorDetails
-  );
+    return new ProtocolError(
+        ProtocolErrorCode.InternalError,
+        `Error executing ${toolName}: ${sanitizedMessage}`,
+        errorDetails
+    )
 }

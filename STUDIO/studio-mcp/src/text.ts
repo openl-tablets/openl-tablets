@@ -4,27 +4,27 @@
 
 /** `1 table`, `2 tables`: a count with the noun it counts, in the plural unless it is one. */
 export function formatCount(count: number, singular: string, plural: string = `${singular}s`): string {
-  return `${count} ${count === 1 ? singular : plural}`;
+    return `${count} ${count === 1 ? singular : plural}`
 }
 
 /** The text cut to `max` characters, a cut one marked by `…`. */
 export function cutText(text: string, max: number): string {
-  return text.length > max ? `${text.slice(0, max)}…` : text;
+    return text.length > max ? `${text.slice(0, max)}…` : text
 }
 
 /** A table as a text answer names it: `AreaFactor (Rules, QFVRFV3YHVHG7S4E)`, its details in parentheses, if any. */
 export function tableLabel(name: string | undefined, ...details: Array<string | undefined>): string {
-  const told = details.filter(Boolean);
-  return told.length ? `${name ?? ""} (${told.join(", ")})` : name ?? "";
+    const told = details.filter(Boolean)
+    return told.length ? `${name ?? ''} (${told.join(', ')})` : name ?? ''
 }
 
 /** The text without the repeats of `char` it ends with, and those it starts with unless `atStart` is false. */
 export function trimChar(text: string, char: string, atStart = true): string {
-  let from = 0;
-  let to = text.length;
-  while (atStart && from < to && text[from] === char) from++;
-  while (to > from && text[to - 1] === char) to--;
-  return text.slice(from, to);
+    let from = 0
+    let to = text.length
+    while (atStart && from < to && text[from] === char) from++
+    while (to > from && text[to - 1] === char) to--
+    return text.slice(from, to)
 }
 
 /**
@@ -32,21 +32,21 @@ export function trimChar(text: string, char: string, atStart = true): string {
  * rendering only grows with the count. Undefined when even `low` does not fit.
  */
 export function largestFitting(
-  low: number,
-  high: number,
-  render: (count: number) => string,
-  charLimit: number,
+    low: number,
+    high: number,
+    render: (count: number) => string,
+    charLimit: number
 ): string | undefined {
-  let best: string | undefined;
-  while (low <= high) {
-    const middle = Math.floor((low + high) / 2);
-    const candidate = render(middle);
-    if (candidate.length <= charLimit) {
-      best = candidate;
-      low = middle + 1;
-    } else {
-      high = middle - 1;
+    let best: string | undefined
+    while (low <= high) {
+        const middle = Math.floor((low + high) / 2)
+        const candidate = render(middle)
+        if (candidate.length <= charLimit) {
+            best = candidate
+            low = middle + 1
+        } else {
+            high = middle - 1
+        }
     }
-  }
-  return best;
+    return best
 }

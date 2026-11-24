@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "^2.4.0",
+    "@stylistic/eslint-plugin": "^6.0.1",
     "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "^8.74.0",
     "@typescript-eslint/parser": "^8.74.0",

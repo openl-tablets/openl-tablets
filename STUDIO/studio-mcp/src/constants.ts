@@ -2,7 +2,7 @@
  * Constants and configuration defaults for the OpenL MCP Server
  */
 
-import pkg from "../package.json" with { type: "json" };
+import pkg from '../package.json' with { type: 'json' }
 
 /**
  * The MCP namespace prefix exposed to clients (e.g. `openl_list_repositories`).
@@ -14,16 +14,16 @@ import pkg from "../package.json" with { type: "json" };
  * the tools under their prefixed names — via {@link mcpToolName} — so the
  * namespace lives in exactly one place and never leaks into the registry.
  */
-const TOOL_PREFIX = "openl_";
+const TOOL_PREFIX = 'openl_'
 
 /** Add the namespace prefix to a bare registry name for the MCP wire (`list_repositories` → `openl_list_repositories`). */
 export function mcpToolName(base: string): string {
-  return `${TOOL_PREFIX}${base}`;
+    return `${TOOL_PREFIX}${base}`
 }
 
 /** The version the server reports: the one OpenL Studio gives, else the placeholder of package.json. */
 export function resolveServerVersion(openlVersion: string | undefined): string {
-  return openlVersion || pkg.version;
+    return openlVersion || pkg.version
 }
 
 /**
@@ -36,18 +36,18 @@ export function resolveServerVersion(openlVersion: string | undefined): string {
  * beside it.
  */
 export const SERVER_INFO = {
-  NAME: pkg.name,
-  VERSION: resolveServerVersion(process.env.OPENL_VERSION),
-  DESCRIPTION: pkg.description,
-} as const;
+    NAME: pkg.name,
+    VERSION: resolveServerVersion(process.env.OPENL_VERSION),
+    DESCRIPTION: pkg.description,
+} as const
 
 /**
  * Response formatting limits
  */
 export const RESPONSE_LIMITS = {
-  /** Maximum response character count (~25,000) */
-  MAX_CHARACTERS: 25000,
+    /** Maximum response character count (~25,000) */
+    MAX_CHARACTERS: 25000,
 
-  /** Truncation warning message */
-  TRUNCATION_MESSAGE: "Response truncated due to size.",
-} as const;
+    /** Truncation warning message */
+    TRUNCATION_MESSAGE: 'Response truncated due to size.',
+} as const

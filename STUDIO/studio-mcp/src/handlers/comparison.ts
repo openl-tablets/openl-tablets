@@ -6,25 +6,25 @@
  * at a time.
  */
 
-import type { OpenLClient } from "../client.js";
-import type { ToolHandlerExtra } from "./common.js";
-import { waitForResult, type WaitOptions } from "./wait.js";
+import type { OpenLClient } from '../client.js'
+import type { ToolHandlerExtra } from './common.js'
+import { waitForResult, type WaitOptions } from './wait.js'
 
 /** How a comparison is waited for while Studio compares the two versions. */
 const COMPARISON_WAIT: WaitOptions = {
-  timeoutMs: 60_000,
-  progressMessage: "Comparing the two versions",
-  timeoutMessage: "The comparison of the two versions did not end in time.",
-};
+    timeoutMs: 60_000,
+    progressMessage: 'Comparing the two versions',
+    timeoutMessage: 'The comparison of the two versions did not end in time.',
+}
 
 /**
  * A table one version holds otherwise than the other: added, removed, moved or changed since the first. A table only
  * pushed by the rows inserted above it holds the same and is not named.
  */
 export interface ChangedTable {
-  sheet?: string;
-  table?: string;
-  status?: string;
+    sheet?: string
+    table?: string
+    status?: string
 }
 
 /**
@@ -36,34 +36,34 @@ export interface ChangedTable {
  * still ends at once.
  */
 export async function changedTablesIfCompared(
-  client: OpenLClient,
-  start: () => Promise<string>,
-  extra: ToolHandlerExtra | undefined,
+    client: OpenLClient,
+    start: () => Promise<string>,
+    extra: ToolHandlerExtra | undefined
 ): Promise<ChangedTable[] | undefined> {
-  try {
-    return await changedTables(client, start, extra);
-  } catch (error) {
-    if (extra?.signal.aborted) {
-      throw error;
+    try {
+        return await changedTables(client, start, extra)
+    } catch (error) {
+        if (extra?.signal.aborted) {
+            throw error
+        }
+        return undefined
     }
-    return undefined;
-  }
 }
 
 export async function changedTables(
-  client: OpenLClient,
-  start: () => Promise<string>,
-  extra: ToolHandlerExtra | undefined,
+    client: OpenLClient,
+    start: () => Promise<string>,
+    extra: ToolHandlerExtra | undefined
 ): Promise<ChangedTable[]> {
-  const id = await start();
-  const comparison = await waitForResult((request) => client.getComparison(id, request), COMPARISON_WAIT, extra)
-    .finally(() => client.deleteComparison(id).catch(() => undefined));
-  return comparison.sheets.flatMap((sheet) => {
-    const tables = (sheet.children ?? []).filter((table) => table.status !== "equal")
-      .map((table) => ({ sheet: sheet.name, table: table.name, status: table.status }));
-    if (tables.length > 0 || sheet.status === "equal") {
-      return tables;
-    }
-    return [{ sheet: sheet.name, table: "", status: sheet.status }];
-  });
+    const id = await start()
+    const comparison = await waitForResult((request) => client.getComparison(id, request), COMPARISON_WAIT, extra)
+        .finally(() => client.deleteComparison(id).catch(() => undefined))
+    return comparison.sheets.flatMap((sheet) => {
+        const tables = (sheet.children ?? []).filter((table) => table.status !== 'equal')
+            .map((table) => ({ sheet: sheet.name, table: table.name, status: table.status }))
+        if (tables.length > 0 || sheet.status === 'equal') {
+            return tables
+        }
+        return [{ sheet: sheet.name, table: '', status: sheet.status }]
+    })
 }

@@ -7,62 +7,62 @@
  * and its CORS settings have let it through.
  */
 
-import { randomUUID, timingSafeEqual } from "node:crypto";
-import { once } from "node:events";
-import type { AddressInfo } from "node:net";
+import { randomUUID, timingSafeEqual } from 'node:crypto'
+import { once } from 'node:events'
+import type { AddressInfo } from 'node:net'
 import {
-  createServer,
-  type IncomingMessage,
-  type RequestListener,
-  type Server as HttpServer,
-  type ServerResponse,
-} from "node:http";
+    createServer,
+    type IncomingMessage,
+    type RequestListener,
+    type Server as HttpServer,
+    type ServerResponse,
+} from 'node:http'
 import {
-  createMcpHandler,
-  isInitializeRequest,
-  isJsonContentType,
-  isLegacyRequest,
-  JSONRPC_VERSION,
-  ProtocolErrorCode,
-} from "@modelcontextprotocol/server";
+    createMcpHandler,
+    isInitializeRequest,
+    isJsonContentType,
+    isLegacyRequest,
+    JSONRPC_VERSION,
+    ProtocolErrorCode,
+} from '@modelcontextprotocol/server'
 import {
-  NodeStreamableHTTPServerTransport,
-  toNodeHandler,
-  toWebRequest,
-} from "@modelcontextprotocol/node";
-import { OpenLClient } from "./client.js";
-import { createConfiguredServer } from "./mcp-core.js";
-import { sanitizeError } from "./utils.js";
-import { SERVER_INFO } from "./constants.js";
-import type { McpClientInfo } from "./types.js";
+    NodeStreamableHTTPServerTransport,
+    toNodeHandler,
+    toWebRequest,
+} from '@modelcontextprotocol/node'
+import { OpenLClient } from './client.js'
+import { createConfiguredServer } from './mcp-core.js'
+import { sanitizeError } from './utils.js'
+import { SERVER_INFO } from './constants.js'
+import type { McpClientInfo } from './types.js'
 
 /** The port the server listens on when `PORT` is unset or blank. */
-const DEFAULT_PORT = 3000;
+const DEFAULT_PORT = 3000
 /** The largest JSON body a request may carry: 5 MB. */
-const MAX_BODY_BYTES = 5 * 1024 * 1024;
+const MAX_BODY_BYTES = 5 * 1024 * 1024
 /** The JSON-RPC server error of a request that names no session the server knows. */
-const UNKNOWN_SESSION = -32000;
+const UNKNOWN_SESSION = -32000
 /** How long a legacy session may stay unused before it is closed: the HTTP session timeout of OpenL Studio. */
-export const LEGACY_SESSION_IDLE_MS = 30 * 60 * 1000;
+export const LEGACY_SESSION_IDLE_MS = 30 * 60 * 1000
 
 /** The session of a legacy 2025 client. */
 interface LegacySession {
-  transport: NodeStreamableHTTPServerTransport;
-  /** The client of OpenL Studio the session works with. */
-  client: OpenLClient;
-  /** The requests of the session in progress, its stream of server messages included. */
-  inProgress: number;
-  /** When the session opened, or its last request ended. */
-  usedAt: number;
+    transport: NodeStreamableHTTPServerTransport
+    /** The client of OpenL Studio the session works with. */
+    client: OpenLClient
+    /** The requests of the session in progress, its stream of server messages included. */
+    inProgress: number
+    /** When the session opened, or its last request ended. */
+    usedAt: number
 }
 
 function jsonRpcError(code: number, message: string): Record<string, unknown> {
-  return { jsonrpc: JSONRPC_VERSION, error: { code, message }, id: null };
+    return { jsonrpc: JSONRPC_VERSION, error: { code, message }, id: null }
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
-  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
-  res.end(JSON.stringify(body));
+    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' })
+    res.end(JSON.stringify(body))
 }
 
 /**
@@ -72,34 +72,34 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
  * request.
  */
 function comesThroughStudio(req: IncomingMessage): boolean {
-  const secret = process.env.OPENL_MCP_SECRET;
-  if (!secret) return true;
-  const sent = Buffer.from(String(req.headers["openl-mcp-secret"] ?? ""));
-  const expected = Buffer.from(secret);
-  return sent.length === expected.length && timingSafeEqual(sent, expected);
+    const secret = process.env.OPENL_MCP_SECRET
+    if (!secret) return true
+    const sent = Buffer.from(String(req.headers['openl-mcp-secret'] ?? ''))
+    const expected = Buffer.from(secret)
+    return sent.length === expected.length && timingSafeEqual(sent, expected)
 }
 
 /** The JSON body of a request, or the answer that refuses it. */
 async function readJsonBody(
-  req: IncomingMessage,
-): Promise<{ body?: unknown; refusal?: { status: number; code: number; message: string } }> {
-  const chunks: Buffer[] = [];
-  let size = 0;
-  for await (const chunk of req as AsyncIterable<Buffer>) {
-    size += chunk.length;
-    // Read on past the limit, so that the client gets the answer instead of a reset connection.
-    if (size <= MAX_BODY_BYTES) chunks.push(chunk);
-  }
-  if (size > MAX_BODY_BYTES) {
-    return { refusal: { status: 413, code: ProtocolErrorCode.InvalidRequest, message: "Request body exceeds 5 MB" } };
-  }
-  const text = Buffer.concat(chunks).toString("utf8");
-  if (!text.trim()) return {};
-  try {
-    return { body: JSON.parse(text) };
-  } catch {
-    return { refusal: { status: 400, code: ProtocolErrorCode.ParseError, message: "Parse error: the body is not valid JSON" } };
-  }
+    req: IncomingMessage
+): Promise<{ body?: unknown, refusal?: { status: number, code: number, message: string } }> {
+    const chunks: Buffer[] = []
+    let size = 0
+    for await (const chunk of req as AsyncIterable<Buffer>) {
+        size += chunk.length
+        // Read on past the limit, so that the client gets the answer instead of a reset connection.
+        if (size <= MAX_BODY_BYTES) chunks.push(chunk)
+    }
+    if (size > MAX_BODY_BYTES) {
+        return { refusal: { status: 413, code: ProtocolErrorCode.InvalidRequest, message: 'Request body exceeds 5 MB' } }
+    }
+    const text = Buffer.concat(chunks).toString('utf8')
+    if (!text.trim()) return {}
+    try {
+        return { body: JSON.parse(text) }
+    } catch {
+        return { refusal: { status: 400, code: ProtocolErrorCode.ParseError, message: 'Parse error: the body is not valid JSON' } }
+    }
 }
 
 /**
@@ -110,14 +110,14 @@ async function readJsonBody(
  * anonymous mutable state.
  */
 export function createHttpSessionClient(baseUrl: string, headers?: Headers, mcpClient?: McpClientInfo): OpenLClient {
-  return new OpenLClient({
-    baseUrl,
-    authorization: headers?.get("authorization") ?? undefined,
-    publicUrl: headers?.get("openl-public-url") ?? undefined,
-    clientAddress: headers?.get("openl-client-address") ?? undefined,
-    mcpSecret: process.env.OPENL_MCP_SECRET,
-    mcpClient,
-  });
+    return new OpenLClient({
+        baseUrl,
+        authorization: headers?.get('authorization') ?? undefined,
+        publicUrl: headers?.get('openl-public-url') ?? undefined,
+        clientAddress: headers?.get('openl-client-address') ?? undefined,
+        mcpSecret: process.env.OPENL_MCP_SECRET,
+        mcpClient,
+    })
 }
 
 /**
@@ -125,9 +125,9 @@ export function createHttpSessionClient(baseUrl: string, headers?: Headers, mcpC
  * opens it and the MCP client that request names in its `clientInfo`.
  */
 type SessionServerFactory = (
-  headers: Headers,
-  mcpClient: McpClientInfo,
-) => { server: ReturnType<typeof createConfiguredServer>; client: OpenLClient };
+    headers: Headers,
+    mcpClient: McpClientInfo
+) => { server: ReturnType<typeof createConfiguredServer>, client: OpenLClient }
 
 /**
  * The handler of the requests of legacy 2025 clients: an initializing POST opens a session, every other request names
@@ -137,152 +137,152 @@ type SessionServerFactory = (
  * `LEGACY_SESSION_IDLE_MS`. A session with a request in progress, such as an open stream of server messages, is in use.
  */
 function createLegacyHandler(
-  serverFor: SessionServerFactory,
+    serverFor: SessionServerFactory
 ): (req: IncomingMessage, res: ServerResponse, body: unknown, headers: Headers) => Promise<void> {
-  const sessions = new Map<string, LegacySession>();
+    const sessions = new Map<string, LegacySession>()
 
-  const closeIdleSessions = (): void => {
-    const idleSince = Date.now() - LEGACY_SESSION_IDLE_MS;
-    for (const { transport, inProgress, usedAt } of sessions.values()) {
-      if (inProgress === 0 && usedAt < idleSince) {
-        transport.close().catch((error: unknown) => {
-          console.error("Failed to close an idle MCP session:", sanitizeError(error));
-        });
-      }
+    const closeIdleSessions = (): void => {
+        const idleSince = Date.now() - LEGACY_SESSION_IDLE_MS
+        for (const { transport, inProgress, usedAt } of sessions.values()) {
+            if (inProgress === 0 && usedAt < idleSince) {
+                transport.close().catch((error: unknown) => {
+                    console.error('Failed to close an idle MCP session:', sanitizeError(error))
+                })
+            }
+        }
     }
-  };
 
-  const openSession = async (headers: Headers, mcpClient: McpClientInfo): Promise<LegacySession> => {
-    closeIdleSessions();
-    const transport = new NodeStreamableHTTPServerTransport({
-      sessionIdGenerator: randomUUID,
-      onsessioninitialized: (id) => {
-        sessions.set(id, session);
-      },
-    });
-    const { server, client } = serverFor(headers, mcpClient);
-    const session: LegacySession = { transport, client, inProgress: 0, usedAt: Date.now() };
-    transport.onclose = () => {
-      if (transport.sessionId) sessions.delete(transport.sessionId);
-    };
-    await server.connect(transport);
-    return session;
-  };
-
-  // A session is in use until the response of its request ends. Its client may go on from another address.
-  const serveInSession = async (
-    session: LegacySession,
-    req: IncomingMessage,
-    res: ServerResponse,
-    body: unknown,
-    headers: Headers,
-  ): Promise<void> => {
-    session.client.callsFrom(headers.get("openl-client-address") ?? undefined);
-    session.inProgress++;
-    res.once("close", () => {
-      session.inProgress--;
-      session.usedAt = Date.now();
-    });
-    await session.transport.handleRequest(req, res, body);
-  };
-
-  return async (req, res, body, headers) => {
-    try {
-      const sessionId = headers.get("mcp-session-id") ?? undefined;
-      const opens = !sessionId && req.method === "POST";
-      let session: LegacySession | undefined;
-      if (sessionId) {
-        session = sessions.get(sessionId);
-      } else if (opens && isInitializeRequest(body)) {
-        session = await openSession(headers, body.params.clientInfo);
-      }
-      if (!session) {
-        sendJson(res, opens ? 400 : 404, jsonRpcError(UNKNOWN_SESSION, "Invalid or missing MCP session ID"));
-        return;
-      }
-      await serveInSession(session, req, res, body, headers);
-    } catch (error) {
-      console.error("Failed to handle legacy MCP request:", sanitizeError(error));
-      if (!res.headersSent) sendJson(res, 500, jsonRpcError(ProtocolErrorCode.InternalError, "Internal server error"));
+    const openSession = async (headers: Headers, mcpClient: McpClientInfo): Promise<LegacySession> => {
+        closeIdleSessions()
+        const transport = new NodeStreamableHTTPServerTransport({
+            sessionIdGenerator: randomUUID,
+            onsessioninitialized: (id) => {
+                sessions.set(id, session)
+            },
+        })
+        const { server, client } = serverFor(headers, mcpClient)
+        const session: LegacySession = { transport, client, inProgress: 0, usedAt: Date.now() }
+        transport.onclose = () => {
+            if (transport.sessionId) sessions.delete(transport.sessionId)
+        }
+        await server.connect(transport)
+        return session
     }
-  };
+
+    // A session is in use until the response of its request ends. Its client may go on from another address.
+    const serveInSession = async (
+        session: LegacySession,
+        req: IncomingMessage,
+        res: ServerResponse,
+        body: unknown,
+        headers: Headers
+    ): Promise<void> => {
+        session.client.callsFrom(headers.get('openl-client-address') ?? undefined)
+        session.inProgress++
+        res.once('close', () => {
+            session.inProgress--
+            session.usedAt = Date.now()
+        })
+        await session.transport.handleRequest(req, res, body)
+    }
+
+    return async (req, res, body, headers) => {
+        try {
+            const sessionId = headers.get('mcp-session-id') ?? undefined
+            const opens = !sessionId && req.method === 'POST'
+            let session: LegacySession | undefined
+            if (sessionId) {
+                session = sessions.get(sessionId)
+            } else if (opens && isInitializeRequest(body)) {
+                session = await openSession(headers, body.params.clientInfo)
+            }
+            if (!session) {
+                sendJson(res, opens ? 400 : 404, jsonRpcError(UNKNOWN_SESSION, 'Invalid or missing MCP session ID'))
+                return
+            }
+            await serveInSession(session, req, res, body, headers)
+        } catch (error) {
+            console.error('Failed to handle legacy MCP request:', sanitizeError(error))
+            if (!res.headersSent) sendJson(res, 500, jsonRpcError(ProtocolErrorCode.InternalError, 'Internal server error'))
+        }
+    }
 }
 
 interface HttpServerOverrides {
-  /** The address of OpenL Studio for a request that names none in `OpenL-Base-Url`: a test seam. */
-  baseUrl?: string;
-  /** Test seam for verifying request/session isolation. */
-  clientFactory?: typeof createHttpSessionClient;
+    /** The address of OpenL Studio for a request that names none in `OpenL-Base-Url`: a test seam. */
+    baseUrl?: string
+    /** Test seam for verifying request/session isolation. */
+    clientFactory?: typeof createHttpSessionClient
 }
 
 /** Build the request listener of the HTTP transport without binding a port, enabling in-process tests. */
 export function createHttpApp(overrides: HttpServerOverrides = {}): RequestListener {
-  const clientFactory = overrides.clientFactory ?? createHttpSessionClient;
-  // OpenL Studio passes the address it is called at with every request: the one the request came in through.
-  const clientOf = (headers?: Headers, mcpClient?: McpClientInfo): OpenLClient => {
-    const baseUrl = headers?.get("openl-base-url") ?? overrides.baseUrl;
-    if (!baseUrl || !URL.canParse(baseUrl)) {
-      throw new Error("No OpenL client available: the request names no valid OpenL Studio address in OpenL-Base-Url.");
+    const clientFactory = overrides.clientFactory ?? createHttpSessionClient
+    // OpenL Studio passes the address it is called at with every request: the one the request came in through.
+    const clientOf = (headers?: Headers, mcpClient?: McpClientInfo): OpenLClient => {
+        const baseUrl = headers?.get('openl-base-url') ?? overrides.baseUrl
+        if (!baseUrl || !URL.canParse(baseUrl)) {
+            throw new Error('No OpenL client available: the request names no valid OpenL Studio address in OpenL-Base-Url.')
+        }
+        return clientFactory(baseUrl, headers, mcpClient)
     }
-    return clientFactory(baseUrl, headers, mcpClient);
-  };
 
-  // Modern 2026-07-28 is stateless at the protocol layer. A fresh OpenLClient
-  // per request keeps its cache of repositories from leaking between callers.
-  const modernHandler = createMcpHandler(
-    (ctx) => createConfiguredServer(clientOf(ctx.requestInfo?.headers)),
-    {
-      legacy: "reject",
-      onerror: (error) => console.error("MCP modern transport error:", sanitizeError(error)),
-    },
-  );
-  const modernNodeHandler = toNodeHandler(modernHandler, {
-    onerror: (error) => console.error("MCP Node adapter error:", sanitizeError(error)),
-  });
+    // Modern 2026-07-28 is stateless at the protocol layer. A fresh OpenLClient
+    // per request keeps its cache of repositories from leaking between callers.
+    const modernHandler = createMcpHandler(
+        (ctx) => createConfiguredServer(clientOf(ctx.requestInfo?.headers)),
+        {
+            legacy: 'reject',
+            onerror: (error) => console.error('MCP modern transport error:', sanitizeError(error)),
+        }
+    )
+    const modernNodeHandler = toNodeHandler(modernHandler, {
+        onerror: (error) => console.error('MCP Node adapter error:', sanitizeError(error)),
+    })
 
-  // The protocol of legacy 2025 clients is sessionful. Each MCP session owns a
-  // distinct OpenLClient — including anonymous sessions.
-  const handleLegacy = createLegacyHandler((headers, mcpClient) => {
-    const client = clientOf(headers, mcpClient);
-    return { server: createConfiguredServer(client), client };
-  });
+    // The protocol of legacy 2025 clients is sessionful. Each MCP session owns a
+    // distinct OpenLClient — including anonymous sessions.
+    const handleLegacy = createLegacyHandler((headers, mcpClient) => {
+        const client = clientOf(headers, mcpClient)
+        return { server: createConfiguredServer(client), client }
+    })
 
-  const handleMcp = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-    let body: unknown;
-    if (isJsonContentType(req.headers["content-type"])) {
-      const read = await readJsonBody(req);
-      if (read.refusal) {
-        sendJson(res, read.refusal.status, jsonRpcError(read.refusal.code, read.refusal.message));
-        return;
-      }
-      body = read.body;
+    const handleMcp = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+        let body: unknown
+        if (isJsonContentType(req.headers['content-type'])) {
+            const read = await readJsonBody(req)
+            if (read.refusal) {
+                sendJson(res, read.refusal.status, jsonRpcError(read.refusal.code, read.refusal.message))
+                return
+            }
+            body = read.body
+        }
+        // The parsed body spares the classification a second read of the request.
+        const webRequest = await toWebRequest(req, body)
+        if (await isLegacyRequest(webRequest, body)) {
+            await handleLegacy(req, res, body, webRequest.headers)
+            return
+        }
+        await modernNodeHandler(req, res, body)
     }
-    // The parsed body spares the classification a second read of the request.
-    const webRequest = await toWebRequest(req, body);
-    if (await isLegacyRequest(webRequest, body)) {
-      await handleLegacy(req, res, body, webRequest.headers);
-      return;
-    }
-    await modernNodeHandler(req, res, body);
-  };
 
-  const route = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-    const path = new URL(req.url ?? "/", "http://localhost").pathname;
-    if (path !== "/mcp" && path !== "/mcp/") {
-      sendJson(res, 404, { error: "Not found", path, method: req.method });
-    } else if (comesThroughStudio(req)) {
-      await handleMcp(req, res);
-    } else {
-      sendJson(res, 403, jsonRpcError(ProtocolErrorCode.InvalidRequest, "The request did not come through OpenL Studio"));
+    const route = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+        const path = new URL(req.url ?? '/', 'http://localhost').pathname
+        if (path !== '/mcp' && path !== '/mcp/') {
+            sendJson(res, 404, { error: 'Not found', path, method: req.method })
+        } else if (comesThroughStudio(req)) {
+            await handleMcp(req, res)
+        } else {
+            sendJson(res, 403, jsonRpcError(ProtocolErrorCode.InvalidRequest, 'The request did not come through OpenL Studio'))
+        }
     }
-  };
 
-  return (req, res) => {
-    route(req, res).catch((error: unknown) => {
-      console.error("Unhandled error:", sanitizeError(error));
-      if (!res.headersSent) sendJson(res, 500, { error: "Internal server error", message: sanitizeError(error) });
-    });
-  };
+    return (req, res) => {
+        route(req, res).catch((error: unknown) => {
+            console.error('Unhandled error:', sanitizeError(error))
+            if (!res.headersSent) sendJson(res, 500, { error: 'Internal server error', message: sanitizeError(error) })
+        })
+    }
 }
 
 /**
@@ -294,12 +294,12 @@ export function createHttpApp(overrides: HttpServerOverrides = {}): RequestListe
  * server took from the line logged once the server listens.
  */
 export async function startHttpServer(): Promise<HttpServer> {
-  const host = process.env.HOST?.trim() || undefined;
-  const server = createServer(createHttpApp()).listen({ port: Number(process.env.PORT || DEFAULT_PORT), host });
-  // A port that cannot be taken rejects the start instead of crashing on an unhandled error event.
-  await once(server, "listening");
-  const { port } = server.address() as AddressInfo;
-  // OpenL Studio reads the port from the end of this line.
-  console.log(`${SERVER_INFO.NAME} ${SERVER_INFO.VERSION} listening on ${host ?? "every interface"}, port ${port}`);
-  return server;
+    const host = process.env.HOST?.trim() || undefined
+    const server = createServer(createHttpApp()).listen({ port: Number(process.env.PORT || DEFAULT_PORT), host })
+    // A port that cannot be taken rejects the start instead of crashing on an unhandled error event.
+    await once(server, 'listening')
+    const { port } = server.address() as AddressInfo
+    // OpenL Studio reads the port from the end of this line.
+    console.log(`${SERVER_INFO.NAME} ${SERVER_INFO.VERSION} listening on ${host ?? 'every interface'}, port ${port}`)
+    return server
 }
