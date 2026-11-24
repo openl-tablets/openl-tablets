@@ -1275,6 +1275,14 @@ describe('ModuleWorkspace', () => {
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
     })
 
+    it('leads from the trail to the projects of the repository', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('crumb-project')).toBeInTheDocument())
+
+        expect(screen.getByRole('link', { name: 'Design' })).toHaveAttribute('href', '/projects?repo=design')
+    })
+
     it('shows nothing of the project it left while the next project is read, nor reads the module for it', async () => {
         workspace.opened = true
         const { rerender } = render(<ModuleWorkspace />)

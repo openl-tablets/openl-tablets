@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { createStyles } from 'antd-style'
 import { WorkspaceHeader } from '../../components/WorkspaceHeader'
 import type { ModuleInfo } from '../../services/modules'
 import type { Project } from '../../types/projects'
@@ -13,14 +12,7 @@ import { BranchSwitcher } from './BranchSwitcher'
 import { CrumbSwitcher } from './CrumbSwitcher'
 import { switchedRoute, switcherItems } from './moduleSwitcher'
 import { ProjectSwitcher } from './ProjectSwitcher'
-import { ValueText } from './ValueText'
-
-const useStyles = createStyles(({ css, token }) => ({
-    /** A breadcrumb value (the repository): reads like the links beside it. */
-    crumbValue: css`
-        color: ${token.colorTextSecondary};
-    `,
-}))
+import { repositoryListPath } from './projectListing'
 
 interface ProjectScreenHeaderProps {
     project: Project
@@ -53,8 +45,9 @@ interface ProjectScreenHeaderProps {
 /**
  * The header of a screen of an opened project: the module page and the screen of the messages wear the same one.
  *
- * <p>The trail names the repository and leads to another project and another branch. The title opens another
- * module of the project, or its messages, and the mark beside it tells what was compiled and compiles it again.
+ * <p>The trail leads to the projects of the repository, to another project and to another branch. The title opens
+ * another module of the project, or its messages, and the mark beside it tells what was compiled and compiles it
+ * again.
  * The actions of the screen come at the end.
  */
 export const ProjectScreenHeader = ({
@@ -74,7 +67,6 @@ export const ProjectScreenHeader = ({
     testId,
 }: ProjectScreenHeaderProps) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
     const navigate = useNavigate()
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && branch !== null
     // The modules of the project, and after them its messages, which they all share.
@@ -85,7 +77,7 @@ export const ProjectScreenHeader = ({
         <>
             <Link to="/projects">{t('home.title')}</Link>
             <span aria-hidden>/</span>
-            <ValueText className={styles.crumbValue}>{project.repositoryInfo?.name ?? project.repository}</ValueText>
+            <Link to={repositoryListPath(project)}>{project.repositoryInfo?.name ?? project.repository}</Link>
             <span aria-hidden>/</span>
             {/* Which of its modules to read is the reader's to say, on the project's own screen. */}
             <ProjectSwitcher

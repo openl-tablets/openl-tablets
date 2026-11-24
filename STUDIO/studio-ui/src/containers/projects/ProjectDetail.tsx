@@ -7,7 +7,7 @@ import {
     type ReactNode,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
     HistoryOutlined,
@@ -37,7 +37,7 @@ import { RevisionsPanel } from './RevisionsPanel'
 import { OverviewPanel } from './OverviewPanel'
 import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
-import { ValueText } from './ValueText'
+import { repositoryListPath } from './projectListing'
 import { BranchSwitcher } from './BranchSwitcher'
 import { SystemContext } from '../../contexts'
 import { supportsBranches, supportsRevisionSearch } from '../../utils/repositoryFeatures'
@@ -55,10 +55,6 @@ const useStyles = createStyles(({ css, token }) => ({
     empty: css`
         margin: auto;
         padding: ${token.paddingXL}px;
-    `,
-    /** A breadcrumb value (repository, branch): reads like the "Projects" link — secondary colour, crumb size. */
-    crumbValue: css`
-        color: ${token.colorTextSecondary};
     `,
     /** The row of the tabs, whether their content or a file is shown under it. */
     tabsNav: css`
@@ -454,7 +450,7 @@ export const ProjectDetail = ({
                 crumbs={(
                     <>
                         {headerPrefix}
-                        <ValueText className={styles.crumbValue}>{repoLabel}</ValueText>
+                        <Link to={repositoryListPath(project)}>{repoLabel}</Link>
                         {hasBranches && (
                             <>
                                 <span aria-hidden>/</span>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -26,6 +27,7 @@ const {
 }))
 
 vi.mock('react-router', () => ({
+    Link: ({ to, children }: { to: string, children: ReactNode }) => <a href={to}>{children}</a>,
     useBlocker: () => ({ state: 'unblocked' }),
     useNavigate: () => navigateMock,
     useSearchParams: () => [searchParamsMock, setSearchParamsMock],
@@ -311,6 +313,12 @@ describe('ProjectDetail', () => {
             }
             next.forEach((value, key) => searchParamsMock.set(key, value))
         })
+    })
+
+    it('links the repository of the trail to the projects of the repository', () => {
+        renderProjectDetail()
+
+        expect(screen.getByRole('link', { name: 'Design' })).toHaveAttribute('href', '/projects?repo=design')
     })
 
     it('offers no Files tab: the files are reached from the projects tree', () => {

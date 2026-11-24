@@ -144,11 +144,22 @@ const matchesTags = (project: Project, wanted: Map<string, Set<string>>): boolea
     })
 }
 
+/**
+ * The repository facet a project is filtered and counted under. A local project belongs to the Local facet, not to
+ * the repository it was checked out from, so the count of a facet and the rows it lists always agree.
+ */
+const repositoryFacetOf = (project: Project): string =>
+    project.status === ProjectStatus.Local ? LOCAL_REPO_KEY : project.repository
+
+/** The address of the Projects list narrowed to the repository facet of the project. */
+export const repositoryListPath = (project: Project): string => {
+    const params = new URLSearchParams()
+    writePicked(params, 'repo', [repositoryFacetOf(project)])
+    return `/projects?${params}`
+}
+
 const matchesRepositories = (project: Project, repositories: Set<string>): boolean =>
-    repositories.size === 0
-    // A local project belongs to the Local facet, not to the repository it was checked out from — the same
-    // bucket countFacets counts it in, so the facet's count and the rows it lists always agree.
-    || repositories.has(project.status === ProjectStatus.Local ? LOCAL_REPO_KEY : project.repository)
+    repositories.size === 0 || repositories.has(repositoryFacetOf(project))
 
 const matchesBranches = (project: Project, branches: Set<string>): boolean =>
     branches.size === 0 || (project.branch != null && branches.has(project.branch))
@@ -249,7 +260,7 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
         if (field) {
             statusCounts[field]++
         }
-        const repositoryId = project.status === ProjectStatus.Local ? LOCAL_REPO_KEY : project.repository
+        const repositoryId = repositoryFacetOf(project)
         repositories.set(repositoryId, (repositories.get(repositoryId) ?? 0) + 1)
         for (const [type, value] of Object.entries(project.tags ?? {})) {
             if (!type || !value) {

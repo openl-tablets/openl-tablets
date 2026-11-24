@@ -23,8 +23,9 @@ The following topics are included in this chapter:
 
 ### Switching to Another Project or Module
 
-The breadcrumb above the module name shows the project and the branch the module belongs to and switches the editor to another project or module:
+The breadcrumb above the module name shows the repository, the project and the branch the module belongs to and switches the editor to another project or module. It ends with a slash, as the module name below it is its last step:
 
+-   To see the other projects of the repository, click the repository name. The **Projects** list opens, filtered by the repository.
 -   To switch to another project, click the arrow next to the project name, start typing the project name in the **Find a project** field to narrow the list down, and select the project.
 -   To switch to another module of the current project, click the arrow next to the module name, start typing the module name in the **Find a module** field, and select the module.
 -   To open the localization messages of the project, click the arrow next to the module name and select **Localization** below the modules, as described in [Editing Localization Messages](#editing-localization-messages).
