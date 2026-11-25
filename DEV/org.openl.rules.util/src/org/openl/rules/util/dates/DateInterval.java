@@ -51,6 +51,14 @@ public abstract class DateInterval {
      * years, otherwise will contain a fractional part of a last uncompleted year
      * <p>
      * Current implementation is an equivalent to Excel native functions DATEDIF(start, end, "Y")
+     * <p>
+     * The fraction divides the days after the last anniversary by the length of their calendar year when they lie in
+     * one year. Days that run into the next year are divided by 366 when they hold the 29th of February, both ends
+     * included, and by 365 otherwise, as Excel {@code YEARFRAC(start, end, 1)} divides them.
+     * <p>
+     * For dates without a time of day, a period shorter than a year gives the value of
+     * {@code YEARFRAC(start, end, 1)}. A time of day can make it smaller: days count in whole 24-hour periods, while
+     * {@code YEARFRAC} ignores the time.
      *
      * @param scale specifies a scale of the result
      * @return difference in years

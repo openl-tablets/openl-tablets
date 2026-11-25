@@ -19,6 +19,8 @@ final class CalendarWrapper {
 
     static final int DAYS_IN_WEEK = 7;
     static final int MONTH_IN_YEAR = 12;
+    private static final int DAYS_IN_YEAR = 365;
+    private static final int DAYS_IN_LEAP_YEAR = 366;
 
     private final GregorianCalendar calendar;
     private final int year;
@@ -105,27 +107,21 @@ final class CalendarWrapper {
      * Calculate difference in full days between two dates regarding last month. This method skips years and months.
      * <p>
      * Note: this is an analog for Excel native function DATEDIF(start, end, "MD")
+     * <p>
+     * A day of the month the month before this date does not have moves into the month of this date. When it falls
+     * after this date, such as 1/31/2017 - 3/1/2017, or on it but later in the day, the result is 0, never negative.
      *
      * @param start start date
      * @return difference in full days
      */
     int daysDiffExcludeYearsAndMonths(CalendarWrapper start) {
-        int daysWithoutMonthDiff;
         if (start.day <= day) {
-            daysWithoutMonthDiff = day - start.day;
-        } else {
-            // decrement last month from start date
-            // and set year as in end date
-            var calendarStartDate = start.getCalendar();
-            setPrevMonth(calendarStartDate);
-            var startDate = new CalendarWrapper(calendarStartDate);
-
-            if (month == startDate.month && day < startDate.day) {
-                return 0; // return zero because may be produced negative result for some dates: 1/31/2017 - 3/1/2017
-            }
-            daysWithoutMonthDiff = daysDiff(startDate);
+            return day - start.day;
         }
-        return daysWithoutMonthDiff;
+        // the day of the month of the start in the month before this date
+        var startDate = start.getCalendar();
+        setPrevMonth(startDate);
+        return daysAfter(new CalendarWrapper(startDate));
     }
 
     /**
@@ -142,19 +138,36 @@ final class CalendarWrapper {
      * Calculate difference in full days between two dates regarding last year. This method skips years.
      * <p>
      * Note: this is an analog for Excel native function DATEDIF(start, end, "YD")
+     * <p>
+     * On the day of an anniversary, an end earlier in the day than the start gives 0, never a negative result.
      *
      * @param start start date
      * @return difference in full days
      */
     int daysDiffExcludeYears(CalendarWrapper start) {
-        var calendarStartDate = start.getCalendar();
-        if (isCompleteLastYear(start)) {
-            calendarStartDate.set(Calendar.YEAR, year);
-        } else {
-            calendarStartDate.set(Calendar.YEAR, year - 1);
-        }
-        var startDate = new CalendarWrapper(calendarStartDate);
-        return daysDiff(startDate);
+        return daysAfter(lastAnniversary(start));
+    }
+
+    /**
+     * The full days from the given date to this one, or 0 when the given date is later. A date on the day of this one
+     * but later in the day leaves no day after it.
+     */
+    private int daysAfter(CalendarWrapper date) {
+        return Math.max(0, daysDiff(date));
+    }
+
+    /**
+     * The last anniversary of the start date on or before this date.
+     *
+     * <p>A start on the 29th of February has its anniversary on the 1st of March of a year without that day.
+     *
+     * @param start start date
+     * @return the start date moved to its last anniversary
+     */
+    private CalendarWrapper lastAnniversary(CalendarWrapper start) {
+        var anniversary = start.getCalendar();
+        anniversary.set(Calendar.YEAR, isCompleteLastYear(start) ? year : year - 1);
+        return new CalendarWrapper(anniversary);
     }
 
     int getActualMonthLength() {
@@ -179,23 +192,32 @@ final class CalendarWrapper {
     }
 
     /**
-     * The length in days of the year that starts the given number of full years after this date: from that
-     * anniversary to the next one. A year holding the 29th of February is 366 days long.
+     * The length of the year that the days after the last anniversary of the start date are a fraction of. It is the
+     * year length Excel {@code YEARFRAC} with basis 1 (actual/actual) takes for those days.
      *
-     * <p>The 29th of February comes back on the 1st of March of a year without it, as the days of the last year are
-     * counted.
+     * <p>When those days lie in one calendar year, it is the length of that year: 366 days in a leap year. When they
+     * run into the next year, it is 366 days if they hold the 29th of February, the last anniversary and this date
+     * included, and 365 days if not.
      *
-     * @param years full years after this date
-     * @return the length of that year in days
+     * @param start start date
+     * @return the length of the year in days
      */
-    int yearLengthAfter(int years) {
-        return anniversaryIn(year + years + 1).daysDiff(anniversaryIn(year + years));
+    int lastYearLength(CalendarWrapper start) {
+        if (isCompleteLastYear(start)) {
+            return yearLength(); // the last anniversary is in the year of this date
+        }
+        var anniversary = lastAnniversary(start);
+        var leapDayAfterAnniversary = anniversary.month <= 2 && anniversary.isLeapYear();
+        var leapDayUpToThisDate = (month > 2 || (month == 2 && day == 29)) && isLeapYear();
+        return leapDayAfterAnniversary || leapDayUpToThisDate ? DAYS_IN_LEAP_YEAR : DAYS_IN_YEAR;
     }
 
-    /** This date in the given year, by the rules of the calendar the days are counted with. */
-    private CalendarWrapper anniversaryIn(int anniversaryYear) {
-        var anniversary = getCalendar();
-        anniversary.set(Calendar.YEAR, anniversaryYear);
-        return new CalendarWrapper(anniversary);
+    /** The number of days in the calendar year of this date, by the calendar the days are counted with. */
+    private int yearLength() {
+        return calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+    }
+
+    private boolean isLeapYear() {
+        return yearLength() == DAYS_IN_LEAP_YEAR;
     }
 }
