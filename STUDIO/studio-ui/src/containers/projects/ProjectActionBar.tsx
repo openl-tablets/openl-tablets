@@ -99,7 +99,7 @@ interface ProjectActionBarProps {
  * The first available action is the primary button and the rest follow in a fixed order; the two that
  * destroy the project confirm first and are the only red ones.
  *
- * The bar never wraps. When the actions do not all fit beside the title, the trailing ones collapse into
+ * The bar never wraps. When the actions do not all fit in the row, the trailing ones collapse into
  * an overflow menu behind a three-dots button, leaving at least the primary action in view.
  */
 export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: ProjectActionBarProps) => {
@@ -150,7 +150,7 @@ export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: P
 
     // Depends on the whole action set, not just its size: a different set of the same size (e.g. a project opened, so
     // its buttons change and widen) must measure again, not reuse the stale fit.
-    const { barRef, measureRef, visible: shown } = useActionFit(actions.length, [actions, project.name])
+    const { barRef, measureRef, visible: shown } = useActionFit(actions.length, [actions])
 
     if (actions.length === 0 && !revision) {
         return null

@@ -93,9 +93,9 @@ describe('ModuleActionBar', () => {
     })
 
     it('collapses the buttons the row has no room for into More, and runs them from there', async () => {
-        // A row of 500 px, every button 100 px wide: two stand beside the name, More holds the rest.
+        // A row of 400 px, every button 100 px wide: two stand in it beside More, which holds the rest.
         const widths = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100)
-        const room = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(500)
+        const room = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(400)
         try {
             await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true })
 

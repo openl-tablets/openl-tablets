@@ -200,7 +200,7 @@ export const ModuleActionBar = ({
 
     /**
      * The buttons of the row, in their order: what the project needs done first, then what it offers. A button the row
-     * has no room for beside the name of the module is not dropped: it heads the More menu instead.
+     * has no room for is not dropped: it heads the More menu instead.
      */
     const barActions: BarAction[] = [
         // Offered only while something is waiting: with automatic compilation on there is never anything to verify,
@@ -261,10 +261,7 @@ export const ModuleActionBar = ({
     ]
 
     const shownKeys = barActions.map(action => action.key).join()
-    const { barRef, measureRef, visible } = useActionFit(barActions.length, [shownKeys, moduleName], {
-        moreAlways: true,
-        wholeTitle: true,
-    })
+    const { barRef, measureRef, visible } = useActionFit(barActions.length, [shownKeys], { moreAlways: true })
     const { styles: fit } = useActionBarStyles()
 
     /** A button of the row, with the hint that says why it stands disabled. */

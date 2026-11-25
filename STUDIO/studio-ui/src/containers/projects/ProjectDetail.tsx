@@ -441,7 +441,7 @@ export const ProjectDetail = ({
             <WorkspaceHeader
                 muted={muted}
                 title={project.name}
-                // A project that can only be read is told by the mark after its title, not by a status of the workspace
+                // A project that can only be read is told by the mark after its name, not by a status of the workspace
                 titleBefore={!project.readOnly && <StatusMark status={project.status} testId={`status-${project.id}`} />}
                 actions={(
                     <ProjectActionBar

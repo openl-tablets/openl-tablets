@@ -480,7 +480,7 @@ OpenL Studio downloaded or used — so a local repository shared with Maven keep
   downloaded projects the workspace depends on, for the projects tree.
 - **`DependencyList`** (`studio-ui`) — the Overview marks, **Version conflict** among them.
 - **`ReadOnlyTag`** (`studio-ui`, `containers/maven`) — the version and the Read-only tag a downloaded project's
-  screens show beside the title.
+  screens show after its name in the breadcrumb.
 - **`DownloadedProjects`**, **`DownloadedRulesProject`**, **`DownloadedProjectRepository`** — a downloaded project
   opened read-only in the session, under the id `maven:groupId:artifactId:version`.
 - **`ReadOnlyProjectInterceptor`** — refuses every request that would change a downloaded project.

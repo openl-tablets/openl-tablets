@@ -147,6 +147,7 @@ export const CompilationMark = ({ compilation, disabled, onRefresh }: Compilatio
                     disabled={disabled}
                     icon={<ReloadOutlined />}
                     onClick={onRefresh}
+                    size="small"
                     type="text"
                 />
             </Tooltip>
