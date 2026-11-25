@@ -46,8 +46,6 @@ i18next.addResourceBundle('en', 'repository', {
             level_branch: '[Branch]',
             apply: 'Apply',
             resize: 'Drag to resize',
-            show_panel: 'Show the panel',
-            hide_panel: 'Hide the panel',
             empty: 'No projects to show',
             search_placeholder: 'Find a project or a file in the tree',
             no_match: 'Nothing matches the search',

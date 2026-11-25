@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
-import { booleanText, oneOf, storedSetting } from '../../utils/localStore'
+import { oneOf, storedSetting } from '../../utils/localStore'
 import { useDragSize } from '../../components/ResizeHandle'
-import { Button, Segmented, Tooltip } from 'antd'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Segmented } from 'antd'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import type { Project } from '../../types/projects'
@@ -13,6 +12,7 @@ import { useSharedStyles } from './sharedStyles'
 import { ProjectsTree, type ProjectsSource } from './ProjectsTree'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
+import { FoldedRail, FoldRailButton, railFolded } from './RailFold'
 
 /** What the rail shows: the facet filters, or the grouped project tree. */
 type RailMode = 'filters' | 'tree'
@@ -28,19 +28,12 @@ const DEFAULT_WIDTH = 256
 
 const railMode = storedSetting<RailMode>(STORAGE_KEY, 'filters', oneOf(['filters', 'tree']))
 
-const railCollapsed = storedSetting(COLLAPSED_STORAGE_KEY, false, booleanText)
+const railCollapsed = railFolded(COLLAPSED_STORAGE_KEY)
 
 const useStyles = createStyles(({ css, token }) => ({
     rail: css`
         position: relative;
         flex: none;
-    `,
-    /** The panel put away: a strip carrying the handle that brings it back. */
-    collapsed: css`
-        width: 28px;
-        min-width: 28px;
-        align-items: center;
-        padding-top: 8px;
     `,
     /** The row the panel is folded and unfolded from, above whatever the panel shows. */
     top: css`
@@ -158,34 +151,10 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
     }, [currentProjectId, pick])
 
     // The handle sits on the header row of whatever the rail shows, beside that panel's own actions.
-    const foldHandle = (
-        <Tooltip title={t('home.tree.hide_panel')}>
-            <Button
-                aria-label={t('home.tree.hide_panel')}
-                data-testid="projects-rail-collapse"
-                icon={<LeftOutlined />}
-                onClick={() => fold(true)}
-                size="small"
-                type="text"
-            />
-        </Tooltip>
-    )
+    const foldHandle = <FoldRailButton onFold={() => fold(true)} testId="projects-rail" />
 
     if (collapsed) {
-        return (
-            <aside className={cx(shared.rail, styles.rail, styles.collapsed)} data-testid="projects-rail-collapsed">
-                <Tooltip title={t('home.tree.show_panel')}>
-                    <Button
-                        aria-label={t('home.tree.show_panel')}
-                        data-testid="projects-rail-expand"
-                        icon={<RightOutlined />}
-                        onClick={() => fold(false)}
-                        size="small"
-                        type="text"
-                    />
-                </Tooltip>
-            </aside>
-        )
+        return <FoldedRail onUnfold={() => fold(false)} testId="projects-rail" />
     }
 
     return (

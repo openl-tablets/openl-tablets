@@ -67,7 +67,13 @@ export const GuidesTree: React.FC<GuidesTreeProps> = ({ contents, current }) => 
         if (!body) {
             return
         }
-        const observer = new ResizeObserver(entries => setHeight(Math.floor(entries[0]?.contentRect.height ?? 0)))
+        // A rail folded away has no height: the tree keeps the one it had rather than draw every row.
+        const observer = new ResizeObserver(entries => {
+            const next = Math.floor(entries[0]?.contentRect.height ?? 0)
+            if (next > 0) {
+                setHeight(next)
+            }
+        })
         observer.observe(body)
         return () => observer.disconnect()
     }, [])

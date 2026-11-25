@@ -28,15 +28,17 @@ const RESULT: GuideSearchResult = {
 describe('GuidesSearch', () => {
     const search = vi.fn()
     const dispose = vi.fn()
+    const onSearch = vi.fn()
 
     beforeEach(() => {
+        onSearch.mockClear()
         vi.mocked(startGuideSearch).mockReturnValue({ search, dispose })
         search.mockResolvedValue([RESULT])
     })
 
     const renderSearch = () => render(
         <MemoryRouter>
-            <GuidesSearch contents={CONTENTS} current={editor}>
+            <GuidesSearch contents={CONTENTS} current={editor} onSearch={onSearch}>
                 <div>the table of contents</div>
             </GuidesSearch>
         </MemoryRouter>
@@ -59,8 +61,12 @@ describe('GuidesSearch', () => {
     it('starts no search until something is typed, and shows the contents again once the query is cleared', async () => {
         renderSearch()
         expect(startGuideSearch).not.toHaveBeenCalled()
+        searchFor(' ')
+        expect(onSearch).not.toHaveBeenCalled()
 
         searchFor('rule')
+        // The rail is told to show what is found, also while it is folded away.
+        expect(onSearch).toHaveBeenCalledTimes(1)
         await screen.findByRole('link', { name: /Viewing Tables/ })
         searchFor('')
 

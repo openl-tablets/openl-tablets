@@ -17,6 +17,10 @@ i18next.addResourceBundle('en', 'common', {
     login: 'Login',
     password: 'Password',
     access_rights: 'Access Rights',
+    rail: {
+        show: 'Show the panel',
+        hide: 'Hide the panel',
+    },
     table: {
         showing_rows: '{{from}}-{{to}} of {{total}}',
     },
