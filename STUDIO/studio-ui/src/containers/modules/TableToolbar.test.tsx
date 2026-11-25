@@ -8,6 +8,7 @@ import { getTableTargets, getTableTests } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
 import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 import { TableToolbar } from './TableToolbar'
+import { forgetKeptReads } from '../../services/keptReads'
 
 vi.mock('../../services/modules', () => ({ getTableTests: vi.fn(), getTableTargets: vi.fn() }))
 vi.mock('../../services/tables', () => ({ deleteTable: vi.fn() }))
@@ -76,6 +77,8 @@ const offered = () => [...screen.getByTestId('table-toolbar').querySelectorAll('
 
 describe('TableToolbar', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         vi.mocked(getTableTests).mockResolvedValue([])
         vi.mocked(getTableTargets).mockResolvedValue([])
     })

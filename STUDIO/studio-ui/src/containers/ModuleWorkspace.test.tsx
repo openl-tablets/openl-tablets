@@ -54,6 +54,14 @@ vi.mock('react-router', () => ({
     Link: ({ children, to }: { children?: unknown, to?: string }) => <a href={to}>{children as never}</a>,
 }))
 
+// The change ping the editor follows, captured from it.
+const liveChanges = vi.hoisted(() => ({ onChange: undefined as ((files: string[]) => void) | undefined }))
+vi.mock('../hooks/useLiveProjectChanges', () => ({
+    useLiveProjectChanges: (_projectId: string | undefined, onChange: (files: string[]) => void) => {
+        liveChanges.onChange = onChange
+    },
+}))
+
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
     ...(await vi.importActual<typeof import('../hooks/useReleaseOnClose')>('../hooks/useReleaseOnClose')),
@@ -565,6 +573,8 @@ describe('ModuleWorkspace', () => {
             navigateMock.mockClear()
 
             await userEvent.click(await screen.findByTestId('table-saved'))
+            // The save is a write, which drops every read kept of the workspace before it.
+            forgetKeptReads()
             await waitFor(() => expect(tablesReadCount()).toBeGreaterThan(readBefore))
             await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
             return view
@@ -1044,6 +1054,22 @@ describe('ModuleWorkspace', () => {
         expect(getModuleTables).toHaveBeenCalledTimes(2)
         expect(setSearchParamsMock).toHaveBeenCalled()
         expect(navigateMock).not.toHaveBeenCalled()
+    })
+
+    it('reads the project and its modules again when the server tells of a change made elsewhere', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(1))
+        expect(getProject).toHaveBeenCalledTimes(1)
+        expect(listModules).toHaveBeenCalledTimes(1)
+
+        await act(async () => {
+            liveChanges.onChange?.([])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getProject).toHaveBeenCalledTimes(2)
+        expect(listModules).toHaveBeenCalledTimes(2)
     })
 
     it('reads the module again on the branch that was switched to', async () => {

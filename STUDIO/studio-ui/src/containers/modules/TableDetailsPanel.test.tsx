@@ -8,6 +8,7 @@ import { DEFAULT_USER_SETTINGS, useSettingsStore } from '../../store/settingsSto
 import { updateTableProperties } from '../../services/tables'
 import { TableDetailsPanel } from './TableDetailsPanel'
 import type { Written } from './TableEditor'
+import { forgetKeptReads } from '../../services/keptReads'
 
 vi.mock('../../services/modules', () => ({ getTableDetails: vi.fn() }))
 vi.mock('../../services/projects', () => ({ getProjectProperties: vi.fn() }))
@@ -107,6 +108,8 @@ const edit = async (props: DrawProps = {}) => {
 
 describe('TableDetailsPanel', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         localStorage.clear()
         vi.mocked(getTableDetails).mockResolvedValue(DETAILS)
         vi.mocked(getProjectProperties).mockResolvedValue(DICTIONARY)
