@@ -29,6 +29,13 @@ own project only, as listed for the developers.
   `dateDif(toDate("2024-03-10"), toDate("2025-01-20"), "YF")` gave `0.8634` instead of `0.8658`. Days within one
   calendar year keep their results. Update the expected values of the tests that check a fraction across a new year.
 
+* **`dateDif` counts no day after an anniversary that the end reaches earlier in the day than the start.** For
+  `dateDif(Date(2023, 7, 19, 12, 0), Date(2024, 7, 19, 6, 0), unit)`, `YD` is `0` and `YF` is `1`. Before, `YD` was
+  `-1` and `YF` was `0.9973`, less than the whole year `Y` counts. The same holds for a start on a day of the month
+  that the month before the end does not have, which moves into the month of the end:
+  `dateDif(Date(2023, 1, 29, 12, 0), Date(2023, 3, 1, 6, 0), "MD")` is `0` instead of `-1`, and `MF` and `YMF` no
+  longer fall below the whole months.
+
 * **A field of a missing result element is empty in a test.** A test that checks a field of an element the result does
   not have, such as `_res_.items[1].amount` when the rule returns one item or none, reads that field as empty. Before,
   a field of a primitive type, such as `int` or `double`, read as `0`, so an empty expected cell failed the test case.

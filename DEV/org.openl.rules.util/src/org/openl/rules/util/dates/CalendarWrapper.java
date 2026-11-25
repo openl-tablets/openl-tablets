@@ -107,27 +107,21 @@ final class CalendarWrapper {
      * Calculate difference in full days between two dates regarding last month. This method skips years and months.
      * <p>
      * Note: this is an analog for Excel native function DATEDIF(start, end, "MD")
+     * <p>
+     * A day of the month the month before this date does not have moves into the month of this date. When it falls
+     * after this date, such as 1/31/2017 - 3/1/2017, or on it but later in the day, the result is 0, never negative.
      *
      * @param start start date
      * @return difference in full days
      */
     int daysDiffExcludeYearsAndMonths(CalendarWrapper start) {
-        int daysWithoutMonthDiff;
         if (start.day <= day) {
-            daysWithoutMonthDiff = day - start.day;
-        } else {
-            // decrement last month from start date
-            // and set year as in end date
-            var calendarStartDate = start.getCalendar();
-            setPrevMonth(calendarStartDate);
-            var startDate = new CalendarWrapper(calendarStartDate);
-
-            if (month == startDate.month && day < startDate.day) {
-                return 0; // return zero because may be produced negative result for some dates: 1/31/2017 - 3/1/2017
-            }
-            daysWithoutMonthDiff = daysDiff(startDate);
+            return day - start.day;
         }
-        return daysWithoutMonthDiff;
+        // the day of the month of the start in the month before this date
+        var startDate = start.getCalendar();
+        setPrevMonth(startDate);
+        return daysAfter(new CalendarWrapper(startDate));
     }
 
     /**
@@ -144,12 +138,22 @@ final class CalendarWrapper {
      * Calculate difference in full days between two dates regarding last year. This method skips years.
      * <p>
      * Note: this is an analog for Excel native function DATEDIF(start, end, "YD")
+     * <p>
+     * On the day of an anniversary, an end earlier in the day than the start gives 0, never a negative result.
      *
      * @param start start date
      * @return difference in full days
      */
     int daysDiffExcludeYears(CalendarWrapper start) {
-        return daysDiff(lastAnniversary(start));
+        return daysAfter(lastAnniversary(start));
+    }
+
+    /**
+     * The full days from the given date to this one, or 0 when the given date is later. A date on the day of this one
+     * but later in the day leaves no day after it.
+     */
+    private int daysAfter(CalendarWrapper date) {
+        return Math.max(0, daysDiff(date));
     }
 
     /**

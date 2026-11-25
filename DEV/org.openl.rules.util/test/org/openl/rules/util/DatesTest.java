@@ -295,6 +295,25 @@ class DatesTest {
         assertEquals(Double.valueOf(1 + 31d / 366), Dates.dateDif(getDate(1, 3, 2023), getDate(1, 4, 2024), "YF"));
     }
 
+    /** An end earlier in the day of an anniversary than the start counts that anniversary and no day after it. */
+    @Test
+    void test_dateDif_endEarlierInTheDayOfAnAnniversary() {
+        final Date start = date(2023, 7, 19, 12, 0);
+        final Date end = date(2024, 7, 19, 6, 0);
+
+        assertEquals(Double.valueOf(1), Dates.dateDif(start, end, "Y"));
+        assertEquals(ZERO_DOUBLE, Dates.dateDif(start, end, "YD"));
+        assertEquals(Double.valueOf(1), Dates.dateDif(start, end, "YF"));
+        assertEquals(Double.valueOf(-1), Dates.dateDif(end, start, "YF"));
+        // the 29th of the month comes on the 1st of March of a year without the 29th of February
+        final Date monthStart = date(2023, 1, 29, 12, 0);
+        final Date monthEnd = date(2023, 3, 1, 6, 0);
+        assertEquals(Double.valueOf(1), Dates.dateDif(monthStart, monthEnd, "M"));
+        assertEquals(ZERO_DOUBLE, Dates.dateDif(monthStart, monthEnd, "MD"));
+        assertEquals(Double.valueOf(1), Dates.dateDif(monthStart, monthEnd, "MF"));
+        assertEquals(Double.valueOf(1), Dates.dateDif(monthStart, monthEnd, "YMF"));
+    }
+
     @Test
     void test_dateDif_shouldReturnNegativeFractionalResult() {
         final Date start = getDate(28, 3, 2012);
