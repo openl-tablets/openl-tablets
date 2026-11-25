@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { fetchGuidePage } from 'services/userGuides'
-import { GuidePage, outlineOf } from './GuidePage'
+import { SystemContext } from '../../contexts'
+import { documentTitle, GuidePage, outlineOf, printedHeads, studioName } from './GuidePage'
 
 vi.mock('react-i18next', () => {
-    const t = (key: string) => key
+    const t = (key: string) => (key === 'common:openl_studio' ? 'OpenL Studio' : key)
     return { useTranslation: () => ({ t }) }
 })
 
@@ -52,6 +53,22 @@ describe('outlineOf', () => {
     })
 })
 
+describe('printedHeads', () => {
+    it('heads every printed sheet with the title of the page and the version of OpenL Studio', () => {
+        const heads = printedHeads('Using "Rules" Editor', studioName('OpenL Studio', '7.1.0'))
+
+        expect(heads).toContain('@top-left { content: "Using \\"Rules\\" Editor";')
+        expect(heads).toContain('@top-right { content: "OpenL Studio 7.1.0";')
+    })
+
+    it('names OpenL Studio alone before its version is read', () => {
+        const studio = studioName('OpenL Studio', undefined)
+
+        expect(printedHeads('Preface', studio)).toContain('@top-right { content: "OpenL Studio";')
+        expect(documentTitle('Preface', studio)).toBe('Preface – OpenL Studio')
+    })
+})
+
 describe('GuidePage', () => {
     const scrollIntoView = vi.fn()
 
@@ -76,6 +93,39 @@ describe('GuidePage', () => {
         // The outline is hidden below 1100px, and jsdom draws every page 1024px wide.
         expect(screen.getByRole('link', { hidden: true, name: 'Copying a Table' }))
             .toHaveAttribute('href', '/docs/openl-studio/rules-editor#copying-a-table')
+    })
+
+    it('gives the printed sheets of the page its title and the version of OpenL Studio', async () => {
+        vi.mocked(fetchGuidePage).mockResolvedValue('## Using Rules Editor\n')
+
+        const { container } = render(
+            <SystemContext.Provider value={{ appVersion: '7.1.0' } as never}>
+                <MemoryRouter>
+                    <GuidePage container={{ current: null }} file="openl-studio/rules-editor.md" hash="" title="Using Rules Editor" />
+                </MemoryRouter>
+            </SystemContext.Provider>
+        )
+
+        await screen.findByRole('heading', { level: 2, name: 'Using Rules Editor' })
+        expect(container.querySelector('style')?.textContent)
+            .toBe(printedHeads('Using Rules Editor', 'OpenL Studio 7.1.0'))
+    })
+
+    it('names the browser tab after the page and the version while the page is open, which Firefox and Safari print', () => {
+        vi.mocked(fetchGuidePage).mockResolvedValue('## Using Rules Editor\n')
+        document.title = 'OpenL Studio'
+
+        const { unmount } = render(
+            <SystemContext.Provider value={{ appVersion: '7.1.0' } as never}>
+                <MemoryRouter>
+                    <GuidePage container={{ current: null }} file="openl-studio/rules-editor.md" hash="" title="Using Rules Editor" />
+                </MemoryRouter>
+            </SystemContext.Provider>
+        )
+
+        expect(document.title).toBe('Using Rules Editor – OpenL Studio 7.1.0')
+        unmount()
+        expect(document.title).toBe('OpenL Studio')
     })
 
     it('scrolls to the heading the address names', async () => {

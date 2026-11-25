@@ -321,6 +321,15 @@ searches. Click a result to open its page at that section, or clear the field to
 Every page has an address of its own under `/docs`, the one it has on the documentation site, so it can be bookmarked
 or sent to another user of the same OpenL Studio.
 
+To print a page, use the print command of the browser. The printout holds the whole page, over as many sheets as it
+takes, without the top bar, the **Contents** pane or the **On This Page** pane. Each sheet is headed with the title of
+the page and the OpenL Studio version:
+
+-   Chrome and Edge print them at the top of every sheet, the title on the left and the version on the right.
+-   Firefox and Safari print the title of the browser tab in their own headers, and while a guide is open the tab is
+    named after the page and the version, such as `Using Rules Editor – OpenL Studio <version>`. Firefox prints its
+    headers by default; in Safari, select **Print headers and footers** in the print dialog.
+
 ### Viewing the Version and Licenses
 
 To view the version and licenses, in the top-right corner, click the user icon and select **About**. The **About OpenL

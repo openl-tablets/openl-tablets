@@ -14,6 +14,13 @@ export const useStyles = createStyles(({ css, token }) => ({
             height: ${APP_HEADER_HEIGHT}px;
         }
 
+        /* A printed page is read on paper: the bar that navigates the application is left off it. */
+        @media print {
+            &.ant-layout-header {
+                display: none;
+            }
+        }
+
         /* The search has the room the tabs leave: on a narrow window the name gives way to it, the cube stays. */
         @media (max-width: 880px) {
             .header-title {
