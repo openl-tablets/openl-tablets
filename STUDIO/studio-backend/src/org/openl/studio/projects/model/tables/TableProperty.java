@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * A date is written in ISO-8601 — {@code 2009-01-01}, with the time after it only when the value carries one — so
  * the same text is read the same way whatever the reader's locale. A property closing a period, which the engine
- * keeps at the close of the day it names, is written as that day. Every other value is written as the Table Details
+ * keeps at the close of the day it names, is written as that day. Every other value is written as the Table Properties
  * editor shows it.
  * <p>
  * When a copy is created, the value is read back as the property it names, so a typed property (a date, an

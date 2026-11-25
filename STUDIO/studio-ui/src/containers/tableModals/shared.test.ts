@@ -68,7 +68,7 @@ describe('shared', () => {
     })
 
     describe('toPropertyGroups', () => {
-        it('lists display names under their groups, in the order Table Details lists them', () => {
+        it('lists display names under their groups, in the order Table Properties lists them', () => {
             const groups = toPropertyGroups([
                 property({ name: 'buildPhase', displayName: 'Build Phase', group: 'Dev' }),
                 property({ name: 'version', displayName: 'Version', group: 'Version' }),

@@ -191,18 +191,11 @@ describe('TableDetailsPanel', () => {
         expect(group?.querySelector('.ant-descriptions-item-content')).toHaveStyle({ fontSize: '12px' })
     })
 
-    it('keeps its own name for a table that carries none', async () => {
-        // A properties table has no name of its own, and a bare panel head would name nothing at all.
-        vi.mocked(getTableDetails).mockResolvedValue({
-            name: '',
-            kind: 'Other',
-            groups: [],
-            canEditProperties: false,
-            available: [],
-        })
+    it('is headed by its own name, not by the name of the table', async () => {
         await draw()
 
         expect(screen.getByText('browser.module.details')).toBeInTheDocument()
+        expect(screen.queryByText('Greeting')).not.toBeInTheDocument()
     })
 
     it('draws nothing for a table read that has not been asked for', async () => {
@@ -509,11 +502,24 @@ describe('TableDetailsPanel', () => {
     it('asks for nothing while it stands folded away', async () => {
         await draw()
 
-        await userEvent.click(screen.getByTestId('table-details-toggle'))
+        await userEvent.click(screen.getByTestId('table-details-collapse'))
 
         expect(screen.queryByTestId('table-details-body')).not.toBeInTheDocument()
+        // Folded, it is a strip carrying its name, which brings the panel back.
+        const strip = screen.getByRole('button', { name: 'common:rail.show_named' })
+        expect(strip).toHaveTextContent('browser.module.details')
         vi.mocked(getTableDetails).mockClear()
         await draw()
         expect(getTableDetails).not.toHaveBeenCalled()
+    })
+
+    it('is brought back by its strip', async () => {
+        await draw()
+        await userEvent.click(screen.getByTestId('table-details-collapse'))
+
+        await userEvent.click(screen.getByTestId('table-details-expand'))
+
+        expect(await screen.findByTestId('table-details-body')).toBeInTheDocument()
+        expect(screen.getByText('browser.module.details')).toBeInTheDocument()
     })
 })

@@ -51,8 +51,8 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
         var defined = properties.getTableProperties();
         var ordered = new ArrayList<TableProperty>(defined.size());
         var placed = new HashSet<String>();
-        // Known properties first, in the order the Table Details editor lists them (the default definitions order), so
-        // the copy dialog prefills deterministically rather than in HashMap iteration order.
+        // Known properties first, in the order the Table Properties panel lists them (the default definitions order),
+        // so the copy dialog prefills deterministically rather than in HashMap iteration order.
         for (var definition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             var name = definition.getName();
             if (defined.containsKey(name) && placed.add(name)) {

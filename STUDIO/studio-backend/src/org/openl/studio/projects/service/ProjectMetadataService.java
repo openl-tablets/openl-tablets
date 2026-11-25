@@ -228,7 +228,7 @@ public class ProjectMetadataService {
     /**
      * How the property is presented and what a value of it looks like.
      *
-     * <p>The property is described the way the Table Details editor names it — its display name and its group — so
+     * <p>The property is described the way the Table Properties panel names it — its display name and its group — so
      * a dialog offering it reads the same as the rest of OpenL Studio, and the dimensional ones can be told apart
      * from the rest.
      *

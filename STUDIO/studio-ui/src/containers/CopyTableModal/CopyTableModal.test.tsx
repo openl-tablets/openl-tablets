@@ -539,7 +539,7 @@ describe('CopyTableModal', () => {
 
         // The row holding the source's version: it keeps offering its own property, beside the ones no row took.
         const names = screen.getByTestId('copy-table-property-name-0')
-        // Grouped the way Table Details groups them, so the dimensional properties are presented, not guessed.
+        // Grouped the way Table Properties groups them, so the dimensional properties are presented, not guessed.
         expect([...names.querySelectorAll('optgroup')].map(group => group.label))
             .toEqual(['Business Dimension', 'Version'])
         expect(within(names).getByRole('option', { name: 'US States' })).toHaveValue('state')

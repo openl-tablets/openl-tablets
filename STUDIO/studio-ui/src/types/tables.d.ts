@@ -502,7 +502,7 @@ interface ProjectPropertyValue {
 
 export interface ProjectProperty {
     name: string
-    /** Name a business user reads the property by, the way Table Details names it. */
+    /** Name a business user reads the property by, the way Table Properties names it. */
     displayName: string
     /** Group the property is listed under: Info, Business Dimension, Version or Dev. */
     group: string

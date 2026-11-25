@@ -8,7 +8,7 @@ import lombok.Builder;
 /**
  * What a table says about itself besides its cells: its name and the properties that apply to it.
  *
- * <p>The properties are the ones the Table Details panel has always shown — those written on the table and
+ * <p>The properties are the ones the Table Properties panel shows — those written on the table and
  * those it inherits from the properties table of its module or category. They arrive grouped and in the order
  * the property dictionary declares them, so a screen draws them without deciding anything.
  *

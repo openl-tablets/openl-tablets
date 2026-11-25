@@ -659,7 +659,7 @@ versions of one project are told apart; projects of one name in two repositories
 *A file of a Maven dependency, read-only*
 
 A module of the project opens in the editor, as a module of a project of the workspace does: the tables in the tree on
-the left, the table picked in the middle, its properties in **Table Details** on the right, and the problems of the
+the left, the table picked in the middle, its properties in **Table Properties** on the right, and the problems of the
 compilation below. The project is compiled with the projects it depends on, as a project of the workspace is.
 
 -   **Run**, **Trace** and **Benchmark** run the table, and **Test** runs the tests of the project.
