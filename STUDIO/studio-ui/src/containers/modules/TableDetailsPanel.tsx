@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Descriptions, Empty, Select, Skeleton, Space, Tooltip } from 'antd'
 import {
@@ -11,8 +11,10 @@ import {
 } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { ProjectProperty } from 'types/tables'
-import { getTableDetails, type PropertyInheritance, type TableDetails } from '../../services/modules'
+import type { PropertyInheritance, TableDetails } from '../../services/modules'
+import { keptTableDetails, readTableDetails } from '../../services/keptReads'
 import { getProjectProperties } from '../../services/projects'
+import { useReadAgain } from '../../hooks/useReadAgain'
 import { updateTableProperties } from '../../services/tables'
 import { booleanText, storedSetting } from '../../utils/localStore'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
@@ -182,9 +184,11 @@ export const TableDetailsPanel = ({
     const theme = useTheme()
     const [open, setOpen] = useStoredSetting(openSetting)
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'left', WIDTH)
-    const [details, setDetails] = useState<TableDetails | null>(null)
+    // The details of the table as they were read moments ago: shown in the first frame, not after it.
+    const [details, setDetails] = useState<TableDetails | null>(
+        () => (tableId === null ? null : keptTableDetails(projectId, tableId, moduleName) ?? null))
     // Which table the details on screen were read for: another table shows nothing until its own are read.
-    const detailsOf = useRef<string | null>(null)
+    const detailsOf = useRef<string | null>(details === null ? null : tableId)
     const [loading, setLoading] = useState(false)
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
@@ -211,7 +215,9 @@ export const TableDetailsPanel = ({
         title: { fontSize: theme.fontSizeSM, lineHeight: theme.lineHeightSM },
     }), [theme])
 
-    useEffect(() => {
+    const detailsReadAgain = useReadAgain(`${projectId} ${tableId}`)
+    // Laid out before the frame is painted, so details kept from moments ago show in the frame that selects the table.
+    useLayoutEffect(() => {
         if (!open || tableId === null) {
             setDetails(null)
             return
@@ -223,9 +229,18 @@ export const TableDetailsPanel = ({
             setLoading(false)
             return
         }
+        // Details read moments ago are shown at once, as they were read then; read again, they are asked for.
+        const fresh = detailsReadAgain()
+        const known = fresh ? undefined : keptTableDetails(projectId, tableId, moduleName)
+        if (known !== undefined) {
+            detailsOf.current = tableId
+            setDetails(known)
+            setLoading(false)
+            return
+        }
         let dropped = false
         setLoading(true)
-        getTableDetails(projectId, tableId, moduleName)
+        readTableDetails(projectId, tableId, moduleName, { fresh })
             .then(read => {
                 if (!dropped) {
                     detailsOf.current = tableId
@@ -245,7 +260,7 @@ export const TableDetailsPanel = ({
         return () => {
             dropped = true
         }
-    }, [projectId, tableId, moduleName, open, listed])
+    }, [projectId, tableId, moduleName, open, listed, detailsReadAgain])
 
     // What is being written belongs to the table it was written on: another table is read afresh. The id a refused
     // save sent the screen to is the same table, renamed by its cells, so what the reader wrote stays there.

@@ -24,7 +24,7 @@ import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { mavenArtifactOf, mavenIdOf, projectCoordinatesOf, projectFileRoute, projectRoute } from '../services/projectId'
 import { mavenIdOfParams, mavenProjectOf } from '../services/mavenDependencies'
-import { readDesignRepositories, readMavenProjects, readTagTypes } from '../services/keptReads'
+import { keptDesignRepositories, readDesignRepositories, readMavenProjects, readTagTypes } from '../services/keptReads'
 import { DEFAULT_PAGE_SIZE } from '../constants/ui'
 import { HeaderActions } from '../components/HeaderActions'
 import { ListFooter } from '../components/ListFooter'
@@ -61,7 +61,7 @@ import {
     type ProjectSort,
     type SortDirection,
 } from './projects/projectListing'
-import { getProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
+import { getProjectIndex, invalidateProjectIndex, peekProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { useSearchScope } from '../hooks/useSearchScope'
 import { compileColorsOf } from './projects/projectsTheme'
@@ -86,6 +86,7 @@ import {
     type ProjectStatusUpdate,
 } from '../services/projectStatus'
 import { useReadAgain } from '../hooks/useReadAgain'
+import { preloadProjectScreensWhenIdle } from '../routes/projectScreens'
 
 /** The facet counts of the rail, counted in the browser from the projects it already holds. */
 interface ProjectFacets {
@@ -268,8 +269,15 @@ export const ProjectsHome = () => {
         const timeout = window.setTimeout(() => saveProjectFilters(params), SEARCH_DEBOUNCE_MS)
         return () => window.clearTimeout(timeout)
     }, [params])
-    const [repositories, setRepositories] = useState<Repository[]>([])
-    const [allProjects, setAllProjects] = useState<Project[]>([])
+    // What an earlier visit read, when it is still trusted: the screen paints it at once, so coming back from a
+    // project shows the list and the tree it left rather than a skeleton, and the first load only checks it quietly.
+    const [kept] = useState(() => {
+        const index = peekProjectIndex()
+        const repositories = keptDesignRepositories()
+        return index !== undefined && repositories !== undefined ? { index, repositories } : undefined
+    })
+    const [repositories, setRepositories] = useState<Repository[]>(kept?.repositories ?? [])
+    const [allProjects, setAllProjects] = useState<Project[]>(kept?.index.projects ?? [])
     // The projects of the Maven repository the workspace depends on: the tree lists them under a repository of their
     // own, read-only. They are read again whenever the projects are, since opening a project may name new ones.
     const [mavenProjects, setMavenProjects] = useState<Project[]>([])
@@ -277,7 +285,7 @@ export const ProjectsHome = () => {
     // A load that reads the same projects again needs no new list of them, and none is asked for before the projects
     // are read: the empty list the screen starts with would only be followed by a second read.
     const projectsSignature = useMemo(() => listSignature(allProjects), [allProjects])
-    const [projectsRead, setProjectsRead] = useState(false)
+    const [projectsRead, setProjectsRead] = useState(kept !== undefined)
     const mavenReadAgain = useReadAgain('maven')
     useEffect(() => {
         if (!projectsRead) {
@@ -317,11 +325,13 @@ export const ProjectsHome = () => {
         const downloaded = [...mavenProjects, ...addressed]
         return downloaded.length === 0 ? allProjects : [...allProjects, ...downloaded]
     }, [addressedListed, addressedMaven, allProjects, mavenProjects, shownProjectId])
-    const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>([])
-    const [projectIndexHealth, setProjectIndexHealth] = useState<Record<string, ProjectIndexHealth>>({})
+    const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>(kept?.index.statuses ?? [])
+    const [projectIndexHealth, setProjectIndexHealth] = useState<Record<string, ProjectIndexHealth>>(
+        kept?.index.projectIndexHealth ?? {}
+    )
     // The configured tag types, in the order an administrator arranged them in: the tags of the projects follow it.
     const [configuredTagTypes, setConfiguredTagTypes] = useState<string[]>([])
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(kept === undefined)
     const [error, setError] = useState<string | null>(null)
     const [createOpen, setCreateOpen] = useState(false)
     const [copySource, setCopySource] = useState<Project | null>(null)
@@ -538,10 +548,13 @@ export const ProjectsHome = () => {
         if (restoring) {
             return
         }
-        // A snapshot left over from an earlier visit paints instantly and is not read again: every change since,
-        // made here or told by the server while this screen was away, has dropped it, and so has its age.
-        void load()
-    }, [load, restoring])
+        // A snapshot left over from an earlier visit is already on screen and is not read again: every change since,
+        // made here or told by the server while this screen was away, has dropped it, and so has its age. A compilation
+        // is no change, and its end is pushed only to a screen on view, so a snapshot that shows one under way is read
+        // again behind what it shows.
+        const compiling = kept?.index.statuses.some(status => status.compileState === 'compiling') ?? false
+        void load(compiling, { silent: kept !== undefined })
+    }, [kept, load, restoring])
 
     // The backend pings when the workspace or a repository changed — another session, another
     // user, another client. The list re-reads behind the scenes and swaps the fresh answer in. The user is
@@ -829,6 +842,10 @@ export const ProjectsHome = () => {
         setGroupPicks({})
         deleteParams(...FILTER_PARAMS, 'page')
     }, [deleteParams])
+
+    // The page of a project and its editor are where the reader goes from here: their code is loaded ahead, once the
+    // list has drawn and read.
+    useEffect(preloadProjectScreensWhenIdle, [])
 
     // The no-match state clears the search too, not just the facets.
     const clearAll = useCallback(() => {

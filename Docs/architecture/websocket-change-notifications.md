@@ -150,15 +150,21 @@ flowchart LR
   skeleton.
 - The layout of the application watches the same pings whatever screen is open (`forgetWorkspaceReads`), and drops
   the workspace snapshot with the reads kept for the next screen (`keptReads`): a project, its files, its `rules.xml`,
-  modules and migration, the repositories, the tag types and the projects of the Maven repository. Moving between the
-  page of a project and its editor takes these instead of asking the server again, and the projects screen trusts
-  the snapshot it comes back to rather than reading it again. Only the first read of a screen takes a kept one: a
-  read again — after an action, a branch switch or a ping — asks the server. A change made in this tab drops them
-  too, and so does the age the snapshot is trusted for.
+  modules and migration, the tables of a module, the first window, the details and the tests of a table, the
+  repositories, the tag types and the projects of the Maven repository. Moving between the page of a project and its
+  editor takes these instead of asking the server again, and the projects screen trusts the snapshot it comes back to
+  rather than reading it again — unless the snapshot shows a compilation under way, whose end pings nobody: then it
+  reads it again behind what it shows. A screen starts from what is kept (`peekProjectIndex`, `keptProject` and the
+  like), so its first frame shows it rather than a skeleton, and the code of the page and of the editor is loaded ahead
+  of their first use (`projectScreens`). Only the first read of a screen takes a kept one: a read again — after an
+  action, a branch switch or a ping — asks the server. A change made in this tab drops them too, a merge as it ends,
+  and so does the age the snapshot is trusted for. A read of a project that a change or a later read overtook on its
+  way answers the screen that made it but is not kept.
 - `subscribeProjectChanges` watches the open project's own ping, the user's workspace ping and the
   repository one; the project page re-reads itself (`useLiveProjectChanges`), and drops the snapshot so
-  the tree beside it follows. The id-free workspace ping backs the id-keyed one up: it cannot miss a
-  change of the workspace.
+  the tree beside it follows. The editor of a module reads the project and its modules again on the same pings, so an
+  editor opened on kept reads while a change made elsewhere was on its way catches up with it. The id-free workspace
+  ping backs the id-keyed one up: it cannot miss a change of the workspace.
 - The open file of the project page re-fetches with the page reload (`reloadToken`), and so do the files of the
   project in the tree beside it; an editor holding unsaved changes parks the refresh instead of overwriting them
   (`FilePreviewPane`).

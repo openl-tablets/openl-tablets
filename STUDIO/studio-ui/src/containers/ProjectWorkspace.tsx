@@ -34,7 +34,7 @@ import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
 import { useReportProjectRail } from './projects/projectRail'
 import { buildFileChangeMap } from './projects/fileChanges'
 import type { ProjectFileChange } from '../services/projectStatus'
-import { readProject, readProjectFiles } from '../services/keptReads'
+import { keptProjectRead, readProject, readProjectFiles } from '../services/keptReads'
 import { useReadAgain } from '../hooks/useReadAgain'
 
 /** One empty list for every project without pending changes, so the memo below it holds. */
@@ -134,13 +134,18 @@ export const ProjectWorkspace = () => {
     const navigate = useNavigate()
     const route = useParams()
     const projectId = projectIdOfParams(route)
-    const [project, setProject] = useState<Project | null>(null)
+    // The project as its editor read it moments ago, when that read is still trusted: the page opens on it rather than
+    // on a skeleton, and reads it no more for now.
+    const [keptAtMount] = useState(
+        () => (projectId ? keptProjectRead(projectId, ['status', 'descriptor']) ?? null : null)
+    )
+    const [project, setProject] = useState<Project | null>(keptAtMount?.project ?? null)
     // Whether the link leads to no project: shown in place of the project.
     const [linkProblem, setLinkProblem] = useState(false)
     // When the read behind the shown project started, so the compile dot can tell a pushed status
     // that is newer than this answer from one this answer has already overtaken.
     const [statusReadAt, setStatusReadAt] = useState(0)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(keptAtMount === null)
     const [error, setError] = useState<string | null>(null)
     const [files, setFiles] = useState<FsNode[] | 'loading' | 'error'>()
     // What the project is busy with, or null. Every operation on it runs through this, so the project shows
@@ -149,8 +154,9 @@ export const ProjectWorkspace = () => {
     const [openRevisionFor, setOpenRevisionFor] = useState<Project | null>(null)
     const [exportSource, setExportSource] = useState<Project | null>(null)
     const [discardCloseOpen, setDiscardCloseOpen] = useState(false)
-    // Bumped on every reload so tabs that cache their own data (history, file content) refetch and reset.
-    const [reloadToken, setReloadToken] = useState(0)
+    // Bumped on every reload so tabs that cache their own data (history, file content) refetch and reset. A page that
+    // opens on a kept read has read its project already, so the reload after its first action counts as a read again.
+    const [reloadToken, setReloadToken] = useState(keptAtMount === null ? 0 : 1)
     // What the reload behind the current token knows it touched; null means anything may have changed.
     const [changedFiles, setChangedFiles] = useState<string[] | null>(null)
     // Bumped on every project-detail load so stale navigation responses cannot overwrite the current page.
@@ -212,6 +218,10 @@ export const ProjectWorkspace = () => {
             if (!loads.isLatest(generation)) {
                 return null
             }
+            // The kept read the page opened on answers its first load: nothing on the page changes.
+            if (loaded === keptAtMount?.project) {
+                return loaded
+            }
             if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
                 // The tabs are left alone: nothing the signature covers changed. The compile status is
                 // not part of it and is the server's latest word, so it is taken anyway - otherwise a
@@ -257,13 +267,17 @@ export const ProjectWorkspace = () => {
             }
         }
         return null
-    }, [loads, projectId, projectReadAgain])
+    }, [keptAtMount, loads, projectId, projectReadAgain])
 
     // The Projects screen mounts a page for each project it shows, so a page reads its project once on mount and
     // never shows another one: what it read for a project the reader has left goes with it.
     useEffect(() => {
-        void load()
-    }, [load])
+        // A kept read is as old as when it was taken, not as when the page opened on it.
+        if (keptAtMount !== null) {
+            loadedAt.current = keptAtMount.takenAt
+        }
+        void load({ silent: keptAtMount !== null })
+    }, [keptAtMount, load])
 
     // The backend pings when this project changed elsewhere — another session or client, a commit
     // by someone else. The page re-reads itself quietly, and the

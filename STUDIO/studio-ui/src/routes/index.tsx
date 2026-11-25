@@ -13,11 +13,7 @@ import { DeploymentWorkspace } from '../containers/DeploymentWorkspace'
 import { ProjectsThemeProvider } from '../containers/projects/ProjectsThemeProvider'
 
 // The single-project workspace (detail tabs, editor, CodeMirror) is code-split and loaded on demand,
-// so opening the Projects list stays light.
-const ProjectWorkspace = React.lazy(() =>
-    import('../containers/ProjectWorkspace').then(module => ({ default: module.ProjectWorkspace })))
-const ModuleWorkspace = React.lazy(() =>
-    import('../containers/ModuleWorkspace').then(module => ({ default: module.ModuleWorkspace })))
+// so opening the Projects list stays light (see projectScreens).
 const LocalizationWorkspace = React.lazy(() =>
     import('../containers/localization/LocalizationWorkspace')
         .then(module => ({ default: module.LocalizationWorkspace })))
@@ -45,6 +41,7 @@ import NotFound from '../pages/404'
 import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
 import { RouteErrorFallback } from '../components/RouteErrorFallback'
+import { ModuleWorkspaceScreen, ProjectWorkspaceScreen } from './projectScreens'
 
 const router = createBrowserRouter([
     {
@@ -82,7 +79,7 @@ const router = createBrowserRouter([
                                 path: ':projectId',
                                 element: (
                                     <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
-                                        <ProjectWorkspace />
+                                        <ProjectWorkspaceScreen />
                                     </React.Suspense>
                                 ),
                             },
@@ -94,7 +91,7 @@ const router = createBrowserRouter([
                         path: 'maven/:groupId/:artifactId/:version',
                         element: (
                             <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
-                                <ProjectWorkspace />
+                                <ProjectWorkspaceScreen />
                             </React.Suspense>
                         ),
                     },
@@ -107,7 +104,7 @@ const router = createBrowserRouter([
                 element: (
                     <ProjectsThemeProvider>
                         <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
-                            <ModuleWorkspace />
+                            <ModuleWorkspaceScreen />
                         </React.Suspense>
                     </ProjectsThemeProvider>
                 ),
@@ -126,7 +123,7 @@ const router = createBrowserRouter([
                 element: (
                     <ProjectsThemeProvider>
                         <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
-                            <ModuleWorkspace />
+                            <ModuleWorkspaceScreen />
                         </React.Suspense>
                     </ProjectsThemeProvider>
                 ),

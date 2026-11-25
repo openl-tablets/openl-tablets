@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { App, Button, Dropdown, Tooltip } from 'antd'
@@ -15,7 +15,9 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable, SummaryTable, TableRunState } from 'types/tables'
-import { getTableTargets, getTableTests, type TableTarget, type TableTest } from '../../services/modules'
+import { getTableTargets, type TableTarget, type TableTest } from '../../services/modules'
+import { keptTableTests, readTableTests } from '../../services/keptReads'
+import { useReadAgain } from '../../hooks/useReadAgain'
 import { deleteTable } from '../../services/tables'
 import { moduleRoute } from '../../services/projectId'
 import type { ConfirmWrite } from './useOverwriteConfirm'
@@ -223,14 +225,18 @@ export const TableToolbar = ({
     const { styles: band } = useActionBandStyles()
     const patterns = useDateFormats()
     const navigate = useNavigate()
-    const [tests, setTests] = useState<TableTest[]>([])
+    const [tests, setTests] = useState<TableTest[]>(
+        () => keptTableTests(projectId, table.id, moduleName, projectCompiled) ?? [])
+    // What covers the table is read afresh only once the same table, as compiled as far, is read again.
+    const testsReadAgain = useReadAgain(`${projectId} ${table.id} ${projectCompiled}`)
     // What this table exercises, which only a test or a run table does.
     const [targets, setTargets] = useState<TableTarget[]>([])
     // What a table was answered to exercise, kept so the question is not asked about it a second time — and so
     // the answer comes back with the table when the reader returns to it.
     const named = useRef<{ id: string, targets: TableTarget[] } | null>(null)
 
-    useEffect(() => {
+    // Laid out before the frame is painted, so tests kept from moments ago show in the frame that selects the table.
+    useLayoutEffect(() => {
         // Only a table the rules can call is covered by tests; a test table of its own, a datatype or a data
         // table is covered by none, and the server is not asked about them.
         if (!EXECUTABLE_KINDS.includes(table.kind)) {
@@ -239,9 +245,10 @@ export const TableToolbar = ({
         }
         let dropped = false
         // What the table before it was covered by is none of this table's business while the answer is on
-        // its way.
-        setTests([])
-        getTableTests(projectId, table.id, moduleName)
+        // its way. The tests read of it moments ago, after as much of a compilation, stand in for the answer.
+        const fresh = testsReadAgain()
+        setTests((fresh ? undefined : keptTableTests(projectId, table.id, moduleName, projectCompiled)) ?? [])
+        readTableTests(projectId, table.id, moduleName, projectCompiled, { fresh })
             .then(found => {
                 if (!dropped) {
                     setTests(found)
@@ -257,7 +264,7 @@ export const TableToolbar = ({
         }
         // A test is a table of its own and may be written in another module, so what covers this one is known
         // once the project is compiled through. The list is read again then, rather than staying as it was.
-    }, [projectId, table.id, table.kind, moduleName, projectCompiled])
+    }, [projectId, table.id, table.kind, moduleName, projectCompiled, testsReadAgain])
 
     // A test says which table it is written against, so a reader arrives at the rules from the test as easily
     // as they reach the test from the rules. Nothing else exercises anything, and nothing is asked for it.

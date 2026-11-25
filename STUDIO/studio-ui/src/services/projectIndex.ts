@@ -20,6 +20,8 @@ interface ProjectIndex {
 }
 
 let pending: Promise<ProjectIndex> | undefined
+/** What the read behind {@link pending} answered, once it did. */
+let answered: ProjectIndex | undefined
 /** When the snapshot was asked for; the staleness policy counts from here. */
 let takenAt = 0
 /** A read is on the wire right now. */
@@ -45,6 +47,7 @@ export const getProjectIndex = (): Promise<ProjectIndex> => {
     // A read already on the wire is never dropped for age: waiting for it beats racing it with a second one.
     if (pending && !inFlight && isProjectIndexStale()) {
         pending = undefined
+        answered = undefined
     }
     pending ??= read()
     return pending
@@ -71,6 +74,7 @@ const read = (): Promise<ProjectIndex> => {
     })).then(index => {
         inFlight = false
         if (!changedWhileReading) {
+            answered = index
             return index
         }
         const refreshed = read()
@@ -82,6 +86,7 @@ const read = (): Promise<ProjectIndex> => {
         // A failed read must not be remembered as the answer: the next open tries again.
         inFlight = false
         pending = undefined
+        answered = undefined
         throw error
     })
 }
@@ -92,6 +97,7 @@ export const invalidateProjectIndex = (): void => {
         changedWhileReading = true
     } else {
         pending = undefined
+        answered = undefined
     }
 }
 
@@ -109,6 +115,12 @@ export const projectSignature = (project: Project | null): string =>
             project.branch,
             project.modifiedAt,
         ])
+
+/**
+ * The snapshot as it stands, when one was read and is still trusted; nothing while it is being read. A screen the
+ * reader comes back to starts from it, so it paints what it showed rather than a skeleton.
+ */
+export const peekProjectIndex = (): ProjectIndex | undefined => (isProjectIndexStale() ? undefined : answered)
 
 /**
  * True when there is no snapshot, or the one there is has outlived its trust window. A screen the

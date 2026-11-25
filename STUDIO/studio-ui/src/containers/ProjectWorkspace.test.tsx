@@ -14,7 +14,8 @@ import {
 import { ApiHttpError, ForbiddenError, NotFoundError } from '../services'
 import type { ProjectRailState } from './projects/projectRail'
 import { notification } from 'antd'
-import { forgetKeptReads } from '../services/keptReads'
+import { forgetKeptReads, readProject } from '../services/keptReads'
+import { PROJECT_INDEX_TTL_MS } from '../services/projectIndex'
 
 /** The parameters of the address: a project id, or the coordinates of a project downloaded from Maven. */
 interface RouteParams {
@@ -34,10 +35,12 @@ const { copyModalMock, navigateMock, overviewMock, railReporter, searchParamsMoc
     navigateMock: vi.fn(),
     searchParamsMock: new URLSearchParams(),
     setSearchParamsMock: vi.fn(),
-    // The change ping captured from the screen, plus whether the screen asks the hook to hold it.
+    // The change ping captured from the screen, plus whether the screen asks the hook to hold it, and what the screen
+    // does when the reader comes back to the tab.
     liveHandlers: {
         projectChange: undefined as ((files: string[]) => void) | undefined,
         holdWhile: false,
+        focus: undefined as (() => void) | undefined,
     },
 }))
 
@@ -51,7 +54,9 @@ vi.mock('../hooks', async () => ({
         liveHandlers.projectChange = onChange
         liveHandlers.holdWhile = options?.holdWhile ?? false
     },
-    useWindowFocus: () => {},
+    useWindowFocus: (onFocus: () => void) => {
+        liveHandlers.focus = onFocus
+    },
 }))
 
 vi.mock('react-router', () => ({
@@ -394,6 +399,47 @@ describe('ProjectWorkspace', () => {
         expect(notification.info).toHaveBeenCalledWith({ title: 'browser.live_project_synced' })
         // The real change resets the tabs and the tree beside them.
         expect(railReporter.reloaded).toHaveBeenCalledTimes(1)
+    })
+
+    it('reports the first read again of a page that opened on what its editor read', async () => {
+        // The editor of the project read it moments ago: the page opens on that read and asks for nothing.
+        await readProject('p1', ['status', 'descriptor'], { throwError: true })
+        vi.mocked(getProject).mockClear()
+        await renderWorkspace()
+        expect(getProject).not.toHaveBeenCalled()
+        vi.mocked(getProject).mockResolvedValue(project({ status: 'EDITING' }) as never)
+
+        await act(async () => {
+            liveHandlers.projectChange?.([])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getProject).toHaveBeenCalledTimes(1)
+        // The tree beside the page reads the project again with it.
+        expect(railReporter.reloaded).toHaveBeenCalledTimes(1)
+    })
+
+    it('trusts what its editor read only as long as it was read ago, not since the page opened on it', async () => {
+        const now = vi.spyOn(Date, 'now').mockReturnValue(1_000_000)
+        try {
+            await readProject('p1', ['status', 'descriptor'], { throwError: true })
+            vi.mocked(getProject).mockClear()
+            // The page opens on the read just short of the time it is trusted for.
+            now.mockReturnValue(1_000_000 + PROJECT_INDEX_TTL_MS - 1000)
+            await renderWorkspace()
+            expect(getProject).not.toHaveBeenCalled()
+
+            // The reader comes back to the tab a little later: the read has outlived its trust, the page has not.
+            now.mockReturnValue(1_000_000 + PROJECT_INDEX_TTL_MS + 1000)
+            await act(async () => {
+                liveHandlers.focus?.()
+                await new Promise(resolve => setTimeout(resolve, 0))
+            })
+
+            expect(getProject).toHaveBeenCalledTimes(1)
+        } finally {
+            now.mockRestore()
+        }
     })
 
     it('stays quiet when a ping merely echoes what the page already shows', async () => {

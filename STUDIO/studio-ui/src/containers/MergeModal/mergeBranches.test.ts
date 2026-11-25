@@ -1,6 +1,7 @@
 import apiCall, { readTaskResult } from '../../services/apiCall'
 import { subscribeTopic } from '../../services/stompTopic'
 import { ResultNotReadyError } from '../../services/taskResult'
+import { forgetKeptReads } from '../../services/keptReads'
 import { jsonResponse } from '../../testing/responses'
 import { mergeStatusTopic } from '../execution/topics'
 import { QUIET_SPELL_MS } from '../execution/useExecutionProgress'
@@ -14,6 +15,10 @@ vi.mock('../../services/apiCall', () => ({
 
 vi.mock('../../services/stompTopic', () => ({
     subscribeTopic: vi.fn(),
+}))
+
+vi.mock('../../services/keptReads', () => ({
+    forgetKeptReads: vi.fn(),
 }))
 
 const mockApiCall = vi.mocked(apiCall)
@@ -51,6 +56,14 @@ describe('mergeBranches', () => {
         }, expect.objectContaining({ throwError: true }))
         expect(mockReadTaskResult).toHaveBeenCalledWith('/projects/proj-1/merge', undefined, expect.anything())
         expect(unsubscribe).toHaveBeenCalled()
+    })
+
+    it('drops the reads kept for the next screen once the merge is over', async () => {
+        mockReadTaskResult.mockResolvedValueOnce(jsonResponse(SUCCESS))
+
+        await mergeBranches('proj-1', 'receive', 'feature', false)
+
+        expect(forgetKeptReads).toHaveBeenCalledTimes(1)
     })
 
     it('watches the merge before it starts, so its end cannot go unheard', async () => {

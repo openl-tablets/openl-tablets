@@ -15,7 +15,7 @@ import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { hasSearchScope, searchFor, searchScope } from '../testing/search'
 import { getMavenProjects } from '../services/mavenDependencies'
-import { forgetKeptReads } from '../services/keptReads'
+import { forgetKeptReads, readDesignRepositories } from '../services/keptReads'
 import { WORKSPACE_CHANGED_EVENT } from '../services/apiCall'
 
 const { address, copyModalMock, navigateMock, treeMock, liveHandlers, shown } = vi.hoisted(() => ({
@@ -97,6 +97,8 @@ vi.mock('react-router', async () => {
     }
 })
 
+// The code of the screens of a project is loaded ahead in the application; here it is not.
+vi.mock('../routes/projectScreens', () => ({ preloadProjectScreensWhenIdle: vi.fn() }))
 vi.mock('../services/mavenDependencies', async importOriginal => ({
     ...(await importOriginal<typeof import('../services/mavenDependencies')>()),
     getMavenProjects: vi.fn(async () => []),
@@ -618,14 +620,20 @@ describe('ProjectsHome', () => {
         // An earlier visit left a snapshot holding only Alpha, and nothing changed since as far as this tab knows.
         mockProjectSearch(projects.slice(0, 1))
         await getProjectIndex()
+        await readDesignRepositories()
+        vi.mocked(getProjects).mockClear()
+        vi.mocked(getDesignRepositories).mockClear()
         mockProjectSearch()
 
-        const { unmount } = await renderHome()
+        const { unmount } = render(<><HeaderActionsSlot /><ProjectsHome /></>)
 
+        // The list is on screen in the first frame, with no skeleton before it.
+        expect(screen.queryByTestId('projects-home-loading')).toBeNull()
         expect(rowOrder()).toEqual(['project-row-p1'])
-        // Coming back costs no read of the projects, and one of the repositories.
-        expect(getProjects).toHaveBeenCalledTimes(1)
-        expect(getDesignRepositories).toHaveBeenCalledTimes(1)
+        await act(async () => {})
+        // Coming back costs no read of the projects, nor of the repositories.
+        expect(getProjects).not.toHaveBeenCalled()
+        expect(getDesignRepositories).not.toHaveBeenCalled()
         unmount()
 
         // A change, here or told by the server, drops what was kept: the next visit reads the workspace as it is.
@@ -633,8 +641,27 @@ describe('ProjectsHome', () => {
         await renderHome()
 
         await waitFor(() => expect(screen.getByTestId('project-row-p2')).toBeTruthy())
-        expect(getProjects).toHaveBeenCalledTimes(2)
-        expect(getDesignRepositories).toHaveBeenCalledTimes(2)
+        expect(getProjects).toHaveBeenCalledTimes(1)
+        expect(getDesignRepositories).toHaveBeenCalledTimes(1)
+    })
+
+    it('reads a snapshot left by an earlier visit again behind it while it shows a compilation under way', async () => {
+        // The snapshot was read while Alpha compiled: the end of that compilation pings nobody.
+        vi.mocked(getProjects).mockResolvedValueOnce({
+            ...projectsPage(projects.slice(0, 1), 1, false),
+            statuses: [{ projectId: 'p1', compileState: 'compiling' }],
+        })
+        await getProjectIndex()
+        await readDesignRepositories()
+        vi.mocked(getProjects).mockClear()
+
+        render(<><HeaderActionsSlot /><ProjectsHome /></>)
+
+        // The list is on screen at once, and read again behind it.
+        expect(screen.queryByTestId('projects-home-loading')).toBeNull()
+        expect(rowOrder()).toEqual(['project-row-p1'])
+        await waitFor(() => expect(screen.getByTestId('project-row-p2')).toBeTruthy())
+        expect(getProjects).toHaveBeenCalledTimes(1)
     })
 
     it('keeps initial load failures local to the Projects page', async () => {

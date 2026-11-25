@@ -56,6 +56,7 @@ vi.mock('../../services/repositories', () => ({
 }))
 
 vi.mock('../../services/projectIndex', () => ({
+    PROJECT_INDEX_TTL_MS: 300_000,
     getProjectIndex: vi.fn().mockResolvedValue({
         projects: [{ name: 'Common Datatypes' }, { name: 'Rates' }],
         statuses: [],

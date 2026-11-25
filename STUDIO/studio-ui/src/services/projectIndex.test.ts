@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WORKSPACE_CHANGED_EVENT } from './apiCall'
-import { getProjectIndex, invalidateProjectIndex, isProjectIndexStale } from './projectIndex'
+import { getProjectIndex, invalidateProjectIndex, isProjectIndexStale, peekProjectIndex } from './projectIndex'
 import { getProjects } from './repositories'
 
 vi.mock('./repositories', () => ({ getProjects: vi.fn() }))
@@ -12,6 +12,17 @@ describe('the projects snapshot', () => {
         vi.clearAllMocks()
         invalidateProjectIndex()
         vi.mocked(getProjects).mockResolvedValue(page('Alpha') as never)
+    })
+
+    it('hands a screen coming back the snapshot it read, once read and while it is trusted', async () => {
+        const reading = getProjectIndex()
+        expect(peekProjectIndex()).toBeUndefined()
+
+        const index = await reading
+        expect(peekProjectIndex()).toBe(index)
+
+        invalidateProjectIndex()
+        expect(peekProjectIndex()).toBeUndefined()
     })
 
     it('is read once and shared, so the list and the tree cost one request between them', async () => {

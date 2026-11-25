@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Alert, App, Button, Empty, Skeleton } from 'antd'
@@ -47,7 +47,16 @@ import { useDiscardConfirm } from './modules/useDiscardConfirm'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 import { ProjectScreenPending } from './projects/ProjectScreenPending'
-import { readModules, readProject } from '../services/keptReads'
+import {
+    keptModuleTables,
+    keptProject,
+    keptTableWindow,
+    readModules,
+    readModuleTables,
+    readProject,
+    readTableWindow,
+} from '../services/keptReads'
+import { useLiveProjectChanges } from '../hooks/useLiveProjectChanges'
 import { useReadAgain } from '../hooks/useReadAgain'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -148,15 +157,28 @@ export const ModuleWorkspace = () => {
 
     // The project as read for an address. The screen stays mounted when it moves on to another project, and what it
     // read for the previous address is none of the new one's: nothing is shown, compiled or read of it there.
-    const [projectRead, setProjectRead] = useState<{ address: string, project: Project } | null>(null)
+    // The project as its page read it moments ago, when that read is still trusted: the editor opens on it at once.
+    const [projectRead, setProjectRead] = useState<{ address: string, project: Project } | null>(() => {
+        const kept = keptProject(projectId, ['status'])
+        return kept === undefined ? null : { address: projectId, project: kept }
+    })
     const project = projectReadFor(projectRead, projectId)
     const [statusReadAt, setStatusReadAt] = useState(0)
     const [loadError, setLoadError] = useState<string | null>(null)
     // Whether the link leads to no project: shown in place of the module.
     const [linkProblem, setLinkProblem] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
+    // The editor opens on the tables it read of this module last time, when that read is still trusted: the tree
+    // stands at once rather than as a skeleton.
     const [loaded, setLoaded] = useState<{ at: string, other: boolean, round: number, tables: ModuleTable[] } | null>(
-        null)
+        () => {
+            const branchRead = project?.branch ?? null
+            const other = showOtherSetting.read()
+            const tables = project === null ? undefined : keptModuleTables(projectId, branchRead, moduleName, other)
+            return tables === undefined
+                ? null
+                : { at: `${projectId} ${branchRead} ${moduleName}`, other, round: 0, tables }
+        })
     // A refresh may read the tables before the compilation it asked for has begun: the status at hand still names
     // the module as compiled, from before, and the tables answer with what was compiled then — another program may
     // have changed the files since. So the tables are read once more, in a round of their own, when a compilation
@@ -184,7 +206,11 @@ export const ModuleWorkspace = () => {
             setShowOther(true)
         }
     }, [])
-    const [table, setTable] = useState<RawTableView | null>(null)
+    // The table on screen when the editor opened, as it was read moments ago: drawn in the first frame, not after it.
+    const [table, setTable] = useState<RawTableView | null>(() => {
+        const tableId = search.get('table')
+        return tableId === null ? null : keptTableWindow(projectId, tableId, moduleName) ?? null
+    })
     // Why the table could not be read, and whether the server said it holds no table of the address at all.
     const [tableError, setTableError] = useState<{ message: string, gone: boolean } | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
@@ -261,6 +287,7 @@ export const ModuleWorkspace = () => {
     const projectLoads = useLoadGeneration()
     const projectReadAgain = useReadAgain(projectId)
     const modulesReadAgain = useReadAgain(projectId)
+    const tableReadAgain = useReadAgain(`${projectId} ${selectedId}`)
 
     const load = useCallback(() => {
         if (!projectId) {
@@ -339,12 +366,21 @@ export const ModuleWorkspace = () => {
     // Read once the project is: the list is the branch's, and asking before the project says which branch it
     // stands on spends a read on a question nobody can answer yet.
     const read = project !== null
+    // The editor may open on what the page of the project read moments ago, while the server is still on its way to
+    // tell of a change made elsewhere — another session, another client: when it tells of one, the editor reads the
+    // project and its modules again.
+    const [pinged, setPinged] = useState(0)
+    const readAgainOnPing = useCallback(() => {
+        load()
+        setPinged(count => count + 1)
+    }, [load])
+    useLiveProjectChanges(project?.id, readAgainOnPing)
     useEffect(() => {
         if (!projectId || closed || !read) {
             return
         }
         readModules(projectId, { fresh: modulesReadAgain() }).then(setModules).catch(() => setModules([]))
-    }, [projectId, branch, closed, read, reloadToken, modulesReadAgain])
+    }, [projectId, branch, closed, read, reloadToken, pinged, modulesReadAgain])
 
     // The tables are read once the module is compiled, so the read answers at once instead of waiting for the
     // compilation to reach it. They are kept under the module they belong to: moving to another module, or to
@@ -367,7 +403,7 @@ export const ModuleWorkspace = () => {
             return
         }
         reading.current = asked
-        getModuleTables(projectId, moduleName, { includeOther: showOther })
+        readModuleTables(projectId, branch, moduleName, showOther)
             .then(found => setLoaded({ at: here, other: showOther, round, tables: found }))
             .catch((error: unknown) => {
                 if (onScreen.current !== here) {
@@ -390,6 +426,7 @@ export const ModuleWorkspace = () => {
     }, [
         here,
         projectId,
+        branch,
         moduleName,
         compilation.ready,
         tables,
@@ -669,23 +706,22 @@ export const ModuleWorkspace = () => {
     // A table of a Markdown file is plain text: its cells are written here, but not its look, which the file does not
     // keep. Asked of the file the table comes from, not of the module, which may include a file of the other kind.
     const markdownTable = isMarkdownPath(selected?.file)
-    useEffect(() => {
+    // Laid out before the frame is painted: a table kept from moments ago is drawn in the frame that selects it, with
+    // no skeleton between.
+    useLayoutEffect(() => {
         if (!projectId || selectedId === null || !readable) {
             setTable(null)
             setTableError(null)
             return
         }
         const { generation } = tableLoads.start(false)
-        setTable(null)
+        // A table the editor showed moments ago is drawn at once, as it was read then; read again, it is asked for.
+        const fresh = tableReadAgain()
+        setTable((fresh ? undefined : keptTableWindow(projectId, selectedId, moduleName)) ?? null)
         setTableError(null)
-        // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
-        getRawTable(projectId, selectedId, {
-            module: moduleName,
-            maxRows: TABLE_PAGE_ROWS,
-            metaInfo: true,
-            // What the band offers to run is what the read says can be run.
-            runState: true,
-        })
+        // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it. What the band
+        // offers to run is what the read says can be run.
+        readTableWindow(projectId, selectedId, moduleName, { fresh })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -699,7 +735,7 @@ export const ModuleWorkspace = () => {
                     })
                 }
             })
-    }, [projectId, selectedId, readable, moduleName, tableLoads])
+    }, [projectId, selectedId, readable, moduleName, tableLoads, tableReadAgain])
 
     // The run state a table is read with can age. Read while the rest of the project was still being built -
     // which is where a switch to another module leaves it - it says a run must stay inside the module, and

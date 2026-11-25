@@ -1,6 +1,7 @@
 import apiCall, { readTaskResult } from '../../services/apiCall'
 import type { ApiCallOptions } from '../../services/apiCall'
 import { isFinished, readStatus } from '../../services/executionStatus'
+import { forgetKeptReads } from '../../services/keptReads'
 import { subscribeTopic } from '../../services/stompTopic'
 import { isStillRunning } from '../../services/taskResult'
 import { mergeStatusTopic } from '../execution/topics'
@@ -23,7 +24,8 @@ interface EndSignal {
  * Merges the branches of a project, and answers with what the merge did.
  *
  * The server validates the merge while the request answers and runs it in the background, so no proxy cuts
- * a long merge off. The merge is watched on its topic from before it starts, so its end cannot go unheard, and
+ * a long merge off. Its requests leave the projects snapshot alone, so the reads kept for the next screen are dropped
+ * here once the merge is over: what they hold may be of the branch before it. The merge is watched on its topic from before it starts, so its end cannot go unheard, and
  * its result is read once it has ended. The result is also asked for again after every few seconds without a word,
  * as the screens of runs and tests do: an end reported while the connection was down reaches nobody.
  *
@@ -67,6 +69,7 @@ export const mergeBranches = async (
     } finally {
         signal.cancel()
         subscription.unsubscribe()
+        forgetKeptReads()
     }
 }
 
