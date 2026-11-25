@@ -5,45 +5,6 @@ import { getProjectFiles, revisionQueryParams, toRevisionPage, type RevisionPage
 import { decodeText } from '../utils/decodeText'
 import { triggerDownload } from '../utils/download'
 
-/** Text file extensions the generic editor can open. Files with no extension are also treated as text. */
-const TEXT_EXTENSIONS = new Set([
-    'txt',
-    'md',
-    'xml',
-    'json',
-    'yaml',
-    'yml',
-    'properties',
-    'groovy',
-    'java',
-    'js',
-    'jsx',
-    'ts',
-    'tsx',
-    'css',
-    'scss',
-    'less',
-    'html',
-    'htm',
-    'csv',
-    'sql',
-    'sh',
-    'bat',
-    'conf',
-    'ini',
-    'log',
-    'gitignore',
-])
-
-/** Whether a file can be opened in the generic text editor (as opposed to Excel/binary content). */
-export function isEditableTextFile(name: string): boolean {
-    const dot = name.lastIndexOf('.')
-    if (dot <= 0) {
-        return true
-    }
-    return TEXT_EXTENSIONS.has(name.slice(dot + 1).toLowerCase())
-}
-
 /** Build the files-API URL for a single file, encoding each path segment while keeping the separators. */
 const fileUrl = (projectId: string, path: string): string =>
     `/projects/${projectId}/files/${encodeProjectPath(path)}`
@@ -199,6 +160,15 @@ export async function fileExistsAt(projectId: string, path: string, version?: st
         }
         throw error
     }
+}
+
+/**
+ * The address the content of a project file is read at, for a picture to be drawn from it. The address of the same
+ * file changes with `reload`, so a picture replaced since it was drawn is read again.
+ */
+export function fileContentUrl(projectId: string, path: string, reload?: number): string {
+    const query = reload === undefined ? '' : `?reload=${reload}`
+    return `${CONFIG.API_ROOT}${fileUrl(projectId, path)}${query}`
 }
 
 /**

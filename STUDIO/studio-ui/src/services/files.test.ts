@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import apiCall from './apiCall'
+import CONFIG from './config'
 import { getProjectFiles } from './repositories'
 import {
     copyFile,
@@ -7,10 +8,10 @@ import {
     deleteFile,
     downloadFile,
     downloadFolder,
+    fileContentUrl,
     getFileRevisions,
     getFileContent,
     getFileText,
-    isEditableTextFile,
     moveFile,
     replaceFile,
     rootFileExists,
@@ -97,10 +98,9 @@ describe('files service', () => {
         )
     })
 
-    it('classifies editable text files by extension', () => {
-        expect(isEditableTextFile('README')).toBe(true)
-        expect(isEditableTextFile('rules/deploy.xml')).toBe(true)
-        expect(isEditableTextFile('rules/Main.xlsx')).toBe(false)
+    it('addresses the content of a file, anew after each reload', () => {
+        expect(fileContentUrl('project', 'img/logo one.png')).toBe(`${CONFIG.API_ROOT}/projects/project/files/img/logo%20one.png`)
+        expect(fileContentUrl('project', 'img/logo.png', 3)).toBe(`${CONFIG.API_ROOT}/projects/project/files/img/logo.png?reload=3`)
     })
 
     it('updates file content as plain text', async () => {

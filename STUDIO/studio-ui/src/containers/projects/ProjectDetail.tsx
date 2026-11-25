@@ -364,6 +364,7 @@ export const ProjectDetail = ({
                 projectOpened={project.status !== ProjectStatus.Closed}
                 reloadToken={reloadToken}
                 repositoryId={project.repository}
+                size={selectedNode?.size}
             />
         )
     }

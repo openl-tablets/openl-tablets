@@ -14,7 +14,8 @@ import { ProjectStatus } from '../../constants/project'
 import { buildFileChangeMap } from './fileChanges'
 import { buildFileNodes, type FileNode } from './fileNodes'
 import { qualifiersOf } from './projectQualifiers'
-import { iconFor } from './fileIcons'
+import { fileIconOf, folderIconOf } from './fileIcons'
+import { structureOf, type ProjectStructure } from './projectStructure'
 import type { Repository } from '../../types/repositories'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import { useSharedStyles } from './sharedStyles'
@@ -93,6 +94,8 @@ interface ProjectContents {
     changes?: ReadonlyMap<string, ProjectFileChangeType>
     /** The size of a file in bytes, by its path. */
     sizes: Record<string, number>
+    /** The folders that play a part in the project, as its `rules.xml` declares them. */
+    structure: ProjectStructure
     error?: string
 }
 
@@ -112,32 +115,36 @@ interface FileRows {
 const BODY_SIDE_PADDING = 8
 
 /**
- * Reads the files of a project and, for a project being edited, its changes.
+ * Reads the files of a project, the folders its `rules.xml` gives a part to and, for a project being edited, its
+ * changes.
  *
  * <p>The changes the screen already knows — those of the project it shows — are taken as they are rather than read
- * again.
+ * again. A `rules.xml` that cannot be read leaves the folders of the engine's defaults.
  */
 const readContents = async (
     project: Project,
     knownChanges: ReadonlyMap<string, ProjectFileChangeType> | undefined
 ): Promise<ProjectContents> => {
-    const [files, changes] = await Promise.all([
+    // Only a project being edited has changes to mark; they come with its status.
+    const readsChanges = project.status === ProjectStatus.Editing && !knownChanges
+    const [files, detail] = await Promise.all([
         getProjectFiles(project.id).then(
             read => read.filter(node => node.type === 'file'),
             (e: unknown) => errorMessage(e)
         ),
-        // Only a project being edited has changes to mark; they come with its status.
-        project.status === ProjectStatus.Editing && !knownChanges
-            ? getProject(project.id, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
-                .then(read => buildFileChangeMap(read.compileStatus?.pendingChanges?.files ?? [], read.path, read.name))
-                .catch(() => undefined)
-            : knownChanges,
+        getProject(project.id, { includes: readsChanges ? ['status', 'descriptor'] : ['descriptor'] }, LOCAL_LOAD_API_OPTIONS)
+            .catch(() => undefined),
     ])
+    const structure = structureOf(detail?.descriptor)
     if (typeof files === 'string') {
-        return { signature: projectSignature(project), paths: [], sizes: {}, error: files }
+        return { signature: projectSignature(project), paths: [], sizes: {}, structure, error: files }
     }
+    const changes = readsChanges
+        ? detail && buildFileChangeMap(detail.compileStatus?.pendingChanges?.files ?? [], detail.path, detail.name)
+        : knownChanges
     const read: ProjectContents = {
         signature: projectSignature(project),
+        structure,
         ...(changes ? { changes } : {}),
         paths: files.map(file => file.path),
         sizes: Object.fromEntries(files.flatMap(file => (file.size === undefined ? [] : [[file.path, file.size]]))),
@@ -847,12 +854,9 @@ export const ProjectsTree = ({
     // not saved yet stays, struck through, and opens nothing.
     function fileNodesOf(project: Project, read: ProjectContents, files: FileNode[], marks: ProjectMarks): TreeNodeData[] {
         return files.map(file => {
-            const { Icon, color } = iconFor(file.name, file.isFile, {
-                success: token.colorSuccess,
-                info: token.colorInfo,
-                warning: token.colorWarning,
-                muted: token.colorTextTertiary,
-            })
+            const { Icon, color } = file.isFile
+                ? fileIconOf(file.path, token)
+                : folderIconOf(read.structure.get(file.path), token)
             const mark = changeOf(file, marks)
             const deleted = mark === 'deleted'
             const size = file.isFile && !deleted ? formatFileSize(read.sizes[file.path], locale) : null

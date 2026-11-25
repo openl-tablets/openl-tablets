@@ -1,3 +1,5 @@
+import { fileName } from './fileFormats'
+
 /**
  * What the engine reads as a workbook.
  *
@@ -18,7 +20,7 @@ export const WORKBOOK_ACCEPT = WORKBOOK_EXTENSIONS.join(',')
  * <p>A path written with either separator ends in a file name, so one written on Windows is read the same.
  */
 export const isWorkbookPath = (path: string): boolean => {
-    const name = path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1).toLowerCase()
+    const name = fileName(path).toLowerCase()
     return WORKBOOK_EXTENSIONS.some(extension => name.endsWith(extension))
 }
 
