@@ -207,7 +207,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     workspacePage: css`
         display: flex;
         flex-direction: column;
-        height: calc(100vh - 64px);
+        height: calc(100vh - ${APP_HEADER_HEIGHT}px);
         overflow: hidden;
         background: ${token.colorBgContainer};
     `,
