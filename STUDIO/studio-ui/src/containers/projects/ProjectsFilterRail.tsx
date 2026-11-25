@@ -39,7 +39,6 @@ import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
 import { RepoBadge } from './RepoBadge'
 import { BranchMarks, useBranchColor } from './BranchMarks'
-import { TagTypeMark } from '../tags/tagColor'
 import {
     BRANCH_GROUP,
     filterLayoutSetting,
@@ -71,9 +70,6 @@ const STATUS_ORDER: ProjectStatus[] = [
 const useStyles = createStyles(({ css, token }) => ({
     section: css`
         padding: ${token.paddingXXS}px ${token.padding}px ${token.paddingXS}px;
-    `,
-    tagMark: css`
-        margin-inline-end: ${token.marginXXS}px;
     `,
     /** A branch facet row: the name reads in the rail's own colour and size, only the marks are borrowed. */
     branchFacet: css`
@@ -181,8 +177,6 @@ interface FilterValue {
 interface FilterGroup {
     id: string
     title: string
-    /** What marks the group before its title, such as the tag icon of a tag type in the color of the type. */
-    icon?: ReactNode
     /** The parameter of the list that the values of the group pick. */
     param: FilterParam
     /** The values the group offers, in the order it lists them. */
@@ -301,7 +295,6 @@ export const ProjectsFilterRail = ({
         ...(tagCounts ?? []).map((facet): FilterGroup => ({
             id: tagGroupId(facet.type),
             title: facet.type,
-            icon: <TagTypeMark className={styles.tagMark} testId={`filter-tag-mark-${facet.type}`} type={facet.type} />,
             param: 'tags',
             picked: tags,
             values: facet.values.map(({ id, count }) => ({ value: `${facet.type}:${id}`, label: id, count })),
@@ -454,12 +447,7 @@ const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide, o
         // What a screen reader calls the group while it is being moved.
         data: { title: group.title },
     })
-    const title = (
-        <span className={shared.ellipsis}>
-            {group.icon}
-            {group.title}
-        </span>
-    )
+    const title = <span className={shared.ellipsis}>{group.title}</span>
     const { id, param, picked, values } = group
 
     return (

@@ -161,23 +161,44 @@ describe('writePicked', () => {
 })
 
 describe('sortProjects', () => {
-    it('sorts by name, branch or date, in either direction', () => {
-        expect(sortProjects([beta, alpha], 'name').map(p => p.id)).toEqual(['p1', 'p2'])
-        expect(sortProjects([beta, alpha], 'name', 'desc').map(p => p.id)).toEqual(['p2', 'p1'])
-        expect(sortProjects([beta, alpha], 'branch').map(p => p.id)).toEqual(['p2', 'p1'])
-        expect(sortProjects([alpha, beta], 'updated').map(p => p.id)).toEqual(['p1', 'p2'])
-        expect(sortProjects([alpha, beta], 'updated', 'desc').map(p => p.id)).toEqual(['p2', 'p1'])
+    it('sorts by name, branch, author or date, in either direction', () => {
+        expect(sortProjects([beta, alpha], 'name', 'en').map(p => p.id)).toEqual(['p1', 'p2'])
+        expect(sortProjects([beta, alpha], 'name', 'en', 'desc').map(p => p.id)).toEqual(['p2', 'p1'])
+        expect(sortProjects([beta, alpha], 'branch', 'en').map(p => p.id)).toEqual(['p2', 'p1'])
+        expect(sortProjects([beta, alpha], 'author', 'en').map(p => p.id)).toEqual(['p1', 'p2'])
+        expect(sortProjects([alpha, beta], 'author', 'en', 'desc').map(p => p.id)).toEqual(['p2', 'p1'])
+        expect(sortProjects([alpha, beta], 'updated', 'en').map(p => p.id)).toEqual(['p1', 'p2'])
+        expect(sortProjects([alpha, beta], 'updated', 'en', 'desc').map(p => p.id)).toEqual(['p2', 'p1'])
+    })
+
+    it('sorts the same list again, keeping the order it had among the projects a column ranks alike', () => {
+        const other = { ...beta, modifiedBy: 'Jane' }
+        const list = [alpha, other]
+
+        expect(sortProjects(list, 'updated', 'en', 'desc')).toBe(list)
+        expect(sortProjects(list, 'author', 'en').map(p => p.id)).toEqual(['p2', 'p1'])
+        expect(sortProjects(list, 'updated', 'en').map(p => p.id)).toEqual(['p1', 'p2'])
+        expect(sortProjects(list, 'author', 'en', 'desc').map(p => p.id)).toEqual(['p1', 'p2'])
+    })
+
+    it('orders a project without an author as an empty text, first up and last down', () => {
+        const nobody: Project = { ...beta, id: 'p4' }
+        delete nobody.modifiedBy
+        const zoe = { ...alpha, modifiedBy: 'zoe' }
+
+        expect(sortProjects([zoe, nobody], 'author', 'en').map(p => p.id)).toEqual(['p4', 'p1'])
+        expect(sortProjects([nobody, zoe], 'author', 'en', 'desc').map(p => p.id)).toEqual(['p1', 'p4'])
     })
 
     it('keeps a project without a timestamp last in either direction of the date sort', () => {
-        expect(sortProjects([local, alpha], 'updated').map(p => p.id)).toEqual(['p1', 'p3'])
-        expect(sortProjects([local, alpha], 'updated', 'desc').map(p => p.id)).toEqual(['p1', 'p3'])
+        expect(sortProjects([local, alpha], 'updated', 'en').map(p => p.id)).toEqual(['p1', 'p3'])
+        expect(sortProjects([local, alpha], 'updated', 'en', 'desc').map(p => p.id)).toEqual(['p1', 'p3'])
     })
 })
 
 describe('countFacets', () => {
     it('counts the statuses, the repositories and every tag value of the scope', () => {
-        const counts = countFacets(all, id => (id === 'design' ? 'Design' : 'Git Flat'))
+        const counts = countFacets(all, id => (id === 'design' ? 'Design' : 'Git Flat'), 'en')
 
         expect(counts.statusCounts).toEqual({ local: 1, opened: 1, editing: 0, viewingVersion: 0, closed: 1, deleted: 1 })
         // A local project is counted under the local facet rather than its repository.
@@ -196,13 +217,13 @@ describe('countFacets', () => {
     })
 
     it('lists the tag types in the order of the configured ones, then the others by name', () => {
-        const counts = countFacets(all, id => id, ['lob', 'Region'])
+        const counts = countFacets(all, id => id, 'en', ['lob', 'Region'])
 
         expect(counts.tagCounts.map(facet => facet.type)).toEqual(['LOB', 'Domain'])
     })
 
     it('counts each branch and carries its default and protected marks', () => {
-        expect(countBranches(all)).toEqual([
+        expect(countBranches(all, 'en')).toEqual([
             { id: 'feature/rates', name: 'feature/rates', count: 1, isDefault: false, isProtected: true },
             { id: 'main', name: 'main', count: 1, isDefault: true, isProtected: false },
         ])

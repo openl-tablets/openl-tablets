@@ -17,7 +17,7 @@ export interface Project {
         lockedBy: string
     }
     modifiedAt: string
-    modifiedBy: string
+    modifiedBy?: string
     name: string
     path?: string
     /** Id of the repository the project is stored in. */

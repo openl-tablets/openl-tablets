@@ -13,8 +13,8 @@ export const useTagTypeOrder = (): readonly string[] => useContext(TagTypeOrder)
 
 /**
  * Hands the projects screen the configured tag types a part of it read itself, in their order, so the whole screen
- * follows the latest read: the list, the rail and the tree take the colours and the order the Overview of a project
- * does. Does nothing outside the screen.
+ * follows the latest read: the rail and the tree take the order the Overview of a project does. Does
+ * nothing outside the screen.
  */
 export const PublishTagTypes = createContext<(names: readonly string[]) => void>(() => undefined)
 
@@ -22,7 +22,7 @@ export const PublishTagTypes = createContext<(names: readonly string[]) => void>
  * The rank of a tag type in the order the configured tag types are arranged in. Types match regardless of case;
  * a type that is not configured ranks after every configured one.
  */
-export const tagTypeRank = (types: readonly string[]): ((type: string) => number) => {
+const tagTypeRank = (types: readonly string[]): ((type: string) => number) => {
     const ranks = new Map(types.map((type, index) => [nameKey(type), index]))
     return type => ranks.get(nameKey(type)) ?? types.length
 }

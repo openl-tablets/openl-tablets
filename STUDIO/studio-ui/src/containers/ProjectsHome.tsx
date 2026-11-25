@@ -58,6 +58,7 @@ import {
     searchProjects,
     sortProjects,
     type BranchFacetCount,
+    PROJECT_SORTS,
     type ProjectSort,
     type SortDirection,
 } from './projects/projectListing'
@@ -204,7 +205,8 @@ const renderFilterRail = (props: ComponentProps<typeof ProjectsFilterRail>) => <
  */
 export const ProjectsHome = () => {
     const { notification } = App.useApp()
-    const { t } = useTranslation('repository')
+    const { t, i18n } = useTranslation('repository')
+    const locale = i18n.resolvedLanguage ?? i18n.language
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const token = useTheme()
@@ -331,8 +333,7 @@ export const ProjectsHome = () => {
 
     const search = params.get('q') ?? ''
     // No sort in the URL means the default name order — shown without an arrow until a header is clicked.
-    const sortParam = params.get('sort')
-    const sort: ProjectSort | null = sortParam === 'updated' || sortParam === 'branch' || sortParam === 'name' ? sortParam : null
+    const sort = PROJECT_SORTS.find(column => column === params.get('sort')) ?? null
     const direction: SortDirection = params.get('dir') === 'desc' ? 'desc' : 'asc'
     const pageSize = parsePositiveInt(params.get('size'), DEFAULT_PAGE_SIZE)
     const requestedPage = parsePositiveInt(params.get('page'), 1)
@@ -380,12 +381,19 @@ export const ProjectsHome = () => {
     const scope = useMemo(() => listingScope(searched, branches), [branches, searched])
     // What the rail counts: the scope, with the picked facets ignored — the way the API counted it.
     const facets = useMemo<ProjectFacets>(
-        () => ({ ...countFacets(scope, repositoryName, configuredTagTypes), branchCounts: countBranches(searched) }),
-        [configuredTagTypes, repositoryName, scope, searched]
+        () => ({
+            ...countFacets(scope, repositoryName, locale, configuredTagTypes),
+            branchCounts: countBranches(searched, locale),
+        }),
+        [configuredTagTypes, locale, repositoryName, scope, searched]
     )
+    // Each sort sorts the same filtered list again, in place. The sort is stable, so the projects a column ranks alike
+    // keep the order the sort before it gave them. The list is filtered anew, in the order of the names, only when the
+    // data or the filters change.
+    const refined = useMemo(() => sortProjects(refineProjects(scope, query), 'name', locale), [locale, query, scope])
     const matched = useMemo(
-        () => sortProjects(refineProjects(scope, query), sort ?? 'name', direction),
-        [direction, query, scope, sort]
+        () => [...sortProjects(refined, sort ?? 'name', locale, direction)],
+        [direction, locale, refined, sort]
     )
 
     const totalProjects = matched.length
@@ -897,7 +905,7 @@ export const ProjectsHome = () => {
         )
     }
 
-    // The tags of the list, the rail and the project shown follow the configured tag types and take their colors by them.
+    // The tags of the rail, the tree and the project shown follow the order of the configured tag types.
     const page = (
         <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail

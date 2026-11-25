@@ -1,13 +1,16 @@
 import { ProjectStatus } from '../../constants/project'
 import { mavenArtifactOf } from '../../services/projectId'
 import type { FacetCount, Project, ProjectStatusSummary, TagFacetSummary } from '../../types/projects'
+import { cached } from '../../utils/cached'
 import { inTagTypeThenNameOrder } from '../tags/tagOrder'
 
 /** The synthetic repository key a local-only project is filtered and counted under. */
 export const LOCAL_REPO_KEY = '__local__'
 
 /** The columns the list sorts by — exactly the columns the table shows. */
-export type ProjectSort = 'name' | 'branch' | 'updated'
+export const PROJECT_SORTS = ['name', 'branch', 'author', 'updated'] as const
+
+export type ProjectSort = (typeof PROJECT_SORTS)[number]
 
 export type SortDirection = 'asc' | 'desc'
 
@@ -193,35 +196,55 @@ export const refineProjects = (scope: Project[], query: ListingQuery): Project[]
 export const selectProjects = (projects: Project[], query: ListingQuery): Project[] =>
     refineProjects(listingScope(projects, query.branches), query)
 
-const byName = (left: Project, right: Project): number =>
-    left.name.localeCompare(right.name, undefined, { sensitivity: 'base' })
+/** The comparisons of texts the list orders by, one for each language. */
+const textOrders = new Map<string, (left: string, right: string) => number>()
 
-export const sortProjects = (projects: Project[], sort: ProjectSort, direction: SortDirection = 'asc'): Project[] => {
-    const sorted = [...projects]
-    const directed = (comparison: number) => (direction === 'desc' ? -comparison : comparison)
-    if (sort === 'branch') {
-        return sorted.sort((left, right) =>
-            directed((left.branch ?? '').localeCompare(right.branch ?? '', undefined, { sensitivity: 'base' }))
-            || byName(left, right))
+/** Compares texts the way the list orders them in a language: by letter, whatever the case or the accents. */
+const textOrder = (locale: string) =>
+    cached(textOrders, locale, () => new Intl.Collator(locale, { sensitivity: 'base' }).compare)
+
+/** Orders anything named — a project, a repository, a tag value or a branch — by its name, in a language. */
+const nameOrder = (locale: string) => {
+    const byText = textOrder(locale)
+    return (left: { name: string }, right: { name: string }): number => byText(left.name, right.name)
+}
+
+/** The text of a project each text column sorts by. */
+const SORTED_TEXT: Record<Exclude<ProjectSort, 'updated'>, (project: Project) => string> = {
+    name: project => project.name,
+    branch: project => project.branch ?? '',
+    author: project => project.modifiedBy ?? '',
+}
+
+/**
+ * Sorts the projects by a column in its direction, in place, and returns them.
+ *
+ * The sort is stable: the projects the column ranks alike keep the order they had, so a list sorted by the time of
+ * change and then by the author keeps the projects of each author in the order of their changes.
+ *
+ * A text is ordered by the alphabet of the language of the screen. A project with no branch or no author is ordered as
+ * an empty text, so it comes first in ascending order and last in descending. A project with no time of change goes
+ * last in either direction of the date.
+ */
+export const sortProjects = (
+    projects: Project[],
+    sort: ProjectSort,
+    locale: string,
+    direction: SortDirection = 'asc'
+): Project[] => {
+    const sign = direction === 'desc' ? -1 : 1
+    if (sort !== 'updated') {
+        const byText = textOrder(locale)
+        const textOf = SORTED_TEXT[sort]
+        return projects.sort((left, right) => sign * byText(textOf(left), textOf(right)))
     }
-    if (sort === 'updated') {
-        // Sorted by the date alone; a project with no timestamp goes last either way.
-        return sorted.sort((left, right) => {
-            const leftAt = left.modifiedAt ? Date.parse(left.modifiedAt) : Number.NaN
-            const rightAt = right.modifiedAt ? Date.parse(right.modifiedAt) : Number.NaN
-            if (Number.isNaN(leftAt) && Number.isNaN(rightAt)) {
-                return byName(left, right)
-            }
-            if (Number.isNaN(leftAt)) {
-                return 1
-            }
-            if (Number.isNaN(rightAt)) {
-                return -1
-            }
-            return directed(leftAt - rightAt) || byName(left, right)
-        })
-    }
-    return sorted.sort((left, right) => directed(byName(left, right)))
+    // Each time is read once; it is not a number for a project without one, which then goes last.
+    const changedAt = new Map(projects.map(project => [project, Date.parse(project.modifiedAt)]))
+    return projects.sort((left, right) => {
+        const leftAt = changedAt.get(left) ?? Number.NaN
+        const rightAt = changedAt.get(right) ?? Number.NaN
+        return Number(Number.isNaN(leftAt)) - Number(Number.isNaN(rightAt)) || sign * (leftAt - rightAt) || 0
+    })
 }
 
 /** The summary field each project status is counted in. */
@@ -251,7 +274,12 @@ export interface BranchFacetCount extends FacetCount {
  * The tag types follow the order of the configured ones, given by name; the types not configured come after
  * them in alphabetical order.
  */
-export const countFacets = (scope: Project[], repositoryName: (id: string) => string, tagTypes: readonly string[] = []): {
+export const countFacets = (
+    scope: Project[],
+    repositoryName: (id: string) => string,
+    locale: string,
+    tagTypes: readonly string[] = []
+): {
     statusCounts: ProjectStatusSummary
     repositoryCounts: FacetCount[]
     tagCounts: TagFacetSummary[]
@@ -282,15 +310,16 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
             tags.set(type, values)
         }
     }
+    const byName = nameOrder(locale)
     const repositoryCounts = [...repositories.entries()]
         .map(([id, count]) => ({ id, name: id === LOCAL_REPO_KEY ? 'Local' : repositoryName(id), count }))
-        .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }))
+        .sort(byName)
     const tagCounts = inTagTypeThenNameOrder(tagTypes, [...tags.entries()], ([type]) => type)
         .map(([type, values]) => ({
             type,
             values: [...values.entries()]
                 .map(([value, count]) => ({ id: value, name: value, count }))
-                .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' })),
+                .sort(byName),
         }))
     return { statusCounts, repositoryCounts, tagCounts }
 }
@@ -299,7 +328,7 @@ export const countFacets = (scope: Project[], repositoryName: (id: string) => st
  * The branch counts of the rail: the branch each project is on. Counted apart from {@link countFacets}, because
  * the rail offers every branch — a branch whose projects the default view leaves out has to stay pickable.
  */
-export const countBranches = (projects: Project[]): BranchFacetCount[] => {
+export const countBranches = (projects: Project[], locale: string): BranchFacetCount[] => {
     const branches = new Map<string, { count: number, isDefault: boolean, isProtected: boolean }>()
     for (const project of projects) {
         if (project.branch) {
@@ -313,5 +342,5 @@ export const countBranches = (projects: Project[]): BranchFacetCount[] => {
     }
     return [...branches.entries()]
         .map(([name, info]) => ({ id: name, name, count: info.count, isDefault: info.isDefault, isProtected: info.isProtected }))
-        .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }))
+        .sort(nameOrder(locale))
 }

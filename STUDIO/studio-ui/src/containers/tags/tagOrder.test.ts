@@ -1,17 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { inTagTypeOrder, inTagTypeThenNameOrder, tagTypeRank } from './tagOrder'
-
-describe('tagTypeRank', () => {
-    it('ranks a tag type by its place among the configured ones, regardless of case', () => {
-        const rank = tagTypeRank(['Region', 'Domain'])
-
-        expect(rank('region')).toBe(0)
-        expect(rank(' Domain ')).toBe(1)
-        expect(rank('LOB')).toBe(2)
-    })
-})
+import { inTagTypeOrder, inTagTypeThenNameOrder } from './tagOrder'
 
 describe('inTagTypeOrder', () => {
+    it('finds a configured tag type regardless of case and surrounding spaces', () => {
+        expect(inTagTypeOrder(['Region', 'Domain'], ['LOB', ' Domain ', 'region'], type => type))
+            .toEqual(['region', ' Domain ', 'LOB'])
+    })
+
     it('puts the configured types first, the others after them in the order they came', () => {
         expect(inTagTypeOrder(['Domain', 'LOB'], ['Zone', 'lob', 'Area', 'Domain'], type => type))
             .toEqual(['Domain', 'lob', 'Zone', 'Area'])

@@ -184,7 +184,7 @@ vi.mock('./projects/CompileIndicator', () => ({
 }))
 
 vi.mock('react-i18next', () => ({
-    useTranslation: () => ({ t: (key: string) => key }),
+    useTranslation: () => ({ i18n: { language: 'en', resolvedLanguage: 'en' }, t: (key: string) => key }),
 }))
 
 vi.mock('antd-style', () => ({
@@ -485,8 +485,9 @@ describe('ProjectsHome', () => {
         // Repositories are a filter facet, shown in the rail rather than as a list-row column.
         expect(screen.getAllByText('Design').length).toBeGreaterThanOrEqual(1)
         expect(screen.getAllByText('ReadOnly').length).toBeGreaterThanOrEqual(1)
-        // The tag value shows up both as a row tag and as a tag facet in the rail.
-        expect(screen.getAllByText('Payroll').length).toBeGreaterThan(1)
+        // The tag value shows up as a tag facet in the rail, not in the row.
+        expect(screen.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
+        expect(within(screen.getByTestId('project-row-p1')).queryByText('Payroll')).toBeNull()
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
     })
 
@@ -578,21 +579,22 @@ describe('ProjectsHome', () => {
         let answerFirst: (types: never) => void = () => undefined
         vi.mocked(getTagTypes)
             .mockImplementationOnce(() => new Promise(resolve => { answerFirst = resolve }))
-            .mockResolvedValueOnce([{ name: 'Category' }] as never)
+            .mockResolvedValueOnce([{ name: 'Zone' }, { name: 'Category' }] as never)
+        vi.mocked(getProjects).mockResolvedValue(projectsPage([{ ...projects[0]!, tags: { Category: 'Payroll', Zone: 'North' } }]))
         await renderHome()
         await act(async () => {
             liveHandlers.workspaceChange?.()
             await new Promise(resolve => setTimeout(resolve, 0))
         })
-        const colored = () => screen.getAllByTestId('project-tag-Category')[0]!.className
+        const order = () => screen.getAllByTestId(/^filter-group-tag:/).map(group => group.getAttribute('data-testid'))
 
-        // The later read configured the type, so its chips take a colour; the earlier read, answering last, is dropped.
-        expect(colored()).not.toContain('ant-tag-default')
+        // The later read put Zone first; the earlier read, answering last with none, is dropped.
+        expect(order()).toEqual(['filter-group-tag:Zone', 'filter-group-tag:Category'])
         await act(async () => {
             answerFirst([] as never)
             await new Promise(resolve => setTimeout(resolve, 0))
         })
-        expect(colored()).not.toContain('ant-tag-default')
+        expect(order()).toEqual(['filter-group-tag:Zone', 'filter-group-tag:Category'])
     })
 
     it('records a failed read of the tag types and keeps the names read before', async () => {
@@ -630,7 +632,7 @@ describe('ProjectsHome', () => {
         expect(getProjects).toHaveBeenCalledWith(expect.any(Object), { throwError: true, suppressErrorPages: true })
     })
 
-    it('sorts alphabetically by default, by the Modified header on demand, newest first', async () => {
+    it('sorts alphabetically by default, by the Modified at header on demand, newest first', async () => {
         await renderHome()
 
         expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
@@ -643,6 +645,44 @@ describe('ProjectsHome', () => {
         // A second click on the same header flips the direction.
         await userEvent.click(screen.getByTestId('projects-sort-updated'))
         expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
+    })
+
+    it('sorts by a second header within the order the first one gave', async () => {
+        // Gamma and Alpha share an author, Alpha changed last.
+        mockProjectSearch([...projects, { ...projects[0]!, id: 'p3', name: 'Gamma', modifiedAt: '2025-01-01T00:00:00Z' }])
+        await renderHome()
+        expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2', 'project-row-p3'])
+
+        await userEvent.click(screen.getByTestId('projects-sort-updated'))
+        await userEvent.click(screen.getByTestId('projects-sort-author'))
+
+        // jane's projects stay newest first, ahead of john's.
+        expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p3', 'project-row-p2'])
+        expect(screen.getByTestId('projects-sort-author')).toHaveAttribute('aria-sort', 'ascending')
+
+        // Sorted oldest first instead, the projects of jane change places.
+        await userEvent.click(screen.getByTestId('projects-sort-updated'))
+        await userEvent.click(screen.getByTestId('projects-sort-updated'))
+        await userEvent.click(screen.getByTestId('projects-sort-author'))
+        expect(rowOrder()).toEqual(['project-row-p3', 'project-row-p1', 'project-row-p2'])
+    })
+
+    it('lists the projects a column ranks alike by name again once the list is read anew', async () => {
+        await renderHome()
+        await userEvent.click(screen.getByTestId('projects-sort-author'))
+        // The workspace moved on elsewhere, and the server sends the projects of jane out of the order of their names.
+        vi.mocked(getProjects).mockImplementation(async () => projectsPage([
+            { ...projects[0]!, id: 'p3', name: 'Gamma' },
+            projects[0]!,
+            projects[1]!,
+        ], 3, false))
+
+        await act(async () => {
+            liveHandlers.workspaceChange?.()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p3', 'project-row-p2']))
     })
 
     it('puts New Project in the top bar', async () => {

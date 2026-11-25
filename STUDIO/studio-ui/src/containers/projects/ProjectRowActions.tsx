@@ -29,8 +29,9 @@ export type ProjectListHandlers = {
 }
 
 const useStyles = createStyles(({ css }) => ({
+    /* A flex box rather than an inline one, so the line of text around it adds no room below the buttons. */
     wrap: css`
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 4px;
     `,

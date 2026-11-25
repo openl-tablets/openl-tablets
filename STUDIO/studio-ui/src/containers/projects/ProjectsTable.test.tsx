@@ -1,18 +1,11 @@
 import type { ComponentProps } from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ProjectsTable } from './ProjectsTable'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
-
-vi.mock('antd-style', () => ({
-    createStyles: () => () => ({
-        styles: new Proxy({}, { get: () => '' }),
-        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
-    }),
-}))
 
 vi.mock('antd', () => ({
     Tooltip: ({ children }: Record<string, unknown>) => <>{children as never}</>,
@@ -41,10 +34,8 @@ vi.mock('./projectRow', () => ({
         muted: false,
         supportsBranches: project.repository !== 'flat',
         lockLabel: null,
-        tags: {},
         date: 'Jan 2, 2024',
     }),
-    ProjectTags: () => null,
     hasBranch: (project: Project) => project.repository !== 'flat'
         && !!project.branch
         && project.status !== ProjectStatus.Local,
@@ -123,6 +114,16 @@ describe('ProjectsTable', () => {
 
         fireEvent.click(screen.getByTestId('projects-sort-updated'))
         expect(onSort).toHaveBeenCalledWith('updated')
+    })
+
+    it('shows the author and the time of the last change in columns of their own', () => {
+        renderTable([project()])
+
+        expect(screen.getByTestId('projects-sort-author').textContent).toBe('home.col_author')
+        expect(screen.getByTestId('projects-sort-updated').textContent).toBe('home.col_modified_at')
+        const cells = within(screen.getByTestId('project-row-p1')).getAllByRole('cell')
+        // Project, Branch, Author, Modified at and the actions.
+        expect(cells.map(cell => cell.textContent)).toEqual(['Alpha', 'main', 'jane', expect.stringContaining('2024'), ''])
     })
 
     it('marks the sorted column with the arrow of its direction', () => {

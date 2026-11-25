@@ -47,11 +47,17 @@ export const datePickerFormatForLocale = (locale?: string): string =>
         .join('')
 
 /**
- * The pattern of the time of day, down to the second, that a locale writes: the order of its parts, its separators,
- * and a 12-hour clock with its day period where the locale keeps one.
+ * The pattern of the time of day that a locale writes: the order of its parts, its separators, and a 12-hour clock
+ * with its day period where the locale keeps one.
+ *
+ * @param withSeconds whether the time goes down to the second rather than the minute
  */
-export const timeFormatForLocale = (locale?: string): string => {
-    const format = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', second: '2-digit' })
+export const timeFormatForLocale = (locale?: string, withSeconds = true): string => {
+    const format = new Intl.DateTimeFormat(locale, {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: withSeconds ? '2-digit' : undefined,
+    })
     const twelveHours = ['h11', 'h12'].includes(format.resolvedOptions().hourCycle ?? '')
     const tokens: Partial<Record<Intl.DateTimeFormatPartTypes, string>> = {
         hour: twelveHours ? 'h' : 'HH',
@@ -64,16 +70,21 @@ export const timeFormatForLocale = (locale?: string): string => {
         .join('')
 }
 
-/** The patterns of day.js a date alone and a date with its time are written in. */
+/** The patterns of day.js a date alone, a date with its time, and a date with its time to the minute are written in. */
 export interface DateFormats {
     date: string
     dateTime: string
+    dateTimeToMinute: string
 }
 
-/** The patterns of a date alone and of a time of day alone, as the regional settings of the browser write them. */
+/**
+ * The patterns of a date alone and of a time of day alone, down to the second and to the minute, as the regional
+ * settings of the browser write them.
+ */
 interface SystemPatterns {
     date: string
     time: string
+    timeToMinute: string
 }
 
 /** The patterns of the regional settings of the browser, once the first date has been written in them. */
@@ -85,7 +96,11 @@ let system: SystemPatterns | undefined
  * The browser keeps its regional settings while the page is open, so they are read once.
  */
 export const systemPatterns = (): SystemPatterns => {
-    system ??= { date: datePickerFormatForLocale(), time: timeFormatForLocale() }
+    system ??= {
+        date: datePickerFormatForLocale(),
+        time: timeFormatForLocale(),
+        timeToMinute: timeFormatForLocale(undefined, false),
+    }
     return system
 }
 
@@ -94,14 +109,19 @@ const PICKED = new Map<string, DateFormats>()
 
 /**
  * The patterns of the Date Format and the Time Format of **My Settings**, each the one of the regional settings of
- * the browser while it is empty. A date with its time is the date, then the time.
+ * the browser while it is empty. A date with its time is the date, then the time; to the minute, the time leaves its
+ * seconds out, which every Time Format offered writes last, after a colon.
  *
  * They are worked out once for each pair: a screen writing thousands of dates pays for them once.
  */
 const patternsOf = (dateFormat: string, timeFormat: string): DateFormats =>
     cached(PICKED, `${dateFormat}\n${timeFormat}`, () => {
         const date = dateFormat || systemPatterns().date
-        return { date, dateTime: `${date} ${timeFormat || systemPatterns().time}` }
+        return {
+            date,
+            dateTime: `${date} ${timeFormat || systemPatterns().time}`,
+            dateTimeToMinute: `${date} ${timeFormat.replace(':ss', '') || systemPatterns().timeToMinute}`,
+        }
     })
 
 /**
@@ -141,6 +161,15 @@ export const useDateFormats = (): DateFormats => {
     return patternsOf(dateFormat, timeFormat)
 }
 
+/** A moment in a pattern: null for a missing value and the raw string when it cannot be parsed. */
+const formatMoment = (value: string | undefined, pattern: string): string | null => {
+    if (!value) {
+        return null
+    }
+    const date = dayjs(value)
+    return date.isValid() ? date.format(pattern) : value
+}
+
 /**
  * Formats a date without time, such as "12/31/2026", as the date and time settings of the reader write it.
  *
@@ -163,13 +192,17 @@ export const formatDate = (value: string, patterns: DateFormats = formats()): st
  * Returns null for a missing value and the raw string when it cannot be parsed, so callers can apply
  * their own fallback.
  */
-export const formatDateTime = (value?: string, patterns: DateFormats = formats()): string | null => {
-    if (!value) {
-        return null
-    }
-    const date = dayjs(value)
-    return date.isValid() ? date.format(patterns.dateTime) : value
-}
+export const formatDateTime = (value?: string, patterns: DateFormats = formats()): string | null =>
+    formatMoment(value, patterns.dateTime)
+
+/**
+ * Formats a date with its time down to the minute, such as "12/31/2026 1:45 PM", as the date and time settings of the
+ * reader write it: {@link formatDateTime} without the seconds.
+ *
+ * Returns null for a missing value and the raw string when it cannot be parsed.
+ */
+export const formatDateTimeToMinute = (value?: string, patterns: DateFormats = formats()): string | null =>
+    formatMoment(value, patterns.dateTimeToMinute)
 
 /** A date and time written with no time zone, as a date property of a table holds it: `2020-07-01T10:30:00.000`. */
 const LOCAL_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/

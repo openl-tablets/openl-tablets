@@ -3,7 +3,6 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProjectTags } from './useProjectTags'
-import { tagColorsOf } from '../tags/tagColor'
 import { PublishTagTypes, TagTypeOrder } from '../tags/tagOrder'
 import { getTagTypes } from '../../services/repositories'
 import { deleteFile, rootFileExists, writeRootFile } from '../../services/files'
@@ -54,8 +53,8 @@ describe('useProjectTags', () => {
 
         expect(screen.getByText('Region')).toBeInTheDocument()
         expect(screen.getByText('EU')).toBeInTheDocument()
-        // The value is a chip in the color of its type, as in the project list.
-        expect(screen.getByTestId('tag-value-Region').className).toContain(`ant-tag-${tagColorsOf(['Region'])('Region')}`)
+        // The value is plain text, not a chip.
+        expect(screen.getByTestId('tag-value-Region')).not.toHaveClass('ant-tag')
         expect(screen.queryByTestId('project-tags-editor')).toBeNull()
     })
 
@@ -67,9 +66,6 @@ describe('useProjectTags', () => {
         expect(screen.getByText('anything')).toBeInTheDocument()
         expect(screen.getByTestId('tag-unconfigured-Home-made')).toBeInTheDocument()
         expect(screen.queryByTestId('tag-unconfigured-Region')).toBeNull()
-        // The value of a type that is not configured is gray, the same moment the type is marked.
-        expect(screen.getByTestId('tag-value-Home-made').className).toContain('ant-tag-default')
-        expect(screen.getByTestId('tag-value-Region').className).not.toContain('ant-tag-default')
         expect(screen.getByTestId('tags-unconfigured'))
             .toHaveTextContent('browser.tags.unconfigured {"types":"Home-made"}')
     })
@@ -362,8 +358,6 @@ describe('useProjectTags', () => {
         rerender(shown(['Domain', 'Region']))
 
         expect(screen.getByTestId('project-tags')).toHaveTextContent(/^DomainPolicyRegionEU/)
-        expect(screen.getByTestId('tag-value-Domain').className)
-            .toContain(`ant-tag-${tagColorsOf(['Domain', 'Region'])('Domain')}`)
     })
 
     it('saves the tags in spite of a warning', async () => {

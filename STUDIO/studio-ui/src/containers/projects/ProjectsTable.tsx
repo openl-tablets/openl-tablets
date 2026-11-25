@@ -8,27 +8,25 @@ import { RowCompileDot } from './CompileIndicator'
 import { StatusMark } from './StatusIndicator'
 import { ProjectRowActions, type ProjectListHandlers } from './ProjectRowActions'
 import type { RowBusyId } from './projectActions'
-import { deriveProjectRow, activateOnKey, hasBranch, ProjectBranchSwitch, ProjectTags } from './projectRow'
+import { deriveProjectRow, activateOnKey, hasBranch, ProjectBranchSwitch } from './projectRow'
 import { useSharedStyles } from './sharedStyles'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 import type { ProjectSort, SortDirection } from './projectListing'
 import { useDateFormats } from '../../utils/dateFormat'
 
-/** Upper bound for the auto-sized Modified column so an unusually long author name can't crowd out the name. */
-const MODIFIED_MAX_WIDTH = 260
-
 const useStyles = createStyles(({ css, token }) => ({
     table: css`
         table-layout: auto;
     `,
-    /* Modified and actions shrink to their content; the name column (no width) absorbs the rest. */
+    /* Author, Modified at and actions shrink to their content; the name column (no width) absorbs the rest. */
     branchCell: css`
         max-width: 280px;
         overflow: hidden;
         font-size: 12px;
 
-        && {
-            vertical-align: middle;
+        /* A box of its own rather than a word on the line, which would sit it on the text baseline above the centre. */
+        & > * {
+            display: flex;
         }
     `,
     fit: css`
@@ -61,8 +59,10 @@ const useStyles = createStyles(({ css, token }) => ({
         cursor: pointer;
         transition: background 0.15s ease;
 
-        td {
-            vertical-align: top;
+        /* Every value sits on one line, centred on the row the action buttons set the height of. */
+        && td {
+            padding-block: ${token.paddingXXS}px;
+            vertical-align: middle;
         }
 
         &:focus-visible {
@@ -74,11 +74,16 @@ const useStyles = createStyles(({ css, token }) => ({
             transition: none;
         }
     `,
+    /*
+     * The name asks the table for no width of its own, or the column would never be narrower than the whole name and
+     * its ellipsis would never show: it takes what the other columns leave, down to its minimum.
+     */
     nameRow: css`
+        contain: inline-size;
         display: flex;
         align-items: center;
         gap: 8px;
-        min-width: 0;
+        min-width: 200px;
     `,
     name: css`
         min-width: 0;
@@ -93,17 +98,12 @@ const useStyles = createStyles(({ css, token }) => ({
         flex: none;
         color: ${token.colorWarning};
     `,
-    subRow: css`
-        margin-top: ${token.marginXXS}px;
-    `,
-    modAuthor: css`
-        max-width: ${MODIFIED_MAX_WIDTH}px;
+    /* Capped, so an unusually long author name can't crowd out the project name. */
+    author: css`
+        max-width: 260px;
         font-size: 13px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     `,
-    modDate: css`
+    date: css`
         color: ${token.colorTextTertiary};
         font-size: 12px;
         white-space: nowrap;
@@ -133,10 +133,10 @@ interface ProjectsTableProps {
 }
 
 /**
- * The projects list as a borderless table (Project / Modified / actions), each row navigating to the
- * project workspace. The compilation status sits next to the project name. The layout is content-driven:
- * the actions and modified columns shrink to fit their content (the modified column capped), and the
- * project name takes all remaining width. A hand-rolled table keeps rows fast in jsdom and matches the
+ * The projects list as a borderless table (Project / Branch / Author / Modified at / actions), each row
+ * navigating to the project workspace. The compilation status sits next to the project name. The layout is
+ * content-driven: the other columns shrink to fit their content (the author capped), and the project name takes
+ * all remaining width. A hand-rolled table keeps rows fast in jsdom and matches the
  * mockup's underlined-row styling.
  */
 export const ProjectsTable = ({
@@ -159,6 +159,15 @@ export const ProjectsTable = ({
     // Nothing to switch and nothing to name: a page of projects that all live without branches drops the
     // column instead of showing an empty one.
     const showBranches = projects.some(project => hasBranch(project, repoInfoOf(project)))
+    // The class names of a row are put together once for the page, not once for every row.
+    const classes = {
+        row: cx(shared.listRow, styles.row),
+        name: styles.name,
+        mutedName: cx(styles.name, styles.nameMuted),
+        branchCell: cx(styles.fit, styles.branchCell),
+        author: cx(shared.ellipsis, styles.author),
+        date: cx(styles.fit, styles.date),
+    }
 
     // A header is the sort control of its column: the arrow only appears once the user sorted by it.
     const ascending = direction === 'asc'
@@ -183,19 +192,20 @@ export const ProjectsTable = ({
                 <tr>
                     <th>{sortHeader('name', t('home.col_project'))}</th>
                     {showBranches && <th className={styles.fit}>{sortHeader('branch', t('home.col_branch'))}</th>}
-                    <th className={styles.fit}>{sortHeader('updated', t('home.col_modified'))}</th>
+                    <th className={styles.fit}>{sortHeader('author', t('home.col_author'))}</th>
+                    <th className={styles.fit}>{sortHeader('updated', t('home.col_modified_at'))}</th>
                     <th aria-label={t('home.row_actions')} className={styles.fit} />
                 </tr>
             </thead>
             <tbody>
                 {projects.map(project => {
-                    const { muted, supportsBranches, lockLabel, tags, date } = deriveProjectRow(project, repoInfoOf, t)
+                    const { muted, supportsBranches, lockLabel, date } = deriveProjectRow(project, repoInfoOf, t)
                     const pendingActionId = pending[project.id] ?? null
                     return (
                         <tr
                             key={project.id}
                             aria-label={project.name}
-                            className={cx(shared.listRow, styles.row)}
+                            className={classes.row}
                             data-testid={`project-row-${project.id}`}
                             onClick={() => onOpen(project)}
                             onKeyDown={activateOnKey(() => onOpen(project))}
@@ -205,7 +215,7 @@ export const ProjectsTable = ({
                                 <div className={styles.nameRow}>
                                     <StatusMark status={project.status} testId={`status-${project.id}`} />
                                     <Typography.Text
-                                        className={cx(styles.name, muted && styles.nameMuted)}
+                                        className={muted ? classes.mutedName : classes.name}
                                         ellipsis={{ tooltip: project.name }}
                                     >
                                         {project.name}
@@ -220,13 +230,10 @@ export const ProjectsTable = ({
                                         status={project.status}
                                     />
                                 </div>
-                                <div className={styles.subRow}>
-                                    <ProjectTags tags={tags} />
-                                </div>
                             </td>
                             {/* Switching a branch is a row action of its own: it must not open the project. */}
                             {showBranches && (
-                                <td className={cx(styles.fit, styles.branchCell)} onClick={event => event.stopPropagation()}>
+                                <td className={classes.branchCell} onClick={event => event.stopPropagation()}>
                                     <ProjectBranchSwitch
                                         busy={pendingActionId !== null}
                                         onSwitched={onChanged}
@@ -237,9 +244,9 @@ export const ProjectsTable = ({
                                 </td>
                             )}
                             <td className={styles.fit}>
-                                <div className={styles.modAuthor}>{project.modifiedBy || '—'}</div>
-                                {date && <div className={styles.modDate}>{date}</div>}
+                                <div className={classes.author}>{project.modifiedBy || '—'}</div>
                             </td>
+                            <td className={classes.date}>{date ?? '—'}</td>
                             <td className={styles.fit}>
                                 <ProjectRowActions handlers={handlers} pendingActionId={pendingActionId} project={project} />
                             </td>
