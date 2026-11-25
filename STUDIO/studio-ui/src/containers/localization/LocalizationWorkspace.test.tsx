@@ -9,6 +9,7 @@ import { getProject, setProjectStatus } from '../../services/repositories'
 import type { MessagesPage } from '../../types/localization'
 import type { Project } from '../../types/projects'
 import { LocalizationWorkspace } from './LocalizationWorkspace'
+import { forgetKeptReads } from '../../services/keptReads'
 
 const { navigateMock, route } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -96,6 +97,8 @@ const addFromTheRow = async (key: string, text: string) => {
 
 describe('LocalizationWorkspace', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         route.search = new URLSearchParams()
         vi.mocked(getProject).mockResolvedValue(project())
         vi.mocked(listModules).mockResolvedValue([])

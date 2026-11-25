@@ -16,16 +16,15 @@ import { App, Alert, Button, Empty, Skeleton, Spin } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import {
-    getDesignRepositories,
     getProject,
-    getTagTypes,
     isProjectModifiedConflict,
     setProjectStatus,
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { mavenArtifactOf, mavenIdOf, projectCoordinatesOf, projectFileRoute, projectRoute } from '../services/projectId'
-import { getMavenProjects, mavenIdOfParams, mavenProjectOf } from '../services/mavenDependencies'
+import { mavenIdOfParams, mavenProjectOf } from '../services/mavenDependencies'
+import { readDesignRepositories, readMavenProjects, readTagTypes } from '../services/keptReads'
 import { DEFAULT_PAGE_SIZE } from '../constants/ui'
 import { HeaderActions } from '../components/HeaderActions'
 import { ListFooter } from '../components/ListFooter'
@@ -62,7 +61,7 @@ import {
     type ProjectSort,
     type SortDirection,
 } from './projects/projectListing'
-import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
+import { getProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { useSearchScope } from '../hooks/useSearchScope'
 import { compileColorsOf } from './projects/projectsTheme'
@@ -86,6 +85,7 @@ import {
     type ProjectCompileState,
     type ProjectStatusUpdate,
 } from '../services/projectStatus'
+import { useReadAgain } from '../hooks/useReadAgain'
 
 /** The facet counts of the rail, counted in the browser from the projects it already holds. */
 interface ProjectFacets {
@@ -274,18 +274,24 @@ export const ProjectsHome = () => {
     // own, read-only. They are read again whenever the projects are, since opening a project may name new ones.
     const [mavenProjects, setMavenProjects] = useState<Project[]>([])
     const [mavenListRead, setMavenListRead] = useState(false)
-    // A load that reads the same projects again needs no new list of them
+    // A load that reads the same projects again needs no new list of them, and none is asked for before the projects
+    // are read: the empty list the screen starts with would only be followed by a second read.
     const projectsSignature = useMemo(() => listSignature(allProjects), [allProjects])
+    const [projectsRead, setProjectsRead] = useState(false)
+    const mavenReadAgain = useReadAgain('maven')
     useEffect(() => {
+        if (!projectsRead) {
+            return undefined
+        }
         let dropped = false
-        getMavenProjects()
+        readMavenProjects({ fresh: mavenReadAgain() })
             .then(read => !dropped && setMavenProjects(read.map(mavenProjectOf)))
             .catch(() => !dropped && setMavenProjects([]))
             .finally(() => !dropped && setMavenListRead(true))
         return () => {
             dropped = true
         }
-    }, [projectsSignature])
+    }, [projectsRead, projectsSignature, mavenReadAgain])
     // A project of the Maven repository opened by its address, which the workspace does not depend on, is listed there
     // too while it is shown, so its files unfold in the tree as those of the others do.
     const [addressedMaven, setAddressedMaven] = useState<Project | null>(null)
@@ -462,9 +468,9 @@ export const ProjectsHome = () => {
         tagTypeReads.current++
         setConfiguredTagTypes(known => (known.join('\n') === names.join('\n') ? known : [...names]))
     }, [])
-    const readTagTypes = useCallback(() => {
+    const readConfiguredTagTypes = useCallback((fresh: boolean) => {
         const read = ++tagTypeReads.current
-        return getTagTypes()
+        return readTagTypes({ fresh })
             .then(types => {
                 // An earlier read answering after a later one is dropped: the later one holds the configuration.
                 if (read === tagTypeReads.current) {
@@ -477,7 +483,8 @@ export const ProjectsHome = () => {
     }, [publishTagTypes])
 
     const load = useCallback((refresh = false, { silent = false } = {}) => {
-        void readTagTypes()
+        // A refresh asks the server again; a first load takes what the screens of a project kept, if anything.
+        void readConfiguredTagTypes(refresh)
         const { generation, startedAt } = loads.start(silent)
         if (!silent) {
             setLoading(true)
@@ -485,13 +492,14 @@ export const ProjectsHome = () => {
         if (refresh) {
             invalidateProjectIndex()
         }
-        return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjectIndex()])
+        return Promise.all([readDesignRepositories({ fresh: refresh }), getProjectIndex()])
             .then(([repos_, index]): Project[] | null => {
                 if (!loads.isLatest(generation)) {
                     return null
                 }
                 setRepositories(repos_)
                 setAllProjects(index.projects)
+                setProjectsRead(true)
                 setProjectIndexHealth(index.projectIndexHealth)
                 setCompileStatuses(previous => overlayFreshStatuses(index.statuses, previous, statusPushedAt.current, startedAt))
                 setError(null)
@@ -513,7 +521,7 @@ export const ProjectsHome = () => {
                     setLoading(false)
                 }
             })
-    }, [loads])
+    }, [loads, readConfiguredTagTypes])
 
     // What the page of a project reports through: what it shows, and that it read its project again. A read again has
     // the tree read the files of the project again, and the list read the projects quietly: an action of the page, as
@@ -530,15 +538,9 @@ export const ProjectsHome = () => {
         if (restoring) {
             return
         }
-        // A snapshot left over from an earlier visit paints instantly, but the workspace may have
-        // moved on since — another user, another tab. Show it, then re-read behind it and swap the
-        // fresh answer in without a skeleton.
-        const revalidate = hasProjectIndex()
-        void load().then(() => {
-            if (revalidate) {
-                void load(true, { silent: true })
-            }
-        })
+        // A snapshot left over from an earlier visit paints instantly and is not read again: every change since,
+        // made here or told by the server while this screen was away, has dropped it, and so has its age.
+        void load()
     }, [load, restoring])
 
     // The backend pings when the workspace or a repository changed — another session, another

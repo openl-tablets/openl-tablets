@@ -6,14 +6,12 @@ import { ReloadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable, RawTableCellUsage, RawTableView, SummaryTable } from 'types/tables'
 import type { Project } from '../types/projects'
-import { getProject } from '../services/repositories'
 import {
     getMessageStacktrace,
     getModuleTables,
     getRawTable,
     isModuleNotFound,
     isTableNotFound,
-    listModules,
     stopEditingTable,
     TABLE_PAGE_ROWS,
     type ModuleInfo,
@@ -49,6 +47,8 @@ import { useDiscardConfirm } from './modules/useDiscardConfirm'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 import { ProjectScreenPending } from './projects/ProjectScreenPending'
+import { readModules, readProject } from '../services/keptReads'
+import { useReadAgain } from '../hooks/useReadAgain'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The table and, beside it, what the table says about itself. */
@@ -259,13 +259,16 @@ export const ModuleWorkspace = () => {
     const selectedVersion = table?.id === selectedId ? table.version : undefined
 
     const projectLoads = useLoadGeneration()
+    const projectReadAgain = useReadAgain(projectId)
+    const modulesReadAgain = useReadAgain(projectId)
 
     const load = useCallback(() => {
         if (!projectId) {
             return
         }
         const { generation, startedAt } = projectLoads.start(true)
-        getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
+        // The page of the project read it moments ago, most likely: its read answers, and the editor opens at once.
+        readProject(projectId, ['status'], LOCAL_LOAD_API_OPTIONS, { fresh: projectReadAgain() })
             .then(loaded => {
                 // An older read may be for an address the screen has left.
                 if (!projectLoads.isLatest(generation)) {
@@ -288,7 +291,7 @@ export const ModuleWorkspace = () => {
                     setLoadError(errorMessage(error))
                 }
             })
-    }, [projectId, projectLoads])
+    }, [projectId, projectLoads, projectReadAgain])
 
     // A new address starts afresh: what went wrong with the previous one is no longer this screen's.
     useEffect(() => {
@@ -340,8 +343,8 @@ export const ModuleWorkspace = () => {
         if (!projectId || closed || !read) {
             return
         }
-        listModules(projectId).then(setModules).catch(() => setModules([]))
-    }, [projectId, branch, closed, read, reloadToken])
+        readModules(projectId, { fresh: modulesReadAgain() }).then(setModules).catch(() => setModules([]))
+    }, [projectId, branch, closed, read, reloadToken, modulesReadAgain])
 
     // The tables are read once the module is compiled, so the read answers at once instead of waiting for the
     // compilation to reach it. They are kept under the module they belong to: moving to another module, or to

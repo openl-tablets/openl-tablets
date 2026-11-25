@@ -6,6 +6,7 @@ import { PUBLISHER_TYPES } from '../../services/rulesDeploy'
 import { DeployConfigPanel } from './DeployConfigPanel'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
+import { forgetKeptReads } from '../../services/keptReads'
 
 vi.mock('./CodeEditor', () => ({
     CodeEditor: ({ value, readOnly, onChange }: { value: string, readOnly?: boolean, onChange?: (value: string) => void }) => (
@@ -130,6 +131,8 @@ const editServiceName = async (name: string) => {
 
 describe('DeployConfigPanel', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         vi.clearAllMocks()
         vi.mocked(writeRootFile).mockResolvedValue()
         vi.mocked(rootFileExists).mockResolvedValue(true)

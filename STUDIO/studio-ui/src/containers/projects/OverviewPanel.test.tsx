@@ -9,6 +9,7 @@ import { ProjectStatus } from '../../constants/project'
 import { getFileContent, uploadFile, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
 import type { Project } from '../../types/projects'
+import { forgetKeptReads } from '../../services/keptReads'
 
 // Type without the per-keystroke delay: these forms render real antd and re-render on every character, so
 // the default cadence dragged the descriptor-editing tests over the coverage build's timeout under load.
@@ -114,6 +115,8 @@ const renderPanel = async (project: Project, repoType?: string) => {
 
 describe('OverviewPanel', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         // No rules.xml text by default; a test that needs it sets its own.
         setRulesXml('')
         // Nothing is written on mount, so what a test finds written is what the test itself caused.

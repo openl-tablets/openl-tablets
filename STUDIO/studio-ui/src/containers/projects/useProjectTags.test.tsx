@@ -6,6 +6,7 @@ import { useProjectTags } from './useProjectTags'
 import { PublishTagTypes, TagTypeOrder } from '../tags/tagOrder'
 import { getTagTypes } from '../../services/repositories'
 import { deleteFile, rootFileExists, writeRootFile } from '../../services/files'
+import { forgetKeptReads } from '../../services/keptReads'
 
 vi.mock('../../services/repositories', () => ({
     getTagTypes: vi.fn(),
@@ -39,6 +40,8 @@ const renderRead = async (ui: ReactElement) => {
 
 describe('useProjectTags', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         vi.clearAllMocks()
         vi.mocked(getTagTypes).mockResolvedValue([
             { name: 'Region', values: ['EU', 'US'], nullable: true, extensible: false },

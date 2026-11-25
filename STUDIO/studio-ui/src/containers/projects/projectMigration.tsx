@@ -4,11 +4,12 @@ import { ThunderboltOutlined } from '@ant-design/icons'
 import { errorMessage } from '../../utils/errorMessage'
 import {
     EMPTY_MIGRATION,
-    getProjectMigration,
     migrateProject,
     type MigrationScope,
     type ProjectMigration,
 } from '../../services/migration'
+import { readProjectMigration } from '../../services/keptReads'
+import { useReadAgain } from '../../hooks/useReadAgain'
 
 /**
  * Loads what a migrate would do for a project and runs a scoped migrate. Shared by the Overview
@@ -26,6 +27,7 @@ export const useDescriptorMigration = (
     const { notification } = App.useApp()
     const [migration, setMigration] = useState<ProjectMigration>(EMPTY_MIGRATION)
     const [migrating, setMigrating] = useState(false)
+    const migrationReadAgain = useReadAgain(projectId)
 
     useEffect(() => {
         if (!canWrite) {
@@ -33,11 +35,11 @@ export const useDescriptorMigration = (
             return
         }
         let cancelled = false
-        getProjectMigration(projectId)
+        readProjectMigration(projectId, { fresh: migrationReadAgain() })
             .then(info => { if (!cancelled) setMigration(info) })
             .catch(() => { if (!cancelled) setMigration(EMPTY_MIGRATION) })
         return () => { cancelled = true }
-    }, [projectId, canWrite, reloadToken])
+    }, [projectId, canWrite, reloadToken, migrationReadAgain])
 
     const run = async (scope: MigrationScope, failedTitle: string) => {
         setMigrating(true)

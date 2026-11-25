@@ -21,6 +21,8 @@ import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router'
 import { useAppStore } from 'store'
 import Forbidden from 'pages/403'
+import { useWorkspaceChanges } from 'hooks/useWorkspaceChanges'
+import { forgetWorkspaceReads } from 'services/keptReads'
 import NotFound from 'pages/404'
 import ServerError from 'pages/500'
 
@@ -31,6 +33,9 @@ export const DefaultLayout = () => {
     const location = useLocation()
     const { token } = theme.useToken()
     const layoutStyle: React.CSSProperties = { backgroundColor: token.colorBgContainer }
+    // A change the server tells of, made in another session or by another user, drops what was kept for the next
+    // screen whichever screen is open, so a screen the reader comes back to reads afresh.
+    useWorkspaceChanges(forgetWorkspaceReads)
 
     React.useEffect(() => {
         if (showForbidden || showNotFound || showServerError) {

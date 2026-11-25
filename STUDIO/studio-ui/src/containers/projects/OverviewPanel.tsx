@@ -26,7 +26,8 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { Project, ProjectDependency, ProjectModule } from '../../types/projects'
-import { getFileContent, uploadFile, writeRootFile } from '../../services/files'
+import { uploadFile, writeRootFile } from '../../services/files'
+import { readFileText, readProjectFiles } from '../../services/keptReads'
 import {
     EMPTY_RULES_DESCRIPTOR,
     parseRulesDescriptor,
@@ -42,7 +43,6 @@ import { getProjectIndex } from '../../services/projectIndex'
 import { MigrateButton, useDescriptorMigration } from './projectMigration'
 import { OpenApiActions, useOpenApiActions } from './openApiActions'
 import { makesOneModule } from './openApiModules'
-import { getProjectFiles } from '../../services/repositories'
 import { errorMessage } from '../../utils/errorMessage'
 import { EditableList, EditableStringList } from './EditableList'
 import { EditToolbar } from './EditToolbar'
@@ -827,7 +827,8 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
         // so the base can never move under a save.
         setRefreshing(sameProject)
         const savesAtRead = saves.current
-        getProjectFiles(project.id)
+        // The first read of a project may take what its page kept; reading it again asks the server.
+        readProjectFiles(project.id, { fresh: sameProject })
             .then(nodes => {
                 // The files are kept even when rules.xml cannot be read: the OpenAPI section still finds a
                 // specification among them. Only a failed listing clears them.
@@ -843,7 +844,7 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
                 throw e
             })
             .then(async exists => {
-                const xml = exists ? await getFileContent(project.id, 'rules.xml') : ''
+                const xml = exists ? await readFileText(project.id, 'rules.xml', { fresh: sameProject }) : ''
                 if (cancelled) {
                     return
                 }

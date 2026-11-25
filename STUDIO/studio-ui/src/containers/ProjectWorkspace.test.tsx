@@ -14,6 +14,7 @@ import {
 import { ApiHttpError, ForbiddenError, NotFoundError } from '../services'
 import type { ProjectRailState } from './projects/projectRail'
 import { notification } from 'antd'
+import { forgetKeptReads } from '../services/keptReads'
 
 /** The parameters of the address: a project id, or the coordinates of a project downloaded from Maven. */
 interface RouteParams {
@@ -343,6 +344,8 @@ const primaryActionId = () => screen.getByTestId('project-actions')
 
 describe('ProjectWorkspace', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         vi.clearAllMocks()
         for (const key of Object.keys(routeParams) as Array<keyof RouteParams>) {
             delete routeParams[key]
