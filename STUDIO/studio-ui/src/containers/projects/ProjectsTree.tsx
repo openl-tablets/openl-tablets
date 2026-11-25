@@ -307,48 +307,6 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: 4px ${BODY_SIDE_PADDING}px 12px;
         overflow-x: hidden;
     `,
-    /** A row takes the whole width of the tree, so the size of a file keeps to the right and a long name gives way. */
-    tree: css`
-        width: 100%;
-
-        && .ant-tree-node-content-wrapper {
-            flex: auto;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        && .ant-tree-title {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .ant-tree-iconEle {
-            flex: none;
-        }
-    `,
-    /** A group or a project row: its name gives way first, what follows it keeps its width. */
-    node: css`
-        display: flex;
-        align-items: center;
-        gap: ${token.marginXS}px;
-        min-width: 0;
-        white-space: nowrap;
-
-        & > * {
-            flex: none;
-        }
-    `,
-    /** A name that ends in an ellipsis where the rail ends. */
-    label: css`
-        && {
-            flex: 0 1 auto;
-        }
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    `,
     current: css`
         font-weight: 600;
         color: ${token.colorPrimary};
@@ -944,9 +902,9 @@ export const ProjectsTree = ({
                 selectable: false,
                 icon: null,
                 title: (
-                    <span className={styles.node} data-testid={`tree-files-error-${project.id}`}>
+                    <span className={shared.railNode} data-testid={`tree-files-error-${project.id}`}>
                         {/* A long error gives way to the way back, so Retry stays in the rail. */}
-                        <span className={styles.label} title={read.error}>{read.error}</span>
+                        <span className={shared.railLabel} title={read.error}>{read.error}</span>
                         <Button
                             data-testid={`tree-files-retry-${project.id}`}
                             size="small"
@@ -1016,7 +974,7 @@ export const ProjectsTree = ({
     // A branch group reads as its plain name in the tree's own style, with the same Default and protected
     // marks it wears on a project row; every other group is just its name.
     function groupTitle(node: GroupNode, marks: { isDefault: boolean, isProtected: boolean } | null): ReactNode {
-        const name = <span className={cx(styles.label, marks ? branchColor(marks) : undefined)} title={node.title}>{node.title}</span>
+        const name = <span className={cx(shared.railLabel, marks ? branchColor(marks) : undefined)} title={node.title}>{node.title}</span>
         if (marks) {
             return (
                 <>
@@ -1060,8 +1018,8 @@ export const ProjectsTree = ({
                     </Tooltip>
                 ),
                 title: (
-                    <span className={cx(styles.node, current && styles.current)} data-testid={`tree-project-${project.id}`}>
-                        <span className={styles.label} title={project.name}>{project.name}</span>
+                    <span className={cx(shared.railNode, current && styles.current)} data-testid={`tree-project-${project.id}`}>
+                        <span className={shared.railLabel} title={project.name}>{project.name}</span>
                         {qualifier && (
                             <span className={styles.qualifier} data-testid={`tree-project-qualifier-${project.id}`}>
                                 {qualifier}
@@ -1076,7 +1034,7 @@ export const ProjectsTree = ({
             key: node.key,
             icon: groupIcon(node),
             title: (
-                <span className={styles.node} data-testid={`tree-group-${node.key}`}>{groupTitle(node, marks)}</span>
+                <span className={shared.railNode} data-testid={`tree-group-${node.key}`}>{groupTitle(node, marks)}</span>
             ),
             children: node.children.map(child => toTreeNode(child)),
         }
@@ -1166,7 +1124,7 @@ export const ProjectsTree = ({
                     ref={treeRef}
                     blockNode
                     showIcon
-                    className={cx(shared.railTree, styles.tree)}
+                    className={cx(shared.railTree, shared.railTreeFit)}
                     data-testid="projects-tree"
                     expandedKeys={openKeys}
                     loadedKeys={loadedKeys}

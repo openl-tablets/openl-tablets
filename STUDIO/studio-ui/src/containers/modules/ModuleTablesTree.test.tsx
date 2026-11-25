@@ -203,6 +203,17 @@ describe('ModuleTablesTree', () => {
         expect(await screen.findByText('Region (String state)')).toBeInTheDocument()
     })
 
+    it('shows the whole name of a group on the name the tree cuts short', () => {
+        const sheet = 'Premium Calculation for the Commercial Lines of Business'
+        const placed = { ...tables[0], id: 'premium', name: 'Premium', sheet } as ModuleTable
+
+        rail({ selectedTableId: 'premium', tables: [placed] })
+
+        expect(screen.getByTitle(sheet)).toHaveTextContent(sheet)
+        // A table tells what it is on a tooltip of its own.
+        expect(screen.getByText('Premium')).not.toHaveAttribute('title')
+    })
+
     it('draws a table that takes no part in the rules apart from the others', () => {
         const switchedOff = { ...tables[0], id: 'off', name: 'Retired', active: false } as ModuleTable
 

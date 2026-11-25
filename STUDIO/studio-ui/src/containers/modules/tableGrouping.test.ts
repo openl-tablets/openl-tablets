@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import { tableViewSetting, TABLE_VIEWS, treeOf, widthOf } from './tableGrouping'
+import { tableViewSetting, TABLE_VIEWS, treeOf } from './tableGrouping'
 
 /** Reads a label as its key, so a test can name the groups by what they are called. */
 const key = (name: string): string => name
@@ -223,21 +223,6 @@ describe('tableGrouping', () => {
             localStorage.setItem('openl.module.tableView', JSON.stringify('whatever was stored'))
 
             expect(tableViewSetting.read()).toEqual('excelSheet')
-        })
-    })
-
-    describe('how wide the tree scrolls', () => {
-        it('reckons the width from the longest name, deep in the tree', () => {
-            const shallow = treeOf([table('Premium')], 'excelSheet', key)
-            const deep = treeOf([table('A name far longer than the others', { sheet: 'Rules' })], 'excelSheet', key)
-
-            expect(widthOf(deep)).toBeGreaterThan(widthOf(shallow))
-            // A row is wider than its own indent and chrome, whatever it is called.
-            expect(widthOf(shallow)).toBeGreaterThan(56)
-        })
-
-        it('is nothing to scroll when there is nothing to show', () => {
-            expect(widthOf([])).toEqual(0)
         })
     })
 })

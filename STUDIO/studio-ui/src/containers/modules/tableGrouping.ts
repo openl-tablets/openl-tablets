@@ -2,7 +2,6 @@ import type { ModuleTable } from 'types/tables'
 import { booleanText, oneOf, storedSetting } from '../../utils/localStore'
 import type { DateFormats } from '../../utils/dateFormat'
 import { versionLabel } from '../../utils/tableVersion'
-import { RAIL_INDENT, railRowWidth } from '../projects/railRowWidth'
 
 /**
  * How the tree gathers the tables, named as the Editor has always named its views.
@@ -144,17 +143,6 @@ export interface TableNode {
     table?: ModuleTable
     children: TableNode[]
 }
-
-/**
- * How wide the widest row of the tree is, so a virtualised tree can still be scrolled sideways.
- *
- * The tree scrolls only as far as the longest name reaches, open or not.
- */
-export const widthOf = (nodes: TableNode[], depth = 0): number => nodes.reduce((widest, node) => Math.max(
-    widest,
-    depth * RAIL_INDENT + railRowWidth(node.title),
-    widthOf(node.children, depth + 1)
-), 0)
 
 /**
  * The category a table is filed under: the one it declares or inherits, such as from the file name of its module,

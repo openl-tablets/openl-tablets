@@ -2,18 +2,18 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox, Empty, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
 import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
-import { createStyles } from 'antd-style'
+import { createStyles, useTheme } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import { compileColorsOf } from '../projects/projectsTheme'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizableRail } from '../projects/ResizableRail'
+import { joinClasses } from '../../utils/joinClasses'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
     tableViewSetting,
     TABLE_VIEWS,
     treeOf,
-    widthOf,
     type TableNode,
 } from './tableGrouping'
 import { versionLabel } from '../../utils/tableVersion'
@@ -22,9 +22,6 @@ import { useSearchScope } from '../../hooks/useSearchScope'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
 import { useElementSize } from '../../hooks/useElementSize'
 import { HiddenByFilterNote } from './HiddenByFilterNote'
-
-/** The height of one row of the tree, which the virtual list counts in. */
-const ROW_HEIGHT = 24
 
 /** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
 const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
@@ -53,7 +50,6 @@ const useStyles = createStyles(({ css, token }) => ({
     errors: css`
         display: inline-block;
         min-width: 17px;
-        margin-left: ${token.marginXS}px;
         padding: 0 ${token.paddingXXS}px;
         border-radius: ${token.borderRadiusSM}px;
         /* The fill of a solid badge: deepened until its white count reads at 4.5:1 in every theme. */
@@ -98,10 +94,16 @@ interface TreeDataNode {
 /** What a row is called, and how many errors stand behind it. */
 const nodeTitle = (node: TableNode, styles: TreeStyles, errors: number): React.ReactNode => {
     const named = (
-        <>
-            <span className={errors > 0 ? styles.broken : undefined}>{node.title}</span>
+        <span className={styles.node}>
+            {/* A group with no hint of its own shows its whole name on the name the tree cuts short. */}
+            <span
+                className={joinClasses(styles.label, errors > 0 && styles.broken)}
+                title={node.table === undefined && !node.hint ? node.title : undefined}
+            >
+                {node.title}
+            </span>
             {errors > 0 && <span className={styles.errors} data-testid="module-table-errors">{errors}</span>}
-        </>
+        </span>
     )
     const table = node.table
     if (table === undefined) {
@@ -111,8 +113,10 @@ const nodeTitle = (node: TableNode, styles: TreeStyles, errors: number): React.R
     return <Tooltip title={table.signature ?? versionLabel(table.name, table.dimensions)}>{named}</Tooltip>
 }
 
-/** The classes the tree draws a table's state in. */
+/** The classes the tree draws a row and a table's state in. */
 interface TreeStyles {
+    node: string
+    label: string
     inactive: string
     broken: string
     errors: string
@@ -218,6 +222,7 @@ export const ModuleTablesTree = ({
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const { styles: shared } = useSharedStyles()
+    const token = useTheme()
     const [view, setView] = useStoredSetting(tableViewSetting)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
@@ -277,9 +282,6 @@ export const ModuleTablesTree = ({
     const { ref: noteRef, size: note } = useElementSize<HTMLDivElement>()
 
     const nodes = useMemo(() => treeOf(shown, view, t, dateFormats), [shown, view, t, dateFormats])
-    // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
-    // what is on screen leaves the virtual list pushed to the right of an empty rail.
-    const namesWidth = useMemo(() => Math.ceil(widthOf(nodes)), [nodes])
 
     // Only the branch holding the open table stands open; the user opens the rest themselves.
     useEffect(() => {
@@ -294,12 +296,14 @@ export const ModuleTablesTree = ({
     // Built once per tree: the rail redraws on every status the compilation pushes and on every step of a
     // drag, and a module of hundreds of tables would be rebuilt, icons and all, each time.
     const marks = useMemo(() => ({
+        node: shared.railNode,
+        label: shared.railLabel,
         inactive: styles.inactive,
         broken: styles.broken,
         errors: styles.errors,
         marked: styles.marked,
         tested: styles.tested,
-    }), [styles.inactive, styles.broken, styles.errors, styles.marked, styles.tested])
+    }), [shared.railNode, shared.railLabel, styles.inactive, styles.broken, styles.errors, styles.marked, styles.tested])
     const treeData = useMemo(() => nodes.map(node => toTreeNode(node, marks)), [nodes, marks])
 
     // A screenful of rows at a time, drawn at once rather than slid open — the height a fold animates is
@@ -307,8 +311,8 @@ export const ModuleTablesTree = ({
     const railTree = {
         blockNode: true,
         showIcon: true,
-        className: shared.railTree,
-        itemHeight: ROW_HEIGHT,
+        className: joinClasses(shared.railTree, shared.railTreeFit),
+        itemHeight: token.controlHeightSM,
         motion: false as const,
     }
 
@@ -357,7 +361,6 @@ export const ModuleTablesTree = ({
                 expandedKeys={expanded}
                 height={room.height}
                 onExpand={keys => setExpanded(keys as string[])}
-                scrollWidth={Math.max(namesWidth, room.width)}
                 selectedKeys={selectedTableId ? [selectedTableId] : []}
                 treeData={treeData}
                 onSelect={(_keys, info) => {
