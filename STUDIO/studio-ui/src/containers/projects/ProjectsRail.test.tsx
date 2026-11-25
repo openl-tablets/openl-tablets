@@ -139,8 +139,9 @@ describe('ProjectsRail', () => {
 
         await userEvent.click(screen.getByTestId('projects-rail-collapse'))
 
-        // Only the strip with its handle is left; the panel is not in the way.
+        // Only the strip is left, named after the panel; the panel is not in the way.
         expect(screen.getByTestId('projects-rail-collapsed')).toBeInTheDocument()
+        expect(screen.getByTestId('projects-rail-expand')).toHaveTextContent('home.tree.rail')
         expect(screen.queryByTestId('filters')).not.toBeInTheDocument()
         expect(localStorage.getItem('openl.projects.rail.collapsed')).toBe('true')
 

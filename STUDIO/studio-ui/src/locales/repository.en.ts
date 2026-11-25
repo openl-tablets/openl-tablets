@@ -36,6 +36,7 @@ i18next.addResourceBundle('en', 'repository', {
     none: 'None',
     home: {
         tree: {
+            rail: 'Projects & Files',
             mode_filters: 'Filters',
             mode_tree: 'Tree',
             group: 'Group projects',

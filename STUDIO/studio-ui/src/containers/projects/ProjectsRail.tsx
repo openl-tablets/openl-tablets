@@ -154,7 +154,7 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
     const foldHandle = <FoldRailButton onFold={() => fold(true)} testId="projects-rail" />
 
     if (collapsed) {
-        return <FoldedRail onUnfold={() => fold(false)} testId="projects-rail" />
+        return <FoldedRail name={t('home.tree.rail')} onUnfold={() => fold(false)} testId="projects-rail" />
     }
 
     return (

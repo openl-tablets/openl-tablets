@@ -50,6 +50,7 @@ describe('ModuleTablesTree', () => {
         await userEvent.click(screen.getByTestId('module-rail-collapse'))
 
         expect(screen.getByTestId('module-rail-collapsed')).toBeInTheDocument()
+        expect(screen.getByTestId('module-rail-expand')).toHaveTextContent('common:search.scopes.tables')
         expect(screen.queryByTestId('module-tables-tree')).toBeNull()
         expect(localStorage.getItem('openl.module.rail.collapsed')).toBe('true')
 

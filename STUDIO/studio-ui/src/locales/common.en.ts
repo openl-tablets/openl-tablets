@@ -19,6 +19,7 @@ i18next.addResourceBundle('en', 'common', {
     access_rights: 'Access Rights',
     rail: {
         show: 'Show the panel',
+        show_named: 'Show the {{name}} panel',
         hide: 'Hide the panel',
     },
     table: {

@@ -72,7 +72,7 @@ const UserGuides: React.FC = () => {
     }
     return (
         <div className={styles.frame}>
-            {folded && <FoldedRail onUnfold={() => fold(false)} testId="guides-rail" />}
+            {folded && <FoldedRail name={t('guides:rail')} onUnfold={() => fold(false)} testId="guides-rail" />}
             {/* Folded, the rail stays in the page out of sight: the header keeps its search of the guides. */}
             <nav className={styles.rail} data-testid="guides-rail" hidden={folded} style={{ width: railWidth }}>
                 <div className={cx(shared.railHead, styles.railHead)}>
