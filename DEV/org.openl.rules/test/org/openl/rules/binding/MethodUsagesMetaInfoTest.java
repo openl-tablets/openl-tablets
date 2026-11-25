@@ -127,7 +127,8 @@ class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
                 }
             }
         }
-        assertEquals(8, cellWithMethodUsagesCount);
+        // The types of the variables the cells declare, String and int, have hints too.
+        assertEquals(10, cellWithMethodUsagesCount);
         assertEquals(2, usedMethods.size());
         assertTrue(usedMethods.contains("testTBasic"));
         assertTrue(usedMethods.contains("testDT"));
@@ -152,11 +153,10 @@ class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private boolean contains(String[] sourceArr, String target) {
         if (sourceArr == null) {
             return target == null;
-        } else {
-            for (String source : sourceArr) {
-                if (Objects.equals(target, source)) {
-                    return true;
-                }
+        }
+        for (String source : sourceArr) {
+            if (Objects.equals(target, source)) {
+                return true;
             }
         }
         return false;

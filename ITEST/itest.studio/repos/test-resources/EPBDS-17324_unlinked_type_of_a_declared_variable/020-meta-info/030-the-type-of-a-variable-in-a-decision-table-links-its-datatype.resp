@@ -1,0 +1,189 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${RULES_ID}",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "pick",
+  "pos": "B19:C25",
+  "source": [
+    [
+      {
+        "cell": "B19",
+        "value": "Rules Member pick(Integer age)",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 6,
+              "end": 12,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C19"
+      }
+    ],
+    [
+      {
+        "cell": "B20",
+        "value": "C1"
+      },
+      {
+        "cell": "C20",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "B21",
+        "value": "age >= min",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 3,
+              "description": "Integer age",
+              "kind": "field"
+            },
+            {
+              "start": 7,
+              "end": 10,
+              "description": "Integer min",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C21",
+        "value": "Member m = new Member(); m.name = name; return m;",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 6,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 15,
+              "end": 21,
+              "description": "Datatype Member\nMember ()",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 25,
+              "end": 26,
+              "description": "Member m",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 27,
+              "end": 31,
+              "description": "Datatype Member\nString name",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 34,
+              "end": 38,
+              "description": "String name",
+              "kind": "field"
+            },
+            {
+              "start": 47,
+              "end": 48,
+              "description": "Member m",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B22",
+        "value": "Integer min"
+      },
+      {
+        "cell": "C22",
+        "value": "String name"
+      }
+    ],
+    [
+      {
+        "cell": "B23",
+        "value": "Min Age"
+      },
+      {
+        "cell": "C23",
+        "value": "Name"
+      }
+    ],
+    [
+      {
+        "cell": "B24",
+        "value": 18,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      },
+      {
+        "cell": "C24",
+        "value": "Adult",
+        "metaInfo": {
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B25",
+        "value": 0,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      },
+      {
+        "cell": "C25",
+        "value": "Child",
+        "metaInfo": {
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 4
+}
+

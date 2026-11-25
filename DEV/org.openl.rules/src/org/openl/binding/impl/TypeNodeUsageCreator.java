@@ -3,6 +3,9 @@ package org.openl.binding.impl;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
@@ -16,22 +19,32 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.TextInfo;
 
 /**
- * Converts {@link ArrayBoundNode}, {@link CastNode}, {@link ArrayInitializerNode} or the name of a type written as a
- * value to type {@link SimpleNodeUsage}
+ * Converts {@link ArrayBoundNode}, {@link TypeCastNode}, {@link ArrayInitializerNode}, the name of a type written as a
+ * value or the type written in a declaration to type {@link SimpleNodeUsage}
  *
  * @author Vladyslav Pikus
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class TypeNodeUsageCreator implements NodeUsageCreator {
 
     private static final String IDENTIFIER = "identifier";
-
-    private TypeNodeUsageCreator() {
-    }
+    private static final String TYPE_DECLARATION = "type.declaration";
 
     @Override
     public boolean accept(IBoundNode boundNode) {
-        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode || boundNode instanceof TypeCastNode
-                || isTypeNamedAsValue(boundNode);
+        return boundNode instanceof ArrayBoundNode
+                || boundNode instanceof ArrayInitializerNode
+                || boundNode instanceof TypeCastNode
+                || isTypeNamedAsValue(boundNode)
+                || isDeclaredType(boundNode);
+    }
+
+    /**
+     * Whether the node is the type a declaration names, such as {@code Member} in {@code Member m = new Member()} or
+     * in {@code members[(Member m) select all having m.age > 17]}.
+     */
+    private static boolean isDeclaredType(IBoundNode boundNode) {
+        return boundNode instanceof TypeBoundNode && TYPE_DECLARATION.equals(boundNode.getSyntaxNode().getType());
     }
 
     /**
@@ -77,19 +90,18 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
             printClassDeclaration(description, componentOpenClass.getInstanceClass());
             description.append(MethodUtil.printType(componentOpenClass));
             return Optional.of(new SimpleNodeUsage(pstart, pend, description.toString(), null, NodeType.OTHER));
-        } else {
-            var typeMeta = componentOpenClass.getMetaInfo();
-            if (typeMeta == null) {
-                return Optional.empty();
-            }
-            var simpleNodeUsage = new SimpleNodeUsage(pstart,
-                    pend,
-                    typeMeta.getDisplayName(INamedThing.SHORT),
-                    typeMeta.getSourceUrl(),
-                    componentOpenClass,
-                    NodeType.DATATYPE);
-            return Optional.of(simpleNodeUsage);
         }
+        var typeMeta = componentOpenClass.getMetaInfo();
+        if (typeMeta == null) {
+            return Optional.empty();
+        }
+        var simpleNodeUsage = new SimpleNodeUsage(pstart,
+                pend,
+                typeMeta.getDisplayName(INamedThing.SHORT),
+                typeMeta.getSourceUrl(),
+                componentOpenClass,
+                NodeType.DATATYPE);
+        return Optional.of(simpleNodeUsage);
     }
 
     private static void printClassDeclaration(StringBuilder builder, Class<?> cl) {

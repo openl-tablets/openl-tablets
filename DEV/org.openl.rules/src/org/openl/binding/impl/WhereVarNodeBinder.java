@@ -9,7 +9,6 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * @author snshor
@@ -18,10 +17,8 @@ public class WhereVarNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
-        var name = ((IdentifierNode) node.getChild(0)).getIdentifier();
-
-        return LocalVarBinder.createLocalVarDeclarationNode(node, name, node.getChild(1), null, bindingContext, true);
+        // The variable takes the type of the value it is given.
+        return LocalVarBinder.createLocalVarDeclarationNode(node, null, null, bindingContext);
     }
 
 }

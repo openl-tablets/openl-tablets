@@ -265,12 +265,14 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNodeUsage(typeC.getUri(), usedNodes.getFirst(), "Datatype TypeC extends TypeB", 22, 27, NodeType.DATATYPE);
 
-        // First line of method body
-        usedNodes = assertMetaInfo(method1, 0, 1, 2);
+        // First line of method body: String additional = dataB[0].aaa;
+        usedNodes = assertMetaInfo(method1, 0, 1, 3);
 
-        assertNodeUsage(dataB.getUri(), usedNodes.getFirst(), "Data TypeB dataB", 20, 25, NodeType.FIELD);
+        assertNodeUsage(usedNodes.getFirst(), "java.lang\nclass String", 0, 6, NodeType.OTHER);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 29, 32, NodeType.FIELD);
+        assertNodeUsage(dataB.getUri(), usedNodes.get(1), "Data TypeB dataB", 20, 25, NodeType.FIELD);
+
+        assertNodeUsage(typeB.getUri(), usedNodes.get(2), "Datatype TypeB\nString aaa", 29, 32, NodeType.FIELD);
 
         // Return cell
         usedNodes = assertMetaInfo(method1, 0, 2, 5);
@@ -288,12 +290,14 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testForMixedNodeUsageInMethod3Table() {
-        // First line of method body
-        var usedNodes = assertMetaInfo(method3, 0, 1, 2);
+        // First line of method body: String additional = dataB[0].aaa;
+        var usedNodes = assertMetaInfo(method3, 0, 1, 3);
 
-        assertNodeUsage(dataB.getUri(), usedNodes.getFirst(), "Data TypeB dataB", 20, 25, NodeType.FIELD);
+        assertNodeUsage(usedNodes.getFirst(), "java.lang\nclass String", 0, 6, NodeType.OTHER);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 29, 32, NodeType.FIELD);
+        assertNodeUsage(dataB.getUri(), usedNodes.get(1), "Data TypeB dataB", 20, 25, NodeType.FIELD);
+
+        assertNodeUsage(typeB.getUri(), usedNodes.get(2), "Datatype TypeB\nString aaa", 29, 32, NodeType.FIELD);
 
         // Return cell
         usedNodes = assertMetaInfo(method3, 0, 2, 5);
@@ -311,12 +315,14 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testForMixedNodeUsageInMethod4Table() {
-        // First line of method body
-        var usedNodes = assertMetaInfo(method4, 0, 1, 2);
+        // First line of method body: String additional = dataB[0].aaa;
+        var usedNodes = assertMetaInfo(method4, 0, 1, 3);
 
-        assertNodeUsage(dataB.getUri(), usedNodes.getFirst(), "Data TypeB dataB", 20, 25, NodeType.FIELD);
+        assertNodeUsage(usedNodes.getFirst(), "java.lang\nclass String", 0, 6, NodeType.OTHER);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 29, 32, NodeType.FIELD);
+        assertNodeUsage(dataB.getUri(), usedNodes.get(1), "Data TypeB dataB", 20, 25, NodeType.FIELD);
+
+        assertNodeUsage(typeB.getUri(), usedNodes.get(2), "Datatype TypeB\nString aaa", 29, 32, NodeType.FIELD);
 
         // Return cell
         usedNodes = assertMetaInfo(method4, 0, 2, 6);

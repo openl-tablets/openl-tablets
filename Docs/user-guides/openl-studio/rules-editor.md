@@ -737,6 +737,8 @@ Links to the data and datatype tables are underlined with a dotted line and has 
 
 *Links to the datatype tables from the decision and datatype table*
 
+A datatype is also a link where a formula declares a variable of it, in a cell of any table, such as `Member` in `Member m = new Member();` or in `members[(Member m) select all having m.age > 17]`. A statement declaring several variables, such as `Member first, second;`, has one link. A Java type written there, such as `String` or `int`, has a tooltip that describes it, with its package when it has one, for example **java.lang** and **class String**, or **primitive int**.
+
 All fields of the datatype tables are also linked and contain tooltips. A field keeps its link and tooltip in a cell with an error, such as an index of a field that is no array or collection.
 
 ![](images/datatype-field-link-tooltip.png)

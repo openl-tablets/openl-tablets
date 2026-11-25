@@ -1,0 +1,74 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${METHOD_ID}",
+  "tableType": "RawSource",
+  "kind": "Method",
+  "name": "member",
+  "pos": "B7:B8",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "Method Member member()",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 7,
+              "end": 13,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Member m = new Member(); return m;",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 6,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 15,
+              "end": 21,
+              "description": "Datatype Member\nMember ()",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 32,
+              "end": 33,
+              "description": "Member m",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 0
+}
+
