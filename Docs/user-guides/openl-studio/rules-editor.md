@@ -23,7 +23,7 @@ The following topics are included in this chapter:
 
 ### Switching to Another Project or Module
 
-The breadcrumb above the module name shows the repository, the project and the branch the module belongs to and switches the editor to another project or module. It ends with a slash, as the module name below it is its last step:
+The breadcrumb above the module name shows the repository, the branch and the project the module belongs to, in the order of the page of the project, and switches the editor to another project or module. It ends with a slash, as the module name below it is its last step:
 
 -   To see the other projects of the repository, click the repository name. The **Projects** list opens, filtered by the repository.
 -   To switch to another project, click the arrow next to the project name, start typing the project name in the **Find a project** field to narrow the list down, and select the project.
