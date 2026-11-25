@@ -90,12 +90,12 @@ export const Header = () => {
         <>
             <AntHeader className={styles.header}>
                 <div className={styles.brand}>
-                    {/* The cube leads home as the name beside it does, which a narrow window hides. */}
-                    <Link aria-hidden className="header-logo" tabIndex={-1} to="/projects">
+                    {/* The cube leads home, to the welcome page, as the name beside it does, which a narrow window hides. */}
+                    <Link aria-hidden className="header-logo" tabIndex={-1} to="/">
                         <Logo />
                     </Link>
                     <div className="header-title">
-                        <Link to="/projects">{t('common:openl_studio')}</Link>
+                        <Link to="/">{t('common:openl_studio')}</Link>
                     </div>
                 </div>
                 <HeaderSearch />
