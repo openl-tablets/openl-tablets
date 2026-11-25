@@ -44,6 +44,22 @@ describe('ModuleTablesTree', () => {
         expect(screen.getByTestId('module-rail-resizer')).toBeInTheDocument()
     })
 
+    it('folds away by the handle of its top row, stays folded for the next module, and unfolds for a search', async () => {
+        rail()
+
+        await userEvent.click(screen.getByTestId('module-rail-collapse'))
+
+        expect(screen.getByTestId('module-rail-collapsed')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-tables-tree')).toBeNull()
+        expect(localStorage.getItem('openl.module.rail.collapsed')).toBe('true')
+
+        // What the search finds is shown in the rail.
+        searchFor('greet')
+
+        expect(await screen.findByTestId('module-tables-tree')).toBeInTheDocument()
+        expect(localStorage.getItem('openl.module.rail.collapsed')).toBeNull()
+    })
+
     it('searches the names it shows, and hands the rest to the extended search', async () => {
         const shown: ModuleTable[] = [
             { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },

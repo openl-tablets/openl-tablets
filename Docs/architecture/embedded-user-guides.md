@@ -131,6 +131,9 @@ heading the page opens with, which the site takes for the title. A page without 
 title of its `toc.json` entry. Links are resolved against the page that contains them. A `.md` link becomes an
 in-app route, an image becomes a `/docs/...` file address, and an external link opens in a new tab.
 
+The sidebar folds away the way the rail of the Projects page does; folded, it stays mounted, so the header keeps the
+search of the guides and a typed query unfolds it.
+
 The Help page links its documentation card to `/docs/<guide>/` instead of the documentation site.
 
 ### Supported Markdown

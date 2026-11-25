@@ -8,6 +8,7 @@ import { compileColorsOf } from '../projects/projectsTheme'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizableRail } from '../projects/ResizableRail'
+import { railFolded } from '../projects/RailFold'
 import { joinClasses } from '../../utils/joinClasses'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
@@ -26,6 +27,8 @@ import { HiddenByFilterNote } from './HiddenByFilterNote'
 /** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
 const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
 const WIDTH = { min: 180, max: 640, fallback: 256 }
+/** Whether the reader folded the rail away, kept for the next module. */
+const moduleRailFolded = railFolded('openl.module.rail.collapsed')
 
 const useStyles = createStyles(({ css, token }) => ({
     /**
@@ -226,6 +229,8 @@ export const ModuleTablesTree = ({
     const [view, setView] = useStoredSetting(tableViewSetting)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
+    const fold = useStoredSetting(moduleRailFolded)
+    const [folded, setFolded] = fold
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
     const [filterOpen, setFilterOpen] = useState(false)
     const [draftOther, setDraftOther] = useState(showOther)
@@ -235,7 +240,13 @@ export const ModuleTablesTree = ({
     useSearchScope({
         id: 'tables',
         label: t('common:search.scopes.tables'),
-        onChange: setSearch,
+        onChange: text => {
+            setSearch(text)
+            // What the search finds is shown in the rail, so a search typed while it is folded away unfolds it.
+            if (folded && text.trim() !== '') {
+                setFolded(false)
+            }
+        },
         placeholder: t('browser.module.search_placeholder'),
         value: search,
         action: {
@@ -377,6 +388,7 @@ export const ModuleTablesTree = ({
     return (
         <>
             <ResizableRail
+                fold={fold}
                 testId="module-rail"
                 width={WIDTH}
                 widthKey={WIDTH_STORAGE_KEY}

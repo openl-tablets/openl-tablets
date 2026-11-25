@@ -72,6 +72,8 @@ interface GuidesSearchProps {
     contents: GuideEntry
     /** The page shown, whose folders a search can be narrowed to. */
     current?: GuideEntry | undefined
+    /** A query was typed: the rail is to show what it finds. */
+    onSearch: () => void
     /** What the rail shows while nothing is searched: the table of contents. */
     children: React.ReactNode
 }
@@ -84,7 +86,7 @@ interface GuidesSearchProps {
  * reader who never searches never downloads the guides. While a query is typed, the results take the place of the
  * table of contents, which keeps the folders the reader opened.
  */
-export const GuidesSearch: React.FC<GuidesSearchProps> = ({ contents, current, children }) => {
+export const GuidesSearch: React.FC<GuidesSearchProps> = ({ contents, current, onSearch, children }) => {
     const { t } = useTranslation()
     const { styles } = useStyles()
     const [text, setText] = useState('')
@@ -104,7 +106,12 @@ export const GuidesSearch: React.FC<GuidesSearchProps> = ({ contents, current, c
     useSearchScope({
         id: 'guides',
         label: shownLabel,
-        onChange: setText,
+        onChange: typed => {
+            setText(typed)
+            if (typed.trim() !== '') {
+                onSearch()
+            }
+        },
         placeholder: t('guides:search_placeholder'),
         value: text,
         action: {

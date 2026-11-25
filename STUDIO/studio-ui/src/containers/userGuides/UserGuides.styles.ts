@@ -18,6 +18,14 @@ export const useStyles = createStyles(({ css, token }) => ({
         position: relative;
         border-right: 1px solid ${token.colorSplit};
         background: ${token.colorBgLayout};
+
+        &[hidden] {
+            display: none;
+        }
+    `,
+    /** The header of the table of contents, as low as the rows under it start. */
+    railHead: css`
+        padding-bottom: 0;
     `,
     /** Where the table of contents stays while a search shows its results, so the folders opened stay open. */
     railSlot: css`

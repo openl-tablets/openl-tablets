@@ -129,6 +129,22 @@ describe('UserGuides', () => {
         expect(await screen.findByRole('navigation')).toHaveStyle({ width: '420px' })
     })
 
+    it('folds the contents away and back, keeping the folders opened, and opens them folded next time', async () => {
+        const { unmount } = renderAt('/docs/openl-studio/rules-editor')
+        await screen.findByRole('heading', { level: 2, name: 'Using Rules Editor' })
+
+        await userEvent.click(screen.getByTestId('guides-rail-collapse'))
+
+        expect(screen.getByTestId('guides-rail')).not.toBeVisible()
+        unmount()
+        renderAt('/docs/openl-studio/rules-editor')
+        await userEvent.click(await screen.findByTestId('guides-rail-expand'))
+
+        expect(screen.getByTestId('guides-rail')).toBeVisible()
+        expect(screen.queryByTestId('guides-rail-collapsed')).toBeNull()
+        expect(tree().getByTitle('Using Rules Editor')).toBeInTheDocument()
+    })
+
     it('tells the guides hold no page at an unknown address', async () => {
         renderAt('/docs/openl-studio/missing')
 
