@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, App, Modal } from 'antd'
 import type { Project } from '../../types/projects'
 import { getProject } from '../../services/repositories'
-import { listModules, type ModuleInfo } from '../../services/modules'
+import type { ModuleInfo } from '../../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
 import { applyMessageActions, BUNDLE_FOLDER } from '../../services/localization'
 import { localizationRoute } from '../../services/projectId'
@@ -36,6 +36,8 @@ import { LOCALIZATION_ITEM } from '../projects/moduleSwitcher'
 import { useElementSize } from '../../hooks/useElementSize'
 import { useMessageEdits, type MessageEdits } from './useMessageEdits'
 import { useMessageKey, useMessageKeys, useMessagePages } from './useMessagePages'
+import { readModules, readProject } from '../../services/keptReads'
+import { useReadAgain } from '../../hooks/useReadAgain'
 
 /** Whether a change of the project names the localization files, or does not say which files it touched. */
 const touchesMessages = (files: string[]): boolean =>
@@ -157,7 +159,7 @@ const LocalizationScreen = () => {
         setProject(null)
         setLinkProblem(false)
         const startedAt = Date.now()
-        getProject(projectId, { includes: ['status'] }, LOCAL_LOAD_API_OPTIONS)
+        readProject(projectId, ['status'], LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
                 if (current) {
                     setProject(loaded)
@@ -183,11 +185,12 @@ const LocalizationScreen = () => {
     const readable = project !== null && !closed
     const branch = project?.branch ?? null
     const read = project !== null
+    const modulesReadAgain = useReadAgain(projectId)
     useEffect(() => {
         if (read) {
-            listModules(projectId).then(setModules).catch(() => setModules([]))
+            readModules(projectId, { fresh: modulesReadAgain() }).then(setModules).catch(() => setModules([]))
         }
-    }, [projectId, read, branch])
+    }, [projectId, read, branch, modulesReadAgain])
     const reread = useCallback(() => setReadToken(token => token + 1), [])
     useLiveProjectChanges(readable ? projectId : undefined, changed => {
         if (touchesMessages(changed)) {

@@ -5,8 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { App, Alert, Skeleton } from 'antd'
 import { createStyles } from 'antd-style'
 import {
-    getProject,
-    getProjectFiles,
     isProjectModifiedConflict,
     setProjectStatus,
     unlockProject,
@@ -36,6 +34,8 @@ import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
 import { useReportProjectRail } from './projects/projectRail'
 import { buildFileChangeMap } from './projects/fileChanges'
 import type { ProjectFileChange } from '../services/projectStatus'
+import { readProject, readProjectFiles } from '../services/keptReads'
+import { useReadAgain } from '../hooks/useReadAgain'
 
 /** One empty list for every project without pending changes, so the memo below it holds. */
 const NO_FILE_CHANGES: ProjectFileChange[] = []
@@ -180,6 +180,8 @@ export const ProjectWorkspace = () => {
             })
         }
     }, [files])
+    const projectReadAgain = useReadAgain(projectId ?? '')
+    const filesReadAgain = useReadAgain(projectId ?? '')
 
     // The whole workspace is driven by the single-project detail response, which carries the dependency
     // graph and the rules.xml-derived fields. A missing project (404) shows the not-found state.
@@ -203,7 +205,10 @@ export const ProjectWorkspace = () => {
             setLoading(true)
         }
         try {
-            const loaded = await getProject(projectId, { includes: ['status', 'descriptor'] }, LOCAL_LOAD_API_OPTIONS)
+            // The first read may take what the editor of the project read moments ago; a read again asks the server.
+            const loaded = await readProject(projectId, ['status', 'descriptor'], LOCAL_LOAD_API_OPTIONS, {
+                fresh: projectReadAgain(),
+            })
             if (!loads.isLatest(generation)) {
                 return null
             }
@@ -252,7 +257,7 @@ export const ProjectWorkspace = () => {
             }
         }
         return null
-    }, [loads, projectId])
+    }, [loads, projectId, projectReadAgain])
 
     // The Projects screen mounts a page for each project it shows, so a page reads its project once on mount and
     // never shows another one: what it read for a project the reader has left goes with it.
@@ -312,7 +317,7 @@ export const ProjectWorkspace = () => {
         }
         const { generation } = fileLoads.start(true)
         setFiles('loading')
-        getProjectFiles(project.id)
+        readProjectFiles(project.id, { fresh: filesReadAgain() })
             .then(loaded => {
                 if (fileLoads.isLatest(generation)) {
                     setFiles(loaded)
@@ -323,7 +328,7 @@ export const ProjectWorkspace = () => {
                     setFiles('error')
                 }
             })
-    }, [fileLoads, project, files])
+    }, [fileLoads, project, files, filesReadAgain])
 
     /**
      * Marks the project busy for as long as the operation runs, reporting a failure under `failKey`.

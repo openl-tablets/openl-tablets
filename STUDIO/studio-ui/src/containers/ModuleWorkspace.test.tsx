@@ -13,6 +13,7 @@ import { renderInTheme, tokenFor } from '../testing/theme'
 import { moduleNotFound, projectNotFound, tableNotFound } from '../testing/errors'
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { App as AntApp, ConfigProvider } from 'antd'
+import { forgetKeptReads } from '../services/keptReads'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -258,6 +259,8 @@ const project = (status: string) => ({
 
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         localStorage.clear()
         // Counted per test: nothing here resets the mocks between them.
         vi.mocked(stopEditingTable).mockClear()
@@ -796,6 +799,8 @@ describe('ModuleWorkspace', () => {
         expect(screen.queryByTestId('maven-read-only')).toBeNull()
         unmount()
 
+        // Another visit, when the server tells otherwise: the read the first one kept is gone with the change.
+        forgetKeptReads()
         vi.mocked(getProject).mockResolvedValue({ ...project('OPENED'), readOnly: true } as never)
         render(<ModuleWorkspace />)
 

@@ -15,6 +15,8 @@ import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { hasSearchScope, searchFor, searchScope } from '../testing/search'
 import { getMavenProjects } from '../services/mavenDependencies'
+import { forgetKeptReads } from '../services/keptReads'
+import { WORKSPACE_CHANGED_EVENT } from '../services/apiCall'
 
 const { address, copyModalMock, navigateMock, treeMock, liveHandlers, shown } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
@@ -466,6 +468,8 @@ function mockProjectSearch(source: Project[] = projects) {
 
 describe('ProjectsHome', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         vi.clearAllMocks()
         shown.projectId = undefined
         shown.maven = undefined
@@ -610,19 +614,27 @@ describe('ProjectsHome', () => {
         logged.mockRestore()
     })
 
-    it('re-reads a snapshot left by an earlier visit and swaps the fresh answer in', async () => {
-        // An earlier visit left a snapshot holding only Alpha…
+    it('paints a snapshot left by an earlier visit without reading it again, until a change drops it', async () => {
+        // An earlier visit left a snapshot holding only Alpha, and nothing changed since as far as this tab knows.
         mockProjectSearch(projects.slice(0, 1))
         await getProjectIndex()
-        // …and the workspace moved on meanwhile: Beta appeared.
         mockProjectSearch()
 
+        const { unmount } = await renderHome()
+
+        expect(rowOrder()).toEqual(['project-row-p1'])
+        // Coming back costs no read of the projects, and one of the repositories.
+        expect(getProjects).toHaveBeenCalledTimes(1)
+        expect(getDesignRepositories).toHaveBeenCalledTimes(1)
+        unmount()
+
+        // A change, here or told by the server, drops what was kept: the next visit reads the workspace as it is.
+        window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
         await renderHome()
 
-        // The background re-read brought Beta in without the user asking.
         await waitFor(() => expect(screen.getByTestId('project-row-p2')).toBeTruthy())
-        // One read from the earlier visit, one re-read; the first paint itself came from memory.
         expect(getProjects).toHaveBeenCalledTimes(2)
+        expect(getDesignRepositories).toHaveBeenCalledTimes(2)
     })
 
     it('keeps initial load failures local to the Projects page', async () => {

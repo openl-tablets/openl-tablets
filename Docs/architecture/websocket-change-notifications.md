@@ -148,6 +148,13 @@ flowchart LR
   and the repository one; the projects screen runs a silent revalidation — the workspace snapshot
   (`projectIndex`) is dropped and re-read behind the scenes, and the fresh answer swaps in without a
   skeleton.
+- The layout of the application watches the same pings whatever screen is open (`forgetWorkspaceReads`), and drops
+  the workspace snapshot with the reads kept for the next screen (`keptReads`): a project, its files, its `rules.xml`,
+  modules and migration, the repositories, the tag types and the projects of the Maven repository. Moving between the
+  page of a project and its editor takes these instead of asking the server again, and the projects screen trusts
+  the snapshot it comes back to rather than reading it again. Only the first read of a screen takes a kept one: a
+  read again — after an action, a branch switch or a ping — asks the server. A change made in this tab drops them
+  too, and so does the age the snapshot is trusted for.
 - `subscribeProjectChanges` watches the open project's own ping, the user's workspace ping and the
   repository one; the project page re-reads itself (`useLiveProjectChanges`), and drops the snapshot so
   the tree beside it follows. The id-free workspace ping backs the id-keyed one up: it cannot miss a

@@ -4,13 +4,15 @@ import { Alert, Button, Tooltip, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
-import { getTagTypes, type TagType } from '../../services/repositories'
+import { readTagTypes } from '../../services/keptReads'
+import type { TagType } from '../../services/repositories'
 import { deleteFile, rootFileExists, writeRootFile } from '../../services/files'
 import { serializeTagsProperties, TAGS_FILE_NAME, type TagEntry } from '../../services/tagsProperties'
 import { SuggestInput } from '../../components/SuggestInput'
 import { EditableList } from './EditableList'
 import { nameKey, sameName } from '../tags/tagNames'
 import { inTagTypeOrder, PublishTagTypes, TagTypeOrder } from '../tags/tagOrder'
+import { useReadAgain } from '../../hooks/useReadAgain'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The tags read as a table: the type on the left, what the project is tagged with on the right. */
@@ -166,14 +168,16 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     const missing = missingMandatory(types, shown)
     const unconfigured = unconfiguredTypes(tagTypes, shown)
 
-    // The configured tag types feed the checks and the suggestions. They are read again whenever the editing
-    // starts or ends, so a change an administrator made meanwhile shows. A failed read keeps what was read
-    // before, or checks and suggests nothing when nothing was, and the tags are still shown and edited.
+    // The configured tag types feed the checks and the suggestions. The tags are first shown with the types the
+    // projects screen read, and the types are read afresh whenever the editing starts or ends, so a change an
+    // administrator made meanwhile shows. A failed read keeps what was read before, or checks and suggests nothing
+    // when nothing was, and the tags are still shown and edited.
     // What is read is handed to the projects screen too, so its rail and tree follow the same order.
     const publish = useContext(PublishTagTypes)
+    const typesReadAgain = useReadAgain(projectId)
     useEffect(() => {
         let cancelled = false
-        getTagTypes()
+        readTagTypes({ fresh: typesReadAgain() })
             .then(read => {
                 if (!cancelled) {
                     setTagTypes(read)
@@ -182,7 +186,7 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
             })
             .catch(() => undefined)
         return () => { cancelled = true }
-    }, [editing, publish])
+    }, [editing, publish, typesReadAgain])
 
     const startEditing = () => {
         setError(null)

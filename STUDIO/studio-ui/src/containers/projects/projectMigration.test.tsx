@@ -3,6 +3,7 @@ import { App } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getProjectMigration, migrateProject } from '../../services/migration'
 import { useDescriptorMigration } from './projectMigration'
+import { forgetKeptReads } from '../../services/keptReads'
 
 vi.mock('../../services/migration', () => ({
     EMPTY_MIGRATION: {
@@ -17,6 +18,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => <App>{children}
 
 describe('useDescriptorMigration', () => {
     beforeEach(() => {
+        // What one test read must not answer the next one.
+        forgetKeptReads()
         vi.clearAllMocks()
     })
 

@@ -111,13 +111,6 @@ export const projectSignature = (project: Project | null): string =>
         ])
 
 /**
- * True when a snapshot (or a read already underway) exists, so the next read is answered from
- * memory rather than the server. A screen that finds one paints it instantly and re-reads behind
- * it — the snapshot may predate changes made elsewhere.
- */
-export const hasProjectIndex = (): boolean => pending !== undefined
-
-/**
  * True when there is no snapshot, or the one there is has outlived its trust window. A screen the
  * user comes back to checks this and re-reads quietly instead of trusting what a sleeping tab kept.
  */
