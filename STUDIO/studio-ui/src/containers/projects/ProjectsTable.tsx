@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tooltip, Typography } from 'antd'
 import { CaretDownFilled, CaretUpFilled, LockOutlined } from '@ant-design/icons'
@@ -110,6 +111,50 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
+/**
+ * Whether the dates of the table drop their time, to keep the table within its frame.
+ *
+ * The name of a project is the first to give up room, down to its least width. Once the table, its dates written with
+ * their time, is wider than its frame even so, the dates show the day alone; they show the time again once the frame
+ * has room for the width the table took with it. Another page of projects is laid out with the times first; the same
+ * projects read again, as a quiet reload brings them, keep the way their dates are written.
+ */
+const useDayOnly = (projects: Project[]) => {
+    const tableRef = useRef<HTMLTableElement>(null)
+    const [dayOnly, setDayOnly] = useState(false)
+    const page = projects.map(project => project.id).join('\n')
+    const [laidOut, setLaidOut] = useState(page)
+    // How wide the table was with the times, when it last outgrew its frame.
+    const widthWithTimes = useRef(0)
+    if (laidOut !== page) {
+        setLaidOut(page)
+        setDayOnly(false)
+    }
+
+    useLayoutEffect(() => {
+        const table = tableRef.current
+        const frame = table?.parentElement
+        if (!table || !frame || typeof ResizeObserver === 'undefined') {
+            return
+        }
+        const fit = () => {
+            if (!dayOnly && table.offsetWidth > frame.clientWidth) {
+                widthWithTimes.current = table.offsetWidth
+                setDayOnly(true)
+            } else if (dayOnly && frame.clientWidth >= widthWithTimes.current) {
+                setDayOnly(false)
+            }
+        }
+        fit()
+        const observer = new ResizeObserver(fit)
+        observer.observe(frame)
+        observer.observe(table)
+        return () => observer.disconnect()
+    }, [dayOnly, laidOut])
+
+    return { tableRef, dayOnly }
+}
+
 interface ProjectsTableProps {
     projects: Project[]
     /**
@@ -136,8 +181,8 @@ interface ProjectsTableProps {
  * The projects list as a borderless table (Project / Branch / Author / Modified at / actions), each row
  * navigating to the project workspace. The compilation status sits next to the project name. The layout is
  * content-driven: the other columns shrink to fit their content (the author capped), and the project name takes
- * all remaining width. A hand-rolled table keeps rows fast in jsdom and matches the
- * mockup's underlined-row styling.
+ * all remaining width. On a narrow screen the name gives up its room first, and then Modified at drops the time.
+ * A hand-rolled table keeps rows fast in jsdom and matches the mockup's underlined-row styling.
  */
 export const ProjectsTable = ({
     projects,
@@ -156,6 +201,7 @@ export const ProjectsTable = ({
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
+    const { tableRef, dayOnly } = useDayOnly(projects)
     // Nothing to switch and nothing to name: a page of projects that all live without branches drops the
     // column instead of showing an empty one.
     const showBranches = projects.some(project => hasBranch(project, repoInfoOf(project)))
@@ -187,7 +233,11 @@ export const ProjectsTable = ({
     )
 
     return (
-        <table className={cx(shared.listTable, shared.flushTable, styles.table)} data-testid="projects-table">
+        <table
+            ref={tableRef}
+            className={cx(shared.listTable, shared.flushTable, styles.table)}
+            data-testid="projects-table"
+        >
             <thead className={cx(shared.listHead, shared.microLabel)}>
                 <tr>
                     <th>{sortHeader('name', t('home.col_project'))}</th>
@@ -199,7 +249,7 @@ export const ProjectsTable = ({
             </thead>
             <tbody>
                 {projects.map(project => {
-                    const { muted, supportsBranches, lockLabel, date } = deriveProjectRow(project, repoInfoOf, t)
+                    const { muted, supportsBranches, lockLabel, date, day } = deriveProjectRow(project, repoInfoOf, t)
                     const pendingActionId = pending[project.id] ?? null
                     return (
                         <tr
@@ -246,7 +296,7 @@ export const ProjectsTable = ({
                             <td className={styles.fit}>
                                 <div className={classes.author}>{project.modifiedBy || '—'}</div>
                             </td>
-                            <td className={classes.date}>{date ?? '—'}</td>
+                            <td className={classes.date}>{(dayOnly ? day : date) ?? '—'}</td>
                             <td className={styles.fit}>
                                 <ProjectRowActions handlers={handlers} pendingActionId={pendingActionId} project={project} />
                             </td>

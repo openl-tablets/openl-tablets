@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { deriveProjectRow, ProjectBranch, ProjectBranchSwitch } from './projectRow'
-import { formatDateTime, formatDateTimeToMinute } from '../../utils/dateFormat'
+import { formatDate, formatDateTime, formatDateTimeToMinute } from '../../utils/dateFormat'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 
@@ -59,7 +59,7 @@ describe('deriveProjectRow', () => {
         values ? `${key}:${JSON.stringify(values)}` : key) as never
     const repoInfoOf = () => ({ name: 'Design', type: 'repo-git' }) as never
 
-    it('formats the modification date to the minute and the date a lock was taken to the second', () => {
+    it('formats the modification date to the minute, and to the day for a narrow list, and a lock to the second', () => {
         const locked = {
             ...project,
             modifiedAt: '2026-07-09T10:30:42Z',
@@ -69,9 +69,17 @@ describe('deriveProjectRow', () => {
         const row = deriveProjectRow(locked, repoInfoOf, t)
 
         expect(row.date).toBe(formatDateTimeToMinute('2026-07-09T10:30:42Z'))
+        expect(row.day).toBe(formatDate('2026-07-09T10:30:42Z'))
         // A lock used to carry the raw timestamp while the row beside it was formatted.
         expect(row.lockLabel).toContain(formatDateTime('2026-07-09T11:45:00Z') as string)
         expect(row.lockLabel).not.toContain('2026-07-09T11:45:00Z')
+    })
+
+    it('leaves both dates out for a project never modified', () => {
+        const row = deriveProjectRow(project, repoInfoOf, t)
+
+        expect(row.date).toBeNull()
+        expect(row.day).toBeNull()
     })
 })
 
