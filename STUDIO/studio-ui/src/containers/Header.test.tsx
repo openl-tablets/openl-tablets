@@ -119,16 +119,16 @@ describe('Header', () => {
         expect(screen.getByTestId('menu-/projects').getAttribute('data-selected')).toBeNull()
     })
 
-    it('leads home from the cube as from the name, which a narrow window hides', () => {
+    it('leads home, to the welcome page, from the cube as from the name, which a narrow window hides', () => {
         vi.mocked(hasDeploymentRepositories).mockResolvedValue(false)
 
         const { container } = render(<Header />)
 
         const cube = container.querySelector('a.header-logo')
-        expect(cube).toHaveAttribute('href', '/projects')
+        expect(cube).toHaveAttribute('href', '/')
         // The name is the link a reader tabs to; the cube beside it is not a second stop.
         expect(cube).toHaveAttribute('tabindex', '-1')
-        expect(screen.getByRole('link', { name: 'common:openl_studio' })).toHaveAttribute('href', '/projects')
+        expect(screen.getByRole('link', { name: 'common:openl_studio' })).toHaveAttribute('href', '/')
     })
 
     it('puts the one search between the name of the application and the tabs', async () => {

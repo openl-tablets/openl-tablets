@@ -431,7 +431,7 @@ The two following modes display a project in a way convenient to experienced use
 
 ### Introducing the Projects Page
 
-The **Projects** page provides controls for browsing and managing Design repository. After the sign-in, OpenL Studio opens the help page; a user opens the **Projects** page by clicking **Projects** or the **OpenL Studio** name in the top bar. The **Deployments** link next to it opens the page of deployments. The **Projects** page resembles the following:
+The **Projects** page provides controls for browsing and managing Design repository. After the sign-in, OpenL Studio opens the help page; a user opens the **Projects** page by clicking **Projects** in the top bar, and returns to the help page by clicking the **OpenL Studio** logo or name. The **Deployments** link next to it opens the page of deployments. The **Projects** page resembles the following:
 
 ![The Projects page with its filters and the list of projects](images/projects-page.png "The OpenL Studio Projects page")
 
