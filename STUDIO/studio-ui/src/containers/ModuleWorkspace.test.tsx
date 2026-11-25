@@ -1337,6 +1337,16 @@ describe('ModuleWorkspace', () => {
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
     })
 
+    it('names the branch before the project in the trail, as the page of the project does', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('crumb-project')).toBeInTheDocument())
+
+        const branch = screen.getByTestId('branch-switched')
+        expect(branch.compareDocumentPosition(screen.getByTestId('crumb-project')) & Node.DOCUMENT_POSITION_FOLLOWING)
+            .toBeTruthy()
+    })
+
     it('leads from the trail to the projects of the repository', async () => {
         workspace.opened = true
         render(<ModuleWorkspace />)

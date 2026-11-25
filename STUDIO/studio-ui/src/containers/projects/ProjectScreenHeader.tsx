@@ -46,9 +46,9 @@ interface ProjectScreenHeaderProps {
 /**
  * The header of a screen of an opened project: the module page and the screen of the messages wear the same one.
  *
- * <p>The trail leads to the projects of the repository, to another project and to another branch. The title opens
- * another module of the project, or its messages, and the mark beside it tells what was compiled and compiles it
- * again. A project that can only be read, such as one downloaded from the Maven repository, is marked so beside its
+ * <p>The trail leads to the projects of the repository, to another branch and to another project, in the order of the
+ * page of the project. The title opens another module of the project, or its messages, and the mark beside it tells
+ * what was compiled and compiles it again. A project that can only be read, such as one downloaded from the Maven repository, is marked so beside its
  * title.
  * The actions of the screen come at the end.
  */
@@ -82,15 +82,7 @@ export const ProjectScreenHeader = ({
             <Link to="/projects">{t('home.title')}</Link>
             <span aria-hidden>/</span>
             {repositoryPath ? <Link to={repositoryPath}>{repositoryLabel}</Link> : <span>{repositoryLabel}</span>}
-            <span aria-hidden>/</span>
-            {/* Which of its modules to read is the reader's to say, on the project's own screen. */}
-            <ProjectSwitcher
-                currentName={project.name}
-                currentProjectId={project.id}
-                disabled={opening}
-                onSelect={picked => void navigate(`/projects/${picked}`)}
-                testId="crumb-project"
-            />
+            {/* The branch comes right after the repository, as on the project's own page. */}
             {hasBranches && (
                 <>
                     <span aria-hidden>/</span>
@@ -107,6 +99,15 @@ export const ProjectScreenHeader = ({
                     />
                 </>
             )}
+            <span aria-hidden>/</span>
+            {/* Which of its modules to read is the reader's to say, on the project's own screen. */}
+            <ProjectSwitcher
+                currentName={project.name}
+                currentProjectId={project.id}
+                disabled={opening}
+                onSelect={picked => void navigate(`/projects/${picked}`)}
+                testId="crumb-project"
+            />
         </>
     )
 
