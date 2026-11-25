@@ -9,6 +9,20 @@ export const useStyles = createStyles(({ css, token }) => ({
         height: calc(100vh - ${APP_HEADER_HEIGHT}px);
         overflow: hidden;
         background: ${token.colorBgContainer};
+
+        /*
+         * Printed, the page alone is left, whole, flowing over as many sheets as it takes: the frame no longer holds
+         * it to the window, and the contents beside it, folded or not, are left off.
+         */
+        @media print {
+            display: block;
+            height: auto;
+            overflow: visible;
+
+            & > :not(section) {
+                display: none;
+            }
+        }
     `,
     /** The table of contents, dragged wider or narrower by its right edge, which the grip is laid along. */
     rail: css`
@@ -99,17 +113,32 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex: 1;
         min-width: 0;
         overflow: auto;
+
+        @media print {
+            overflow: visible;
+        }
     `,
     page: css`
         display: flex;
         gap: ${token.paddingLG}px;
         max-width: 1280px;
         padding: ${token.paddingLG}px ${token.paddingXL}px;
+
+        /* The sheet has margins of its own. */
+        @media print {
+            display: block;
+            max-width: none;
+            padding: 0;
+        }
     `,
     article: css`
         flex: 1;
         min-width: 0;
         max-width: 960px;
+
+        @media print {
+            max-width: none;
+        }
     `,
     /** The headings of the page, staying in sight while the page scrolls. */
     outline: css`
@@ -121,7 +150,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         max-height: calc(100vh - ${APP_HEADER_HEIGHT + 2 * token.paddingLG}px);
         overflow-y: auto;
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1100px), print {
             display: none;
         }
     `,
@@ -146,6 +175,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-size: ${token.fontSize}px;
         line-height: 1.7;
         overflow-wrap: break-word;
+
+        /* On paper a heading stays with the text it opens, and a picture, a code block or a row is not cut in two. */
+        @media print {
+            h1, h2, h3, h4, h5, h6 {
+                break-after: avoid;
+            }
+
+            img, pre, tr {
+                break-inside: avoid;
+            }
+        }
 
         h1, h2, h3, h4, h5, h6 {
             margin: 1.5em 0 0.6em;

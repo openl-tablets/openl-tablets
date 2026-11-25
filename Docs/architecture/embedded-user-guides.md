@@ -132,7 +132,11 @@ title of its `toc.json` entry. Links are resolved against the page that contains
 in-app route, an image becomes a `/docs/...` file address, and an external link opens in a new tab.
 
 The sidebar folds away the way the rail of the Projects page does; folded, it stays mounted, so the header keeps the
-search of the guides and a typed query unfolds it.
+search of the guides and a typed query unfolds it. Printed, the page is left alone and whole: print rules drop the
+header, the sidebar and the outline, release the frame from the window height, and head every sheet with the page
+title and the OpenL Studio version through `@page` margin boxes. Firefox and Safari draw no margin boxes, and repeat
+neither a fixed element nor a table header on every sheet in Safari, so the page also names the browser tab after its
+title and the version, which both print in their own headers.
 
 The Help page links its documentation card to `/docs/<guide>/` instead of the documentation site.
 

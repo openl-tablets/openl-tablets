@@ -1,9 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Alert, Anchor, type AnchorProps, Skeleton, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useHref, useNavigate } from 'react-router'
 import { fetchGuidePage } from 'services/userGuides'
 import { errorHandler } from 'utils/errorHandling'
+import { SystemContext } from '../../contexts'
 import { GuideMarkdown } from './GuideMarkdown'
 import { GUIDES_ROUTE, routeOfFile } from './guidePaths'
 import { useStyles } from './UserGuides.styles'
@@ -50,6 +51,29 @@ const idOf = (hash: string): string => {
     }
 }
 
+const printedHead = (box: string, text: string) => `@${box} { content: ${JSON.stringify(text)}; font: 9pt sans-serif; }`
+
+/** The name of the application and its version, once it is read. */
+export const studioName = (name: string, version: string | undefined): string => (version ? `${name} ${version}` : name)
+
+/**
+ * The heads every printed sheet of a page carries: the title of the page at the top left, and the version of OpenL
+ * Studio it was printed from at the top right, so a sheet read apart from the others still tells what it is.
+ *
+ * Only Chrome and Edge draw these heads. Firefox and Safari ignore them and print the title of the browser tab in
+ * their own headers instead, which {@link documentTitle} gives the same text.
+ */
+export const printedHeads = (title: string, studio: string): string => `@page {
+    ${printedHead('top-left', title)}
+    ${printedHead('top-right', studio)}
+}`
+
+/**
+ * The title of the browser tab while a page is open: the title of the page and the version of OpenL Studio. A browser
+ * prints it in the header of every sheet, where its headers are on, and history and bookmarks name the page by it.
+ */
+export const documentTitle = (title: string, studio: string): string => `${title} – ${studio}`
+
 interface GuidePageProps {
     /** The page, relative to the guides folder. */
     file: string
@@ -65,6 +89,8 @@ interface GuidePageProps {
 export const GuidePage: React.FC<GuidePageProps> = ({ file, title, hash, container }) => {
     const { t } = useTranslation()
     const { styles } = useStyles()
+    const { appVersion } = useContext(SystemContext)
+    const studio = studioName(t('common:openl_studio'), appVersion)
     const navigate = useNavigate()
     const page = `${GUIDES_ROUTE}/${routeOfFile(file)}`
     const pageHref = useHref(page)
@@ -95,6 +121,14 @@ export const GuidePage: React.FC<GuidePageProps> = ({ file, title, hash, contain
             current = false
         }
     }, [file])
+
+    useEffect(() => {
+        const previous = document.title
+        document.title = documentTitle(title, studio)
+        return () => {
+            document.title = previous
+        }
+    }, [title, studio])
 
     // The headings are read off the page once it is drawn, with the ids the renderer gave them.
     useLayoutEffect(() => {
@@ -135,6 +169,7 @@ export const GuidePage: React.FC<GuidePageProps> = ({ file, title, hash, contain
 
     return (
         <div className={styles.page}>
+            <style>{printedHeads(title, studio)}</style>
             <article ref={articleRef} className={styles.article}>
                 {body()}
             </article>
