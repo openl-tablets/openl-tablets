@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Children, type ReactNode } from 'react'
 import { Typography } from 'antd'
 import { createStyles } from 'antd-style'
 
@@ -32,10 +32,15 @@ const useStyles = createStyles(({ css, token }) => ({
             color: ${token.colorPrimary};
         }
     `,
+    /*
+     * A step is a line of text high, whatever it holds: the button of a mark after the name stands out over the gaps
+     * around the line rather than making the head of one screen higher than another's.
+     */
     step: css`
         display: inline-flex;
         flex: 0 1 auto;
         align-items: center;
+        height: ${Math.round(token.fontSize * token.lineHeight)}px;
         gap: ${token.marginXS}px;
         min-width: 0;
         max-width: 100%;
@@ -45,62 +50,63 @@ const useStyles = createStyles(({ css, token }) => ({
             min-width: 0;
         }
     `,
-    titleRow: css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: ${token.marginSM}px;
-        min-width: 0;
-        margin-top: ${token.marginXS}px;
-    `,
-    titleLeft: css`
-        display: flex;
-        flex: 1 1 auto;
-        align-items: center;
-        gap: ${token.marginSM}px;
-        min-width: 0;
-    `,
+    /** What the screen is about ends the trail: its name, with the marks of its state on either side. */
     title: css`
         && {
+            min-width: 0;
             margin: 0;
+            color: ${token.colorText};
+            font-size: 14px;
+            font-weight: 600;
+            line-height: inherit;
         }
-        min-width: 0;
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
+
+        /* A switcher in place of the name reads as the name, not as a step leading elsewhere. */
+        && button {
+            color: ${token.colorText};
+            font-weight: 600;
+        }
     `,
     titleMuted: css`
-        color: ${token.colorTextTertiary};
-        text-decoration: line-through;
+        && {
+            color: ${token.colorTextTertiary};
+            text-decoration: line-through;
+        }
+    `,
+    /** The actions take the row under the trail to themselves. */
+    actions: css`
+        display: flex;
+        min-width: 0;
+        margin-top: ${token.marginXS}px;
     `,
 }))
 
 interface WorkspaceHeaderProps {
-    /**
-     * The trail above the title: where the thing on screen sits, a step each, linking back to it. A slash follows
-     * every step, the last one too, so the title reads as the next step.
-     */
+    /** The trail to what is open: where it sits, a step each, linking back to it. A slash follows every step. */
     crumbs: ReactNode[]
     /**
-     * What the screen is about — the name of the project, or of the module opened from it.
+     * What the screen is about — the name of the project, or of the module opened from it — which ends the trail.
      *
      * <p>A screen that offers to open another of the same kind puts the switcher itself here, so the name
      * stays where the reader reads it rather than moving aside for a control.
      */
     title: ReactNode
-    /** Shown before the title, as the state of the thing named: a status mark. */
+    /** Shown before the name, as the state of the thing named: a status mark. */
     titleBefore?: ReactNode
-    /** Shown after the title, as what is happening to it: a compile indicator. */
+    /** Shown after the name, as what is happening to it: a compile indicator. */
     titleAfter?: ReactNode
     /** Struck through and greyed, for a name that no longer stands. */
     muted?: boolean
-    /** The actions offered on what the title names. */
+    /** The actions offered on what the name names, in the row under the trail. */
     actions?: ReactNode
     testId?: string
 }
 
 /**
- * The head of a workspace screen: the trail, the name of what is open, and the actions on it.
+ * The head of a workspace screen: the trail ending in the name of what is open, and the actions on it.
+ *
+ * <p>The name and the marks of its state stand in the trail as its last step, which wraps onto the next line as a
+ * whole. The actions take the row under it.
  *
  * <p>A project and a module opened from it wear the same head, so opening a module reads as going a step deeper
  * into the project rather than as arriving somewhere else.
@@ -118,18 +124,17 @@ export const WorkspaceHeader = ({
     return (
         <div className={styles.header} data-testid={testId}>
             <div className={styles.crumb}>
-                {crumbs.filter(Boolean).map((step, index) => (
-                    // The steps stand in a fixed order: where each one is in the trail names it.
-                    <span key={index} className={styles.step}>
+                {/* A step keeps the key it was given, or else its place in the trail; a missing one is left out. */}
+                {Children.map(crumbs, step => step && (
+                    <span className={styles.step}>
                         {step}
                         <span aria-hidden>/</span>
                     </span>
                 ))}
-            </div>
-            <div className={styles.titleRow}>
-                <div className={styles.titleLeft}>
+                <span className={styles.step}>
                     {titleBefore}
                     <Typography.Title
+                        aria-current="page"
                         className={cx(styles.title, muted && styles.titleMuted)}
                         ellipsis={typeof title === 'string' ? { tooltip: title } : true}
                         level={3}
@@ -137,9 +142,9 @@ export const WorkspaceHeader = ({
                         {title}
                     </Typography.Title>
                     {titleAfter}
-                </div>
-                {actions}
+                </span>
             </div>
+            {actions && <div className={styles.actions}>{actions}</div>}
         </div>
     )
 }

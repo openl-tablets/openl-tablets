@@ -21,9 +21,9 @@ describe('fitActionCount', () => {
     })
 })
 
-/** A bar of six actions and the trigger of its menu, measured off screen, standing in the row beside a title. */
-const Bar = ({ wholeTitle = true }: { wholeTitle?: boolean }) => {
-    const { barRef, measureRef, visible } = useActionFit(6, [], { wholeTitle })
+/** A bar of six actions and the trigger of its menu, measured off screen, standing in its row. */
+const Bar = ({ moreAlways = false }: { moreAlways?: boolean }) => {
+    const { barRef, measureRef, visible } = useActionFit(6, [], { moreAlways })
     return (
         <div ref={barRef} data-testid="bar" data-visible={visible}>
             <div ref={measureRef}>{[1, 2, 3, 4, 5, 6, 'more'].map(key => <button key={key} type="button" />)}</div>
@@ -34,43 +34,32 @@ const Bar = ({ wholeTitle = true }: { wholeTitle?: boolean }) => {
 describe('useActionFit', () => {
     afterEach(() => vi.restoreAllMocks())
 
-    const layOut = (name: number) => {
-        // A row of 1000 px; every part 100 px wide; the name of the title, cut short, is `name` px long in full.
+    /** A row `row` px wide; every part 100 px wide. */
+    const layOut = (row: number) => {
         vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100)
         vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
-            return this.dataset['row'] === undefined ? 0 : 1000
-        })
-        vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(function (this: HTMLElement) {
-            return this.dataset['name'] === undefined ? 0 : name
+            return this.dataset['row'] === undefined ? 0 : row
         })
     }
 
-    it('keeps the whole name of the title beside the bar, and collapses actions to make room for it', () => {
-        layOut(400)
+    it('shows every action the row has room for', () => {
+        layOut(1000)
 
-        render(<div data-row><div><span data-name>A long name</span></div><Bar /></div>)
+        render(<div data-row><Bar /></div>)
 
-        // 1000 px less 500 for the title, which asks for its 100 shown and 400 cut, leaves room for three and More.
-        expect(screen.getByTestId('bar')).toHaveAttribute('data-visible', '3')
+        expect(screen.getByTestId('bar')).toHaveAttribute('data-visible', '6')
     })
 
-    it('gives the title no more than half the row, nor less than a short name needs', () => {
-        layOut(2000)
-        const { unmount } = render(<div data-row><div><span data-name>A name far too long</span></div><Bar /></div>)
+    it('collapses the actions the row has no room for, keeping room for the menu', () => {
+        // Six actions and their gaps take 640 px: 500 px holds three and the trigger of the menu.
+        layOut(500)
+        const { unmount } = render(<div data-row><Bar /></div>)
         expect(screen.getByTestId('bar')).toHaveAttribute('data-visible', '3')
         unmount()
 
-        layOut(0)
-        render(<div data-row><Bar /></div>)
-        // No title at all: the bar keeps all but the least room a title has, and every action fits.
-        expect(screen.getByTestId('bar')).toHaveAttribute('data-visible', '6')
-    })
-
-    it('keeps only the least room for a title whose whole name it is not asked to keep', () => {
-        layOut(400)
-
-        render(<div data-row><div><span data-name>A long name</span></div><Bar wholeTitle={false} /></div>)
-
-        expect(screen.getByTestId('bar')).toHaveAttribute('data-visible', '6')
+        // A menu that always stands takes its room even when every action would fit without it.
+        layOut(650)
+        render(<div data-row><Bar moreAlways /></div>)
+        expect(screen.getByTestId('bar')).toHaveAttribute('data-visible', '5')
     })
 })

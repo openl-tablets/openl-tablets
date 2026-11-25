@@ -47,10 +47,10 @@ interface ProjectScreenHeaderProps {
  * The header of a screen of an opened project: the module page and the screen of the messages wear the same one.
  *
  * <p>The trail leads to the projects of the repository, to another branch and to another project, in the order of the
- * page of the project. The title opens another module of the project, or its messages, and the mark beside it tells
- * what was compiled and compiles it again. A project that can only be read, such as one downloaded from the Maven repository, is marked so beside its
- * title.
- * The actions of the screen come at the end.
+ * page of the project. It ends in the name of what is on screen, which opens another module of the project, or its
+ * messages; the mark after it tells what was compiled and compiles it again. A project that can only be read, such as
+ * one downloaded from the Maven repository, is marked so after that name. The actions of the screen take the row under
+ * the trail.
  */
 export const ProjectScreenHeader = ({
     project,

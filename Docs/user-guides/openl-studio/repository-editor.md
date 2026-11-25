@@ -65,11 +65,11 @@ A lock icon after the project name means that another user edits the project. Th
 
 #### Working with the Project Page
 
-The page of a project shows everything about one project. Its title row carries the following:
+The page of a project shows everything about one project. Its header carries the following:
 
--   The path **Projects / Design / master /**, where the repository and the branch the project is on follow the **Projects** link, and the closing slash leads to the project name below. The repository name opens the **Projects** list filtered by the repository. The branch is a switcher, as described in [Working with Project Branches](project-branches.md#working-with-branches). In a narrow window the path continues on the next line after a slash, so no name is broken.
--   The project name, preceded by the status icon when the project is in editing or opened on an earlier revision.
--   The actions of the project, listed in the table below.
+-   The path **Projects / Design / master / Example 1 - Bank Rating**, where the repository and the branch the project is on follow the **Projects** link, and the project name ends the path. The repository name opens the **Projects** list filtered by the repository. The branch is a switcher, as described in [Working with Project Branches](project-branches.md#working-with-branches). In a narrow window the path continues on the next line after a slash, so no name is broken.
+-   The status icon before the project name when the project is in editing or opened on an earlier revision.
+-   The actions of the project, in the row under the path, listed in the table below.
 
 ![The page of an open project with its actions and tabs](images/project-overview.png "The project page")
 
@@ -95,7 +95,7 @@ The following table describes the actions of the project page in their display o
 
 When the window is too narrow for all actions, the last ones move into the **Actions** menu **⋮**.
 
-The tabs below the title row show the following:
+The tabs below the header show the following:
 
 -   **Overview** shows the project configuration and properties. See [Viewing the Project Overview](#viewing-the-project-overview).
 -   **Revisions** lists the revisions of a project in a versioned repository. It is unavailable for file repositories,
@@ -637,8 +637,8 @@ The address opens any OpenL project of the Maven repository, even one that no pr
 OpenL Studio downloads it, and the projects tree lists it under **Maven** while it is shown. An address of an archive
 that is not an OpenL project, or that the Maven repository does not have, shows why the project cannot be shown.
 
-The page is the page of a project of the workspace, with the version of the project and **Read-only** beside its
-title, and **Deploy** and **Export** above its tabs:
+The page is the page of a project of the workspace, with the version of the project and **Read-only** after its
+name in the breadcrumb, and **Deploy** and **Export** under it:
 
 -   **Overview** lists the modules, the projects it depends on, the projects of your workspace that depend on it
     under **Used by**, and the libraries it names; the right column shows the **Maven** repository and the
