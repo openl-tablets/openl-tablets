@@ -136,6 +136,7 @@ describe('UserGuides', () => {
         await userEvent.click(screen.getByTestId('guides-rail-collapse'))
 
         expect(screen.getByTestId('guides-rail')).not.toBeVisible()
+        expect(screen.getByRole('button', { name: 'common:rail.show_named' })).toHaveTextContent('guides:rail')
         unmount()
         renderAt('/docs/openl-studio/rules-editor')
         await userEvent.click(await screen.findByTestId('guides-rail-expand'))

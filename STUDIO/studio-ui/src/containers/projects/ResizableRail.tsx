@@ -48,6 +48,8 @@ interface ResizableRailProps {
      * at the end of its top row, and leaves a narrow strip in its place.
      */
     fold?: [folded: boolean, setFolded: (folded: boolean) => void]
+    /** The name of the rail, written down the strip it leaves when it is folded away. */
+    name?: string
     /** Draws the list in the room the rail has for it: no room before the rail is laid out. */
     children: (room: { height: number, width: number }) => React.ReactNode
 }
@@ -58,13 +60,13 @@ interface ResizableRailProps {
  * <p>The rail measures the room its list has, so a virtual list draws the rows that fit. The width it is dragged to
  * is kept for the next time, and so is a rail folded away.
  */
-export const ResizableRail = ({ testId, widthKey, width, top, fold, children }: ResizableRailProps) => {
+export const ResizableRail = ({ testId, widthKey, width, top, fold, name = '', children }: ResizableRailProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { size, startResize } = useDragSize(widthKey, 'right', width)
     const { ref, size: room } = useElementSize<HTMLDivElement>()
     if (fold?.[0]) {
-        return <FoldedRail onUnfold={() => fold[1](false)} testId={testId} />
+        return <FoldedRail name={name} onUnfold={() => fold[1](false)} testId={testId} />
     }
     return (
         <aside className={cx(shared.rail, styles.resizable)} data-testid={testId} style={{ width: size }}>

@@ -303,7 +303,8 @@ to the running one, the latest first: click a release to read what to change whe
 -   The **Contents** pane on the left lists the guides and their pages. Click a page to open it, or click the arrow
     next to a section to expand it. If titles are cut off, drag the right edge of the pane to widen it; the browser
     remembers the width. The **Hide the panel** icon in its header folds the pane away to give the page the whole
-    width, and **Show the panel** on the strip left in its place brings it back; the browser remembers that too.
+    width, leaving a narrow strip named **User Guides**; click the strip to bring the pane back. The browser remembers
+    that too.
 -   The **On This Page** pane on the right lists the sections of the open page. Click a section to scroll to it; the
     browser address then includes the section, so a bookmark opens the page at that section.
 -   A link to another page of the guides opens it in the same view; a link to another site opens in a new browser tab.
@@ -372,7 +373,7 @@ The following table describes Rules Editor organization:
 
 | Pane                     | Description                                                                                                                                        |
 |--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Left pane                | Displays the module tree providing a list of elements in the currently displayed rule module, with the view mode above it. The search field of the top bar searches the tree. The **Hide the panel** icon at the end of the view mode row folds the pane away; **Show the panel** brings it back, and so does a search typed in the top bar. |
+| Left pane                | Displays the module tree providing a list of elements in the currently displayed rule module, with the view mode above it. The search field of the top bar searches the tree. The **Hide the panel** icon at the end of the view mode row folds the pane away to a narrow strip named **Tables**; clicking the strip brings it back, and so does a search typed in the top bar. |
 | Middle pane              | Displays contents of the table selected in the left pane and provides controls for modifying table data, running tests, and checking test results. |
 | Right pane               | Displays **Table Details**, the properties of the currently displayed table.                                                                       |
 | Upper part <br/>of the window | Contains the breadcrumb, the module name, and the module actions as described further in this section.                                        |

@@ -2,6 +2,7 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'guides', {
     contents: 'Contents',
+    rail: 'User Guides',
     on_this_page: 'On This Page',
     note: 'Note',
     page_not_found: 'The user guides hold no such page.',

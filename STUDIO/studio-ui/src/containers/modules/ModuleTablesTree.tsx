@@ -389,6 +389,7 @@ export const ModuleTablesTree = ({
         <>
             <ResizableRail
                 fold={fold}
+                name={t('common:search.scopes.tables')}
                 testId="module-rail"
                 width={WIDTH}
                 widthKey={WIDTH_STORAGE_KEY}
