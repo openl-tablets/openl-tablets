@@ -1,242 +1,99 @@
 package org.openl.rules.binding;
 
-import java.util.Arrays;
-import java.util.Objects;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.table.properties.ITableProperties;
-
-public class TableProperties {
-    private ITableProperties properties;
-
-    public TableProperties(ITableProperties tableProperties) {
-        this.properties = Objects.requireNonNull(tableProperties, "tableProperties cannot be null");
-    }
+/**
+ * The properties of a rule, as rules read them through {@code $properties} and {@code $dispatchingProperties}.
+ *
+ * <p>Rules only read the properties. A Data or a Test table still sets them on the object it builds, so a test checks
+ * the properties a rule returns, such as {@code _res_.state}.
+ */
+@NullMarked
+public interface TableProperties {
 
     // <<< INSERT >>>
-    public java.lang.String getName() {
-        return properties.getName();
-    }
 
-    public java.lang.String getCategory() {
-        return properties.getCategory();
-    }
+    java.lang.@Nullable String getName();
 
-    public java.lang.String getCreatedBy() {
-        return properties.getCreatedBy();
-    }
+    java.lang.@Nullable String getCategory();
 
-    public java.util.Date getCreatedOn() {
-        return properties.getCreatedOn();
-    }
+    java.lang.@Nullable String getCreatedBy();
 
-    public java.lang.String getModifiedBy() {
-        return properties.getModifiedBy();
-    }
+    java.util.@Nullable Date getCreatedOn();
 
-    public java.util.Date getModifiedOn() {
-        return properties.getModifiedOn();
-    }
+    java.lang.@Nullable String getModifiedBy();
 
-    public java.lang.String getDescription() {
-        return properties.getDescription();
-    }
+    java.util.@Nullable Date getModifiedOn();
 
-    public java.lang.String[] getTags() {
-        return properties.getTags();
-    }
+    java.lang.@Nullable String getDescription();
 
-    public java.util.Date getEffectiveDate() {
-        return properties.getEffectiveDate();
-    }
+    java.lang.String @Nullable [] getTags();
 
-    public java.util.Date getExpirationDate() {
-        return properties.getExpirationDate();
-    }
+    java.util.@Nullable Date getEffectiveDate();
 
-    public java.util.Date getStartRequestDate() {
-        return properties.getStartRequestDate();
-    }
+    java.util.@Nullable Date getExpirationDate();
 
-    public java.util.Date getEndRequestDate() {
-        return properties.getEndRequestDate();
-    }
+    java.util.@Nullable Date getStartRequestDate();
 
-    public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
-        return properties.getCaRegions();
-    }
+    java.util.@Nullable Date getEndRequestDate();
 
-    public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
-        return properties.getCaProvinces();
-    }
+    org.openl.rules.enumeration.CaRegionsEnum @Nullable [] getCaRegions();
 
-    public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
-        return properties.getCountry();
-    }
+    org.openl.rules.enumeration.CaProvincesEnum @Nullable [] getCaProvinces();
 
-    public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
-        return properties.getRegion();
-    }
+    org.openl.rules.enumeration.CountriesEnum @Nullable [] getCountry();
 
-    public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
-        return properties.getCurrency();
-    }
+    org.openl.rules.enumeration.RegionsEnum @Nullable [] getRegion();
 
-    public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
-        return properties.getLang();
-    }
+    org.openl.rules.enumeration.CurrenciesEnum @Nullable [] getCurrency();
 
-    public java.lang.String[] getLob() {
-        return properties.getLob();
-    }
+    org.openl.rules.enumeration.LanguagesEnum @Nullable [] getLang();
 
-    public org.openl.rules.enumeration.OriginsEnum getOrigin() {
-        return properties.getOrigin();
-    }
+    java.lang.String @Nullable [] getLob();
 
-    public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
-        return properties.getUsregion();
-    }
+    org.openl.rules.enumeration.@Nullable OriginsEnum getOrigin();
 
-    public org.openl.rules.enumeration.UsStatesEnum[] getState() {
-        return properties.getState();
-    }
+    org.openl.rules.enumeration.UsRegionsEnum @Nullable [] getUsregion();
 
-    public java.lang.String getVersion() {
-        return properties.getVersion();
-    }
+    org.openl.rules.enumeration.UsStatesEnum @Nullable [] getState();
 
-    public java.lang.Boolean getActive() {
-        return properties.getActive();
-    }
+    java.lang.@Nullable String getVersion();
 
-    public java.lang.String getId() {
-        return properties.getId();
-    }
+    java.lang.@Nullable Boolean getActive();
 
-    public java.lang.String getBuildPhase() {
-        return properties.getBuildPhase();
-    }
+    java.lang.@Nullable String getId();
 
-    public org.openl.rules.enumeration.ValidateDTEnum getValidateDT() {
-        return properties.getValidateDT();
-    }
+    java.lang.@Nullable String getBuildPhase();
 
-    public java.lang.Boolean getFailOnMiss() {
-        return properties.getFailOnMiss();
-    }
+    org.openl.rules.enumeration.@Nullable ValidateDTEnum getValidateDT();
 
-    public java.lang.String getScope() {
-        return properties.getScope();
-    }
+    java.lang.@Nullable Boolean getFailOnMiss();
 
-    public java.lang.Integer getPriority() {
-        return properties.getPriority();
-    }
+    java.lang.@Nullable String getScope();
 
-    public java.lang.String getDatatypePackage() {
-        return properties.getDatatypePackage();
-    }
+    java.lang.@Nullable Integer getPriority();
 
-    public java.lang.String getSpreadsheetResultPackage() {
-        return properties.getSpreadsheetResultPackage();
-    }
+    java.lang.@Nullable String getDatatypePackage();
 
-    public java.lang.Boolean getCacheable() {
-        return properties.getCacheable();
-    }
+    java.lang.@Nullable String getSpreadsheetResultPackage();
 
-    public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
-        return properties.getRecalculate();
-    }
+    java.lang.@Nullable Boolean getCacheable();
 
-    public org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing() {
-        return properties.getEmptyResultProcessing();
-    }
+    org.openl.rules.enumeration.@Nullable RecalculateEnum getRecalculate();
 
-    public java.lang.String getPrecision() {
-        return properties.getPrecision();
-    }
+    org.openl.rules.enumeration.@Nullable DTEmptyResultProcessingEnum getEmptyResultProcessing();
 
-    public java.lang.Boolean getTableStructureDetails() {
-        return properties.getTableStructureDetails();
-    }
+    java.lang.@Nullable String getPrecision();
 
-    public java.lang.Boolean getAutoType() {
-        return properties.getAutoType();
-    }
+    java.lang.@Nullable Boolean getTableStructureDetails();
 
-    public java.lang.Boolean getCalculateAllCells() {
-        return properties.getCalculateAllCells();
-    }
+    java.lang.@Nullable Boolean getAutoType();
 
-    public java.lang.Boolean getParallel() {
-        return properties.getParallel();
-    }
+    java.lang.@Nullable Boolean getCalculateAllCells();
 
-    public java.lang.String getNature() {
-        return properties.getNature();
-    }
+    java.lang.@Nullable Boolean getParallel();
 
-    @Override
-    public String toString() {
-        var sb = new StringBuilder();
-        sb.append("{\r\n");
-        appendProperty(sb, "Name", properties.getName());
-        appendProperty(sb, "Category", properties.getCategory());
-        appendProperty(sb, "CreatedBy", properties.getCreatedBy());
-        appendProperty(sb, "CreatedOn", properties.getCreatedOn());
-        appendProperty(sb, "ModifiedBy", properties.getModifiedBy());
-        appendProperty(sb, "ModifiedOn", properties.getModifiedOn());
-        appendProperty(sb, "Description", properties.getDescription());
-        appendProperty(sb, "Tags", properties.getTags());
-        appendProperty(sb, "EffectiveDate", properties.getEffectiveDate());
-        appendProperty(sb, "ExpirationDate", properties.getExpirationDate());
-        appendProperty(sb, "StartRequestDate", properties.getStartRequestDate());
-        appendProperty(sb, "EndRequestDate", properties.getEndRequestDate());
-        appendProperty(sb, "CaRegions", properties.getCaRegions());
-        appendProperty(sb, "CaProvinces", properties.getCaProvinces());
-        appendProperty(sb, "Country", properties.getCountry());
-        appendProperty(sb, "Region", properties.getRegion());
-        appendProperty(sb, "Currency", properties.getCurrency());
-        appendProperty(sb, "Lang", properties.getLang());
-        appendProperty(sb, "Lob", properties.getLob());
-        appendProperty(sb, "Origin", properties.getOrigin());
-        appendProperty(sb, "Usregion", properties.getUsregion());
-        appendProperty(sb, "State", properties.getState());
-        appendProperty(sb, "Version", properties.getVersion());
-        appendProperty(sb, "Active", properties.getActive());
-        appendProperty(sb, "Id", properties.getId());
-        appendProperty(sb, "BuildPhase", properties.getBuildPhase());
-        appendProperty(sb, "ValidateDT", properties.getValidateDT());
-        appendProperty(sb, "FailOnMiss", properties.getFailOnMiss());
-        appendProperty(sb, "Scope", properties.getScope());
-        appendProperty(sb, "Priority", properties.getPriority());
-        appendProperty(sb, "DatatypePackage", properties.getDatatypePackage());
-        appendProperty(sb, "SpreadsheetResultPackage", properties.getSpreadsheetResultPackage());
-        appendProperty(sb, "Cacheable", properties.getCacheable());
-        appendProperty(sb, "Recalculate", properties.getRecalculate());
-        appendProperty(sb, "EmptyResultProcessing", properties.getEmptyResultProcessing());
-        appendProperty(sb, "Precision", properties.getPrecision());
-        appendProperty(sb, "TableStructureDetails", properties.getTableStructureDetails());
-        appendProperty(sb, "AutoType", properties.getAutoType());
-        appendProperty(sb, "CalculateAllCells", properties.getCalculateAllCells());
-        appendProperty(sb, "Parallel", properties.getParallel());
-        appendProperty(sb, "Nature", properties.getNature());
-        sb.append("}\r\n");
-        return sb.toString();
-    }
+    java.lang.@Nullable String getNature();
     // <<< END INSERT >>>
-
-    private void appendProperty(StringBuilder sb, String name, Object value) {
-        if (value != null) {
-            sb.append(name).append(" = ").append(toString(value)).append("\r\n");
-        }
-    }
-
-    private String toString(Object o) {
-        if (o != null && o.getClass().isArray()) {
-            return Arrays.deepToString((Object[]) o);
-        }
-        return o != null ? o.toString() : "null";
-    }
 }

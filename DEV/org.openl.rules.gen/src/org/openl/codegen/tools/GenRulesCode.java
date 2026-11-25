@@ -14,6 +14,7 @@ import org.openl.codegen.tools.type.TablePriorityRuleWrappers;
 import org.openl.codegen.tools.type.TablePropertyDefinitionWrapper;
 import org.openl.codegen.tools.type.TablePropertyDefinitionWrappers;
 import org.openl.codegen.tools.type.TablePropertyValidatorsWrappers;
+import org.openl.rules.binding.TablePropertiesImpl;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
@@ -62,6 +63,7 @@ public final class GenRulesCode {
 
         generateITablePropertiesCode();
         generateTablePropertiesCode();
+        generateTablePropertiesImplCode();
         generateDefaultTableProperties();
         generateDefaultTablePropertiesSorter();
 
@@ -104,6 +106,15 @@ public final class GenRulesCode {
         String sourceFilePath = getClassSourcePathInRulesModule(org.openl.rules.binding.TableProperties.class);
 
         processFile(sourceFilePath, "TableProperties-properties.vm", variables);
+    }
+
+    private void generateTablePropertiesImplCode() throws IOException {
+        var variables = new HashMap<String, Object>();
+        variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
+
+        String sourceFilePath = getClassSourcePathInRulesModule(TablePropertiesImpl.class);
+
+        processFile(sourceFilePath, "TablePropertiesImpl-properties.vm", variables);
     }
 
     private void generateDefaultRulesRuntimeContextCode() throws IOException {

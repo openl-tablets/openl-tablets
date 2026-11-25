@@ -30,6 +30,24 @@ public final class VelocityTool {
         return clazz.getName();
     }
 
+    /**
+     * Returns the source name of a type whose value may be absent, as a JSpecify type annotation marks it:
+     * {@code java.lang.@Nullable String}, {@code java.lang.String @Nullable []} or {@code int @Nullable [][]}. A
+     * primitive is never absent.
+     */
+    public String getNullableTypeName(Class<?> clazz) {
+        var name = clazz.getCanonicalName();
+        if (clazz.isArray()) {
+            var brackets = name.indexOf('[');
+            return "%s @Nullable %s".formatted(name.substring(0, brackets), name.substring(brackets));
+        }
+        if (clazz.isPrimitive()) {
+            return name;
+        }
+        var dot = name.lastIndexOf('.') + 1;
+        return "%s@Nullable %s".formatted(name.substring(0, dot), name.substring(dot));
+    }
+
     public String getVarArgTypeName(Class<?> clazz) {
 
         if (clazz.isArray()) {

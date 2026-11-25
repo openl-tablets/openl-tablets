@@ -1,18 +1,4 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-#set( $accessorName = $tool.formatAccessorName($tablePropertyDefinition.Name) )
-    public $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get${accessorName}() {
-        return properties.get${accessorName}();
-    }
 
+    $tool.getNullableTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)();
 #end
-    @Override
-    public String toString() {
-        var sb = new StringBuilder();
-        sb.append("{\r\n");
-#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-#set( $accessorName = $tool.formatAccessorName($tablePropertyDefinition.Name) )
-        appendProperty(sb, "$accessorName", properties.get${accessorName}());
-#end
-        sb.append("}\r\n");
-        return sb.toString();
-    }

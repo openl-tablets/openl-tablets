@@ -46,6 +46,7 @@ import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.CollectionElementField;
 import org.openl.types.impl.CollectionType;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenInterface;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -376,6 +377,12 @@ public class DataTableBindHelper {
         return count;
     }
 
+    /**
+     * Finds the field of a type that a column of a table fills.
+     *
+     * <p>A property of a Java interface is filled even when it has no setter: the table builds a bean of the interface
+     * and sets the property on it.
+     */
     // Data tables of existing projects use the _PK_ column, so it stays until its removal is decided.
     @SuppressWarnings("java:S1135")
     public static IOpenField findField(String fieldName, ITable table, IOpenClass tableType) {
@@ -385,7 +392,8 @@ public class DataTableBindHelper {
             return new PrimaryKeyField(FPK, table);
         }
 
-        return tableType.getField(fieldName, true);
+        var field = tableType.getField(fieldName, true);
+        return field != null && tableType instanceof JavaOpenInterface type ? type.getFieldToFill(field) : field;
     }
 
     /**
