@@ -144,9 +144,7 @@ class DatesTest {
 
     @Test
     void test_dateDif_shouldThrowIllegalArgumentException_whenUnitNameInUnknown() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Dates.dateDif(null, null, "SOME_NAME");
-        });
+        assertThrows(IllegalArgumentException.class, () -> Dates.dateDif(null, null, "SOME_NAME"));
     }
 
     @Test
@@ -243,7 +241,7 @@ class DatesTest {
         assertEquals(Double.valueOf(2.8356164383561646), Dates.dateDif(start, getDate(27, 1, 2015), "YF"));
     }
 
-    /** The days of the last, incomplete year are a fraction of that year from anniversary to anniversary. */
+    /** The days after the last anniversary that hold the 29th of February are a fraction of 366 days. */
     @Test
     void test_dateDif_yearFractionAcrossTheTwentyNinthOfFebruary() {
         final Date start = getDate(19, 7, 2022);
@@ -258,6 +256,43 @@ class DatesTest {
         // before 1582 the calendar is Julian: 1500 is a leap year
         assertEquals(Double.valueOf(365d / 366), Dates.dateDif(getDate(1, 1, 1500), getDate(31, 12, 1500), "YF"));
         assertEquals(Double.valueOf(-1 - 365d / 366), Dates.dateDif(getDate(18, 7, 2024), start, "YF"));
+    }
+
+    /** The days after the last anniversary in one calendar year are a fraction of its length by the calendar. */
+    @Test
+    void test_dateDif_yearFractionInOneHistoricalYear() {
+        // 1582 has 355 days: the Gregorian calendar skips 10 days of October
+        assertEquals(Double.valueOf(354d / 355), Dates.dateDif(getDate(1, 1, 1582), getDate(31, 12, 1582), "YF"));
+        // 1 BC is a leap year of the Julian calendar
+        assertEquals(Double.valueOf(365d / 366), Dates.dateDif(getDateBC(1, 1, 1), getDateBC(31, 12, 1), "YF"));
+        assertEquals(Double.valueOf(364d / 365), Dates.dateDif(getDateBC(1, 1, 2), getDateBC(31, 12, 2), "YF"));
+    }
+
+    /**
+     * For dates without a time of day, a period shorter than a year gives the value of Excel {@code YEARFRAC} with
+     * basis 1, as computed in Microsoft Excel.
+     *
+     * <p>Days in one leap year or holding the 29th of February are a fraction of 366 days, other days of 365 days. A
+     * 29th of February after the end date does not count.
+     */
+    @Test
+    void test_dateDif_yearFractionAsExcelYearFracActualActual() {
+        // no 29th of February, although the year up to the next anniversary holds one
+        assertEquals(Double.valueOf(119d / 365), Dates.dateDif(getDate(2, 4, 2023), getDate(30, 7, 2023), "YF"));
+        assertEquals(Double.valueOf(364d / 365), Dates.dateDif(getDate(1, 3, 2023), getDate(28, 2, 2024), "YF"));
+        assertEquals(Double.valueOf(152d / 365), Dates.dateDif(getDate(1, 9, 2023), getDate(31, 1, 2024), "YF"));
+        assertEquals(Double.valueOf(316d / 365), Dates.dateDif(getDate(10, 3, 2024), getDate(20, 1, 2025), "YF"));
+        // inside one leap year
+        assertEquals(Double.valueOf(142d / 366), Dates.dateDif(getDate(10, 3, 2024), getDate(30, 7, 2024), "YF"));
+        assertEquals(Double.valueOf(41d / 366), Dates.dateDif(getDate(10, 1, 2024), getDate(20, 2, 2024), "YF"));
+        // the 29th of February inside the period, as its end or as its start
+        assertEquals(Double.valueOf(365d / 366), Dates.dateDif(getDate(19, 7, 2023), getDate(18, 7, 2024), "YF"));
+        assertEquals(Double.valueOf(229d / 366), Dates.dateDif(getDate(30, 7, 2023), getDate(15, 3, 2024), "YF"));
+        assertEquals(Double.valueOf(365d / 366), Dates.dateDif(getDate(1, 3, 2023), getDate(29, 2, 2024), "YF"));
+        assertEquals(Double.valueOf(365d / 366), Dates.dateDif(getDate(29, 2, 2024), getDate(28, 2, 2025), "YF"));
+        // the days after the last anniversary of a longer period follow the same rule
+        assertEquals(Double.valueOf(1 + 119d / 365), Dates.dateDif(getDate(2, 4, 2022), getDate(30, 7, 2023), "YF"));
+        assertEquals(Double.valueOf(1 + 31d / 366), Dates.dateDif(getDate(1, 3, 2023), getDate(1, 4, 2024), "YF"));
     }
 
     @Test
@@ -301,6 +336,12 @@ class DatesTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+    private static Date getDateBC(int day, int month, int year) {
+        var calendar = new GregorianCalendar(year, month - 1, day);
+        calendar.set(Calendar.ERA, GregorianCalendar.BC);
         return calendar.getTime();
     }
 

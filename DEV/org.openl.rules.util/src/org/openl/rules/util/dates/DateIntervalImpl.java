@@ -78,7 +78,7 @@ final class DateIntervalImpl extends DateInterval {
         }
 
         double daysDif = endDate.daysDiffExcludeYears(startDate);
-        int yearLen = startDate.yearLengthAfter(result);
+        int yearLen = endDate.lastYearLength(startDate);
         return toSignDouble(result + daysDif / yearLen);
     }
 

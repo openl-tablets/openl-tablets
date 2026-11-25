@@ -19,6 +19,8 @@ final class CalendarWrapper {
 
     static final int DAYS_IN_WEEK = 7;
     static final int MONTH_IN_YEAR = 12;
+    private static final int DAYS_IN_YEAR = 365;
+    private static final int DAYS_IN_LEAP_YEAR = 366;
 
     private final GregorianCalendar calendar;
     private final int year;
@@ -147,14 +149,21 @@ final class CalendarWrapper {
      * @return difference in full days
      */
     int daysDiffExcludeYears(CalendarWrapper start) {
-        var calendarStartDate = start.getCalendar();
-        if (isCompleteLastYear(start)) {
-            calendarStartDate.set(Calendar.YEAR, year);
-        } else {
-            calendarStartDate.set(Calendar.YEAR, year - 1);
-        }
-        var startDate = new CalendarWrapper(calendarStartDate);
-        return daysDiff(startDate);
+        return daysDiff(lastAnniversary(start));
+    }
+
+    /**
+     * The last anniversary of the start date on or before this date.
+     *
+     * <p>A start on the 29th of February has its anniversary on the 1st of March of a year without that day.
+     *
+     * @param start start date
+     * @return the start date moved to its last anniversary
+     */
+    private CalendarWrapper lastAnniversary(CalendarWrapper start) {
+        var anniversary = start.getCalendar();
+        anniversary.set(Calendar.YEAR, isCompleteLastYear(start) ? year : year - 1);
+        return new CalendarWrapper(anniversary);
     }
 
     int getActualMonthLength() {
@@ -179,23 +188,32 @@ final class CalendarWrapper {
     }
 
     /**
-     * The length in days of the year that starts the given number of full years after this date: from that
-     * anniversary to the next one. A year holding the 29th of February is 366 days long.
+     * The length of the year that the days after the last anniversary of the start date are a fraction of. It is the
+     * year length Excel {@code YEARFRAC} with basis 1 (actual/actual) takes for those days.
      *
-     * <p>The 29th of February comes back on the 1st of March of a year without it, as the days of the last year are
-     * counted.
+     * <p>When those days lie in one calendar year, it is the length of that year: 366 days in a leap year. When they
+     * run into the next year, it is 366 days if they hold the 29th of February, the last anniversary and this date
+     * included, and 365 days if not.
      *
-     * @param years full years after this date
-     * @return the length of that year in days
+     * @param start start date
+     * @return the length of the year in days
      */
-    int yearLengthAfter(int years) {
-        return anniversaryIn(year + years + 1).daysDiff(anniversaryIn(year + years));
+    int lastYearLength(CalendarWrapper start) {
+        if (isCompleteLastYear(start)) {
+            return yearLength(); // the last anniversary is in the year of this date
+        }
+        var anniversary = lastAnniversary(start);
+        var leapDayAfterAnniversary = anniversary.month <= 2 && anniversary.isLeapYear();
+        var leapDayUpToThisDate = (month > 2 || (month == 2 && day == 29)) && isLeapYear();
+        return leapDayAfterAnniversary || leapDayUpToThisDate ? DAYS_IN_LEAP_YEAR : DAYS_IN_YEAR;
     }
 
-    /** This date in the given year, by the rules of the calendar the days are counted with. */
-    private CalendarWrapper anniversaryIn(int anniversaryYear) {
-        var anniversary = getCalendar();
-        anniversary.set(Calendar.YEAR, anniversaryYear);
-        return new CalendarWrapper(anniversary);
+    /** The number of days in the calendar year of this date, by the calendar the days are counted with. */
+    private int yearLength() {
+        return calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+    }
+
+    private boolean isLeapYear() {
+        return yearLength() == DAYS_IN_LEAP_YEAR;
     }
 }

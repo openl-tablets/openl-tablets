@@ -21,11 +21,13 @@ own project only, as listed for the developers.
   without a message. Use the collection type itself for the field or the parameter, and keep a Vocabulary for the
   values of its elements, such as `Datatype Color <String>` with a `Color[]` field.
 
-* **`dateDif` with the `YF` unit divides the days of the last year by the length of that year.** The days after the
-  last full year are divided by the days from that anniversary to the next one, 366 when they hold February 29:
-  `dateDif(toDate("2022-07-19"), toDate("2024-07-18"), "YF")` is `1.9973`. Before, it divided by the length of the
-  calendar year before the end date and gave `2.0`. A start on February 29 has its anniversary on March 1 of a year
-  without that day. Update the expected values of the tests that check such a fraction.
+* **`dateDif` with the `YF` unit divides the days after the last full year as Excel `YEARFRAC` does.** When those days
+  run into the next calendar year, they are divided by 366 if they hold February 29, the end date included, and by
+  365 if not. So for dates without a time of day, a period shorter than a year gives the value of
+  `YEARFRAC(start, end, 1)`, and `dateDif(toDate("2022-07-19"), toDate("2024-07-18"), "YF")` is `1.9973`. Before, such days were divided by the
+  length of the year they started in. This period gave `2.0`, and
+  `dateDif(toDate("2024-03-10"), toDate("2025-01-20"), "YF")` gave `0.8634` instead of `0.8658`. Days within one
+  calendar year keep their results. Update the expected values of the tests that check a fraction across a new year.
 
 * **A field of a missing result element is empty in a test.** A test that checks a field of an element the result does
   not have, such as `_res_.items[1].amount` when the rule returns one item or none, reads that field as empty. Before,
