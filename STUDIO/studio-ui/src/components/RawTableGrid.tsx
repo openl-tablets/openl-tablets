@@ -13,6 +13,7 @@ import type {
     TableLayout,
 } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
+import { withPathBreaks } from './pathBreaks'
 import { type MarkInks, markInksOf, markedRuns, marksOf } from './textMarks'
 import { opaque } from '../styles/colorMath'
 import { themePaper, workbookPaper } from '../styles/paper'
@@ -611,7 +612,7 @@ const cellText = (cell: RawTableCell, formulas: boolean, styles: RawTableGridSty
     // Most cells have nothing marked — what the compiler knows about them is the type behind them and the
     // editor they ask for. Those are drawn as the text they are, rather than through a component of their own.
     if (!metaInfo?.usages?.length && !metaInfo?.returnCell && !runs?.length) {
-        return text
+        return withPathBreaks(text)
     }
     return (
         <RawTableCellText

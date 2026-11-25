@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { ComparisonPanes as Panes } from './ComparisonPanes'
 import { paperToken } from 'styles/paper'
+import { afterBreaks } from 'testing/pathBreaks'
 import { hex, renderInTheme } from 'testing/theme'
 import type { ComparisonLine, ComparisonSide, ComparisonTable } from 'types/compare'
 
@@ -535,6 +536,22 @@ describe('ComparisonPanes', () => {
             expect(pane).toHaveTextContent('int → double')
             // The two versions share one table, so there is no second pane to read it against.
             expect(screen.queryByTestId('compare-pane-second')).toBeNull()
+        })
+
+        it('wraps a field path in both values of a changed cell before a dot, as in every other cell', () => {
+            const side = (path: string) => ({
+                source: [
+                    [{ cell: 'A1', value: 'Datatype Person' }],
+                    [{ cell: 'A2', value: path }],
+                    [{ cell: 'A3', value: 'name' }],
+                ],
+                changedCells: ['A2'],
+            })
+            combined({ ...TABLE, first: side('quote.planName'), second: side('quote.planCode') })
+
+            const pane = screen.getByTestId('compare-pane-combined')
+            expect(afterBreaks(pane)).toEqual(['.planName', '.planCode'])
+            expect(pane).toHaveTextContent('quote.planName → quote.planCode')
         })
 
         it('leads every row with the sign it is read by', () => {

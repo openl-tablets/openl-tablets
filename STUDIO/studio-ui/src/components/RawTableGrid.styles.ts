@@ -93,7 +93,8 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
     `,
         /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
-     * the screen — the way the workbook itself shows it.
+     * the screen — the way the workbook itself shows it. A field path wraps before a dot between its parts, as the
+     * text is drawn (`withPathBreaks`); a word wider than the column on its own breaks where it must.
      *
      * <p>A cell with nothing written in it keeps the room of one that has: a workbook gives every row and
      * column a size of its own whether anything stands there or not, and a row of empty cells drawn to its
@@ -279,14 +280,10 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
         /**
      * A piece that names a table reads as the way into it that it is, and underlines under the pointer.
      *
-     * <p>It is a button, so it is reached by the keyboard as every other way into a table is; the button's
-     * own frame is dropped, since what is drawn is a word inside a sentence.
+     * <p>It acts as a button, so it is reached by the keyboard as every other way into a table is, and it wraps with
+     * the text around it, since what is drawn is a word inside a sentence.
      */
         usageLink: css`
-        padding: 0;
-        border: none;
-        background: none;
-        font: inherit;
         cursor: pointer;
         color: ${paper.link};
 
@@ -301,10 +298,6 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
          * only a dotted line under it tells it leads somewhere.
          */
         possibleLink: css`
-        padding: 0;
-        border: none;
-        background: none;
-        font: inherit;
         color: inherit;
         cursor: pointer;
         text-decoration: underline dotted;

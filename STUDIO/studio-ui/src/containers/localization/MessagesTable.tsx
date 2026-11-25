@@ -5,6 +5,7 @@ import type { TableProps } from 'antd'
 import type { TableRef } from 'antd/es/table'
 import type { FilterDropdownProps, FilterValue, SorterResult } from 'antd/es/table/interface'
 import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { withPathBreaks } from 'components/pathBreaks'
 import type { BundleLanguage, KeyRow } from './bundle'
 import { LanguageTitle } from './LanguageTitle'
 import { SIDEWAYS_BAR, useStyles } from './LocalizationWorkspace.styles'
@@ -262,7 +263,7 @@ export const MessagesTable = ({
             filterIcon: renderKeyFilterIcon,
             render: (key: string) => (
                 <Typography.Link data-testid="localization-open-key" onClick={() => onOpenKey(key)}>
-                    {key}
+                    {withPathBreaks(key)}
                 </Typography.Link>
             ),
         },

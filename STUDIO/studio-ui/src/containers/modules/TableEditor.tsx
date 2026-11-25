@@ -579,8 +579,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     /** What the keyboard does with the table, as the old editor did it. */
     const onKeyDown = (event: React.KeyboardEvent<HTMLTableElement>) => {
-        // While a cell is open the keys belong to what is written into it, which handles its own.
-        if (open !== null || picked === null) {
+        // While a cell is open the keys belong to what is written into it, which handles its own. A key pressed on a
+        // link in a cell is the link's: the table takes the keys pressed on itself alone.
+        if (open !== null || picked === null || event.target !== event.currentTarget) {
             return
         }
         if (BACK[event.key] !== undefined) {

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { onTestFinished } from 'vitest'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { layOut } from 'testing/layOut'
+import { afterBreaks } from 'testing/pathBreaks'
 
 interface Row {
     id: string
@@ -99,6 +100,32 @@ describe('ListTable', () => {
             const lines = table.querySelectorAll('tbody tr')
             expect(lines).toHaveLength(1)
             expect([...lines[0]!.children].map(cell => cell.textContent)).toEqual(['Name', 'First', 'Second'])
+        })
+
+        it('wraps a field path in the name of a line before a dot, and leaves a name drawn by the screen alone', () => {
+            const named: ListTableColumn<Row>[] = [
+                { key: 'id', title: 'Plan (quote.planName)', render: row => row.id },
+                { key: 'path', title: 'Region (coverage.regionCode)', render: row => row.name },
+                { key: 'drawn', title: <b>coverage.regionCode</b>, render: row => row.name },
+            ]
+            renderTable({ transposed: true, columns: named })
+
+            expect(afterBreaks(screen.getByText('Plan (quote.planName)'))).toEqual(['.planName)'])
+            const path = screen.getByText('Region (coverage.regionCode)')
+            expect(afterBreaks(path)).toEqual(['.regionCode)'])
+            expect(path).toHaveTextContent(/^Region \(coverage\.regionCode\)$/)
+            expect(screen.getByText('coverage.regionCode').querySelector('wbr')).toBeNull()
+        })
+
+        // A name kept to a width of its own wrapped in a column the list gave far more room, as a table of one case
+        // does. See EPBDS-17283.
+        it('lets the name of a line take the room its column has, its own width asked of the column alone', () => {
+            renderTable({ transposed: true })
+
+            const name = getComputedStyle(screen.getByText('Name'))
+            expect(name.minWidth).toBe('stretch')
+            expect(name.width).toBe('max-content')
+            expect(name.maxWidth).not.toBe('none')
         })
 
         it('keeps a click in a cell of its own to the cell', async () => {

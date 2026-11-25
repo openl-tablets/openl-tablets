@@ -3,6 +3,8 @@ import { Tooltip } from 'antd'
 import type { RawTableCell, RawTableCellUsage, RawTableTextRun } from 'types/tables'
 import type { RawTableGridStyles } from './RawTableGrid.styles'
 import { runStyle, type RunPlace } from './rawTableStyle'
+import { withPathBreaks } from './pathBreaks'
+import { onActivate } from '../utils/keyboardActivate'
 
 /** Where a usage leads — a table, or the key of a message — when the screen showing the table can follow it. */
 export type OpenUsage = (usage: RawTableCellUsage) => void
@@ -51,17 +53,17 @@ const placeRuns = (text: string, runs: RawTableTextRun[] | undefined): PlacedRun
     })
 }
 
-/** A slice of the text, drawn in the fonts of the runs it crosses. */
+/** A slice of the text, drawn in the fonts of the runs it crosses, and breaking a path where the whole text would. */
 const styledSlice = (text: string, start: number, end: number, placed: PlacedRun[] | undefined,
     place: RunPlace): React.ReactNode => {
     if (placed === undefined) {
-        return text.slice(start, end)
+        return withPathBreaks(text, start, end)
     }
     return placed
         .filter(({ start: from, end: to }) => from < end && to > start)
         .map(({ start: from, end: to, run }) => (
             <span key={from} style={runStyle(run, place)}>
-                {text.slice(Math.max(from, start), Math.min(to, end))}
+                {withPathBreaks(text, Math.max(from, start), Math.min(to, end))}
             </span>
         ))
 }
@@ -103,20 +105,19 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({
         const possible = usage.soft === true
         // A piece that leads somewhere is drawn as a link, whatever colour the workbook gives its text.
         const covered = slice(start, end, leads && !possible)
+        // A link is a piece of the text acting as a button rather than a <button>: a browser lays a button out as a
+        // box of its own, which drops whole to the next line and keeps the text after it off its last line.
+        const open = () => onOpenUsage?.(usage)
+        const link = leads ? {
+            className: possible ? styles.possibleLink : styles.usageLink,
+            onClick: open,
+            onKeyDown: onActivate(open),
+            role: 'button',
+            tabIndex: 0,
+        } : {}
         pieces.push(
             <Tooltip key={`${usage.start}-${index}`} title={usage.description}>
-                {leads ? (
-                    <button
-                        className={possible ? styles.possibleLink : styles.usageLink}
-                        data-testid={`cell-usage-${index}`}
-                        onClick={() => onOpenUsage?.(usage)}
-                        type="button"
-                    >
-                        {covered}
-                    </button>
-                ) : (
-                    <span data-testid={`cell-usage-${index}`}>{covered}</span>
-                )}
+                <span data-testid={`cell-usage-${index}`} {...link}>{covered}</span>
             </Tooltip>
         )
         read = end

@@ -2,6 +2,7 @@ import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@te
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
+import { afterBreaks } from 'testing/pathBreaks'
 import { keyRowOf, languagesOf } from './bundle'
 import { useStyles } from './LocalizationWorkspace.styles'
 import { NO_FILTER, type MessageFilter } from './messageFilter'
@@ -14,11 +15,12 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => k
 const languages = languagesOf([{ tag: '' }, { tag: 'de' }, { tag: 'fr' }], tag => tag)
 const rows = [keyRowOf({ key: 'greeting', values: { '': 'Hello', de: 'Hallo' } })]
 
-const Messages = ({ addedLanguage = null, addedKey = null, onFilter = vi.fn(), width = 2000 }: {
+const Messages = ({ addedLanguage = null, addedKey = null, onFilter = vi.fn(), width = 2000, keys = rows }: {
     addedLanguage?: string | null
     addedKey?: string | null
     onFilter?: (filter: MessageFilter) => void
     width?: number
+    keys?: typeof rows
 }) => {
     const edits = useMessageEdits()
     const [filter, setFilter] = useState(NO_FILTER)
@@ -37,7 +39,7 @@ const Messages = ({ addedLanguage = null, addedKey = null, onFilter = vi.fn(), w
             onMore={vi.fn()}
             onOpenKey={vi.fn()}
             onRemoveKey={vi.fn()}
-            rows={rows}
+            rows={keys}
             width={width}
             onFilter={next => {
                 onFilter(next)
@@ -57,6 +59,14 @@ describe('MessagesTable', () => {
 
         expect(container.querySelector('.ant-table-wrapper')?.classList.contains(result.current.styles.sideways))
             .toBe(sideways)
+    })
+
+    it('wraps a long key before a dot between its parts', () => {
+        render(<Messages keys={[keyRowOf({ key: 'error.quote.planName', values: { '': 'Name a plan' } })]} />)
+
+        const key = screen.getByTestId('localization-open-key')
+        expect(afterBreaks(key)).toEqual(['.quote', '.planName'])
+        expect(key).toHaveTextContent(/^error\.quote\.planName$/)
     })
 
     it('lights the column of a language added for a moment, in its place among the others', () => {

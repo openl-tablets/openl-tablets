@@ -405,6 +405,18 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
 The switch changes only the screen: the Excel file and the project are not changed, and the table is not read again.
 The comparison of Excel files always draws the formatting of the files.
 
+A value too wide for its column wraps onto the next lines in both looks:
+
+-   A field path, such as `_res_.quoteCalculations[0].coverageDetail.requiredParticipationPercent`, wraps before a dot
+    between its parts. An index stays with its name, as in `enrollmentByRegion[0]`.
+-   A space breaks a line too.
+-   A name is broken inside only when it is wider than the column on its own.
+-   A number, such as `1105.25`, an abbreviation, such as `e.g.`, and a dot that ends a sentence are not broken.
+
+The test results, the trace, the comparison of Excel files, and the keys and texts of the **Localization** screen also
+wrap a field path before a dot between its parts. A line break adds nothing to the text: a copied path reads as it is
+written.
+
 ### Modifying Tables
 
 OpenL Studio provides embedded tools for modifying table data directly in a web browser. To modify a table, proceed as follows:

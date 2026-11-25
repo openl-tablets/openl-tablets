@@ -3,6 +3,7 @@ import { Badge, Empty, Flex, Spin, Splitter, Tag, Typography } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { RawTableGrid, type CellDecoration } from 'components/RawTableGrid'
+import { withPathBreaks } from 'components/pathBreaks'
 import { joinClasses } from 'utils/joinClasses'
 import type { RawTableCell } from 'types/tables'
 import type {
@@ -46,6 +47,9 @@ interface ComparisonPanesProps {
 
 /** The sign a row of the combined view is read by. */
 const SIGNS: Record<ComparisonLineStatus, string> = { equal: '', changed: '→', added: '+', removed: '−' }
+
+/** A value of a changed cell, a field path in it wrapping before a dot as in every other cell. */
+const shownValue = (value: string | undefined): React.ReactNode => withPathBreaks(value ?? '')
 
 /** The kinds of change a legend explains, in the order it explains them. */
 const KINDS = ['changed', 'added', 'removed'] as const
@@ -615,7 +619,7 @@ const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | und
             const [first, second] = order.map(pane => (
                 <Flex key={pane} align="baseline" data-testid={`compare-combined-${pane}`} gap={4}>
                     <span className={styles.combinedVersion}>{t(pane === 'yours' ? 'yours_short' : 'theirs_short')}</span>
-                    <span>{pane === 'yours' ? mark.after : mark.theirs}</span>
+                    <span>{shownValue(pane === 'yours' ? mark.after : mark.theirs)}</span>
                 </Flex>
             ))
             return {
@@ -623,7 +627,7 @@ const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | und
                 content: (
                     <Flex vertical gap={2}>
                         <span>
-                            <span className={styles.combinedBefore}>{mark.before}</span>
+                            <span className={styles.combinedBefore}>{shownValue(mark.before)}</span>
                             {` ${SIGNS.changed}`}
                         </span>
                         <Flex wrap align="center" gap="small">
@@ -640,9 +644,9 @@ const Combined: React.FC<{ combined: CombinedTable; order?: ConflictPane[] | und
                 className: frame(sides, frameOfMark(mark)),
                 content: (
                     <>
-                        <span className={styles.combinedBefore}>{mark.before}</span>
+                        <span className={styles.combinedBefore}>{shownValue(mark.before)}</span>
                         {` ${SIGNS.changed} `}
-                        <span>{mark.after}</span>
+                        <span>{shownValue(mark.after)}</span>
                     </>
                 ),
             }

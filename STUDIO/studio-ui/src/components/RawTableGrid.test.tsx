@@ -10,6 +10,7 @@ import { markInksOf } from './textMarks'
 import { paperToken } from 'styles/paper'
 import { THEME_ORDER, variantOf } from 'styles/themes'
 import { layOut } from 'testing/layOut'
+import { afterBreaks } from 'testing/pathBreaks'
 import { hex, paletteFor, renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
 import { highlight } from 'utils/codeHighlight'
@@ -933,6 +934,22 @@ describe('RawTableGrid', () => {
         expect(cells[0]).toHaveTextContent('=1+2')
         // A cell written as a plain value has no formula to show, so it reads the same either way.
         expect(cells[1]).toHaveTextContent('plain')
+    })
+
+    // A path wider than its column broke at the last letter that fitted, leaving the end of a name alone on the next
+    // line. See EPBDS-17283.
+    it('wraps a field path before a dot between its parts, adding nothing to the text', () => {
+        const paths: RawTableCell[][] = [[
+            { cell: 'A1', value: '_res_.quoteCalculations[0].coverageDetail' },
+            { cell: 'B1', value: 1105.25 },
+        ]]
+
+        render(<RawTableGrid rows={paths} testId="grid" />)
+
+        const path = screen.getByText('_res_.quoteCalculations[0].coverageDetail')
+        expect(afterBreaks(path)).toEqual(['.quoteCalculations[0]', '.coverageDetail'])
+        expect(path).toHaveTextContent(/^_res_\.quoteCalculations\[0]\.coverageDetail$/)
+        expect(screen.getByText('1105.25').querySelector('wbr')).toBeNull()
     })
 
     it('leaves the formula unmarked: what the compiler knows describes the value, not the formula', () => {

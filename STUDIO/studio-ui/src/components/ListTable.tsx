@@ -6,6 +6,7 @@ import { windowRect } from 'hooks/useScrollMargin'
 import { useListPageStyles } from 'styles/listPageStyles'
 import { onActivate } from 'utils/keyboardActivate'
 import { useStyles } from './ListTable.styles'
+import { withPathBreaks } from './pathBreaks'
 
 /** One column of a list: the caption it stands under and what a row puts in the cell. */
 export interface ListTableColumn<T> {
@@ -67,6 +68,11 @@ const COLUMNS_AHEAD = 3
 
 /** The room of the columns not drawn, on either side of those that are: no padding, only the width they take. */
 const roomOf = (width: number): React.CSSProperties => ({ width, minWidth: width, padding: 0 })
+
+/** The name of a line, a field path in it wrapping before a dot rather than inside a name. */
+const lineName = (title: React.ReactNode): React.ReactNode => (
+    typeof title === 'string' ? withPathBreaks(title) : title
+)
 
 /** The columns of a list that are drawn, by their place in it, and the room of the others before and after them. */
 interface ColumnsDrawn<T> {
@@ -459,7 +465,9 @@ const ColumnsList = <T, >({
             {head && (
                 <thead className={cx(shared.listHead, maxHeight && styles.stickyHead)}>
                     <tr ref={headRow}>
-                        <th className={nameClass}><span className={styles.lineNameText}>{head.title}</span></th>
+                        <th className={nameClass}>
+                            <span className={styles.lineNameText}>{lineName(head.title)}</span>
+                        </th>
                         {rows.map(row => (
                             <th
                                 key={rowKey(row)}
@@ -479,7 +487,7 @@ const ColumnsList = <T, >({
                         {/* A line is measured by its name: a browser may measure the height of a table row
                             without its rules. */}
                         <th ref={measure} className={nameClass} data-index={index}>
-                            <span className={styles.lineNameText}>{column.title}</span>
+                            <span className={styles.lineNameText}>{lineName(column.title)}</span>
                         </th>
                         {rows.map(row => (
                             <td

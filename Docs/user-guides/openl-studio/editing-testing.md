@@ -317,9 +317,10 @@ the columns and its parameters down the rows, shows its results the same way: a 
 and a line for each value it was given and each value it compares. Long results scroll inside the table, the ids
 of the cases and the names of the lines staying in view. The columns stand still as the lines go by: a column widens
 only for a wider value or name, and the other columns share what is left. A long name of a line wraps rather than
-widen its column. **Transpose** next to the name of a table turns its results the other way round, and a second click
-turns them back. It changes only what the window shows: the workbook stays
-as it is, and the table stays turned while the options below change what the window lists.
+take the room of the values, a field path in it before a dot between its parts. A name uses the room its column has,
+so with a few cases the names stay on one line. **Transpose** next to the name of a table turns its results the other
+way round, and a second click turns them back. It changes only what the window shows: the
+workbook stays as it is, and the table stays turned while the options below change what the window lists.
 
 ![Results of a test table written transposed, a case to a column](images/test-results-transposed.png "Test results laid out as the test table")
 
