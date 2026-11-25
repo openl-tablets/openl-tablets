@@ -3,7 +3,7 @@ import type { TFunction } from 'i18next'
 import { createStyles } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
 import { STATUS_META } from '../../constants/projectStatusMeta'
-import { formatDateTime, formatDateTimeToMinute } from '../../utils/dateFormat'
+import { formatDate, formatDateTime, formatDateTimeToMinute } from '../../utils/dateFormat'
 import type { Project } from '../../types/projects'
 import type { RepositoryInfo } from '../../types/repositories'
 import { supportsBranches } from '../../utils/repositoryFeatures'
@@ -14,7 +14,10 @@ interface ProjectRowData {
     muted: boolean
     supportsBranches: boolean
     lockLabel: string | undefined
+    /** When the project was last modified, down to the minute. */
     date: string | null
+    /** The day the project was last modified, without the time, for a list too narrow for it. */
+    day: string | null
 }
 
 /** Derive the display values of the row of a project in the list. */
@@ -30,6 +33,7 @@ export function deriveProjectRow(project: Project, repoInfoOf: (project: Project
             })
             : undefined,
         date: formatDateTimeToMinute(project.modifiedAt),
+        day: project.modifiedAt ? formatDate(project.modifiedAt) : null,
     }
 }
 

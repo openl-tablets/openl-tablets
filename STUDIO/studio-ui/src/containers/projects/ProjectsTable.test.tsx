@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ProjectsTable } from './ProjectsTable'
 import { ProjectStatus } from '../../constants/project'
@@ -34,7 +34,8 @@ vi.mock('./projectRow', () => ({
         muted: false,
         supportsBranches: project.repository !== 'flat',
         lockLabel: null,
-        date: 'Jan 2, 2024',
+        date: 'Jan 2, 2024 9:30 AM',
+        day: 'Jan 2, 2024',
     }),
     hasBranch: (project: Project) => project.repository !== 'flat'
         && !!project.branch
@@ -54,23 +55,25 @@ const project = (overrides: Partial<Project> = {}): Project => ({
     ...overrides,
 })
 
+const table = (projects: Project[], sorting: Partial<ComponentProps<typeof ProjectsTable>> = {}, onSort = vi.fn()) => (
+    <ProjectsTable
+        compileStatusByProject={new Map()}
+        direction="asc"
+        handlers={{} as never}
+        onChanged={vi.fn()}
+        onOpen={vi.fn()}
+        onSort={onSort}
+        pending={{}}
+        projects={projects}
+        repoInfoOf={() => ({ name: 'Design', type: 'repo-git' })}
+        sort={null}
+        {...sorting}
+    />
+)
+
 const renderTable = (projects: Project[], sorting: Partial<ComponentProps<typeof ProjectsTable>> = {}) => {
     const onSort = vi.fn()
-    render(
-        <ProjectsTable
-            compileStatusByProject={new Map()}
-            direction="asc"
-            handlers={{} as never}
-            onChanged={vi.fn()}
-            onOpen={vi.fn()}
-            onSort={onSort}
-            pending={{}}
-            projects={projects}
-            repoInfoOf={() => ({ name: 'Design', type: 'repo-git' })}
-            sort={null}
-            {...sorting}
-        />
-    )
+    render(table(projects, sorting, onSort))
     return onSort
 }
 
@@ -132,5 +135,52 @@ describe('ProjectsTable', () => {
         const header = screen.getByTestId('projects-sort-name')
         expect(header).toContainElement(screen.getByTestId('arrow-desc'))
         expect(screen.queryByTestId('arrow-asc')).toBeNull()
+    })
+
+    it('drops the time of the dates once the names are as narrow as they go and the table still outgrows its frame', () => {
+        const observers: ResizeObserverCallback[] = []
+        vi.stubGlobal('ResizeObserver', class {
+            constructor(callback: ResizeObserverCallback) {
+                observers.push(callback)
+            }
+
+            observe = vi.fn()
+            disconnect = vi.fn()
+        })
+        // The table takes 900 px with the times, in a frame of 800 px.
+        vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(900)
+        const frame = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(800)
+        try {
+            const projects = [project()]
+            const { rerender } = render(table(projects))
+
+            expect(screen.getByText('Jan 2, 2024')).toBeInTheDocument()
+
+            // The frame widened, though not yet to the width the table took with the times.
+            frame.mockReturnValue(899)
+            act(() => observers.at(-1)?.([], {} as ResizeObserver))
+            expect(screen.getByText('Jan 2, 2024')).toBeInTheDocument()
+
+            frame.mockReturnValue(900)
+            act(() => observers.at(-1)?.([], {} as ResizeObserver))
+            // The times are back; a frame narrower again drops them once more.
+            expect(screen.getByText('Jan 2, 2024 9:30 AM')).toBeInTheDocument()
+
+            frame.mockReturnValue(800)
+            act(() => observers.at(-1)?.([], {} as ResizeObserver))
+            expect(screen.getByText('Jan 2, 2024')).toBeInTheDocument()
+
+            // The same projects read again, as a quiet reload brings them, keep the day alone.
+            rerender(table([...projects]))
+            expect(screen.getByText('Jan 2, 2024')).toBeInTheDocument()
+
+            // Another page is laid out with the times first, and keeps them while it fits.
+            frame.mockReturnValue(1000)
+            rerender(table([project({ id: 'p2' })]))
+            expect(screen.getByText('Jan 2, 2024 9:30 AM')).toBeInTheDocument()
+        } finally {
+            vi.restoreAllMocks()
+            vi.unstubAllGlobals()
+        }
     })
 })
