@@ -2,6 +2,7 @@ import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
+import { afterBreaks } from 'testing/pathBreaks'
 import type { ValueLevel } from 'types/execution'
 import * as look from './parameterValues.styles'
 import { NumberFormatContext, type ReadLines, useValueStyles, ValueCell } from './ParameterValues'
@@ -164,6 +165,15 @@ describe('ValueCell', () => {
         const text = screen.getByText('"line1 line2"')
         expect(text.textContent).toBe('"line1\nline2"')
         expect(text).toHaveStyle({ whiteSpace: 'pre-wrap' })
+    })
+
+    it('wraps a field path in a text before a dot, as the cell of a table wraps it', () => {
+        render(<Values values={['quote.coverageDetail', 1105.25]} />)
+
+        const text = screen.getByText('"quote.coverageDetail"')
+        expect(afterBreaks(text)).toEqual(['.coverageDetail"'])
+        expect(text.textContent).toBe('"quote.coverageDetail"')
+        expect(screen.getByText('1105.25').querySelector('wbr')).toBeNull()
     })
 
     it('writes a number as JavaScript does unless the screen gives a format for it', () => {

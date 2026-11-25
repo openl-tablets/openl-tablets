@@ -610,8 +610,11 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   `maxHeight`, which takes the focus so the keyboard scrolls it. The shared list look (`listTable`) clips its rounded
   corners with `overflow: clip`: clipped as `hidden` does, a table was the box its sticky head and names stuck to, and
   they scrolled away with the rows or the lines.
-  A name of a line keeps to one line up to a width of its
-  own (`lineNameText`) and wraps past it, within a word too, so a long name never takes the room of the values. Each
+  A name of a line asks its column for no more than a width of
+  its own (`lineNameText`), so a long name never takes the room of the values. Past that width it wraps: a field path
+  before a dot, a word wider than the width within it. It still stretches over all the room its column is given
+  (`min-width: stretch`), so a list of a few cases leaves the names on one line. A percentage `min-width` would leave
+  the name out of the width of its column, which shrank to a letter. Each
   column is held at the width it has been drawn at, read off the head into a `<colgroup>` (`HeldWidths`,
   `useKeptWidths`, whose JSDoc gives the reasons): a column following the lines drawn widened under a long name, made
   every line taller, let that line out of sight again, and the list was drawn anew on every frame. A column widens only
@@ -646,6 +649,22 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   test table a key cost an extra frame, 67 ms against 34. `OpenCell` in `containers/modules` owns the draft
   and the way the value is being written, and hands the table back only the value it keeps — with the marks on its
   text where it can be marked.
+- **A field path wraps before a dot.** A text that wraps and may hold a field path or a dotted key — a cell of a
+  workbook table, its two values in the comparison, the name of a line of `ListTable`, a value of a run, a test or a
+  trace, a key and a text of the messages — is drawn through `withPathBreaks` of `components/pathBreaks.tsx`. It puts
+  a `<wbr>` before each dot that joins two parts of a path (`_res_.quote[0]|.coverage`), none before an index, in a
+  number, in an abbreviation (`e.g.`, a name of one letter after the dot) or after a sentence. It reads only the dots
+  of the piece it draws, each judged by the whole text, so a piece drawn apart — a usage, a run, a highlighted token,
+  a marked spot — breaks where the whole text would, and a cell of a thousand tokens is read once, not once a token.
+  A link in a cell (`RawTableCellText`) is a `span` with the role of a button, not a `<button>`: a browser lays a
+  button out as a box of its own, which dropped a linked path whole to the next line and kept the text after it off
+  its last line. The grid of `TableEditor` takes the keys pressed on itself alone, so a key a link takes does not
+  also open the picked cell. CSS alone cannot
+  break only before a dot, and a zero-width space would be copied with the text, searched and sent back on an edit;
+  a `<wbr>` adds no character. The `overflow-wrap: anywhere` of a cell and of a name of a line stays for a name wider
+  than its column; a value of a run and a text of the messages have none, so such a name runs past them as before.
+  A camel-case break would compete with the dots on equal terms, since a browser fills a line greedily, and would
+  split `coverageDetail` where the dot after it still fits. See EPBDS-17283.
 - **Marks are told by their font.** A mark on a piece of a cell text (`components/textMarks.ts`) travels as a run
   bold in one of four standard colours of Excel: the read sends it as any other run, the edit buffer replays it the
   same way, and `marksOf` reads it back. The marks are written in `MarkedTextField`, a `contentEditable` field that

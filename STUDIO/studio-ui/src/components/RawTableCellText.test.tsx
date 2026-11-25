@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { afterBreaks } from 'testing/pathBreaks'
 import type { RawTableCell } from 'types/tables'
 import { RawTableCellText } from './RawTableCellText'
 import type { RawTableGridStyles } from './RawTableGrid.styles'
@@ -130,21 +131,38 @@ describe('RawTableCellText', () => {
         expect(screen.getByText('Datatype Child').tagName).not.toBe('SPAN')
     })
 
+    /** A cell naming a table the screen follows. */
+    const renderLinked = (onOpenUsage: () => void) => render(
+        <RawTableCellText
+            ink={INK}
+            metaInfo={metaInfo()}
+            onOpenUsage={onOpenUsage}
+            styles={styles}
+            text="= DriverRisk(numDUI)"
+        />
+    )
+
     it('follows a piece that names a table', async () => {
         const onOpenUsage = vi.fn()
-        render(
-            <RawTableCellText
-                ink={INK}
-                metaInfo={metaInfo()}
-                onOpenUsage={onOpenUsage}
-                styles={styles}
-                text="= DriverRisk(numDUI)"
-            />
-        )
+        renderLinked(onOpenUsage)
 
         await userEvent.click(screen.getByTestId('cell-usage-0'))
 
         expect(onOpenUsage).toHaveBeenCalledWith(expect.objectContaining({ tableId: 't-9', module: 'Claims' }))
+    })
+
+    // The link is a piece of the text, not a <button>, so a path it covers wraps with the text. See EPBDS-17283.
+    it('follows a piece that names a table from the keyboard, as a button is followed', async () => {
+        const onOpenUsage = vi.fn()
+        renderLinked(onOpenUsage)
+
+        const link = screen.getByRole('button', { name: 'DriverRisk' })
+        expect(link.tagName).toBe('SPAN')
+        await userEvent.tab()
+        expect(link).toHaveFocus()
+        await userEvent.keyboard('{Enter}')
+
+        expect(onOpenUsage).toHaveBeenCalledTimes(1)
     })
 
     it('leaves a piece that names no table alone', async () => {
@@ -160,9 +178,9 @@ describe('RawTableCellText', () => {
     })
 
     it.each([
-        ['follows the key of a message to its texts', 'greeting', 'BUTTON'],
-        ['leaves alone a key an external resource gives, which has no texts to lead to', undefined, 'SPAN'],
-    ])('%s', async (_, messageKey, element) => {
+        ['follows the key of a message to its texts', 'greeting', 'button'],
+        ['leaves alone a key an external resource gives, which has no texts to lead to', undefined, null],
+    ])('%s', async (_, messageKey, role) => {
         const onOpenUsage = vi.fn()
         const key = metaInfo({
             usages: [{ start: 7, end: 15, description: 'greeting = Hi', ...(messageKey ? { messageKey } : {}), kind: 'message' }],
@@ -174,7 +192,7 @@ describe('RawTableCellText', () => {
         const piece = screen.getByTestId('cell-usage-0')
         await userEvent.click(piece)
 
-        expect(piece.tagName).toBe(element)
+        expect(piece.getAttribute('role')).toBe(role)
         expect(onOpenUsage).toHaveBeenCalledTimes(messageKey ? 1 : 0)
     })
 
@@ -182,6 +200,24 @@ describe('RawTableCellText', () => {
         render(<RawTableCellText ink={INK} metaInfo={{ returnCell: true }} styles={styles} text="RET1" />)
 
         expect(screen.getByTestId('cell-return')).toBeInTheDocument()
+    })
+
+    it('wraps a field path before a dot where a piece of the text ends, as the whole text would', () => {
+        // `driver` is resolved, and the dot after it starts the text that follows the piece.
+        const driver = metaInfo({ usages: [{ start: 0, end: 6, description: 'Driver driver', kind: 'datatype' }] })
+        const { container } = render(
+            <RawTableCellText
+                ink={INK}
+                metaInfo={driver}
+                runs={[{ text: 'driver.vehicle', style: { bold: true } }, { text: '.year', style: {} }]}
+                styles={styles}
+                text="driver.vehicle.year"
+            />
+        )
+
+        expect(screen.getByTestId('cell-usage-0').querySelector('wbr')).toBeNull()
+        expect(afterBreaks(container)).toEqual(['.vehicle', '.year'])
+        expect(container).toHaveTextContent(/^driver\.vehicle\.year$/)
     })
 
     it('shows the text as it stands when the compiler knows nothing about the cell', () => {

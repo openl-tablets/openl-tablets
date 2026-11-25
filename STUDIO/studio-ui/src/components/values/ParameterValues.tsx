@@ -20,6 +20,7 @@ import {
     type SimpleValueKind,
     type ValueNodeTitle,
 } from './valueTree'
+import { withPathBreaks } from '../pathBreaks'
 import { useStyles } from './parameterValues.styles'
 
 /** The look of a value: its colours, and the lines of a value with inner structure. */
@@ -45,11 +46,14 @@ const KIND_CLASS: Record<SimpleValueKind, keyof ValueStyles> = {
     other: 'valueDefault',
 }
 
-/** A value without inner structure, coloured by its kind the way a code editor colours a literal. */
+/**
+ * A value without inner structure, coloured by its kind the way a code editor colours a literal. A field path in it
+ * wraps before a dot, as the cell of a table wraps it.
+ */
 const SimpleValue: React.FC<{ value: unknown, styles: ValueStyles }> = ({ value, styles }) => {
     const formatNumber = useContext(NumberFormatContext)
     const { display, kind } = describeSimpleValue(value, formatNumber, useDateFormats())
-    return <span className={styles[KIND_CLASS[kind]]}>{display}</span>
+    return <span className={styles[KIND_CLASS[kind]]}>{withPathBreaks(display)}</span>
 }
 
 /**

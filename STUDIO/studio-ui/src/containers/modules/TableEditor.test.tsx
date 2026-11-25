@@ -72,6 +72,15 @@ const draw = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
     return { onEditingChange, onSaved, redraw }
 }
 
+/** A cell whose first word leads to a datatype, beside a cell of plain text. */
+const LINKED: RawTableCell[][] = [[{
+    cell: 'B4',
+    value: 'Bank bank',
+    metaInfo: {
+        usages: [{ start: 0, end: 4, description: 'Bank', tableId: 't2', module: 'm', kind: 'datatype' }],
+    },
+}, { cell: 'C4', value: 'plain' }]]
+
 /** The settings of a server that does not format tables on save. */
 const NOT_FORMATTING_ON_SAVE = {
     isExternalAuthSystem: false,
@@ -1747,7 +1756,7 @@ describe('TableEditor', () => {
         await withMeasuredText([10, 30], async () => {
             horizontalRange(true, { editing: false, onOpenUsage: vi.fn() })
             const usage = screen.getByTestId('cell-usage-0')
-            expect(usage.tagName).toBe('BUTTON')
+            expect(usage).toHaveAttribute('role', 'button')
 
             await userEvent.dblClick(usage)
 
@@ -1853,42 +1862,28 @@ describe('TableEditor', () => {
     })
 
     it('takes the ways out of the cells while the table is being edited', async () => {
-        const leading: RawTableCell[][] = [[{
-            cell: 'B4',
-            value: 'Bank bank',
-            metaInfo: {
-                usages: [{ start: 0, end: 4, description: 'Bank', tableId: 't2', module: 'm', kind: 'datatype' }],
-            },
-        }]]
-        const { rerender } = render(
-            <TableEditor
-                canWrite
-                editing={false}
-                onEditingChange={vi.fn()}
-                onOpenUsage={vi.fn()}
-                onSaved={vi.fn()}
-                projectId="repo:Rating"
-                rows={leading}
-                tableId="table-1"
-            />
-        )
-        expect(screen.getByTestId('cell-usage-0').tagName).toBe('BUTTON')
+        const { redraw } = draw({ editing: false, onOpenUsage: vi.fn(), rows: LINKED })
+        expect(screen.getByTestId('cell-usage-0')).toHaveAttribute('role', 'button')
 
-        rerender(
-            <TableEditor
-                canWrite
-                editing
-                onEditingChange={vi.fn()}
-                onOpenUsage={vi.fn()}
-                onSaved={vi.fn()}
-                projectId="repo:Rating"
-                rows={leading}
-                tableId="table-1"
-            />
-        )
+        redraw({ editing: true })
 
         // The same piece of text is still marked, but it no longer leads anywhere a misclick could follow.
-        await waitFor(() => expect(screen.getByTestId('cell-usage-0').tagName).toBe('SPAN'))
+        await waitFor(() => expect(screen.getByTestId('cell-usage-0')).not.toHaveAttribute('role'))
+    })
+
+    // A key pressed on a link is the link's: Enter would also open the picked cell, Space would write a space in it.
+    it('follows a link from the keyboard without opening the cell picked around it', async () => {
+        const onOpenUsage = vi.fn()
+        const { onEditingChange } = draw({ editing: false, onOpenUsage, rows: LINKED })
+        await userEvent.click(screen.getByText('plain'))
+
+        screen.getByTestId('cell-usage-0').focus()
+        await userEvent.keyboard('{Enter}')
+        await userEvent.keyboard(' ')
+
+        expect(onOpenUsage).toHaveBeenCalledTimes(2)
+        expect(screen.queryByTestId('table-cell-input')).toBeNull()
+        expect(onEditingChange).not.toHaveBeenCalled()
     })
 
     it('opens a cell that takes more than one line over several lines at once', async () => {

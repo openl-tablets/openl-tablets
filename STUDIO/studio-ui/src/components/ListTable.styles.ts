@@ -1,6 +1,9 @@
 import { createStyles } from 'antd-style'
 
-/** How wide a name of a transposed list grows before it wraps, in the size of its own letters. */
+/**
+ * How wide a name of a transposed list asks its column to be, in the size of its own letters. A longer name wraps
+ * unless the column has more room to spare.
+ */
 const LINE_NAME_WIDTH = '24em'
 
 /** What a list table adds to the shared list look: it fills its container and may scroll inside. */
@@ -41,12 +44,20 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
     `,
     /**
-     * The text of a name of a transposed list: on one line, up to a width the column keeps to. A longer name wraps,
-     * between its words or within one, rather than take the room of the values.
+     * The text of a name of a transposed list. It asks its column for no more than a width of its own, so a long name
+     * wraps rather than take the room of the values: between its words, before a dot of a field path, or within a
+     * word wider than the column.
+     *
+     * <p>It still takes all the room its column is given, as in a list of a few cases, where the names stay on one
+     * line. A percentage would not do: a browser leaves a name with a percentage `min-width` out of the width of its
+     * column, which then shrinks to a letter.
      */
     lineNameText: css`
         display: block;
         width: max-content;
+        min-width: -moz-available;
+        min-width: -webkit-fill-available;
+        min-width: stretch;
         max-width: ${LINE_NAME_WIDTH};
         white-space: normal;
         overflow-wrap: anywhere;

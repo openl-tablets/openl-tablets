@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Flex, Tooltip, Typography } from 'antd'
+import { withPathBreaks } from 'components/pathBreaks'
 import type { MessageCell } from './bundle'
 import type { TextSpot } from '../../services/projectStatus'
 import { useStyles } from './LocalizationWorkspace.styles'
@@ -46,29 +47,29 @@ const spotsOf = (warnings: readonly MessageWarning[], length: number): MarkedSpo
 
 /**
  * The text with the pieces the warnings are about marked, so the reader sees where to mend it. A marked piece tells
- * what is wrong with it when pointed at.
+ * what is wrong with it when pointed at. A field path in the text wraps before a dot, as it does in a table.
  */
 const markedText = (text: string, warnings: readonly MessageWarning[], spotClass: string): React.ReactNode => {
     const spots = spotsOf(warnings, text.length)
     if (spots.length === 0) {
-        return text
+        return withPathBreaks(text)
     }
     const pieces: React.ReactNode[] = []
     let read = 0
     for (const { start, end, warnings: told } of spots) {
         if (start > read) {
-            pieces.push(text.slice(read, start))
+            pieces.push(withPathBreaks(text, read, start))
         }
         pieces.push(
             <Tooltip key={start} title={<ProblemList problems={told} />}>
                 <span className={spotClass} data-testid="localization-text-problem">
-                    {text.slice(start, end)}
+                    {withPathBreaks(text, start, end)}
                 </span>
             </Tooltip>
         )
         read = end
     }
-    pieces.push(text.slice(read))
+    pieces.push(withPathBreaks(text, read))
     return pieces
 }
 
@@ -85,7 +86,7 @@ export const MessageText = ({ cell, nameOf, warnings }: MessageTextProps) => {
             return (
                 <Flex vertical>
                     <Typography.Text italic className={styles.text} type="secondary">
-                        {cell.text === '' ? t('empty') : cell.text}
+                        {cell.text === '' ? t('empty') : withPathBreaks(cell.text)}
                     </Typography.Text>
                     <Typography.Text type="secondary">
                         <small>
