@@ -11,6 +11,8 @@ import {
     DownloadOutlined,
     DragOutlined,
     EditOutlined,
+    ExportOutlined,
+    FileTextOutlined,
     FolderOpenOutlined,
     FontColorsOutlined,
     MoreOutlined,
@@ -22,14 +24,16 @@ import {
 import { createStyles } from 'antd-style'
 import {
     downloadFile,
+    fileContentUrl,
     getFileContent,
-    isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
 import { isMessageFilePath } from '../../services/localization'
 import type { ProjectStatusDetailedMessage, ProjectStatusUpdate } from '../../services/projectStatus'
 import { searchTables } from '../../services/modules'
 import { isMarkdownPath } from '../../utils/workbooks'
+import { kindOf, TEXT_PREVIEW_LIMIT } from '../../utils/fileFormats'
+import { openImageWindow } from '../../utils/openImageWindow'
 import { useSharedStyles } from './sharedStyles'
 import { basename, trimTrailingSlashes } from './projectPaths'
 import { CopyFileModal } from './CopyFileModal'
@@ -66,6 +70,23 @@ const useStyles = createStyles(({ css, token }) => ({
     error: css`
         margin: 12px;
     `,
+    /** A picture drawn whole in the middle of the pane, over a chequered ground that shows where it is transparent. */
+    image: css`
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+        padding: ${token.padding}px;
+        overflow: auto;
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            background: repeating-conic-gradient(${token.colorFillSecondary} 0 25%, transparent 0 50%) 0 0 / 16px 16px;
+        }
+    `,
 }))
 
 interface FilePreviewPaneProps {
@@ -76,6 +97,8 @@ interface FilePreviewPaneProps {
     projectName: string
     branch?: string | null
     path: string | null
+    /** The size of the file in bytes, when the tree has read it: a small file of an unknown format may be read as text. */
+    size?: number | undefined
     /** The line of the file to show the cursor at, counted from 1: the one a compilation message points to. */
     line?: number | undefined
     canWrite: boolean
@@ -317,18 +340,39 @@ const useFileProblems = (
 
 /**
  * What the pane shows for a file it cannot show as text: a workbook the project declares as a module is read in the
- * editor, any other file is downloaded.
+ * editor, any other file is downloaded. A file of a format not known says so, and a small one may be read as text.
  */
-const BinaryFilePlaceholder = ({ module, onDownload, onOpenModule }: {
+/**
+ * How the pane shows the file at a path: as text, which it may edit, as a picture, or as bytes to download.
+ *
+ * A file of a format not known is shown as a binary file, unless the reader asked to read it as text. That is offered
+ * only while the file is small: a large one is most likely not text at all.
+ */
+const fileViewOf = (path: string | null, asTextPath: string | null, size: number | undefined) => {
+    const kind = path ? kindOf(path) : undefined
+    return {
+        kind,
+        editable: !!path && (kind === 'text' || asTextPath === path),
+        image: kind === 'image',
+        readableAsText: kind === undefined && size !== undefined && size < TEXT_PREVIEW_LIMIT,
+    }
+}
+
+const BinaryFilePlaceholder = ({ module, unknown, onDownload, onOpenAsText, onOpenModule }: {
     module: string | undefined
+    unknown: boolean
     onDownload: () => void
+    /** Reads the file as text; absent where the file is too large for that or its format is known. */
+    onOpenAsText: (() => void) | undefined
     onOpenModule: ((module: string) => void) | undefined
 }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
+    const formatHint = unknown ? 'browser.files.unknown_hint' : 'browser.files.binary_hint'
+    const hint = module ? 'browser.files.module_hint' : formatHint
     return (
         <div className={shared.panePlaceholder} data-testid="file-preview-binary">
-            <span>{t(module ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>
+            <span>{t(hint)}</span>
             {module ? (
                 <Button
                     data-testid="file-open-module"
@@ -339,10 +383,38 @@ const BinaryFilePlaceholder = ({ module, onDownload, onOpenModule }: {
                     {t('browser.files.open_in_editor')}
                 </Button>
             ) : (
-                <Button icon={<DownloadOutlined />} onClick={onDownload}>
-                    {t('browser.files.download')}
-                </Button>
+                <Space>
+                    <Button icon={<DownloadOutlined />} onClick={onDownload}>
+                        {t('browser.files.download')}
+                    </Button>
+                    {onOpenAsText && (
+                        <Button data-testid="file-open-as-text" icon={<FileTextOutlined />} onClick={onOpenAsText}>
+                            {t('browser.files.open_as_text')}
+                        </Button>
+                    )}
+                </Space>
             )}
+        </div>
+    )
+}
+
+/** A picture of the project drawn in the pane; one the browser cannot draw is offered as a download instead. */
+const ImageView = ({ name, url, onDownload }: { name: string, url: string, onDownload: () => void }) => {
+    const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
+    const { styles } = useStyles()
+    const [failedUrl, setFailedUrl] = useState<string | null>(null)
+    if (failedUrl === url) {
+        return (
+            <div className={shared.panePlaceholder} data-testid="file-preview-image-failed">
+                <span>{t('browser.files.image_failed')}</span>
+                <Button icon={<DownloadOutlined />} onClick={onDownload}>{t('browser.files.download')}</Button>
+            </div>
+        )
+    }
+    return (
+        <div className={styles.image}>
+            <img alt={name} data-testid="file-preview-image" onError={() => setFailedUrl(url)} src={url} />
         </div>
     )
 }
@@ -359,6 +431,7 @@ export const FilePreviewPane = ({
     projectName,
     branch,
     path,
+    size,
     line,
     folders,
     canWrite,
@@ -395,9 +468,11 @@ export const FilePreviewPane = ({
     const [deleting, setDeleting] = useState(false)
     const [editing, setEditing] = useState(false)
     const [openingTable, setOpeningTable] = useState(false)
+    // The file of an unknown format the reader asked to read as text; any other file is shown by its format again.
+    const [asTextPath, setAsTextPath] = useState<string | null>(null)
 
     const activePath = activeSelection.path
-    const editable = !!activePath && isEditableTextFile(activePath)
+    const { kind, editable, image, readableAsText } = fileViewOf(activePath, asTextPath, size)
     const { content, setContent, original, originalOfSelection, loading, error, setError, markSaved } =
         useFileText(activeSelection, editable, changedFiles, t)
     const problems = useFileProblems(activeSelection, editable, projectOpened, originalOfSelection, modules,
@@ -542,7 +617,15 @@ export const FilePreviewPane = ({
         chosen[key]?.()
     }
 
-    const textBadge = editing ? t('browser.files.text_editor') : t('browser.editor.read_only')
+    const textBadge = editing ? t('browser.files.text_editor') : t('browser.files.text')
+    const otherBadge = image ? t('browser.files.image') : t('browser.files.binary')
+    const badge = editable ? textBadge : otherBadge
+    const imageUrl = fileContentUrl(activeSelection.projectId, activePath, activeSelection.reloadToken)
+    const openImage = () => {
+        if (!openImageWindow(imageUrl, basename(activePath))) {
+            notification.warning({ title: t('browser.files.tab_blocked') })
+        }
+    }
     const textView = loading
         ? <Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />
         : (
@@ -565,8 +648,8 @@ export const FilePreviewPane = ({
         <div className={shared.paneColumn} data-testid="file-preview">
             <div className={shared.paneHeader}>
                 <span className={cx(shared.valueText, shared.ellipsis, styles.path)}>{activePath}</span>
-                <Tag className={styles.badge}>
-                    {editable ? textBadge : t('browser.files.binary')}
+                <Tag className={styles.badge} data-testid="file-kind">
+                    {badge}
                 </Tag>
                 <Space className={styles.actions}>
                     {editing ? (
@@ -611,6 +694,11 @@ export const FilePreviewPane = ({
                                     {t('browser.files.open_in_editor')}
                                 </Button>
                             )}
+                            {image && (
+                                <Button data-testid="file-open-image" icon={<ExportOutlined />} onClick={openImage} size="small">
+                                    {t('browser.files.open_in_tab')}
+                                </Button>
+                            )}
                             {editable && canWrite && (
                                 <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small">
                                     {t('browser.editor.edit')}
@@ -649,11 +737,22 @@ export const FilePreviewPane = ({
                     type={problem.severity}
                 />
             ))}
-            {editable ? textView : (
+            {editable && textView}
+            {/* A picture is never text to edit. */}
+            {image && (
+                <ImageView
+                    name={basename(activePath)}
+                    onDownload={() => downloadFile(activeSelection.projectId, activePath)}
+                    url={imageUrl}
+                />
+            )}
+            {!editable && !image && (
                 <BinaryFilePlaceholder
                     module={openableModule}
                     onDownload={() => downloadFile(activeSelection.projectId, activePath)}
+                    onOpenAsText={readableAsText ? () => setAsTextPath(activePath) : undefined}
                     onOpenModule={onOpenModule}
+                    unknown={kind === undefined}
                 />
             )}
             <Modal

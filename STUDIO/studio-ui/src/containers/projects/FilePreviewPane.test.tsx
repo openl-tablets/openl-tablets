@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { notification } from 'antd'
@@ -6,7 +6,6 @@ import { FilePreviewPane } from './FilePreviewPane'
 import {
     downloadFile,
     getFileContent,
-    isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
 import { searchTables } from '../../services/modules'
@@ -42,7 +41,7 @@ vi.mock('react-router', () => ({
 vi.mock('../../services/files', () => ({
     downloadFile: vi.fn(),
     getFileContent: vi.fn(),
-    isEditableTextFile: vi.fn(),
+    fileContentUrl: (projectId: string, path: string, reload?: number) => `/rest/projects/${projectId}/files/${path}${reload === undefined ? '' : `?reload=${reload}`}`,
     updateFileContent: vi.fn(),
 }))
 
@@ -73,6 +72,8 @@ vi.mock('@ant-design/icons', () => ({
     DownloadOutlined: () => null,
     DragOutlined: () => null,
     EditOutlined: () => null,
+    ExportOutlined: () => null,
+    FileTextOutlined: () => null,
     FontColorsOutlined: () => null,
     FolderOpenOutlined: () => null,
     MoreOutlined: () => null,
@@ -175,7 +176,7 @@ vi.mock('antd', async () => {
         void banner; void showIcon; void type
         return <div {...dom}>{title as never}</div>
     }
-    const notification = { error: vi.fn(), info: vi.fn() }
+    const notification = { error: vi.fn(), info: vi.fn(), warning: vi.fn() }
     const { withStaticApp } = await import('testing/staticAntdApp')
     return withStaticApp({
         Alert,
@@ -191,6 +192,9 @@ vi.mock('antd', async () => {
         Tooltip
     })
 })
+
+const { openImageWindow } = vi.hoisted(() => ({ openImageWindow: vi.fn() }))
+vi.mock('../../utils/openImageWindow', () => ({ openImageWindow }))
 
 vi.mock('./CopyFileModal', () => ({
     CopyFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="copy-file-modal" /> : null,
@@ -243,7 +247,6 @@ const compiled = (
 describe('FilePreviewPane', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(isEditableTextFile).mockReturnValue(true)
         vi.mocked(getFileContent).mockImplementation((_projectId, path) => {
             if (path === 'second.txt') {
                 return Promise.resolve('second content')
@@ -527,8 +530,6 @@ describe('FilePreviewPane', () => {
     })
 
     it('shows a binary preview and triggers download', async () => {
-        vi.mocked(isEditableTextFile).mockReturnValue(false)
-
         render(<FilePreviewPane {...baseProps} path="rules/Main.xlsx" />)
 
         expect(screen.getByTestId('file-preview-binary')).toBeTruthy()
@@ -537,8 +538,82 @@ describe('FilePreviewPane', () => {
         expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx')
     })
 
+    it('marks a file of a known binary format as binary, offering no text', () => {
+        render(<FilePreviewPane {...baseProps} path="lib/rates.zip" size={100} />)
+
+        expect(screen.getByText('browser.files.binary')).toBeInTheDocument()
+        expect(screen.getByText('browser.files.binary_hint')).toBeInTheDocument()
+        expect(screen.queryByTestId('file-open-as-text')).not.toBeInTheDocument()
+        expect(getFileContent).not.toHaveBeenCalled()
+    })
+
+    it('shows a file of an unknown format as binary, and reads a small one as text when asked', async () => {
+        vi.mocked(getFileContent).mockResolvedValue('plain words')
+        render(<FilePreviewPane {...baseProps} path="notes.rates" size={2048} />)
+
+        expect(screen.getByText('browser.files.unknown_hint')).toBeInTheDocument()
+        expect(screen.getByText('browser.files.binary')).toBeInTheDocument()
+        expect(getFileContent).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('file-open-as-text'))
+
+        expect(await screen.findByTestId('code-editor')).toHaveValue('plain words')
+        expect(getFileContent).toHaveBeenCalledWith('p1', 'notes.rates')
+        expect(screen.getByText('browser.files.text')).toBeInTheDocument()
+    })
+
+    it('keeps a large file of an unknown format binary, and one whose size is not known', () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="dump.rates" size={10 * 1024} />)
+        expect(screen.queryByTestId('file-open-as-text')).not.toBeInTheDocument()
+
+        rerender(<FilePreviewPane {...baseProps} path="dump.rates" />)
+        expect(screen.queryByTestId('file-open-as-text')).not.toBeInTheDocument()
+    })
+
+    it('reads a file of a text format as text whatever its size', async () => {
+        vi.mocked(getFileContent).mockResolvedValue('<project/>')
+        render(<FilePreviewPane {...baseProps} path="rules.xml" size={50 * 1024} />)
+
+        expect(await screen.findByTestId('code-editor')).toHaveValue('<project/>')
+        expect(screen.getByText('browser.files.text')).toBeInTheDocument()
+    })
+
+    it('draws a picture, and opens it in a tab of its own', async () => {
+        openImageWindow.mockReturnValue(true)
+        render(<FilePreviewPane {...baseProps} path="img/logo.png" reloadToken={2} />)
+
+        expect(screen.getByText('browser.files.image')).toBeInTheDocument()
+        expect(screen.getByTestId('file-preview-image')).toHaveAttribute('src', '/rest/projects/p1/files/img/logo.png?reload=2')
+        expect(getFileContent).not.toHaveBeenCalled()
+        // A picture is no text to edit.
+        expect(screen.queryByTestId('file-edit')).not.toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('file-open-image'))
+
+        expect(openImageWindow).toHaveBeenCalledWith('/rest/projects/p1/files/img/logo.png?reload=2', 'logo.png')
+        expect(notification.warning).not.toHaveBeenCalled()
+    })
+
+    it('tells the reader when the browser opens no tab for the picture', async () => {
+        openImageWindow.mockReturnValue(false)
+        render(<FilePreviewPane {...baseProps} path="img/logo.svg" />)
+
+        await userEvent.click(screen.getByTestId('file-open-image'))
+
+        expect(notification.warning).toHaveBeenCalledWith({ title: 'browser.files.tab_blocked' })
+    })
+
+    it('offers a picture the browser cannot draw as a download', async () => {
+        render(<FilePreviewPane {...baseProps} path="img/broken.png" />)
+
+        fireEvent.error(screen.getByTestId('file-preview-image'))
+
+        expect(screen.getByTestId('file-preview-image-failed')).toBeInTheDocument()
+        await userEvent.click(within(screen.getByTestId('file-preview-image-failed')).getByText('browser.files.download'))
+        expect(downloadFile).toHaveBeenCalledWith('p1', 'img/broken.png')
+    })
+
     it('opens a workbook the project declares as a module in the editor', async () => {
-        vi.mocked(isEditableTextFile).mockReturnValue(false)
         const onOpenModule = vi.fn()
 
         render(
@@ -631,8 +706,6 @@ describe('FilePreviewPane', () => {
     )
 
     it('offers the export for a workbook that is no module of the project', async () => {
-        vi.mocked(isEditableTextFile).mockReturnValue(false)
-
         render(
             <FilePreviewPane
                 {...baseProps}

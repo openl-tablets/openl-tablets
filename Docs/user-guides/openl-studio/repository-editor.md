@@ -162,6 +162,19 @@ the projects expanded in it by their path, opening the folders that hold them.
     and the tree stays as it is. A pick made in the **Filters** view narrows both.
 -   Selecting a project opens it and leaves its row folded. The arrow before the project expands it and lists its
     folders and files, with the size of every file.
+-   A file wears the icon of its format, as the formats listed in [Viewing a File](#viewing-a-file) are known: a green
+    workbook, a red PDF, a zipped file for an archive such as `jar`, `zip` or `7z`, a picture, `</>` for XML and code, a
+    star for Groovy, a cup for Java, `JS` and `TS` for JavaScript and TypeScript, the HTML5 and CSS3 shields for HTML
+    and CSS, a terminal for a script such as `sh`, `cmd` or `bat`, `{;}` for JSON, a grid for CSV, a gear for a
+    configuration file such as `.properties`, `yaml`, `yml`, `toml` or `ini`, two gears for an executable or compiled
+    file such as `exe`, `bin` or `class`, and so on. The `pom.xml` of a Maven project wears `m`, `tags.properties` a
+    tag, and a localization file, `message*.properties` of the `i18n` folder, the `文A` translation icon. A file of a
+    format OpenL Studio does not know wears a question mark.
+-   The folders that make up the project are marked as the code editors mark the roots of a project: the folders of the
+    modules are blue and the folder of the tests green, the folders of the code the rules run, such as `groovy`, are
+    cyan and the folders of the libraries, such as `lib`, orange. The `i18n` folder of the localization files wears the
+    indigo translation icon, `文A`. The folders follow the module and classpath locations that `rules.xml` declares; a
+    project that declares none uses `rules`, `tests`, `groovy` and `lib`.
 -   Selecting a file shows it on the page of its project. A module is shown there too, with its **More actions** icon
     **⋮** and **Open in Editor**, which opens its tables in Rules Editor. Selecting a folder shows it on the page of
     its project and leaves it folded; the arrow before it expands it.
@@ -792,6 +805,7 @@ This section describes modifying the physical structure of the project and inclu
 -   [Creating a Text File](#creating-a-text-file)
 -   [Uploading a File](#uploading-a-file)
 -   [Updating a File](#updating-a-file)
+-   [Viewing a File](#viewing-a-file)
 -   [Editing a Text File](#editing-a-text-file)
 -   [Renaming, Moving and Copying a File](#renaming-moving-and-copying-a-file)
 -   [Deleting a Folder or a File](#deleting-a-folder-or-a-file)
@@ -896,6 +910,23 @@ To replace the content of a file of the project, proceed as follows:
 
 The file keeps its path and name.
 
+#### Viewing a File
+
+A file selected in the tree is shown on the page of the project by its format, which the badge beside its path names:
+
+-   **Text** — a text file opens in a viewer, and can be edited as described in
+    [Editing a Text File](#editing-a-text-file). Text formats include `txt`, `md`, `xml`, `json`, `yaml`, `yml`,
+    `toml`, `properties`, `csv`, `java`, `groovy`, `js`, `ts`, `sql`, `sh`, `cmd`, `bat`, `html` and `css`, and a file
+    such as `Dockerfile`, `LICENSE` or `.gitignore`.
+-   **Image** — a picture is drawn in the pane: `png`, `jpg`, `jpeg`, `gif`, `svg`, `webp`, `bmp` and `ico`.
+    **Open in New Tab** opens it in a browser tab of its own.
+-   **Binary** — a file kept as bytes, such as an Excel workbook, a Word document, a PDF, an archive (`zip`, `jar`,
+    `7z`), an executable (`exe`, `bin`), a font or a media file, cannot be viewed here. Its pane offers **Export**, and
+    for a module of the project, **Open in Editor** opens the tables of the module in the editor.
+
+A file of a format OpenL Studio does not know is shown as a binary file, and its pane says the format is not known. A
+file smaller than 10 KB also offers **Open as Text**, which opens it in the viewer as a text file.
+
 #### Editing a Text File
 
 A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, selected in the tree opens in a viewer on the page of the project. To edit it, proceed as follows:
@@ -909,13 +940,11 @@ of the theme; any other text file is shown plain. In Groovy and Java, a type, a 
 each take a colour of their own, apart from a variable. In a `.properties` file, a key is coloured as the name of a
 property and its value as a string.
 
-An Excel workbook or another binary file cannot be viewed here. Its pane offers **Export**, and for a module of the project, **Open in Editor** opens the tables of the module in the editor.
-
 The `i18n` folder holds the localization files of the project, and its pane offers **Open in Editor**, which opens the messages of all languages on the **Localization** screen. **Open in Editor** of a localization file opens them too, as described in [Editing Localization Messages](rules-editor.md#editing-localization-messages).
 
 A localization file of the project, a `message*.properties` file of the `i18n` folder, is checked as the compilation checks it while the project is open. The viewer and the editor underline each place the check warns about and mark its line with a warning icon; point to the place to read the warning. A warning about the whole file, such as keys the language leaves untranslated, is about no line of it: it is shown above the text of the file. The file is checked again when it is read and every time it is saved.
 
-![The French localization file selected in the tree, the warning about the whole file above its text and the warning about the farewell key pointed at](images/localization-file-problems.png "Warnings in a localization file")
+![The French localization file selected in the tree, the warning about the whole file above its text and the warning about the greeting key pointed at](images/localization-file-problems.png "Warnings in a localization file")
 
 *Warnings in a localization file*
 

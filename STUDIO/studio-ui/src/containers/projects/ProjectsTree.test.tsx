@@ -66,15 +66,21 @@ vi.mock('antd-style', () => {
     }
     return {
         createStyles: () => () => ({ styles: new Proxy({}, { get: (_target, name) => String(name) }), cx }),
-        useTheme: () => new Proxy({}, { get: () => (appearance.current === 'dark' ? '#020202' : '#010101') }),
+        // A preset colour is told apart from the others, so the colour of a folder can be checked; any other is one grey.
+        useTheme: () => new Proxy({}, {
+            get: (_target, key) => (key === 'blue' ? '#0000ff' : key === 'cyan' ? '#00ffff' : key === 'green' ? '#00ff00'
+                : appearance.current === 'dark' ? '#020202' : '#010101'),
+        }),
         useThemeMode: () => ({ isDarkMode: appearance.current === 'dark' }),
     }
 })
 
 // The icons carry the test ids the workspace marks them with, so they are forwarded.
-vi.mock('@ant-design/icons', () => {
+vi.mock('@ant-design/icons', async importOriginal => {
     const icon = (name: string) => (props: Record<string, unknown>) => <span {...props}>{name}</span>
     return {
+        // The icons of the formats a test names no file of are drawn as they are.
+        ...await importOriginal<typeof import('@ant-design/icons')>(),
         BranchesOutlined: icon('branches'),
         ClearOutlined: icon('clear'),
         SafetyOutlined: icon('safety'),
@@ -272,6 +278,11 @@ const stubStorage = () => {
         clear: () => Object.keys(store).forEach(key => delete store[key]),
     })
 }
+
+/** The colour the icon of a folder of a project is drawn in, as the tree row shows it beside the name. */
+const folderColour = (projectId: string, folder: string): string | undefined =>
+    (screen.getByTestId(`tree-folder-${projectId}-${folder}`).previousElementSibling as HTMLElement | null)
+        ?.getAttribute('style')?.match(/color:\s*([^;]+)/)?.[1]?.trim()
 
 describe('ProjectsTree', () => {
     beforeEach(() => {
@@ -791,7 +802,11 @@ describe('ProjectsTree', () => {
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
         expect(getProjectFiles).toHaveBeenCalledTimes(2)
-        expect(getProject).not.toHaveBeenCalled()
+        // Only rules.xml is read with the files, for the folders it gives a part to: the changes are not read again.
+        expect(vi.mocked(getProject).mock.calls.map(([, options]) => options)).toEqual([
+            { includes: ['descriptor'] },
+            { includes: ['descriptor'] },
+        ])
         expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'added')
     })
 
@@ -811,7 +826,9 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
-        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status'] }, expect.anything())
+        // The changes come with the status, read along with rules.xml in one request.
+        expect(getProject).toHaveBeenCalledTimes(1)
+        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status', 'descriptor'] }, expect.anything())
         expect(screen.getByTestId('tree-file-p1-rules.xml')).toHaveAttribute('data-change', 'modified')
         expect(screen.getByTestId('tree-file-p1-old.txt')).toHaveAttribute('data-change', 'deleted')
     })
@@ -823,7 +840,52 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
         await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 
-        expect(getProject).not.toHaveBeenCalled()
+        expect(getProject).toHaveBeenCalledWith('p2', { includes: ['descriptor'] }, expect.anything())
+    })
+
+    it('colours the folders of the project the way its rules.xml lays it out', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'model/Main.xlsx', name: 'Main.xlsx', basePath: 'model', type: 'file' },
+            { path: 'rules/Old.xlsx', name: 'Old.xlsx', basePath: 'rules', type: 'file' },
+            { path: 'scripts/a.groovy', name: 'a.groovy', basePath: 'scripts', type: 'file' },
+            { path: 'docs/a.txt', name: 'a.txt', basePath: 'docs', type: 'file' },
+        ])
+        vi.mocked(getProject).mockResolvedValue({
+            id: 'p2',
+            descriptor: { modules: [{ path: 'model/*.xlsx' }], sources: ['scripts/'] },
+        } as never)
+        await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        // The modules and the code are where rules.xml says; rules, which it does not name, is a folder as any other.
+        expect(folderColour('p2', 'model')).toBe('rgb(0, 0, 255)')
+        expect(folderColour('p2', 'scripts')).toBe('rgb(0, 255, 255)')
+        expect(folderColour('p2', 'rules')).toBe('rgb(1, 1, 1)')
+        expect(folderColour('p2', 'docs')).toBe('rgb(1, 1, 1)')
+    })
+
+    it('colours the folders of the engine defaults when rules.xml cannot be read', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file' },
+            { path: 'docs/a.txt', name: 'a.txt', basePath: 'docs', type: 'file' },
+            { path: 'i18n/message.properties', name: 'message.properties', basePath: 'i18n', type: 'file' },
+        ])
+        vi.mocked(getProject).mockRejectedValue(new Error('no descriptor'))
+        await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(folderColour('p2', 'rules')).toBe('rgb(0, 0, 255)')
+        expect(folderColour('p2', 'docs')).toBe('rgb(1, 1, 1)')
+        // The messages wear the sign of translation rather than a folder.
+        expect(screen.getByTestId('tree-folder-p2-i18n').previousElementSibling?.querySelector('svg path')?.getAttribute('d'))
+            .toMatch(/^M40 210H660/)
+        expect(screen.getByTestId('tree-folder-p2-docs').previousElementSibling).toHaveTextContent('folder')
     })
 
     it('reads the files of a project again once its state changed, as when it is saved', async () => {
