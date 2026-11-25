@@ -44,30 +44,38 @@ public class TypeBindingContext extends BindingContextDelegator {
     }
 
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar, int maxDepthLevel) {
-        return create(delegate, localVar, maxDepthLevel, null);
+        return new TypeBindingContext(delegate, localVar, createVariableFinder(localVar, maxDepthLevel), null);
     }
 
     /**
-     * Creates the context where the expression reads by name the fields of the type of the local variable, and the
-     * other given variable, such as the index of an array index operator.
+     * Creates the context of the expression of an array index operator. The expression reads by name the fields of
+     * the element, and the index of the element when it is given.
      * <p>
-     * A field with the name of the other variable is ambiguous, as a field with the name of the local variable is.
+     * A field with the name of the index is ambiguous, as a field with the name of the element is.
+     * <p>
+     * A field that only some elements have can be read from the context the operator is written in for the other
+     * elements, see {@link VariableInContextFinder#findElementField}, unless the operator is inside another one.
      */
-    static TypeBindingContext create(IBindingContext delegate,
-                                     ILocalVar localVar,
-                                     int maxDepthLevel,
-                                     @Nullable ILocalVar variable) {
+    static TypeBindingContext createForElement(IBindingContext delegate,
+                                               ILocalVar element,
+                                               @Nullable ILocalVar index) {
+        var finder = createVariableFinder(element, 1);
+        VariableInContextFinder enclosing = (fieldName, strictMatch) -> delegate
+                .findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
+        // inside another operator, a lookup in the outer context would count as a use of the outer element
+        VariableInContextFinder elementFinder = delegate instanceof TypeBindingContext ? finder
+                : (fieldName, strictMatch) -> finder.findElementField(fieldName, strictMatch, enclosing);
+        return new TypeBindingContext(delegate, element, elementFinder, index);
+    }
+
+    private static VariableInContextFinder createVariableFinder(ILocalVar localVar, int maxDepthLevel) {
         Class<?> instanceClass = localVar.getType().getInstanceClass();
         CustomJavaOpenClass annotation = instanceClass == null ? null
                 : instanceClass.getAnnotation(CustomJavaOpenClass.class);
-        VariableInContextFinder context;
         if (annotation != null) {
-            context = createCustomVariableFinder(annotation, localVar, maxDepthLevel);
-        } else {
-            context = new RootDictionaryContext(new IOpenField[]{localVar}, maxDepthLevel);
+            return createCustomVariableFinder(annotation, localVar, maxDepthLevel);
         }
-
-        return new TypeBindingContext(delegate, localVar, context, variable);
+        return new RootDictionaryContext(new IOpenField[]{localVar}, maxDepthLevel);
     }
 
     private static VariableInContextFinder createCustomVariableFinder(CustomJavaOpenClass annotation,

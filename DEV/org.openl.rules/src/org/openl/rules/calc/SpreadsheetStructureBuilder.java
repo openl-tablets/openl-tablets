@@ -1,9 +1,11 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -20,10 +22,12 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
 import org.apache.commons.collections4.map.LinkedMap;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -42,6 +46,7 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
+import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
 import org.openl.rules.calc.result.ArrayResultBuilder;
 import org.openl.rules.calc.result.EmptyResultBuilder;
@@ -72,6 +77,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
 import org.openl.util.MessageUtils;
@@ -102,6 +108,18 @@ public class SpreadsheetStructureBuilder {
             this);
 
     public static final ThreadLocal<Stack<Set<SpreadsheetCell>>> preventCellsLoopingOnThis = new ThreadLocal<>();
+
+    /**
+     * The cells whose formulas are being compiled now, the one compiled last at the end: a formula that reads a cell
+     * further down the table compiles that cell before its turn.
+     */
+    private final Deque<SpreadsheetCell> formulasInCompilation = new ArrayDeque<>();
+
+    /**
+     * The fields that can read a step of this spreadsheet for an array element without the cell, with the formula of
+     * each, until the cells are extracted.
+     */
+    private final List<StandIn> standIns = new ArrayList<>();
 
     /**
      * tableSyntaxNode of the spreadsheet
@@ -159,7 +177,10 @@ public class SpreadsheetStructureBuilder {
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     private SpreadsheetCell[][] cells;
 
-    private final List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+    /**
+     * Whether the value of each cell is extracted, in its turn or before it, by logical row and column.
+     */
+    private boolean[][] extracted;
 
     private final List<SyntaxNodeException> onDemandErrors = new ArrayList<>();
     private final Collection<OpenLMessage> onDemandMessages = new LinkedHashSet<>();
@@ -180,6 +201,7 @@ public class SpreadsheetStructureBuilder {
                         extractCellDescriptions();
                     } finally {
                         cellsExtracted = true;
+                        decideStandIns();
                         reportOnDemandDiagnostics();
                     }
                 }
@@ -199,6 +221,7 @@ public class SpreadsheetStructureBuilder {
         var logicalHeight = this.rowHeaders.size();
         var logicalWidth = this.columnHeaders.size();
         cells = new SpreadsheetCell[logicalHeight][logicalWidth];
+        extracted = new boolean[logicalHeight][logicalWidth];
 
         // create the binding context for the spreadsheet level
         spreadsheetBindingContext = new SpreadsheetContext(bindingContext, spreadsheetType, xlsModuleOpenClass);
@@ -244,15 +267,7 @@ public class SpreadsheetStructureBuilder {
 
             for (var logicalCol = 0; logicalCol < cells[0].length; logicalCol++) {
                 var physicalCol = logicalToPhysicalColumn[logicalCol];
-                var found = false;
-                for (SpreadsheetCell cell : extractedCellValues) {
-                    // SpreadsheetCell now stores logical indices
-                    if (cell.getRowIndex() == logicalRow && cell.getColumnIndex() == logicalCol) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
+                if (!extracted[logicalRow][logicalCol]) {
                     extractCellValue(rowBindingContext, logicalRow, logicalCol, physicalRow, physicalCol);
                 }
             }
@@ -305,7 +320,6 @@ public class SpreadsheetStructureBuilder {
                         var physicalCol = logicalToPhysicalColumn[logicalCol];
                         var rowContext = getRowContext(physicalRow);
                         extractCellValueOnDemand(rowContext, logicalRow, logicalCol, physicalRow, physicalCol);
-                        extractedCellValues.add(cell);
                     } finally {
                         cellInProgressSet.remove(cell);
                     }
@@ -364,11 +378,6 @@ public class SpreadsheetStructureBuilder {
     private void extractCellValue(IBindingContext rowBindingContext, int logicalRow, int logicalCol, int physicalRow, int physicalCol) {
         var spreadsheetCell = cells[logicalRow][logicalCol];
 
-        if (!columnHeaders.containsKey(physicalCol) || !rowHeaders.containsKey(physicalRow)) {
-            spreadsheetCell.setValue(null);
-            return;
-        }
-
         var cell = tableBody.getCell(physicalCol + 1, physicalRow + 1);
         var source = new CellSourceCodeModule(cell, tableBody);
         var code = source.getCode();
@@ -394,6 +403,7 @@ public class SpreadsheetStructureBuilder {
         } else {
             extractValue(spreadsheetCell, cell, source, name, rowBindingContext, physicalRow, physicalCol);
         }
+        extracted[logicalRow][logicalCol] = true;
     }
 
     /**
@@ -418,6 +428,7 @@ public class SpreadsheetStructureBuilder {
         var header = new OpenMethodHeader(name, type, signature, declaringClass);
         var columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
         var openl = columnBindingContext.getOpenL();
+        formulasInCompilation.addLast(spreadsheetCell);
         // columnBindingContext - is never null
         try {
             CompositeMethod method;
@@ -447,7 +458,142 @@ public class SpreadsheetStructureBuilder {
             var message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
             spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(code), source));
+        } finally {
+            formulasInCompilation.removeLast();
         }
+    }
+
+    /**
+     * A field that can read a step for an array element without the cell, and the formula with the operator.
+     */
+    private record StandIn(ElementOrStepField field, SpreadsheetCell formula) {
+    }
+
+    /**
+     * Lets a field of the formula being compiled now read its step for an array element that has no cell of the same
+     * name, when the step can stand in for that cell.
+     *
+     * <p>It can when only this spreadsheet has a cell of that name, the step fits the type of the cell, and the step
+     * and every cell it reads, directly or through other cells, come before the formula in the table. Such a step
+     * never reads the formula, so reading it never calculates the formula again.
+     *
+     * <p>The answer depends on the formulas of the other cells, so it is given once all cells of the spreadsheet are
+     * compiled. It is the same whichever table compiles the formula first.
+     *
+     * @param resultType the only type of spreadsheet results that has a cell of that name
+     * @return {@code false} when the step cannot stand in for the cell whatever the other cells are
+     */
+    boolean standInForElements(ElementOrStepField field, IOpenClass resultType) {
+        var formula = formulasInCompilation.peekLast();
+        if (formula == null || !isBefore(field.getStep().getCell(), formula) || !resultType.getName()
+                .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheetHeader.getName())) {
+            return false;
+        }
+        var standIn = new StandIn(field, formula);
+        if (cellsExtracted) {
+            decide(standIn, new HashMap<>());
+        } else {
+            standIns.add(standIn);
+        }
+        return true;
+    }
+
+    private void decideStandIns() {
+        var cellsRead = new HashMap<SpreadsheetCell, @Nullable List<SpreadsheetCell>>();
+        standIns.forEach(standIn -> decide(standIn, cellsRead));
+        standIns.clear();
+    }
+
+    /**
+     * @param cellsRead the cells each formula reads, shared by the decisions of one spreadsheet
+     */
+    private void decide(StandIn standIn, Map<SpreadsheetCell, @Nullable List<SpreadsheetCell>> cellsRead) {
+        var field = standIn.field();
+        var step = field.getStep();
+        if (readsOnlyCellsBefore(step.getCell(), standIn.formula(), cellsRead)
+                && field.getType().isAssignableFrom(step.getType())) {
+            field.standIn();
+        }
+    }
+
+    /**
+     * Tells whether the cell and every cell it reads come before the formula and are compiled, none of them being
+     * compiled now. A formula that uses the spreadsheet itself as a value, which the check cannot follow, makes the
+     * answer {@code false}.
+     */
+    private boolean readsOnlyCellsBefore(SpreadsheetCell start,
+                                         SpreadsheetCell formula,
+                                         Map<SpreadsheetCell, @Nullable List<SpreadsheetCell>> cellsRead) {
+        var seen = new HashSet<SpreadsheetCell>();
+        seen.add(start);
+        var cellsToCheck = new ArrayDeque<SpreadsheetCell>();
+        cellsToCheck.push(start);
+        while (!cellsToCheck.isEmpty()) {
+            var cell = cellsToCheck.pop();
+            if (!isBefore(cell, formula) || !extracted[cell.getRowIndex()][cell.getColumnIndex()]
+                    || formulasInCompilation.contains(cell)) {
+                return false;
+            }
+            var readCells = cellsRead.computeIfAbsent(cell, this::cellsReadBy);
+            if (readCells == null) {
+                return false;
+            }
+            readCells.stream().filter(seen::add).forEach(cellsToCheck::push);
+        }
+        return true;
+    }
+
+    private static boolean isBefore(SpreadsheetCell cell, SpreadsheetCell other) {
+        return cell.getRowIndex() < other.getRowIndex()
+                || cell.getRowIndex() == other.getRowIndex() && cell.getColumnIndex() < other.getColumnIndex();
+    }
+
+    /**
+     * Returns the cells of this spreadsheet the formula of the cell reads, or {@code null} when the formula uses the
+     * spreadsheet itself as a value, as {@code this} not followed by a cell, so it can read any cell.
+     */
+    private @Nullable List<SpreadsheetCell> cellsReadBy(SpreadsheetCell cell) {
+        if (!(cell.getMethod() instanceof CompositeMethod method)) {
+            return List.of();
+        }
+        var fields = method.getDependencies().getFieldsMap();
+        if (usesThisAsValue(fields)) {
+            return null;
+        }
+        return fields.values().stream().map(this::cellsOf).flatMap(List::stream).toList();
+    }
+
+    /**
+     * Tells whether a formula uses the spreadsheet itself as a value. {@code this.$Step} does not: it reads the step,
+     * which is a dependency of its own.
+     */
+    private static boolean usesThisAsValue(Map<IBoundNode, IOpenField> fields) {
+        return fields.entrySet()
+                .stream()
+                .filter(dependency -> isThis(dependency.getValue()))
+                .anyMatch(dependency -> fields.keySet()
+                        .stream()
+                        .noneMatch(node -> dependency.getKey().equals(node.getTargetNode())));
+    }
+
+    private static boolean isThis(IOpenField field) {
+        return field instanceof ComponentOpenClass.ThisField || field instanceof ThisField;
+    }
+
+    /**
+     * Returns the cells a field of this spreadsheet reads: the cell of a step, the cells of a range, or the step an
+     * element without the cell reads.
+     */
+    private List<SpreadsheetCell> cellsOf(IOpenField field) {
+        return switch (field) {
+            case SpreadsheetCellField cellField -> List.of(cellField.getCell());
+            case SpreadsheetRangeField range -> Arrays
+                    .stream(cells, range.getStartRowIndex(), range.getEndRowIndex() + 1)
+                    .flatMap(row -> Arrays.stream(row, range.getStartColumnIndex(), range.getEndColumnIndex() + 1))
+                    .toList();
+            case ElementOrStepField step -> List.of(step.getStep().getCell());
+            default -> List.of();
+        };
     }
 
     /**
