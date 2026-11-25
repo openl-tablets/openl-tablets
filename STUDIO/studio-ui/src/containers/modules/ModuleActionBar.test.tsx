@@ -93,7 +93,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('collapses the buttons the row has no room for into More, and runs them from there', async () => {
-        // A row of 400 px, every button 100 px wide: two stand in it beside More, which holds the rest.
+        // A row of 400 px, every button 100 px wide: two stand in it beside the menu, which holds the rest.
         const widths = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100)
         const room = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(400)
         try {
@@ -104,9 +104,11 @@ describe('ModuleActionBar', () => {
             expect(screen.queryByTestId('module-deploy')).toBeNull()
             expect(screen.queryByTestId('module-copy')).toBeNull()
 
-            await userEvent.click(screen.getByTestId('module-more'))
-            expect(await screen.findByTestId('module-deploy-item')).toBeInTheDocument()
-            await userEvent.click(screen.getByTestId('module-copy-item'))
+            // The menu at the end of the row holds the same buttons.
+            await userEvent.click(screen.getByTestId('module-actions-more'))
+            expect(await screen.findByTestId('module-deploy')).toBeInTheDocument()
+            expect(screen.getByTestId('module-actions-overflow')).toContainElement(screen.getByTestId('module-copy'))
+            await userEvent.click(screen.getByTestId('module-copy'))
             expect(await screen.findByTestId('copy-project-modal')).toBeInTheDocument()
         } finally {
             widths.mockRestore()
@@ -235,9 +237,8 @@ describe('ModuleActionBar', () => {
         })
 
         expect(screen.getByTestId('module-createTable')).toBeDisabled()
-        await userEvent.click(screen.getByTestId('module-more'))
-        expect(await screen.findByText('browser.module.dependencies')).toBeInTheDocument()
-        expect(screen.queryByText('browser.module.local_changes')).toBeNull()
+        expect(await screen.findByTestId('module-dependencies')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-localChanges')).toBeNull()
     })
 
     it('offers on a screen of the whole project what acts on the project alone', async () => {
@@ -277,9 +278,8 @@ describe('ModuleActionBar', () => {
         // A folder of files is downloaded with the project, not on its own.
         expect(screen.getByTestId('module-export')).toBeDisabled()
         // A Markdown file keeps no versions of its own to restore
-        await userEvent.click(screen.getByTestId('module-more'))
-        expect(await screen.findByText('browser.module.dependencies')).toBeInTheDocument()
-        expect(screen.queryByText('browser.module.local_changes')).toBeNull()
+        expect(await screen.findByTestId('module-dependencies')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-localChanges')).toBeNull()
     })
 
     it('downloads a Markdown module written as a single file', async () => {
@@ -307,8 +307,7 @@ describe('ModuleActionBar', () => {
     it('reads the project history in a window rather than on the project screen', async () => {
         await bar()
 
-        await userEvent.click(screen.getByTestId('module-more'))
-        await userEvent.click(await screen.findByText('browser.module.revisions'))
+        await userEvent.click(await screen.findByTestId('module-revisions'))
 
         expect(await screen.findByTestId('revisions-panel')).toHaveTextContent('p1')
         // Leaving the editor for the project screen would take the reader away from the module they are reading.
@@ -327,8 +326,7 @@ describe('ModuleActionBar', () => {
         await act(async () => {
             await Promise.resolve()
         })
-        await userEvent.click(screen.getByTestId('module-more'))
-        await userEvent.click(await screen.findByText('browser.module.local_changes'))
+        await userEvent.click(await screen.findByTestId('module-localChanges'))
 
         await userEvent.click(await screen.findByTestId('local-changes-restored'))
 
@@ -342,8 +340,7 @@ describe('ModuleActionBar', () => {
         try {
             await bar()
 
-            await userEvent.click(screen.getByTestId('module-more'))
-            await userEvent.click(await screen.findByText('browser.module.compare'))
+            await userEvent.click(await screen.findByTestId('module-compare'))
 
             // The window opens on the file picker: no project is named, so no revision of one is offered.
             expect(opened).toHaveBeenCalledTimes(1)
@@ -366,7 +363,6 @@ describe('ModuleActionBar', () => {
             </App>
         )
 
-        await userEvent.click(screen.getByTestId('module-more'))
         await userEvent.click(await screen.findByTestId('module-reformat'))
         await userEvent.click(await screen.findByTestId('reformat-ok'))
 
@@ -377,7 +373,6 @@ describe('ModuleActionBar', () => {
     it('tells what reformatting does before the reader chooses it', async () => {
         await bar({ canWrite: true })
 
-        await userEvent.click(screen.getByTestId('module-more'))
         await userEvent.hover(await screen.findByTestId('module-reformat'))
 
         expect(await screen.findByText('browser.module.reformat_tooltip')).toBeInTheDocument()
@@ -386,18 +381,47 @@ describe('ModuleActionBar', () => {
     it('offers Reformat Excel files only to a reader who may write the project', async () => {
         await bar({ canViewHistory: true })
 
-        await userEvent.click(screen.getByTestId('module-more'))
 
-        expect(await screen.findByText('browser.module.compare')).toBeInTheDocument()
+        expect(await screen.findByTestId('module-compare')).toBeInTheDocument()
         expect(screen.queryByTestId('module-reformat')).toBeNull()
+    })
+
+    it('stands every action disabled on a project nobody has opened, the comparison of files too', async () => {
+        render(<ModuleActionBar disabled moduleName="Claims" project={project({ canViewHistory: true })} />)
+
+        for (const key of ['revisions', 'dependencies', 'compare']) {
+            expect(await screen.findByTestId(`module-${key}`)).toBeDisabled()
+        }
+    })
+
+    it('stands the menu disabled on a project nobody has opened', async () => {
+        // A row of 300 px, every button 100 px wide: the menu holds what does not fit.
+        const widths = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100)
+        const room = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(300)
+        try {
+            render(<ModuleActionBar disabled moduleName="Claims" project={project({ canViewHistory: true })} />)
+
+            expect(await screen.findByTestId('module-actions-more')).toBeDisabled()
+        } finally {
+            widths.mockRestore()
+            room.mockRestore()
+        }
+    })
+
+    it('shows every action as a button of the row while the row has room for them', async () => {
+        await bar({ canViewHistory: true, canWrite: true })
+
+        for (const key of ['revisions', 'localChanges', 'dependencies', 'compare', 'reformat']) {
+            expect(screen.getByTestId(`module-${key}`)).toBeInTheDocument()
+        }
+        expect(screen.queryByTestId('module-actions-more')).toBeNull()
     })
 
     it('offers no history to a reader who may not read it', async () => {
         await bar({ canViewHistory: false })
 
-        await userEvent.click(screen.getByTestId('module-more'))
 
-        expect(await screen.findByText('browser.module.local_changes')).toBeInTheDocument()
-        expect(screen.queryByText('browser.module.revisions')).toBeNull()
+        expect(await screen.findByTestId('module-localChanges')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-revisions')).toBeNull()
     })
 })

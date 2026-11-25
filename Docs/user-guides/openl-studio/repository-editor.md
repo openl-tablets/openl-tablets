@@ -490,7 +490,7 @@ To open a project revision using the **Open Revision** button, proceed as follow
 
 #### Opening a Project Revision Using the Revisions Tab
 
-The tab and the **More \> Revisions** editor action are available only when the repository stores revisions.
+The tab and the **Revisions** action of the editor are available only when the repository stores revisions.
 
 To open a project revision using the **Revisions** tab, proceed as follows:
 
@@ -511,7 +511,7 @@ If a project has the **Viewing Revision** status, the opened project revision be
 
 If the user tries to modify an old revision of the project in the editor, the system displays the warning message, “**Overwrite the newer revision?**” It explains that saving the old revision overwrites everything committed since. When the user confirms and modifies the old revision, it becomes the current version of the project, and its status changes to **In Editing**.
 
-Revisions can also be accessed through the editor by selecting **More \> Revisions** for a project.
+Revisions can also be accessed through the editor by clicking **Revisions** above the table.
 
 The **Show technical revisions** toggle and the search of revisions are available in OpenL Studio when the repository type is Git.<br/>
 The **Show technical revisions** toggle, when on, allows users to see revisions that are not directly related to the current project (for example, changes related to code updates or changes in other projects).<br/>
@@ -676,7 +676,7 @@ the left, the table picked in the middle, its properties in **Table Properties**
 compilation below. The project is compiled with the projects it depends on, as a project of the workspace is.
 
 -   **Run**, **Trace** and **Benchmark** run the table, and **Test** runs the tests of the project.
--   **More** > **Table Dependencies** shows how the tables use each other.
+-   **Table Dependencies** shows how the tables use each other.
 -   **Deploy** deploys the project as it is downloaded, and **Export** saves it as a ZIP archive.
 -   **Edit**, **Copy**, **Remove**, **Create Test** and **Create Table** stand disabled: the project is read-only.
 
@@ -1031,7 +1031,7 @@ A copy in the default branch appears in the project list at once; a copy in anot
 is picked in the **Branch** filter. The selected branch is its home branch when no other branch contains the project.
 
 The first revision of the copy says which project it was copied from, for example **Copied from: Bank Rating.** In the
-**Revisions** tab and in **More \> Revisions** of the editor, the name of that project is a link that opens it. The link
+**Revisions** tab and in **Revisions** of the editor, the name of that project is a link that opens it. The link
 leads to the project of that name in the repository of the copy, or else to the only project of that name the user sees
 in another repository. When no such project is found, for example after the source project was deleted, the name is
 plain text.
@@ -1189,7 +1189,7 @@ The selected services version is displayed in the **Deploy Configuration** tab o
 ### Viewing the Changes of a Revision
 
 Each revision of the **Revisions** tab tells which files of the project it changed, the way Git shows a commit.
-The same list is available in the editor through **More \> Revisions**.
+The same list is available in the editor through **Revisions**.
 
 To view the changes of a revision, proceed as follows:
 
@@ -1224,7 +1224,7 @@ Only the files inside the project folder are listed. The files the system settin
 ### Comparing Two Revisions
 
 Any two revisions of the **Revisions** tab can be compared with each other without opening either of them: the
-project stays on the revision it is open on. The same works in the editor through **More \> Revisions**.
+project stays on the revision it is open on. The same works in the editor through **Revisions**.
 
 To compare two revisions, proceed as follows:
 

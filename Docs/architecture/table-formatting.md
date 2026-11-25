@@ -662,7 +662,8 @@ flowchart LR
 
 ### Reformat Excel files
 
-An action of the project, in its **More** menu. Its tooltip:
+An action of the editor of a module: a button of its action row, which goes to the menu at the end of the row
+when the row has no room for it. Its tooltip:
 
 > Formats every table of every Excel file of the project with the OpenL table style: the theme colours, theme fonts
 > and cell styles of Excel. Values are not changed. Tables of the type Other are left as they are.

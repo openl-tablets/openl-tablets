@@ -411,7 +411,6 @@ i18next.addResourceBundle('en', 'repository', {
             run: 'Run',
             trace: 'Trace',
             benchmark: 'Benchmark',
-            more: 'More',
             planned: 'Arrives with the editing phase',
             read_only: 'Read-only: the project is downloaded from the Maven repository',
             edit: 'Edit',
