@@ -77,39 +77,36 @@ export const ProjectScreenHeader = ({
     const repositoryPath = repositoryListPath(project)
     const repositoryLabel = project.repositoryInfo?.name ?? project.repository
 
-    const crumbs = (
-        <>
-            <Link to="/projects">{t('home.title')}</Link>
-            <span aria-hidden>/</span>
-            {repositoryPath ? <Link to={repositoryPath}>{repositoryLabel}</Link> : <span>{repositoryLabel}</span>}
-            {/* The branch comes right after the repository, as on the project's own page. */}
-            {hasBranches && (
-                <>
-                    <span aria-hidden>/</span>
-                    <BranchSwitcher
-                        beforeSwitch={confirmDiscard}
-                        currentBranch={branch}
-                        currentBranchDefault={project.branchDefault}
-                        currentBranchProtected={project.branchProtected}
-                        data-testid="crumb-branch"
-                        disabled={opening}
-                        onSwitched={onBranchSwitched}
-                        projectId={project.id}
-                        tone="secondary"
-                    />
-                </>
-            )}
-            <span aria-hidden>/</span>
-            {/* Which of its modules to read is the reader's to say, on the project's own screen. */}
-            <ProjectSwitcher
-                currentName={project.name}
-                currentProjectId={project.id}
+    const crumbs = [
+        <Link key="projects" to="/projects">{t('home.title')}</Link>,
+        repositoryPath
+            ? <Link key="repository" to={repositoryPath}>{repositoryLabel}</Link>
+            : <span key="repository">{repositoryLabel}</span>,
+        // The branch comes right after the repository, as on the project's own page.
+        hasBranches && (
+            <BranchSwitcher
+                key="branch"
+                beforeSwitch={confirmDiscard}
+                currentBranch={branch}
+                currentBranchDefault={project.branchDefault}
+                currentBranchProtected={project.branchProtected}
+                data-testid="crumb-branch"
                 disabled={opening}
-                onSelect={picked => void navigate(`/projects/${picked}`)}
-                testId="crumb-project"
+                onSwitched={onBranchSwitched}
+                projectId={project.id}
+                tone="secondary"
             />
-        </>
-    )
+        ),
+        // Which of its modules to read is the reader's to say, on the project's own screen.
+        <ProjectSwitcher
+            key="project"
+            currentName={project.name}
+            currentProjectId={project.id}
+            disabled={opening}
+            onSelect={picked => void navigate(`/projects/${picked}`)}
+            testId="crumb-project"
+        />,
+    ]
 
     return (
         <WorkspaceHeader

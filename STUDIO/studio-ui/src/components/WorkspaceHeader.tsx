@@ -8,10 +8,17 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: ${token.paddingSM}px ${token.padding}px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
+    /*
+     * The trail wraps onto as many lines as it needs, and only after a slash: a step keeps its name whole with the
+     * slash that follows it, so a narrow window moves a step to the next line rather than breaking its name. A name
+     * wider than a whole line is the one thing that ends in an ellipsis.
+     */
     crumb: css`
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: ${token.marginXS}px;
+        column-gap: ${token.marginXS}px;
+        row-gap: ${token.marginXXS}px;
         color: ${token.colorTextTertiary};
         font-size: 14px;
 
@@ -23,6 +30,19 @@ const useStyles = createStyles(({ css, token }) => ({
 
         a:hover {
             color: ${token.colorPrimary};
+        }
+    `,
+    step: css`
+        display: inline-flex;
+        flex: 0 1 auto;
+        align-items: center;
+        gap: ${token.marginXS}px;
+        min-width: 0;
+        max-width: 100%;
+        white-space: nowrap;
+
+        > :first-child {
+            min-width: 0;
         }
     `,
     titleRow: css`
@@ -57,10 +77,10 @@ const useStyles = createStyles(({ css, token }) => ({
 
 interface WorkspaceHeaderProps {
     /**
-     * The trail above the title: where the thing on screen sits, each step linking back to it. A separator closes
-     * it, so the title reads as its next step.
+     * The trail above the title: where the thing on screen sits, a step each, linking back to it. A slash follows
+     * every step, the last one too, so the title reads as the next step.
      */
-    crumbs: ReactNode
+    crumbs: ReactNode[]
     /**
      * What the screen is about — the name of the project, or of the module opened from it.
      *
@@ -98,8 +118,13 @@ export const WorkspaceHeader = ({
     return (
         <div className={styles.header} data-testid={testId}>
             <div className={styles.crumb}>
-                {crumbs}
-                <span aria-hidden>/</span>
+                {crumbs.filter(Boolean).map((step, index) => (
+                    // The steps stand in a fixed order: where each one is in the trail names it.
+                    <span key={index} className={styles.step}>
+                        {step}
+                        <span aria-hidden>/</span>
+                    </span>
+                ))}
             </div>
             <div className={styles.titleRow}>
                 <div className={styles.titleLeft}>
