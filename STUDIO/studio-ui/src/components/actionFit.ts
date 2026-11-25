@@ -4,7 +4,7 @@ import { createStyles } from 'antd-style'
 /** Gap between the buttons of a bar, in px: the bars lay their buttons out with it, so the fit matches the layout. */
 export const ACTION_GAP = 8
 /** The look of a bar whose actions collapse into a menu, and of the copy of them it measures. */
-export const useActionBarStyles = createStyles(({ css }) => ({
+export const useActionBarStyles = createStyles(({ css, token }) => ({
     bar: css`
         position: relative;
         display: flex;
@@ -14,12 +14,31 @@ export const useActionBarStyles = createStyles(({ css }) => ({
         justify-content: flex-end;
         gap: ${ACTION_GAP}px;
     `,
-    /** An off-screen copy of every action, laid out at its natural width, read to decide what fits. */
+    /** The menu at the end of a bar: the actions that did not fit, as the same buttons, one under another. */
+    overflow: css`
+        display: flex;
+        flex-direction: column;
+        gap: ${token.marginXXS}px;
+        min-width: 180px;
+        padding: ${token.paddingXXS}px;
+        border-radius: ${token.borderRadiusLG}px;
+        background: ${token.colorBgElevated};
+        box-shadow: ${token.boxShadowSecondary};
+
+        button {
+            justify-content: flex-start;
+        }
+    `,
+    /**
+     * An off-screen copy of every action, laid out at its natural width, read to decide what fits. It is as wide as
+     * the actions in it, whatever room the bar has, so it resizes whenever one of them does.
+     */
     measure: css`
         position: absolute;
         top: 0;
         left: 0;
         display: flex;
+        width: max-content;
         gap: ${ACTION_GAP}px;
         visibility: hidden;
         pointer-events: none;
@@ -56,14 +75,14 @@ export const fitActionCount = (widths: number[], moreWidth: number, available: n
  *
  * The bar lays an off-screen copy of every action out at its natural width under `measureRef`, its last child being the
  * trigger of the menu, and stands itself under `barRef`; the row is the element the bar stands in. The fit is worked
- * out again as the row resizes, and whenever `deps` change — another set of actions.
+ * out again as the row resizes, as an action changes its width — a count it shows, a label in another language — and
+ * whenever `deps` change: another set of actions.
  *
  * Before the browser has laid the bar out, and in jsdom, which reports no widths, every action is shown.
  *
  * @param count how many actions the bar has
- * @param moreAlways whether the trigger of the menu stands in the bar whatever fits, holding actions of its own
  */
-export const useActionFit = (count: number, deps: DependencyList, { moreAlways = false } = {}) => {
+export const useActionFit = (count: number, deps: DependencyList) => {
     const barRef = useRef<HTMLDivElement>(null)
     const measureRef = useRef<HTMLDivElement>(null)
     const [visible, setVisible] = useState(count)
@@ -82,12 +101,9 @@ export const useActionFit = (count: number, deps: DependencyList, { moreAlways =
             setVisible(count)
             return
         }
-        const available = row.clientWidth
-        setVisible(moreAlways
-            ? fitActionCount(widths, 0, available - moreWidth - ACTION_GAP, ACTION_GAP)
-            : fitActionCount(widths, moreWidth, available, ACTION_GAP))
+        setVisible(fitActionCount(widths, moreWidth, row.clientWidth, ACTION_GAP))
         // eslint-disable-next-line react-hooks/exhaustive-deps -- the callers name what the fit depends on
-    }, [count, moreAlways, ...deps])
+    }, [count, ...deps])
 
     useLayoutEffect(() => {
         recompute()
@@ -97,6 +113,9 @@ export const useActionFit = (count: number, deps: DependencyList, { moreAlways =
         }
         const observer = new ResizeObserver(() => recompute())
         observer.observe(row)
+        if (measureRef.current) {
+            observer.observe(measureRef.current)
+        }
         return () => observer.disconnect()
     }, [recompute])
 

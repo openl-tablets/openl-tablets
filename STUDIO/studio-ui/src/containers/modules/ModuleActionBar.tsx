@@ -1,8 +1,18 @@
 import { useState, type ReactNode } from 'react'
 import type { ConfirmDiscard } from './useDiscardConfirm'
 import { useTranslation } from 'react-i18next'
-import { Badge, Button, Dropdown, Modal, Tooltip } from 'antd'
-import { CheckCircleOutlined, DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { Badge, Button, Modal, Tooltip } from 'antd'
+import {
+    CheckCircleOutlined,
+    DiffOutlined,
+    ExperimentOutlined,
+    FieldTimeOutlined,
+    FormatPainterOutlined,
+    HistoryOutlined,
+    PartitionOutlined,
+    PlusOutlined,
+    UploadOutlined,
+} from '@ant-design/icons'
 import type { SummaryTable } from 'types/tables'
 import type { Project } from '../../types/projects'
 import { supportsRevisionSearch } from '../../utils/repositoryFeatures'
@@ -15,7 +25,7 @@ import { useProjectDialogs, type ProjectDialogActions } from '../projects/usePro
 import { ReformatExcelFilesModal } from './ReformatExcelFilesModal'
 import { useOverwriteConfirm } from './useOverwriteConfirm'
 import { isMarkdownPath, isWorkbookPath } from '../../utils/workbooks'
-import { useActionBarStyles, useActionFit } from '../../components/actionFit'
+import { CollapsingActionBar, type ActionMenu } from '../../components/CollapsingActionBar'
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
@@ -86,13 +96,31 @@ interface ModuleActionBarProps {
     confirmDiscard?: ConfirmDiscard | undefined
 }
 
+/** What the file of a module, by its path, lets the row offer; a module whose path is not known yet is none of these. */
+const moduleFileOf = (modulePath: string | undefined) => {
+    const workbook = !!modulePath && isWorkbookPath(modulePath)
+    const markdown = isMarkdownPath(modulePath)
+    return {
+        workbook,
+        // A module of a single Markdown file holds its one table and takes no other. A folder of Markdown files takes
+        // a table as a file of its own, and a module whose path is not known yet may still take one.
+        singleFile: markdown,
+        // Only a module of a single file is downloaded from here: a folder is downloaded with the project.
+        exportable: workbook || markdown,
+        exportHint: modulePath ? 'browser.module.export_folder' : 'browser.module.export_unavailable',
+        // The local changes are the versions a workbook is saved in: a Markdown file keeps none.
+        keepsVersions: !modulePath || workbook,
+    }
+}
+
 /**
  * What can be done to the open module, in the place the project's own actions sit — arranged as the old Editor
  * arranged them, so the row reads the same.
  *
- * Exporting the module, running its tests, writing a new table and the More menu are answered here; the
- * project's own actions are offered exactly as its own screen offers them. What can be done to the table on
- * screen belongs to the table, and stands in a band above it.
+ * Exporting the module, running its tests, writing a new table, the history of the project and what is about its
+ * tables are answered here; the project's own actions are offered exactly as its own screen offers them. Every action
+ * is a button of the row; the ones the row has no room for go to the menu at its end, as on the screen of the project.
+ * What can be done to the table on screen belongs to the table, and stands in a band above it.
  *
  * <p>A screen of the whole project, as its messages, shows the same row without what acts on a module: its
  * workbook and a table written into it.
@@ -123,18 +151,13 @@ export const ModuleActionBar = ({
     // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
     // Add menu of a project uses, restricted to Excel. A Markdown module is changed as text in the file editor: no workbook
     // replaces it.
-    const canUpdateModule = ofModule && !!project.capabilities?.canWrite && !!modulePath && isWorkbookPath(modulePath)
-    // A module of a single Markdown file holds its one table and takes no other. A folder of Markdown files takes a
-    // table as a file of its own, and a module whose path is not known yet may still take one.
-    const singleFile = isMarkdownPath(modulePath)
-    // Only a module of a single file is downloaded from here: a folder is downloaded with the project.
-    const exportable = !!modulePath && (isWorkbookPath(modulePath) || isMarkdownPath(modulePath))
-    const exportHint = modulePath ? 'browser.module.export_folder' : 'browser.module.export_unavailable'
+    const { workbook, singleFile, exportable, exportHint, keepsVersions } = moduleFileOf(modulePath)
+    const canUpdateModule = ofModule && !!project.capabilities?.canWrite && workbook
     // A read-only project shows it, disabled, so the reader sees why no table is written into it.
     const readOnly = project.readOnly === true
-    // The local changes are the versions a workbook is saved in: a Markdown file keeps none, so its module offers none,
-    // and neither does a read-only project, which is never saved
-    const keepsLocalChanges = !readOnly && (!modulePath || isWorkbookPath(modulePath))
+    // A module that keeps no versions offers no local changes, and neither does a read-only project, which is never
+    // saved.
+    const keepsLocalChanges = !readOnly && keepsVersions
     // Writing a table into the project is the project's own right, so it is offered by the same capability
     // the files of a project are written by.
     const canWrite = !!project.capabilities?.canWrite
@@ -155,52 +178,13 @@ export const ModuleActionBar = ({
         }))
     }
 
-    // What the old More menu offered: the project's own history first, then what is about its tables.
-    const more = [
-        ...(project.capabilities?.canViewHistory ? [{ key: 'revisions', label: t('browser.module.revisions') }] : []),
-        ...(keepsLocalChanges ? [{ key: 'localChanges', label: t('browser.module.local_changes') }] : []),
-        { type: 'divider' as const },
-        { key: 'dependencies', label: t('browser.module.dependencies') },
-        { key: 'compare', label: t('browser.module.compare') },
-        ...(canWrite ? [
-            { type: 'divider' as const },
-            {
-                key: 'reformat',
-                label: (
-                    <Tooltip placement="left" title={t('browser.module.reformat_tooltip')}>
-                        <span data-testid="module-reformat">{t('browser.module.reformat')}</span>
-                    </Tooltip>
-                ),
-            },
-        ] : []),
-    ]
-
     // Every table of every module of the project is formatted, so a dialog says so before anything is written.
     const reformat = () => confirmWrite(() => setReformatOpen(true))
 
-    const chooseMore = (key: string, from: HTMLElement) => {
-        const collapsed = barActions.find(action => `bar:${action.key}` === key)
-        if (collapsed) {
-            collapsed.run(from)
-        } else if (key === 'revisions') {
-            setRevisionsOpen(true)
-        } else if (key === 'localChanges') {
-            setLocalChangesOpen(true)
-        } else if (key === 'dependencies') {
-            window.dispatchEvent(new CustomEvent('openTableGraphModal', {
-                detail: { projectId: project.id, projectName: project.name, module: ofModule ? moduleName : undefined },
-            }))
-        } else if (key === 'reformat') {
-            reformat()
-        } else if (key === 'compare') {
-            // Two files of the reader's own, not two revisions of the project: those the project screen compares.
-            openExcelFilesCompareWindow()
-        }
-    }
-
     /**
-     * The buttons of the row, in their order: what the project needs done first, then what it offers. A button the row
-     * has no room for is not dropped: it heads the More menu instead.
+     * The buttons of the row, in their order: what the project needs done first, then what it offers, then the history
+     * of the project and what is about its tables. A button the row has no room for is not dropped: it goes to the menu
+     * at the end of the row.
      */
     const barActions: BarAction[] = [
         // Offered only while something is waiting: with automatic compilation on there is never anything to verify,
@@ -258,22 +242,64 @@ export const ModuleActionBar = ({
                 detail: { projectId: project.id, currentModuleName: moduleName, onSuccess: onTableCreated },
             }))),
         }] : []),
+        ...(project.capabilities?.canViewHistory ? [{
+            key: 'revisions',
+            label: t('browser.module.revisions'),
+            icon: <HistoryOutlined />,
+            disabled,
+            run: () => setRevisionsOpen(true),
+        }] : []),
+        ...(keepsLocalChanges ? [{
+            key: 'localChanges',
+            label: t('browser.module.local_changes'),
+            icon: <FieldTimeOutlined />,
+            disabled,
+            run: () => setLocalChangesOpen(true),
+        }] : []),
+        {
+            key: 'dependencies',
+            label: t('browser.module.dependencies'),
+            icon: <PartitionOutlined />,
+            disabled,
+            run: () => window.dispatchEvent(new CustomEvent('openTableGraphModal', {
+                detail: { projectId: project.id, projectName: project.name, module: ofModule ? moduleName : undefined },
+            })),
+        },
+        {
+            key: 'compare',
+            label: t('browser.module.compare'),
+            icon: <DiffOutlined />,
+            disabled,
+            // Two files of the reader's own, not two revisions of the project: those the project screen compares.
+            run: () => openExcelFilesCompareWindow(),
+        },
+        ...(canWrite ? [{
+            key: 'reformat',
+            label: t('browser.module.reformat'),
+            icon: <FormatPainterOutlined />,
+            disabled,
+            hint: t('browser.module.reformat_tooltip'),
+            run: reformat,
+        }] : []),
     ]
 
     const shownKeys = barActions.map(action => action.key).join()
-    const { barRef, measureRef, visible } = useActionFit(barActions.length, [shownKeys], { moreAlways: true })
-    const { styles: fit } = useActionBarStyles()
 
-    /** A button of the row, with the hint that says why it stands disabled. */
-    const button = (action: BarAction) => {
+    /**
+     * A button of the row, with the hint that says why it stands disabled or what it does. Run from the menu of the row,
+     * it closes the menu, and what it opens stands at the trigger of the menu, which stays on screen.
+     */
+    const button = (action: BarAction, menu?: ActionMenu) => {
         const node = (
             <Button
-                key={action.key}
                 data-testid={`module-${action.key}`}
                 disabled={action.disabled === true}
                 icon={action.icon}
-                onClick={event => action.run(event.currentTarget)}
                 type={action.primary ? 'primary' : 'default'}
+                onClick={event => {
+                    menu?.close()
+                    action.run(menu?.anchor() ?? event.currentTarget)
+                }}
             >
                 {action.label}
                 {!!action.count && (
@@ -281,50 +307,27 @@ export const ModuleActionBar = ({
                 )}
             </Button>
         )
-        return action.hint ? <Tooltip key={action.key} title={action.hint}>{node}</Tooltip> : node
+        return action.hint
+            ? <Tooltip placement={menu ? 'left' : 'top'} title={action.hint}>{node}</Tooltip>
+            : node
     }
 
-    // The buttons that did not fit head the More menu, set apart from what it always offers.
-    const collapsed = barActions.slice(visible)
-    const menuItems = [
-        ...collapsed.map(action => ({
-            key: `bar:${action.key}`,
-            icon: action.icon,
-            disabled: action.disabled === true,
-            label: (
-                <Tooltip placement="left" title={action.hint}>
-                    <span data-testid={`module-${action.key}-item`}>
-                        {action.label}
-                        {!!action.count && ` (${action.count})`}
-                    </span>
-                </Tooltip>
-            ),
-        })),
-        ...(collapsed.length > 0 ? [{ type: 'divider' as const }] : []),
-        ...more,
-    ]
-
     return (
-        <div ref={barRef} className={fit.bar} data-testid="module-actions">
-            {barActions.slice(0, visible).map(button)}
-            <Dropdown
-                disabled={disabled}
-                menu={{ items: menuItems, onClick: ({ key, domEvent }) => chooseMore(key, domEvent.currentTarget) }}
-                trigger={['click']}
-            >
-                <Button data-testid="module-more" disabled={disabled}>
-                    {t('browser.module.more')} <DownOutlined />
+        <CollapsingActionBar
+            actions={barActions}
+            deps={[shownKeys]}
+            keyOf={action => action.key}
+            menuDisabled={disabled}
+            menuLabel={t('home.row_actions')}
+            render={button}
+            testId="module-actions"
+            renderMeasure={action => (
+                <Button icon={action.icon}>
+                    {action.label}
+                    {!!action.count && <Badge color="blue" count={action.count} />}
                 </Button>
-            </Dropdown>
-            <div ref={measureRef} aria-hidden className={fit.measure}>
-                {barActions.map(action => (
-                    <Button key={action.key} icon={action.icon}>
-                        {action.label}
-                        {!!action.count && <Badge color="blue" count={action.count} />}
-                    </Button>
-                ))}
-                <Button>{t('browser.module.more')} <DownOutlined /></Button>
-            </div>
+            )}
+        >
             <Modal
                 destroyOnHidden
                 footer={null}
@@ -372,6 +375,6 @@ export const ModuleActionBar = ({
                 open={reformatOpen}
                 projectId={project.id}
             />
-        </div>
+        </CollapsingActionBar>
     )
 }

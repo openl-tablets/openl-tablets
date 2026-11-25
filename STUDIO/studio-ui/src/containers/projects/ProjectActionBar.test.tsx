@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
@@ -43,12 +44,19 @@ vi.mock('antd', () => {
         <button
             data-primary={type === 'primary' ? 'true' : undefined}
             data-testid={rest['data-testid'] as string}
+            onClick={rest['onClick'] as never}
         >
             {children as never}
         </button>
     )
-    const Dropdown = ({ children, popupRender }: Record<string, unknown>) => (
-        <div>{children as never}{popupRender ? ((popupRender as (n: unknown) => unknown)(null) as never) : null}</div>
+    // Says whether it stands open; a click on its trigger opens it.
+    const Dropdown = ({ children, open, onOpenChange, popupRender }: Record<string, unknown>) => (
+        <div data-open={String(open)} data-testid="dropdown">
+            <span onClick={() => (onOpenChange as (open: boolean) => void)(true)} role="presentation">
+                {children as never}
+            </span>
+            {popupRender ? ((popupRender as (n: unknown) => unknown)(null) as never) : null}
+        </div>
     )
     const Popconfirm = ({ children }: { children?: unknown }) => <span>{children as never}</span>
     const Space = ({ children }: { children?: unknown }) => <span>{children as never}</span>
@@ -159,6 +167,23 @@ describe('ProjectActionBar', () => {
         expect(screen.getByTestId('project-actions-more')).toBeInTheDocument()
         const overflow = screen.getByTestId('project-actions-overflow')
         expect(overflow).toContainElement(screen.getByTestId('export-p1'))
+    })
+
+    it('closes the menu once an action in it runs', async () => {
+        mockSizes(150, 100)
+        const exported = vi.fn()
+        render(<ProjectActionBar
+            handlers={{ ...noHandlers, export: exported }}
+            pendingId={null}
+            project={project({ canClose: true, canExport: true })}
+        />)
+
+        await userEvent.click(screen.getByTestId('project-actions-more'))
+        expect(screen.getByTestId('dropdown')).toHaveAttribute('data-open', 'true')
+        await userEvent.click(screen.getByTestId('export-p1'))
+
+        expect(exported).toHaveBeenCalledTimes(1)
+        expect(screen.getByTestId('dropdown')).toHaveAttribute('data-open', 'false')
     })
 
     it('renders nothing when no action is available', () => {

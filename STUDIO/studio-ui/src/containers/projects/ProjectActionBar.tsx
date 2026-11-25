@@ -1,30 +1,14 @@
 import { useMemo, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Dropdown, Popconfirm, Space, type DropdownProps } from 'antd'
-import { DownOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons'
-import { createStyles } from 'antd-style'
+import { Button, Popconfirm, Space, type DropdownProps } from 'antd'
+import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import { SplitButton } from '../../components/SplitButton'
 import type { Project } from '../../types/projects'
 import { isActionAvailable, PROJECT_ACTIONS, type ActionId, type BusyId } from './projectActions'
 import { ACTION_ICONS } from './projectActionIcons'
 import { MenuButton } from '../../components/MenuButton'
 import { addFilesMenuItems, type AddFilesKind } from './AddFilesMenu'
-import { useActionBarStyles, useActionFit } from '../../components/actionFit'
-
-const useStyles = createStyles(({ css, token }) => ({
-    /** The collapsed actions, stacked as full-width buttons the way the row would have shown them. */
-    overflow: css`
-        display: flex;
-        flex-direction: column;
-        gap: ${token.marginXXS}px;
-        min-width: 180px;
-        padding: ${token.paddingXXS}px;
-
-        button {
-            justify-content: flex-start;
-        }
-    `,
-}))
+import { CollapsingActionBar, type ActionMenu } from '../../components/CollapsingActionBar'
 
 
 /** A button of the bar: an action of the project, or the Add menu, which adds files to the project. */
@@ -103,8 +87,6 @@ interface ProjectActionBarProps {
  * an overflow menu behind a three-dots button, leaving at least the primary action in view.
  */
 export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: ProjectActionBarProps) => {
-    const { styles } = useStyles()
-    const { styles: fit } = useActionBarStyles()
     const { t } = useTranslation('repository')
 
     const { actions, revision, primaryId } = useMemo(() => {
@@ -148,10 +130,6 @@ export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: P
 
     const busy = pendingId !== null
 
-    // Depends on the whole action set, not just its size: a different set of the same size (e.g. a project opened, so
-    // its buttons change and widen) must measure again, not reuse the stale fit.
-    const { barRef, measureRef, visible: shown } = useActionFit(actions.length, [actions])
-
     if (actions.length === 0 && !revision) {
         return null
     }
@@ -165,25 +143,43 @@ export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: P
         ...(action.id === primaryId ? { type: 'primary' as const } : {}),
     })
 
-    const renderAction = (action: ActionDesc) => {
+    // Run from the menu of the bar, an action closes the menu first.
+    const renderAction = (action: ActionDesc, menu?: ActionMenu) => {
+        const closing = (run: () => void) => () => {
+            menu?.close()
+            run()
+        }
         if ('menu' in action) {
-            return <MenuButton key={action.id} {...buttonProps(action)} menu={action.menu}>{action.label}</MenuButton>
+            const { onClick } = action.menu
+            return (
+                <MenuButton
+                    {...buttonProps(action)}
+                    menu={{
+                        ...action.menu,
+                        onClick: info => {
+                            menu?.close()
+                            onClick?.(info)
+                        },
+                    }}
+                >
+                    {action.label}
+                </MenuButton>
+            )
         }
         // Open carries opening an earlier revision as its menu item while the project is still closed.
         if (action.id === 'open' && revision) {
             return (
                 <SplitButton
-                    key={action.id}
                     {...buttonProps(action)}
                     arrowLabel={revision.label}
                     arrowTestId={`${action.testId}-more`}
-                    onClick={action.run}
+                    onClick={closing(action.run)}
                     menu={{
                         items: [{
                             key: revision.id,
                             label: <span data-testid={revision.testId}>{revision.label}</span>,
                         }],
-                        onClick: revision.run,
+                        onClick: closing(revision.run),
                     }}
                 >
                     {action.label}
@@ -192,62 +188,43 @@ export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: P
         }
         if (action.confirm) {
             return (
-                <Popconfirm key={action.id} onConfirm={action.run} title={action.confirm}>
+                <Popconfirm onConfirm={closing(action.run)} title={action.confirm}>
                     <Button {...buttonProps(action)}>{action.label}</Button>
                 </Popconfirm>
             )
         }
-        return <Button key={action.id} {...buttonProps(action)} onClick={action.run}>{action.label}</Button>
+        return <Button {...buttonProps(action)} onClick={closing(action.run)}>{action.label}</Button>
     }
 
     // A plain, id-free copy of an action, sized like the real one, so measuring never clashes with the
     // live buttons' test ids.
     const renderMeasure = (action: ActionDesc) => {
         if ('menu' in action) {
-            return <Button key={action.id} icon={action.icon}>{action.label}<DownOutlined /></Button>
+            return <Button icon={action.icon}>{action.label}<DownOutlined /></Button>
         }
         if (action.id === 'open' && revision) {
             return (
-                <Space.Compact key={action.id}>
+                <Space.Compact>
                     <Button icon={action.icon}>{action.label}</Button>
                     <Button icon={<DownOutlined />} />
                 </Space.Compact>
             )
         }
-        return <Button key={action.id} icon={action.icon}>{action.label}</Button>
+        return <Button icon={action.icon}>{action.label}</Button>
     }
 
-    const overflow = actions.slice(shown)
-    // Built once per render, not inside popupRender: a function creating elements would read as a new
-    // component every time the dropdown opens.
-    const overflowPanel = (
-        <div className={styles.overflow} data-testid="project-actions-overflow">
-            {overflow.map(renderAction)}
-        </div>
-    )
-    const renderOverflow = () => overflowPanel
-
     return (
-        <div ref={barRef} className={fit.bar} data-testid="project-actions">
-            {actions.slice(0, shown).map(renderAction)}
-            {overflow.length > 0 && (
-                <Dropdown
-                    placement="bottomRight"
-                    popupRender={renderOverflow}
-                    trigger={['click']}
-                >
-                    <Button
-                        aria-label={t('home.row_actions')}
-                        data-testid="project-actions-more"
-                        disabled={busy}
-                        icon={<MoreOutlined />}
-                    />
-                </Dropdown>
-            )}
-            <div ref={measureRef} aria-hidden className={fit.measure}>
-                {actions.map(renderMeasure)}
-                <Button icon={<MoreOutlined />} />
-            </div>
-        </div>
+        <CollapsingActionBar
+            actions={actions}
+            // Depends on the whole action set, not just its size: a different set of the same size (e.g. a project
+            // opened, so its buttons change and widen) must measure again, not reuse the stale fit.
+            deps={[actions]}
+            keyOf={action => action.id}
+            menuDisabled={busy}
+            menuLabel={t('home.row_actions')}
+            render={renderAction}
+            renderMeasure={renderMeasure}
+            testId="project-actions"
+        />
     )
 }

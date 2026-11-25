@@ -23,7 +23,7 @@ The following topics are included in this chapter:
 
 ### Switching to Another Project or Module
 
-The breadcrumb shows the repository, the branch and the project the module belongs to, in the order of the page of the project, and ends in the module name, followed by the compilation indicator and **Refresh**. It switches the editor to another project or module; the actions of the module take the row under it. In a narrow window it continues on the next line after a slash, so no name is broken:
+The breadcrumb shows the repository, the branch and the project the module belongs to, in the order of the page of the project, and ends in the module name, followed by the compilation indicator and **Refresh**. It switches the editor to another project or module; the actions of the module take the row under it, and the ones the row has no room for move to the **⋮** menu at its end. In a narrow window it continues on the next line after a slash, so no name is broken:
 
 -   To see the other projects of the repository, click the repository name. The **Projects** list opens, filtered by the repository.
 -   To switch to another project, click the arrow next to the project name, start typing the project name in the **Find a project** field to narrow the list down, and select the project.
@@ -163,7 +163,7 @@ OpenL Studio allows comparing module versions and rolling back module changes ag
 To compare module versions, proceed as follows:
 
 1.  Open the module.
-2.  Above the table, select **More** **\>** **Local** **Changes**.
+2.  Above the table, click **Local Changes**.
     The **Local** **Changes** window appears displaying the selected module's local versions, with the latest
     versions on the top. In a multi-module project, switching modules shows the local history stored for that
     module only.
@@ -657,8 +657,8 @@ itself offers, so the tables look the same in Excel and change with the theme of
     name of the table is bold, the names of the parameters are in the text colour, and the keyword, the types, and
     the punctuation are lighter.
 
-To format every table of the project, above the table, click **More**, select **Reformat Excel files**, and in the
-dialog, click **Reformat**. A tooltip on the menu item says what the action does. With Excel Formatting on, a table
+To format every table of the project, above the table, click **Reformat Excel files**, and in the dialog, click
+**Reformat**. A tooltip on the button says what the action does. With Excel Formatting on, a table
 shows the formatting its Excel file gave it before the reformatting and the OpenL table style after it.
 
 ![A Rules table drawn with Excel Formatting on, in the formatting its Excel file gave it](images/table-excel-formatting.png "Table before reformatting")
@@ -1118,7 +1118,7 @@ also be changed in the window.
 
 OpenL Studio compares two Excel files and shows the tables and other elements that differ. To compare two Excel files, proceed as follows:
 
-1.  In Rules Editor, above the table, select **More \> Compare Excel files.**
+1.  In Rules Editor, above the table, click **Compare Excel files**.
 
     ![Initiating Excel comparison](images/excel-comparison-initiate.png)
 
