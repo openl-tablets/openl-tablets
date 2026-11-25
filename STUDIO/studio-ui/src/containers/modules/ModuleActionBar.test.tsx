@@ -92,6 +92,28 @@ describe('ModuleActionBar', () => {
         expect(await screen.findByTestId('save-project-modal')).toBeInTheDocument()
     })
 
+    it('collapses the buttons the row has no room for into More, and runs them from there', async () => {
+        // A row of 500 px, every button 100 px wide: two stand beside the name, More holds the rest.
+        const widths = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100)
+        const room = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(500)
+        try {
+            await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true })
+
+            expect(screen.getByTestId('module-save')).toBeInTheDocument()
+            expect(screen.getByTestId('module-sync')).toBeInTheDocument()
+            expect(screen.queryByTestId('module-deploy')).toBeNull()
+            expect(screen.queryByTestId('module-copy')).toBeNull()
+
+            await userEvent.click(screen.getByTestId('module-more'))
+            expect(await screen.findByTestId('module-deploy-item')).toBeInTheDocument()
+            await userEvent.click(screen.getByTestId('module-copy-item'))
+            expect(await screen.findByTestId('copy-project-modal')).toBeInTheDocument()
+        } finally {
+            widths.mockRestore()
+            room.mockRestore()
+        }
+    })
+
     it('withholds what the project does not allow', async () => {
         await bar({ canViewHistory: true })
 
