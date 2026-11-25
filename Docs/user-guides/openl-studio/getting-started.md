@@ -179,7 +179,8 @@ To manage personal settings, proceed as follows:
         `2026-12-31`, `2026.12.31`, `2026/12/31`, `Dec 31, 2026` and `12/31/2026`.
     -   **Time Format** — point to it and pick how the time of day is written after the date. The first one, marked
         **System**, follows the regional settings of the web browser, such as `1:45:30 PM` in the US, and is in force
-        by default. The others are a 24-hour clock, `13:45:30`, and a 12-hour one, `1:45:30 PM`.
+        by default. The others are a 24-hour clock, `13:45:30`, and a 12-hour one, `1:45:30 PM`. The **Modified At**
+        column of the projects list leaves out the seconds, such as `1:45 PM`.
 
     A change applies at once to every screen: the lists, the table editor, the table properties, the input of a run,
     the results of a run or a test, the trace and the date pickers, where a date is also typed in the format shown.

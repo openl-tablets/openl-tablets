@@ -40,7 +40,7 @@ describe('describeSimpleValue', () => {
     })
 
     it('shows a date the server writes in the formats of the reader, and leaves other text quoted', () => {
-        const patterns = { date: 'DD.MM.YYYY', dateTime: 'DD.MM.YYYY HH:mm:ss' }
+        const patterns = { date: 'DD.MM.YYYY', dateTime: 'DD.MM.YYYY HH:mm:ss', dateTimeToMinute: 'DD.MM.YYYY HH:mm' }
         expect(describeSimpleValue('2026-12-31T00:00:00.000', String, patterns))
             .toEqual({ display: '31.12.2026', kind: 'date' })
         expect(describeSimpleValue('2026-12-31T14:05:09.000', String, patterns))

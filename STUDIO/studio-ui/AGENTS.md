@@ -208,14 +208,14 @@ The build writes two pages (`build.rollupOptions.input`):
   machine. A formatter kept out of a component takes the locale as an argument rather than reading it itself.
   A test mocks `react-i18next` with the language alongside `t`:
   `useTranslation: () => ({ i18n: { language: 'en', resolvedLanguage: 'en' }, t })`.
-  A date is written through `utils/dateFormat.ts`, never formatted by a screen itself: `formatDate` and
-  `formatDateTime` for a moment the backend answers in ISO 8601, shown in the time zone of the browser, and
-  `formatLocalDateTime` for a date with no time zone — a date property, or a cell the compiler types as a date
-  (`RawTableGrid` reads the type from the roles of the read) — which is never shifted and shows its time only when it
-  holds a time of day. They write it in the **Date Format** and the **Time Format** of **My Settings**, `dateFormat`
-  and `timeFormat`, each a day.js pattern the menu offers (`DATE_FORMATS`, `TIME_FORMATS`); a date with its time is
-  the date, then the time. Either one empty, as it is by default, stands for the regional settings of the browser
-  (`systemPatterns()`), which each list offers first, marked **System**. The regional settings of the browser are read once for the page, so a function
+  A date is written through `utils/dateFormat.ts`, never formatted by a screen itself: `formatDate`, `formatDateTime`
+  and, to the minute, `formatDateTimeToMinute` for a moment the backend answers in ISO 8601, shown in the time zone of
+  the browser, and `formatLocalDateTime` for a date with no time zone — a date property, or a cell the compiler types as
+  a date (`RawTableGrid` reads the type from the roles of the read) — which is never shifted and shows its time only
+  when it holds a time of day. They write it in the **Date Format** and the **Time Format** of **My Settings**,
+  `dateFormat` and `timeFormat`, each a day.js pattern the menu offers (`DATE_FORMATS`, `TIME_FORMATS`); a date with its
+  time is the date, then the time. Either one empty, as it is by default, stands for the regional settings of the
+  browser (`systemPatterns()`), which each list offers first, marked **System**. The regional settings of the browser are read once for the page, so a function
   that writes a date costs no `Intl` call: a table of
   thousands of date cells hung the page for seconds when each cell read the regional settings anew. A date picker
   shows its date in `datePickerFormat()` and sends it in ISO 8601.

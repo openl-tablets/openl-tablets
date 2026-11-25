@@ -117,13 +117,6 @@ describe('ProjectsFilterRail', () => {
         vi.restoreAllMocks()
     })
 
-    it('marks a group of tag values with the tag in the color of its type, and no other group', () => {
-        renderRail(tagCounts)
-
-        expect(screen.getByTestId('filter-group-tag:Domain')).toContainElement(screen.getByTestId('filter-tag-mark-Domain'))
-        expect(within(screen.getByTestId('filter-group-branch')).queryByRole('img', { name: 'tag' })).toBeNull()
-    })
-
     it('picks every value of a group from the check box of its head', async () => {
         const onPick = vi.fn()
         renderRail(tagCounts, { onPick })

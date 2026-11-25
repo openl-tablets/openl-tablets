@@ -20,7 +20,7 @@ describe('tableVersion', () => {
     })
 
     it('writes a date in the format of the dates, with no time of day at midnight', () => {
-        const patterns = { date: 'MMM D, YYYY', dateTime: 'MMM D, YYYY h:mm:ss A' }
+        const patterns = { date: 'MMM D, YYYY', dateTime: 'MMM D, YYYY h:mm:ss A', dateTimeToMinute: 'MMM D, YYYY h:mm A' }
         expect(dimensionValue('2020-01-01T00:00:00.000', patterns)).toBe('Jan 1, 2020')
         expect(dimensionValue('2020-07-01T10:30:00.000', patterns)).toBe('Jul 1, 2020 10:30:00 AM')
     })

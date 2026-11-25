@@ -5,6 +5,7 @@ import {
     datePickerFormatForLocale,
     formatDate,
     formatDateTime,
+    formatDateTimeToMinute,
     formatLocalDateTime,
     isLocalDateTime,
     timeFormatForLocale,
@@ -37,6 +38,18 @@ describe('dateFormat', () => {
         expect(formatDateTime('2026-07-15T12:00:38Z')).toMatch(/\d:\d{2}:38\b/)
         withSettings({ dateFormat: 'MMM D, YYYY', timeFormat: 'HH:mm:ss' }, () =>
             expect(formatDateTime('2026-07-15T12:00:38Z')).toMatch(/\d:\d{2}:38\b/))
+    })
+
+    it('drops the seconds of a time written to the minute, on either clock and in the regional settings', () => {
+        const value = '2026-07-15T13:05:38'
+        expect(formatDateTimeToMinute(value))
+            .toBe(dayjs(value).format(`${datePickerFormatForLocale()} ${timeFormatForLocale(undefined, false)}`))
+        withSettings({ dateFormat: 'DD.MM.YYYY', timeFormat: 'HH:mm:ss' }, () =>
+            expect(formatDateTimeToMinute(value)).toBe('15.07.2026 13:05'))
+        withSettings({ dateFormat: 'DD.MM.YYYY', timeFormat: 'h:mm:ss A' }, () =>
+            expect(formatDateTimeToMinute(value)).toBe('15.07.2026 1:05 PM'))
+        expect(formatDateTimeToMinute(undefined)).toBeNull()
+        expect(formatDateTimeToMinute('not a date')).toBe('not a date')
     })
 
     // A table of thousands of date cells read the regional settings anew for every cell, and the page hung for
@@ -117,6 +130,8 @@ describe('dateFormat', () => {
     it('takes the time of day of a locale, its clock and its day period', () => {
         expect(timeFormatForLocale('en-US')).toBe('h:mm:ss A')
         expect(timeFormatForLocale('de-DE')).toBe('HH:mm:ss')
+        expect(timeFormatForLocale('en-US', false)).toBe('h:mm A')
+        expect(timeFormatForLocale('fr-CA', false)).toBe('HH[ h ]mm')
     })
 
     it('keeps a separator holding letters as it is, so its letters stand for no part of the date', () => {

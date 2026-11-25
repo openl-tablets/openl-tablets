@@ -1,7 +1,7 @@
 import { plainText, storedSetting } from '../../utils/localStore'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Alert, Button, Empty, Skeleton, Tooltip, Tree, type GetRef } from 'antd'
-import { BranchesOutlined, PartitionOutlined } from '@ant-design/icons'
+import { BranchesOutlined, PartitionOutlined, TagOutlined } from '@ant-design/icons'
 import { createStyles, useTheme, useThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
@@ -20,7 +20,6 @@ import { STATUS_META } from '../../constants/projectStatusMeta'
 import { useSharedStyles } from './sharedStyles'
 import { RepoIcon } from './RepoBadge'
 import { BranchMarks, useBranchColor } from './BranchMarks'
-import { TagTypeMark } from '../tags/tagColor'
 import { inTagTypeThenNameOrder, useTagTypeOrder } from '../tags/tagOrder'
 import { useSearchScope } from '../../hooks/useSearchScope'
 import { useAppTheme } from '../../providers/AppThemeProvider'
@@ -986,7 +985,7 @@ export const ProjectsTree = ({
     }
 
     // A repository carries its own icon — a branch, a database, a disk — as it does everywhere else, a
-    // branch group carries the branch mark, and a tag value carries the tag it is, in the color of its type.
+    // branch group carries the branch mark, and a tag value carries the tag it is.
     function groupIcon(node: GroupNode): ReactNode {
         if (node.groupedBy === GROUP_BY_REPOSITORY) {
             return <RepoIcon type={repoMeta.get(node.value ?? '')?.type} />
@@ -994,7 +993,7 @@ export const ProjectsTree = ({
         if (node.groupedBy === GROUP_BY_BRANCH) {
             return <BranchesOutlined data-testid={`tree-branch-icon-${node.value}`} />
         }
-        return <TagTypeMark testId={`tree-tag-icon-${node.value}`} type={node.groupedBy ?? ''} />
+        return <TagOutlined data-testid={`tree-tag-icon-${node.value}`} />
     }
 
     // The projects a group holds, gathered from its own subtree.

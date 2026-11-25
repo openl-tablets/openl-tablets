@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Tag, Tooltip, Typography } from 'antd'
+import { Alert, Button, Tooltip, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
@@ -10,7 +10,6 @@ import { serializeTagsProperties, TAGS_FILE_NAME, type TagEntry } from '../../se
 import { SuggestInput } from '../../components/SuggestInput'
 import { EditableList } from './EditableList'
 import { nameKey, sameName } from '../tags/tagNames'
-import { tagColorsOf, type TagColor } from '../tags/tagColor'
 import { inTagTypeOrder, PublishTagTypes, TagTypeOrder } from '../tags/tagOrder'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -36,12 +35,6 @@ const useStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    `,
-    /** A tag value is a chip in the color of its type, as in the project list; a long one is cut off. */
-    chip: css`
-        align-self: flex-start;
-        max-width: 100%;
-        margin: 0;
     `,
     unset: css`
         color: ${token.colorTextQuaternary};
@@ -163,7 +156,6 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     // too; elsewhere they follow the read of this section.
     const shared = useContext(TagTypeOrder)
     const typeNames = useMemo(() => shared ?? (tagTypes ?? []).map(type => type.name), [shared, tagTypes])
-    const colorOf = useMemo(() => tagColorsOf(typeNames), [typeNames])
     // The tags in the order an administrator arranged the tag types in. The tags of types that are not configured
     // follow, in the order the file names them.
     const assigned = inTagTypeOrder(typeNames, Object.entries(tags).map(([key, value]) => ({ key, value })), entry => entry.key)
@@ -177,7 +169,7 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     // The configured tag types feed the checks and the suggestions. They are read again whenever the editing
     // starts or ends, so a change an administrator made meanwhile shows. A failed read keeps what was read
     // before, or checks and suggests nothing when nothing was, and the tags are still shown and edited.
-    // What is read is handed to the projects screen too, so its list, rail and tree follow the same order and colours.
+    // What is read is handed to the projects screen too, so its rail and tree follow the same order.
     const publish = useContext(PublishTagTypes)
     useEffect(() => {
         let cancelled = false
@@ -265,7 +257,6 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
             {assigned.map(({ key, value }) => (
                 <TagRow
                     key={key}
-                    color={colorOf(key)}
                     notAllowed={isNotAllowed(typeOf(types, key), value)}
                     type={key}
                     ui={ui}
@@ -342,14 +333,12 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
 }
 
 /**
- * One line of the table: the tag type, and what the project carries for it, as a chip in the color of the
- * type. A type that is not configured is marked, and a value the type does not take is followed by the warning
- * about it.
+ * One line of the table: the tag type, and what the project carries for it. A type that is not configured
+ * is marked, and a value the type does not take is followed by the warning about it.
  */
-const TagRow = ({ ui, type, color, value, notAllowed, unconfigured }: {
+const TagRow = ({ ui, type, value, notAllowed, unconfigured }: {
     ui: TagStyles
     type: string
-    color: TagColor
     value: string
     notAllowed: boolean
     unconfigured: boolean
@@ -366,9 +355,7 @@ const TagRow = ({ ui, type, color, value, notAllowed, unconfigured }: {
                 </Tooltip>
             ) : <span className={styles.type}>{type}</span>}
             <span className={styles.flagged}>
-                <Tag className={cx(styles.value, styles.chip)} color={color} data-testid={`tag-value-${type}`}>
-                    {value}
-                </Tag>
+                <span className={styles.value} data-testid={`tag-value-${type}`}>{value}</span>
                 {notAllowed && <NotAllowedWarning className={styles.warning} type={type} value={value} />}
             </span>
         </>

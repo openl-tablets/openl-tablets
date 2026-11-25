@@ -36,7 +36,7 @@ The page consists of the following parts:
 -   **Filters** and **Tree** views on the left narrow the list down and group it, as described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree).
 -   The search field of the top bar, named **Projects** on this page, finds projects by name, author, branch or tag. For more information, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
 -   **New Project** in the top bar, next to the **Projects** and **Deployments** links, creates a project as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
--   The list shows the projects of all repositories in one alphabetical list. A row shows the project name with its tags, the branch it is on, who modified it and when, and the actions available for it. A click on the **Project**, **Branch** or **Modified** column header sorts the list by that column, and a second click reverses the order.
+-   The list shows the projects of all repositories in one alphabetical list. A row shows the project name, the branch it is on, the user who modified it last under **Author**, the time of that change, to the minute, under **Modified at**, and the actions available for it. A project name too long for its column ends in an ellipsis, and pointing at it shows it in full. A click on the **Project**, **Branch**, **Author** or **Modified at** column header sorts the list by that column, and a second click reverses the order; **Modified at** starts with the newest change. The projects a column ranks alike keep the order the previous sort gave them until the list is read again, so a click on **Modified at** and then on **Author** lists the projects of each author from the newest change.
 -   The bar under the list counts the projects and switches the pages of a long list. When projects have compilation errors or warnings, or are being compiled, it shows how many. While a repository is still being indexed, **Indexing 1 repository** appears there too, and clicking it names the repository.
 
 A click on a project opens its page, described in [Working with the Project Page](#working-with-the-project-page).
@@ -128,7 +128,7 @@ more branches shows the projects on these branches instead.
 
 The **Filters** view lists the filter values in groups: **Repository**, **Branch**, one group per tag type, and
 **Status**. Each value shows how many projects it covers. The tag groups come in the order an administrator arranged
-the tag types in, each marked with the tag icon in the color of its type.
+the tag types in.
 
 -   Several values of one group show the projects that match any of them.
 -   The small grey check box before the title of a group selects all values of the group at once. When all of them
@@ -682,10 +682,7 @@ Project tags classify projects, for example, by business domain or line of busin
 
 The tags of a project are stored in the `tags.properties` file located in the root directory of the project, one `<type>=<value>` line per tag. OpenL Studio does not ask for tags when a project is created. A project has the tags that its files carry, for instance, when it is created from a ZIP archive or copied from another project.
 
-Tags are shown in the **Tags** section of the **Overview** tab and in the project list, and they can be used for filtering and grouping projects:
-
--   Each tag type defined in OpenL Studio has a color of its own, taken by its place in the order an administrator arranged the tag types in. A tag type that is not defined in OpenL Studio is gray. A tag value is shown as a chip in the color of its type, and the tag icon of the type is in the same color in the **Filters** and **Tree** views. In the project list, a chip shows the value alone, and pointing to it shows the type. The tags of a project stay on one line: the tags that do not fit are collapsed into a **+N** chip, and pointing to it shows them.
--   The tags, the tag groups of the **Filters** view and the tag types offered by **Group projects** follow the order an administrator arranged the tag types in, as described in [Managing Tags](administration/06-tags.md#managing-tags). The tag types not defined in OpenL Studio follow them.
+Tags are shown in the **Tags** section of the **Overview** tab, and they can be used for filtering and grouping projects. The tag groups of the **Filters** view and the tag types offered by **Group projects** follow the order an administrator arranged the tag types in, as described in [Managing Tags](administration/06-tags.md#managing-tags). The tag types not defined in OpenL Studio follow them.
 
 The **Tags** section lists the tags in this order, followed by the tags of types not defined in OpenL Studio. The editor starts in the same order, so saving the tags writes the `tags.properties` file in it. To tag a project, proceed as follows:
 

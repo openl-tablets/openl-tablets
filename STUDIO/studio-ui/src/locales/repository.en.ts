@@ -89,7 +89,8 @@ i18next.addResourceBundle('en', 'repository', {
         },
         col_project: 'Project',
         col_branch: 'Branch',
-        col_modified: 'Modified',
+        col_author: 'Author',
+        col_modified_at: 'Modified At',
         row_actions: 'Actions',
     },
     deployments: {
