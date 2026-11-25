@@ -117,6 +117,9 @@ const isValidGitBranchName = (name: string): boolean => {
  * Checks a commit comment against the expression the repository configures and the maximum length the
  * server accepts.
  *
+ * The spaces around the comment are ignored: the dialogs send the comment without them, so the server checks
+ * the same text.
+ *
  * @returns the message to show, or null when the comment is acceptable
  */
 export const validateComment = (
@@ -125,10 +128,11 @@ export const validateComment = (
     tooLongMessage: string,
     invalidMessage: string
 ): string | null => {
-    if (comment.length > MAX_COMMENT_LENGTH) {
+    const sent = comment.trim()
+    if (sent.length > MAX_COMMENT_LENGTH) {
         return tooLongMessage
     }
-    return matches(comment, config?.comment?.userMessagePattern)
+    return matches(sent, config?.comment?.userMessagePattern)
         ? null
         : config?.comment?.invalidUserMessageHint ?? invalidMessage
 }

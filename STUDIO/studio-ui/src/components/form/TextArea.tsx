@@ -18,6 +18,8 @@ type TextAreaProps = {
     rules?: FormRule[]
     required?: boolean
     rows?: number
+    /** Stops at the first rule the value breaks, so the field shows one message. */
+    validateFirst?: boolean
 }
 
 const TextArea: FC<TextAreaProps> = ({

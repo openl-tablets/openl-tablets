@@ -4,7 +4,7 @@ import { DeleteOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { TextArea } from 'components/form'
 import { useCommitInfoGuard, useGlobalEvents, useRepositoryConfig } from 'hooks'
-import { validateComment } from 'utils/repositoryConfig'
+import { useCommentValidator } from 'containers/projects/CommentField'
 import { deleteProject } from 'services/projects'
 import { supportsComments } from 'utils/repositoryFeatures'
 import type { RepositoryInfo } from 'types/repositories'
@@ -36,12 +36,16 @@ export const DeleteProjectModal: React.FC = () => {
     const config = useRepositoryConfig(detail?.projectId && repositorySupportsComments
         ? { projectId: detail.projectId }
         : null)
-    const commentError = validateComment(
-        comment ?? '',
-        config,
-        t('repository:browser.comment.too_long'),
-        t('repository:browser.comment.invalid')
-    )
+    const checkComment = useCommentValidator(config)
+
+    // Settings that arrive after the user typed check the comment again, so the field agrees with Delete.
+    useEffect(() => {
+        if (form.isFieldTouched('comment')) {
+            form.validateFields(['comment']).catch(() => {
+                // The field shows the message itself.
+            })
+        }
+    }, [config, form])
 
     useEffect(() => {
         const hasDetails = !!(detail && Object.keys(detail).length > 0)
@@ -76,7 +80,7 @@ export const DeleteProjectModal: React.FC = () => {
         })
     }, [detail, form, handleClose, repositorySupportsComments, runWithCommitInfo])
 
-    const canDelete = Boolean(confirmed && (!repositorySupportsComments || comment?.trim() && !commentError))
+    const canDelete = Boolean(confirmed && (!repositorySupportsComments || comment?.trim() && !checkComment(comment)))
 
     return (
         <>
@@ -111,11 +115,23 @@ export const DeleteProjectModal: React.FC = () => {
                 </Typography.Paragraph>
                 <Form form={form} layout="vertical">
                     {repositorySupportsComments && <TextArea
-                        required
+                        // A blank comment gets only the message of the first rule.
+                        validateFirst
                         label={t('repository:delete_project_modal.comment_label', { project: detail?.projectName })}
                         name="comment"
                         rows={4}
-                        rules={[{ validator: async () => commentError ? Promise.reject(new Error(commentError)) : Promise.resolve() }]}
+                        rules={[
+                            { required: true, whitespace: true, message: t('common:validation.required') },
+                            {
+                                // The rule runs before the next render, so it checks the value it is given.
+                                validator: async (_, value: string) => {
+                                    const error = checkComment(value)
+                                    if (error) {
+                                        throw new Error(error)
+                                    }
+                                },
+                            },
+                        ]}
                     />}
                     <Form.Item name="confirmed" valuePropName="checked">
                         <Checkbox>{t('repository:delete_project_modal.confirmation')}</Checkbox>

@@ -65,8 +65,9 @@ comment directly as the Git commit message.
 | **Invalid user message hint** | Error message displayed when the comment does not match the pattern.                                                              |
 
 The comment OpenL Studio suggests for each operation is the same for all repositories and is not configured. The user
-can edit it before committing, and it is checked against the **User message pattern**. When a request of the REST API
-carries no comment, OpenL Studio writes the same comment.
+can edit it before committing. OpenL Studio saves the comment without the spaces around it, and checks this text
+against the **User message pattern**. When a request of the REST API carries no comment, OpenL Studio writes the same
+comment.
 
 | Operation                                    | Suggested comment                                                 |
 |----------------------------------------------|-------------------------------------------------------------------|
