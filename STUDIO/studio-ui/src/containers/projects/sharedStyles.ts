@@ -241,8 +241,8 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     /**
      * A tree read in a rail: rows one line high, a small indent per step, and a name read in full.
      *
-     * The rail is narrow, so every step of the hierarchy costs width; a name is never wrapped or clipped —
-     * a table or a project is recognised by its full name, and the rail scrolls sideways instead.
+     * The rail is narrow, so every step of the hierarchy costs width; a name is never wrapped. Alone, it is never
+     * clipped either and the rail scrolls sideways; with {@link railTreeFit} it ends in an ellipsis instead.
      */
     railTree: css`
         background: transparent;
@@ -283,6 +283,51 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
             width: auto;
             line-height: ${token.controlHeightSM}px;
         }
+    `,
+    /**
+     * A {@link railTree} kept to the width of the rail: a row takes the whole width, and a name too long for it ends in
+     * an ellipsis rather than scrolling the rail sideways. The rail is widened to read more of it.
+     */
+    railTreeFit: css`
+        width: 100%;
+
+        && .ant-tree-node-content-wrapper {
+            flex: auto;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        && .ant-tree-title {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .ant-tree-iconEle {
+            flex: none;
+        }
+    `,
+    /** A row of a {@link railTreeFit}: its name gives way first, what follows it keeps its width. */
+    railNode: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginXS}px;
+        min-width: 0;
+        white-space: nowrap;
+
+        & > * {
+            flex: none;
+        }
+    `,
+    /** The name of a {@link railNode}, ending in an ellipsis where the rail ends. */
+    railLabel: css`
+        && {
+            flex: 0 1 auto;
+        }
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     `,
     /** Everything to the right of the rail. */
     main: css`

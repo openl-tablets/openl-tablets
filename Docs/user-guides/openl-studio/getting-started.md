@@ -400,7 +400,7 @@ In the extended view, all table structure is displayed. An example of a table op
 
 *A rule table in an extended view*
 
-Rule tables can be organized, or sorted, and displayed in the module tree in different way depending on the selected value.
+Rule tables can be organized, or sorted, and displayed in the module tree in different way depending on the selected value. A name too long for the module tree ends in an ellipsis, and pointing at a table shows its full signature.
 
 ![](images/module-tree-sorting-modes.png)
 

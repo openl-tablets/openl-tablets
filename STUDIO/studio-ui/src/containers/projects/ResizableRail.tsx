@@ -9,11 +9,10 @@ const useStyles = createStyles(({ css, token }) => ({
     resizable: css`
         position: relative;
     `,
-    /** Whatever narrows the list, set apart from it. */
+    /** Whatever narrows the list, spaced as the header of the projects rail. */
     top: css`
         flex: none;
-        padding: 8px 12px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
+        padding: ${token.paddingSM}px ${token.padding}px;
     `,
     /**
      * The list scrolls inside itself: it draws the rows in sight and no more, so a list of thousands of rows scrolls

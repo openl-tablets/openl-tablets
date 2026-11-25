@@ -566,20 +566,19 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   screenful at a time (Ant Design's `Tree` takes `height`, `itemHeight` and `scrollWidth`); and a table is laid
   out at the width its values need rather than squeezed into the screen, which otherwise wraps every value into
   a tower of lines and multiplies the pixels the browser has to paint. A tree in a rail is given the room of the
-  rail inside its padding (`useElementSize` of `hooks/`), and scrolls sideways as far as the widest row in sight
-  reaches, reckoned from the text of the rows (`railRowWidth` of `containers/projects`) rather than
-  measured in the page, so a long name is still read in full. `ProjectsTree` lists every file of an unfolded project:
+  rail inside its padding (`useElementSize` of `hooks/`) and ends a long name in an ellipsis where the rail ends
+  (`railTreeFit` of `containers/projects/sharedStyles.ts`) rather than scrolling sideways: pointing at the name shows
+  it in full, and the rail is widened to read more of it. `ProjectsTree` lists every file of an unfolded project:
   a project of 3000 files searched open drew 3332 rows and blocked the page for 2.8 seconds, against 19 rows and
   0.26 seconds a screenful at a time. It builds the rows of the files of a project once for each read of them and
   keeps them while the files the search finds, the changes, the theme, the density and the language stay, so
   reading or opening another project, or typing on a search that finds the same files, leaves them as they are.
   A file the Files API marks `hidden`, such as `rules.xml` or `pom.xml`, is left out of the rows and of the search
   unless **Show Hidden Files** of **My Settings** (`showHiddenFiles`) is on; turning it on reads nothing again.
-  The size of a file keeps to the right edge of the rail as a `sticky` column, which a virtual list leaves working:
-  it scrolls sideways within its own box. A table of a workbook that scrolls on a
-  screen of its own — the table of the module editor — is handed the element it scrolls in (`scroller` of
-  `RawTableGrid`) and draws the rows in sight through `@tanstack/react-virtual`: a test table of 221 columns hung
-  the page for 9 to 15 seconds drawn 2000 rows at once. The rows are drawn in blocks of about 2000 cells, each a
+  The size of a file keeps to the right end of its row, and the name gives way to it. A table of a workbook that
+  scrolls on a screen of its own — the table of the module editor — is handed the element it scrolls in (`scroller` of
+  `RawTableGrid`) and draws the rows in sight through `@tanstack/react-virtual`: a test table of 221 columns hung the
+  page for 9 to 15 seconds drawn 2000 rows at once. The rows are drawn in blocks of about 2000 cells, each a
   `<tbody>` of its own that a merged cell or a numbered case never crosses; a block is drawn again only when what
   its rows are drawn from changes, so scrolling draws the blocks coming into sight alone. A column of the grid, the
   margin included, keeps the widest width it has been drawn at (`<colgroup>`), read once a frame for the blocks
