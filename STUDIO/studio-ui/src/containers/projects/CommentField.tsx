@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from 'antd'
 import { FieldError } from '../../components/FieldError'
@@ -7,15 +7,21 @@ import { validateComment } from '../../utils/repositoryConfig'
 import type { RepositoryConfig } from '../../types/repositories'
 
 /**
- * The message to show for a commit comment, or null when it is acceptable. Applies the expression the
- * repository configures, so an obviously wrong comment never reaches the server.
+ * The check of a commit comment against the expression the repository configures. It answers the message to
+ * show, or null when the comment is acceptable, so an obviously wrong comment never reaches the server.
  */
-export const useCommentError = (comment: string, config: RepositoryConfig | undefined): string | null => {
+export const useCommentValidator = (config: RepositoryConfig | undefined): (comment: string) => string | null => {
     const { t } = useTranslation('repository')
-    return useMemo(
-        () => validateComment(comment, config, t('browser.comment.too_long'), t('browser.comment.invalid')),
-        [comment, config, t]
+    return useCallback(
+        (comment: string) => validateComment(comment, config, t('browser.comment.too_long'), t('browser.comment.invalid')),
+        [config, t]
     )
+}
+
+/** The message to show for a commit comment, or null when it is acceptable (see `useCommentValidator`). */
+export const useCommentError = (comment: string, config: RepositoryConfig | undefined): string | null => {
+    const check = useCommentValidator(config)
+    return useMemo(() => check(comment), [check, comment])
 }
 
 interface CommentFieldProps {

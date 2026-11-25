@@ -112,6 +112,11 @@ describe('validateComment', () => {
         expect(validateComment('EPBDS-1 done', restricted, 'Too long', 'Invalid')).toBeNull()
     })
 
+    it('checks the comment without the spaces around it, as it is sent', () => {
+        expect(validateComment('  EPBDS-1 done\n', restricted, 'Too long', 'Invalid')).toBeNull()
+        expect(validateComment(` ${'x'.repeat(255)} `, config(), 'Too long', 'Invalid')).toBeNull()
+    })
+
     it('rejects a comment longer than the server accepts', () => {
         expect(validateComment('x'.repeat(256), config(), 'Too long', 'Invalid')).toBe('Too long')
     })
